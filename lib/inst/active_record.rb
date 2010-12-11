@@ -11,6 +11,11 @@ ActiveRecord::Base.class_eval do
         evt.addInfo("Label", "entry")
         evt.addInfo("Query",  query.to_s)
 
+        if defined?(ActiveRecord::Base.connection.current_database)
+          evt.addInfo("Database",
+                      ActiveRecord::Base.connection.current_database)
+        end
+
         evt.addInfo("Backtrace", Kernel.caller.join("\r\n"))
 
         Oboe.reporter.sendReport(evt)
