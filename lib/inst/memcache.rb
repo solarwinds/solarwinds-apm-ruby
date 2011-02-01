@@ -1,15 +1,9 @@
 if defined?(MemCache)
   class MemCache
-    alias clean_get get
-    alias clean_set set
-    alias clean_delete delete
-    alias clean_decr decr
-    alias clean_incr incr
-    alias clean_add add
-    #alias clean_replace replace
-    #alias clean_get_many get_many
+    [:decr, :get, :fetch, :get_multi, :incr, :set, :cas, :add, :replace, :prepend, :append, :delete].each do |m|
+      next unless method_defined?(m)
 
-    [:get, :set, :delete, :decr, :incr, :add].each do |m|
+      class_eval("alias clean_#{m} #{m}")
       opts = { :KVOp => m }
       define_method(m) do |*args|
         Oboe::Inst.trace_agent_block('memcache', opts) do
@@ -19,7 +13,6 @@ if defined?(MemCache)
     end
 
     alias clean_request_setup request_setup
-
     define_method(:request_setup) do |*args|
       result = clean_request_setup(*args)
       Oboe::Inst.log('memcache', 'info', { :remote_host => result[0].host })
@@ -27,7 +20,6 @@ if defined?(MemCache)
     end
 
     alias clean_cache_get cache_get
-
     define_method(:cache_get) do |server, cache_key|
       result = clean_cache_get(server, cache_key)
       Oboe::Inst.log('memcache', 'info', { :KVKey => cache_key, :KVHit => (!result.nil? && 1) || 0 })
