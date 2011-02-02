@@ -3,6 +3,10 @@ if defined?(ActiveRecord::ConnectionAdapters::MysqlAdapter)
     def cfg
       @config
     end
+
+    def sql_flavor
+      'mysql'
+    end
   end
 end
 
@@ -10,6 +14,10 @@ if defined?(ActiveRecord::ConnectionAdapters::PostgreSQLAdapter)
   ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.module_eval do
     def cfg
       @config
+    end
+
+    def sql_flavor
+      'postgresql'
     end
   end
 end
@@ -30,6 +38,10 @@ ActiveRecord::Base.class_eval do
         if defined?(ActiveRecord::Base.connection.cfg)
           # Note that changing databases will break this
           evt.addInfo("Database", ActiveRecord::Base.connection.cfg[:database])
+        end
+
+        if defined?(ActiveRecord::Base.connection.sql_flavor)
+          evt.addInfo("Flavor", ActiveRecord::Base.connection.sql_flavor)
         end
 
         evt.addInfo("Backtrace", Kernel.caller.join("\r\n"))
