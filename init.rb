@@ -4,4 +4,5 @@ begin
     require File.join(File.dirname(__FILE__), 'lib', f)
   end
 rescue Exception => e
+    $stderr.puts "[oboe_fu] unable to init oboe_fu"
 end
