@@ -19,6 +19,14 @@ module Oboe
     Oboe::Context.isValid and not Oboe.never?
   end
 
+  def self.start?
+    not Oboe::Context.isValid and Oboe.always?
+  end
+
+  def self.continue?
+    Oboe::Context.isValid and not Oboe.never?
+  end
+
   module Inst
     def self.trace_agent_block(agent, opts) 
       if Oboe.now?
