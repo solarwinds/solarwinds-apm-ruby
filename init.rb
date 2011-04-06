@@ -5,7 +5,7 @@ begin
   end
   
   if defined?(Rails.configuration.middleware)
-    Rails.configuration.middleware.use Oboe::Middleware
+    Rails.configuration.middleware.insert 0, Oboe::Middleware
   end
 rescue Exception => e
   $stderr.puts "[oboe_fu] unable to init oboe_fu"
