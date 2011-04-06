@@ -5,32 +5,31 @@ ActionController::Base.class_eval do
   def perform_action(*arguments)
     Oboe::Context.clear()
 
-    xtrace_header = @_request.headers['X-Trace']
-    event = nil
+    hdr = @_request.headers['X-Trace']
 
-    if xtrace_header and Oboe.passthrough?
-      Oboe::Context.fromString(xtrace_header)
+    if hdr and Oboe.passthrough?
+      Oboe::Context.fromString(hdr)
     end
 
-    if not Oboe::Context.isValid() and Oboe.always?
-      evt = Oboe::Context.startTrace()
-    elsif Oboe::Context.isValid() and not Oboe.never?
-      evt = Oboe::Context.createEvent()
+    if not (Oboe.start? or Oboe.continue?)
+      return old_perform_action(*arguments)
     end
 
-    if evt
-      evt.addInfo("Agent", "rails")
-      evt.addInfo("Label", "entry")
-
-      @_request.path_parameters.each_pair do |k, v|
-        evt.addInfo(k.to_s.capitalize, v.to_s)
-      end
-
-      Oboe.reporter.sendReport(evt)
-
-      endEvt = Oboe::Context.createEvent()
-      @_response.headers['X-Trace'] = endEvt.metadataString()
+    if Oboe.start?
+      entryEvt = Oboe::Context.startTrace()
+    elsif Oboe.continue?
+      entryEvt = Oboe::Context.createEvent()
     end
+
+    entryEvt.addInfo("Agent", "rails")
+    entryEvt.addInfo("Label", "entry")
+    @_request.path_parameters.each_pair do |k, v|
+      entryEvt.addInfo(k.to_s.capitalize, v.to_s)
+    end
+    Oboe.reporter.sendReport(entryEvt)
+
+    exitEvt = Oboe::Context.createEvent()
+    @_response.headers['X-Trace'] = exitEvt.metadataString()
 
     begin
       begin
@@ -40,20 +39,15 @@ ActionController::Base.class_eval do
         raise
       end
     ensure
-      if Oboe::Context.isValid() and endEvt
-        evt = endEvt
-
-        evt.addEdge(Oboe::Context.get())
-        evt.addInfo("Agent", "rails")
-        evt.addInfo("Label", "exit")
+      if Oboe::Context.isValid() and exitEvt
+        exitEvt.addEdge(Oboe::Context.get())
+        exitEvt.addInfo("Agent", "rails")
+        exitEvt.addInfo("Label", "exit")
 
         @_request.path_parameters.each_pair do |k, v|
-          evt.addInfo(k.to_s.capitalize, v.to_s)
+          exitEvt.addInfo(k.to_s.capitalize, v.to_s)
         end
-
-        Oboe.reporter.sendReport(evt)
-
-        endEvt = nil
+        Oboe.reporter.sendReport(exitEvt)
       end
 
       Oboe::Context.clear()
