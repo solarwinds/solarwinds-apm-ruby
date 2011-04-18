@@ -14,15 +14,15 @@ if defined?(MemCache)
 
     alias clean_request_setup request_setup
     define_method(:request_setup) do |*args|
-      result = clean_request_setup(*args)
-      Oboe::Inst.log('memcache', 'info', { :remote_host => result[0].host })
-      result
+      server, cache_key = clean_request_setup(*args)
+      Oboe::Inst.log('memcache', 'info', { :KVKey => cache_key, :RemoteHost => server.host })
+      return [server, cache_key]
     end
 
     alias clean_cache_get cache_get
     define_method(:cache_get) do |server, cache_key|
       result = clean_cache_get(server, cache_key)
-      Oboe::Inst.log('memcache', 'info', { :KVKey => cache_key, :KVHit => (!result.nil? && 1) || 0 })
+      Oboe::Inst.log('memcache', 'info', { :KVHit => (!result.nil? && 1) || 0 })
       result
     end
   end
