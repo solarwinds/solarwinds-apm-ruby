@@ -1,4 +1,6 @@
 if defined?(Memcached)
+  puts "[oboe_fu] Instrumenting Memcached"
+
   class Memcached
     [:decrement, :get, :increment, :set, :cas, :add, :replace, :prepend, :append, :delete].each do |m|
       next unless method_defined?(m)
@@ -21,8 +23,13 @@ if defined?(Memcached)
                 end
             end
         end
+
         Oboe::Inst.trace_layer_block('memcache', opts) do
-          send("clean_#{m}", *args) 
+          result = send("clean_#{m}", *args)
+          if m == 'get' and args.length and args[0].class == Array
+              Oboe::Inst.log('memcache', 'info', { :KVHit => (!result.nil? && 1) || 0 })
+          end
+          result
         end
       end
     end
