@@ -52,6 +52,7 @@ module Oboe
 end
 
 if defined?(ActiveRecord::ConnectionAdapters::MysqlAdapter)
+  puts "[oboe_fu] Instrumenting ActiveRecord MysqlAdapter"
   ActiveRecord::ConnectionAdapters::MysqlAdapter.module_eval do
     include Oboe::Inst::ConnectionAdapters
 
@@ -67,6 +68,7 @@ end
 
 
 if defined?(ActiveRecord::ConnectionAdapters::Mysql2Adapter)
+  puts "[oboe_fu] Instrumenting ActiveRecord Mysql2Adapter"
   ActiveRecord::ConnectionAdapters::Mysql2Adapter.module_eval do
     include Oboe::Inst::ConnectionAdapters
 
@@ -81,6 +83,7 @@ if defined?(ActiveRecord::ConnectionAdapters::Mysql2Adapter)
 end
 
 if defined?(ActiveRecord::ConnectionAdapters::PostgreSQLAdapter)
+  puts "[oboe_fu] Instrumenting ActiveRecord PostgreSQLAdapter"
   ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.module_eval do
     include Oboe::Inst::ConnectionAdapters
 

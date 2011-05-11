@@ -1,4 +1,6 @@
 if defined?(MemCache)
+  puts "[oboe_fu] Instrumenting MemCache"
+
   class MemCache
     [:decr, :get, :fetch, :get_multi, :incr, :set, :cas, :add, :replace, :prepend, :append, :delete].each do |m|
       next unless method_defined?(m)

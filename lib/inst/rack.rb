@@ -49,3 +49,8 @@ module Oboe
     end
   end
 end
+
+if defined?(Rails.configuration.middleware)
+  puts "[oboe_fu] Instrumenting rack"
+  Rails.configuration.middleware.insert 0, Oboe::Middleware
+end

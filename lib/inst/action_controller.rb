@@ -1,37 +1,39 @@
-ActionController::Base.class_eval do
-  alias :old_perform_action :perform_action
-  alias :old_rescue_action :rescue_action
+if defined?(ActionController) and defined?(ActionController::Base)
+  puts "[oboe_fu] Instrumenting ActionController"
 
-  def perform_action(*arguments)
-    Oboe::Context.clear()
+  ActionController::Base.class_eval do
+    alias :old_perform_action :perform_action
+    alias :old_rescue_action :rescue_action
 
-    hdr = @_request.headers['X-Trace']
+    def perform_action(*arguments)
+      Oboe::Context.clear()
 
-    if hdr and Oboe.passthrough?
-      Oboe::Context.fromString(hdr)
-    end
+      hdr = @_request.headers['X-Trace']
 
-    if not (Oboe.start? or Oboe.continue?)
-      return old_perform_action(*arguments)
-    end
+      if hdr and Oboe.passthrough?
+        Oboe::Context.fromString(hdr)
+      end
 
-    if Oboe.start?
-      entryEvt = Oboe::Context.startTrace()
-    elsif Oboe.continue?
-      entryEvt = Oboe::Context.createEvent()
-    end
+      if not (Oboe.start? or Oboe.continue?)
+        return old_perform_action(*arguments)
+      end
 
-    entryEvt.addInfo("Layer", "rails")
-    entryEvt.addInfo("Label", "entry")
-    @_request.path_parameters.each_pair do |k, v|
-      entryEvt.addInfo(k.to_s.capitalize, v.to_s)
-    end
-    Oboe.reporter.sendReport(entryEvt)
+      if Oboe.start?
+        entryEvt = Oboe::Context.startTrace()
+      elsif Oboe.continue?
+        entryEvt = Oboe::Context.createEvent()
+      end
 
-    exitEvt = Oboe::Context.createEvent()
-    @_response.headers['X-Trace'] = exitEvt.metadataString()
+      entryEvt.addInfo("Layer", "rails")
+      entryEvt.addInfo("Label", "entry")
+      @_request.path_parameters.each_pair do |k, v|
+        entryEvt.addInfo(k.to_s.capitalize, v.to_s)
+      end
+      Oboe.reporter.sendReport(entryEvt)
 
-    begin
+      exitEvt = Oboe::Context.createEvent()
+      @_response.headers['X-Trace'] = exitEvt.metadataString()
+
       begin
         result = old_perform_action(*arguments)
       rescue Exception => e
@@ -47,16 +49,15 @@ ActionController::Base.class_eval do
         @_request.path_parameters.each_pair do |k, v|
           exitEvt.addInfo(k.to_s.capitalize, v.to_s)
         end
-        Oboe.reporter.sendReport(exitEvt)
+
+        Oboe::Context.clear()
       end
-
-      Oboe::Context.clear()
     end
-  end
 
-  def rescue_action(exn)
-    Oboe::Context.log("rails", "error", { :Message => exn.message, :ErrorBacktrace => exn.backtrace.join("\r\n") })
-    old_rescue_action(exn)
-  end
+    def rescue_action(exn)
+      Oboe::Context.log("rails", "error", { :Message => exn.message, :ErrorBacktrace => exn.backtrace.join("\r\n") })
+      old_rescue_action(exn)
+    end
 
+  end
 end
