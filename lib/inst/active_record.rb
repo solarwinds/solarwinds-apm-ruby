@@ -21,6 +21,7 @@ module Oboe
           if defined?(ActiveRecord::Base.connection.cfg)
             # Note that changing databases will break this
             evt.addInfo("Database", ActiveRecord::Base.connection.cfg[:database])
+            evt.addInfo("RemoteHost", ActiveRecord::Base.connection.cfg[:host])
           end
 
           if defined?(ActiveRecord::Base.connection.sql_flavor)
