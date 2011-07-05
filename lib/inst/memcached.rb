@@ -7,7 +7,8 @@ if defined?(Memcached)
       define_method(m) do |*args|
         opts = { :KVOp => m }
         if args.length and args[0].class != Array
-            opts[:KVKey] = args[0].to_s if args.length
+            opts[:KVKey] = args[0].to_s
+            opts[:RemoteHost] = server_by_key(args[0].to_s)
         end
         Oboe::Inst.trace_agent_block('memcache', opts) do
           send("clean_#{m}", *args) 
