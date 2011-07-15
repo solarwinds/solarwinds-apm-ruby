@@ -21,7 +21,7 @@ if defined?(Memcached)
                 end
             end
         end
-        Oboe::Inst.trace_agent_block('memcache', opts) do
+        Oboe::Inst.trace_layer_block('memcache', opts) do
           send("clean_#{m}", *args) 
         end
       end

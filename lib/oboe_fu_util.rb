@@ -28,9 +28,9 @@ module Oboe
   end
 
   module Inst
-    def self.trace_agent_block(agent, opts) 
+    def self.trace_layer_block(layer, opts) 
       if Oboe.now?
-        Oboe::Context.log(agent, 'entry', opts)
+        Oboe::Context.log(layer, 'entry', opts)
       end
 
       begin
@@ -38,7 +38,7 @@ module Oboe
       ensure
         if Oboe.now?
           evt = Oboe::Context.createEvent()
-          evt.addInfo('Agent', agent)
+          evt.addInfo('Layer', layer)
           evt.addInfo('Label', 'exit')
           Oboe.reporter.sendReport(evt)
         end
@@ -47,10 +47,10 @@ module Oboe
       return result
     end
 
-    def self.log(agent, label, opts)
+    def self.log(layer, label, opts)
       if Oboe.now?
         evt = Oboe::Context.createEvent
-        evt.addInfo('Agent', agent)
+        evt.addInfo('Layer', layer)
         evt.addInfo('Label', label)
 
         opts.each do |k, v|

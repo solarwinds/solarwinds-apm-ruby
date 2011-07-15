@@ -25,7 +25,7 @@ module Oboe
         entryEvt = Oboe::Context.createEvent()
       end
 
-      entryEvt.addInfo('Agent', 'rack')
+      entryEvt.addInfo('Layer', 'rack')
       entryEvt.addInfo('Label', 'entry')
       Oboe.reporter.sendReport(entryEvt)
       exitEvt = Oboe::Context.createEvent()
@@ -41,7 +41,7 @@ module Oboe
 
         return [status, headers, body]
       ensure
-        exitEvt.addInfo('Agent', 'rack')
+        exitEvt.addInfo('Layer', 'rack')
         exitEvt.addInfo('Label', 'exit')
         Oboe.reporter.sendReport(exitEvt)
         Oboe::Context.clear()

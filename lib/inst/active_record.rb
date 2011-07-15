@@ -13,7 +13,7 @@ module Oboe
 
         if Oboe::Context.isValid() and tracing_mode != "never" and name and name != :skip_logging
           evt = Oboe::Context.createEvent()
-          evt.addInfo("Agent", "ActiveRecord")
+          evt.addInfo("Layer", "ActiveRecord")
           evt.addInfo("Label", "entry")
           evt.addInfo("Query", sql.to_s)
           evt.addInfo("Name", name.to_s)
@@ -38,7 +38,7 @@ module Oboe
         ensure
           if Oboe::Context.isValid() and tracing_mode != "never" and name and name != :skip_logging
             evt = Oboe::Context.createEvent()
-            evt.addInfo("Agent", "ActiveRecord")
+            evt.addInfo("Layer", "ActiveRecord")
             evt.addInfo("Label", "exit")
 
             Oboe.reporter.sendReport(evt)

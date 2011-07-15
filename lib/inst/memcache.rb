@@ -6,7 +6,7 @@ if defined?(MemCache)
       class_eval("alias clean_#{m} #{m}")
       opts = { :KVOp => m }
       define_method(m) do |*args|
-        Oboe::Inst.trace_agent_block('memcache', opts) do
+        Oboe::Inst.trace_layer_block('memcache', opts) do
           send("clean_#{m}", *args) 
         end
       end

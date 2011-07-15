@@ -14,7 +14,7 @@ module XMLRPC
 
         if Oboe::Context.isValid() and tracing_mode != "never"
           evt = Oboe::Context.createEvent()
-          evt.addInfo("Agent", "XMLRPC")
+          evt.addInfo("Layer", "XMLRPC")
           evt.addInfo("Label", "entry")
           evt.addInfo("Method",  method.to_s)
 
@@ -35,7 +35,7 @@ module XMLRPC
             end
 
             evt = Oboe::Context.createEvent()
-            evt.addInfo("Agent", "ActiveRecord")
+            evt.addInfo("Layer", "ActiveRecord")
             evt.addInfo("Label", "exit")
             evt.addInfo("Method", method.to_s)
   

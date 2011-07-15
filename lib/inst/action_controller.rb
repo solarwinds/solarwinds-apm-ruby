@@ -21,7 +21,7 @@ ActionController::Base.class_eval do
       entryEvt = Oboe::Context.createEvent()
     end
 
-    entryEvt.addInfo("Agent", "rails")
+    entryEvt.addInfo("Layer", "rails")
     entryEvt.addInfo("Label", "entry")
     @_request.path_parameters.each_pair do |k, v|
       entryEvt.addInfo(k.to_s.capitalize, v.to_s)
@@ -41,7 +41,7 @@ ActionController::Base.class_eval do
     ensure
       if Oboe::Context.isValid() and exitEvt
         exitEvt.addEdge(Oboe::Context.get())
-        exitEvt.addInfo("Agent", "rails")
+        exitEvt.addInfo("Layer", "rails")
         exitEvt.addInfo("Label", "exit")
 
         @_request.path_parameters.each_pair do |k, v|
