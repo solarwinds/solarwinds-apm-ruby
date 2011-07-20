@@ -4,8 +4,8 @@ Gem::Specification.new do |s|
     s.date = %{2011-05-09}
     s.authors = ["Tracelytics, Inc."]
     s.email = %q{spiros@tracelytics.com}
-    s.summary = %q{Oboe insrumentation for Ruby frameworks}
+    s.summary = %q{Oboe instrumentation for Ruby frameworks}
     s.homepage = %q{http://tracelytics.com}
-    s.description = %q{Oboe insrumentation for Ruby frameworks}
+    s.description = %q{Oboe instrumentation for Ruby frameworks}
     s.files = Dir.glob(File.join('**', '*.rb'))
 end
