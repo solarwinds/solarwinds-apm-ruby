@@ -8,4 +8,6 @@ Gem::Specification.new do |s|
     s.homepage = %q{http://tracelytics.com}
     s.description = %q{Oboe instrumentation for Ruby frameworks}
     s.files = Dir.glob(File.join('**', '*.rb'))
+
+    s.add_dependency('oboe', '>= 0.2.3')
 end
