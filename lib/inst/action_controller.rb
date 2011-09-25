@@ -37,7 +37,7 @@ if defined?(ActionController) and defined?(ActionController::Base)
       begin
         result = old_perform_action(*arguments)
       rescue Exception => e
-        Oboe::Context.log("rails", "error", { :message => e.message })
+        Oboe::Inst.log_exception('rails', e)
         raise
       end
     ensure
@@ -55,7 +55,7 @@ if defined?(ActionController) and defined?(ActionController::Base)
     end
 
     def rescue_action(exn)
-      Oboe::Context.log("rails", "error", { :Message => exn.message, :ErrorBacktrace => exn.backtrace.join("\r\n") })
+      Oboe::Inst.log_exception('rails', exn)
       old_rescue_action(exn)
     end
 
