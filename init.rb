@@ -1,6 +1,6 @@
 begin
   require 'oboe'
-  %w{oboe_fu_util inst/action_controller inst/rack inst/active_record inst/memcache inst/memcached}.each do |f|
+  %w{oboe_fu_util inst/action_controller inst/rack inst/active_record inst/memcache inst/http inst/memcached}.each do |f|
     require File.join(File.dirname(__FILE__), 'lib', f)
   end
 rescue Exception => e
