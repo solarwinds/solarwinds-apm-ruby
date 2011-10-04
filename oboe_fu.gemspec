@@ -9,5 +9,5 @@ Gem::Specification.new do |s|
     s.description = %q{Oboe instrumentation for Ruby frameworks}
     s.files = Dir.glob(File.join('**', '*.rb')) - ['init.rb']
 
-    s.add_dependency('oboe', '>= 0.2.3')
+    s.add_dependency('oboe', '>= 0.2.2')
 end
