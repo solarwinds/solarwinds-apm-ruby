@@ -5,7 +5,7 @@ module Net
     alias clean_request request
 
     define_method(:request) do |*args|
-      Oboe::Inst.trace_layer_block_ss('net/http', :request, *args) do
+      Oboe::Inst.trace_layer_block_ss('http', :request, *args) do
         opts = {}
 
         if args.length and args[0]
