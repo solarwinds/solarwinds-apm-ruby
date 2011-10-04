@@ -18,7 +18,7 @@ module Oboe
     def self.trace_layer_block_ss(layer, method, *args)
       opts = {}
 
-      Oboe::Context.log(layer, 'entry', opts)
+      Oboe::Context.log(layer, 'entry')
 
       if Oboe.now?
         begin
