@@ -11,7 +11,7 @@ if defined?(ActionController::Base)
         old_perform_action(*arguments)
       end
 
-      @_request.headers['X-Trace'] = header if header
+      @_response.headers['X-Trace'] = header if header
       result
     end
 
