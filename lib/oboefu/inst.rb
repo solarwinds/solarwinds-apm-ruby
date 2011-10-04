@@ -1,4 +1,32 @@
 module Oboe
+  def self.passthrough?
+    ["always", "through"].include?(Oboe::Config[:tracing_mode])
+  end
+
+  def self.always?
+    Oboe::Config[:tracing_mode] == "always"
+  end
+
+  def self.through?
+    Oboe::Config[:tracing_mode] == "through"
+  end
+
+  def self.never?
+    Oboe::Config[:tracing_mode] == "never"
+  end
+
+  def self.now?
+    Oboe::Context.isValid and not Oboe.never?
+  end
+
+  def self.start?
+    not Oboe::Context.isValid and Oboe.always?
+  end
+
+  def self.continue?
+    Oboe::Context.isValid and not Oboe.never?
+  end
+
   module Inst
     def self.trace_start_layer_block(layer, header, opts={})
       Oboe::Context.clear()
