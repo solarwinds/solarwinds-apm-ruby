@@ -126,7 +126,7 @@ module Oboe
       entryEvent.addInfo('Layer', layer)
       entryEvent.addInfo('Label', 'entry')
       opts.each do |k, v|
-        entryEvent.addInfo(k.to_s.captialize, v.to_s)
+        entryEvent.addInfo(k.to_s.capitialize, v.to_s)
       end if opts and opts.size
       Oboe.reporter.sendReport(entryEvent)
 
