@@ -39,12 +39,7 @@ module Oboe
         return [yield, header]
       end
 
-      entryEvent, exitEvent = Oboe::Inst.layer_sentinels(layer)
-
-      opts.each do |k, v|
-        entryEvent.addInfo(k.to_s, v.to_s)
-      end if opts and opts.size
-      Oboe.reporter.sendReport(entryEvent)
+      exitEvent = Oboe::Inst.layer_sentinel(layer, opts)
 
       begin
         result = yield
@@ -119,24 +114,28 @@ module Oboe
       })
     end
 
-    def self.layer_sentinels(layer)
+    def self.layer_sentinel(layer, opts={})
       if Oboe.start?
         entryEvent = Oboe::Context.startTrace
       elsif Oboe.continue?
         entryEvent = Oboe::Context.createEvent
       else
-        return [nil, nil]
+        return nil
       end
 
       entryEvent.addInfo('Layer', layer)
       entryEvent.addInfo('Label', 'entry')
+      opts.each do |k, v|
+        entryEvent.addInfo(k.to_s.captialize, v.to_s)
+      end if opts and opts.size
+      Oboe.reporter.sendReport(entryEvent)
 
       exitEvent = Oboe::Context.createEvent
       exitEvent.addInfo('Layer', layer)
       exitEvent.addInfo('Label', 'exit')
       exitEvent.addEdge(Oboe::Context.get())
 
-      [entryEvent, exitEvent]
+      exitEvent
     end
   end
 end
