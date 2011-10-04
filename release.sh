@@ -22,5 +22,6 @@ fi
 git push --tags
 
 # publish package
+gem build oboe_fu.gemspec
 cp oboe_fu-$VERSION.gem /www/gem/gems
 sudo gem generate_index -d /www/gem
