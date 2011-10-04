@@ -1,6 +1,4 @@
 if defined?(ActionController) and defined?(ActionController::Base)
-  puts "[oboe_fu] Instrumenting ActionController"
-
   ActionController::Base.class_eval do
     alias :old_perform_action :perform_action
     alias :old_rescue_action :rescue_action

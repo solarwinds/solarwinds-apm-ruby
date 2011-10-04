@@ -1,6 +1,4 @@
 if defined?(Memcached)
-  puts "[oboe_fu] Instrumenting Memcached"
-
   class Memcached
     [:decrement, :get, :increment, :set, :cas, :add, :replace, :prepend, :append, :delete].each do |m|
       next unless method_defined?(m)
