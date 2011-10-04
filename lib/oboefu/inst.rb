@@ -3,7 +3,7 @@ module Oboe
     def self.trace_start_layer_block(layer, header, opts={})
       Oboe::Context.clear()
 
-      if header and Oboe.passthrogh?
+      if header and Oboe.passthrough?
         Oboe::Context.fromString(header)
       end
 
