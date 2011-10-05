@@ -45,7 +45,7 @@ module Oboe
         result = yield
         [result, exitEvent.metadataString()]
       rescue => e
-        Oboe::Inst.log_exception(e)
+        Oboe::Inst.log_exception(layer, e)
       ensure
         exitEvent.addEdge(Oboe::Context.get())
         Oboe.reporter.sendReport(exitEvent)
