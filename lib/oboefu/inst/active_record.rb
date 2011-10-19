@@ -47,6 +47,10 @@ module Oboe
 
         return result
       end
+
+      def cfg
+        @config
+      end
     end
   end
 end
@@ -55,10 +59,6 @@ if defined?(ActiveRecord::ConnectionAdapters::MysqlAdapter)
   puts "[oboe_fu/loading] Instrumenting ActiveRecord MysqlAdapter"
   ActiveRecord::ConnectionAdapters::MysqlAdapter.module_eval do
     include Oboe::Inst::ConnectionAdapters
-
-    def cfg
-      @config
-    end
 
     def sql_flavor
       'mysql'
@@ -72,10 +72,6 @@ if defined?(ActiveRecord::ConnectionAdapters::Mysql2Adapter)
   ActiveRecord::ConnectionAdapters::Mysql2Adapter.module_eval do
     include Oboe::Inst::ConnectionAdapters
 
-    def cfg
-      @config
-    end
-
     def sql_flavor
       'mysql'
     end
@@ -87,12 +83,19 @@ if defined?(ActiveRecord::ConnectionAdapters::PostgreSQLAdapter)
   ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.module_eval do
     include Oboe::Inst::ConnectionAdapters
 
-    def cfg
-      @config
-    end
-
     def sql_flavor
       'postgresql'
+    end
+  end
+end
+
+if defined?(ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter)
+  puts "[oboe_fu/loading] Instrumenting ActiveRecord OracleEnhancedAdapter"
+  ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.module_eval do
+    include Oboe::Inst::ConnectionAdapters
+
+    def sql_flavor
+      'oracle'
     end
   end
 end
