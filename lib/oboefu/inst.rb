@@ -78,7 +78,6 @@ module Oboe
           result, opts = yield(*args)
         rescue Exception => e
           Oboe::Inst.log_exception(layer, e)
-          print e
           raise
         end
 
