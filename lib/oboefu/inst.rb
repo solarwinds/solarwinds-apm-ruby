@@ -68,7 +68,7 @@ module Oboe
       return result
     end
 
-    def self.trace_layer_block_ss(layer, method, *args)
+    def self.trace_layer_block_ss(layer, obj, method, *args)
       opts = {}
 
       Oboe::Context.log(layer, 'entry')
@@ -83,7 +83,7 @@ module Oboe
 
         result
       else
-        send("clean_#{method}", *args)
+        obj.send("clean_#{method}", *args)
       end
 
     ensure
