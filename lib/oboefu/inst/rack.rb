@@ -18,7 +18,7 @@ module Oboe
   end
 end
 
-if defined?(Rails.configuration.middleware)
+if false and defined?(Rails.configuration.middleware)
   puts "[oboe_fu/loading] Instrumenting rack"
   Rails.configuration.middleware.insert 0, Oboe::Middleware
 end
