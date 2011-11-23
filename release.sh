@@ -1,4 +1,4 @@
-#!/bin/sh
+0;95;c#!/bin/sh
 #
 # for use only when you're ready to push from prod -> the public pypi
 #
@@ -23,5 +23,5 @@ git push --tags
 
 # publish package
 gem build oboe_fu.gemspec
-cp oboe_fu-$VERSION.gem /www/gem/gems
+sudo cp oboe_fu-$VERSION.gem /www/gem/gems
 sudo gem generate_index -d /www/gem
