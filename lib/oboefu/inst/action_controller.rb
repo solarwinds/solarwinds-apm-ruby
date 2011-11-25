@@ -32,7 +32,7 @@ if defined?(ActionController::Base) and Rails::VERSION::MAJOR == 3
     alias :old_process_action :perform_action
     alias :old_process :process
     alias :old_render :render
-    alias :old_rescue_action :rescue_action
+    alias :old_rescue_with_handler :rescue_with_handler
 
     def process(*args)
       header = request.headers['X-Trace']
@@ -54,8 +54,16 @@ if defined?(ActionController::Base) and Rails::VERSION::MAJOR == 3
       old_process_action(*args)
     end
 
-    def render; end
-    def rescue_action; end
+    def render(*args)
+      Oboe::Int.trace_layer_block('render', {}) do
+        old_render(*args)
+      end
+    end
+
+    def rescue_with_handler(exn)
+      Oboe::Inst.log_exception('rails', exn)
+      old_rescue_with_handler(exn)
+    end
   end
 end
 =end
