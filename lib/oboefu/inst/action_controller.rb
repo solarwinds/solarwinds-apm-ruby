@@ -29,6 +29,11 @@ end
 =begin
 if defined?(ActionController::Base) and Rails::VERSION::MAJOR == 3
   ActionController::Base.class_eval do
+    alias :old_process_action :perform_action
+    alias :old_process :process
+    alias :old_render :render
+    alias :old_rescue_action :rescue_action
+
     def process; end
     def process_action; end
     def render; end
