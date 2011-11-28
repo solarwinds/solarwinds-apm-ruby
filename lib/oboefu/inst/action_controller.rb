@@ -55,7 +55,7 @@ if defined?(ActionController::Base) and Rails::VERSION::MAJOR == 3
     end
 
     def render(*args)
-      Oboe::Int.trace_layer_block('render', {}) do
+      Oboe::Inst.trace_layer_block('render', {}) do
         old_render(*args)
       end
     end
