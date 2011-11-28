@@ -37,7 +37,7 @@ if defined?(ActionController::Base) and Rails::VERSION::MAJOR == 3
     def process(*args)
       header = request.headers['X-Trace']
       result, header = Oboe::Inst.trace_start_layer_block('rails', header) do
-        old_process(request, response)
+        old_process(*args)
       end
 
       response.headers['X-Trace'] = header if header
