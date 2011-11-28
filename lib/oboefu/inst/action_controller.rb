@@ -46,7 +46,7 @@ if defined?(ActionController::Base) and Rails::VERSION::MAJOR == 3
 
     def process_action(*args)
       opts = {
-        :Controller => self.controller.name,
+        :Controller => self.class.name,
         :Action => self.action_name,
       }
 
