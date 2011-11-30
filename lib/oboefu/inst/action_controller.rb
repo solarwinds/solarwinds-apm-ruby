@@ -26,7 +26,6 @@ if defined?(ActionController::Base) and Rails::VERSION::MAJOR == 2
   end
 end
 
-=begin
 if defined?(ActionController::Base) and Rails::VERSION::MAJOR == 3
   ActionController::Base.class_eval do
     alias :old_process_action :process_action
@@ -66,4 +65,3 @@ if defined?(ActionController::Base) and Rails::VERSION::MAJOR == 3
     end
   end
 end
-=end
