@@ -1,4 +1,4 @@
-0;95;c#!/bin/sh
+#!/bin/sh
 #
 # for use only when you're ready to push from prod -> the public pypi
 #
