@@ -68,6 +68,18 @@ module Oboe
       return result
     end
 
+    def self.trace_layer_block_without_exception(layer, opts)
+      Oboe::Context.log(layer, 'entry', opts)
+
+      begin
+        result = yield
+      ensure
+        Oboe::Inst.log(layer, 'exit')
+      end
+
+      return result
+    end
+
     def self.trace_layer_block_ss(layer, obj, method, *args)
       opts = {}
 

@@ -22,7 +22,7 @@ if defined?(Memcached)
             end
         end
 
-        Oboe::Inst.trace_layer_block('memcache', opts) do
+        Oboe::Inst.trace_layer_block_without_exception('memcache', opts) do
           result = send("clean_#{m}", *args)
           if m == 'get' and args.length and args[0].class == Array
               Oboe::Inst.log('memcache', 'info', { :KVHit => (!result.nil? && 1) || 0 })
