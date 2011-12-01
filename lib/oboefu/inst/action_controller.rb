@@ -15,7 +15,12 @@ if defined?(ActionController::Base) and Rails::VERSION::MAJOR == 2
     end
 
     def perform_action(*arguments)
-      Oboe::Inst.log('rails', 'info', @_request.path_parameters)
+      opts = {
+          'Controller' => self.class.name,
+          'Action' => self.action_name
+      }
+
+      Oboe::Inst.log('rails', 'info', opts.merge(@_request.path_parameters))
       old_perform_action(*arguments)
     end
 
