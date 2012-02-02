@@ -1,3 +1,4 @@
+=begin
 require 'net/http'
 
 module Net
@@ -32,3 +33,4 @@ module Net
     end
   end
 end
+=end
