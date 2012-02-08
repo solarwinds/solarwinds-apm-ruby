@@ -6,11 +6,11 @@ if defined?(ActionController::Base) and Rails::VERSION::MAJOR == 2
 
     def process(request, response)
       header = request.headers['X-Trace']
-      result, header = Oboe::Inst.trace_start_layer_block('rails', header) do
+      result, header = Oboe::Inst.trace_start_layer_block('rails', header) do |exitEvent|
+        response.headers['X-Trace'] = exitEvent.metadataString() if exitEvent
         old_process(request, response)
       end
 
-      response.headers['X-Trace'] = header if header
       result
     end
 
@@ -40,11 +40,11 @@ if defined?(ActionController::Base) and Rails::VERSION::MAJOR == 3
 
     def process(*args)
       header = request.headers['X-Trace']
-      result, header = Oboe::Inst.trace_start_layer_block('rails', header) do
+      result, header = Oboe::Inst.trace_start_layer_block('rails', header) do |exitEvent|
+        response.headers['X-Trace'] = exitEvent.metadataString() if exitEvent
         old_process(*args)
       end
 
-      response.headers['X-Trace'] = header if header
       result
     end
 

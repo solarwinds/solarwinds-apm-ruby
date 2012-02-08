@@ -7,7 +7,7 @@ module Oboe
     def call(env)
       header = env['HTTP_X_TRACE']
 
-      result, header = Oboe::Inst.trace_start_layer_block('rack', header) do
+      result, header = Oboe::Inst.trace_start_layer_block('rack', header) do |exitEvent|
         env['HTTP_X_TRACE'] = Oboe::Context.toString()
         @app.call(env)
       end

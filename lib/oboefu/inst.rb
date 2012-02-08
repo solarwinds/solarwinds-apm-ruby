@@ -36,13 +36,13 @@ module Oboe
       end
 
       if not (Oboe.start? or Oboe.continue?)
-        return [yield, header]
+        return [yield(nil), header]
       end
 
       exitEvent = Oboe::Inst.layer_sentinel(layer, opts)
 
       begin
-        result = yield
+        result = yield(exitEvent)
         [result, exitEvent.metadataString()]
       rescue => e
         Oboe::Inst.log_exception(layer, e)
