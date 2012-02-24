@@ -51,51 +51,75 @@ module Oboe
       def cfg
         @config
       end
+
+      module FlavorInitializers
+        def self.mysql
+          if defined?(::ActiveRecord::ConnectionAdapters::MysqlAdapter)
+            puts "[oboe_fu/loading] Instrumenting ActiveRecord MysqlAdapter"
+            ::ActiveRecord::ConnectionAdapters::MysqlAdapter.module_eval do
+              include ::Oboe::Inst::ConnectionAdapters
+
+              def sql_flavor
+                'mysql'
+              end
+            end
+          end
+        end
+
+        def self.mysql2
+          if defined?(ActiveRecord::ConnectionAdapters::Mysql2Adapter)
+            puts "[oboe_fu/loading] Instrumenting ActiveRecord Mysql2Adapter"
+            ActiveRecord::ConnectionAdapters::Mysql2Adapter.module_eval do
+              include Oboe::Inst::ConnectionAdapters
+
+              def sql_flavor
+                'mysql'
+              end
+            end
+          end
+        end
+
+        def self.postgresql
+          if defined?(ActiveRecord::ConnectionAdapters::PostgreSQLAdapter)
+            puts "[oboe_fu/loading] Instrumenting ActiveRecord PostgreSQLAdapter"
+            ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.module_eval do
+              include Oboe::Inst::ConnectionAdapters
+
+              def sql_flavor
+                'postgresql'
+              end
+            end
+          end
+        end
+
+        def self.oracle
+          if defined?(ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter)
+            puts "[oboe_fu/loading] Instrumenting ActiveRecord OracleEnhancedAdapter"
+            ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.module_eval do
+              include Oboe::Inst::ConnectionAdapters
+
+              def sql_flavor
+                'oracle'
+              end
+            end
+          end
+        end
+      end
+
     end
   end
 end
 
-if defined?(ActiveRecord::ConnectionAdapters::MysqlAdapter)
-  puts "[oboe_fu/loading] Instrumenting ActiveRecord MysqlAdapter"
-  ActiveRecord::ConnectionAdapters::MysqlAdapter.module_eval do
-    include Oboe::Inst::ConnectionAdapters
-
-    def sql_flavor
-      'mysql'
-    end
+if Rails::VERSION::MAJOR == 3
+  Rails.configuration.after_initialize do
+    Oboe::Inst::ConnectionAdapters::FlavorInitializers.mysql
+    Oboe::Inst::ConnectionAdapters::FlavorInitializers.mysql2
+    Oboe::Inst::ConnectionAdapters::FlavorInitializers.postgresql
+    Oboe::Inst::ConnectionAdapters::FlavorInitializers.oracle
   end
-end
-
-
-if defined?(ActiveRecord::ConnectionAdapters::Mysql2Adapter)
-  puts "[oboe_fu/loading] Instrumenting ActiveRecord Mysql2Adapter"
-  ActiveRecord::ConnectionAdapters::Mysql2Adapter.module_eval do
-    include Oboe::Inst::ConnectionAdapters
-
-    def sql_flavor
-      'mysql'
-    end
-  end
-end
-
-if defined?(ActiveRecord::ConnectionAdapters::PostgreSQLAdapter)
-  puts "[oboe_fu/loading] Instrumenting ActiveRecord PostgreSQLAdapter"
-  ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.module_eval do
-    include Oboe::Inst::ConnectionAdapters
-
-    def sql_flavor
-      'postgresql'
-    end
-  end
-end
-
-if defined?(ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter)
-  puts "[oboe_fu/loading] Instrumenting ActiveRecord OracleEnhancedAdapter"
-  ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.module_eval do
-    include Oboe::Inst::ConnectionAdapters
-
-    def sql_flavor
-      'oracle'
-    end
-  end
+else
+  Oboe::Inst::ConnectionAdapters::FlavorInitializers.mysql
+  Oboe::Inst::ConnectionAdapters::FlavorInitializers.mysql2
+  Oboe::Inst::ConnectionAdapters::FlavorInitializers.postgresql
+  Oboe::Inst::ConnectionAdapters::FlavorInitializers.oracle
 end
