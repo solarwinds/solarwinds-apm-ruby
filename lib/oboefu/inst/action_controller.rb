@@ -37,34 +37,34 @@ if defined?(ActionController::Base)
     end
   elsif Rails::VERSION::MAJOR == 2
     ActionController::Base.class_eval do
-      alias :old_perform_action :perform_action                                                          
-      alias :old_rescue_action :rescue_action                                                            
-      alias :old_process :process                                                                        
+      alias :old_perform_action :perform_action
+      alias :old_rescue_action :rescue_action
+      alias :old_process :process
 
       def process(request, response)
         header = request.headers['X-Trace']
         result, header = Oboe::Inst.trace_start_layer_block('rails', header) do |exitEvent|
           response.headers['X-Trace'] = exitEvent.metadataString() if exitEvent
-          old_process(request, response)                                                                 
-        end                                                                                              
-      
-        result                                                                                           
-      end                                                                                                
+          old_process(request, response)
+        end
 
-      def perform_action(*arguments)                                                                     
+        result
+      end
+
+      def perform_action(*arguments)
         opts = {
-            'Controller' => @_request.path_parameters['controller'],                                     
-            'Action' => @_request.path_parameters['action']                                              
-        }                                                                                                
-        
-        Oboe::Inst.log('rails', 'info', opts)                                                            
-        old_perform_action(*arguments)                                                                   
-      end                                                                                                
+            'Controller' => @_request.path_parameters['controller'],
+            'Action' => @_request.path_parameters['action']
+        }
+
+        Oboe::Inst.log('rails', 'info', opts)
+        old_perform_action(*arguments)
+      end
 
       def rescue_action(exn)
-        Oboe::Inst.log_exception('rails', exn)                                                           
-        old_rescue_action(exn)                                                                           
-      end                                                                                                
-    end                                                                                                  
+        Oboe::Inst.log_exception('rails', exn)
+        old_rescue_action(exn)
+      end
+    end
   end
 end
