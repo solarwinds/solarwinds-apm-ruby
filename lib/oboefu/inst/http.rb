@@ -4,16 +4,13 @@
 =begin
 require 'net/http'
 
-module Net
-  class HTTP
-    alias clean_request request
+Net::HTTP.class_eval do
+  def instrumented_request(*args, &block)
+    unless started?
+      return clean_request(*args, &block)
+    end
 
-    define_method(:request) do |*args|
-      unless started?
-        return send(:clean_request, *args)
-      end
-
-      Oboe::Inst.trace_layer_block_ss('http', self, 'request', *args) do
+    Oboe::Inst.trace_layer_block_ss('http', self, 'request', *args) do
         opts = {}
 
         if args.length and args[0]
@@ -26,14 +23,15 @@ module Net
           opts['Method'] = req.method
         end
 
-        resp = self.send(:clean_request, *args)
+        resp = clean_request(*args, &block)
 
         xtrace = resp.get_fields('X-Trace')
         Oboe::Context.fromString(xtrace[0]) if xtrace and xtrace.size
 
         next [resp, opts]
-      end
     end
   end
+
+  alias clean_request request
+  alias request instrumented_request
 end
-=end
