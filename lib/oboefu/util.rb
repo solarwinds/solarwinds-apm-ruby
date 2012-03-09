@@ -1,3 +1,6 @@
+# Copyright (c) 2012 by Tracelytics, Inc.
+# All rights reserved.
+
 module OboeFu
   def self.require_instrumentation
     require 'oboe'

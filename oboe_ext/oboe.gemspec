@@ -8,5 +8,6 @@ Gem::Specification.new do |s|
     s.homepage = %q{http://tracelytics.com}
     s.description = %q{Tracelytics Oboe API for Ruby}
     s.extensions << "extconf.rb"
-    s.files = ["extconf.rb", "oboe.hpp", "oboe_wrap.cxx", "lib/oboe.rb"]
+    s.extra_rdoc_files = ["LICENSE"]
+    s.files = ["LICENSE", "extconf.rb", "oboe.hpp", "oboe_wrap.cxx", "lib/oboe.rb"]
 end

@@ -1,3 +1,6 @@
+# Copyright (c) 2012 by Tracelytics, Inc.
+# All rights reserved.
+
 require 'oboe_ext.so'
 require 'pp'
 require 'rbconfig'

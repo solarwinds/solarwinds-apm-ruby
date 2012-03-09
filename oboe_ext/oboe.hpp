@@ -1,3 +1,6 @@
+// Copyright (c) 2012 by Tracelytics, Inc.
+// All rights reserved.
+
 #ifndef OBOE_HPP
 #define OBOE_HPP
 

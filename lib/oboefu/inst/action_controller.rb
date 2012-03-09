@@ -1,3 +1,6 @@
+# Copyright (c) 2012 by Tracelytics, Inc.
+# All rights reserved.
+
 module OboeFu
   module Inst
     module Rails3ActionController

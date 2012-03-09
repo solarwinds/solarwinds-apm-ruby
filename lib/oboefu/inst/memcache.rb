@@ -1,3 +1,6 @@
+# Copyright (c) 2012 by Tracelytics, Inc.
+# All rights reserved.
+
 if defined?(MemCache)
   class MemCache
     [:decr, :get, :fetch, :get_multi, :incr, :set, :cas, :add, :replace, :prepend, :append, :delete].each do |m|
