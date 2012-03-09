@@ -1,3 +1,6 @@
+# Copyright (c) 2012 by Tracelytics, Inc.
+# All rights reserved.
+
 if defined?(Memcached)
   class Memcached
     [:decrement, :get, :increment, :set, :cas, :add, :replace, :prepend, :append, :delete].each do |m|

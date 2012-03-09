@@ -7,7 +7,8 @@ Gem::Specification.new do |s|
     s.summary = %q{Oboe instrumentation for Ruby frameworks}
     s.homepage = %q{http://tracelytics.com}
     s.description = %q{Oboe instrumentation for Ruby frameworks}
-    s.files = Dir.glob(File.join('**', '*.rb')) - ['init.rb']
+    s.extra_rdoc_files = ["LICENSE"]
+    s.files = Dir.glob(File.join('lib', '**', '*.rb')) + ['install.rb'] + ["LICENSE"]
 
     s.add_dependency('oboe', '>= 0.2.2')
 end
