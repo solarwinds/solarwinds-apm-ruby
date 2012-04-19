@@ -1,6 +1,7 @@
 # Copyright (c) 2012 by Tracelytics, Inc.
 # All rights reserved.
 
+=begin
 require 'net/http'
 
 Net::HTTP.class_eval do
