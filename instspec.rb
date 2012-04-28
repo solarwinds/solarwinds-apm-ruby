@@ -54,8 +54,8 @@ module Oboe
     def self.start_trace(layer, opts={})
       log_start(layer, nil, opts)
       result = yield
-      log_end(layer)
-      result
+      xtrace = log_end(layer)
+      result, xtrace
     end
 
     def self.valid_key?(k)
