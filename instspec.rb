@@ -4,6 +4,14 @@ module Oboe
       self.log_event(layer, label, Oboe::Context.createEvent, opts)
     end
 
+    def self.log_exception(layer, exn)
+      log(layer, 'error', {
+        :ErrorClass => exn.class.name,
+        :Message => exn.message,
+        :ErrorBacktrace => exn.backtrace.join('\r\n')
+      })
+    end
+
     def self.log_start(layer, xtrace, opts={})
       return if Oboe.never?
 
@@ -46,16 +54,29 @@ module Oboe
 
     def self.trace(layer, opts={})
       log_entry(layer, opts)
-      result = yield
-      log_exit(layer)
-      result
+      begin 
+        yield
+      rescue Exception => e
+        log_exception(layer, e)
+      ensure
+        log_exit(layer)
+      end
     end
 
     def self.start_trace(layer, opts={})
       log_start(layer, nil, opts)
-      result = yield
-      xtrace = log_end(layer)
-      result, xtrace
+      begin
+        result = yield
+        xtrace = log_end(layer)
+        [result, xtrace]
+      rescue Exception => e
+        log_exception(layer, e)
+        class << e
+          attr_accessor :xtrace
+        end
+        e.xtrace = log_end(layer)
+        raise
+      end
     end
 
     def self.valid_key?(k)
