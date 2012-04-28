@@ -3,15 +3,15 @@
 
 module Oboe
   def self.passthrough?
-    ["always", "through"].include?(Oboe::Config[:tracing_mode])
+    ["always", "through"].include? Oboe::Config[:tracing_mode].to_s
   end
 
   def self.always?
-    Oboe::Config[:tracing_mode] == "always"
+    Oboe::Config[:tracing_mode].to_s == "always"
   end
 
   def self.never?
-    Oboe::Config[:tracing_mode] == "never"
+    Oboe::Config[:tracing_mode].to_s == "never"
   end
 
   def self.tracing?
