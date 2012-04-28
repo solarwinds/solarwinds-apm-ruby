@@ -10,24 +10,16 @@ module Oboe
     Oboe::Config[:tracing_mode] == "always"
   end
 
-  def self.through?
-    Oboe::Config[:tracing_mode] == "through"
-  end
-
   def self.never?
     Oboe::Config[:tracing_mode] == "never"
   end
 
-  def self.now?
+  def self.tracing?
     Oboe::Context.isValid and not Oboe.never?
   end
 
   def self.start?
     not Oboe::Context.isValid and Oboe.always?
-  end
-
-  def self.continue?
-    Oboe::Context.isValid and not Oboe.never?
   end
 
   module Inst
@@ -38,7 +30,7 @@ module Oboe
         Oboe::Context.fromString(header)
       end
 
-      if not (Oboe.start? or Oboe.continue?)
+      if not (Oboe.start? or Oboe.tracing?)
         return [yield(nil), header]
       end
 
@@ -88,7 +80,7 @@ module Oboe
 
       Oboe::Context.log(layer, 'entry')
 
-      if Oboe.now?
+      if Oboe.tracing?
         begin
           result, opts = yield(*args)
         rescue Exception => e
@@ -106,7 +98,7 @@ module Oboe
     end
 
     def self.log(layer, label, opts = {})
-      return unless Oboe.now?
+      return unless Oboe.tracing?
 
       evt = Oboe::Context.createEvent
       evt.addInfo('Layer', layer)
@@ -120,7 +112,7 @@ module Oboe
     end
 
     def self.log_exception(layer, exn)
-      return unless Oboe.now?
+      return unless Oboe.tracing?
 
       Oboe::Context.log(layer, 'error', {
           :ErrorClass => exn.class.name,
