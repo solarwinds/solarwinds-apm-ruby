@@ -32,3 +32,6 @@ module Oboe
     end
   end
 end
+# Copyright (c) 2012 by Tracelytics, Inc.
+# All rights reserved.
+
