@@ -25,6 +25,8 @@ module Oboe
           end
           e.xtrace = log_end(layer)
           raise
+        ensure
+          log_end(layer)
         end
       end
     end
