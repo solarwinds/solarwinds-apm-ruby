@@ -14,15 +14,15 @@ module Oboe
       end
   
       def log_start(layer, xtrace, opts={})
-        return if Oboe.never?
+        return if Oboe::Config.never?
   
         if xtrace
           Oboe::Context.fromString(xtrace)
         end
   
-        if Oboe.tracing?
+        if Oboe::Config.tracing?
           self.log_entry(layer, opts)
-        elsif Oboe.start?
+        elsif Oboe::Config.start?
           self.log_event(layer, 'entry', Oboe::Context.startTrace, opts)
         end
       end
