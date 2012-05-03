@@ -25,7 +25,7 @@ module Oboe
   
         if Oboe::Config.tracing?
           self.log_entry(layer, opts)
-        elsif Oboe::Config.start?
+        elsif Oboe::Config.start? and Oboe::Config.sample?
           self.log_event(layer, 'entry', Oboe::Context.startTrace, opts)
         end
       end

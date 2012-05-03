@@ -5,7 +5,10 @@ module Oboe
   # The following is done for compatability with older versions of oboe and
   # oboe_fu (0.2.x)
   if not defined?(Config)
-    Config = {}
+    Config = {
+        :tracing_mode => "through",
+        :sampling_rate => 3e5
+    }
   end
 
   class << Config 
@@ -28,5 +31,9 @@ module Oboe
     def start?
       not Oboe::Context.isValid and Oboe.always?
     end
-  end
-end
+
+    def sample?
+      # Note that this the only point in the code that currently does and
+      # should ever read the sampling rate. When autopilot is released, modify
+      # the line below and that line only.
+      Oboe::Config[:sampling_rate].to_i < rand(1e6) end end end
