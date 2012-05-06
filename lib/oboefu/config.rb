@@ -36,4 +36,7 @@ module Oboe
       # Note that this the only point in the code that currently does and
       # should ever read the sampling rate. When autopilot is released, modify
       # the line below and that line only.
-      Oboe::Config[:sampling_rate].to_i < rand(1e6) end end end
+      Oboe::Config[:sampling_rate].to_i < rand(1e6)
+    end
+  end
+end
