@@ -35,3 +35,4 @@ Net::HTTP.class_eval do
   alias clean_request request
   alias request instrumented_request
 end
+=end
