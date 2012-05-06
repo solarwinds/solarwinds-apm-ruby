@@ -1,7 +1,7 @@
 # Copyright (c) 2012 by Tracelytics, Inc.
 # All rights reserved.
 
-require 'oboefu/util'
+require 'oboefu/loading'
 
 if defined?(Rails) and Rails::VERSION::MAJOR == 3
   module OboeFu
