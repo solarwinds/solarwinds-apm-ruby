@@ -6,49 +6,27 @@ module Oboe
     module ConnectionAdapters
       def self.included(cls)
         cls.class_eval do
-          alias unwrapped_execute execute
-          alias execute wrapped_execute
+          alias execute_without_oboe execute
+          alias execute execute_with_oboe
         end
       end
 
-      def wrapped_execute(sql, name = nil)
-        tracing_mode = Oboe::Config[:tracing_mode]
-
-        if Oboe::Context.isValid() and tracing_mode != "never" and name and name != :skip_logging
-          evt = Oboe::Context.createEvent()
-          evt.addInfo("Layer", "ActiveRecord")
-          evt.addInfo("Label", "entry")
-          evt.addInfo("Query", sql.to_s)
-          evt.addInfo("Name", name.to_s)
-
+      def execute_with_oboe(sql, name = nil)
+        if Oboe.tracing?
+          opts = { :Query => sql.to_s, :Name: name.to_s }
           if defined?(ActiveRecord::Base.connection.cfg)
-            # Note that changing databases will break this
-            evt.addInfo("Database", ActiveRecord::Base.connection.cfg[:database])
-            evt.addInfo("RemoteHost", ActiveRecord::Base.connection.cfg[:host])
+            opts[:Database] = ActiveRecord::Base.connection.cfg[:database]
+            opts[:RemoteHost] = ActiveRecord::Base.connection.cfg[:host]
           end
 
           if defined?(ActiveRecord::Base.connection.sql_flavor)
-            evt.addInfo("Flavor", ActiveRecord::Base.connection.sql_flavor)
-          end
-
-          evt.addInfo("Backtrace", Kernel.caller.join("\r\n"))
-
-          Oboe.reporter.sendReport(evt)
-        end
-
-        begin
-          result = unwrapped_execute(sql, name)
-        ensure
-          if Oboe::Context.isValid() and tracing_mode != "never" and name and name != :skip_logging
-            evt = Oboe::Context.createEvent()
-            evt.addInfo("Layer", "ActiveRecord")
-            evt.addInfo("Label", "exit")
-
-            Oboe.reporter.sendReport(evt)
+            opts[:Flavor] = ActiveRecord::Base.connection.sql_flavor
           end
         end
 
-        return result
+        Oboe::API.trace('ActiveRecord', opts) do
+          execute_without_oboe(sql, name)
+        end
       end
 
       def cfg
