@@ -9,8 +9,10 @@ module OboeFu
 
       pattern = File.join(File.dirname(__FILE__), 'api', '*.rb')
       Dir.glob(pattern) do |f|
+        print f
         require f
       end
+      require 'oboefu/api'
 
       pattern = File.join(File.dirname(__FILE__), 'inst', '*.rb')
       Dir.glob(pattern) do |f|
