@@ -32,6 +32,7 @@ module Oboe
           yield
         rescue Exception => e
           log_exception(layer, e)
+          raise e
         ensure
           log_exit(layer)
         end
@@ -78,7 +79,7 @@ module Oboe
             attr_accessor :xtrace
           end
           e.xtrace = log_end(layer)
-          raise
+          raise e
         ensure
           log_end(layer)
         end
@@ -104,6 +105,7 @@ module Oboe
             attr_accessor :xtrace
           end
           e.xtrace = log_end(layer)
+          raise e
         ensure
           log_event(layer, 'exit', exit_evt)
         end
