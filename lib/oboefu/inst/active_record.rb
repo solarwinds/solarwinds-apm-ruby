@@ -12,7 +12,7 @@ module Oboe
       end
 
       def execute_with_oboe(sql, name = nil)
-        if Oboe.tracing?
+        if Oboe::Config.tracing?
           opts = { :Query => sql.to_s, :Name => name.to_s }
           if defined?(ActiveRecord::Base.connection.cfg)
             opts[:Database] = ActiveRecord::Base.connection.cfg[:database]

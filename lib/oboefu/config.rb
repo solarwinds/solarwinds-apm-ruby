@@ -17,26 +17,26 @@ module Oboe
     end
   
     def always?
-      Oboe::Config[:tracing_mode].to_s == "always"
+      self[:tracing_mode].to_s == "always"
     end
   
     def never?
-      Oboe::Config[:tracing_mode].to_s == "never"
+      self[:tracing_mode].to_s == "never"
     end
   
     def tracing?
-      Oboe::Context.isValid and not Oboe.never?
+      Oboe::Context.isValid and not never?
     end
   
     def start?
-      not Oboe::Context.isValid and Oboe.always?
+      not Oboe::Context.isValid and always?
     end
 
     def sample?
       # Note that this the only point in the code that currently does and
       # should ever read the sampling rate. When autopilot is released, modify
       # the line below and that line only.
-      Oboe::Config[:sampling_rate].to_i < rand(1e6)
+      self[:sampling_rate].to_i < rand(1e6)
     end
   end
 end
