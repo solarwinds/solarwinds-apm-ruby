@@ -9,14 +9,15 @@ module Oboe
 
     def call(env)
       header = env['HTTP_X_TRACE']
-
-      result, header = Oboe::Inst.trace_start_layer_block('rack', header) do |exitEvent|
+      result, header = Oboe::API.start_trace('rack', header) do
         env['HTTP_X_TRACE'] = Oboe::Context.toString()
         @app.call(env)
       end
-
-      env['HTTP_X_TRACE'] = header if header
       result
+    rescue Exception => e
+      header = e.xtrace
+    ensure
+      env['HTTP_X_TRACE'] = header if header
     end
   end
 end
