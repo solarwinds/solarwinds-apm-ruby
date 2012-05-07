@@ -20,12 +20,12 @@ module OboeFu
           :Action => self.action_name,
         }
 
-        Oboe::Inst.log('rails', 'info', opts)
+        Oboe::API.log('rails', 'info', opts)
         super
       end
 
       def render(*args)
-        Oboe::Inst.trace_layer_block('render', {}) do
+        Oboe::API.trace('render', {}) do
           super
         end
       end
@@ -60,12 +60,12 @@ if defined?(ActionController::Base)
             'Action' => @_request.path_parameters['action']
         }
 
-        Oboe::Inst.log('rails', 'info', opts)
+        Oboe::API.log('rails', 'info', opts)
         old_perform_action(*arguments)
       end
 
       def rescue_action(exn)
-        Oboe::Inst.log_exception('rails', exn)
+        Oboe::API.log_exception('rails', exn)
         old_rescue_action(exn)
       end
     end

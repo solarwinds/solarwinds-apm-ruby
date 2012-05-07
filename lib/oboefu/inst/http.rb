@@ -5,14 +5,13 @@
 require 'net/http'
 
 Net::HTTP.class_eval do
-  def instrumented_request(*args, &block)
+  def request_with_oboe(*args, &block)
     unless started?
       return clean_request(*args, &block)
     end
 
-    Oboe::Inst.trace_layer_block_ss('http', self, 'request', *args) do
+    Oboe::API.trace('http') do
         opts = {}
-
         if args.length and args[0]
           req = args[0]
           req['X-Trace'] = Oboe::Context.toString()
@@ -23,16 +22,17 @@ Net::HTTP.class_eval do
           opts['Method'] = req.method
         end
 
-        resp = clean_request(*args, &block)
+        resp = request_without_oboe(*args, &block)
 
         xtrace = resp.get_fields('X-Trace')
         Oboe::Context.fromString(xtrace[0]) if xtrace and xtrace.size
+        Oboe::API.log('http', 'info', opts)
 
-        next [resp, opts]
+        next resp
     end
   end
 
-  alias clean_request request
-  alias request instrumented_request
+  alias request_without_oboe request
+  alias request request_with_oboe
 end
 =end
