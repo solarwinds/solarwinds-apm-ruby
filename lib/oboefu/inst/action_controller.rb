@@ -9,8 +9,6 @@ module OboeFu
         Oboe::API.start_trace_with_target('rails', header, response.headers) do
           super
         end
-
-        result
       end
 
       def process_action(*args)
@@ -48,8 +46,6 @@ if defined?(ActionController::Base)
         Oboe::API.start_trace_with_target('rails', header, response.headers) do
           old_process(request, response)
         end
-
-        result
       end
 
       def perform_action(*arguments)
