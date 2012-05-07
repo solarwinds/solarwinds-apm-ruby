@@ -105,7 +105,7 @@ module Oboe
           end
           e.xtrace = log_end(layer)
         ensure
-          log_event(exit_evt, 'exit')
+          log_event(layer, 'exit', exit_evt)
         end
       end
     end
