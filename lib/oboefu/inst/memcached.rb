@@ -1,38 +1,33 @@
 # Copyright (c) 2012 by Tracelytics, Inc.
 # All rights reserved.
+#
+
+require 'memcached'
 
 if defined?(Memcached)
   class Memcached
-    [:decrement, :get, :increment, :set, :cas, :add, :replace, :prepend, :append, :delete].each do |m|
-      next unless method_defined?(m)
+    include Oboe::API::Memcache
 
-      class_eval("alias clean_#{m} #{m}")
-      define_method(m) do |*args|
+    MEMCACHE_OPS.reject { |m| not method_defined?(m) }.each do |m|
+      define_method("#{m}_with_oboe") do |*args|
         opts = { :KVOp => m }
         if args.length and args[0].class != Array
             opts[:KVKey] = args[0].to_s
-            if defined?(Lib) and defined?(Lib.memcached_server_by_key) \
-                    and defined?(@struct) and defined?(is_unix_socket?)
-                server_as_array = Lib.memcached_server_by_key(@struct, args[0].to_s)
-                if server_as_array.is_a?(Array)
-                    server = server_as_array.first
-                    if is_unix_socket?(server)
-                        opts[:RemoteHost] = "localhost"
-                    elsif defined?(server.hostname)
-                        opts[:RemoteHost] = server.hostname
-                    end
-                end
-            end
+            rhost = remote_host(args[0].to_s)
+            opts[:RemoteHost] = rhost if rhost
         end
 
-        Oboe::Inst.trace_layer_block_without_exception('memcache', opts) do
+        Oboe::API.trace('memcache', opts) do
           result = send("clean_#{m}", *args)
           if m == :get and args.length and args[0].class == String
-              Oboe::Inst.log('memcache', 'info', { :KVHit => (!result.nil? && 1) || 0 })
+              Oboe::API.log('memcache', 'info', { :KVHit => memcache_hit?(result) })
           end
           result
         end
       end
+
+      class_eval "alias #{m}_without_oboe #{m}"
+      class_eval "alias #{m} #{m}_with_oboe"
     end
   end
 end

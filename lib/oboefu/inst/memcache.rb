@@ -3,30 +3,35 @@
 
 if defined?(MemCache)
   class MemCache
-    [:decr, :get, :fetch, :get_multi, :incr, :set, :cas, :add, :replace, :prepend, :append, :delete].each do |m|
-      next unless method_defined?(m)
-
-      class_eval("alias clean_#{m} #{m}")
+    MEMCACHE_OPS.reject { |m| not method_defined?(m) }.each do |m|
       opts = { :KVOp => m }
-      define_method(m) do |*args|
-        Oboe::Inst.trace_layer_block_without_exception('memcache', opts) do
-          send("clean_#{m}", *args) 
+      define_method("#{m}_with_oboe") do |*args|
+        Oboe::API.trace('memcache', opts) do
+          send("#{m}_without_oboe", *args) 
         end
       end
+
+      class_eval "alias #{m}_without_oboe #{m}"
+      class_eval "alias #{m} #{m}_with_oboe"
     end
 
-    alias clean_request_setup request_setup
-    define_method(:request_setup) do |*args|
+    define_method(:request_setup_with_oboe) do |*args|
       server, cache_key = clean_request_setup(*args)
-      Oboe::Inst.log('memcache', 'info', { :KVKey => cache_key, :RemoteHost => server.host })
+      Oboe::API.log('memcache', 'info', { :KVKey => cache_key, :RemoteHost => server.host })
       return [server, cache_key]
     end
 
-    alias clean_cache_get cache_get
-    define_method(:cache_get) do |server, cache_key|
+    alias reequest_setup_without_oboe request_setup
+    alias reequest_setup request_setup_with_oboe
+
+
+    define_method(:cache_get_with_oboe) do |server, cache_key|
       result = clean_cache_get(server, cache_key)
-      Oboe::Inst.log('memcache', 'info', { :KVHit => (!result.nil? && 1) || 0 })
+      Oboe::API.log('memcache', 'info', { :KVHit => memcache_hit?(result) })
       result
     end
+
+    alias cache_get_without_oboe cache_get
+    alias cache_get cache_get_with_oboe
   end
 end
