@@ -5,7 +5,6 @@ module OboeFu
   module Loading
     def self.require_instrumentation
       require 'oboe'
-      require 'oboefu/inst'
       require 'oboefu/config'
 
       pattern = File.join(File.dirname(__FILE__), 'api', '*.rb')

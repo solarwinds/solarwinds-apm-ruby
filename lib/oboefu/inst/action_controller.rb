@@ -6,8 +6,7 @@ module OboeFu
     module Rails3ActionController
       def process(*args)
         header = request.headers['X-Trace']
-        result, header = Oboe::Inst.trace_start_layer_block('rails', header) do |exitEvent|
-          response.headers['X-Trace'] = exitEvent.metadataString() if exitEvent
+        Oboe::API.trace_start_with_target('rails', header, response.headers) do
           super
         end
 
@@ -46,8 +45,7 @@ if defined?(ActionController::Base)
 
       def process(request, response)
         header = request.headers['X-Trace']
-        result, header = Oboe::Inst.trace_start_layer_block('rails', header) do |exitEvent|
-          response.headers['X-Trace'] = exitEvent.metadataString() if exitEvent
+        Oboe::API.trace_start_with_target('rails', header, response.headers) do
           old_process(request, response)
         end
 

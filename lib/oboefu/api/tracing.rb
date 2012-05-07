@@ -83,6 +83,31 @@ module Oboe
           log_end(layer)
         end
       end
+
+      # The same as start_trace except it does not return a tuple. Instad, the
+      # trace id is inserted in the object proved as the 'target' argument.
+      # 
+      # The motivating use case for this is HTTP streaming in rails3. We need
+      # access to the exit event's trace id so we can set the header before any
+      # work is done, and before any headers are sent back to the client.
+      #
+      def start_trace_with_target(layer, xtrace, target, opts={})
+        log_start(layer, xtrace, opts)
+        exit_evt = Oboe::Context.createEvent()
+        begin
+          target['X-Trace'] = exit_evt.metadataString() if Oboe.tracing?
+          result = yield
+          result
+        rescue Exception => e
+          log_exception(layer, e)
+          class << e
+            attr_accessor :xtrace
+          end
+          e.xtrace = log_end(layer)
+        ensure
+          log_event(exit_evt, 'exit')
+        end
+      end
     end
   end
 end
