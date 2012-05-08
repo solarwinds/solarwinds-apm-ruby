@@ -2,8 +2,6 @@
 # All rights reserved.
 #
 
-require 'memcached'
-
 if defined?(Memcached)
   class Memcached
     include Oboe::API::Memcache
