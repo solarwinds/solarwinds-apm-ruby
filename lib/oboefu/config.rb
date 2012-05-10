@@ -13,10 +13,6 @@ module Oboe
   end
 
   class << Config 
-    def passthrough?
-      ["always", "through"].include? self[:tracing_mode].to_s
-    end
-  
     def always?
       self[:tracing_mode].to_s == "always"
     end
