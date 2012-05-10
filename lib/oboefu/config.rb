@@ -7,6 +7,7 @@ module Oboe
   if not defined?(Config)
     Config = {
         :tracing_mode => "through",
+        :reporter_host => "127.0.0.1",
         :sampling_rate => 3e5
     }
   end
