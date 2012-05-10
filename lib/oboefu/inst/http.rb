@@ -10,7 +10,6 @@ Net::HTTP.class_eval do
     end
 
     Oboe::API.trace('http') do
-        puts "IN IT"
         opts = {}
         if args.length and args[0]
           req = args[0]
