@@ -9,7 +9,7 @@ Net::HTTP.class_eval do
       return request_without_oboe(*args, &block)
     end
 
-    Oboe::API.trace('http') do
+    Oboe::API.trace('net-http') do
         opts = {}
         if args.length and args[0]
           req = args[0]
@@ -25,7 +25,7 @@ Net::HTTP.class_eval do
 
         xtrace = resp.get_fields('X-Trace')
         Oboe::Context.fromString(xtrace[0]) if xtrace and xtrace.size and Oboe::Config.tracing?
-        Oboe::API.log('http', 'info', opts)
+        Oboe::API.log('net-http', 'info', opts)
 
         next resp
     end
