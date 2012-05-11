@@ -59,31 +59,24 @@ module Oboe
 
     module LoggingNoop
       def log(layer, label, opts={})
-        return
       end
 
       def log_exception(layer, exn)
-        return
       end
 
       def log_start(layer, xtrace, opts={})
-        return
       end
 
       def log_end(layer, opts={})
-        return
       end
 
       def log_entry(layer, opts={})
-        return
       end
 
       def log_exit(layer, opts={})
-        return
       end
 
       def log_event(layer, label, event, opts={})
-        return
       end
     end
   end 
