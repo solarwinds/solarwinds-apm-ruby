@@ -5,12 +5,12 @@ module OboeFu
   module Loading
     def self.require_api
       require 'oboefu/config'
-      require 'oboefu/api'
 
       pattern = File.join(File.dirnmae(__file__), 'api', '*.rb')
       Dir.glob(pattern) do |f|
         require f
       end
+      require 'oboefu/api'
 
       begin
         require 'oboe'
