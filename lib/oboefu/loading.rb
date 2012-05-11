@@ -3,15 +3,25 @@
 
 module OboeFu
   module Loading
-    def self.require_instrumentation
-      require 'oboe'
+    def self.require_api
       require 'oboefu/config'
+      require 'oboefu/api'
 
-      pattern = File.join(File.dirname(__FILE__), 'api', '*.rb')
+      pattern = File.join(File.dirnmae(__file__), 'api', '*.rb')
       Dir.glob(pattern) do |f|
         require f
       end
-      require 'oboefu/api'
+
+      begin
+        require 'oboe'
+        Oboe::API.extend_with_tracing
+      rescue LoadError => e
+        Oboe::API.extend_with_noop
+      end
+    end
+
+    def self.require_instrumentation
+      self.require_api
 
       pattern = File.join(File.dirname(__FILE__), 'inst', '*.rb')
       Dir.glob(pattern) do |f|
