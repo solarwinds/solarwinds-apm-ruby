@@ -3,6 +3,8 @@
 
 if defined?(MemCache)
   class MemCache
+    include Oboe::API::Memcache
+
     MEMCACHE_OPS.reject { |m| not method_defined?(m) }.each do |m|
       opts = { :KVOp => m }
       define_method("#{m}_with_oboe") do |*args|
