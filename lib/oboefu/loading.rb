@@ -6,7 +6,7 @@ module OboeFu
     def self.require_api
       require 'oboefu/config'
 
-      pattern = File.join(File.dirnmae(__file__), 'api', '*.rb')
+      pattern = File.join(File.dirnmae(__FILE__), 'api', '*.rb')
       Dir.glob(pattern) do |f|
         require f
       end
