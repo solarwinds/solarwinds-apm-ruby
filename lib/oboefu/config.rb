@@ -4,7 +4,7 @@
 module Oboe
   # The following is done for compatability with older versions of oboe and
   # oboe_fu (0.2.x)
-  if not defined?(Config)
+  if not defined?(Oboe::Config)
     Config = {
         :tracing_mode => "through",
         :reporter_host => "127.0.0.1",
