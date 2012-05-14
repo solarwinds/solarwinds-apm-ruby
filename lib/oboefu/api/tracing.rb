@@ -112,7 +112,7 @@ module Oboe
       end
     end
 
-    module TracingNOOP
+    module TracingNoop
       def trace(layer, opts={})
         yield
       end
