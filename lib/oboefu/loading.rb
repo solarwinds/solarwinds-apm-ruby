@@ -6,7 +6,6 @@ module OboeFu
 
     def self.require_api
       puts "[oboe_fu] loading ..."
-      require 'oboefu/config'
 
       pattern = File.join(File.dirname(__FILE__), 'api', '*.rb')
       Dir.glob(pattern) do |f|
@@ -20,6 +19,8 @@ module OboeFu
       rescue LoadError => e
         Oboe::API.extend_with_noop
       end
+
+      require 'oboefu/config'
     end
 
     def self.require_instrumentation
