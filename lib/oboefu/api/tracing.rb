@@ -102,6 +102,7 @@ module Oboe
           log_exception(layer, e)
           raise
         ensure
+          exit_evt.addEdge(Oboe::Context.get())
           log_event(layer, 'exit', exit_evt)
           Oboe::Context.clear
         end
