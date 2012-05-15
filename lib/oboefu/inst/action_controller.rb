@@ -41,10 +41,10 @@ if defined?(ActionController::Base)
       alias :old_rescue_action :rescue_action
       alias :old_process :process
 
-      def process(request, response)
-        header = request.headers['X-Trace']
-        Oboe::API.start_trace_with_target('rails', header, response.headers) do
-          old_process(request, response)
+      def process(*args)
+        header = args[0].headers['X-Trace']
+        Oboe::API.start_trace_with_target('rails', header, args[1].headers) do
+          old_process(*args)
         end
       end
 
