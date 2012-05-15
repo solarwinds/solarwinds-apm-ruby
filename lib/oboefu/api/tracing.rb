@@ -120,6 +120,10 @@ module Oboe
       def start_trace(layer, xtrace, opts={})
         [yield, xtrace]
       end
+
+      def start_trace_with_target(layer, xtrace, target, opts={})
+        yield
+      end
     end
   end
 end
