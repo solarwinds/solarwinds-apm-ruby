@@ -32,7 +32,7 @@ module Oboe
           yield
         rescue Exception => e
           log_exception(layer, e)
-          raise e
+          raise
         ensure
           log_exit(layer)
         end
@@ -79,14 +79,14 @@ module Oboe
             attr_accessor :xtrace
           end
           e.xtrace = log_end(layer)
-          raise e
+          raise
         ensure
           log_end(layer)
         end
       end
 
       # The same as start_trace except it does not return a tuple. Instad, the
-      # trace id is inserted in the object proved as the 'target' argument.
+      # trace id is inserted in the object provided as the 'target' argument.
       # 
       # The motivating use case for this is HTTP streaming in rails3. We need
       # access to the exit event's trace id so we can set the header before any
@@ -97,17 +97,13 @@ module Oboe
         exit_evt = Oboe::Context.createEvent()
         begin
           target['X-Trace'] = exit_evt.metadataString() if Oboe::Config.tracing?
-          result = yield
-          result
+          yield
         rescue Exception => e
           log_exception(layer, e)
-          class << e
-            attr_accessor :xtrace
-          end
-          e.xtrace = log_end(layer)
-          raise e
+          raise
         ensure
           log_event(layer, 'exit', exit_evt)
+          Oboe::Context.clear
         end
       end
     end
