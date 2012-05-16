@@ -16,7 +16,7 @@ if defined?(Memcached)
         end
 
         Oboe::API.trace('memcache', opts) do
-          result = send("clean_#{m}", *args)
+          result = send("#{m}_without_oboe", *args)
           if m == :get and args.length and args[0].class == String
               Oboe::API.log('memcache', 'info', { :KVHit => memcache_hit?(result) })
           end

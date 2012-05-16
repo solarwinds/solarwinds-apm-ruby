@@ -1,8 +1,8 @@
 # Copyright (c) 2012 by Tracelytics, Inc.
 # All rights reserved.
 
-if defined?(MemCache)
-  class MemCache
+if defined?(::MemCache)
+  class ::MemCache
     include Oboe::API::Memcache
 
     MEMCACHE_OPS.reject { |m| not method_defined?(m) }.each do |m|
@@ -18,17 +18,17 @@ if defined?(MemCache)
     end
 
     define_method(:request_setup_with_oboe) do |*args|
-      server, cache_key = clean_request_setup(*args)
+      server, cache_key = request_setup_without_oboe(*args)
       Oboe::API.log('memcache', 'info', { :KVKey => cache_key, :RemoteHost => server.host })
       return [server, cache_key]
     end
 
-    alias reequest_setup_without_oboe request_setup
-    alias reequest_setup request_setup_with_oboe
+    alias request_setup_without_oboe request_setup
+    alias request_setup request_setup_with_oboe
 
 
     define_method(:cache_get_with_oboe) do |server, cache_key|
-      result = clean_cache_get(server, cache_key)
+      result = cache_get_without_oboe(server, cache_key)
       Oboe::API.log('memcache', 'info', { :KVHit => memcache_hit?(result) })
       result
     end
