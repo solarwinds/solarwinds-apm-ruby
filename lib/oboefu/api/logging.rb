@@ -4,10 +4,41 @@
 module Oboe
   module API
     module Logging
+
+      # Public: Report an event in an active trace.
+      #
+      # layer - The layer the reported event belongs to
+      # label - The label for the reported event. See API documentation for
+      #         reserved labels and usage.
+      # opts - A hash containing key/value pairs that will be reported along
+      #        with this event (optional).
+      #
+      # Example
+      #
+      #   log('logical_layer', 'entry')
+      #   log('logical_layer', 'info', { :list_length => 20 })
+      #   log('logical_layer', 'exit')
+      #
+      # Returns nothing.
       def log(layer, label, opts={})
         log_event(layer, label, Oboe::Context.createEvent, opts)
       end
   
+      # Public: Report an exception.
+      #
+      # layer - The layer the reported event belongs to
+      # exn - The exception to report
+      #
+      # Example
+      #
+      #   begin
+      #     function_without_oboe()
+      #   rescue Exception => e
+      #     log_exception('rails', e)
+      #     raise
+      #   end
+      #
+      # Returns nothing.
       def log_exception(layer, exn)
         log(layer, 'error', {
           :ErrorClass => exn.class.name,
@@ -40,11 +71,28 @@ module Oboe
       def log_entry(layer, opts={})
         log_event(layer, 'entry', Oboe::Context.createEvent, opts)
       end
-  
+
       def log_exit(layer, opts={})
         log_event(layer, 'exit', Oboe::Context.createEvent, opts)
       end
   
+      # Internal: Report an event.
+      #
+      # layer - The layer the reported event belongs to
+      # label - The label for the reported event. See API documentation for
+      #         reserved labels and usage.
+      # opts - A hash containing key/value pairs that will be reported along
+      #        with this event (optional).
+      #
+      # Examples
+      #
+      #   entry = Oboe::Context.createEvent
+      #   log_event('rails', 'entry', exit, { :controller => 'user', :action => 'index' })
+      #   exit = Oboe::Context.createEvent
+      #   exit.addEdge(entry.getMetadata)
+      #   log_event('rails', 'exit', exit)
+      #
+      # Returns nothing.
       def log_event(layer, label, event, opts={})
         event.addInfo('Layer', layer.to_s)
         event.addInfo('Label', label.to_s)

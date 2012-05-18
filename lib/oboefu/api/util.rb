@@ -6,17 +6,23 @@ module Oboe
     module Util
       BACKTRACE_CUTOFF = 100
 
-      # Returns false is the key passed in is reserved for use by the
-      # Tracelytics data-proessing pipeline. Some of these keys may not be
-      # explicitly added in code, but are included by lower-level API calls
-      # (i.e., liboboe).
-      def valid_key?(k)
-        not ['Label', 'Layer', 'Edge', 'Timestamp', 'Timestamp_u'].include? k.to_s
+      # Internal: Check whether the provided key is reserved or not. Reserved
+      # keys are either keys that are handled by liboboe calls or the oboe gem.
+      #
+      # key - the key to check.
+      #
+      # Return a boolean indicating whether or not key is reserved.
+      def valid_key?(key)
+        not ['Label', 'Layer', 'Edge', 'Timestamp', 'Timestamp_u'].include? key.to_s
       end
 
-      # Returns the current backtrace, ignoring the secified number of frames
-      # at the bottom of the backtrace, and dropping all frames
-      # BACKTRACE_CUTOFF beyond the last valid frame.
+      # Internal: Get the current backtrace.
+      #
+      # ignore - Number of frames to ignore at the end of the backtrace. Use
+      #          when you know how many layers deep in oboe the call is being
+      #          made.
+      #
+      # Returns a string with each frame of the backtrace separated by '\r\n'.
       def backtrace(ignore=1)
         frames = Kernel.caller
         frames_len = Kernel.caller.size
