@@ -5,13 +5,14 @@ module Oboe
   module API
     module Tracing
 
-      # Takes a layer name and a dictionary of key/value pairs that will be
-      # added to the entry event. A block must be provided, which will be
-      # wrapped in calls to log_entry() and log_exit(). Exceptions will be
-      # logged and reraised.
+      # Public: Trace a given block of code. Detect any exceptions thrown by
+      # the block and report errors.
       #
-      # Using trace, you can create an instrumented version of any proc or
-      # lambda and replace the original transparently. For example:
+      # layer - The layer the block of code belongs to.
+      # opts - A hash containing key/value pairs that will be reported along
+      #        with the first event of this layer (optional).
+      #
+      # Example
       #
       #   def computation(n)
       #     fib(n)
@@ -26,6 +27,7 @@ module Oboe
       #
       #   result = computation_with_oboe(1000)
       #
+      # Returns the result of the block.
       def trace(layer, opts={})
         log_entry(layer, opts)
         begin 
@@ -38,19 +40,18 @@ module Oboe
         end
       end
   
-      # Takes a layer name and a dictionary of key/value pairs that will be
-      # added to the entry event. A block must be provided, which will be
-      # wrapped in calls to log_start() and log_exception(). Exceptions will be
-      # logged and reraised. In addition an 'xtrace' attribute will be added to
-      # the exception containing the oboe context that was set after the
-      # exception was logged.
-      #
-      # Start trace returns a list of length two, the first element of which is
-      # the return type of the block, and the second element of which is the
-      # oboe context that was set when the block completed execution.
+      # Public: Trace a given block of code which can start a trace depending
+      # on configuration and probability. Detect any exceptions thrown by the
+      # block and report errors.
       #
       # When start_trace returns control to the calling context, the oboe
       # context will be cleared.
+      #
+      # layer - The layer the block of code belongs to.
+      # opts - A hash containing key/value pairs that will be reported along
+      #        with the first event of this layer (optional).
+      #
+      # Example
       #
       #   def handle_request(request, response)
       #     # ... code that modifies request and response ...
@@ -67,6 +68,9 @@ module Oboe
       #     response['X-trace'] = xtrace
       #   end
       #
+      # Returns a list of length two, the first element of which is the result
+      # of the block, and the second element of which is the oboe context that
+      # was set when the block completed execution.
       def start_trace(layer, xtrace, opts={})
         log_start(layer, xtrace, opts)
         begin
@@ -85,13 +89,21 @@ module Oboe
         end
       end
 
-      # The same as start_trace except it does not return a tuple. Instad, the
-      # trace id is inserted in the object provided as the 'target' argument.
+      # Public: Trace a given block of code which can start a trace depending
+      # on configuration and probability. Detect any exceptions thrown by the
+      # block and report errors. Insert the oboe metadata into the provided for
+      # later user.
       # 
       # The motivating use case for this is HTTP streaming in rails3. We need
       # access to the exit event's trace id so we can set the header before any
       # work is done, and before any headers are sent back to the client.
       #
+      # layer - The layer the block of code belongs to.
+      # target - The target object in which to place the oboe metadata.
+      # opts - A hash containing key/value pairs that will be reported along
+      #        with the first event of this layer (optional).
+      #
+      # Returns the result of the block.
       def start_trace_with_target(layer, xtrace, target, opts={})
         log_start(layer, xtrace, opts)
         exit_evt = Oboe::Context.createEvent()
