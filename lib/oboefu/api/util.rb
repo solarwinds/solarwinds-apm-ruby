@@ -25,7 +25,7 @@ module Oboe
       # Returns a string with each frame of the backtrace separated by '\r\n'.
       def backtrace(ignore=1)
         frames = Kernel.caller
-        frames_len = Kernel.caller.size
+        frames_len = frames.size
         if frames_len - ignore > BACKTRACE_CUTOFF
           frames[ignore, BACKTRACE_CUTOFF + ignore].unshift("...")
         else
