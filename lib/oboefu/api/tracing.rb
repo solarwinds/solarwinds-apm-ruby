@@ -103,6 +103,18 @@ module Oboe
       # opts - A hash containing key/value pairs that will be reported along
       #        with the first event of this layer (optional).
       #
+      # Example:
+      #
+      #   def handle_request(request, response)
+      #     # ... code that does something with request and response ...
+      #   end
+      #
+      #   def handle_request_with_oboe(request, response)
+      #     start_trace_with_target('rails', request['X-Trace'], response) do
+      #       handle_request(request, response)
+      #     end
+      #   end
+      #
       # Returns the result of the block.
       def start_trace_with_target(layer, xtrace, target, opts={})
         log_start(layer, xtrace, opts)
