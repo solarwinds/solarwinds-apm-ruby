@@ -8,7 +8,7 @@ module Oboe
       #
       def report_init(layer)
         force_trace do
-          start_trace(layer, { '__Init' => 1, 'Version' => Oboe::Version::STRING }) { }
+          start_trace(layer, nil, { '__Init' => 1, 'Version' => Oboe::Version::STRING }) { }
         end
       end
 
