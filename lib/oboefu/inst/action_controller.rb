@@ -32,10 +32,14 @@ end
 
 if defined?(ActionController::Base)
   if Rails::VERSION::MAJOR == 3
+    Oboe::API.report_init('rails')
+
     class ActionController::Base
       include OboeFu::Inst::Rails3ActionController
     end
   elsif Rails::VERSION::MAJOR == 2
+    Oboe::API.report_init('rails')
+
     ActionController::Base.class_eval do
       alias :perform_action_without_oboe :perform_action
       alias :rescue_action_without_oboe :rescue_action
