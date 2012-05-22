@@ -75,8 +75,6 @@ module Oboe
         log_start(layer, xtrace, opts)
         begin
           result = yield
-          xtrace = log_end(layer)
-          [result, xtrace]
         rescue Exception => e
           log_exception(layer, e)
           class << e
@@ -84,9 +82,10 @@ module Oboe
           end
           e.xtrace = log_end(layer)
           raise
-        ensure
-          log_end(layer)
         end
+        xtrace = log_end(layer)
+
+        [result, xtrace]
       end
 
       # Public: Trace a given block of code which can start a trace depending
