@@ -37,14 +37,14 @@ if defined?(ActionController::Base)
     end
   elsif Rails::VERSION::MAJOR == 2
     ActionController::Base.class_eval do
-      alias :old_perform_action :perform_action
-      alias :old_rescue_action :rescue_action
-      alias :old_process :process
+      alias :perform_action_without_oboe :perform_action
+      alias :rescue_action_without_oboe :rescue_action
+      alias :process_without_oboe :process
 
       def process(*args)
         header = args[0].headers['X-Trace']
         Oboe::API.start_trace_with_target('rails', header, args[1].headers) do
-          old_process(*args)
+          process_without_oboe(*args)
         end
       end
 
@@ -55,12 +55,12 @@ if defined?(ActionController::Base)
         }
 
         Oboe::API.log('rails', 'info', opts)
-        old_perform_action(*arguments)
+        perform_action_without_oboe(*arguments)
       end
 
       def rescue_action(exn)
         Oboe::API.log_exception('rails', exn)
-        old_rescue_action(exn)
+        rescue_action_without_oboe(exn)
       end
     end
   end
