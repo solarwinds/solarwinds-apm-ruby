@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
     s.name = %q{oboe_fu}
-    s.version = "0.3.0"
-    s.date = %{2012-04-18}
+    s.version = "0.3.1"
+    s.date = %{2012-05-22}
     s.authors = ["Tracelytics, Inc."]
     s.email = %q{spiros@tracelytics.com}
     s.summary = %q{Oboe instrumentation for Ruby frameworks}
