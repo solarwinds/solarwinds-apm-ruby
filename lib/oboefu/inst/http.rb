@@ -21,12 +21,13 @@ Net::HTTP.class_eval do
           opts['Method'] = req.method
         end
 
+        Oboe::API.log('net-http', 'info', opts)
         resp = request_without_oboe(*args, &block)
 
         xtrace = resp.get_fields('X-Trace')
-        Oboe::Context.fromString(xtrace[0]) if xtrace and xtrace.size and Oboe::Config.tracing?
-        Oboe::API.log('net-http', 'info', opts)
-
+        if xtrace and xtrace.size and Oboe::Config.tracing?
+          Oboe::Context.fromString(xtrace[0])
+        end
         next resp
     end
   end
