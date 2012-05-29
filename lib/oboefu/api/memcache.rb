@@ -16,12 +16,12 @@ module Oboe
 
         server_as_array = Lib.memcached_server_by_key(@struct, args[0].to_s)
         if server_as_array.is_a?(Array)
-            server = server_as_array.first
-            if is_unix_socket?(server)
-                return "localhost"
-            elsif defined?(server.hostname)
-                return server.hostname
-            end
+          server = server_as_array.first
+          if is_unix_socket?(server)
+            return "localhost"
+          elsif defined?(server.hostname)
+            return server.hostname
+          end
         end
       end
     end
