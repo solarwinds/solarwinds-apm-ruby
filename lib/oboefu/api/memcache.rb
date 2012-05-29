@@ -7,7 +7,7 @@ module Oboe
       MEMCACHE_OPS = %w{add append cas decr decrement delete fetch get get_multi incr increment prepend replace set}
 
       def memcache_hit?(result)
-        (not result.nil? and 1) or 0
+        result.nil? ? 0 : 1
       end
 
       def remote_host(key)
