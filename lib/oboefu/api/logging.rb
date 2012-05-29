@@ -47,6 +47,15 @@ module Oboe
         })
       end
   
+      # Public: Decide whether or not to start a trace, and report an event
+      # appropriately.
+      #
+      # layer - The layer the reported event belongs to
+      # xtrace - An xtrace metadata string, or nil.
+      # opts - A hash containing key/value pairs that will be reported along
+      #        with this event (optional).
+      #
+      # Returns nothing.
       def log_start(layer, xtrace, opts={})
         return if Oboe::Config.never?
   
@@ -61,6 +70,11 @@ module Oboe
         end
       end
   
+      # Public: Report an exit event.
+      #
+      # layer - The layer the reported event belongs to
+      #
+      # Returns an xtrace metadata string
       def log_end(layer, opts={})
         log_event(layer, 'exit', Oboe::Context.createEvent, opts)
         xtrace = Oboe::Context.toString
