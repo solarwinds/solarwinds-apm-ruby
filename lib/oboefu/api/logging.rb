@@ -43,7 +43,7 @@ module Oboe
         log(layer, 'error', {
           :ErrorClass => exn.class.name,
           :Message => exn.message,
-          :ErrorBacktrace => exn.backtrace.join('\r\n')
+          :ErrorBacktrace => exn.backtrace.join("\r\n")
         })
       end
   
