@@ -117,7 +117,7 @@ module Oboe
       # Returns the result of the block.
       def start_trace_with_target(layer, xtrace, target, opts={})
         log_start(layer, xtrace, opts)
-        exit_evt = Oboe::Context.createEvent()
+        exit_evt = Oboe::Context.createEvent
         begin
           target['X-Trace'] = exit_evt.metadataString() if Oboe::Config.tracing?
           yield
