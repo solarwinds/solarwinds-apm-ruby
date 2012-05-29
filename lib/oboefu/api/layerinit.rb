@@ -15,9 +15,9 @@ module Oboe
       def force_trace
         saved_mode = Oboe::Config[:tracing_mode]
         Oboe::Config[:tracing_mode] = 'always'
-        result = yield
+        yield
+      ensure
         Oboe::Config[:tracing_mode] = saved_mode
-        result
       end
     end
 
