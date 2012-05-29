@@ -77,10 +77,7 @@ module Oboe
           result = yield
         rescue Exception => e
           log_exception(layer, e)
-          class << e
-            attr_accessor :xtrace
-          end
-          e.xtrace = log_end(layer)
+          e.instance_variable_set(:@xtrace, log_end(layer))
           raise
         end
         xtrace = log_end(layer)

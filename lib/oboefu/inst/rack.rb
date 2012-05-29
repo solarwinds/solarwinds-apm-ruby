@@ -15,7 +15,8 @@ module Oboe
       end
       result
     rescue Exception => e
-      header = e.xtrace
+      header = e.instance_variable_get(:@xtrace)
+      raise
     ensure
       env['HTTP_X_TRACE'] = header if header
     end
