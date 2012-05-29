@@ -13,7 +13,7 @@ module Oboe
       #
       # Return a boolean indicating whether or not key is reserved.
       def valid_key?(key)
-        not ['Label', 'Layer', 'Edge', 'Timestamp', 'Timestamp_u'].include? key.to_s
+        !%w[ Label Layer Edge Timestamp Timestamp_u ].include? key.to_s
       end
 
       # Internal: Get the current backtrace.
