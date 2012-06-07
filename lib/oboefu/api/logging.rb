@@ -111,9 +111,9 @@ module Oboe
         event.addInfo('Layer', layer.to_s)
         event.addInfo('Label', label.to_s)
   
-        (opts || {}).each do |k, v|
+        opts.each do |k, v|
           event.addInfo(k.to_s, v.to_s) if valid_key? k
-        end if opts.any?
+        end if !opts.nil? and opts.any?
   
         Oboe.reporter.sendReport(event)
       end

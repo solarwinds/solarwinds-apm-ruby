@@ -24,7 +24,7 @@ module Oboe
           end
         end
 
-        Oboe::API.trace('ActiveRecord', opts) do
+        Oboe::API.trace('ActiveRecord', opts || {}) do
           execute_without_oboe(sql, name)
         end
       end
