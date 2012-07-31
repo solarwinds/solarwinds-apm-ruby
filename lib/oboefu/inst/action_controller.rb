@@ -16,11 +16,15 @@ module OboeFu
 
       def process_action(*args)
         opts = {
+          'HTTP-Host' => @_request.headers['HTTP_HOST'],
+          :URL        => @_request.headers['REQUEST_URI'],
+          :Method     => @_request.headers['REQUEST_METHOD'],
+          :Status     => @_response.status,
           :Controller => self.class.name,
-          :Action => self.action_name,
+          :Action     => self.action_name,
         }
-
         Oboe::Inst.log('rails', 'info', opts)
+
         super
       end
 
@@ -56,11 +60,15 @@ if defined?(ActionController::Base)
 
       def perform_action(*arguments)
         opts = {
+            'HTTP-Host'  => @_request.headers['HTTP_HOST'],
+            'URL'        => @_request.headers['REQUEST_URI'],
+            'Method'     => @_request.headers['REQUEST_METHOD'],
+            'Status'     => @_response.status,
             'Controller' => @_request.path_parameters['controller'],
-            'Action' => @_request.path_parameters['action']
+            'Action'     => @_request.path_parameters['action']
         }
-
         Oboe::Inst.log('rails', 'info', opts)
+
         old_perform_action(*arguments)
       end
 
