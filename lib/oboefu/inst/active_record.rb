@@ -35,9 +35,9 @@ module Oboe
 
       module FlavorInitializers
         def self.mysql
-          if defined?(::ActiveRecord::ConnectionAdapters::MysqlAdapter)
-            puts "[oboe_fu/loading] Instrumenting ActiveRecord MysqlAdapter"
-            ::ActiveRecord::ConnectionAdapters::MysqlAdapter.module_eval do
+          if ActiveRecord::Base::connection.adapter_name.downcase.to_sym == :mysql
+            puts "[oboe_fu/loading] Instrumenting ActiveRecord MysqlAdapter" if Oboe::Config[:verbose]
+            ActiveRecord::ConnectionAdapters::MysqlAdapter.module_eval do
               include ::Oboe::Inst::ConnectionAdapters
 
               def sql_flavor
@@ -48,21 +48,21 @@ module Oboe
         end
 
         def self.mysql2
-          if defined?(ActiveRecord::ConnectionAdapters::Mysql2Adapter)
-            puts "[oboe_fu/loading] Instrumenting ActiveRecord Mysql2Adapter"
+          if ActiveRecord::Base::connection.adapter_name.downcase.to_sym == :mysql2
+            puts "[oboe_fu/loading] Instrumenting ActiveRecord Mysql2Adapter" if Oboe::Config[:verbose]
             ActiveRecord::ConnectionAdapters::Mysql2Adapter.module_eval do
               include Oboe::Inst::ConnectionAdapters
 
               def sql_flavor
-                'mysql'
+                'mysql2'
               end
             end
           end
         end
 
         def self.postgresql
-          if defined?(ActiveRecord::ConnectionAdapters::PostgreSQLAdapter)
-            puts "[oboe_fu/loading] Instrumenting ActiveRecord PostgreSQLAdapter"
+          if ActiveRecord::Base::connection.adapter_name.downcase.to_sym == :postgresql
+            puts "[oboe_fu/loading] Instrumenting ActiveRecord PostgreSQLAdapter" if Oboe::Config[:verbose]
             ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.module_eval do
               include Oboe::Inst::ConnectionAdapters
 
@@ -74,8 +74,8 @@ module Oboe
         end
 
         def self.oracle
-          if defined?(ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter)
-            puts "[oboe_fu/loading] Instrumenting ActiveRecord OracleEnhancedAdapter"
+          if ActiveRecord::Base::connection.adapter_name.downcase.to_sym == :oracleenhanced
+            puts "[oboe_fu/loading] Instrumenting ActiveRecord OracleEnhancedAdapter" if Oboe::Config[:verbose]
             ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.module_eval do
               include Oboe::Inst::ConnectionAdapters
 
@@ -86,7 +86,6 @@ module Oboe
           end
         end
       end
-
     end
   end
 end
