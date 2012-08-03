@@ -8,12 +8,42 @@ module Oboe
         cls.class_eval do
           alias execute_without_oboe execute
           alias execute execute_with_oboe
+
+          alias exec_query_without_oboe exec_query
+          alias exec_query exec_query_with_oboe
+          
+          alias exec_delete_without_oboe exec_delete
+          alias exec_delete exec_delete_with_oboe
         end
       end
 
       def execute_with_oboe(sql, name = nil)
+        opts = extract_trace_details(sql, name)
+        Oboe::API.trace('ActiveRecord', opts || {}) do
+          execute_without_oboe(sql, name)
+        end
+      end
+
+      def exec_query_with_oboe(sql, name = nil, binds = [])
+        opts = extract_trace_details(sql, name)
+        Oboe::API.trace('ActiveRecord', opts || {}) do
+          exec_query_without_oboe(sql, name, binds)
+        end
+      end
+
+      def exec_delete_with_oboe(sql, name = nil, binds = [])
+        opts = extract_trace_details(sql, name)
+        Oboe::API.trace('ActiveRecord', opts || {}) do
+          exec_delete_without_oboe(sql, name, binds)
+        end
+      end
+
+      def extract_trace_details(sql, name)
+        opts = {}
         if Oboe::Config.tracing?
-          opts = { :Query => sql.to_s, :Name => name.to_s }
+          opts[:Query] = sql.to_s
+          opts[:Name] = name.to_s if name 
+
           if defined?(ActiveRecord::Base.connection.cfg)
             opts[:Database] = ActiveRecord::Base.connection.cfg[:database]
             opts[:RemoteHost] = ActiveRecord::Base.connection.cfg[:host]
@@ -24,9 +54,7 @@ module Oboe
           end
         end
 
-        Oboe::API.trace('ActiveRecord', opts || {}) do
-          execute_without_oboe(sql, name)
-        end
+        return opts || {}
       end
 
       def cfg
