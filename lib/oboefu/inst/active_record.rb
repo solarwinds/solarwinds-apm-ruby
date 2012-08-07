@@ -18,45 +18,65 @@ module Oboe
       end
 
       def execute_with_oboe(sql, name = nil)
-        opts = extract_trace_details(sql, name)
-        Oboe::API.trace('ActiveRecord', opts || {}) do
+        if Oboe::Config.tracing? and !ignore_payload?(name)
+
+          opts = extract_trace_details(sql, name)
+          Oboe::API.trace('ActiveRecord', opts || {}) do
+            execute_without_oboe(sql, name)
+          end
+        else
           execute_without_oboe(sql, name)
         end
       end
 
       def exec_query_with_oboe(sql, name = nil, binds = [])
-        opts = extract_trace_details(sql, name)
-        Oboe::API.trace('ActiveRecord', opts || {}) do
+        if Oboe::Config.tracing? and !ignore_payload?(name)
+
+          opts = extract_trace_details(sql, name)
+          Oboe::API.trace('ActiveRecord', opts || {}) do
+            exec_query_without_oboe(sql, name, binds)
+          end
+        else
           exec_query_without_oboe(sql, name, binds)
         end
       end
 
       def exec_delete_with_oboe(sql, name = nil, binds = [])
-        opts = extract_trace_details(sql, name)
-        Oboe::API.trace('ActiveRecord', opts || {}) do
+        if Oboe::Config.tracing? and !ignore_payload?(name)
+
+          opts = extract_trace_details(sql, name)
+          Oboe::API.trace('ActiveRecord', opts || {}) do
+            exec_delete_without_oboe(sql, name, binds)
+          end
+        else
           exec_delete_without_oboe(sql, name, binds)
         end
       end
 
       def extract_trace_details(sql, name)
         opts = {}
-        if Oboe::Config.tracing?
-          opts[:Query] = sql.to_s
-          opts[:Name] = name.to_s if name 
 
-          if defined?(ActiveRecord::Base.connection.cfg)
-            opts[:Database] = ActiveRecord::Base.connection.cfg[:database]
-            if ActiveRecord::Base.connection.cfg.has_key?(:host)
-              opts[:RemoteHost] = ActiveRecord::Base.connection.cfg[:host]
-            end
-          end
+        opts[:Query] = sql.to_s
+        opts[:Name] = name.to_s if name 
 
-          if defined?(ActiveRecord::Base.connection.sql_flavor)
-            opts[:Flavor] = ActiveRecord::Base.connection.sql_flavor
+        if defined?(ActiveRecord::Base.connection.cfg)
+          opts[:Database] = ActiveRecord::Base.connection.cfg[:database]
+          if ActiveRecord::Base.connection.cfg.has_key?(:host)
+            opts[:RemoteHost] = ActiveRecord::Base.connection.cfg[:host]
           end
         end
 
+        if defined?(ActiveRecord::Base.connection.sql_flavor)
+          opts[:Flavor] = ActiveRecord::Base.connection.sql_flavor
+        end
+
         return opts || {}
+      end
+
+      # We don't want to trace framework caches.  Only instrument SQL that
+      # directly hits the database.
+      def ignore_payload?(name)
+        %w(SCHEMA EXPLAIN CACHE).include? name.to_s
       end
 
       def cfg
