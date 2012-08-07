@@ -46,7 +46,9 @@ module Oboe
 
           if defined?(ActiveRecord::Base.connection.cfg)
             opts[:Database] = ActiveRecord::Base.connection.cfg[:database]
-            opts[:RemoteHost] = ActiveRecord::Base.connection.cfg[:host]
+            if ActiveRecord::Base.connection.cfg.has_key?(:host)
+              opts[:RemoteHost] = ActiveRecord::Base.connection.cfg[:host]
+            end
           end
 
           if defined?(ActiveRecord::Base.connection.sql_flavor)
