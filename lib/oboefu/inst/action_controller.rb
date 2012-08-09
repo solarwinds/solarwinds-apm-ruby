@@ -13,12 +13,8 @@ module OboeFu
 
       def process_action(*args)
         opts = {
-          'HTTP-Host'   => @_request.headers['HTTP_HOST'],
-          :URL          => @_request.headers['REQUEST_URI'],
-          :Method       => @_request.headers['REQUEST_METHOD'],
-          :Status       => @_response.status,
-          :Controller   => self.class.name,
-          :Action       => self.action_name,
+          :Controller => self.class.name,
+          :Action => self.action_name,
         }
 
         Oboe::API.log('rails', 'info', opts)
@@ -58,12 +54,8 @@ if defined?(ActionController::Base)
 
       def perform_action(*arguments)
         opts = {
-            'HTTP-Host'   => @_request.headers['HTTP_HOST'],
-            :URL          => @_request.headers['REQUEST_URI'],
-            :Method       => @_request.headers['REQUEST_METHOD'],
-            :Status       => @_response.status,
-            'Controller'  => @_request.path_parameters['controller'],
-            'Action'      => @_request.path_parameters['action']
+            'Controller' => @_request.path_parameters['controller'],
+            'Action' => @_request.path_parameters['action']
         }
 
         Oboe::API.log('rails', 'info', opts)
@@ -77,4 +69,3 @@ if defined?(ActionController::Base)
     end
   end
 end
-# vim:set expandtab:tabstop=2
