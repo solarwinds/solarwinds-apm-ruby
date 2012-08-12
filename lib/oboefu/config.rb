@@ -8,7 +8,7 @@ module Oboe
     Config = {
         :tracing_mode => "through",
         :reporter_host => "127.0.0.1",
-        :sampling_rate => 3e5
+        :sample_rate => 3e5
     }
   end
 
@@ -31,9 +31,9 @@ module Oboe
 
     def sample?
       # Note that this the only point in the code that currently does and
-      # should ever read the sampling rate. When autopilot is released, modify
+      # should ever read the sample rate. When autopilot is released, modify
       # the line below and that line only.
-      self[:sampling_rate].to_i < rand(1e6)
+      self[:sample_rate].to_i < rand(1e6)
     end
   end
 end
