@@ -5,7 +5,7 @@ module OboeFu
   module Loading
 
     def self.require_api
-      puts "[oboe_fu] loading ..."
+      puts "[oboe_fu] loading ..." if Oboe::Config[:verbose]
 
       pattern = File.join(File.dirname(__FILE__), 'api', '*.rb')
       Dir.glob(pattern) do |f|

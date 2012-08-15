@@ -35,4 +35,6 @@ Net::HTTP.class_eval do
 
   alias request_without_oboe request
   alias request request_with_oboe
+
+  puts "[oboe_fu/loading] Instrumenting net/http" if Oboe::Config[:verbose]
 end
