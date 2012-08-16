@@ -38,3 +38,4 @@ Net::HTTP.class_eval do
 
   puts "[oboe_fu/loading] Instrumenting net/http" if Oboe::Config[:verbose]
 end
+=end
