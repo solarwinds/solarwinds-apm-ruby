@@ -3,7 +3,7 @@ Gem::Specification.new do |s|
     s.version = "1.0.9"
     s.date = %{2012-08-16}
     s.authors = ["Tracelytics, Inc."]
-    s.email = %q{support@tracelytics.com}
+    s.email = %q{contact@tracelytics.com}
     s.summary = %q{Oboe instrumentation for Ruby frameworks}
     s.homepage = %q{http://tracelytics.com}
     s.description = %q{Oboe instrumentation for Ruby frameworks}
