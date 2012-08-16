@@ -1,37 +1,41 @@
 # Copyright (c) 2012 by Tracelytics, Inc.
 # All rights reserved.
 
-=begin
 require 'net/http'
 
 Net::HTTP.class_eval do
-  def instrumented_request(*args, &block)
+  def request_with_oboe(*args, &block)
     unless started?
-      return clean_request(*args, &block)
+      return request_without_oboe(*args, &block)
     end
 
-    Oboe::Inst.trace_layer_block_ss('http', self, 'request', *args) do
+    Oboe::API.trace('net-http') do
         opts = {}
-
         if args.length and args[0]
           req = args[0]
           req['X-Trace'] = Oboe::Context.toString()
 
           opts['IsService'] = 1
-          opts['RemoteProtocol'] = 'http'
+          opts['RemoteProtocol'] = use_ssl? ? 'HTTPS' : 'HTTP'
           opts['RemoteHost'] = addr_port
+          opts['ServiceArg'] = req.path
           opts['Method'] = req.method
         end
 
-        resp = clean_request(*args, &block)
+        Oboe::API.log('net-http', 'info', opts)
+        resp = request_without_oboe(*args, &block)
 
         xtrace = resp.get_fields('X-Trace')
-        Oboe::Context.fromString(xtrace[0]) if xtrace and xtrace.size
-
-        next [resp, opts]
+        if xtrace and xtrace.size and Oboe::Config.tracing?
+          Oboe::Context.fromString(xtrace[0])
+        end
+        next resp
     end
   end
 
-  alias clean_request request
-  alias request instrumented_request
+  alias request_without_oboe request
+  alias request request_with_oboe
+
+  puts "[oboe_fu/loading] Instrumenting net/http" if Oboe::Config[:verbose]
 end
+=end

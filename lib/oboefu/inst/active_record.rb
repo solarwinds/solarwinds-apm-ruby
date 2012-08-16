@@ -6,49 +6,77 @@ module Oboe
     module ConnectionAdapters
       def self.included(cls)
         cls.class_eval do
-          alias unwrapped_execute execute
-          alias execute wrapped_execute
+          alias execute_without_oboe execute
+          alias execute execute_with_oboe
+
+          alias exec_query_without_oboe exec_query
+          alias exec_query exec_query_with_oboe
+          
+          alias exec_delete_without_oboe exec_delete
+          alias exec_delete exec_delete_with_oboe
         end
       end
 
-      def wrapped_execute(sql, name = nil)
-        tracing_mode = Oboe::Config[:tracing_mode]
+      def execute_with_oboe(sql, name = nil)
+        if Oboe::Config.tracing? and !ignore_payload?(name)
 
-        if Oboe::Context.isValid() and tracing_mode != "never" and name and name != :skip_logging
-          evt = Oboe::Context.createEvent()
-          evt.addInfo("Layer", "ActiveRecord")
-          evt.addInfo("Label", "entry")
-          evt.addInfo("Query", sql.to_s)
-          evt.addInfo("Name", name.to_s)
-
-          if defined?(ActiveRecord::Base.connection.cfg)
-            # Note that changing databases will break this
-            evt.addInfo("Database", ActiveRecord::Base.connection.cfg[:database])
-            evt.addInfo("RemoteHost", ActiveRecord::Base.connection.cfg[:host])
+          opts = extract_trace_details(sql, name)
+          Oboe::API.trace('ActiveRecord', opts || {}) do
+            execute_without_oboe(sql, name)
           end
+        else
+          execute_without_oboe(sql, name)
+        end
+      end
 
-          if defined?(ActiveRecord::Base.connection.sql_flavor)
-            evt.addInfo("Flavor", ActiveRecord::Base.connection.sql_flavor)
+      def exec_query_with_oboe(sql, name = nil, binds = [])
+        if Oboe::Config.tracing? and !ignore_payload?(name)
+
+          opts = extract_trace_details(sql, name)
+          Oboe::API.trace('ActiveRecord', opts || {}) do
+            exec_query_without_oboe(sql, name, binds)
           end
+        else
+          exec_query_without_oboe(sql, name, binds)
+        end
+      end
 
-          evt.addInfo("Backtrace", Kernel.caller.join("\r\n"))
+      def exec_delete_with_oboe(sql, name = nil, binds = [])
+        if Oboe::Config.tracing? and !ignore_payload?(name)
 
-          Oboe.reporter.sendReport(evt)
+          opts = extract_trace_details(sql, name)
+          Oboe::API.trace('ActiveRecord', opts || {}) do
+            exec_delete_without_oboe(sql, name, binds)
+          end
+        else
+          exec_delete_without_oboe(sql, name, binds)
+        end
+      end
+
+      def extract_trace_details(sql, name)
+        opts = {}
+
+        opts[:Query] = sql.to_s
+        opts[:Name] = name.to_s if name 
+
+        if defined?(ActiveRecord::Base.connection.cfg)
+          opts[:Database] = ActiveRecord::Base.connection.cfg[:database]
+          if ActiveRecord::Base.connection.cfg.has_key?(:host)
+            opts[:RemoteHost] = ActiveRecord::Base.connection.cfg[:host]
+          end
         end
 
-        begin
-          result = unwrapped_execute(sql, name)
-        ensure
-          if Oboe::Context.isValid() and tracing_mode != "never" and name and name != :skip_logging
-            evt = Oboe::Context.createEvent()
-            evt.addInfo("Layer", "ActiveRecord")
-            evt.addInfo("Label", "exit")
-
-            Oboe.reporter.sendReport(evt)
-          end
+        if defined?(ActiveRecord::Base.connection.sql_flavor)
+          opts[:Flavor] = ActiveRecord::Base.connection.sql_flavor
         end
 
-        return result
+        return opts || {}
+      end
+
+      # We don't want to trace framework caches.  Only instrument SQL that
+      # directly hits the database.
+      def ignore_payload?(name)
+        %w(SCHEMA EXPLAIN CACHE).include? name.to_s
       end
 
       def cfg
@@ -57,9 +85,9 @@ module Oboe
 
       module FlavorInitializers
         def self.mysql
-          if defined?(::ActiveRecord::ConnectionAdapters::MysqlAdapter)
-            puts "[oboe_fu/loading] Instrumenting ActiveRecord MysqlAdapter"
-            ::ActiveRecord::ConnectionAdapters::MysqlAdapter.module_eval do
+          if ActiveRecord::Base::connection.adapter_name.downcase.to_sym == :mysql
+            puts "[oboe_fu/loading] Instrumenting ActiveRecord MysqlAdapter" if Oboe::Config[:verbose]
+            ActiveRecord::ConnectionAdapters::MysqlAdapter.module_eval do
               include ::Oboe::Inst::ConnectionAdapters
 
               def sql_flavor
@@ -70,21 +98,21 @@ module Oboe
         end
 
         def self.mysql2
-          if defined?(ActiveRecord::ConnectionAdapters::Mysql2Adapter)
-            puts "[oboe_fu/loading] Instrumenting ActiveRecord Mysql2Adapter"
+          if ActiveRecord::Base::connection.adapter_name.downcase.to_sym == :mysql2
+            puts "[oboe_fu/loading] Instrumenting ActiveRecord Mysql2Adapter" if Oboe::Config[:verbose]
             ActiveRecord::ConnectionAdapters::Mysql2Adapter.module_eval do
               include Oboe::Inst::ConnectionAdapters
 
               def sql_flavor
-                'mysql'
+                'mysql2'
               end
             end
           end
         end
 
         def self.postgresql
-          if defined?(ActiveRecord::ConnectionAdapters::PostgreSQLAdapter)
-            puts "[oboe_fu/loading] Instrumenting ActiveRecord PostgreSQLAdapter"
+          if ActiveRecord::Base::connection.adapter_name.downcase.to_sym == :postgresql
+            puts "[oboe_fu/loading] Instrumenting ActiveRecord PostgreSQLAdapter" if Oboe::Config[:verbose]
             ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.module_eval do
               include Oboe::Inst::ConnectionAdapters
 
@@ -96,8 +124,8 @@ module Oboe
         end
 
         def self.oracle
-          if defined?(ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter)
-            puts "[oboe_fu/loading] Instrumenting ActiveRecord OracleEnhancedAdapter"
+          if ActiveRecord::Base::connection.adapter_name.downcase.to_sym == :oracleenhanced
+            puts "[oboe_fu/loading] Instrumenting ActiveRecord OracleEnhancedAdapter" if Oboe::Config[:verbose]
             ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.module_eval do
               include Oboe::Inst::ConnectionAdapters
 
@@ -108,7 +136,6 @@ module Oboe
           end
         end
       end
-
     end
   end
 end
