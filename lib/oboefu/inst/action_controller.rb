@@ -63,7 +63,6 @@ if defined?(ActionController::Base)
 
       def perform_action(*arguments)
         opts = {
-<<<<<<< HEAD
             'HTTP-Host'   => @_request.headers['HTTP_HOST'],
             :URL          => @_request.headers['REQUEST_URI'],
             :Method       => @_request.headers['REQUEST_METHOD'],
@@ -74,18 +73,6 @@ if defined?(ActionController::Base)
 
         Oboe::API.log('rails', 'info', opts)
         perform_action_without_oboe(*arguments)
-=======
-            'HTTP-Host'  => @_request.headers['HTTP_HOST'],
-            'URL'        => @_request.headers['REQUEST_URI'],
-            'Method'     => @_request.headers['REQUEST_METHOD'],
-            'Status'     => @_response.status,
-            'Controller' => @_request.path_parameters['controller'],
-            'Action'     => @_request.path_parameters['action']
-        }
-        Oboe::Inst.log('rails', 'info', opts)
-
-        old_perform_action(*arguments)
->>>>>>> master
       end
 
       def rescue_action(exn)
