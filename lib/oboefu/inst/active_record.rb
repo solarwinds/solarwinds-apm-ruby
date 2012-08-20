@@ -28,7 +28,7 @@ module Oboe
         # We don't want to trace framework caches.  Only instrument SQL that
         # directly hits the database.
         def ignore_payload?(name)
-          %w(SCHEMA EXPLAIN CACHE).include? name.to_s or name.try(:to_sym) == :skip_logging
+          %w(SCHEMA EXPLAIN CACHE).include? name.to_s or (name and name.to_sym == :skip_logging)
         end
 
         def cfg
