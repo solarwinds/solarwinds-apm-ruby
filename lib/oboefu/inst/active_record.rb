@@ -191,8 +191,10 @@ module Oboe
                 alias exec_insert exec_insert_with_oboe
               else puts "[oboe_fu/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
               end
-              
-              if ActiveRecord::ConnectionAdapters::Mysql2Adapter::method_defined? :exec_query
+             
+              # In Rails 3.1, exec_query was defined as a private method
+              if ActiveRecord::ConnectionAdapters::Mysql2Adapter::method_defined? :exec_query or
+                ActiveRecord::ConnectionAdapters::Mysql2Adapter::private_method_defined? :exec_query
                 alias exec_query_without_oboe exec_query
                 alias exec_query exec_query_with_oboe
               else puts "[oboe_fu/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
