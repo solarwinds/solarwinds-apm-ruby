@@ -179,7 +179,7 @@ module Oboe
       
         def self.included(cls)
           cls.class_eval do
-            if Rails::VERSION::MAJOR == 2 or Rails::VERSION::MAJOR == 3 and Rails::VERSION::MINOR == 0
+            if Rails::VERSION::MAJOR == 2 or (Rails::VERSION::MAJOR == 3 and Rails::VERSION::MINOR == 0)
               if ActiveRecord::ConnectionAdapters::Mysql2Adapter::method_defined? :execute
                 alias execute_without_oboe execute
                 alias execute execute_with_oboe
