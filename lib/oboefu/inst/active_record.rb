@@ -34,132 +34,6 @@ module Oboe
         def cfg
           @config
         end
-      end # Utils
-      
-      module PostgreSQLAdapter
-        include Oboe::Inst::ConnectionAdapters::Utils
-      
-        def self.included(cls)
-          cls.class_eval do
-            alias exec_query_without_oboe exec_query
-            alias exec_query exec_query_with_oboe
-            
-            alias exec_delete_without_oboe exec_delete
-            alias exec_delete exec_delete_with_oboe
-          end
-        end
-        
-        def exec_query_with_oboe(sql, name = nil, binds = [])
-          if Oboe::Config.tracing? and !ignore_payload?(name)
-
-            opts = extract_trace_details(sql, name)
-            Oboe::API.trace('ActiveRecord', opts || {}) do
-              exec_query_without_oboe(sql, name, binds)
-            end
-          else
-            exec_query_without_oboe(sql, name, binds)
-          end
-        end
-        
-        def exec_delete_with_oboe(sql, name = nil, binds = [])
-          if Oboe::Config.tracing? and !ignore_payload?(name)
-
-            opts = extract_trace_details(sql, name)
-            Oboe::API.trace('ActiveRecord', opts || {}) do
-              exec_delete_without_oboe(sql, name, binds)
-            end
-          else
-            exec_delete_without_oboe(sql, name, binds)
-          end
-        end
-      end # PostgreSQLAdapter
-
-      module LegacyPostgreSQLAdapter
-        include Oboe::Inst::ConnectionAdapters::Utils
-      
-        def self.included(cls)
-          cls.class_eval do
-            alias execute_without_oboe execute
-            alias execute execute_with_oboe
-          end
-        end
-        
-        def execute_with_oboe(sql, name = nil)
-          if Oboe::Config.tracing? and !ignore_payload?(name)
-
-            opts = extract_trace_details(sql, name)
-            Oboe::API.trace('ActiveRecord', opts || {}) do
-              execute_without_oboe(sql, name)
-            end
-          else
-            execute_without_oboe(sql, name)
-          end
-        end
-      end # LegacyPostgreSQLAdapter
-
-      module AbstractMySQLAdapter
-        include Oboe::Inst::ConnectionAdapters::Utils
-      
-        def self.included(cls)
-          cls.class_eval do
-            alias execute_without_oboe execute
-            alias execute execute_with_oboe
-          end
-        end
-        
-        def execute_with_oboe(sql, name = nil)
-          if Oboe::Config.tracing? and !ignore_payload?(name)
-
-            opts = extract_trace_details(sql, name)
-            Oboe::API.trace('ActiveRecord', opts || {}) do
-              execute_without_oboe(sql, name)
-            end
-          else
-            execute_without_oboe(sql, name)
-          end
-        end
-      end # AbstractMySQLAdapter
-
-      module MySQLAdapter
-        include Oboe::Inst::ConnectionAdapters::Utils
-      
-        def self.included(cls)
-          cls.class_eval do
-            alias exec_query_without_oboe exec_query
-            alias exec_query exec_query_with_oboe
-          end
-        end
-        
-        def exec_query_with_oboe(sql, name = nil, binds = [])
-          if Oboe::Config.tracing? and !ignore_payload?(name)
-
-            opts = extract_trace_details(sql, name)
-            Oboe::API.trace('ActiveRecord', opts || {}) do
-              exec_query_without_oboe(sql, name, binds)
-            end
-          else
-            exec_query_without_oboe(sql, name, binds)
-          end
-        end
-      end # MySQLAdapter
-
-      module LegacyMySQLAdapter
-        include Oboe::Inst::ConnectionAdapters::Utils
-      
-        def self.included(cls)
-          cls.class_eval do
-            alias execute_without_oboe execute
-            alias execute execute_with_oboe
-            
-            if Rails::VERSION::MAJOR == 3 and Rails::VERSION::MINOR > 0
-              alias exec_query_without_oboe exec_query
-              alias exec_query exec_query_with_oboe
-              
-              alias exec_delete_without_oboe exec_delete
-              alias exec_delete exec_delete_with_oboe
-            end
-          end
-        end
         
         def execute_with_oboe(sql, name = nil)
           if Oboe::Config.tracing? and !ignore_payload?(name)
@@ -194,23 +68,6 @@ module Oboe
             end
           else
             exec_delete_without_oboe(sql, name, binds)
-          end
-        end
-      end # LegacyMySQLAdapter
-      
-      module MySQL2Adapter
-        include Oboe::Inst::ConnectionAdapters::Utils
-      
-        def self.included(cls)
-          cls.class_eval do
-            alias exec_insert_without_oboe exec_insert
-            alias exec_insert exec_insert_with_oboe
-            
-            alias exec_query_without_oboe exec_query
-            alias exec_query exec_query_with_oboe
-            
-            alias exec_delete_without_oboe exec_delete
-            alias exec_delete exec_delete_with_oboe
           end
         end
         
@@ -225,31 +82,133 @@ module Oboe
             exec_insert_without_oboe(sql, name, binds)
           end
         end
-        
-        def exec_query_with_oboe(sql, name = nil, binds = [])
-          if Oboe::Config.tracing? and !ignore_payload?(name)
-
-            opts = extract_trace_details(sql, name)
-            Oboe::API.trace('ActiveRecord', opts || {}) do
-              exec_query_without_oboe(sql, name, binds)
+      end # Utils
+      
+      module PostgreSQLAdapter
+        include Oboe::Inst::ConnectionAdapters::Utils
+      
+        def self.included(cls)
+          cls.class_eval do
+            if ActiveRecord::ConnectionAdapters::PostgreSQLAdapter::method_defined? :exec_query
+              alias exec_query_without_oboe exec_query
+              alias exec_query exec_query_with_oboe
+            else puts "[oboe_fu/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
             end
-          else
-            exec_query_without_oboe(sql, name, binds)
+              
+            if ActiveRecord::ConnectionAdapters::PostgreSQLAdapter::method_defined? :exec_delete
+              alias exec_delete_without_oboe exec_delete
+              alias exec_delete exec_delete_with_oboe
+            else puts "[oboe_fu/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
+            end
           end
         end
-        
-        def exec_delete_with_oboe(sql, name = nil, binds = [])
-          if Oboe::Config.tracing? and !ignore_payload?(name)
+      end # PostgreSQLAdapter
 
-            opts = extract_trace_details(sql, name)
-            Oboe::API.trace('ActiveRecord', opts || {}) do
-              exec_delete_without_oboe(sql, name, binds)
+      module LegacyPostgreSQLAdapter
+        include Oboe::Inst::ConnectionAdapters::Utils
+      
+        def self.included(cls)
+          cls.class_eval do
+            if ActiveRecord::ConnectionAdapters::PostgreSQLAdapter::method_defined? :execute
+              alias execute_without_oboe execute
+              alias execute execute_with_oboe
+            else puts "[oboe_fu/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
             end
-          else
-            exec_delete_without_oboe(sql, name, binds)
           end
         end
-      end # MySQL2Adapter
+      end # LegacyPostgreSQLAdapter
+
+      module AbstractMysqlAdapter
+        include Oboe::Inst::ConnectionAdapters::Utils
+      
+        def self.included(cls)
+          cls.class_eval do
+            if ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter::method_defined? :execute
+              alias execute_without_oboe execute
+              alias execute execute_with_oboe
+            else puts "[oboe_fu/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
+            end
+          end
+        end
+      end # AbstractMysqlAdapter
+
+      module MysqlAdapter
+        include Oboe::Inst::ConnectionAdapters::Utils
+      
+        def self.included(cls)
+          cls.class_eval do
+            if ActiveRecord::ConnectionAdapters::MysqlAdapter::method_defined? :exec_query
+              alias exec_query_without_oboe exec_query
+              alias exec_query exec_query_with_oboe
+            else puts "[oboe_fu/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
+            end
+          end
+        end
+      end # MysqlAdapter
+
+      module LegacyMysqlAdapter
+        include Oboe::Inst::ConnectionAdapters::Utils
+      
+        def self.included(cls)
+          cls.class_eval do
+            if ActiveRecord::ConnectionAdapters::MysqlAdapter::method_defined? :execute
+              alias execute_without_oboe execute
+              alias execute execute_with_oboe
+            else puts "[oboe_fu/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
+            end
+            
+            if Rails::VERSION::MAJOR == 3 and Rails::VERSION::MINOR > 0
+              if ActiveRecord::ConnectionAdapters::MysqlAdapter::method_defined? :exec_query
+                alias exec_query_without_oboe exec_query
+                alias exec_query exec_query_with_oboe
+              else puts "[oboe_fu/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
+              end
+              
+              if ActiveRecord::ConnectionAdapters::MysqlAdapter::method_defined? :exec_delete
+                alias exec_delete_without_oboe exec_delete
+                alias exec_delete exec_delete_with_oboe
+              else puts "[oboe_fu/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
+              end
+            end
+          end
+        end
+      end # LegacyMysqlAdapter
+      
+      module Mysql2Adapter
+        include Oboe::Inst::ConnectionAdapters::Utils
+      
+        def self.included(cls)
+          cls.class_eval do
+            if Rails::VERSION::MAJOR == 2 or (Rails::VERSION::MAJOR == 3 and Rails::VERSION::MINOR == 0)
+              if ActiveRecord::ConnectionAdapters::Mysql2Adapter::method_defined? :execute
+                alias execute_without_oboe execute
+                alias execute execute_with_oboe
+              else puts "[oboe_fu/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
+              end
+            else
+              if ActiveRecord::ConnectionAdapters::Mysql2Adapter::method_defined? :exec_insert
+                alias exec_insert_without_oboe exec_insert
+                alias exec_insert exec_insert_with_oboe
+              else puts "[oboe_fu/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
+              end
+             
+              # In Rails 3.1, exec_query was defined as a private method
+              if ActiveRecord::ConnectionAdapters::Mysql2Adapter::method_defined? :exec_query or
+                ActiveRecord::ConnectionAdapters::Mysql2Adapter::private_method_defined? :exec_query
+                alias exec_query_without_oboe exec_query
+                alias exec_query exec_query_with_oboe
+              else puts "[oboe_fu/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
+              end
+              
+              if ActiveRecord::ConnectionAdapters::Mysql2Adapter::method_defined? :exec_delete
+                alias exec_delete_without_oboe exec_delete
+                alias exec_delete exec_delete_with_oboe
+              else puts "[oboe_fu/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
+              end
+            end
+          end
+        end
+      end # Mysql2Adapter
 
       module FlavorInitializers
         def self.mysql
@@ -257,14 +216,14 @@ module Oboe
             puts "[oboe_fu/loading] Instrumenting ActiveRecord MysqlAdapter" if Oboe::Config[:verbose]
             if Rails::VERSION::MAJOR == 3 and Rails::VERSION::MINOR > 1
               ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter.module_eval do
-                include Oboe::Inst::ConnectionAdapters::AbstractMySQLAdapter
+                include Oboe::Inst::ConnectionAdapters::AbstractMysqlAdapter
               end
               ActiveRecord::ConnectionAdapters::MysqlAdapter.module_eval do
-                include Oboe::Inst::ConnectionAdapters::MySQLAdapter
+                include Oboe::Inst::ConnectionAdapters::MysqlAdapter
               end
             else
               ActiveRecord::ConnectionAdapters::MysqlAdapter.module_eval do
-                include Oboe::Inst::ConnectionAdapters::LegacyMySQLAdapter
+                include Oboe::Inst::ConnectionAdapters::LegacyMysqlAdapter
               end
             end
           end
@@ -274,7 +233,7 @@ module Oboe
           if ActiveRecord::Base::connection.adapter_name.downcase.to_sym == :mysql2
             puts "[oboe_fu/loading] Instrumenting ActiveRecord Mysql2Adapter" if Oboe::Config[:verbose]
             ActiveRecord::ConnectionAdapters::Mysql2Adapter.module_eval do
-              include Oboe::Inst::ConnectionAdapters::MySQL2Adapter
+              include Oboe::Inst::ConnectionAdapters::Mysql2Adapter
             end
           end
         end
