@@ -13,7 +13,10 @@ unless RUBY_PLATFORM =~ /linux/
   exit 1
 end
 
-exit 1 unless have_library('liboboe')
+unless have_library('oboe')
+  $stderr.puts "Error: Could not find the base liboboe libraries."
+  exit 1
+end
 
 $libs = append_library($libs, "oboe")
 $libs = append_library($libs, "stdc++")
