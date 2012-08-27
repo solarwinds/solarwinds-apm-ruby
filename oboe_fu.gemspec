@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
     s.name = %q{oboe_fu}
-    s.version = "1.1.2"
-    s.date = %{2012-08-20}
+    s.version = "1.2.0"
+    s.date = %{2012-08-27}
     s.authors = ["Tracelytics, Inc."]
     s.email = %q{contact@tracelytics.com}
     s.summary = %q{Oboe instrumentation for Ruby frameworks}
@@ -10,5 +10,5 @@ Gem::Specification.new do |s|
     s.extra_rdoc_files = ["LICENSE"]
     s.files = Dir.glob(File.join('lib', '**', '*.rb')) + ['install.rb'] + ["LICENSE"]
 
-    s.add_dependency('oboe', '>= 0.2.3')
+    s.add_dependency('oboe', '>= 0.3.0')
 end
