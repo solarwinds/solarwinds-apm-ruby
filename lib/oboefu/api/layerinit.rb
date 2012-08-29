@@ -8,9 +8,11 @@ module Oboe
       #
       def report_init(layer)
         force_trace do
-          start_trace(layer, nil, { '__Init' => 1, 'OboeFuVersion' => Oboe::Version::STRING,
-                                    'RubyVersion' => RUBY_VERSION, 'RailsVersion' => Rails.version,
-                                    'OboeRubyVersion' => '0.2.4' }) { }
+          start_trace(layer, nil, { '__Init' => 1, 
+                                    'RubyVersion'     => RUBY_VERSION, 
+                                    'RailsVersion'    => Rails.version,
+                                    'OboeRubyVersion' => Gem.loaded_specs['oboe'].try(:version).to_s,
+                                    'OboeFuVersion'   => Gem.loaded_specs['oboe_fu'].try(:version).to_s }) { }
         end
       end
 
