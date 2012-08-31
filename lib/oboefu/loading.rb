@@ -27,7 +27,6 @@ module OboeFu
       end
 
       require 'oboefu/config'
-      require 'oboefu/version'
     end
 
     def self.require_instrumentation
