@@ -82,6 +82,19 @@ module Oboe
             exec_insert_without_oboe(sql, name, binds)
           end
         end
+        
+        def begin_db_transaction_with_oboe()
+          if Oboe::Config.tracing?
+            opts = {}
+
+            opts[:Query] = "BEGIN"
+            Oboe::API.trace('ActiveRecord', opts || {}) do
+              begin_db_transaction_without_oboe()
+            end
+          else
+            begin_db_transaction_without_oboe()
+          end
+        end
       end # Utils
       
       module PostgreSQLAdapter
@@ -155,6 +168,14 @@ module Oboe
               alias execute_without_oboe execute
               alias execute execute_with_oboe
             else puts "[oboe_fu/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
+            end
+            
+            if Rails::VERSION::MAJOR == 3 and Rails::VERSION::MINOR == 1
+              if ActiveRecord::ConnectionAdapters::MysqlAdapter::method_defined? :begin_db_transaction
+                alias begin_db_transaction_without_oboe begin_db_transaction
+                alias begin_db_transaction begin_db_transaction_with_oboe
+              else puts "[oboe_fu/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
+              end
             end
             
             if Rails::VERSION::MAJOR == 3 and Rails::VERSION::MINOR > 0
