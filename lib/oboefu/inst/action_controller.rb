@@ -5,6 +5,7 @@ module OboeFu
   module Inst
     module Rails3ActionController
       def process(*args)
+
         header = request.headers['X-Trace']
         Oboe::API.start_trace_with_target('rails', header, response.headers) do
           super
@@ -13,12 +14,20 @@ module OboeFu
 
       def process_action(*args)
         opts = {
-          :Controller => self.class.name,
-          :Action => self.action_name,
+          'HTTP-Host'   => @_request.headers['HTTP_HOST'],
+          :URL          => @_request.headers['REQUEST_URI'],
+          :Method       => @_request.headers['REQUEST_METHOD'],
+          :Controller   => self.class.name,
+          :Action       => self.action_name,
         }
-
-        Oboe::API.log('rails', 'info', opts)
         super
+
+        opts[:Status] = @_response.status
+        Oboe::API.log('rails', 'info', opts)
+      
+      rescue Exception => exception
+        opts[:Status] = 500
+        Oboe::API.log('rails', 'info', opts)
       end
 
       def render(*args)
@@ -68,4 +77,5 @@ if defined?(ActionController::Base)
       end
     end
   end
+  puts "[oboe_fu/loading] Instrumenting ActionControler" if Oboe::Config[:verbose]
 end

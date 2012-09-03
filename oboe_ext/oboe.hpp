@@ -7,6 +7,10 @@
 #include <string>
 #include <oboe/oboe.h>
 
+// oboe prefix added in liboboe 1.0
+#ifndef MAX_METADATA_PACK_LEN
+#define MAX_METADATA_PACK_LEN OBOE_MAX_METADATA_PACK_LEN
+#endif
 
 class Event;
 

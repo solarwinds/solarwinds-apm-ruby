@@ -16,8 +16,9 @@ Net::HTTP.class_eval do
           req['X-Trace'] = Oboe::Context.toString()
 
           opts['IsService'] = 1
-          opts['RemoteProtocol'] = 'http'
+          opts['RemoteProtocol'] = use_ssl? ? 'HTTPS' : 'HTTP'
           opts['RemoteHost'] = addr_port
+          opts['ServiceArg'] = req.path
           opts['Method'] = req.method
         end
 
@@ -34,4 +35,6 @@ Net::HTTP.class_eval do
 
   alias request_without_oboe request
   alias request request_with_oboe
+
+  puts "[oboe_fu/loading] Instrumenting net/http" if Oboe::Config[:verbose]
 end

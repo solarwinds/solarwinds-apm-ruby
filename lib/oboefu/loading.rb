@@ -5,7 +5,6 @@ module OboeFu
   module Loading
 
     def self.require_api
-      puts "[oboe_fu] loading ..."
 
       pattern = File.join(File.dirname(__FILE__), 'api', '*.rb')
       Dir.glob(pattern) do |f|
@@ -15,13 +14,19 @@ module OboeFu
 
       begin
         require 'oboe'
+        
+        # Force load the tracelytics user initializer if there is one
+        tr_initializer = "#{Rails.root}/config/initializers/tracelytics.rb"
+        require tr_initializer if File.exists?(tr_initializer)
+      
+        puts "[oboe_fu] loading ..." if Oboe::Config[:verbose]
+
         Oboe::API.extend_with_tracing
       rescue LoadError => e
         Oboe::API.extend_with_noop
       end
 
       require 'oboefu/config'
-      require 'oboefu/version'
     end
 
     def self.require_instrumentation

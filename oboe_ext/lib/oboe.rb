@@ -108,7 +108,7 @@ module Oboe
   Config = {
     :tracing_mode => "through",
     :reporter_host => "127.0.0.1",
-    :sampling_rate => 1000000
+    :sample_rate => 1000000
   }
 
   def self.passthrough?
