@@ -37,7 +37,7 @@ module OboeMethodProfiling
             version = RbConfig::CONFIG['ruby_version']
             file = nil
             line = nil
-            if version == 1.9
+            if version and version.match(/^1.9/)
                 info = self.method(method_name).source_location
                 if !info.nil?
                   file = info[0]
