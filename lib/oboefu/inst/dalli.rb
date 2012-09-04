@@ -6,11 +6,11 @@ module Oboe
     module Dalli
       def self.included(cls)
         cls.class_eval do
-          puts "[oboe_fu/loading] Instrumenting Dalli" if Oboe::Config[:verbose]
+          puts "[oboe_fu/loading] Instrumenting Memcache (Dalli)" if Oboe::Config[:verbose]
           if ::Dalli::Client.private_method_defined? :perform
             alias perform_without_oboe perform
             alias perform perform_with_oboe
-          else puts "[oboe_fu/loading] Couldn't properly instrument Dalli.  Partial traces may occur."
+          else puts "[oboe_fu/loading] Couldn't properly instrument Memcache (Dalli).  Partial traces may occur."
           end
         end
       end
@@ -21,7 +21,7 @@ module Oboe
           opts[:KVOp] = op
           opts[:KVKey] = key 
 
-          Oboe::API.trace('dalli', opts || {}) do
+          Oboe::API.trace('memcache', opts || {}) do
             perform_without_oboe(op, key, *args)
           end
         else
