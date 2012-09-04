@@ -27,11 +27,10 @@ if defined?(ActionView::Base)
     
       def render(options = {}, locals = {}, &block)
         opts = {}
-        puts options.inspect
         opts[:partial] = options[:partial] if options.has_key?(:partial)
         opts[:file] = options[:file] if options.has_key?(:file)
 
-        Oboe::API.start_trace_with_target('render', opts) do
+        Oboe::API.trace('partial', opts) do
           render_without_oboe(options, locals, &block)
         end
       end
