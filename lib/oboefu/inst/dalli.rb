@@ -4,6 +4,8 @@
 module Oboe
   module Inst
     module Dalli
+      include Oboe::API::Memcache
+
       def self.included(cls)
         cls.class_eval do
           puts "[oboe_fu/loading] Instrumenting Memcache (Dalli)" if Oboe::Config[:verbose]
@@ -22,7 +24,11 @@ module Oboe
           opts[:KVKey] = key 
 
           Oboe::API.trace('memcache', opts || {}) do
-            perform_without_oboe(op, key, *args)
+            result = perform_without_oboe(op, key, *args)
+            if op == :get and key.class == String
+                Oboe::API.log('memcache', 'info', { :KVHit => memcache_hit?(result) })
+            end
+            result
           end
         else
           perform_without_oboe(op, key, *args)
