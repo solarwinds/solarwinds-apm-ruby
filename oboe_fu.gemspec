@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
     s.name = %q{oboe_fu}
-    s.version = "1.2.0"
+    s.version = "1.2.1"
     s.date = %{2012-08-27}
     s.authors = ["Tracelytics, Inc."]
     s.email = %q{contact@tracelytics.com}
