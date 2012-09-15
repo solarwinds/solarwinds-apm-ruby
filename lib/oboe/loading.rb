@@ -1,19 +1,18 @@
 # Copyright (c) 2012 by Tracelytics, Inc.
 # All rights reserved.
 
-module OboeFu
+module Oboe
   module Loading
 
     def self.require_api
-
       pattern = File.join(File.dirname(__FILE__), 'api', '*.rb')
       Dir.glob(pattern) do |f|
         require f
       end
-      require 'oboefu/api'
+      require 'oboe/api'
 
       begin
-        require 'oboe'
+        require 'oboe_metal'
         
         # Force load the tracelytics user initializer if there is one
         tr_initializer = "#{Rails.root}/config/initializers/tracelytics.rb"
@@ -26,7 +25,7 @@ module OboeFu
         Oboe::API.extend_with_noop
       end
 
-      require 'oboefu/config'
+      require 'oboe/config'
     end
 
     def self.require_instrumentation
