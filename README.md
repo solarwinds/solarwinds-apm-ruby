@@ -1,6 +1,6 @@
-# oboe_fu - Tracelytics rails instrumentation
+# oboe - Tracelytics Ruby (and Ruby Frameworks) Instrumentation
 
-```oboe_fu``` provides instrumentation the rails framework, as well as other
+```oboe``` provides instrumentation the rails framework, as well as other
 common components used to build rails applications.
 
 ## Installing

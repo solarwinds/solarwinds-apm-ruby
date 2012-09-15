@@ -12,7 +12,7 @@ fi
 #set -x # show commands as they happen
 
 # check package version
-VERSION=$(grep version oboe_fu.gemspec | sed 's/.*"\(.*\)"/\1/')
+VERSION=$(grep version oboe.gemspec | sed 's/.*"\(.*\)"/\1/')
 
 # tag release (if tag already exists, bails out)
 if ! git tag rel-$VERSION; then
@@ -22,6 +22,6 @@ fi
 git push --tags
 
 # publish package
-gem build oboe_fu.gemspec
-sudo cp oboe_fu-$VERSION.gem /www/gem/gems
+gem build oboe.gemspec
+sudo cp oboe-$VERSION.gem /www/gem/gems
 sudo gem generate_index -d /www/gem

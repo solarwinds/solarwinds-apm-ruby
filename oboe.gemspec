@@ -1,5 +1,5 @@
 Gem::Specification.new do |s|
-    s.name = %q{oboe_fu}
+    s.name = %q{oboe}
     s.version = "1.3.0"
     s.date = %{2012-09-12}
     s.authors = ["Tracelytics, Inc."]
@@ -8,6 +8,7 @@ Gem::Specification.new do |s|
     s.homepage = %q{http://tracelytics.com}
     s.description = %q{The oboe gem provides Tracelytics instrumentation for Ruby and Ruby frameworkes.}
     s.extra_rdoc_files = ["LICENSE"]
-    s.files = Dir.glob(File.join('lib', '**', '*.rb')) + Dir.glob('ext/*.{cxx,hpp,rb}') + ['install.rb'] + ["LICENSE"]
+    s.files = Dir.glob(File.join('lib', '**', '*.rb')) + 
+              Dir.glob('ext/oboe_metal/*.{cxx,hpp,rb}') + ['install.rb'] + ["LICENSE"]
     s.extensions = ['ext/extconf.rb']
 end
