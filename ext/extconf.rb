@@ -3,19 +3,8 @@
 
 require 'mkmf'
 
-if RUBY_PLATFORM =~ /darwin/
-  $stderr.puts "Error: native extension disabled on OS X. This will not work."
-  exit 1
-end
-
-unless RUBY_PLATFORM =~ /linux/
-  $stderr.puts "Error: The oboe gem will only run under linux currently."
-  exit 1
-end
-
 unless have_library('oboe')
-  $stderr.puts "Error: Could not find the base liboboe libraries."
-  exit 1
+  $stderr.puts "Error: Could not find the base liboboe libraries.  No tracing will occur."
 end
 
 $libs = append_library($libs, "oboe")
@@ -26,5 +15,5 @@ $CPPFLAGS << " #{ENV["CPPFLAGS"]}"
 $LIBS << " #{ENV["LIBS"]}"
 
 cpp_command('g++') if RUBY_VERSION < '1.9'
-create_makefile('oboe_ext')
+create_makefile('oboe_metal')
 
