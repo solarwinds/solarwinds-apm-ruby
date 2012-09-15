@@ -1830,10 +1830,10 @@ static swig_module_info swig_module = {swig_types, 7, 0, 0, 0, 0};
 
 /* -------- TYPES TABLE (END) -------- */
 
-#define SWIG_init    Init_oboe_ext
-#define SWIG_name    "Oboe_ext"
+#define SWIG_init    Init_oboe_metal
+#define SWIG_name    "OboeMetal"
 
-static VALUE mOboe_ext;
+static VALUE mOboeMetal;
 
 #define SWIG_RUBY_THREAD_BEGIN_BLOCK
 #define SWIG_RUBY_THREAD_END_BLOCK
@@ -3525,11 +3525,11 @@ SWIG_PropagateClientData(void) {
 #ifdef __cplusplus
 extern "C"
 #endif
-SWIGEXPORT void Init_oboe_ext(void) {
+SWIGEXPORT void Init_oboe_metal(void) {
   size_t i;
   
   SWIG_InitRuntime();
-  mOboe_ext = rb_define_module("Oboe_ext");
+  mOboeMetal = rb_define_module("OboeMetal");
   
   SWIG_InitializeModule(0);
   for (i = 0; i < swig_module.size; i++) {
@@ -3538,7 +3538,7 @@ SWIGEXPORT void Init_oboe_ext(void) {
   
   SWIG_RubyInitializeTrackings();
   
-  SwigClassMetadata.klass = rb_define_class_under(mOboe_ext, "Metadata", rb_cObject);
+  SwigClassMetadata.klass = rb_define_class_under(mOboeMetal, "Metadata", rb_cObject);
   SWIG_TypeClientData(SWIGTYPE_p_Metadata, (void *) &SwigClassMetadata);
   rb_define_alloc_func(SwigClassMetadata.klass, _wrap_Metadata_allocate);
   rb_define_method(SwigClassMetadata.klass, "initialize", VALUEFUNC(_wrap_new_Metadata), -1);
@@ -3552,7 +3552,7 @@ SWIGEXPORT void Init_oboe_ext(void) {
   SwigClassMetadata.destroy = (void (*)(void *)) free_Metadata;
   SwigClassMetadata.trackObjects = 0;
   
-  SwigClassContext.klass = rb_define_class_under(mOboe_ext, "Context", rb_cObject);
+  SwigClassContext.klass = rb_define_class_under(mOboeMetal, "Context", rb_cObject);
   SWIG_TypeClientData(SWIGTYPE_p_Context, (void *) &SwigClassContext);
   rb_define_alloc_func(SwigClassContext.klass, _wrap_Context_allocate);
   rb_define_method(SwigClassContext.klass, "initialize", VALUEFUNC(_wrap_new_Context), -1);
@@ -3570,7 +3570,7 @@ SWIGEXPORT void Init_oboe_ext(void) {
   SwigClassContext.destroy = (void (*)(void *)) free_Context;
   SwigClassContext.trackObjects = 0;
   
-  SwigClassEvent.klass = rb_define_class_under(mOboe_ext, "Event", rb_cObject);
+  SwigClassEvent.klass = rb_define_class_under(mOboeMetal, "Event", rb_cObject);
   SWIG_TypeClientData(SWIGTYPE_p_Event, (void *) &SwigClassEvent);
   rb_undef_alloc_func(SwigClassEvent.klass);
   rb_define_method(SwigClassEvent.klass, "addInfo", VALUEFUNC(_wrap_Event_addInfo), -1);
@@ -3582,7 +3582,7 @@ SWIGEXPORT void Init_oboe_ext(void) {
   SwigClassEvent.destroy = (void (*)(void *)) free_Event;
   SwigClassEvent.trackObjects = 0;
   
-  SwigClassUdpReporter.klass = rb_define_class_under(mOboe_ext, "UdpReporter", rb_cObject);
+  SwigClassUdpReporter.klass = rb_define_class_under(mOboeMetal, "UdpReporter", rb_cObject);
   SWIG_TypeClientData(SWIGTYPE_p_UdpReporter, (void *) &SwigClassUdpReporter);
   rb_define_alloc_func(SwigClassUdpReporter.klass, _wrap_UdpReporter_allocate);
   rb_define_method(SwigClassUdpReporter.klass, "initialize", VALUEFUNC(_wrap_new_UdpReporter), -1);
@@ -3591,7 +3591,7 @@ SWIGEXPORT void Init_oboe_ext(void) {
   SwigClassUdpReporter.destroy = (void (*)(void *)) free_UdpReporter;
   SwigClassUdpReporter.trackObjects = 0;
   
-  SwigClassFileReporter.klass = rb_define_class_under(mOboe_ext, "FileReporter", rb_cObject);
+  SwigClassFileReporter.klass = rb_define_class_under(mOboeMetal, "FileReporter", rb_cObject);
   SWIG_TypeClientData(SWIGTYPE_p_FileReporter, (void *) &SwigClassFileReporter);
   rb_define_alloc_func(SwigClassFileReporter.klass, _wrap_FileReporter_allocate);
   rb_define_method(SwigClassFileReporter.klass, "initialize", VALUEFUNC(_wrap_new_FileReporter), -1);
