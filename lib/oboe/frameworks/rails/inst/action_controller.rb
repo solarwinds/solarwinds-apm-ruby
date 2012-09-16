@@ -1,7 +1,7 @@
 # Copyright (c) 2012 by Tracelytics, Inc.
 # All rights reserved.
 
-module OboeFu
+module Oboe
   module Inst
     module Rails3ActionController
       def process(*args)
@@ -44,7 +44,7 @@ if defined?(ActionController::Base)
     Oboe::API.report_init('rails')
 
     class ActionController::Base
-      include OboeFu::Inst::Rails3ActionController
+      include Oboe::Inst::Rails3ActionController
     end
   elsif Rails::VERSION::MAJOR == 2
     Oboe::API.report_init('rails')
