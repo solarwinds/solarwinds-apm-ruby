@@ -285,16 +285,7 @@ module Oboe
   end
 end
 
-if ::Rails::VERSION::MAJOR == 3
-  ::Rails.configuration.after_initialize do
-    Oboe::Inst::ConnectionAdapters::FlavorInitializers.mysql
-    Oboe::Inst::ConnectionAdapters::FlavorInitializers.mysql2
-    Oboe::Inst::ConnectionAdapters::FlavorInitializers.postgresql
-    Oboe::Inst::ConnectionAdapters::FlavorInitializers.oracle
-  end
-else
-  Oboe::Inst::ConnectionAdapters::FlavorInitializers.mysql
-  Oboe::Inst::ConnectionAdapters::FlavorInitializers.mysql2
-  Oboe::Inst::ConnectionAdapters::FlavorInitializers.postgresql
-  Oboe::Inst::ConnectionAdapters::FlavorInitializers.oracle
-end
+Oboe::Inst::ConnectionAdapters::FlavorInitializers.mysql
+Oboe::Inst::ConnectionAdapters::FlavorInitializers.mysql2
+Oboe::Inst::ConnectionAdapters::FlavorInitializers.postgresql
+Oboe::Inst::ConnectionAdapters::FlavorInitializers.oracle

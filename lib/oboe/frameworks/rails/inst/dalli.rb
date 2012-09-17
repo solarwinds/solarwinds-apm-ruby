@@ -39,15 +39,7 @@ module Oboe
 end
 
 if defined?(Dalli)
-  if ::Rails::VERSION::MAJOR == 3
-    ::Rails.configuration.after_initialize do
-      Dalli::Client.module_eval do
-        include Oboe::Inst::Dalli
-      end
-    end
-  else
-    Dalli::Client.module_eval do
-      include Oboe::Inst::Dalli
-    end
+  Dalli::Client.module_eval do
+    include Oboe::Inst::Dalli
   end
 end
