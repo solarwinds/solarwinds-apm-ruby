@@ -12,8 +12,6 @@ module Oboe
       require 'oboe/api'
 
       begin
-        require 'oboe_metal'
-        
         # Force load the tracelytics user initializer if there is one
         tr_initializer = "#{Rails.root}/config/initializers/tracelytics.rb"
         require tr_initializer if File.exists?(tr_initializer)
@@ -28,10 +26,8 @@ module Oboe
       require 'oboe/config'
     end
 
-    def self.require_instrumentation
-      self.require_api
-
-      pattern = File.join(File.dirname(__FILE__), 'inst', '*.rb')
+    def self.load_rails_instrumentation
+      pattern = File.join(File.dirname(__FILE__), 'frameworks/rails/inst', '*.rb')
       Dir.glob(pattern) do |f|
         begin
           require f
@@ -40,5 +36,12 @@ module Oboe
         end
       end
     end
+    
+    def self.instrument_rails
+      if defined?(Rails) 
+        Oboe::Loading.load_rails_instrumentation
+      end
+    end
+
   end
 end
