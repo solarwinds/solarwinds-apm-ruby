@@ -36,5 +36,5 @@ if defined?(::MemCache)
     alias cache_get_without_oboe cache_get
     alias cache_get cache_get_with_oboe
   end
-  puts "[oboe_fu/loading] Instrumenting memcache" if Oboe::Config[:verbose]
+  puts "[oboe/loading] Instrumenting memcache" if Oboe::Config[:verbose]
 end

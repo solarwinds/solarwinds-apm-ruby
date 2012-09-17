@@ -105,13 +105,13 @@ module Oboe
             if ActiveRecord::ConnectionAdapters::PostgreSQLAdapter::method_defined? :exec_query
               alias exec_query_without_oboe exec_query
               alias exec_query exec_query_with_oboe
-            else puts "[oboe_fu/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
+            else puts "[oboe/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
             end
               
             if ActiveRecord::ConnectionAdapters::PostgreSQLAdapter::method_defined? :exec_delete
               alias exec_delete_without_oboe exec_delete
               alias exec_delete exec_delete_with_oboe
-            else puts "[oboe_fu/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
+            else puts "[oboe/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
             end
           end
         end
@@ -125,7 +125,7 @@ module Oboe
             if ActiveRecord::ConnectionAdapters::PostgreSQLAdapter::method_defined? :execute
               alias execute_without_oboe execute
               alias execute execute_with_oboe
-            else puts "[oboe_fu/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
+            else puts "[oboe/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
             end
           end
         end
@@ -139,7 +139,7 @@ module Oboe
             if ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter::method_defined? :execute
               alias execute_without_oboe execute
               alias execute execute_with_oboe
-            else puts "[oboe_fu/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
+            else puts "[oboe/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
             end
           end
         end
@@ -153,7 +153,7 @@ module Oboe
             if ActiveRecord::ConnectionAdapters::MysqlAdapter::method_defined? :exec_query
               alias exec_query_without_oboe exec_query
               alias exec_query exec_query_with_oboe
-            else puts "[oboe_fu/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
+            else puts "[oboe/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
             end
           end
         end
@@ -167,14 +167,14 @@ module Oboe
             if ActiveRecord::ConnectionAdapters::MysqlAdapter::method_defined? :execute
               alias execute_without_oboe execute
               alias execute execute_with_oboe
-            else puts "[oboe_fu/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
+            else puts "[oboe/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
             end
             
             if Rails::VERSION::MAJOR == 3 and Rails::VERSION::MINOR == 1
               if ActiveRecord::ConnectionAdapters::MysqlAdapter::method_defined? :begin_db_transaction
                 alias begin_db_transaction_without_oboe begin_db_transaction
                 alias begin_db_transaction begin_db_transaction_with_oboe
-              else puts "[oboe_fu/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
+              else puts "[oboe/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
               end
             end
             
@@ -182,13 +182,13 @@ module Oboe
               if ActiveRecord::ConnectionAdapters::MysqlAdapter::method_defined? :exec_query
                 alias exec_query_without_oboe exec_query
                 alias exec_query exec_query_with_oboe
-              else puts "[oboe_fu/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
+              else puts "[oboe/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
               end
               
               if ActiveRecord::ConnectionAdapters::MysqlAdapter::method_defined? :exec_delete
                 alias exec_delete_without_oboe exec_delete
                 alias exec_delete exec_delete_with_oboe
-              else puts "[oboe_fu/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
+              else puts "[oboe/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
               end
             end
           end
@@ -204,13 +204,13 @@ module Oboe
               if ActiveRecord::ConnectionAdapters::Mysql2Adapter::method_defined? :execute
                 alias execute_without_oboe execute
                 alias execute execute_with_oboe
-              else puts "[oboe_fu/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
+              else puts "[oboe/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
               end
             else
               if ActiveRecord::ConnectionAdapters::Mysql2Adapter::method_defined? :exec_insert
                 alias exec_insert_without_oboe exec_insert
                 alias exec_insert exec_insert_with_oboe
-              else puts "[oboe_fu/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
+              else puts "[oboe/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
               end
              
               # In Rails 3.1, exec_query was defined as a private method
@@ -218,13 +218,13 @@ module Oboe
                 ActiveRecord::ConnectionAdapters::Mysql2Adapter::private_method_defined? :exec_query
                 alias exec_query_without_oboe exec_query
                 alias exec_query exec_query_with_oboe
-              else puts "[oboe_fu/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
+              else puts "[oboe/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
               end
               
               if ActiveRecord::ConnectionAdapters::Mysql2Adapter::method_defined? :exec_delete
                 alias exec_delete_without_oboe exec_delete
                 alias exec_delete exec_delete_with_oboe
-              else puts "[oboe_fu/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
+              else puts "[oboe/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
               end
             end
           end
@@ -234,7 +234,7 @@ module Oboe
       module FlavorInitializers
         def self.mysql
           if ActiveRecord::Base::connection.adapter_name.downcase.to_sym == :mysql
-            puts "[oboe_fu/loading] Instrumenting ActiveRecord MysqlAdapter" if Oboe::Config[:verbose]
+            puts "[oboe/loading] Instrumenting ActiveRecord MysqlAdapter" if Oboe::Config[:verbose]
             if Rails::VERSION::MAJOR == 3 and Rails::VERSION::MINOR > 1
               ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter.module_eval do
                 include Oboe::Inst::ConnectionAdapters::AbstractMysqlAdapter
@@ -252,7 +252,7 @@ module Oboe
 
         def self.mysql2
           if ActiveRecord::Base::connection.adapter_name.downcase.to_sym == :mysql2
-            puts "[oboe_fu/loading] Instrumenting ActiveRecord Mysql2Adapter" if Oboe::Config[:verbose]
+            puts "[oboe/loading] Instrumenting ActiveRecord Mysql2Adapter" if Oboe::Config[:verbose]
             ActiveRecord::ConnectionAdapters::Mysql2Adapter.module_eval do
               include Oboe::Inst::ConnectionAdapters::Mysql2Adapter
             end
@@ -261,7 +261,7 @@ module Oboe
 
         def self.postgresql
           if ActiveRecord::Base::connection.adapter_name.downcase.to_sym == :postgresql
-            puts "[oboe_fu/loading] Instrumenting ActiveRecord PostgreSQLAdapter" if Oboe::Config[:verbose]
+            puts "[oboe/loading] Instrumenting ActiveRecord PostgreSQLAdapter" if Oboe::Config[:verbose]
             ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.module_eval do
               if Rails::VERSION::MAJOR == 3 and Rails::VERSION::MINOR > 0
                 include Oboe::Inst::ConnectionAdapters::PostgreSQLAdapter
@@ -274,7 +274,7 @@ module Oboe
 
         def self.oracle
           if ActiveRecord::Base::connection.adapter_name.downcase.to_sym == :oracleenhanced
-            puts "[oboe_fu/loading] Instrumenting ActiveRecord OracleEnhancedAdapter" if Oboe::Config[:verbose]
+            puts "[oboe/loading] Instrumenting ActiveRecord OracleEnhancedAdapter" if Oboe::Config[:verbose]
             ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.module_eval do
               include Oboe::Inst::ConnectionAdapters
             end

@@ -16,7 +16,7 @@ module Oboe
         tr_initializer = "#{Rails.root}/config/initializers/tracelytics.rb"
         require tr_initializer if File.exists?(tr_initializer)
       
-        puts "[oboe_fu] loading ..." if Oboe::Config[:verbose]
+        puts "[oboe] loading ..." if Oboe::Config[:verbose]
 
         Oboe::API.extend_with_tracing
       rescue LoadError => e
@@ -32,7 +32,7 @@ module Oboe
         begin
           require f
         rescue => e
-          $stderr.puts "[oboe_fu/loading] Error loading insrumentation file '#{f}' : #{e}"
+          $stderr.puts "[oboe/loading] Error loading insrumentation file '#{f}' : #{e}"
         end
       end
     end
