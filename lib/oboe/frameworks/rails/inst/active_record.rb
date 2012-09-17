@@ -170,7 +170,7 @@ module Oboe
             else puts "[oboe/loading] Couldn't properly instrument ActiveRecord layer.  Partial traces may occur."
             end
             
-            if ::Rails::VERSION::MAJOR == 3 and ::Rails::VERSION::MINOR == 1
+            if Rails::VERSION::MAJOR == 3 and Rails::VERSION::MINOR == 1
               if ActiveRecord::ConnectionAdapters::MysqlAdapter::method_defined? :begin_db_transaction
                 alias begin_db_transaction_without_oboe begin_db_transaction
                 alias begin_db_transaction begin_db_transaction_with_oboe
@@ -178,7 +178,7 @@ module Oboe
               end
             end
             
-            if ::Rails::VERSION::MAJOR == 3 and ::Rails::VERSION::MINOR > 0
+            if Rails::VERSION::MAJOR == 3 and Rails::VERSION::MINOR > 0
               if ActiveRecord::ConnectionAdapters::MysqlAdapter::method_defined? :exec_query
                 alias exec_query_without_oboe exec_query
                 alias exec_query exec_query_with_oboe
@@ -200,7 +200,7 @@ module Oboe
       
         def self.included(cls)
           cls.class_eval do
-            if ::Rails::VERSION::MAJOR == 2 or (::Rails::VERSION::MAJOR == 3 and ::Rails::VERSION::MINOR == 0)
+            if Rails::VERSION::MAJOR == 2 or (Rails::VERSION::MAJOR == 3 and Rails::VERSION::MINOR == 0)
               if ActiveRecord::ConnectionAdapters::Mysql2Adapter::method_defined? :execute
                 alias execute_without_oboe execute
                 alias execute execute_with_oboe
@@ -235,7 +235,7 @@ module Oboe
         def self.mysql
           if ActiveRecord::Base::connection.adapter_name.downcase.to_sym == :mysql
             puts "[oboe/loading] Instrumenting ActiveRecord MysqlAdapter" if Oboe::Config[:verbose]
-            if ::Rails::VERSION::MAJOR == 3 and ::Rails::VERSION::MINOR > 1
+            if Rails::VERSION::MAJOR == 3 and Rails::VERSION::MINOR > 1
               ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter.module_eval do
                 include Oboe::Inst::ConnectionAdapters::AbstractMysqlAdapter
               end
@@ -263,7 +263,7 @@ module Oboe
           if ActiveRecord::Base::connection.adapter_name.downcase.to_sym == :postgresql
             puts "[oboe/loading] Instrumenting ActiveRecord PostgreSQLAdapter" if Oboe::Config[:verbose]
             ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.module_eval do
-              if ::Rails::VERSION::MAJOR == 3 and ::Rails::VERSION::MINOR > 0
+              if Rails::VERSION::MAJOR == 3 and Rails::VERSION::MINOR > 0
                 include Oboe::Inst::ConnectionAdapters::PostgreSQLAdapter
               else
                 include Oboe::Inst::ConnectionAdapters::LegacyPostgreSQLAdapter
@@ -285,8 +285,8 @@ module Oboe
   end
 end
 
-if ::Rails::VERSION::MAJOR == 3
-  ::Rails.configuration.after_initialize do
+if Rails::VERSION::MAJOR == 3
+  Rails.configuration.after_initialize do
     Oboe::Inst::ConnectionAdapters::FlavorInitializers.mysql
     Oboe::Inst::ConnectionAdapters::FlavorInitializers.mysql2
     Oboe::Inst::ConnectionAdapters::FlavorInitializers.postgresql
