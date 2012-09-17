@@ -26,7 +26,6 @@ if defined?(::MemCache)
     alias request_setup_without_oboe request_setup
     alias request_setup request_setup_with_oboe
 
-
     define_method(:cache_get_with_oboe) do |server, cache_key|
       result = cache_get_without_oboe(server, cache_key)
       Oboe::API.log('memcache', 'info', { :KVHit => memcache_hit?(result) })

@@ -40,13 +40,13 @@ module Oboe
 end
 
 if defined?(ActionController::Base)
-  if Rails::VERSION::MAJOR == 3
+  if ::Rails::VERSION::MAJOR == 3
     Oboe::API.report_init('rails')
 
     class ActionController::Base
       include Oboe::Inst::Rails3ActionController
     end
-  elsif Rails::VERSION::MAJOR == 2
+  elsif ::Rails::VERSION::MAJOR == 2
     Oboe::API.report_init('rails')
 
     ActionController::Base.class_eval do
