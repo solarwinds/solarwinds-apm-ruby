@@ -1,11 +1,18 @@
 #!/bin/sh
 #
-# for use only when you're ready to push from prod -> the public pypi
+# for use only when you're ready to push from prod -> the public gem repo
 #
 
 if [ $(git branch -a | grep ^* | awk '{print $2}') != "prod" ]; then
   echo "You can only push from prod."
   exit
+fi
+
+if [ $# -ne 1 ]
+then
+  echo "Usage: `basename $0` [../path/to/packages]"
+  echo "pass me the path to your local copy of the packages repo, trailing slash omitted pls"
+  exit $E_BADARGS
 fi
 
 #set -e # stop on first non-zero exit code
