@@ -28,5 +28,5 @@ if defined?(Memcached)
       class_eval "alias #{m} #{m}_with_oboe"
     end
   end
-  puts "[oboe_fu/loading] Instrumenting memcached" if Oboe::Config[:verbose]
+  puts "[oboe/loading] Instrumenting memcached" if Oboe::Config[:verbose]
 end
