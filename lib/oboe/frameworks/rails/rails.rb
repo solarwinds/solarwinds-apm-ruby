@@ -7,11 +7,11 @@ module Oboe
         extend ActiveSupport::Concern
 
         def tracelytics_rum_header
-          render :file => File.dirname(__FILE__) + '/helpers/rum/rum_header.js'
+          render :file => File.dirname(__FILE__) + '/helpers/rum/rum_header', :formats => [:js]
         end
 
         def tracelytics_rum_footer
-          render :file => File.dirname(__FILE__) + '/helpers/rum/rum_footer.js'
+          render :file => File.dirname(__FILE__) + '/helpers/rum/rum_footer', :formats => [:js]
         end
       end # Helpers
 
@@ -53,7 +53,7 @@ if defined?(::Rails)
       class Railtie < ::Rails::Railtie
         
         initializer 'oboe.helpers' do
-          Oboe::Inst::Rails::Helpers.include_helpers        
+          Oboe::Inst::Rails.include_helpers        
         end
 
         config.after_initialize do
