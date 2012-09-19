@@ -1,11 +1,7 @@
 # Copyright (c) 2012 by Tracelytics, Inc.
 # All rights reserved.
 
-require 'oboe_ext.so'
-require 'pp'
-require 'rbconfig'
-
-module Oboe_ext
+module Oboe_metal
   class Context
     def self.log(layer, label, options = {})
       evt = Oboe::Context.createEvent()
@@ -102,7 +98,7 @@ module OboeMethodProfiling
 end
   
 module Oboe
-  include Oboe_ext
+  include Oboe_metal
 
   # TODO: Ensure that the :tracing_mode is set to "always", "through", or "never"
   Config = {
@@ -152,4 +148,4 @@ module Oboe
   end
 end
 
-Oboe::Context.init()
+Oboe_metal::Context.init()
