@@ -2,6 +2,19 @@
 module Oboe
   module Inst
     module Rails
+
+      module Helpers
+        extend ActiveSupport::Concern
+
+        def tracelytics_rum_header
+          render :file => File.dirname(__FILE__) + '/helpers/rum/rum_header.js'
+        end
+
+        def tracelytics_rum_footer
+          render :file => File.dirname(__FILE__) + '/helpers/rum/rum_footer.js'
+        end
+      end # Helpers
+
       def self.load_initializer
         # Force load the tracelytics Rails initializer if there is one
         tr_initializer = "#{::Rails.root}/config/initializers/tracelytics.rb"
@@ -18,14 +31,31 @@ module Oboe
           end
         end
       end
-    end
-  end
-end
+
+      def self.include_helpers
+        # TBD: This would make the helpers available to controllers which is occasionally desired.
+        # ActiveSupport.on_load(:action_controller) do
+        #   include Oboe::Inst::Rails::Helpers
+        # end
+        
+        ActiveSupport.on_load(:action_view) do
+          include Oboe::Inst::Rails::Helpers
+        end
+      end
+
+    end # Rails
+  end # Inst
+end # Oboe
 
 if defined?(::Rails)
   if ::Rails::VERSION::MAJOR > 2
     module Oboe
       class Railtie < ::Rails::Railtie
+        
+        initializer 'oboe.helpers' do
+          Oboe::Inst::Rails::Helpers.include_helpers        
+        end
+
         config.after_initialize do
           Oboe::Inst::Rails.load_instrumentation
         end
@@ -35,6 +65,7 @@ if defined?(::Rails)
   else
     Oboe::Inst::Rails.load_initializer
     Oboe::Inst::Rails.load_instrumentation
+    Oboe::Inst::Rails::Helpers.include_helpers        
   end
 end
 
