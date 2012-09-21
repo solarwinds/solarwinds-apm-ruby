@@ -3,7 +3,7 @@
 
 require 'mkmf'
 
-unless have_library('oboe')
+if have_library('oboe')
   $libs = append_library($libs, "oboe")
   $libs = append_library($libs, "stdc++")
 
