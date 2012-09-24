@@ -1,6 +1,9 @@
+$:.push File.expand_path("../lib", __FILE__)
+require "oboe/version"
+
 Gem::Specification.new do |s|
     s.name = %q{oboe}
-    s.version = "1.3.0"
+    s.version = Oboe::Version::STRING
     s.date = %{2012-09-12}
     s.authors = ["Tracelytics, Inc."]
     s.email = %q{contact@tracelytics.com}
