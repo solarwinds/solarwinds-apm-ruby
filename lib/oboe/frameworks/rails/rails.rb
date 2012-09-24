@@ -24,7 +24,7 @@ module Oboe
         if ::Rails::VERSION::MAJOR > 2
           puts "Tracelytics oboe gem #{Gem.loaded_specs['oboe'].version.to_s} successfully loaded."
         else
-          puts "Tracelytics oboe gem successfully loaded." 
+          puts "Tracelytics oboe gem #{Oboe::Version::STRING} successfully loaded." 
         end
       end
     end

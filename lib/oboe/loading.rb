@@ -5,6 +5,8 @@ module Oboe
   module Loading
 
     def self.require_api
+      require 'oboe/version'
+
       pattern = File.join(File.dirname(__FILE__), 'api', '*.rb')
       Dir.glob(pattern) do |f|
         require f
@@ -29,7 +31,6 @@ module Oboe
           $stderr.puts "[oboe/loading] Error loading framework file '#{f}' : #{e}"
         end
       end
-
     end
   end
 end
