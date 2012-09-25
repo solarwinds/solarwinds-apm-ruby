@@ -4,10 +4,17 @@ module Oboe
     module Rails
       def self.load_initializer
         # Force load the tracelytics Rails initializer if there is one
+        # Prefer oboe.rb but give priority to tracelytics.rb if it exists
         if ::Rails::VERSION::MAJOR > 2
-          tr_initializer = "#{::Rails.root.to_s}/config/initializers/tracelytics.rb"
+          rails_root = "#{::Rails.root.to_s}"
         else
-          tr_initializer = "#{RAILS_ROOT}/config/initializers/tracelytics.rb"
+          rails_root = "#{RAILS_ROOT}"
+        end
+
+        if File.exists?("#{rails_root}/config/initializers/tracelytics.rb")
+          tr_initializer = "#{rails_root}/config/initializers/tracelytics.rb"
+        else 
+          tr_initializer = "#{rails_root}/config/initializers/oboe.rb"
         end
         require tr_initializer if File.exists?(tr_initializer)
       end
