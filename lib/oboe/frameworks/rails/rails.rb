@@ -4,7 +4,18 @@ module Oboe
     module Rails
       def self.load_initializer
         # Force load the tracelytics Rails initializer if there is one
-        tr_initializer = "#{::Rails.root}/config/initializers/tracelytics.rb"
+        # Prefer oboe.rb but give priority to tracelytics.rb if it exists
+        if ::Rails::VERSION::MAJOR > 2
+          rails_root = "#{::Rails.root.to_s}"
+        else
+          rails_root = "#{RAILS_ROOT}"
+        end
+
+        if File.exists?("#{rails_root}/config/initializers/tracelytics.rb")
+          tr_initializer = "#{rails_root}/config/initializers/tracelytics.rb"
+        else 
+          tr_initializer = "#{rails_root}/config/initializers/oboe.rb"
+        end
         require tr_initializer if File.exists?(tr_initializer)
       end
 
@@ -16,6 +27,11 @@ module Oboe
           rescue => e
             $stderr.puts "[oboe/loading] Error loading rails insrumentation file '#{f}' : #{e}"
           end
+        end
+        if ::Rails::VERSION::MAJOR > 2
+          puts "Tracelytics oboe gem #{Gem.loaded_specs['oboe'].version.to_s} successfully loaded."
+        else
+          puts "Tracelytics oboe gem #{Oboe::Version::STRING} successfully loaded." 
         end
       end
     end
@@ -31,7 +47,6 @@ if defined?(::Rails)
         end
       end
     end
-    Oboe::Inst::Rails.load_initializer
   else
     Oboe::Inst::Rails.load_initializer
     Oboe::Inst::Rails.load_instrumentation
