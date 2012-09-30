@@ -6,11 +6,11 @@ module Oboe
       module Helpers
         extend ActiveSupport::Concern
 
-        def tracelytics_rum_header
+        def rum_header
           render :file => File.dirname(__FILE__) + '/helpers/rum/rum_header', :formats => [:js]
         end
 
-        def tracelytics_rum_footer
+        def rum_footer
           render :file => File.dirname(__FILE__) + '/helpers/rum/rum_footer', :formats => [:js]
         end
       end # Helpers
