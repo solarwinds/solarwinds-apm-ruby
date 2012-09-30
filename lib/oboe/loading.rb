@@ -16,7 +16,7 @@ module Oboe
           if line =~ /^tracelyzer.access_key=/ or line =~ /^access_key/
             bits = line.split(/=/)
             Oboe::Config[:access_key] = bits[1].strip
-            Oboe::Config[:rum_id] = Base64URL.encode(Digest::SHA1.hexdigest("RUM" + Oboe::Config[:access_key]))
+            Oboe::Config[:rum_id] = Base64URL.encode(Digest::SHA1.digest("RUM" + Oboe::Config[:access_key]))
             break
           end
         end
