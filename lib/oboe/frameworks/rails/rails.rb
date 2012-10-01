@@ -5,14 +5,14 @@ module Oboe
     module Helpers
       extend ActiveSupport::Concern
 
-      def self.rum_header
+      def oboe_rum_header
         return unless Oboe::Config.has_key?(:access_key) and Oboe::Config.has_key?(:rum_id)
         if Oboe::Config.tracing?
-          render :partial => File.dirname(__FILE__) + '/helpers/rum/rum_header'
+          render :file => File.dirname(__FILE__) + '/helpers/rum/rum_header', :formats => [:js]
         end
       end
 
-      def self.rum_footer
+      def oboe_rum_footer
         return unless Oboe::Config.has_key?(:access_key) and Oboe::Config.has_key?(:rum_id)
         if Oboe::Config.tracing?
           render :file => File.dirname(__FILE__) + '/helpers/rum/rum_footer', :formats => [:js]
