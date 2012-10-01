@@ -3,19 +3,37 @@ module Oboe
   module Rails
 
     module Helpers
-      extend ActiveSupport::Concern
+      extend ActiveSupport::Concern if ::Rails::VERSION::MAJOR > 2
 
       def oboe_rum_header
-        return unless Oboe::Config.has_key?(:access_key) and Oboe::Config.has_key?(:rum_id)
-        if Oboe::Config.tracing?
-          render :file => File.dirname(__FILE__) + '/helpers/rum/rum_header', :formats => [:js]
+        begin
+          return unless Oboe::Config.has_key?(:access_key) and Oboe::Config.has_key?(:rum_id)
+          if Oboe::Config.tracing?
+            header_tmpl = File.dirname(__FILE__) + '/helpers/rum/rum_header'
+            if ::Rails::VERSION::MAJOR > 2
+              render :file => header_tmpl, :formats => [:js]
+            else
+              render :file => header_tmpl + '.js.erb'
+            end
+          end
+        rescue Exception => e  
+          logger.debug "oboe_rum_header: #{e.message}."
         end
       end
 
       def oboe_rum_footer
-        return unless Oboe::Config.has_key?(:access_key) and Oboe::Config.has_key?(:rum_id)
-        if Oboe::Config.tracing?
-          render :file => File.dirname(__FILE__) + '/helpers/rum/rum_footer', :formats => [:js]
+        begin
+          return unless Oboe::Config.has_key?(:access_key) and Oboe::Config.has_key?(:rum_id)
+          if Oboe::Config.tracing?
+            footer_tmpl = File.dirname(__FILE__) + '/helpers/rum/rum_footer'
+            if ::Rails::VERSION::MAJOR > 2
+              render :file => footer_tmpl, :formats => [:js]
+            else
+              render :file => footer_tmpl + '.js.erb'
+            end
+          end
+        rescue Exception => e
+          logger.debug "oboe_rum_footer: #{e.message}."
         end
       end
     end # Helpers
@@ -42,9 +60,12 @@ module Oboe
       # ActiveSupport.on_load(:action_controller) do
       #   include Oboe::Rails::Helpers
       # end
-      
-      ActiveSupport.on_load(:action_view) do
-        include Oboe::Rails::Helpers
+      if ::Rails::VERSION::MAJOR > 2
+        ActiveSupport.on_load(:action_view) do
+          include Oboe::Rails::Helpers
+        end
+      else
+        ActionView::Base.send :include, Oboe::Rails::Helpers
       end
     end
 
@@ -69,7 +90,7 @@ if defined?(::Rails)
   else
     Oboe::Rails.load_initializer
     Oboe::Rails.load_instrumentation
-    Oboe::Rails::Helpers.include_helpers        
+    Oboe::Rails.include_helpers        
   end
 end
 
