@@ -9,7 +9,11 @@ module Oboe
         begin
           return unless Oboe::Config.has_key?(:access_key) and Oboe::Config.has_key?(:rum_id)
           if Oboe::Config.tracing?
-            header_tmpl = File.dirname(__FILE__) + '/helpers/rum/rum_header'
+            if request.xhr?
+              header_tmpl = File.dirname(__FILE__) + '/helpers/rum/rum_ajax_header'
+            else
+              header_tmpl = File.dirname(__FILE__) + '/helpers/rum/rum_header'
+            end
             if ::Rails::VERSION::MAJOR > 2
               render :file => header_tmpl, :formats => [:js]
             else
