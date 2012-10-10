@@ -25,9 +25,24 @@ if defined?(::Mongo::Collection)
           report_kvs[:Database] = @db.name
           report_kvs[:RemoteHost] = @db.connection.host
           report_kvs[:RemotePort] = @db.connection.port
-          
-          report_kvs[:KVOp] = m 
-          report_kvs[:KVKey] = args[0].to_json if args.length and args[0].class == Hash
+          report_kvs[:Collection] = @name
+
+          report_kvs[:QueryOp] = m 
+          report_kvs[:QueryKey] = args[0].to_json if args.length and args[0].class == Hash
+
+          if [:create_index, :ensure_index, :drop_index].include? m and args.length 
+            report_kvs[:Index] = args[0].to_json
+          end
+
+          if m == :group
+            if args.length > 1 and args[0].class == Hash
+              opts = args[0]
+              report_kvs[:Group_Key]        = opts[:key].to_json      if opts.has_key?(:key)
+              report_kvs[:Group_Condition]  = opts[:cond].to_json     if opts.has_key?(:cond)
+              report_kvs[:Group_Initial]    = opts[:initial].to_json  if opts.has_key?(:initial)
+              report_kvs[:Group_Reduce]     = opts[:reduce].to_json   if opts.has_key?(:reduce)
+            end
+          end
 
           Oboe::API.trace('mongo', report_kvs) do
             send("#{m}_without_oboe", *args)
