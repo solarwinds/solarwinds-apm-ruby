@@ -35,12 +35,13 @@ if defined?(::Mongo::Collection)
           end
 
           if m == :group
-            if args.length > 1 and args[0].class == Hash
-              opts = args[0]
-              report_kvs[:Group_Key]        = opts[:key].to_json      if opts.has_key?(:key)
-              report_kvs[:Group_Condition]  = opts[:cond].to_json     if opts.has_key?(:cond)
-              report_kvs[:Group_Initial]    = opts[:initial].to_json  if opts.has_key?(:initial)
-              report_kvs[:Group_Reduce]     = opts[:reduce].to_json   if opts.has_key?(:reduce)
+            if args.length 
+              if args[0].is_a?(Hash) 
+                report_kvs[:Group_Key]       = args[0][:key].to_json     if args[0].has_key?(:key)
+                report_kvs[:Group_Condition] = args[0][:cond].to_json    if args[0].has_key?(:cond) 
+                report_kvs[:Group_Initial]   = args[0][:initial].to_json if args[0].has_key?(:initial)
+                report_kvs[:Group_Reduce]    = args[0][:reduce]          if args[0].has_key?(:reduce) 
+              end
             end
           end
 
