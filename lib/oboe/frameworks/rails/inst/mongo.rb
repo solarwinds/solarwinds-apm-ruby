@@ -28,7 +28,7 @@ if defined?(::Mongo::Collection)
           report_kvs[:Collection] = @name
 
           report_kvs[:QueryOp] = m 
-          report_kvs[:QueryKey] = args[0].to_json if args.length and args[0].class == Hash
+          report_kvs[:Query] = args[0].to_json if args.length and args[0].class == Hash
 
           if [:create_index, :ensure_index, :drop_index].include? m and args.length 
             report_kvs[:Index] = args[0].to_json
@@ -42,6 +42,13 @@ if defined?(::Mongo::Collection)
                 report_kvs[:Group_Initial]   = args[0][:initial].to_json if args[0].has_key?(:initial)
                 report_kvs[:Group_Reduce]    = args[0][:reduce]          if args[0].has_key?(:reduce) 
               end
+            end
+          end
+
+          if m == :update
+            if args.length
+              report_kvs[:Update_Document] = args[1].to_json
+              report_kvs[:Multi] = args[2][:multi] if args[2] and args[2].has_key?(:multi)
             end
           end
 
