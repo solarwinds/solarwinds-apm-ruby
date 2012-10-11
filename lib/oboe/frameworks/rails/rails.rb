@@ -1,4 +1,3 @@
-
 module Oboe
   module Rails
     module Helpers
@@ -6,7 +5,7 @@ module Oboe
 
       def oboe_rum_header
         begin
-          return unless Oboe::Config.has_key?(:access_key) and Oboe::Config.has_key?(:rum_id)
+          return unless Oboe::Config.has_key?(:rum_id)
           if Oboe::Config.tracing?
             if request.xhr?
               header_tmpl = File.dirname(__FILE__) + '/helpers/rum/rum_ajax_header'
@@ -26,7 +25,7 @@ module Oboe
       
       def oboe_rum_footer
         begin
-          return unless Oboe::Config.has_key?(:access_key) and Oboe::Config.has_key?(:rum_id)
+          return unless Oboe::Config.has_key?(:rum_id)
           if Oboe::Config.tracing?
             footer_tmpl = File.dirname(__FILE__) + '/helpers/rum/rum_footer'
             if ::Rails::VERSION::MAJOR > 2
