@@ -102,12 +102,14 @@ if defined?(::Rails)
         end
 
         config.after_initialize do
+          Oboe::Loading.load_access_key
           Oboe::Rails.load_instrumentation
         end
       end
     end
   else
     Oboe::Rails.load_initializer
+    Oboe::Loading.load_access_key
     Oboe::Rails.load_instrumentation
     Oboe::Rails.include_helpers        
   end
