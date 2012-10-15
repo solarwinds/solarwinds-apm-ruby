@@ -8,7 +8,7 @@ module Oboe
       def report_init(layer)
         platform_info                  = { '__Init' => 1 }
         platform_info['RubyVersion']   = RUBY_VERSION
-        platform_info['RailsVersion']  = Rails.version if defined?(Rails)
+        platform_info['RailsVersion']  = ::Rails.version if defined?(Rails)
         platform_info['OboeVersion']   = Gem.loaded_specs['oboe'].try(:version).to_s
 
         force_trace do

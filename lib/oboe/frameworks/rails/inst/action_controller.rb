@@ -28,6 +28,7 @@ module Oboe
       rescue Exception => exception
         opts[:Status] = 500
         Oboe::API.log('rails', 'info', opts)
+        raise
       end
 
       def render(*args)
