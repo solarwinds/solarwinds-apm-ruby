@@ -4,9 +4,9 @@
 module Oboe
   module Inst
     module Mongo
-      OPERATIONS = [ :find, :insert, :remove, :update, :create_index, :ensure_index,
-                     :drop_index, :drop_indexes, :drop, :find_and_modify, :map_reduce, 
-                     :group, :distinct, :rename, :index_information ]
+      OPERATIONS = [ :create_index, :distinct, :drop, :drop_index, :drop_indexes, 
+                     :ensure_index, :find, :find_and_modify, :group, :index_information, 
+                     :insert, :map_reduce, :remove, :rename, :update ]
     end
   end
 end
