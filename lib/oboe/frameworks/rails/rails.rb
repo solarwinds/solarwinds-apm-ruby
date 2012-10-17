@@ -1,4 +1,3 @@
-
 module Oboe
   module Rails
     module Helpers
@@ -6,37 +5,33 @@ module Oboe
 
       def oboe_rum_header
         begin
-          return unless Oboe::Config.has_key?(:access_key) and Oboe::Config.has_key?(:rum_id)
+          return unless Oboe::Config.has_key?(:rum_id)
           if Oboe::Config.tracing?
             if request.xhr?
-              header_tmpl = File.dirname(__FILE__) + '/helpers/rum/rum_ajax_header'
+              header_tmpl = File.read(File.dirname(__FILE__) + '/helpers/rum/rum_ajax_header.js.erb')
             else
-              header_tmpl = File.dirname(__FILE__) + '/helpers/rum/rum_header'
+              header_tmpl = File.read(File.dirname(__FILE__) + '/helpers/rum/rum_header.js.erb')
             end
-            if ::Rails::VERSION::MAJOR > 2
-              render :file => header_tmpl, :formats => [:js]
-            else
-              render :file => header_tmpl + '.js.erb'
-            end
+            return raw(ERB.new(header_tmpl).result)
           end
         rescue Exception => e  
-          logger.debug "oboe_rum_header: #{e.message}."
+          logger.warn "oboe_rum_header: #{e.message}." if defined?(logger)
+          return ""
         end
       end
       
       def oboe_rum_footer
         begin
-          return unless Oboe::Config.has_key?(:access_key) and Oboe::Config.has_key?(:rum_id)
+          return unless Oboe::Config.has_key?(:rum_id)
           if Oboe::Config.tracing?
-            footer_tmpl = File.dirname(__FILE__) + '/helpers/rum/rum_footer'
-            if ::Rails::VERSION::MAJOR > 2
-              render :file => footer_tmpl, :formats => [:js]
-            else
-              render :file => footer_tmpl + '.js.erb'
-            end
+            # Even though the footer template is named xxxx.erb, there are no ERB tags in it so we'll
+            # skip that step for now
+            footer_tmpl = File.read(File.dirname(__FILE__) + '/helpers/rum/rum_footer.js.erb')
+            return raw(footer_tmpl)
           end
         rescue Exception => e
-          logger.debug "oboe_rum_footer: #{e.message}."
+          logger.warn "oboe_rum_footer: #{e.message}." if defined?(logger)
+          return ""
         end
       end
     end # Helpers
@@ -84,6 +79,7 @@ module Oboe
         ActiveSupport.on_load(:action_view) do
           include Oboe::Rails::Helpers
         end
+        ActionController::Base.prepend_view_path File.dirname(__FILE__) + "/../../../../app/views"
       else
         ActionView::Base.send :include, Oboe::Rails::Helpers
       end
