@@ -79,7 +79,6 @@ module Oboe
         ActiveSupport.on_load(:action_view) do
           include Oboe::Rails::Helpers
         end
-        ActionController::Base.prepend_view_path File.dirname(__FILE__) + "/../../../../app/views"
       else
         ActionView::Base.send :include, Oboe::Rails::Helpers
       end
