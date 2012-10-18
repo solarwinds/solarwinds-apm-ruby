@@ -88,7 +88,6 @@ if defined?(::Mongo::Collection)
             end
           end
 
-          debugger if m == :find
           report_kvs[:limit] = args[0][:limit] if m == :find and args_length > 0 and args[0].has_key?(:limit)
 
           if m == :find_and_modify and args[0] and args[0].has_key?(:update)
