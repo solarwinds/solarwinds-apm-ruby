@@ -6,11 +6,46 @@ module Oboe
     module Mongo
       # Operations for Mongo::DB
       DB_OPS         = [ :create_collection, :drop_collection ]
+
+      # Operations for Mongo::Cursor
+      CURSOR_OPS     = [ :count ]
       
       # Operations for Mongo::Collection
-      COLLECTION_OPS = [ :create_index, :distinct, :drop, :drop_index, :drop_indexes, 
+      COLLECTION_OPS = [ :create_index, :distinct, :drop_index, :drop_indexes, 
                          :ensure_index, :find, :find_and_modify, :group, :index_information, 
                          :insert, :map_reduce, :remove, :rename, :update ]
+    end
+  end
+end
+
+if defined?(::Mongo::Cursor)
+  module ::Mongo
+    class Cursor
+      include Oboe::Inst::Mongo
+      
+      Oboe::Inst::Mongo::CURSOR_OPS.reject { |m| not method_defined?(m) }.each do |m|
+        define_method("#{m}_with_oboe") do |*args|
+          report_kvs = {}
+          report_kvs[:Flavor] = 'mongodb'
+
+          report_kvs[:Database] = @db.name
+          report_kvs[:RemoteHost] = @connection.host
+          report_kvs[:RemotePort] = @connection.port
+
+          report_kvs[:QueryOp] = m 
+          if m == :count
+            report_kvs[:Query] = args[0][:query] if args and args[0].class == Hash and args[0].has_key?(:query)
+            report_kvs[:limit] = @limit if @limit != 0
+          end
+          
+          Oboe::API.trace('mongo', report_kvs) do
+            send("#{m}_without_oboe", *args)
+          end
+        end
+        
+        class_eval "alias #{m}_without_oboe #{m}"
+        class_eval "alias #{m} #{m}_with_oboe"
+      end
     end
   end
 end
@@ -88,7 +123,9 @@ if defined?(::Mongo::Collection)
             end
           end
 
-          report_kvs[:limit] = args[0][:limit] if m == :find and args_length > 0 and args[0].has_key?(:limit)
+          if m == :find and args_length > 0
+            report_kvs[:limit] = args[0][:limit] if !args[0].nil? and args[0].has_key?(:limit)
+          end
 
           if m == :find_and_modify and args[0] and args[0].has_key?(:update)
             report_kvs[:Update_Document] = args[0][:update]
@@ -100,7 +137,6 @@ if defined?(::Mongo::Collection)
           end
 
           report_kvs[:New_Collection_Name] = args[0] if m == :rename
-          report_kvs[:Collection_Name] = @name       if m == :drop
 
           if m == :map_reduce
             report_kvs[:Map_Function]    = args[0] 
