@@ -1,8 +1,49 @@
 # Copyright (c) 2012 by Tracelytics, Inc.
 # All rights reserved.
 
+require 'digest/sha1'
+
 module Oboe
+  module Util
+    module Base64URL
+      module_function
+
+      def encode(bin)
+        c = [bin].pack('m0').gsub(/\=+\Z/, '').tr('+/', '-_').rstrip
+        m = c.size % 4
+        c += '=' * (4 - m) if m != 0
+        c
+      end
+
+      def decode(bin)
+        m = bin.size % 4
+        bin += '=' * (4 - m) if m != 0
+        bin.tr('-_', '+/').unpack('m0').first
+      end
+    end
+  end
+
   module Loading
+
+    def self.load_access_key
+      unless Oboe::Config.has_key?(:access_key)  
+        config_file = '/etc/tracelytics.conf'
+        return unless File.exists?(config_file)
+        
+        begin
+          File.open(config_file).each do |line|
+            if line =~ /^tracelyzer.access_key=/ or line =~ /^access_key/
+              bits = line.split(/=/)
+              Oboe::Config[:access_key] = bits[1].strip
+              Oboe::Config[:rum_id] = Oboe::Util::Base64URL.encode(Digest::SHA1.digest("RUM" + Oboe::Config[:access_key]))
+              break
+            end
+          end
+        rescue
+          puts "Having trouble parsing #{config_file}..."
+        end
+      end
+    end
 
     def self.require_api
       require 'oboe/version'
