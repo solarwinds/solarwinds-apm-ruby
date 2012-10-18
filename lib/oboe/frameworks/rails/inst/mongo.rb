@@ -4,9 +4,46 @@
 module Oboe
   module Inst
     module Mongo
-      OPERATIONS = [ :create_index, :distinct, :drop, :drop_index, :drop_indexes, 
-                     :ensure_index, :find, :find_and_modify, :group, :index_information, 
-                     :insert, :map_reduce, :remove, :rename, :update ]
+      # Operations for Mongo::DB
+      DB_OPS         = [ :create_collection, :drop_collection ]
+      
+      # Operations for Mongo::Collection
+      COLLECTION_OPS = [ :create_index, :distinct, :drop, :drop_index, :drop_indexes, 
+                         :ensure_index, :find, :find_and_modify, :group, :index_information, 
+                         :insert, :map_reduce, :remove, :rename, :update ]
+    end
+  end
+end
+
+if defined?(::Mongo::DB)
+  module ::Mongo
+    class DB
+      include Oboe::Inst::Mongo
+      
+      Oboe::Inst::Mongo::DB_OPS.reject { |m| not method_defined?(m) }.each do |m|
+        define_method("#{m}_with_oboe") do |*args|
+          report_kvs = {}
+          args_length = args.length
+
+          report_kvs[:Flavor] = 'mongodb'
+
+          report_kvs[:Database] = @name
+          report_kvs[:RemoteHost] = @connection.host
+          report_kvs[:RemotePort] = @connection.port
+          
+          report_kvs[:QueryOp] = m 
+
+          report_kvs[:New_Collection_Name] = args[0] if m == :create_collection
+          report_kvs[:Collection_Name] = args[0]     if m == :drop_collection
+
+          Oboe::API.trace('mongo', report_kvs) do
+            send("#{m}_without_oboe", *args)
+          end
+        end
+        
+        class_eval "alias #{m}_without_oboe #{m}"
+        class_eval "alias #{m} #{m}_with_oboe"
+      end
     end
   end
 end
@@ -16,7 +53,7 @@ if defined?(::Mongo::Collection)
     class Collection
       include Oboe::Inst::Mongo
       
-      Oboe::Inst::Mongo::OPERATIONS.reject { |m| not method_defined?(m) }.each do |m|
+      Oboe::Inst::Mongo::COLLECTION_OPS.reject { |m| not method_defined?(m) }.each do |m|
         define_method("#{m}_with_oboe") do |*args|
           report_kvs = {}
           args_length = args.length
