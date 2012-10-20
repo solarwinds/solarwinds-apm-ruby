@@ -210,7 +210,7 @@ if defined?(::Mongo::Collection)
             logger.warn "[oboe/error] Problem processing mongo args (#{m})" if defined?(logger)
           end
 
-          Oboe::API.trace('mongo', report_kvs || {}) do
+          Oboe::API.trace('mongo', report_kvs) do
             send("#{m}_without_oboe", *args)
           end
         end
