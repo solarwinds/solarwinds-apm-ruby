@@ -25,6 +25,7 @@ if defined?(::Mongo::DB)
     class DB
       include Oboe::Inst::Mongo
       
+      # Instrument DB operations
       Oboe::Inst::Mongo::DB_OPS.reject { |m| not method_defined?(m) }.each do |m|
         define_method("#{m}_with_oboe") do |*args|
           report_kvs = {}
@@ -61,6 +62,7 @@ if defined?(::Mongo::Cursor)
     class Cursor
       include Oboe::Inst::Mongo
       
+      # Instrument DB cursor operations
       Oboe::Inst::Mongo::CURSOR_OPS.reject { |m| not method_defined?(m) }.each do |m|
         define_method("#{m}_with_oboe") do |*args|
           report_kvs = {}
@@ -117,7 +119,7 @@ if defined?(::Mongo::Collection)
         report_kvs
       end
       
-      # COLL_WRITE_OPS = [ :find_and_modify, :insert, :map_reduce, :remove, :rename, :update ]
+      # Instrument Collection write operations
       Oboe::Inst::Mongo::COLL_WRITE_OPS.reject { |m| not method_defined?(m) }.each do |m|
         define_method("#{m}_with_oboe") do |*args|
           report_kvs = oboe_collect(m, args)
@@ -155,7 +157,7 @@ if defined?(::Mongo::Collection)
         class_eval "alias #{m} #{m}_with_oboe"
       end
       
-      # COLL_QUERY_OPS = [ :distinct, :find, :group ]
+      # Instrument Collection query operations
       Oboe::Inst::Mongo::COLL_QUERY_OPS.reject { |m| not method_defined?(m) }.each do |m|
         define_method("#{m}_with_oboe") do |*args|
           begin
@@ -194,7 +196,7 @@ if defined?(::Mongo::Collection)
         class_eval "alias #{m} #{m}_with_oboe"
       end
       
-      # COLL_INDEX_OPS = [ :create_index, :drop_index, :drop_indexes, :ensure_index, :index_information ]
+      # Instrument Collection index operations
       Oboe::Inst::Mongo::COLL_INDEX_OPS.reject { |m| not method_defined?(m) }.each do |m|
         define_method("#{m}_with_oboe") do |*args|
           report_kvs = oboe_collect(m, args)
