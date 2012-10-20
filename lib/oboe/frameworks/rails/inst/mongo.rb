@@ -74,7 +74,11 @@ if defined?(::Mongo::Cursor)
 
             report_kvs[:QueryOp] = m 
             if m == :count
-              report_kvs[:Query] = args[0][:query] if args and args[0].class == Hash and args[0].has_key?(:query)
+              unless @selector.empty?
+                report_kvs[:Query] = @selector.try(:to_json) 
+              else
+                report_kvs[:Query] = 'all'
+              end
               report_kvs[:limit] = @limit if @limit != 0
             end
 
