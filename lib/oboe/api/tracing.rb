@@ -10,7 +10,7 @@ module Oboe
       #
       # layer - The layer the block of code belongs to.
       # opts - A hash containing key/value pairs that will be reported along
-      #        with the first event of this layer (optional).
+      # with the first event of this layer (optional).
       #
       # Example
       #
@@ -30,7 +30,7 @@ module Oboe
       # Returns the result of the block.
       def trace(layer, opts={})
         log_entry(layer, opts)
-        begin 
+        begin
           yield
         rescue Exception => e
           log_exception(layer, e)
@@ -39,7 +39,7 @@ module Oboe
           log_exit(layer)
         end
       end
-  
+
       # Public: Trace a given block of code which can start a trace depending
       # on configuration and probability. Detect any exceptions thrown by the
       # block and report errors.
@@ -49,7 +49,7 @@ module Oboe
       #
       # layer - The layer the block of code belongs to.
       # opts - A hash containing key/value pairs that will be reported along
-      #        with the first event of this layer (optional).
+      # with the first event of this layer (optional).
       #
       # Example
       #
@@ -89,7 +89,7 @@ module Oboe
       # on configuration and probability. Detect any exceptions thrown by the
       # block and report errors. Insert the oboe metadata into the provided for
       # later user.
-      # 
+      #
       # The motivating use case for this is HTTP streaming in rails3. We need
       # access to the exit event's trace id so we can set the header before any
       # work is done, and before any headers are sent back to the client.
@@ -97,7 +97,7 @@ module Oboe
       # layer - The layer the block of code belongs to.
       # target - The target object in which to place the oboe metadata.
       # opts - A hash containing key/value pairs that will be reported along
-      #        with the first event of this layer (optional).
+      # with the first event of this layer (optional).
       #
       # Example:
       #
