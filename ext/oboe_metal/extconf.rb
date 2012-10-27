@@ -2,6 +2,7 @@
 # All rights reserved.
 
 require 'mkmf'
+dir_config('oboe')
 
 if have_library('oboe')
   $libs = append_library($libs, "oboe")
