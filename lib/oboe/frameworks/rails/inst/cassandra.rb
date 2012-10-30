@@ -109,7 +109,7 @@ module Oboe
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:get, column_family, key, columns_and_options)
 
-          Oboe::API.trace('cassandra', report_kvs) do
+          Oboe::API.trace('cassandra', report_kvs, true) do
             send :get_without_oboe, *args
           end
         else
@@ -120,7 +120,7 @@ module Oboe
       def multi_get_with_oboe(column_family, key, *columns_and_options)
         args = [column_family, key] + columns_and_options
         
-        if Oboe::Config.tracing?
+        if Oboe::Config.tracing? and not Oboe::Context.layer_op?(:get)
           report_kvs = extract_trace_details(:multi_get, column_family, key, columns_and_options)
 
           Oboe::API.trace('cassandra', report_kvs) do
