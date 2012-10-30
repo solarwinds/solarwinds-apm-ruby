@@ -48,10 +48,10 @@ module Oboe
       end
 
       def remove_with_oboe(column_family, key, *columns_and_options)
+        args = [column_family, key] + columns_and_options
+        
         if Oboe::Config.tracing?
-
           report_kvs = extract_trace_details(:remove, column_family, key, columns_and_options)
-          args = [column_family, key] + columns_and_options
 
           Oboe::API.trace('cassandra', report_kvs) do
             send :remove_without_oboe, *args
@@ -62,9 +62,10 @@ module Oboe
       end
 
       def count_columns_with_oboe(column_family, key, *columns_and_options)
+        args = [column_family, key] + columns_and_options
+        
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:count_columns, column_family, key, columns_and_options)
-          args = [column_family, key] + columns_and_options
 
           Oboe::API.trace('cassandra', report_kvs) do
             send :count_columns_without_oboe, *args
@@ -75,9 +76,10 @@ module Oboe
       end
       
       def get_columns_with_oboe(column_family, key, *columns_and_options)
+        args = [column_family, key] + columns_and_options
+        
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:get_columns, column_family, key, columns_and_options)
-          args = [column_family, key] + columns_and_options
 
           Oboe::API.trace('cassandra', report_kvs) do
             send :get_columns_without_oboe, *args
@@ -88,9 +90,10 @@ module Oboe
       end
       
       def multi_get_columns_with_oboe(column_family, key, *columns_and_options)
+        args = [column_family, key] + columns_and_options
+        
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:multi_get_columns, column_family, key, columns_and_options)
-          args = [column_family, key] + columns_and_options
 
           Oboe::API.trace('cassandra', report_kvs) do
             send :multi_get_columns_without_oboe, *args
@@ -101,9 +104,10 @@ module Oboe
       end
 
       def get_with_oboe(column_family, key, *columns_and_options)
+        args = [column_family, key] + columns_and_options
+        
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:get, column_family, key, columns_and_options)
-          args = [column_family, key] + columns_and_options
 
           Oboe::API.trace('cassandra', report_kvs) do
             send :get_without_oboe, *args
@@ -114,9 +118,10 @@ module Oboe
       end
       
       def multi_get_with_oboe(column_family, key, *columns_and_options)
+        args = [column_family, key] + columns_and_options
+        
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:multi_get, column_family, key, columns_and_options)
-          args = [column_family, key] + columns_and_options
 
           Oboe::API.trace('cassandra', report_kvs) do
             send :multi_get_without_oboe, *args
@@ -127,9 +132,10 @@ module Oboe
       end
 
       def exists_with_oboe?(column_family, key, *columns_and_options)
+        args = [column_family, key] + columns_and_options
+        
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:exists?, column_family, key, columns_and_options)
-          args = [column_family, key] + columns_and_options
 
           Oboe::API.trace('cassandra', report_kvs) do
             send :exists_without_oboe?, *args
@@ -166,9 +172,10 @@ module Oboe
       end
       
       def get_indexed_slices_with_oboe(column_family, index_clause, *columns_and_options)
+        args = [column_family, index_clause] + columns_and_options
+        
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:get_indexed_slices, column_family, nil, columns_and_options)
-          args = [column_family, index_clause] + columns_and_options
 
           Oboe::API.trace('cassandra', report_kvs) do
             send :get_indexed_slices_without_oboe, *args
