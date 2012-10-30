@@ -140,15 +140,15 @@ module Oboe
       end
       
       def get_range_single_with_oboe(column_family, options = {})
-        if Oboe::Config.tracing?
+        if Oboe::Config.tracing? and not Oboe::Context.layer_op?(:get_range_batch)
           report_kvs = extract_trace_details(:get_range_single, column_family, nil, nil)
           args = [column_family, options]
 
-          Oboe::API.trace('cassandra', report_kvs) do
-            send :get_range_single_without_oboe, *args
+          Oboe::API.trace('cassandra', report_kvs, false) do
+            get_range_single_without_oboe(column_family, options)
           end
         else
-          send :get_range_single_without_oboe, *args
+          get_range_single_without_oboe(column_family, options)
         end
       end
       
@@ -157,11 +157,11 @@ module Oboe
           report_kvs = extract_trace_details(:get_range_batch, column_family, nil, nil)
           args = [column_family, options]
 
-          Oboe::API.trace('cassandra', report_kvs) do
-            send :get_range_batch_without_oboe, *args
+          Oboe::API.trace('cassandra', report_kvs, true) do
+            get_range_batch_without_oboe(column_family, options)
           end
         else
-          send :get_range_batch_without_oboe, *args
+          get_range_batch_without_oboe(column_family, options)
         end
       end
       
