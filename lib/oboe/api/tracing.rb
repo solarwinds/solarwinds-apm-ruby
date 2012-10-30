@@ -36,7 +36,7 @@ module Oboe
           log_exception(layer, e)
           raise
         ensure
-          log_exit(layer, protect_op)
+          log_exit(layer, {}, protect_op)
         end
       end
   
