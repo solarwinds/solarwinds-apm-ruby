@@ -5,31 +5,34 @@ module Oboe
       def extract_trace_details(op, column_family, keys, args, options = {})
         report_kvs = {}
 
-        report_kvs[:op] = op.to_s
-        report_kvs[:cf] = column_family.to_s
-        report_kvs[:key] = keys.to_s if keys
-       
-        # Open issue - how to handle multiple Cassandra servers
-        report_kvs[:RemoteHost], report_kvs[:RemotePort] = @servers.first.split(":")
+        begin
+          report_kvs[:op] = op.to_s
+          report_kvs[:cf] = column_family.to_s
+          report_kvs[:key] = keys.to_s if keys
+         
+          # Open issue - how to handle multiple Cassandra servers
+          report_kvs[:RemoteHost], report_kvs[:RemotePort] = @servers.first.split(":")
 
-        if options.empty? and args.is_a?(Array)
-          options = args.last if args.last.is_a?(Hash)
-        end
-        
-        unless options.empty?
-          [:start_key, :finish_key, :key_count, :batch_size, :columns, :count, :start,
-           :stop, :finish, :finished, :reversed, :consistency, :ttl].each do |k|
-            report_kvs[k] = options[k] if options.has_key?(k)
+          if options.empty? and args.is_a?(Array)
+            options = args.last if args.last.is_a?(Hash)
           end
+          
+          unless options.empty?
+            [:start_key, :finish_key, :key_count, :batch_size, :columns, :count, :start,
+             :stop, :finish, :finished, :reversed, :consistency, :ttl].each do |k|
+              report_kvs[k] = options[k] if options.has_key?(k)
+            end
 
-          if op == :get_indexed_slices
-            index_clause = columns_and_options[:index_clause] || {}
-            unless index_clause.empty?
-              [:column_name, :value, :comparison].each do |k|
-                report_kvs[k] = index_clause[k] if index_clause.has_key?(k)
+            if op == :get_indexed_slices
+              index_clause = columns_and_options[:index_clause] || {}
+              unless index_clause.empty?
+                [:column_name, :value, :comparison].each do |k|
+                  report_kvs[k] = index_clause[k] if index_clause.has_key?(k)
+                end
               end
             end
           end
+        rescue
         end
 
         report_kvs
