@@ -16,6 +16,18 @@ module Oboe_metal
 
       Oboe.reporter.sendReport(evt)
     end
+
+    def self.layer_op=(op)
+      @layer_op = op.to_s
+    end
+
+    def self.layer_op
+      @layer_op
+    end
+
+    def self.layer_op?(operation)
+      @layer_op == operation.to_s
+    end
   end
 end
 

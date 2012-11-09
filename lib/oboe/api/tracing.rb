@@ -28,15 +28,15 @@ module Oboe
       #   result = computation_with_oboe(1000)
       #
       # Returns the result of the block.
-      def trace(layer, opts={})
-        log_entry(layer, opts)
-        begin
+      def trace(layer, opts={}, protect_op=false)
+        log_entry(layer, opts, protect_op)
+        begin 
           yield
         rescue Exception => e
           log_exception(layer, e)
           raise
         ensure
-          log_exit(layer)
+          log_exit(layer, {}, protect_op)
         end
       end
 
