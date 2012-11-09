@@ -82,11 +82,13 @@ module Oboe
         xtrace
       end
   
-      def log_entry(layer, opts={})
+      def log_entry(layer, opts={}, protect_op=false)
+        Oboe::Context.layer_op = opts[:op] if protect_op and opts.has_key?(:op)
         log_event(layer, 'entry', Oboe::Context.createEvent, opts)
       end
 
-      def log_exit(layer, opts={})
+      def log_exit(layer, opts={}, protect_op=false)
+        Oboe::Context.layer_op = nil if protect_op
         log_event(layer, 'exit', Oboe::Context.createEvent, opts)
       end
   
