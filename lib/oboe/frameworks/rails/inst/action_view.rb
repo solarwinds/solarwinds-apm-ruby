@@ -41,19 +41,18 @@ if defined?(ActionView::Base)
   elsif Rails::VERSION::MAJOR == 2
     puts "[oboe/loading] Instrumenting ActionView" 
 
-    ActionView::Helpers::RenderingHelper.module_eval do
-      alias :render_without_oboe :render
+    ActionView::Partials.module_eval do
+      alias :render_partial_without_oboe :render_partial
     
-      def render(options = {}, locals = {}, &block)
+      def render_partial(options = {})
         report_kvs = {}
         begin
           report_kvs[:partial] = options[:partial] if options.has_key?(:partial)
-          report_kvs[:file] = options[:file] if options.has_key?(:file)
         rescue
         end
 
         Oboe::API.trace('partial', report_kvs) do
-          render_without_oboe(options, locals, &block)
+          render_partial_without_oboe(options)
         end
       end
 
