@@ -4,16 +4,37 @@
 if defined?(ActionView::Base)
   if Rails::VERSION::MAJOR == 3
     puts "[oboe/loading] Instrumenting ActionView" 
-    
-    ActionView::PartialRenderer.class_eval do
-      alias :render_without_oboe :render
-      def render(context, options, block)
-        opts = {}
-        opts[:partial] = options[:partial] if options.has_key?(:partial)
-        opts[:file] = options[:file] if options.has_key?(:file)
 
-        Oboe::API.trace('partial', opts) do
-          render_without_oboe(context, options, block)
+    if Rails::VERSION::MINOR == 0
+      ActionView::Partials::PartialRenderer.class_eval do
+        alias :render_partial_without_oboe :render_partial
+        def render_partial(object = @object)
+          report_kvs = {}
+          begin
+            report_kvs[:partial] = @options[:partial] if @options.is_a?(Hash)
+            report_kvs[:file] = @template.inspect if @template
+          rescue
+          end
+
+          Oboe::API.trace('partial', report_kvs) do
+            render_partial_without_oboe(object)
+          end
+        end
+      end
+    else
+      ActionView::PartialRenderer.class_eval do
+        alias :render_without_oboe :render
+        def render(context, options, block)
+          report_kvs = {}
+          begin
+            report_kvs[:partial] = options[:partial] if options.has_key?(:partial)
+            report_kvs[:file] = options[:file] if options.has_key?(:file)
+          rescue
+          end
+
+          Oboe::API.trace('partial', report_kvs) do
+            render_without_oboe(context, options, block)
+          end
         end
       end
     end
@@ -24,11 +45,14 @@ if defined?(ActionView::Base)
       alias :render_without_oboe :render
     
       def render(options = {}, locals = {}, &block)
-        opts = {}
-        opts[:partial] = options[:partial] if options.has_key?(:partial)
-        opts[:file] = options[:file] if options.has_key?(:file)
+        report_kvs = {}
+        begin
+          report_kvs[:partial] = options[:partial] if options.has_key?(:partial)
+          report_kvs[:file] = options[:file] if options.has_key?(:file)
+        rescue
+        end
 
-        Oboe::API.trace('partial', opts) do
+        Oboe::API.trace('partial', report_kvs) do
           render_without_oboe(options, locals, &block)
         end
       end
