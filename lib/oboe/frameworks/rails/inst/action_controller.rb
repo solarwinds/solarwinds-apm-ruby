@@ -54,6 +54,7 @@ if defined?(ActionController::Base)
       alias :perform_action_without_oboe :perform_action
       alias :rescue_action_without_oboe :rescue_action
       alias :process_without_oboe :process
+      alias :render_without_oboe :render
 
       def process(*args)
         header = args[0].headers['X-Trace']
@@ -75,6 +76,12 @@ if defined?(ActionController::Base)
       def rescue_action(exn)
         Oboe::API.log_exception('rails', exn)
         rescue_action_without_oboe(exn)
+      end
+
+      def render(options = nil, extra_options = {}, &block)
+        Oboe::API.trace('render', {}) do
+          render_without_oboe(options, extra_options, &block)
+        end
       end
     end
   end
