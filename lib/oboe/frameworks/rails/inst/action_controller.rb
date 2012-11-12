@@ -13,7 +13,7 @@ module Oboe
       end
 
       def process_action(*args)
-        opts = {
+        report_kvs = {
           'HTTP-Host'   => @_request.headers['HTTP_HOST'],
           :URL          => @_request.headers['REQUEST_URI'],
           :Method       => @_request.headers['REQUEST_METHOD'],
@@ -22,12 +22,12 @@ module Oboe
         }
         super
 
-        opts[:Status] = @_response.status
-        Oboe::API.log('rails', 'info', opts)
+        report_kvs[:Status] = @_response.status
+        Oboe::API.log('rails', 'info', report_kvs)
       
       rescue Exception => exception
-        opts[:Status] = 500
-        Oboe::API.log('rails', 'info', opts)
+        report_kvs[:Status] = 500
+        Oboe::API.log('rails', 'info', report_kvs)
         raise
       end
 
@@ -64,13 +64,20 @@ if defined?(ActionController::Base)
       end
 
       def perform_action(*arguments)
-        opts = {
-            'Controller' => @_request.path_parameters['controller'],
-            'Action' => @_request.path_parameters['action']
+        report_kvs = {
+            'HTTP-Host'   => @_request.headers['HTTP_HOST'],
+            :URL          => @_request.headers['REQUEST_URI'],
+            :Method       => @_request.headers['REQUEST_METHOD'],
+            'Controller'  => @_request.path_parameters['controller'],
+            'Action'      => @_request.path_parameters['action']
         }
 
-        Oboe::API.log('rails', 'info', opts)
         perform_action_without_oboe(*arguments)
+        begin
+          report_kvs[:Status] = @_response.status.to_i
+        rescue
+        end
+        Oboe::API.log('rails', 'info', report_kvs)
       end
 
       def rescue_action(exn)
