@@ -3,8 +3,7 @@
 
 if defined?(ActionView::Base)
   if Rails::VERSION::MAJOR == 3
-    Oboe::API.report_init('rails')
-    puts "[oboe_fu/loading] Instrumenting ActionView" 
+    puts "[oboe/loading] Instrumenting ActionView" 
     
     ActionView::PartialRenderer.class_eval do
       alias :render_without_oboe :render
@@ -19,8 +18,7 @@ if defined?(ActionView::Base)
       end
     end
   elsif Rails::VERSION::MAJOR == 2
-    Oboe::API.report_init('rails')
-    puts "[oboe_fu/loading] Instrumenting ActionView" 
+    puts "[oboe/loading] Instrumenting ActionView" 
 
     ActionView::Helpers::RenderingHelper.module_eval do
       alias :render_without_oboe :render
