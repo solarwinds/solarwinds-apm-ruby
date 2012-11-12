@@ -1,7 +1,7 @@
 # Copyright (c) 2012 by Tracelytics, Inc.
 # All rights reserved.
 
-module OboeFu
+module Oboe
   module Inst
     module Rails3ActionController
       def process(*args)
@@ -28,6 +28,7 @@ module OboeFu
       rescue Exception => exception
         opts[:Status] = 500
         Oboe::API.log('rails', 'info', opts)
+        raise
       end
 
       def render(*args)
@@ -40,13 +41,13 @@ module OboeFu
 end
 
 if defined?(ActionController::Base)
-  if Rails::VERSION::MAJOR == 3
+  if ::Rails::VERSION::MAJOR == 3
     Oboe::API.report_init('rails')
 
     class ActionController::Base
-      include OboeFu::Inst::Rails3ActionController
+      include Oboe::Inst::Rails3ActionController
     end
-  elsif Rails::VERSION::MAJOR == 2
+  elsif ::Rails::VERSION::MAJOR == 2
     Oboe::API.report_init('rails')
 
     ActionController::Base.class_eval do
@@ -77,5 +78,5 @@ if defined?(ActionController::Base)
       end
     end
   end
-  puts "[oboe_fu/loading] Instrumenting ActionControler" if Oboe::Config[:verbose]
+  puts "[oboe/loading] Instrumenting ActionControler" if Oboe::Config[:verbose]
 end
