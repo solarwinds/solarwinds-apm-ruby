@@ -6,9 +6,9 @@ module Oboe
         report_kvs = {}
 
         begin
-          report_kvs[:op] = op.to_s
-          report_kvs[:cf] = column_family.to_s
-          report_kvs[:key] = keys.to_s if keys
+          report_kvs[:Op] = op.to_s
+          report_kvs[:Cf] = column_family.to_s
+          report_kvs[:Key] = keys.to_s if keys
          
           # Open issue - how to handle multiple Cassandra servers
           report_kvs[:RemoteHost], report_kvs[:RemotePort] = @servers.first.split(":")
@@ -20,14 +20,14 @@ module Oboe
           unless options.empty?
             [:start_key, :finish_key, :key_count, :batch_size, :columns, :count, :start,
              :stop, :finish, :finished, :reversed, :consistency, :ttl].each do |k|
-              report_kvs[k] = options[k] if options.has_key?(k)
+              report_kvs[k.capitalize] = options[k] if options.has_key?(k)
             end
 
             if op == :get_indexed_slices
               index_clause = columns_and_options[:index_clause] || {}
               unless index_clause.empty?
                 [:column_name, :value, :comparison].each do |k|
-                  report_kvs[k] = index_clause[k] if index_clause.has_key?(k)
+                  report_kvs[k.capitalize] = index_clause[k] if index_clause.has_key?(k)
                 end
               end
             end
@@ -191,9 +191,9 @@ module Oboe
       def create_index_with_oboe(keyspace, column_family, column_name, validation_class)
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:create_index, column_family, nil, nil)
-          report_kvs[:keyspace] = keyspace.to_s
-          report_kvs[:column_name] = column_name.to_s
-          report_kvs[:validation_class] = validation_class.to_s
+          report_kvs[:Keyspace] = keyspace.to_s
+          report_kvs[:Column_name] = column_name.to_s
+          report_kvs[:Validation_class] = validation_class.to_s
 
           Oboe::API.trace('cassandra', report_kvs) do
             create_index_without_oboe(keyspace, column_family, column_name, validation_class)
@@ -206,8 +206,8 @@ module Oboe
       def drop_index_with_oboe(keyspace, column_family, column_name)
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:drop_index, column_family, nil, nil)
-          report_kvs[:keyspace] = keyspace.to_s
-          report_kvs[:column_name] = column_name.to_s
+          report_kvs[:Keyspace] = keyspace.to_s
+          report_kvs[:Column_name] = column_name.to_s
 
           Oboe::API.trace('cassandra', report_kvs) do
             drop_index_without_oboe(keyspace, column_family, column_name)
@@ -220,7 +220,7 @@ module Oboe
       def add_column_family_with_oboe(cf_def)
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:add_column_family, nil, nil, nil)
-          report_kvs[:name] = cf_def[:name] if cf_def.is_a?(Hash) and cf_def.has_key?(:name)
+          report_kvs[:Name] = cf_def[:name] if cf_def.is_a?(Hash) and cf_def.has_key?(:name)
 
           Oboe::API.trace('cassandra', report_kvs) do
             add_column_family_without_oboe(cf_def)
@@ -245,7 +245,7 @@ module Oboe
       def add_keyspace_with_oboe(ks_def)
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:add_keyspace, nil, nil, nil)
-          report_kvs[:name] = ks_def[:name] if ks_def.is_a?(Hash) and ks_def.has_key?(:name)
+          report_kvs[:Name] = ks_def[:name] if ks_def.is_a?(Hash) and ks_def.has_key?(:name)
 
           Oboe::API.trace('cassandra', report_kvs) do
             add_keyspace_without_oboe(ks_def)
@@ -258,7 +258,7 @@ module Oboe
       def drop_keyspace_with_oboe(keyspace)
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:drop_keyspace, nil, nil, nil)
-          report_kvs[:name] = keyspace.to_s
+          report_kvs[:Name] = keyspace.to_s
 
           Oboe::API.trace('cassandra', report_kvs) do
             drop_keyspace_without_oboe(keyspace)
@@ -272,7 +272,7 @@ module Oboe
 end
 
 if defined?(::Cassandra)
-  puts "[oboe/loading] Instrumenting cassandra"
+  puts "[oboe/loading] Instrumenting Cassandra"
   class ::Cassandra
     include Oboe::Inst::Cassandra
 
