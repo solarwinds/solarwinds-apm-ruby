@@ -9,7 +9,7 @@ module Oboe
 
         begin
           report_kvs[:Op] = op.to_s
-          report_kvs[:Cf] = column_family.to_s
+          report_kvs[:Cf] = column_family.to_s if column_family
           report_kvs[:Key] = keys.to_s if keys
          
           # Open issue - how to handle multiple Cassandra servers
@@ -222,7 +222,7 @@ module Oboe
       def add_column_family_with_oboe(cf_def)
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:add_column_family, nil, nil, nil)
-          report_kvs[:Name] = cf_def[:name] if cf_def.is_a?(Hash) and cf_def.has_key?(:name)
+          report_kvs[:Cf] = cf_def[:name] if cf_def.is_a?(Hash) and cf_def.has_key?(:name)
 
           Oboe::API.trace('cassandra', report_kvs) do
             add_column_family_without_oboe(cf_def)
