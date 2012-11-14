@@ -83,7 +83,7 @@ module Oboe
       end
   
       def log_entry(layer, opts={}, protect_op=false)
-        Oboe::Context.layer_op = opts[:op] if protect_op and opts.has_key?(:op)
+        Oboe::Context.layer_op = opts[:Op] if protect_op and opts.has_key?(:Op)
         log_event(layer, 'entry', Oboe::Context.createEvent, opts)
       end
 
