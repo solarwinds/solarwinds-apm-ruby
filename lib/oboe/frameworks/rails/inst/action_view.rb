@@ -9,32 +9,60 @@ if defined?(ActionView::Base)
       ActionView::Partials::PartialRenderer.class_eval do
         alias :render_partial_without_oboe :render_partial
         def render_partial(object = @object)
-          report_kvs = {}
+          entry_kvs = {}
           begin
-            report_kvs[:partial] = @options[:partial] if @options.is_a?(Hash)
-            report_kvs[:file] = @template.inspect if @template
+            entry_kvs[:Language]     = :ruby
+            entry_kvs[:ProfileName]  = @options[:partial] if @options.is_a?(Hash)
+            entry_kvs[:FunctionName] = :render_partial
+            entry_kvs[:Class]        = self.class.to_s.rpartition('::').last
+            entry_kvs[:Module]       = self.class.to_s.rpartition('::').first
+            entry_kvs[:File]         = __FILE__
+            entry_kvs[:LineNumber]   = __LINE__
           rescue
           end
 
-          Oboe::API.trace('partial', report_kvs) do
-            render_partial_without_oboe(object)
+          Oboe::Context.log(nil, 'profile_entry', entry_kvs)
+          ret =  render_partial_without_oboe(object)
+
+          exit_kvs = {}
+          begin
+            exit_kvs[:Language] = :ruby
+            exit_kvs[:ProfileName]  = @options[:partial] if @options.is_a?(Hash)
+          rescue
           end
+
+          Oboe::Context.log(nil, 'profile_exit', exit_kvs, false)
+          ret
         end
       end
     else
       ActionView::PartialRenderer.class_eval do
         alias :render_without_oboe :render
         def render(context, options, block)
-          report_kvs = {}
+          entry_kvs = {}
           begin
-            report_kvs[:partial] = options[:partial] if options.has_key?(:partial)
-            report_kvs[:file] = options[:file] if options.has_key?(:file)
+            entry_kvs[:Language]     = :ruby
+            entry_kvs[:ProfileName]  = options[:partial] if options.has_key?(:partial)
+            entry_kvs[:FunctionName] = :render_partial
+            entry_kvs[:Class]        = self.class.to_s.rpartition('::').last
+            entry_kvs[:Module]       = self.class.to_s.rpartition('::').first
+            entry_kvs[:File]         = __FILE__
+            entry_kvs[:LineNumber]   = __LINE__
           rescue
           end
 
-          Oboe::API.trace('partial', report_kvs) do
-            render_without_oboe(context, options, block)
+          Oboe::Context.log(nil, 'profile_entry', entry_kvs)
+          ret =  render_without_oboe(context, options, block)
+
+          exit_kvs = {}
+          begin
+            exit_kvs[:Language] = :ruby
+            exit_kvs[:ProfileName] = options[:partial] if options.has_key?(:partial)
+          rescue
           end
+
+          Oboe::Context.log(nil, 'profile_exit', exit_kvs, false)
+          ret
         end
       end
     end
@@ -43,19 +71,32 @@ if defined?(ActionView::Base)
 
     ActionView::Partials.module_eval do
       alias :render_partial_without_oboe :render_partial
-    
       def render_partial(options = {})
-        report_kvs = {}
+        entry_kvs = {}
         begin
-          report_kvs[:partial] = options[:partial] if options.has_key?(:partial)
+          entry_kvs[:Language]     = :ruby
+          entry_kvs[:ProfileName]  = options[:partial] if options.has_key?(:partial)
+          entry_kvs[:FunctionName] = :render_partial
+          entry_kvs[:Class]        = self.class.to_s.rpartition('::').last
+          entry_kvs[:Module]       = self.class.to_s.rpartition('::').first
+          entry_kvs[:File]         = __FILE__
+          entry_kvs[:LineNumber]   = __LINE__
         rescue
         end
 
-        Oboe::API.trace('partial', report_kvs) do
-          render_partial_without_oboe(options)
-        end
-      end
+        Oboe::Context.log(nil, 'profile_entry', entry_kvs)
+        ret =  render_partial_without_oboe(options)
 
+        exit_kvs = {}
+        begin
+          exit_kvs[:Language] = :ruby
+          exit_kvs[:ProfileName] = options[:partial] if options.has_key?(:partial)
+        rescue
+        end
+
+        Oboe::Context.log(nil, 'profile_exit', exit_kvs, false)
+        ret
+      end
     end
   end
 end
