@@ -3,7 +3,7 @@
 
 module Oboe_metal
   class Context
-    def self.log(layer, label, options = {})
+    def self.log(layer, label, options = {}, with_backtrace = true)
       evt = Oboe::Context.createEvent()
       evt.addInfo("Layer", layer.to_s)
       evt.addInfo("Label", label.to_s)
@@ -12,7 +12,7 @@ module Oboe_metal
         evt.addInfo(k.to_s, v.to_s)
       end
 
-      evt.addInfo("Backtrace", Kernel.caller.join("\r\n"))
+      evt.addInfo("Backtrace", Kernel.caller.join("\r\n")) if with_backtrace
 
       Oboe.reporter.sendReport(evt)
     end
