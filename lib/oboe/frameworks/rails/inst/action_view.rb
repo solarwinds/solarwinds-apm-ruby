@@ -37,12 +37,12 @@ if defined?(ActionView::Base)
       end
     else
       ActionView::PartialRenderer.class_eval do
-        alias :render_without_oboe :render
-        def render(context, options, block)
+        alias :render_partial_without_oboe :render_partial
+        def render_partial
           entry_kvs = {}
           begin
             entry_kvs[:Language]     = :ruby
-            entry_kvs[:ProfileName]  = options[:partial] if options.has_key?(:partial)
+            entry_kvs[:ProfileName]  = @options[:partial] if @options.is_a?(Hash)
             entry_kvs[:FunctionName] = :render_partial
             entry_kvs[:Class]        = self.class.to_s.rpartition('::').last
             entry_kvs[:Module]       = self.class.to_s.rpartition('::').first
@@ -52,12 +52,12 @@ if defined?(ActionView::Base)
           end
 
           Oboe::Context.log(nil, 'profile_entry', entry_kvs)
-          ret =  render_without_oboe(context, options, block)
+          ret =  render_partial_without_oboe
 
           exit_kvs = {}
           begin
             exit_kvs[:Language] = :ruby
-            exit_kvs[:ProfileName] = options[:partial] if options.has_key?(:partial)
+            exit_kvs[:ProfileName]  = @options[:partial] if @options.is_a?(Hash)
           rescue
           end
 
