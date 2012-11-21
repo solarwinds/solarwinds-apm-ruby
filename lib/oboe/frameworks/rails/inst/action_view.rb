@@ -14,8 +14,8 @@ if defined?(ActionView::Base)
             entry_kvs[:Language]     = :ruby
             entry_kvs[:ProfileName]  = @options[:partial] if @options.is_a?(Hash)
             entry_kvs[:FunctionName] = :render_partial
-            entry_kvs[:Class]        = 'ActionView::Partials'
-            entry_kvs[:Module]       = :PartialRenderer
+            entry_kvs[:Class]        = :PartialRenderer
+            entry_kvs[:Module]       = 'ActionView::Partials'
             entry_kvs[:File]         = __FILE__
             entry_kvs[:LineNumber]   = __LINE__
           rescue
@@ -44,8 +44,8 @@ if defined?(ActionView::Base)
             entry_kvs[:Language]     = :ruby
             entry_kvs[:ProfileName]  = @options[:partial] if @options.is_a?(Hash)
             entry_kvs[:FunctionName] = :render_partial
-            entry_kvs[:Class]        = :ActionView
-            entry_kvs[:Module]       = :PartialRenderer
+            entry_kvs[:Class]        = :PartialRenderer
+            entry_kvs[:Module]       = :ActionView
             entry_kvs[:File]         = __FILE__
             entry_kvs[:LineNumber]   = __LINE__
           rescue
