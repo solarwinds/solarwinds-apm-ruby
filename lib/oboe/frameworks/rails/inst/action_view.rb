@@ -14,8 +14,8 @@ if defined?(ActionView::Base)
             entry_kvs[:Language]     = :ruby
             entry_kvs[:ProfileName]  = @options[:partial] if @options.is_a?(Hash)
             entry_kvs[:FunctionName] = :render_partial
-            entry_kvs[:Class]        = self.class.to_s.rpartition('::').last
-            entry_kvs[:Module]       = self.class.to_s.rpartition('::').first
+            entry_kvs[:Class]        = 'ActionView::Partials'
+            entry_kvs[:Module]       = :PartialRenderer
             entry_kvs[:File]         = __FILE__
             entry_kvs[:LineNumber]   = __LINE__
           rescue
@@ -44,8 +44,8 @@ if defined?(ActionView::Base)
             entry_kvs[:Language]     = :ruby
             entry_kvs[:ProfileName]  = @options[:partial] if @options.is_a?(Hash)
             entry_kvs[:FunctionName] = :render_partial
-            entry_kvs[:Class]        = self.class.to_s.rpartition('::').last
-            entry_kvs[:Module]       = self.class.to_s.rpartition('::').first
+            entry_kvs[:Class]        = :ActionView
+            entry_kvs[:Module]       = :PartialRenderer
             entry_kvs[:File]         = __FILE__
             entry_kvs[:LineNumber]   = __LINE__
           rescue
@@ -77,8 +77,8 @@ if defined?(ActionView::Base)
           entry_kvs[:Language]     = :ruby
           entry_kvs[:ProfileName]  = options[:partial] if options.has_key?(:partial)
           entry_kvs[:FunctionName] = :render_partial
-          entry_kvs[:Class]        = self.class.to_s.rpartition('::').last
-          entry_kvs[:Module]       = self.class.to_s.rpartition('::').first
+          entry_kvs[:Class]        = :Partials
+          entry_kvs[:Module]       = :ActionView
           entry_kvs[:File]         = __FILE__
           entry_kvs[:LineNumber]   = __LINE__
         rescue
