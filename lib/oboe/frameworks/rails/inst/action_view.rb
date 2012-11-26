@@ -34,6 +34,34 @@ if defined?(ActionView::Base)
           Oboe::Context.log(nil, 'profile_exit', exit_kvs, false)
           ret
         end
+        
+        alias :render_collection_without_oboe :render_collection
+        def render_collection
+          entry_kvs = {}
+          begin
+            entry_kvs[:Language]     = :ruby
+            entry_kvs[:ProfileName]  = @path
+            entry_kvs[:FunctionName] = :render_collection
+            entry_kvs[:Class]        = :PartialRenderer
+            entry_kvs[:Module]       = 'ActionView::Partials'
+            entry_kvs[:File]         = __FILE__
+            entry_kvs[:LineNumber]   = __LINE__
+          rescue
+          end
+
+          Oboe::Context.log(nil, 'profile_entry', entry_kvs)
+          ret =  render_collection_without_oboe
+
+          exit_kvs = {}
+          begin
+            exit_kvs[:Language] = :ruby
+            exit_kvs[:ProfileName]  = @path
+          rescue
+          end
+
+          Oboe::Context.log(nil, 'profile_exit', exit_kvs, false)
+          ret
+        end
       end
     else
       ActionView::PartialRenderer.class_eval do
@@ -100,11 +128,43 @@ if defined?(ActionView::Base)
     ActionView::Partials.module_eval do
       alias :render_partial_without_oboe :render_partial
       def render_partial(options = {})
+        if options.has_key?(:partial) and options[:partial].is_a?(String)
+          entry_kvs = {}
+          begin
+            entry_kvs[:Language]     = :ruby
+            entry_kvs[:ProfileName]  = options[:partial]
+            entry_kvs[:FunctionName] = :render_partial
+            entry_kvs[:Class]        = :Partials
+            entry_kvs[:Module]       = :ActionView
+            entry_kvs[:File]         = __FILE__
+            entry_kvs[:LineNumber]   = __LINE__
+          rescue
+          end
+
+          Oboe::Context.log(nil, 'profile_entry', entry_kvs)
+          ret = render_partial_without_oboe(options)
+
+          exit_kvs = {}
+          begin
+            exit_kvs[:Language] = :ruby
+            exit_kvs[:ProfileName] = options[:partial]
+          rescue
+          end
+
+          Oboe::Context.log(nil, 'profile_exit', exit_kvs, false)
+        else
+          ret = render_partial_without_oboe(options)
+        end
+        ret
+      end
+      
+      alias :render_partial_collection_without_oboe :render_partial_collection
+      def render_partial_collection(options = {})
         entry_kvs = {}
         begin
           entry_kvs[:Language]     = :ruby
-          entry_kvs[:ProfileName]  = options[:partial] if options.has_key?(:partial)
-          entry_kvs[:FunctionName] = :render_partial
+          entry_kvs[:ProfileName]  = :collection
+          entry_kvs[:FunctionName] = :render_partial_collection
           entry_kvs[:Class]        = :Partials
           entry_kvs[:Module]       = :ActionView
           entry_kvs[:File]         = __FILE__
@@ -113,12 +173,12 @@ if defined?(ActionView::Base)
         end
 
         Oboe::Context.log(nil, 'profile_entry', entry_kvs)
-        ret =  render_partial_without_oboe(options)
+        ret =  render_partial_collection_without_oboe(options)
 
         exit_kvs = {}
         begin
           exit_kvs[:Language] = :ruby
-          exit_kvs[:ProfileName] = options[:partial] if options.has_key?(:partial)
+          exit_kvs[:ProfileName] = :collection
         rescue
         end
 
