@@ -64,6 +64,34 @@ if defined?(ActionView::Base)
           Oboe::Context.log(nil, 'profile_exit', exit_kvs, false)
           ret
         end
+
+        alias :render_collection_without_oboe :render_collection
+        def render_collection
+          entry_kvs = {}
+          begin
+            entry_kvs[:Language]     = :ruby
+            entry_kvs[:ProfileName]  = @path
+            entry_kvs[:FunctionName] = :render_collection
+            entry_kvs[:Class]        = :PartialRenderer
+            entry_kvs[:Module]       = :ActionView
+            entry_kvs[:File]         = __FILE__
+            entry_kvs[:LineNumber]   = __LINE__
+          rescue
+          end
+
+          Oboe::Context.log(nil, 'profile_entry', entry_kvs)
+          ret =  render_collection_without_oboe
+
+          exit_kvs = {}
+          begin
+            exit_kvs[:Language] = :ruby
+            exit_kvs[:ProfileName]  = @path
+          rescue
+          end
+
+          Oboe::Context.log(nil, 'profile_exit', exit_kvs, false)
+          ret
+        end
       end
     end
   elsif Rails::VERSION::MAJOR == 2
