@@ -68,8 +68,8 @@ if defined?(ActionController::Base)
             'HTTP-Host'   => @_request.headers['HTTP_HOST'],
             :URL          => @_request.headers['REQUEST_URI'],
             :Method       => @_request.headers['REQUEST_METHOD'],
-            'Controller'  => @_request.path_parameters['controller'],
-            'Action'      => @_request.path_parameters['action']
+            :Controller  => @_request.path_parameters['controller'],
+            :Action      => @_request.path_parameters['action']
         }
 
         perform_action_without_oboe(*arguments)
