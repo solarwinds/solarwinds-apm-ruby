@@ -6,8 +6,10 @@ module Oboe
     module Moped
       FLAVOR = 'mongodb'
 
+      DB_OPS         = [ :drop ]
+
       # Operations for Mongo::Query
-      QUERY_OPS      = [ :count, :distinct, :explain, :modify, :remove ]
+      QUERY_OPS      = [ :count, :sort, :limit, :distinct, :explain, :modify, :remove ]
 
       # Operations for Mongo::Collection
       COLLECTION_OPS = [ :drop, :find, :indexes, :insert, :aggregate ]
@@ -16,6 +18,47 @@ module Oboe
 end
 
 puts "[oboe/loading] Instrumenting moped" if defined?(::Moped)
+
+if defined?(::Moped::Database)
+  module ::Moped
+    class Database
+      include Oboe::Inst::Moped
+      
+      def extract_trace_details(op)
+        report_kvs = {}
+        begin
+          report_kvs[:Flavor] = Oboe::Inst::Moped::FLAVOR
+          # FIXME: We're only grabbing the first of potentially multiple servers here
+          report_kvs[:RemoteHost], report_kvs[:RemotePort] = session.cluster.seeds.first.split(':')
+          report_kvs[:Database] = name
+          report_kvs[:QueryOp] = op.to_s
+        rescue
+        end
+        report_kvs
+      end
+     
+      def drop_with_oboe
+        if Oboe::Config.tracing?
+          report_kvs = extract_trace_details(:drop)
+
+          Oboe::API.trace('mongo', report_kvs) do
+            drop_without_oboe
+          end
+        else
+          drop_without_oboe
+        end
+      end
+      
+      Oboe::Inst::Moped::DB_OPS.each do |m|
+        if method_defined?(m)
+          class_eval "alias #{m}_without_oboe #{m}"
+          class_eval "alias #{m} #{m}_with_oboe"
+        else puts "[oboe/loading] Couldn't properly instrument moped (#{m}).  Partial traces may occur."
+        end
+      end
+    end
+  end
+end
 
 if defined?(::Moped::Query)
   module ::Moped
@@ -47,6 +90,34 @@ if defined?(::Moped::Query)
           end
         else
           count_without_oboe
+        end
+      end
+
+      def sort_with_oboe(sort)
+        if Oboe::Config.tracing?
+          report_kvs = extract_trace_details(:sort)
+          report_kvs[:Query] = selector.to_s
+          report_kvs[:Order] = sort.to_s
+
+          Oboe::API.trace('mongo', report_kvs) do
+            sort_without_oboe(sort)
+          end
+        else
+          sort_without_oboe(sort)
+        end
+      end
+      
+      def limit_with_oboe(limit)
+        if Oboe::Config.tracing?
+          report_kvs = extract_trace_details(:limit)
+          report_kvs[:Query] = selector.to_s
+          report_kvs[:Limit] = limit.to_s
+
+          Oboe::API.trace('mongo', report_kvs) do
+            limit_without_oboe(limit)
+          end
+        else
+          limit_without_oboe(limit)
         end
       end
 
@@ -136,7 +207,9 @@ if defined?(::Moped::Collection)
 
       def drop_with_oboe
         if Oboe::Config.tracing?
-          report_kvs = extract_trace_details(:drop)
+          # We report :drop_collection here to be consistent
+          # with other mongo implementations
+          report_kvs = extract_trace_details(:drop_collection)
 
           Oboe::API.trace('mongo', report_kvs) do
             drop_without_oboe
