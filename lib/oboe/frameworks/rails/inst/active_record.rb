@@ -9,7 +9,8 @@ module Oboe
           opts = {}
 
           opts[:Query] = sql.to_s
-          opts[:Name] = name.to_s if name 
+          opts[:Name] = name.to_s if name
+          opts[:Backtrace] = Oboe::API.backtrace
 
           if defined?(ActiveRecord::Base.connection.cfg)
             opts[:Database] = ActiveRecord::Base.connection.cfg[:database]
