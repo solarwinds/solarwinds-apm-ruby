@@ -81,7 +81,7 @@ if defined?(::Mongo::Cursor)
               else
                 report_kvs[:Query] = 'all'
               end
-              report_kvs[:limit] = @limit if @limit != 0
+              report_kvs[:Limit] = @limit if @limit != 0
             end
 
           rescue
@@ -133,7 +133,7 @@ if defined?(::Mongo::Collection)
             if m == :map_reduce
               report_kvs[:Map_Function]    = args[0] 
               report_kvs[:Reduce_Function] = args[1]
-              report_kvs[:limit] = args[2][:limit] if args[2] and args[2].has_key?(:limit)
+              report_kvs[:Limit] = args[2][:limit] if args[2] and args[2].has_key?(:limit)
             end
 
             report_kvs[:New_Collection_Name] = args[0] if m == :rename
@@ -165,12 +165,12 @@ if defined?(::Mongo::Collection)
             args_length = args.length
 
             if m == :distinct and args_length >= 2
-              report_kvs[:key]   = args[0]
+              report_kvs[:Key]   = args[0]
               report_kvs[:Query] = args[1].try(:to_json) if args[1] and args[1].class == Hash
             end
 
             if m == :find and args_length > 0
-              report_kvs[:limit] = args[0][:limit] if !args[0].nil? and args[0].has_key?(:limit)
+              report_kvs[:Limit] = args[0][:limit] if !args[0].nil? and args[0].has_key?(:limit)
             end
 
             if m == :group
