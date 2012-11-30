@@ -8,6 +8,8 @@ module Oboe
 
       DB_OPS         = [ :drop ]
 
+      INDEX_OPS      = [ :create, :drop ]
+
       # Operations for Mongo::Query
       QUERY_OPS      = [ :count, :sort, :limit, :distinct, :update, :update_all, :upsert, 
                          :explain, :modify, :remove, :remove ]
@@ -51,6 +53,66 @@ if defined?(::Moped::Database)
       end
       
       Oboe::Inst::Moped::DB_OPS.each do |m|
+        if method_defined?(m)
+          class_eval "alias #{m}_without_oboe #{m}"
+          class_eval "alias #{m} #{m}_with_oboe"
+        else puts "[oboe/loading] Couldn't properly instrument moped (#{m}).  Partial traces may occur."
+        end
+      end
+    end
+  end
+end
+
+if defined?(::Moped::Indexes)
+  module ::Moped
+    class Indexes 
+      include Oboe::Inst::Moped
+      
+      def extract_trace_details(op)
+        report_kvs = {}
+        begin
+          report_kvs[:Flavor] = Oboe::Inst::Moped::FLAVOR
+          # FIXME: We're only grabbing the first of potentially multiple servers here
+          report_kvs[:RemoteHost], report_kvs[:RemotePort] = database.session.cluster.seeds.first.split(':')
+          report_kvs[:Database] = database.name
+          report_kvs[:QueryOp] = op.to_s
+        rescue
+        end
+        report_kvs
+      end
+      
+      def create_with_oboe(key, options = {})
+        if Oboe::Config.tracing?
+          # We report :create_index here to be consistent
+          # with other mongo implementations
+          report_kvs = extract_trace_details(:create_index)
+          report_kvs[:Key] = key.to_s
+          report_kvs[:Options] = options.to_s
+
+          Oboe::API.trace('mongo', report_kvs) do
+            create_without_oboe(key, options = {})
+          end
+        else
+          create_without_oboe(key, options = {})
+        end
+      end
+      
+      def drop_with_oboe(key = nil)
+        if Oboe::Config.tracing?
+          # We report :drop_index here to be consistent
+          # with other mongo implementations
+          report_kvs = extract_trace_details(:drop_index)
+          report_kvs[:Key] = key.to_s
+
+          Oboe::API.trace('mongo', report_kvs) do
+            drop_without_oboe(key = nil)
+          end
+        else
+          drop_without_oboe(key = nil)
+        end
+      end
+
+      Oboe::Inst::Moped::INDEX_OPS.each do |m|
         if method_defined?(m)
           class_eval "alias #{m}_without_oboe #{m}"
           class_eval "alias #{m} #{m}_with_oboe"
@@ -137,7 +199,7 @@ if defined?(::Moped::Query)
       end
       
       def update_with_oboe(change, flags = nil)
-        if Oboe::Config.tracing?
+        if Oboe::Config.tracing? and not Oboe::Context.layer_op?(:update_all)
           report_kvs = extract_trace_details(:update)
           report_kvs[:Flags] = flags.to_s if flags
           report_kvs[:Query] = change.to_s
@@ -150,25 +212,23 @@ if defined?(::Moped::Query)
         end
       end
       
-      def update_all_with_oboe(change, flags = nil)
+      def update_all_with_oboe(change)
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:update_all)
-          report_kvs[:Flags] = flags.to_s if flags
           report_kvs[:Query] = change.to_s
 
           # FIXME: Prevent double trace to update with our magic call
-          Oboe::API.trace('mongo', report_kvs) do
-            update_all_without_oboe(change, flags = nil)
+          Oboe::API.trace('mongo', report_kvs, true) do
+            update_all_without_oboe(change)
           end
         else
-          update_all_without_oboe(change, flags = nil)
+          update_all_without_oboe(change)
         end
       end
 
       def upsert_with_oboe(change)
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:upsert)
-          report_kvs[:Flags] = flags.to_s if flags
           report_kvs[:Query] = change.to_s
 
           # FIXME: Prevent double trace to update with our magic call
