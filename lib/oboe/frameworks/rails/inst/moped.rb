@@ -9,7 +9,8 @@ module Oboe
       DB_OPS         = [ :drop ]
 
       # Operations for Mongo::Query
-      QUERY_OPS      = [ :count, :sort, :limit, :distinct, :explain, :modify, :remove ]
+      QUERY_OPS      = [ :count, :sort, :limit, :distinct, :update, :update_all, :upsert, 
+                         :explain, :modify, :remove, :remove ]
 
       # Operations for Mongo::Collection
       COLLECTION_OPS = [ :drop, :find, :indexes, :insert, :aggregate ]
@@ -124,7 +125,7 @@ if defined?(::Moped::Query)
       def distinct_with_oboe(key)
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:distinct)
-          report_kvs[:key] = key.to_s
+          report_kvs[:Key] = key.to_s
           report_kvs[:Query] = selector.to_s
 
           Oboe::API.trace('mongo', report_kvs) do
@@ -135,6 +136,50 @@ if defined?(::Moped::Query)
         end
       end
       
+      def update_with_oboe(change, flags = nil)
+        if Oboe::Config.tracing?
+          report_kvs = extract_trace_details(:update)
+          report_kvs[:Flags] = flags.to_s if flags
+          report_kvs[:Query] = change.to_s
+
+          Oboe::API.trace('mongo', report_kvs) do
+            update_without_oboe(change, flags = nil)
+          end
+        else
+          update_without_oboe(change, flags = nil)
+        end
+      end
+      
+      def update_all_with_oboe(change, flags = nil)
+        if Oboe::Config.tracing?
+          report_kvs = extract_trace_details(:update_all)
+          report_kvs[:Flags] = flags.to_s if flags
+          report_kvs[:Query] = change.to_s
+
+          # FIXME: Prevent double trace to update with our magic call
+          Oboe::API.trace('mongo', report_kvs) do
+            update_all_without_oboe(change, flags = nil)
+          end
+        else
+          update_all_without_oboe(change, flags = nil)
+        end
+      end
+
+      def upsert_with_oboe(change)
+        if Oboe::Config.tracing?
+          report_kvs = extract_trace_details(:upsert)
+          report_kvs[:Flags] = flags.to_s if flags
+          report_kvs[:Query] = change.to_s
+
+          # FIXME: Prevent double trace to update with our magic call
+          Oboe::API.trace('mongo', report_kvs) do
+            upsert_without_oboe(change)
+          end
+        else
+          upsert_without_oboe(change)
+        end
+      end
+
       def explain_with_oboe
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:explain)
@@ -152,6 +197,7 @@ if defined?(::Moped::Query)
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:modify)
           report_kvs[:Query] = selector.to_s
+          report_kvs[:Options] = options.to_s
 
           Oboe::API.trace('mongo', report_kvs) do
             modify_without_oboe(change, options)
@@ -171,6 +217,19 @@ if defined?(::Moped::Query)
           end
         else
           remove_without_oboe
+        end
+      end
+
+      def remove_all_with_oboe
+        if Oboe::Config.tracing?
+          report_kvs = extract_trace_details(:remove_all)
+          report_kvs[:Query] = operation.selector.to_s
+
+          Oboe::API.trace('mongo', report_kvs) do
+            remove_all_without_oboe
+          end
+        else
+          remove_all_without_oboe
         end
       end
 
