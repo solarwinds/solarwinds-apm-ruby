@@ -11,6 +11,8 @@ module Oboe
       # layer - The layer the block of code belongs to.
       # opts - A hash containing key/value pairs that will be reported along
       # with the first event of this layer (optional).
+      # protect_op - specify the operating being traced.  Used to avoid
+      # double tracing between operations that call each other
       #
       # Example
       #
@@ -28,7 +30,7 @@ module Oboe
       #   result = computation_with_oboe(1000)
       #
       # Returns the result of the block.
-      def trace(layer, opts={}, protect_op=false)
+      def trace(layer, opts={}, protect_op=nil)
         log_entry(layer, opts, protect_op)
         begin 
           yield

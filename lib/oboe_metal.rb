@@ -18,15 +18,19 @@ module Oboe_metal
     end
 
     def self.layer_op=(op)
-      @layer_op = op.to_s
+      @layer_op = op
     end
 
     def self.layer_op
       @layer_op
     end
 
-    def self.layer_op?(operation)
-      @layer_op == operation.to_s
+    def self.tracing_layer_op?(operation)
+      if operation.is_a?(Array)
+        return operation.include?(@layer_op)
+      else
+        return @layer_op == operation
+      end
     end
   end
 end
