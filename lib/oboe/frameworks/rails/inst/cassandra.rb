@@ -9,7 +9,7 @@ module Oboe
 
         begin
           report_kvs[:Op] = op.to_s
-          report_kvs[:Cf] = column_family.to_s
+          report_kvs[:Cf] = column_family.to_s if column_family
           report_kvs[:Key] = keys.to_s if keys
          
           # Open issue - how to handle multiple Cassandra servers
@@ -193,9 +193,12 @@ module Oboe
       def create_index_with_oboe(keyspace, column_family, column_name, validation_class)
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:create_index, column_family, nil, nil)
-          report_kvs[:Keyspace] = keyspace.to_s
-          report_kvs[:Column_name] = column_name.to_s
-          report_kvs[:Validation_class] = validation_class.to_s
+          begin
+            report_kvs[:Keyspace] = keyspace.to_s
+            report_kvs[:Column_name] = column_name.to_s
+            report_kvs[:Validation_class] = validation_class.to_s
+          rescue
+          end
 
           Oboe::API.trace('cassandra', report_kvs) do
             create_index_without_oboe(keyspace, column_family, column_name, validation_class)
@@ -208,8 +211,11 @@ module Oboe
       def drop_index_with_oboe(keyspace, column_family, column_name)
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:drop_index, column_family, nil, nil)
-          report_kvs[:Keyspace] = keyspace.to_s
-          report_kvs[:Column_name] = column_name.to_s
+          begin
+            report_kvs[:Keyspace] = keyspace.to_s
+            report_kvs[:Column_name] = column_name.to_s
+          rescue
+          end
 
           Oboe::API.trace('cassandra', report_kvs) do
             drop_index_without_oboe(keyspace, column_family, column_name)
@@ -222,7 +228,10 @@ module Oboe
       def add_column_family_with_oboe(cf_def)
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:add_column_family, nil, nil, nil)
-          report_kvs[:Name] = cf_def[:name] if cf_def.is_a?(Hash) and cf_def.has_key?(:name)
+          begin
+            report_kvs[:Cf] = cf_def[:name] if cf_def.is_a?(Hash) and cf_def.has_key?(:name)
+          rescue
+          end
 
           Oboe::API.trace('cassandra', report_kvs) do
             add_column_family_without_oboe(cf_def)
@@ -247,7 +256,7 @@ module Oboe
       def add_keyspace_with_oboe(ks_def)
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:add_keyspace, nil, nil, nil)
-          report_kvs[:Name] = ks_def[:name] if ks_def.is_a?(Hash) and ks_def.has_key?(:name)
+          report_kvs[:Name] = ks_def.name rescue ""
 
           Oboe::API.trace('cassandra', report_kvs) do
             add_keyspace_without_oboe(ks_def)
@@ -260,7 +269,7 @@ module Oboe
       def drop_keyspace_with_oboe(keyspace)
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:drop_keyspace, nil, nil, nil)
-          report_kvs[:Name] = keyspace.to_s
+          report_kvs[:Name] = keyspace.to_s rescue ""
 
           Oboe::API.trace('cassandra', report_kvs) do
             drop_keyspace_without_oboe(keyspace)

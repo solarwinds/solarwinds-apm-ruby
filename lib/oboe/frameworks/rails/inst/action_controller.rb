@@ -13,7 +13,7 @@ module Oboe
       end
 
       def process_action(*args)
-        opts = {
+        report_kvs = {
           'HTTP-Host'   => @_request.headers['HTTP_HOST'],
           :URL          => @_request.headers['REQUEST_URI'],
           :Method       => @_request.headers['REQUEST_METHOD'],
@@ -22,12 +22,12 @@ module Oboe
         }
         super
 
-        opts[:Status] = @_response.status
-        Oboe::API.log('rails', 'info', opts)
+        report_kvs[:Status] = @_response.status
+        Oboe::API.log('rails', 'info', report_kvs)
       
       rescue Exception => exception
-        opts[:Status] = 500
-        Oboe::API.log('rails', 'info', opts)
+        report_kvs[:Status] = 500
+        Oboe::API.log('rails', 'info', report_kvs)
         raise
       end
 
@@ -54,6 +54,7 @@ if defined?(ActionController::Base)
       alias :perform_action_without_oboe :perform_action
       alias :rescue_action_without_oboe :rescue_action
       alias :process_without_oboe :process
+      alias :render_without_oboe :render
 
       def process(*args)
         header = args[0].headers['X-Trace']
@@ -63,25 +64,33 @@ if defined?(ActionController::Base)
       end
 
       def perform_action(*arguments)
-        opts = {
+        report_kvs = {
             'HTTP-Host'   => @_request.headers['HTTP_HOST'],
             :URL          => @_request.headers['REQUEST_URI'],
             :Method       => @_request.headers['REQUEST_METHOD'],
-            :Status       => @_response.status,
-            'Controller'  => @_request.path_parameters['controller'],
-            'Action'      => @_request.path_parameters['action']
+            :Controller  => @_request.path_parameters['controller'],
+            :Action      => @_request.path_parameters['action']
         }
 
-        Oboe::API.log('rails', 'info', opts)
         perform_action_without_oboe(*arguments)
+        begin
+          report_kvs[:Status] = @_response.status.to_i
+        rescue
+        end
+        Oboe::API.log('rails', 'info', report_kvs)
       end
 
       def rescue_action(exn)
         Oboe::API.log_exception('rails', exn)
         rescue_action_without_oboe(exn)
       end
+
+      def render(options = nil, extra_options = {}, &block)
+        Oboe::API.trace('render', {}) do
+          render_without_oboe(options, extra_options, &block)
+        end
+      end
     end
   end
   puts "[oboe/loading] Instrumenting ActionControler" if Oboe::Config[:verbose]
 end
-# vim:set expandtab:tabstop=2
