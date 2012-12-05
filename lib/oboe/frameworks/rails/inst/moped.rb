@@ -6,9 +6,7 @@ module Oboe
     module Moped
       FLAVOR = 'mongodb'
 
-      SESSION_OPS    = [ :command ]
-
-      DB_OPS         = [ :drop ]
+      DB_OPS         = [ :command, :drop ]
 
       INDEX_OPS      = [ :create, :drop ]
 
@@ -18,38 +16,6 @@ module Oboe
 
       # Operations for Mongo::Collection
       COLLECTION_OPS = [ :drop, :find, :indexes, :insert, :aggregate ]
-    end
-  end
-end
-
-puts "[oboe/loading] Instrumenting moped" if defined?(::Moped)
-
-if false and defined?(::Moped::Session)
-  module ::Moped
-    class Session
-      include Oboe::Inst::Moped
-
-      def command(op)
-        return command_without_oboe(op)
-
-        if Oboe::Config.tracing?
-          report_kvs = extract_trace_details(:drop)
-
-          Oboe::API.trace('mongo', report_kvs) do
-            drop_without_oboe
-          end
-        else
-          drop_without_oboe
-        end
-      end
-      
-      Oboe::Inst::Moped::SESSION_OPS.each do |m|
-        if method_defined?(m)
-          class_eval "alias #{m}_without_oboe #{m}"
-          class_eval "alias #{m} #{m}_with_oboe"
-        else puts "[oboe/loading] Couldn't properly instrument moped (#{m}).  Partial traces may occur."
-        end
-      end
     end
   end
 end
@@ -72,6 +38,20 @@ if defined?(::Moped::Database)
         report_kvs
       end
      
+      def command_with_oboe(command)
+        if Oboe::Config.tracing? and not Oboe::Context.layer_op and command.has_key?(:mapreduce)
+          report_kvs = extract_trace_details(:map_reduce)
+          report_kvs[:Map_Function] = command[:map]
+          report_kvs[:Reduce_Function] = command[:reduce]
+
+          Oboe::API.trace('mongo', report_kvs) do
+            command_without_oboe(command)
+          end
+        else
+          command_without_oboe(command)
+        end
+      end
+
       def drop_with_oboe
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:drop)
