@@ -54,7 +54,7 @@ if defined?(::Moped::Database)
 
       def drop_with_oboe
         if Oboe::Config.tracing?
-          report_kvs = extract_trace_details(:drop)
+          report_kvs = extract_trace_details(:drop_database)
 
           Oboe::API.trace('mongo', report_kvs) do
             drop_without_oboe
@@ -111,9 +111,9 @@ if defined?(::Moped::Indexes)
       
       def drop_with_oboe(key = nil)
         if Oboe::Config.tracing?
-          # We report :drop_index here to be consistent
+          # We report :drop_indexes here to be consistent
           # with other mongo implementations
-          report_kvs = extract_trace_details(:drop_index)
+          report_kvs = extract_trace_details(:drop_indexes)
           report_kvs[:Key] = key.nil? ? "all" : key.try(:to_json)
 
           Oboe::API.trace('mongo', report_kvs) do
@@ -240,7 +240,8 @@ if defined?(::Moped::Query)
       def upsert_with_oboe(change)
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:upsert)
-          report_kvs[:Query] = change.to_s
+          report_kvs[:Query] = selector.try(:to_json)
+          report_kvs[:Update_Document] = change.try(:to_json)
 
           Oboe::API.trace('mongo', report_kvs, :upsert) do
             upsert_without_oboe(change)
