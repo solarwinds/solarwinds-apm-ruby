@@ -12,7 +12,7 @@ module Oboe
 
       # Operations for Mongo::Query
       QUERY_OPS      = [ :count, :sort, :limit, :distinct, :update, :update_all, :upsert, 
-                         :explain, :modify, :remove, :remove ]
+                         :explain, :modify, :remove, :remove_all ]
 
       # Operations for Mongo::Collection
       COLLECTION_OPS = [ :drop, :find, :indexes, :insert, :aggregate ]
@@ -282,7 +282,7 @@ if defined?(::Moped::Query)
       def remove_with_oboe
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:remove)
-          report_kvs[:Query] = operation.selector.to_s
+          report_kvs[:Query] = selector.try(:to_json)
 
           Oboe::API.trace('mongo', report_kvs) do
             remove_without_oboe
@@ -295,7 +295,7 @@ if defined?(::Moped::Query)
       def remove_all_with_oboe
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:remove_all)
-          report_kvs[:Query] = operation.selector.to_s
+          report_kvs[:Query] = selector.try(:to_json)
 
           Oboe::API.trace('mongo', report_kvs) do
             remove_all_without_oboe
