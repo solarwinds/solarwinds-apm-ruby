@@ -6,19 +6,23 @@ module Oboe
     module Moped
       FLAVOR = 'mongodb'
 
+      # Moped::Database
       DB_OPS         = [ :command, :drop ]
 
+      # Moped::Indexes
       INDEX_OPS      = [ :create, :drop ]
 
-      # Operations for Mongo::Query
+      # Moped::Query
       QUERY_OPS      = [ :count, :sort, :limit, :distinct, :update, :update_all, :upsert, 
                          :explain, :modify, :remove, :remove_all ]
 
-      # Operations for Mongo::Collection
+      # Moped::Collection
       COLLECTION_OPS = [ :drop, :find, :indexes, :insert, :aggregate ]
     end
   end
 end
+
+puts "[oboe/loading] Instrumenting moped" if Oboe::Config[:verbose] and defined?(::Moped)
 
 if defined?(::Moped::Database)
   module ::Moped
