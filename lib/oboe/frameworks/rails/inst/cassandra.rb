@@ -83,7 +83,7 @@ module Oboe
       def get_columns_with_oboe(column_family, key, *columns_and_options)
         args = [column_family, key] + columns_and_options
         
-        if Oboe::Config.tracing? and not Oboe::Context.layer_op?(:multi_get_columns)
+        if Oboe::Config.tracing? and not Oboe::Context.tracing_layer_op?(:multi_get_columns)
           report_kvs = extract_trace_details(:get_columns, column_family, key, columns_and_options)
 
           Oboe::API.trace('cassandra', report_kvs) do
@@ -100,7 +100,7 @@ module Oboe
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:multi_get_columns, column_family, key, columns_and_options)
 
-          Oboe::API.trace('cassandra', report_kvs, true) do
+          Oboe::API.trace('cassandra', report_kvs, :multi_get_columns) do
             send :multi_get_columns_without_oboe, *args
           end
         else
@@ -114,7 +114,7 @@ module Oboe
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:get, column_family, key, columns_and_options)
 
-          Oboe::API.trace('cassandra', report_kvs, true) do
+          Oboe::API.trace('cassandra', report_kvs, :get) do
             send :get_without_oboe, *args
           end
         else
@@ -125,7 +125,7 @@ module Oboe
       def multi_get_with_oboe(column_family, key, *columns_and_options)
         args = [column_family, key] + columns_and_options
         
-        if Oboe::Config.tracing? and not Oboe::Context.layer_op?(:get)
+        if Oboe::Config.tracing? and not Oboe::Context.tracing_layer_op?(:get)
           report_kvs = extract_trace_details(:multi_get, column_family, key, columns_and_options)
 
           Oboe::API.trace('cassandra', report_kvs) do
@@ -151,7 +151,7 @@ module Oboe
       end
       
       def get_range_single_with_oboe(column_family, options = {})
-        if Oboe::Config.tracing? and not Oboe::Context.layer_op?(:get_range_batch)
+        if Oboe::Config.tracing? and not Oboe::Context.tracing_layer_op?(:get_range_batch)
           report_kvs = extract_trace_details(:get_range_single, column_family, nil, nil)
           args = [column_family, options]
 
@@ -168,7 +168,7 @@ module Oboe
           report_kvs = extract_trace_details(:get_range_batch, column_family, nil, nil)
           args = [column_family, options]
 
-          Oboe::API.trace('cassandra', report_kvs, true) do
+          Oboe::API.trace('cassandra', report_kvs, :get_range_batch) do
             get_range_batch_without_oboe(column_family, options)
           end
         else
