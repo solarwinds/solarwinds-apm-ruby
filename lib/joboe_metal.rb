@@ -18,7 +18,7 @@ module Oboe_metal
 
       evt.addInfo("Backtrace", Kernel.caller.join("\r\n")) if with_backtrace
 
-      Oboe.reporter.send(evt)
+      Oboe::Reporter.sendReport(evt)
     end
 
     def self.layer_op=(op)
