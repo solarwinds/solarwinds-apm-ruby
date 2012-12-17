@@ -12,6 +12,7 @@ begin
     require 'oboe_metal'
   end
   require 'rbconfig'
+  require 'method_profiling'
   require 'oboe/config'
   require 'oboe/loading'
 
