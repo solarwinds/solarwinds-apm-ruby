@@ -162,6 +162,13 @@ module Oboe
 
     return @reporter
   end
+  
+  module Reporter
+    def self.sendReport(evt)
+      Oboe.reporter.sendReport(evt)
+    end
+  end
 end
 
-Oboe_metal::Context.init()
+Oboe_metal::Context.init() 
+
