@@ -130,19 +130,5 @@ module Oboe
         end
       end
     end
-
-    module TracingNoop
-      def trace(layer, opts={})
-        yield
-      end
-
-      def start_trace(layer, xtrace, opts={})
-        [yield, xtrace]
-      end
-
-      def start_trace_with_target(layer, xtrace, target, opts={})
-        yield
-      end
-    end
   end
 end

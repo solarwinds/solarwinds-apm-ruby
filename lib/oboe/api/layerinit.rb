@@ -24,14 +24,5 @@ module Oboe
         Oboe::Config[:tracing_mode] = saved_mode
       end
     end
-
-    module LayerInitNoop
-      def report_init(layer)
-      end
-
-      def force_trace
-        yield
-      end
-    end
   end
 end
