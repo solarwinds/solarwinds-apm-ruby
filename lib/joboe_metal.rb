@@ -2,11 +2,16 @@
 # All rights reserved.
 
 module Oboe_metal
+  include_package 'com.tracelytics.joboe'
+  import 'com.tracelytics.joboe'
+  include_package 'com.tracelytics.agent.Agent'
+  import 'com.tracelytics.agent.Agent'
   include_package 'com.tracelytics.joboe.Context'
   import 'com.tracelytics.joboe.Context'
+  include_package 'com.tracelytics.joboe.Event'
+  import 'com.tracelytics.joboe.Event'
 
   class Context
-
     def self.log(layer, label, options = {}, with_backtrace = true)
       evt = Oboe::Context.createEvent()
       evt.addInfo("Layer", layer.to_s)
@@ -49,17 +54,6 @@ module Oboe_metal
       getMetadata
     end
   end
-end
-
-module Oboe
-  include Oboe_metal
-  
-  include_package 'com.tracelytics.joboe.Event'
-  import 'com.tracelytics.joboe.Event'
-  include_package 'com.tracelytics.joboe'
-  import 'com.tracelytics.joboe'
-  include_package 'com.tracelytics.agent.Agent'
-  import 'com.tracelytics.agent.Agent'
   
   class Event
     def self.metadataString(evt)
@@ -78,8 +72,17 @@ module Oboe
   module Metadata
     Java::ComTracelyticsJoboeMetaData
   end
+  
+  module Reporter
+    def self.sendReport(evt)
+      evt.report
+    end
+  end
+end
 
-
+module Oboe
+  include Oboe_metal
+  
   # TODO: Ensure that the :tracing_mode is set to "always", "through", or "never"
   Config = {
     :tracing_mode => "through",
@@ -118,21 +121,4 @@ module Oboe
   def self.log(layer, label, options = {})
     Context.log(layer, label, options = options)
   end
-
-  def self.reporter
-    if !@reporter
-      @reporter = Oboe::UDPReporter.new(Oboe::Config[:reporter_host], 2394)
-    end
-
-    return @reporter
-  end
-
-  module Reporter
-    def self.sendReport(evt)
-      evt.report
-    end
-  end
 end
-
-Oboe.startAgent
-
