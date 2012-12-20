@@ -2,6 +2,12 @@
 # All rights reserved.
 
 module Oboe_metal
+  class Event
+    def self.metadataString(evt)
+      evt.metadataString()
+    end
+  end
+
   class Context
     def self.log(layer, label, options = {}, with_backtrace = true)
       evt = Oboe::Context.createEvent()
@@ -31,6 +37,12 @@ module Oboe_metal
       else
         return @layer_op == operation
       end
+    end
+  end
+  
+  module Reporter
+    def self.sendReport(evt)
+      Oboe.reporter.sendReport(evt)
     end
   end
 end
@@ -81,14 +93,7 @@ module Oboe
     if !@reporter
       @reporter = Oboe::UdpReporter.new(Oboe::Config[:reporter_host])
     end
-
     return @reporter
-  end
-  
-  module Reporter
-    def self.sendReport(evt)
-      Oboe.reporter.sendReport(evt)
-    end
   end
 end
 
