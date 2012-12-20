@@ -4,7 +4,7 @@ require "oboe/version"
 Gem::Specification.new do |s|
     s.name = %q{oboe}
     s.version = Oboe::Version::STRING
-    s.date = %{2012-09-12}
+    s.date = Time.now.strftime('%Y-%m-%d')
     s.authors = ["Tracelytics, Inc."]
     s.email = %q{contact@tracelytics.com}
     s.summary = %q{Tracelytics instrumentation gem}
