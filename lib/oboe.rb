@@ -4,7 +4,6 @@
 begin
   require 'rbconfig'
   if RUBY_PLATFORM == 'java'
-    puts "Initializing JRuby environment."
     require '/usr/local/tracelytics/tracelyticsagent.jar'
     require 'joboe_metal'
   else
