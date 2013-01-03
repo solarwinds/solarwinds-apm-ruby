@@ -18,7 +18,7 @@ module Oboe_metal
         evt.addInfo(k.to_s, v.to_s)
       end
 
-      evt.addInfo("Backtrace", Kernel.caller.join("\r\n")) if with_backtrace
+      evt.addInfo("Backtrace", Oboe::API.backtrace) if with_backtrace
 
       Oboe::Reporter.sendReport(evt)
     end
