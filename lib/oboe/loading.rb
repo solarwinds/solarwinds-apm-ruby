@@ -57,7 +57,7 @@ module Oboe
       begin
         Oboe::API.extend_with_tracing
       rescue LoadError => e
-        Oboe::API.extend_with_noop
+        puts "[oboe/error] Couldn't load oboe api."
       end
       
       require 'oboe/config'

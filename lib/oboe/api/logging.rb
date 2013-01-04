@@ -120,28 +120,5 @@ module Oboe
         Oboe.reporter.sendReport(event)
       end
     end
-
-    module LoggingNoop
-      def log(layer, label, opts={})
-      end
-
-      def log_exception(layer, exn)
-      end
-
-      def log_start(layer, xtrace, opts={})
-      end
-
-      def log_end(layer, opts={})
-      end
-
-      def log_entry(layer, opts={})
-      end
-
-      def log_exit(layer, opts={})
-      end
-
-      def log_event(layer, label, event, opts={})
-      end
-    end
   end 
 end
