@@ -116,8 +116,8 @@ module Oboe
         opts.each do |k, v|
           event.addInfo(k.to_s, v.to_s) if valid_key? k
         end if !opts.nil? and opts.any?
-  
-        Oboe.reporter.sendReport(event)
+ 
+        Oboe::Reporter.sendReport(event)
       end
     end
   end 
