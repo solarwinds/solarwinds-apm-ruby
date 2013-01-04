@@ -2,11 +2,12 @@
 # All rights reserved.
 
 module Oboe_metal
-  class Event
-    def self.metadataString(evt)
-      evt.metadataString()
-    end
-  end
+  include_package 'com.tracelytics.joboe'
+  import 'com.tracelytics.joboe'
+  include_package 'com.tracelytics.joboe.Context'
+  import 'com.tracelytics.joboe.Context'
+  include_package 'com.tracelytics.joboe.Event'
+  import 'com.tracelytics.joboe.Event'
 
   class Context
     def self.log(layer, label, options = {}, with_backtrace = true)
@@ -38,18 +39,44 @@ module Oboe_metal
         return @layer_op == operation
       end
     end
+
+    def self.toString
+      md = getMetadata.toString
+    end
+
+    def self.clear
+      clearMetadata
+    end
+
+    def self.get
+      getMetadata
+    end
+  end
+  
+  class Event
+    def self.metadataString(evt)
+      evt.getMetadata.toHexString
+    end
+  end
+
+  def UdpReporter
+    Java::ComTracelyticsJoboe
+  end
+  
+  module Metadata
+    Java::ComTracelyticsJoboeMetaData
   end
   
   module Reporter
     def self.sendReport(evt)
-      Oboe.reporter.sendReport(evt)
+      evt.report
     end
   end
 end
 
 module Oboe
   include Oboe_metal
-
+  
   # TODO: Ensure that the :tracing_mode is set to "always", "through", or "never"
   Config = {
     :tracing_mode => "through",
@@ -88,14 +115,4 @@ module Oboe
   def self.log(layer, label, options = {})
     Context.log(layer, label, options = options)
   end
-
-  def self.reporter
-    if !@reporter
-      @reporter = Oboe::UdpReporter.new(Oboe::Config[:reporter_host])
-    end
-    return @reporter
-  end
 end
-
-Oboe_metal::Context.init() 
-

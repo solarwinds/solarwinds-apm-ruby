@@ -8,13 +8,6 @@ module Oboe
       extend Oboe::API::Tracing
       extend Oboe::API::LayerInit
     end
-
-    def self.extend_with_noop
-      extend Oboe::API::LoggingNoop
-      extend Oboe::API::TracingNoop
-      extend Oboe::API::LayerInitNoop
-    end
-    
     extend Oboe::API::Util
   end
 end
