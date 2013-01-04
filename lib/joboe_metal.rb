@@ -4,8 +4,6 @@
 module Oboe_metal
   include_package 'com.tracelytics.joboe'
   import 'com.tracelytics.joboe'
-  include_package 'com.tracelytics.agent.Agent'
-  import 'com.tracelytics.agent.Agent'
   include_package 'com.tracelytics.joboe.Context'
   import 'com.tracelytics.joboe.Context'
   include_package 'com.tracelytics.joboe.Event'
@@ -59,10 +57,6 @@ module Oboe_metal
     def self.metadataString(evt)
       evt.getMetadata.toHexString
     end
-  end
-
-  def self.startAgent
-    Java::ComTracelyticsAgent::Agent.premain('', nil)
   end
 
   def UdpReporter
