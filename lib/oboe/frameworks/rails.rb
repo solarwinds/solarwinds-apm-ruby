@@ -8,9 +8,9 @@ module Oboe
           return unless Oboe::Config.has_key?(:rum_id)
           if Oboe::Config.tracing?
             if request.xhr?
-              header_tmpl = File.read(File.dirname(__FILE__) + '/helpers/rum/rum_ajax_header.js.erb')
+              header_tmpl = File.read(File.dirname(__FILE__) + 'rails/helpers/rum/rum_ajax_header.js.erb')
             else
-              header_tmpl = File.read(File.dirname(__FILE__) + '/helpers/rum/rum_header.js.erb')
+              header_tmpl = File.read(File.dirname(__FILE__) + 'rails/helpers/rum/rum_header.js.erb')
             end
             return raw(ERB.new(header_tmpl).result)
           end
@@ -26,7 +26,7 @@ module Oboe
           if Oboe::Config.tracing?
             # Even though the footer template is named xxxx.erb, there are no ERB tags in it so we'll
             # skip that step for now
-            footer_tmpl = File.read(File.dirname(__FILE__) + '/helpers/rum/rum_footer.js.erb')
+            footer_tmpl = File.read(File.dirname(__FILE__) + 'rails/helpers/rum/rum_footer.js.erb')
             return raw(footer_tmpl)
           end
         rescue Exception => e
@@ -55,7 +55,7 @@ module Oboe
 
 
     def self.load_instrumentation
-      pattern = File.join(File.dirname(__FILE__), 'inst', '*.rb')
+      pattern = File.join(File.dirname(__FILE__), 'rails/inst', '*.rb')
       Dir.glob(pattern) do |f|
         begin
           require f
@@ -94,6 +94,11 @@ if defined?(::Rails)
         
         initializer 'oboe.helpers' do
           Oboe::Rails.include_helpers        
+        end
+
+        initializer "oboe.use_rack_middleware" do |app|
+          puts "[oboe/loading] Instrumenting rack" if Oboe::Config[:verbose]
+          app.config.middleware.insert 0, "Oboe::Middleware"
         end
 
         config.after_initialize do
