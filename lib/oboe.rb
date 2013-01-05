@@ -10,20 +10,19 @@ begin
     require 'oboe_metal.so'
     require 'oboe_metal'
   end
-  require 'rbconfig'
   require 'method_profiling'
   require 'oboe/config'
   require 'oboe/loading'
 
   # Instrumentation
-  require 'inst/cassandra'
-  require 'inst/dalli'
-  require 'inst/http'
-  require 'inst/memcached'
-  require 'inst/memcache'
-  require 'inst/mongo'
-  require 'inst/moped'
-  require 'inst/rack'
+  require 'oboe/inst/cassandra'
+  require 'oboe/inst/dalli'
+  require 'oboe/inst/http'
+  require 'oboe/inst/memcached'
+  require 'oboe/inst/memcache'
+  require 'oboe/inst/mongo'
+  require 'oboe/inst/moped'
+  require 'oboe/inst/rack'
 
   # Frameworks
   require 'oboe/frameworks/rails'
