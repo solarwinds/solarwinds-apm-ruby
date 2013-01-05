@@ -98,7 +98,7 @@ if defined?(::Rails)
 
         initializer "oboe.use_rack_middleware" do |app|
           puts "[oboe/loading] Instrumenting rack" if Oboe::Config[:verbose]
-          app.config.middleware.insert 0, "Oboe::Middleware"
+          app.config.middleware.insert 0, "Oboe::Rack"
         end
 
         config.after_initialize do
