@@ -15,6 +15,19 @@ begin
   require 'oboe/config'
   require 'oboe/loading'
 
+  # Instrumentation
+  require 'inst/cassandra'
+  require 'inst/dalli'
+  require 'inst/http'
+  require 'inst/memcached'
+  require 'inst/memcache'
+  require 'inst/mongo'
+  require 'inst/moped'
+  require 'inst/rack'
+
+  # Frameworks
+  require 'oboe/frameworks/rails'
+
 rescue LoadError
   puts "Unsupported Tracelytics environment (no libs).  Going No-op."
 end
