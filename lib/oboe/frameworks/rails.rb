@@ -65,10 +65,6 @@ module Oboe
         end
       end
       
-      # Insert Rack middleware
-      puts "[oboe/loading] Instrumenting rack" if Oboe::Config[:verbose]
-      ::Rails.configuration.middleware.insert 0, "Oboe::Rack"
-
       if ::Rails::VERSION::MAJOR > 2
         puts "Tracelytics oboe gem #{Gem.loaded_specs['oboe'].version.to_s} successfully loaded."
       else
@@ -94,12 +90,19 @@ module Oboe
 end # Oboe
 
 if defined?(::Rails)
+  require 'oboe/inst/rack'
+
   if ::Rails::VERSION::MAJOR > 2
     module Oboe
       class Railtie < ::Rails::Railtie
         
         initializer 'oboe.helpers' do
           Oboe::Rails.include_helpers        
+        end
+
+        initializer 'oboe.rack' do |app|
+          puts "[oboe/loading] Instrumenting rack" if true or Oboe::Config[:verbose]
+          app.config.middleware.insert 0, "Oboe::Rack"
         end
 
         config.after_initialize do
