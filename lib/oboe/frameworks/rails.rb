@@ -8,9 +8,9 @@ module Oboe
           return unless Oboe::Config.has_key?(:rum_id)
           if Oboe::Config.tracing?
             if request.xhr?
-              header_tmpl = File.read(File.dirname(__FILE__) + 'rails/helpers/rum/rum_ajax_header.js.erb')
+              header_tmpl = File.read(File.dirname(__FILE__) + '/rails/helpers/rum/rum_ajax_header.js.erb')
             else
-              header_tmpl = File.read(File.dirname(__FILE__) + 'rails/helpers/rum/rum_header.js.erb')
+              header_tmpl = File.read(File.dirname(__FILE__) + '/rails/helpers/rum/rum_header.js.erb')
             end
             return raw(ERB.new(header_tmpl).result)
           end
@@ -26,7 +26,7 @@ module Oboe
           if Oboe::Config.tracing?
             # Even though the footer template is named xxxx.erb, there are no ERB tags in it so we'll
             # skip that step for now
-            footer_tmpl = File.read(File.dirname(__FILE__) + 'rails/helpers/rum/rum_footer.js.erb')
+            footer_tmpl = File.read(File.dirname(__FILE__) + '/rails/helpers/rum/rum_footer.js.erb')
             return raw(footer_tmpl)
           end
         rescue Exception => e
@@ -55,6 +55,7 @@ module Oboe
 
 
     def self.load_instrumentation
+      # Load the Rails specific instrumentation
       pattern = File.join(File.dirname(__FILE__), 'rails/inst', '*.rb')
       Dir.glob(pattern) do |f|
         begin
@@ -63,6 +64,11 @@ module Oboe
           $stderr.puts "[oboe/loading] Error loading rails insrumentation file '#{f}' : #{e}"
         end
       end
+      
+      # Insert Rack middleware
+      puts "[oboe/loading] Instrumenting rack" if Oboe::Config[:verbose]
+      ::Rails.configuration.middleware.insert 0, "Oboe::Rack"
+
       if ::Rails::VERSION::MAJOR > 2
         puts "Tracelytics oboe gem #{Gem.loaded_specs['oboe'].version.to_s} successfully loaded."
       else
@@ -96,13 +102,9 @@ if defined?(::Rails)
           Oboe::Rails.include_helpers        
         end
 
-        initializer "oboe.use_rack_middleware" do |app|
-          puts "[oboe/loading] Instrumenting rack" if Oboe::Config[:verbose]
-          app.config.middleware.insert 0, "Oboe::Rack"
-        end
-
         config.after_initialize do
           Oboe::Loading.load_access_key
+          Oboe::Inst.load_instrumentation
           Oboe::Rails.load_instrumentation
         end
       end
@@ -110,6 +112,7 @@ if defined?(::Rails)
   else
     Oboe::Rails.load_initializer
     Oboe::Loading.load_access_key
+    Oboe::Inst.load_instrumentation
     Oboe::Rails.load_instrumentation
     Oboe::Rails.include_helpers        
   end
