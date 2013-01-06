@@ -35,7 +35,12 @@ module Oboe
         begin 
           yield
         rescue Exception => e
-          log_exception(layer, e)
+          # FIXME: Is setting an exception object instance variable
+          # the best method?
+          unless e.instance_variable_get(:@oboe_logged)
+            log_exception(layer, e) 
+            e.instance_variable_set(:@oboe_logged, true)
+          end
           raise
         ensure
           log_exit(layer, {}, protect_op)
