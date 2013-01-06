@@ -6,8 +6,7 @@ module Oboe
     module Rails3ActionController
       def process(*args)
 
-        header = request.headers['X-Trace']
-        Oboe::API.start_trace_with_target('rails', header, response.headers) do
+        Oboe::API.trace('rails', {}) do
           super
         end
       end
@@ -57,8 +56,7 @@ if defined?(ActionController::Base)
       alias :render_without_oboe :render
 
       def process(*args)
-        header = args[0].headers['X-Trace']
-        Oboe::API.start_trace_with_target('rails', header, args[1].headers) do
+        Oboe::API.trace('rails', {}) do
           process_without_oboe(*args)
         end
       end
