@@ -115,9 +115,14 @@ if defined?(::Rails)
   else
     Oboe::Rails.load_initializer
     Oboe::Loading.load_access_key
+
+    puts "[oboe/loading] Instrumenting rack" if true or Oboe::Config[:verbose]
+    Rails.configuration.middleware.insert 0, "Oboe::Rack"
+
     Oboe::Inst.load_instrumentation
     Oboe::Rails.load_instrumentation
-    Oboe::Rails.include_helpers        
+    Oboe::Rails.include_helpers
+    
   end
 end
 
