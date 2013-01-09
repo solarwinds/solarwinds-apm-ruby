@@ -13,16 +13,17 @@ Net::HTTP.class_eval do
         opts = {}
         if args.length and args[0]
           req = args[0]
-          req['X-Trace'] = Oboe::Context.toString()
 
           opts['IsService'] = 1
           opts['RemoteProtocol'] = use_ssl? ? 'HTTPS' : 'HTTP'
           opts['RemoteHost'] = addr_port
           opts['ServiceArg'] = req.path
           opts['Method'] = req.method
+        
+          Oboe::API.log('net-http', 'info', opts)
+          req['X-Trace'] = Oboe::Context.toString()
         end
 
-        Oboe::API.log('net-http', 'info', opts)
         resp = request_without_oboe(*args, &block)
 
         xtrace = resp.get_fields('X-Trace')
