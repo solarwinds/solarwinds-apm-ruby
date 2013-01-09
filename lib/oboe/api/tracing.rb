@@ -35,7 +35,7 @@ module Oboe
         begin 
           yield
         rescue Exception => e
-          log_exception(layer, e)
+            log_exception(layer, e) 
           raise
         ensure
           log_exit(layer, {}, protect_op)
@@ -78,7 +78,7 @@ module Oboe
         begin
           result = yield
         rescue Exception => e
-          log_exception(layer, e)
+          log_exception(layer, e) 
           e.instance_variable_set(:@xtrace, log_end(layer))
           raise
         end
