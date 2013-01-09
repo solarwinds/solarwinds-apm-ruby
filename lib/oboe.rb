@@ -14,6 +14,7 @@ begin
   require 'oboe/loading'
   require 'method_profiling'
   require 'oboe/instrumentation'
+  require 'oboe/ruby'
 
   # Frameworks
   require 'oboe/frameworks/rails' if defined?(::Rails)
