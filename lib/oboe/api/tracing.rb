@@ -35,10 +35,7 @@ module Oboe
         begin 
           yield
         rescue Exception => e
-          unless e.instance_variable_get(:@oboe_logged)
             log_exception(layer, e) 
-            e.instance_variable_set(:@oboe_logged, true)
-          end
           raise
         ensure
           log_exit(layer, {}, protect_op)
@@ -81,10 +78,7 @@ module Oboe
         begin
           result = yield
         rescue Exception => e
-          unless e.instance_variable_get(:@oboe_logged)
-            log_exception(layer, e) 
-            e.instance_variable_set(:@oboe_logged, true)
-          end
+          log_exception(layer, e) 
           e.instance_variable_set(:@xtrace, log_end(layer))
           raise
         end

@@ -40,11 +40,14 @@ module Oboe
       #
       # Returns nothing.
       def log_exception(layer, exn)
-        log(layer, 'error', {
-          :ErrorClass => exn.class.name,
-          :Message => exn.message,
-          :ErrorBacktrace => exn.backtrace.join("\r\n")
-        })
+        unless exn.instance_variable_get(:@oboe_logged)
+          log(layer, 'error', {
+            :ErrorClass => exn.class.name,
+            :Message => exn.message,
+            :ErrorBacktrace => exn.backtrace.join("\r\n")
+          })
+          exn.instance_variable_set(:@oboe_logged, true)
+        end
       end
   
       # Public: Decide whether or not to start a trace, and report an event
