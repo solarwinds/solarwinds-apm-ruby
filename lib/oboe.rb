@@ -14,9 +14,10 @@ begin
   require 'oboe/loading'
   require 'method_profiling'
   require 'oboe/instrumentation'
+  require 'oboe/ruby'
 
   # Frameworks
-  require 'oboe/frameworks/rails'
+  require 'oboe/frameworks/rails' if defined?(::Rails)
 
 rescue LoadError
   puts "Unsupported Tracelytics environment (no libs).  Going No-op."
