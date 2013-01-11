@@ -12,10 +12,12 @@ module Oboe
     end
 
     def call(env)
-      @env = env
       header = env['HTTP_X_TRACE']
 
-      result, header = Oboe::API.start_trace('rack', header) do
+      report_kvs = {}
+      report_kvs[:SampleRate] = Oboe::Config[:sample_rate]
+
+      result, header = Oboe::API.start_trace('rack', header, report_kvs) do
         env['HTTP_X_TRACE'] = Oboe::Context.toString()
         @app.call(env)
       end
