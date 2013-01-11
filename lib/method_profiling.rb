@@ -15,7 +15,7 @@ module OboeMethodProfiling
             file = nil
             line = nil
             if version and version.match(/^1.9/)
-                info = self.method(method_name).source_location
+                info = self.instance_method(method_name).source_location
                 if !info.nil?
                   file = info[0]
                   line = info[1] 
@@ -40,8 +40,6 @@ module OboeMethodProfiling
                             s.string
                         end
 
-                        # file and line number are fetched in Context.log
-                        # because we have access to the correct backtrace there
                         entry_kvs = {'Language'     => 'ruby',
                                      'ProfileName'  => '#{profile_name}',
                                      'FunctionName' => '#{method_name}',
