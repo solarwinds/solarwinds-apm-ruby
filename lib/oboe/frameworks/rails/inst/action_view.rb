@@ -3,7 +3,7 @@
 
 if defined?(ActionView::Base)
   if Rails::VERSION::MAJOR == 3
-    puts "[oboe/loading] Instrumenting ActionView" 
+    puts "[oboe/loading] Instrumenting actionview" 
 
     if Rails::VERSION::MINOR == 0
       ActionView::Partials::PartialRenderer.class_eval do
