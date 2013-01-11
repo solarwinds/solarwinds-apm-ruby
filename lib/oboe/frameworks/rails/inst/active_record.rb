@@ -237,16 +237,17 @@ module Oboe
           if ActiveRecord::Base::connection.adapter_name.downcase.to_sym == :mysql
             puts "[oboe/loading] Instrumenting ActiveRecord MysqlAdapter" if Oboe::Config[:verbose]
             if ::Rails::VERSION::MAJOR == 3 and ::Rails::VERSION::MINOR > 1
-              ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter.module_eval do
+              ::ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter.module_eval do
                 include Oboe::Inst::ConnectionAdapters::AbstractMysqlAdapter
-              end
-              ActiveRecord::ConnectionAdapters::MysqlAdapter.module_eval do
+              end if defined?(::ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter) 
+
+              ::ActiveRecord::ConnectionAdapters::MysqlAdapter.module_eval do
                 include Oboe::Inst::ConnectionAdapters::MysqlAdapter
-              end
+              end if defined?(::ActiveRecord::ConnectionAdapters::MysqlAdapter)
             else
-              ActiveRecord::ConnectionAdapters::MysqlAdapter.module_eval do
+              ::ActiveRecord::ConnectionAdapters::MysqlAdapter.module_eval do
                 include Oboe::Inst::ConnectionAdapters::LegacyMysqlAdapter
-              end
+              end if defined?(::ActiveRecord::ConnectionAdapters::MysqlAdapter)
             end
           end
         end
@@ -254,31 +255,32 @@ module Oboe
         def self.mysql2
           if ActiveRecord::Base::connection.adapter_name.downcase.to_sym == :mysql2
             puts "[oboe/loading] Instrumenting ActiveRecord Mysql2Adapter" if Oboe::Config[:verbose]
-            ActiveRecord::ConnectionAdapters::Mysql2Adapter.module_eval do
+
+            ::ActiveRecord::ConnectionAdapters::Mysql2Adapter.module_eval do
               include Oboe::Inst::ConnectionAdapters::Mysql2Adapter
-            end
+            end if defined?(::ActiveRecord::ConnectionAdapters::Mysql2Adapter)
           end
         end
 
         def self.postgresql
           if ActiveRecord::Base::connection.adapter_name.downcase.to_sym == :postgresql
             puts "[oboe/loading] Instrumenting ActiveRecord PostgreSQLAdapter" if Oboe::Config[:verbose]
-            ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.module_eval do
+            ::ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.module_eval do
               if ::Rails::VERSION::MAJOR == 3 and ::Rails::VERSION::MINOR > 0
                 include Oboe::Inst::ConnectionAdapters::PostgreSQLAdapter
               else
                 include Oboe::Inst::ConnectionAdapters::LegacyPostgreSQLAdapter
               end
-            end
+            end if defined?(::ActiveRecord::ConnectionAdapters::PostgreSQLAdapter)
           end
         end
 
         def self.oracle
           if ActiveRecord::Base::connection.adapter_name.downcase.to_sym == :oracleenhanced
             puts "[oboe/loading] Instrumenting ActiveRecord OracleEnhancedAdapter" if Oboe::Config[:verbose]
-            ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.module_eval do
+            ::ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.module_eval do
               include Oboe::Inst::ConnectionAdapters
-            end
+            end if defined?(::ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter)
           end
         end
       end
