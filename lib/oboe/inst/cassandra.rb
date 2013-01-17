@@ -15,6 +15,8 @@ module Oboe
           # Open issue - how to handle multiple Cassandra servers
           report_kvs[:RemoteHost], report_kvs[:RemotePort] = @servers.first.split(":")
 
+          report_kvs[:Backtrace] = Oboe::API.backtrace
+
           if options.empty? and args.is_a?(Array)
             options = args.last if args.last.is_a?(Hash)
           end
