@@ -41,6 +41,8 @@ if defined?(::Mongo::DB)
 
             report_kvs[:New_Collection_Name] = args[0] if m == :create_collection
             report_kvs[:Collection_Name] = args[0]     if m == :drop_collection
+
+            report_kvs[:Backtrace] = Oboe::API.backtrace
           rescue
             logger.warn "[oboe/error] Problem processing mongo args (#{m})" if defined?(logger)
           end
@@ -113,6 +115,8 @@ if defined?(::Mongo::Collection)
         report_kvs[:RemoteHost] = @db.connection.host
         report_kvs[:RemotePort] = @db.connection.port
         report_kvs[:Collection] = @name
+            
+        report_kvs[:Backtrace] = Oboe::API.backtrace
 
         report_kvs[:QueryOp] = m 
         report_kvs[:Query] = args[0].try(:to_json) if args and not args.empty? and args[0].class == Hash

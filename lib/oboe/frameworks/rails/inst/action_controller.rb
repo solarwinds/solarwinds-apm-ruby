@@ -90,5 +90,5 @@ if defined?(ActionController::Base)
       end
     end
   end
-  puts "[oboe/loading] Instrumenting ActionControler" if Oboe::Config[:verbose]
+  puts "[oboe/loading] Instrumenting actioncontroler" if Oboe::Config[:verbose]
 end
