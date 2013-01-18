@@ -10,10 +10,14 @@ begin
     require 'oboe_metal.so'
     require 'oboe_metal'
   end
-  require 'rbconfig'
-  require 'method_profiling'
   require 'oboe/config'
   require 'oboe/loading'
+  require 'method_profiling'
+  require 'oboe/instrumentation'
+  require 'oboe/ruby'
+
+  # Frameworks
+  require 'oboe/frameworks/rails' if defined?(::Rails)
 
 rescue LoadError
   puts "Unsupported Tracelytics environment (no libs).  Going No-op."

@@ -8,7 +8,7 @@ module Oboe
 
       def self.included(cls)
         cls.class_eval do
-          puts "[oboe/loading] Instrumenting Memcache (Dalli)" if Oboe::Config[:verbose]
+          puts "[oboe/loading] Instrumenting memcache (dalli)" if Oboe::Config[:verbose]
           if ::Dalli::Client.private_method_defined? :perform
             alias perform_without_oboe perform
             alias perform perform_with_oboe

@@ -1,15 +1,23 @@
 # Copyright (c) 2012 by Tracelytics, Inc.
 # All rights reserved.
 
+require 'rack'
+
 module Oboe
-  class Middleware
+  class Rack
+    attr_reader :app
+
     def initialize(app)
       @app = app
     end
 
     def call(env)
       header = env['HTTP_X_TRACE']
-      result, header = Oboe::API.start_trace('rack', header) do
+
+      report_kvs = {}
+      report_kvs[:SampleRate] = Oboe::Config[:sample_rate]
+
+      result, header = Oboe::API.start_trace('rack', header, report_kvs) do
         env['HTTP_X_TRACE'] = Oboe::Context.toString()
         @app.call(env)
       end
@@ -19,11 +27,8 @@ module Oboe
       raise
     ensure
       env['HTTP_X_TRACE'] = header if header
+      result
     end
   end
 end
 
-if false and defined?(::Rails.configuration.middleware)
-  puts "[oboe/loading] Instrumenting rack" if Oboe::Config[:verbose]
-  ::Rails.configuration.middleware.insert 0, Oboe::Middleware
-end

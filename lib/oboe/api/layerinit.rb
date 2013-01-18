@@ -6,11 +6,11 @@ module Oboe
       # layer.
       #
       def report_init(layer)
-        platform_info                  = { '__Init' => 1 }
-        platform_info['RubyPlatform']     = RUBY_PLATFORM
-        platform_info['RubyVersion']      = RUBY_VERSION
-        platform_info['RailsVersion']     = ::Rails.version if defined?(Rails)
-        platform_info['OboeVersion']      = Gem.loaded_specs['oboe'].try(:version).to_s
+        platform_info                         = { '__Init' => 1 }
+        platform_info['RubyPlatformVersion']  = RUBY_PLATFORM
+        platform_info['RubyVersion']          = RUBY_VERSION
+        platform_info['RailsVersion']         = ::Rails.version if defined?(Rails)
+        platform_info['OboeRubyVersion']      = Gem.loaded_specs['oboe'].version if Gem.loaded_specs['oboe']
 
         force_trace do
           start_trace(layer, nil, platform_info) { }
