@@ -12,22 +12,20 @@ module Oboe
     end
 
     def call(env)
-      header = env['HTTP_X_TRACE']
+      xtrace = env['HTTP_X_TRACE']
 
       report_kvs = {}
       report_kvs[:SampleRate] = Oboe::Config[:sample_rate]
 
-      result, header = Oboe::API.start_trace('rack', header, report_kvs) do
-        env['HTTP_X_TRACE'] = Oboe::Context.toString()
+      response, xtrace = Oboe::API.start_trace('rack', xtrace, report_kvs) do
         @app.call(env)
       end
-      result
     rescue Exception => e
-      header = e.instance_variable_get(:@xtrace)
+      xtrace = e.instance_variable_get(:@xtrace)
       raise
     ensure
-      env['HTTP_X_TRACE'] = header if header
-      result
+      response[1].merge!({'X-Trace' => xtrace}) if xtrace
+      return response
     end
   end
 end
