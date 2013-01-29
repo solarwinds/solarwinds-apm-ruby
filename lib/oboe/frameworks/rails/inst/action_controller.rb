@@ -31,7 +31,7 @@ module Oboe
       end
 
       def render(*args)
-        Oboe::API.trace('render', {}) do
+        Oboe::API.trace('actionview', {}) do
           super
         end
       end
@@ -84,7 +84,7 @@ if defined?(ActionController::Base)
       end
 
       def render(options = nil, extra_options = {}, &block)
-        Oboe::API.trace('render', {}) do
+        Oboe::API.trace('actionview', {}) do
           render_without_oboe(options, extra_options, &block)
         end
       end
