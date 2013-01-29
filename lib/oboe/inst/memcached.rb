@@ -10,15 +10,15 @@ if defined?(Memcached)
       define_method("#{m}_with_oboe") do |*args|
         opts = { :KVOp => m }
         if args.length and args[0].class != Array
-            opts[:KVKey] = args[0].to_s
-            rhost = remote_host(args[0].to_s)
-            opts[:RemoteHost] = rhost if rhost
+          opts[:KVKey] = args[0].to_s
+          rhost = remote_host(args[0].to_s)
+          opts[:RemoteHost] = rhost if rhost
         end
 
         Oboe::API.trace('memcache', opts) do
           result = send("#{m}_without_oboe", *args)
           if m == :get and args.length and args[0].class == String
-              Oboe::API.log('memcache', 'info', { :KVHit => memcache_hit?(result) })
+            Oboe::API.log('memcache', 'info', { :KVHit => memcache_hit?(result) })
           end
           result
         end
