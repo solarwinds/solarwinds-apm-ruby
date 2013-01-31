@@ -72,8 +72,8 @@ module Oboe
   end
 end
 
-if defined?(Dalli)
-  Dalli::Client.module_eval do
+if defined?(::Dalli)
+  ::Dalli::Client.module_eval do
     include Oboe::Inst::Dalli
   end
 end
