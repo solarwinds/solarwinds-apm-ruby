@@ -101,7 +101,7 @@ if defined?(::Rails)
         end
 
         initializer 'oboe.rack' do |app|
-          puts "[oboe/loading] Instrumenting rack" if true or Oboe::Config[:verbose]
+          puts "[oboe/loading] Instrumenting rack" if Oboe::Config[:verbose]
           app.config.middleware.insert 0, "Oboe::Rack"
         end
 
@@ -116,7 +116,7 @@ if defined?(::Rails)
     Oboe::Rails.load_initializer
     Oboe::Loading.load_access_key
 
-    puts "[oboe/loading] Instrumenting rack" if true or Oboe::Config[:verbose]
+    puts "[oboe/loading] Instrumenting rack" if Oboe::Config[:verbose]
     Rails.configuration.middleware.insert 0, "Oboe::Rack"
 
     Oboe::Inst.load_instrumentation
