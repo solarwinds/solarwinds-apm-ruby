@@ -4,7 +4,6 @@
 module Oboe
   module Inst
     module Resque
-      extend ::Resque
 
       def self.included(base)
         base.send :extend, ::Resque
@@ -30,8 +29,7 @@ module Oboe
           report_kvs = extract_trace_details(:enqueue, klass, args)
 
           Oboe::API.trace('resque', report_kvs, :enqueue) do
-            # To pass in a reference xtrace, we may need to append to args and
-            # then truncate it on perform?
+            args.push({:parent_trace_id => Oboe::Context.toString})
             enqueue_without_oboe(klass, *args)
           end
         else
@@ -45,6 +43,7 @@ module Oboe
           report_kvs[:Queue] = queue.to_s if queue
 
           Oboe::API.trace('resque', report_kvs) do
+            args.push({:parent_trace_id => Oboe::Context.toString})
             enqueue_to_without_oboe(queue, klass, *args)
           end
         else
@@ -66,14 +65,34 @@ module Oboe
     end
 
     module ResqueWorker
+      # Remaining items to fix/implement:
+      # 1. Insert a failure_hook into Resque since we can't capture exceptions directly
+      # 2. Harden the xtrace parameter passing and cleanup - Find the best fallback
+
       def perform_with_oboe(job)
         report_kvs = {}
         report_kvs[:Op] = :perform
 
-        # FIXME: get parent xtrace and job details (class and args)
+        begin
+          if job.payload['args'].last.is_a?(Hash) and job.payload['args'].last.has_key?('parent_trace_id')
 
-        response, xtrace = Oboe::API.start_trace('resque', nil, report_kvs) do
-          perform_without_oboe(job)
+            # Since the enqueue was traced, we force trace the actual job execution and reference
+            # the enqueue trace with ParentTraceID
+            report_kvs[:ParentTraceID] = job.payload['args'].last['parent_trace_id']
+            job.payload['args'].pop
+
+            force_trace do
+              Oboe::API.start_trace('resque', nil, report_kvs) do
+                perform_without_oboe(job)
+              end
+            end
+
+          else
+            Oboe::API.start_trace('resque', nil, report_kvs) do
+              perform_without_oboe(job)
+            end
+          end
+        rescue
         end
       end
     end
