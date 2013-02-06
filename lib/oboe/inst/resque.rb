@@ -4,6 +4,12 @@
 module Oboe
   module Inst
     module Resque
+      extend ::Resque
+
+      def self.included(base)
+        base.send :extend, ::Resque
+      end
+
       def extract_trace_details(op, klass, args)
         report_kvs = {}
 
@@ -26,10 +32,10 @@ module Oboe
           Oboe::API.trace('resque', report_kvs, :enqueue) do
             # To pass in a reference xtrace, we may need to append to args and
             # then truncate it on perform?
-            enqueue_without_oboe(klass, args)
+            enqueue_without_oboe(klass, *args)
           end
         else
-          enqueue_without_oboe(klass, args)
+          enqueue_without_oboe(klass, *args)
         end
       end
 
@@ -39,10 +45,10 @@ module Oboe
           report_kvs[:Queue] = queue.to_s if queue
 
           Oboe::API.trace('resque', report_kvs) do
-            enqueue_to_without_oboe(queue, klass, args)
+            enqueue_to_without_oboe(queue, klass, *args)
           end
         else
-          enqueue_to_without_oboe(queue, klass, args)
+          enqueue_to_without_oboe(queue, klass, *args)
         end
       end
 
@@ -50,11 +56,11 @@ module Oboe
         if Oboe::Config.tracing?
           report_kvs = extract_trace_details(:dequeue, klass, args)
 
-          Oboe::API.trace('resque', report_kvs, :enqueue) do
-            dequeue_without_oboe(klass, args)
+          Oboe::API.trace('resque', report_kvs) do
+            dequeue_without_oboe(klass, *args)
           end
         else
-          dequeue_without_oboe(klass, args)
+          dequeue_without_oboe(klass, *args)
         end
       end
     end
@@ -64,8 +70,10 @@ module Oboe
         report_kvs = {}
         report_kvs[:Op] = :perform
 
+        # FIXME: get parent xtrace and job details (class and args)
+
         response, xtrace = Oboe::API.start_trace('resque', nil, report_kvs) do
-          enqueue_without_oboe(klass, args)
+          perform_without_oboe(job)
         end
       end
     end
