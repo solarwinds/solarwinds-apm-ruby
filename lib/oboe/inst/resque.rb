@@ -74,14 +74,16 @@ module Oboe
         report_kvs[:Op] = :perform
 
         begin
-          if job.payload['args'].last.is_a?(Hash) and job.payload['args'].last.has_key?('parent_trace_id')
+          last_arg = job.payload['args'].last
+
+          if last_arg.is_a?(Hash) and last_arg.has_key?('parent_trace_id')
 
             # Since the enqueue was traced, we force trace the actual job execution and reference
             # the enqueue trace with ParentTraceID
-            report_kvs[:ParentTraceID] = job.payload['args'].last['parent_trace_id']
+            report_kvs[:ParentTraceID] = last_arg['parent_trace_id']
             job.payload['args'].pop
 
-            force_trace do
+            Oboe::API.force_trace do
               Oboe::API.start_trace('resque', nil, report_kvs) do
                 perform_without_oboe(job)
               end
@@ -95,6 +97,7 @@ module Oboe
         rescue
         end
       end
+      
     end
   end
 end
