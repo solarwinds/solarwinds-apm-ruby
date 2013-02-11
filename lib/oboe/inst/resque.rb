@@ -69,6 +69,11 @@ module Oboe
         report_kvs = {}
         report_kvs[:Op] = :perform
 
+        # Set these keys for the ability to separate out
+        # background tasks into a separate app on the server-side UI
+        report_kvs[:Controller] = :Resque
+        report_kvs[:Action] = :perform
+
         begin
           last_arg = job.payload['args'].last
 
@@ -77,6 +82,9 @@ module Oboe
             # the enqueue trace with ParentTraceID
             report_kvs[:ParentTraceID] = last_arg['parent_trace_id']
             job.payload['args'].pop
+
+            report_kvs[:Class] = job.payload['class']
+            report_kvs[:Args] = job.payload['args'].to_json
 
             Oboe::API.force_trace do
               Oboe::API.start_trace('resque', nil, report_kvs) do
