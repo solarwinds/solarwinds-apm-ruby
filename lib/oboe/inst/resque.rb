@@ -65,10 +65,6 @@ module Oboe
     end
 
     module ResqueWorker
-      # Remaining items to fix/implement:
-      # 1. Insert a failure_hook into Resque since we can't capture exceptions directly
-      # 2. Harden the xtrace parameter passing and cleanup - Find the best fallback
-
       def perform_with_oboe(job)
         report_kvs = {}
         report_kvs[:Op] = :perform
@@ -77,7 +73,6 @@ module Oboe
           last_arg = job.payload['args'].last
 
           if last_arg.is_a?(Hash) and last_arg.has_key?('parent_trace_id')
-
             # Since the enqueue was traced, we force trace the actual job execution and reference
             # the enqueue trace with ParentTraceID
             report_kvs[:ParentTraceID] = last_arg['parent_trace_id']
@@ -97,7 +92,15 @@ module Oboe
         rescue
         end
       end
-      
+    end
+
+    module ResqueJob
+      def fail_with_oboe(exception)
+        if Oboe::Config.tracing?
+          Oboe::API.log_exception('resque', exception)
+        end
+        fail_without_oboe(exception)
+      end
     end
   end
 end
@@ -127,6 +130,19 @@ if defined?(::Resque)
         alias perform perform_with_oboe
       elsif Oboe::Config[:verbose]
         puts "[oboe/loading] Couldn't properly instrument ResqueWorker (perform).  Partial traces may occur."
+      end
+    end
+  end
+
+  if defined?(::Resque::Job)
+    ::Resque::Job.class_eval do
+      include Oboe::Inst::ResqueJob
+
+      if method_defined?(:fail)
+        alias fail_without_oboe fail
+        alias fail fail_with_oboe
+      elsif Oboe::Config[:verbose]
+        puts "[oboe/loading] Couldn't properly instrument ResqueWorker (fail).  Partial traces may occur."
       end
     end
   end
