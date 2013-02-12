@@ -284,7 +284,7 @@ module Oboe
   end
 end
 
-if defined?(::Cassandra)
+if defined?(::Cassandra) and Oboe::Config[:cassandra][:enabled]
   puts "[oboe/loading] Instrumenting cassandra"
   class ::Cassandra
     include Oboe::Inst::Cassandra

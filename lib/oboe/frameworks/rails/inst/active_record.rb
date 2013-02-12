@@ -292,7 +292,10 @@ module Oboe
   end
 end
 
-Oboe::Inst::ConnectionAdapters::FlavorInitializers.mysql
-Oboe::Inst::ConnectionAdapters::FlavorInitializers.mysql2
-Oboe::Inst::ConnectionAdapters::FlavorInitializers.postgresql
-Oboe::Inst::ConnectionAdapters::FlavorInitializers.oracle
+if Oboe::Config[:active_record][:enabled]
+  Oboe::Inst::ConnectionAdapters::FlavorInitializers.mysql
+  Oboe::Inst::ConnectionAdapters::FlavorInitializers.mysql2
+  Oboe::Inst::ConnectionAdapters::FlavorInitializers.postgresql
+  Oboe::Inst::ConnectionAdapters::FlavorInitializers.oracle
+end
+# vim:set expandtab:tabstop=2
