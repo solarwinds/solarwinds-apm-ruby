@@ -2,7 +2,7 @@
 # All rights reserved.
 #
 
-if defined?(Memcached)
+if defined?(Memcached) and Oboe::Config[:memcached][:enabled]
   class Memcached
     include Oboe::API::Memcache
 

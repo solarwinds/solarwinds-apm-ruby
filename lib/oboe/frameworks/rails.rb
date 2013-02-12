@@ -6,7 +6,7 @@ module Oboe
       def oboe_rum_header
         begin
           return unless Oboe::Config.has_key?(:rum_id)
-          if Oboe::Config.tracing?
+          if Oboe.tracing?
             if request.xhr?
               header_tmpl = File.read(File.dirname(__FILE__) + '/rails/helpers/rum/rum_ajax_header.js.erb')
             else
@@ -23,7 +23,7 @@ module Oboe
       def oboe_rum_footer
         begin
           return unless Oboe::Config.has_key?(:rum_id)
-          if Oboe::Config.tracing?
+          if Oboe.tracing?
             # Even though the footer template is named xxxx.erb, there are no ERB tags in it so we'll
             # skip that step for now
             footer_tmpl = File.read(File.dirname(__FILE__) + '/rails/helpers/rum/rum_footer.js.erb')
@@ -52,7 +52,6 @@ module Oboe
       end
       require tr_initializer if File.exists?(tr_initializer)
     end
-
 
     def self.load_instrumentation
       # Load the Rails specific instrumentation

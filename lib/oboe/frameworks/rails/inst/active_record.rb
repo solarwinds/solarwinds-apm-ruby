@@ -12,15 +12,20 @@ module Oboe
           opts[:Name] = name.to_s if name
           opts[:Backtrace] = Oboe::API.backtrace
 
-          if defined?(ActiveRecord::Base.connection.cfg)
-            opts[:Database] = ActiveRecord::Base.connection.cfg[:database]
-            if ActiveRecord::Base.connection.cfg.has_key?(:host)
-              opts[:RemoteHost] = ActiveRecord::Base.connection.cfg[:host]
+          # Don't reference ActiveRecord::Base.connection for SET and SHOW calls
+          # since doing so will spawn another SET/SHOW call in Rails versions less
+          # than 3.1.  Issue 138.
+          if name.nil? and (sql =~ /^(SET |SHOW )/i).nil?
+            if defined?(ActiveRecord::Base.connection.cfg)
+              opts[:Database] = ActiveRecord::Base.connection.cfg[:database]
+              if ActiveRecord::Base.connection.cfg.has_key?(:host)
+                opts[:RemoteHost] = ActiveRecord::Base.connection.cfg[:host]
+              end
             end
-          end
 
-          if defined?(ActiveRecord::Base.connection.adapter_name)
-            opts[:Flavor] = ActiveRecord::Base.connection.adapter_name
+            if defined?(ActiveRecord::Base.connection.adapter_name)
+              opts[:Flavor] = ActiveRecord::Base.connection.adapter_name
+            end
           end
 
           return opts || {}
@@ -37,7 +42,7 @@ module Oboe
         end
         
         def execute_with_oboe(sql, name = nil)
-          if Oboe::Config.tracing? and !ignore_payload?(name)
+          if Oboe.tracing? and !ignore_payload?(name)
 
             opts = extract_trace_details(sql, name)
             Oboe::API.trace('activerecord', opts || {}) do
@@ -49,7 +54,7 @@ module Oboe
         end
         
         def exec_query_with_oboe(sql, name = nil, binds = [])
-          if Oboe::Config.tracing? and !ignore_payload?(name)
+          if Oboe.tracing? and !ignore_payload?(name)
 
             opts = extract_trace_details(sql, name)
             Oboe::API.trace('activerecord', opts || {}) do
@@ -61,7 +66,7 @@ module Oboe
         end
         
         def exec_delete_with_oboe(sql, name = nil, binds = [])
-          if Oboe::Config.tracing? and !ignore_payload?(name)
+          if Oboe.tracing? and !ignore_payload?(name)
 
             opts = extract_trace_details(sql, name)
             Oboe::API.trace('activerecord', opts || {}) do
@@ -73,7 +78,7 @@ module Oboe
         end
         
         def exec_insert_with_oboe(sql, name = nil, binds = [])
-          if Oboe::Config.tracing? and !ignore_payload?(name)
+          if Oboe.tracing? and !ignore_payload?(name)
 
             opts = extract_trace_details(sql, name)
             Oboe::API.trace('activerecord', opts || {}) do
@@ -85,7 +90,7 @@ module Oboe
         end
         
         def begin_db_transaction_with_oboe()
-          if Oboe::Config.tracing?
+          if Oboe.tracing?
             opts = {}
 
             opts[:Query] = "BEGIN"
@@ -287,7 +292,10 @@ module Oboe
   end
 end
 
-Oboe::Inst::ConnectionAdapters::FlavorInitializers.mysql
-Oboe::Inst::ConnectionAdapters::FlavorInitializers.mysql2
-Oboe::Inst::ConnectionAdapters::FlavorInitializers.postgresql
-Oboe::Inst::ConnectionAdapters::FlavorInitializers.oracle
+if Oboe::Config[:active_record][:enabled]
+  Oboe::Inst::ConnectionAdapters::FlavorInitializers.mysql
+  Oboe::Inst::ConnectionAdapters::FlavorInitializers.mysql2
+  Oboe::Inst::ConnectionAdapters::FlavorInitializers.postgresql
+  Oboe::Inst::ConnectionAdapters::FlavorInitializers.oracle
+end
+# vim:set expandtab:tabstop=2

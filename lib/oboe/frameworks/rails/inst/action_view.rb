@@ -1,7 +1,8 @@
 # Copyright (c) 2012 by Tracelytics, Inc.
 # All rights reserved.
 
-if defined?(ActionView::Base)
+if defined?(ActionView::Base) and Oboe::Config[:action_view][:enabled]
+
   if Rails::VERSION::MAJOR == 3
     puts "[oboe/loading] Instrumenting actionview" if Oboe::Config[:verbose]
 

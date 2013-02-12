@@ -1,7 +1,7 @@
 # Copyright (c) 2012 by Tracelytics, Inc.
 # All rights reserved.
 
-if defined?(::MemCache)
+if defined?(::MemCache) and Oboe::Config[:memcache][:enabled]
   class ::MemCache
     include Oboe::API::Memcache
 

@@ -60,15 +60,15 @@ module Oboe
       #
       # Returns nothing.
       def log_start(layer, xtrace, opts={})
-        return if Oboe::Config.never?
+        return if Oboe.never?
   
         if xtrace
           Oboe::Context.fromString(xtrace)
         end
   
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           log_entry(layer, opts)
-        elsif Oboe::Config.always? or Oboe::Config.sample?
+        elsif Oboe.always? or Oboe.sample?
           log_event(layer, 'entry', Oboe::Context.startTrace, opts)
         end
       end
