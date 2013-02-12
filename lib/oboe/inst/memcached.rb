@@ -77,7 +77,7 @@ module Oboe
   end # module Inst
 end # module Oboe
 
-if defined?(::Memcached)
+if defined?(::Memcached) and Oboe::Config[:memcached][:enabled]
   ::Memcached.class_eval do
     include Oboe::Inst::Memcached
   end

@@ -15,8 +15,7 @@ module Oboe
             define_method("#{m}_with_oboe") do |*args|
               report_kvs = { :KVOp => m }
 
-              #if Oboe::Config.tracing? and not Oboe::Context.tracing_layer_op?(:get_multi)
-              if Oboe::Config.tracing?
+              if Oboe.tracing?
                 Oboe::API.trace('memcache', report_kvs) do
                   result = send("#{m}_without_oboe", *args) 
                 end
@@ -102,7 +101,7 @@ module Oboe
   end # module Inst
 end # module Oboe
 
-if defined?(::MemCache)
+if defined?(::MemCache) and Oboe::Config[:memcache][:enabled]
   ::MemCache.class_eval do
     include Oboe::Inst::MemCache
   end

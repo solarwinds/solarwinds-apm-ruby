@@ -3,7 +3,7 @@ module Oboe
     MAJOR = 1
     MINOR = 3
     PATCH = 9
-    BUILD = nil
+    BUILD = 1
 
     STRING = [MAJOR, MINOR, PATCH, BUILD].compact.join('.')
   end

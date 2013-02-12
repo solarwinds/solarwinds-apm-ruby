@@ -31,7 +31,7 @@ module Oboe
       end
 
       def render(*args)
-        Oboe::API.trace('render', {}) do
+        Oboe::API.trace('actionview', {}) do
           super
         end
       end
@@ -39,7 +39,7 @@ module Oboe
   end
 end
 
-if defined?(ActionController::Base)
+if defined?(ActionController::Base) and Oboe::Config[:action_controller][:enabled]
   if ::Rails::VERSION::MAJOR == 3
     Oboe::API.report_init('rails')
 
@@ -84,7 +84,7 @@ if defined?(ActionController::Base)
       end
 
       def render(options = nil, extra_options = {}, &block)
-        Oboe::API.trace('render', {}) do
+        Oboe::API.trace('actionview', {}) do
           render_without_oboe(options, extra_options, &block)
         end
       end
@@ -92,3 +92,4 @@ if defined?(ActionController::Base)
   end
   puts "[oboe/loading] Instrumenting actioncontroler" if Oboe::Config[:verbose]
 end
+# vim:set expandtab:tabstop=2

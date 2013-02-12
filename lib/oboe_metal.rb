@@ -50,45 +50,6 @@ end
 module Oboe
   include Oboe_metal
 
-  # TODO: Ensure that the :tracing_mode is set to "always", "through", or "never"
-  Config = {
-    :tracing_mode => "through",
-    :reporter_host => "127.0.0.1",
-    :sample_rate => 1000000
-  }
-
-  def self.passthrough?
-    ["always", "through"].include?(Oboe::Config[:tracing_mode])
-  end
-
-  def self.always?
-    Oboe::Config[:tracing_mode] == "always"
-  end
-
-  def self.through?
-    Oboe::Config[:tracing_mode] == "through"
-  end
-
-  def self.never?
-    Oboe::Config[:tracing_mode] == "never"
-  end
-
-  def self.now?
-    Oboe::Context.isValid and not Oboe.never?
-  end
-
-  def self.start?
-    not Oboe::Context.isValid and Oboe.always?
-  end
-
-  def self.continue?
-    Oboe::Context.isValid and not Oboe.never?
-  end
-
-  def self.log(layer, label, options = {})
-    Context.log(layer, label, options = options)
-  end
-
   def self.reporter
     if !@reporter
       @reporter = Oboe::UdpReporter.new(Oboe::Config[:reporter_host])
