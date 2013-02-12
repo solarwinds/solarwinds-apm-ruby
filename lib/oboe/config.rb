@@ -50,34 +50,40 @@ module Oboe
   # Oboe Configuration Module
   ############################
   module Config
-    extend self
+    mattr_reader :config
 
-    @config = {
-      :tracing_mode => "through",
-      :reporter_host => "127.0.0.1",
-      :sample_rate => 1000000
-    }
+    @@config = {}
 
-    def initialize(data={})
-      @config = {}
+    @instrumentation = [ :cassandra, :dalli, :httpd, :memcached, :memcache, :mongo,
+                          :moped, :rack, :resque, :action_controller, :action_view, 
+                          :active_record ]
+
+    def self.initialize(data={})
+      # Setup default instrumentation values
+      @instrumentation.each do |k|
+        @@config[k] = {}
+        @@config[k][:enabled] = true
+        @@config[k][:log_args] = true
+      end
+
       update!(data)
     end
 
-    def update!(data)
+    def self.update!(data)
       data.each do |key, value|
         self[key] = value
       end
     end
 
-    def [](key)
-      @config[key.to_sym]
+    def self.[](key)
+      @@config[key.to_sym]
     end
 
-    def []=(key, value)
-      @config[key.to_sym] = value
+    def self.[]=(key, value)
+      @@config[key.to_sym] = value
     end
 
-    def method_missing(sym, *args)
+    def self.method_missing(sym, *args)
       if sym.to_s =~ /(.+)=$/
         self[$1] = args.first
       else
@@ -86,3 +92,11 @@ module Oboe
     end
   end
 end
+
+config = {
+      :tracing_mode => "through",
+      :reporter_host => "127.0.0.1",
+      :sample_rate => 1000000  }
+
+Oboe::Config.initialize(config)
+
