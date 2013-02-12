@@ -39,7 +39,7 @@ module Oboe
   end
 end
 
-if defined?(ActionController::Base)
+if defined?(ActionController::Base) and Oboe::Config[:action_controller][:enabled]
   if ::Rails::VERSION::MAJOR == 3
     Oboe::API.report_init('rails')
 
@@ -92,3 +92,4 @@ if defined?(ActionController::Base)
   end
   puts "[oboe/loading] Instrumenting actioncontroler" if Oboe::Config[:verbose]
 end
+# vim:set expandtab:tabstop=2

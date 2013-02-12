@@ -18,7 +18,7 @@ module Oboe
       end
 
       def perform_with_oboe(op, key, *args)
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           opts = {}
           opts[:KVOp] = op
           opts[:KVKey] = key 
@@ -38,7 +38,7 @@ module Oboe
   end
 end
 
-if defined?(Dalli)
+if defined?(Dalli) and Oboe::Config[:dalli][:enabled]
   Dalli::Client.module_eval do
     include Oboe::Inst::Dalli
   end

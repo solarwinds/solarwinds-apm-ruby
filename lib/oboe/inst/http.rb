@@ -27,7 +27,7 @@ Net::HTTP.class_eval do
         resp = request_without_oboe(*args, &block)
 
         xtrace = resp.get_fields('X-Trace')
-        if xtrace and xtrace.size and Oboe::Config.tracing?
+        if xtrace and xtrace.size and Oboe.tracing?
           Oboe::Context.fromString(xtrace[0])
         end
         next resp

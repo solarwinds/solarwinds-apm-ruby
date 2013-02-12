@@ -118,7 +118,7 @@ module Oboe
         log_start(layer, xtrace, opts)
         exit_evt = Oboe::Context.createEvent
         begin
-          target['X-Trace'] = Oboe::Event.metadataString(exit_evt) if Oboe::Config.tracing?
+          target['X-Trace'] = Oboe::Event.metadataString(exit_evt) if Oboe.tracing?
           yield
         rescue Exception => e
           log_exception(layer, e)
