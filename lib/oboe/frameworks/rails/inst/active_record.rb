@@ -12,15 +12,20 @@ module Oboe
           opts[:Name] = name.to_s if name
           opts[:Backtrace] = Oboe::API.backtrace
 
-          if defined?(ActiveRecord::Base.connection.cfg)
-            opts[:Database] = ActiveRecord::Base.connection.cfg[:database]
-            if ActiveRecord::Base.connection.cfg.has_key?(:host)
-              opts[:RemoteHost] = ActiveRecord::Base.connection.cfg[:host]
+          # Don't reference ActiveRecord::Base.connection for SET and SHOW calls
+          # since doing so will spawn another SET/SHOW call in Rails versions less
+          # than 3.1.  Issue 138.
+          if name.nil? and (sql =~ /^(SET |SHOW )/i).nil?
+            if defined?(ActiveRecord::Base.connection.cfg)
+              opts[:Database] = ActiveRecord::Base.connection.cfg[:database]
+              if ActiveRecord::Base.connection.cfg.has_key?(:host)
+                opts[:RemoteHost] = ActiveRecord::Base.connection.cfg[:host]
+              end
             end
-          end
 
-          if defined?(ActiveRecord::Base.connection.adapter_name)
-            opts[:Flavor] = ActiveRecord::Base.connection.adapter_name
+            if defined?(ActiveRecord::Base.connection.adapter_name)
+              opts[:Flavor] = ActiveRecord::Base.connection.adapter_name
+            end
           end
 
           return opts || {}
