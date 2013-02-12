@@ -43,7 +43,7 @@ if defined?(::Moped::Database)
       end
      
       def command_with_oboe(command)
-        if Oboe::Config.tracing? and not Oboe::Context.layer_op and command.has_key?(:mapreduce)
+        if Oboe.tracing? and not Oboe::Context.layer_op and command.has_key?(:mapreduce)
           report_kvs = extract_trace_details(:map_reduce)
           report_kvs[:Map_Function] = command[:map]
           report_kvs[:Reduce_Function] = command[:reduce]
@@ -57,7 +57,7 @@ if defined?(::Moped::Database)
       end
 
       def drop_with_oboe
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           report_kvs = extract_trace_details(:drop_database)
 
           Oboe::API.trace('mongo', report_kvs) do
@@ -98,7 +98,7 @@ if defined?(::Moped::Indexes)
       end
       
       def create_with_oboe(key, options = {})
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           # We report :create_index here to be consistent
           # with other mongo implementations
           report_kvs = extract_trace_details(:create_index)
@@ -114,7 +114,7 @@ if defined?(::Moped::Indexes)
       end
       
       def drop_with_oboe(key = nil)
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           # We report :drop_indexes here to be consistent
           # with other mongo implementations
           report_kvs = extract_trace_details(:drop_indexes)
@@ -160,7 +160,7 @@ if defined?(::Moped::Query)
       end
       
       def count_with_oboe
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           report_kvs = extract_trace_details(:count)
           report_kvs[:Query] = selector.try(:empty?) ? "all" : selector.try(:to_json)
 
@@ -173,7 +173,7 @@ if defined?(::Moped::Query)
       end
 
       def sort_with_oboe(sort)
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           report_kvs = extract_trace_details(:sort)
           report_kvs[:Query] = selector.try(:empty?) ? "all" : selector.try(:to_json)
           report_kvs[:Order] = sort.to_s
@@ -187,7 +187,7 @@ if defined?(::Moped::Query)
       end
       
       def limit_with_oboe(limit)
-        if Oboe::Config.tracing? and not Oboe::Context.tracing_layer_op?(:explain)
+        if Oboe.tracing? and not Oboe::Context.tracing_layer_op?(:explain)
           report_kvs = extract_trace_details(:limit)
           report_kvs[:Query] = selector.try(:empty?) ? "all" : selector.try(:to_json)
           report_kvs[:Limit] = limit.to_s
@@ -201,7 +201,7 @@ if defined?(::Moped::Query)
       end
 
       def distinct_with_oboe(key)
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           report_kvs = extract_trace_details(:distinct)
           report_kvs[:Query] = selector.try(:empty?) ? "all" : selector.try(:to_json)
           report_kvs[:Key] = key.to_s
@@ -215,7 +215,7 @@ if defined?(::Moped::Query)
       end
       
       def update_with_oboe(change, flags = nil)
-        if Oboe::Config.tracing? and not Oboe::Context.tracing_layer_op?([:update_all, :upsert])
+        if Oboe.tracing? and not Oboe::Context.tracing_layer_op?([:update_all, :upsert])
           report_kvs = extract_trace_details(:update)
           report_kvs[:Flags] = flags.to_s if flags
           report_kvs[:Update_Document] = change.try(:to_json)
@@ -229,7 +229,7 @@ if defined?(::Moped::Query)
       end
       
       def update_all_with_oboe(change)
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           report_kvs = extract_trace_details(:update_all)
           report_kvs[:Update_Document] = change.try(:to_json)
 
@@ -242,7 +242,7 @@ if defined?(::Moped::Query)
       end
 
       def upsert_with_oboe(change)
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           report_kvs = extract_trace_details(:upsert)
           report_kvs[:Query] = selector.try(:to_json)
           report_kvs[:Update_Document] = change.try(:to_json)
@@ -256,7 +256,7 @@ if defined?(::Moped::Query)
       end
 
       def explain_with_oboe
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           report_kvs = extract_trace_details(:explain)
           report_kvs[:Query] = selector.try(:empty?) ? "all" : selector.try(:to_json)
 
@@ -269,7 +269,7 @@ if defined?(::Moped::Query)
       end
 
       def modify_with_oboe(change, options = {})
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           report_kvs = extract_trace_details(:modify)
           report_kvs[:Update_Document] = selector.try(:empty?) ? "all" : selector.try(:to_json)
           report_kvs[:Change] = change.try(:to_json)
@@ -284,7 +284,7 @@ if defined?(::Moped::Query)
       end
       
       def remove_with_oboe
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           report_kvs = extract_trace_details(:remove)
           report_kvs[:Query] = selector.try(:to_json)
 
@@ -297,7 +297,7 @@ if defined?(::Moped::Query)
       end
 
       def remove_all_with_oboe
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           report_kvs = extract_trace_details(:remove_all)
           report_kvs[:Query] = selector.try(:to_json)
 
@@ -341,7 +341,7 @@ if defined?(::Moped::Collection)
       end
 
       def drop_with_oboe
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           # We report :drop_collection here to be consistent
           # with other mongo implementations
           report_kvs = extract_trace_details(:drop_collection)
@@ -355,7 +355,7 @@ if defined?(::Moped::Collection)
       end
 
       def find_with_oboe(selector = {})
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           report_kvs = extract_trace_details(:find)
           report_kvs[:Query] = selector.try(:empty?) ? "all" : selector.try(:to_json)
 
@@ -368,7 +368,7 @@ if defined?(::Moped::Collection)
       end
       
       def indexes_with_oboe
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           report_kvs = extract_trace_details(:indexes)
 
           Oboe::API.trace('mongo', report_kvs) do
@@ -380,7 +380,7 @@ if defined?(::Moped::Collection)
       end
       
       def insert_with_oboe(documents, flags = nil)
-        if Oboe::Config.tracing? and not Oboe::Context.tracing_layer_op?(:create_index)
+        if Oboe.tracing? and not Oboe::Context.tracing_layer_op?(:create_index)
           report_kvs = extract_trace_details(:insert)
 
           Oboe::API.trace('mongo', report_kvs) do
@@ -392,7 +392,7 @@ if defined?(::Moped::Collection)
       end
       
       def aggregate_with_oboe(pipeline)
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           report_kvs = extract_trace_details(:aggregate)
 
           Oboe::API.trace('mongo', report_kvs) do

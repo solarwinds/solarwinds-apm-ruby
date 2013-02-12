@@ -43,7 +43,7 @@ module Oboe
       end
 
       def insert_with_oboe(column_family, key, hash, options = {})
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           report_kvs = extract_trace_details(:insert, column_family, key, hash, options)
 
           Oboe::API.trace('cassandra', report_kvs) do
@@ -57,7 +57,7 @@ module Oboe
       def remove_with_oboe(column_family, key, *columns_and_options)
         args = [column_family, key] + columns_and_options
         
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           report_kvs = extract_trace_details(:remove, column_family, key, columns_and_options)
 
           Oboe::API.trace('cassandra', report_kvs) do
@@ -71,7 +71,7 @@ module Oboe
       def count_columns_with_oboe(column_family, key, *columns_and_options)
         args = [column_family, key] + columns_and_options
         
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           report_kvs = extract_trace_details(:count_columns, column_family, key, columns_and_options)
 
           Oboe::API.trace('cassandra', report_kvs) do
@@ -85,7 +85,7 @@ module Oboe
       def get_columns_with_oboe(column_family, key, *columns_and_options)
         args = [column_family, key] + columns_and_options
         
-        if Oboe::Config.tracing? and not Oboe::Context.tracing_layer_op?(:multi_get_columns)
+        if Oboe.tracing? and not Oboe::Context.tracing_layer_op?(:multi_get_columns)
           report_kvs = extract_trace_details(:get_columns, column_family, key, columns_and_options)
 
           Oboe::API.trace('cassandra', report_kvs) do
@@ -99,7 +99,7 @@ module Oboe
       def multi_get_columns_with_oboe(column_family, key, *columns_and_options)
         args = [column_family, key] + columns_and_options
         
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           report_kvs = extract_trace_details(:multi_get_columns, column_family, key, columns_and_options)
 
           Oboe::API.trace('cassandra', report_kvs, :multi_get_columns) do
@@ -113,7 +113,7 @@ module Oboe
       def get_with_oboe(column_family, key, *columns_and_options)
         args = [column_family, key] + columns_and_options
         
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           report_kvs = extract_trace_details(:get, column_family, key, columns_and_options)
 
           Oboe::API.trace('cassandra', report_kvs, :get) do
@@ -127,7 +127,7 @@ module Oboe
       def multi_get_with_oboe(column_family, key, *columns_and_options)
         args = [column_family, key] + columns_and_options
         
-        if Oboe::Config.tracing? and not Oboe::Context.tracing_layer_op?(:get)
+        if Oboe.tracing? and not Oboe::Context.tracing_layer_op?(:get)
           report_kvs = extract_trace_details(:multi_get, column_family, key, columns_and_options)
 
           Oboe::API.trace('cassandra', report_kvs) do
@@ -141,7 +141,7 @@ module Oboe
       def exists_with_oboe?(column_family, key, *columns_and_options)
         args = [column_family, key] + columns_and_options
         
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           report_kvs = extract_trace_details(:exists?, column_family, key, columns_and_options)
 
           Oboe::API.trace('cassandra', report_kvs) do
@@ -153,7 +153,7 @@ module Oboe
       end
       
       def get_range_single_with_oboe(column_family, options = {})
-        if Oboe::Config.tracing? and not Oboe::Context.tracing_layer_op?(:get_range_batch)
+        if Oboe.tracing? and not Oboe::Context.tracing_layer_op?(:get_range_batch)
           report_kvs = extract_trace_details(:get_range_single, column_family, nil, nil)
           args = [column_family, options]
 
@@ -166,7 +166,7 @@ module Oboe
       end
       
       def get_range_batch_with_oboe(column_family, options = {})
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           report_kvs = extract_trace_details(:get_range_batch, column_family, nil, nil)
           args = [column_family, options]
 
@@ -181,7 +181,7 @@ module Oboe
       def get_indexed_slices_with_oboe(column_family, index_clause, *columns_and_options)
         args = [column_family, index_clause] + columns_and_options
         
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           report_kvs = extract_trace_details(:get_indexed_slices, column_family, nil, columns_and_options)
 
           Oboe::API.trace('cassandra', report_kvs) do
@@ -193,7 +193,7 @@ module Oboe
       end
 
       def create_index_with_oboe(keyspace, column_family, column_name, validation_class)
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           report_kvs = extract_trace_details(:create_index, column_family, nil, nil)
           begin
             report_kvs[:Keyspace] = keyspace.to_s
@@ -211,7 +211,7 @@ module Oboe
       end
 
       def drop_index_with_oboe(keyspace, column_family, column_name)
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           report_kvs = extract_trace_details(:drop_index, column_family, nil, nil)
           begin
             report_kvs[:Keyspace] = keyspace.to_s
@@ -228,7 +228,7 @@ module Oboe
       end
 
       def add_column_family_with_oboe(cf_def)
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           report_kvs = extract_trace_details(:add_column_family, nil, nil, nil)
           begin
             report_kvs[:Cf] = cf_def[:name] if cf_def.is_a?(Hash) and cf_def.has_key?(:name)
@@ -244,7 +244,7 @@ module Oboe
       end
       
       def drop_column_family_with_oboe(column_family)
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           report_kvs = extract_trace_details(:drop_column_family, column_family, nil, nil)
 
           Oboe::API.trace('cassandra', report_kvs) do
@@ -256,7 +256,7 @@ module Oboe
       end
       
       def add_keyspace_with_oboe(ks_def)
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           report_kvs = extract_trace_details(:add_keyspace, nil, nil, nil)
           report_kvs[:Name] = ks_def.name rescue ""
 
@@ -269,7 +269,7 @@ module Oboe
       end
       
       def drop_keyspace_with_oboe(keyspace)
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           report_kvs = extract_trace_details(:drop_keyspace, nil, nil, nil)
           report_kvs[:Name] = keyspace.to_s rescue ""
 

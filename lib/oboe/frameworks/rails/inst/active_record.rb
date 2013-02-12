@@ -42,7 +42,7 @@ module Oboe
         end
         
         def execute_with_oboe(sql, name = nil)
-          if Oboe::Config.tracing? and !ignore_payload?(name)
+          if Oboe.tracing? and !ignore_payload?(name)
 
             opts = extract_trace_details(sql, name)
             Oboe::API.trace('activerecord', opts || {}) do
@@ -54,7 +54,7 @@ module Oboe
         end
         
         def exec_query_with_oboe(sql, name = nil, binds = [])
-          if Oboe::Config.tracing? and !ignore_payload?(name)
+          if Oboe.tracing? and !ignore_payload?(name)
 
             opts = extract_trace_details(sql, name)
             Oboe::API.trace('activerecord', opts || {}) do
@@ -66,7 +66,7 @@ module Oboe
         end
         
         def exec_delete_with_oboe(sql, name = nil, binds = [])
-          if Oboe::Config.tracing? and !ignore_payload?(name)
+          if Oboe.tracing? and !ignore_payload?(name)
 
             opts = extract_trace_details(sql, name)
             Oboe::API.trace('activerecord', opts || {}) do
@@ -78,7 +78,7 @@ module Oboe
         end
         
         def exec_insert_with_oboe(sql, name = nil, binds = [])
-          if Oboe::Config.tracing? and !ignore_payload?(name)
+          if Oboe.tracing? and !ignore_payload?(name)
 
             opts = extract_trace_details(sql, name)
             Oboe::API.trace('activerecord', opts || {}) do
@@ -90,7 +90,7 @@ module Oboe
         end
         
         def begin_db_transaction_with_oboe()
-          if Oboe::Config.tracing?
+          if Oboe.tracing?
             opts = {}
 
             opts[:Query] = "BEGIN"

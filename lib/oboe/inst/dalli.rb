@@ -18,7 +18,7 @@ module Oboe
       end
 
       def perform_with_oboe(op, key, *args)
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           opts = {}
           opts[:KVOp] = op
           opts[:KVKey] = key 
