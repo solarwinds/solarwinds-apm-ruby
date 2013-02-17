@@ -5,7 +5,7 @@ module Oboe
   module Inst
     module MemCache
       include Oboe::API::Memcache
-
+      
       def self.included(cls)
         puts "[oboe/loading] Instrumenting memcache" if Oboe::Config[:verbose]
 
@@ -53,7 +53,7 @@ module Oboe
       end
 
       def get_multi_with_oboe(*args)
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           layer_kvs = {}
           layer_kvs[:KVOp] = :get_multi
 
@@ -82,7 +82,7 @@ module Oboe
       end
       
       def request_setup_with_oboe(*args)
-        if Oboe::Config.tracing? and not Oboe::Context.tracing_layer_op?(:get_multi)
+        if Oboe.tracing? and not Oboe::Context.tracing_layer_op?(:get_multi)
           server, cache_key = request_setup_without_oboe(*args)
           Oboe::API.log('memcache', 'info', { :KVKey => cache_key, :RemoteHost => server.host })
         else

@@ -25,7 +25,7 @@ module Oboe
       end
 
       def enqueue_with_oboe(klass, *args)
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           report_kvs = extract_trace_details(:enqueue, klass, args)
 
           Oboe::API.trace('resque', report_kvs, :enqueue) do
@@ -38,7 +38,7 @@ module Oboe
       end
 
       def enqueue_to_with_oboe(queue, klass, *args)
-        if Oboe::Config.tracing? and not Oboe::Context.tracing_layer_op?(:enqueue)
+        if Oboe.tracing? and not Oboe::Context.tracing_layer_op?(:enqueue)
           report_kvs = extract_trace_details(:enqueue_to, klass, args)
           report_kvs[:Queue] = queue.to_s if queue
 
@@ -52,7 +52,7 @@ module Oboe
       end
 
       def dequeue_with_oboe(klass, *args)
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           report_kvs = extract_trace_details(:dequeue, klass, args)
 
           Oboe::API.trace('resque', report_kvs) do
@@ -104,7 +104,7 @@ module Oboe
 
     module ResqueJob
       def fail_with_oboe(exception)
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           Oboe::API.log_exception('resque', exception)
         end
         fail_without_oboe(exception)
