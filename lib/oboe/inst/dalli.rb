@@ -41,7 +41,7 @@ module Oboe
       end
 
       def get_multi_with_oboe(*keys)
-        if Oboe::Config.tracing?
+        if Oboe.tracing?
           layer_kvs = {}
           layer_kvs[:KVOp] = :get_multi
 
