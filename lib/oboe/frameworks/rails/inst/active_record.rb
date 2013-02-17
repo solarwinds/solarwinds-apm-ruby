@@ -8,24 +8,21 @@ module Oboe
         def extract_trace_details(sql, name = nil)
           opts = {}
 
-          opts[:Query] = sql.to_s
-          opts[:Name] = name.to_s if name
-          opts[:Backtrace] = Oboe::API.backtrace
+          begin
+            opts[:Query] = sql.to_s
+            opts[:Name] = name.to_s if name
+            opts[:Backtrace] = Oboe::API.backtrace
 
-          # Don't reference ActiveRecord::Base.connection for SET and SHOW calls
-          # since doing so will spawn another SET/SHOW call in Rails versions less
-          # than 3.1.  Issue 138.
-          if name.nil? and (sql =~ /^(SET |SHOW )/i).nil?
-            if defined?(ActiveRecord::Base.connection.cfg)
-              opts[:Database] = ActiveRecord::Base.connection.cfg[:database]
-              if ActiveRecord::Base.connection.cfg.has_key?(:host)
-                opts[:RemoteHost] = ActiveRecord::Base.connection.cfg[:host]
-              end
-            end
+            if ::Rails::VERSION::MAJOR == 2
+              config = ::Rails.configuration.database_configuration[::Rails.env]
+            else
+              config = ::Rails.application.config.database_configuration[::Rails.env]
+            end  
 
-            if defined?(ActiveRecord::Base.connection.adapter_name)
-              opts[:Flavor] = ActiveRecord::Base.connection.adapter_name
-            end
+            opts[:Database]   = config["database"] if config.has_key?("database")
+            opts[:RemoteHost] = config["host"]     if config.has_key?("host")
+            opts[:Flavor]     = config["adapter"]  if config.has_key?("adapter")
+          rescue Exception => e
           end
 
           return opts || {}
@@ -239,53 +236,45 @@ module Oboe
 
       module FlavorInitializers
         def self.mysql
-          if ActiveRecord::Base::connection.adapter_name.downcase.to_sym == :mysql
-            puts "[oboe/loading] Instrumenting activerecord mysqladapter" if Oboe::Config[:verbose]
-            if ::Rails::VERSION::MAJOR == 3 and ::Rails::VERSION::MINOR > 1
-              ::ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter.module_eval do
-                include Oboe::Inst::ConnectionAdapters::AbstractMysqlAdapter
-              end if defined?(::ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter) 
+          puts "[oboe/loading] Instrumenting activerecord mysqladapter" if Oboe::Config[:verbose]
+          if ::Rails::VERSION::MAJOR == 3 and ::Rails::VERSION::MINOR > 1
+            ::ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter.module_eval do
+              include Oboe::Inst::ConnectionAdapters::AbstractMysqlAdapter
+            end if defined?(::ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter) 
 
-              ::ActiveRecord::ConnectionAdapters::MysqlAdapter.module_eval do
-                include Oboe::Inst::ConnectionAdapters::MysqlAdapter
-              end if defined?(::ActiveRecord::ConnectionAdapters::MysqlAdapter)
-            else
-              ::ActiveRecord::ConnectionAdapters::MysqlAdapter.module_eval do
-                include Oboe::Inst::ConnectionAdapters::LegacyMysqlAdapter
-              end if defined?(::ActiveRecord::ConnectionAdapters::MysqlAdapter)
-            end
+            ::ActiveRecord::ConnectionAdapters::MysqlAdapter.module_eval do
+              include Oboe::Inst::ConnectionAdapters::MysqlAdapter
+            end if defined?(::ActiveRecord::ConnectionAdapters::MysqlAdapter)
+          else
+            ::ActiveRecord::ConnectionAdapters::MysqlAdapter.module_eval do
+              include Oboe::Inst::ConnectionAdapters::LegacyMysqlAdapter
+            end if defined?(::ActiveRecord::ConnectionAdapters::MysqlAdapter)
           end
         end
 
         def self.mysql2
-          if ActiveRecord::Base::connection.adapter_name.downcase.to_sym == :mysql2
-            puts "[oboe/loading] Instrumenting activerecord mysql2adapter" if Oboe::Config[:verbose]
-            ::ActiveRecord::ConnectionAdapters::Mysql2Adapter.module_eval do
-              include Oboe::Inst::ConnectionAdapters::Mysql2Adapter
-            end if defined?(::ActiveRecord::ConnectionAdapters::Mysql2Adapter)
-          end
+          puts "[oboe/loading] Instrumenting activerecord mysql2adapter" if Oboe::Config[:verbose]
+          ::ActiveRecord::ConnectionAdapters::Mysql2Adapter.module_eval do
+            include Oboe::Inst::ConnectionAdapters::Mysql2Adapter
+          end if defined?(::ActiveRecord::ConnectionAdapters::Mysql2Adapter)
         end
 
         def self.postgresql
-          if ActiveRecord::Base::connection.adapter_name.downcase.to_sym == :postgresql
-            puts "[oboe/loading] Instrumenting activerecord postgresqladapter" if Oboe::Config[:verbose]
-            ::ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.module_eval do
-              if ::Rails::VERSION::MAJOR == 3 and ::Rails::VERSION::MINOR > 0
-                include Oboe::Inst::ConnectionAdapters::PostgreSQLAdapter
-              else
-                include Oboe::Inst::ConnectionAdapters::LegacyPostgreSQLAdapter
-              end
-            end if defined?(::ActiveRecord::ConnectionAdapters::PostgreSQLAdapter)
-          end
+          puts "[oboe/loading] Instrumenting activerecord postgresqladapter" if Oboe::Config[:verbose]
+          ::ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.module_eval do
+            if ::Rails::VERSION::MAJOR == 3 and ::Rails::VERSION::MINOR > 0
+              include Oboe::Inst::ConnectionAdapters::PostgreSQLAdapter
+            else
+              include Oboe::Inst::ConnectionAdapters::LegacyPostgreSQLAdapter
+            end
+          end if defined?(::ActiveRecord::ConnectionAdapters::PostgreSQLAdapter)
         end
 
         def self.oracle
-          if ActiveRecord::Base::connection.adapter_name.downcase.to_sym == :oracleenhanced
-            puts "[oboe/loading] Instrumenting activerecord oracleenhancedadapter" if Oboe::Config[:verbose]
-            ::ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.module_eval do
-              include Oboe::Inst::ConnectionAdapters
-            end if defined?(::ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter)
-          end
+          puts "[oboe/loading] Instrumenting activerecord oracleenhancedadapter" if Oboe::Config[:verbose]
+          ::ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.module_eval do
+            include Oboe::Inst::ConnectionAdapters
+          end if defined?(::ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter)
         end
       end
     end
@@ -293,9 +282,16 @@ module Oboe
 end
 
 if Oboe::Config[:active_record][:enabled]
-  Oboe::Inst::ConnectionAdapters::FlavorInitializers.mysql
-  Oboe::Inst::ConnectionAdapters::FlavorInitializers.mysql2
-  Oboe::Inst::ConnectionAdapters::FlavorInitializers.postgresql
-  Oboe::Inst::ConnectionAdapters::FlavorInitializers.oracle
+  begin
+    adapter = ActiveRecord::Base::connection.adapter_name.downcase
+
+    Oboe::Inst::ConnectionAdapters::FlavorInitializers.mysql      if adapter == "mysql"
+    Oboe::Inst::ConnectionAdapters::FlavorInitializers.mysql2     if adapter == "mysql2"
+    Oboe::Inst::ConnectionAdapters::FlavorInitializers.postgresql if adapter == "postgresql"
+    Oboe::Inst::ConnectionAdapters::FlavorInitializers.oracle     if adapter == "oracleenhanced"
+
+  rescue Exception => e
+    puts "[oboe/error] Oboe/ActiveRecord error: #{e.message}" if Oboe::Config[:verbose]
+  end
 end
 # vim:set expandtab:tabstop=2
