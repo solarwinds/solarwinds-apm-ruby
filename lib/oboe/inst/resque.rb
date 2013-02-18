@@ -17,7 +17,17 @@ module Oboe
         begin
           report_kvs[:Op] = op.to_s
           report_kvs[:Class] = klass.to_s if klass
-          report_kvs[:Args] = args.to_json if args
+
+          if Oboe::Config[:resque][:log_args]
+            kv_args = args.to_json
+            
+            # Limit the argument json string to 1024 bytes
+            if kv_args.length > 1024
+              report_kvs[:Args] = kv_args[0..1023] + '...[snipped]'
+            else
+              report_kvs[:Args] = kv_args
+            end
+          end
           
           report_kvs[:Backtrace] = Oboe::API.backtrace
         rescue
