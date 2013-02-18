@@ -1,9 +1,10 @@
 # Copyright (c) 2012 by Tracelytics, Inc.
 # All rights reserved.
 
-if defined?(ActionView::Base)
+if defined?(ActionView::Base) and Oboe::Config[:action_view][:enabled]
+
   if Rails::VERSION::MAJOR == 3
-    puts "[oboe/loading] Instrumenting actionview" 
+    puts "[oboe/loading] Instrumenting actionview" if Oboe::Config[:verbose]
 
     if Rails::VERSION::MINOR == 0
       ActionView::Partials::PartialRenderer.class_eval do
@@ -123,7 +124,7 @@ if defined?(ActionView::Base)
       end
     end
   elsif Rails::VERSION::MAJOR == 2
-    puts "[oboe/loading] Instrumenting ActionView" 
+    puts "[oboe/loading] Instrumenting actionview" if Oboe::Config[:verbose]
 
     ActionView::Partials.module_eval do
       alias :render_partial_without_oboe :render_partial

@@ -4,7 +4,7 @@
 module Oboe
   module API
     module Memcache
-      MEMCACHE_OPS = %w{add append cas decr decrement delete fetch get get_multi incr increment prepend replace set}
+      MEMCACHE_OPS = %w{add append cas decr decrement delete fetch get incr increment prepend replace set}
 
       def memcache_hit?(result)
         result.nil? ? 0 : 1
