@@ -1,6 +1,8 @@
 # Copyright (c) 2013 by Tracelytics, Inc.
 # All rights reserved.
 
+require 'socket'
+
 module Oboe
   module Inst
     module Resque
@@ -67,17 +69,27 @@ module Oboe
     module ResqueWorker
       def perform_with_oboe(job)
         report_kvs = {}
-        report_kvs[:Op] = :perform
-
-        # Set these keys for the ability to separate out
-        # background tasks into a separate app on the server-side UI
-        report_kvs[:Controller] = :Resque
-        report_kvs[:Action] = :perform
+        last_arg = nil
 
         begin
-          last_arg = job.payload['args'].last
+          report_kvs[:Op] = :perform
 
-          if last_arg.is_a?(Hash) and last_arg.has_key?('parent_trace_id')
+          # Set these keys for the ability to separate out
+          # background tasks into a separate app on the server-side UI
+          report_kvs[:Controller] = :Resque
+          report_kvs[:Action] = :perform
+
+          report_kvs['HTTP-Host'] = Socket.gethostname
+          report_kvs[:URL] = '/resque/' + job.queue
+          report_kvs[:Method] = 'NONE'
+          report_kvs[:Queue] = job.queue
+
+          last_arg = job.payload['args'].last
+        rescue
+        end
+
+        if last_arg.is_a?(Hash) and last_arg.has_key?('parent_trace_id')
+          begin
             # Since the enqueue was traced, we force trace the actual job execution and reference
             # the enqueue trace with ParentTraceID
             report_kvs[:ParentTraceID] = last_arg['parent_trace_id']
@@ -85,19 +97,19 @@ module Oboe
 
             report_kvs[:Class] = job.payload['class']
             report_kvs[:Args] = job.payload['args'].to_json
+          rescue
+          end
 
-            Oboe::API.force_trace do
-              Oboe::API.start_trace('resque', nil, report_kvs) do
-                perform_without_oboe(job)
-              end
-            end
-
-          else
+          Oboe::API.force_trace do
             Oboe::API.start_trace('resque', nil, report_kvs) do
               perform_without_oboe(job)
             end
           end
-        rescue
+
+        else
+          Oboe::API.start_trace('resque', nil, report_kvs) do
+            perform_without_oboe(job)
+          end
         end
       end
     end
