@@ -54,17 +54,26 @@ module Oboe
 
     @@config = {}
 
-    @instrumentation = [ :cassandra, :dalli, :httpd, :memcached, :memcache, :mongo,
+    @@instrumentation = [ :cassandra, :dalli, :nethttp, :memcached, :memcache, :mongo,
                           :moped, :rack, :resque, :action_controller, :action_view, 
                           :active_record ]
 
     def self.initialize(data={})
       # Setup default instrumentation values
-      @instrumentation.each do |k|
+      @@instrumentation.each do |k|
         @@config[k] = {}
         @@config[k][:enabled] = true
         @@config[k][:log_args] = true
       end
+
+      # Special instrument specific flags
+      #
+      # :link_workers - associates enqueue operations with the jobs they queue by piggybacking
+      #                 an additional argument that is stripped prior to job proecessing 
+      #                 !!Note: Make sure both the queue side and the Resque workers are instrumented
+      #                 or jobs will fail
+      #                 (Default: false)
+      @@config[:resque][:link_workers] = false
 
       update!(data)
     end
@@ -96,7 +105,8 @@ end
 config = {
       :tracing_mode => "through",
       :reporter_host => "127.0.0.1",
-      :sample_rate => 1000000  }
+      :sample_rate => 1000000,
+      :verbose => false }
 
 Oboe::Config.initialize(config)
 
