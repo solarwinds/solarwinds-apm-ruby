@@ -111,7 +111,7 @@ module Oboe
         rescue
         end
 
-        if Oboe::Config[:reque][:link_workers] and last_arg.is_a?(Hash) and last_arg.has_key?('parent_trace_id')
+        if last_arg.is_a?(Hash) and last_arg.has_key?('parent_trace_id')
           begin
             # Since the enqueue was traced, we force trace the actual job execution and reference
             # the enqueue trace with ParentTraceID
