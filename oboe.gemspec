@@ -13,4 +13,5 @@ Gem::Specification.new do |s|
     s.extra_rdoc_files = ["LICENSE"]
     s.files = Dir.glob(File.join('lib', '**', '*.{rb,erb}')) + Dir.glob(File.join('ext/oboe_metal', '**', '*.{c,cxx,hpp}')) + ['install.rb', 'init.rb', "LICENSE"]
     s.extensions = ['ext/oboe_metal/extconf.rb']
+    s.add_development_dependency 'rspec'
 end
