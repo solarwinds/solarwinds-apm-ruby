@@ -41,7 +41,7 @@ module Oboe
           report_kvs = extract_trace_details(:enqueue, klass, args)
 
           Oboe::API.trace('resque', report_kvs, :enqueue) do
-            args.push({:parent_trace_id => Oboe::Context.toString})
+            args.push({:parent_trace_id => Oboe::Context.toString}) if Oboe::Config[:resque][:link_workers]
             enqueue_without_oboe(klass, *args)
           end
         else
@@ -55,7 +55,7 @@ module Oboe
           report_kvs[:Queue] = queue.to_s if queue
 
           Oboe::API.trace('resque', report_kvs) do
-            args.push({:parent_trace_id => Oboe::Context.toString})
+            args.push({:parent_trace_id => Oboe::Context.toString}) if Oboe::Config[:resque][:link_workers]
             enqueue_to_without_oboe(queue, klass, *args)
           end
         else
@@ -93,6 +93,19 @@ module Oboe
           report_kvs[:URL] = '/resque/' + job.queue
           report_kvs[:Method] = 'NONE'
           report_kvs[:Queue] = job.queue
+            
+          report_kvs[:Class] = job.payload['class']
+
+          if Oboe::Config[:resque][:log_args]
+            kv_args = job.payload['args'].to_json
+            
+            # Limit the argument json string to 1024 bytes
+            if kv_args.length > 1024
+              report_kvs[:Args] = kv_args[0..1023] + '...[snipped]'
+            else
+              report_kvs[:Args] = kv_args
+            end
+          end
 
           last_arg = job.payload['args'].last
         rescue
@@ -105,8 +118,6 @@ module Oboe
             report_kvs[:ParentTraceID] = last_arg['parent_trace_id']
             job.payload['args'].pop
 
-            report_kvs[:Class] = job.payload['class']
-            report_kvs[:Args] = job.payload['args'].to_json
           rescue
           end
 
