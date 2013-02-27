@@ -19,6 +19,7 @@ group :test do
 
   # Instrumented gems
   gem 'dalli'
+  gem 'memcache-client'
   gem 'cassandra'
   gem 'mongo'
   gem 'bson_ext' # For Mongo, Yours Truly

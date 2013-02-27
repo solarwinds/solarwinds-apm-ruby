@@ -8,5 +8,8 @@ RSpec.configure do |config|
   config.formatter     = 'documentation'
 end
 
+# Preload memcache-client
+require 'memcache'
+
 Oboe::Ruby.initialize
 
