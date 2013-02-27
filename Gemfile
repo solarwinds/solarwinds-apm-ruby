@@ -22,5 +22,6 @@ group :test do
   gem 'cassandra'
   gem 'mongo'
   gem 'bson_ext' # For Mongo, Yours Truly
+  gem 'moped'
 end
 

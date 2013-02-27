@@ -33,6 +33,7 @@ GEM
     method_source (0.8.1)
     mongo (1.8.2)
       bson (~> 1.8.2)
+    moped (1.4.2)
     pry (0.9.12)
       coderay (~> 1.0.5)
       method_source (~> 0.8)
@@ -69,6 +70,7 @@ DEPENDENCIES
   guard
   guard-rspec
   mongo
+  moped
   oboe!
   rake
   rb-fchange
