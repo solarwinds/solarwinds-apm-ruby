@@ -6,6 +6,9 @@ PATH
 GEM
   remote: http://rubygems.org/
   specs:
+    bson (1.8.2)
+    bson_ext (1.8.2)
+      bson (~> 1.8.2)
     cassandra (0.17.0)
       json
       rake
@@ -28,6 +31,8 @@ GEM
     listen (0.7.3)
     lumberjack (1.0.2)
     method_source (0.8.1)
+    mongo (1.8.2)
+      bson (~> 1.8.2)
     pry (0.9.12)
       coderay (~> 1.0.5)
       method_source (~> 0.8)
@@ -58,10 +63,12 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  bson_ext
   cassandra
   dalli
   guard
   guard-rspec
+  mongo
   oboe!
   rake
   rb-fchange
