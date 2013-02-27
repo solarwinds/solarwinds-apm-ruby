@@ -1,7 +1,5 @@
 require 'spec_helper'
 
-Oboe::Inst.load_instrumentation
-
 describe Oboe::Inst::Dalli do
   it 'Stock Dalli should be loaded, defined and ready' do
     defined?(::Dalli).should_not == nil 
