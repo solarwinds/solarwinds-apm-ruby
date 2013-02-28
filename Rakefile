@@ -9,3 +9,4 @@ end
 
 desc "Run tests"
 task :default => :spec
+test :test => :spec
