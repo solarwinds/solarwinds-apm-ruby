@@ -1,4 +1,4 @@
-source :rubygems
+source 'https://rubygems.org'
 
 # Import dependencies from oboe.gemspec
 gemspec :name => 'oboe'
