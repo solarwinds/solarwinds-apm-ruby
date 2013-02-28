@@ -11,8 +11,9 @@ Gem::Specification.new do |s|
     s.homepage = %q{http://tracelytics.com}
     s.description = %q{The oboe gem provides AppNeta instrumentation for Ruby and Ruby frameworks.}
     s.extra_rdoc_files = ["LICENSE"]
-    s.files = Dir.glob(File.join('lib', '**', '*.{rb,erb}')) + Dir.glob(File.join('ext/oboe_metal', '**', '*.{c,cxx,hpp}')) + ['install.rb', 'init.rb', "LICENSE", 'Rakefile', 'Guardfile']
+    s.files = `git ls-files`.split("\n")
     s.extensions = ['ext/oboe_metal/extconf.rb']
     s.test_files  = Dir.glob("{spec}/**/*.rb")
+    s.add_development_dependency 'rake'
     s.add_development_dependency 'rspec'
 end
