@@ -20,7 +20,7 @@ group :test do
   # Instrumented gems
   gem 'dalli'
   gem 'memcache-client'
-  gem 'memcached'
+  gem 'memcached' if (RUBY_VERSION =~ /^1./) == 0
   gem 'cassandra'
   gem 'mongo'
   gem 'bson_ext' # For Mongo, Yours Truly
