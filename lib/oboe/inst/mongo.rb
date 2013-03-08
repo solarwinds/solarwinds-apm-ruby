@@ -47,7 +47,6 @@ if defined?(::Mongo) and Oboe::Config[:mongo][:enabled]
 
               report_kvs[:Backtrace] = Oboe::API.backtrace
             rescue
-              logger.warn "[oboe/error] Problem processing mongo args (#{m})" if defined?(logger)
             end
 
             Oboe::API.trace('mongo', report_kvs) do
@@ -88,9 +87,7 @@ if defined?(::Mongo) and Oboe::Config[:mongo][:enabled]
                 end
                 report_kvs[:Limit] = @limit if @limit != 0
               end
-
             rescue
-              logger.warn "[oboe/error] Problem processing mongo args (#{m})" if defined?(logger)
             end
             
             Oboe::API.trace('mongo', report_kvs) do
@@ -152,7 +149,6 @@ if defined?(::Mongo) and Oboe::Config[:mongo][:enabled]
                 end
               end
             rescue
-              logger.warn "[oboe/error] Problem processing mongo args (#{m})" if defined?(logger)
             end
             
             Oboe::API.trace('mongo', report_kvs) do
@@ -191,7 +187,6 @@ if defined?(::Mongo) and Oboe::Config[:mongo][:enabled]
                 end
               end
             rescue
-              logger.warn "[oboe/error] Problem processing mongo args (#{m})" if defined?(logger)
             end
 
             Oboe::API.trace('mongo', report_kvs) do
@@ -214,7 +209,6 @@ if defined?(::Mongo) and Oboe::Config[:mongo][:enabled]
                 report_kvs[:Index] = _args[0].try(:to_json)
               end
             rescue
-              logger.warn "[oboe/error] Problem processing mongo args (#{m})" if defined?(logger)
             end
 
             Oboe::API.trace('mongo', report_kvs) do
