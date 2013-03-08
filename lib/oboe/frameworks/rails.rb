@@ -5,7 +5,7 @@ module Oboe
 
       def oboe_rum_header
         begin
-          return unless Oboe::Config.has_key?(:rum_id)
+          return unless Oboe::Config.rum_id
           if Oboe.tracing?
             if request.xhr?
               header_tmpl = File.read(File.dirname(__FILE__) + '/rails/helpers/rum/rum_ajax_header.js.erb')
@@ -22,7 +22,7 @@ module Oboe
       
       def oboe_rum_footer
         begin
-          return unless Oboe::Config.has_key?(:rum_id)
+          return unless Oboe::Config.rum_id
           if Oboe.tracing?
             # Even though the footer template is named xxxx.erb, there are no ERB tags in it so we'll
             # skip that step for now

@@ -50,13 +50,15 @@ module Oboe
   # Oboe Configuration Module
   ############################
   module Config
-    mattr_reader :config
-
     @@config = {}
 
     @@instrumentation = [ :cassandra, :dalli, :nethttp, :memcached, :memcache, :mongo,
                           :moped, :rack, :resque, :action_controller, :action_view, 
                           :active_record ]
+
+    def self.show
+      @@config
+    end
 
     def self.initialize(data={})
       # Setup default instrumentation values
