@@ -29,12 +29,12 @@ module Oboe
         result = process_action_without_oboe *args
 
         report_kvs[:Status] = @_response.status
-        Oboe::API.log('rails', 'info', report_kvs)
+        Oboe::API.log(nil, 'info', report_kvs)
      
         result
       rescue Exception => exception
         report_kvs[:Status] = 500
-        Oboe::API.log('rails', 'info', report_kvs)
+        Oboe::API.log(nil, 'info', report_kvs)
         raise
       end
 
@@ -83,11 +83,11 @@ if defined?(ActionController::Base) and Oboe::Config[:action_controller][:enable
           report_kvs[:Status] = @_response.status.to_i
         rescue
         end
-        Oboe::API.log('rails', 'info', report_kvs)
+        Oboe::API.log(nil, 'info', report_kvs)
       end
 
       def rescue_action(exn)
-        Oboe::API.log_exception('rails', exn)
+        Oboe::API.log_exception(nil, exn)
         rescue_action_without_oboe(exn)
       end
 
