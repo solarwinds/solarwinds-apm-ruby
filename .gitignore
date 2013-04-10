@@ -1,3 +1,4 @@
-oboe_fu-*.gem
+oboe*.gem
 *~
 *.swp
+lib/so_variants
