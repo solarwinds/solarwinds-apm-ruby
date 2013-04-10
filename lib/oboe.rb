@@ -3,12 +3,20 @@
 
 begin
   require 'rbconfig'
-  if RUBY_PLATFORM == 'java'
-    require '/usr/local/tracelytics/tracelyticsagent.jar'
-    require 'joboe_metal'
+    
+  # puts "Standard oboe initializing"
+  unless defined?(Oboe_metal)
+    # puts "using native oboe metal"
+    if RUBY_PLATFORM == 'java'
+      require '/usr/local/tracelytics/tracelyticsagent.jar'
+      require 'joboe_metal'
+    else
+      require 'oboe_metal.so'
+      require 'oboe_metal'
+    end
   else
-    require 'oboe_metal.so'
-    require 'oboe_metal'
+    # puts "Using PaaS Oboe Metal"
+    # Do Nothing - use the Oboe_metal from oboe-heroku gem
   end
   require 'oboe/config'
   require 'oboe/loading'
