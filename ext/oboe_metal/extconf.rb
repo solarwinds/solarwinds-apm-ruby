@@ -5,6 +5,9 @@ require 'mkmf'
 dir_config('oboe')
 
 if ENV.has_key?('TRACEVIEW_URL')
+  # FIXME: Check that the oboe-heroku gem is in use and
+  #        output a warning if not found
+
   # We are running in Heroku - quietly go no-op and
   # leave the platform work to the oboe-heroku gem
   create_makefile('oboe_noop', 'noop')
