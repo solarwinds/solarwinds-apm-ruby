@@ -32,48 +32,48 @@ module Oboe
         raise
       end
 
-      def render_with_oboe(*args)
-        Oboe::API.trace('actionview', {}) do
-          render_without_oboe *args
-        end
-      end
-    end
-  end
+def render_with_oboe(*args)
+Oboe::API.trace('actionview', {}) do
+  render_without_oboe *args
+end
+end
+end
+end
 end
 
 if defined?(ActionController::Base) and Oboe::Config[:action_controller][:enabled]
-  if ::Rails::VERSION::MAJOR == 3
-    Oboe::API.report_init('rails')
+if ::Rails::VERSION::MAJOR == 3
+Oboe::API.report_init('rails')
 
-    class ActionController::Base
-      include Oboe::Inst::Rails3ActionController
-    end
-  elsif ::Rails::VERSION::MAJOR == 2
-    Oboe::API.report_init('rails')
+class ActionController::Base
+include Oboe::Inst::Rails3ActionController
+end
+elsif ::Rails::VERSION::MAJOR == 2
+Oboe::API.report_init('rails')
 
-    ActionController::Base.class_eval do
-      alias :perform_action_without_oboe :perform_action
-      alias :rescue_action_without_oboe :rescue_action
-      alias :process_without_oboe :process
-      alias :render_without_oboe :render
+ActionController::Base.class_eval do
+alias :perform_action_without_oboe :perform_action
+alias :rescue_action_without_oboe :rescue_action
+alias :process_without_oboe :process
+alias :render_without_oboe :render
 
-      def process(*args)
-        Oboe::API.trace('rails', {}) do
-          process_without_oboe(*args)
-        end
-      end
+def process(*args)
+Oboe::API.trace('rails', {}) do
+  process_without_oboe(*args)
+end
+end
 
-      def perform_action(*arguments)
-        report_kvs = {
-            :Controller  => @_request.path_parameters['controller'],
-            :Action      => @_request.path_parameters['action']
-        }
-        Oboe::API.log('rails', 'info', report_kvs)
+def perform_action(*arguments)
+report_kvs = {
+    :Controller  => @_request.path_parameters['controller'],
+    :Action      => @_request.path_parameters['action']
+}
+        Oboe::API.log(nil, 'info', report_kvs)
         perform_action_without_oboe(*arguments)
       end
 
       def rescue_action(exn)
-        Oboe::API.log_exception('rails', exn)
+        Oboe::API.log_exception(nil, exn)
         rescue_action_without_oboe(exn)
       end
 

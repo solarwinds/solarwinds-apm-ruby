@@ -113,7 +113,9 @@ module Oboe
       #
       # Returns nothing.
       def log_event(layer, label, event, opts={})
-        event.addInfo('Layer', layer.to_s)
+        if layer
+            event.addInfo('Layer', layer.to_s)
+        end
         event.addInfo('Label', label.to_s)
   
         opts.each do |k, v|
