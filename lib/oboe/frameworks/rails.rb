@@ -13,7 +13,7 @@ module Oboe
           if Oboe.tracing?
             if request.xhr?
               return raw(ERB.new(@@rum_xhr_tmpl).result)
-             else
+            else
               return raw(ERB.new(@@rum_hdr_tmpl).result)
             end
           end
