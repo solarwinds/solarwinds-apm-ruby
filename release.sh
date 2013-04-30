@@ -15,6 +15,9 @@ then
   echo -e "\t 2. Re-run this script without any arguments."
   echo -e ""
   echo -e "-Notes-"
+  echo -e "\t You must have ~/.gem/credentials setup with the Appneta API key for Rubygems."
+  echo -e "\t The API key should be titled :rubygems_appneta: in the credentials file."
+  echo -e ""
   echo -e "\t Gems with letters in the build number (e.g. pre1 or beta1)will be released "
   echo -e "\t as a prerelease gem on Rubygems."
   echo -e ""
@@ -54,7 +57,7 @@ then
   echo -e "Building gem..."
   gem build oboe.gemspec
   echo -e "Pushing built gem to Rubygems..."
-  gem push -k appneta_api_key oboe-$VERSION.gem
+  gem push -k rubygems_appneta oboe-$VERSION.gem
 else
   echo -e ""
   echo -e "Canceled...nothing done.  Have a nice day."
