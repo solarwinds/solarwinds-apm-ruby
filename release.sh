@@ -29,7 +29,7 @@ fi
 if [ $(git branch -a | grep ^* | awk '{print $2}') != "prod" ]; then
   echo -e "You can only release gems from prod branch."
   echo -e "Do a 'git checkout prod' and try again."
-  #exit
+  exit
 fi
 
 #set -e # stop on first non-zero exit code
