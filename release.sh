@@ -1,34 +1,62 @@
-#!/bin/sh
+#!/bin/bash
 #
-# for use only when you're ready to push from prod -> the public gem repo
+# for use only when you're ready to push from prod -> rubygems
 #
 
-if [ $(git branch -a | grep ^* | awk '{print $2}') != "prod" ]; then
-  echo "You can only push from prod."
-  exit
+if [ $# -ne 0 ]
+then
+  echo -e "Usage: `basename $0`"
+  echo -e "-Summary-"
+  echo -e "\t This script will help you build and release a new version of the oboe Ruby gem."
+  echo -e "\t It will also create a git tag with the version being released."
+  echo -e ""
+  echo -e "-Steps-"
+  echo -e "\t 1. Update lib/oboe/version.rb with the new version you wish to release."
+  echo -e "\t 2. Re-run this script without any arguments."
+  echo -e ""
+  echo -e "-Notes-"
+  echo -e "\t Gems with letters in the build number (e.g. pre1 or beta1)will be released "
+  echo -e "\t as a prerelease gem on Rubygems."
+  echo -e ""
+  echo -e "\t See here for an explanation on prelease gems:"
+  echo -e "\t http://guides.rubygems.org/patterns/#prerelease-gems"
+  exit $E_BADARGS
 fi
 
-if [ $# -ne 1 ]
-then
-  echo "Usage: `basename $0` [../path/to/packages]"
-  echo "pass me the path to your local copy of the packages repo, trailing slash omitted pls"
-  exit $E_BADARGS
+if [ $(git branch -a | grep ^* | awk '{print $2}') != "prod" ]; then
+  echo -e "You can only release gems from prod branch."
+  echo -e "Do a 'git checkout prod' and try again."
+  #exit
 fi
 
 #set -e # stop on first non-zero exit code
 #set -x # show commands as they happen
 
-# check package version
-VERSION=$(grep version oboe.gemspec | sed 's/.*"\(.*\)"/\1/')
+# Get gem version from lib/oboe/version.rb
+VERSION=`/usr/bin/env ruby ./get_version.rb`
 
-# tag release (if tag already exists, bails out)
-if ! git tag rel-$VERSION; then
-  echo "Couldn't create tag for ${VERSION}: if it already exists, you need to bump the version."
-  exit
+read -p "Are you sure you want to release oboe gem version $VERSION to Rubygems? [y/N]" -n 1 -r
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+  echo -e ""
+  
+  # tag release (if tag already exists, bails out)
+  echo -e "Creating git tag rel-$VERSION..."
+  if ! git tag rel-$VERSION; then
+    echo -e "Couldn't create tag for ${VERSION}: if it already exists, you need to bump the version."
+    exit
+  fi
+
+  echo -e "Pushing tags to origin (Github)..."
+  git push --tags
+
+  # Build and publish the gem to Rubygems.org
+  echo -e "Building gem..."
+  gem build oboe.gemspec
+  echo -e "Pushing built gem to Rubygems..."
+  gem push -k appneta_api_key oboe-$VERSION.gem
+else
+  echo -e ""
+  echo -e "Canceled...nothing done.  Have a nice day."
 fi
-git push --tags
 
-# publish package
-gem build oboe.gemspec
-sudo cp oboe-$VERSION.gem /www/gem/gems
-sudo gem generate_index -d /www/gem
