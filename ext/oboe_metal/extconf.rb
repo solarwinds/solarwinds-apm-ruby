@@ -2,9 +2,19 @@
 # All rights reserved.
 
 require 'mkmf'
+require 'rbconfig'
+
 dir_config('oboe')
 
-if have_library('oboe')
+# Check if we're running in JRuby
+if RbConfig::CONFIG.has_key?('arch')
+  # nil meaning java string not found
+  jruby = (RbConfig::CONFIG['arch'] =~ /java/i) != nil
+else
+  jruby = false
+end
+
+if not jruby and have_library('oboe')
   $libs = append_library($libs, "oboe")
   $libs = append_library($libs, "stdc++")
 
