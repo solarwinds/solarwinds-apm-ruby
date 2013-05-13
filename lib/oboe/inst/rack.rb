@@ -11,9 +11,11 @@ module Oboe
 
     def call(env)
       report_kvs = {}
-      xtrace = env['HTTP_X_TRACE']
+      xtrace = nil
 
       begin
+        xtrace = env['HTTP_X_TRACE'] if env.is_a?(Hash)
+
         req = ::Rack::Request.new(env)
         report_kvs[:SampleRate]      = Oboe::Config[:sample_rate]
         report_kvs['HTTP-Host']      = req.host
