@@ -24,14 +24,14 @@ module Oboe
           unless options.empty?
             [:start_key, :finish_key, :key_count, :batch_size, :columns, :count, :start,
              :stop, :finish, :finished, :reversed, :consistency, :ttl].each do |k|
-              report_kvs[k.capitalize] = options[k] if options.has_key?(k)
+              report_kvs[k.to_s.capitalize] = options[k] if options.has_key?(k)
             end
 
             if op == :get_indexed_slices
               index_clause = columns_and_options[:index_clause] || {}
               unless index_clause.empty?
                 [:column_name, :value, :comparison].each do |k|
-                  report_kvs[k.capitalize] = index_clause[k] if index_clause.has_key?(k)
+                  report_kvs[k.to_s.capitalize] = index_clause[k] if index_clause.has_key?(k)
                 end
               end
             end
