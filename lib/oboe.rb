@@ -27,4 +27,6 @@ begin
 
 rescue LoadError
   puts "Unsupported Tracelytics environment (no libs).  Going No-op."
+rescue Exception => e
+  puts "[oboe/error] Problem loading: #{e.inspect}"
 end
