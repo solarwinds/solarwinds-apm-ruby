@@ -1,11 +1,6 @@
 # Copyright (c) 2012 by Tracelytics, Inc.
 # All rights reserved.
 
-require 'mkmf'
-require 'rbconfig'
-
-dir_config('oboe')
-
 # Check if we're running in JRuby
 if RbConfig::CONFIG.has_key?('arch')
   # nil meaning java string not found
@@ -14,15 +9,17 @@ else
   jruby = false
 end
 
-if ENV.has_key?('TRACEVIEW_URL') or jruby
-  # FIXME: Check that the oboe-heroku gem is in use and
-  #        output a warning if not found
+# Don't attempt to build a c extension if we're in JRuby
+# or on Heroku.  Return immediately.
+return if ENV.has_key?('TRACEVIEW_URL') or jruby
 
-  # We are running in Heroku or jruby - quietly go no-op and
-  # leave the platform work to oboe-heroku/joboe_metal 
-  create_makefile('oboe_noop', 'noop')
 
-elsif have_library('oboe') 
+require 'mkmf'
+require 'rbconfig'
+
+dir_config('oboe')
+
+if have_library('oboe') 
 
   $libs = append_library($libs, "oboe")
   $libs = append_library($libs, "stdc++")
