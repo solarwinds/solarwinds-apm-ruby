@@ -26,7 +26,7 @@ module Oboe
   module Loading
 
     def self.load_access_key
-      unless Oboe::Config.has_key?(:access_key)  
+      unless Oboe::Config.access_key
         config_file = '/etc/tracelytics.conf'
         return unless File.exists?(config_file)
         

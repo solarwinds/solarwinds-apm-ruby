@@ -3,16 +3,19 @@ module Oboe
     module Helpers
       extend ActiveSupport::Concern if ::Rails::VERSION::MAJOR > 2
 
+      @@rum_xhr_tmpl = File.read(File.dirname(__FILE__) + '/rails/helpers/rum/rum_ajax_header.js.erb')
+      @@rum_hdr_tmpl = File.read(File.dirname(__FILE__) + '/rails/helpers/rum/rum_header.js.erb')
+      @@rum_ftr_tmpl = File.read(File.dirname(__FILE__) + '/rails/helpers/rum/rum_footer.js.erb')
+
       def oboe_rum_header
         begin
-          return unless Oboe::Config.has_key?(:rum_id)
+          return unless Oboe::Config.rum_id
           if Oboe.tracing?
             if request.xhr?
-              header_tmpl = File.read(File.dirname(__FILE__) + '/rails/helpers/rum/rum_ajax_header.js.erb')
+              return raw(ERB.new(@@rum_xhr_tmpl).result)
             else
-              header_tmpl = File.read(File.dirname(__FILE__) + '/rails/helpers/rum/rum_header.js.erb')
+              return raw(ERB.new(@@rum_hdr_tmpl).result)
             end
-            return raw(ERB.new(header_tmpl).result)
           end
         rescue Exception => e  
           logger.warn "oboe_rum_header: #{e.message}." if defined?(logger)
@@ -22,12 +25,11 @@ module Oboe
       
       def oboe_rum_footer
         begin
-          return unless Oboe::Config.has_key?(:rum_id)
+          return unless Oboe::Config.rum_id
           if Oboe.tracing?
             # Even though the footer template is named xxxx.erb, there are no ERB tags in it so we'll
             # skip that step for now
-            footer_tmpl = File.read(File.dirname(__FILE__) + '/rails/helpers/rum/rum_footer.js.erb')
-            return raw(footer_tmpl)
+            return raw(@@rum_ftr_tmpl)
           end
         rescue Exception => e
           logger.warn "oboe_rum_footer: #{e.message}." if defined?(logger)

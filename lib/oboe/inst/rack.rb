@@ -1,8 +1,6 @@
 # Copyright (c) 2012 by Tracelytics, Inc.
 # All rights reserved.
 
-require 'rack'
-
 module Oboe
   class Rack
     attr_reader :app
@@ -12,20 +10,37 @@ module Oboe
     end
 
     def call(env)
-      xtrace = env['HTTP_X_TRACE']
-
       report_kvs = {}
-      report_kvs[:SampleRate] = Oboe::Config[:sample_rate]
+      xtrace = nil
 
-      response, xtrace = Oboe::API.start_trace('rack', xtrace, report_kvs) do
-        @app.call(env)
+      begin
+        xtrace = env['HTTP_X_TRACE'] if env.is_a?(Hash)
+
+        req = ::Rack::Request.new(env)
+        report_kvs[:SampleRate]      = Oboe::Config[:sample_rate]
+        report_kvs['HTTP-Host']      = req.host
+        report_kvs['HTTP-Port']      = req.port
+        report_kvs['Query-String']   = req.query_string unless req.query_string.blank?
+        report_kvs[:URL]             = req.path
+        report_kvs[:Method]          = req.request_method
+        report_kvs['AJAX']           = true if req.xhr?
+      rescue
+        # Discard any potential exceptions. Report whatever we can.
+      end
+
+      result, xtrace = Oboe::API.start_trace('rack', xtrace, report_kvs) do
+
+        status, headers, response = @app.call(env)
+        Oboe::API.log(nil, 'info', { :Status => status })
+
+        [status, headers, response]
       end
     rescue Exception => e
       xtrace = e.instance_variable_get(:@xtrace)
       raise
     ensure
-      response[1].merge!({'X-Trace' => xtrace}) if xtrace
-      return response
+      result[1]['X-Trace'] = xtrace if xtrace
+      return result
     end
   end
 end
