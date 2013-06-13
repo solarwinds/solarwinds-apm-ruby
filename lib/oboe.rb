@@ -26,7 +26,7 @@ begin
   require 'oboe/frameworks/rails' if defined?(::Rails)
 
 rescue LoadError
-  puts "Unsupported Tracelytics environment (no libs).  Going No-op."
+  $stderr.puts "Unsupported Tracelytics environment (no libs).  Going No-op."
 rescue Exception => e
-  puts "[oboe/error] Problem loading: #{e.inspect}"
+  $stderr.puts "[oboe/error] Problem loading: #{e.inspect}"
 end
