@@ -4,6 +4,8 @@
 module Oboe_metal
   include_package 'com.tracelytics.joboe'
   import 'com.tracelytics.joboe'
+  include_package 'com.tracelytics.joboe.SettingsReader'
+  import 'com.tracelytics.joboe.SettingsReader'
   include_package 'com.tracelytics.joboe.Context'
   import 'com.tracelytics.joboe.Context'
   include_package 'com.tracelytics.joboe.Event'
@@ -77,7 +79,50 @@ end
 module Oboe
   include Oboe_metal
   
+  def self.always?
+    Oboe::Config[:tracing_mode].to_s == "always"
+  end
+  
+  def self.continue?
+    Oboe::Context.isValid and not Oboe.never?
+  end
+  
   def self.log(layer, label, options = {})
     Context.log(layer, label, options = options)
+  end
+  
+  def self.never?
+    Oboe::Config[:tracing_mode].to_s == "never"
+  end
+
+  def self.now?
+    Oboe::Context.isValid and not Oboe.never?
+  end
+  
+  def self.passthrough?
+    ["always", "through"].include?(Oboe::Config[:tracing_mode])
+  end
+    
+  def self.sample?
+    Java::ComTracelyticsJoboeSettingsReader.shouldTraceRequest('', '')
+  end
+
+  def self.start?
+    not Oboe::Context.isValid and Oboe.always?
+  end
+  
+  def self.through?
+    Oboe::Config[:tracing_mode] == "through"
+  end
+    
+  def self.tracing?
+    Oboe::Context.isValid and not Oboe.never?
+  end
+
+  def self.reporter
+    if !@reporter
+      @reporter = Oboe::UdpReporter.new(Oboe::Config[:reporter_host])
+    end
+    return @reporter
   end
 end
