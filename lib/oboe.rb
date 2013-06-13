@@ -5,8 +5,7 @@ begin
   require 'rbconfig'
   
   # If Oboe_metal is already defined then we are in a PaaS environment
-  # with alternate metal such as Heroku (see the oboe-heroku gem which
-  # wraps this one)
+  # with an alternate metal (such as Heroku: see the oboe-heroku gem)
   unless defined?(Oboe_metal)
     if RUBY_PLATFORM == 'java'
       require '/usr/local/tracelytics/tracelyticsagent.jar'
@@ -21,6 +20,7 @@ begin
   require 'method_profiling'
   require 'oboe/instrumentation'
   require 'oboe/ruby'
+  require 'oboe/logger'
 
   # Frameworks
   require 'oboe/frameworks/rails' if defined?(::Rails)

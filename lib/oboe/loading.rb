@@ -24,6 +24,11 @@ module Oboe
   end
 
   module Loading
+    def self.setup_logger
+      if defined?(Rails) and Rails.logger
+        Oboe.logger = Rails.logger
+      end
+    end
 
     def self.load_access_key
       unless Oboe::Config.access_key
