@@ -45,7 +45,7 @@ module Oboe
             end
           end
         rescue
-          puts "Having trouble parsing #{config_file}..."
+          Oboe.logger.error "Having trouble parsing #{config_file}..."
         end
       end
     end
@@ -62,7 +62,7 @@ module Oboe
       begin
         Oboe::API.extend_with_tracing
       rescue LoadError => e
-        puts "[oboe/error] Couldn't load oboe api."
+        Oboe.logger.fatal "[oboe/error] Couldn't load oboe api."
       end
       
       require 'oboe/config'
@@ -74,7 +74,7 @@ module Oboe
         begin
           require f
         rescue => e
-          $stderr.puts "[oboe/loading] Error loading framework file '#{f}' : #{e}"
+          Oboe.logger.error "[oboe/loading] Error loading framework file '#{f}' : #{e}"
         end
       end
     end
