@@ -23,7 +23,7 @@ module Oboe
 end
 
 if defined?(::Moped) and Oboe::Config[:moped][:enabled]
-  puts "[oboe/loading] Instrumenting moped" if Oboe::Config[:verbose]
+  Oboe.logger.info "[oboe/loading] Instrumenting moped" if Oboe::Config[:verbose]
 
   if defined?(::Moped::Database)
     module ::Moped
@@ -73,7 +73,7 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
           if method_defined?(m)
             class_eval "alias #{m}_without_oboe #{m}"
             class_eval "alias #{m} #{m}_with_oboe"
-          else puts "[oboe/loading] Couldn't properly instrument moped (#{m}).  Partial traces may occur."
+          else Oboe.logger.warn "[oboe/loading] Couldn't properly instrument moped (#{m}).  Partial traces may occur."
           end
         end
       end
@@ -133,7 +133,7 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
           if method_defined?(m)
             class_eval "alias #{m}_without_oboe #{m}"
             class_eval "alias #{m} #{m}_with_oboe"
-          else puts "[oboe/loading] Couldn't properly instrument moped (#{m}).  Partial traces may occur."
+          else Oboe.logger.warn "[oboe/loading] Couldn't properly instrument moped (#{m}).  Partial traces may occur."
           end
         end
       end
@@ -314,7 +314,7 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
           if method_defined?(m)
             class_eval "alias #{m}_without_oboe #{m}"
             class_eval "alias #{m} #{m}_with_oboe"
-          else puts "[oboe/loading] Couldn't properly instrument moped (#{m}).  Partial traces may occur."
+          else Oboe.logger.warn "[oboe/loading] Couldn't properly instrument moped (#{m}).  Partial traces may occur."
           end
         end
       end
@@ -408,7 +408,7 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
           if method_defined?(m)
             class_eval "alias #{m}_without_oboe #{m}"
             class_eval "alias #{m} #{m}_with_oboe"
-          else puts "[oboe/loading] Couldn't properly instrument moped (#{m}).  Partial traces may occur."
+          else Oboe.logger.warn "[oboe/loading] Couldn't properly instrument moped (#{m}).  Partial traces may occur."
           end
         end
       end

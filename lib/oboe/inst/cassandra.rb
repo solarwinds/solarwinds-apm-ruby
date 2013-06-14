@@ -285,7 +285,7 @@ module Oboe
 end
 
 if defined?(::Cassandra) and Oboe::Config[:cassandra][:enabled]
-  puts "[oboe/loading] Instrumenting cassandra" if Oboe::Config[:verbose]
+  Oboe.logger.info "[oboe/loading] Instrumenting cassandra" if Oboe::Config[:verbose]
   
   class ::Cassandra
     include Oboe::Inst::Cassandra
@@ -297,7 +297,7 @@ if defined?(::Cassandra) and Oboe::Config[:cassandra][:enabled]
       if method_defined?(m)
         class_eval "alias #{m}_without_oboe #{m}"
         class_eval "alias #{m} #{m}_with_oboe"
-      else puts "[oboe/loading] Couldn't properly instrument Cassandra (#{m}).  Partial traces may occur."
+      else Oboe.logger.warn "[oboe/loading] Couldn't properly instrument Cassandra (#{m}).  Partial traces may occur."
       end
     end
 
@@ -305,7 +305,7 @@ if defined?(::Cassandra) and Oboe::Config[:cassandra][:enabled]
     if method_defined?(:exists?)
       alias exists_without_oboe? exists?
       alias exists? exists_with_oboe?
-    else puts "[oboe/loading] Couldn't properly instrument Cassandra (exists?).  Partial traces may occur."
+    else Oboe.logger.warn "[oboe/loading] Couldn't properly instrument Cassandra (exists?).  Partial traces may occur."
     end
   end # class Cassandra
 end
