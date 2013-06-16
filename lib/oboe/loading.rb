@@ -25,8 +25,8 @@ module Oboe
 
   module Loading
     def self.setup_logger
-      if defined?(Rails) and Rails.logger
-        Oboe.logger = Rails.logger
+      if defined?(::Rails) and ::Rails.logger
+        Oboe.logger = ::Rails.logger
       end
     end
 
