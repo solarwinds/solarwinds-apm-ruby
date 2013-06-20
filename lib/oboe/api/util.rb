@@ -24,7 +24,7 @@ module Oboe
       #
       # Returns a string with each frame of the backtrace separated by '\r\n'.
       def backtrace(ignore=1)
-        trim_backtrace(Kernel.caller).join("\r\n");
+        trim_backtrace(Kernel.caller).join("\r\n")
       end
 
       def trim_backtrace(backtrace)
