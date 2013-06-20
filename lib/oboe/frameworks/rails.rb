@@ -18,7 +18,7 @@ module Oboe
             end
           end
         rescue Exception => e  
-          logger.warn "oboe_rum_header: #{e.message}." if defined?(logger)
+          Oboe.logger.warn "oboe_rum_header: #{e.message}."
           return ""
         end
       end
@@ -32,7 +32,7 @@ module Oboe
             return raw(@@rum_ftr_tmpl)
           end
         rescue Exception => e
-          logger.warn "oboe_rum_footer: #{e.message}." if defined?(logger)
+          Oboe.logger.warn "oboe_rum_footer: #{e.message}."
           return ""
         end
       end
@@ -62,14 +62,14 @@ module Oboe
         begin
           require f
         rescue => e
-          $stderr.puts "[oboe/loading] Error loading rails insrumentation file '#{f}' : #{e}"
+          Oboe.logger.error "[oboe/loading] Error loading rails insrumentation file '#{f}' : #{e}"
         end
       end
       
       if ::Rails::VERSION::MAJOR > 2
-        puts "Tracelytics oboe gem #{Gem.loaded_specs['oboe'].version.to_s} successfully loaded."
+        Oboe.logger.info "Tracelytics oboe gem #{Gem.loaded_specs['oboe'].version.to_s} successfully loaded."
       else
-        puts "Tracelytics oboe gem #{Oboe::Version::STRING} successfully loaded." 
+        Oboe.logger.info "Tracelytics oboe gem #{Oboe::Version::STRING} successfully loaded." 
       end
     end
 
@@ -102,11 +102,12 @@ if defined?(::Rails)
         end
 
         initializer 'oboe.rack' do |app|
-          puts "[oboe/loading] Instrumenting rack" if Oboe::Config[:verbose]
+          Oboe.logger.info "[oboe/loading] Instrumenting rack" if Oboe::Config[:verbose]
           app.config.middleware.insert 0, "Oboe::Rack"
         end
 
         config.after_initialize do
+          Oboe::Loading.setup_logger
           Oboe::Loading.load_access_key
           Oboe::Inst.load_instrumentation
           Oboe::Rails.load_instrumentation
@@ -114,11 +115,12 @@ if defined?(::Rails)
       end
     end
   else
+    Oboe::Loading.setup_logger
     Oboe::Rails.load_initializer
     Oboe::Loading.load_access_key
     
     Rails.configuration.after_initialize do
-      puts "[oboe/loading] Instrumenting rack" if Oboe::Config[:verbose]
+      Oboe.logger.info "[oboe/loading] Instrumenting rack" if Oboe::Config[:verbose]
       Rails.configuration.middleware.insert 0, "Oboe::Rack"
 
       Oboe::Inst.load_instrumentation

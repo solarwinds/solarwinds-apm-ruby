@@ -7,7 +7,7 @@ module Oboe
         begin
           require f
         rescue => e
-          $stderr.puts "[oboe/loading] Error loading insrumentation file '#{f}' : #{e}"
+          Oboe.logger.error "[oboe/loading] Error loading insrumentation file '#{f}' : #{e}"
         end
       end
     end

@@ -84,7 +84,7 @@ if defined?(ActionController::Base) and Oboe::Config[:action_controller][:enable
       end
     end
   end
-  puts "[oboe/loading] Instrumenting actioncontroler" if Oboe::Config[:verbose]
+  Oboe.logger.info "[oboe/loading] Instrumenting actioncontroler" if Oboe::Config[:verbose]
 end
 # vim:set expandtab:tabstop=2
 
