@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    oboe (1.4.0.1)
+    oboe (2.0.0.18)
 
 GEM
   remote: https://rubygems.org/
@@ -31,6 +31,7 @@ GEM
     listen (0.7.3)
     lumberjack (1.0.2)
     memcache-client (1.8.5)
+    memcached (1.5.0)
     method_source (0.8.1)
     mongo (1.8.2)
       bson (~> 1.8.2)
@@ -90,6 +91,7 @@ DEPENDENCIES
   guard
   guard-rspec
   memcache-client
+  memcached
   mongo
   moped
   oboe!
