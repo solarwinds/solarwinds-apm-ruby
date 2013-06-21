@@ -4,6 +4,7 @@ source 'https://rubygems.org'
 gemspec :name => 'oboe'
 
 gem 'rake'
+gem 'appraisal'
 
 group :development do
   gem 'guard'
@@ -16,15 +17,15 @@ end
 
 group :test do
   gem 'rspec'
-
-  # Instrumented gems
-  gem 'dalli'
-  gem 'memcache-client'
-  gem 'memcached' if (RUBY_VERSION =~ /^1./) == 0
-  gem 'cassandra'
-  gem 'mongo'
-  gem 'bson_ext' # For Mongo, Yours Truly
-  gem 'moped'
-  gem 'resque'
 end
+
+# Instrumented gems
+gem 'dalli'
+gem 'memcache-client'
+gem 'memcached' if (RUBY_VERSION =~ /^1./) == 0
+gem 'cassandra'
+gem 'mongo'
+gem 'bson_ext' # For Mongo, Yours Truly
+gem 'moped'
+gem 'resque'
 
