@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    oboe (2.0.0.18)
+    oboe (2.1.0)
 
 GEM
   remote: https://rubygems.org/
