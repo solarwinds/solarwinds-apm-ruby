@@ -147,7 +147,7 @@ module Oboe
 end
 
 if defined?(::Resque)
-  puts "[oboe/loading] Instrumenting resque" if Oboe::Config[:verbose]
+  Oboe.logger.info "[oboe/loading] Instrumenting resque" if Oboe::Config[:verbose]
 
   ::Resque.module_eval do
     include Oboe::Inst::Resque
@@ -157,7 +157,7 @@ if defined?(::Resque)
         module_eval "alias #{m}_without_oboe #{m}"
         module_eval "alias #{m} #{m}_with_oboe"
       elsif Oboe::Config[:verbose]
-        puts "[oboe/loading] Couldn't properly instrument Resque (#{m}).  Partial traces may occur."
+        Oboe.logger.warn "[oboe/loading] Couldn't properly instrument Resque (#{m}).  Partial traces may occur."
       end
     end
   end
@@ -170,7 +170,7 @@ if defined?(::Resque)
         alias perform_without_oboe perform
         alias perform perform_with_oboe
       elsif Oboe::Config[:verbose]
-        puts "[oboe/loading] Couldn't properly instrument ResqueWorker (perform).  Partial traces may occur."
+        Oboe.logger.warn "[oboe/loading] Couldn't properly instrument ResqueWorker (perform).  Partial traces may occur."
       end
     end
   end
@@ -183,7 +183,7 @@ if defined?(::Resque)
         alias fail_without_oboe fail
         alias fail fail_with_oboe
       elsif Oboe::Config[:verbose]
-        puts "[oboe/loading] Couldn't properly instrument ResqueWorker (fail).  Partial traces may occur."
+        Oboe.logger.warn "[oboe/loading] Couldn't properly instrument ResqueWorker (fail).  Partial traces may occur."
       end
     end
   end

@@ -8,11 +8,11 @@ module Oboe
 
       def self.included(cls)
         cls.class_eval do
-          puts "[oboe/loading] Instrumenting memcache (dalli)" if Oboe::Config[:verbose]
+          Oboe.logger.info "[oboe/loading] Instrumenting memcache (dalli)" if Oboe::Config[:verbose]
           if ::Dalli::Client.private_method_defined? :perform
             alias perform_without_oboe perform
             alias perform perform_with_oboe
-          else puts "[oboe/loading] Couldn't properly instrument Memcache (Dalli).  Partial traces may occur."
+          else Oboe.logger.warn "[oboe/loading] Couldn't properly instrument Memcache (Dalli).  Partial traces may occur."
           end
 
           if ::Dalli::Client.method_defined? :get_multi

@@ -4,7 +4,7 @@
 if defined?(ActionView::Base) and Oboe::Config[:action_view][:enabled]
 
   if Rails::VERSION::MAJOR == 3
-    puts "[oboe/loading] Instrumenting actionview" if Oboe::Config[:verbose]
+    Oboe.logger.info "[oboe/loading] Instrumenting actionview" if Oboe::Config[:verbose]
 
     if Rails::VERSION::MINOR == 0
       ActionView::Partials::PartialRenderer.class_eval do
@@ -13,12 +13,12 @@ if defined?(ActionView::Base) and Oboe::Config[:action_view][:enabled]
           entry_kvs = {}
           begin
             entry_kvs[:Language]     = :ruby
-            entry_kvs[:ProfileName]  = @options[:partial] if @options.is_a?(Hash)
             entry_kvs[:FunctionName] = :render_partial
             entry_kvs[:Class]        = :PartialRenderer
             entry_kvs[:Module]       = 'ActionView::Partials'
             entry_kvs[:File]         = __FILE__
             entry_kvs[:LineNumber]   = __LINE__
+            entry_kvs[:ProfileName]  = @options[:partial].to_s if @options.is_a?(Hash)
           rescue
           end
 
@@ -28,7 +28,7 @@ if defined?(ActionView::Base) and Oboe::Config[:action_view][:enabled]
           exit_kvs = {}
           begin
             exit_kvs[:Language] = :ruby
-            exit_kvs[:ProfileName]  = @options[:partial] if @options.is_a?(Hash)
+            exit_kvs[:ProfileName]  = @options[:partial].to_s if @options.is_a?(Hash)
           rescue
           end
 
@@ -71,12 +71,12 @@ if defined?(ActionView::Base) and Oboe::Config[:action_view][:enabled]
           entry_kvs = {}
           begin
             entry_kvs[:Language]     = :ruby
-            entry_kvs[:ProfileName]  = @options[:partial] if @options.is_a?(Hash)
             entry_kvs[:FunctionName] = :render_partial
             entry_kvs[:Class]        = :PartialRenderer
             entry_kvs[:Module]       = :ActionView
             entry_kvs[:File]         = __FILE__
             entry_kvs[:LineNumber]   = __LINE__
+            entry_kvs[:ProfileName]  = @options[:partial].to_s if @options.is_a?(Hash)
           rescue
           end
 
@@ -86,7 +86,7 @@ if defined?(ActionView::Base) and Oboe::Config[:action_view][:enabled]
           exit_kvs = {}
           begin
             exit_kvs[:Language] = :ruby
-            exit_kvs[:ProfileName]  = @options[:partial] if @options.is_a?(Hash)
+            exit_kvs[:ProfileName]  = @options[:partial].to_s if @options.is_a?(Hash)
           rescue
           end
 
@@ -124,7 +124,7 @@ if defined?(ActionView::Base) and Oboe::Config[:action_view][:enabled]
       end
     end
   elsif Rails::VERSION::MAJOR == 2
-    puts "[oboe/loading] Instrumenting actionview" if Oboe::Config[:verbose]
+    Oboe.logger.info "[oboe/loading] Instrumenting actionview" if Oboe::Config[:verbose]
 
     ActionView::Partials.module_eval do
       alias :render_partial_without_oboe :render_partial
@@ -133,12 +133,12 @@ if defined?(ActionView::Base) and Oboe::Config[:action_view][:enabled]
           entry_kvs = {}
           begin
             entry_kvs[:Language]     = :ruby
-            entry_kvs[:ProfileName]  = options[:partial]
             entry_kvs[:FunctionName] = :render_partial
             entry_kvs[:Class]        = :Partials
             entry_kvs[:Module]       = :ActionView
             entry_kvs[:File]         = __FILE__
             entry_kvs[:LineNumber]   = __LINE__
+            entry_kvs[:ProfileName]  = options[:partial].to_s if options.is_a?(Hash)
           rescue
           end
 
@@ -148,7 +148,7 @@ if defined?(ActionView::Base) and Oboe::Config[:action_view][:enabled]
           exit_kvs = {}
           begin
             exit_kvs[:Language] = :ruby
-            exit_kvs[:ProfileName] = options[:partial]
+            exit_kvs[:ProfileName] = options[:partial].to_s if options.is_a?(Hash)
           rescue
           end
 
