@@ -1,5 +1,7 @@
 # Copyright (c) 2012 by Tracelytics, Inc.
 # All rights reserved.
+require 'mkmf'
+require 'rbconfig'
 
 # Check if we're running in JRuby
 if RbConfig::CONFIG.has_key?('arch')
@@ -9,17 +11,16 @@ else
   jruby = false
 end
 
-# Don't attempt to build a c extension if we're in JRuby
-# or on Heroku.  Return immediately.
-return if ENV.has_key?('TRACEVIEW_URL') or jruby
-
-
-require 'mkmf'
-require 'rbconfig'
-
 dir_config('oboe')
 
-if have_library('oboe') 
+if jruby or ENV.has_key?('TRACEVIEW_URL') 
+  # Build the noop extension under JRuby and Heroku.
+  # The oboe-heroku gem builds it's own c extension which links to
+  # libs specific to a Heroku dyno
+  # FIXME: For JRuby we need to remove the c extension entirely
+  create_makefile('oboe_noop', 'noop')
+
+elsif have_library('oboe') 
 
   $libs = append_library($libs, "oboe")
   $libs = append_library($libs, "stdc++")
