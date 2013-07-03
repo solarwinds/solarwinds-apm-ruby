@@ -31,22 +31,29 @@ module Oboe
     end
 
     def self.load_access_key
-      unless Oboe::Config.access_key
-        config_file = '/etc/tracelytics.conf'
-        return unless File.exists?(config_file)
-        
-        begin
-          File.open(config_file).each do |line|
-            if line =~ /^tracelyzer.access_key=/ or line =~ /^access_key/
-              bits = line.split(/=/)
-              Oboe::Config[:access_key] = bits[1].strip
-              Oboe::Config[:rum_id] = Oboe::Util::Base64URL.encode(Digest::SHA1.digest("RUM" + Oboe::Config[:access_key]))
-              break
+      begin
+        if ENV.has_key?('TRACEVIEW_CUUID')
+          # Preferably get access key from environment (e.g. Heroku)
+          Oboe::Config[:access_key] = ENV['TRACEVIEW_CUUID']
+          Oboe::Config[:rum_id] = Oboe::Util::Base64URL.encode(Digest::SHA1.digest("RUM" + Oboe::Config[:access_key]))
+        else
+          # ..else read from system-wide configuration file
+          unless Oboe::Config.access_key
+            config_file = '/etc/tracelytics.conf'
+            return unless File.exists?(config_file)
+            
+            File.open(config_file).each do |line|
+              if line =~ /^tracelyzer.access_key=/ or line =~ /^access_key/
+                bits = line.split(/=/)
+                Oboe::Config[:access_key] = bits[1].strip
+                Oboe::Config[:rum_id] = Oboe::Util::Base64URL.encode(Digest::SHA1.digest("RUM" + Oboe::Config[:access_key]))
+                break
+              end
             end
           end
-        rescue
-          Oboe.logger.error "Having trouble parsing #{config_file}..."
         end
+      rescue Exception => e
+        Oboe.logger.error "Trouble obtaining access_key and rum_id: #{e.inspect}"
       end
     end
 
