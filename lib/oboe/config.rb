@@ -30,6 +30,9 @@ module Oboe
       #                 (Default: false)
       @@config[:resque][:link_workers] = false
 
+      # Setup an empty host blacklist (see: Oboe::API::Util.blacklisted?)
+      @@config[:blacklist] = []
+
       update!(data)
     end
 
