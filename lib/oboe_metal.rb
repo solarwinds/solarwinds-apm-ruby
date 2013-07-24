@@ -73,15 +73,13 @@ module Oboe
       ["always", "through"].include?(Oboe::Config[:tracing_mode])
     end
       
-    def sample?(opts = nil)
-      return true if Oboe.always?
+    def sample?(opts = {})
+      # Assure defaults since SWIG enforces Strings
+      ops[:layer]      ||= ''
+      ops[:xtrace]     ||= ''
+      ops['X-TV-Meta'] ||= ''
 
-      if opts and opts.is_a?(Hash)
-        # FIXME: We also need to check liboboe SRv1 AVW Setting
-        return true if opts.has_key?('X-TV-Meta') 
-      end
-
-      Oboe::Config[:sample_rate].to_i < rand(1e6)
+      Oboe::Context.sampleRequest(opts[:layer], opts[:xtrace], opts['X-TV-Meta'])
     end
 
     def start?

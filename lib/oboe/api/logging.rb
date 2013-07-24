@@ -68,7 +68,7 @@ module Oboe
   
         if Oboe.tracing?
           log_entry(layer, opts)
-        elsif Oboe.sample?(opts)
+        elsif Oboe.sample?(opts.merge(:layer => layer, :xtrace => xtrace))
           log_event(layer, 'entry', Oboe::Context.startTrace, opts)
         end
       end
