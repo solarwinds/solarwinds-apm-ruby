@@ -27,6 +27,11 @@ module Oboe
         trim_backtrace(Kernel.caller).join("\r\n")
       end
 
+      # Internal: Trim a backtrace to a manageable size
+      #
+      # backtrace - the backtrace (an array of stack frames/from Kernel.caller)
+      #
+      # Returns a trimmed backtrace
       def trim_backtrace(backtrace)
         return backtrace unless backtrace.is_a?(Array)
 
@@ -38,6 +43,28 @@ module Oboe
           trimmed = backtrace
         end
         trimmed
+      end
+
+      # Internal: Check if a host is blacklisted from tracing
+      #
+      # addr_port - the addr_port from Net::HTTP although this method
+      # can be used from any component in reality
+      #
+      # Returns a boolean on blacklisted state
+      def blacklisted?(addr_port)
+        return false unless Oboe::Config.blacklist
+
+        # Ensure that the blacklist is an array 
+        unless Oboe::Config.blacklist.is_a?(Array)
+          val = Oboe::Config[:blacklist]
+          Oboe::Config[:blacklist] = [ val.to_s ]
+        end
+
+        Oboe::Config.blacklist.each do |h|
+          return true if addr_port.to_s.match(h.to_s)
+        end
+
+        false
       end
     end
   end
