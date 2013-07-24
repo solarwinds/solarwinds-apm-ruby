@@ -83,10 +83,6 @@ module Oboe
     Oboe::Config[:tracing_mode].to_s == "always"
   end
   
-  def self.continue?
-    Oboe::Context.isValid and not Oboe.never?
-  end
-  
   def self.log(layer, label, options = {})
     Context.log(layer, label, options = options)
   end
@@ -95,10 +91,6 @@ module Oboe
     Oboe::Config[:tracing_mode].to_s == "never"
   end
 
-  def self.now?
-    Oboe::Context.isValid and not Oboe.never?
-  end
-  
   def self.passthrough?
     ["always", "through"].include?(Oboe::Config[:tracing_mode])
   end
@@ -107,10 +99,6 @@ module Oboe
     Java::ComTracelyticsJoboeSettingsReader.shouldTraceRequest('', '')
   end
 
-  def self.start?
-    not Oboe::Context.isValid and Oboe.always?
-  end
-  
   def self.through?
     Oboe::Config[:tracing_mode] == "through"
   end
