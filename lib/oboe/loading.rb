@@ -109,6 +109,38 @@ module Oboe
         end
       end
     end
+
+    ##
+    # Update liboboe with the configured tracing mode
+    #
+    def self.set_tracing_mode
+      # If we are in Heroku, let the oboe-heroku gem configure tracing mode 
+      # itself as the requirements are slightly different.
+      return if defined?(OboeHeroku)
+      
+      # OBOE_TRACE_NEVER   0
+      # OBOE_TRACE_ALWAYS  1
+      # OBOE_TRACE_THROUGH 2
+      
+      if defined?(Oboe::Config)
+        
+        case Oboe::Config[:tracing_mode].to_s.downcase.to_sym
+        when :never
+          # OBOE_TRACE_NEVER
+          Oboe::Context.setTracingMode(0)
+        when :always
+          # OBOE_TRACE_ALWAYS
+          Oboe::Context.setTracingMode(1)
+        else
+          # OBOE_TRACE_THROUGH
+          Oboe::Context.setTracingMode(2)
+        end
+      else
+        # OBOE_TRACE_THROUGH
+        Oboe::Context.setTracingMode(2)
+      end
+    end
+
   end
 end
 
