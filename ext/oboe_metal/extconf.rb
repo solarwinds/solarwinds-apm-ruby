@@ -29,7 +29,10 @@ elsif have_library('oboe', 'oboe_config_get_revision', 'oboe/oboe.h')
   $CPPFLAGS << " #{ENV["CPPFLAGS"]}"
   $LIBS << " #{ENV["LIBS"]}"
 
-  cpp_command('g++') if RUBY_VERSION < '1.9'
+  if RUBY_VERSION < '1.9'
+    cpp_command('g++') 
+    $CPPFLAGS << "-I./src/"
+  end
   create_makefile('oboe_metal', 'src')
 
 else
