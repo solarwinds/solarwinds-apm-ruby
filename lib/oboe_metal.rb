@@ -66,7 +66,6 @@ module Oboe
     end
       
     def sample?(opts = {})
-      debugger
       # Assure defaults since SWIG enforces Strings
       opts[:layer]      ||= ''
       opts[:xtrace]     ||= ''
