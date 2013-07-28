@@ -4,8 +4,10 @@ The oboe gem provides AppNeta [TraceView](http://www.appneta.com/application-per
 
 ## Installing
 
-See the [Ruby Knowedge Base article](http://support.tv.appneta.com/kb/ruby/instrumenting-ruby-apps)
-for information on how to install. Release notes can be found in the CHANGELOG or also [here](http://support.tv.appneta.com/kb/ruby/ruby-instrumentation-release-notes)
+The oboe gem is [available on Rubygems](https://rubygems.org/gems/oboe). See the [Ruby Knowedge Base article](http://support.tv.appneta.com/kb/ruby/instrumenting-ruby-apps)
+for information on how to install. 
+
+Release notes can be found in the CHANGELOG or also [here](http://support.tv.appneta.com/kb/ruby/ruby-instrumentation-release-notes)
 
 ## Supported Technologies
 
