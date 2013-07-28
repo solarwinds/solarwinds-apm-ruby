@@ -95,8 +95,12 @@ module Oboe
     ["always", "through"].include?(Oboe::Config[:tracing_mode])
   end
     
-  def self.sample?
-    Java::ComTracelyticsJoboeSettingsReader.shouldTraceRequest('', '')
+  def self.sample?(opts = {})
+    # Assure defaults since SWIG enforces Strings
+    opts[:layer]      ||= ''
+    opts[:xtrace]     ||= ''
+    opts['X-TV-Meta'] ||= ''
+    Java::ComTracelyticsJoboeSettingsReader.shouldTraceRequest(opts[:layer], opts[:xtrace], opts['X-TV-Meta'])
   end
 
   def self.through?
