@@ -2,6 +2,12 @@
 # All rights reserved.
 
 module Oboe
+  ##
+  # This module exposes a nested configuration hash that can be used to
+  # configure and/or modify the functionality of the oboe gem.
+  #
+  # Use Oboe::Config.show to view the entire nested hash.
+  #
   module Config
     @@config = {}
 
@@ -9,6 +15,9 @@ module Oboe
                           :moped, :rack, :resque, :action_controller, :action_view, 
                           :active_record ]
 
+    ##
+    # Return the raw nested hash.
+    #
     def self.show
       @@config
     end
