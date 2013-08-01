@@ -53,10 +53,6 @@ module Oboe
       Oboe::Config[:tracing_mode].to_s == "always"
     end
     
-    def continue?
-      Oboe::Context.isValid and not Oboe.never?
-    end
-    
     def log(layer, label, options = {})
       Context.log(layer, label, options = options)
     end
@@ -65,22 +61,18 @@ module Oboe
       Oboe::Config[:tracing_mode].to_s == "never"
     end
 
-    def now?
-      Oboe::Context.isValid and not Oboe.never?
-    end
-    
     def passthrough?
       ["always", "through"].include?(Oboe::Config[:tracing_mode])
     end
       
-    def sample?
-      Oboe::Config[:sample_rate].to_i < rand(1e6)
+    def sample?(opts = {})
+      # Assure defaults since SWIG enforces Strings
+      opts[:layer]      ||= ''
+      opts[:xtrace]     ||= ''
+      opts['X-TV-Meta'] ||= ''
+      Oboe::Context.sampleRequest(opts[:layer], opts[:xtrace], opts['X-TV-Meta'])
     end
 
-    def start?
-      not Oboe::Context.isValid and Oboe.always?
-    end
-    
     def through?
       Oboe::Config[:tracing_mode] == "through"
     end

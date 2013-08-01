@@ -6,9 +6,10 @@ module Oboe
       # layer.
       #
       def report_init(layer)
-        platform_info                         = { '__Init' => 1 }
+        platform_info = { '__Init' => 1 }
         
         begin
+          platform_info['Force']                 = true
           platform_info['RubyPlatformVersion']   = RUBY_PLATFORM
           platform_info['RubyVersion']           = RUBY_VERSION
           platform_info['RailsVersion']          = ::Rails.version if defined?(Rails)
@@ -17,12 +18,15 @@ module Oboe
         rescue
         end
 
-        force_trace do
-          start_trace(layer, nil, platform_info) { }
-        end
+        start_trace(layer, nil, platform_info) { }
       end
 
+      ##
+      # force_trace has been deprecated and will be removed in a subsequent version.
+      #
       def force_trace
+        Oboe.logger.warn "Oboe::API::LayerInit.force_trace has been deprecated and will be removed in a subsequent version."
+
         saved_mode = Oboe::Config[:tracing_mode]
         Oboe::Config[:tracing_mode] = 'always'
         yield

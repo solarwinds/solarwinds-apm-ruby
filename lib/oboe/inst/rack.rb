@@ -24,6 +24,7 @@ module Oboe
         report_kvs[:URL]             = req.path
         report_kvs[:Method]          = req.request_method
         report_kvs['AJAX']           = true if req.xhr?
+        report_kvs['X-TV-Meta']      = req.headers['X-TV-Meta'] if req.headers.has_key?('X-TV-Meta')
       rescue
         # Discard any potential exceptions. Report whatever we can.
       end

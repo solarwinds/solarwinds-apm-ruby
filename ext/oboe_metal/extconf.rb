@@ -20,7 +20,7 @@ if jruby or ENV.has_key?('TRACEVIEW_URL')
   # FIXME: For JRuby we need to remove the c extension entirely
   create_makefile('oboe_noop', 'noop')
 
-elsif have_library('oboe') 
+elsif have_library('oboe', 'oboe_config_get_revision', 'oboe/oboe.h')
 
   $libs = append_library($libs, "oboe")
   $libs = append_library($libs, "stdc++")
@@ -29,10 +29,17 @@ elsif have_library('oboe')
   $CPPFLAGS << " #{ENV["CPPFLAGS"]}"
   $LIBS << " #{ENV["LIBS"]}"
 
-  cpp_command('g++') if RUBY_VERSION < '1.9'
+  if RUBY_VERSION < '1.9'
+    cpp_command('g++') 
+    $CPPFLAGS << "-I./src/"
+  end
   create_makefile('oboe_metal', 'src')
 
 else
+  if have_library('oboe')
+    $stderr.puts "Error: The oboe gem requires an updated liboboe.  Please update your liboboe packages."
+  end
+
   $stderr.puts "Error: Could not find the base liboboe libraries.  No tracing will occur."
   create_makefile('oboe_noop', 'noop')
 end

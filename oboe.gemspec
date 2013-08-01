@@ -16,4 +16,14 @@ Gem::Specification.new do |s|
     s.test_files  = Dir.glob("{spec}/**/*.rb")
     s.add_development_dependency 'rake'
     s.add_development_dependency 'rspec'
+
+    s.post_install_message = "
+
+This oboe gem requires updated AppNeta liboboe (>= 1.1.1) and 
+tracelytics-java-agent packages (if using JRuby).  Make sure to update all 
+of your hosts or this gem will just sit in the corner and weep quietly.
+
+- Your Friendly AppNeta TraceView Team
+
+"
 end
