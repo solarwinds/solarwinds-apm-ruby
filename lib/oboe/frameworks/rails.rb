@@ -108,6 +108,7 @@ if defined?(::Rails)
 
         config.after_initialize do
           Oboe::Loading.setup_logger
+          Oboe::Loading.set_tracing_mode
           Oboe::Loading.load_access_key
           Oboe::Inst.load_instrumentation
           Oboe::Rails.load_instrumentation
@@ -117,6 +118,7 @@ if defined?(::Rails)
   else
     Oboe::Loading.setup_logger
     Oboe::Rails.load_initializer
+    Oboe::Loading.set_tracing_mode
     Oboe::Loading.load_access_key
     
     Rails.configuration.after_initialize do
