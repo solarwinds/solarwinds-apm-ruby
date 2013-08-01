@@ -121,10 +121,10 @@ module Oboe
           rescue
           end
 
-          Oboe::API.force_trace do
-            Oboe::API.start_trace('resque', nil, report_kvs) do
-              perform_without_oboe(job)
-            end
+          # Force this trace regardless of sampling rate so that child trace can be
+          # link to parent trace.
+          Oboe::API.start_trace('resque', nil, report_kvs.merge('Force' => true)) do
+            perform_without_oboe(job)
           end
 
         else

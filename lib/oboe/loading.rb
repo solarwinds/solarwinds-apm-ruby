@@ -5,6 +5,9 @@ require 'digest/sha1'
 
 module Oboe
   module Util
+    ##
+    # This module is used solely for RUM ID calculation
+    #
     module Base64URL
       module_function
 
@@ -23,6 +26,16 @@ module Oboe
     end
   end
 
+  ##
+  # This module houses all of the loading functionality for the oboe gem.  
+  #
+  # Note that this does not necessarily _have_ to include initialization routines 
+  # (although it can).
+  #
+  # Actual initialization is often separated out as it can be dependent on on the state
+  # of the stack boot process.  e.g. code requiring that initializers, frameworks or 
+  # instrumented libraries are already loaded...
+  #
   module Loading
     def self.setup_logger
       if defined?(::Rails) and ::Rails.logger
@@ -30,6 +43,10 @@ module Oboe
       end
     end
 
+    ##
+    # Load the TraceView access key (either from system configuration file
+    # or environment variable) and calculate internal RUM ID
+    #
     def self.load_access_key
       begin
         if ENV.has_key?('TRACEVIEW_CUUID')
@@ -57,6 +74,9 @@ module Oboe
       end
     end
 
+    ##
+    # Load the oboe tracing API
+    # 
     def self.require_api
       require 'oboe/version'
 
@@ -75,6 +95,10 @@ module Oboe
       require 'oboe/config'
     end
 
+    ## 
+    # Load instrumentation for the various frameworks located in
+    # lib/oboe/frameworks/*/*.rb
+    # 
     def self.load_framework_instrumentation
       pattern = File.join(File.dirname(__FILE__), 'frameworks/*/', '*.rb')
       Dir.glob(pattern) do |f|
@@ -85,9 +109,46 @@ module Oboe
         end
       end
     end
+
+    ##
+    # Update liboboe with the configured tracing mode
+    #
+    def self.set_tracing_mode
+      # If we are in Heroku, let the oboe-heroku gem configure tracing mode 
+      # itself as the requirements are slightly different.
+      return if defined?(OboeHeroku)
+      
+      # OBOE_TRACE_NEVER   0
+      # OBOE_TRACE_ALWAYS  1
+      # OBOE_TRACE_THROUGH 2
+      
+      if defined?(Oboe::Config)
+        
+        case Oboe::Config[:tracing_mode].to_s.downcase.to_sym
+        when :never
+          # OBOE_TRACE_NEVER
+          Oboe.logger.debug "Setting liboboe TracingMode to OBOE_TRACE_NEVER"
+          Oboe::Context.setTracingMode(0)
+        when :always
+          # OBOE_TRACE_ALWAYS
+          Oboe.logger.debug "Setting liboboe TracingMode to OBOE_TRACE_ALWAYS"
+          Oboe::Context.setTracingMode(1)
+        else
+          # OBOE_TRACE_THROUGH
+          Oboe.logger.debug "Setting liboboe TracingMode to OBOE_TRACE_THROUGH"
+          Oboe::Context.setTracingMode(2)
+        end
+      else
+        # OBOE_TRACE_THROUGH
+        Oboe.logger.debug "Setting liboboe TracingMode to OBOE_TRACE_THROUGH (no Oboe::Config?)"
+        Oboe::Context.setTracingMode(2)
+      end
+    end
+
   end
 end
 
 Oboe::Loading.require_api
 Oboe::Loading.load_framework_instrumentation
+Oboe::API.report_init('ruby')
 
