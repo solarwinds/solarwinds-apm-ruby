@@ -55,10 +55,6 @@ module Oboe
         Oboe::API.trace('rails', report_kvs) do
           process_action_without_oboe(method_name, *args)
         end
-      rescue Exception => exception
-        report_kvs[:Status] = 500
-        Oboe::API.log(nil, 'info', report_kvs)
-        raise
       end
 
       def render_with_oboe(*args)
