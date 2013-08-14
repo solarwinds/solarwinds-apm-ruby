@@ -74,15 +74,15 @@ module Oboe
           end
         end
         
-        def exec_insert_with_oboe(sql, name = nil, binds = [])
+        def exec_insert_with_oboe(sql, name = nil, binds = [], *args)
           if Oboe.tracing? and !ignore_payload?(name)
 
             opts = extract_trace_details(sql, name)
             Oboe::API.trace('activerecord', opts || {}) do
-              exec_insert_without_oboe(sql, name, binds)
+              exec_insert_without_oboe(sql, name, binds, *args)
             end
           else
-            exec_insert_without_oboe(sql, name, binds)
+            exec_insert_without_oboe(sql, name, binds, *args)
           end
         end
         
