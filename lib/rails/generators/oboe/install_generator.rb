@@ -16,7 +16,7 @@ module Oboe
       say "To instrument your Rails application, you have the option to setup sampling strategies here."
       say ""
       say "More information on instrumenting Ruby applications can be found here:"
-      say "http://support.tracelytics.com/kb/ruby/instrumenting-ruby-apps"
+      say "http://support.tv.appneta.com/support/solutions/articles/86393-instrumenting-ruby-apps"
       while true do
         say ""
         say set_color "Tracing Mode", :green
