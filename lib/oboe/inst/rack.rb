@@ -27,11 +27,11 @@ module Oboe
         report_kvs['AJAX']             = true if req.xhr?
         report_kvs['ClientIP']         = req.ip
          
-        report_kvs['TV-Meta']          = env['X-TV-Meta']          if env.has_key?('X-TV-Meta')
-        report_kvs['Forwarded-For']    = env['X-Forwarded-For']    if env.has_key?('X-Forwarded-For')
-        report_kvs['Forwarded-Host']   = env['X-Forwarded-Host']   if env.has_key?('X-Forwarded-Host')
-        report_kvs['Forwarded-Proto']  = env['X-Forwarded-Proto']  if env.has_key?('X-Forwarded-Proto')
-        report_kvs['Forwarded-Port']   = env['X-Forwarded-Port']   if env.has_key?('X-Forwarded-Port')
+        report_kvs['TV-Meta']          = env['HTTP_X-TV-META']          if env.has_key?('HTTP_X-TV-META')
+        report_kvs['Forwarded-For']    = env['HTTP_X-FORWARDED-FOR']    if env.has_key?('HTTP_X-FORWARDED-FOR')
+        report_kvs['Forwarded-Host']   = env['HTTP_X-FORWARDED-HOST']   if env.has_key?('HTTP_X-FORWARDED-HOST')
+        report_kvs['Forwarded-Proto']  = env['HTTP_X-FORWARDED-PROTO']  if env.has_key?('HTTP_X-FORWARDED-PROTO')
+        report_kvs['Forwarded-Port']   = env['HTTP_X-FORWARDED-PORT']   if env.has_key?('HTTP_X-FORWARDED-PORT')
       rescue
         # Discard any potential exceptions. Report whatever we can.
       end
