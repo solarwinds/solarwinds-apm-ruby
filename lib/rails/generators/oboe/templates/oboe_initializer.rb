@@ -1,8 +1,18 @@
-if defined?(::Oboe::Config) 
-  # When traces should be initiated for incoming requests. Valid options are 'always', 
-  # 'through' (when the request is initiated with a tracing header from upstream) and 'never'. 
-  # You must set this directive to 'always' in order to initiate tracing when there
-  # is no front-end webserver initiating traces.
+# AppNeta TraceView Initializer (the oboe gem)
+# http://www.appneta.com/products/traceview/
+#
+# Details on configuring your sampling rate:
+# http://support.tv.appneta.com/support/solutions/articles/86336-configuring-sampling
+#
+# More information on instrumenting Ruby applications can be found here:
+# http://support.tv.appneta.com/support/solutions/articles/86393-instrumenting-ruby-apps
+
+if defined?(Oboe::Config) 
+  # Tracing Mode determines when traces should be initiated for incoming requests.  Valid
+  # options are always, through (when using an instrumented Apache or Nginx) and never.
+  #
+  # If you're not using an instrumented Apache or Nginx, set this directive to always in
+  # order to initiate tracing from Ruby.
   Oboe::Config[:tracing_mode] = '<%= @tracing_mode %>'
 <% if ['through', 'never'].include?(@tracing_mode) %>
   # sample_rate is a value from 0 - 1m indicating the fraction of requests per million to trace
