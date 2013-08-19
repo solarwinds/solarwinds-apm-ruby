@@ -20,13 +20,14 @@ module Oboe
         report_kvs[:SampleRate]        = Oboe::Config[:sample_rate]
         report_kvs['HTTP-Host']        = req.host
         report_kvs['Port']             = req.port
+        report_kvs['Proto']            = req.scheme
         report_kvs['Query-String']     = req.query_string unless req.query_string.blank?
         report_kvs[:URL]               = req.path
         report_kvs[:Method]            = req.request_method
         report_kvs['AJAX']             = true if req.xhr?
+        report_kvs['ClientIP']         = req.ip
          
         report_kvs['TV-Meta']          = env['X-TV-Meta']          if env.has_key?('X-TV-Meta')
-        report_kvs['ClientIP']         = env['REMOTE_ADDR']        if env.has_key?('REMOTE_ADDR')
         report_kvs['Forwarded-For']    = env['X-Forwarded-For']    if env.has_key?('X-Forwarded-For')
         report_kvs['Forwarded-Host']   = env['X-Forwarded-Host']   if env.has_key?('X-Forwarded-Host')
         report_kvs['Forwarded-Proto']  = env['X-Forwarded-Proto']  if env.has_key?('X-Forwarded-Proto')
