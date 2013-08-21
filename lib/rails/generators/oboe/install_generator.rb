@@ -11,19 +11,27 @@ module Oboe
       @verbose = 'false'
 
       say ""
-      say set_color "Welcome to the Tracelytics Ruby instrumentation setup.", :green, :bold
+      say set_color "Welcome to the TraceView Ruby instrumentation setup.", :green, :bold
       say ""
       say "To instrument your Rails application, you have the option to setup sampling strategies here."
       say ""
+      say set_color "Documentation Links", :magenta
+      say "-------------------"
+      say ""
+      say "Details on configuring your sampling rate:"
+      say "http://support.tv.appneta.com/support/solutions/articles/86336-configuring-sampling"
+      say ""
       say "More information on instrumenting Ruby applications can be found here:"
-      say "http://support.tracelytics.com/kb/ruby/instrumenting-ruby-apps"
+      say "http://support.tv.appneta.com/support/solutions/articles/86393-instrumenting-ruby-apps"
       while true do
         say ""
-        say set_color "Tracing Mode", :green
+        say set_color "Tracing Mode", :magenta
         say "------------"
-        say "When traces should be initiated for incoming requests. Valid options are 'always',"
-        say "'through' (when the request is initiated with a tracing header from upstream) and 'never'."
-        say "You must set this directive to 'always' in order to initiate tracing."
+        say "Tracing Mode determines when traces should be initiated for incoming requests.  Valid"
+        say "options are #{set_color "always", :yellow}, #{set_color "through", :yellow} (when using an instrumented Apache or Nginx) and #{set_color "never", :yellow}."
+        say ""
+        say "If you're not using an instrumented Apache or Nginx, set this directive to #{set_color "always", :yellow} in"
+        say "order to initiate tracing from Ruby."
         say ""
         user_tracing_mode = ask set_color "* Tracing Mode? [through]:", :yellow
         user_tracing_mode.downcase!
@@ -59,7 +67,7 @@ module Oboe
       say ""
       say "You can change these values in the future by modifying config/initializers/oboe.rb"
       say ""
-      say "Thanks! Creating initialization file..."
+      say "Thanks! Creating the TraceView initializer..."
       say ""
 
       template "oboe_initializer.rb", "config/initializers/oboe.rb"
