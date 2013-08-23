@@ -9,12 +9,12 @@ module Oboe
         platform_info = { '__Init' => 1 }
         
         begin
-          platform_info['Force']                 = true
-          platform_info['RubyPlatformVersion']   = RUBY_PLATFORM
-          platform_info['RubyVersion']           = RUBY_VERSION
-          platform_info['RailsVersion']          = ::Rails.version if defined?(Rails)
-          platform_info['OboeRubyVersion']       = Oboe::Version::STRING
-          platform_info['OboeHerokuRubyVersion'] = OboeHeroku::Version::STRING if defined?(OboeHeroku)
+          platform_info['Force']                   = true
+          platform_info['Ruby.Platform.Version']   = RUBY_PLATFORM
+          platform_info['Ruby.Version']            = RUBY_VERSION
+          platform_info['Ruby.Rails.Version']      = ::Rails.version if defined?(::Rails)
+          platform_info['Ruby.Oboe.Version']       = ::Oboe::Version::STRING
+          platform_info['Ruby.OboeHeroku.Version'] = ::OboeHeroku::Version::STRING if defined?(::OboeHeroku)
         rescue
         end
 
