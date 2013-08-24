@@ -18,6 +18,7 @@ module Oboe
 
         req = ::Rack::Request.new(env)
         report_kvs[:SampleRate]      = Oboe::Config[:sample_rate]
+        report_kvs[:SampleSource]    = Oboe::Config[:sample_source]
         report_kvs['HTTP-Host']      = req.host
         report_kvs['HTTP-Port']      = req.port
         report_kvs['Query-String']   = req.query_string unless req.query_string.blank?
