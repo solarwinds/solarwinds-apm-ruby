@@ -80,15 +80,12 @@ module Oboe
         case value.downcase
         when 'never'
           # OBOE_TRACE_NEVER
-          Oboe.logger.debug "Setting liboboe TracingMode to OBOE_TRACE_NEVER"
           Oboe::Context.setTracingMode(0)
         when 'always'
           # OBOE_TRACE_ALWAYS
-          Oboe.logger.debug "Setting liboboe TracingMode to OBOE_TRACE_ALWAYS"
           Oboe::Context.setTracingMode(1)
         else
           # OBOE_TRACE_THROUGH
-          Oboe.logger.debug "Setting liboboe TracingMode to OBOE_TRACE_THROUGH"
           Oboe::Context.setTracingMode(2)
         end
       end
