@@ -17,6 +17,7 @@ begin
     end
   end
   require 'oboe/logger'
+  require 'oboe/util'
   require 'oboe/config'
   require 'oboe/loading'
   require 'method_profiling'
