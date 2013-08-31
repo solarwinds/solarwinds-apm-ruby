@@ -19,14 +19,14 @@ module Oboe
                 alias_method :exec_query_without_oboe, :exec_query
                 alias_method :exec_query, :exec_query_with_oboe
               else
-                Oboe.logger.debug "[oboe/loading] Couldn't instrument PostgreSQLAdapter:exec_query"
+                Oboe.logger.debug "[oboe/loading] Couldn't instrument PostgreSQLAdapter.exec_query"
               end
                 
               if method_defined?(:exec_delete)
                 alias_method :exec_delete_without_oboe, :exec_delete
                 alias_method :exec_delete, :exec_delete_with_oboe
               else
-                Oboe.logger.debug "[oboe/loading] Couldn't instrument PostgreSQLAdapter:exec_delete"
+                Oboe.logger.debug "[oboe/loading] Couldn't instrument PostgreSQLAdapter.exec_delete"
               end
 
             else
@@ -36,7 +36,7 @@ module Oboe
                 alias_method :execute_without_oboe, :execute
                 alias_method :execute, :execute_with_oboe
               else
-                Oboe.logger.debug "[oboe/loading] Couldn't instrument PostgreSQLAdapter:execute"
+                Oboe.logger.debug "[oboe/loading] Couldn't instrument PostgreSQLAdapter.execute"
               end
 
             end
