@@ -5,11 +5,17 @@ module Oboe
   module Inst
     module ConnectionAdapters
       module Utils
-        def extract_trace_details(sql, name = nil)
+        
+        def extract_trace_details(sql, name = nil, binds = [])
           opts = {}
 
           begin
             opts[:Query] = sql.to_s
+
+            unless binds.empty?
+              opts[:QueryArgs] = binds.map { |col, val| type_cast(val, col) }
+            end
+
             opts[:Name] = name.to_s if name
             opts[:Backtrace] = Oboe::API.backtrace
 
@@ -53,7 +59,7 @@ module Oboe
         def exec_query_with_oboe(sql, name = nil, binds = [])
           if Oboe.tracing? and !ignore_payload?(name)
 
-            opts = extract_trace_details(sql, name)
+            opts = extract_trace_details(sql, name, binds)
             Oboe::API.trace('activerecord', opts || {}) do
               exec_query_without_oboe(sql, name, binds)
             end
@@ -65,7 +71,7 @@ module Oboe
         def exec_delete_with_oboe(sql, name = nil, binds = [])
           if Oboe.tracing? and !ignore_payload?(name)
 
-            opts = extract_trace_details(sql, name)
+            opts = extract_trace_details(sql, name, binds)
             Oboe::API.trace('activerecord', opts || {}) do
               exec_delete_without_oboe(sql, name, binds)
             end
@@ -77,7 +83,7 @@ module Oboe
         def exec_insert_with_oboe(sql, name = nil, binds = [], *args)
           if Oboe.tracing? and !ignore_payload?(name)
 
-            opts = extract_trace_details(sql, name)
+            opts = extract_trace_details(sql, name, binds)
             Oboe::API.trace('activerecord', opts || {}) do
               exec_insert_without_oboe(sql, name, binds, *args)
             end
