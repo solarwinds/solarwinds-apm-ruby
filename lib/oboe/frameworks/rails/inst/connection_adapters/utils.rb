@@ -10,10 +10,21 @@ module Oboe
           opts = {}
 
           begin
-            opts[:Query] = sql.to_s
-
-            unless binds.empty?
-              opts[:QueryArgs] = binds.map { |col, val| type_cast(val, col) }
+            if binds.empty? 
+              # Raw SQL.  Sanitize if requested
+              if Oboe::Config[:sanitize_sql]
+                opts[:Query] = sql.gsub(/\'[\s\S][^\']*\'/, '?')
+              else
+                opts[:Query] = sql.to_s
+              end
+            else
+              # We have bind parameters.  Only report if :sanitize_sql isn't true
+              unless Oboe::Config[:sanitize_sql]
+                opts[:Query] = sql.to_s
+                opts[:QueryArgs] = binds.map { |col, val| type_cast(val, col) }
+              else
+                opts[:Query] = sql.gsub(/\'[\s\S][^\']*\'/, '?')
+              end
             end
 
             opts[:Name] = name.to_s if name
@@ -37,12 +48,14 @@ module Oboe
         # We don't want to trace framework caches.  Only instrument SQL that
         # directly hits the database.
         def ignore_payload?(name)
-          %w(SCHEMA EXPLAIN CACHE).include? name.to_s or (name and name.to_sym == :skip_logging)
+          %w(SCHEMA EXPLAIN CACHE).include? name.to_s or 
+            (name and name.to_sym == :skip_logging) or
+              name == "ActiveRecord::SchemaMigration Load"
         end
 
-        def cfg
-          @config
-        end
+        #def cfg
+        #  @config
+        #end
         
         def execute_with_oboe(sql, name = nil)
           if Oboe.tracing? and !ignore_payload?(name)
