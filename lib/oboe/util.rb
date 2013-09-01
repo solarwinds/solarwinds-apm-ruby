@@ -20,7 +20,7 @@ module Oboe
         rescue
         end
 
-        if cls.method_defined? method.to_sym
+        if cls.method_defined? method.to_sym or cls.private_method_defined? method.to_sym
           cls.class_eval do
             alias_method "#{method}_without_oboe", "#{method}"
             alias_method "#{method}", "#{method}_with_oboe"
