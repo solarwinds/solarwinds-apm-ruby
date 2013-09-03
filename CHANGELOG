@@ -1,31 +1,41 @@
 
+# oboe 2.2.0
+
+* Initial support for Rails 4
+* Various internal reporting fixes and improvements
+* Fix for auto sampling rate
+
+# oboe 2.1.4 (08/01/13)
+
+* Integration support for AppView Web
+
 # oboe 2.1.3 (07/16/13)
 
 * Allow _Access Key_ assignment via Environment variable: TRACEVIEW_CUUID
 
-# oboe 2.1.1 (07/04/13)
+# oboe 2.1.1
 
 * The gem now logs via a standard Ruby logger: Oboe.logger
 * Add in rspec tests
 * JRuby now supports Smart Tracing
 * Fixed an invalid Profile name in ActionView Partial tracing
 
-# oboe 1.4.2.2 (05/16/13)
+# oboe 1.4.2.2
 
 * Rack - add handling for potential nil result
 
-# oboe 1.4.2 (05/02/13)
+# oboe 1.4.2
 
 * Cassandra - ensure all keys are captured when reporting exceptions
 * JRuby detection fix
 
-# oboe 1.4.1.2 (04/29/13)
+# oboe 1.4.1.2
 
 * HTTP keys now captured at Rack level instead of Rails
 * RUM templates are now pre-loaded
 * Improved layer agnostic info event reporting
 
-# oboe 1.4.0.2 (03/08/13)
+# oboe 1.4.0.2
 
 * Resque support
 * Fix Rails 2 bug where SET and SHOW could result in recursive calls
@@ -35,49 +45,49 @@ of hits
 instrumentation
 * Configuration - sending Resque parameters can be skipped if privacy an issue.
 
-# oboe 1.3.9.1 (02/04/13)
+# oboe 1.3.9.1
 
 * Add in Rack instrumentation
 * Fix Function profiling of class methods bug
 * Add backtraces to Cassandra and Mongo operations
 * Rename the "render" layer to "actionview"
 
-# oboe 1.3.8 (01/04/13)
+# oboe 1.3.8
 
 * More comprehensive JRuby support
 
-# oboe 1.3.7 (12/10/12)
+# oboe 1.3.7
 
 * Added Moped driver instrumentation (Mongo/Mongoid)
 
-# oboe 1.3.6 (12/10/12)
+# oboe 1.3.6
 
 * Added Rails ActionView partial and collection rendering instrumentation
 
-# oboe 1.3.5 (11/14/12)
+# oboe 1.3.5
 
 * Added cassandra instrumentation
 
-# oboe 1.3.4 (10/23/12)
+# oboe 1.3.4
 
 * Added mongo-ruby-driver support
 
-# oboe 1.3.3 (10/18/12)
+# oboe 1.3.3
 
 * Updated RUM instrumentation templates
 
-# oboe 1.3.2 (10/17/12)
+# oboe 1.3.2
 
 * Fix a case when the RUM instrumentation header/footer methods would not 
 return JS output, depending on how the way they were called from HAML.
 
-# oboe 1.3.1 (10/15/12)
+# oboe 1.3.1
 
 * Support for RUM instrumentation.
 Fix for certain cases where exceptions were not properly propagated up to Rails 
 error handlers.
 
-# oboe 1.3.0 (9/26/12)
+# oboe 1.3.0
 
 * The oboe and oboe_fu gems have been merged to simplify installation. The 
 final oboe_fu gem (1.3.0) simply calls "require 'oboe'" now for backwards 
@@ -88,11 +98,11 @@ Ruby oboe API methods.
 base packages (liboboe) installed, so you can deploy to environments with or 
 without TraceView support.
 
-# oboe_fu 1.2.1 (9/12/12)
+# oboe_fu 1.2.1
 
 * Support for instrumenting the dalli module.
 
-# oboe_fu 1.2.0 (8/28/12)
+# oboe_fu 1.2.0
 
 * Support for Rails 2.3, 3.0, 3.1, and 3.2.
 

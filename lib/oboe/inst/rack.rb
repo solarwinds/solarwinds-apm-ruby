@@ -15,16 +15,24 @@ module Oboe
 
       begin
         xtrace = env['HTTP_X_TRACE'] if env.is_a?(Hash)
-
+        
         req = ::Rack::Request.new(env)
-        report_kvs[:SampleRate]      = Oboe::Config[:sample_rate]
-        report_kvs['HTTP-Host']      = req.host
-        report_kvs['HTTP-Port']      = req.port
-        report_kvs['Query-String']   = req.query_string unless req.query_string.blank?
-        report_kvs[:URL]             = req.path
-        report_kvs[:Method]          = req.request_method
-        report_kvs['AJAX']           = true if req.xhr?
-        report_kvs['X-TV-Meta']      = req.headers['X-TV-Meta'] if req.headers.has_key?('X-TV-Meta')
+        report_kvs[:SampleRate]        = Oboe::Config[:sample_rate]
+        report_kvs[:SampleSource]      = Oboe::Config[:sample_source]
+        report_kvs['HTTP-Host']        = req.host
+        report_kvs['Port']             = req.port
+        report_kvs['Proto']            = req.scheme
+        report_kvs['Query-String']     = req.query_string unless req.query_string.blank?
+        report_kvs[:URL]               = req.path
+        report_kvs[:Method]            = req.request_method
+        report_kvs['AJAX']             = true if req.xhr?
+        report_kvs['ClientIP']         = req.ip
+         
+        report_kvs['TV-Meta']          = env['HTTP_X-TV-META']          if env.has_key?('HTTP_X-TV-META')
+        report_kvs['Forwarded-For']    = env['HTTP_X-FORWARDED-FOR']    if env.has_key?('HTTP_X-FORWARDED-FOR')
+        report_kvs['Forwarded-Host']   = env['HTTP_X-FORWARDED-HOST']   if env.has_key?('HTTP_X-FORWARDED-HOST')
+        report_kvs['Forwarded-Proto']  = env['HTTP_X-FORWARDED-PROTO']  if env.has_key?('HTTP_X-FORWARDED-PROTO')
+        report_kvs['Forwarded-Port']   = env['HTTP_X-FORWARDED-PORT']   if env.has_key?('HTTP_X-FORWARDED-PORT')
       rescue
         # Discard any potential exceptions. Report whatever we can.
       end
