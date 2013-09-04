@@ -48,6 +48,9 @@ module Oboe
       @@config[:sanitize_sql] = false
 
       update!(data)
+
+      # For Initialization, mark this as the default SampleRate
+      @@config[:sample_source] = 2 # OBOE_SAMPLE_RATE_SOURCE_DEFAULT
     end
 
     def self.update!(data)
@@ -62,6 +65,35 @@ module Oboe
 
     def self.[]=(key, value)
       @@config[key.to_sym] = value
+
+      if key == :sample_rate
+        # When setting SampleRate, note that it's been manually set
+        # OBOE_SAMPLE_RATE_SOURCE_FILE == 1
+        @@config[:sample_source] = 1 
+       
+        # Validate :sample_rate value
+        unless value.between?(1, 1e6)
+          raise "oboe :sample_rate must be between 1 and 1000000 (1m)" 
+        end
+
+        # Update liboboe with the new SampleRate value
+        Oboe::Context.setDefaultSampleRate(value)
+      end
+
+      # Update liboboe if updating :tracing_mode
+      if key == :tracing_mode
+        case value.downcase
+        when 'never'
+          # OBOE_TRACE_NEVER
+          Oboe::Context.setTracingMode(0)
+        when 'always'
+          # OBOE_TRACE_ALWAYS
+          Oboe::Context.setTracingMode(1)
+        else
+          # OBOE_TRACE_THROUGH
+          Oboe::Context.setTracingMode(2)
+        end
+      end
     end
 
     def self.method_missing(sym, *args)
