@@ -27,7 +27,10 @@ begin
   require 'oboe/frameworks/rails' if defined?(::Rails)
 
 rescue LoadError
-  $stderr.puts "Unsupported Tracelytics environment (no libs).  Going No-op."
+  $stderr.puts "=============================================================="
+  $stderr.puts "Unsupported TraceView environment.  Tracing disabled."
+  $stderr.puts "See: https://support.tv.appneta.com/solution/articles/137973" 
+  $stderr.puts "=============================================================="
 rescue Exception => e
   $stderr.puts "[oboe/error] Problem loading: #{e.inspect}"
 end
