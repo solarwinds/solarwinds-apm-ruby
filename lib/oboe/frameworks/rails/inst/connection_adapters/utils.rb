@@ -40,6 +40,8 @@ module Oboe
             opts[:RemoteHost] = config["host"]     if config.has_key?("host")
             opts[:Flavor]     = config["adapter"]  if config.has_key?("adapter")
           rescue Exception => e
+            Oboe.logger.debug "Exception raised capturing ActiveRecord KVs: #{e.inspect}"
+            Oboe.logger.debug e.backtrace.join("\n")
           end
 
           return opts || {}
