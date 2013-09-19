@@ -28,7 +28,7 @@ begin
 
 rescue LoadError
   $stderr.puts "=============================================================="
-  $stderr.puts "Unsupported TraceView environment.  Tracing disabled."
+  $stderr.puts "Missing TraceView libraries.  Tracing disabled."
   $stderr.puts "See: https://support.tv.appneta.com/solution/articles/137973" 
   $stderr.puts "=============================================================="
 rescue Exception => e
