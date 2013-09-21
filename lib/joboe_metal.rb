@@ -83,10 +83,6 @@ module Oboe
     Oboe::Config[:tracing_mode].to_s == "always"
   end
   
-  def self.continue?
-    Oboe::Context.isValid and not Oboe.never?
-  end
-  
   def self.log(layer, label, options = {})
     Context.log(layer, label, options = options)
   end
@@ -95,22 +91,18 @@ module Oboe
     Oboe::Config[:tracing_mode].to_s == "never"
   end
 
-  def self.now?
-    Oboe::Context.isValid and not Oboe.never?
-  end
-  
   def self.passthrough?
     ["always", "through"].include?(Oboe::Config[:tracing_mode])
   end
     
-  def self.sample?
-    Java::ComTracelyticsJoboeSettingsReader.shouldTraceRequest('', '')
+  def self.sample?(opts = {})
+    # Assure defaults since SWIG enforces Strings
+    opts[:layer]      ||= ''
+    opts[:xtrace]     ||= ''
+    opts['X-TV-Meta'] ||= ''
+    Java::ComTracelyticsJoboeSettingsReader.shouldTraceRequest(opts[:layer], opts[:xtrace], opts['X-TV-Meta'])
   end
 
-  def self.start?
-    not Oboe::Context.isValid and Oboe.always?
-  end
-  
   def self.through?
     Oboe::Config[:tracing_mode] == "through"
   end

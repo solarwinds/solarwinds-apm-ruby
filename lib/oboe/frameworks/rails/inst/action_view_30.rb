@@ -3,52 +3,44 @@
 
 if defined?(ActionView::Base) and Oboe::Config[:action_view][:enabled]
 
-  ##
-  # ActionView Instrumentation is version dependent.  ActionView 2.x is separate 
-  # and ActionView 3.0 is a special case.
-  # Everything else goes here. (ActionView 3.1 - 4.0 as of this writing)
-  #
-  if (Rails::VERSION::MAJOR == 3 and Rails::VERSION::MINOR > 0) or Rails::VERSION::MAJOR == 4
+  if Rails::VERSION::MAJOR == 3 and Rails::VERSION::MINOR == 0
 
-    Oboe.logger.info "[oboe/loading] Instrumenting actionview" if Oboe::Config[:verbose]
-
-    ActionView::PartialRenderer.class_eval do
+    ActionView::Partials::PartialRenderer.class_eval do
       alias :render_partial_without_oboe :render_partial
-      def render_partial
+      def render_partial(object = @object)
         entry_kvs = {}
         begin
-          name = @options[:partial].to_s if @options.is_a?(Hash)
+          name  = @options[:partial].to_s if @options.is_a?(Hash)
           entry_kvs[:FunctionName] = :render_partial
           entry_kvs[:Class]        = :PartialRenderer
-          entry_kvs[:Module]       = :ActionView
+          entry_kvs[:Module]       = 'ActionView::Partials'
           entry_kvs[:File]         = __FILE__
           entry_kvs[:LineNumber]   = __LINE__
         rescue
         end
 
         Oboe::API.profile(name, entry_kvs) do
-          render_partial_without_oboe
+          render_partial_without_oboe(object)
         end
       end
-
+      
       alias :render_collection_without_oboe :render_collection
       def render_collection
         entry_kvs = {}
         begin
-          name = @path.to_s
+          name  = @path
           entry_kvs[:FunctionName] = :render_collection
           entry_kvs[:Class]        = :PartialRenderer
-          entry_kvs[:Module]       = :ActionView
+          entry_kvs[:Module]       = 'ActionView::Partials'
           entry_kvs[:File]         = __FILE__
           entry_kvs[:LineNumber]   = __LINE__
         rescue
         end
 
         Oboe::API.profile(name, entry_kvs) do
-          ret =  render_collection_without_oboe
+          render_collection_without_oboe
         end
       end
-        
     end
   end
 end

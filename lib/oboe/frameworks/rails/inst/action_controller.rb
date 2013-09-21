@@ -6,9 +6,9 @@ module Oboe
     module Rails3ActionController
       def self.included(base)
         base.class_eval do
-          alias_method_chain :render, :oboe
           alias_method_chain :process, :oboe
           alias_method_chain :process_action, :oboe
+          alias_method_chain :render, :oboe
         end
       end
       
@@ -38,18 +38,48 @@ module Oboe
         end
       end
     end
+    
+    module Rails4ActionController
+      def self.included(base)
+        base.class_eval do
+          alias_method_chain :process_action, :oboe
+          alias_method_chain :render, :oboe
+        end
+      end
+      
+      def process_action_with_oboe(method_name, *args)
+        report_kvs = {
+          :Controller   => self.class.name,
+          :Action       => self.action_name,
+        }
+        Oboe::API.trace('rails', report_kvs) do
+          process_action_without_oboe(method_name, *args)
+        end
+      end
+
+      def render_with_oboe(*args)
+        Oboe::API.trace('actionview', {}) do
+          render_without_oboe(*args)
+        end
+      end
+    end
   end
 end
 
 if defined?(ActionController::Base) and Oboe::Config[:action_controller][:enabled]
-  if ::Rails::VERSION::MAJOR == 3
-    Oboe::API.report_init('rails')
+  if ::Rails::VERSION::MAJOR == 4
+
+    class ActionController::Base
+      include Oboe::Inst::Rails4ActionController
+    end
+  
+  elsif ::Rails::VERSION::MAJOR == 3
 
     class ActionController::Base
       include Oboe::Inst::Rails3ActionController
     end
+
   elsif ::Rails::VERSION::MAJOR == 2
-    Oboe::API.report_init('rails')
 
     ActionController::Base.class_eval do
       alias :perform_action_without_oboe :perform_action
