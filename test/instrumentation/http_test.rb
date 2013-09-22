@@ -26,7 +26,6 @@ describe Oboe::Inst do
     end
 
     traces = get_all_traces
-    debugger
     traces.count.must_equal 5
 
     traces.first['Layer'].must_equal 'net-http_test'
