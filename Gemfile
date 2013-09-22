@@ -6,17 +6,9 @@ gemspec :name => 'oboe'
 gem 'rake'
 gem 'appraisal'
 
-group :development do
-  gem 'guard'
-  gem 'guard-rspec'
-
-  gem 'rb-inotify', :require => false
-  gem 'rb-fsevent', :require => false
-  gem 'rb-fchange', :require => false
-end
-
-group :test do
-  gem 'rspec'
+group :development, :test do
+  gem 'minitest'
+  gem 'minitest-reporters'
 end
 
 # Instrumented gems
