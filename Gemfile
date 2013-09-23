@@ -9,6 +9,7 @@ gem 'appraisal'
 group :development, :test do
   gem 'minitest'
   gem 'minitest-reporters'
+  gem 'debugger'
 end
 
 # Instrumented gems
