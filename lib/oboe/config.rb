@@ -42,6 +42,11 @@ module Oboe
       # Setup an empty host blacklist (see: Oboe::API::Util.blacklisted?)
       @@config[:blacklist] = []
 
+      # The oboe Ruby client has the ability to sanitize query literals
+      # from SQL statements.  By default this is disabled.  Enable to
+      # avoid collecting and reporting query literals to TraceView.
+      @@config[:sanitize_sql] = false
+
       update!(data)
 
       # For Initialization, mark this as the default SampleRate
