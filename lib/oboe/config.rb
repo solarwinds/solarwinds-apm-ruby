@@ -109,7 +109,7 @@ end
 config = {
       :tracing_mode => "through",
       :reporter_host => "127.0.0.1",
-      :sample_rate => 1000000,
+      :sample_rate => 300000,
       :verbose => false }
 
 Oboe::Config.initialize(config)
