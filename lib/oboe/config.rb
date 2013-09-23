@@ -42,7 +42,14 @@ module Oboe
       # Setup an empty host blacklist (see: Oboe::API::Util.blacklisted?)
       @@config[:blacklist] = []
 
-      update!(data)
+      # The default configuration
+      default_config = {
+        :tracing_mode => "through",
+        :reporter_host => "127.0.0.1",
+        :sample_rate => 300000,
+        :verbose => false 
+      }
+      update!(default_config)
 
       # For Initialization, mark this as the default SampleRate
       @@config[:sample_source] = 2 # OBOE_SAMPLE_RATE_SOURCE_DEFAULT
@@ -101,11 +108,5 @@ module Oboe
   end
 end
 
-config = {
-      :tracing_mode => "through",
-      :reporter_host => "127.0.0.1",
-      :sample_rate => 1000000,
-      :verbose => false }
-
-Oboe::Config.initialize(config)
+Oboe::Config.initialize()
 
