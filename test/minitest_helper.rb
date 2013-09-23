@@ -41,3 +41,17 @@ def get_all_traces
   end
   traces
 end
+
+##
+# validate_event_keys
+#
+# Validates that the KVs in kvs are present
+# in event
+#
+def validate_event_keys(event, kvs)
+  kvs.each do |k, v|
+    event.has_key?(k).must_equal true
+    event[k].must_equal v
+  end
+end
+
