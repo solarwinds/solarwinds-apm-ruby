@@ -45,27 +45,8 @@ module Oboe
         end
       end
 
-      if @tracing_mode == "always"
-        while true do
-          say ""
-          say shell.set_color "Sampling Rate", :green
-          say "-------------"
-          say "This value reflects the number of requests out of every million that will be traced, and must be an integer between 0 and 1000000. Default is 300000 (30%)."
-          say ""
-          user_sampling_rate = ask shell.set_color "* Sampling Rate? [300000]:", :yellow
-          break if user_sampling_rate.blank?
-
-          valid = user_sampling_rate.to_i.between?(1, 1000000)
-          say shell.set_color "Sampling Rate must be a number between 1 and 1000000", :red, :bold unless valid
-          if valid
-            @sampling_rate = user_sampling_rate.to_i
-            break
-          end
-        end
-      end
-
       say ""
-      say "You can change these values in the future by modifying config/initializers/oboe.rb"
+      say "You can change configuration values in the future by modifying config/initializers/oboe.rb"
       say ""
       say "Thanks! Creating the TraceView initializer..."
       say ""
