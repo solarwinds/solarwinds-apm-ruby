@@ -35,6 +35,11 @@ if defined?(Oboe::Config)
   # Set to true to disable Resque argument logging (Default: false)
   # Oboe::Config[:resque][:log_args] = false
  
+  # The oboe Ruby client has the ability to sanitize query literals
+  # from SQL statements.  By default this is disabled.  Enable to
+  # avoid collecting and reporting query literals to TraceView.
+  # Oboe::Config[:sanitize_sql] = false
+
   #
   # Enabling/Disabling Instrumentation
   #
