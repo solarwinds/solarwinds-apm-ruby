@@ -17,7 +17,8 @@ if Oboe::Config[:active_record][:enabled]
     Oboe::Inst::ConnectionAdapters::FlavorInitializers.oracle     if adapter == "oracleenhanced"
 
   rescue Exception => e
-    Oboe.logger.error "[oboe/error] Oboe/ActiveRecord error: #{e.message}" if Oboe::Config[:verbose]
+    Oboe.logger.error "[oboe/error] Oboe/ActiveRecord error: #{e.inspect}"
+    Oboe.logger.debug e.backtrace.join("\n")
   end
 end
 # vim:set expandtab:tabstop=2
