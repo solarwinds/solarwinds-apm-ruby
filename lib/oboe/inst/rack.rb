@@ -28,7 +28,7 @@ module Oboe
         report_kvs['AJAX']             = true if req.xhr?
         report_kvs['ClientIP']         = req.ip
 
-        report_kvs['TV-Meta']          = env['HTTP_X_TV_META']          if env.has_key?('HTTP_X_TV_META')
+        report_kvs['X-TV-Meta']        = env['HTTP_X_TV_META']          if env.has_key?('HTTP_X_TV_META')
         report_kvs['Forwarded-For']    = env['HTTP_X_FORWARDED_FOR']    if env.has_key?('HTTP_X_FORWARDED_FOR')
         report_kvs['Forwarded-Host']   = env['HTTP_X_FORWARDED_HOST']   if env.has_key?('HTTP_X_FORWARDED_HOST')
         report_kvs['Forwarded-Proto']  = env['HTTP_X_FORWARDED_PROTO']  if env.has_key?('HTTP_X_FORWARDED_PROTO')
