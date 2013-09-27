@@ -29,12 +29,18 @@ module Oboe
         report_kvs['ClientIP']         = req.ip
 
         report_kvs['TV-Meta']          = env['HTTP_X_TV_META']          if env.has_key?('HTTP_X_TV_META')
+
+        report_kvs['Request-Start']    = env['HTTP_X_REQUEST_START']    if env.has_key?('HTTP_X_REQUEST_START')
+        report_kvs['Queue-Start']      = env['HTTP_X_QUEUE_START']      if env.has_key?('HTTP_X_QUEUE_START')
+        report_kvs['Queue-Time']       = env['HTTP_X_QUEUE_TIME']       if env.has_key?('HTTP_X_QUEUE_TIME')
+
         report_kvs['Forwarded-For']    = env['HTTP_X_FORWARDED_FOR']    if env.has_key?('HTTP_X_FORWARDED_FOR')
         report_kvs['Forwarded-Host']   = env['HTTP_X_FORWARDED_HOST']   if env.has_key?('HTTP_X_FORWARDED_HOST')
         report_kvs['Forwarded-Proto']  = env['HTTP_X_FORWARDED_PROTO']  if env.has_key?('HTTP_X_FORWARDED_PROTO')
         report_kvs['Forwarded-Port']   = env['HTTP_X_FORWARDED_PORT']   if env.has_key?('HTTP_X_FORWARDED_PORT')
-      rescue
-        # Discard any potential exceptions. Report whatever we can.
+      rescue Exception => e
+        # Discard any potential exceptions. Debug log and report whatever we can.
+        Oboe.logger.debug "[oboe/debug] Rack KV collection error: #{e.inspect}"
       end
 
       result, xtrace = Oboe::API.start_trace('rack', xtrace, report_kvs) do
