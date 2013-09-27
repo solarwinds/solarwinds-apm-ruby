@@ -69,8 +69,8 @@ module Oboe
       # Assure defaults since SWIG enforces Strings
       opts[:layer]      ||= ''
       opts[:xtrace]     ||= ''
-      opts['TV-Meta']   ||= ''
-      Oboe::Context.sampleRequest(opts[:layer], opts[:xtrace], opts['TV-Meta'])
+      opts['X-TV-Meta']   ||= ''
+      Oboe::Context.sampleRequest(opts[:layer], opts[:xtrace], opts['X-TV-Meta'])
     end
 
     def through?
