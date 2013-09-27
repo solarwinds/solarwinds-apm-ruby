@@ -30,8 +30,9 @@ module Oboe
 
         report_kvs['TV-Meta']          = env['HTTP_X_TV_META']          if env.has_key?('HTTP_X_TV_META')
 
+        # Report any request queue'ing headers.  Report as 'Request-Start' or the summed Queue-Time
         report_kvs['Request-Start']    = env['HTTP_X_REQUEST_START']    if env.has_key?('HTTP_X_REQUEST_START')
-        report_kvs['Queue-Start']      = env['HTTP_X_QUEUE_START']      if env.has_key?('HTTP_X_QUEUE_START')
+        report_kvs['Request-Start']    = env['HTTP_X_QUEUE_START']      if env.has_key?('HTTP_X_QUEUE_START')
         report_kvs['Queue-Time']       = env['HTTP_X_QUEUE_TIME']       if env.has_key?('HTTP_X_QUEUE_TIME')
 
         report_kvs['Forwarded-For']    = env['HTTP_X_FORWARDED_FOR']    if env.has_key?('HTTP_X_FORWARDED_FOR')
