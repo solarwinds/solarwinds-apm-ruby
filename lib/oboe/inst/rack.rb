@@ -28,7 +28,7 @@ module Oboe
         report_kvs['AJAX']             = true if req.xhr?
         report_kvs['ClientIP']         = req.ip
 
-        report_kvs['TV-Meta']          = env['HTTP_X_TV_META']          if env.has_key?('HTTP_X_TV_META')
+        report_kvs['X-TV-Meta']        = env['HTTP_X_TV_META']          if env.has_key?('HTTP_X_TV_META')
 
         # Report any request queue'ing headers.  Report as 'Request-Start' or the summed Queue-Time
         report_kvs['Request-Start']    = env['HTTP_X_REQUEST_START']    if env.has_key?('HTTP_X_REQUEST_START')
