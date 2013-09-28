@@ -47,9 +47,6 @@ module Oboe
       # avoid collecting and reporting query literals to TraceView.
       @@config[:sanitize_sql] = false
 
-      # For Initialization, mark this as the default SampleRate
-      @@config[:sample_source] = 2 # OBOE_SAMPLE_RATE_SOURCE_DEFAULT
-      
       # The default configuration
       default_config = {
         :tracing_mode => "through",
@@ -58,6 +55,9 @@ module Oboe
         :verbose => false 
       }
       update!(default_config)
+      
+      # For Initialization, mark this as the default SampleRate
+      @@config[:sample_source] = 2 # OBOE_SAMPLE_RATE_SOURCE_DEFAULT
     end
 
     def self.update!(data)
