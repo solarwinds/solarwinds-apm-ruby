@@ -21,14 +21,16 @@ Net::HTTP.class_eval do
         opts['RemoteProtocol'] = use_ssl? ? 'HTTPS' : 'HTTP'
         opts['RemoteHost'] = addr_port
         opts['ServiceArg'] = req.path
-        opts['Method'] = req.method
+        opts['HTTPMethod'] = req.method
         opts['Blacklisted'] = true if blacklisted
       
-        Oboe::API.log('net-http', 'info', opts)
         req['X-Trace'] = Oboe::Context.toString() unless blacklisted
       end
 
       resp = request_without_oboe(*args, &block)
+
+      opts['HTTPStatus'] = resp.code
+      Oboe::API.log('net-http', 'info', opts)
 
       unless blacklisted
         xtrace = resp.get_fields('X-Trace')
