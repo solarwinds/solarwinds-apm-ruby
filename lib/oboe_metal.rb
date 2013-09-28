@@ -85,7 +85,7 @@ end
 
 begin
   Oboe_metal::Context.init() 
-  Oboe.reporter = Oboe::UdpReporter.new("127.0.0.1")
+  Oboe.reporter = Oboe::UdpReporter.new(Oboe::Config[:reporter_host])
 
 rescue Exception => e
   $stderr.puts e.message
