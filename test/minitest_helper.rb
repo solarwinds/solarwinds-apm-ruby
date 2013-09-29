@@ -18,6 +18,9 @@ $trace_file = File.dirname(__FILE__) + "/../tmp/trace_output.bson"
 Oboe::Config[:tracing_mode] = "always"
 Oboe::Config[:sample_rate] = 1000000
 Oboe::Ruby.initialize
+Oboe.logger.level = Logger::DEBUG
+
+Oboe.logger.debug "[oboe/test] Debug log output test."
 
 ##
 # clear_all_traces
@@ -40,6 +43,19 @@ def get_all_traces
     traces << BSON.read_bson_document(f)
   end
   traces
+end
+
+##
+# validate_outer_layers
+#
+# Validates that the KVs in kvs are present
+# in event
+#
+def validate_outer_layers(traces, layer)
+  traces.first['Layer'].must_equal layer
+  traces.first['Label'].must_equal 'entry'
+  traces.last['Layer'].must_equal layer
+  traces.last['Label'].must_equal 'exit'
 end
 
 ##
