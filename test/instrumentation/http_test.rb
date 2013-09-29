@@ -1,7 +1,6 @@
 require 'minitest_helper'
 require 'net/http'
 
-
 describe Oboe::Inst do
   before do
     clear_all_traces 
