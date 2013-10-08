@@ -94,7 +94,28 @@ You can instrument any arbitrary block of code using the following pattern:
       # the block of code to be traced
     end
 
+Find more details in the TraceView [documentation portal](https://support.tv.appneta.com/support/solutions/articles/86395-ruby-instrumentation-public-api).
+
 ## Tracing Methods
+
+By using class level declarations, it's possible to automatically have certain methods on that class instrumented and reported to your TraceView dashboard.
+
+The pattern for Method Profile is as follows:
+
+    # 'profile_name' is similar to a layer name
+    # 
+    class Engine
+        include OboeMethodProfiling
+
+        def processor()
+            # body of method
+        end
+
+        # profile_method <method>, <profile_name>
+        profile_method :processor, 'processor' 
+    end
+
+Class methods are profiled slightly differently.  See the TraceView [documentation portal](https://support.tv.appneta.com/support/solutions/articles/86395-ruby-instrumentation-public-api) for full details.
 
 # Support
 
@@ -102,9 +123,15 @@ If you find a bug or would like to request an enhancement, feel free to file an 
 
 # Contributing
 
-Already we are boldly launched upon the deep; but soon we shall be lost in its unshored, harbourless immensities. Ere that come to pass; ere the Pequod's weedy hull rolls side by side with the barnacled hulls of the leviathan; at the outset it is but well to attend to a matter almost indispensable to a thorough appreciative understanding of the more special leviathanic revelations and allusions of all sorts which are to follow.
+You are obviously a person of great sense.  We would love to have a contribution to the oboe gem whether it is documentation, a bug fix or new instrumentation for a library or framework (or anything else we haven't thought of).
+
+We welcome you to send us PRs.  We also humbly request that any new instrumentation submissions have corresponding tests that accompany them.  This way we don't break any of your additions when we (and others) make changes.
+
+If at any time, you have a question, you can reach us through our [support portal](https://support.tv.appneta.com) or on our IRC channel #tracelytics on freenode (FIXME).
 
 ## Layout of the Gem
+
+FIXME: TBC
 
 ## Building the Gem
 
@@ -113,6 +140,16 @@ The oboe gem is built with the standard `gem build` command passing in the gemsp
     gem build oboe.gemspec
 
 ## Writing Custom Instrumentation
+
+Custom instrumentation for a library, database or other service can be done fairly easily by following a few simple guidelines and tips.
+
+* If instrumenting a library, database or service, place your new instrumentation file into the `lib/oboe/inst/` directory.  From there, the oboe gem will detect it and automatically load the instrumentation file.
+
+* If instrumentating a new framework, place your instrumentation file in `lib/oboe/frameworks`.  Refer to the Rails instrumentation for on ideas on how to load the oboe gem correctly in your framework.
+
+* Review other existing instrumention similar to the one you wish to author.  `lib/oboe/inst/` is a great place to start.
+
+FIXME: TBC
 
 ## Running the Tests
 
