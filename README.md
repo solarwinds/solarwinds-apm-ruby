@@ -60,7 +60,7 @@ You can instrument your Sinatra or Padrino application by adding the following c
     Oboe::Ruby.initialize
     Padrino.use Oboe::Rack
 
-_In a future release of Traceview, much of this will be automated._
+_In a future release, much of this will be automated._
 
 ## Custom Ruby Scripts & Applications
 
@@ -74,7 +74,7 @@ The oboe gem has the ability to instrument any arbitrary Ruby application or scr
     require 'oboe'
     Oboe::Ruby.initialize
 
-From here, you can use the Tracing API to instrument areas of code.
+From here, you can use the Tracing API to instrument areas of code (see below).
 
 ## Other
 
@@ -242,7 +242,7 @@ To run just the tests for the dalli gem trace validation:
 
     bundle exec rake test TEST=test/instrumentation/dalli_test.rb
 
-We request that any submitted instrumention is delivered with corresponding test coverage.
+We humbly request that any submitted instrumention is delivered with corresponding test coverage.
 
 # License
 
