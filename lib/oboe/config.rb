@@ -27,6 +27,7 @@ module Oboe
       @@instrumentation.each do |k|
         @@config[k] = {}
         @@config[k][:enabled] = true
+        @@config[k][:collect_backtraces] = false
         @@config[k][:log_args] = true
       end
 
