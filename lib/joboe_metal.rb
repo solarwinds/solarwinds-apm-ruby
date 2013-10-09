@@ -12,7 +12,7 @@ module Oboe_metal
   import 'com.tracelytics.joboe.Event'
 
   class Context
-    def self.log(layer, label, options = {}, with_backtrace = true)
+    def self.log(layer, label, options = {}, with_backtrace = false)
       evt = Oboe::Context.createEvent()
       evt.addInfo("Layer", layer.to_s)
       evt.addInfo("Label", label.to_s)
