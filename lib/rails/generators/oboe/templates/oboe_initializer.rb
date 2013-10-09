@@ -64,17 +64,20 @@ if defined?(Oboe::Config)
   # Instrumentation can optionally collect backtraces as they collect
   # performance metrics.  Note that this has a negative impact on
   # performance but can be useful when trying to locate the source of
-  # a certain call or operation.  Backtrace collection is _off_ by default.
+  # a certain call or operation.  
   #
-  # Oboe::Config[:action_controller][:collect_backtraces] = true
-  # Oboe::Config[:active_record][:collect_backtraces] = true
-  # Oboe::Config[:action_view][:collect_backtraces] = true
-  # Oboe::Config[:cassandra][:collect_backtraces] = true
-  # Oboe::Config[:dalli][:collect_backtraces] = true
-  # Oboe::Config[:memcache][:collect_backtraces] = true
-  # Oboe::Config[:memcached][:collect_backtraces] = true
-  # Oboe::Config[:mongo][:collect_backtraces] = true
-  # Oboe::Config[:moped][:collect_backtraces] = true
-  # Oboe::Config[:resque][:collect_backtraces] = true
+  # Backtrace collection is _off_ (false) by default but can be enabled 
+  # by setting :collect_backtraces to true.
+  #
+  # Oboe::Config[:action_controller][:collect_backtraces] = false
+  # Oboe::Config[:active_record][:collect_backtraces] = false
+  # Oboe::Config[:action_view][:collect_backtraces] = false
+  # Oboe::Config[:cassandra][:collect_backtraces] = false
+  # Oboe::Config[:dalli][:collect_backtraces] = false
+  # Oboe::Config[:memcache][:collect_backtraces] = false
+  # Oboe::Config[:memcached][:collect_backtraces] = false
+  # Oboe::Config[:mongo][:collect_backtraces] = false
+  # Oboe::Config[:moped][:collect_backtraces] = false
+  # Oboe::Config[:resque][:collect_backtraces] = false
   #
 end
