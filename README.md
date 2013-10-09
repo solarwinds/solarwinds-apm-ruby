@@ -129,7 +129,7 @@ If you find a bug or would like to request an enhancement, feel free to file an 
 
 # Contributing
 
-You are obviously a person of great sense and intelligence.  We happily apprciate all contributions to the oboe gem whether it is documentation, a bug fix, new instrumentation for a library or framework or anything else we haven't thought of.
+You are obviously a person of great sense and intelligence.  We happily appreciate all contributions to the oboe gem whether it is documentation, a bug fix, new instrumentation for a library or framework or anything else we haven't thought of.
 
 We welcome you to send us PRs.  We also humbly request that any new instrumentation submissions have corresponding tests that accompany them.  This way we don't break any of your additions when we (and others) make changes after the fact.
 
