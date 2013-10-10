@@ -6,4 +6,4 @@ ext/oboe_metal/Makefile
 ext/oboe_metal/mkmf.log
 ext/oboe_metal/oboe_metal.so
 ext/oboe_metal/oboe_wrap.o
-
+Gemfile.lock
