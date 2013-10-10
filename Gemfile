@@ -21,4 +21,5 @@ gem 'mongo'
 gem 'bson_ext' # For Mongo, Yours Truly
 gem 'moped'
 gem 'resque'
+gem 'rack-test'
 
