@@ -179,7 +179,7 @@ First, we define a module (Oboe::Inst::Dalli) and our own custom `perform_with_o
           def perform_with_oboe(*all_args, &blk)
             op, key, *args = *all_args
 
-            if Oboe.tracing? and not Oboe::Context.tracing_layer_op?(:get_multi)
+            if Oboe.tracing?
               opts = {}
               opts[:KVOp] = op
               opts[:KVKey] = key
@@ -222,6 +222,8 @@ Some other tips and guidelines:
 * If instrumentating a new framework, place your instrumentation file in `lib/oboe/frameworks`.  Refer to the Rails instrumentation for on ideas on how to load the oboe gem correctly in your framework.
 
 * Review other existing instrumention similar to the one you wish to author.  `lib/oboe/inst/` is a great place to start.
+
+* Depending on the configured `:sample_rate`, not all requests will be traced.  Use `Oboe.tracing?` to determine of this is a request that is being traced.
 
 * Performance is paramount.  Make sure that your wrapped methods don't slow down users applications.
 
