@@ -125,7 +125,7 @@ This example demonstrates method profiling of instance methods.  Class methods a
 
 # Support
 
-If you find a bug or would like to request an enhancement, feel free to file an issue.  For all other support requests, see our [support portal](https://support.tv.appneta.com/) or on IRC @ #tracelytics on Freenode.
+If you find a bug or would like to request an enhancement, feel free to file an issue.  For all other support requests, see our [support portal](https://support.tv.appneta.com/) or on IRC @ #appneta on Freenode.
 
 # Contributing
 
@@ -133,7 +133,7 @@ You are obviously a person of great sense and intelligence.  We happily apprecia
 
 We welcome you to send us PRs.  We also humbly request that any new instrumentation submissions have corresponding tests that accompany them.  This way we don't break any of your additions when we (and others) make changes after the fact.
 
-If at any time, you have a question, you can reach us through our [support portal](https://support.tv.appneta.com) or on our IRC channel #tracelytics on freenode.
+If at any time, you have a question, you can reach us through our [support portal](https://support.tv.appneta.com) or on our IRC channel #appneta on freenode.
 
 ## Layout of the Gem
 
@@ -207,11 +207,11 @@ Second, we tail onto the end of the instrumentation file a simple `::Dalli::Clie
       end
     end
 
-Third, in our wrapper method, we capture the arguments passed in, collect the operation and key information into a local hash and then invode the `Oboe::API.trace` method to time the execution of the original operation.
+Third, in our wrapper method, we capture the arguments passed in, collect the operation and key information into a local hash and then invoke the `Oboe::API.trace` method to time the execution of the original operation.
 
 The `Oboe::API.trace` method calls Dalli's native operation and reports the timing metrics and your custom `report_kvs` up to TraceView servers to be shown on the user's dashboard.
 
-That is a very quick example of a simple instrumentation example.  If you have any questions, visit us on IRC in #tracelytics on Freenode.
+That is a very quick example of a simple instrumentation implementation.  If you have any questions, visit us on IRC in #appneta on Freenode.
 
 Some other tips and guidelines:
 
@@ -224,6 +224,8 @@ Some other tips and guidelines:
 * Review other existing instrumention similar to the one you wish to author.  `lib/oboe/inst/` is a great place to start.
 
 * Performance is paramount.  Make sure that your wrapped methods don't slow down users applications.
+
+* Include tests with your instrumentation.  See `test/instrumentation/` for some examples of existing instrumentation tests.
 
 
 ## Running the Tests
