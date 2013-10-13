@@ -108,18 +108,22 @@ if defined?(::Mongo) and Oboe::Config[:mongo][:enabled]
         include Oboe::Inst::Mongo
 
         def oboe_collect(m, args)
-          report_kvs = {}
-          report_kvs[:Flavor] = Oboe::Inst::Mongo::FLAVOR
+          begin
+            report_kvs = {}
+            report_kvs[:Flavor] = Oboe::Inst::Mongo::FLAVOR
 
-          report_kvs[:Database] = @db.name
-          report_kvs[:RemoteHost] = @db.connection.host
-          report_kvs[:RemotePort] = @db.connection.port
-          report_kvs[:Collection] = @name
-              
-          report_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:mongo][:collect_backtraces]
+            report_kvs[:Database] = @db.name
+            report_kvs[:RemoteHost] = @db.connection.host
+            report_kvs[:RemotePort] = @db.connection.port
+            report_kvs[:Collection] = @name
+                
+            report_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:mongo][:collect_backtraces]
 
-          report_kvs[:QueryOp] = m 
-          report_kvs[:Query] = args[0].try(:to_json) if args and not args.empty? and args[0].class == Hash
+            report_kvs[:QueryOp] = m 
+            report_kvs[:Query] = args[0].to_json if args and not args.empty? and args[0].class == Hash
+          rescue
+            Oboe.logger.debug "[oboe/debug] Exception in oboe_collect KV collection."
+          end
           report_kvs
         end
         
