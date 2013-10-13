@@ -10,6 +10,7 @@ group :development, :test do
   gem 'minitest'
   gem 'minitest-reporters'
   gem 'debugger'
+  gem 'rack-test'
 end
 
 # Instrumented gems
