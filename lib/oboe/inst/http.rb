@@ -25,7 +25,7 @@ if Oboe::Config[:nethttp][:enabled]
           opts['ServiceArg'] = req.path
           opts['HTTPMethod'] = req.method
           opts['Blacklisted'] = true if blacklisted
-          opts['Backtrace'] = Oboe::API.backtrace if Oboe::Config[:net_http][:collect_backtraces]
+          opts['Backtrace'] = Oboe::API.backtrace if Oboe::Config[:nethttp][:collect_backtraces]
         
           req['X-Trace'] = Oboe::Context.toString() unless blacklisted
         end
