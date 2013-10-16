@@ -43,7 +43,7 @@ if defined?(::Mongo) and Oboe::Config[:mongo][:enabled]
               report_kvs[:QueryOp] = m 
 
               report_kvs[:New_Collection_Name] = args[0] if m == :create_collection
-              report_kvs[:Collection_Name] = args[0]     if m == :drop_collection
+              report_kvs[:Collection] = args[0]          if m == :drop_collection
 
               report_kvs[:Backtrace] = Oboe::API.backtrace
             rescue

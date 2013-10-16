@@ -168,7 +168,7 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
             # FIXME: We're only grabbing the first of potentially multiple servers here
             report_kvs[:RemoteHost], report_kvs[:RemotePort] = collection.database.session.cluster.seeds.first.split(':')
             report_kvs[:Database] = collection.database.name
-            report_kvs[:Collection_Name] = collection.name
+            report_kvs[:Collection] = collection.name
             report_kvs[:QueryOp] = op.to_s
           rescue Exception => e
             Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
@@ -394,7 +394,7 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
             # FIXME: We're only grabbing the first of potentially multiple servers here
             report_kvs[:RemoteHost], report_kvs[:RemotePort] = @database.session.cluster.seeds.first.split(':')
             report_kvs[:Database] = @database.name
-            report_kvs[:Collection_Name] = @name
+            report_kvs[:Collection] = @name
             report_kvs[:QueryOp] = op.to_s
           rescue Exception => e
             Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
