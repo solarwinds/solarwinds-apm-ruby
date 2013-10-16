@@ -9,13 +9,10 @@ module Oboe
       @app = app
     end
 
-    def call(env)
+    def collect(env)
       report_kvs = {}
-      xtrace = nil
 
       begin
-        xtrace = env['HTTP_X_TRACE'] if env.is_a?(Hash)
-        
         req = ::Rack::Request.new(env)
         report_kvs[:SampleRate]        = Oboe::Config[:sample_rate]
         report_kvs[:SampleSource]      = Oboe::Config[:sample_source]
@@ -43,11 +40,21 @@ module Oboe
         # Discard any potential exceptions. Debug log and report whatever we can.
         Oboe.logger.debug "[oboe/debug] Rack KV collection error: #{e.inspect}"
       end
+      report_kvs
+    end
+
+    def call(env)
+      report_kvs = {}
+      xtrace = env.is_a?(Hash) ? env['HTTP_X_TRACE'] : nil
 
       result, xtrace = Oboe::API.start_trace('rack', xtrace, report_kvs) do
 
         status, headers, response = @app.call(env)
-        Oboe::API.log(nil, 'info', { :Status => status })
+
+        if Oboe.tracing?
+          report_kvs = collect(env) 
+          Oboe::API.log(nil, 'info', report_kvs.merge!({ :Status => status }))
+        end
 
         [status, headers, response]
       end
