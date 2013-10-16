@@ -31,6 +31,19 @@ module Oboe
         @@config[k][:log_args] = true
       end
 
+      # Set collect_backtraces defaults
+      Oboe::Config[:action_controller][:collect_backtraces] = true
+      Oboe::Config[:active_record][:collect_backtraces] = true
+      Oboe::Config[:action_view][:collect_backtraces] = true
+      Oboe::Config[:cassandra][:collect_backtraces] = true
+      Oboe::Config[:dalli][:collect_backtraces] = false
+      Oboe::Config[:memcache][:collect_backtraces] = false
+      Oboe::Config[:memcached][:collect_backtraces] = false
+      Oboe::Config[:mongo][:collect_backtraces] = true
+      Oboe::Config[:moped][:collect_backtraces] = true
+      Oboe::Config[:nethttp][:collect_backtraces] = true
+      Oboe::Config[:resque][:collect_backtraces] = true
+
       # Special instrument specific flags
       #
       # :link_workers - associates enqueue operations with the jobs they queue by piggybacking

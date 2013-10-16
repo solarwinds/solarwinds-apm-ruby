@@ -67,19 +67,16 @@ if defined?(Oboe::Config)
   # performance but can be useful when trying to locate the source of
   # a certain call or operation.  
   #
-  # Backtrace collection is _off_ (false) by default but can be enabled 
-  # by setting :collect_backtraces to true.
-  #
-  # Oboe::Config[:action_controller][:collect_backtraces] = false
-  # Oboe::Config[:active_record][:collect_backtraces] = false
-  # Oboe::Config[:action_view][:collect_backtraces] = false
-  # Oboe::Config[:cassandra][:collect_backtraces] = false
+  # Oboe::Config[:action_controller][:collect_backtraces] = true
+  # Oboe::Config[:active_record][:collect_backtraces] = true
+  # Oboe::Config[:action_view][:collect_backtraces] = true
+  # Oboe::Config[:cassandra][:collect_backtraces] = true
   # Oboe::Config[:dalli][:collect_backtraces] = false
   # Oboe::Config[:memcache][:collect_backtraces] = false
   # Oboe::Config[:memcached][:collect_backtraces] = false
-  # Oboe::Config[:mongo][:collect_backtraces] = false
-  # Oboe::Config[:moped][:collect_backtraces] = false
-  # Oboe::Config[:nethttp][:collect_backtraces] = false
-  # Oboe::Config[:resque][:collect_backtraces] = false
+  # Oboe::Config[:mongo][:collect_backtraces] = true
+  # Oboe::Config[:moped][:collect_backtraces] = true
+  # Oboe::Config[:nethttp][:collect_backtraces] = true
+  # Oboe::Config[:resque][:collect_backtraces] = true
   #
 end
