@@ -85,10 +85,14 @@ def layer_has_key(traces, layer, key)
   has_key = false
 
   traces.each do |t|
-    has_key = true if t["Layer"] == layer and t.has_key?(key)
+    if t["Layer"] == layer and t.has_key?(key)
+      has_key = true
+
+      (t["Backtrace"].length > 0).must_equal true
+    end
   end
 
-  has_key
+  has_key.must_equal true
 end
 
 ##
@@ -98,6 +102,12 @@ end
 # (regardless of event type) doesn't have the specified key
 #
 def layer_doesnt_have_key(traces, layer, key)
-  !layer_has_key(traces, layer, key)
+  has_key = false
+
+  traces.each do |t|
+    has_key = true if t["Layer"] == layer and t.has_key?(key)
+  end
+
+  has_key.must_equal false
 end
 
