@@ -73,6 +73,10 @@ module Oboe
     def self.[]=(key, value)
       @@config[key.to_sym] = value
 
+      if key == :sampling_rate
+        Oboe.logger.warn "WARNING: :sampling_rate is not a supported setting for Oboe::Config.  Please use :sample_rate."
+      end
+
       if key == :sample_rate
         # When setting SampleRate, note that it's been manually set
         # OBOE_SAMPLE_RATE_SOURCE_FILE == 1

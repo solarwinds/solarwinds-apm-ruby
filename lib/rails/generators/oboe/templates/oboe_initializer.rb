@@ -1,7 +1,7 @@
 # AppNeta TraceView Initializer (the oboe gem)
 # http://www.appneta.com/products/traceview/
 #
-# Details on configuring your sampling rate:
+# Details on configuring your sample rate:
 # http://support.tv.appneta.com/support/solutions/articles/86336
 #
 # More information on instrumenting Ruby applications can be found here:
@@ -16,7 +16,7 @@ if defined?(Oboe::Config)
   Oboe::Config[:tracing_mode] = '<%= @tracing_mode %>'
   
   # sample_rate is a value from 0 - 1m indicating the fraction of requests per million to trace
-  # Oboe::Config[:sample_rate] = <%= @sampling_rate %>
+  # Oboe::Config[:sample_rate] = <%= @sample_rate %>
   
   # Verbose output of instrumentation initialization
   # Oboe::Config[:verbose] = <%= @verbose %>
