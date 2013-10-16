@@ -79,7 +79,7 @@ describe Oboe::Inst::Moped do
     traces[1]['Map_Function'].must_equal "function() { emit(this.name, 1); }"
     traces[1]['Reduce_Function'].must_equal "function(k, vals) { var sum = 0;" +
       " for(var i in vals) sum += vals[i]; return sum; }"
-    traces[1].has_key?('Backtrace').must_equal false
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
   end
 
@@ -97,12 +97,12 @@ describe Oboe::Inst::Moped do
     validate_event_keys(traces[1], @entry_kvs)
     traces[1]['QueryOp'].must_equal "drop_collection"
     traces[1]['Collection_Name'].must_equal "users"
-    traces[1].has_key?('Backtrace').must_equal false
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
 
     validate_event_keys(traces[3], @entry_kvs)
     traces[3]['QueryOp'].must_equal "drop_database"
-    traces[3].has_key?('Backtrace').must_equal false
+    traces[3].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[4], @exit_kvs)
   end
 
@@ -120,26 +120,26 @@ describe Oboe::Inst::Moped do
     validate_event_keys(traces[1], @entry_kvs)
     traces[1]['QueryOp'].must_equal "indexes"
     traces[1]['Collection_Name'].must_equal "users"
-    traces[1].has_key?('Backtrace').must_equal false
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
 
     validate_event_keys(traces[3], @entry_kvs)
     traces[3]['QueryOp'].must_equal "create_index"
     traces[3]['Key'].must_equal "{\"name\":1}"
     traces[3]['Options'].must_equal "{\"unique\":true}"
-    traces[3].has_key?('Backtrace').must_equal false
+    traces[3].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[4], @exit_kvs)
     
     validate_event_keys(traces[5], @entry_kvs)
     traces[5]['QueryOp'].must_equal "indexes"
     traces[5]['Collection_Name'].must_equal "users"
-    traces[5].has_key?('Backtrace').must_equal false
+    traces[5].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[6], @exit_kvs)
     
     validate_event_keys(traces[7], @entry_kvs)
     traces[7]['QueryOp'].must_equal "drop_indexes"
     traces[7]['Key'].must_equal "all"
-    traces[7].has_key?('Backtrace').must_equal false
+    traces[7].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[8], @exit_kvs)
   end
 
@@ -156,13 +156,13 @@ describe Oboe::Inst::Moped do
     validate_event_keys(traces[1], @entry_kvs)
     traces[1]['QueryOp'].must_equal "find"
     traces[1]['Collection_Name'].must_equal "users"
-    traces[1].has_key?('Backtrace').must_equal false
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
 
     validate_event_keys(traces[3], @entry_kvs)
     traces[3]['QueryOp'].must_equal "count"
     traces[3]['Query'].must_equal "all"
-    traces[3].has_key?('Backtrace').must_equal false
+    traces[3].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[4], @exit_kvs)
   end
 
@@ -180,14 +180,14 @@ describe Oboe::Inst::Moped do
     traces[1]['QueryOp'].must_equal "find"
     traces[1]['Query'].must_equal "{\"name\":\"Mary\"}"
     traces[1]['Collection_Name'].must_equal "users"
-    traces[1].has_key?('Backtrace').must_equal false
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
 
     validate_event_keys(traces[3], @entry_kvs)
     traces[3]['QueryOp'].must_equal "sort"
     traces[3]['Query'].must_equal "{\"name\":\"Mary\"}"
     traces[3]['Order'].must_equal "{:city=>1, :created_at=>-1}"
-    traces[3].has_key?('Backtrace').must_equal false
+    traces[3].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[4], @exit_kvs)
   end
   
@@ -205,14 +205,14 @@ describe Oboe::Inst::Moped do
     traces[1]['QueryOp'].must_equal "find"
     traces[1]['Query'].must_equal "{\"name\":\"Mary\"}"
     traces[1]['Collection_Name'].must_equal "users"
-    traces[1].has_key?('Backtrace').must_equal false
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
 
     validate_event_keys(traces[3], @entry_kvs)
     traces[3]['QueryOp'].must_equal "limit"
     traces[3]['Query'].must_equal "{\"name\":\"Mary\"}"
     traces[3]['Limit'].must_equal "1"
-    traces[3].has_key?('Backtrace').must_equal false
+    traces[3].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[4], @exit_kvs)
   end
 
@@ -230,14 +230,14 @@ describe Oboe::Inst::Moped do
     traces[1]['QueryOp'].must_equal "find"
     traces[1]['Query'].must_equal "{\"name\":\"Mary\"}"
     traces[1]['Collection_Name'].must_equal "users"
-    traces[1].has_key?('Backtrace').must_equal false
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
 
     validate_event_keys(traces[3], @entry_kvs)
     traces[3]['QueryOp'].must_equal "distinct"
     traces[3]['Query'].must_equal "{\"name\":\"Mary\"}"
     traces[3]['Key'].must_equal "city"
-    traces[3].has_key?('Backtrace').must_equal false
+    traces[3].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[4], @exit_kvs)
   end
 
@@ -255,7 +255,7 @@ describe Oboe::Inst::Moped do
     traces[1]['QueryOp'].must_equal "find"
     traces[1]['Query'].must_equal "{\"name\":\"Mary\"}"
     traces[1]['Collection_Name'].must_equal "users"
-    traces[1].has_key?('Backtrace').must_equal false
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
 
     validate_event_keys(traces[3], @entry_kvs)
@@ -263,7 +263,7 @@ describe Oboe::Inst::Moped do
     traces[3]['Update_Document'].must_equal "{\"name\":\"Tool\"}"
     traces[3]['Flags'].must_equal "[:multi]"
     traces[3]['Collection_Name'].must_equal "users"
-    traces[3].has_key?('Backtrace').must_equal false
+    traces[3].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[4], @exit_kvs)
   end
 
@@ -281,14 +281,14 @@ describe Oboe::Inst::Moped do
     traces[1]['QueryOp'].must_equal "find"
     traces[1]['Query'].must_equal "{\"name\":\"Mary\"}"
     traces[1]['Collection_Name'].must_equal "users"
-    traces[1].has_key?('Backtrace').must_equal false
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
 
     validate_event_keys(traces[3], @entry_kvs)
     traces[3]['QueryOp'].must_equal "update_all"
     traces[3]['Update_Document'].must_equal "{\"name\":\"Tool\"}"
     traces[3]['Collection_Name'].must_equal "users"
-    traces[3].has_key?('Backtrace').must_equal false
+    traces[3].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[4], @exit_kvs)
   end
 
@@ -306,7 +306,7 @@ describe Oboe::Inst::Moped do
     traces[1]['QueryOp'].must_equal "find"
     traces[1]['Query'].must_equal "{\"name\":\"Tool\"}"
     traces[1]['Collection_Name'].must_equal "users"
-    traces[1].has_key?('Backtrace').must_equal false
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
 
     validate_event_keys(traces[3], @entry_kvs)
@@ -314,7 +314,7 @@ describe Oboe::Inst::Moped do
     traces[3]['Query'].must_equal "{\"name\":\"Tool\"}"
     traces[3]['Update_Document'].must_equal "{\"name\":\"Mary\"}"
     traces[3]['Collection_Name'].must_equal "users"
-    traces[3].has_key?('Backtrace').must_equal false
+    traces[3].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[4], @exit_kvs)
   end
 
@@ -332,14 +332,14 @@ describe Oboe::Inst::Moped do
     traces[1]['QueryOp'].must_equal "find"
     traces[1]['Query'].must_equal "{\"name\":\"Mary\"}"
     traces[1]['Collection_Name'].must_equal "users"
-    traces[1].has_key?('Backtrace').must_equal false
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
 
     validate_event_keys(traces[3], @entry_kvs)
     traces[3]['QueryOp'].must_equal "explain"
     traces[3]['Query'].must_equal "{\"name\":\"Mary\"}"
     traces[3]['Collection_Name'].must_equal "users"
-    traces[3].has_key?('Backtrace').must_equal false
+    traces[3].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[4], @exit_kvs)
   end
 
@@ -359,7 +359,7 @@ describe Oboe::Inst::Moped do
     traces[1]['QueryOp'].must_equal "find"
     traces[1]['Query'].must_equal "all"
     traces[1]['Collection_Name'].must_equal "users"
-    traces[1].has_key?('Backtrace').must_equal false
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
 
     validate_event_keys(traces[3], @entry_kvs)
@@ -367,7 +367,7 @@ describe Oboe::Inst::Moped do
     traces[3]['Update_Document'].must_equal "all"
     traces[3]['Collection_Name'].must_equal "users"
     traces[3]['Options'].must_equal "{\"upsert\":true,\"new\":true}"
-    traces[3].has_key?('Backtrace').must_equal false
+    traces[3].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[4], @exit_kvs)
     
     validate_event_keys(traces[7], @entry_kvs)
@@ -376,7 +376,7 @@ describe Oboe::Inst::Moped do
     traces[7]['Collection_Name'].must_equal "users"
     traces[7]['Options'].must_equal "{\"new\":true}"
     traces[7]['Change'].must_equal "{\"$inc\":{\"likes\":1}}"
-    traces[7].has_key?('Backtrace').must_equal false
+    traces[7].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[8], @exit_kvs)
     
     validate_event_keys(traces[11], @entry_kvs)
@@ -385,7 +385,7 @@ describe Oboe::Inst::Moped do
     traces[11]['Update_Document'].must_equal "all"
     traces[11]['Change'].must_equal "{}"
     traces[11]['Options'].must_equal "{\"remove\":true}"
-    traces[11].has_key?('Backtrace').must_equal false
+    traces[11].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[12], @exit_kvs)
   end
 
@@ -403,14 +403,14 @@ describe Oboe::Inst::Moped do
     traces[1]['QueryOp'].must_equal "find"
     traces[1]['Query'].must_equal "{\"name\":\"Tool\"}"
     traces[1]['Collection_Name'].must_equal "users"
-    traces[1].has_key?('Backtrace').must_equal false
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
 
     validate_event_keys(traces[3], @entry_kvs)
     traces[3]['QueryOp'].must_equal "remove"
     traces[3]['Query'].must_equal "{\"name\":\"Tool\"}"
     traces[3]['Collection_Name'].must_equal "users"
-    traces[3].has_key?('Backtrace').must_equal false
+    traces[3].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[4], @exit_kvs)
   end
 
@@ -428,14 +428,36 @@ describe Oboe::Inst::Moped do
     traces[1]['QueryOp'].must_equal "find"
     traces[1]['Query'].must_equal "{\"name\":\"Mary\"}"
     traces[1]['Collection_Name'].must_equal "users"
-    traces[1].has_key?('Backtrace').must_equal false
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
 
     validate_event_keys(traces[3], @entry_kvs)
     traces[3]['QueryOp'].must_equal "remove_all"
     traces[3]['Query'].must_equal "{\"name\":\"Mary\"}"
     traces[3]['Collection_Name'].must_equal "users"
-    traces[3].has_key?('Backtrace').must_equal false
+    traces[3].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
     validate_event_keys(traces[4], @exit_kvs)
+  end
+  
+  it "should obey :collect_backtraces setting when true" do
+    Oboe::Config[:moped][:collect_backtraces] = true
+    
+    Oboe::API.start_trace('moped_test', '', {}) do
+      @users.find(name: "Mary").limit(1)
+    end
+
+    traces = get_all_traces
+    layer_has_key(traces, 'mongo', 'Backtrace')
+  end
+
+  it "should obey :collect_backtraces setting when false" do
+    Oboe::Config[:moped][:collect_backtraces] = false
+    
+    Oboe::API.start_trace('moped_test', '', {}) do
+      @users.find(name: "Mary").limit(1)
+    end
+
+    traces = get_all_traces
+    layer_doesnt_have_key(traces, 'mongo', 'Backtrace')
   end
 end

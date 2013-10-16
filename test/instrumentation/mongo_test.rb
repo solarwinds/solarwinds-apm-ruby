@@ -58,7 +58,7 @@ describe Oboe::Inst::Mongo do
 
     traces[1]['QueryOp'].must_equal "create_collection"
     traces[1]['New_Collection_Name'].must_equal "create_and_drop_collection_test"
-    traces[1].has_key?('Backtrace').must_equal true 
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:mongo][:collect_backtraces]
   end
 
   it "should trace drop_collection" do
@@ -75,7 +75,7 @@ describe Oboe::Inst::Mongo do
 
     traces[1]['QueryOp'].must_equal "drop_collection"
     traces[1]['Collection_Name'].must_equal "create_and_drop_collection_test"
-    traces[1].has_key?('Backtrace').must_equal true 
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:mongo][:collect_backtraces]
   end
 
   it "should trace count" do
@@ -110,7 +110,7 @@ describe Oboe::Inst::Mongo do
     validate_event_keys(traces[2], @exit_kvs)
 
     traces[1]['Collection'].must_equal "testCollection"
-    traces[1].has_key?('Backtrace').must_equal true 
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:mongo][:collect_backtraces]
     traces[1]['QueryOp'].must_equal "find_and_modify"
     traces[1]['Update_Document'].must_equal "{:count=>203}"
   end
@@ -131,7 +131,7 @@ describe Oboe::Inst::Mongo do
     validate_event_keys(traces[2], @exit_kvs)
     
     traces[1]['Collection'].must_equal "testCollection"
-    traces[1].has_key?('Backtrace').must_equal true 
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:mongo][:collect_backtraces]
     traces[1]['QueryOp'].must_equal "insert"
     traces[1]['Query'].must_equal "{\"name\":\"MyName\",\"type\":\"MyType\",\"count\":1,\"info\":{\"x\":203,\"y\":\"102\"}}"
   end
@@ -153,7 +153,7 @@ describe Oboe::Inst::Mongo do
     validate_event_keys(traces[2], @exit_kvs)
     
     traces[1]['Collection'].must_equal "testCollection"
-    traces[1].has_key?('Backtrace').must_equal true 
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:mongo][:collect_backtraces]
     traces[1]['QueryOp'].must_equal "map_reduce"
     traces[1]['Map_Function'].must_equal "function() { emit(this.name, 1); }"
     traces[1]['Reduce_Function'].must_equal "function(k, vals) { var sum = 0; for(var i in vals) sum += vals[i]; return sum; }"
@@ -175,7 +175,7 @@ describe Oboe::Inst::Mongo do
     validate_event_keys(traces[2], @exit_kvs)
 
     traces[1]['Collection'].must_equal "testCollection"
-    traces[1].has_key?('Backtrace').must_equal true 
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:mongo][:collect_backtraces]
     traces[1]['QueryOp'].must_equal "remove"
     traces[1]['Query'].must_equal "{\"name\":\"SaveOp\"}"
   end
@@ -196,7 +196,7 @@ describe Oboe::Inst::Mongo do
     validate_event_keys(traces[2], @exit_kvs)
     
     traces[1]['Collection'].must_equal "testCollection"
-    traces[1].has_key?('Backtrace').must_equal true 
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:mongo][:collect_backtraces]
     traces[1]['QueryOp'].must_equal "rename"
     traces[1]['New_Collection_Name'].must_equal new_name
     
@@ -223,14 +223,14 @@ describe Oboe::Inst::Mongo do
     validate_event_keys(traces[2], @exit_kvs)
     
     traces[1]['Collection'].must_equal "testCollection"
-    traces[1].has_key?('Backtrace').must_equal true 
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:mongo][:collect_backtraces]
     traces[1]['QueryOp'].must_equal "update"
     traces[1]['Query'].must_equal "{\"_id\":1}"
     
     validate_event_keys(traces[3], @entry_kvs)
     validate_event_keys(traces[4], @exit_kvs)
 
-    traces[3].has_key?('Backtrace').must_equal true 
+    traces[3].has_key?('Backtrace').must_equal Oboe::Config[:mongo][:collect_backtraces]
     traces[3]['QueryOp'].must_equal "update"
     traces[3]['Query'].must_equal "{\"_id\":1}"
   end
@@ -250,7 +250,7 @@ describe Oboe::Inst::Mongo do
     validate_event_keys(traces[2], @exit_kvs)
     
     traces[1]['Collection'].must_equal "testCollection"
-    traces[1].has_key?('Backtrace').must_equal true 
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:mongo][:collect_backtraces]
     traces[1]['QueryOp'].must_equal "distinct"
   end
   
@@ -269,7 +269,7 @@ describe Oboe::Inst::Mongo do
     validate_event_keys(traces[2], @exit_kvs)
 
     traces[1]['Collection'].must_equal "testCollection"
-    traces[1].has_key?('Backtrace').must_equal true 
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:mongo][:collect_backtraces]
     traces[1]['QueryOp'].must_equal "find"
     traces[1]['Query'].must_equal "{\"name\":\"MyName\",\"limit\":1}"
     traces[1]['Limit'].must_equal "1"
@@ -293,7 +293,7 @@ describe Oboe::Inst::Mongo do
     validate_event_keys(traces[2], @exit_kvs)
     
     traces[1]['Collection'].must_equal "testCollection"
-    traces[1].has_key?('Backtrace').must_equal true 
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:mongo][:collect_backtraces]
     traces[1]['QueryOp'].must_equal "group"
     traces[1]['Query'].must_equal "{\"key\":\"type\",\"cond\":{\"count\":1},\"initial\":{\"count\":0},\"reduce\":\"function(obj,prev) { prev.count += obj.c; }\"}"
   end
@@ -315,21 +315,21 @@ describe Oboe::Inst::Mongo do
     validate_event_keys(traces[2], @exit_kvs)
     
     traces[1]['Collection'].must_equal "testCollection"
-    traces[1].has_key?('Backtrace').must_equal true 
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:mongo][:collect_backtraces]
     traces[1]['QueryOp'].must_equal "create_index"
 
     validate_event_keys(traces[3], @entry_kvs)
     validate_event_keys(traces[4], @exit_kvs)
 
     traces[3]['Collection'].must_equal "testCollection"
-    traces[3].has_key?('Backtrace').must_equal true 
+    traces[3].has_key?('Backtrace').must_equal Oboe::Config[:mongo][:collect_backtraces]
     traces[3]['QueryOp'].must_equal "ensure_index"
 
     validate_event_keys(traces[5], @entry_kvs)
     validate_event_keys(traces[6], @exit_kvs)
 
     traces[5]['Collection'].must_equal "testCollection"
-    traces[5].has_key?('Backtrace').must_equal true 
+    traces[5].has_key?('Backtrace').must_equal Oboe::Config[:mongo][:collect_backtraces]
     traces[5]['QueryOp'].must_equal "drop_index"
   end
   
@@ -348,7 +348,7 @@ describe Oboe::Inst::Mongo do
     validate_event_keys(traces[2], @exit_kvs)
     
     traces[1]['Collection'].must_equal "testCollection"
-    traces[1].has_key?('Backtrace').must_equal true 
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:mongo][:collect_backtraces]
     traces[1]['QueryOp'].must_equal "drop_indexes"
   end
   
@@ -367,7 +367,35 @@ describe Oboe::Inst::Mongo do
     validate_event_keys(traces[2], @exit_kvs)
     
     traces[1]['Collection'].must_equal "testCollection"
-    traces[1].has_key?('Backtrace').must_equal true 
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:mongo][:collect_backtraces]
     traces[1]['QueryOp'].must_equal "index_information"
+  end
+  
+  it "should obey :collect_backtraces setting when true" do
+    Oboe::Config[:mongo][:collect_backtraces] = true
+    
+    coll = @db.collection("testCollection")
+
+    Oboe::API.start_trace('mongo_test', '', {}) do
+      doc = {"name" => "MyName", "type" => "MyType", "count" => 1, "info" => {"x" => 203, "y" => '102'}}
+      id = coll.insert(doc)
+    end
+
+    traces = get_all_traces
+    layer_has_key(traces, 'mongo', 'Backtrace')
+  end
+
+  it "should obey :collect_backtraces setting when false" do
+    Oboe::Config[:mongo][:collect_backtraces] = false
+    
+    coll = @db.collection("testCollection")
+
+    Oboe::API.start_trace('mongo_test', '', {}) do
+      doc = {"name" => "MyName", "type" => "MyType", "count" => 1, "info" => {"x" => 203, "y" => '102'}}
+      id = coll.insert(doc)
+    end
+
+    traces = get_all_traces
+    layer_doesnt_have_key(traces, 'mongo', 'Backtrace')
   end
 end

@@ -41,17 +41,14 @@ if (RUBY_VERSION =~ /^1./) == 0
       end
       
       traces = get_all_traces
-
       traces.count.must_equal 4
+    
       validate_outer_layers(traces, 'memcached_test')
-
       validate_event_keys(traces[1], @entry_kvs)
+      validate_event_keys(traces[2], @exit_kvs)
       
       traces[1]['KVOp'].must_equal "set"
       traces[1]['KVKey'].must_equal "testKey"
-      traces[1].has_key?('Backtrace').must_equal false
-
-      validate_event_keys(traces[2], @exit_kvs)
     end
     
     it "should trace get" do
@@ -60,17 +57,14 @@ if (RUBY_VERSION =~ /^1./) == 0
       end
       
       traces = get_all_traces
-      
       traces.count.must_equal 4
+      
       validate_outer_layers(traces, 'memcached_test')
-
       validate_event_keys(traces[1], @entry_kvs)
+      validate_event_keys(traces[2], @exit_kvs)
       
       traces[1]['KVOp'].must_equal "get"
       traces[1]['KVKey'].must_equal "msg"
-      traces[1].has_key?('Backtrace').must_equal false
-      
-      validate_event_keys(traces[2], @exit_kvs)
     end
     
     it "should trace get_multi" do
@@ -79,21 +73,17 @@ if (RUBY_VERSION =~ /^1./) == 0
       end
       
       traces = get_all_traces
-      
       traces.count.must_equal 5
+    
       validate_outer_layers(traces, 'memcached_test')
-
       validate_event_keys(traces[1], @entry_kvs)
+      validate_event_keys(traces[2], @info_kvs)
+      validate_event_keys(traces[3], @exit_kvs)
       
       traces[1]['KVOp'].must_equal "get_multi"
-      traces[1].has_key?('Backtrace').must_equal false
       
-      validate_event_keys(traces[2], @info_kvs)
       traces[2]['KVKeyCount'].must_equal "6"
       traces[2].has_key?('KVHitCount').must_equal true
-      traces[2].has_key?('Backtrace').must_equal false
-
-      validate_event_keys(traces[3], @exit_kvs)
     end
     
     it "should trace add for existing key" do
@@ -102,21 +92,17 @@ if (RUBY_VERSION =~ /^1./) == 0
       end
       
       traces = get_all_traces
-      
       traces.count.must_equal 5
-      validate_outer_layers(traces, 'memcached_test')
-
-      validate_event_keys(traces[1], @entry_kvs)
       
+      validate_outer_layers(traces, 'memcached_test')
+      validate_event_keys(traces[1], @entry_kvs)
+      validate_event_keys(traces[3], @exit_kvs)
+
       traces[1]['KVOp'].must_equal "add"
       traces[1]['KVKey'].must_equal "testKey"
-      traces[1].has_key?('Backtrace').must_equal false
       
       traces[2]['ErrorClass'].must_equal "Memcached::NotStored"
       traces[2]['Message'].must_equal "Memcached::NotStored"
-      traces[2]['Backtrace'].must_equal ""
-      
-      validate_event_keys(traces[3], @exit_kvs)
     end
     
     it "should trace append" do
@@ -126,17 +112,14 @@ if (RUBY_VERSION =~ /^1./) == 0
       end
       
       traces = get_all_traces
-      
       traces.count.must_equal 4
+      
       validate_outer_layers(traces, 'memcached_test')
-
       validate_event_keys(traces[1], @entry_kvs)
+      validate_event_keys(traces[2], @exit_kvs)
       
       traces[1]['KVOp'].must_equal "append"
       traces[1]['KVKey'].must_equal "rawKey"
-      traces[1].has_key?('Backtrace').must_equal false
-      
-      validate_event_keys(traces[2], @exit_kvs)
     end
     
     it "should trace decr" do
@@ -145,17 +128,14 @@ if (RUBY_VERSION =~ /^1./) == 0
       end
       
       traces = get_all_traces
-      
       traces.count.must_equal 4
+      
       validate_outer_layers(traces, 'memcached_test')
-
       validate_event_keys(traces[1], @entry_kvs)
+      validate_event_keys(traces[2], @exit_kvs)
       
       traces[1]['KVOp'].must_equal "decr"
       traces[1]['KVKey'].must_equal "some_key_counter"
-      traces[1].has_key?('Backtrace').must_equal false
-      
-      validate_event_keys(traces[2], @exit_kvs)
     end
   
     it "should trace increment" do
@@ -164,16 +144,14 @@ if (RUBY_VERSION =~ /^1./) == 0
       end
       
       traces = get_all_traces
-      
       traces.count.must_equal 4
+
       validate_outer_layers(traces, 'memcached_test')
-      
       validate_event_keys(traces[1], @entry_kvs)
+      validate_event_keys(traces[2], @exit_kvs)
 
       traces[1]['KVOp'].must_equal "incr"
       traces[1]['KVKey'].must_equal "some_key_counter"
-      
-      validate_event_keys(traces[2], @exit_kvs)
     end
   
     it "should trace replace" do
@@ -183,14 +161,14 @@ if (RUBY_VERSION =~ /^1./) == 0
       end
       
       traces = get_all_traces
-      
       traces.count.must_equal 4
+      
       validate_outer_layers(traces, 'memcached_test')
-
       validate_event_keys(traces[1], @entry_kvs)
+      validate_event_keys(traces[2], @exit_kvs)
+      
       traces[1]['KVOp'].must_equal "replace"
       traces[1]['KVKey'].must_equal "some_key"
-      validate_event_keys(traces[2], @exit_kvs)
     end
 
     it "should trace delete" do
@@ -200,14 +178,36 @@ if (RUBY_VERSION =~ /^1./) == 0
       end
       
       traces = get_all_traces
-      
       traces.count.must_equal 4
+      
       validate_outer_layers(traces, 'memcached_test')
-
       validate_event_keys(traces[1], @entry_kvs)
+      validate_event_keys(traces[2], @exit_kvs)
+
       traces[1]['KVOp'].must_equal "delete"
       traces[1]['KVKey'].must_equal "some_key"
-      validate_event_keys(traces[2], @exit_kvs)
+    end
+    
+    it "should obey :collect_backtraces setting when true" do
+      Oboe::Config[:memcached][:collect_backtraces] = true
+
+      Oboe::API.start_trace('memcached_test', '', {}) do
+        @mc.set('some_key', 1)
+      end
+
+      traces = get_all_traces
+      layer_has_key(traces, 'memcache', 'Backtrace')
+    end
+
+    it "should obey :collect_backtraces setting when false" do
+      Oboe::Config[:memcached][:collect_backtraces] = false
+
+      Oboe::API.start_trace('memcached_test', '', {}) do
+        @mc.set('some_key', 1)
+      end
+
+      traces = get_all_traces
+      layer_doesnt_have_key(traces, 'memcache', 'Backtrace')
     end
   end
 end
