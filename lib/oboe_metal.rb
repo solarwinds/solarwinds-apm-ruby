@@ -89,7 +89,7 @@ begin
   if ENV['RACK_ENV'] == "test"
     Oboe.reporter = Oboe::FileReporter.new("./tmp/trace_output.bson")
   else
-    Oboe.reporter = Oboe::UdpReporter.new("127.0.0.1")
+    Oboe.reporter = Oboe::UdpReporter.new(Oboe::Config[:reporter_host])
   end
 
 rescue Exception => e
