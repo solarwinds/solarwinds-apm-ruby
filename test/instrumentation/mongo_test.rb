@@ -52,19 +52,13 @@ describe Oboe::Inst::Mongo do
     traces = get_all_traces
     traces.count.must_equal 4
 
-    traces.first['Layer'].must_equal 'mongo_test'
-    traces.first['Label'].must_equal 'entry'
-
+    validate_outer_layers(traces, 'mongo_test')
     validate_event_keys(traces[1], @entry_kvs)
+    validate_event_keys(traces[2], @exit_kvs)
 
     traces[1]['QueryOp'].must_equal "create_collection"
     traces[1]['New_Collection_Name'].must_equal "create_and_drop_collection_test"
     traces[1].has_key?('Backtrace').must_equal true 
-    
-    validate_event_keys(traces[2], @exit_kvs)
-
-    traces.last['Layer'].must_equal 'mongo_test'
-    traces.last['Label'].must_equal 'exit'
   end
 
   it "should trace drop_collection" do
@@ -75,19 +69,13 @@ describe Oboe::Inst::Mongo do
     traces = get_all_traces
     traces.count.must_equal 4
 
-    traces.first['Layer'].must_equal 'mongo_test'
-    traces.first['Label'].must_equal 'entry'
-    
+    validate_outer_layers(traces, 'mongo_test')
     validate_event_keys(traces[1], @entry_kvs)
+    validate_event_keys(traces[2], @exit_kvs)
 
     traces[1]['QueryOp'].must_equal "drop_collection"
     traces[1]['Collection_Name'].must_equal "create_and_drop_collection_test"
     traces[1].has_key?('Backtrace').must_equal true 
-    
-    validate_event_keys(traces[2], @exit_kvs)
-
-    traces.last['Layer'].must_equal 'mongo_test'
-    traces.last['Label'].must_equal 'exit'
   end
 
   it "should trace count" do
@@ -100,17 +88,11 @@ describe Oboe::Inst::Mongo do
     traces = get_all_traces
     traces.count.must_equal 6
 
-    traces.first['Layer'].must_equal 'mongo_test'
-    traces.first['Label'].must_equal 'entry'
-    
+    validate_outer_layers(traces, 'mongo_test')
     validate_event_keys(traces[1], @entry_kvs)
-
-    traces[3]['QueryOp'].must_equal "count"
-    
     validate_event_keys(traces[2], @exit_kvs)
 
-    traces.last['Layer'].must_equal 'mongo_test'
-    traces.last['Label'].must_equal 'exit'
+    traces[3]['QueryOp'].must_equal "count"
   end
   
   it "should trace find_and_modify" do
@@ -123,20 +105,14 @@ describe Oboe::Inst::Mongo do
     traces = get_all_traces
     traces.count.must_equal 4
 
-    traces.first['Layer'].must_equal 'mongo_test'
-    traces.first['Label'].must_equal 'entry'
-    
+    validate_outer_layers(traces, 'mongo_test')
     validate_event_keys(traces[1], @entry_kvs)
+    validate_event_keys(traces[2], @exit_kvs)
 
     traces[1]['Collection'].must_equal "testCollection"
     traces[1].has_key?('Backtrace').must_equal true 
     traces[1]['QueryOp'].must_equal "find_and_modify"
     traces[1]['Update_Document'].must_equal "{:count=>203}"
-    
-    validate_event_keys(traces[2], @exit_kvs)
-
-    traces.last['Layer'].must_equal 'mongo_test'
-    traces.last['Label'].must_equal 'exit'
   end
   
   it "should trace insert" do
@@ -150,20 +126,14 @@ describe Oboe::Inst::Mongo do
     traces = get_all_traces
     traces.count.must_equal 4
 
-    traces.first['Layer'].must_equal 'mongo_test'
-    traces.first['Label'].must_equal 'entry'
-
+    validate_outer_layers(traces, 'mongo_test')
     validate_event_keys(traces[1], @entry_kvs)
+    validate_event_keys(traces[2], @exit_kvs)
     
     traces[1]['Collection'].must_equal "testCollection"
     traces[1].has_key?('Backtrace').must_equal true 
     traces[1]['QueryOp'].must_equal "insert"
     traces[1]['Query'].must_equal "{\"name\":\"MyName\",\"type\":\"MyType\",\"count\":1,\"info\":{\"x\":203,\"y\":\"102\"}}"
-    
-    validate_event_keys(traces[2], @exit_kvs)
-
-    traces.last['Layer'].must_equal 'mongo_test'
-    traces.last['Label'].must_equal 'exit'
   end
   
   it "should trace map_reduce" do
@@ -178,10 +148,9 @@ describe Oboe::Inst::Mongo do
     traces = get_all_traces
     traces.count.must_equal 4
 
-    traces.first['Layer'].must_equal 'mongo_test'
-    traces.first['Label'].must_equal 'entry'
-
+    validate_outer_layers(traces, 'mongo_test')
     validate_event_keys(traces[1], @entry_kvs)
+    validate_event_keys(traces[2], @exit_kvs)
     
     traces[1]['Collection'].must_equal "testCollection"
     traces[1].has_key?('Backtrace').must_equal true 
@@ -189,11 +158,6 @@ describe Oboe::Inst::Mongo do
     traces[1]['Map_Function'].must_equal "function() { emit(this.name, 1); }"
     traces[1]['Reduce_Function'].must_equal "function(k, vals) { var sum = 0; for(var i in vals) sum += vals[i]; return sum; }"
     traces[1]['Limit'].must_equal "100"
-    
-    validate_event_keys(traces[2], @exit_kvs)
-
-    traces.last['Layer'].must_equal 'mongo_test'
-    traces.last['Label'].must_equal 'exit'
   end
   
   it "should trace remove" do
@@ -206,20 +170,14 @@ describe Oboe::Inst::Mongo do
     traces = get_all_traces
     traces.count.must_equal 4
 
-    traces.first['Layer'].must_equal 'mongo_test'
-    traces.first['Label'].must_equal 'entry'
-    
+    validate_outer_layers(traces, 'mongo_test')
     validate_event_keys(traces[1], @entry_kvs)
+    validate_event_keys(traces[2], @exit_kvs)
 
     traces[1]['Collection'].must_equal "testCollection"
     traces[1].has_key?('Backtrace').must_equal true 
     traces[1]['QueryOp'].must_equal "remove"
     traces[1]['Query'].must_equal "{\"name\":\"SaveOp\"}"
-    
-    validate_event_keys(traces[2], @exit_kvs)
-
-    traces.last['Layer'].must_equal 'mongo_test'
-    traces.last['Label'].must_equal 'exit'
   end
   
   it "should trace rename" do
@@ -233,21 +191,15 @@ describe Oboe::Inst::Mongo do
     traces = get_all_traces
     traces.count.must_equal 4
 
-    traces.first['Layer'].must_equal 'mongo_test'
-    traces.first['Label'].must_equal 'entry'
-
+    validate_outer_layers(traces, 'mongo_test')
     validate_event_keys(traces[1], @entry_kvs)
+    validate_event_keys(traces[2], @exit_kvs)
     
     traces[1]['Collection'].must_equal "testCollection"
     traces[1].has_key?('Backtrace').must_equal true 
     traces[1]['QueryOp'].must_equal "rename"
     traces[1]['New_Collection_Name'].must_equal new_name
     
-    validate_event_keys(traces[2], @exit_kvs)
-
-    traces.last['Layer'].must_equal 'mongo_test'
-    traces.last['Label'].must_equal 'exit'
-
     # Clean up after test and set collection name back to original
     coll.rename("testCollection")
   end
@@ -266,28 +218,21 @@ describe Oboe::Inst::Mongo do
     traces = get_all_traces
     traces.count.must_equal 6
 
-    traces.first['Layer'].must_equal 'mongo_test'
-    traces.first['Label'].must_equal 'entry'
-
+    validate_outer_layers(traces, 'mongo_test')
     validate_event_keys(traces[1], @entry_kvs)
+    validate_event_keys(traces[2], @exit_kvs)
     
     traces[1]['Collection'].must_equal "testCollection"
     traces[1].has_key?('Backtrace').must_equal true 
     traces[1]['QueryOp'].must_equal "update"
     traces[1]['Query'].must_equal "{\"_id\":1}"
     
-    validate_event_keys(traces[2], @exit_kvs)
-    
     validate_event_keys(traces[3], @entry_kvs)
+    validate_event_keys(traces[4], @exit_kvs)
 
     traces[3].has_key?('Backtrace').must_equal true 
     traces[3]['QueryOp'].must_equal "update"
     traces[3]['Query'].must_equal "{\"_id\":1}"
-    
-    validate_event_keys(traces[4], @exit_kvs)
-
-    traces.last['Layer'].must_equal 'mongo_test'
-    traces.last['Label'].must_equal 'exit'
   end
   
   it "should trace distinct" do
@@ -300,19 +245,13 @@ describe Oboe::Inst::Mongo do
     traces = get_all_traces
     traces.count.must_equal 4
 
-    traces.first['Layer'].must_equal 'mongo_test'
-    traces.first['Label'].must_equal 'entry'
-
+    validate_outer_layers(traces, 'mongo_test')
     validate_event_keys(traces[1], @entry_kvs)
+    validate_event_keys(traces[2], @exit_kvs)
     
     traces[1]['Collection'].must_equal "testCollection"
     traces[1].has_key?('Backtrace').must_equal true 
     traces[1]['QueryOp'].must_equal "distinct"
-    
-    validate_event_keys(traces[2], @exit_kvs)
-
-    traces.last['Layer'].must_equal 'mongo_test'
-    traces.last['Label'].must_equal 'exit'
   end
   
   it "should trace find" do
@@ -325,21 +264,15 @@ describe Oboe::Inst::Mongo do
     traces = get_all_traces
     traces.count.must_equal 4
 
-    traces.first['Layer'].must_equal 'mongo_test'
-    traces.first['Label'].must_equal 'entry'
-
+    validate_outer_layers(traces, 'mongo_test')
     validate_event_keys(traces[1], @entry_kvs)
+    validate_event_keys(traces[2], @exit_kvs)
 
     traces[1]['Collection'].must_equal "testCollection"
     traces[1].has_key?('Backtrace').must_equal true 
     traces[1]['QueryOp'].must_equal "find"
     traces[1]['Query'].must_equal "{\"name\":\"MyName\",\"limit\":1}"
     traces[1]['Limit'].must_equal "1"
-    
-    validate_event_keys(traces[2], @exit_kvs)
-
-    traces.last['Layer'].must_equal 'mongo_test'
-    traces.last['Label'].must_equal 'exit'
   end
   
   it "should trace group" do
@@ -355,20 +288,14 @@ describe Oboe::Inst::Mongo do
     traces = get_all_traces
     traces.count.must_equal 4
 
-    traces.first['Layer'].must_equal 'mongo_test'
-    traces.first['Label'].must_equal 'entry'
-
+    validate_outer_layers(traces, 'mongo_test')
     validate_event_keys(traces[1], @entry_kvs)
+    validate_event_keys(traces[2], @exit_kvs)
     
     traces[1]['Collection'].must_equal "testCollection"
     traces[1].has_key?('Backtrace').must_equal true 
     traces[1]['QueryOp'].must_equal "group"
     traces[1]['Query'].must_equal "{\"key\":\"type\",\"cond\":{\"count\":1},\"initial\":{\"count\":0},\"reduce\":\"function(obj,prev) { prev.count += obj.c; }\"}"
-    
-    validate_event_keys(traces[2], @exit_kvs)
-
-    traces.last['Layer'].must_equal 'mongo_test'
-    traces.last['Label'].must_equal 'exit'
   end
 
   it "should trace create, ensure and drop index" do
@@ -383,29 +310,27 @@ describe Oboe::Inst::Mongo do
     traces = get_all_traces
     traces.count.must_equal 8
 
-    traces.first['Layer'].must_equal 'mongo_test'
-    traces.first['Label'].must_equal 'entry'
-
+    validate_outer_layers(traces, 'mongo_test')
     validate_event_keys(traces[1], @entry_kvs)
+    validate_event_keys(traces[2], @exit_kvs)
+    
     traces[1]['Collection'].must_equal "testCollection"
     traces[1].has_key?('Backtrace').must_equal true 
     traces[1]['QueryOp'].must_equal "create_index"
-    validate_event_keys(traces[2], @exit_kvs)
 
     validate_event_keys(traces[3], @entry_kvs)
+    validate_event_keys(traces[4], @exit_kvs)
+
     traces[3]['Collection'].must_equal "testCollection"
     traces[3].has_key?('Backtrace').must_equal true 
     traces[3]['QueryOp'].must_equal "ensure_index"
-    validate_event_keys(traces[4], @exit_kvs)
 
     validate_event_keys(traces[5], @entry_kvs)
+    validate_event_keys(traces[6], @exit_kvs)
+
     traces[5]['Collection'].must_equal "testCollection"
     traces[5].has_key?('Backtrace').must_equal true 
     traces[5]['QueryOp'].must_equal "drop_index"
-    validate_event_keys(traces[6], @exit_kvs)
-
-    traces.last['Layer'].must_equal 'mongo_test'
-    traces.last['Label'].must_equal 'exit'
   end
   
   it "should trace drop_indexes" do
@@ -418,17 +343,13 @@ describe Oboe::Inst::Mongo do
     traces = get_all_traces
     traces.count.must_equal 4
 
-    traces.first['Layer'].must_equal 'mongo_test'
-    traces.first['Label'].must_equal 'entry'
-
+    validate_outer_layers(traces, 'mongo_test')
     validate_event_keys(traces[1], @entry_kvs)
+    validate_event_keys(traces[2], @exit_kvs)
+    
     traces[1]['Collection'].must_equal "testCollection"
     traces[1].has_key?('Backtrace').must_equal true 
     traces[1]['QueryOp'].must_equal "drop_indexes"
-    validate_event_keys(traces[2], @exit_kvs)
-
-    traces.last['Layer'].must_equal 'mongo_test'
-    traces.last['Label'].must_equal 'exit'
   end
   
   it "should trace index_information" do
@@ -441,16 +362,12 @@ describe Oboe::Inst::Mongo do
     traces = get_all_traces
     traces.count.must_equal 4
 
-    traces.first['Layer'].must_equal 'mongo_test'
-    traces.first['Label'].must_equal 'entry'
-
+    validate_outer_layers(traces, 'mongo_test')
     validate_event_keys(traces[1], @entry_kvs)
+    validate_event_keys(traces[2], @exit_kvs)
+    
     traces[1]['Collection'].must_equal "testCollection"
     traces[1].has_key?('Backtrace').must_equal true 
     traces[1]['QueryOp'].must_equal "index_information"
-    validate_event_keys(traces[2], @exit_kvs)
-
-    traces.last['Layer'].must_equal 'mongo_test'
-    traces.last['Label'].must_equal 'exit'
   end
 end
