@@ -85,7 +85,12 @@ end
 
 begin
   Oboe_metal::Context.init() 
-  Oboe.reporter = Oboe::UdpReporter.new(Oboe::Config[:reporter_host])
+
+  if ENV['RACK_ENV'] == "test"
+    Oboe.reporter = Oboe::FileReporter.new("./tmp/trace_output.bson")
+  else
+    Oboe.reporter = Oboe::UdpReporter.new(Oboe::Config[:reporter_host])
+  end
 
 rescue Exception => e
   $stderr.puts e.message

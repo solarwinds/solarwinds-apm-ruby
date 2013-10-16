@@ -114,5 +114,5 @@ end
 
 Oboe::Loading.require_api
 Oboe::Loading.load_framework_instrumentation
-Oboe::API.report_init('ruby')
+Oboe::API.report_init('ruby') unless ["development", "test"].include? ENV['RACK_ENV']
 
