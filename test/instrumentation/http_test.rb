@@ -4,6 +4,11 @@ require 'net/http'
 describe Oboe::Inst do
   before do
     clear_all_traces 
+    @collect_backtraces = Oboe::Config[:nethttp][:collect_backtraces]
+  end
+
+  after do
+    Oboe::Config[:nethttp][:collect_backtraces] = @collect_backtraces
   end
 
   it 'Net::HTTP should be defined and ready' do

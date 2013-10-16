@@ -4,6 +4,11 @@ describe Oboe::Inst::Dalli do
   before do
     clear_all_traces 
     @dc = Dalli::Client.new
+    @collect_backtraces = Oboe::Config[:dalli][:collect_backtraces]
+  end
+
+  after do
+    Oboe::Config[:dalli][:collect_backtraces] = @collect_backtraces
   end
 
   it 'Stock Dalli should be loaded, defined and ready' do

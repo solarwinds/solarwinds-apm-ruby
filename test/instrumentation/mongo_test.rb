@@ -16,6 +16,11 @@ describe Oboe::Inst::Mongo do
       'RemotePort' => '27017' }
 
     @exit_kvs = { 'Layer' => 'mongo', 'Label' => 'exit' }
+    @collect_backtraces = Oboe::Config[:mongo][:collect_backtraces]
+  end
+  
+  after do
+    Oboe::Config[:mongo][:collect_backtraces] = @collect_backtraces
   end
 
   it 'Stock Mongo should be loaded, defined and ready' do

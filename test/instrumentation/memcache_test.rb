@@ -16,6 +16,11 @@ describe Oboe::API::Memcache do
       'Label' => 'info' }
 
     @exit_kvs = { 'Layer' => 'memcache', 'Label' => 'exit' }
+    @collect_backtraces = Oboe::Config[:memcache][:collect_backtraces]
+  end
+
+  after do
+    Oboe::Config[:memcache][:collect_backtraces] = @collect_backtraces
   end
 
   it 'Stock MemCache should be loaded, defined and ready' do

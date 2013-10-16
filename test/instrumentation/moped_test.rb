@@ -18,6 +18,11 @@ describe Oboe::Inst::Moped do
       'RemotePort' => '27017' }
 
     @exit_kvs = { 'Layer' => 'mongo', 'Label' => 'exit' }
+    @collect_backtraces = Oboe::Config[:moped][:collect_backtraces]
+  end
+  
+  after do
+    Oboe::Config[:moped][:collect_backtraces] = @collect_backtraces
   end
 
   it 'Stock Moped should be loaded, defined and ready' do

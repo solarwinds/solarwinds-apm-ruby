@@ -17,9 +17,11 @@ describe Oboe::Inst::Cassandra do
       'RemotePort' => '9160' }
 
     @exit_kvs = { 'Layer' => 'cassandra', 'Label' => 'exit' }
+    @collect_backtraces = Oboe::Config[:cassandra][:collect_backtraces]
   end
 
   after do
+    Oboe::Config[:cassandra][:collect_backtraces] = @collect_backtraces
     @client.disconnect!
   end
 

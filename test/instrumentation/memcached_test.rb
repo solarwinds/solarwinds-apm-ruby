@@ -19,6 +19,11 @@ if (RUBY_VERSION =~ /^1./) == 0
         'Label' => 'info' }
 
       @exit_kvs = { 'Layer' => 'memcache', 'Label' => 'exit' }
+      @collect_backtraces = Oboe::Config[:memcached][:collect_backtraces]
+    end
+
+    after do
+      Oboe::Config[:memcached][:collect_backtraces] = @collect_backtraces
     end
 
     it 'Stock Memcached should be loaded, defined and ready' do
