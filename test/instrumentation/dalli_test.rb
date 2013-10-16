@@ -130,4 +130,26 @@ describe Oboe::Inst::Dalli do
     traces[2]['Label'].must_equal "exit"
     traces.last['Layer'].must_equal 'dalli_test'
   end
+  
+  it "should obey :collect_backtraces setting when true" do
+    Oboe::Config[:dalli][:collect_backtraces] = true
+
+    Oboe::API.start_trace('dalli_test', '', {}) do
+      @dc.get('some_key')
+    end
+
+    traces = get_all_traces
+    layer_has_key(traces, 'memcache', 'Backtrace')
+  end
+
+  it "should obey :collect_backtraces setting when false" do
+    Oboe::Config[:dalli][:collect_backtraces] = false
+
+    Oboe::API.start_trace('dalli_test', '', {}) do
+      @dc.get('some_key')
+    end
+
+    traces = get_all_traces
+    layer_doesnt_have_key(traces, 'memcache', 'Backtrace')
+  end
 end
