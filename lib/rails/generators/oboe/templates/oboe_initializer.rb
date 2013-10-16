@@ -56,6 +56,7 @@ if defined?(Oboe::Config)
   # Oboe::Config[:memcached][:enabled] = true
   # Oboe::Config[:mongo][:enabled] = true
   # Oboe::Config[:moped][:enabled] = true
+  # Oboe::Config[:nethttp][:enabled] = true
   # Oboe::Config[:resque][:enabled] = true
   
   #
@@ -78,6 +79,7 @@ if defined?(Oboe::Config)
   # Oboe::Config[:memcached][:collect_backtraces] = false
   # Oboe::Config[:mongo][:collect_backtraces] = false
   # Oboe::Config[:moped][:collect_backtraces] = false
+  # Oboe::Config[:nethttp][:collect_backtraces] = false
   # Oboe::Config[:resque][:collect_backtraces] = false
   #
 end
