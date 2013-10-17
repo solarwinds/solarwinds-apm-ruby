@@ -79,7 +79,7 @@ describe Oboe::Inst::Mongo do
     validate_event_keys(traces[2], @exit_kvs)
 
     traces[1]['QueryOp'].must_equal "drop_collection"
-    traces[1]['Collection_Name'].must_equal "create_and_drop_collection_test"
+    traces[1]['Collection'].must_equal "create_and_drop_collection_test"
     traces[1].has_key?('Backtrace').must_equal Oboe::Config[:mongo][:collect_backtraces]
   end
 
