@@ -14,6 +14,7 @@ module Oboe
 
             define_method("#{m}_with_oboe") do |*args|
               report_kvs = { :KVOp => m }
+              report_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:memcache][:collect_backtraces]
 
               if Oboe.tracing?
                 Oboe::API.trace('memcache', report_kvs) do
@@ -60,6 +61,7 @@ module Oboe
           Oboe::API.trace('memcache', layer_kvs || {}, :get_multi) do
             begin
               info_kvs = {}
+              info_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:memcache][:collect_backtraces]
                
               if args.last.is_a?(Hash) || args.last.nil?
                 info_kvs[:KVKeyCount] = args.flatten.length - 1
@@ -84,7 +86,11 @@ module Oboe
       def request_setup_with_oboe(*args)
         if Oboe.tracing? and not Oboe::Context.tracing_layer_op?(:get_multi)
           server, cache_key = request_setup_without_oboe(*args)
-          Oboe::API.log('memcache', 'info', { :KVKey => cache_key, :RemoteHost => server.host })
+
+          info_kvs = { :KVKey => cache_key, :RemoteHost => server.host }
+          info_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:memcache][:collect_backtraces]
+
+          Oboe::API.log('memcache', 'info', info_kvs)
         else
           server, cache_key = request_setup_without_oboe(*args)
         end
@@ -93,7 +99,10 @@ module Oboe
 
       def cache_get_with_oboe(server, cache_key)
         result = cache_get_without_oboe(server, cache_key)
-        Oboe::API.log('memcache', 'info', { :KVHit => memcache_hit?(result) })
+
+        info_kvs = { :KVHit => memcache_hit?(result) }
+        info_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:memcache][:collect_backtraces]
+        Oboe::API.log('memcache', 'info', info_kvs)
         result
       end
 

@@ -16,6 +16,11 @@ describe Oboe::API::Memcache do
       'Label' => 'info' }
 
     @exit_kvs = { 'Layer' => 'memcache', 'Label' => 'exit' }
+    @collect_backtraces = Oboe::Config[:memcache][:collect_backtraces]
+  end
+
+  after do
+    Oboe::Config[:memcache][:collect_backtraces] = @collect_backtraces
   end
 
   it 'Stock MemCache should be loaded, defined and ready' do
@@ -46,11 +51,11 @@ describe Oboe::API::Memcache do
     validate_event_keys(traces[1], @entry_kvs)
     
     traces[1]['KVOp'].must_equal "set"
-    traces[1].has_key?('Backtrace').must_equal false
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:memcache][:collect_backtraces]
     
     validate_event_keys(traces[2], @info_kvs)
     traces[2]['KVKey'].must_equal "msg"
-    traces[2].has_key?('Backtrace').must_equal false
+    traces[2].has_key?('Backtrace').must_equal Oboe::Config[:memcache][:collect_backtraces]
 
     validate_event_keys(traces[3], @exit_kvs)
   end
@@ -68,15 +73,15 @@ describe Oboe::API::Memcache do
     validate_event_keys(traces[1], @entry_kvs)
     
     traces[1]['KVOp'].must_equal "get"
-    traces[1].has_key?('Backtrace').must_equal false
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:memcache][:collect_backtraces]
     
     validate_event_keys(traces[2], @info_kvs)
     traces[2]['KVKey'].must_equal "msg"
     traces[2]['RemoteHost'].must_equal "localhost"
-    traces[2].has_key?('Backtrace').must_equal false
+    traces[2].has_key?('Backtrace').must_equal Oboe::Config[:memcache][:collect_backtraces]
 
     traces[3].has_key?('KVHit').must_equal true
-    traces[3].has_key?('Backtrace').must_equal false
+    traces[3].has_key?('Backtrace').must_equal Oboe::Config[:memcache][:collect_backtraces]
 
     validate_event_keys(traces[4], @exit_kvs)
   end
@@ -94,12 +99,11 @@ describe Oboe::API::Memcache do
     validate_event_keys(traces[1], @entry_kvs)
     
     traces[1]['KVOp'].must_equal "get_multi"
-    traces[1].has_key?('Backtrace').must_equal false
     
     validate_event_keys(traces[2], @info_kvs)
     traces[2]['KVKeyCount'].must_equal "6"
     traces[2].has_key?('KVHitCount').must_equal true
-    traces[2].has_key?('Backtrace').must_equal false
+    traces[2].has_key?('Backtrace').must_equal Oboe::Config[:memcache][:collect_backtraces]
 
     validate_event_keys(traces[3], @exit_kvs)
   end
@@ -118,7 +122,7 @@ describe Oboe::API::Memcache do
     validate_event_keys(traces[1], @entry_kvs)
     
     traces[1]['KVOp'].must_equal "add"
-    traces[1].has_key?('Backtrace').must_equal false
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:memcache][:collect_backtraces]
     
     validate_event_keys(traces[2], @info_kvs)
     traces[2]['KVKey'].must_equal "testKey"
@@ -140,12 +144,12 @@ describe Oboe::API::Memcache do
     validate_event_keys(traces[1], @entry_kvs)
     
     traces[1]['KVOp'].must_equal "append"
-    traces[1].has_key?('Backtrace').must_equal false
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:memcache][:collect_backtraces]
     
     validate_event_keys(traces[2], @info_kvs)
     
     traces[2]['KVKey'].must_equal "rawKey"
-    traces[2].has_key?('Backtrace').must_equal false
+    traces[2].has_key?('Backtrace').must_equal Oboe::Config[:memcache][:collect_backtraces]
     
     validate_event_keys(traces[3], @exit_kvs)
   end
@@ -163,10 +167,10 @@ describe Oboe::API::Memcache do
     validate_event_keys(traces[1], @entry_kvs)
     
     traces[1]['KVOp'].must_equal "decr"
-    traces[1].has_key?('Backtrace').must_equal false
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:memcache][:collect_backtraces]
     
     traces[2]['KVKey'].must_equal "some_key_counter"
-    traces[2].has_key?('Backtrace').must_equal false
+    traces[2].has_key?('Backtrace').must_equal Oboe::Config[:memcache][:collect_backtraces]
     
     validate_event_keys(traces[3], @exit_kvs)
   end
@@ -221,5 +225,27 @@ describe Oboe::API::Memcache do
     traces[2]['KVKey'].must_equal "some_key"
     validate_event_keys(traces[2], @info_kvs)
     validate_event_keys(traces[3], @exit_kvs)
+  end
+    
+  it "should obey :collect_backtraces setting when true" do
+    Oboe::Config[:memcache][:collect_backtraces] = true
+
+    Oboe::API.start_trace('memcache_test', '', {}) do
+      @mc.set('some_key', 1)
+    end
+
+    traces = get_all_traces
+    layer_has_key(traces, 'memcache', 'Backtrace')
+  end
+
+  it "should obey :collect_backtraces setting when false" do
+    Oboe::Config[:memcache][:collect_backtraces] = false
+
+    Oboe::API.start_trace('memcache_test', '', {}) do
+      @mc.set('some_key', 1)
+    end
+
+    traces = get_all_traces
+    layer_doesnt_have_key(traces, 'memcache', 'Backtrace')
   end
 end

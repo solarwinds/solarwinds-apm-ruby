@@ -45,7 +45,7 @@ if defined?(::Mongo) and Oboe::Config[:mongo][:enabled]
               report_kvs[:New_Collection_Name] = args[0] if m == :create_collection
               report_kvs[:Collection] = args[0]          if m == :drop_collection
 
-              report_kvs[:Backtrace] = Oboe::API.backtrace
+              report_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:mongo][:collect_backtraces]
             rescue
             end
 
@@ -117,7 +117,7 @@ if defined?(::Mongo) and Oboe::Config[:mongo][:enabled]
             report_kvs[:RemotePort] = @db.connection.port
             report_kvs[:Collection] = @name
                 
-            report_kvs[:Backtrace] = Oboe::API.backtrace
+            report_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:mongo][:collect_backtraces]
 
             report_kvs[:QueryOp] = m 
             report_kvs[:Query] = args[0].to_json if args and not args.empty? and args[0].class == Hash

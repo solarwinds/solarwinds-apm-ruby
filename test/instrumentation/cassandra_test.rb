@@ -1,6 +1,5 @@
 require 'minitest_helper'
 
-
 describe Oboe::Inst::Cassandra do
   before do
     clear_all_traces 
@@ -18,9 +17,11 @@ describe Oboe::Inst::Cassandra do
       'RemotePort' => '9160' }
 
     @exit_kvs = { 'Layer' => 'cassandra', 'Label' => 'exit' }
+    @collect_backtraces = Oboe::Config[:cassandra][:collect_backtraces]
   end
 
   after do
+    Oboe::Config[:cassandra][:collect_backtraces] = @collect_backtraces
     @client.disconnect!
   end
 
@@ -56,7 +57,7 @@ describe Oboe::Inst::Cassandra do
     traces[1]['Key'].must_equal "5"
     traces[1]['Consistency'].must_equal "1"
     traces[1]['Ttl'].must_equal "600"
-    traces[1].has_key?('Backtrace').must_equal true
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
   end
 
@@ -74,7 +75,7 @@ describe Oboe::Inst::Cassandra do
     traces[1]['Op'].must_equal "remove"
     traces[1]['Cf'].must_equal "Users"
     traces[1]['Key'].must_equal "5"
-    traces[1].has_key?('Backtrace').must_equal true
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
   end
   
@@ -95,7 +96,7 @@ describe Oboe::Inst::Cassandra do
     traces[1]['Cf'].must_equal "Statuses"
     traces[1]['Key'].must_equal "12"
     traces[1]['Count'].must_equal "50"
-    traces[1].has_key?('Backtrace').must_equal true
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
   end
 
@@ -113,7 +114,7 @@ describe Oboe::Inst::Cassandra do
     traces[1]['Op'].must_equal "get_columns"
     traces[1]['Cf'].must_equal "Statuses"
     traces[1]['Key'].must_equal "12"
-    traces[1].has_key?('Backtrace').must_equal true
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
   end
 
@@ -131,7 +132,7 @@ describe Oboe::Inst::Cassandra do
     traces[1]['Op'].must_equal "multi_get_columns"
     traces[1]['Cf'].must_equal "Users"
     traces[1]['Key'].must_equal "[\"12\", \"5\"]"
-    traces[1].has_key?('Backtrace').must_equal true
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
   end
 
@@ -150,7 +151,7 @@ describe Oboe::Inst::Cassandra do
     traces[1]['Cf'].must_equal "Statuses"
     traces[1]['Key'].must_equal "12"
     traces[1]['Reversed'].must_equal "true"
-    traces[1].has_key?('Backtrace').must_equal true
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
   end
 
@@ -169,13 +170,13 @@ describe Oboe::Inst::Cassandra do
     traces[1]['Op'].must_equal "exists?"
     traces[1]['Cf'].must_equal "Statuses"
     traces[1]['Key'].must_equal "12"
-    traces[1].has_key?('Backtrace').must_equal true
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
     
     traces[3]['Op'].must_equal "exists?"
     traces[3]['Cf'].must_equal "Statuses"
     traces[3]['Key'].must_equal "12"
-    traces[3].has_key?('Backtrace').must_equal true
+    traces[3].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
   end
 
   it 'should trace get_range_keys' do
@@ -191,7 +192,7 @@ describe Oboe::Inst::Cassandra do
     validate_event_keys(traces[1], @entry_kvs)
     traces[1]['Op'].must_equal "get_range_batch"
     traces[1]['Cf'].must_equal "Statuses"
-    traces[1].has_key?('Backtrace').must_equal true
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
   end
 
@@ -212,7 +213,7 @@ describe Oboe::Inst::Cassandra do
     traces[1]['Keyspace'].must_equal "TRCassInstr"
     traces[1]['Column_name'].must_equal "x"
     traces[1]['Validation_class'].must_equal "LongType"
-    traces[1].has_key?('Backtrace').must_equal true
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
     
     validate_event_keys(traces[3], @entry_kvs)
@@ -220,7 +221,7 @@ describe Oboe::Inst::Cassandra do
     traces[3]['Cf'].must_equal "Statuses"
     traces[3]['Keyspace'].must_equal "TRCassInstr"
     traces[3]['Column_name'].must_equal "x"
-    traces[3].has_key?('Backtrace').must_equal true
+    traces[3].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
     validate_event_keys(traces[4], @exit_kvs)
   end
 
@@ -245,7 +246,7 @@ describe Oboe::Inst::Cassandra do
     validate_event_keys(traces[1], @entry_kvs)
     traces[1]['Op'].must_equal "get_indexed_slices"
     traces[1]['Cf'].must_equal "Statuses"
-    traces[1].has_key?('Backtrace').must_equal true
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
   end
   
@@ -265,12 +266,12 @@ describe Oboe::Inst::Cassandra do
 
     validate_event_keys(traces[1], @entry_kvs)
     traces[1]['Op'].must_equal "add_column_family"
-    traces[1].has_key?('Backtrace').must_equal true
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
     
     traces[3]['Op'].must_equal "drop_column_family"
     traces[3]['Cf'].must_equal cf_name
-    traces[3].has_key?('Backtrace').must_equal true
+    traces[3].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
   end
   
   it 'should trace add and remove of keyspace' do
@@ -295,11 +296,36 @@ describe Oboe::Inst::Cassandra do
     validate_event_keys(traces[1], @entry_kvs)
     traces[1]['Op'].must_equal "add_keyspace"
     traces[1]['Name'].must_equal ks_name
-    traces[1].has_key?('Backtrace').must_equal true
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
     
     traces[3]['Op'].must_equal "drop_keyspace"
     traces[3]['Name'].must_equal ks_name
-    traces[3].has_key?('Backtrace').must_equal true
+    traces[3].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
   end
+  
+  it "should obey :collect_backtraces setting when true" do
+    Oboe::Config[:cassandra][:collect_backtraces] = true
+
+    Oboe::API.start_trace('cassandra_test', '', {}) do
+      user = {'screen_name' => 'larry', "blah" => "ok"}
+      @client.insert(:Users, '5', user, { :ttl => 600, :consistency => 1})
+    end
+
+    traces = get_all_traces
+    layer_has_key(traces, 'cassandra', 'Backtrace')
+  end
+
+  it "should obey :collect_backtraces setting when false" do
+    Oboe::Config[:cassandra][:collect_backtraces] = false
+
+    Oboe::API.start_trace('cassandra_test', '', {}) do
+      user = {'screen_name' => 'larry', "blah" => "ok"}
+      @client.insert(:Users, '5', user, { :ttl => 600, :consistency => 1})
+    end
+
+    traces = get_all_traces
+    layer_doesnt_have_key(traces, 'cassandra', 'Backtrace')
+  end
+  
 end

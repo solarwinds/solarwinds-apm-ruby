@@ -39,7 +39,7 @@ module Oboe
           exit_kvs[:Language] = :ruby
           exit_kvs[:ProfileName] = report_kvs[:ProfileName]
 
-          Oboe::Context.log(nil, 'profile_exit', exit_kvs, false)
+          Oboe::Context.log(nil, 'profile_exit', exit_kvs, true)
         end
       end
     end

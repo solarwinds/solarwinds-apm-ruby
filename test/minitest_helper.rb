@@ -75,3 +75,39 @@ def validate_event_keys(event, kvs)
   end
 end
 
+##
+# layer_has_key
+#
+# Checks an array of trace events if a specific layer (regardless of event type)
+# has he specified key
+#
+def layer_has_key(traces, layer, key)
+  has_key = false
+
+  traces.each do |t|
+    if t["Layer"] == layer and t.has_key?(key)
+      has_key = true
+
+      (t["Backtrace"].length > 0).must_equal true
+    end
+  end
+
+  has_key.must_equal true
+end
+
+##
+# layer_doesnt_have_key
+#
+# Checks an array of trace events to assure that a specific layer 
+# (regardless of event type) doesn't have the specified key
+#
+def layer_doesnt_have_key(traces, layer, key)
+  has_key = false
+
+  traces.each do |t|
+    has_key = true if t["Layer"] == layer and t.has_key?(key)
+  end
+
+  has_key.must_equal false
+end
+

@@ -40,6 +40,7 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
             report_kvs[:RemoteHost], report_kvs[:RemotePort] = session.cluster.seeds.first.split(':')
             report_kvs[:Database] = name
             report_kvs[:QueryOp] = op.to_s
+            report_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:moped][:collect_backtraces]
           rescue Exception => e
             Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
           end
@@ -100,6 +101,7 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
             report_kvs[:RemoteHost], report_kvs[:RemotePort] = database.session.cluster.seeds.first.split(':')
             report_kvs[:Database] = database.name
             report_kvs[:QueryOp] = op.to_s
+            report_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:moped][:collect_backtraces]
           rescue Exception => e
             Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
           end
@@ -170,6 +172,7 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
             report_kvs[:Database] = collection.database.name
             report_kvs[:Collection] = collection.name
             report_kvs[:QueryOp] = op.to_s
+            report_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:moped][:collect_backtraces]
           rescue Exception => e
             Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
           end
@@ -396,6 +399,7 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
             report_kvs[:Database] = @database.name
             report_kvs[:Collection] = @name
             report_kvs[:QueryOp] = op.to_s
+            report_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:moped][:collect_backtraces]
           rescue Exception => e
             Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
           end

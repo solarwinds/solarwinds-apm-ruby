@@ -12,7 +12,7 @@ module Oboe_metal
     class << self
       attr_accessor :layer_op
 
-      def log(layer, label, options = {}, with_backtrace = true)
+      def log(layer, label, options = {}, with_backtrace = false)
         evt = Oboe::Context.createEvent()
         evt.addInfo("Layer", layer.to_s)
         evt.addInfo("Label", label.to_s)

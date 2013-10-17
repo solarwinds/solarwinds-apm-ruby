@@ -29,7 +29,7 @@ module Oboe
             end
           end
           
-          report_kvs[:Backtrace] = Oboe::API.backtrace
+          report_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:resque][:collect_backtraces]
         rescue
         end
 

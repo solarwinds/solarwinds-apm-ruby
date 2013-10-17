@@ -32,9 +32,12 @@ module Oboe
 
           Oboe::API.trace('memcache', opts || {}) do
             result = perform_without_oboe(*all_args, &blk)
-            if op == :get and key.class == String
-                Oboe::API.log('memcache', 'info', { :KVHit => memcache_hit?(result) })
-            end
+
+            info_kvs = {}
+            info_kvs[:KVHit] = memcache_hit?(result) if op == :get and key.class == String
+            info_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:dalli][:collect_backtraces]
+            
+            Oboe::API.log('memcache', 'info', info_kvs) unless info_kvs.empty?
             result
           end
         else
@@ -60,6 +63,7 @@ module Oboe
               values = get_multi_without_oboe(keys)
               
               info_kvs[:KVHitCount] = values.length
+              info_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:dalli][:collect_backtraces]
               Oboe::API.log('memcache', 'info', info_kvs)
             rescue
               values = get_multi_without_oboe(keys)
