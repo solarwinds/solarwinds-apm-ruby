@@ -7,18 +7,18 @@ module Oboe
     def copy_initializer
       # Set defaults
       @tracing_mode = 'through'
-      @sampling_rate = '300000'
+      @sample_rate = '300000'
       @verbose = 'false'
 
       say ""
       say shell.set_color "Welcome to the TraceView Ruby instrumentation setup.", :green, :bold
       say ""
-      say "To instrument your Rails application, you have the option to setup sampling strategies here."
+      say "To instrument your Rails application, you can setup your tracing strategy here."
       say ""
       say shell.set_color "Documentation Links", :magenta
       say "-------------------"
       say ""
-      say "Details on configuring your sampling rate:"
+      say "Details on configuring your sample rate:"
       say "http://support.tv.appneta.com/support/solutions/articles/86336-configuring-sampling"
       say ""
       say "More information on instrumenting Ruby applications can be found here:"

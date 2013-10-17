@@ -28,7 +28,7 @@ module Oboe
             end
 
             opts[:Name] = name.to_s if name
-            opts[:Backtrace] = Oboe::API.backtrace
+            opts[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:active_record][:collect_backtraces]
 
             if ::Rails::VERSION::MAJOR == 2
               config = ::Rails.configuration.database_configuration[::Rails.env]

@@ -27,8 +27,22 @@ module Oboe
       @@instrumentation.each do |k|
         @@config[k] = {}
         @@config[k][:enabled] = true
+        @@config[k][:collect_backtraces] = false
         @@config[k][:log_args] = true
       end
+
+      # Set collect_backtraces defaults
+      Oboe::Config[:action_controller][:collect_backtraces] = true
+      Oboe::Config[:active_record][:collect_backtraces] = true
+      Oboe::Config[:action_view][:collect_backtraces] = true
+      Oboe::Config[:cassandra][:collect_backtraces] = true
+      Oboe::Config[:dalli][:collect_backtraces] = false
+      Oboe::Config[:memcache][:collect_backtraces] = false
+      Oboe::Config[:memcached][:collect_backtraces] = false
+      Oboe::Config[:mongo][:collect_backtraces] = true
+      Oboe::Config[:moped][:collect_backtraces] = true
+      Oboe::Config[:nethttp][:collect_backtraces] = true
+      Oboe::Config[:resque][:collect_backtraces] = true
 
       # Special instrument specific flags
       #
@@ -47,8 +61,15 @@ module Oboe
       # avoid collecting and reporting query literals to TraceView.
       @@config[:sanitize_sql] = false
 
-      update!(data)
-
+      # The default configuration
+      default_config = {
+        :tracing_mode => "through",
+        :reporter_host => "127.0.0.1",
+        :sample_rate => 300000,
+        :verbose => false 
+      }
+      update!(default_config)
+      
       # For Initialization, mark this as the default SampleRate
       @@config[:sample_source] = 2 # OBOE_SAMPLE_RATE_SOURCE_DEFAULT
     end
@@ -65,6 +86,10 @@ module Oboe
 
     def self.[]=(key, value)
       @@config[key.to_sym] = value
+
+      if key == :sampling_rate
+        Oboe.logger.warn "WARNING: :sampling_rate is not a supported setting for Oboe::Config.  Please use :sample_rate."
+      end
 
       if key == :sample_rate
         # When setting SampleRate, note that it's been manually set
@@ -113,11 +138,5 @@ module Oboe
   end
 end
 
-config = {
-      :tracing_mode => "through",
-      :reporter_host => "127.0.0.1",
-      :sample_rate => 300000,
-      :verbose => false }
-
-Oboe::Config.initialize(config)
+Oboe::Config.initialize
 

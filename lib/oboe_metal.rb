@@ -12,7 +12,7 @@ module Oboe_metal
     class << self
       attr_accessor :layer_op
 
-      def log(layer, label, options = {}, with_backtrace = true)
+      def log(layer, label, options = {}, with_backtrace = false)
         evt = Oboe::Context.createEvent()
         evt.addInfo("Layer", layer.to_s)
         evt.addInfo("Label", label.to_s)
@@ -85,7 +85,12 @@ end
 
 begin
   Oboe_metal::Context.init() 
-  Oboe.reporter = Oboe::UdpReporter.new("127.0.0.1")
+
+  if ENV['RACK_ENV'] == "test"
+    Oboe.reporter = Oboe::FileReporter.new("./tmp/trace_output.bson")
+  else
+    Oboe.reporter = Oboe::UdpReporter.new(Oboe::Config[:reporter_host])
+  end
 
 rescue Exception => e
   $stderr.puts e.message

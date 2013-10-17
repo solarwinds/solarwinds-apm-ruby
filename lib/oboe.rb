@@ -5,6 +5,10 @@ begin
   require 'rbconfig'
   require 'logger'
   
+  require 'oboe/logger'
+  require 'oboe/util'
+  require 'oboe/config'
+
   # If Oboe_metal is already defined then we are in a PaaS environment
   # with an alternate metal (such as Heroku: see the oboe-heroku gem)
   unless defined?(Oboe_metal)
@@ -16,9 +20,7 @@ begin
       require 'oboe_metal'
     end
   end
-  require 'oboe/logger'
-  require 'oboe/util'
-  require 'oboe/config'
+
   require 'oboe/loading'
   require 'method_profiling'
   require 'oboe/instrumentation'
