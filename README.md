@@ -133,7 +133,17 @@ You are obviously a person of great sense and intelligence.  We happily apprecia
 
 We welcome you to send us PRs.  We also humbly request that any new instrumentation submissions have corresponding tests that accompany them.  This way we don't break any of your additions when we (and others) make changes after the fact.
 
-If at any time, you have a question, you can reach us through our [support portal](https://support.tv.appneta.com) or on our IRC channel #appneta on freenode.
+## Developer Resources
+
+We at AppNeta have made a large effort to expose as much technical information as possible to assist developers wishing to contribute to the oboe gem.  Below are the three major sources for information and help for developers:
+
+* The [TraceView blog](http://www.appneta.com/blog) has a constant stream of great technical articles.  (See [A Gentle X-Trace Introduction](http://www.appneta.com/blog/x-trace-introduction/) for details on the basic methodology that TraceView uses to gather structured performance data across hosts and stacks.)
+
+* The [TraceView Knowledge Base](https://support.tv.appneta.com) has a large collection of technical articles or, if needed, you can submit a support request directly to the team.
+
+* You can also reach the TraceView team on our IRC channel #appneta on freenode.
+
+If you have any questions or ideas, don't hesitate to contact us anytime.
 
 ## Layout of the Gem
 
