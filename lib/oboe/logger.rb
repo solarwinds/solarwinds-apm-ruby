@@ -1,6 +1,8 @@
 # Copyright (c) 2013 by AppNeta
 # All rights reserved.
 
+require 'logger'
+
 module Oboe
   class << self
     attr_accessor :logger
