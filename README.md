@@ -241,7 +241,7 @@ Some other tips and guidelines:
 
 ## Compiling the C extension
 
-The oboe gem utilizes a C extension to interface with the system `liboboe.so` library.  This system library is installed with the TraceView host packages (tracelyzer, liboboe0, liboboe-dev) and is used to report performance metrics from multiple sources (Ruby, Apache, Python etc.) back to TraceView servers.  
+The oboe gem utilizes a C extension to interface with the system `liboboe.so` library.  This system library is installed with the TraceView host packages (tracelyzer, liboboe0, liboboe-dev) and is used to report [host](http://www.appneta.com/blog/app-host-metrics/) and performance metrics from multiple sources (Ruby, Apache, Python etc.) back to TraceView servers.
 
 C extensions are usually built on `gem install` but when working out of a local git repository, it's required that you manually build this C extension for the gem to function.  
 
