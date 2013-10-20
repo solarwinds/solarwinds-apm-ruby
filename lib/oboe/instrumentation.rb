@@ -1,3 +1,6 @@
+# Copyright (c) 2013 AppNeta, Inc.
+# All rights reserved.
+
 module Oboe
   module Inst
     def self.load_instrumentation

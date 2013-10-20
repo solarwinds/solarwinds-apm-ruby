@@ -1,3 +1,5 @@
+# Copyright (c) 2013 AppNeta, Inc.
+# All rights reserved.
 
 module Oboe
   class InstallGenerator < ::Rails::Generators::Base
