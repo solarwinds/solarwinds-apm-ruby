@@ -32,6 +32,12 @@ class RackTestApp < MiniTest::Unit::TestCase
     validate_outer_layers(traces, 'rack')
 
     kvs = {} 
+    kvs["Label"] = "entry"
+    validate_event_keys(traces[0], kvs)
+
+    kvs.clear
+    kvs["Label"] = "info"
+    kvs["Status"] = "200"
     kvs["SampleRate"] = "1000000"
     kvs["SampleSource"] = "1"
     kvs["HTTP-Host"] = "example.org"
@@ -40,11 +46,6 @@ class RackTestApp < MiniTest::Unit::TestCase
     kvs["URL"] = "/lobster"
     kvs["Method"] = "GET"
     kvs["ClientIP"] = "127.0.0.1"
-    validate_event_keys(traces[0], kvs)
-
-    kvs.clear
-    kvs["Label"] = "info"
-    kvs["Status"] = "200"
     validate_event_keys(traces[1], kvs)
 
     assert last_response.ok?
