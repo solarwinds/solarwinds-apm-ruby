@@ -1,3 +1,6 @@
+# Copyright (c) 2013 AppNeta, Inc.
+# All rights reserved.
+
 module Oboe
   module Rails
     module Helpers
@@ -39,8 +42,8 @@ module Oboe
     end # Helpers
       
     def self.load_initializer
-      # Force load the tracelytics Rails initializer if there is one
-      # Prefer oboe.rb but give priority to tracelytics.rb if it exists
+      # Force load the TraceView Rails initializer if there is one
+      # Prefer oboe.rb but give priority to the legacy tracelytics.rb if it exists
       if ::Rails::VERSION::MAJOR > 2
         rails_root = "#{::Rails.root.to_s}"
       else
@@ -66,11 +69,7 @@ module Oboe
         end
       end
       
-      if ::Rails::VERSION::MAJOR > 2
-        Oboe.logger.info "Tracelytics oboe gem #{Gem.loaded_specs['oboe'].version.to_s} successfully loaded."
-      else
-        Oboe.logger.info "Tracelytics oboe gem #{Oboe::Version::STRING} successfully loaded." 
-      end
+      Oboe.logger.info "TraceView oboe gem #{Oboe::Version::STRING} successfully loaded." 
     end
 
     def self.include_helpers
