@@ -239,6 +239,29 @@ Some other tips and guidelines:
 
 * Include tests with your instrumentation.  See `test/instrumentation/` for some examples of existing instrumentation tests.
 
+## Compiling the C extension
+
+The oboe gem utilizes a C extension to interface with the system `liboboe.so` library.  This system library is installed with the TraceView host packages (tracelyzer, liboboe0, liboboe-dev) and is used to report [host](http://www.appneta.com/blog/app-host-metrics/) and performance metrics from multiple sources (Ruby, Apache, Python etc.) back to TraceView servers.
+
+C extensions are usually built on `gem install` but when working out of a local git repository, it's required that you manually build this C extension for the gem to function.  
+
+To make this simpler, we've included a few rake tasks to automate this process:
+
+    rake compile             # Build the gem's c extension
+    rake distclean           # Remove all built files and extensions
+    rake recompile           # Rebuild the gem's c extension
+
+Note: Make sure you have the development package `liboboe0-dev` installed before attempting to compile the C extension.
+
+    >$ dpkg -l | grep liboboe
+    ii  liboboe-dev    1.1.1-precise1    Tracelytics common library -- development files
+    ii  liboboe0       1.1.1-precise1    Tracelytics common library
+
+See [Installing Base Packages on Debian and Ubuntu](https://support.tv.appneta.com/support/solutions/articles/86359-installing-base-packages-on-debian-and-ubuntu) in the Knowledge Base for details.  Our hacker extraodinaire [Rob Salmond](https://github.com/rsalmond) from the support team have even gotten these packages to [run on Gentoo](http://www.appneta.com/blog/unsupported-doesnt-work/)!
+
+To see the code related to the C extension, take a look at `ext/oboe_metal/extconf.rb` for details.
+
+You can read more about Ruby gems with C extensions in the [Rubygems Guides](http://guides.rubygems.org/gems-with-extensions/).
 
 ## Running the Tests
 
