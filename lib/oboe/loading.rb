@@ -1,4 +1,4 @@
-# Copyright (c) 2012 by Tracelytics, Inc.
+# Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
 require 'digest/sha1'
@@ -78,8 +78,6 @@ module Oboe
     # Load the oboe tracing API
     # 
     def self.require_api
-      require 'oboe/version'
-
       pattern = File.join(File.dirname(__FILE__), 'api', '*.rb')
       Dir.glob(pattern) do |f|
         require f
@@ -91,8 +89,6 @@ module Oboe
       rescue LoadError => e
         Oboe.logger.fatal "[oboe/error] Couldn't load oboe api."
       end
-      
-      require 'oboe/config'
     end
 
     ## 
@@ -114,5 +110,5 @@ end
 
 Oboe::Loading.require_api
 Oboe::Loading.load_framework_instrumentation
-Oboe::API.report_init('ruby') unless ["development", "test"].include? ENV['RACK_ENV']
+Oboe::Reporter.start
 

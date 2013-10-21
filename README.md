@@ -133,7 +133,17 @@ You are obviously a person of great sense and intelligence.  We happily apprecia
 
 We welcome you to send us PRs.  We also humbly request that any new instrumentation submissions have corresponding tests that accompany them.  This way we don't break any of your additions when we (and others) make changes after the fact.
 
-If at any time, you have a question, you can reach us through our [support portal](https://support.tv.appneta.com) or on our IRC channel #appneta on freenode.
+## Developer Resources
+
+We at AppNeta have made a large effort to expose as much technical information as possible to assist developers wishing to contribute to the oboe gem.  Below are the three major sources for information and help for developers:
+
+* The [TraceView blog](http://www.appneta.com/blog) has a constant stream of great technical articles.  (See [A Gentle X-Trace Introduction](http://www.appneta.com/blog/x-trace-introduction/) for details on the basic methodology that TraceView uses to gather structured performance data across hosts and stacks.)
+
+* The [TraceView Knowledge Base](https://support.tv.appneta.com) has a large collection of technical articles or, if needed, you can submit a support request directly to the team.
+
+* You can also reach the TraceView team on our IRC channel #appneta on freenode.
+
+If you have any questions or ideas, don't hesitate to contact us anytime.
 
 ## Layout of the Gem
 
@@ -229,6 +239,29 @@ Some other tips and guidelines:
 
 * Include tests with your instrumentation.  See `test/instrumentation/` for some examples of existing instrumentation tests.
 
+## Compiling the C extension
+
+The oboe gem utilizes a C extension to interface with the system `liboboe.so` library.  This system library is installed with the TraceView host packages (tracelyzer, liboboe0, liboboe-dev) and is used to report [host](http://www.appneta.com/blog/app-host-metrics/) and performance metrics from multiple sources (Ruby, Apache, Python etc.) back to TraceView servers.
+
+C extensions are usually built on `gem install` but when working out of a local git repository, it's required that you manually build this C extension for the gem to function.  
+
+To make this simpler, we've included a few rake tasks to automate this process:
+
+    rake compile             # Build the gem's c extension
+    rake distclean           # Remove all built files and extensions
+    rake recompile           # Rebuild the gem's c extension
+
+Note: Make sure you have the development package `liboboe0-dev` installed before attempting to compile the C extension.
+
+    >$ dpkg -l | grep liboboe
+    ii  liboboe-dev    1.1.1-precise1    Tracelytics common library -- development files
+    ii  liboboe0       1.1.1-precise1    Tracelytics common library
+
+See [Installing Base Packages on Debian and Ubuntu](https://support.tv.appneta.com/support/solutions/articles/86359-installing-base-packages-on-debian-and-ubuntu) in the Knowledge Base for details.  Our hacker extraodinaire [Rob Salmond](https://github.com/rsalmond) from the support team have even gotten these packages to [run on Gentoo](http://www.appneta.com/blog/unsupported-doesnt-work/)!
+
+To see the code related to the C extension, take a look at `ext/oboe_metal/extconf.rb` for details.
+
+You can read more about Ruby gems with C extensions in the [Rubygems Guides](http://guides.rubygems.org/gems-with-extensions/).
 
 ## Running the Tests
 

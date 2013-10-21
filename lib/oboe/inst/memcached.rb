@@ -1,6 +1,5 @@
-# Copyright (c) 2012 by Tracelytics, Inc.
+# Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
-#
 
 module Oboe
   module Inst

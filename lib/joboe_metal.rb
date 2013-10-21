@@ -1,4 +1,4 @@
-# Copyright (c) 2012 by Tracelytics, Inc.
+# Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
 module Oboe_metal
@@ -70,6 +70,27 @@ module Oboe_metal
   end
   
   module Reporter
+    ##
+    # Initialize the Oboe Context, reporter and report the initialization
+    #
+    def self.start
+      begin
+        Oboe_metal::Context.init() 
+
+        if ENV['RACK_ENV'] == "test"
+          Oboe.reporter = Oboe::FileReporter.new("./tmp/trace_output.bson")
+        else
+          Oboe.reporter = Oboe::UdpReporter.new(Oboe::Config[:reporter_host])
+        end
+
+        Oboe::API.report_init('ruby') unless ["development", "test"].include? ENV['RACK_ENV']
+      
+      rescue Exception => e
+        $stderr.puts e.message
+        raise
+      end
+    end
+    
     def self.sendReport(evt)
       evt.report
     end
@@ -79,42 +100,39 @@ end
 module Oboe
   include Oboe_metal
   
-  def self.always?
-    Oboe::Config[:tracing_mode].to_s == "always"
-  end
+  class << self
+    attr_accessor :reporter
   
-  def self.log(layer, label, options = {})
-    Context.log(layer, label, options = options)
-  end
-  
-  def self.never?
-    Oboe::Config[:tracing_mode].to_s == "never"
-  end
-
-  def self.passthrough?
-    ["always", "through"].include?(Oboe::Config[:tracing_mode])
-  end
-    
-  def self.sample?(opts = {})
-    # Assure defaults since SWIG enforces Strings
-    opts[:layer]      ||= ''
-    opts[:xtrace]     ||= ''
-    opts['X-TV-Meta']   ||= ''
-    Java::ComTracelyticsJoboeSettingsReader.shouldTraceRequest(opts[:layer], opts[:xtrace], opts['X-TV-Meta'])
-  end
-
-  def self.through?
-    Oboe::Config[:tracing_mode] == "through"
-  end
-    
-  def self.tracing?
-    Oboe::Context.isValid and not Oboe.never?
-  end
-
-  def self.reporter
-    if !@reporter
-      @reporter = Oboe::UdpReporter.new(Oboe::Config[:reporter_host])
+    def always?
+      Oboe::Config[:tracing_mode].to_s == "always"
     end
-    return @reporter
+    
+    def log(layer, label, options = {})
+      Context.log(layer, label, options = options)
+    end
+    
+    def never?
+      Oboe::Config[:tracing_mode].to_s == "never"
+    end
+
+    def passthrough?
+      ["always", "through"].include?(Oboe::Config[:tracing_mode])
+    end
+      
+    def sample?(opts = {})
+      # Assure defaults since SWIG enforces Strings
+      opts[:layer]      ||= ''
+      opts[:xtrace]     ||= ''
+      opts['X-TV-Meta']   ||= ''
+      Java::ComTracelyticsJoboeSettingsReader.shouldTraceRequest(opts[:layer], opts[:xtrace], opts['X-TV-Meta'])
+    end
+
+    def through?
+      Oboe::Config[:tracing_mode] == "through"
+    end
+      
+    def tracing?
+      Oboe::Context.isValid and not Oboe.never?
+    end
   end
 end

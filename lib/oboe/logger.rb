@@ -1,5 +1,7 @@
-# Copyright (c) 2013 by AppNeta
+# Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
+
+require 'logger'
 
 module Oboe
   class << self
