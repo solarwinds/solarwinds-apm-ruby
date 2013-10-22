@@ -22,7 +22,7 @@ if defined?(ActionView::Base) and Oboe::Config[:action_view][:enabled]
           rescue
           end
 
-          Oboe::API.profile(name, entry_kvs) do
+          Oboe::API.profile(name, entry_kvs, Oboe::Config[:action_view][:collect_backtraces]) do
             render_partial_without_oboe(options)
           end
         else
@@ -43,7 +43,7 @@ if defined?(ActionView::Base) and Oboe::Config[:action_view][:enabled]
         rescue
         end
 
-        Oboe::API.profile(name, entry_kvs) do
+        Oboe::API.profile(name, entry_kvs, Oboe::Config[:action_view][:collect_backtraces]) do
           render_partial_collection_without_oboe(options)
         end
       end
