@@ -125,7 +125,7 @@ This example demonstrates method profiling of instance methods.  Class methods a
 
 # Support
 
-If you find a bug or would like to request an enhancement, feel free to file an issue.  For all other support requests, see our [support portal](https://support.tv.appneta.com/) or on IRC @ #appneta on Freenode.
+If you find a bug or would like to request an enhancement, feel free to file an issue.  For all other support requests, see our [support portal](https://support.tv.appneta.com/) or on IRC @ #appneta on [Freenode](http://freenode.net/).
 
 # Contributing
 
