@@ -1,5 +1,22 @@
 
-# oboe 2.2.0
+# oboe 2.3.2 (10/22/13)
+
+* Backtrace collection can now be configured to skip certain components if a lighter-weight trace is desired
+* On MRI Ruby the hostname of the Tracelyzer is now configurable via Oboe::Config[:reporter_host] (default is localhost)
+* Fix to MongoDb query identification
+* Event building in the Rack layer optimized
+* Renamed "sampling_rate" to be "sample_rate" for consistency
+* More tests added and documentation in anticipation of our Ruby open-source initiative
+
+# oboe 2.2.6 (09/27/13)
+
+* Query Privacy now fully supported; can configure the app to not send SQL parameters if needed
+* Configuring the local sample rate now supports 1e6 notation
+* Improved log messaging if a gem dependency is missing
+* Now reporting HTTPStatus on http client calls
+* Heroku - the start time when a request hits the load balancer now captured
+
+# oboe 2.2.0 (09/12/13)
 
 * Initial support for Rails 4
 * Various internal reporting fixes and improvements
