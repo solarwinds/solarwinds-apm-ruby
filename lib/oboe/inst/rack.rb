@@ -1,6 +1,8 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
+require 'uri'
+
 module Oboe
   class Rack
     attr_reader :app
@@ -19,8 +21,8 @@ module Oboe
         report_kvs['HTTP-Host']        = req.host
         report_kvs['Port']             = req.port
         report_kvs['Proto']            = req.scheme
-        report_kvs['Query-String']     = req.query_string unless req.query_string.empty?
-        report_kvs[:URL]               = req.path
+        report_kvs['Query-String']     = URI.unescape(req.query_string) unless req.query_string.empty?
+        report_kvs[:URL]               = URI.unescape(req.path)
         report_kvs[:Method]            = req.request_method
         report_kvs['AJAX']             = true if req.xhr?
         report_kvs['ClientIP']         = req.ip
