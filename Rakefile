@@ -61,12 +61,17 @@ task :distclean do
   lib_dir = File.expand_path('lib')
   symlink = File.expand_path('lib/oboe_metal.so')
   so_file = File.expand_path('ext/oboe_metal/oboe_metal.so')
+  mkmf_log = File.expand_path('ext/oboe_metal/mkmf.log')
   
-  Dir.chdir ext_dir
-  File.delete symlink if File.exist? symlink
-  sh '/usr/bin/env make distclean'
+  if File.exists? mkmf_log
+    Dir.chdir ext_dir
+    File.delete symlink if File.exist? symlink
+    sh '/usr/bin/env make distclean'
 
-  Dir.chdir pwd
+    Dir.chdir pwd
+  else
+    puts "Nothing to distclean. (nothing built yet?)"
+  end
 end
 
 desc "Rebuild the gem's c extension"
