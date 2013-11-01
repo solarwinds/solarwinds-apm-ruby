@@ -28,10 +28,16 @@ task :compile do
   sh cmd.join(' ')
   sh '/usr/bin/env make'
   File.delete symlink if File.exist? symlink
-  File.symlink so_file, symlink
 
-  Dir.chdir pwd
-  puts "== Extension built and symlink'd to #{symlink}"
+  if File.exists? so_file
+    File.symlink so_file, symlink
+    Dir.chdir pwd
+    puts "== Extension built and symlink'd to #{symlink}"
+  else
+    Dir.chdir pwd
+    puts "!! Extension failed to build (see above).  Are the base TraceView packages installed?"
+    puts "!! See https://support.tv.appneta.com/support/solutions/articles/86359"
+  end
 end
 
 desc "Clean up extension build files"
