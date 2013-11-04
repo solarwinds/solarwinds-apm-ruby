@@ -66,6 +66,24 @@ module Oboe
 
         false
       end
+      
+      # Internal: Pretty print a list of arguments for reporting
+      #
+      # args - the list of arguments to work on
+      #
+      # Returns a pretty string representation of arguments
+      def pps(*args)
+        old_out = $stdout
+        begin
+          s = StringIO.new
+          $stdout = s
+          pp(*args)
+        ensure
+          $stdout = old_out
+        end
+        s.string
+      end
+
     end
   end
 end

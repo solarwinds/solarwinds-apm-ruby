@@ -33,18 +33,6 @@ module OboeMethodProfiling
       
         # profiling via ruby-prof, is it possible to get return value of profiled code?
         code = "def _oboe_profiled_#{method_name}(*args, &block)
-                  def pps(*args)
-                    old_out = $stdout
-                    begin
-                      s = StringIO.new
-                      $stdout = s
-                      pp(*args)
-                    ensure
-                      $stdout = old_out
-                    end
-                    s.string
-                  end
-
                   entry_kvs                  = {}
                   entry_kvs['Language']      = 'ruby'
                   entry_kvs['ProfileName']   = '#{profile_name}'
@@ -53,7 +41,7 @@ module OboeMethodProfiling
                   entry_kvs['Module']        = self.class.to_s.rpartition('::').first
                   entry_kvs['File']          = '#{file}'
                   entry_kvs['LineNumber']    = '#{line}'
-                  entry_kvs['Args']          = pps(*args) if #{store_args}
+                  entry_kvs['Args']          = Oboe::API.pps(*args) if #{store_args}
 
                   Oboe::Context.log(nil, 'profile_entry', entry_kvs)
 
@@ -62,7 +50,7 @@ module OboeMethodProfiling
                   exit_kvs =  {}
                   exit_kvs['Language'] = 'ruby'
                   exit_kvs['ProfileName'] = '#{profile_name}'
-                  exit_kvs['ReturnValue'] = pps(ret) if #{store_return}
+                  exit_kvs['ReturnValue'] = Oboe::API.pps(ret) if #{store_return}
 
                   Oboe::Context.log(nil, 'profile_exit', exit_kvs)
                   ret
