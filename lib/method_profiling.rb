@@ -18,18 +18,18 @@ module OboeMethodProfiling
         if version and (version.match(/^1.9/) or version.match(/^2.0/))
           info = self.instance_method(method_name).source_location
           if !info.nil?
-            file = info[0]
-            line = info[1] 
+            file = info[0].to_s
+            line = info[1].to_s
           end
         else
           info = Kernel.caller[0].split(':')
-          file = info.first
-          line = info.last
+          file = info.first.to_s
+          line = info.last.to_s
         end
 
         # Safety:  Make sure there are no quotes or double quotes to break the class_eval
-        file.gsub! /[\'\"]/, ''
-        line.gsub! /[\'\"]/, ''
+        file = file.gsub /[\'\"]/, ''
+        line = line.gsub /[\'\"]/, ''
       
         # profiling via ruby-prof, is it possible to get return value of profiled code?
         code = "def _oboe_profiled_#{method_name}(*args, &block)
