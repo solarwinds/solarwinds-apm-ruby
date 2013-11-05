@@ -104,6 +104,14 @@ module Oboe < OboeBase
       opts['X-TV-Meta']   ||= ''
       Java::ComTracelyticsJoboeSettingsReader.shouldTraceRequest(opts[:layer], opts[:xtrace], opts['X-TV-Meta'])
     end
+    
+    def set_tracing_mode(mode)
+      # FIXME: TBD
+    end
+    
+    def set_sample_rate(rate)
+      # FIXME: TBD
+    end
   end
 end
 

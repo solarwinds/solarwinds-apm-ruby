@@ -39,5 +39,13 @@ module OboeBase
   def log(layer, label, options = {})
     raise "log should be implemented by metal layer."
   end
+    
+  def set_tracing_mode(mode)
+    raise "set_tracing_mode should be implemented by metal layer."
+  end
+  
+  def set_sample_rate(rate)
+    raise "set_sample_rate should be implemented by metal layer."
+  end
 end
 

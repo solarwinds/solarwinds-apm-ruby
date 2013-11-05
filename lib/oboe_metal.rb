@@ -76,6 +76,31 @@ module Oboe
       opts['X-TV-Meta']   ||= ''
       Oboe::Context.sampleRequest(opts[:layer], opts[:xtrace], opts['X-TV-Meta'])
     end
+
+    def set_tracing_mode(mode)
+      value = mode.to_sym
+
+      case value.downcase
+      when :never
+        # OBOE_TRACE_NEVER
+        Oboe::Context.setTracingMode(0)
+      when :always
+        # OBOE_TRACE_ALWAYS
+        Oboe::Context.setTracingMode(1)
+      when :through
+        # OBOE_TRACE_THROUGH
+        Oboe::Context.setTracingMode(2)
+      else
+        Oboe.logger.fatal "[oboe/error] Invalid tracing mode set: #{mode}"
+        # OBOE_TRACE_THROUGH
+        Oboe::Context.setTracingMode(2)
+      end
+    end
+    
+    def set_sample_rate(rate)
+      # Update liboboe with the new SampleRate value
+      Oboe::Context.setDefaultSampleRate(rate.to_i)
+    end
   end
 end
 
