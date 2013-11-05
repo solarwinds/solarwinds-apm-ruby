@@ -37,11 +37,10 @@ module OboeMethodProfiling
                   entry_kvs['Language']      = 'ruby'
                   entry_kvs['ProfileName']   = '#{profile_name}'
                   entry_kvs['FunctionName']  = '#{method_name}'
-                  entry_kvs['Class']         = self.class.to_s.rpartition('::').last
-                  entry_kvs['Module']        = self.class.to_s.rpartition('::').first
                   entry_kvs['File']          = '#{file}'
                   entry_kvs['LineNumber']    = '#{line}'
                   entry_kvs['Args']          = Oboe::API.pps(*args) if #{store_args}
+                  entry_kvs.merge!(::Oboe::API.get_class_name(self))
 
                   Oboe::Context.log(nil, 'profile_entry', entry_kvs)
 
