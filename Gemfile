@@ -9,7 +9,7 @@ gem 'appraisal'
 group :development, :test do
   gem 'minitest'
   gem 'minitest-reporters'
-  gem 'debugger'
+  gem 'debugger' unless (RUBY_VERSION =~ /^1.8/) == 0
   gem 'rack-test'
 end
 
