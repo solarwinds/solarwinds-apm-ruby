@@ -6,7 +6,7 @@ describe Oboe::Inst::Moped do
     @session = Moped::Session.new([ "127.0.0.1:27017" ])
     @session.use :moped_test
     @users = @session[:users]
-    @users.insert({ name: "Syd", city: "Boston" })
+    @users.insert({ :name => "Syd", :city => "Boston" })
 
     # These are standard entry/exit KVs that are passed up with all moped operations
     @entry_kvs = {
@@ -113,7 +113,7 @@ describe Oboe::Inst::Moped do
 
   it 'should trace create_index, indexes and drop_indexes' do
     Oboe::API.start_trace('moped_test', '', {}) do
-      @users.indexes.create({name: 1}, {unique: true})
+      @users.indexes.create({:name => 1}, {:unique => true})
       @users.indexes.drop
     end
     
@@ -173,7 +173,7 @@ describe Oboe::Inst::Moped do
 
   it 'should trace find and sort' do
     Oboe::API.start_trace('moped_test', '', {}) do
-      @users.find(name: "Mary").sort(city: 1, created_at: -1)
+      @users.find(:name => "Mary").sort(:city => 1, :created_at => -1)
     end
     
     traces = get_all_traces
@@ -198,7 +198,7 @@ describe Oboe::Inst::Moped do
   
   it 'should trace find with limit' do
     Oboe::API.start_trace('moped_test', '', {}) do
-      @users.find(name: "Mary").limit(1)
+      @users.find(:name => "Mary").limit(1)
     end
     
     traces = get_all_traces
@@ -223,7 +223,7 @@ describe Oboe::Inst::Moped do
 
   it 'should trace find with distinct' do
     Oboe::API.start_trace('moped_test', '', {}) do
-      @users.find(name: "Mary").distinct(:city)
+      @users.find(:name => "Mary").distinct(:city)
     end
     
     traces = get_all_traces
@@ -248,7 +248,7 @@ describe Oboe::Inst::Moped do
 
   it 'should trace find and update' do
     Oboe::API.start_trace('moped_test', '', {}) do
-      @users.find(name: "Mary").update({name: "Tool"}, [:multi])
+      @users.find(:name => "Mary").update({:name => "Tool"}, [:multi])
     end
     
     traces = get_all_traces
@@ -274,7 +274,7 @@ describe Oboe::Inst::Moped do
 
   it 'should trace find and update_all' do
     Oboe::API.start_trace('moped_test', '', {}) do
-      @users.find(name: "Mary").update_all({name: "Tool"})
+      @users.find(:name => "Mary").update_all({:name => "Tool"})
     end
     
     traces = get_all_traces
@@ -299,7 +299,7 @@ describe Oboe::Inst::Moped do
 
   it 'should trace find and upsert' do
     Oboe::API.start_trace('moped_test', '', {}) do
-      @users.find(name: "Tool").upsert({name: "Mary"})
+      @users.find(:name => "Tool").upsert({:name => "Mary"})
     end
     
     traces = get_all_traces
@@ -325,7 +325,7 @@ describe Oboe::Inst::Moped do
 
   it 'should trace find and explain' do
     Oboe::API.start_trace('moped_test', '', {}) do
-      @users.find(name: "Mary").explain
+      @users.find(:name => "Mary").explain
     end
     
     traces = get_all_traces
@@ -350,9 +350,9 @@ describe Oboe::Inst::Moped do
 
   it 'should trace 3 types of find and modify calls' do
     Oboe::API.start_trace('moped_test', '', {}) do
-      @users.find.modify({}, upsert: true, new: true)
-      @users.find.modify({ "$inc" => { likes: 1 }}, new: true)
-      @users.find.modify({}, remove: true)
+      @users.find.modify({}, :upsert => true, :new => true)
+      @users.find.modify({ "$inc" => { :likes => 1 }}, :new => true)
+      @users.find.modify({}, :remove => true)
     end
     
     traces = get_all_traces
@@ -396,7 +396,7 @@ describe Oboe::Inst::Moped do
 
   it 'should trace remove' do
     Oboe::API.start_trace('moped_test', '', {}) do
-      @users.find(name: "Tool").remove
+      @users.find(:name => "Tool").remove
     end
     
     traces = get_all_traces
@@ -421,7 +421,7 @@ describe Oboe::Inst::Moped do
 
   it 'should trace remove_all' do
     Oboe::API.start_trace('moped_test', '', {}) do
-      @users.find(name: "Mary").remove_all
+      @users.find(:name => "Mary").remove_all
     end
     
     traces = get_all_traces
@@ -448,7 +448,7 @@ describe Oboe::Inst::Moped do
     Oboe::Config[:moped][:collect_backtraces] = true
     
     Oboe::API.start_trace('moped_test', '', {}) do
-      @users.find(name: "Mary").limit(1)
+      @users.find(:name => "Mary").limit(1)
     end
 
     traces = get_all_traces
@@ -459,7 +459,7 @@ describe Oboe::Inst::Moped do
     Oboe::Config[:moped][:collect_backtraces] = false
     
     Oboe::API.start_trace('moped_test', '', {}) do
-      @users.find(name: "Mary").limit(1)
+      @users.find(:name => "Mary").limit(1)
     end
 
     traces = get_all_traces
