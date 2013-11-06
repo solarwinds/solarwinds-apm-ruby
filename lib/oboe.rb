@@ -5,16 +5,24 @@ begin
   require 'oboe/version'
   require 'oboe/logger'
   require 'oboe/util'
+  require 'base.rb'
   
   # If Oboe_metal is already defined then we are in a PaaS environment
   # with an alternate metal (such as Heroku: see the oboe-heroku gem)
   unless defined?(Oboe_metal)
-    if RUBY_PLATFORM == 'java'
-      require '/usr/local/tracelytics/tracelyticsagent.jar'
-      require 'joboe_metal'
-    else
-      require 'oboe_metal.so'
-      require 'oboe_metal'
+    begin
+      if RUBY_PLATFORM == 'java'
+        require 'joboe_metal'
+        require '/usr/local/tracelytics/tracelyticsagent.jar'
+      else
+        require 'oboe_metal'
+        require 'oboe_metal.so'
+      end
+    rescue LoadError
+      $stderr.puts "=============================================================="
+      $stderr.puts "Missing TraceView libraries.  Tracing disabled."
+      $stderr.puts "See: https://support.tv.appneta.com/solution/articles/137973" 
+      $stderr.puts "=============================================================="
     end
   end
  
@@ -27,12 +35,8 @@ begin
   # Frameworks
   require 'oboe/frameworks/rails' if defined?(::Rails)
 
-rescue LoadError
-  $stderr.puts "=============================================================="
-  $stderr.puts "Missing TraceView libraries.  Tracing disabled."
-  $stderr.puts "See: https://support.tv.appneta.com/solution/articles/137973" 
-  $stderr.puts "=============================================================="
 rescue Exception => e
   $stderr.puts "[oboe/error] Problem loading: #{e.inspect}"
   $stderr.puts e.backtrace
 end
+

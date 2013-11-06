@@ -9,7 +9,7 @@ gem 'appraisal'
 group :development, :test do
   gem 'minitest'
   gem 'minitest-reporters'
-  gem 'debugger'
+  gem 'debugger' unless (RUBY_VERSION =~ /^1.8/) == 0
   gem 'rack-test'
 end
 
@@ -20,7 +20,7 @@ gem 'memcached' if (RUBY_VERSION =~ /^1./) == 0
 gem 'cassandra'
 gem 'mongo'
 gem 'bson_ext' # For Mongo, Yours Truly
-gem 'moped'
+gem 'moped' unless (RUBY_VERSION =~ /^1.8/) == 0
 gem 'resque'
 gem 'rack-test'
 

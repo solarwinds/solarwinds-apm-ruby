@@ -28,10 +28,16 @@ task :compile do
   sh cmd.join(' ')
   sh '/usr/bin/env make'
   File.delete symlink if File.exist? symlink
-  File.symlink so_file, symlink
 
-  Dir.chdir pwd
-  puts "== Extension built and symlink'd to #{symlink}"
+  if File.exists? so_file
+    File.symlink so_file, symlink
+    Dir.chdir pwd
+    puts "== Extension built and symlink'd to #{symlink}"
+  else
+    Dir.chdir pwd
+    puts "!! Extension failed to build (see above).  Are the base TraceView packages installed?"
+    puts "!! See https://support.tv.appneta.com/support/solutions/articles/86359"
+  end
 end
 
 desc "Clean up extension build files"
@@ -55,12 +61,17 @@ task :distclean do
   lib_dir = File.expand_path('lib')
   symlink = File.expand_path('lib/oboe_metal.so')
   so_file = File.expand_path('ext/oboe_metal/oboe_metal.so')
+  mkmf_log = File.expand_path('ext/oboe_metal/mkmf.log')
   
-  Dir.chdir ext_dir
-  File.delete symlink if File.exist? symlink
-  sh '/usr/bin/env make distclean'
+  if File.exists? mkmf_log
+    Dir.chdir ext_dir
+    File.delete symlink if File.exist? symlink
+    sh '/usr/bin/env make distclean'
 
-  Dir.chdir pwd
+    Dir.chdir pwd
+  else
+    puts "Nothing to distclean. (nothing built yet?)"
+  end
 end
 
 desc "Rebuild the gem's c extension"

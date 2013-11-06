@@ -45,8 +45,8 @@ You can instrument your Sinatra or Padrino application by adding the following c
     require 'oboe/inst/rack'
     
     # When traces should be initiated for incoming requests. Valid options are
-    # “always,” “through” (when the request is initiated with a tracing header 
-    # from upstream) and “never”. You must set this directive to “always” in 
+    # "always", "through" (when the request is initiated with a tracing header 
+    # from upstream) and "never". You must set this directive to "always" in 
     # order to initiate tracing.
     Oboe::Config[:tracing_mode] = 'through'
     
@@ -125,7 +125,7 @@ This example demonstrates method profiling of instance methods.  Class methods a
 
 # Support
 
-If you find a bug or would like to request an enhancement, feel free to file an issue.  For all other support requests, see our [support portal](https://support.tv.appneta.com/) or on IRC @ #appneta on Freenode.
+If you find a bug or would like to request an enhancement, feel free to file an issue.  For all other support requests, see our [support portal](https://support.tv.appneta.com/) or on IRC @ #appneta on [Freenode](http://freenode.net/).
 
 # Contributing
 
@@ -257,7 +257,7 @@ Note: Make sure you have the development package `liboboe0-dev` installed before
     ii  liboboe-dev    1.1.1-precise1    Tracelytics common library -- development files
     ii  liboboe0       1.1.1-precise1    Tracelytics common library
 
-See [Installing Base Packages on Debian and Ubuntu](https://support.tv.appneta.com/support/solutions/articles/86359-installing-base-packages-on-debian-and-ubuntu) in the Knowledge Base for details.  Our hacker extraodinaire [Rob Salmond](https://github.com/rsalmond) from the support team have even gotten these packages to [run on Gentoo](http://www.appneta.com/blog/unsupported-doesnt-work/)!
+See [Installing Base Packages on Debian and Ubuntu](https://support.tv.appneta.com/support/solutions/articles/86359-installing-base-packages-on-debian-and-ubuntu) in the Knowledge Base for details.  Our hacker extraodinaire [Rob Salmond](https://github.com/rsalmond) from the support team has even gotten these packages to [run on Gentoo](http://www.appneta.com/blog/unsupported-doesnt-work/)!
 
 To see the code related to the C extension, take a look at `ext/oboe_metal/extconf.rb` for details.
 

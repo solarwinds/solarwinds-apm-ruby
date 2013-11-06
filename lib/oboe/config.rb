@@ -107,24 +107,13 @@ module Oboe
 
         # Assure value is an integer
         @@config[key.to_sym] = value.to_i
-
-        # Update liboboe with the new SampleRate value
-        Oboe::Context.setDefaultSampleRate(value.to_i)
+ 
+        Oboe.set_sample_rate(value)
       end
 
       # Update liboboe if updating :tracing_mode
       if key == :tracing_mode
-        case value.downcase
-        when 'never'
-          # OBOE_TRACE_NEVER
-          Oboe::Context.setTracingMode(0)
-        when 'always'
-          # OBOE_TRACE_ALWAYS
-          Oboe::Context.setTracingMode(1)
-        else
-          # OBOE_TRACE_THROUGH
-          Oboe::Context.setTracingMode(2)
-        end
+        Oboe.set_tracing_mode(value)
       end
     end
 

@@ -1,7 +1,7 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
-module Oboe_metal
+module Oboe_metal < MetalBase
   include_package 'com.tracelytics.joboe'
   import 'com.tracelytics.joboe'
   include_package 'com.tracelytics.joboe.SettingsReader'
@@ -12,46 +12,42 @@ module Oboe_metal
   import 'com.tracelytics.joboe.Event'
 
   class Context
-    def self.log(layer, label, options = {}, with_backtrace = false)
-      evt = Oboe::Context.createEvent()
-      evt.addInfo("Layer", layer.to_s)
-      evt.addInfo("Label", label.to_s)
+    class << self
+      attr_accessor :layer_op
+      
+      def log(layer, label, options = {}, with_backtrace = false)
+        evt = Oboe::Context.createEvent()
+        evt.addInfo("Layer", layer.to_s)
+        evt.addInfo("Label", label.to_s)
 
-      options.each_pair do |k, v|
-        evt.addInfo(k.to_s, v.to_s)
+        options.each_pair do |k, v|
+          evt.addInfo(k.to_s, v.to_s)
+        end
+
+        evt.addInfo("Backtrace", Oboe::API.backtrace) if with_backtrace
+
+        Oboe.reporter.sendReport(evt)
+      end
+       
+      def tracing_layer_op?(operation)
+        if operation.is_a?(Array)
+          return operation.include?(@layer_op)
+        else
+          return @layer_op == operation
+        end
+      end
+      
+      def toString
+        md = getMetadata.toString
       end
 
-      evt.addInfo("Backtrace", Oboe::API.backtrace) if with_backtrace
-
-      Oboe::Reporter.sendReport(evt)
-    end
-
-    def self.layer_op=(op)
-      @layer_op = op
-    end
-
-    def self.layer_op
-      @layer_op
-    end
-
-    def self.tracing_layer_op?(operation)
-      if operation.is_a?(Array)
-        return operation.include?(@layer_op)
-      else
-        return @layer_op == operation
+      def clear
+        clearMetadata
       end
-    end
 
-    def self.toString
-      md = getMetadata.toString
-    end
-
-    def self.clear
-      clearMetadata
-    end
-
-    def self.get
-      getMetadata
+      def get
+        getMetadata
+      end
     end
   end
   
@@ -83,7 +79,7 @@ module Oboe_metal
           Oboe.reporter = Oboe::UdpReporter.new(Oboe::Config[:reporter_host])
         end
 
-        Oboe::API.report_init('ruby') unless ["development", "test"].include? ENV['RACK_ENV']
+        Oboe::API.report_init('rack') unless ["development", "test"].include? ENV['RACK_ENV']
       
       rescue Exception => e
         $stderr.puts e.message
@@ -97,28 +93,10 @@ module Oboe_metal
   end
 end
 
-module Oboe
+module Oboe < OboeBase
   include Oboe_metal
   
   class << self
-    attr_accessor :reporter
-  
-    def always?
-      Oboe::Config[:tracing_mode].to_s == "always"
-    end
-    
-    def log(layer, label, options = {})
-      Context.log(layer, label, options = options)
-    end
-    
-    def never?
-      Oboe::Config[:tracing_mode].to_s == "never"
-    end
-
-    def passthrough?
-      ["always", "through"].include?(Oboe::Config[:tracing_mode])
-    end
-      
     def sample?(opts = {})
       # Assure defaults since SWIG enforces Strings
       opts[:layer]      ||= ''
@@ -126,13 +104,14 @@ module Oboe
       opts['X-TV-Meta']   ||= ''
       Java::ComTracelyticsJoboeSettingsReader.shouldTraceRequest(opts[:layer], opts[:xtrace], opts['X-TV-Meta'])
     end
-
-    def through?
-      Oboe::Config[:tracing_mode] == "through"
+    
+    def set_tracing_mode(mode)
+      # FIXME: TBD
     end
-      
-    def tracing?
-      Oboe::Context.isValid and not Oboe.never?
+    
+    def set_sample_rate(rate)
+      # FIXME: TBD
     end
   end
 end
+

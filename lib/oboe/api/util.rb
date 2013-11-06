@@ -1,6 +1,8 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
+require 'pp'
+
 module Oboe
   module API
     module Util
@@ -66,6 +68,50 @@ module Oboe
 
         false
       end
+      
+      # Internal: Pretty print a list of arguments for reporting
+      #
+      # args - the list of arguments to work on
+      #
+      # Returns a pretty string representation of arguments
+      def pps(*args)
+        old_out = $stdout
+        begin
+          s = StringIO.new
+          $stdout = s
+          pp(*args)
+        ensure
+          $stdout = old_out
+        end
+        s.string
+      end
+
+      # Internal: Determine a string to report representing klass
+      #
+      # args - an instance of a Class, a Class or a Module
+      #
+      # Returns a string representation of klass
+      def get_class_name(klass)
+        kv = {}
+        if klass.to_s =~ /::/
+          klass.class.to_s.rpartition('::').last
+        else
+          if klass.is_a?(Class) and klass.is_a?(Module)
+            # Class
+            kv["Class"] = klass.to_s
+        
+          elsif (not klass.is_a?(Class) and not klass.is_a?(Module))
+            # Class instance
+            kv["Class"] = klass.class.to_s
+          
+          else
+            # Module
+            kv["Module"] = klass.to_s
+          end
+        end
+        kv
+      end
+
     end
   end
 end
