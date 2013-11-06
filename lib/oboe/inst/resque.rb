@@ -40,7 +40,7 @@ module Oboe
         if Oboe.tracing?
           report_kvs = extract_trace_details(:enqueue, klass, args)
 
-          Oboe::API.trace('resque', report_kvs, :enqueue) do
+          Oboe::API.trace('resque-client', report_kvs, :enqueue) do
             args.push({:parent_trace_id => Oboe::Context.toString}) if Oboe::Config[:resque][:link_workers]
             enqueue_without_oboe(klass, *args)
           end
@@ -54,7 +54,7 @@ module Oboe
           report_kvs = extract_trace_details(:enqueue_to, klass, args)
           report_kvs[:Queue] = queue.to_s if queue
 
-          Oboe::API.trace('resque', report_kvs) do
+          Oboe::API.trace('resque-client', report_kvs) do
             args.push({:parent_trace_id => Oboe::Context.toString}) if Oboe::Config[:resque][:link_workers]
             enqueue_to_without_oboe(queue, klass, *args)
           end
@@ -67,7 +67,7 @@ module Oboe
         if Oboe.tracing?
           report_kvs = extract_trace_details(:dequeue, klass, args)
 
-          Oboe::API.trace('resque', report_kvs) do
+          Oboe::API.trace('resque-client', report_kvs) do
             dequeue_without_oboe(klass, *args)
           end
         else
@@ -123,12 +123,12 @@ module Oboe
 
           # Force this trace regardless of sampling rate so that child trace can be
           # link to parent trace.
-          Oboe::API.start_trace('resque', nil, report_kvs.merge('Force' => true)) do
+          Oboe::API.start_trace('resque-worker', nil, report_kvs.merge('Force' => true)) do
             perform_without_oboe(job)
           end
 
         else
-          Oboe::API.start_trace('resque', nil, report_kvs) do
+          Oboe::API.start_trace('resque-worker', nil, report_kvs) do
             perform_without_oboe(job)
           end
         end
