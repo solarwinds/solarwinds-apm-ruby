@@ -16,6 +16,7 @@ module Oboe
 
       begin
         req = ::Rack::Request.new(env)
+
         report_kvs[:SampleRate]        = Oboe::Config[:sample_rate]
         report_kvs[:SampleSource]      = Oboe::Config[:sample_source]
         report_kvs['HTTP-Host']        = req.host
@@ -27,17 +28,19 @@ module Oboe
         report_kvs['AJAX']             = true if req.xhr?
         report_kvs['ClientIP']         = req.ip
 
-        report_kvs['X-TV-Meta']        = env['HTTP_X_TV_META']          if env.has_key?('HTTP_X_TV_META')
+        report_kvs['X-TV-Meta']         = env['HTTP_X_TV_META']          if env.has_key?('HTTP_X_TV_META')
 
         # Report any request queue'ing headers.  Report as 'Request-Start' or the summed Queue-Time
-        report_kvs['Request-Start']    = env['HTTP_X_REQUEST_START']    if env.has_key?('HTTP_X_REQUEST_START')
-        report_kvs['Request-Start']    = env['HTTP_X_QUEUE_START']      if env.has_key?('HTTP_X_QUEUE_START')
-        report_kvs['Queue-Time']       = env['HTTP_X_QUEUE_TIME']       if env.has_key?('HTTP_X_QUEUE_TIME')
+        report_kvs['Request-Start']     = env['HTTP_X_REQUEST_START']    if env.has_key?('HTTP_X_REQUEST_START')
+        report_kvs['Request-Start']     = env['HTTP_X_QUEUE_START']      if env.has_key?('HTTP_X_QUEUE_START')
+        report_kvs['Queue-Time']        = env['HTTP_X_QUEUE_TIME']       if env.has_key?('HTTP_X_QUEUE_TIME')
 
-        report_kvs['Forwarded-For']    = env['HTTP_X_FORWARDED_FOR']    if env.has_key?('HTTP_X_FORWARDED_FOR')
-        report_kvs['Forwarded-Host']   = env['HTTP_X_FORWARDED_HOST']   if env.has_key?('HTTP_X_FORWARDED_HOST')
-        report_kvs['Forwarded-Proto']  = env['HTTP_X_FORWARDED_PROTO']  if env.has_key?('HTTP_X_FORWARDED_PROTO')
-        report_kvs['Forwarded-Port']   = env['HTTP_X_FORWARDED_PORT']   if env.has_key?('HTTP_X_FORWARDED_PORT')
+        report_kvs['Forwarded-For']     = env['HTTP_X_FORWARDED_FOR']    if env.has_key?('HTTP_X_FORWARDED_FOR')
+        report_kvs['Forwarded-Host']    = env['HTTP_X_FORWARDED_HOST']   if env.has_key?('HTTP_X_FORWARDED_HOST')
+        report_kvs['Forwarded-Proto']   = env['HTTP_X_FORWARDED_PROTO']  if env.has_key?('HTTP_X_FORWARDED_PROTO')
+        report_kvs['Forwarded-Port']    = env['HTTP_X_FORWARDED_PORT']   if env.has_key?('HTTP_X_FORWARDED_PORT')
+
+        report_kvs['Ruby.Oboe.Version'] = ::Oboe::Version::STRING
       rescue Exception => e
         # Discard any potential exceptions. Debug log and report whatever we can.
         Oboe.logger.debug "[oboe/debug] Rack KV collection error: #{e.inspect}"
