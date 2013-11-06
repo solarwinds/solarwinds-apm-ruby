@@ -2,16 +2,10 @@
 # All rights reserved.
 
 module Oboe_metal
-  class Event
-    def self.metadataString(evt)
-      evt.metadataString()
-    end
-  end
-
   class Context
     class << self
       attr_accessor :layer_op
-
+      
       def log(layer, label, options = {}, with_backtrace = false)
         evt = Oboe::Context.createEvent()
         evt.addInfo("Layer", layer.to_s)
@@ -25,7 +19,7 @@ module Oboe_metal
 
         Oboe.reporter.sendReport(evt)
       end
-
+       
       def tracing_layer_op?(operation)
         if operation.is_a?(Array)
           return operation.include?(@layer_op)
@@ -35,7 +29,13 @@ module Oboe_metal
       end
     end
   end
-  
+
+  class Event
+    def self.metadataString(evt)
+      evt.metadataString()
+    end
+  end
+
   module Reporter
     ##
     # Initialize the Oboe Context, reporter and report the initialization
@@ -64,28 +64,11 @@ module Oboe_metal
   end
 end
 
-module Oboe
+module Oboe 
+  extend OboeBase
   include Oboe_metal
 
   class << self
-    attr_accessor :reporter
- 
-    def always?
-      Oboe::Config[:tracing_mode].to_s == "always"
-    end
-    
-    def log(layer, label, options = {})
-      Context.log(layer, label, options = options)
-    end
-
-    def never?
-      Oboe::Config[:tracing_mode].to_s == "never"
-    end
-
-    def passthrough?
-      ["always", "through"].include?(Oboe::Config[:tracing_mode])
-    end
-      
     def sample?(opts = {})
       # Assure defaults since SWIG enforces Strings
       opts[:layer]      ||= ''
@@ -94,14 +77,30 @@ module Oboe
       Oboe::Context.sampleRequest(opts[:layer], opts[:xtrace], opts['X-TV-Meta'])
     end
 
-    def through?
-      Oboe::Config[:tracing_mode] == "through"
+    def set_tracing_mode(mode)
+      value = mode.to_sym
+
+      case value.downcase
+      when :never
+        # OBOE_TRACE_NEVER
+        Oboe::Context.setTracingMode(0)
+      when :always
+        # OBOE_TRACE_ALWAYS
+        Oboe::Context.setTracingMode(1)
+      when :through
+        # OBOE_TRACE_THROUGH
+        Oboe::Context.setTracingMode(2)
+      else
+        Oboe.logger.fatal "[oboe/error] Invalid tracing mode set: #{mode}"
+        # OBOE_TRACE_THROUGH
+        Oboe::Context.setTracingMode(2)
+      end
     end
-      
-    def tracing?
-      Oboe::Context.isValid and not Oboe.never?
+    
+    def set_sample_rate(rate)
+      # Update liboboe with the new SampleRate value
+      Oboe::Context.setDefaultSampleRate(rate.to_i)
     end
   end
 end
-
 
