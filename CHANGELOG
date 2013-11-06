@@ -1,3 +1,12 @@
+# oboe 2.3.3 (11/06/13)
+
+* Rename the _Init layer to "rack"
+* Decode URLS when reporting them
+* Resque layer naming split into 1) client queuing of a job: 'resque-client', 2) Resque worker running a job: 'resque-worker'
+* Fix for an extension load error and some refactoring of functionality into a base module (OboeBase)
+* Improved and more resilient method profiling
+* Further refactoring for Ruby 2.0 support
+* Track the version of the instrumentation installed
 
 # oboe 2.3.2 (10/22/13)
 
