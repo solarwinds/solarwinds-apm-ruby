@@ -50,7 +50,7 @@ module Oboe_metal
           Oboe.reporter = Oboe::UdpReporter.new(Oboe::Config[:reporter_host])
         end
 
-        Oboe::API.report_init('ruby') unless ["development", "test"].include? ENV['RACK_ENV']
+        Oboe::API.report_init('rack') unless ["development", "test"].include? ENV['RACK_ENV']
       
       rescue Exception => e
         $stderr.puts e.message
