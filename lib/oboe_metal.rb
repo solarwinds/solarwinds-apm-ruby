@@ -80,7 +80,7 @@ module Oboe
     def set_tracing_mode(mode)
       value = mode.to_sym
 
-      case value.downcase
+      case value
       when :never
         # OBOE_TRACE_NEVER
         Oboe::Context.setTracingMode(0)
