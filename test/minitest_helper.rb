@@ -12,7 +12,7 @@ Bundler.require(:default, :test)
 # Preload memcache-client
 require 'memcache'
 
-@trace_dir = File.dirname(__FILE__) + "/../tmp/"
+@trace_dir = "/tmp/"
 $trace_file = @trace_dir + "trace_output.bson"
 
 # Create a oboe-ruby/tmp dir to store trace output
