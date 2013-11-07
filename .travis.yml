@@ -10,6 +10,9 @@ install:
   - wget https://www.tracelytics.com/install_tracelytics.sh
   - sudo sh ./install_tracelytics.sh f51e2a43-0ee5-4851-8a54-825773b3218e
 
+before_script:
+  - bundle exec rake compile
+
 services: 
   - mongodb
   - memcached
