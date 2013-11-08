@@ -22,5 +22,5 @@ before_script:
 services: 
   - mongodb
   - memcached
-  - cassandra
+#  - cassandra
 

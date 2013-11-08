@@ -4,7 +4,7 @@ describe Oboe::Inst::Cassandra do
   before do
     clear_all_traces 
 
-    @client = Cassandra.new('TRCassInstr', '127.0.0.1:9160',
+    @client = Cassandra.new('TRCassInstr', 'localhost:9160',
                            :retries => 2, :connect_timeout => 1,
                            :timeout => 5)
     @client.disable_node_auto_discovery!
@@ -13,7 +13,7 @@ describe Oboe::Inst::Cassandra do
     @entry_kvs = {
       'Layer' => 'cassandra',
       'Label' => 'entry',
-      'RemoteHost' => '127.0.0.1',
+      'RemoteHost' => 'localhost',
       'RemotePort' => '9160' }
 
     @exit_kvs = { 'Layer' => 'cassandra', 'Label' => 'exit' }
