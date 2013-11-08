@@ -353,7 +353,7 @@ unless RUBY_VERSION =~ /^1.8/
 
     it 'should trace 3 types of find and modify calls' do
       Oboe::API.start_trace('moped_test', '', {}) do
-        @users.find.modify({query:{}}, :upsert => true, :new => true)
+        @users.find(:likes => 1).modify({ "$set" => { name: "Tool" }}, upsert: true)
         @users.find.modify({query:{ "$inc" => { :likes => 1 }}}, :new => true)
         @users.find.modify({query:{}}, :remove => true)
       end
@@ -365,16 +365,16 @@ unless RUBY_VERSION =~ /^1.8/
 
       validate_event_keys(traces[1], @entry_kvs)
       traces[1]['QueryOp'].must_equal "find"
-      traces[1]['Query'].must_equal "all"
+      traces[1]['Query'].must_equal "{\"likes\":1}"
       traces[1]['Collection'].must_equal "users"
       traces[1].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
 
       validate_event_keys(traces[3], @entry_kvs)
       traces[3]['QueryOp'].must_equal "modify"
-      traces[3]['Update_Document'].must_equal "all"
+      traces[3]['Update_Document'].must_equal "{\"likes\":1}"
       traces[3]['Collection'].must_equal "users"
-      traces[3]['Options'].must_equal "{\"upsert\":true,\"new\":true}"
+      traces[3]['Options'].must_equal "{\"upsert\":true}"
       traces[3].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
       validate_event_keys(traces[4], @exit_kvs)
       
