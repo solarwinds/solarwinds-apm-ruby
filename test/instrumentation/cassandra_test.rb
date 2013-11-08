@@ -10,8 +10,8 @@ describe Oboe::Inst::Cassandra do
     @ks_name = "AppNetaCassandraTest"
     
     ks_def = CassandraThrift::KsDef.new(:name => @ks_name,
-              :strategy_class => "org.apache.cassandra.locator.SimpleStrategy",
-              :replication_factor => 1,
+              :strategy_class => "SimpleStrategy",
+              :strategy_options => { 'replication_factor' => '2' },
               :cf_defs => [])
       
     @client.add_keyspace(ks_def) unless @client.keyspaces.include? @ks_name
