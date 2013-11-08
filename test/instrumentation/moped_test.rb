@@ -354,7 +354,7 @@ unless RUBY_VERSION =~ /^1.8/
     it 'should trace 3 types of find and modify calls' do
       Oboe::API.start_trace('moped_test', '', {}) do
         @users.find.modify({}, :upsert => true, :new => true)
-        @users.find.modify({ "$inc" => { :likes => 1 }}, :new => true)
+        @users.find.modify({query:{ "$inc" => { :likes => 1 }}}, :new => true)
         @users.find.modify({}, :remove => true)
       end
       
@@ -383,7 +383,7 @@ unless RUBY_VERSION =~ /^1.8/
       traces[7]['Update_Document'].must_equal "all"
       traces[7]['Collection'].must_equal "users"
       traces[7]['Options'].must_equal "{\"new\":true}"
-      traces[7]['Change'].must_equal "{\"$inc\":{\"likes\":1}}"
+      traces[7]['Change'].must_equal "{\"query\":{\"$inc\":{\"likes\":1}}}"
       traces[7].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
       validate_event_keys(traces[8], @exit_kvs)
       
