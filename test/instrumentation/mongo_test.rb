@@ -6,6 +6,9 @@ describe Oboe::Inst::Mongo do
     @connection = Mongo::Connection.new("localhost", 27017, :slave_ok => true)
     @db = @connection.db("test-#{ENV['RACK_ENV']}")
 
+    @collections = @db.collection_names
+    @db.create_collection("testCollection") unless @collections.include? "testCollection"
+
     # These are standard entry/exit KVs that are passed up with all mongo operations
     @entry_kvs = {
       'Layer' => 'mongo',
@@ -67,6 +70,9 @@ describe Oboe::Inst::Mongo do
   end
 
   it "should trace drop_collection" do
+    # Create a collection so we have one to drop
+    @db.create_collection("create_and_drop_collection_test")
+    
     Oboe::API.start_trace('mongo_test', '', {}) do
       @db.drop_collection("create_and_drop_collection_test")
     end
