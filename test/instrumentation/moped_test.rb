@@ -353,9 +353,9 @@ unless RUBY_VERSION =~ /^1.8/
 
     it 'should trace 3 types of find and modify calls' do
       Oboe::API.start_trace('moped_test', '', {}) do
-        @users.find(:likes => 1).modify({ "$set" => { name: "Tool" }}, upsert: true)
-        @users.find.modify({query:{ "$inc" => { :likes => 1 }}}, :new => true)
-        @users.find.modify({query:{}}, :remove => true)
+        @users.find(:likes => 1).modify({ "$set" => { :name => "Tool" }}, :upsert => true)
+        @users.find.modify({:query => { "$inc" => { :likes => 1 }}}, :new => true)
+        @users.find.modify({:query => {}}, :remove => true)
       end
       
       traces = get_all_traces
