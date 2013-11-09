@@ -41,6 +41,8 @@ module Oboe_metal
     # Initialize the Oboe Context, reporter and report the initialization
     #
     def self.start
+      return unless Oboe.loaded
+
       begin
         Oboe_metal::Context.init() 
 
@@ -78,6 +80,8 @@ module Oboe
     end
 
     def set_tracing_mode(mode)
+      return unless Oboe.loaded
+
       value = mode.to_sym
 
       case value
@@ -98,9 +102,13 @@ module Oboe
     end
     
     def set_sample_rate(rate)
-      # Update liboboe with the new SampleRate value
-      Oboe::Context.setDefaultSampleRate(rate.to_i)
+      if Oboe.loaded
+        # Update liboboe with the new SampleRate value
+        Oboe::Context.setDefaultSampleRate(rate.to_i)
+      end
     end
   end
 end
+
+Oboe.loaded = true
 
