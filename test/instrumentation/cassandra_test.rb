@@ -72,7 +72,7 @@ describe Oboe::Inst::Cassandra do
     validate_event_keys(traces[1], @entry_kvs)
     traces[1]['Op'].must_equal "insert"
     traces[1]['Cf'].must_equal "Users"
-    traces[1]['Key'].must_equal "5"
+    traces[1]['Key'].must_equal "\"5\""
     traces[1]['Consistency'].must_equal "1"
     traces[1]['Ttl'].must_equal "600"
     traces[1].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
@@ -92,7 +92,7 @@ describe Oboe::Inst::Cassandra do
     validate_event_keys(traces[1], @entry_kvs)
     traces[1]['Op'].must_equal "remove"
     traces[1]['Cf'].must_equal "Users"
-    traces[1]['Key'].must_equal "5"
+    traces[1]['Key'].must_equal "\"5\""
     traces[1].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
   end
@@ -112,7 +112,7 @@ describe Oboe::Inst::Cassandra do
     validate_event_keys(traces[1], @entry_kvs)
     traces[1]['Op'].must_equal "count_columns"
     traces[1]['Cf'].must_equal "Statuses"
-    traces[1]['Key'].must_equal "12"
+    traces[1]['Key'].must_equal "\"12\""
     traces[1]['Count'].must_equal "50"
     traces[1].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
@@ -131,7 +131,7 @@ describe Oboe::Inst::Cassandra do
     validate_event_keys(traces[1], @entry_kvs)
     traces[1]['Op'].must_equal "get_columns"
     traces[1]['Cf'].must_equal "Statuses"
-    traces[1]['Key'].must_equal "12"
+    traces[1]['Key'].must_equal "\"12\""
     traces[1].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
   end
@@ -167,7 +167,7 @@ describe Oboe::Inst::Cassandra do
     validate_event_keys(traces[1], @entry_kvs)
     traces[1]['Op'].must_equal "get"
     traces[1]['Cf'].must_equal "Statuses"
-    traces[1]['Key'].must_equal "12"
+    traces[1]['Key'].must_equal "\"12\""
     traces[1]['Reversed'].must_equal "true"
     traces[1].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
@@ -187,13 +187,13 @@ describe Oboe::Inst::Cassandra do
     validate_event_keys(traces[1], @entry_kvs)
     traces[1]['Op'].must_equal "exists?"
     traces[1]['Cf'].must_equal "Statuses"
-    traces[1]['Key'].must_equal "12"
+    traces[1]['Key'].must_equal "\"12\""
     traces[1].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
     
     traces[3]['Op'].must_equal "exists?"
     traces[3]['Cf'].must_equal "Statuses"
-    traces[3]['Key'].must_equal "12"
+    traces[3]['Key'].must_equal "\"12\""
     traces[3].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
   end
 
