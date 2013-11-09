@@ -135,7 +135,7 @@ if defined?(::Mongo) and Oboe::Config[:mongo][:enabled]
             
             begin
               if m == :find_and_modify and args[0] and args[0].has_key?(:update)
-                report_kvs[:Update_Document] = args[0][:update]
+                report_kvs[:Update_Document] = args[0][:update].inspect
               end
 
               if m == :map_reduce
