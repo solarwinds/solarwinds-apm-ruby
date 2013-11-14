@@ -1,8 +1,11 @@
 require "minitest/autorun"
-#require "minitest/reporters"
+require "minitest/reporters"
 
 ENV["RACK_ENV"] = "test"
-#MiniTest::Reporters.use! [MiniTest::Reporters::SpecReporter.new ]
+
+unless RUBY_VERSION =~ /^1.8/
+  MiniTest::Reporters.use! MiniTest::Reporters::SpecReporter.new
+end
 
 require 'rubygems'
 require 'bundler'
