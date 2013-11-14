@@ -36,7 +36,7 @@ module Oboe_metal
     end
   end
 
-  module Reporter
+  class Reporter
     ##
     # Initialize the Oboe Context, reporter and report the initialization
     #
