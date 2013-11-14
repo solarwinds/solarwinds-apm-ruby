@@ -6,7 +6,7 @@ module Oboe
     MAJOR = 2
     MINOR = 3
     PATCH = 3
-    BUILD = 2
+    BUILD = 7
 
     STRING = [MAJOR, MINOR, PATCH, BUILD].compact.join('.')
   end
