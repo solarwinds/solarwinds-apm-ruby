@@ -313,7 +313,7 @@ describe Oboe::Inst::Cassandra do
     column_families = [{:name =>"a"}, {:name => "b", :type => :super}]
     ks_def = CassandraThrift::KsDef.new(:name => ks_name,
               :strategy_class => "org.apache.cassandra.locator.SimpleStrategy",
-              :replication_factor => 1,
+              :strategy_options => { 'replication_factor' => '2' },
               :cf_defs => [])
 
     Oboe::API.start_trace('cassandra_test', '', {}) do
