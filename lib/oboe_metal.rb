@@ -36,16 +36,18 @@ module Oboe_metal
     end
   end
 
-  module Reporter
+  class Reporter
     ##
     # Initialize the Oboe Context, reporter and report the initialization
     #
     def self.start
+      return unless Oboe.loaded
+
       begin
         Oboe_metal::Context.init() 
 
         if ENV['RACK_ENV'] == "test"
-          Oboe.reporter = Oboe::FileReporter.new("./tmp/trace_output.bson")
+          Oboe.reporter = Oboe::FileReporter.new("/tmp/trace_output.bson")
         else
           Oboe.reporter = Oboe::UdpReporter.new(Oboe::Config[:reporter_host])
         end
@@ -78,9 +80,11 @@ module Oboe
     end
 
     def set_tracing_mode(mode)
+      return unless Oboe.loaded
+
       value = mode.to_sym
 
-      case value.downcase
+      case value
       when :never
         # OBOE_TRACE_NEVER
         Oboe::Context.setTracingMode(0)
@@ -98,9 +102,13 @@ module Oboe
     end
     
     def set_sample_rate(rate)
-      # Update liboboe with the new SampleRate value
-      Oboe::Context.setDefaultSampleRate(rate.to_i)
+      if Oboe.loaded
+        # Update liboboe with the new SampleRate value
+        Oboe::Context.setDefaultSampleRate(rate.to_i)
+      end
     end
   end
 end
+
+Oboe.loaded = true
 

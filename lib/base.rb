@@ -3,6 +3,11 @@
 
 module OboeBase
   attr_accessor :reporter
+  attr_accessor :loaded
+
+  def self.included(cls)
+    self.loaded = true
+  end
   
   def always?
     Oboe::Config[:tracing_mode].to_s == "always"
@@ -21,6 +26,8 @@ module OboeBase
   end
   
   def tracing?
+    return false unless Oboe.loaded
+
     Oboe::Context.isValid and not Oboe.never?
   end
   

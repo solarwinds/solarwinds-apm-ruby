@@ -71,10 +71,12 @@ module Oboe_metal < MetalBase
     #
     def self.start
       begin
+        return unless Oboe.loaded
+
         Oboe_metal::Context.init() 
 
         if ENV['RACK_ENV'] == "test"
-          Oboe.reporter = Oboe::FileReporter.new("./tmp/trace_output.bson")
+          Oboe.reporter = Oboe::FileReporter.new("/tmp/trace_output.bson")
         else
           Oboe.reporter = Oboe::UdpReporter.new(Oboe::Config[:reporter_host])
         end
@@ -93,7 +95,8 @@ module Oboe_metal < MetalBase
   end
 end
 
-module Oboe < OboeBase
+module Oboe 
+  extend OboeBase
   include Oboe_metal
   
   class << self
@@ -115,3 +118,4 @@ module Oboe < OboeBase
   end
 end
 
+Oboe.loaded = true

@@ -19,6 +19,7 @@ begin
         require 'oboe_metal.so'
       end
     rescue LoadError
+      Oboe.loaded = false
       $stderr.puts "=============================================================="
       $stderr.puts "Missing TraceView libraries.  Tracing disabled."
       $stderr.puts "See: https://support.tv.appneta.com/solution/articles/137973" 
@@ -33,7 +34,7 @@ begin
   require 'oboe/ruby'
 
   # Frameworks
-  require 'oboe/frameworks/rails' if defined?(::Rails)
+  require 'oboe/frameworks/rails' if defined?(::Rails) and Oboe.loaded
 
 rescue Exception => e
   $stderr.puts "[oboe/error] Problem loading: #{e.inspect}"

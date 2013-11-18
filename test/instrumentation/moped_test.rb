@@ -1,7 +1,7 @@
 require 'minitest_helper'
 
-unless RUBY_VERSION =~ /^1.8/
-  # Moped doesn't support Ruby 1.8
+if (RUBY_VERSION =~ /(^1.9.3|^2)/) == 0
+  # Moped is tested against MRI 1.9.3, 2.0.0, and JRuby (1.9).
 
   describe Oboe::Inst::Moped do
     before do
@@ -353,9 +353,9 @@ unless RUBY_VERSION =~ /^1.8/
 
     it 'should trace 3 types of find and modify calls' do
       Oboe::API.start_trace('moped_test', '', {}) do
-        @users.find.modify({}, :upsert => true, :new => true)
-        @users.find.modify({ "$inc" => { :likes => 1 }}, :new => true)
-        @users.find.modify({}, :remove => true)
+        @users.find(:likes => 1).modify({ "$set" => { :name => "Tool" }}, :upsert => true)
+        @users.find.modify({:query => { "$inc" => { :likes => 1 }}}, :new => true)
+        @users.find.modify({:query => {}}, :remove => true)
       end
       
       traces = get_all_traces
@@ -365,16 +365,16 @@ unless RUBY_VERSION =~ /^1.8/
 
       validate_event_keys(traces[1], @entry_kvs)
       traces[1]['QueryOp'].must_equal "find"
-      traces[1]['Query'].must_equal "all"
+      traces[1]['Query'].must_equal "{\"likes\":1}"
       traces[1]['Collection'].must_equal "users"
       traces[1].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
 
       validate_event_keys(traces[3], @entry_kvs)
       traces[3]['QueryOp'].must_equal "modify"
-      traces[3]['Update_Document'].must_equal "all"
+      traces[3]['Update_Document'].must_equal "{\"likes\":1}"
       traces[3]['Collection'].must_equal "users"
-      traces[3]['Options'].must_equal "{\"upsert\":true,\"new\":true}"
+      traces[3]['Options'].must_equal "{\"upsert\":true}"
       traces[3].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
       validate_event_keys(traces[4], @exit_kvs)
       
@@ -383,7 +383,7 @@ unless RUBY_VERSION =~ /^1.8/
       traces[7]['Update_Document'].must_equal "all"
       traces[7]['Collection'].must_equal "users"
       traces[7]['Options'].must_equal "{\"new\":true}"
-      traces[7]['Change'].must_equal "{\"$inc\":{\"likes\":1}}"
+      traces[7]['Change'].must_equal "{\"query\":{\"$inc\":{\"likes\":1}}}"
       traces[7].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
       validate_event_keys(traces[8], @exit_kvs)
       
@@ -391,7 +391,7 @@ unless RUBY_VERSION =~ /^1.8/
       traces[11]['Collection'].must_equal "users"
       traces[11]['QueryOp'].must_equal "modify"
       traces[11]['Update_Document'].must_equal "all"
-      traces[11]['Change'].must_equal "{}"
+      traces[11]['Change'].must_equal "{\"query\":{}}"
       traces[11]['Options'].must_equal "{\"remove\":true}"
       traces[11].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
       validate_event_keys(traces[12], @exit_kvs)
