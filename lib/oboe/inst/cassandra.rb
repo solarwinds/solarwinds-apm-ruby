@@ -10,7 +10,7 @@ module Oboe
         begin
           report_kvs[:Op] = op.to_s
           report_kvs[:Cf] = column_family.to_s if column_family
-          report_kvs[:Key] = keys.to_s if keys
+          report_kvs[:Key] = keys.inspect if keys
          
           # Open issue - how to handle multiple Cassandra servers
           report_kvs[:RemoteHost], report_kvs[:RemotePort] = @servers.first.split(":")
