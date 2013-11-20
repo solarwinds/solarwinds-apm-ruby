@@ -16,6 +16,8 @@ if Oboe::Config[:nethttp][:enabled]
 
       Oboe::API.trace('net-http') do
         opts = {}
+
+        # Collect KVs to report in the info event
         if args.length and args[0]
           req = args[0]
 
@@ -26,21 +28,38 @@ if Oboe::Config[:nethttp][:enabled]
           opts['HTTPMethod'] = req.method
           opts['Blacklisted'] = true if blacklisted
           opts['Backtrace'] = Oboe::API.backtrace if Oboe::Config[:nethttp][:collect_backtraces]
-        
-          req['X-Trace'] = Oboe::Context.toString() unless blacklisted
-        end
 
-        resp = request_without_oboe(*args, &block)
-
-        opts['HTTPStatus'] = resp.code
-        Oboe::API.log('net-http', 'info', opts)
-
-        unless blacklisted
-          xtrace = resp.get_fields('X-Trace')
-          if xtrace and xtrace.size and Oboe.tracing? 
-            Oboe::Context.fromString(xtrace[0])
+          unless blacklisted
+            context = Oboe::Context.toString()
+            task_id = Oboe::XTrace.task_id(context)
+            req['X-Trace'] = context
           end
         end
+
+        # The actual net::http call
+        resp = request_without_oboe(*args, &block)
+
+        # Re-attach net::http edge unless blacklisted and is a valid X-Trace ID
+        unless blacklisted
+          xtrace = resp.get_fields('X-Trace')[0]
+        
+          if Oboe::XTrace.valid?(xtrace) and Oboe.tracing? 
+            Oboe.logger.debug "returned X-Trace ID : #{xtrace}"
+
+            # Assure that we received back a valid X-Trace with the same task_id
+            if task_id == Oboe::XTrace.task_id(xtrace)
+              Oboe::Context.fromString(xtrace)
+            else
+              Oboe.logger.debug "Mismatched returned X-Trace ID : #{xtrace}"
+            end
+          end
+        end
+        
+        opts['HTTPStatus'] = resp.code
+
+        # Log the info event with the KVs in opts
+        Oboe::API.log('net-http', 'info', opts)
+
         next resp
       end
     end
