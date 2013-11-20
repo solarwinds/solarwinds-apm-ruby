@@ -5,6 +5,11 @@ module Oboe
   module XTrace
     class << self
 
+      ##
+      #  Oboe::XTrace.valid?
+      #
+      #  Perform basic validation on a potential X-Trace ID
+      #
       def valid?(xtrace)
         begin
           xtrace = xtrace.to_s.downcase
@@ -24,6 +29,11 @@ module Oboe
         end
       end
 
+      ##
+      # Oboe::XTrace.task_id
+      #
+      # Extract and return the task_id portion of an X-Trace ID
+      #
       def task_id(xtrace)
         begin
           return nil unless Oboe::XTrace.valid?(xtrace)
