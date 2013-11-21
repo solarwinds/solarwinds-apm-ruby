@@ -18,7 +18,7 @@ install:
   - sudo sh ./install_tracelytics.sh f51e2a43-0ee5-4851-8a54-825773b3218e
 
 before_script:
-  - bundle install
+  - bundle install --without development
   - bundle exec rake compile
 
 services: 
