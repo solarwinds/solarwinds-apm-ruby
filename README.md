@@ -9,6 +9,10 @@ It has the ability to report performance metrics on an array of libraries, datab
 
 It requires a [TraceView](http://www.appneta.com/products/traceview/) account to view metrics.  Get yours, [it's free](http://www.appneta.com/products/traceview-free-account/).
 
+[![Gem Version](https://badge.fury.io/rb/oboe.png)](http://badge.fury.io/rb/oboe)
+[![Build Status](https://travis-ci.org/appneta/oboe-ruby.png?branch=master)](https://travis-ci.org/appneta/oboe-ruby)
+[![Code Climate](https://codeclimate.com/github/appneta/oboe-ruby.png)](https://codeclimate.com/github/appneta/oboe-ruby)
+
 # Installation
 
 The oboe gem is [available on Rubygems](https://rubygems.org/gems/oboe) and can be installed with:
