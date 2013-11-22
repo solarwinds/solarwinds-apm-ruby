@@ -39,8 +39,9 @@ if Oboe::Config[:nethttp][:enabled]
 
         # Re-attach net::http edge unless blacklisted and is a valid X-Trace ID
         unless blacklisted
-          xtrace = resp.get_fields('X-Trace')[0]
-        
+          xtrace = resp.get_fields('X-Trace')
+          xtrace = xtrace[0] if xtrace and xtrace.is_a?(Array)
+
           if Oboe::XTrace.valid?(xtrace) and Oboe.tracing? 
 
             # Assure that we received back a valid X-Trace with the same task_id
