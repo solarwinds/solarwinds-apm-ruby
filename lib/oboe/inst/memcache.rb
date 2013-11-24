@@ -54,32 +54,30 @@ module Oboe
       end
 
       def get_multi_with_oboe(*args)
-        if Oboe.tracing?
-          layer_kvs = {}
-          layer_kvs[:KVOp] = :get_multi
-
-          Oboe::API.trace('memcache', layer_kvs || {}, :get_multi) do
-            begin
-              info_kvs = {}
-              info_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:memcache][:collect_backtraces]
-               
-              if args.last.is_a?(Hash) || args.last.nil?
-                info_kvs[:KVKeyCount] = args.flatten.length - 1
-              else
-                info_kvs[:KVKeyCount] = args.flatten.length 
-              end
-
-              values = get_multi_without_oboe(args)
-              
-              info_kvs[:KVHitCount] = values.length
-              Oboe::API.log('memcache', 'info', info_kvs)
-            rescue
-              values = get_multi_without_oboe(args)
-            end
-            values 
+        return get_multi_without_oboe(args) unless Oboe.tracing?
+          
+        info_kvs = {}
+          
+        begin
+          info_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:memcache][:collect_backtraces]
+           
+          if args.last.is_a?(Hash) || args.last.nil?
+            info_kvs[:KVKeyCount] = args.flatten.length - 1
+          else
+            info_kvs[:KVKeyCount] = args.flatten.length 
           end
-        else
-          get_multi_without_oboe(args)
+        rescue StandardError => e
+          Oboe.logger.debug "[oboe/debug] Error collecting info keys: #{e.message}"
+          Oboe.logger.debug e.backtrace
+        end
+
+        Oboe::API.trace('memcache', {:KVOp => :get_multi}, :get_multi) do
+          values = get_multi_without_oboe(args)
+          
+          info_kvs[:KVHitCount] = values.length
+          Oboe::API.log('memcache', 'info', info_kvs)
+          
+          values 
         end
       end
       
