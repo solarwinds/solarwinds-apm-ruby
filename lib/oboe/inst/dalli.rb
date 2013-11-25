@@ -23,21 +23,21 @@ module Oboe
       end
 
       def perform_with_oboe(*all_args, &blk)
-        unless Oboe.tracing? and not Oboe::Context.tracing_layer_op?(:get_multi)
-          return perform_without_oboe(*all_args, &blk)
-        end
-        
         op, key, *args = *all_args
+        
+        if Oboe.tracing? and not Oboe::Context.tracing_layer_op?(:get_multi)
+          Oboe::API.trace('memcache', { :KVOp => op, :KVKey => key }) do
+            result = perform_without_oboe(*all_args, &blk)
 
-        Oboe::API.trace('memcache', { :KVOp => op, :KVKey => key }) do
-          result = perform_without_oboe(*all_args, &blk)
-
-          info_kvs = {}
-          info_kvs[:KVHit] = memcache_hit?(result) if op == :get and key.class == String
-          info_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:dalli][:collect_backtraces]
-          
-          Oboe::API.log('memcache', 'info', info_kvs) unless info_kvs.empty?
-          result
+            info_kvs = {}
+            info_kvs[:KVHit] = memcache_hit?(result) if op == :get and key.class == String
+            info_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:dalli][:collect_backtraces]
+            
+            Oboe::API.log('memcache', 'info', info_kvs) unless info_kvs.empty?
+            result
+          end
+        else
+          perform_without_oboe(*all_args, &blk)
         end
       end
 
