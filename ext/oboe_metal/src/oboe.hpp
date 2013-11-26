@@ -91,26 +91,32 @@ public:
     }
 
     /**
-     *  Check if the current request should be sampled based on settings.
+     * Check if the current request should be traced based on the current settings.
      *
-     *  If in_xtrace is empty, then sampling will be considered as a new trace.
-     *  Otherwise sampling will be considered as adding to the current trace.
-     *  Different layers may have special rules.
+     * If xtrace is empty, or if it is identified as a foreign (ie. cross customer)
+     * trace, then sampling will be considered as a new trace.
+     * Otherwise sampling will be considered as adding to the current trace.
+     * Different layers may have special rules.  Also special rules for AppView
+     * Web synthetic traces apply if in_tv_meta is given a non-empty string.
      *
-     *  If a valid X-TV-Meta identifier is provided and AppView Web sample
-     *  always is enabled then return true independent of the other conditions.
+     * This is designed to be called once per layer per request.
      *
-     *  @param layer Name of the layer being considered for tracing
-     *  @param in_xtrace Incoming X-Trace ID (NULL or empty string if not present)
-     *  @param in_tv_meta AppView Web ID from X-TV-Meta HTTP header or higher layer (NULL or empty string if not present).
-     *  @return True if we should trace; otherwise false.
+     * @param layer Name of the layer being considered for tracing
+     * @param in_xtrace Incoming X-Trace ID (NULL or empty string if not present)
+     * @param in_tv_meta AppView Web ID from X-TV-Meta HTTP header or higher layer (NULL or empty string if not present).
+     * @return Zero to not trace; otherwise return the sample rate used in the low order
+     *         bytes 0 to 2 and the sample source in the higher-order byte 3.
      */
-    static bool sampleRequest(
+    static int sampleRequest(
         std::string layer,
         std::string in_xtrace,
         std::string in_tv_meta)
     {
-        return (oboe_sample_layer(layer.c_str(), in_xtrace.c_str(), in_tv_meta.c_str(), NULL, NULL));
+        int sample_rate = 0;
+        int sample_source = 0;
+        int rc = (oboe_sample_layer(layer.c_str(), in_xtrace.c_str(), in_tv_meta.c_str(), &sample_rate, &sample_source));
+
+        return (rc == 0 ? 0 : (((sample_source & 0xFF) << 24) | (sample_rate & 0xFFFFFF)));
     }
 
     // returns pointer to current context (from thread-local storage)
