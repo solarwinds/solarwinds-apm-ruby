@@ -80,13 +80,13 @@ module Oboe
       rv = Oboe::Context.sampleRequest(opts[:layer], opts[:xtrace], opts['X-TV-Meta'])
      
       # For older liboboe that returns true/false, just return that.
-      return rv if [TrueClass, FalseClass].include?(r.class) or (rv == 0)
+      return rv if [TrueClass, FalseClass].include?(rv.class) or (rv == 0)
 
       # liboboe version > 1.3.1 returning a bit masked integer with SampleRate and
       # source embedded
-      Oboe.sample_rate = (r & SAMPLE_RATE_MASK)
-      Oboe.sample_source = (r & SAMPLE_SOURCE_MASK) >> 24
-
+      Oboe.sample_rate = (rv & SAMPLE_RATE_MASK)
+      Oboe.sample_source = (rv & SAMPLE_SOURCE_MASK) >> 24
+      
       rv
     end
 
@@ -98,19 +98,19 @@ module Oboe
       case value
       when :never
         Oboe::Context.setTracingMode(OBOE_TRACE_NEVER)
-        Oboe.tracing_mode = OBOE_TRACE_NEVER
+      
       when :always
         Oboe::Context.setTracingMode(OBOE_TRACE_ALWAYS)
-        Oboe.tracing_mode = OBOE_TRACE_ALWAYS
+      
       when :through
         Oboe::Context.setTracingMode(OBOE_TRACE_THROUGH)
-        Oboe.tracing_mode = OBOE_TRACE_THROUGH
+      
       else
         Oboe.logger.fatal "[oboe/error] Invalid tracing mode set: #{mode}"
-
         Oboe::Context.setTracingMode(OBOE_TRACE_THROUGH)
-        Oboe.tracing_mode = OBOE_TRACE_THROUGH
       end
+
+      Oboe.sample_source = OBOE_SAMPLE_RATE_SOURCE_FILE
     end
     
     def set_sample_rate(rate)
