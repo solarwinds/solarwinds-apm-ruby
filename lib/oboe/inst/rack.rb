@@ -17,8 +17,8 @@ module Oboe
       begin
         req = ::Rack::Request.new(env)
 
-        report_kvs[:SampleRate]        = Oboe::Config[:sample_rate]
-        report_kvs[:SampleSource]      = Oboe::Config[:sample_source]
+        report_kvs[:SampleRate]        = Oboe.sample_rate
+        report_kvs[:SampleSource]      = Oboe.sample_source
         report_kvs['HTTP-Host']        = req.host
         report_kvs['Port']             = req.port
         report_kvs['Proto']            = req.scheme
