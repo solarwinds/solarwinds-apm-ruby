@@ -76,7 +76,18 @@ module Oboe
       opts[:layer]      ||= ''
       opts[:xtrace]     ||= ''
       opts['X-TV-Meta']   ||= ''
-      Oboe::Context.sampleRequest(opts[:layer], opts[:xtrace], opts['X-TV-Meta'])
+      
+      rv = Oboe::Context.sampleRequest(opts[:layer], opts[:xtrace], opts['X-TV-Meta'])
+     
+      # For older liboboe that returns true/false, just return that.
+      return rv if [TrueClass, FalseClass].include?(r.class) or (rv == 0)
+
+      # liboboe version > 1.3.1 returning a bit masked integer with SampleRate and
+      # source embedded
+      Oboe.sample_rate = (r & SAMPLE_RATE_MASK)
+      Oboe.sample_source = (r & SAMPLE_SOURCE_MASK) >> 24
+
+      rv
     end
 
     def set_tracing_mode(mode)
@@ -86,18 +97,19 @@ module Oboe
 
       case value
       when :never
-        # OBOE_TRACE_NEVER
-        Oboe::Context.setTracingMode(0)
+        Oboe::Context.setTracingMode(OBOE_TRACE_NEVER)
+        Oboe.tracing_mode = OBOE_TRACE_NEVER
       when :always
-        # OBOE_TRACE_ALWAYS
-        Oboe::Context.setTracingMode(1)
+        Oboe::Context.setTracingMode(OBOE_TRACE_ALWAYS)
+        Oboe.tracing_mode = OBOE_TRACE_ALWAYS
       when :through
-        # OBOE_TRACE_THROUGH
-        Oboe::Context.setTracingMode(2)
+        Oboe::Context.setTracingMode(OBOE_TRACE_THROUGH)
+        Oboe.tracing_mode = OBOE_TRACE_THROUGH
       else
         Oboe.logger.fatal "[oboe/error] Invalid tracing mode set: #{mode}"
-        # OBOE_TRACE_THROUGH
-        Oboe::Context.setTracingMode(2)
+
+        Oboe::Context.setTracingMode(OBOE_TRACE_THROUGH)
+        Oboe.tracing_mode = OBOE_TRACE_THROUGH
       end
     end
     
@@ -105,6 +117,7 @@ module Oboe
       if Oboe.loaded
         # Update liboboe with the new SampleRate value
         Oboe::Context.setDefaultSampleRate(rate.to_i)
+        Oboe.sample_rate = rate.to_i
       end
     end
   end
