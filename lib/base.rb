@@ -1,9 +1,23 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
+  
+ZERO_MASK = 0b00000000000000000000000000
+
+SAMPLE_RATE_MASK   = 0b00111111111111111111111111
+SAMPLE_SOURCE_MASK = 0b11000000000000000000000000
+
+ZERO_SAMPLE_RATE_MASK   = 0b11000000000000000000000000
+ZERO_SAMPLE_SOURCE_MASK = 0b00111111111111111111111111
+
+OBOE_TRACE_NEVER   = 0
+OBOE_TRACE_ALWAYS  = 1
+OBOE_TRACE_THROUGH = 2
 
 module OboeBase
   attr_accessor :reporter
   attr_accessor :loaded
+  attr_accessor :sample_source
+  attr_accessor :sample_rate
 
   def self.included(cls)
     self.loaded = true
