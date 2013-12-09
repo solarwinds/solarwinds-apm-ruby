@@ -12,7 +12,6 @@ describe Oboe::Config do
     Oboe::Config.initialize
 
     Oboe::Config[:verbose].must_equal false
-    Oboe::Config[:sample_source].must_equal 2
     Oboe::Config[:sample_rate].must_equal 300000
     Oboe::Config[:tracing_mode].must_equal "through"
     Oboe::Config[:reporter_host].must_equal "127.0.0.1"
