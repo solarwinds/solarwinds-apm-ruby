@@ -5,7 +5,7 @@ module Oboe_metal
   class Context
     class << self
       attr_accessor :layer_op
-      
+
       def log(layer, label, options = {}, with_backtrace = false)
         evt = Oboe::Context.createEvent()
         evt.addInfo("Layer", layer.to_s)
@@ -19,7 +19,7 @@ module Oboe_metal
 
         Oboe.reporter.sendReport(evt)
       end
-       
+
       def tracing_layer_op?(operation)
         if operation.is_a?(Array)
           return operation.include?(@layer_op)
@@ -53,13 +53,13 @@ module Oboe_metal
         end
 
         Oboe::API.report_init('rack') unless ["development", "test"].include? ENV['RACK_ENV']
-      
+
       rescue Exception => e
         $stderr.puts e.message
         raise
       end
     end
-    
+
     def self.sendReport(evt)
       Oboe.reporter.sendReport(evt)
     end
@@ -75,10 +75,10 @@ module Oboe
       # Assure defaults since SWIG enforces Strings
       opts[:layer]      ||= ''
       opts[:xtrace]     ||= ''
-      opts['X-TV-Meta']   ||= ''
-      
+      opts['X-TV-Meta'] ||= ''
+
       rv = Oboe::Context.sampleRequest(opts[:layer], opts[:xtrace], opts['X-TV-Meta'])
-     
+
       # For older liboboe that returns true/false, just return that.
       return rv if [TrueClass, FalseClass].include?(rv.class) or (rv == 0)
 
@@ -86,7 +86,7 @@ module Oboe
       # source embedded
       Oboe.sample_rate = (rv & SAMPLE_RATE_MASK)
       Oboe.sample_source = (rv & SAMPLE_SOURCE_MASK) >> 24
-      
+
       rv
     end
 
@@ -98,26 +98,23 @@ module Oboe
       case value
       when :never
         Oboe::Context.setTracingMode(OBOE_TRACE_NEVER)
-      
+
       when :always
         Oboe::Context.setTracingMode(OBOE_TRACE_ALWAYS)
-      
+
       when :through
         Oboe::Context.setTracingMode(OBOE_TRACE_THROUGH)
-      
+
       else
         Oboe.logger.fatal "[oboe/error] Invalid tracing mode set: #{mode}"
         Oboe::Context.setTracingMode(OBOE_TRACE_THROUGH)
       end
-
-      Oboe.sample_source = OBOE_SAMPLE_RATE_SOURCE_FILE
     end
-    
+
     def set_sample_rate(rate)
       if Oboe.loaded
         # Update liboboe with the new SampleRate value
         Oboe::Context.setDefaultSampleRate(rate.to_i)
-        Oboe.sample_rate = rate.to_i
       end
     end
   end
