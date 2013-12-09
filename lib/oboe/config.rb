@@ -63,7 +63,6 @@ module Oboe
 
       # The default configuration
       @@config[:tracing_mode] = "through"
-      @@config[:sample_rate] = 3000000
       @@config[:reporter_host] = "127.0.0.1"
       @@config[:verbose] = false
     end
