@@ -38,7 +38,7 @@ describe Oboe::Inst do
     traces[2]['IsService'].must_equal "1"
     traces[2]['RemoteProtocol'].must_equal "HTTP"
     traces[2]['RemoteHost'].must_equal "www.appneta.com"
-    traces[2]['ServiceArg'].must_equal "/?q=test"
+    traces[2]['ServiceArg'].must_equal "/?q=ruby_test_suite"
     traces[2]['HTTPMethod'].must_equal "GET"
     traces[2]['HTTPStatus'].must_equal "200"
     traces[2].has_key?('Backtrace').must_equal Oboe::Config[:nethttp][:collect_backtraces]
@@ -61,7 +61,7 @@ describe Oboe::Inst do
     traces[2]['IsService'].must_equal "1"
     traces[2]['RemoteProtocol'].must_equal "HTTPS"
     traces[2]['RemoteHost'].must_equal "www.google.com"
-    traces[2]['ServiceArg'].must_equal "/?q=test"
+    traces[2]['ServiceArg'].must_equal "/?q=ruby_test_suite"
     traces[2]['HTTPMethod'].must_equal "GET"
     traces[2]['HTTPStatus'].must_equal "200"
     traces[2].has_key?('Backtrace').must_equal Oboe::Config[:nethttp][:collect_backtraces]
