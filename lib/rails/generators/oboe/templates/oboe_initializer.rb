@@ -79,4 +79,14 @@ if defined?(Oboe::Config)
   # Oboe::Config[:nethttp][:collect_backtraces] = true
   # Oboe::Config[:resque][:collect_backtraces] = true
   #
+
+  #
+  # Blacklist actions
+  #
+  # e.g. if your load balancer requests 'index#ok'
+  #
+  #   Oboe::Config[:action_blacklist] = {
+  #     'index#ok' => true
+  # }
+
 end
