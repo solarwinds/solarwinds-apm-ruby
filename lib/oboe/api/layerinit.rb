@@ -15,9 +15,19 @@ module Oboe
           platform_info['Force']                   = true
           platform_info['Ruby.Platform.Version']   = RUBY_PLATFORM
           platform_info['Ruby.Version']            = RUBY_VERSION
-          platform_info['Ruby.Rails.Version']      = ::Rails.version if defined?(::Rails)
           platform_info['Ruby.Oboe.Version']       = ::Oboe::Version::STRING
           platform_info['Ruby.OboeHeroku.Version'] = ::OboeHeroku::Version::STRING if defined?(::OboeHeroku)
+
+          # Report the framework in use
+          platform_info['Ruby.Rails.Version'] = "Rails-#{::Rails.version}"  if defined?(::Rails)
+          platform_info['Ruby.Grape.Version'] = "Grape-#{::Grape::VERSION}" if defined?(::Grape)
+          platform_info['Ruby.Cramp.Version'] = "Cramp-#{::Cramp::VERSION}" if defined?(::Cramp)
+
+          if defined?(::Padrino)
+            platform_info['Ruby.Padrino.Version'] = "Padrino-#{::Padrino::VERSION}"
+          elsif defined?(::Sinatra)
+            platform_info['Ruby.Sinatra.Version'] = "Sinatra-#{::Sinatra::VERSION}"
+          end
 
           # Report the server in use (if possible)
           if defined?(::Unicorn)
@@ -37,7 +47,6 @@ module Oboe
           else
             platform_info['Ruby.AppContainer.Version'] = "Unknown"
           end
-
         rescue
         end
 
