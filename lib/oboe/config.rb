@@ -12,7 +12,7 @@ module Oboe
     @@config = {}
 
     @@instrumentation = [ :cassandra, :dalli, :nethttp, :memcached, :memcache, :mongo,
-                          :moped, :rack, :resque, :action_controller, :action_view, 
+                          :moped, :rack, :redis, :resque, :action_controller, :action_view, 
                           :active_record ]
 
     ##
@@ -42,6 +42,7 @@ module Oboe
       Oboe::Config[:mongo][:collect_backtraces] = true
       Oboe::Config[:moped][:collect_backtraces] = true
       Oboe::Config[:nethttp][:collect_backtraces] = true
+      Oboe::Config[:redis][:collect_backtraces] = true
       Oboe::Config[:resque][:collect_backtraces] = true
 
       # Special instrument specific flags
