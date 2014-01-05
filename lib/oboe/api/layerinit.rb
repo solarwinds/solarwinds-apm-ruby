@@ -18,6 +18,13 @@ module Oboe
           platform_info['Ruby.Rails.Version']      = ::Rails.version if defined?(::Rails)
           platform_info['Ruby.Oboe.Version']       = ::Oboe::Version::STRING
           platform_info['Ruby.OboeHeroku.Version'] = ::OboeHeroku::Version::STRING if defined?(::OboeHeroku)
+
+          # Report the server in use (if possible)
+          if defined?(::Unicorn)
+            platform_info['Ruby.AppContainer.Version']         = "Unicorn-#{Unicorn::Const::UNICORN_VERSION}"
+          elsif defined?(::Puma)
+            platform_info['Ruby.AppContainer.Version']         = "Puma-#{Puma::Const::PUMA_VERSION} (#{Puma::Const::CODE_NAME})"
+          end
         rescue
         end
 
