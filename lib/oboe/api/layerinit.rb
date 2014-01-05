@@ -21,10 +21,23 @@ module Oboe
 
           # Report the server in use (if possible)
           if defined?(::Unicorn)
-            platform_info['Ruby.AppContainer.Version']         = "Unicorn-#{Unicorn::Const::UNICORN_VERSION}"
+            platform_info['Ruby.AppContainer.Version'] = "Unicorn-#{::Unicorn::Const::UNICORN_VERSION}"
           elsif defined?(::Puma)
-            platform_info['Ruby.AppContainer.Version']         = "Puma-#{Puma::Const::PUMA_VERSION} (#{Puma::Const::CODE_NAME})"
+            platform_info['Ruby.AppContainer.Version'] = "Puma-#{::Puma::Const::PUMA_VERSION} (#{::Puma::Const::CODE_NAME})"
+          elsif defined?(::PhusionPassenger)
+            platform_info['Ruby.AppContainer.Version'] = "#{::PhusionPassenger::PACKAGE_NAME}-#{::PhusionPassenger::VERSION_STRING}"
+          elsif defined?(::Thin)
+            platform_info['Ruby.AppContainer.Version'] = "Thin-#{::Thin::VERSION::STRING} (#{::Thin::VERSION::CODENAME})"
+          elsif defined?(::Mongrel)
+            platform_info['Ruby.AppContainer.Version'] = "Mongrel-#{::Mongrel::Const::MONGREL_VERSION}"
+          elsif defined?(::Mongrel2)
+            platform_info['Ruby.AppContainer.Version'] = "Mongrel2-#{::Mongrel2::VERSION}"
+          elsif defined?(::Trinidad)
+            platform_info['Ruby.AppContainer.Version'] = "Trinidad-#{::Trinidad::VERSION}"
+          else
+            platform_info['Ruby.AppContainer.Version'] = "Unknown"
           end
+
         rescue
         end
 
