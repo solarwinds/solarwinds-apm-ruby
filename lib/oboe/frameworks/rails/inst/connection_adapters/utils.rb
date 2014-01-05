@@ -10,21 +10,13 @@ module Oboe
           opts = {}
 
           begin
-            if binds.empty? 
-              # Raw SQL.  Sanitize if requested
-              if Oboe::Config[:sanitize_sql]
-                opts[:Query] = sql.gsub(/\'[\s\S][^\']*\'/, '?')
-              else
-                opts[:Query] = sql.to_s
-              end
+            if Oboe::Config[:sanitize_sql]
+              # Sanitize SQL and don't report binds
+              opts[:Query] = sql.gsub(/\'[\s\S][^\']*\'/, '?')
             else
-              # We have bind parameters.  Only report if :sanitize_sql isn't true
-              unless Oboe::Config[:sanitize_sql]
-                opts[:Query] = sql.to_s
-                opts[:QueryArgs] = binds.map { |col, val| type_cast(val, col) }
-              else
-                opts[:Query] = sql.gsub(/\'[\s\S][^\']*\'/, '?')
-              end
+              # Report raw SQL and any binds if they exist
+              opts[:Query] = sql.to_s
+              opts[:QueryArgs] = binds.map { |col, val| type_cast(val, col) } unless binds.empty?
             end
 
             opts[:Name] = name.to_s if name
@@ -39,7 +31,7 @@ module Oboe
             opts[:Database]   = config["database"] if config.has_key?("database")
             opts[:RemoteHost] = config["host"]     if config.has_key?("host")
             opts[:Flavor]     = config["adapter"]  if config.has_key?("adapter")
-          rescue Exception => e
+          rescue StandardError => e
             Oboe.logger.debug "Exception raised capturing ActiveRecord KVs: #{e.inspect}"
             Oboe.logger.debug e.backtrace.join("\n")
           end

@@ -41,7 +41,7 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
             report_kvs[:Database] = name
             report_kvs[:QueryOp] = op.to_s
             report_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:moped][:collect_backtraces]
-          rescue Exception => e
+          rescue StandardError => e
             Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
           end
           report_kvs
@@ -53,7 +53,7 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
               report_kvs = extract_trace_details(:map_reduce)
               report_kvs[:Map_Function] = command[:map]
               report_kvs[:Reduce_Function] = command[:reduce]
-            rescue Exception => e
+            rescue StandardError => e
               Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
             end
 
@@ -66,13 +66,11 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
         end
 
         def drop_with_oboe
-          if Oboe.tracing?
-            report_kvs = extract_trace_details(:drop_database)
+          return drop_without_oboe unless Oboe.tracing?
 
-            Oboe::API.trace('mongo', report_kvs) do
-              drop_without_oboe
-            end
-          else
+          report_kvs = extract_trace_details(:drop_database)
+
+          Oboe::API.trace('mongo', report_kvs) do
             drop_without_oboe
           end
         end
@@ -102,47 +100,43 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
             report_kvs[:Database] = database.name
             report_kvs[:QueryOp] = op.to_s
             report_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:moped][:collect_backtraces]
-          rescue Exception => e
+          rescue StandardError => e
             Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
           end
           report_kvs
         end
         
         def create_with_oboe(key, options = {})
-          if Oboe.tracing?
-            begin
-              # We report :create_index here to be consistent
-              # with other mongo implementations
-              report_kvs = extract_trace_details(:create_index)
-              report_kvs[:Key] = key.to_json
-              report_kvs[:Options] = options.to_json
-            rescue Exception => e
-              Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
-            end
+          return create_without_oboe(key, options = {}) unless Oboe.tracing?
 
-            Oboe::API.trace('mongo', report_kvs, :create_index) do
-              create_without_oboe(key, options = {})
-            end
-          else
+          begin
+            # We report :create_index here to be consistent
+            # with other mongo implementations
+            report_kvs = extract_trace_details(:create_index)
+            report_kvs[:Key] = key.to_json
+            report_kvs[:Options] = options.to_json
+          rescue StandardError => e
+            Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
+          end
+
+          Oboe::API.trace('mongo', report_kvs, :create_index) do
             create_without_oboe(key, options = {})
           end
         end
         
         def drop_with_oboe(key = nil)
-          if Oboe.tracing?
-            begin
-              # We report :drop_indexes here to be consistent
-              # with other mongo implementations
-              report_kvs = extract_trace_details(:drop_indexes)
-              report_kvs[:Key] = key.nil? ? "all" : key.to_json
-            rescue Exception => e
-              Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
-            end
+          return drop_without_oboe(key = nil) unless Oboe.tracing?
+            
+          begin
+            # We report :drop_indexes here to be consistent
+            # with other mongo implementations
+            report_kvs = extract_trace_details(:drop_indexes)
+            report_kvs[:Key] = key.nil? ? "all" : key.to_json
+          rescue StandardError => e
+            Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
+          end
 
-            Oboe::API.trace('mongo', report_kvs) do
-              drop_without_oboe(key = nil)
-            end
-          else
+          Oboe::API.trace('mongo', report_kvs) do
             drop_without_oboe(key = nil)
           end
         end
@@ -173,43 +167,39 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
             report_kvs[:Collection] = collection.name
             report_kvs[:QueryOp] = op.to_s
             report_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:moped][:collect_backtraces]
-          rescue Exception => e
+          rescue StandardError => e
             Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
           end
           report_kvs
         end
         
         def count_with_oboe
-          if Oboe.tracing?
-            begin
-              report_kvs = extract_trace_details(:count)
-              report_kvs[:Query] = selector.empty? ? "all" : selector.to_json
-            rescue Exception => e
-              Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
-            end
+          return count_without_oboe unless Oboe.tracing?
+            
+          begin
+            report_kvs = extract_trace_details(:count)
+            report_kvs[:Query] = selector.empty? ? "all" : selector.to_json
+          rescue StandardError => e
+            Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
+          end
 
-            Oboe::API.trace('mongo', report_kvs) do
-              count_without_oboe
-            end
-          else
+          Oboe::API.trace('mongo', report_kvs) do
             count_without_oboe
           end
         end
 
         def sort_with_oboe(sort)
-          if Oboe.tracing?
-            begin
-              report_kvs = extract_trace_details(:sort)
-              report_kvs[:Query] = selector.empty? ? "all" : selector.to_json
-              report_kvs[:Order] = sort.to_s
-            rescue Exception => e
-              Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
-            end
+          return sort_without_oboe(sort) unless Oboe.tracing?
+            
+          begin
+            report_kvs = extract_trace_details(:sort)
+            report_kvs[:Query] = selector.empty? ? "all" : selector.to_json
+            report_kvs[:Order] = sort.to_s
+          rescue StandardError => e
+            Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
+          end
 
-            Oboe::API.trace('mongo', report_kvs) do
-              sort_without_oboe(sort)
-            end
-          else
+          Oboe::API.trace('mongo', report_kvs) do
             sort_without_oboe(sort)
           end
         end
@@ -220,32 +210,30 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
               report_kvs = extract_trace_details(:limit)
               report_kvs[:Query] = selector.empty? ? "all" : selector.to_json
               report_kvs[:Limit] = limit.to_s
-            rescue Exception => e
+            rescue StandardError => e
               Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
             end
 
             Oboe::API.trace('mongo', report_kvs) do
               limit_without_oboe(limit)
             end
-          else
-            limit_without_oboe(limit)
+          else 
+            limit_without_oboe(limit) 
           end
         end
 
         def distinct_with_oboe(key)
-          if Oboe.tracing?
-            begin
-              report_kvs = extract_trace_details(:distinct)
-              report_kvs[:Query] = selector.empty? ? "all" : selector.to_json
-              report_kvs[:Key] = key.to_s
-            rescue Exception => e
-              Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
-            end
+          return distinct_without_oboe(key) unless Oboe.tracing?
 
-            Oboe::API.trace('mongo', report_kvs) do
-              distinct_without_oboe(key)
-            end
-          else
+          begin
+            report_kvs = extract_trace_details(:distinct)
+            report_kvs[:Query] = selector.empty? ? "all" : selector.to_json
+            report_kvs[:Key] = key.to_s
+          rescue StandardError => e
+            Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
+          end
+
+          Oboe::API.trace('mongo', report_kvs) do
             distinct_without_oboe(key)
           end
         end
@@ -256,7 +244,7 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
               report_kvs = extract_trace_details(:update)
               report_kvs[:Flags] = flags.to_s if flags
               report_kvs[:Update_Document] = change.to_json
-            rescue Exception => e
+            rescue StandardError => e
               Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
             end
 
@@ -269,106 +257,94 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
         end
         
         def update_all_with_oboe(change)
-          if Oboe.tracing?
-            begin
-              report_kvs = extract_trace_details(:update_all)
-              report_kvs[:Update_Document] = change.to_json
-            rescue Exception => e
-              Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
-            end
+          return update_all_without_oboe(change) unless Oboe.tracing?
+            
+          begin
+            report_kvs = extract_trace_details(:update_all)
+            report_kvs[:Update_Document] = change.to_json
+          rescue StandardError => e
+            Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
+          end
 
-            Oboe::API.trace('mongo', report_kvs, :update_all) do
-              update_all_without_oboe(change)
-            end
-          else
+          Oboe::API.trace('mongo', report_kvs, :update_all) do
             update_all_without_oboe(change)
           end
         end
 
         def upsert_with_oboe(change)
-          if Oboe.tracing?
-            begin
-              report_kvs = extract_trace_details(:upsert)
-              report_kvs[:Query] = selector.to_json
-              report_kvs[:Update_Document] = change.to_json
-            rescue Exception => e
-              Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
-            end
+          return upsert_without_oboe(change) unless Oboe.tracing?
+          
+          begin
+            report_kvs = extract_trace_details(:upsert)
+            report_kvs[:Query] = selector.to_json
+            report_kvs[:Update_Document] = change.to_json
+          rescue StandardError => e
+            Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
+          end
 
-            Oboe::API.trace('mongo', report_kvs, :upsert) do
-              upsert_without_oboe(change)
-            end
-          else
+          Oboe::API.trace('mongo', report_kvs, :upsert) do
             upsert_without_oboe(change)
           end
         end
 
         def explain_with_oboe
-          if Oboe.tracing?
-            begin
-              report_kvs = extract_trace_details(:explain)
-              report_kvs[:Query] = selector.empty? ? "all" : selector.to_json
-            rescue Exception => e
-              Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
-            end
+          return explain_without_oboe unless Oboe.tracing?
+          
+          begin
+            report_kvs = extract_trace_details(:explain)
+            report_kvs[:Query] = selector.empty? ? "all" : selector.to_json
+          rescue StandardError => e
+            Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
+          end
 
-            Oboe::API.trace('mongo', report_kvs, :explain) do
-              explain_without_oboe
-            end
-          else
+          Oboe::API.trace('mongo', report_kvs, :explain) do
             explain_without_oboe
           end
         end
 
         def modify_with_oboe(change, options = {})
-          if Oboe.tracing?
-            begin
-              report_kvs = extract_trace_details(:modify)
-              report_kvs[:Update_Document] = selector.empty? ? "all" : selector.to_json
-              report_kvs[:Change] = change.to_json
-              report_kvs[:Options] = options.to_json
-            rescue Exception => e
-              Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
-            end
+          return modify_without_oboe(change, options) unless Oboe.tracing?
 
-            Oboe::API.trace('mongo', report_kvs) do
-              modify_without_oboe(change, options)
-            end
-          else
+          begin
+            report_kvs = extract_trace_details(:modify)
+            report_kvs[:Update_Document] = selector.empty? ? "all" : selector.to_json
+            report_kvs[:Change] = change.to_json
+            report_kvs[:Options] = options.to_json
+          rescue StandardError => e
+            Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
+          end
+
+          Oboe::API.trace('mongo', report_kvs) do
             modify_without_oboe(change, options)
           end
         end
         
         def remove_with_oboe
-          if Oboe.tracing?
-            begin
-              report_kvs = extract_trace_details(:remove)
-              report_kvs[:Query] = selector.to_json
-            rescue Exception => e
-              Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
-            end
+          return remove_without_oboe unless Oboe.tracing?
 
-            Oboe::API.trace('mongo', report_kvs) do
-              remove_without_oboe
-            end
-          else
+          begin
+            report_kvs = extract_trace_details(:remove)
+            report_kvs[:Query] = selector.to_json
+          rescue StandardError => e
+            Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
+          end
+
+          Oboe::API.trace('mongo', report_kvs) do
             remove_without_oboe
           end
         end
 
         def remove_all_with_oboe
-          if Oboe.tracing?
-            begin
-              report_kvs = extract_trace_details(:remove_all)
-              report_kvs[:Query] = selector.to_json
-            rescue Exception => e
-              Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
-            end
+          return remove_all_without_oboe unless Oboe.tracing?
 
-            Oboe::API.trace('mongo', report_kvs) do
-              remove_all_without_oboe
-            end
-          else
+          begin
+            report_kvs = extract_trace_details(:remove_all)
+            report_kvs[:Query] = selector.to_json
+          rescue StandardError => e
+            Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
+          end
+
+          Oboe::API.trace('mongo', report_kvs) do
             remove_all_without_oboe
           end
         end
@@ -400,51 +376,45 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
             report_kvs[:Collection] = @name
             report_kvs[:QueryOp] = op.to_s
             report_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:moped][:collect_backtraces]
-          rescue Exception => e
+          rescue StandardError => e
             Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
           end
           report_kvs
         end
 
         def drop_with_oboe
-          if Oboe.tracing?
-            # We report :drop_collection here to be consistent
-            # with other mongo implementations
-            report_kvs = extract_trace_details(:drop_collection)
+          return drop_without_oboe unless Oboe.tracing?
+            
+          # We report :drop_collection here to be consistent
+          # with other mongo implementations
+          report_kvs = extract_trace_details(:drop_collection)
 
-            Oboe::API.trace('mongo', report_kvs) do
-              drop_without_oboe
-            end
-          else
+          Oboe::API.trace('mongo', report_kvs) do
             drop_without_oboe
           end
         end
 
         def find_with_oboe(selector = {})
-          if Oboe.tracing?
-            begin
-              report_kvs = extract_trace_details(:find)
-              report_kvs[:Query] = selector.empty? ? "all" : selector.to_json
-            rescue Exception => e
-              Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
-            end
+          return find_without_oboe(selector) unless Oboe.tracing?
+            
+          begin
+            report_kvs = extract_trace_details(:find)
+            report_kvs[:Query] = selector.empty? ? "all" : selector.to_json
+          rescue StandardError => e
+            Oboe.logger.debug "[oboe/debug] Moped KV collection error: #{e.inspect}"
+          end
 
-            Oboe::API.trace('mongo', report_kvs) do
-              find_without_oboe(selector)
-            end
-          else
+          Oboe::API.trace('mongo', report_kvs) do
             find_without_oboe(selector)
           end
         end
         
         def indexes_with_oboe
-          if Oboe.tracing?
-            report_kvs = extract_trace_details(:indexes)
+          return indexes_without_oboe unless Oboe.tracing?
+            
+          report_kvs = extract_trace_details(:indexes)
 
-            Oboe::API.trace('mongo', report_kvs) do
-              indexes_without_oboe
-            end
-          else
+          Oboe::API.trace('mongo', report_kvs) do
             indexes_without_oboe
           end
         end
@@ -462,13 +432,11 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
         end
         
         def aggregate_with_oboe(pipeline)
-          if Oboe.tracing?
-            report_kvs = extract_trace_details(:aggregate)
+          return aggregate_without_oboe(pipeline) unless Oboe.tracing?
+            
+          report_kvs = extract_trace_details(:aggregate)
 
-            Oboe::API.trace('mongo', report_kvs) do
-              aggregate_without_oboe(pipeline)
-            end
-          else
+          Oboe::API.trace('mongo', report_kvs) do
             aggregate_without_oboe(pipeline)
           end
         end
