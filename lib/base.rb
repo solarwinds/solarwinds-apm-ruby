@@ -1,9 +1,32 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
+  
+# Constants from liboboe
+OBOE_TRACE_NEVER   = 0
+OBOE_TRACE_ALWAYS  = 1
+OBOE_TRACE_THROUGH = 2
+
+OBOE_SAMPLE_RATE_SOURCE_FILE                   = 1
+OBOE_SAMPLE_RATE_SOURCE_DEFAULT                = 2
+OBOE_SAMPLE_RATE_SOURCE_OBOE                   = 3
+OBOE_SAMPLE_RATE_SOURCE_LAST_OBOE              = 4
+OBOE_SAMPLE_RATE_SOURCE_DEFAULT_MISCONFIGURED  = 5
+OBOE_SAMPLE_RATE_SOURCE_OBOE_DEFAULT           = 6
+
+# Masks for bitwise ops
+ZERO_MASK = 0b00000000000000000000000000
+
+SAMPLE_RATE_MASK   = 0b00111111111111111111111111
+SAMPLE_SOURCE_MASK = 0b11000000000000000000000000
+
+ZERO_SAMPLE_RATE_MASK   = 0b11000000000000000000000000
+ZERO_SAMPLE_SOURCE_MASK = 0b00111111111111111111111111
 
 module OboeBase
   attr_accessor :reporter
   attr_accessor :loaded
+  attr_accessor :sample_source
+  attr_accessor :sample_rate
 
   def self.included(cls)
     self.loaded = true
