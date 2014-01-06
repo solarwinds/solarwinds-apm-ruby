@@ -6,6 +6,8 @@ Gem::Specification.new do |s|
   s.version = Oboe::Version::STRING
   s.date = Time.now.strftime('%Y-%m-%d')
 
+  s.license = "AppNeta Open License, Version 1.0"
+
   s.authors = ["Peter Giacomo Lombardo", "Spiros Eliopoulos"]
   s.email = %q{traceviewsupport@appneta.com}
   s.homepage = %q{http://www.appneta.com/application-performance-management}
