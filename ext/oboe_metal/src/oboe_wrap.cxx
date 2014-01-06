@@ -2029,6 +2029,16 @@ SWIG_AsVal_int (VALUE obj, int *val)
 }
 
 
+  #define SWIG_From_long   LONG2NUM 
+
+
+SWIGINTERNINLINE VALUE
+SWIG_From_int  (int value)
+{    
+  return SWIG_From_long  (value);
+}
+
+
 
 
 
@@ -2058,16 +2068,6 @@ SWIG_AsVal_double (VALUE obj, double *val)
     }
   }
   return SWIG_TypeError;
-}
-
-
-  #define SWIG_From_long   LONG2NUM 
-
-
-SWIGINTERNINLINE VALUE
-SWIG_From_int  (int value)
-{    
-  return SWIG_From_long  (value);
 }
 
 swig_class SwigClassMetadata;
@@ -2304,7 +2304,7 @@ _wrap_Context_sampleRequest(int argc, VALUE *argv, VALUE self) {
   std::string arg1 ;
   std::string arg2 ;
   std::string arg3 ;
-  bool result;
+  int result;
   VALUE vresult = Qnil;
   
   if ((argc < 3) || (argc > 3)) {
@@ -2337,8 +2337,8 @@ _wrap_Context_sampleRequest(int argc, VALUE *argv, VALUE self) {
     arg3 = *ptr;
     if (SWIG_IsNewObj(res)) delete ptr;
   }
-  result = (bool)Context::sampleRequest(arg1,arg2,arg3);
-  vresult = SWIG_From_bool(static_cast< bool >(result));
+  result = (int)Context::sampleRequest(arg1,arg2,arg3);
+  vresult = SWIG_From_int(static_cast< int >(result));
   return vresult;
 fail:
   return Qnil;
