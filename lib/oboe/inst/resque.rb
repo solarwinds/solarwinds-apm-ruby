@@ -2,6 +2,7 @@
 # All rights reserved.
 
 require 'socket'
+require 'json'
 
 module Oboe
   module Inst

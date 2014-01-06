@@ -24,13 +24,9 @@ module Oboe
 
       def perform_with_oboe(*all_args, &blk)
         op, key, *args = *all_args
-
+        
         if Oboe.tracing? and not Oboe::Context.tracing_layer_op?(:get_multi)
-          opts = {}
-          opts[:KVOp] = op
-          opts[:KVKey] = key 
-
-          Oboe::API.trace('memcache', opts || {}) do
+          Oboe::API.trace('memcache', { :KVOp => op, :KVKey => key }) do
             result = perform_without_oboe(*all_args, &blk)
 
             info_kvs = {}
@@ -46,32 +42,26 @@ module Oboe
       end
 
       def get_multi_with_oboe(*keys)
-        if Oboe.tracing?
-          layer_kvs = {}
-          layer_kvs[:KVOp] = :get_multi
+        return get_multi_without_oboe(keys) unless Oboe.tracing?
+          
+        info_kvs = {}
+          
+        begin
+          info_kvs[:KVKeyCount] = keys.flatten.length 
+          info_kvs[:KVKeyCount] = (info_kvs[:KVKeyCount] - 1) if keys.last.is_a?(Hash) || keys.last.nil?
+        rescue
+          Oboe.logger.debug "[oboe/debug] Error collecting info keys: #{e.message}"
+          Oboe.logger.debug e.backtrace
+        end
 
-          Oboe::API.trace('memcache', layer_kvs || {}, :get_multi) do
-            begin
-              info_kvs = {}
-               
-              if keys.last.is_a?(Hash) || keys.last.nil?
-                info_kvs[:KVKeyCount] = keys.flatten.length - 1
-              else
-                info_kvs[:KVKeyCount] = keys.flatten.length 
-              end
+        Oboe::API.trace('memcache', { :KVOp => :get_multi }, :get_multi) do
+          values = get_multi_without_oboe(keys)
+          
+          info_kvs[:KVHitCount] = values.length
+          info_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:dalli][:collect_backtraces]
+          Oboe::API.log('memcache', 'info', info_kvs)
 
-              values = get_multi_without_oboe(keys)
-              
-              info_kvs[:KVHitCount] = values.length
-              info_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:dalli][:collect_backtraces]
-              Oboe::API.log('memcache', 'info', info_kvs)
-            rescue
-              values = get_multi_without_oboe(keys)
-            end
-            values 
-          end
-        else
-          get_multi_without_oboe(keys)
+          values 
         end
       end
     end
