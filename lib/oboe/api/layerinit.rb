@@ -16,7 +16,7 @@ module Oboe
           platform_info['Ruby.Platform.Version']   = RUBY_PLATFORM
           platform_info['Ruby.Version']            = RUBY_VERSION
           platform_info['Ruby.Oboe.Version']       = ::Oboe::Version::STRING
-          platform_info['Ruby.OboeHeroku.Version'] = ::OboeHeroku::Version::STRING if defined?(::OboeHeroku)
+          platform_info['RubyHeroku.Oboe.Version'] = ::OboeHeroku::Version::STRING if defined?(::OboeHeroku)
 
           # Report the framework in use
           platform_info['Ruby.Rails.Version'] = "Rails-#{::Rails.version}"  if defined?(::Rails)
