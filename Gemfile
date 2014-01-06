@@ -3,13 +3,13 @@ source 'https://rubygems.org'
 # Import dependencies from oboe.gemspec
 gemspec :name => 'oboe'
 
-gem 'rake'
 
 group :development, :test do
   gem 'minitest'
   gem 'minitest-reporters'
   gem 'rack-test'
   gem 'appraisal'
+  gem 'bson'
 end
 
 group :development do
@@ -28,5 +28,4 @@ gem 'mongo'
 gem 'bson_ext' # For Mongo, Yours Truly
 gem 'moped' unless (RUBY_VERSION =~ /^1.8/) == 0
 gem 'resque'
-gem 'rack-test'
 
