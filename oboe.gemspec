@@ -19,7 +19,5 @@ Gem::Specification.new do |s|
   s.extensions = ['ext/oboe_metal/extconf.rb']
    
   s.add_development_dependency 'rake'
-  s.add_development_dependency 'minitest'
-  s.add_development_dependency 'bson'
 end
 
