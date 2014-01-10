@@ -12,10 +12,10 @@ group :development, :test do
   gem 'appraisal'
 end
 
-group :development do
+group :development, :test do
   gem 'ruby-debug',   :platform => :mri_18
   gem 'ruby-debug19', :platform => :mri_19, :require => 'ruby-debug'
-  gem 'debugger',     :platform => :mri_20 
+  gem 'byebug',       :platform => :mri_20 
   gem 'perftools.rb', :platform => :mri,    :require => 'perftools'
 end
 
