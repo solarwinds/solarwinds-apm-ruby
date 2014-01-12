@@ -62,22 +62,19 @@ module Oboe
       @@config[:sanitize_sql] = false
 
       # The default configuration
-      default_config = {
-        :tracing_mode => "through",
-        :reporter_host => "127.0.0.1",
-        :sample_rate => 300000,
-        :verbose => false 
-      }
-      update!(default_config)
-      
-      # For Initialization, mark this as the default SampleRate
-      @@config[:sample_source] = 2 # OBOE_SAMPLE_RATE_SOURCE_DEFAULT
+      @@config[:tracing_mode] = "through"
+      @@config[:reporter_host] = "127.0.0.1"
+      @@config[:verbose] = false
     end
 
     def self.update!(data)
       data.each do |key, value|
         self[key] = value
       end
+    end
+
+    def self.merge!(data)
+      self.update!(data)
     end
 
     def self.[](key)
@@ -92,10 +89,6 @@ module Oboe
       end
 
       if key == :sample_rate
-        # When setting SampleRate, note that it's been manually set
-        # OBOE_SAMPLE_RATE_SOURCE_FILE == 1
-        @@config[:sample_source] = 1 
-
         unless value.is_a?(Integer) or value.is_a?(Float)
           raise "oboe :sample_rate must be a number between 1 and 1000000 (1m)" 
         end
@@ -121,6 +114,9 @@ module Oboe
       if sym.to_s =~ /(.+)=$/
         self[$1] = args.first
       else
+        unless @@config.has_key?(sym)
+          Oboe.logger.warn "[oboe/warn] Unknown method call on Oboe::Config: #{sym}"
+        end
         self[sym]
       end
     end

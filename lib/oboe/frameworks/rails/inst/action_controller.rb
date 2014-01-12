@@ -48,6 +48,9 @@ module Oboe
       end
       
       def process_action_with_oboe(method_name, *args)
+        return process_action_without_oboe(method_name, *args) if Oboe::Config[:action_blacklist].present? &&
+          Oboe::Config[:action_blacklist][[self.controller_name, self.action_name].join('#')]
+
         report_kvs = {
           :Controller   => self.class.name,
           :Action       => self.action_name,

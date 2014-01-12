@@ -1,3 +1,15 @@
+# oboe 2.4.0.1 (01/12/13)
+
+* Report SampleRate & SampleSource per updated SWIG API
+* Change OboeHeroku __Init Key 
+* Remove oboe_fu artifacts
+* CodeClimate Initiated improvements
+* Remove SSL connection requirement from Net::HTTP tests
+* oboe.gemspec doesn't specify Ruby 1.8 json dependency
+* add config to blacklist tracing of actions (thanks @nathantsoi!)
+* Report the application server used
+* Support Oboe::Config.merge! and warn on non-existent (thanks @adamjt!)
+
 # oboe 2.3.4.1 (11/21/13)
 
 * Stacks that use a caching system like Varnish could see corrupted traces; fixed. 

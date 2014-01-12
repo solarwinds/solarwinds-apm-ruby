@@ -1,6 +1,8 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
+require 'json'
+
 module Oboe
   module Inst
     module Mongo
@@ -81,7 +83,7 @@ if defined?(::Mongo) and Oboe::Config[:mongo][:enabled]
               report_kvs[:QueryOp] = m 
               if m == :count
                 unless @selector.empty?
-                  report_kvs[:Query] = @selector.try(:to_json) 
+                  report_kvs[:Query] = @selector.to_json
                 else
                   report_kvs[:Query] = 'all'
                 end
@@ -148,7 +150,7 @@ if defined?(::Mongo) and Oboe::Config[:mongo][:enabled]
 
               if m == :update
                 if args_length >= 3
-                  report_kvs[:Update_Document] = args[1].try(:to_json)
+                  report_kvs[:Update_Document] = args[1].to_json
                   report_kvs[:Multi] = args[2][:multi] if args[2] and args[2].has_key?(:multi)
                 end
               end
@@ -173,7 +175,7 @@ if defined?(::Mongo) and Oboe::Config[:mongo][:enabled]
 
               if m == :distinct and args_length >= 2
                 report_kvs[:Key]   = args[0]
-                report_kvs[:Query] = args[1].try(:to_json) if args[1] and args[1].class == Hash
+                report_kvs[:Query] = args[1].to_json if args[1] and args[1].class == Hash
               end
 
               if m == :find and args_length > 0
@@ -183,9 +185,9 @@ if defined?(::Mongo) and Oboe::Config[:mongo][:enabled]
               if m == :group
                 unless args.empty?
                   if args[0].is_a?(Hash) 
-                    report_kvs[:Group_Key]       = args[0][:key].try(:to_json)     if args[0].has_key?(:key)
-                    report_kvs[:Group_Condition] = args[0][:cond].try(:to_json)    if args[0].has_key?(:cond) 
-                    report_kvs[:Group_Initial]   = args[0][:initial].try(:to_json) if args[0].has_key?(:initial)
+                    report_kvs[:Group_Key]       = args[0][:key].to_json     if args[0].has_key?(:key)
+                    report_kvs[:Group_Condition] = args[0][:cond].to_json    if args[0].has_key?(:cond) 
+                    report_kvs[:Group_Initial]   = args[0][:initial].to_json if args[0].has_key?(:initial)
                     report_kvs[:Group_Reduce]    = args[0][:reduce]                if args[0].has_key?(:reduce) 
                   end
                 end
@@ -210,7 +212,7 @@ if defined?(::Mongo) and Oboe::Config[:mongo][:enabled]
            
             begin
               if [:create_index, :ensure_index, :drop_index].include? m and not _args.empty?
-                report_kvs[:Index] = _args[0].try(:to_json)
+                report_kvs[:Index] = _args[0].to_json
               end
             rescue
             end
