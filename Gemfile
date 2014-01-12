@@ -17,6 +17,7 @@ group :development do
   gem 'ruby-debug19', :platform => :mri_19, :require => 'ruby-debug'
   gem 'debugger',     :platform => :mri_20 
   gem 'perftools.rb', :platform => :mri,    :require => 'perftools'
+  gem 'pry'
 end
 
 # Instrumented gems
