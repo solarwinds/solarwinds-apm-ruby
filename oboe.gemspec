@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
 
   s.authors = ["Peter Giacomo Lombardo", "Spiros Eliopoulos"]
   s.email = %q{traceviewsupport@appneta.com}
-  s.homepage = %q{http://www.appneta.com/application-performance-management}
+  s.homepage = %q{http://www.appneta.com/products/traceview/}
   s.summary = %q{AppNeta TraceView performance instrumentation gem for Ruby}
   s.description = %q{The oboe gem provides TraceView instrumentation for Ruby and Ruby frameworks.}
 
