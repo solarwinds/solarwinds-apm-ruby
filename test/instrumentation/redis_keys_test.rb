@@ -6,7 +6,7 @@ describe Oboe::Inst::Redis, :keys do
 
   def min_server_version(version)
     unless Gem::Version.new(@redis.info["redis_version"]) >= Gem::Version.new(version.to_s)
-      skip "supported only redis-server #{version}" 
+      skip "supported only on redis-server #{version} or greater" 
     end
   end
 
@@ -120,15 +120,17 @@ describe Oboe::Inst::Redis, :keys do
   end
   
   it "should trace basic move" do
+    @redis.set("piano", Time.now)
+
     Oboe::API.start_trace('redis_test', '', {}) do
-      @redis.move("piano", "anotherdb2")
+      @redis.move("piano", 1)
     end
 
     traces = get_all_traces
     traces.count.must_equal 4
     traces[1]['KVOp'].must_equal "move"
     traces[1]['KVKey'].must_equal "piano"
-    traces[1]['db'].must_equal "anotherdb"
+    traces[1]['db'].must_equal "1"
   end
   
   it "should trace object" do
