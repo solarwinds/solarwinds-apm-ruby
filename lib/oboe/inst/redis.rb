@@ -15,7 +15,10 @@ module Oboe
  
           begin
             kvs[:KVOp] = command[0]
-            kvs[:KVKey] = command[1]
+
+            unless [ :keys, :randomkey ].include? op or command[1].is_a?(Array)
+              kvs[:KVKey] = command[1]
+            end
 
             case op
             when :set
@@ -26,12 +29,26 @@ module Oboe
                 kvs[:nx] = options[:nx] if options.has_key?(:nx)
                 kvs[:xx] = options[:xx] if options.has_key?(:xx)
               end
-            when :setex, :setnx, :psetex
-              kvs[:ttl] = command[2]
-              kvs[:value] = command[3]
+            
+            when :sort
+              if command.count > 3
+                options = command[3]
+                # Grab all of the options
+                kvs.merge!(options)
+              end
 
-            when :append, :decr, :get, :getset, :incr, :strlen
+            when :psetex, :restore, :setex, :setnx
+              kvs[:ttl] = command[2]
+
+            when :rename, :renamenx
+              kvs[:newkey] = command[2]
+
+            when :append, :decr, :del, :dump, :exists, :get, :getset, :incr, 
+              :persist, :pttl, :randomkey, :strlen
               # Only collect the default KVOp/KVKey (above)
+            
+            when :move
+              kvs[:db] = command[2]
             
             when :getbit, :setbit, :setrange
               kvs[:offset] = command[2]
@@ -40,8 +57,20 @@ module Oboe
               kvs[:start] = command[2]
               kvs[:end] = command[3]
             
+            when :keys
+              kvs[:pattern] = command[1]
+            
             when :incrby, :incrbyfloat
               kvs[:increment] = command[2]
+
+            when :expire
+              kvs[:seconds] = command[2]
+            
+            when :pexpire, :pexpireat
+              kvs[:milliseconds] = command[2]
+            
+            when :expireat
+              kvs[:timestamp] = command[2]
 
             when :decrby
               kvs[:decrement] = command[2]
@@ -53,6 +82,8 @@ module Oboe
             when :bitop
               kvs[:operation] = command[2]
               kvs[:destkey] = command[3]
+
+            # Not implemented: :migrate, :object
 
             else
               Oboe.logger.debug "#{op} not collected!"
