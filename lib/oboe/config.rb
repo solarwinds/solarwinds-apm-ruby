@@ -74,6 +74,10 @@ module Oboe
       end
     end
 
+    def self.merge!(data)
+      self.update!(data)
+    end
+
     def self.[](key)
       @@config[key.to_sym]
     end
@@ -111,6 +115,9 @@ module Oboe
       if sym.to_s =~ /(.+)=$/
         self[$1] = args.first
       else
+        unless @@config.has_key?(sym)
+          Oboe.logger.warn "[oboe/warn] Unknown method call on Oboe::Config: #{sym}"
+        end
         self[sym]
       end
     end

@@ -6,9 +6,11 @@ Gem::Specification.new do |s|
   s.version = Oboe::Version::STRING
   s.date = Time.now.strftime('%Y-%m-%d')
 
+  s.license = "AppNeta Open License, Version 1.0"
+
   s.authors = ["Peter Giacomo Lombardo", "Spiros Eliopoulos"]
   s.email = %q{traceviewsupport@appneta.com}
-  s.homepage = %q{http://www.appneta.com/application-performance-management}
+  s.homepage = %q{http://www.appneta.com/products/traceview/}
   s.summary = %q{AppNeta TraceView performance instrumentation gem for Ruby}
   s.description = %q{The oboe gem provides TraceView instrumentation for Ruby and Ruby frameworks.}
 
@@ -19,8 +21,6 @@ Gem::Specification.new do |s|
   s.extensions = ['ext/oboe_metal/extconf.rb']
    
   s.add_development_dependency 'rake'
-  s.add_development_dependency 'minitest'
-  s.add_development_dependency 'bson'
 
   s.add_runtime_dependency('json', '>= 0')
 end
