@@ -16,7 +16,8 @@ module Oboe
           begin
             kvs[:KVOp] = command[0]
 
-            unless [ :keys, :randomkey ].include? op or command[1].is_a?(Array)
+            # mget, mset
+            unless [ :keys, :randomkey, :scan ].include? op or command[1].is_a?(Array)
               kvs[:KVKey] = command[1]
             end
 
@@ -30,26 +31,23 @@ module Oboe
                 kvs[:xx] = options[:xx] if options.has_key?(:xx)
               end
             
-            when :sort
-              if command.count > 3
-                options = command[3]
-                # Grab all of the options
-                kvs.merge!(options)
-              end
-
             when :psetex, :restore, :setex, :setnx
               kvs[:ttl] = command[2]
 
             when :rename, :renamenx
               kvs[:newkey] = command[2]
 
-            when :append, :decr, :del, :dump, :exists, :get, :getset, :incr, 
-              :persist, :pttl, :randomkey, :strlen
-              # Only collect the default KVOp/KVKey (above)
+            when :append, :decr, :del, :dump, :exists, :get, :hgetall, :hkeys, 
+                 :hlen, :hvals, :hmget, :hmset, :incr, :mget, :mset, :msetnx, :persist, :pttl, 
+                 :randomkey, :hscan, :scan, :strlen, :sort, :ttl
+              # Only collect the default KVOp and possibly KVKey (above)
             
             when :move
               kvs[:db] = command[2]
             
+            when :getset
+              kvs[:value] = command[2]
+
             when :getbit, :setbit, :setrange
               kvs[:offset] = command[2]
             
@@ -62,6 +60,13 @@ module Oboe
             
             when :incrby, :incrbyfloat
               kvs[:increment] = command[2]
+            
+            when :hincrby, :hincrbyfloat
+              kvs[:field] = command[2]
+              kvs[:increment] = command[3]
+
+            when :hdel, :hexists, :hget, :hset, :hsetnx
+              kvs[:field] = command[2]
 
             when :expire
               kvs[:seconds] = command[2]
