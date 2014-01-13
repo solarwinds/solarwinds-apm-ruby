@@ -5,7 +5,7 @@ describe Oboe::Inst::Redis, :strings do
   attr_reader :entry_kvs, :exit_kvs, :redis
 
   def min_server_version(version)
-    unless (@redis.info["redis_version"] =~ /#{version}/) == 0
+    unless Gem::Version.new(@redis.info["redis_version"]) >= Gem::Version.new(version.to_s)
       skip "supported only redis-server #{version}" 
     end
   end
