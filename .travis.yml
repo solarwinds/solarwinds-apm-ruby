@@ -29,4 +29,5 @@ services:
   - mongodb
   - memcached
   - cassandra
+  - redis
 
