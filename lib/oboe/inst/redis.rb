@@ -37,13 +37,21 @@ module Oboe
             when :rename, :renamenx
               kvs[:newkey] = command[2]
 
-            when :append, :decr, :del, :dump, :exists, :get, :hgetall, :hkeys, 
-                 :hlen, :hvals, :hmget, :hmset, :incr, :mget, :mset, :msetnx, :persist, :pttl, 
-                 :randomkey, :hscan, :scan, :strlen, :sort, :ttl
+            when :brpoplpush, :rpoplpush
+              kvs[:destination] = command[2]
+
+            when :append, :blpop, :brpop, :decr, :del, :dump, :exists, 
+                 :get, :hgetall, :hkeys, 
+                 :hlen, :hvals, :hmget, :hmset, :incr, :linsert, :llen, 
+                 :lpop, :lpush, :lpushx, :lrem, :lset, :ltrim, :mget, :mset, :msetnx, :persist, :pttl, 
+                 :randomkey, :hscan, :scan, :rpop, :rpush, :rpushx, :strlen, :sort, :ttl
               # Only collect the default KVOp and possibly KVKey (above)
             
             when :move
               kvs[:db] = command[2]
+
+            when :lindex
+              kvs[:index] = command[2]
             
             when :getset
               kvs[:value] = command[2]
@@ -80,7 +88,7 @@ module Oboe
             when :decrby
               kvs[:decrement] = command[2]
 
-            when :bitcount
+            when :bitcount, :lrange
               kvs[:start] = command[2]
               kvs[:stop] = command[3]
 
