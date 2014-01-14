@@ -57,7 +57,7 @@ describe Oboe::Inst::Redis, :keys do
     traces.count.must_equal 4
     traces[1]['KVOp'].must_equal "hdel"
     traces[1]['KVKey'].must_equal "whale"
-    traces[1]['field'].must_equal "color"
+    traces[1].has_key?('field').must_equal false
   end
   
   it "should trace hexists" do
@@ -138,7 +138,7 @@ describe Oboe::Inst::Redis, :keys do
     traces[1]['KVOp'].must_equal "hincrbyfloat"
     traces[1]['KVKey'].must_equal "whale"
     traces[1]['field'].must_equal "age"
-    traces[1]['increment'].must_equal "1"
+    traces[1]['increment'].must_equal "1.3"
   end
   
   it "should trace hkeys" do

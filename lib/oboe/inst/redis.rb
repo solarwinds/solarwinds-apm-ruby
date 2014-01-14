@@ -74,7 +74,7 @@ module Oboe
               kvs[:increment] = command[3]
 
             when :hdel, :hexists, :hget, :hset, :hsetnx
-              kvs[:field] = command[2]
+              kvs[:field] = command[2] unless command[2].is_a?(Array)
 
             when :expire
               kvs[:seconds] = command[2]
@@ -93,8 +93,8 @@ module Oboe
               kvs[:stop] = command[3]
 
             when :bitop
-              kvs[:operation] = command[2]
-              kvs[:destkey] = command[3]
+              kvs[:operation] = command[1]
+              kvs[:destkey] = command[2]
 
             # Not implemented: :migrate, :object
 

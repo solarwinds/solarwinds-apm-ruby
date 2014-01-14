@@ -177,7 +177,7 @@ describe Oboe::Inst::Redis, :strings do
     @redis.setex("incrfloat", 60, 0.0)
 
     Oboe::API.start_trace('redis_test', '', {}) do
-      @redis.incrby("incrfloat", 1.01)
+      @redis.incrbyfloat("incrfloat", 1.01)
     end
 
     traces = get_all_traces

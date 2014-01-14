@@ -164,7 +164,7 @@ describe Oboe::Inst::Redis, :keys do
     traces = get_all_traces
     traces.count.must_equal 4
     traces[1]['KVOp'].must_equal "pexpire"
-    traces[1]['KVKey'].must_equal "mine"
+    traces[1]['KVKey'].must_equal "sand"
     traces[1]['milliseconds'].must_equal "8000"
   end
 
@@ -180,7 +180,7 @@ describe Oboe::Inst::Redis, :keys do
     traces = get_all_traces
     traces.count.must_equal 4
     traces[1]['KVOp'].must_equal "pexpireat"
-    traces[1]['KVKey'].must_equal "mine"
+    traces[1]['KVKey'].must_equal "sand"
     traces[1]['milliseconds'].must_equal "8000"
   end
 
@@ -240,12 +240,11 @@ describe Oboe::Inst::Redis, :keys do
   it "should trace restore" do
     min_server_version(2.6)
 
-    @redis.del("blue")
+    @redis.setex("qubit", 60, "zero")
+    x = @redis.dump("qubit")
 
     Oboe::API.start_trace('redis_test', '', {}) do
-      @redis.restore("blue", 0, '\n\x17\x17\x00\x00\x00\x12\x00\x00\x00\x03' +
-                                '\x00\x00\xc0\x01\x00\x04\xc0\x02\x00\x04' +
-                                '\xc0\x03\x00\xff\x04\x00u#<\xc0;.\xe9\xdd')
+      @redis.restore("blue", 0, x)
     end
 
     traces = get_all_traces
@@ -264,7 +263,7 @@ describe Oboe::Inst::Redis, :keys do
     @redis.rpush("penguin", "four")
 
     Oboe::API.start_trace('redis_test', '', {}) do
-      @redis.sort("penguin", { :limit => [0,5], :alpha => true, :desc => true })
+      @redis.sort("penguin", { :desc => true })
     end
 
     traces = get_all_traces
