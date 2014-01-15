@@ -17,7 +17,9 @@ module Oboe
             kvs[:KVOp] = command[0]
 
             # mget, mset
-            unless [ :keys, :randomkey, :scan ].include? op or command[1].is_a?(Array)
+            unless [ :keys, :randomkey, :scan, :sdiff, :sdiffstore, :sinter, 
+                     :sinterstore, :sscan, :smove, :sunion, :sunionstore ].include? op or 
+                     command[1].is_a?(Array)
               kvs[:KVKey] = command[1]
             end
 
@@ -34,6 +36,13 @@ module Oboe
             when :psetex, :restore, :setex, :setnx
               kvs[:ttl] = command[2]
 
+            when :sdiffstore, :sinterstore, :sunionstore
+              kvs[:destination] = command[1]
+            
+            when :smove
+              kvs[:source] = command[1]
+              kvs[:destination] = command[2]
+
             when :rename, :renamenx
               kvs[:newkey] = command[2]
 
@@ -44,7 +53,8 @@ module Oboe
                  :get, :hgetall, :hkeys, 
                  :hlen, :hvals, :hmget, :hmset, :incr, :linsert, :llen, 
                  :lpop, :lpush, :lpushx, :lrem, :lset, :ltrim, :mget, :mset, :msetnx, :persist, :pttl, 
-                 :randomkey, :hscan, :scan, :rpop, :rpush, :rpushx, :strlen, :sort, :ttl
+                 :randomkey, :hscan, :scan, :rpop, :rpush, :rpushx, :sadd, :scard, :sdiff, :sinter,
+                 :sismember, :smembers, :strlen, :sort, :spop, :srandmember, :srem, :sunion, :ttl
               # Only collect the default KVOp and possibly KVKey (above)
             
             when :move
