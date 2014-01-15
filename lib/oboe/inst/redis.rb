@@ -19,7 +19,7 @@ module Oboe
             # mget, mset
             unless [ :keys, :randomkey, :scan, :sdiff, :sdiffstore, :sinter, 
                      :sinterstore, :sscan, :smove, :sunion, :sunionstore, :zinterstore,
-                     :zunionstore ].include? op or 
+                     :zunionstore, :publish ].include? op or 
                      command[1].is_a?(Array)
               kvs[:KVKey] = command[1]
             end
@@ -36,6 +36,9 @@ module Oboe
             
             when :psetex, :restore, :setex, :setnx
               kvs[:ttl] = command[2]
+            
+            when :publish
+              kvs[:channel] = command[1]
 
             when :sdiffstore, :sinterstore, :sunionstore, :zinterstore, :zunionstore
               kvs[:destination] = command[1]
