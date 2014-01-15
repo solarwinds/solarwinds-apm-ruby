@@ -19,7 +19,7 @@ module Oboe
             # mget, mset
             unless [ :keys, :randomkey, :scan, :sdiff, :sdiffstore, :sinter, 
                      :sinterstore, :sscan, :smove, :sunion, :sunionstore, :zinterstore,
-                     :zunionstore, :publish ].include? op or 
+                     :zunionstore, :publish, :select ].include? op or 
                      command[1].is_a?(Array)
               kvs[:KVKey] = command[1]
             end
@@ -65,6 +65,9 @@ module Oboe
             
             when :move
               kvs[:db] = command[2]
+            
+            when :select
+              kvs[:db] = command[1]
 
             when :lindex
               kvs[:index] = command[2]
