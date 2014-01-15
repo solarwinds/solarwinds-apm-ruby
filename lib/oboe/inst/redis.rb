@@ -18,7 +18,8 @@ module Oboe
 
             # mget, mset
             unless [ :keys, :randomkey, :scan, :sdiff, :sdiffstore, :sinter, 
-                     :sinterstore, :sscan, :smove, :sunion, :sunionstore ].include? op or 
+                     :sinterstore, :sscan, :smove, :sunion, :sunionstore, :zinterstore,
+                     :zunionstore ].include? op or 
                      command[1].is_a?(Array)
               kvs[:KVKey] = command[1]
             end
@@ -36,7 +37,7 @@ module Oboe
             when :psetex, :restore, :setex, :setnx
               kvs[:ttl] = command[2]
 
-            when :sdiffstore, :sinterstore, :sunionstore
+            when :sdiffstore, :sinterstore, :sunionstore, :zinterstore, :zunionstore
               kvs[:destination] = command[1]
             
             when :smove
@@ -54,7 +55,9 @@ module Oboe
                  :hlen, :hvals, :hmget, :hmset, :incr, :linsert, :llen, 
                  :lpop, :lpush, :lpushx, :lrem, :lset, :ltrim, :mget, :mset, :msetnx, :persist, :pttl, 
                  :randomkey, :hscan, :scan, :rpop, :rpush, :rpushx, :sadd, :scard, :sdiff, :sinter,
-                 :sismember, :smembers, :strlen, :sort, :spop, :srandmember, :srem, :sunion, :ttl
+                 :sismember, :smembers, :strlen, :sort, :spop, :srandmember, :srem, :sunion, :ttl,
+                 :zadd, :zcard, :zcount, :zincrby, :zrangebyscore, :zrank, :zrem, :zremrangebyscore,
+                 :zrevrank, :zrevrangebyscore, :zscore
               # Only collect the default KVOp and possibly KVKey (above)
             
             when :move
@@ -69,7 +72,7 @@ module Oboe
             when :getbit, :setbit, :setrange
               kvs[:offset] = command[2]
             
-            when :getrange
+            when :getrange, :zrange
               kvs[:start] = command[2]
               kvs[:end] = command[3]
             
@@ -98,7 +101,7 @@ module Oboe
             when :decrby
               kvs[:decrement] = command[2]
 
-            when :bitcount, :lrange
+            when :bitcount, :lrange, :zremrangebyrank, :zrevrange
               kvs[:start] = command[2]
               kvs[:stop] = command[3]
 
