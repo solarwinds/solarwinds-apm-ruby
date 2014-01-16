@@ -1,7 +1,7 @@
 require 'minitest_helper'
 require "redis"
     
-describe Oboe::Inst::Redis, :sets do
+describe Oboe::Inst::Redis, :sortedsets do
   attr_reader :entry_kvs, :exit_kvs, :redis, :redis_version
 
   def min_server_version(version)
@@ -272,44 +272,47 @@ describe Oboe::Inst::Redis, :sets do
   it "should trace zrevrank" do
     min_server_version(2.0)
 
-    @redis.zadd("howard", 0, "moe")
-    @redis.zadd("howard", 1, "curly")
+    @redis.zadd("letters", 0, "a")
+    @redis.zadd("letters", 1, "b")
+    @redis.zadd("letters", 1, "c")
 
     Oboe::API.start_trace('redis_test', '', {}) do
-      @redis.zrevrank("howard", "moe")
+      @redis.zrevrank("letters", "c")
     end
 
     traces = get_all_traces
     traces.count.must_equal 4
     traces[1]['KVOp'].must_equal "zrevrank"
-    traces[1]['KVKey'].must_equal "howard"
+    traces[1]['KVKey'].must_equal "letters"
   end
   
   it "should trace zscore" do
     min_server_version(1.2)
 
-    @redis.zadd("howard", 0, "moe")
-    @redis.zadd("howard", 1, "curly")
+    @redis.zadd("elements", 0, "fire")
+    @redis.zadd("elements", 1, "water")
+    @redis.zadd("elements", 1, "earth")
+    @redis.zadd("elements", 1, "air")
 
     Oboe::API.start_trace('redis_test', '', {}) do
-      @redis.zscore("howard", "moe")
+      @redis.zscore("elements", "earth")
     end
 
     traces = get_all_traces
     traces.count.must_equal 4
     traces[1]['KVOp'].must_equal "zscore"
-    traces[1]['KVKey'].must_equal "howard"
+    traces[1]['KVKey'].must_equal "elements"
   end
 
   it "should trace zunionstore" do
     min_server_version(1.0)
 
-    @redis.zadd("howard", 0, "moe")
-    @redis.zadd("howard", 1, "curly")
-    @redis.zadd("fine", 2, "larry")
+    @redis.zadd("colors", 0, "blueish")
+    @redis.zadd("colors", 1, "yellowish")
+    @redis.zadd("codes", 0, "0xff")
 
     Oboe::API.start_trace('redis_test', '', {}) do
-      @redis.zunionstore("zdest", ["howard", "fine"])
+      @redis.zunionstore("zdest", ["colors", "codes"])
     end
 
     traces = get_all_traces

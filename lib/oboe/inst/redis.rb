@@ -18,7 +18,7 @@ module Oboe
 
             # mget, mset
             unless [ :keys, :randomkey, :scan, :sdiff, :sdiffstore, :sinter, 
-                     :sinterstore, :sscan, :smove, :sunion, :sunionstore, :zinterstore,
+                     :sinterstore, :smove, :sunion, :sunionstore, :zinterstore,
                      :zunionstore, :publish, :select ].include? op or 
                      command[1].is_a?(Array)
               kvs[:KVKey] = command[1]
@@ -58,7 +58,7 @@ module Oboe
                  :hlen, :hvals, :hmget, :hmset, :incr, :linsert, :llen, 
                  :lpop, :lpush, :lpushx, :lrem, :lset, :ltrim, :mget, :mset, :msetnx, :persist, :pttl, 
                  :randomkey, :hscan, :scan, :rpop, :rpush, :rpushx, :sadd, :scard, :sdiff, :sinter,
-                 :sismember, :smembers, :strlen, :sort, :spop, :srandmember, :srem, :sunion, :ttl,
+                 :sismember, :smembers, :strlen, :sort, :spop, :srandmember, :srem, :sscan, :sunion, :ttl,
                  :zadd, :zcard, :zcount, :zincrby, :zrangebyscore, :zrank, :zrem, :zremrangebyscore,
                  :zrevrank, :zrevrangebyscore, :zscore
               # Only collect the default KVOp and possibly KVKey (above)
