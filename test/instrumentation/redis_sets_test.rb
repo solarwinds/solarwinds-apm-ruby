@@ -2,10 +2,10 @@ require 'minitest_helper'
 require "redis"
     
 describe Oboe::Inst::Redis, :sets do
-  attr_reader :entry_kvs, :exit_kvs, :redis
+  attr_reader :entry_kvs, :exit_kvs, :redis, :redis_version
 
   def min_server_version(version)
-    unless Gem::Version.new(@redis.info["redis_version"]) >= Gem::Version.new(version.to_s)
+    unless Gem::Version.new(@redis_version) >= Gem::Version.new(version.to_s)
       skip "supported only on redis-server #{version} or greater" 
     end
   end
@@ -15,13 +15,13 @@ describe Oboe::Inst::Redis, :sets do
     
     @redis ||= Redis.new
 
-    @redis.info["redis_version"]
+    @redis_version ||= @redis.info["redis_version"]
 
     # These are standard entry/exit KVs that are passed up with all moped operations
     @entry_kvs ||= { 'Layer' => 'redis_test', 'Label' => 'entry' }
     @exit_kvs  ||= { 'Layer' => 'redis_test', 'Label' => 'exit' }
   end
-
+  
   it "should trace sadd" do
     min_server_version(1.0)
 
@@ -242,12 +242,12 @@ describe Oboe::Inst::Redis, :sets do
   it "should trace sunion" do
     min_server_version(1.0)
 
-    @redis.sadd("howard", "moe")
-    @redis.sadd("howard", "curly")
-    @redis.sadd("fine", "larry")
+    @redis.sadd("group1", "moe")
+    @redis.sadd("group1", "curly")
+    @redis.sadd("group2", "larry")
 
     Oboe::API.start_trace('redis_test', '', {}) do
-      @redis.sunion("howard", "fine")
+      @redis.sunion("group1", "group2")
     end
 
     traces = get_all_traces
@@ -259,12 +259,12 @@ describe Oboe::Inst::Redis, :sets do
   it "should trace sunionstore" do
     min_server_version(1.0)
 
-    @redis.sadd("howard", "moe")
-    @redis.sadd("howard", "curly")
-    @redis.sadd("fine", "larry")
+    @redis.sadd("group1", "moe")
+    @redis.sadd("group1", "curly")
+    @redis.sadd("group2", "larry")
 
     Oboe::API.start_trace('redis_test', '', {}) do
-      @redis.sunionstore("dest", "howard", "fine")
+      @redis.sunionstore("dest", "group1", "group2")
     end
 
     traces = get_all_traces
@@ -277,17 +277,17 @@ describe Oboe::Inst::Redis, :sets do
   it "should trace sscan" do
     min_server_version(2.8)
 
-    @redis.sadd("howard", "moe")
-    @redis.sadd("howard", "curly")
+    @redis.sadd("group1", "moe")
+    @redis.sadd("group1", "curly")
 
     Oboe::API.start_trace('redis_test', '', {}) do
-      @redis.sscan("howard", 1)
+      @redis.sscan("group1", 1)
     end
 
     traces = get_all_traces
     traces.count.must_equal 4
     traces[1]['KVOp'].must_equal "sscan"
-    traces[1]['KVKey'].must_equal "howard"
+    traces[1]['KVKey'].must_equal "group1"
   end
 end
 

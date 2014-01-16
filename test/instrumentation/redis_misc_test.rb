@@ -1,7 +1,7 @@
 require 'minitest_helper'
 require "redis"
     
-describe Oboe::Inst::Redis, :sets do
+describe Oboe::Inst::Redis, :misc do
   attr_reader :entry_kvs, :exit_kvs, :redis, :redis_version
 
   def min_server_version(version)
