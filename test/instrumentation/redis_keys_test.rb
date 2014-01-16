@@ -263,7 +263,7 @@ describe Oboe::Inst::Redis, :keys do
     @redis.rpush("penguin", "four")
 
     Oboe::API.start_trace('redis_test', '', {}) do
-      @redis.sort("penguin", { :order => "DESC" })
+      @redis.sort("penguin", :order => "desc alpha", :store => "target")
     end
 
     traces = get_all_traces
