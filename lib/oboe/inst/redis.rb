@@ -15,8 +15,8 @@ module Oboe
  
           begin
             kvs[:KVOp] = command[0]
+            kvs[:RemoteHost] = @options[:host]
 
-            # mget, mset
             unless [ :keys, :randomkey, :scan, :sdiff, :sdiffstore, :sinter, 
                      :sinterstore, :smove, :sunion, :sunionstore, :zinterstore,
                      :zunionstore, :publish, :select ].include? op or 
@@ -55,13 +55,19 @@ module Oboe
 
             when :append, :blpop, :brpop, :decr, :del, :dump, :exists, 
                  :get, :hgetall, :hkeys, 
-                 :hlen, :hvals, :hmget, :hmset, :incr, :linsert, :llen, 
-                 :lpop, :lpush, :lpushx, :lrem, :lset, :ltrim, :mget, :mset, :msetnx, :persist, :pttl, 
+                 :hlen, :hvals, :hmset, :incr, :linsert, :llen, 
+                 :lpop, :lpush, :lpushx, :lrem, :lset, :ltrim, :persist, :pttl, 
                  :randomkey, :hscan, :scan, :rpop, :rpush, :rpushx, :sadd, :scard, :sdiff, :sinter,
                  :sismember, :smembers, :strlen, :sort, :spop, :srandmember, :srem, :sscan, :sunion, :ttl,
                  :zadd, :zcard, :zcount, :zincrby, :zrangebyscore, :zrank, :zrem, :zremrangebyscore,
                  :zrevrank, :zrevrangebyscore, :zscore
               # Only collect the default KVOp and possibly KVKey (above)
+
+            when :mget, :hmget
+              kvs[:KVKeyCount] = command[1].count
+
+            when :mset, :msetnx
+              kvs[:KVKeyCount] = command[1].count / 2
             
             when :move
               kvs[:db] = command[2]
