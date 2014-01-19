@@ -15,8 +15,9 @@ module Oboe
         # dashboard.
         #
         # @param command [Array] the Redis operation array
+        # @param r [Return] the return value from the operation
         # @return [Hash] the Key/Values to report
-        def extract_trace_details(command)
+        def extract_trace_details(command, r)
           kvs = {}
           op = command.first
  
@@ -61,7 +62,7 @@ module Oboe
               kvs[:destination] = command[2]
 
             when :append, :blpop, :brpop, :decr, :del, :dump, :exists, 
-                 :get, :hgetall, :hkeys, 
+                 :hgetall, :hkeys, 
                  :hlen, :hvals, :hmset, :incr, :linsert, :llen, 
                  :lpop, :lpush, :lpushx, :lrem, :lset, :ltrim, :persist, :pttl, 
                  :randomkey, :hscan, :scan, :rpop, :rpush, :rpushx, :sadd, :scard, :sdiff, :sinter,
@@ -70,12 +71,22 @@ module Oboe
                  :zrevrank, :zrevrangebyscore, :zscore
               # Only collect the default KVOp and possibly KVKey (above)
 
-            when :mget, :hmget
+            when :get
+              kvs[:KVHit] = r.nil?
+
+            when :mget
               if command[1].is_a?(Array)
                 kvs[:KVKeyCount] = command[1].count 
               else
                 kvs[:KVKeyCount] = command.count - 1
               end 
+              values = r.select{ |i| i }
+              kvs[:KVHitCount] = values.count
+            
+            when :hmget
+              kvs[:KVKeyCount] = command.count - 2
+              values = r.select{ |i| i }
+              kvs[:KVHitCount] = values.count
            
             when :mset, :msetnx
               if command[1].is_a?(Array)
@@ -182,11 +193,18 @@ module Oboe
 
         def call_with_oboe(command, &block)
           if Oboe.tracing?
-            report_kvs = extract_trace_details(command)
+            ::Oboe::API.log_entry('redis', {})
 
-            Oboe::API.trace('redis', report_kvs) do
-              call_without_oboe(command, &block)
+            begin
+              r = call_without_oboe(command, &block)
+              report_kvs = extract_trace_details(command, r)
+            rescue StandardError => e
+              ::Oboe::API.log_exception('redis', e)
+              raise
+            ensure
+              ::Oboe::API.log_exit('redis', report_kvs)
             end
+
           else
             call_without_oboe(command, &block)
           end
