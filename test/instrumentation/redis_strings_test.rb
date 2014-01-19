@@ -31,8 +31,8 @@ describe Oboe::Inst::Redis, :strings do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "append"
-    traces[1]['KVKey'].must_equal "yourkey"
+    traces[2]['KVOp'].must_equal "append"
+    traces[2]['KVKey'].must_equal "yourkey"
   end
   
   it "should trace bitcount (>=2.6)" do
@@ -45,9 +45,9 @@ describe Oboe::Inst::Redis, :strings do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "bitcount"
-    traces[1]['start'].must_equal "0"
-    traces[1]['stop'].must_equal "-1"
+    traces[2]['KVOp'].must_equal "bitcount"
+    traces[2]['start'].must_equal "0"
+    traces[2]['stop'].must_equal "-1"
   end
   
   it "should trace bitop (>=2.6)" do
@@ -60,9 +60,9 @@ describe Oboe::Inst::Redis, :strings do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "bitop"
-    traces[1]['operation'].must_equal "not"
-    traces[1]['destkey'].must_equal "bitopkey"
+    traces[2]['KVOp'].must_equal "bitop"
+    traces[2]['operation'].must_equal "not"
+    traces[2]['destkey'].must_equal "bitopkey"
   end
   
   it "should trace decr" do
@@ -74,8 +74,8 @@ describe Oboe::Inst::Redis, :strings do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "decr"
-    traces[1]['KVKey'].must_equal "decr"
+    traces[2]['KVOp'].must_equal "decr"
+    traces[2]['KVKey'].must_equal "decr"
   end
   
   it "should trace decrby" do
@@ -87,9 +87,9 @@ describe Oboe::Inst::Redis, :strings do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "decrby"
-    traces[1]['KVKey'].must_equal "decr"
-    traces[1]['decrement'].must_equal "1"
+    traces[2]['KVOp'].must_equal "decrby"
+    traces[2]['KVKey'].must_equal "decr"
+    traces[2]['decrement'].must_equal "1"
   end
   
   it "should trace get" do
@@ -99,8 +99,8 @@ describe Oboe::Inst::Redis, :strings do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "get"
-    traces[1]['KVKey'].must_equal "yourkey"
+    traces[2]['KVOp'].must_equal "get"
+    traces[2]['KVKey'].must_equal "yourkey"
   end
   
   it "should trace getbit" do
@@ -112,9 +112,9 @@ describe Oboe::Inst::Redis, :strings do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "getbit"
-    traces[1]['KVKey'].must_equal "yourkey"
-    traces[1]['offset'].must_equal "3"
+    traces[2]['KVOp'].must_equal "getbit"
+    traces[2]['KVKey'].must_equal "yourkey"
+    traces[2]['offset'].must_equal "3"
   end
   
   it "should trace getrange" do
@@ -126,10 +126,10 @@ describe Oboe::Inst::Redis, :strings do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "getrange"
-    traces[1]['KVKey'].must_equal "yourkey"
-    traces[1]['start'].must_equal "0"
-    traces[1]['end'].must_equal "3"
+    traces[2]['KVOp'].must_equal "getrange"
+    traces[2]['KVKey'].must_equal "yourkey"
+    traces[2]['start'].must_equal "0"
+    traces[2]['end'].must_equal "3"
   end
   
   it "should trace getset" do
@@ -141,9 +141,9 @@ describe Oboe::Inst::Redis, :strings do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "getset"
-    traces[1]['KVKey'].must_equal "dollar"
-    traces[1]['value'].must_equal "0"
+    traces[2]['KVOp'].must_equal "getset"
+    traces[2]['KVKey'].must_equal "dollar"
+    traces[2]['value'].must_equal "0"
   end
   
   it "should trace incr" do
@@ -155,8 +155,8 @@ describe Oboe::Inst::Redis, :strings do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "incr"
-    traces[1]['KVKey'].must_equal "dotcom"
+    traces[2]['KVOp'].must_equal "incr"
+    traces[2]['KVKey'].must_equal "dotcom"
   end
 
   it "should trace incrby" do
@@ -168,9 +168,9 @@ describe Oboe::Inst::Redis, :strings do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "incrby"
-    traces[1]['KVKey'].must_equal "incr"
-    traces[1]['increment'].must_equal "1"
+    traces[2]['KVOp'].must_equal "incrby"
+    traces[2]['KVKey'].must_equal "incr"
+    traces[2]['increment'].must_equal "1"
   end
   
   it "should trace incrbyfloat" do
@@ -184,23 +184,29 @@ describe Oboe::Inst::Redis, :strings do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "incrbyfloat"
-    traces[1]['KVKey'].must_equal "incrfloat"
-    traces[1]['increment'].must_equal "1.01"
+    traces[2]['KVOp'].must_equal "incrbyfloat"
+    traces[2]['KVKey'].must_equal "incrfloat"
+    traces[2]['increment'].must_equal "1.01"
   end
   
   it "should trace mget" do
+    @redis.setex("france", 60, "ok")
+    @redis.setex("denmark", 60, "ok")
+    @redis.setex("germany", 60, "ok")
+
     Oboe::API.start_trace('redis_test', '', {}) do
-      @redis.mget(["one", "two", "three"])
-      @redis.mget("justone")
+      @redis.mget(["france", "nothing", "denmark"])
+      @redis.mget("germany")
     end
 
     traces = get_all_traces
     traces.count.must_equal 6
-    traces[1]['KVOp'].must_equal "mget"
-    traces[1]['KVKeyCount'].must_equal "3"
-    traces[3]['KVOp'].must_equal "mget"
-    traces[3]['KVKeyCount'].must_equal "1"
+    traces[2]['KVOp'].must_equal "mget"
+    traces[2]['KVKeyCount'].must_equal "3"
+    traces[2]['KVHitCount'].must_equal "2"
+    traces[4]['KVOp'].must_equal "mget"
+    traces[4]['KVKeyCount'].must_equal "1"
+    traces[4]['KVHitCount'].must_equal "1"
   end
   
   it "should trace mset" do
@@ -211,10 +217,10 @@ describe Oboe::Inst::Redis, :strings do
 
     traces = get_all_traces
     traces.count.must_equal 6
-    traces[1]['KVOp'].must_equal "mset"
-    traces[1]['KVKeyCount'].must_equal "3"
-    traces[3]['KVOp'].must_equal "mset"
-    traces[3]['KVKeyCount'].must_equal "1"
+    traces[2]['KVOp'].must_equal "mset"
+    traces[2]['KVKeyCount'].must_equal "3"
+    traces[4]['KVOp'].must_equal "mset"
+    traces[4]['KVKeyCount'].must_equal "1"
   end
   
   it "should trace msetnx" do
@@ -224,7 +230,7 @@ describe Oboe::Inst::Redis, :strings do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "msetnx"
+    traces[2]['KVOp'].must_equal "msetnx"
   end
   
   it "should trace psetex (>= v2.6)" do
@@ -238,9 +244,9 @@ describe Oboe::Inst::Redis, :strings do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "psetex"
-    traces[1]['KVKey'].must_equal "one"
-    traces[1]['ttl'].must_equal "60"
+    traces[2]['KVOp'].must_equal "psetex"
+    traces[2]['KVKey'].must_equal "one"
+    traces[2]['ttl'].must_equal "60"
   end
   
   it "should trace basic set" do
@@ -250,8 +256,8 @@ describe Oboe::Inst::Redis, :strings do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "set"
-    traces[1]['KVKey'].must_equal "one"
+    traces[2]['KVOp'].must_equal "set"
+    traces[2]['KVKey'].must_equal "one"
   end
   
   it "should trace set with options hash (>= v2.6)" do
@@ -270,8 +276,8 @@ describe Oboe::Inst::Redis, :strings do
     
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "set"
-    traces[1]['KVKey'].must_equal "one"
+    traces[2]['KVOp'].must_equal "set"
+    traces[2]['KVKey'].must_equal "one"
     traces[3]['KVKey'].must_equal "two"
     traces[3]['EX'].must_equal "60"
     traces[5]['KVKey'].must_equal "three"
@@ -291,9 +297,9 @@ describe Oboe::Inst::Redis, :strings do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "setbit"
-    traces[1]['KVKey'].must_equal "yourkey"
-    traces[1]['offset'].must_equal "3"
+    traces[2]['KVOp'].must_equal "setbit"
+    traces[2]['KVKey'].must_equal "yourkey"
+    traces[2]['offset'].must_equal "3"
   end
   
   it "should trace setex" do
@@ -303,9 +309,9 @@ describe Oboe::Inst::Redis, :strings do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "setex"
-    traces[1]['KVKey'].must_equal "one"
-    traces[1]['ttl'].must_equal "60"
+    traces[2]['KVOp'].must_equal "setex"
+    traces[2]['KVKey'].must_equal "one"
+    traces[2]['ttl'].must_equal "60"
   end
 
   it "should trace setnx" do
@@ -315,8 +321,8 @@ describe Oboe::Inst::Redis, :strings do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "setnx"
-    traces[1]['KVKey'].must_equal "one"
+    traces[2]['KVOp'].must_equal "setnx"
+    traces[2]['KVKey'].must_equal "one"
   end
   
   it "should trace setrange" do
@@ -330,9 +336,9 @@ describe Oboe::Inst::Redis, :strings do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "setrange"
-    traces[1]['KVKey'].must_equal "yourkey"
-    traces[1]['offset'].must_equal "2"
+    traces[2]['KVOp'].must_equal "setrange"
+    traces[2]['KVKey'].must_equal "yourkey"
+    traces[2]['offset'].must_equal "2"
   end
 
   it "should trace strlen" do
@@ -346,7 +352,7 @@ describe Oboe::Inst::Redis, :strings do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "strlen"
-    traces[1]['KVKey'].must_equal "talking_heads"
+    traces[2]['KVOp'].must_equal "strlen"
+    traces[2]['KVKey'].must_equal "talking_heads"
   end
 end

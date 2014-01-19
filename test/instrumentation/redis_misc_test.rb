@@ -31,9 +31,9 @@ describe Oboe::Inst::Redis, :misc do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "publish"
-    traces[1]['channel'].must_equal "channel1"
-    traces[1].has_key?('KVKey').must_equal false
+    traces[2]['KVOp'].must_equal "publish"
+    traces[2]['channel'].must_equal "channel1"
+    traces[2].has_key?('KVKey').must_equal false
   end
   
   it "should trace select" do
@@ -45,8 +45,8 @@ describe Oboe::Inst::Redis, :misc do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "select"
-    traces[1]['db'].must_equal "2"
+    traces[2]['KVOp'].must_equal "select"
+    traces[2]['db'].must_equal "2"
   end
   
 end

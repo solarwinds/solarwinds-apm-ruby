@@ -37,9 +37,9 @@ describe Oboe::Inst::Redis, :hashes do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "hdel"
-    traces[1]['KVKey'].must_equal "whale"
-    traces[1]['field'].must_equal "color"
+    traces[2]['KVOp'].must_equal "hdel"
+    traces[2]['KVKey'].must_equal "whale"
+    traces[2]['field'].must_equal "color"
   end
   
   it "should trace hdel multiple fields" do
@@ -55,9 +55,9 @@ describe Oboe::Inst::Redis, :hashes do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "hdel"
-    traces[1]['KVKey'].must_equal "whale"
-    traces[1].has_key?('field').must_equal false
+    traces[2]['KVOp'].must_equal "hdel"
+    traces[2]['KVKey'].must_equal "whale"
+    traces[2].has_key?('field').must_equal false
   end
   
   it "should trace hexists" do
@@ -71,9 +71,9 @@ describe Oboe::Inst::Redis, :hashes do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "hexists"
-    traces[1]['KVKey'].must_equal "whale"
-    traces[1]['field'].must_equal "color"
+    traces[2]['KVOp'].must_equal "hexists"
+    traces[2]['KVKey'].must_equal "whale"
+    traces[2]['field'].must_equal "color"
   end
   
   it "should trace hget" do
@@ -87,9 +87,9 @@ describe Oboe::Inst::Redis, :hashes do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "hget"
-    traces[1]['KVKey'].must_equal "whale"
-    traces[1]['field'].must_equal "color"
+    traces[2]['KVOp'].must_equal "hget"
+    traces[2]['KVKey'].must_equal "whale"
+    traces[2]['field'].must_equal "color"
   end
   
   it "should trace hgetall" do
@@ -103,8 +103,8 @@ describe Oboe::Inst::Redis, :hashes do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "hgetall"
-    traces[1]['KVKey'].must_equal "whale"
+    traces[2]['KVOp'].must_equal "hgetall"
+    traces[2]['KVKey'].must_equal "whale"
   end
   
   it "should trace hincrby" do
@@ -118,10 +118,10 @@ describe Oboe::Inst::Redis, :hashes do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "hincrby"
-    traces[1]['KVKey'].must_equal "whale"
-    traces[1]['field'].must_equal "age"
-    traces[1]['increment'].must_equal "1"
+    traces[2]['KVOp'].must_equal "hincrby"
+    traces[2]['KVKey'].must_equal "whale"
+    traces[2]['field'].must_equal "age"
+    traces[2]['increment'].must_equal "1"
   end
   
   it "should trace hincrbyfloat" do
@@ -135,10 +135,10 @@ describe Oboe::Inst::Redis, :hashes do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "hincrbyfloat"
-    traces[1]['KVKey'].must_equal "whale"
-    traces[1]['field'].must_equal "age"
-    traces[1]['increment'].must_equal "1.3"
+    traces[2]['KVOp'].must_equal "hincrbyfloat"
+    traces[2]['KVKey'].must_equal "whale"
+    traces[2]['field'].must_equal "age"
+    traces[2]['increment'].must_equal "1.3"
   end
   
   it "should trace hkeys" do
@@ -152,8 +152,8 @@ describe Oboe::Inst::Redis, :hashes do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "hkeys"
-    traces[1]['KVKey'].must_equal "whale"
+    traces[2]['KVOp'].must_equal "hkeys"
+    traces[2]['KVKey'].must_equal "whale"
   end
   
   it "should trace hlen" do
@@ -167,8 +167,8 @@ describe Oboe::Inst::Redis, :hashes do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "hlen"
-    traces[1]['KVKey'].must_equal "whale"
+    traces[2]['KVOp'].must_equal "hlen"
+    traces[2]['KVKey'].must_equal "whale"
   end
   
   it "should trace hmget" do
@@ -179,14 +179,15 @@ describe Oboe::Inst::Redis, :hashes do
     @redis.hset("whale", "eyes", "green")
 
     Oboe::API.start_trace('redis_test', '', {}) do
-      @redis.hmget("whale", "color", "size")
+      @redis.hmget("whale", "color", "size", "blah", "brown")
     end
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "hmget"
-    traces[1]['KVKey'].must_equal "whale"
-    traces[1]['KVKeyCount'].must_equal "3"
+    traces[2]['KVOp'].must_equal "hmget"
+    traces[2]['KVKey'].must_equal "whale"
+    traces[2]['KVKeyCount'].must_equal "4"
+    traces[2]['KVHitCount'].must_equal "2"
   end
   
   it "should trace hmset" do
@@ -202,8 +203,8 @@ describe Oboe::Inst::Redis, :hashes do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "hmset"
-    traces[1]['KVKey'].must_equal "whale"
+    traces[2]['KVOp'].must_equal "hmset"
+    traces[2]['KVKey'].must_equal "whale"
   end
   
   it "should trace hset" do
@@ -215,8 +216,8 @@ describe Oboe::Inst::Redis, :hashes do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "hset"
-    traces[1]['KVKey'].must_equal "whale"
+    traces[2]['KVOp'].must_equal "hset"
+    traces[2]['KVKey'].must_equal "whale"
   end
   
   it "should trace hsetnx" do
@@ -228,8 +229,8 @@ describe Oboe::Inst::Redis, :hashes do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "hsetnx"
-    traces[1]['KVKey'].must_equal "whale"
+    traces[2]['KVOp'].must_equal "hsetnx"
+    traces[2]['KVKey'].must_equal "whale"
   end
   
   it "should trace hvals" do
@@ -241,8 +242,8 @@ describe Oboe::Inst::Redis, :hashes do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "hvals"
-    traces[1]['KVKey'].must_equal "whale"
+    traces[2]['KVOp'].must_equal "hvals"
+    traces[2]['KVKey'].must_equal "whale"
   end
   
   it "should trace hscan" do
@@ -254,8 +255,8 @@ describe Oboe::Inst::Redis, :hashes do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "hscan"
-    traces[1]['KVKey'].must_equal "whale"
+    traces[2]['KVOp'].must_equal "hscan"
+    traces[2]['KVKey'].must_equal "whale"
   end
 end
 

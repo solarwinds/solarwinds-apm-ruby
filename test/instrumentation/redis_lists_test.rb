@@ -37,7 +37,7 @@ describe Oboe::Inst::Redis, :lists do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "blpop"
+    traces[2]['KVOp'].must_equal "blpop"
   end
   
   it "should trace brpop" do
@@ -51,7 +51,7 @@ describe Oboe::Inst::Redis, :lists do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "brpop"
+    traces[2]['KVOp'].must_equal "brpop"
   end
   
   it "should trace brpoplpush" do
@@ -65,8 +65,8 @@ describe Oboe::Inst::Redis, :lists do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "brpoplpush"
-    traces[1]['destination'].must_equal "crawlies"
+    traces[2]['KVOp'].must_equal "brpoplpush"
+    traces[2]['destination'].must_equal "crawlies"
   end
   
   it "should trace lindex" do
@@ -82,8 +82,8 @@ describe Oboe::Inst::Redis, :lists do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "lindex"
-    traces[1]['index'].must_equal "1"
+    traces[2]['KVOp'].must_equal "lindex"
+    traces[2]['index'].must_equal "1"
   end
   
   it "should trace linsert" do
@@ -99,8 +99,8 @@ describe Oboe::Inst::Redis, :lists do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "linsert"
-    traces[1]['KVKey'].must_equal "gods of old"
+    traces[2]['KVOp'].must_equal "linsert"
+    traces[2]['KVKey'].must_equal "gods of old"
   end
   
   it "should trace llen" do
@@ -116,8 +116,8 @@ describe Oboe::Inst::Redis, :lists do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "llen"
-    traces[1]['KVKey'].must_equal "gods of old"
+    traces[2]['KVOp'].must_equal "llen"
+    traces[2]['KVKey'].must_equal "gods of old"
   end
   
   it "should trace lpop" do
@@ -133,8 +133,8 @@ describe Oboe::Inst::Redis, :lists do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "lpop"
-    traces[1]['KVKey'].must_equal "gods of old"
+    traces[2]['KVOp'].must_equal "lpop"
+    traces[2]['KVKey'].must_equal "gods of old"
   end
   
   it "should trace lpush" do
@@ -146,8 +146,8 @@ describe Oboe::Inst::Redis, :lists do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "lpush"
-    traces[1]['KVKey'].must_equal "gods of old"
+    traces[2]['KVOp'].must_equal "lpush"
+    traces[2]['KVKey'].must_equal "gods of old"
   end
   
   it "should trace lpushx" do
@@ -159,8 +159,8 @@ describe Oboe::Inst::Redis, :lists do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "lpushx"
-    traces[1]['KVKey'].must_equal "gods of old"
+    traces[2]['KVOp'].must_equal "lpushx"
+    traces[2]['KVKey'].must_equal "gods of old"
   end
   
   it "should trace lrange" do
@@ -178,10 +178,10 @@ describe Oboe::Inst::Redis, :lists do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "lrange"
-    traces[1]['KVKey'].must_equal "protein types"
-    traces[1]['start'].must_equal "2"
-    traces[1]['stop'].must_equal "4"
+    traces[2]['KVOp'].must_equal "lrange"
+    traces[2]['KVKey'].must_equal "protein types"
+    traces[2]['start'].must_equal "2"
+    traces[2]['stop'].must_equal "4"
   end
   
   it "should trace lrem" do
@@ -200,8 +200,8 @@ describe Oboe::Inst::Redis, :lists do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "lrem"
-    traces[1]['KVKey'].must_equal "australia"
+    traces[2]['KVOp'].must_equal "lrem"
+    traces[2]['KVKey'].must_equal "australia"
   end
   
   it "should trace lset" do
@@ -218,8 +218,8 @@ describe Oboe::Inst::Redis, :lists do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "lset"
-    traces[1]['KVKey'].must_equal "australia"
+    traces[2]['KVOp'].must_equal "lset"
+    traces[2]['KVKey'].must_equal "australia"
   end
   
   it "should trace ltrim" do
@@ -240,8 +240,8 @@ describe Oboe::Inst::Redis, :lists do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "ltrim"
-    traces[1]['KVKey'].must_equal "australia"
+    traces[2]['KVOp'].must_equal "ltrim"
+    traces[2]['KVKey'].must_equal "australia"
   end
   
   it "should trace rpop" do
@@ -257,8 +257,8 @@ describe Oboe::Inst::Redis, :lists do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "rpop"
-    traces[1]['KVKey'].must_equal "santa esmeralda"
+    traces[2]['KVOp'].must_equal "rpop"
+    traces[2]['KVKey'].must_equal "santa esmeralda"
   end
   
   it "should trace rpoplpush" do
@@ -274,9 +274,9 @@ describe Oboe::Inst::Redis, :lists do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "rpoplpush"
-    traces[1]['KVKey'].must_equal "santa esmeralda"
-    traces[1]['destination'].must_equal "the gods of old"
+    traces[2]['KVOp'].must_equal "rpoplpush"
+    traces[2]['KVKey'].must_equal "santa esmeralda"
+    traces[2]['destination'].must_equal "the gods of old"
   end
   
   it "should trace rpush" do
@@ -288,8 +288,8 @@ describe Oboe::Inst::Redis, :lists do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "rpush"
-    traces[1]['KVKey'].must_equal "boney m"
+    traces[2]['KVOp'].must_equal "rpush"
+    traces[2]['KVKey'].must_equal "boney m"
   end
   
   it "should trace rpushx" do
@@ -301,8 +301,8 @@ describe Oboe::Inst::Redis, :lists do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "rpushx"
-    traces[1]['KVKey'].must_equal "boney m"
+    traces[2]['KVOp'].must_equal "rpushx"
+    traces[2]['KVKey'].must_equal "boney m"
   end
 end
 

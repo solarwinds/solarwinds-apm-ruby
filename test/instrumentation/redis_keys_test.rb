@@ -35,8 +35,8 @@ describe Oboe::Inst::Redis, :keys do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "del"
-    traces[1]['KVKey'].must_equal "del_test"
+    traces[2]['KVOp'].must_equal "del"
+    traces[2]['KVKey'].must_equal "del_test"
   end
   
   it "should trace del of multiple keys" do
@@ -48,8 +48,8 @@ describe Oboe::Inst::Redis, :keys do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "del"
-    traces[1].has_key?('KVKey').must_equal false
+    traces[2]['KVOp'].must_equal "del"
+    traces[2].has_key?('KVKey').must_equal false
   end
 
   it "should trace dump" do
@@ -63,8 +63,8 @@ describe Oboe::Inst::Redis, :keys do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "dump"
-    traces[1]['KVKey'].must_equal "del_test"
+    traces[2]['KVOp'].must_equal "dump"
+    traces[2]['KVKey'].must_equal "del_test"
   end
 
   it "should trace exists" do
@@ -76,8 +76,8 @@ describe Oboe::Inst::Redis, :keys do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "exists"
-    traces[1]['KVKey'].must_equal "talking_heads"
+    traces[2]['KVOp'].must_equal "exists"
+    traces[2]['KVKey'].must_equal "talking_heads"
   end
   
   it "should trace expire" do
@@ -89,8 +89,8 @@ describe Oboe::Inst::Redis, :keys do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "expire"
-    traces[1]['KVKey'].must_equal "expire_please"
+    traces[2]['KVOp'].must_equal "expire"
+    traces[2]['KVKey'].must_equal "expire_please"
   end
   
   it "should trace expireat" do
@@ -102,8 +102,8 @@ describe Oboe::Inst::Redis, :keys do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "expireat"
-    traces[1]['KVKey'].must_equal "expireat_please"
+    traces[2]['KVOp'].must_equal "expireat"
+    traces[2]['KVKey'].must_equal "expireat_please"
   end
   
   it "should trace keys" do
@@ -113,8 +113,8 @@ describe Oboe::Inst::Redis, :keys do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "keys"
-    traces[1]['pattern'].must_equal "del*"
+    traces[2]['KVOp'].must_equal "keys"
+    traces[2]['pattern'].must_equal "del*"
   end
   
   it "should trace migrate" do
@@ -130,9 +130,9 @@ describe Oboe::Inst::Redis, :keys do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "move"
-    traces[1]['KVKey'].must_equal "piano"
-    traces[1]['db'].must_equal "1"
+    traces[2]['KVOp'].must_equal "move"
+    traces[2]['KVKey'].must_equal "piano"
+    traces[2]['db'].must_equal "1"
   end
   
   it "should trace object" do
@@ -150,8 +150,8 @@ describe Oboe::Inst::Redis, :keys do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "persist"
-    traces[1]['KVKey'].must_equal "mine"
+    traces[2]['KVOp'].must_equal "persist"
+    traces[2]['KVKey'].must_equal "mine"
   end
   
   it "should trace pexpire" do
@@ -165,9 +165,9 @@ describe Oboe::Inst::Redis, :keys do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "pexpire"
-    traces[1]['KVKey'].must_equal "sand"
-    traces[1]['milliseconds'].must_equal "8000"
+    traces[2]['KVOp'].must_equal "pexpire"
+    traces[2]['KVKey'].must_equal "sand"
+    traces[2]['milliseconds'].must_equal "8000"
   end
 
   it "should trace pexpireat" do
@@ -181,9 +181,9 @@ describe Oboe::Inst::Redis, :keys do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "pexpireat"
-    traces[1]['KVKey'].must_equal "sand"
-    traces[1]['milliseconds'].must_equal "8000"
+    traces[2]['KVOp'].must_equal "pexpireat"
+    traces[2]['KVKey'].must_equal "sand"
+    traces[2]['milliseconds'].must_equal "8000"
   end
 
   it "should trace pttl" do
@@ -197,8 +197,8 @@ describe Oboe::Inst::Redis, :keys do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "pttl"
-    traces[1]['KVKey'].must_equal "sand"
+    traces[2]['KVOp'].must_equal "pttl"
+    traces[2]['KVKey'].must_equal "sand"
   end
   
   it "should trace randomkey" do
@@ -208,7 +208,7 @@ describe Oboe::Inst::Redis, :keys do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "randomkey"
+    traces[2]['KVOp'].must_equal "randomkey"
   end
 
   it "should trace rename" do
@@ -220,9 +220,9 @@ describe Oboe::Inst::Redis, :keys do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "rename"
-    traces[1]['KVKey'].must_equal "sand"
-    traces[1]['newkey'].must_equal "sandy"
+    traces[2]['KVOp'].must_equal "rename"
+    traces[2]['KVKey'].must_equal "sand"
+    traces[2]['newkey'].must_equal "sandy"
   end
 
   it "should trace renamenx" do
@@ -234,9 +234,9 @@ describe Oboe::Inst::Redis, :keys do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "renamenx"
-    traces[1]['KVKey'].must_equal "sand"
-    traces[1]['newkey'].must_equal "sandy"
+    traces[2]['KVOp'].must_equal "renamenx"
+    traces[2]['KVKey'].must_equal "sand"
+    traces[2]['newkey'].must_equal "sandy"
   end
 
   it "should trace restore" do
@@ -251,9 +251,9 @@ describe Oboe::Inst::Redis, :keys do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "restore"
-    traces[1]['KVKey'].must_equal "blue"
-    traces[1]['ttl'].must_equal "0"
+    traces[2]['KVOp'].must_equal "restore"
+    traces[2]['KVKey'].must_equal "blue"
+    traces[2]['ttl'].must_equal "0"
   end
   
   it "should trace sort" do
@@ -270,8 +270,8 @@ describe Oboe::Inst::Redis, :keys do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "sort"
-    traces[1]['KVKey'].must_equal "penguin"
+    traces[2]['KVOp'].must_equal "sort"
+    traces[2]['KVKey'].must_equal "penguin"
   end
   
   it "should trace ttl" do
@@ -285,8 +285,8 @@ describe Oboe::Inst::Redis, :keys do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "ttl"
-    traces[1]['KVKey'].must_equal "sand"
+    traces[2]['KVOp'].must_equal "ttl"
+    traces[2]['KVKey'].must_equal "sand"
   end
   
   it "should trace type" do
@@ -300,8 +300,8 @@ describe Oboe::Inst::Redis, :keys do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "type"
-    traces[1]['KVKey'].must_equal "sand"
+    traces[2]['KVOp'].must_equal "type"
+    traces[2]['KVKey'].must_equal "sand"
   end
   
   it "should trace scan" do
@@ -313,7 +313,7 @@ describe Oboe::Inst::Redis, :keys do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "scan"
+    traces[2]['KVOp'].must_equal "scan"
   end
 end
 

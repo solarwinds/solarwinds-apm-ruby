@@ -31,8 +31,8 @@ describe Oboe::Inst::Redis, :sortedsets do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "zadd"
-    traces[1]['KVKey'].must_equal "time"
+    traces[2]['KVOp'].must_equal "zadd"
+    traces[2]['KVKey'].must_equal "time"
   end
   
   it "should trace zcard" do
@@ -50,8 +50,8 @@ describe Oboe::Inst::Redis, :sortedsets do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "zcard"
-    traces[1]['KVKey'].must_equal "sauce"
+    traces[2]['KVOp'].must_equal "zcard"
+    traces[2]['KVKey'].must_equal "sauce"
   end
   
   it "should trace zcount" do
@@ -69,8 +69,8 @@ describe Oboe::Inst::Redis, :sortedsets do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "zcount"
-    traces[1]['KVKey'].must_equal "sauce"
+    traces[2]['KVOp'].must_equal "zcount"
+    traces[2]['KVKey'].must_equal "sauce"
   end
   
   it "should trace zincrby" do
@@ -88,8 +88,8 @@ describe Oboe::Inst::Redis, :sortedsets do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "zincrby"
-    traces[1]['KVKey'].must_equal "sauce"
+    traces[2]['KVOp'].must_equal "zincrby"
+    traces[2]['KVKey'].must_equal "sauce"
   end
   
   it "should trace zinterstore" do
@@ -108,9 +108,9 @@ describe Oboe::Inst::Redis, :sortedsets do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "zinterstore"
-    traces[1]['destination'].must_equal "zinterstore_dest"
-    traces[1].has_key?('KVKey').must_equal false
+    traces[2]['KVOp'].must_equal "zinterstore"
+    traces[2]['destination'].must_equal "zinterstore_dest"
+    traces[2].has_key?('KVKey').must_equal false
   end
   
   it "should trace zrange" do
@@ -128,8 +128,8 @@ describe Oboe::Inst::Redis, :sortedsets do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "zrange"
-    traces[1]['KVKey'].must_equal "sauce"
+    traces[2]['KVOp'].must_equal "zrange"
+    traces[2]['KVKey'].must_equal "sauce"
   end
 
   it "should trace zrangebyscore" do
@@ -147,8 +147,8 @@ describe Oboe::Inst::Redis, :sortedsets do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "zrangebyscore"
-    traces[1]['KVKey'].must_equal "sauce"
+    traces[2]['KVOp'].must_equal "zrangebyscore"
+    traces[2]['KVKey'].must_equal "sauce"
   end
   
   it "should trace zrank" do
@@ -166,8 +166,8 @@ describe Oboe::Inst::Redis, :sortedsets do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "zrank"
-    traces[1]['KVKey'].must_equal "sauce"
+    traces[2]['KVOp'].must_equal "zrank"
+    traces[2]['KVKey'].must_equal "sauce"
   end
   
   it "should trace zrem" do
@@ -185,8 +185,8 @@ describe Oboe::Inst::Redis, :sortedsets do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "zrem"
-    traces[1]['KVKey'].must_equal "sauce"
+    traces[2]['KVOp'].must_equal "zrem"
+    traces[2]['KVKey'].must_equal "sauce"
   end
 
   it "should trace zremrangebyrank" do
@@ -204,10 +204,10 @@ describe Oboe::Inst::Redis, :sortedsets do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "zremrangebyrank"
-    traces[1]['KVKey'].must_equal "sauce"
-    traces[1]['start'].must_equal "-5"
-    traces[1]['stop'].must_equal "-1"
+    traces[2]['KVOp'].must_equal "zremrangebyrank"
+    traces[2]['KVKey'].must_equal "sauce"
+    traces[2]['start'].must_equal "-5"
+    traces[2]['stop'].must_equal "-1"
   end
 
   it "should trace zremrangebyscore" do
@@ -225,8 +225,8 @@ describe Oboe::Inst::Redis, :sortedsets do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "zremrangebyscore"
-    traces[1]['KVKey'].must_equal "sauce"
+    traces[2]['KVOp'].must_equal "zremrangebyscore"
+    traces[2]['KVKey'].must_equal "sauce"
   end
 
   it "should trace zrevrange" do
@@ -244,10 +244,10 @@ describe Oboe::Inst::Redis, :sortedsets do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "zrevrange"
-    traces[1]['KVKey'].must_equal "sauce"
-    traces[1]['start'].must_equal "0"
-    traces[1]['stop'].must_equal "-1"
+    traces[2]['KVOp'].must_equal "zrevrange"
+    traces[2]['KVKey'].must_equal "sauce"
+    traces[2]['start'].must_equal "0"
+    traces[2]['stop'].must_equal "-1"
   end
 
   it "should trace zrevrangebyscore" do
@@ -265,8 +265,8 @@ describe Oboe::Inst::Redis, :sortedsets do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "zrevrangebyscore"
-    traces[1]['KVKey'].must_equal "sauce"
+    traces[2]['KVOp'].must_equal "zrevrangebyscore"
+    traces[2]['KVKey'].must_equal "sauce"
   end
 
   it "should trace zrevrank" do
@@ -282,8 +282,8 @@ describe Oboe::Inst::Redis, :sortedsets do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "zrevrank"
-    traces[1]['KVKey'].must_equal "letters"
+    traces[2]['KVOp'].must_equal "zrevrank"
+    traces[2]['KVKey'].must_equal "letters"
   end
   
   it "should trace zscore" do
@@ -300,8 +300,8 @@ describe Oboe::Inst::Redis, :sortedsets do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "zscore"
-    traces[1]['KVKey'].must_equal "elements"
+    traces[2]['KVOp'].must_equal "zscore"
+    traces[2]['KVKey'].must_equal "elements"
   end
 
   it "should trace zunionstore" do
@@ -317,9 +317,9 @@ describe Oboe::Inst::Redis, :sortedsets do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[1]['KVOp'].must_equal "zunionstore"
-    traces[1]['destination'].must_equal "zdest"
-    traces[1].has_key?('KVKey').must_equal false
+    traces[2]['KVOp'].must_equal "zunionstore"
+    traces[2]['destination'].must_equal "zdest"
+    traces[2].has_key?('KVKey').must_equal false
   end
 end
 
