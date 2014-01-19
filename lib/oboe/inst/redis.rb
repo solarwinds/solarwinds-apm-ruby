@@ -7,8 +7,15 @@ module Oboe
       module Client
         def self.included(klass)
           ::Oboe::Util.method_alias(klass, :call, ::Redis::Client)
+          ::Oboe::Util.method_alias(klass, :call_pipeline, ::Redis::Client)
         end
 
+        # Given any Redis operation command array, this method
+        # extracts the Key/Values to report to the TraceView
+        # dashboard.
+        #
+        # @param command [Array] the Redis operation array
+        # @return [Hash] the Key/Values to report
         def extract_trace_details(command)
           kvs = {}
           op = command.first
@@ -64,10 +71,18 @@ module Oboe
               # Only collect the default KVOp and possibly KVKey (above)
 
             when :mget, :hmget
-              kvs[:KVKeyCount] = command[1].count
-
+              if command[1].is_a?(Array)
+                kvs[:KVKeyCount] = command[1].count 
+              else
+                kvs[:KVKeyCount] = command.count - 1
+              end 
+           
             when :mset, :msetnx
-              kvs[:KVKeyCount] = command[1].count / 2
+              if command[1].is_a?(Array)
+                kvs[:KVKeyCount] = command[1].count / 2
+              else
+                kvs[:KVKeyCount] = (command.count - 1) / 2
+              end
             
             when :move
               kvs[:db] = command[2]
@@ -129,8 +144,39 @@ module Oboe
 
           rescue StandardError => e
             Oboe.logger.debug "Error collecting redis KVs: #{e.message}"
+            Oboe.logger.debug e.backtrace.join("\n")
           end
 
+          kvs
+        end
+
+        # Extracts the Key/Values to report from a pipelined
+        # call to the TraceView dashboard.
+        #
+        # @param pipeline [Redis::Pipeline] the Redis pipeline instance
+        # @return [Hash] the Key/Values to report
+        def extract_pipeline_details(pipeline)
+          kvs = {}
+
+          begin
+            kvs[:RemoteHost] = @options[:host]
+
+            command_count = pipeline.commands.count
+            kvs[:KVOpCount] = command_count
+           
+            # Report pipelined operations  if the number
+            # of ops is reasonable
+            if command_count < 12
+              ops = []
+              pipeline.commands.each do |c|
+                ops << c.first
+              end
+              kvs[:KVOps] = ops.join(", ")
+            end
+          rescue StandardError => e
+            Oboe.logger.debug "[oboe/debug] Error extracting pipelined commands: #{e.message}"
+            Oboe.logger.debug e.backtrace
+          end
           kvs
         end
 
@@ -143,6 +189,31 @@ module Oboe
             end
           else
             call_without_oboe(command, &block)
+          end
+        end
+        
+        def call_pipeline_with_oboe(pipeline)
+          if Oboe.tracing?
+            report_kvs = {}
+
+            # Fall back to the raw tracing API so we can pass KVs
+            # back on exit (a limitation of the Oboe::API.trace 
+            # block method)  This removes the need for an info
+            # event
+            ::Oboe::API.log_entry('redis', {})
+            
+            report_kvs = extract_pipeline_details(pipeline)
+
+            begin
+              call_pipeline_without_oboe(pipeline)
+            rescue StandardError => e
+              ::Oboe::API.log_exception('redis', e)
+              raise
+            ensure
+              ::Oboe::API.log_exit('redis', report_kvs)
+            end
+          else
+            call_pipeline_without_oboe(pipeline)
           end
         end
 
