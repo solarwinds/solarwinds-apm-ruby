@@ -62,17 +62,18 @@ module Oboe
               kvs[:destination] = command[2]
 
             when :append, :blpop, :brpop, :decr, :del, :dump, :exists, 
-                 :hgetall, :hkeys, 
-                 :hlen, :hvals, :hmset, :incr, :linsert, :llen, 
-                 :lpop, :lpush, :lpushx, :lrem, :lset, :ltrim, :persist, :pttl, 
-                 :randomkey, :hscan, :scan, :rpop, :rpush, :rpushx, :sadd, :scard, :sdiff, :sinter,
-                 :sismember, :smembers, :strlen, :sort, :spop, :srandmember, :srem, :sscan, :sunion, :ttl,
-                 :zadd, :zcard, :zcount, :zincrby, :zrangebyscore, :zrank, :zrem, :zremrangebyscore,
+                 :hgetall, :hkeys, :hlen, :hvals, :hmset, :incr, :linsert, 
+                 :llen, :lpop, :lpush, :lpushx, :lrem, :lset, :ltrim, 
+                 :persist, :pttl, :randomkey, :hscan, :scan, :rpop, :rpush, 
+                 :rpushx, :sadd, :scard, :sdiff, :sinter, :sismember, 
+                 :smembers, :strlen, :sort, :spop, :srandmember, :srem, 
+                 :sscan, :sunion, :ttl, :zadd, :zcard, :zcount, :zincrby, 
+                 :zrangebyscore, :zrank, :zrem, :zremrangebyscore,
                  :zrevrank, :zrevrangebyscore, :zscore
               # Only collect the default KVOp and possibly KVKey (above)
 
             when :get
-              kvs[:KVHit] = r.nil?
+              kvs[:KVHit] = !r.nil?
 
             when :mget
               if command[1].is_a?(Array)
@@ -126,6 +127,7 @@ module Oboe
 
             when :hdel, :hexists, :hget, :hset, :hsetnx
               kvs[:field] = command[2] unless command[2].is_a?(Array)
+              kvs[:KVHit] = !r.nil? if op == :hget
 
             when :expire
               kvs[:seconds] = command[2]
