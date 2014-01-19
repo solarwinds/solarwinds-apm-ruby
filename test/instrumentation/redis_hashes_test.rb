@@ -186,6 +186,7 @@ describe Oboe::Inst::Redis, :hashes do
     traces.count.must_equal 4
     traces[1]['KVOp'].must_equal "hmget"
     traces[1]['KVKey'].must_equal "whale"
+    traces[1]['KVKeyCount'].must_equal "3"
   end
   
   it "should trace hmset" do

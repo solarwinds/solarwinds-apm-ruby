@@ -192,21 +192,29 @@ describe Oboe::Inst::Redis, :strings do
   it "should trace mget" do
     Oboe::API.start_trace('redis_test', '', {}) do
       @redis.mget(["one", "two", "three"])
+      @redis.mget("justone")
     end
 
     traces = get_all_traces
-    traces.count.must_equal 4
+    traces.count.must_equal 6
     traces[1]['KVOp'].must_equal "mget"
+    traces[1]['KVKeyCount'].must_equal "3"
+    traces[3]['KVOp'].must_equal "mget"
+    traces[3]['KVKeyCount'].must_equal "1"
   end
   
   it "should trace mset" do
     Oboe::API.start_trace('redis_test', '', {}) do
       @redis.mset(["one", 1, "two", 2, "three", 3])
+      @redis.mset("one", 1)
     end
 
     traces = get_all_traces
-    traces.count.must_equal 4
+    traces.count.must_equal 6
     traces[1]['KVOp'].must_equal "mset"
+    traces[1]['KVKeyCount'].must_equal "3"
+    traces[3]['KVOp'].must_equal "mset"
+    traces[3]['KVKeyCount'].must_equal "1"
   end
   
   it "should trace msetnx" do
