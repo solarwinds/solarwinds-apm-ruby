@@ -43,5 +43,26 @@ describe Oboe::Inst::Redis, :sortedsets do
     traces[2]['KVOps'].must_equal "zadd, zadd, zadd, lpush, lpush, lpush"
   end
   
+  it "should trace multi with block" do
+    min_server_version(1.2)
+
+    Oboe::API.start_trace('redis_test', '', {}) do
+      @redis.multi do
+        @redis.zadd("presidents", 0, "Lincoln")
+        @redis.zadd("presidents", 1, "Adams")
+        @redis.zadd("presidents", 2, "Reagan")
+    
+        @redis.lpush("hair", "blue")
+        @redis.lpush("hair", "gray")
+        @redis.lpush("hair", "yellow")
+      end
+    end
+
+    traces = get_all_traces
+    traces.count.must_equal 4
+    traces[2]['KVOpCount'].must_equal "8"
+    traces[2]['KVOps'].must_equal "multi, zadd, zadd, zadd, lpush, lpush, lpush, exec"
+  end
+  
 end
 

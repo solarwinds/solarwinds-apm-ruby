@@ -176,6 +176,12 @@ module Oboe
 
             command_count = pipeline.commands.count
             kvs[:KVOpCount] = command_count
+
+            if pipeline.commands.first == :multi
+              kvs[:KVOp] = :multi
+            else
+              kvs[:KVOp] = :pipeline
+            end
            
             # Report pipelined operations  if the number
             # of ops is reasonable
@@ -221,7 +227,7 @@ module Oboe
             # block method)  This removes the need for an info
             # event
             ::Oboe::API.log_entry('redis', {})
-            
+
             report_kvs = extract_pipeline_details(pipeline)
 
             begin
