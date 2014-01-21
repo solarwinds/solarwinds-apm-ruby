@@ -76,6 +76,13 @@ The oboe gem has the ability to instrument any arbitrary Ruby application or scr
     Bundler.require
     
     require 'oboe'
+
+    # Tracing mode can be 'never', 'through' (to follow upstream) or 'always'
+    Oboe::Config[:tracing_mode] = 'always'
+
+    # Number of requests to trace out of each million
+    Oboe::Config[:sample_rate] = 1000000
+
     Oboe::Ruby.initialize
 
 From here, you can use the Tracing API to instrument areas of code (see below).
@@ -88,13 +95,15 @@ You can send deploy notifications to TraceView and have the events show up on yo
 
 ## The Tracing API
 
-You can instrument any arbitrary block of code using the following pattern:
+You can instrument any arbitrary block of code using `Oboe::API.trace`:
 
     # layer_name will show up in the TraceView app dashboard
     layer_name = 'subsystemX'
 
-    # report_kvs are a set of information Key/Value pairs that are sent to TraceView along with the performance metrics.
-    # These KV pairs can report on request, environment or client specific information.
+    # report_kvs are a set of information Key/Value pairs that are sent to
+    # TraceView dashboard along with the performance metrics.  These KV 
+    # pairs are used to report request, environment and/or client specific
+    # information.
 
     report_kvs = {}
     report_kvs[:mykey] = @client.id
@@ -103,7 +112,13 @@ You can instrument any arbitrary block of code using the following pattern:
       # the block of code to be traced
     end
 
-Find more details in the TraceView [documentation portal](https://support.tv.appneta.com/support/solutions/articles/86395-ruby-instrumentation-public-api).
+`Oboe::API.trace` is used within the context of a request.  It will follow the upstream state of the request being traced.  i.e. the block of code will only be traced when the parent request is being traced.
+
+This tracing state of a request can also be queried by using `Oboe.tracing?`.
+
+If you need to instrument code outside the context of a request (such as a cron job, background job or an arbitrary ruby script), use `Oboe::API.start_trace` instead which will initiate new traces based on configuration and probability (based on the sample rate).
+
+Find more details in the [RubyDoc page](http://rdoc.info/gems/oboe/Oboe/API/Tracing).
 
 ## Tracing Methods
 
