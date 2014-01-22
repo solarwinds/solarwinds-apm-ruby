@@ -117,10 +117,6 @@ describe Oboe::Inst::Redis, :keys do
     traces[2]['pattern'].must_equal "del*"
   end
   
-  it "should trace migrate" do
-    skip "not supported"
-  end
-  
   it "should trace basic move" do
     @redis.set("piano", Time.now)
 
@@ -133,10 +129,6 @@ describe Oboe::Inst::Redis, :keys do
     traces[2]['KVOp'].must_equal "move"
     traces[2]['KVKey'].must_equal "piano"
     traces[2]['db'].must_equal "1"
-  end
-  
-  it "should trace object" do
-    skip "not supported"
   end
   
   it "should trace persist" do
@@ -244,6 +236,7 @@ describe Oboe::Inst::Redis, :keys do
 
     @redis.setex("qubit", 60, "zero")
     x = @redis.dump("qubit")
+    @redis.del "blue"
 
     Oboe::API.start_trace('redis_test', '', {}) do
       @redis.restore("blue", 0, x)

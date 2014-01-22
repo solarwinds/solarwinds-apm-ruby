@@ -234,10 +234,7 @@ describe Oboe::Inst::Redis, :strings do
   end
   
   it "should trace psetex (>= v2.6)" do
-    unless (@redis.info["redis_version"] =~ /2.6/) == 0
-      skip "supported only redis-server 2.6.0" 
-    end
-
+    
     Oboe::API.start_trace('redis_test', '', {}) do
       @redis.psetex("one", 60, "hello")
     end
@@ -262,9 +259,6 @@ describe Oboe::Inst::Redis, :strings do
   
   it "should trace set with options hash (>= v2.6)" do
     min_server_version(2.6)
-    unless (@redis.info["redis_version"] =~ /2.6/) == 0
-      skip "supported only redis-server 2.6.0" 
-    end
 
     Oboe::API.start_trace('redis_test', '', {}) do
       @redis.set("one",   "hello")
