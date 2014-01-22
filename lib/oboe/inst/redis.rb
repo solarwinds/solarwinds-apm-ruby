@@ -73,7 +73,7 @@ module Oboe
               # Only collect the default KVOp and possibly KVKey (above)
 
             when :get
-              kvs[:KVHit] = !r.nil?
+              kvs[:KVHit] = r.nil? ? 0 : 1
 
             when :eval
               if command[1].length > 1024
@@ -147,7 +147,9 @@ module Oboe
 
             when :hdel, :hexists, :hget, :hset, :hsetnx
               kvs[:field] = command[2] unless command[2].is_a?(Array)
-              kvs[:KVHit] = !r.nil? if op == :hget
+              if op == :hget
+                kvs[:KVHit] = r.nil? ? 0 : 1
+              end
 
             when :expire
               kvs[:seconds] = command[2]
