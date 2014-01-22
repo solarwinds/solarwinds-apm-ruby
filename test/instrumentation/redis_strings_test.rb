@@ -257,31 +257,6 @@ describe Oboe::Inst::Redis, :strings do
     traces[2]['KVKey'].must_equal "one"
   end
   
-  it "should trace set with options hash (>= v2.6)" do
-    min_server_version(2.6)
-
-    Oboe::API.start_trace('redis_test', '', {}) do
-      @redis.set("one",   "hello")
-      @redis.set("two",   "hello", { :ex => 60 })
-      @redis.set("three", "hello", { :px => 1000 })
-      @redis.set("four",  "hello", { :nx => true })
-      @redis.set("five",  "hello", { :xx => true })
-    end
-    
-    traces = get_all_traces
-    traces.count.must_equal 4
-    traces[2]['KVOp'].must_equal "set"
-    traces[2]['KVKey'].must_equal "one"
-    traces[3]['KVKey'].must_equal "two"
-    traces[3]['EX'].must_equal "60"
-    traces[5]['KVKey'].must_equal "three"
-    traces[5]['PX'].must_equal "1000"
-    traces[7]['KVKey'].must_equal "four"
-    traces[7]['NX'].must_equal "true"
-    traces[9]['KVKey'].must_equal "five"
-    traces[9]['XX'].must_equal "true"
-  end
-
   it "should trace setbit" do
     min_server_version(2.2)
 
