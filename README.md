@@ -85,7 +85,7 @@ The oboe gem has the ability to instrument any arbitrary Ruby application or scr
 
     Oboe::Ruby.initialize
 
-From here, you can use the Tracing API to instrument areas of code (see below).
+From here, you can use the Tracing API to instrument areas of code using `Oboe::API.start_trace` (see below).  If you prefer to instead dive directly into code, take a look at [this example](https://gist.github.com/pglombardo/8550713) of an instrumented Ruby script.
 
 ## Other
 
@@ -118,7 +118,7 @@ This tracing state of a request can also be queried by using `Oboe.tracing?`.
 
 If you need to instrument code outside the context of a request (such as a cron job, background job or an arbitrary ruby script), use `Oboe::API.start_trace` instead which will initiate new traces based on configuration and probability (based on the sample rate).
 
-Find more details in the [RubyDoc page](http://rdoc.info/gems/oboe/Oboe/API/Tracing).
+Find more details in the [RubyDoc page](http://rdoc.info/gems/oboe/Oboe/API/Tracing) or in [this example](https://gist.github.com/pglombardo/8550713) on how to use the Tracing API in an independent Ruby script.
 
 ## Tracing Methods
 
