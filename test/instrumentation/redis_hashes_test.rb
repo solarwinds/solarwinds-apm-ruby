@@ -89,7 +89,7 @@ describe Oboe::Inst::Redis, :hashes do
     traces.count.must_equal 4
     traces[2]['KVOp'].must_equal "hget"
     traces[2]['KVKey'].must_equal "whale"
-    traces[2]['KVHit'].must_equal "true"
+    traces[2]['KVHit'].must_equal "1"
     traces[2]['field'].must_equal "color"
   end
   
