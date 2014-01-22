@@ -27,7 +27,7 @@ module Oboe
 
             unless [ :keys, :randomkey, :scan, :sdiff, :sdiffstore, :sinter, 
                      :sinterstore, :smove, :sunion, :sunionstore, :zinterstore,
-                     :zunionstore, :publish, :select ].include? op or 
+                     :zunionstore, :publish, :select, :eval, :evalsha, :script ].include? op or 
                      command[1].is_a?(Array)
               kvs[:KVKey] = command[1]
             end
@@ -74,6 +74,26 @@ module Oboe
 
             when :get
               kvs[:KVHit] = !r.nil?
+
+            when :eval
+              if command[1].length > 1024
+                kvs[:script] = command[1][0..1023]
+              else
+                kvs[:script] = command[1]
+              end
+            
+            when :evalsha
+              kvs[:sha] = command[1]
+
+            when :script
+              kvs[:subcommand] = command[1]
+              if command[1] == "load"
+                if command[1].length > 1024
+                  kvs[:script] = command[2][0..1023]
+                else
+                  kvs[:script] = command[2]
+                end
+              end
 
             when :mget
               if command[1].is_a?(Array)
@@ -148,8 +168,6 @@ module Oboe
             when :bitop
               kvs[:operation] = command[1]
               kvs[:destkey] = command[2]
-
-            # Not implemented: :migrate, :object
 
             else
               Oboe.logger.debug "#{op} not collected!"
