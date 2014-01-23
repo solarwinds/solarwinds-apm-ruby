@@ -116,6 +116,7 @@ module Oboe
               
               when :script
                 kvs[:subcommand] = command[1]
+                kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:redis][:collect_backtraces]
                 if command[1] == "load"
                   if command[1].length > 1024
                     kvs[:script] = command[2][0..1023] + "(...snip...)"
@@ -165,6 +166,7 @@ module Oboe
 
           begin
             kvs[:RemoteHost] = @options[:host]
+            kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:redis][:collect_backtraces]
 
             command_count = pipeline.commands.count
             kvs[:KVOpCount] = command_count

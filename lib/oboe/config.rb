@@ -42,7 +42,7 @@ module Oboe
       Oboe::Config[:mongo][:collect_backtraces] = true
       Oboe::Config[:moped][:collect_backtraces] = true
       Oboe::Config[:nethttp][:collect_backtraces] = true
-      Oboe::Config[:redis][:collect_backtraces] = true
+      Oboe::Config[:redis][:collect_backtraces] = false
       Oboe::Config[:resque][:collect_backtraces] = true
 
       # Special instrument specific flags
