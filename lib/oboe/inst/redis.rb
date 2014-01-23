@@ -5,10 +5,10 @@ module Oboe
   module Inst
     module Redis
       module Client
-        # The operations listed in this constant, only have KVOp and KVKey collected.
+        # The operations listed in this constant skip collecting KVKey
         NO_KEY_OPS = [ :keys, :randomkey, :scan, :sdiff, :sdiffstore, :sinter, 
-                     :sinterstore, :smove, :sunion, :sunionstore, :zinterstore,
-                     :zunionstore, :publish, :select, :eval, :evalsha, :script ]
+                       :sinterstore, :smove, :sunion, :sunionstore, :zinterstore,
+                       :zunionstore, :publish, :select, :eval, :evalsha, :script ]
 
         # Instead of a giant switch statement, we use a hash constant to map out what
         # KVs need to be collected for each of the many many Redis operations
@@ -40,6 +40,19 @@ module Oboe
           :hincrbyfloat    => { :field     => 2, :increment   => 3 },
           :zremrangebyrank => { :start     => 2, :stop        => 3 },
         }
+            
+        # The following operations don't require any special handling. For these,
+        # we only collect KVKey and KVOp
+        #
+        # :append, :blpop, :brpop, :decr, :del, :dump, :exists, 
+        # :hgetall, :hkeys, :hlen, :hvals, :hmset, :incr, :linsert, 
+        # :llen, :lpop, :lpush, :lpushx, :lrem, :lset, :ltrim, 
+        # :persist, :pttl, :randomkey, :hscan, :scan, :rpop, :rpush, 
+        # :rpushx, :sadd, :scard, :sdiff, :sinter, :sismember, 
+        # :smembers, :strlen, :sort, :spop, :srandmember, :srem, 
+        # :sscan, :sunion, :ttl, :type, :zadd, :zcard, :zcount, :zincrby, 
+        # :zrangebyscore, :zrank, :zrem, :zremrangebyscore,
+        # :zrevrank, :zrevrangebyscore, :zscore
 
         def self.included(klass)
           # We wrap two of the Redis methods to instrument
@@ -132,21 +145,8 @@ module Oboe
                   kvs[:KVKeyCount] = (command.count - 1) / 2
                 end
               end # case op
-            end
+            end # if KV_COLLECT_MAP[op]
             
-            # The following operations aren't handled by the switch statement
-            # as we only collect the default KVOp and possibly KVKey (above)
-            #
-            # :append, :blpop, :brpop, :decr, :del, :dump, :exists, 
-            # :hgetall, :hkeys, :hlen, :hvals, :hmset, :incr, :linsert, 
-            # :llen, :lpop, :lpush, :lpushx, :lrem, :lset, :ltrim, 
-            # :persist, :pttl, :randomkey, :hscan, :scan, :rpop, :rpush, 
-            # :rpushx, :sadd, :scard, :sdiff, :sinter, :sismember, 
-            # :smembers, :strlen, :sort, :spop, :srandmember, :srem, 
-            # :sscan, :sunion, :ttl, :type, :zadd, :zcard, :zcount, :zincrby, 
-            # :zrangebyscore, :zrank, :zrem, :zremrangebyscore,
-            # :zrevrank, :zrevrangebyscore, :zscore
-
           rescue StandardError => e
             Oboe.logger.debug "Error collecting redis KVs: #{e.message}"
             Oboe.logger.debug e.backtrace.join("\n")
