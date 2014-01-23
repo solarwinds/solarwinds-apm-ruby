@@ -29,4 +29,5 @@ gem 'mongo'
 gem 'bson_ext' # For Mongo, Yours Truly
 gem 'moped' unless (RUBY_VERSION =~ /^1.8/) == 0
 gem 'resque'
+gem 'redis'
 
