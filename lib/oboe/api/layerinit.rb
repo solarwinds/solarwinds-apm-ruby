@@ -47,6 +47,11 @@ module Oboe
           else
             platform_info['Ruby.AppContainer.Version'] = "Unknown"
           end
+
+          # If we couldn't load the c extension correctly, report the error to the dashboard.
+          unless Oboe.loaded
+            platform_info['Error'] = "Missing TraceView libraries.  Tracing disabled."
+          end
         rescue
         end
 
