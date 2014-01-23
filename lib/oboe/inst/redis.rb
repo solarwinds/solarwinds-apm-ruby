@@ -5,7 +5,13 @@ module Oboe
   module Inst
     module Redis
       module Client
+        NO_KEY_OPS = [ :keys, :randomkey, :scan, :sdiff, :sdiffstore, :sinter, 
+                     :sinterstore, :smove, :sunion, :sunionstore, :zinterstore,
+                     :zunionstore, :publish, :select, :eval, :evalsha, :script ]
+
         def self.included(klass)
+          # We wrap two of the Redis methods to instrument
+          # operations
           ::Oboe::Util.method_alias(klass, :call, ::Redis::Client)
           ::Oboe::Util.method_alias(klass, :call_pipeline, ::Redis::Client)
         end
@@ -25,10 +31,7 @@ module Oboe
             kvs[:KVOp] = command[0]
             kvs[:RemoteHost] = @options[:host]
 
-            unless [ :keys, :randomkey, :scan, :sdiff, :sdiffstore, :sinter, 
-                     :sinterstore, :smove, :sunion, :sunionstore, :zinterstore,
-                     :zunionstore, :publish, :select, :eval, :evalsha, :script ].include? op or 
-                     command[1].is_a?(Array)
+            unless NO_KEY_OPS.include? op or command[1].is_a?(Array)
               kvs[:KVKey] = command[1]
             end
 
@@ -60,17 +63,6 @@ module Oboe
 
             when :brpoplpush, :rpoplpush
               kvs[:destination] = command[2]
-
-            when :append, :blpop, :brpop, :decr, :del, :dump, :exists, 
-                 :hgetall, :hkeys, :hlen, :hvals, :hmset, :incr, :linsert, 
-                 :llen, :lpop, :lpush, :lpushx, :lrem, :lset, :ltrim, 
-                 :persist, :pttl, :randomkey, :hscan, :scan, :rpop, :rpush, 
-                 :rpushx, :sadd, :scard, :sdiff, :sinter, :sismember, 
-                 :smembers, :strlen, :sort, :spop, :srandmember, :srem, 
-                 :sscan, :sunion, :ttl, :type, :zadd, :zcard, :zcount, :zincrby, 
-                 :zrangebyscore, :zrank, :zrem, :zremrangebyscore,
-                 :zrevrank, :zrevrangebyscore, :zscore
-              # Only collect the default KVOp and possibly KVKey (above)
 
             when :get
               kvs[:KVHit] = r.nil? ? 0 : 1
@@ -170,10 +162,20 @@ module Oboe
             when :bitop
               kvs[:operation] = command[1]
               kvs[:destkey] = command[2]
-
-            else
-              Oboe.logger.debug "#{op} not collected!"
             end
+            
+            # The following operations aren't handled by the switch statement
+            # as we only collect the default KVOp and possibly KVKey (above)
+            #
+            # :append, :blpop, :brpop, :decr, :del, :dump, :exists, 
+            # :hgetall, :hkeys, :hlen, :hvals, :hmset, :incr, :linsert, 
+            # :llen, :lpop, :lpush, :lpushx, :lrem, :lset, :ltrim, 
+            # :persist, :pttl, :randomkey, :hscan, :scan, :rpop, :rpush, 
+            # :rpushx, :sadd, :scard, :sdiff, :sinter, :sismember, 
+            # :smembers, :strlen, :sort, :spop, :srandmember, :srem, 
+            # :sscan, :sunion, :ttl, :type, :zadd, :zcard, :zcount, :zincrby, 
+            # :zrangebyscore, :zrank, :zrem, :zremrangebyscore,
+            # :zrevrank, :zrevrangebyscore, :zscore
 
           rescue StandardError => e
             Oboe.logger.debug "Error collecting redis KVs: #{e.message}"
@@ -219,6 +221,11 @@ module Oboe
           kvs
         end
 
+        #
+        # The wrapper method for Redis::Client.call.  Here
+        # (when tracing) we capture KVs to report and pass 
+        # the call along
+        #
         def call_with_oboe(command, &block)
           if Oboe.tracing?
             ::Oboe::API.log_entry('redis', {})
@@ -237,7 +244,11 @@ module Oboe
             call_without_oboe(command, &block)
           end
         end
-        
+       
+        #
+        # The wrapper method for Redis::Client.call_pipeline.  Here
+        # (when tracing) we capture KVs to report and pass the call along
+        #
         def call_pipeline_with_oboe(pipeline)
           if Oboe.tracing?
             report_kvs = {}
@@ -245,7 +256,7 @@ module Oboe
             # Fall back to the raw tracing API so we can pass KVs
             # back on exit (a limitation of the Oboe::API.trace 
             # block method)  This removes the need for an info
-            # event
+            # event to send additonal KVs
             ::Oboe::API.log_entry('redis', {})
 
             report_kvs = extract_pipeline_details(pipeline)
@@ -269,7 +280,7 @@ module Oboe
 end
 
 if Oboe::Config[:redis][:enabled] 
-  if defined?(Redis) and (Redis::VERSION =~ /^3\./) == 0 
+  if defined?(::Redis) and Gem::Version.new(::Redis::VERSION) >= Gem::Version.new(3.0.0)
     Oboe.logger.info "[oboe/loading] Instrumenting redis" if Oboe::Config[:verbose]
     ::Oboe::Util.send_include(::Redis::Client, ::Oboe::Inst::Redis::Client)
   end
