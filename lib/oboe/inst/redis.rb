@@ -5,9 +5,41 @@ module Oboe
   module Inst
     module Redis
       module Client
+        # The operations listed in this constant, only have KVOp and KVKey collected.
         NO_KEY_OPS = [ :keys, :randomkey, :scan, :sdiff, :sdiffstore, :sinter, 
                      :sinterstore, :smove, :sunion, :sunionstore, :zinterstore,
                      :zunionstore, :publish, :select, :eval, :evalsha, :script ]
+
+        # Instead of a giant switch statement, we use a hash constant to map out what
+        # KVs need to be collected for each of the many many Redis operations
+        # Hash formatting by undiagnosed OCD
+        KV_COLLECT_MAP = {
+          :brpoplpush  => { :destination  => 2 }, :rpoplpush   => { :destination  => 2 },
+          :sdiffstore  => { :destination  => 1 }, :sinterstore => { :destination  => 1 },
+          :sunionstore => { :destination  => 1 }, :zinterstore => { :destination  => 1 },
+          :zunionstore => { :destination  => 1 }, :publish     => { :channel      => 1 }, 
+          :incrby      => { :increment    => 2 }, :incrbyfloat => { :increment    => 2 },
+          :pexpire     => { :milliseconds => 2 }, :pexpireat   => { :milliseconds => 2 },
+          :expireat    => { :timestamp    => 2 }, :decrby      => { :decrement    => 2 },
+          :psetex      => { :ttl     => 2 },      :restore  => { :ttl     => 2 },
+          :setex       => { :ttl     => 2 },      :setnx    => { :ttl     => 2 },
+          :move        => { :db      => 2 },      :select   => { :db      => 1 },
+          :lindex      => { :index   => 2 },      :getset   => { :value   => 2 },
+          :keys        => { :pattern => 1 },      :expire   => { :seconds => 2 },
+          :rename      => { :newkey  => 2 },      :renamenx => { :newkey  => 2 },
+          :getbit      => { :offset  => 2 },      :setbit   => { :offset  => 2 },
+          :setrange    => { :offset  => 2 },      :evalsha  => { :sha     => 1 },   
+          :getrange    => { :start => 2, :end       => 3 },
+          :zrange      => { :start => 2, :end       => 3 },
+          :bitcount    => { :start => 2, :stop      => 3 },
+          :lrange      => { :start => 2, :stop      => 3 },
+          :zrevrange   => { :start => 2, :stop      => 3 },
+          :hincrby     => { :field => 2, :increment => 3 },
+          :smove           => { :source    => 1, :destination => 2 },
+          :bitop           => { :operation => 1, :destkey     => 2 },
+          :hincrbyfloat    => { :field     => 2, :increment   => 3 },
+          :zremrangebyrank => { :start     => 2, :stop        => 3 },
+        }
 
         def self.included(klass)
           # We wrap two of the Redis methods to instrument
@@ -26,7 +58,7 @@ module Oboe
         def extract_trace_details(command, r)
           kvs = {}
           op = command.first
- 
+
           begin
             kvs[:KVOp] = command[0]
             kvs[:RemoteHost] = @options[:host]
@@ -35,133 +67,71 @@ module Oboe
               kvs[:KVKey] = command[1]
             end
 
-            case op
-            when :set
-              if command.count > 3
-                options = command[3]
-                kvs[:ex] = options[:ex] if options.has_key?(:ex)
-                kvs[:px] = options[:px] if options.has_key?(:px)
-                kvs[:nx] = options[:nx] if options.has_key?(:nx)
-                kvs[:xx] = options[:xx] if options.has_key?(:xx)
-              end
-            
-            when :psetex, :restore, :setex, :setnx
-              kvs[:ttl] = command[2]
-            
-            when :publish
-              kvs[:channel] = command[1]
-
-            when :sdiffstore, :sinterstore, :sunionstore, :zinterstore, :zunionstore
-              kvs[:destination] = command[1]
-            
-            when :smove
-              kvs[:source] = command[1]
-              kvs[:destination] = command[2]
-
-            when :rename, :renamenx
-              kvs[:newkey] = command[2]
-
-            when :brpoplpush, :rpoplpush
-              kvs[:destination] = command[2]
-
-            when :get
-              kvs[:KVHit] = r.nil? ? 0 : 1
-
-            when :eval
-              if command[1].length > 1024
-                kvs[:script] = command[1][0..1023]
-              else
-                kvs[:script] = command[1]
-              end
-            
-            when :evalsha
-              kvs[:sha] = command[1]
-
-            when :script
-              kvs[:subcommand] = command[1]
-              if command[1] == "load"
-                if command[1].length > 1024
-                  kvs[:script] = command[2][0..1023]
-                else
-                  kvs[:script] = command[2]
+            if KV_COLLECT_MAP[op]
+              # Extract KVs from command for this op
+              KV_COLLECT_MAP[op].each { |k, v|
+                kvs[k] = command[v]
+              }
+            else
+              # This case statement handle special cases not handled
+              # by KV_COLLECT_MAP
+              case op
+              when :set
+                if command.count > 3
+                  options = command[3]
+                  kvs[:ex] = options[:ex] if options.has_key?(:ex)
+                  kvs[:px] = options[:px] if options.has_key?(:px)
+                  kvs[:nx] = options[:nx] if options.has_key?(:nx)
+                  kvs[:xx] = options[:xx] if options.has_key?(:xx)
                 end
-              end
-
-            when :mget
-              if command[1].is_a?(Array)
-                kvs[:KVKeyCount] = command[1].count 
-              else
-                kvs[:KVKeyCount] = command.count - 1
-              end 
-              values = r.select{ |i| i }
-              kvs[:KVHitCount] = values.count
-            
-            when :hmget
-              kvs[:KVKeyCount] = command.count - 2
-              values = r.select{ |i| i }
-              kvs[:KVHitCount] = values.count
-           
-            when :mset, :msetnx
-              if command[1].is_a?(Array)
-                kvs[:KVKeyCount] = command[1].count / 2
-              else
-                kvs[:KVKeyCount] = (command.count - 1) / 2
-              end
-            
-            when :move
-              kvs[:db] = command[2]
-            
-            when :select
-              kvs[:db] = command[1]
-
-            when :lindex
-              kvs[:index] = command[2]
-            
-            when :getset
-              kvs[:value] = command[2]
-
-            when :getbit, :setbit, :setrange
-              kvs[:offset] = command[2]
-            
-            when :getrange, :zrange
-              kvs[:start] = command[2]
-              kvs[:end] = command[3]
-            
-            when :keys
-              kvs[:pattern] = command[1]
-            
-            when :incrby, :incrbyfloat
-              kvs[:increment] = command[2]
-            
-            when :hincrby, :hincrbyfloat
-              kvs[:field] = command[2]
-              kvs[:increment] = command[3]
-
-            when :hdel, :hexists, :hget, :hset, :hsetnx
-              kvs[:field] = command[2] unless command[2].is_a?(Array)
-              if op == :hget
+              
+              when :get
                 kvs[:KVHit] = r.nil? ? 0 : 1
-              end
+              
+              when :hdel, :hexists, :hget, :hset, :hsetnx
+                kvs[:field] = command[2] unless command[2].is_a?(Array)
+                if op == :hget
+                  kvs[:KVHit] = r.nil? ? 0 : 1
+                end
 
-            when :expire
-              kvs[:seconds] = command[2]
-            
-            when :pexpire, :pexpireat
-              kvs[:milliseconds] = command[2]
-            
-            when :expireat
-              kvs[:timestamp] = command[2]
+              when :eval
+                if command[1].length > 1024
+                  kvs[:script] = command[1][0..1023] + "(...snip...)"
+                else
+                  kvs[:script] = command[1]
+                end
+              
+              when :script
+                kvs[:subcommand] = command[1]
+                if command[1] == "load"
+                  if command[1].length > 1024
+                    kvs[:script] = command[2][0..1023] + "(...snip...)"
+                  else
+                    kvs[:script] = command[2]
+                  end
+                end
 
-            when :decrby
-              kvs[:decrement] = command[2]
-
-            when :bitcount, :lrange, :zremrangebyrank, :zrevrange
-              kvs[:start] = command[2]
-              kvs[:stop] = command[3]
-
-            when :bitop
-              kvs[:operation] = command[1]
-              kvs[:destkey] = command[2]
+              when :mget
+                if command[1].is_a?(Array)
+                  kvs[:KVKeyCount] = command[1].count 
+                else
+                  kvs[:KVKeyCount] = command.count - 1
+                end 
+                values = r.select{ |i| i }
+                kvs[:KVHitCount] = values.count
+              
+              when :hmget
+                kvs[:KVKeyCount] = command.count - 2
+                values = r.select{ |i| i }
+                kvs[:KVHitCount] = values.count
+             
+              when :mset, :msetnx
+                if command[1].is_a?(Array)
+                  kvs[:KVKeyCount] = command[1].count / 2
+                else
+                  kvs[:KVKeyCount] = (command.count - 1) / 2
+                end
+              end # case op
             end
             
             # The following operations aren't handled by the switch statement
@@ -280,7 +250,7 @@ module Oboe
 end
 
 if Oboe::Config[:redis][:enabled] 
-  if defined?(::Redis) and Gem::Version.new(::Redis::VERSION) >= Gem::Version.new(3.0.0)
+  if defined?(::Redis) and Gem::Version.new(::Redis::VERSION) >= Gem::Version.new('3.0.0')
     Oboe.logger.info "[oboe/loading] Instrumenting redis" if Oboe::Config[:verbose]
     ::Oboe::Util.send_include(::Redis::Client, ::Oboe::Inst::Redis::Client)
   end
