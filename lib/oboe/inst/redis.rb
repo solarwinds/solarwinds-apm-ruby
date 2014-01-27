@@ -115,9 +115,9 @@ module Oboe
 
               when :eval
                 if command[1].length > 1024
-                  kvs[:script] = command[1][0..1023] + "(...snip...)"
+                  kvs[:Script] = command[1][0..1023] + "(...snip...)"
                 else
-                  kvs[:script] = command[1]
+                  kvs[:Script] = command[1]
                 end
               
               when :script
@@ -125,9 +125,9 @@ module Oboe
                 kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:redis][:collect_backtraces]
                 if command[1] == "load"
                   if command[1].length > 1024
-                    kvs[:script] = command[2][0..1023] + "(...snip...)"
+                    kvs[:Script] = command[2][0..1023] + "(...snip...)"
                   else
-                    kvs[:script] = command[2]
+                    kvs[:Script] = command[2]
                   end
                 elsif command[1] == :exists
                   kvs[:KVKey] = command[2]

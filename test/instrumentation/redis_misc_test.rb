@@ -103,11 +103,11 @@ describe Oboe::Inst::Redis, :misc do
     traces = get_all_traces
     traces.count.must_equal 8
     traces[2]['KVOp'].must_equal "eval"
-    traces[2]['script'].must_equal "return 1"
+    traces[2]['Script'].must_equal "return 1"
     traces[4]['KVOp'].must_equal "eval"
-    traces[4]['script'].must_equal "return { KEYS, ARGV }"
+    traces[4]['Script'].must_equal "return { KEYS, ARGV }"
     traces[6]['KVOp'].must_equal "eval"
-    traces[6]['script'].must_equal "return { KEYS, ARGV }"
+    traces[6]['Script'].must_equal "return { KEYS, ARGV }"
   end
   
   it "should trace evalsha" do
@@ -146,7 +146,7 @@ describe Oboe::Inst::Redis, :misc do
 
     traces[2]['KVOp'].must_equal "script"
     traces[2]['subcommand'].must_equal "load"
-    traces[2]['script'].must_equal "return 1"
+    traces[2]['Script'].must_equal "return 1"
     traces[4]['KVOp'].must_equal "script"
     traces[4]['subcommand'].must_equal "exists"
     traces[4]['KVKey'].must_equal @sha
