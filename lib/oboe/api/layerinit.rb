@@ -28,6 +28,19 @@ module Oboe
           elsif defined?(::Sinatra)
             platform_info['Ruby.Sinatra.Version'] = "Sinatra-#{::Sinatra::VERSION}"
           end
+          
+          # Report the instrumented libraries 
+          platform_info['Ruby.Cassandra.Version'] = "Cassandra-#{::Cassandra.VERSION}" if defined?(::Cassandra)
+          platform_info['Ruby.Dalli.Version']     = "Dalli-#{::Dalli::VERSION}"        if defined?(::Dalli)
+          platform_info['Ruby.MemCache.Version']  = "MemCache-#{::MemCache::VERSION}"  if defined?(::MemCache)
+          platform_info['Ruby.Moped.Version']     = "Moped-#{::Moped::VERSION}"        if defined?(::Moped)
+          platform_info['Ruby.Redis.Version']     = "Redis-#{::Redis::VERSION}"        if defined?(::Redis)
+          platform_info['Ruby.Resque.Version']    = "Resque-#{::Resque::VERSION}"      if defined?(::Resque)
+         
+          # Special case since the Mongo 1.x driver doesn't embed the version number in the gem directly
+          if ::Gem.loaded_specs.has_key?('mongo')
+            platform_info['Ruby.Mongo.Version']     = "Mongo-#{::Gem.loaded_specs['mongo'].version.to_s}" 
+          end
 
           # Report the server in use (if possible)
           if defined?(::Unicorn)
@@ -44,10 +57,14 @@ module Oboe
             platform_info['Ruby.AppContainer.Version'] = "Mongrel2-#{::Mongrel2::VERSION}"
           elsif defined?(::Trinidad)
             platform_info['Ruby.AppContainer.Version'] = "Trinidad-#{::Trinidad::VERSION}"
+          elsif defined?(::WEBrick)
+            platform_info['Ruby.AppContainer.Version'] = "WEBrick-#{::WEBrick::VERSION}"
           else
             platform_info['Ruby.AppContainer.Version'] = "Unknown"
           end
-        rescue
+        rescue StandardError => e
+          Oboe.logger.debug "Error in layerinit: #{e.message}"
+          Oboe.logger.debug e.backtrace
         end
 
         start_trace(layer, nil, platform_info) { }
