@@ -38,6 +38,7 @@ describe Oboe::Inst::Redis, :lists do
     traces = get_all_traces
     traces.count.must_equal 4
     traces[2]['KVOp'].must_equal "blpop"
+    traces[2]['KVKey'].must_equal "savage"
   end
   
   it "should trace brpop" do
@@ -52,6 +53,7 @@ describe Oboe::Inst::Redis, :lists do
     traces = get_all_traces
     traces.count.must_equal 4
     traces[2]['KVOp'].must_equal "brpop"
+    traces[2]['KVKey'].must_equal "savage"
   end
   
   it "should trace brpoplpush" do

@@ -129,21 +129,30 @@ describe Oboe::Inst::Redis, :misc do
     min_server_version(2.6)
       
     Oboe::API.start_trace('redis_test', '', {}) do
-      sha = @redis.script(:load, "return 1")
-      @redis.script(:exists, sha)
-      @redis.script(:exists, [sha, "other_sha"])
+      @sha = @redis.script(:load, "return 1")
+      @it_exists1 = @redis.script(:exists, @sha)
+      @it_exists2 = @redis.script(:exists, [@sha, "other_sha"])
       @redis.script(:flush)
     end
 
     traces = get_all_traces
     traces.count.must_equal 10
+
+    # Validate return values
+    @it_exists1.must_equal true
+    @it_exists2.is_a?(Array).must_equal true
+    @it_exists2[0].must_equal true
+    @it_exists2[1].must_equal false
+
     traces[2]['KVOp'].must_equal "script"
     traces[2]['subcommand'].must_equal "load"
     traces[2]['script'].must_equal "return 1"
     traces[4]['KVOp'].must_equal "script"
     traces[4]['subcommand'].must_equal "exists"
+    traces[4]['KVKey'].must_equal @sha
     traces[6]['KVOp'].must_equal "script"
     traces[6]['subcommand'].must_equal "exists"
+    traces[6]['KVKey'].must_equal '["e0e1f9fabfc9d4800c877a703b823ac0578ff8db", "other_sha"]'
     traces[8]['KVOp'].must_equal "script"
     traces[8]['subcommand'].must_equal "flush"
   end
