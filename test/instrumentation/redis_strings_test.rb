@@ -93,27 +93,33 @@ describe Oboe::Inst::Redis, :strings do
   end
   
   it "should trace get" do
+    @redis.setex("diwore", 60, "okokok")
+
     Oboe::API.start_trace('redis_test', '', {}) do
-      @redis.get("yourkey")
+      @rv = @redis.get("diwore")
     end
+
+    @rv.must_equal "okokok"
 
     traces = get_all_traces
     traces.count.must_equal 4
     traces[2]['KVOp'].must_equal "get"
-    traces[2]['KVKey'].must_equal "yourkey"
+    traces[2]['KVKey'].must_equal "diwore"
   end
   
   it "should trace getbit" do
     min_server_version(2.2)
+    
+    @redis.setex("diwore", 60, "okokok")
 
     Oboe::API.start_trace('redis_test', '', {}) do
-      @redis.getbit("yourkey", 3)
+      @redis.getbit("diwore", 3)
     end
 
     traces = get_all_traces
     traces.count.must_equal 4
     traces[2]['KVOp'].must_equal "getbit"
-    traces[2]['KVKey'].must_equal "yourkey"
+    traces[2]['KVKey'].must_equal "diwore"
     traces[2]['offset'].must_equal "3"
   end
   

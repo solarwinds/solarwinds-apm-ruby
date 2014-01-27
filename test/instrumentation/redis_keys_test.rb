@@ -71,8 +71,10 @@ describe Oboe::Inst::Redis, :keys do
     @redis.setex("talking_heads", 60, "burning down the house")
 
     Oboe::API.start_trace('redis_test', '', {}) do
-      @redis.exists("talking_heads")
+      @it_exists = @redis.exists("talking_heads")
     end
+
+    @it_exists.must_equal true
 
     traces = get_all_traces
     traces.count.must_equal 4
@@ -152,8 +154,10 @@ describe Oboe::Inst::Redis, :keys do
     @redis.set("sand", "blah")
 
     Oboe::API.start_trace('redis_test', '', {}) do
-      @redis.pexpire("sand", 8000)
+      @rv = @redis.pexpire("sand", 8000)
     end
+
+    @rv.must_equal true
 
     traces = get_all_traces
     traces.count.must_equal 4
@@ -168,8 +172,10 @@ describe Oboe::Inst::Redis, :keys do
     @redis.set("sand", "blah")
 
     Oboe::API.start_trace('redis_test', '', {}) do
-      @redis.pexpireat("sand", 8000)
+      @rv = @redis.pexpireat("sand", 8000)
     end
+    
+    @rv.must_equal true
 
     traces = get_all_traces
     traces.count.must_equal 4
