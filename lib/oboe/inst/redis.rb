@@ -47,12 +47,14 @@ module Oboe
         # :append, :blpop, :brpop, :decr, :del, :dump, :exists, 
         # :hgetall, :hkeys, :hlen, :hvals, :hmset, :incr, :linsert, 
         # :llen, :lpop, :lpush, :lpushx, :lrem, :lset, :ltrim, 
-        # :persist, :pttl, :randomkey, :hscan, :scan, :rpop, :rpush, 
-        # :rpushx, :sadd, :scard, :sdiff, :sinter, :sismember, 
-        # :smembers, :strlen, :sort, :spop, :srandmember, :srem, 
-        # :sscan, :sunion, :ttl, :type, :zadd, :zcard, :zcount, :zincrby, 
-        # :zrangebyscore, :zrank, :zrem, :zremrangebyscore,
-        # :zrevrank, :zrevrangebyscore, :zscore
+        # :persist, :pttl, :hscan, :rpop, :rpush, :rpushx, :sadd, 
+        # :scard, :sismember, :smembers, :strlen, :sort, :spop, 
+        # :srandmember, :srem, :sscan, :ttl, :type, :zadd, :zcard, 
+        # :zcount, :zincrby, :zrangebyscore, :zrank, :zrem, 
+        # :zremrangebyscore, :zrevrank, :zrevrangebyscore, :zscore
+        #
+        # For the operations in NO_KEY_OPS (above) we only collect
+        # KVOp (no KVKey)
 
         def self.included(klass)
           # We wrap two of the Redis methods to instrument
@@ -76,8 +78,12 @@ module Oboe
             kvs[:KVOp] = command[0]
             kvs[:RemoteHost] = @options[:host]
 
-            unless NO_KEY_OPS.include? op or command[1].is_a?(Array)
-              kvs[:KVKey] = command[1]
+            unless NO_KEY_OPS.include? op or (command[1].is_a?(Array) and command[1].count > 1)
+              if command[1].is_a?(Array)
+                kvs[:KVKey] = command[1].first
+              else
+                kvs[:KVKey] = command[1]
+              end
             end
 
             if KV_COLLECT_MAP[op]
@@ -123,6 +129,8 @@ module Oboe
                   else
                     kvs[:script] = command[2]
                   end
+                elsif command[1] == :exists
+                  kvs[:KVKey] = command[2]
                 end
 
               when :mget
@@ -205,6 +213,7 @@ module Oboe
             begin
               r = call_without_oboe(command, &block)
               report_kvs = extract_trace_details(command, r)
+              r
             rescue StandardError => e
               ::Oboe::API.log_exception('redis', e)
               raise
