@@ -12,6 +12,9 @@ module Oboe
         if Oboe.tracing?
           report_kvs = {}
 
+          report_kvs[:Controller] = self.class
+          report_kvs[:Action] = env['PATH_INFO']
+
           # Fall back to the raw tracing API so we can pass KVs
           # back on exit (a limitation of the Oboe::API.trace
           # block method) This removes the need for an info
