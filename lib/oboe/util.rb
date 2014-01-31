@@ -23,9 +23,14 @@ module Oboe
         end
 
         if cls.method_defined? method.to_sym or cls.private_method_defined? method.to_sym
+          
+          # Strip '!' or '?' from method if present
+          safe_method_name = method.to_s.chop if method =~ /\?$|\!$/
+          safe_method_name ||= method
+
           cls.class_eval do
-            alias_method "#{method}_without_oboe", "#{method}"
-            alias_method "#{method}", "#{method}_with_oboe"
+            alias_method "#{safe_method_name}_without_oboe", "#{method}"
+            alias_method "#{method}", "#{safe_method_name}_with_oboe"
           end
         else Oboe.logger.warn "[oboe/loading] Couldn't properly instrument #{name}.  Partial traces may occur."
         end
