@@ -35,7 +35,8 @@ begin
   require 'oboe/ruby'
 
   # Frameworks
-  require 'oboe/frameworks/rails' if defined?(::Rails) and Oboe.loaded
+  require 'oboe/frameworks/rails'   if defined?(::Rails) and Oboe.loaded
+  require 'oboe/frameworks/sinatra' if defined?(::Sinatra) and Oboe.loaded
 
 rescue Exception => e
   $stderr.puts "[oboe/error] Problem loading: #{e.inspect}"
