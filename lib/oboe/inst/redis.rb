@@ -130,7 +130,11 @@ module Oboe
                     kvs[:Script] = command[2]
                   end
                 elsif command[1] == :exists
-                  kvs[:KVKey] = command[2]
+                  if command[2].is_a?(Array)
+                    kvs[:KVKey] = command[2].inspect
+                  else
+                    kvs[:KVKey] = command[2]
+                  end
                 end
 
               when :mget
