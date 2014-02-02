@@ -110,6 +110,7 @@ if defined?(::Rails)
           Oboe::Loading.load_access_key
           Oboe::Inst.load_instrumentation
           Oboe::Rails.load_instrumentation
+          Oboe::API.report_init('rack') unless ["development", "test"].include? ENV['RACK_ENV']
         end
       end
     end
@@ -125,6 +126,7 @@ if defined?(::Rails)
       Oboe::Inst.load_instrumentation
       Oboe::Rails.load_instrumentation
       Oboe::Rails.include_helpers
+      Oboe::API.report_init('rack') unless ["development", "test"].include? ENV['RACK_ENV']
     end
   end
 end
