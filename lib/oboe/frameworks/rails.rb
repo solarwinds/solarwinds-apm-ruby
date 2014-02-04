@@ -106,7 +106,8 @@ if defined?(::Rails)
         end
 
         config.after_initialize do
-          Oboe::Loading.setup_logger
+          Oboe.logger = ::Rails.logger if ::Rails.logger
+
           Oboe::Loading.load_access_key
           Oboe::Inst.load_instrumentation
           Oboe::Rails.load_instrumentation
@@ -114,7 +115,8 @@ if defined?(::Rails)
       end
     end
   else
-    Oboe::Loading.setup_logger
+    Oboe.logger = ::Rails.logger if ::Rails.logger
+
     Oboe::Rails.load_initializer
     Oboe::Loading.load_access_key
     

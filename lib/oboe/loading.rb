@@ -37,12 +37,6 @@ module Oboe
   # instrumented libraries are already loaded...
   #
   module Loading
-    def self.setup_logger
-      if defined?(::Rails) and ::Rails.logger
-        Oboe.logger = ::Rails.logger
-      end
-    end
-
     ##
     # Load the TraceView access key (either from system configuration file
     # or environment variable) and calculate internal RUM ID
