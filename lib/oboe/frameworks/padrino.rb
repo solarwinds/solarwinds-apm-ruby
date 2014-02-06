@@ -44,14 +44,20 @@ end
 if defined?(::Padrino)
   # This instrumentation is a superset of the Sinatra instrumentation similar 
   # to how Padrino is a superset of Sinatra itself.
-  Oboe.logger.info "[oboe/loading] Instrumenting Padrino" if Oboe::Config[:verbose]
+  ::Oboe.logger.info "[oboe/loading] Instrumenting Padrino" if Oboe::Config[:verbose]
+
+  require 'oboe/frameworks/padrino/templates'
 
   Padrino.after_load do
-    Oboe.logger = ::Padrino.logger if ::Padrino.respond_to?(:logger)
-    Oboe::Loading.load_access_key
-    Oboe::Inst.load_instrumentation
+    ::Oboe.logger = ::Padrino.logger if ::Padrino.respond_to?(:logger)
+    ::Oboe::Loading.load_access_key
+    ::Oboe::Inst.load_instrumentation
 
     ::Oboe::Util.send_include(::Padrino::Routing::InstanceMethods, ::Oboe::PadrinoInst::Routing)
+    if defined?(::Padrino::Rendering)
+      ::Oboe::Util.send_include(::Padrino::Rendering::InstanceMethods, ::Oboe::PadrinoInst::Rendering)
+    end
   end
+
 end
 
