@@ -19,12 +19,11 @@ require 'memcache'
 $trace_file = @trace_dir + "trace_output.bson"
 
 # Configure Oboe
+Oboe::Config[:verbose] = true
 Oboe::Config[:tracing_mode] = "always"
 Oboe::Config[:sample_rate] = 1000000
 Oboe::Ruby.initialize
 Oboe.logger.level = Logger::DEBUG
-
-Oboe.logger.debug "[oboe/test] Debug log output test."
 
 ##
 # clear_all_traces
