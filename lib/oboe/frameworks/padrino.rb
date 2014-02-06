@@ -19,7 +19,7 @@ module Oboe
           ::Oboe::API.log_entry('padrino', {})
 
           begin
-            dispatch_without_oboe
+            r = dispatch_without_oboe
 
             # Report Controller/Action as best possible
             if request.controller and not request.controller.empty?
@@ -27,11 +27,12 @@ module Oboe
             else
               report_kvs[:Controller] = self.class
             end
-         
+
             report_kvs[:Action] = request.action
-          ensure
+            r
+           ensure
             ::Oboe::API.log_exit('padrino', report_kvs)
-          end
+           end
         else
           dispatch_without_oboe
         end
@@ -44,7 +45,7 @@ if defined?(::Padrino)
   # This instrumentation is a superset of the Sinatra instrumentation similar 
   # to how Padrino is a superset of Sinatra itself.
   Oboe.logger.info "[oboe/loading] Instrumenting Padrino" if Oboe::Config[:verbose]
-  
+
   Padrino.after_load do
     Oboe.logger = ::Padrino.logger if ::Padrino.respond_to?(:logger)
     Oboe::Loading.load_access_key
