@@ -12,7 +12,7 @@ module Oboe
     @@config = {}
 
     @@instrumentation = [ :cassandra, :dalli, :nethttp, :memcached, :memcache, :mongo,
-                          :moped, :rack, :resque, :action_controller, :action_view, 
+                          :moped, :rack, :redis, :resque, :action_controller, :action_view, 
                           :active_record ]
 
     ##
@@ -42,6 +42,7 @@ module Oboe
       Oboe::Config[:mongo][:collect_backtraces] = true
       Oboe::Config[:moped][:collect_backtraces] = true
       Oboe::Config[:nethttp][:collect_backtraces] = true
+      Oboe::Config[:redis][:collect_backtraces] = false
       Oboe::Config[:resque][:collect_backtraces] = true
 
       # Special instrument specific flags
@@ -55,6 +56,9 @@ module Oboe
 
       # Setup an empty host blacklist (see: Oboe::API::Util.blacklisted?)
       @@config[:blacklist] = []
+
+      # Access Key is empty until loaded from config file or env var
+      @@config[:access_key] = ""
 
       # The oboe Ruby client has the ability to sanitize query literals
       # from SQL statements.  By default this is disabled.  Enable to

@@ -12,16 +12,13 @@ module Oboe
       #
       def valid?(xtrace)
         begin
-          xtrace = xtrace.to_s
-          valid = true
+          # The X-Trace ID shouldn't be an initialized empty ID
+          return false if (xtrace =~ /^1b0000000/i) == 0
 
           # Valid X-Trace IDs have a length of 58 bytes and start with '1b'
-          valid = false unless xtrace.length == 58 and (xtrace =~ /^1b/i) == 0
+          return false unless xtrace.length == 58 and (xtrace =~ /^1b/i) == 0
 
-          # The X-Trace ID shouldn't be an initialized empty ID
-          valid = false if (xtrace =~ /^1b0000000/i) == 0
-
-          valid
+          true
         rescue StandardError => e
           Oboe.logger.debug e.message
           Oboe.logger.debug e.backtrace
