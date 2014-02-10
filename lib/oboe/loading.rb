@@ -90,7 +90,7 @@ module Oboe
     # lib/oboe/frameworks/*/*.rb
     # 
     def self.load_framework_instrumentation
-      pattern = File.join(File.dirname(__FILE__), 'frameworks/*/', '*.rb')
+      pattern = File.join(File.dirname(__FILE__), 'frameworks/', '*.rb')
       Dir.glob(pattern) do |f|
         begin
           require f
