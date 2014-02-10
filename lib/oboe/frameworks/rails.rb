@@ -4,7 +4,7 @@
 module Oboe
   module Rails
     module Helpers
-      extend ActiveSupport::Concern if ::Rails::VERSION::MAJOR > 2
+      extend ActiveSupport::Concern if defined?(::Rails) and ::Rails::VERSION::MAJOR > 2
 
       @@rum_xhr_tmpl = File.read(File.dirname(__FILE__) + '/rails/helpers/rum/rum_ajax_header.js.erb')
       @@rum_hdr_tmpl = File.read(File.dirname(__FILE__) + '/rails/helpers/rum/rum_header.js.erb')
