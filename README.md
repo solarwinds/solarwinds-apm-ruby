@@ -41,12 +41,12 @@ To run the install generator run:
 
 After the prompts, this will create an initializer: `config/initializers/oboe.rb`.
 
-## Sinatra/Padrino
+## Sinatra
 
-You can instrument your Sinatra or Padrino application by adding the following code to your `config.ru` Rackup file (Padrino example).
+You can instrument your Sinatra application by adding the following code to your `config.ru` Rackup file:
 
+    # If you're not using Bundler.require
     require 'oboe'
-    require 'oboe/inst/rack'
     
     # When traces should be initiated for incoming requests. Valid options are
     # "always", "through" (when the request is initiated with a tracing header 
@@ -58,13 +58,30 @@ You can instrument your Sinatra or Padrino application by adding the following c
     # auto sampling or managing the sample rate through the TraceView portal.
     # Oboe::Config[:sample_rate] = 1000000
     
-    # You may want to replace the Oboe.logger with your own
-    Oboe.logger = Padrino.logger
-    
-    Oboe::Ruby.initialize
-    Padrino.use Oboe::Rack
+    # You may want to replace the Oboe.logger with whichever logger you are using
+    # Oboe.logger = Sinatra.logger
 
-_In a future release, much of this will be automated._
+With this, the oboe gem will automatically detect Sinatra on boot and instrument key components.
+
+## Padrino
+
+As long as the oboe gem is in your `Gemfile` and you are calling `Bundler.require`, the oboe
+gem will automatically instrument Padrino applications.
+
+If you need to set `Oboe::Config` values on stack boot, you can do so by adding the following
+to your `config/boot.rb` file:
+
+    Padrino.before_load do
+      # When traces should be initiated for incoming requests. Valid options are
+      # "always", "through" (when the request is initiated with a tracing header 
+      # from upstream) and "never". You must set this directive to "always" in 
+      # order to initiate tracing.
+      Oboe::Config[:tracing_mode] = 'always'
+
+      # You can remove the following line in production to allow for
+      # auto sampling or managing the sample rate through the TraceView portal.
+      Oboe::Config[:sample_rate] = 1e6
+    end
 
 ## Custom Ruby Scripts & Applications
 
@@ -302,7 +319,7 @@ We humbly request that any submitted instrumention is delivered with correspondi
 
 # License
 
-Copyright (c) 2013 Appneta
+Copyright (c) 2014 Appneta
 
 Released under the [AppNeta Open License](http://www.appneta.com/appneta-license), Version 1.0
 
