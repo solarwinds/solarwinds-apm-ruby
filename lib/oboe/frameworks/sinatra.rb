@@ -36,6 +36,7 @@ end
 
 if defined?(::Sinatra)
   require 'oboe/inst/rack'
+  require 'oboe/frameworks/sinatra/templates'
 
   Oboe.logger.info "[oboe/loading] Instrumenting Sinatra" if Oboe::Config[:verbose]
 
@@ -45,9 +46,10 @@ if defined?(::Sinatra)
   ::Sinatra::Base.use Oboe::Rack
  
   unless defined?(::Padrino)
-    # Padrino has 'enhanced' routes so the Sinatra instrumentation won't
-    # work anyways.  Only load for pure Sinatra apps.
-    ::Oboe::Util.send_include(::Sinatra::Base, ::Oboe::Sinatra::Base)
+    # Padrino has 'enhanced' routes and rendering so the Sinatra 
+    # instrumentation won't work anyways.  Only load for pure Sinatra apps.
+    ::Oboe::Util.send_include(::Sinatra::Base,      ::Oboe::Sinatra::Base)
+    ::Oboe::Util.send_include(::Sinatra::Templates, ::Oboe::Sinatra::Templates)
   end
 end
 
