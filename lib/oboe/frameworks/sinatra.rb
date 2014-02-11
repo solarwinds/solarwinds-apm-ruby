@@ -5,7 +5,8 @@ module Oboe
   module Sinatra
     module Base
       def self.included(klass)
-        ::Oboe::Util.method_alias(klass, :dispatch!, ::Sinatra::Base)
+        ::Oboe::Util.method_alias(klass, :dispatch!,         ::Sinatra::Base)
+        ::Oboe::Util.method_alias(klass, :handle_exception!, ::Sinatra::Base)
       end
 
       def dispatch_with_oboe
@@ -29,6 +30,11 @@ module Oboe
         else
           dispatch_without_oboe
         end
+      end
+      
+      def handle_exception_with_oboe(boom)
+        Oboe::API.log_exception(nil, boom) if Oboe.tracing?
+        handle_exception_without_oboe(boom)
       end
     end
   end
