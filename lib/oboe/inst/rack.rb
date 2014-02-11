@@ -71,7 +71,7 @@ module Oboe
       xtrace = e.instance_variable_get(:@xtrace)
       raise
     ensure
-      result[1]['X-Trace'] = xtrace if Oboe::XTrace.valid?(xtrace)
+      result[1]['X-Trace'] = xtrace if result and Oboe::XTrace.valid?(xtrace)
       return result
     end
   end
