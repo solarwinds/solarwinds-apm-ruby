@@ -45,7 +45,8 @@ After the prompts, this will create an initializer: `config/initializers/oboe.rb
 
 You can instrument your Sinatra application by adding the following code to your `config.ru` Rackup file:
 
-    # If you're not using Bundler.require
+    # If you're not using Bundler.require.  Make sure this is done
+    # after the Sinatra require directive.
     require 'oboe'
     
     # When traces should be initiated for incoming requests. Valid options are
@@ -61,12 +62,13 @@ You can instrument your Sinatra application by adding the following code to your
     # You may want to replace the Oboe.logger with whichever logger you are using
     # Oboe.logger = Sinatra.logger
 
+Make sure that the oboe gem is loaded _after_ Sinatra either by listing `gem 'oboe'` after Sinatra in your Gemfile or calling the `require 'oboe'` directive after Sinatra is loaded.
+
 With this, the oboe gem will automatically detect Sinatra on boot and instrument key components.
 
 ## Padrino
 
-As long as the oboe gem is in your `Gemfile` and you are calling `Bundler.require`, the oboe
-gem will automatically instrument Padrino applications.
+As long as the oboe gem is in your `Gemfile` (inserted after the `gem 'padrino'` directive) and you are calling `Bundler.require`, the oboe gem will automatically instrument Padrino applications.
 
 If you need to set `Oboe::Config` values on stack boot, you can do so by adding the following
 to your `config/boot.rb` file:
