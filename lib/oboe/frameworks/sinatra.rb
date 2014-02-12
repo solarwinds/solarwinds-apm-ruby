@@ -5,7 +5,8 @@ module Oboe
   module Sinatra
     module Base
       def self.included(klass)
-        ::Oboe::Util.method_alias(klass, :dispatch!, ::Sinatra::Base)
+        ::Oboe::Util.method_alias(klass, :dispatch!,         ::Sinatra::Base)
+        ::Oboe::Util.method_alias(klass, :handle_exception!, ::Sinatra::Base)
       end
 
       def dispatch_with_oboe
@@ -30,12 +31,18 @@ module Oboe
           dispatch_without_oboe
         end
       end
+      
+      def handle_exception_with_oboe(boom)
+        Oboe::API.log_exception(nil, boom) if Oboe.tracing?
+        handle_exception_without_oboe(boom)
+      end
     end
   end
 end
 
 if defined?(::Sinatra)
   require 'oboe/inst/rack'
+  require 'oboe/frameworks/sinatra/templates'
 
   Oboe.logger.info "[oboe/loading] Instrumenting Sinatra" if Oboe::Config[:verbose]
 
@@ -45,9 +52,10 @@ if defined?(::Sinatra)
   ::Sinatra::Base.use Oboe::Rack
  
   unless defined?(::Padrino)
-    # Padrino has 'enhanced' routes so the Sinatra instrumentation won't
-    # work anyways.  Only load for pure Sinatra apps.
-    ::Oboe::Util.send_include(::Sinatra::Base, ::Oboe::Sinatra::Base)
+    # Padrino has 'enhanced' routes and rendering so the Sinatra 
+    # instrumentation won't work anyways.  Only load for pure Sinatra apps.
+    ::Oboe::Util.send_include(::Sinatra::Base,      ::Oboe::Sinatra::Base)
+    ::Oboe::Util.send_include(::Sinatra::Templates, ::Oboe::Sinatra::Templates)
   end
 end
 

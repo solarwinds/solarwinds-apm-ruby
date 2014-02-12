@@ -54,7 +54,3 @@ module Oboe
     end
   end
 end
-
-if defined?(::Sinatra::Templates)
-  ::Oboe::Util.send_include(::Sinatra::Templates, ::Oboe::Sinatra::Templates)
-end

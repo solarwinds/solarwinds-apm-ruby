@@ -84,25 +84,9 @@ module Oboe
         Oboe.logger.fatal "[oboe/error] Couldn't load oboe api."
       end
     end
-
-    ## 
-    # Load instrumentation for the various frameworks located in
-    # lib/oboe/frameworks/*/*.rb
-    # 
-    def self.load_framework_instrumentation
-      pattern = File.join(File.dirname(__FILE__), 'frameworks/*/', '*.rb')
-      Dir.glob(pattern) do |f|
-        begin
-          require f
-        rescue => e
-          Oboe.logger.error "[oboe/loading] Error loading framework file '#{f}' : #{e}"
-        end
-      end
-    end
   end
 end
 
 Oboe::Loading.require_api
-Oboe::Loading.load_framework_instrumentation
 Oboe::Reporter.start
 
