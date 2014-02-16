@@ -3,6 +3,10 @@ require "minitest/reporters"
 
 ENV["RACK_ENV"] = "test"
 
+# FIXME: Temp hack to fix padrino-core calling RUBY_ENGINE when it's 
+# not defined under Ruby 1.8.7 and 1.9.3
+RUBY_ENGINE = "ruby" unless defined?(RUBY_ENGINE)
+
 unless RUBY_VERSION =~ /^1.8/
   MiniTest::Reporters.use! MiniTest::Reporters::SpecReporter.new
 end
