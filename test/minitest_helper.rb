@@ -10,10 +10,10 @@ end
 require 'rubygems'
 require 'bundler'
 
-Bundler.require(:default, :test)
-
 # Preload memcache-client
 require 'memcache'
+
+Bundler.require(:default, :test)
 
 @trace_dir = "/tmp/"
 $trace_file = @trace_dir + "trace_output.bson"
