@@ -50,8 +50,10 @@ if defined?(::Sinatra)
   Oboe::Inst.load_instrumentation
 
   ::Sinatra::Base.use Oboe::Rack
- 
-  unless defined?(::Padrino)
+
+  # When in TEST environment, we load this instrumentation regardless.
+  # Otherwise, only when Padrino isn't around.
+  unless defined?(::Padrino) and not (ENV['RACK_ENV'] == "test")
     # Padrino has 'enhanced' routes and rendering so the Sinatra 
     # instrumentation won't work anyways.  Only load for pure Sinatra apps.
     ::Oboe::Util.send_include(::Sinatra::Base,      ::Oboe::Sinatra::Base)
