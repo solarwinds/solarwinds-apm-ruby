@@ -8,7 +8,7 @@ group :development, :test do
   gem 'bson'
 end
 
-group :development, :test do
+group :development do
   gem 'ruby-debug',   :platform => :mri_18
   gem 'ruby-debug19', :platform => :mri_19, :require => 'ruby-debug'
   gem 'byebug',       :platform => :mri_20 
