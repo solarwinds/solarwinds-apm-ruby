@@ -62,6 +62,8 @@ You can instrument your Sinatra application by adding the following code to your
     # You may want to replace the Oboe.logger with whichever logger you are using
     # Oboe.logger = Sinatra.logger
 
+Note: If you're on Heroku, you don't need to set `tracing_mode` or `sample_rate` - they will be automatically configured and can be adjusted directly from the TraceView dashboard.
+
 Make sure that the oboe gem is loaded _after_ Sinatra either by listing `gem 'oboe'` after Sinatra in your Gemfile or calling the `require 'oboe'` directive after Sinatra is loaded.
 
 With this, the oboe gem will automatically detect Sinatra on boot and instrument key components.
@@ -84,6 +86,8 @@ to your `config/boot.rb` file:
       # auto sampling or managing the sample rate through the TraceView portal.
       Oboe::Config[:sample_rate] = 1e6
     end
+
+Note: If you're on Heroku, you don't need to set `tracing_mode` or `sample_rate` - they will be automatically configured and can be adjusted directly from the TraceView dashboard.
 
 ## Custom Ruby Scripts & Applications
 
