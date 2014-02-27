@@ -330,7 +330,7 @@ We humbly request that any submitted instrumentation is delivered with correspon
 
 # License
 
-Copyright (c) 2013 Appneta
+Copyright (c) 2014 Appneta
 
 Released under the [AppNeta Open License](http://www.appneta.com/appneta-license), Version 1.0
 
