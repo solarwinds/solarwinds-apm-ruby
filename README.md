@@ -268,9 +268,9 @@ Some other tips and guidelines:
 
 * If instrumenting a library, database or service, place your new instrumentation file into the `lib/oboe/inst/` directory.  From there, the oboe gem will detect it and automatically load the instrumentation file.
 
-* If instrumentating a new framework, place your instrumentation file in `lib/oboe/frameworks`.  Refer to the Rails instrumentation for on ideas on how to load the oboe gem correctly in your framework.
+* If instrumenting a new framework, place your instrumentation file in `lib/oboe/frameworks`.  Refer to the Rails instrumentation for on ideas on how to load the oboe gem correctly in your framework.
 
-* Review other existing instrumention similar to the one you wish to author.  `lib/oboe/inst/` is a great place to start.
+* Review other existing instrumentation similar to the one you wish to author.  `lib/oboe/inst/` is a great place to start.
 
 * Depending on the configured `:sample_rate`, not all requests will be traced.  Use `Oboe.tracing?` to determine of this is a request that is being traced.
 
@@ -300,7 +300,7 @@ ii  liboboe-dev    1.1.1-precise1    Tracelytics common library -- development f
 ii  liboboe0       1.1.1-precise1    Tracelytics common library
 ```
 
-See [Installing Base Packages on Debian and Ubuntu](https://support.tv.appneta.com/support/solutions/articles/86359-installing-base-packages-on-debian-and-ubuntu) in the Knowledge Base for details.  Our hacker extraodinaire [Rob Salmond](https://github.com/rsalmond) from the support team has even gotten these packages to [run on Gentoo](http://www.appneta.com/blog/unsupported-doesnt-work/)!
+See [Installing Base Packages on Debian and Ubuntu](https://support.tv.appneta.com/support/solutions/articles/86359-installing-base-packages-on-debian-and-ubuntu) in the Knowledge Base for details.  Our hacker extraordinaire [Rob Salmond](https://github.com/rsalmond) from the support team has even gotten these packages to [run on Gentoo](http://www.appneta.com/blog/unsupported-doesnt-work/)!
 
 To see the code related to the C extension, take a look at `ext/oboe_metal/extconf.rb` for details.
 
@@ -318,7 +318,7 @@ bundle exec rake test
 
 This will run a full end-to-end test suite that covers all supported libraries and databases.  Note that this requires all of the supported software (Cassandra, Memcache, Mongo etc.) to be installed, configured and available.
 
-Since this is overly burdonsome for casual users, you can run just the tests that you're interested in.
+Since this is overly burdensome for casual users, you can run just the tests that you're interested in.
 
 To run just the tests for the dalli gem trace validation:
 
@@ -326,7 +326,7 @@ To run just the tests for the dalli gem trace validation:
 bundle exec rake test TEST=test/instrumentation/dalli_test.rb
 ```
 
-We humbly request that any submitted instrumention is delivered with corresponding test coverage.
+We humbly request that any submitted instrumentation is delivered with corresponding test coverage.
 
 # License
 
