@@ -29,7 +29,7 @@ or added to your bundle Gemfile and running `bundle install`:
 
 No special steps are needed to instrument Ruby on Rails.  Once part of the bundle, the oboe gem will automatically detect Rails and instrument on stack initialization.
 
-_Note: You will still need to decide on your `tracing_mode` depending on whether you are running with an instrumented Apache or nginx in front of your Rails stack.  See below for more details._
+*Note: You will still need to decide on your `tracing_mode` depending on whether you are running with an instrumented Apache or nginx in front of your Rails stack.  See below for more details.*
 
 ### The Install Generator
 
