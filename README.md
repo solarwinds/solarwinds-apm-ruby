@@ -47,20 +47,20 @@ You can instrument your Sinatra or Padrino application by adding the following c
 
     require 'oboe'
     require 'oboe/inst/rack'
-    
+
     # When traces should be initiated for incoming requests. Valid options are
-    # "always", "through" (when the request is initiated with a tracing header 
-    # from upstream) and "never". You must set this directive to "always" in 
+    # "always", "through" (when the request is initiated with a tracing header
+    # from upstream) and "never". You must set this directive to "always" in
     # order to initiate tracing.
     Oboe::Config[:tracing_mode] = 'through'
-    
+
     # You can remove the following line in production to allow for
     # auto sampling or managing the sample rate through the TraceView portal.
     # Oboe::Config[:sample_rate] = 1000000
-    
+
     # You may want to replace the Oboe.logger with your own
     Oboe.logger = Padrino.logger
-    
+
     Oboe::Ruby.initialize
     Padrino.use Oboe::Rack
 
@@ -72,9 +72,9 @@ The oboe gem has the ability to instrument any arbitrary Ruby application or scr
 
     require 'rubygems'
     require 'bundler'
-    
+
     Bundler.require
-    
+
     require 'oboe'
 
     # Tracing mode can be 'never', 'through' (to follow upstream) or 'always'
@@ -101,7 +101,7 @@ You can instrument any arbitrary block of code using `Oboe::API.trace`:
     layer_name = 'subsystemX'
 
     # report_kvs are a set of information Key/Value pairs that are sent to
-    # TraceView dashboard along with the performance metrics.  These KV 
+    # TraceView dashboard along with the performance metrics.  These KV
     # pairs are used to report request, environment and/or client specific
     # information.
 
@@ -126,9 +126,9 @@ By using class level declarations, it's possible to automatically have certain m
 
 The pattern for Method Profiling is as follows:
 
-    # 'profile_name' is similar to a layer name.  
+    # 'profile_name' is similar to a layer name.
     # It identifies this custom trace in your dashboard.
-    # 
+    #
     class Engine
         include OboeMethodProfiling
 
@@ -137,7 +137,7 @@ The pattern for Method Profiling is as follows:
         end
 
         # call syntax: profile_method <method>, <profile_name>
-        profile_method :processor, 'processor' 
+        profile_method :processor, 'processor'
     end
 
 This example demonstrates method profiling of instance methods.  Class methods are profiled slightly differently.  See the TraceView [documentation portal](https://support.tv.appneta.com/support/solutions/articles/86395-ruby-instrumentation-public-api) for full details.
@@ -204,7 +204,7 @@ First, we define a module (Oboe::Inst::Dalli) and our own custom `perform_with_o
               end
             end
           end
-          
+
           def perform_with_oboe(*all_args, &blk)
             op, key, *args = *all_args
 
@@ -262,7 +262,7 @@ Some other tips and guidelines:
 
 The oboe gem utilizes a C extension to interface with the system `liboboe.so` library.  This system library is installed with the TraceView host packages (tracelyzer, liboboe0, liboboe-dev) and is used to report [host](http://www.appneta.com/blog/app-host-metrics/) and performance metrics from multiple sources (Ruby, Apache, Python etc.) back to TraceView servers.
 
-C extensions are usually built on `gem install` but when working out of a local git repository, it's required that you manually build this C extension for the gem to function.  
+C extensions are usually built on `gem install` but when working out of a local git repository, it's required that you manually build this C extension for the gem to function.
 
 To make this simpler, we've included a few rake tasks to automate this process:
 
@@ -292,7 +292,7 @@ After a bundle install, the tests can be run as:
 
 This will run a full end-to-end test suite that covers all supported libraries and databases.  Note that this requires all of the supported software (Cassandra, Memcache, Mongo etc.) to be installed, configured and available.
 
-Since this is overly burdonsome for casual users, you can run just the tests that you're interested in.  
+Since this is overly burdonsome for casual users, you can run just the tests that you're interested in.
 
 To run just the tests for the dalli gem trace validation:
 
