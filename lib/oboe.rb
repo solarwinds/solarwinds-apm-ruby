@@ -22,7 +22,7 @@ begin
     rescue LoadError
       Oboe.loaded = false
 
-      unless $ENV['RAILS_GROUP'] == 'assets'
+      unless ENV['RAILS_GROUP'] == 'assets'
         $stderr.puts "=============================================================="
         $stderr.puts "Missing TraceView libraries.  Tracing disabled."
         $stderr.puts "See: https://support.tv.appneta.com/solution/articles/137973" 
