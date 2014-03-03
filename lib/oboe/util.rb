@@ -25,7 +25,7 @@ module Oboe
         if cls.method_defined? method.to_sym or cls.private_method_defined? method.to_sym
           
           # Strip '!' or '?' from method if present
-          safe_method_name = method.to_s.chop if method =~ /\?$|\!$/
+          safe_method_name = method.to_s.chop if method.to_s =~ /\?$|\!$/
           safe_method_name ||= method
 
           without_oboe = "#{safe_method_name}_without_oboe"
