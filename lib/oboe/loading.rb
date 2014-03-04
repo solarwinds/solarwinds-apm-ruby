@@ -49,7 +49,7 @@ module Oboe
           Oboe::Config[:rum_id] = Oboe::Util::Base64URL.encode(Digest::SHA1.digest("RUM" + Oboe::Config[:access_key]))
         else
           # ..else read from system-wide configuration file
-          unless Oboe::Config.access_key
+          if Oboe::Config.access_key.empty?
             config_file = '/etc/tracelytics.conf'
             return unless File.exists?(config_file)
             
