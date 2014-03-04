@@ -77,3 +77,11 @@ end
 desc "Rebuild the gem's c extension"
 task :recompile => [ :distclean, :compile ]
 
+task :console do
+  require 'pry'
+  require 'oboe'
+  ARGV.clear
+  Pry.start
+end
+
+

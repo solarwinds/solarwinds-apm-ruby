@@ -47,32 +47,55 @@ bundle exec rails generate oboe:install
 
 After the prompts, this will create an initializer: `config/initializers/oboe.rb`.
 
-## Sinatra/Padrino
+## Sinatra
 
-You can instrument your Sinatra or Padrino application by adding the following code to your `config.ru` Rackup file (Padrino example).
+You can instrument your Sinatra application by adding the following code to your `config.ru` Rackup file:
 
 ```ruby
-require 'oboe'
-require 'oboe/inst/rack'
-
-# When traces should be initiated for incoming requests. Valid options are
-# "always", "through" (when the request is initiated with a tracing header
-# from upstream) and "never". You must set this directive to "always" in
-# order to initiate tracing.
-Oboe::Config[:tracing_mode] = 'through'
-
-# You can remove the following line in production to allow for
-# auto sampling or managing the sample rate through the TraceView portal.
-# Oboe::Config[:sample_rate] = 1000000
-
-# You may want to replace the Oboe.logger with your own
-Oboe.logger = Padrino.logger
-
-Oboe::Ruby.initialize
-Padrino.use Oboe::Rack
+    # If you're not using Bundler.require.  Make sure this is done
+    # after the Sinatra require directive.
+    require 'oboe'
+    
+    # When traces should be initiated for incoming requests. Valid options are
+    # "always", "through" (when the request is initiated with a tracing header 
+    # from upstream) and "never". You must set this directive to "always" in 
+    # order to initiate tracing.
+    Oboe::Config[:tracing_mode] = 'through'
+    
+    # You can remove the following line in production to allow for
+    # auto sampling or managing the sample rate through the TraceView portal.
+    # Oboe::Config[:sample_rate] = 1000000
+    
+    # You may want to replace the Oboe.logger with whichever logger you are using
+    # Oboe.logger = Sinatra.logger
 ```
 
-_In a future release, much of this will be automated._
+Note: If you're on Heroku, you don't need to set `tracing_mode` or `sample_rate` - they will be automatically configured.
+
+Make sure that the oboe gem is loaded _after_ Sinatra either by listing `gem 'oboe'` after Sinatra in your Gemfile or calling the `require 'oboe'` directive after Sinatra is loaded.
+
+With this, the oboe gem will automatically detect Sinatra on boot and instrument key components.
+
+## Padrino
+
+As long as the oboe gem is in your `Gemfile` (inserted after the `gem 'padrino'` directive) and you are calling `Bundler.require`, the oboe gem will automatically instrument Padrino applications.
+
+If you need to set `Oboe::Config` values on stack boot, you can do so by adding the following
+to your `config/boot.rb` file:
+
+    Padrino.before_load do
+      # When traces should be initiated for incoming requests. Valid options are
+      # "always", "through" (when the request is initiated with a tracing header 
+      # from upstream) and "never". You must set this directive to "always" in 
+      # order to initiate tracing.
+      Oboe::Config[:tracing_mode] = 'always'
+
+      # You can remove the following line in production to allow for
+      # auto sampling or managing the sample rate through the TraceView portal.
+      Oboe::Config[:sample_rate] = 1e6
+    end
+
+Note: If you're on Heroku, you don't need to set `tracing_mode` or `sample_rate` - they will be automatically configured.
 
 ## Custom Ruby Scripts & Applications
 

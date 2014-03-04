@@ -1,9 +1,5 @@
 source 'https://rubygems.org'
 
-# Import dependencies from oboe.gemspec
-gemspec :name => 'oboe'
-
-
 group :development, :test do
   gem 'minitest'
   gem 'minitest-reporters'
@@ -30,4 +26,11 @@ gem 'bson_ext' # For Mongo, Yours Truly
 gem 'moped' unless (RUBY_VERSION =~ /^1.8/) == 0
 gem 'resque'
 gem 'redis'
+
+# Instrumented Frameworks
+gem 'sinatra'
+gem 'padrino' unless (RUBY_VERSION =~ /^1.8/) == 0
+
+# Import dependencies from oboe.gemspec
+gemspec :name => 'oboe'
 

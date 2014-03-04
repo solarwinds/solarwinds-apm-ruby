@@ -12,6 +12,9 @@ module Oboe
       #
       def valid?(xtrace)
         begin
+          # Shouldn't be nil
+          return false unless xtrace
+
           # The X-Trace ID shouldn't be an initialized empty ID
           return false if (xtrace =~ /^1b0000000/i) == 0
 
