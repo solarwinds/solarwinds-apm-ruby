@@ -41,6 +41,7 @@ begin
     require 'oboe/frameworks/rails'   if defined?(::Rails)
     require 'oboe/frameworks/sinatra' if defined?(::Sinatra)
     require 'oboe/frameworks/padrino' if defined?(::Padrino)
+    require 'oboe/frameworks/grape'   if defined?(::Grape)
   end
 rescue Exception => e
   $stderr.puts "[oboe/error] Problem loading: #{e.inspect}"

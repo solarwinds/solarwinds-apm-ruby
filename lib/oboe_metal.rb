@@ -56,7 +56,7 @@ module Oboe_metal
 
         # Only report __Init from here if we are not instrumenting a framework.
         # Otherwise, frameworks will handle reporting __Init after full initialization
-        unless defined?(::Rails) or defined?(::Sinatra) or defined?(::Padrino)
+        unless defined?(::Rails) or defined?(::Sinatra) or defined?(::Padrino) or defined?(::Grape)
           Oboe::API.report_init
         end
 
