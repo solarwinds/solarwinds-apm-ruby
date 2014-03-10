@@ -99,6 +99,38 @@ end
 
 Note: If you're on Heroku, you don't need to set `tracing_mode` or `sample_rate` - they will be automatically configured.
 
+## Grape
+
+You can instrument your Grape application by adding the following code to your `config.ru` Rackup file:
+
+```ruby
+    # If you're not using Bundler.require.  Make sure this is done
+    # after the Grape require directive.
+    require 'oboe'
+    
+    # When traces should be initiated for incoming requests. Valid options are
+    # "always", "through" (when the request is initiated with a tracing header 
+    # from upstream) and "never". You must set this directive to "always" in 
+    # order to initiate tracing.
+    Oboe::Config[:tracing_mode] = 'through'
+    
+    # You can remove the following line in production to allow for
+    # auto sampling or managing the sample rate through the TraceView portal.
+    # Oboe::Config[:sample_rate] = 1000000
+    
+    ...
+
+    class App < Grape::API
+      use Oboe::Rack
+    end
+```
+
+Note: If you're on Heroku, you don't need to set `tracing_mode` or `sample_rate` - they will be automatically configured.
+
+Make sure that the oboe gem is loaded _after_ Grape either by listing `gem 'oboe'` after Grape in your Gemfile or calling the `require 'oboe'` directive after Grape is loaded.
+
+You must explicitly tell your Grape application to use Oboe::Rack for tracing to occur.
+
 ## Custom Ruby Scripts & Applications
 
 The oboe gem has the ability to instrument any arbitrary Ruby application or script as long as the gem is initialized with the manual methods:
