@@ -18,7 +18,6 @@ describe Sinatra do
 
     traces[1]['Layer'].must_equal "sinatra"
     traces[3]['Label'].must_equal "profile_entry"
-    traces[5]['Layer'].must_equal "render"
     traces[6]['Controller'].must_equal "SinatraSimple"
     traces[7]['Label'].must_equal "info"
   end
