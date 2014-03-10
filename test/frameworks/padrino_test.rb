@@ -12,7 +12,6 @@ describe Padrino do
     r = get "/render"
     
     traces = get_all_traces
-    debugger
     traces.count.must_equal 9
 
     validate_outer_layers(traces, 'rack')
