@@ -83,17 +83,19 @@ As long as the oboe gem is in your `Gemfile` (inserted after the `gem 'padrino'`
 If you need to set `Oboe::Config` values on stack boot, you can do so by adding the following
 to your `config/boot.rb` file:
 
-    Padrino.before_load do
-      # When traces should be initiated for incoming requests. Valid options are
-      # "always", "through" (when the request is initiated with a tracing header 
-      # from upstream) and "never". You must set this directive to "always" in 
-      # order to initiate tracing.
-      Oboe::Config[:tracing_mode] = 'always'
+```ruby
+Padrino.before_load do
+  # When traces should be initiated for incoming requests. Valid options are
+  # "always", "through" (when the request is initiated with a tracing header
+  # from upstream) and "never". You must set this directive to "always" in
+  # order to initiate tracing.
+  Oboe::Config[:tracing_mode] = 'always'
 
-      # You can remove the following line in production to allow for
-      # auto sampling or managing the sample rate through the TraceView portal.
-      Oboe::Config[:sample_rate] = 1e6
-    end
+  # You can remove the following line in production to allow for
+  # auto sampling or managing the sample rate through the TraceView portal.
+  Oboe::Config[:sample_rate] = 1e6
+end
+```
 
 Note: If you're on Heroku, you don't need to set `tracing_mode` or `sample_rate` - they will be automatically configured.
 
