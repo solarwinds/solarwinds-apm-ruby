@@ -58,6 +58,14 @@ module OboeBase
     Context.log(layer, label, options = options)
   end
 
+  def heroku?
+    false
+  end
+
+  def forking_webserver?
+    defined?(::Unicorn)
+  end
+
   ##
   # These methods should be implemented by the descendants
   # (Oboe_metal, Oboe_metal (JRuby), Heroku_metal)
