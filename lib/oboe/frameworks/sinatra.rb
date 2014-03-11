@@ -58,6 +58,9 @@ if defined?(::Sinatra)
     # instrumentation won't work anyways.  Only load for pure Sinatra apps.
     ::Oboe::Util.send_include(::Sinatra::Base,      ::Oboe::Sinatra::Base)
     ::Oboe::Util.send_include(::Sinatra::Templates, ::Oboe::Sinatra::Templates)
+      
+    # Report __Init after fork when in Heroku
+    Oboe::API.report_init unless Oboe.heroku?
   end
 end
 

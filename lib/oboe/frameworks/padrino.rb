@@ -57,6 +57,9 @@ if defined?(::Padrino)
     if defined?(::Padrino::Rendering)
       ::Oboe::Util.send_include(::Padrino::Rendering::InstanceMethods, ::Oboe::PadrinoInst::Rendering)
     end
+  
+    # Report __Init after fork when in Heroku
+    Oboe::API.report_init unless Oboe.heroku?
   end
 
 end

@@ -88,5 +88,10 @@ module Oboe
 end
 
 Oboe::Loading.require_api
-Oboe::Reporter.start
+
+# Auto-start the Reporter unless we running Unicorn on Heroku
+# In that case, we start the reporters after fork
+unless defined?(::Unicorn) and ENV.has_key?('TRACEVIEW_URL')
+  Oboe::Reporter.start
+end
 
