@@ -57,6 +57,11 @@ if defined?(::Padrino)
     if defined?(::Padrino::Rendering)
       ::Oboe::Util.send_include(::Padrino::Rendering::InstanceMethods, ::Oboe::PadrinoInst::Rendering)
     end
+  
+    # Report __Init after fork when in Heroku
+    unless Oboe.heroku?
+      Oboe::API.report_init('rack') unless ["development", "test"].include? ENV['RACK_ENV']
+    end
   end
 
 end
