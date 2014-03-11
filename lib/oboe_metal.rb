@@ -57,7 +57,7 @@ module Oboe_metal
         # Only report __Init from here if we are not instrumenting a framework.
         # Otherwise, frameworks will handle reporting __Init after full initialization
         unless defined?(::Rails) or defined?(::Sinatra) or defined?(::Padrino)
-          Oboe::API.report_init('rack') unless ["development", "test"].include? ENV['RACK_ENV']
+          Oboe::API.report_init
         end
 
       rescue Exception => e

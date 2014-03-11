@@ -59,9 +59,7 @@ if defined?(::Padrino)
     end
   
     # Report __Init after fork when in Heroku
-    unless Oboe.heroku?
-      Oboe::API.report_init('rack') unless ["development", "test"].include? ENV['RACK_ENV']
-    end
+    Oboe::API.report_init unless Oboe.heroku?
   end
 
 end

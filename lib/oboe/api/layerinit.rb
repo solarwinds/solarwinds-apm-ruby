@@ -8,7 +8,10 @@ module Oboe
       # installed, as well as the version of instrumentation and version of
       # layer.
       #
-      def report_init(layer)
+      def report_init(layer = 'rack')
+        # Don't send __Init in development or test
+        return if ["development", "test"].include? ENV['RACK_ENV']
+
         platform_info = { '__Init' => 1 }
         
         begin

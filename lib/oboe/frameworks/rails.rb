@@ -113,9 +113,7 @@ if defined?(::Rails)
           Oboe::Rails.load_instrumentation
 
           # Report __Init after fork when in Heroku
-          unless Oboe.heroku?
-            Oboe::API.report_init('rack') unless ["development", "test"].include? ENV['RACK_ENV']
-          end
+          Oboe::API.report_init unless Oboe.heroku?
         end
       end
     end
@@ -134,9 +132,7 @@ if defined?(::Rails)
       Oboe::Rails.include_helpers
       
       # Report __Init after fork when in Heroku
-      unless Oboe.heroku?
-        Oboe::API.report_init('rack') unless ["development", "test"].include? ENV['RACK_ENV']
-      end
+      Oboe::API.report_init unless Oboe.heroku?
     end
   end
 end
