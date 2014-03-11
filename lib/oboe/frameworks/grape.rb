@@ -3,40 +3,50 @@
 
 module Oboe
   module Grape
-    module Middleware
-      module Base
-        def self.included(klass)
-          ::Oboe::Util.method_alias(klass, :call!, ::Grape::Middleware::Base)
-        end
+    module API
+      def self.extended(klass)
+        ::Oboe::Util.class_method_alias(klass, :inherited, ::Grape::API)
+      end
 
-        def call_with_oboe(env)
-          if Oboe.tracing?
-            report_kvs = {}
+      def inherited_with_oboe(subclass)
+        inherited_without_oboe(subclass)
 
-            report_kvs[:Controller] = self.class
-            report_kvs[:Action] = env['PATH_INFO']
+        subclass.use ::Oboe::Rack
+      end
+    end
 
-            # Fall back to the raw tracing API so we can pass KVs
-            # back on exit (a limitation of the Oboe::API.trace
-            # block method) This removes the need for an info
-            # event to send additonal KVs
-            ::Oboe::API.log_entry('grape', {})
+    module Endpoint
+      def self.included(klass)
+        ::Oboe::Util.method_alias(klass, :run, ::Grape::Endpoint)
+      end
 
-            begin
-              puts "Calling without oboe"
-              call_without_oboe(env)
-            ensure
-              ::Oboe::API.log_exit('grape', report_kvs)
-            end
-          else
-            call_without_oboe(env)
+      def run_with_oboe(env)
+        if Oboe.tracing?
+          report_kvs = {}
+
+          report_kvs[:Action] = env['PATH_INFO']
+
+          # Fall back to the raw tracing API so we can pass KVs
+          # back on exit (a limitation of the Oboe::API.trace
+          # block method) This removes the need for an info
+          # event to send additonal KVs
+          ::Oboe::API.log_entry('grape', {})
+
+          begin
+            run_without_oboe(env)
+          ensure
+            ::Oboe::API.log_exit('grape', report_kvs)
           end
+        else
+          run_without_oboe(env)
         end
       end
+    end
     
+    module Middleware
       module Error
         def self.included(klass)
-          ::Oboe::Util.method_alias(klass, :call!, ::Grape::Middleware::Error)
+          ::Oboe::Util.method_alias(klass, :call, ::Grape::Middleware::Error)
         end
 
         def call_with_oboe(boom)
@@ -56,7 +66,8 @@ if defined?(::Grape)
   Oboe::Loading.load_access_key
   Oboe::Inst.load_instrumentation
 
-  ::Oboe::Util.send_include(::Grape::Middleware::Base,  ::Oboe::Grape::Middleware::Base)
+  ::Oboe::Util.send_extend(::Grape::API,               ::Oboe::Grape::API)
+  ::Oboe::Util.send_include(::Grape::Endpoint,          ::Oboe::Grape::Endpoint)
   ::Oboe::Util.send_include(::Grape::Middleware::Error, ::Oboe::Grape::Middleware::Error)
 end
 
