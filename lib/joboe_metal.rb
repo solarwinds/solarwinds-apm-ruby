@@ -1,7 +1,9 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
-module Oboe_metal < MetalBase
+require 'base'
+
+module Oboe_metal
   include_package 'com.tracelytics.joboe'
   import 'com.tracelytics.joboe'
   include_package 'com.tracelytics.joboe.SettingsReader'
