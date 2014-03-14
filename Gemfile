@@ -34,7 +34,6 @@ if RUBY_VERSION >= '1.9.3'
   gem 'padrino', '0.12.0' 
   gem 'grape'
 end
-gem 'padrino' unless (RUBY_VERSION =~ /^1.8/) == 0
 
 # Import dependencies from oboe.gemspec
 gemspec :name => 'oboe'
