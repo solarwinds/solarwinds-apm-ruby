@@ -122,7 +122,7 @@ module Oboe
           event.addInfo(k.to_s, v.to_s) if valid_key? k
         end if !opts.nil? and opts.any?
  
-        Oboe::Reporter.sendReport(event)
+        Oboe::Reporter.sendReport(event) if Oboe.loaded
       end
     end
   end 
