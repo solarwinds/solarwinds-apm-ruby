@@ -12,6 +12,9 @@ module Oboe
         # Don't send __Init in development or test
         return if ["development", "test"].include? ENV['RACK_ENV']
 
+        # Don't send __Init if the c-extension hasn't loaded
+        return unless Oboe.loaded
+
         platform_info = { '__Init' => 1 }
         
         begin

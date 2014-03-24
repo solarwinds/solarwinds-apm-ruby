@@ -63,7 +63,7 @@ module OboeBase
   end
 
   def forking_webserver?
-    defined?(::Unicorn)
+    (defined?(::Unicorn) and ($0 =~ /unicorn/i)) ? true : false
   end
 
   ##

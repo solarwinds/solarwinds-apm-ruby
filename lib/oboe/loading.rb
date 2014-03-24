@@ -91,7 +91,8 @@ Oboe::Loading.require_api
 
 # Auto-start the Reporter unless we running Unicorn on Heroku
 # In that case, we start the reporters after fork
-unless defined?(::Unicorn) and ENV.has_key?('TRACEVIEW_URL')
+unless Oboe.heroku? and Oboe.forking_webserver?
+  Oboe.logger.debug "[oboe/debug] starting Reporter from oboe gem"
   Oboe::Reporter.start
 end
 
