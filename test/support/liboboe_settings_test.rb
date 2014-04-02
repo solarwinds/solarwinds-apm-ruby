@@ -20,8 +20,6 @@ class RackTestApp < Minitest::Test
   end
 
   def test_localset_sample_source
-    Oboe::Config[:tracing_mode] = 'always'
-    Oboe::Config[:sample_rate] = 1e6
     clear_all_traces 
 
     get "/lobster"
@@ -38,7 +36,6 @@ class RackTestApp < Minitest::Test
   end
   
   def test_sample_rate
-    Oboe::Config[:tracing_mode] = 'always'
     Oboe::Config[:sample_rate] = 500000
     clear_all_traces 
 
@@ -48,6 +45,9 @@ class RackTestApp < Minitest::Test
 
     traces = get_all_traces
     traces.count.between?(4, 6).must_equal true
+    
+    # Set sample_rate back to default
+    Oboe::Config[:sample_rate] = 1e6
   end
   
   def test_tracing_mode_never
@@ -60,6 +60,10 @@ class RackTestApp < Minitest::Test
 
     traces = get_all_traces
     traces.count.must_equal 0
+
+    # Set tracing_mode/sample_rate back to defaults
+    Oboe::Config[:tracing_mode] = 'always'
+    Oboe::Config[:sample_rate] = 1e6
   end
   
   def test_tracing_mode_through
@@ -72,6 +76,10 @@ class RackTestApp < Minitest::Test
 
     traces = get_all_traces
     traces.count.must_equal 0
+    
+    # Set tracing_mode/sample_rate back to defaults
+    Oboe::Config[:tracing_mode] = 'always'
+    Oboe::Config[:sample_rate] = 1e6
   end
 end
 
