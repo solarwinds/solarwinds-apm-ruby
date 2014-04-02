@@ -8,7 +8,7 @@ PADRINO_ROOT = File.dirname(__FILE__) unless defined? PADRINO_ROOT
 #
 
 class SimpleDemo < Padrino::Application
-  set :public, File.dirname(__FILE__) + '/public'
+  set :public_dir, File.dirname(__FILE__) + '/public'
   set :reload, true
   before { true }
   after  { true }
