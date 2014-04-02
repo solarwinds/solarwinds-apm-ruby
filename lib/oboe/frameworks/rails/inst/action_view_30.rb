@@ -10,7 +10,7 @@ if defined?(ActionView::Base) and Oboe::Config[:action_view][:enabled]
       def render_partial(object = @object)
         entry_kvs = {}
         begin
-          name  = @options[:partial].to_s if @options.is_a?(Hash)
+          name  = Oboe::Util.prettify(@options[:partial]) if @options.is_a?(Hash)
           entry_kvs[:FunctionName] = :render_partial
           entry_kvs[:Class]        = :PartialRenderer
           entry_kvs[:Module]       = 'ActionView::Partials'
@@ -28,7 +28,7 @@ if defined?(ActionView::Base) and Oboe::Config[:action_view][:enabled]
       def render_collection
         entry_kvs = {}
         begin
-          name  = @path
+          name  = Oboe::Util.prettify(@path)
           entry_kvs[:FunctionName] = :render_collection
           entry_kvs[:Class]        = :PartialRenderer
           entry_kvs[:Module]       = 'ActionView::Partials'
