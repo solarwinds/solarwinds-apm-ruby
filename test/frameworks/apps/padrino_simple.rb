@@ -8,6 +8,7 @@ PADRINO_ROOT = File.dirname(__FILE__) unless defined? PADRINO_ROOT
 #
 
 class SimpleDemo < Padrino::Application
+  register Padrino::Helpers
   set :reload, true
   before { true }
   after  { true }
@@ -37,3 +38,4 @@ end
 #
 
 Padrino.load!
+
