@@ -78,22 +78,25 @@ module Oboe
 
   class << self
     def sample?(opts = {})
-      # Assure defaults since SWIG enforces Strings
-      opts[:layer]      ||= ''
-      opts[:xtrace]     ||= ''
-      opts['X-TV-Meta'] ||= ''
+      begin
+        # Assure defaults since SWIG enforces Strings
+        layer   = opts[:layer]      ? opts[:layer].strip      : ''
+        xtrace  = opts[:xtrace]     ? opts[:xtrace].strip     : ''
+        tv_meta = opts['X-TV-Meta'] ? opts['X-TV-Meta'].strip : ''
 
-      rv = Oboe::Context.sampleRequest(opts[:layer], opts[:xtrace], opts['X-TV-Meta'])
+        rv = Oboe::Context.sampleRequest(layer, xtrace, tv_meta)
 
-      # For older liboboe that returns true/false, just return that.
-      return rv if [TrueClass, FalseClass].include?(rv.class) or (rv == 0)
+        # For older liboboe that returns true/false, just return that.
+        return rv if [TrueClass, FalseClass].include?(rv.class) or (rv == 0)
 
-      # liboboe version > 1.3.1 returning a bit masked integer with SampleRate and
-      # source embedded
-      Oboe.sample_rate = (rv & SAMPLE_RATE_MASK)
-      Oboe.sample_source = (rv & SAMPLE_SOURCE_MASK) >> 24
-
-      rv
+        # liboboe version > 1.3.1 returning a bit masked integer with SampleRate and
+        # source embedded
+        Oboe.sample_rate = (rv & SAMPLE_RATE_MASK)
+        Oboe.sample_source = (rv & SAMPLE_SOURCE_MASK) >> 24
+      rescue StandardError => e
+        Oboe.logger.debug "[oboe/error] sample? error: #{e.inspect}"
+        false
+      end
     end
 
     def set_tracing_mode(mode)

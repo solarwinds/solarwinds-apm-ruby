@@ -35,8 +35,8 @@ module OboeMethodProfiling
         code = "def _oboe_profiled_#{method_name}(*args, &block)
                   entry_kvs                  = {}
                   entry_kvs['Language']      = 'ruby'
-                  entry_kvs['ProfileName']   = '#{profile_name}'
-                  entry_kvs['FunctionName']  = '#{method_name}'
+                  entry_kvs['ProfileName']   = '#{Oboe::Util.prettify(profile_name)}'
+                  entry_kvs['FunctionName']  = '#{Oboe::Util.prettify(method_name)}'
                   entry_kvs['File']          = '#{file}'
                   entry_kvs['LineNumber']    = '#{line}'
                   entry_kvs['Args']          = Oboe::API.pps(*args) if #{store_args}
@@ -48,7 +48,7 @@ module OboeMethodProfiling
 
                   exit_kvs =  {}
                   exit_kvs['Language'] = 'ruby'
-                  exit_kvs['ProfileName'] = '#{profile_name}'
+                  exit_kvs['ProfileName'] = '#{Oboe::Util.prettify(profile_name)}'
                   exit_kvs['ReturnValue'] = Oboe::API.pps(ret) if #{store_return}
 
                   Oboe::Context.log(nil, 'profile_exit', exit_kvs)
