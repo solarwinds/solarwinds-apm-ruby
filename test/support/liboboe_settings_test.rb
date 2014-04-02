@@ -3,6 +3,9 @@ require 'rack/test'
 require 'rack/lobster'
 require 'oboe/inst/rack'
 
+Oboe::Config[:tracing_mode] = 'always'
+Oboe::Config[:sample_rate] = 1e6
+    
 class RackTestApp < Minitest::Test
   include Rack::Test::Methods
 
@@ -15,7 +18,6 @@ class RackTestApp < Minitest::Test
         use Rack::Lint
         run Rack::Lobster.new
       end
-      run lambda { |env| [200, {'Content-Type' => 'text/plain'}, ['OK']] }
     }
   end
 
@@ -33,53 +35,7 @@ class RackTestApp < Minitest::Test
     kvs["SampleRate"] = "1000000"
     kvs["SampleSource"] = OBOE_SAMPLE_RATE_SOURCE_FILE.to_s
     validate_event_keys(traces[1], kvs)
-  end
-  
-  def test_sample_rate
-    Oboe::Config[:sample_rate] = 500000
-    clear_all_traces 
 
-    10.times do
-      get "/"
-    end
-
-    traces = get_all_traces
-    traces.count.between?(4, 6).must_equal true
-    
-    # Set sample_rate back to default
-    Oboe::Config[:sample_rate] = 1e6
-  end
-  
-  def test_tracing_mode_never
-    Oboe::Config[:tracing_mode] = 'never'
-    clear_all_traces 
-
-    10.times do
-      get "/"
-    end
-
-    traces = get_all_traces
-    traces.count.must_equal 0
-
-    # Set tracing_mode/sample_rate back to defaults
-    Oboe::Config[:tracing_mode] = 'always'
-    Oboe::Config[:sample_rate] = 1e6
-  end
-  
-  def test_tracing_mode_through
-    Oboe::Config[:tracing_mode] = 'through'
-    clear_all_traces 
-
-    10.times do
-      get "/"
-    end
-
-    traces = get_all_traces
-    traces.count.must_equal 0
-    
-    # Set tracing_mode/sample_rate back to defaults
-    Oboe::Config[:tracing_mode] = 'always'
-    Oboe::Config[:sample_rate] = 1e6
   end
 end
 
