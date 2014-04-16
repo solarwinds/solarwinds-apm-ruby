@@ -12,6 +12,13 @@ else
   jruby = false
 end
 
+# When on OpenShift, set LD_LIBRARY_PATH so we have no issues linking to
+# the TraceView libs.
+if ENV.has_key?('OPENSHIFT_TRACEVIEW_DIR')
+  tv_paths = "#{ENV['OPENSHIFT_TRACEVIEW_DIR']}/usr/lib64:#{ENV['OPENSHIFT_TRACEVIEW_DIR']}/usr/lib64/tracelyzer"
+  ENV['LD_LIBRARY_PATH'] = "#{ENV['LD_LIBRARY_PATH']}:#{tv_paths}"
+end
+
 dir_config('oboe')
 
 if jruby or ENV.has_key?('TRACEVIEW_URL') 
