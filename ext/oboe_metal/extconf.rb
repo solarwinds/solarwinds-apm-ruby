@@ -12,11 +12,16 @@ else
   jruby = false
 end
 
+openshift = ENV.has_key?('OPENSHIFT_TRACEVIEW_DIR')
+
 # When on OpenShift, set the mkmf lib paths so we have no issues linking to
 # the TraceView libs.
-if ENV.has_key?('OPENSHIFT_TRACEVIEW_DIR')
+if openshift
+  tv_lib64 = "#{ENV['OPENSHIFT_TRACEVIEW_DIR']}usr/lib64"
+  tv_tlyzer = "#{ENV['OPENSHIFT_TRACEVIEW_DIR']}usr/lib64/tracelyzer"
+
   idefault = "#{ENV['OPENSHIFT_TRACEVIEW_DIR']}usr/include"
-  ldefault = "#{ENV['OPENSHIFT_TRACEVIEW_DIR']}usr/lib64:#{ENV['OPENSHIFT_TRACEVIEW_DIR']}usr/lib64/tracelyzer"
+  ldefault = "#{tv_lib64}:#{tv_tlyzer}"
 
   dir_config('oboe', idefault, ldefault)
 else
@@ -38,6 +43,11 @@ elsif have_library('oboe', 'oboe_config_get_revision', 'oboe/oboe.h')
   $CFLAGS << " #{ENV["CFLAGS"]}"
   $CPPFLAGS << " #{ENV["CPPFLAGS"]}"
   $LIBS << " #{ENV["LIBS"]}"
+
+  # On OpenShift user rpath to point out the TraceView libraries
+  if openshift
+    $LDFLAGS << " #{ENV["LDFLAGS"]} -Wl,-rpath=#{tv_lib64},--rpath=#{tv_tlyzer}"
+  end
 
   if RUBY_VERSION < '1.9'
     cpp_command('g++') 
