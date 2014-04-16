@@ -12,14 +12,16 @@ else
   jruby = false
 end
 
-# When on OpenShift, set LD_LIBRARY_PATH so we have no issues linking to
+# When on OpenShift, set the mkmf lib paths so we have no issues linking to
 # the TraceView libs.
 if ENV.has_key?('OPENSHIFT_TRACEVIEW_DIR')
-  tv_paths = "#{ENV['OPENSHIFT_TRACEVIEW_DIR']}/usr/lib64:#{ENV['OPENSHIFT_TRACEVIEW_DIR']}/usr/lib64/tracelyzer"
-  ENV['LD_LIBRARY_PATH'] = "#{ENV['LD_LIBRARY_PATH']}:#{tv_paths}"
-end
+  idefault = "#{ENV['OPENSHIFT_TRACEVIEW_DIR']}usr/include"
+  ldefault = "#{ENV['OPENSHIFT_TRACEVIEW_DIR']}usr/lib64:#{ENV['OPENSHIFT_TRACEVIEW_DIR']}usr/lib64/tracelyzer"
 
-dir_config('oboe')
+  dir_config('oboe', idefault, ldefault)
+else
+  dir_config('oboe')
+end
 
 if jruby or ENV.has_key?('TRACEVIEW_URL') 
   # Build the noop extension under JRuby and Heroku.
