@@ -65,9 +65,18 @@ module Oboe
       # avoid collecting and reporting query literals to TraceView.
       @@config[:sanitize_sql] = false
 
-      # The default configuration
-      @@config[:tracing_mode] = "through"
-      @@config[:reporter_host] = "127.0.0.1"
+      if ENV.has_key?('OPENSHIFT_TRACEVIEW_TLYZER_IP')
+        # We're running on OpenShift
+        @@config[:tracing_mode] = "always"
+        @@config[:reporter_host] = ENV['OPENSHIFT_TRACEVIEW_TLYZER_IP']
+        @@config[:reporter_port] = ENV['OPENSHIFT_TRACEVIEW_TLYZER_PORT']
+      else
+        # The default configuration
+        @@config[:tracing_mode] = "through"
+        @@config[:reporter_host] = "127.0.0.1"
+        @@config[:reporter_port] = "7831"
+      end
+        
       @@config[:verbose] = false
     end
 
