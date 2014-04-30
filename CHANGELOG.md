@@ -1,3 +1,15 @@
+# oboe 2.6.4.1 (04/30/14)
+
+This patch release adds detection and support for Redhat [OpenShift](https://www.openshift.com/).  See our OpenShift [TraceView cartridge](https://github.com/appneta/openshift-cartridge-traceview) for base libraries before using this gem on OpenShift.
+
+# oboe 2.6.3.0 (04/07/14)
+
+This patch releases fixes a number of smaller issues:
+
+* the gem will no longer start traces on static assets (https://github.com/appneta/oboe-ruby/pull/31)
+* fix occasionally broken `profile_name` values when using [custom method tracing](https://github.com/appneta/oboe-ruby#tracing-methods)
+* fix for incorrectly starting traces when in `through` tracing mode under certain circumstances
+* Expand the test suite to validate sample rates and tracing modes (https://github.com/appneta/oboe-ruby/pull/8)
 
 # oboe 2.6.2.0 (03/24/14)
 
