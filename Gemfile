@@ -29,7 +29,10 @@ gem 'redis'
 
 # Instrumented Frameworks
 gem 'sinatra'
-gem 'padrino', '0.12.0' unless (RUBY_VERSION =~ /^1.8/) == 0
+
+unless (RUBY_VERSION =~ /^1.8/) == 0 or (RUBY_VERSION =~ /^1.9.2/) == 0
+  gem 'padrino', '0.12.0' 
+end
 
 # Import dependencies from oboe.gemspec
 gemspec :name => 'oboe'
