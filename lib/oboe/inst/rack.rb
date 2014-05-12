@@ -36,6 +36,7 @@ module Oboe
         report_kvs['Forwarded-Proto']   = env['HTTP_X_FORWARDED_PROTO']  if env.key?('HTTP_X_FORWARDED_PROTO')
         report_kvs['Forwarded-Port']    = env['HTTP_X_FORWARDED_PORT']   if env.key?('HTTP_X_FORWARDED_PORT')
 
+        report_kvs['ProcessID'] = Process.pid
         report_kvs['Ruby.Oboe.Version'] = ::Oboe::Version::STRING
       rescue StandardError => e
         # Discard any potential exceptions. Debug log and report whatever we can.
