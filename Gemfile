@@ -19,18 +19,18 @@ end
 # Instrumented gems
 gem 'dalli'
 gem 'memcache-client'
-gem 'memcached' if (RUBY_VERSION =~ /^1./) == 0
+gem 'memcached' if RUBY_VERSION < '2.0.0'
 gem 'cassandra'
 gem 'mongo'
 gem 'bson_ext' # For Mongo, Yours Truly
-gem 'moped' unless (RUBY_VERSION =~ /^1.8/) == 0
+gem 'moped' if RUBY_VERSION >= '1.9'
 gem 'resque'
 gem 'redis'
 
 # Instrumented Frameworks
 gem 'sinatra'
 
-unless (RUBY_VERSION =~ /^1.8/) == 0 or (RUBY_VERSION =~ /^1.9.2/) == 0
+if RUBY_VERSION >= '1.9.3'
   gem 'padrino', '0.12.0' 
 end
 
