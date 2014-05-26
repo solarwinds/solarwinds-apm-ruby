@@ -9,7 +9,9 @@ module Oboe
       end
 
       def render_with_oboe(engine, data=nil, options={}, locals={}, &block)
-        if Oboe.tracing?
+        unless Oboe.tracing?
+          render_without_oboe(engine, data, options, locals, &block)
+        else
           report_kvs = {}
 
           if data
