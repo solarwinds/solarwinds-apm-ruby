@@ -1,12 +1,15 @@
 PATH
   remote: .
   specs:
-    oboe (2.6.4.1)
-      json
+    oboe (2.6.5)
+      json (~> 0)
 
 GEM
   remote: https://rubygems.org/
   specs:
+    activesupport (3.2.18)
+      i18n (~> 0.6, >= 0.6.4)
+      multi_json (~> 1.0)
     ansi (1.4.3)
     appraisal (1.0.0)
       bundler
@@ -29,25 +32,65 @@ GEM
     columnize (0.8.9)
     dalli (2.7.1)
     debugger-linecache (1.2.0)
-    json (1.8.1)
+    http_router (0.11.1)
+      rack (>= 1.0.0)
+      url_mount (~> 0.2.1)
+    i18n (0.6.9)
+    json (0.4.3)
     linecache (0.46)
       rbx-require-relative (> 0.0.4)
     linecache19 (0.5.12)
       ruby_core_source (>= 0.1.4)
+    mail (2.5.4)
+      mime-types (~> 1.16)
+      treetop (~> 1.4.8)
     memcache-client (1.8.5)
-    memcached (1.8.0)
     method_source (0.8.2)
+    mime-types (1.25.1)
     minitest (5.3.3)
     minitest-reporters (1.0.4)
       ansi
       builder
       minitest (>= 5.0)
       ruby-progressbar
+    moneta (0.7.20)
     mongo (1.10.0)
       bson (~> 1.10.0)
     mono_logger (1.1.0)
+    moped (1.5.2)
     multi_json (1.10.0)
+    padrino (0.12.0)
+      padrino-admin (= 0.12.0)
+      padrino-cache (= 0.12.0)
+      padrino-core (= 0.12.0)
+      padrino-gen (= 0.12.0)
+      padrino-helpers (= 0.12.0)
+      padrino-mailer (= 0.12.0)
+    padrino-admin (0.12.0)
+      padrino-core (= 0.12.0)
+      padrino-helpers (= 0.12.0)
+    padrino-cache (0.12.0)
+      moneta (~> 0.7.0)
+      padrino-core (= 0.12.0)
+      padrino-helpers (= 0.12.0)
+    padrino-core (0.12.0)
+      activesupport (>= 3.1)
+      http_router (~> 0.11.0)
+      rack-protection (>= 1.5.0)
+      sinatra (~> 1.4.2)
+      thor (~> 0.17.0)
+      tilt (~> 1.4.1)
+    padrino-gen (0.12.0)
+      bundler (~> 1.0)
+      padrino-core (= 0.12.0)
+    padrino-helpers (0.12.0)
+      i18n (~> 0.6, >= 0.6.7)
+      padrino-core (= 0.12.0)
+    padrino-mailer (0.12.0)
+      mail (~> 2.5.3)
+      padrino-core (= 0.12.0)
     perftools.rb (2.0.1)
+    polyglot (0.3.4)
     pry (0.9.12.6)
       coderay (~> 1.0)
       method_source (~> 0.8)
@@ -57,7 +100,7 @@ GEM
       rack
     rack-test (0.6.2)
       rack (>= 1.0)
-    rake (10.3.1)
+    rake (0.9.6)
     rbx-require-relative (0.0.9)
     redis (3.0.7)
     redis-namespace (1.4.1)
@@ -95,6 +138,11 @@ GEM
     thrift_client (0.8.4)
       thrift (~> 0.8.0)
     tilt (1.4.1)
+    treetop (1.4.15)
+      polyglot
+      polyglot (>= 0.3.1)
+    url_mount (0.2.1)
+      rack
     vegas (0.1.11)
       rack (>= 1.0.0)
 
@@ -109,15 +157,16 @@ DEPENDENCIES
   cassandra
   dalli
   memcache-client
-  memcached
   minitest
   minitest-reporters
   mongo
+  moped
   oboe!
+  padrino (= 0.12.0)
   perftools.rb
   pry
   rack-test
-  rake
+  rake (~> 0)
   redis
   resque
   ruby-debug
