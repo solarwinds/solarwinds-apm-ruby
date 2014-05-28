@@ -34,7 +34,7 @@ class RackTestApp < Minitest::Test
     kvs = {} 
     kvs["SampleRate"] = "1000000"
     kvs["SampleSource"] = OBOE_SAMPLE_RATE_SOURCE_FILE.to_s
-    validate_event_keys(traces[1], kvs)
+    validate_event_keys(traces[0], kvs)
 
   end
 end

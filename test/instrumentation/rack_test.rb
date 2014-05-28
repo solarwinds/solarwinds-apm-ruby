@@ -30,13 +30,13 @@ class RackTestApp < Minitest::Test
 
     kvs = {} 
     kvs["Label"] = "entry"
+    kvs["SampleRate"] = "1000000"
+    kvs["SampleSource"] = "1"
     validate_event_keys(traces[0], kvs)
 
     kvs.clear
     kvs["Label"] = "info"
     kvs["Status"] = "200"
-    kvs["SampleRate"] = "1000000"
-    kvs["SampleSource"] = "1"
     kvs["HTTP-Host"] = "example.org"
     kvs["Port"] = "80"
     kvs["Proto"] = "http"
