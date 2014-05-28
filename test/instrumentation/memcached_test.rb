@@ -1,6 +1,6 @@
 require 'minitest_helper'
 
-if (RUBY_VERSION =~ /^1./) == 0
+if RUBY_VERSION < '2.0'
   describe Oboe::Inst::Memcached do
     require 'memcached'
     require 'memcached/rails'

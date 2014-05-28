@@ -39,9 +39,17 @@ if defined?(::Mongo) and Oboe::Config[:mongo][:enabled]
               report_kvs[:Flavor] = Oboe::Inst::Mongo::FLAVOR
 
               report_kvs[:Database] = @name
-              report_kvs[:RemoteHost] = @connection.host
-              report_kvs[:RemotePort] = @connection.port
-              
+
+              # Mongo >= 1.10 uses @client instead of @connection
+              # Avoid the nil
+              if @connection
+                report_kvs[:RemoteHost] = @connection.host
+                report_kvs[:RemotePort] = @connection.port
+              elsif @client
+                report_kvs[:RemoteHost] = @client.host
+                report_kvs[:RemotePort] = @client.port
+              end
+
               report_kvs[:QueryOp] = m 
 
               report_kvs[:New_Collection_Name] = args[0] if m == :create_collection
