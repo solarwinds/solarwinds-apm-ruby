@@ -22,5 +22,7 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency('json', '>= 0')
   s.add_development_dependency('rake', '>= 0')
+
+  s.required_ruby_version = '>= 1.8.6'
 end
 
