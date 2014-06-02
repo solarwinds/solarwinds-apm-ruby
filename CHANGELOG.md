@@ -1,3 +1,7 @@
+# oboe 2.6.5.5 (06/02/14)
+
+This patch release improves [instrumentation for Mongo](https://github.com/appneta/oboe-ruby/pull/48) version >= 1.10 and fixes TraceView [sample rate reporting](https://github.com/appneta/oboe-ruby/pull/50).
+
 # oboe 2.6.4.1 (04/30/14)
 
 This patch release adds detection and support for Redhat [OpenShift](https://www.openshift.com/).  See our OpenShift [TraceView cartridge](https://github.com/appneta/openshift-cartridge-traceview) for base libraries before using this gem on OpenShift.
