@@ -19,13 +19,16 @@ end
 # Instrumented gems
 gem 'dalli'
 gem 'memcache-client'
-gem 'memcached', '1.7.2' if RUBY_VERSION < '2.0.0'
 gem 'cassandra'
 gem 'mongo'
-gem 'bson_ext' # For Mongo, Yours Truly
 gem 'moped' if RUBY_VERSION >= '1.9'
 gem 'resque'
 gem 'redis'
+
+unless defined?(JRUBY_VERSION)
+  gem 'memcached', '1.7.2' if RUBY_VERSION < '2.0.0'
+  gem 'bson_ext' # For Mongo, Yours Truly
+end
 
 # Instrumented Frameworks
 gem 'sinatra'
