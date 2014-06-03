@@ -12,8 +12,8 @@ begin
   unless defined?(Oboe_metal)
     begin
       if RUBY_PLATFORM == 'java'
-        require 'joboe_metal'
         require '/usr/local/tracelytics/tracelyticsagent.jar'
+        require 'joboe_metal'
       else
         require 'oboe_metal'
         require 'oboe_metal.so'
