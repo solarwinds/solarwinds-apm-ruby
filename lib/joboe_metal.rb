@@ -5,13 +5,9 @@ require 'base'
 
 module Oboe_metal
   include_package 'com.tracelytics.joboe'
-  import 'com.tracelytics.joboe'
-  include_package 'com.tracelytics.joboe.SettingsReader'
-  import 'com.tracelytics.joboe.SettingsReader'
-  include_package 'com.tracelytics.joboe.Context'
-  import 'com.tracelytics.joboe.Context'
-  include_package 'com.tracelytics.joboe.Event'
-  import 'com.tracelytics.joboe.Event'
+  java_import 'com.tracelytics.joboe.SettingsReader'
+  java_import 'com.tracelytics.joboe.Context'
+  java_import 'com.tracelytics.joboe.Event'
 
   class Context
     class << self
@@ -59,10 +55,6 @@ module Oboe_metal
     end
   end
 
-  def UdpReporter
-    Java::ComTracelyticsJoboe
-  end
-  
   module Metadata
     Java::ComTracelyticsJoboeMetaData
   end
@@ -75,12 +67,12 @@ module Oboe_metal
       begin
         return unless Oboe.loaded
 
-        Oboe_metal::Context.init() 
+        #Oboe_metal::Context.init() 
 
         if ENV['RACK_ENV'] == "test"
           Oboe.reporter = Oboe::FileReporter.new("/tmp/trace_output.bson")
         else
-          Oboe.reporter = Oboe::UdpReporter.new(Oboe::Config[:reporter_host])
+          Oboe.reporter = Java::ComTracelyticsJoboe::UDPReporter.new(Oboe::Config[:reporter_host], Oboe::Config[:reporter_port].to_i)
         end
 
         # Only report __Init from here if we are not instrumenting a framework.
@@ -125,3 +117,4 @@ module Oboe
 end
 
 Oboe.loaded = true
+
