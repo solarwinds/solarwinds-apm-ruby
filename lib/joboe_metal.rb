@@ -5,6 +5,7 @@ require 'base'
 
 module Oboe_metal
   include_package 'com.tracelytics.joboe'
+  java_import 'com.tracelytics.joboe.LayerUtil'
   java_import 'com.tracelytics.joboe.SettingsReader'
   java_import 'com.tracelytics.joboe.Context'
   java_import 'com.tracelytics.joboe.Event'
@@ -103,7 +104,10 @@ module Oboe
       opts[:layer]      ||= ''
       opts[:xtrace]     ||= ''
       opts['X-TV-Meta']   ||= ''
-      Java::ComTracelyticsJoboeSettingsReader.shouldTraceRequest(opts[:layer], opts[:xtrace], opts['X-TV-Meta'])
+
+      Java::ComTracelyticsJoboe::LayerUtil.shouldTraceRequest( opts[:layer], 
+                                                               { 'X-Trace'   => opts[:xtrace],
+                                                                 'X-TV-Meta' => opts['X-TV-Meta'] } )
     end
     
     def set_tracing_mode(mode)
