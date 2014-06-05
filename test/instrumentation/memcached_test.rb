@@ -1,6 +1,6 @@
 require 'minitest_helper'
 
-if RUBY_VERSION < '2.0' and not defined?(JRUBY_VERSION)
+if false and RUBY_VERSION < '2.0' and not defined?(JRUBY_VERSION)
   describe Oboe::Inst::Memcached do
     require 'memcached'
     require 'memcached/rails'
