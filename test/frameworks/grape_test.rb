@@ -1,4 +1,4 @@
-unless (RUBY_VERSION =~ /^1.8/) == 0
+if RUBY_VERSION >= '1.9.3'
   require 'minitest_helper'
   require File.expand_path(File.dirname(__FILE__) + '/apps/grape_simple')
 
