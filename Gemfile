@@ -32,6 +32,7 @@ gem 'sinatra'
 
 if RUBY_VERSION >= '1.9.3'
   gem 'padrino', '0.12.0' 
+  gem 'grape'
 end
 
 # Import dependencies from oboe.gemspec
