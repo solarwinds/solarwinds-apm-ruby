@@ -176,7 +176,7 @@ if defined?(::Mongo) and Oboe::Config[:mongo][:enabled]
         
         # Instrument Collection query operations
         Oboe::Inst::Mongo::COLL_QUERY_OPS.reject { |m| not method_defined?(m) }.each do |m|
-          define_method("#{m}_with_oboe") do |*args|
+          define_method("#{m}_with_oboe") do |*args, &blk|
             begin
               report_kvs = oboe_collect(m, args)
               args_length = args.length
@@ -204,7 +204,7 @@ if defined?(::Mongo) and Oboe::Config[:mongo][:enabled]
             end
 
             Oboe::API.trace('mongo', report_kvs) do
-              send("#{m}_without_oboe", *args)
+              send("#{m}_without_oboe", *args, &blk)
             end
           end
 
