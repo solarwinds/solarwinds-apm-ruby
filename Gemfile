@@ -11,7 +11,7 @@ end
 group :development do
   gem 'ruby-debug',   :platform => :mri_18
   gem 'ruby-debug19', :platform => :mri_19, :require => 'ruby-debug'
-  gem 'byebug',       :platform => :mri_20 
+  gem 'byebug',       :platforms => [ :mri_20, :mri_21 ]
   gem 'perftools.rb', :platform => :mri,    :require => 'perftools'
   gem 'pry'
 end
