@@ -36,7 +36,7 @@ task :compile do
   else
     Dir.chdir pwd
     puts "!! Extension failed to build (see above).  Are the base TraceView packages installed?"
-    puts "!! See https://support.tv.appneta.com/support/solutions/articles/86359"
+    puts "!! See https://support.appneta.com/cloud/installing-traceview"
   end
 end
 
@@ -47,10 +47,10 @@ task :clean do
   lib_dir = File.expand_path('lib')
   symlink = File.expand_path('lib/oboe_metal.so')
   so_file = File.expand_path('ext/oboe_metal/oboe_metal.so')
-  
+
   Dir.chdir ext_dir
   sh '/usr/bin/env make clean'
-  
+
   Dir.chdir pwd
 end
 
@@ -62,7 +62,7 @@ task :distclean do
   symlink = File.expand_path('lib/oboe_metal.so')
   so_file = File.expand_path('ext/oboe_metal/oboe_metal.so')
   mkmf_log = File.expand_path('ext/oboe_metal/mkmf.log')
-  
+
   if File.exists? mkmf_log
     Dir.chdir ext_dir
     File.delete symlink if File.exist? symlink

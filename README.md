@@ -5,7 +5,7 @@ The oboe gem provides AppNeta [TraceView](http://www.appneta.com/application-per
 
 ![Ruby TraceView](https://s3.amazonaws.com/pglombardo/oboe-ruby-header.png)
 
-It has the ability to report performance metrics on an array of libraries, databases and frameworks such as Rails, Mongo, Memcache, ActiveRecord, Cassandra, Rack, Resque [and more](https://support.tv.appneta.com/support/solutions/articles/86388-ruby-instrumentation-support-matrix).
+It has the ability to report performance metrics on an array of libraries, databases and frameworks such as Rails, Mongo, Memcache, ActiveRecord, Cassandra, Rack, Resque [and more](https://support.appneta.com/cloud/ruby-instrumentation-release-notes)
 
 It requires a [TraceView](http://www.appneta.com/products/traceview/) account to view metrics.  Get yours, [it's free](http://www.appneta.com/products/traceview-free-account/).
 
@@ -37,7 +37,7 @@ No special steps are needed to instrument Ruby on Rails.  Once part of the bundl
 
 ### The Install Generator
 
-The oboe gem provides a Rails generator used to seed an oboe initializer where you can configure and control `tracing_mode`, `sample_rate` and [other options](https://support.tv.appneta.com/support/solutions/articles/86392-configuring-the-ruby-instrumentation).
+The oboe gem provides a Rails generator used to seed an oboe initializer where you can configure and control `tracing_mode`, `sample_rate` and [other options](https://support.appneta.com/cloud/configuring-ruby-instrumentation)
 
 To run the install generator run:
 
@@ -156,7 +156,7 @@ From here, you can use the Tracing API to instrument areas of code using `Oboe::
 
 ## Other
 
-You can send deploy notifications to TraceView and have the events show up on your dashboard.  See: [Capistrano Deploy Notifications with tlog](https://support.tv.appneta.com/support/solutions/articles/86389-capistrano-deploy-notifications-with-tlog).
+You can send deploy notifications to TraceView and have the events show up on your dashboard.  See: [Capistrano Deploy Notifications with tlog](https://support.appneta.com/cloud/capistrano-deploy-notifications-tlog)
 
 # Custom Tracing
 
@@ -211,11 +211,11 @@ class Engine
 end
 ```
 
-This example demonstrates method profiling of instance methods.  Class methods are profiled slightly differently.  See the TraceView [documentation portal](https://support.tv.appneta.com/support/solutions/articles/86395-ruby-instrumentation-public-api) for full details.
+This example demonstrates method profiling of instance methods.  Class methods are profiled slightly differently.  See the TraceView [documentation portal](https://support.appneta.com/cloud/ruby-custom) for full details.
 
 # Support
 
-If you find a bug or would like to request an enhancement, feel free to file an issue.  For all other support requests, see our [support portal](https://support.tv.appneta.com/) or on IRC @ #appneta on [Freenode](http://freenode.net/).
+If you find a bug or would like to request an enhancement, feel free to file an issue.  For all other support requests, see our [support portal](https://support.appneta.com/cloud) or on IRC @ #appneta on [Freenode](http://freenode.net/).
 
 # Contributing
 
@@ -357,7 +357,7 @@ ii  liboboe-dev    1.1.1-precise1    Tracelytics common library -- development f
 ii  liboboe0       1.1.1-precise1    Tracelytics common library
 ```
 
-See [Installing Base Packages on Debian and Ubuntu](https://support.tv.appneta.com/support/solutions/articles/86359-installing-base-packages-on-debian-and-ubuntu) in the Knowledge Base for details.  Our hacker extraordinaire [Rob Salmond](https://github.com/rsalmond) from the support team has even gotten these packages to [run on Gentoo](http://www.appneta.com/blog/unsupported-doesnt-work/)!
+See [Installing Base Packages on Debian and Ubuntu](https://support.appneta.com/cloud/installing-traceview) in the Knowledge Base for details.  Our hacker extraordinaire [Rob Salmond](https://github.com/rsalmond) from the support team has even gotten these packages to [run on Gentoo](http://www.appneta.com/blog/unsupported-doesnt-work/)!
 
 To see the code related to the C extension, take a look at `ext/oboe_metal/extconf.rb` for details.
 

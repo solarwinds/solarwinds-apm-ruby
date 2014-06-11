@@ -6,7 +6,7 @@ begin
   require 'oboe/logger'
   require 'oboe/util'
   require 'oboe/xtrace'
-  
+
   # If Oboe_metal is already defined then we are in a PaaS environment
   # with an alternate metal (such as Heroku: see the oboe-heroku gem)
   unless defined?(Oboe_metal)
@@ -24,12 +24,12 @@ begin
       unless ENV['RAILS_GROUP'] == 'assets'
         $stderr.puts "=============================================================="
         $stderr.puts "Missing TraceView libraries.  Tracing disabled."
-        $stderr.puts "See: https://support.tv.appneta.com/solution/articles/137973" 
+        $stderr.puts "See: https://support.tv.appneta.com/solution/articles/137973"
         $stderr.puts "=============================================================="
       end
     end
   end
- 
+
   require 'oboe/config'
   require 'oboe/loading'
   require 'method_profiling'

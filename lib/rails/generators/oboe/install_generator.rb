@@ -22,7 +22,7 @@ module Oboe
 
         break if user_tracing_mode.blank?
         valid = ['always', 'through', 'never'].include?(user_tracing_mode)
-        
+
         say shell.set_color "Valid values are 'always', 'through' or 'never'", :red, :bold unless valid
         if valid
           @tracing_mode = user_tracing_mode
@@ -47,10 +47,10 @@ module Oboe
         say "-------------------"
         say ""
         say "Details on configuring your sample rate:"
-        say "http://support.tv.appneta.com/support/solutions/articles/86336-configuring-sampling"
+        say "https://support.appneta.com/cloud/configuring-sampling"
         say ""
         say "More information on instrumenting Ruby applications can be found here:"
-        say "http://support.tv.appneta.com/support/solutions/articles/86393-instrumenting-ruby-apps"
+        say "https://support.appneta.com/cloud/installing-ruby-instrumentation"
       end
 
       def print_body
