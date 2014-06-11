@@ -24,6 +24,7 @@ module Oboe
         if Oboe.tracing?
           report_kvs = {}
 
+          report_kvs[:Controller] = self.class
           report_kvs[:Action] = env['PATH_INFO']
 
           # Fall back to the raw tracing API so we can pass KVs
@@ -42,7 +43,7 @@ module Oboe
         end
       end
     end
-    
+
     module Middleware
       module Error
         def self.included(klass)
