@@ -94,6 +94,8 @@ if RUBY_VERSION < '2.0'
     end
 
     it "should trace add for existing key" do
+      @mc.set('testKey', 'x', 1200)
+
       Oboe::API.start_trace('memcached_test', '', {}) do
         @mc.add('testKey', 'x', 1200)
       end
