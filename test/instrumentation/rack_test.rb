@@ -30,7 +30,6 @@ class RackTestApp < Minitest::Test
 
     kvs = {}
     kvs["Label"] = "entry"
-    kvs["SampleSource"] = "1"
     validate_event_keys(traces[0], kvs)
 
     kvs.clear
@@ -45,6 +44,7 @@ class RackTestApp < Minitest::Test
     validate_event_keys(traces[1], kvs)
 
     assert traces[0].has_key?('SampleRate')
+    assert traces[0].has_key?('SampleSource')
 
     assert last_response.ok?
     assert last_response['X-Trace']
