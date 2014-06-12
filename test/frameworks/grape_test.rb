@@ -19,6 +19,8 @@ if RUBY_VERSION >= '1.9.3'
 
       traces[1]['Layer'].must_equal "grape"
       traces[2]['Layer'].must_equal "grape"
+      traces[2].has_key?('Controller').must_equal true
+      traces[2].has_key?('Action').must_equal true
       traces[3]['Label'].must_equal "info"
     end
   end
