@@ -19,7 +19,7 @@ class RackTestApp < Minitest::Test
   end
 
   def test_get_the_lobster
-    clear_all_traces 
+    clear_all_traces
 
     get "/lobster"
 
@@ -28,10 +28,8 @@ class RackTestApp < Minitest::Test
 
     validate_outer_layers(traces, 'rack')
 
-    kvs = {} 
+    kvs = {}
     kvs["Label"] = "entry"
-    kvs["SampleRate"] = "1000000"
-    kvs["SampleSource"] = "1"
     validate_event_keys(traces[0], kvs)
 
     kvs.clear
@@ -45,12 +43,15 @@ class RackTestApp < Minitest::Test
     kvs["ClientIP"] = "127.0.0.1"
     validate_event_keys(traces[1], kvs)
 
+    assert traces[0].has_key?('SampleRate')
+    assert traces[0].has_key?('SampleSource')
+
     assert last_response.ok?
     assert last_response['X-Trace']
   end
-  
+
   def test_dont_trace_static_assets
-    clear_all_traces 
+    clear_all_traces
 
     get "/assets/static_asset.png"
 

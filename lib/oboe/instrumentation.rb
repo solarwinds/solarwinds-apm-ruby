@@ -10,7 +10,7 @@ module Oboe
         begin
           require f
         rescue => e
-          Oboe.logger.error "[oboe/loading] Error loading insrumentation file '#{f}' : #{e}"
+          Oboe.logger.error "[oboe/loading] Error loading instrumentation file '#{f}' : #{e}"
         end
       end
     end
