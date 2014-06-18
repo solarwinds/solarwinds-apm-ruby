@@ -25,7 +25,7 @@ module Oboe_metal
       end
     end
   end
-  
+
   class Event
     def self.metadataString(evt)
       evt.getMetadata.toHexString
@@ -35,7 +35,7 @@ module Oboe_metal
   module Metadata
     Java::ComTracelyticsJoboeMetaData
   end
-  
+
   module Reporter
     ##
     # Initialize the Oboe Context, reporter and report the initialization
@@ -44,10 +44,8 @@ module Oboe_metal
       begin
         return unless Oboe.loaded
 
-        #Oboe_metal::Context.init() 
-
         if ENV['RACK_ENV'] == "test"
-          Oboe.reporter = Oboe::FileReporter.new("/tmp/trace_output.bson")
+          Oboe.reporter = Java::ComTracelyticsJoboe::TestReporter.new
         else
           Oboe.reporter = Java::ComTracelyticsJoboe::UDPReporter.new(Oboe::Config[:reporter_host], Oboe::Config[:reporter_port].to_i)
         end
@@ -57,23 +55,40 @@ module Oboe_metal
         unless defined?(::Rails) or defined?(::Sinatra) or defined?(::Padrino) or defined?(::Grape)
           Oboe::API.report_init
         end
-      
+
       rescue Exception => e
         $stderr.puts e.message
         raise
       end
     end
-    
+
+    ##
+    # clear_all_traces
+    #
+    # Truncates the trace output file to zero
+    #
+    def clear_all_traces
+    end
+
+    ##
+    # get_all_traces
+    #
+    # Retrieves all traces written to the trace file
+    #
+    def get_all_traces
+      traces = []
+    end
+
     def self.sendReport(evt)
       evt.report
     end
   end
 end
 
-module Oboe 
+module Oboe
   extend OboeBase
   include Oboe_metal
-  
+
   class << self
     def sample?(opts = {})
       # Assure defaults since SWIG enforces Strings
@@ -81,15 +96,15 @@ module Oboe
       opts[:xtrace]     ||= ''
       opts['X-TV-Meta']   ||= ''
 
-      Java::ComTracelyticsJoboe::LayerUtil.shouldTraceRequest( opts[:layer], 
+      Java::ComTracelyticsJoboe::LayerUtil.shouldTraceRequest( opts[:layer],
                                                                { 'X-Trace'   => opts[:xtrace],
                                                                  'X-TV-Meta' => opts['X-TV-Meta'] } )
     end
-    
+
     def set_tracing_mode(mode)
       # FIXME: TBD
     end
-    
+
     def set_sample_rate(rate)
       # FIXME: TBD
     end
