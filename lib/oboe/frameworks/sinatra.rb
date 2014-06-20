@@ -42,7 +42,6 @@ module Oboe
       @@rum_ftr_tmpl = File.read(File.dirname(__FILE__) + '/rails/helpers/rum/rum_footer.js.erb')
 
       def oboe_rum_header
-        Oboe.logger.warn "Testing"
         return unless Oboe::Config.rum_id
         if Oboe.tracing?
           if request.xhr?
