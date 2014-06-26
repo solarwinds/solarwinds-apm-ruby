@@ -68,6 +68,7 @@ module Oboe_metal
     # Truncates the trace output file to zero
     #
     def clear_all_traces
+      Oboe.reporter.reset
     end
 
     ##
@@ -76,11 +77,11 @@ module Oboe_metal
     # Retrieves all traces written to the trace file
     #
     def get_all_traces
-      traces = []
+      Oboe.reporter.getSentEventsAsBsonDocument
     end
 
     def self.sendReport(evt)
-      evt.report
+      evt.report(Oboe.reporter)
     end
   end
 end
@@ -102,11 +103,11 @@ module Oboe
     end
 
     def set_tracing_mode(mode)
-      # FIXME: TBD
+      Oboe.logger.warn "When using JRuby set the tracing mode in /usr/local/tracelytics/javaagent.json instead"
     end
 
     def set_sample_rate(rate)
-      # FIXME: TBD
+      # N/A
     end
   end
 end
