@@ -3,7 +3,7 @@ require "minitest/reporters"
 
 ENV["RACK_ENV"] = "test"
 
-# FIXME: Temp hack to fix padrino-core calling RUBY_ENGINE when it's 
+# FIXME: Temp hack to fix padrino-core calling RUBY_ENGINE when it's
 # not defined under Ruby 1.8.7 and 1.9.3
 RUBY_ENGINE = "ruby" unless defined?(RUBY_ENGINE)
 
@@ -103,7 +103,7 @@ end
 ##
 # layer_doesnt_have_key
 #
-# Checks an array of trace events to assure that a specific layer 
+# Checks an array of trace events to assure that a specific layer
 # (regardless of event type) doesn't have the specified key
 #
 def layer_doesnt_have_key(traces, layer, key)
@@ -118,7 +118,7 @@ end
 
 ##
 # Sinatra and Padrino Related Helpers
-# 
+#
 # Taken from padrino-core gem
 #
 

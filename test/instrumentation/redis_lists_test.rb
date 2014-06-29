@@ -1,18 +1,18 @@
 require 'minitest_helper'
 require "redis"
-    
+
 describe Oboe::Inst::Redis, :lists do
   attr_reader :entry_kvs, :exit_kvs, :redis, :redis_version
 
   def min_server_version(version)
     unless Gem::Version.new(@redis_version) >= Gem::Version.new(version.to_s)
-      skip "supported only on redis-server #{version} or greater" 
+      skip "supported only on redis-server #{version} or greater"
     end
   end
 
   before do
-    clear_all_traces 
-    
+    clear_all_traces
+
     @redis ||= Redis.new
 
     @redis_version ||= @redis.info["redis_version"]
@@ -23,9 +23,9 @@ describe Oboe::Inst::Redis, :lists do
   end
 
   it 'Stock Redis should be loaded, defined and ready' do
-    defined?(::Redis).wont_match nil 
+    defined?(::Redis).wont_match nil
   end
-  
+
   it "should trace blpop" do
     min_server_version(2.0)
 
@@ -40,7 +40,7 @@ describe Oboe::Inst::Redis, :lists do
     traces[2]['KVOp'].must_equal "blpop"
     traces[2]['KVKey'].must_equal "savage"
   end
-  
+
   it "should trace brpop" do
     min_server_version(2.0)
 
@@ -55,7 +55,7 @@ describe Oboe::Inst::Redis, :lists do
     traces[2]['KVOp'].must_equal "brpop"
     traces[2]['KVKey'].must_equal "savage"
   end
-  
+
   it "should trace brpoplpush" do
     min_server_version(2.2)
 
@@ -70,7 +70,7 @@ describe Oboe::Inst::Redis, :lists do
     traces[2]['KVOp'].must_equal "brpoplpush"
     traces[2]['destination'].must_equal "crawlies"
   end
-  
+
   it "should trace lindex" do
     min_server_version(1.0)
 
@@ -87,7 +87,7 @@ describe Oboe::Inst::Redis, :lists do
     traces[2]['KVOp'].must_equal "lindex"
     traces[2]['index'].must_equal "1"
   end
-  
+
   it "should trace linsert" do
     min_server_version(2.2)
 
@@ -104,7 +104,7 @@ describe Oboe::Inst::Redis, :lists do
     traces[2]['KVOp'].must_equal "linsert"
     traces[2]['KVKey'].must_equal "gods of old"
   end
-  
+
   it "should trace llen" do
     min_server_version(1.0)
 
@@ -121,7 +121,7 @@ describe Oboe::Inst::Redis, :lists do
     traces[2]['KVOp'].must_equal "llen"
     traces[2]['KVKey'].must_equal "gods of old"
   end
-  
+
   it "should trace lpop" do
     min_server_version(1.0)
 
@@ -138,7 +138,7 @@ describe Oboe::Inst::Redis, :lists do
     traces[2]['KVOp'].must_equal "lpop"
     traces[2]['KVKey'].must_equal "gods of old"
   end
-  
+
   it "should trace lpush" do
     min_server_version(1.0)
 
@@ -151,7 +151,7 @@ describe Oboe::Inst::Redis, :lists do
     traces[2]['KVOp'].must_equal "lpush"
     traces[2]['KVKey'].must_equal "gods of old"
   end
-  
+
   it "should trace lpushx" do
     min_server_version(2.2)
 
@@ -164,7 +164,7 @@ describe Oboe::Inst::Redis, :lists do
     traces[2]['KVOp'].must_equal "lpushx"
     traces[2]['KVKey'].must_equal "gods of old"
   end
-  
+
   it "should trace lrange" do
     min_server_version(1.0)
 
@@ -185,7 +185,7 @@ describe Oboe::Inst::Redis, :lists do
     traces[2]['start'].must_equal "2"
     traces[2]['stop'].must_equal "4"
   end
-  
+
   it "should trace lrem" do
     min_server_version(1.0)
 
@@ -205,7 +205,7 @@ describe Oboe::Inst::Redis, :lists do
     traces[2]['KVOp'].must_equal "lrem"
     traces[2]['KVKey'].must_equal "australia"
   end
-  
+
   it "should trace lset" do
     min_server_version(1.0)
 
@@ -223,7 +223,7 @@ describe Oboe::Inst::Redis, :lists do
     traces[2]['KVOp'].must_equal "lset"
     traces[2]['KVKey'].must_equal "australia"
   end
-  
+
   it "should trace ltrim" do
     min_server_version(1.0)
 
@@ -245,7 +245,7 @@ describe Oboe::Inst::Redis, :lists do
     traces[2]['KVOp'].must_equal "ltrim"
     traces[2]['KVKey'].must_equal "australia"
   end
-  
+
   it "should trace rpop" do
     min_server_version(1.0)
 
@@ -262,7 +262,7 @@ describe Oboe::Inst::Redis, :lists do
     traces[2]['KVOp'].must_equal "rpop"
     traces[2]['KVKey'].must_equal "santa esmeralda"
   end
-  
+
   it "should trace rpoplpush" do
     min_server_version(1.2)
 
@@ -280,7 +280,7 @@ describe Oboe::Inst::Redis, :lists do
     traces[2]['KVKey'].must_equal "santa esmeralda"
     traces[2]['destination'].must_equal "the gods of old"
   end
-  
+
   it "should trace rpush" do
     min_server_version(1.0)
 
@@ -293,7 +293,7 @@ describe Oboe::Inst::Redis, :lists do
     traces[2]['KVOp'].must_equal "rpush"
     traces[2]['KVKey'].must_equal "boney m"
   end
-  
+
   it "should trace rpushx" do
     min_server_version(1.0)
 

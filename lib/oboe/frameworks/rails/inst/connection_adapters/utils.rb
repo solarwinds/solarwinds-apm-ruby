@@ -5,7 +5,7 @@ module Oboe
   module Inst
     module ConnectionAdapters
       module Utils
-        
+
         def extract_trace_details(sql, name = nil, binds = [])
           opts = {}
 
@@ -26,7 +26,7 @@ module Oboe
               config = ::Rails.configuration.database_configuration[::Rails.env]
             else
               config = ::Rails.application.config.database_configuration[::Rails.env]
-            end  
+            end
 
             opts[:Database]   = config["database"] if config.has_key?("database")
             opts[:RemoteHost] = config["host"]     if config.has_key?("host")
@@ -42,7 +42,7 @@ module Oboe
         # We don't want to trace framework caches.  Only instrument SQL that
         # directly hits the database.
         def ignore_payload?(name)
-          %w(SCHEMA EXPLAIN CACHE).include? name.to_s or 
+          %w(SCHEMA EXPLAIN CACHE).include? name.to_s or
             (name and name.to_sym == :skip_logging) or
               name == "ActiveRecord::SchemaMigration Load"
         end
@@ -50,7 +50,7 @@ module Oboe
         #def cfg
         #  @config
         #end
-        
+
         def execute_with_oboe(sql, name = nil)
           if Oboe.tracing? and !ignore_payload?(name)
 
@@ -62,7 +62,7 @@ module Oboe
             execute_without_oboe(sql, name)
           end
         end
-        
+
         def exec_query_with_oboe(sql, name = nil, binds = [])
           if Oboe.tracing? and !ignore_payload?(name)
 
@@ -74,7 +74,7 @@ module Oboe
             exec_query_without_oboe(sql, name, binds)
           end
         end
-        
+
         def exec_delete_with_oboe(sql, name = nil, binds = [])
           if Oboe.tracing? and !ignore_payload?(name)
 
@@ -86,7 +86,7 @@ module Oboe
             exec_delete_without_oboe(sql, name, binds)
           end
         end
-        
+
         def exec_insert_with_oboe(sql, name = nil, binds = [], *args)
           if Oboe.tracing? and !ignore_payload?(name)
 
@@ -98,7 +98,7 @@ module Oboe
             exec_insert_without_oboe(sql, name, binds, *args)
           end
         end
-        
+
         def begin_db_transaction_with_oboe()
           if Oboe.tracing?
             opts = {}

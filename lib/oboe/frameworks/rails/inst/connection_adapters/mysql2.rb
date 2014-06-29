@@ -7,12 +7,12 @@ module Oboe
       module FlavorInitializers
         def self.mysql2
           Oboe.logger.info "[oboe/loading] Instrumenting activerecord mysql2adapter" if Oboe::Config[:verbose]
-            
+
           Oboe::Util.send_include(::ActiveRecord::ConnectionAdapters::Mysql2Adapter,
                                     Oboe::Inst::ConnectionAdapters::Utils)
 
           if (::ActiveRecord::VERSION::MAJOR == 3 and ::ActiveRecord::VERSION::MINOR == 0) or
-              ::ActiveRecord::VERSION::MAJOR == 2 
+              ::ActiveRecord::VERSION::MAJOR == 2
             # ActiveRecord 3.0 and prior
             Oboe::Util.method_alias(::ActiveRecord::ConnectionAdapters::Mysql2Adapter, :execute)
           else

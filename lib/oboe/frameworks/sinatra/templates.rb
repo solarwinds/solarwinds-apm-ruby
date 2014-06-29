@@ -3,7 +3,7 @@
 
 module Oboe
   module Sinatra
-    module Templates 
+    module Templates
       def self.included(klass)
         ::Oboe::Util.method_alias(klass, :render, ::Sinatra::Templates)
       end
@@ -16,7 +16,7 @@ module Oboe
           report_kvs[:template] = data
 
           if Oboe::Context.tracing_layer_op?('render')
-            # For recursive calls to :render (for sub-partials and layouts), 
+            # For recursive calls to :render (for sub-partials and layouts),
             # use method profiling.
             begin
               name = data

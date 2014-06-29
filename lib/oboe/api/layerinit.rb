@@ -16,7 +16,7 @@ module Oboe
         return unless Oboe.loaded
 
         platform_info = { '__Init' => 1 }
-        
+
         begin
           platform_info['Force']                   = true
           platform_info['Ruby.Platform.Version']   = RUBY_PLATFORM
@@ -34,18 +34,18 @@ module Oboe
           elsif defined?(::Sinatra)
             platform_info['Ruby.Sinatra.Version'] = "Sinatra-#{::Sinatra::VERSION}"
           end
-          
-          # Report the instrumented libraries 
+
+          # Report the instrumented libraries
           platform_info['Ruby.Cassandra.Version'] = "Cassandra-#{::Cassandra.VERSION}" if defined?(::Cassandra)
           platform_info['Ruby.Dalli.Version']     = "Dalli-#{::Dalli::VERSION}"        if defined?(::Dalli)
           platform_info['Ruby.MemCache.Version']  = "MemCache-#{::MemCache::VERSION}"  if defined?(::MemCache)
           platform_info['Ruby.Moped.Version']     = "Moped-#{::Moped::VERSION}"        if defined?(::Moped)
           platform_info['Ruby.Redis.Version']     = "Redis-#{::Redis::VERSION}"        if defined?(::Redis)
           platform_info['Ruby.Resque.Version']    = "Resque-#{::Resque::VERSION}"      if defined?(::Resque)
-         
+
           # Special case since the Mongo 1.x driver doesn't embed the version number in the gem directly
           if ::Gem.loaded_specs.has_key?('mongo')
-            platform_info['Ruby.Mongo.Version']     = "Mongo-#{::Gem.loaded_specs['mongo'].version.to_s}" 
+            platform_info['Ruby.Mongo.Version']     = "Mongo-#{::Gem.loaded_specs['mongo'].version.to_s}"
           end
 
           # Report the server in use (if possible)
@@ -68,12 +68,12 @@ module Oboe
           else
             platform_info['Ruby.AppContainer.Version'] = "Unknown"
           end
-          
+
           # If we couldn't load the c extension correctly, report the error to the dashboard.
           unless Oboe.loaded
             platform_info['Error'] = "Missing TraceView libraries.  Tracing disabled."
           end
-        
+
         rescue StandardError => e
           Oboe.logger.debug "Error in layerinit: #{e.message}"
           Oboe.logger.debug e.backtrace

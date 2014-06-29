@@ -28,7 +28,7 @@ else
   dir_config('oboe')
 end
 
-if jruby or ENV.has_key?('TRACEVIEW_URL') 
+if jruby or ENV.has_key?('TRACEVIEW_URL')
   # Build the noop extension under JRuby and Heroku.
   # The oboe-heroku gem builds it's own c extension which links to
   # libs specific to a Heroku dyno
@@ -50,7 +50,7 @@ elsif have_library('oboe', 'oboe_config_get_revision', 'oboe/oboe.h')
   end
 
   if RUBY_VERSION < '1.9'
-    cpp_command('g++') 
+    cpp_command('g++')
     $CPPFLAGS << "-I./src/"
   end
   create_makefile('oboe_metal', 'src')

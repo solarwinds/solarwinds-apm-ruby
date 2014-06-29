@@ -21,7 +21,7 @@ module Oboe
 
           if Oboe::Config[:resque][:log_args]
             kv_args = args.to_json
-            
+
             # Limit the argument json string to 1024 bytes
             if kv_args.length > 1024
               report_kvs[:Args] = kv_args[0..1023] + '...[snipped]'
@@ -29,7 +29,7 @@ module Oboe
               report_kvs[:Args] = kv_args
             end
           end
-          
+
           report_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:resque][:collect_backtraces]
         rescue
         end
@@ -94,12 +94,12 @@ module Oboe
           report_kvs[:URL] = '/resque/' + job.queue
           report_kvs[:Method] = 'NONE'
           report_kvs[:Queue] = job.queue
-            
+
           report_kvs[:Class] = job.payload['class']
 
           if Oboe::Config[:resque][:log_args]
             kv_args = job.payload['args'].to_json
-            
+
             # Limit the argument json string to 1024 bytes
             if kv_args.length > 1024
               report_kvs[:Args] = kv_args[0..1023] + '...[snipped]'
