@@ -56,7 +56,7 @@ module Oboe
       def blacklisted?(addr_port)
         return false unless Oboe::Config.blacklist
 
-        # Ensure that the blacklist is an array 
+        # Ensure that the blacklist is an array
         unless Oboe::Config.blacklist.is_a?(Array)
           val = Oboe::Config[:blacklist]
           Oboe::Config[:blacklist] = [ val.to_s ]
@@ -68,7 +68,7 @@ module Oboe
 
         false
       end
-      
+
       # Internal: Pretty print a list of arguments for reporting
       #
       # args - the list of arguments to work on
@@ -99,11 +99,11 @@ module Oboe
           if klass.is_a?(Class) and klass.is_a?(Module)
             # Class
             kv["Class"] = klass.to_s
-        
+
           elsif (not klass.is_a?(Class) and not klass.is_a?(Module))
             # Class instance
             kv["Class"] = klass.class.to_s
-          
+
           else
             # Module
             kv["Module"] = klass.to_s

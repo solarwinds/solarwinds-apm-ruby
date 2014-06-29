@@ -4,14 +4,14 @@ if RUBY_VERSION >= '1.9.3'
 
   describe Padrino do
     before do
-      clear_all_traces 
+      clear_all_traces
     end
 
     it "should trace a request to a simple padrino stack" do
       @app = SimpleDemo
-      
+
       r = get "/render"
-      
+
       traces = get_all_traces
       traces.count.must_equal 9
 

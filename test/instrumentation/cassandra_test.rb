@@ -2,26 +2,26 @@ require 'minitest_helper'
 
 describe Oboe::Inst::Cassandra do
   before do
-    clear_all_traces 
+    clear_all_traces
 
     @client = Cassandra.new("system", "127.0.0.1:9160", { :timeout => 10 })
     @client.disable_node_auto_discovery!
 
     @ks_name = "AppNetaCassandraTest"
-    
+
     ks_def = CassandraThrift::KsDef.new(:name => @ks_name,
               :strategy_class => "SimpleStrategy",
               :strategy_options => { 'replication_factor' => '2' },
               :cf_defs => [])
-      
+
     @client.add_keyspace(ks_def) unless @client.keyspaces.include? @ks_name
     @client.keyspace = @ks_name
-   
+
     unless @client.column_families.include? "Users"
       cf_def = CassandraThrift::CfDef.new(:keyspace => @ks_name, :name => "Users")
       @client.add_column_family(cf_def)
     end
-    
+
     unless @client.column_families.include? "Statuses"
       cf_def = CassandraThrift::CfDef.new(:keyspace => @ks_name, :name => "Statuses")
       @client.add_column_family(cf_def)
@@ -44,7 +44,7 @@ describe Oboe::Inst::Cassandra do
   end
 
   it 'Stock Cassandra should be loaded, defined and ready' do
-    defined?(::Cassandra).wont_match nil 
+    defined?(::Cassandra).wont_match nil
   end
 
   it 'Cassandra should have oboe methods defined' do
@@ -57,15 +57,15 @@ describe Oboe::Inst::Cassandra do
     # Special 'exists?' case
     ::Cassandra.method_defined?("exists_with_oboe?").must_equal true
   end
-  
+
   it 'should trace insert' do
     Oboe::API.start_trace('cassandra_test', '', {}) do
       user = {'screen_name' => 'larry', "blah" => "ok"}
       @client.insert(:Users, '5', user, { :ttl => 600, :consistency => 1})
     end
-    
+
     traces = get_all_traces
-    
+
     traces.count.must_equal 4
     validate_outer_layers(traces, 'cassandra_test')
 
@@ -83,9 +83,9 @@ describe Oboe::Inst::Cassandra do
     Oboe::API.start_trace('cassandra_test', '', {}) do
       @client.remove(:Users, '5', 'blah')
     end
-    
+
     traces = get_all_traces
-    
+
     traces.count.must_equal 4
     validate_outer_layers(traces, 'cassandra_test')
 
@@ -96,16 +96,16 @@ describe Oboe::Inst::Cassandra do
     traces[1].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
   end
-  
+
   it 'should trace count_columns' do
     @client.insert(:Statuses, '12', {'body' => 'v1', 'user' => 'v2'})
-    
+
     Oboe::API.start_trace('cassandra_test', '', {}) do
       @client.count_columns(:Statuses, '12', :count => 50)
     end
-    
+
     traces = get_all_traces
-    
+
     traces.count.must_equal 4
     validate_outer_layers(traces, 'cassandra_test')
 
@@ -122,9 +122,9 @@ describe Oboe::Inst::Cassandra do
     Oboe::API.start_trace('cassandra_test', '', {}) do
       @client.get_columns(:Statuses, '12', ['body'])
     end
-    
+
     traces = get_all_traces
-    
+
     traces.count.must_equal 4
     validate_outer_layers(traces, 'cassandra_test')
 
@@ -140,9 +140,9 @@ describe Oboe::Inst::Cassandra do
     Oboe::API.start_trace('cassandra_test', '', {}) do
       @client.multi_get_columns(:Users, ['12', '5'], ['body'])
     end
-    
+
     traces = get_all_traces
-    
+
     traces.count.must_equal 4
     validate_outer_layers(traces, 'cassandra_test')
 
@@ -158,9 +158,9 @@ describe Oboe::Inst::Cassandra do
     Oboe::API.start_trace('cassandra_test', '', {}) do
       @client.get(:Statuses, '12', :reversed => true)
     end
-    
+
     traces = get_all_traces
-    
+
     traces.count.must_equal 4
     validate_outer_layers(traces, 'cassandra_test')
 
@@ -178,9 +178,9 @@ describe Oboe::Inst::Cassandra do
       @client.exists?(:Statuses, '12')
       @client.exists?(:Statuses, '12', 'body')
     end
-    
+
     traces = get_all_traces
-    
+
     traces.count.must_equal 6
     validate_outer_layers(traces, 'cassandra_test')
 
@@ -190,7 +190,7 @@ describe Oboe::Inst::Cassandra do
     traces[1]['Key'].must_equal "\"12\""
     traces[1].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
-    
+
     traces[3]['Op'].must_equal "exists?"
     traces[3]['Cf'].must_equal "Statuses"
     traces[3]['Key'].must_equal "\"12\""
@@ -201,9 +201,9 @@ describe Oboe::Inst::Cassandra do
     Oboe::API.start_trace('cassandra_test', '', {}) do
       @client.get_range_keys(:Statuses, :key_count => 4)
     end
-    
+
     traces = get_all_traces
-    
+
     traces.count.must_equal 4
     validate_outer_layers(traces, 'cassandra_test')
 
@@ -220,7 +220,7 @@ describe Oboe::Inst::Cassandra do
     end
 
     traces = get_all_traces
-    
+
     traces.count.must_equal 4
     validate_outer_layers(traces, 'cassandra_test')
 
@@ -232,11 +232,11 @@ describe Oboe::Inst::Cassandra do
     traces[1]['Validation_class'].must_equal "LongType"
     traces[1].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
-    
+
     # Clean up
     @client.drop_index(@ks_name, 'Statuses', 'column_name')
   end
-  
+
   it 'should trace drop_index' do
     # Prep
     @client.create_index(@ks_name, 'Statuses', 'column_name', 'LongType')
@@ -244,9 +244,9 @@ describe Oboe::Inst::Cassandra do
     Oboe::API.start_trace('cassandra_test', '', {}) do
       @client.drop_index(@ks_name, 'Statuses', 'column_name')
     end
-    
+
     traces = get_all_traces
-    
+
     traces.count.must_equal 4
     validate_outer_layers(traces, 'cassandra_test')
 
@@ -271,9 +271,9 @@ describe Oboe::Inst::Cassandra do
                            :comparison => ">"} ]
       @client.get_indexed_slices(:Statuses, expressions).length
     end
-    
+
     traces = get_all_traces
-    
+
     traces.count.must_equal 4
     validate_outer_layers(traces, 'cassandra_test')
 
@@ -283,7 +283,7 @@ describe Oboe::Inst::Cassandra do
     traces[1].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
   end
-  
+
   it 'should trace add and remove of column family' do
     cf_name = (0...10).map{ ('a'..'z').to_a[rand(26)] }.join
     cf_def = CassandraThrift::CfDef.new(:keyspace => @ks_name, :name => cf_name)
@@ -292,9 +292,9 @@ describe Oboe::Inst::Cassandra do
       @client.add_column_family(cf_def)
       @client.drop_column_family(cf_name)
     end
-    
+
     traces = get_all_traces
-    
+
     traces.count.must_equal 6
     validate_outer_layers(traces, 'cassandra_test')
 
@@ -302,12 +302,12 @@ describe Oboe::Inst::Cassandra do
     traces[1]['Op'].must_equal "add_column_family"
     traces[1].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
-    
+
     traces[3]['Op'].must_equal "drop_column_family"
     traces[3]['Cf'].must_equal cf_name
     traces[3].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
   end
-  
+
   it 'should trace adding a keyspace' do
     ks_name = (0...10).map{ ('a'..'z').to_a[rand(26)] }.join
     column_families = [{:name =>"a"}, {:name => "b", :type => :super}]
@@ -320,9 +320,9 @@ describe Oboe::Inst::Cassandra do
       @client.add_keyspace(ks_def)
       @client.keyspace = ks_name
     end
-    
+
     traces = get_all_traces
-    
+
     traces.count.must_equal 4
     validate_outer_layers(traces, 'cassandra_test')
 
@@ -332,14 +332,14 @@ describe Oboe::Inst::Cassandra do
     traces[1].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
   end
-  
+
   it 'should trace the removal of a keyspace' do
     Oboe::API.start_trace('cassandra_test', '', {}) do
       @client.drop_keyspace(@ks_name)
     end
-    
+
     traces = get_all_traces
-    
+
     traces.count.must_equal 4
     validate_outer_layers(traces, 'cassandra_test')
 
@@ -349,7 +349,7 @@ describe Oboe::Inst::Cassandra do
     traces[1].has_key?('Backtrace').must_equal Oboe::Config[:cassandra][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
   end
-  
+
   it "should obey :collect_backtraces setting when true" do
     Oboe::Config[:cassandra][:collect_backtraces] = true
 
@@ -373,5 +373,5 @@ describe Oboe::Inst::Cassandra do
     traces = get_all_traces
     layer_doesnt_have_key(traces, 'cassandra', 'Backtrace')
   end
-  
+
 end

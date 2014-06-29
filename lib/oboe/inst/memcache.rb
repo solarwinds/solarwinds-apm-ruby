@@ -5,7 +5,7 @@ module Oboe
   module Inst
     module MemCache
       include Oboe::API::Memcache
-      
+
       def self.included(cls)
         Oboe.logger.info "[oboe/loading] Instrumenting memcache" if Oboe::Config[:verbose]
 
@@ -18,10 +18,10 @@ module Oboe
 
               if Oboe.tracing?
                 Oboe::API.trace('memcache', report_kvs) do
-                  result = send("#{m}_without_oboe", *args) 
+                  result = send("#{m}_without_oboe", *args)
                 end
               else
-                result = send("#{m}_without_oboe", *args) 
+                result = send("#{m}_without_oboe", *args)
               end
               result
             end
@@ -30,7 +30,7 @@ module Oboe
             class_eval "alias #{m} #{m}_with_oboe"
           end
         end
-          
+
         [:request_setup, :cache_get, :get_multi].each do |m|
           if ::MemCache.method_defined? :request_setup
             cls.class_eval "alias #{m}_without_oboe #{m}"
@@ -43,16 +43,16 @@ module Oboe
 
       def get_multi_with_oboe(*args)
         return get_multi_without_oboe(args) unless Oboe.tracing?
-          
+
         info_kvs = {}
-          
+
         begin
           info_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:memcache][:collect_backtraces]
-           
+
           if args.last.is_a?(Hash) || args.last.nil?
             info_kvs[:KVKeyCount] = args.flatten.length - 1
           else
-            info_kvs[:KVKeyCount] = args.flatten.length 
+            info_kvs[:KVKeyCount] = args.flatten.length
           end
         rescue StandardError => e
           Oboe.logger.debug "[oboe/debug] Error collecting info keys: #{e.message}"
@@ -61,25 +61,25 @@ module Oboe
 
         Oboe::API.trace('memcache', {:KVOp => :get_multi}, :get_multi) do
           values = get_multi_without_oboe(args)
-          
+
           info_kvs[:KVHitCount] = values.length
           Oboe::API.log('memcache', 'info', info_kvs)
-          
-          values 
+
+          values
         end
       end
-      
+
       def request_setup_with_oboe(*args)
         if Oboe.tracing? and not Oboe::Context.tracing_layer_op?(:get_multi)
           server, cache_key = request_setup_without_oboe(*args)
-          
+
           info_kvs = { :KVKey => cache_key, :RemoteHost => server.host }
           info_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:memcache][:collect_backtraces]
           Oboe::API.log('memcache', 'info', info_kvs)
 
           [server, cache_key]
         else
-          request_setup_without_oboe(*args) 
+          request_setup_without_oboe(*args)
         end
       end
 

@@ -49,7 +49,7 @@ module Oboe
 
       report_kvs = {}
       report_kvs[:URL] = URI.unescape(req.path)
-      
+
       if Oboe.always?
         # Only report these KVs under tracing_mode 'always' (never for 'through')
         report_kvs[:SampleRate]        = Oboe.sample_rate
@@ -63,7 +63,7 @@ module Oboe
         status, headers, response = @app.call(env)
 
         if Oboe.tracing?
-          report_kvs = collect(req, env) 
+          report_kvs = collect(req, env)
           Oboe::API.log(nil, 'info', report_kvs.merge!({ :Status => status }))
         end
 

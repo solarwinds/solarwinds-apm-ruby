@@ -1,18 +1,18 @@
 require 'minitest_helper'
 require "redis"
-    
+
 describe Oboe::Inst::Redis, :keys do
   attr_reader :entry_kvs, :exit_kvs, :redis, :redis_version
 
   def min_server_version(version)
     unless Gem::Version.new(@redis_version) >= Gem::Version.new(version.to_s)
-      skip "supported only on redis-server #{version} or greater" 
+      skip "supported only on redis-server #{version} or greater"
     end
   end
 
   before do
-    clear_all_traces 
-    
+    clear_all_traces
+
     @redis ||= Redis.new
 
     @redis_version ||= @redis.info["redis_version"]
@@ -23,9 +23,9 @@ describe Oboe::Inst::Redis, :keys do
   end
 
   it 'Stock Redis should be loaded, defined and ready' do
-    defined?(::Redis).wont_match nil 
+    defined?(::Redis).wont_match nil
   end
-  
+
   it "should trace del" do
     @redis.setex("del_test", 60, "blah")
 
@@ -38,7 +38,7 @@ describe Oboe::Inst::Redis, :keys do
     traces[2]['KVOp'].must_equal "del"
     traces[2]['KVKey'].must_equal "del_test"
   end
-  
+
   it "should trace del of multiple keys" do
     @redis.setex("del_test", 60, "blah")
 
@@ -81,7 +81,7 @@ describe Oboe::Inst::Redis, :keys do
     traces[2]['KVOp'].must_equal "exists"
     traces[2]['KVKey'].must_equal "talking_heads"
   end
-  
+
   it "should trace expire" do
     @redis.set("expire_please", "burning down the house")
 
@@ -94,7 +94,7 @@ describe Oboe::Inst::Redis, :keys do
     traces[2]['KVOp'].must_equal "expire"
     traces[2]['KVKey'].must_equal "expire_please"
   end
-  
+
   it "should trace expireat" do
     @redis.set("expireat_please", "burning down the house")
 
@@ -107,7 +107,7 @@ describe Oboe::Inst::Redis, :keys do
     traces[2]['KVOp'].must_equal "expireat"
     traces[2]['KVKey'].must_equal "expireat_please"
   end
-  
+
   it "should trace keys" do
     Oboe::API.start_trace('redis_test', '', {}) do
       @redis.keys("del*")
@@ -118,7 +118,7 @@ describe Oboe::Inst::Redis, :keys do
     traces[2]['KVOp'].must_equal "keys"
     traces[2]['pattern'].must_equal "del*"
   end
-  
+
   it "should trace basic move" do
     @redis.set("piano", Time.now)
 
@@ -132,7 +132,7 @@ describe Oboe::Inst::Redis, :keys do
     traces[2]['KVKey'].must_equal "piano"
     traces[2]['db'].must_equal "1"
   end
-  
+
   it "should trace persist" do
     min_server_version(2.2)
 
@@ -147,7 +147,7 @@ describe Oboe::Inst::Redis, :keys do
     traces[2]['KVOp'].must_equal "persist"
     traces[2]['KVKey'].must_equal "mine"
   end
-  
+
   it "should trace pexpire" do
     min_server_version(2.6)
 
@@ -174,7 +174,7 @@ describe Oboe::Inst::Redis, :keys do
     Oboe::API.start_trace('redis_test', '', {}) do
       @rv = @redis.pexpireat("sand", 8000)
     end
-    
+
     @rv.must_equal true
 
     traces = get_all_traces
@@ -198,7 +198,7 @@ describe Oboe::Inst::Redis, :keys do
     traces[2]['KVOp'].must_equal "pttl"
     traces[2]['KVKey'].must_equal "sand"
   end
-  
+
   it "should trace randomkey" do
     Oboe::API.start_trace('redis_test', '', {}) do
       @redis.randomkey()
@@ -254,7 +254,7 @@ describe Oboe::Inst::Redis, :keys do
     traces[2]['KVKey'].must_equal "blue"
     traces[2]['ttl'].must_equal "0"
   end
-  
+
   it "should trace sort" do
     min_server_version(2.2)
 
@@ -272,7 +272,7 @@ describe Oboe::Inst::Redis, :keys do
     traces[2]['KVOp'].must_equal "sort"
     traces[2]['KVKey'].must_equal "penguin"
   end
-  
+
   it "should trace ttl" do
     min_server_version(2.6)
 
@@ -287,7 +287,7 @@ describe Oboe::Inst::Redis, :keys do
     traces[2]['KVOp'].must_equal "ttl"
     traces[2]['KVKey'].must_equal "sand"
   end
-  
+
   it "should trace type" do
     min_server_version(2.6)
 
@@ -302,7 +302,7 @@ describe Oboe::Inst::Redis, :keys do
     traces[2]['KVOp'].must_equal "type"
     traces[2]['KVKey'].must_equal "sand"
   end
-  
+
   it "should trace scan" do
     min_server_version(2.8)
 

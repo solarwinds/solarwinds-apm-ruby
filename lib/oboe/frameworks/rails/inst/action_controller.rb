@@ -11,7 +11,7 @@ module Oboe
           alias_method_chain :render, :oboe
         end
       end
-      
+
       def process_with_oboe(*args)
         Oboe::API.trace('rails', {}) do
           process_without_oboe *args
@@ -38,7 +38,7 @@ module Oboe
         end
       end
     end
-    
+
     module Rails4ActionController
       def self.included(base)
         base.class_eval do
@@ -46,7 +46,7 @@ module Oboe
           alias_method_chain :render, :oboe
         end
       end
-      
+
       def process_action_with_oboe(method_name, *args)
         return process_action_without_oboe(method_name, *args) if Oboe::Config[:action_blacklist].present? &&
           Oboe::Config[:action_blacklist][[self.controller_name, self.action_name].join('#')]
@@ -75,7 +75,7 @@ if defined?(ActionController::Base) and Oboe::Config[:action_controller][:enable
     class ActionController::Base
       include Oboe::Inst::Rails4ActionController
     end
-  
+
   elsif ::Rails::VERSION::MAJOR == 3
 
     class ActionController::Base

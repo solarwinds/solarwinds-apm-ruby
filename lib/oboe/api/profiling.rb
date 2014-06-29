@@ -3,7 +3,7 @@
 
 module Oboe
   module API
-    module Profiling 
+    module Profiling
 
       ##
       # Public: Profile a given block of code. Detect any exceptions thrown by
@@ -25,23 +25,24 @@ module Oboe
       #
       # Returns the result of the block.
       def profile(profile_name, report_kvs={}, with_backtrace=false)
-        
+
         report_kvs[:Language] ||= :ruby
         report_kvs[:ProfileName] ||= profile_name
+        report_kvs[:Backtrace] = Oboe::API.backtrace if with_backtrace
 
-        Oboe::Context.log(nil, 'profile_entry', report_kvs, with_backtrace)
+        Oboe::API.log(nil, 'profile_entry', report_kvs)
 
-        begin 
+        begin
           yield
         rescue Exception => e
-          log_exception(nil, e) 
+          log_exception(nil, e)
           raise
         ensure
           exit_kvs = {}
           exit_kvs[:Language] = :ruby
           exit_kvs[:ProfileName] = report_kvs[:ProfileName]
 
-          Oboe::Context.log(nil, 'profile_exit', exit_kvs, false)
+          Oboe::API.log(nil, 'profile_exit', exit_kvs)
         end
       end
     end

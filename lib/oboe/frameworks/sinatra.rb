@@ -31,7 +31,7 @@ module Oboe
           dispatch_without_oboe
         end
       end
-      
+
       def handle_exception_with_oboe(boom)
         Oboe::API.log_exception(nil, boom) if Oboe.tracing?
         handle_exception_without_oboe(boom)
@@ -54,11 +54,11 @@ if defined?(::Sinatra)
   # When in TEST environment, we load this instrumentation regardless.
   # Otherwise, only when Padrino isn't around.
   unless defined?(::Padrino) and not (ENV['RACK_ENV'] == "test")
-    # Padrino has 'enhanced' routes and rendering so the Sinatra 
+    # Padrino has 'enhanced' routes and rendering so the Sinatra
     # instrumentation won't work anyways.  Only load for pure Sinatra apps.
     ::Oboe::Util.send_include(::Sinatra::Base,      ::Oboe::Sinatra::Base)
     ::Oboe::Util.send_include(::Sinatra::Templates, ::Oboe::Sinatra::Templates)
-      
+
     # Report __Init after fork when in Heroku
     Oboe::API.report_init unless Oboe.heroku?
   end

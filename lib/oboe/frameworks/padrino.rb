@@ -42,7 +42,7 @@ module Oboe
 end
 
 if defined?(::Padrino)
-  # This instrumentation is a superset of the Sinatra instrumentation similar 
+  # This instrumentation is a superset of the Sinatra instrumentation similar
   # to how Padrino is a superset of Sinatra itself.
   ::Oboe.logger.info "[oboe/loading] Instrumenting Padrino" if Oboe::Config[:verbose]
 
@@ -57,7 +57,7 @@ if defined?(::Padrino)
     if defined?(::Padrino::Rendering)
       ::Oboe::Util.send_include(::Padrino::Rendering::InstanceMethods, ::Oboe::PadrinoInst::Rendering)
     end
-  
+
     # Report __Init after fork when in Heroku
     Oboe::API.report_init unless Oboe.heroku?
   end
