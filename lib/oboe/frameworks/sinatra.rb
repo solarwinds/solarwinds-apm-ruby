@@ -36,6 +36,36 @@ module Oboe
         Oboe::API.log_exception(nil, boom) if Oboe.tracing?
         handle_exception_without_oboe(boom)
       end
+      
+      @@rum_xhr_tmpl = File.read(File.dirname(__FILE__) + '/rails/helpers/rum/rum_ajax_header.js.erb')
+      @@rum_hdr_tmpl = File.read(File.dirname(__FILE__) + '/rails/helpers/rum/rum_header.js.erb')
+      @@rum_ftr_tmpl = File.read(File.dirname(__FILE__) + '/rails/helpers/rum/rum_footer.js.erb')
+
+      def oboe_rum_header
+        return unless Oboe::Config.rum_id
+        if Oboe.tracing?
+          if request.xhr?
+            return ERB.new(@@rum_xhr_tmpl).result
+          else
+            return ERB.new(@@rum_hdr_tmpl).result
+          end
+        end
+      rescue Exception => e  
+        Oboe.logger.warn "oboe_rum_header: #{e.message}."
+        return ""
+      end
+
+      def oboe_rum_footer
+        return unless Oboe::Config.rum_id
+        if Oboe.tracing?
+          # Even though the footer template is named xxxx.erb, there are no ERB tags in it so we'll
+          # skip that step for now
+          return @@rum_ftr_tmpl
+        end
+      rescue Exception => e
+        Oboe.logger.warn "oboe_rum_footer: #{e.message}."
+        return ""
+      end
     end
   end
 end
