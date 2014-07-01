@@ -36,7 +36,7 @@ module Oboe
         Oboe::API.log_exception(nil, boom) if Oboe.tracing?
         handle_exception_without_oboe(boom)
       end
-      
+
       @@rum_xhr_tmpl = File.read(File.dirname(__FILE__) + '/rails/helpers/rum/rum_ajax_header.js.erb')
       @@rum_hdr_tmpl = File.read(File.dirname(__FILE__) + '/rails/helpers/rum/rum_header.js.erb')
       @@rum_ftr_tmpl = File.read(File.dirname(__FILE__) + '/rails/helpers/rum/rum_footer.js.erb')
@@ -50,7 +50,7 @@ module Oboe
             return ERB.new(@@rum_hdr_tmpl).result
           end
         end
-      rescue Exception => e  
+      rescue StandardError => e
         Oboe.logger.warn "oboe_rum_header: #{e.message}."
         return ""
       end
@@ -62,7 +62,7 @@ module Oboe
           # skip that step for now
           return @@rum_ftr_tmpl
         end
-      rescue Exception => e
+      rescue StandardError => e
         Oboe.logger.warn "oboe_rum_footer: #{e.message}."
         return ""
       end

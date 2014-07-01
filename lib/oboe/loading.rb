@@ -63,7 +63,7 @@ module Oboe
             end
           end
         end
-      rescue Exception => e
+      rescue StandardError => e
         Oboe.logger.error "Trouble obtaining access_key and rum_id: #{e.inspect}"
       end
     end

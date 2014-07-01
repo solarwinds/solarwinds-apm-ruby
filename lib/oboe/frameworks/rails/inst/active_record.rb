@@ -16,7 +16,7 @@ if Oboe::Config[:active_record][:enabled]
     Oboe::Inst::ConnectionAdapters::FlavorInitializers.postgresql if adapter == "postgresql"
     Oboe::Inst::ConnectionAdapters::FlavorInitializers.oracle     if adapter == "oracleenhanced"
 
-  rescue Exception => e
+  rescue StandardError => e
     Oboe.logger.error "[oboe/error] Oboe/ActiveRecord error: #{e.inspect}"
     Oboe.logger.debug e.backtrace.join("\n")
   end
