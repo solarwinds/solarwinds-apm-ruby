@@ -37,7 +37,7 @@ module Oboe
         report_kvs['Forwarded-Port']    = env['HTTP_X_FORWARDED_PORT']   if env.has_key?('HTTP_X_FORWARDED_PORT')
 
         report_kvs['Ruby.Oboe.Version'] = ::Oboe::Version::STRING
-      rescue Exception => e
+      rescue StandardError => e
         # Discard any potential exceptions. Debug log and report whatever we can.
         Oboe.logger.debug "[oboe/debug] Rack KV collection error: #{e.inspect}"
       end

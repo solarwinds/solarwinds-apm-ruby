@@ -20,7 +20,7 @@ module Oboe
               return raw(ERB.new(@@rum_hdr_tmpl).result)
             end
           end
-        rescue Exception => e
+        rescue StandardError => e
           Oboe.logger.warn "oboe_rum_header: #{e.message}."
           return ""
         end
@@ -34,7 +34,7 @@ module Oboe
             # skip that step for now
             return raw(@@rum_ftr_tmpl)
           end
-        rescue Exception => e
+        rescue StandardError => e
           Oboe.logger.warn "oboe_rum_footer: #{e.message}."
           return ""
         end
