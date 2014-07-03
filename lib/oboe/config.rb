@@ -12,8 +12,8 @@ module Oboe
     @@config = {}
 
     @@instrumentation = [ :cassandra, :dalli, :nethttp, :memcached, :memcache, :mongo,
-                          :moped, :rack, :redis, :resque, :action_controller, :action_view, 
-                          :active_record ]
+                          :moped, :rack, :redis, :resque, :action_controller, :action_view,
+                          :active_record, :em_http_request ]
 
     ##
     # Return the raw nested hash.
@@ -44,11 +44,12 @@ module Oboe
       Oboe::Config[:nethttp][:collect_backtraces] = true
       Oboe::Config[:redis][:collect_backtraces] = false
       Oboe::Config[:resque][:collect_backtraces] = true
+      Oboe::Config[:em_http_request][:collect_backtraces] = false
 
       # Special instrument specific flags
       #
       # :link_workers - associates enqueue operations with the jobs they queue by piggybacking
-      #                 an additional argument that is stripped prior to job proecessing 
+      #                 an additional argument that is stripped prior to job proecessing
       #                 !!Note: Make sure both the queue side and the Resque workers are instrumented
       #                 or jobs will fail
       #                 (Default: false)
@@ -76,7 +77,7 @@ module Oboe
         @@config[:reporter_host] = "127.0.0.1"
         @@config[:reporter_port] = "7831"
       end
-        
+
       @@config[:verbose] = false
     end
 
@@ -103,17 +104,17 @@ module Oboe
 
       if key == :sample_rate
         unless value.is_a?(Integer) or value.is_a?(Float)
-          raise "oboe :sample_rate must be a number between 1 and 1000000 (1m)" 
+          raise "oboe :sample_rate must be a number between 1 and 1000000 (1m)"
         end
-       
+
         # Validate :sample_rate value
         unless value.between?(1, 1e6)
-          raise "oboe :sample_rate must be between 1 and 1000000 (1m)" 
+          raise "oboe :sample_rate must be between 1 and 1000000 (1m)"
         end
 
         # Assure value is an integer
         @@config[key.to_sym] = value.to_i
- 
+
         Oboe.set_sample_rate(value)
       end
 
