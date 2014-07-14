@@ -1,12 +1,28 @@
-# oboe 2.6.5.5 (06/02/14)
+# oboe 2.6.7 (07/14/2014)
+
+This patch release includes better error handling, API clean-up and RUM template improvements.
+
+* [Add RUM helpers](https://github.com/appneta/oboe-ruby/pull/56) for Sinatra and Padrino stacks.  Thanks @tlunter!
+* Prefer [StandardError over Exception](https://github.com/appneta/oboe-ruby/pull/59) for rescue blocks that we handle directly
+* [Clean up Oboe logging API](https://github.com/appneta/oboe-ruby/pull/58): Oboe.log, Oboe::Context.log and Oboe::API.log redundancy
+
+# oboe 2.6.6.1 (06/16/2014)
+
+This patch release adds new instrumentation and a couple fixes:
+
+* [Add instrumentation support](https://github.com/appneta/oboe-ruby/pull/37) for [Grape API Micro Framework](http://intridea.github.io/grape/) (thanks @tlunter!)
+* Important [Mongo find operation with block fix](https://github.com/appneta/oboe-ruby/pull/53) (thanks @rafaelfranca!)
+* Better and more [data independent tests](https://github.com/appneta/oboe-ruby/pull/52) for Travis
+
+# oboe 2.6.5.5 (06/02/2014)
 
 This patch release improves [instrumentation for Mongo](https://github.com/appneta/oboe-ruby/pull/48) version >= 1.10 and fixes TraceView [sample rate reporting](https://github.com/appneta/oboe-ruby/pull/50).
 
-# oboe 2.6.4.1 (04/30/14)
+# oboe 2.6.4.1 (04/30/2014)
 
 This patch release adds detection and support for Redhat [OpenShift](https://www.openshift.com/).  See our OpenShift [TraceView cartridge](https://github.com/appneta/openshift-cartridge-traceview) for base libraries before using this gem on OpenShift.
 
-# oboe 2.6.3.0 (04/07/14)
+# oboe 2.6.3.0 (04/07/2014)
 
 This patch releases fixes a number of smaller issues:
 
@@ -15,18 +31,18 @@ This patch releases fixes a number of smaller issues:
 * fix for incorrectly starting traces when in `through` tracing mode under certain circumstances
 * Expand the test suite to validate sample rates and tracing modes (https://github.com/appneta/oboe-ruby/pull/8)
 
-# oboe 2.6.2.0 (03/24/14)
+# oboe 2.6.2.0 (03/24/2014)
 
 * This patch release improves webserver detection on Heroku and adds in some c extension protections.  A oboe-heroku gem release will follow this release.
 
-# oboe 2.6.1.0 (03/12/14)
+# oboe 2.6.1.0 (03/12/2014)
 
 This is a patch release to address "Unsupported digest algorithm (SHA256)" occurring under certain cases on Heroku. A oboe-heroku gem release will follow this release.
 
 * Support delayed Reporter Initialization for Forking Webservers
 * README syntax fixes
 
-# oboe 2.5.0.7 (02/13/14)
+# oboe 2.5.0.7 (02/2013/2014)
 
 * Added new Redis redis-rb gem (>= 3.0.0) instrumentation
 * Fix a SampleSource bitmask high bit issue
@@ -35,7 +51,7 @@ This is a patch release to address "Unsupported digest algorithm (SHA256)" occur
 * Test against Ruby 2.1.0 on TravisCI
 * Fix errant Oboe::Config warning
 
-# oboe 2.4.0.1 (01/12/13)
+# oboe 2.4.0.1 (01/12/2013)
 
 * Report SampleRate & SampleSource per updated SWIG API
 * Change OboeHeroku __Init Key 
@@ -47,11 +63,11 @@ This is a patch release to address "Unsupported digest algorithm (SHA256)" occur
 * Report the application server used
 * Support Oboe::Config.merge! and warn on non-existent (thanks @adamjt!)
 
-# oboe 2.3.4.1 (11/21/13)
+# oboe 2.3.4.1 (11/21/2013)
 
 * Stacks that use a caching system like Varnish could see corrupted traces; fixed. 
 
-# oboe 2.3.3.7 (11/06/13)
+# oboe 2.3.3.7 (11/06/2013)
 
 * Rename the _Init layer to "rack"
 * Decode URLS when reporting them
@@ -61,7 +77,7 @@ This is a patch release to address "Unsupported digest algorithm (SHA256)" occur
 * Further refactoring for Ruby 2.0 support
 * Track the version of the instrumentation installed
 
-# oboe 2.3.2 (10/22/13)
+# oboe 2.3.2 (10/22/2013)
 
 * Backtrace collection can now be configured to skip certain components if a lighter-weight trace is desired
 * On MRI Ruby the hostname of the Tracelyzer is now configurable via Oboe::Config[:reporter_host] (default is localhost)
@@ -70,7 +86,7 @@ This is a patch release to address "Unsupported digest algorithm (SHA256)" occur
 * Renamed "sampling_rate" to be "sample_rate" for consistency
 * More tests added and documentation in anticipation of our Ruby open-source initiative
 
-# oboe 2.2.6 (09/27/13)
+# oboe 2.2.6 (09/27/2013)
 
 * Query Privacy now fully supported; can configure the app to not send SQL parameters if needed
 * Configuring the local sample rate now supports 1e6 notation
@@ -78,17 +94,17 @@ This is a patch release to address "Unsupported digest algorithm (SHA256)" occur
 * Now reporting HTTPStatus on http client calls
 * Heroku - the start time when a request hits the load balancer now captured
 
-# oboe 2.2.0 (09/12/13)
+# oboe 2.2.0 (09/12/2013)
 
 * Initial support for Rails 4
 * Various internal reporting fixes and improvements
 * Fix for auto sampling rate
 
-# oboe 2.1.4 (08/01/13)
+# oboe 2.1.4 (08/01/2013)
 
 * Integration support for AppView Web
 
-# oboe 2.1.3 (07/16/13)
+# oboe 2.1.3 (07/16/2013)
 
 * Allow _Access Key_ assignment via Environment variable: TRACEVIEW_CUUID
 
