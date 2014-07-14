@@ -3,7 +3,7 @@ module Oboe
     module EventMachine
       module HttpConnection
         def setup_request_with_oboe(*args, &block)
-          report_kvs = { Uri: @uri }
+          report_kvs = { :Uri => @uri }
           report_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:em_http_request][:collect_backtraces]
 
           ::Oboe::API.log_entry('em-http-request', report_kvs)
@@ -16,7 +16,7 @@ module Oboe
 
       module HttpClient
         def parse_response_header_with_oboe(*args, &block)
-          ::Oboe::API.log_exit('em-http-request', { Async: 1 })
+          ::Oboe::API.log_exit('em-http-request', { :Async => 1 })
           parse_response_header_without_oboe(*args, &block)
         end
       end
