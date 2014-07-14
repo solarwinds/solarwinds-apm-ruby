@@ -5,7 +5,7 @@ require 'oboe/inst/rack'
 
 Oboe::Config[:tracing_mode] = 'always'
 Oboe::Config[:sample_rate] = 1e6
-    
+
 class RackTestApp < Minitest::Test
   include Rack::Test::Methods
 
@@ -22,7 +22,7 @@ class RackTestApp < Minitest::Test
   end
 
   def test_localset_sample_source
-    clear_all_traces 
+    clear_all_traces
 
     get "/lobster"
 
@@ -31,7 +31,7 @@ class RackTestApp < Minitest::Test
 
     validate_outer_layers(traces, 'rack')
 
-    kvs = {} 
+    kvs = {}
     kvs["SampleRate"] = "1000000"
     kvs["SampleSource"] = OBOE_SAMPLE_RATE_SOURCE_FILE.to_s
     validate_event_keys(traces[0], kvs)

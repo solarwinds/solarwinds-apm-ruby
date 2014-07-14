@@ -9,7 +9,7 @@ module Oboe
           Oboe.logger.info "[oboe/loading] Instrumenting activerecord mysqladapter" if Oboe::Config[:verbose]
 
           # ActiveRecord 3.2 and higher
-          if (::ActiveRecord::VERSION::MAJOR == 3 and ::ActiveRecord::VERSION::MINOR >= 2) or 
+          if (::ActiveRecord::VERSION::MAJOR == 3 and ::ActiveRecord::VERSION::MINOR >= 2) or
               ::ActiveRecord::VERSION::MAJOR == 4
 
             # AbstractMysqlAdapter
@@ -24,13 +24,13 @@ module Oboe
 
           else
             # ActiveRecord 3.1 and below
-            
+
             # MysqlAdapter
             Oboe::Util.send_include(::ActiveRecord::ConnectionAdapters::MysqlAdapter,
                                       Oboe::Inst::ConnectionAdapters::Utils)
 
             Oboe::Util.method_alias(::ActiveRecord::ConnectionAdapters::MysqlAdapter, :execute)
-              
+
             if ::ActiveRecord::VERSION::MAJOR == 3 and ::ActiveRecord::VERSION::MINOR == 1
               Oboe::Util.method_alias(::ActiveRecord::ConnectionAdapters::MysqlAdapter, :begin_db_transaction)
               Oboe::Util.method_alias(::ActiveRecord::ConnectionAdapters::MysqlAdapter, :exec_delete)

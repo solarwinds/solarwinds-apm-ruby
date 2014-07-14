@@ -4,7 +4,7 @@
 if defined?(ActionView::Base) and Oboe::Config[:action_view][:enabled]
 
   ##
-  # ActionView Instrumentation is version dependent.  ActionView 2.x is separate 
+  # ActionView Instrumentation is version dependent.  ActionView 2.x is separate
   # and ActionView 3.0 is a special case.
   # Everything else goes here. (ActionView 3.1 - 4.0 as of this writing)
   #
@@ -48,7 +48,7 @@ if defined?(ActionView::Base) and Oboe::Config[:action_view][:enabled]
           ret =  render_collection_without_oboe
         end
       end
-        
+
     end
   end
 end

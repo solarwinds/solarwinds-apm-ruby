@@ -30,7 +30,7 @@ module OboeMethodProfiling
         # Safety:  Make sure there are no quotes or double quotes to break the class_eval
         file = file.gsub /[\'\"]/, ''
         line = line.gsub /[\'\"]/, ''
-      
+
         # profiling via ruby-prof, is it possible to get return value of profiled code?
         code = "def _oboe_profiled_#{method_name}(*args, &block)
                   entry_kvs                  = {}
@@ -42,7 +42,7 @@ module OboeMethodProfiling
                   entry_kvs['Args']          = Oboe::API.pps(*args) if #{store_args}
                   entry_kvs.merge!(::Oboe::API.get_class_name(self))
 
-                  Oboe::Context.log(nil, 'profile_entry', entry_kvs)
+                  Oboe::API.log(nil, 'profile_entry', entry_kvs)
 
                   ret = _oboe_orig_#{method_name}(*args, &block)
 
@@ -51,7 +51,7 @@ module OboeMethodProfiling
                   exit_kvs['ProfileName'] = '#{Oboe::Util.prettify(profile_name)}'
                   exit_kvs['ReturnValue'] = Oboe::API.pps(ret) if #{store_return}
 
-                  Oboe::Context.log(nil, 'profile_exit', exit_kvs)
+                  Oboe::API.log(nil, 'profile_exit', exit_kvs)
                   ret
                 end"
       rescue Exception => e

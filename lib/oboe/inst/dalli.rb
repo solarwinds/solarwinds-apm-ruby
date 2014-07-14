@@ -24,7 +24,7 @@ module Oboe
 
       def perform_with_oboe(*all_args, &blk)
         op, key, *args = *all_args
-        
+
         if Oboe.tracing? and not Oboe::Context.tracing_layer_op?(:get_multi)
           Oboe::API.trace('memcache', { :KVOp => op, :KVKey => key }) do
             result = perform_without_oboe(*all_args, &blk)
@@ -32,7 +32,7 @@ module Oboe
             info_kvs = {}
             info_kvs[:KVHit] = memcache_hit?(result) if op == :get and key.class == String
             info_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:dalli][:collect_backtraces]
-            
+
             Oboe::API.log('memcache', 'info', info_kvs) unless info_kvs.empty?
             result
           end
@@ -43,11 +43,11 @@ module Oboe
 
       def get_multi_with_oboe(*keys)
         return get_multi_without_oboe(keys) unless Oboe.tracing?
-          
+
         info_kvs = {}
-          
+
         begin
-          info_kvs[:KVKeyCount] = keys.flatten.length 
+          info_kvs[:KVKeyCount] = keys.flatten.length
           info_kvs[:KVKeyCount] = (info_kvs[:KVKeyCount] - 1) if keys.last.is_a?(Hash) || keys.last.nil?
         rescue
           Oboe.logger.debug "[oboe/debug] Error collecting info keys: #{e.message}"
@@ -56,12 +56,12 @@ module Oboe
 
         Oboe::API.trace('memcache', { :KVOp => :get_multi }, :get_multi) do
           values = get_multi_without_oboe(keys)
-          
+
           info_kvs[:KVHitCount] = values.length
           info_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:dalli][:collect_backtraces]
           Oboe::API.log('memcache', 'info', info_kvs)
 
-          values 
+          values
         end
       end
     end

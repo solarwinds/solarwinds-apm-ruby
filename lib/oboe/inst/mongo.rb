@@ -131,8 +131,8 @@ if defined?(::Mongo) and Oboe::Config[:mongo][:enabled]
 
             report_kvs[:QueryOp] = m
             report_kvs[:Query] = args[0].to_json if args and not args.empty? and args[0].class == Hash
-          rescue
-            Oboe.logger.debug "[oboe/debug] Exception in oboe_collect KV collection."
+          rescue StandardError => e
+            Oboe.logger.debug "[oboe/debug] Exception in oboe_collect KV collection: #{e.inspect}"
           end
           report_kvs
         end

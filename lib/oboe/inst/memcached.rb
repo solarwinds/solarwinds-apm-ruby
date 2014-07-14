@@ -5,7 +5,7 @@ module Oboe
   module Inst
     module Memcached
       include Oboe::API::Memcache
-      
+
       def self.included(cls)
         Oboe.logger.info "[oboe/loading] Instrumenting memcached" if Oboe::Config[:verbose]
 
@@ -22,11 +22,11 @@ module Oboe
 
               Oboe::API.trace('memcache', opts) do
                 result = send("#{m}_without_oboe", *args)
-            
+
                 info_kvs = {}
                 info_kvs[:KVHit] = memcache_hit?(result) if m == :get and args.length and args[0].class == String
                 info_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:memcached][:collect_backtraces]
-                
+
                 Oboe::API.log('memcache', 'info', info_kvs) unless info_kvs.empty?
                 result
               end
@@ -47,7 +47,7 @@ module Oboe
             alias get_multi_without_oboe get_multi
             alias get_multi get_multi_with_oboe
           elsif Oboe::Config[:verbose]
-            Oboe.logger.warn "[oboe/loading] Couldn't properly instrument Memcached.  Partial traces may occur." 
+            Oboe.logger.warn "[oboe/loading] Couldn't properly instrument Memcached.  Partial traces may occur."
           end
         end
       end
@@ -60,10 +60,10 @@ module Oboe
           Oboe::API.trace('memcache', layer_kvs || {}, :get_multi) do
             begin
               info_kvs = {}
-              info_kvs[:KVKeyCount] = keys.flatten.length 
+              info_kvs[:KVKeyCount] = keys.flatten.length
 
               values = get_multi_without_oboe(keys, raw)
-              
+
               info_kvs[:KVHitCount] = values.length
               info_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:memcached][:collect_backtraces]
 
@@ -71,7 +71,7 @@ module Oboe
             rescue
               values = get_multi_without_oboe(keys, raw)
             end
-            values 
+            values
           end
         else
           get_multi_without_oboe(keys, raw)
@@ -86,7 +86,7 @@ if defined?(::Memcached) and Oboe::Config[:memcached][:enabled]
   ::Memcached.class_eval do
     include Oboe::Inst::Memcached
   end
-  
+
   if defined?(::Memcached::Rails)
     ::Memcached::Rails.class_eval do
       include Oboe::Inst::MemcachedRails

@@ -27,13 +27,13 @@ module Oboe
   end
 
   ##
-  # This module houses all of the loading functionality for the oboe gem.  
+  # This module houses all of the loading functionality for the oboe gem.
   #
-  # Note that this does not necessarily _have_ to include initialization routines 
+  # Note that this does not necessarily _have_ to include initialization routines
   # (although it can).
   #
   # Actual initialization is often separated out as it can be dependent on on the state
-  # of the stack boot process.  e.g. code requiring that initializers, frameworks or 
+  # of the stack boot process.  e.g. code requiring that initializers, frameworks or
   # instrumented libraries are already loaded...
   #
   module Loading
@@ -52,7 +52,7 @@ module Oboe
           if Oboe::Config.access_key.empty?
             config_file = '/etc/tracelytics.conf'
             return unless File.exists?(config_file)
-            
+
             File.open(config_file).each do |line|
               if line =~ /^tracelyzer.access_key=/ or line =~ /^access_key/
                 bits = line.split(/=/)
@@ -63,14 +63,14 @@ module Oboe
             end
           end
         end
-      rescue Exception => e
+      rescue StandardError => e
         Oboe.logger.error "Trouble obtaining access_key and rum_id: #{e.inspect}"
       end
     end
 
     ##
     # Load the oboe tracing API
-    # 
+    #
     def self.require_api
       pattern = File.join(File.dirname(__FILE__), 'api', '*.rb')
       Dir.glob(pattern) do |f|

@@ -1,18 +1,18 @@
 require 'minitest_helper'
 require "redis"
-    
+
 describe Oboe::Inst::Redis, :misc do
   attr_reader :entry_kvs, :exit_kvs, :redis, :redis_version
 
   def min_server_version(version)
     unless Gem::Version.new(@redis_version) >= Gem::Version.new(version.to_s)
-      skip "supported only on redis-server #{version} or greater" 
+      skip "supported only on redis-server #{version} or greater"
     end
   end
 
   before do
-    clear_all_traces 
-    
+    clear_all_traces
+
     @redis ||= Redis.new
 
     @redis_version ||= @redis.info["redis_version"]
@@ -35,7 +35,7 @@ describe Oboe::Inst::Redis, :misc do
     traces[2]['channel'].must_equal "channel1"
     traces[2].has_key?('KVKey').must_equal false
   end
-  
+
   it "should trace select" do
     min_server_version(2.0)
 
@@ -48,7 +48,7 @@ describe Oboe::Inst::Redis, :misc do
     traces[2]['KVOp'].must_equal "select"
     traces[2]['db'].must_equal "2"
   end
-  
+
   it "should trace pipelined operations" do
     min_server_version(1.2)
 
@@ -57,7 +57,7 @@ describe Oboe::Inst::Redis, :misc do
         @redis.zadd("staff", 0, "waiter")
         @redis.zadd("staff", 1, "busser")
         @redis.zadd("staff", 2, "chef")
-    
+
         @redis.lpush("fringe", "bishop")
         @redis.lpush("fringe", "dunham")
         @redis.lpush("fringe", "broyles")
@@ -69,7 +69,7 @@ describe Oboe::Inst::Redis, :misc do
     traces[2]['KVOpCount'].must_equal "6"
     traces[2]['KVOps'].must_equal "zadd, zadd, zadd, lpush, lpush, lpush"
   end
-  
+
   it "should trace multi with block" do
     min_server_version(1.2)
 
@@ -78,7 +78,7 @@ describe Oboe::Inst::Redis, :misc do
         @redis.zadd("presidents", 0, "Lincoln")
         @redis.zadd("presidents", 1, "Adams")
         @redis.zadd("presidents", 2, "Reagan")
-    
+
         @redis.lpush("hair", "blue")
         @redis.lpush("hair", "gray")
         @redis.lpush("hair", "yellow")
@@ -90,7 +90,7 @@ describe Oboe::Inst::Redis, :misc do
     traces[2]['KVOpCount'].must_equal "8"
     traces[2]['KVOps'].must_equal "multi, zadd, zadd, zadd, lpush, lpush, lpush, exec"
   end
-  
+
   it "should trace eval" do
     min_server_version(2.6)
 
@@ -109,10 +109,10 @@ describe Oboe::Inst::Redis, :misc do
     traces[6]['KVOp'].must_equal "eval"
     traces[6]['Script'].must_equal "return { KEYS, ARGV }"
   end
-  
+
   it "should trace evalsha" do
     min_server_version(2.6)
-      
+
     sha = @redis.script(:load, "return 1")
 
     Oboe::API.start_trace('redis_test', '', {}) do
@@ -124,10 +124,10 @@ describe Oboe::Inst::Redis, :misc do
     traces[2]['KVOp'].must_equal "evalsha"
     traces[2]['sha'].must_equal sha
   end
-  
+
   it "should trace script" do
     min_server_version(2.6)
-      
+
     Oboe::API.start_trace('redis_test', '', {}) do
       @sha = @redis.script(:load, "return 1")
       @it_exists1 = @redis.script(:exists, @sha)

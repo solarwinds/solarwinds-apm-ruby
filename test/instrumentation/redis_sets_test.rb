@@ -1,18 +1,18 @@
 require 'minitest_helper'
 require "redis"
-    
+
 describe Oboe::Inst::Redis, :sets do
   attr_reader :entry_kvs, :exit_kvs, :redis, :redis_version
 
   def min_server_version(version)
     unless Gem::Version.new(@redis_version) >= Gem::Version.new(version.to_s)
-      skip "supported only on redis-server #{version} or greater" 
+      skip "supported only on redis-server #{version} or greater"
     end
   end
 
   before do
-    clear_all_traces 
-    
+    clear_all_traces
+
     @redis ||= Redis.new
 
     @redis_version ||= @redis.info["redis_version"]
@@ -21,7 +21,7 @@ describe Oboe::Inst::Redis, :sets do
     @entry_kvs ||= { 'Layer' => 'redis_test', 'Label' => 'entry' }
     @exit_kvs  ||= { 'Layer' => 'redis_test', 'Label' => 'exit' }
   end
-  
+
   it "should trace sadd" do
     min_server_version(1.0)
 
@@ -34,10 +34,10 @@ describe Oboe::Inst::Redis, :sets do
     traces[2]['KVOp'].must_equal "sadd"
     traces[2]['KVKey'].must_equal "shrimp"
   end
-  
+
   it "should trace scard" do
     min_server_version(1.0)
-      
+
     @redis.sadd("mother sauces", "bechamel")
     @redis.sadd("mother sauces", "veloute")
     @redis.sadd("mother sauces", "espagnole")
@@ -53,7 +53,7 @@ describe Oboe::Inst::Redis, :sets do
     traces[2]['KVOp'].must_equal "scard"
     traces[2]['KVKey'].must_equal "mother sauces"
   end
-  
+
   it "should trace sdiff" do
     min_server_version(1.0)
 
@@ -72,7 +72,7 @@ describe Oboe::Inst::Redis, :sets do
     traces[2]['KVOp'].must_equal "sdiff"
     traces[2].has_key?('KVKey').must_equal false
   end
-  
+
   it "should trace sdiffstore" do
     min_server_version(1.0)
 
@@ -91,7 +91,7 @@ describe Oboe::Inst::Redis, :sets do
     traces[2]['KVOp'].must_equal "sdiffstore"
     traces[2]['destination'].must_equal "dest"
   end
-  
+
   it "should trace sinter" do
     min_server_version(1.0)
 
@@ -110,7 +110,7 @@ describe Oboe::Inst::Redis, :sets do
     traces[2]['KVOp'].must_equal "sinter"
     traces[2].has_key?('KVKey').must_equal false
   end
-  
+
   it "should trace sinterstore" do
     min_server_version(1.0)
 
@@ -129,7 +129,7 @@ describe Oboe::Inst::Redis, :sets do
     traces[2]['KVOp'].must_equal "sinterstore"
     traces[2]['destination'].must_equal "dest"
   end
-  
+
   it "should trace sismember" do
     min_server_version(1.0)
 
@@ -150,7 +150,7 @@ describe Oboe::Inst::Redis, :sets do
     traces[2]['KVOp'].must_equal "sismember"
     traces[2]['KVKey'].must_equal "fibonacci"
   end
-  
+
   it "should trace smembers" do
     min_server_version(1.0)
 
@@ -169,7 +169,7 @@ describe Oboe::Inst::Redis, :sets do
     traces[2]['KVOp'].must_equal "smembers"
     traces[2]['KVKey'].must_equal "fibonacci"
   end
-  
+
   it "should trace smove" do
     min_server_version(1.0)
 
@@ -187,7 +187,7 @@ describe Oboe::Inst::Redis, :sets do
     traces[2]['source'].must_equal "alpha"
     traces[2]['destination'].must_equal "numbers"
   end
-  
+
   it "should trace spop" do
     min_server_version(1.0)
 
@@ -204,7 +204,7 @@ describe Oboe::Inst::Redis, :sets do
     traces[2]['KVOp'].must_equal "spop"
     traces[2]['KVKey'].must_equal "fibonacci"
   end
-  
+
   it "should trace srandmember" do
     min_server_version(1.0)
 
@@ -221,7 +221,7 @@ describe Oboe::Inst::Redis, :sets do
     traces[2]['KVOp'].must_equal "srandmember"
     traces[2]['KVKey'].must_equal "fibonacci"
   end
-  
+
   it "should trace srem" do
     min_server_version(1.0)
 
@@ -238,7 +238,7 @@ describe Oboe::Inst::Redis, :sets do
     traces[2]['KVOp'].must_equal "srem"
     traces[2]['KVKey'].must_equal "fibonacci"
   end
-  
+
   it "should trace sunion" do
     min_server_version(1.0)
 
@@ -255,7 +255,7 @@ describe Oboe::Inst::Redis, :sets do
     traces[2]['KVOp'].must_equal "sunion"
     traces[2].has_key?('KVKey').must_equal false
   end
-  
+
   it "should trace sunionstore" do
     min_server_version(1.0)
 
@@ -273,7 +273,7 @@ describe Oboe::Inst::Redis, :sets do
     traces[2]['destination'].must_equal "dest"
     traces[2].has_key?('KVKey').must_equal false
   end
-  
+
   it "should trace sscan" do
     min_server_version(2.8)
 

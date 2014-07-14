@@ -23,7 +23,7 @@ if defined?(ActionView::Base) and Oboe::Config[:action_view][:enabled]
           render_partial_without_oboe(object)
         end
       end
-      
+
       alias :render_collection_without_oboe :render_collection
       def render_collection
         entry_kvs = {}

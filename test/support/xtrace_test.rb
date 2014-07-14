@@ -9,7 +9,7 @@ describe Oboe::XTrace do
     Oboe::XTrace.valid?("1B00000000000000000000000000000000000000000000000000000000").must_equal false
     Oboe::XTrace.valid?("1b").must_equal false
     Oboe::XTrace.valid?("29348209348").must_equal false
-   
+
     # Standard X-Trace IDs
     Oboe::XTrace.valid?("1B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F").must_equal true
     Oboe::XTrace.valid?("1BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFA").must_equal true
@@ -25,7 +25,7 @@ describe Oboe::XTrace do
     task_id.is_a?(String).must_equal true
     task_id.must_equal "F86B3D3342FCECAECE33C6411379BB171505DB6A"
     task_id.length.must_equal 40
-    
+
     task_id = Oboe::XTrace.task_id("1B77970F82332EE22FF04C249FCBA8F63E8AFA2C6730E209453259B2D6")
     task_id.is_a?(String).must_equal true
     task_id.must_equal "77970F82332EE22FF04C249FCBA8F63E8AFA2C67"

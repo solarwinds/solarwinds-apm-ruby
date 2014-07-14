@@ -138,4 +138,3 @@ module Oboe
 end
 
 Oboe::Config.initialize
-

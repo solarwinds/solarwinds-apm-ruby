@@ -3,7 +3,7 @@ require 'net/http'
 
 describe Oboe::Inst do
   before do
-    clear_all_traces 
+    clear_all_traces
     @collect_backtraces = Oboe::Config[:nethttp][:collect_backtraces]
   end
 
@@ -12,7 +12,7 @@ describe Oboe::Inst do
   end
 
   it 'Net::HTTP should be defined and ready' do
-    defined?(::Net::HTTP).wont_match nil 
+    defined?(::Net::HTTP).wont_match nil
   end
 
   it 'Net::HTTP should have oboe methods defined' do
@@ -31,7 +31,7 @@ describe Oboe::Inst do
 
     traces = get_all_traces
     traces.count.must_equal 5
-    
+
     validate_outer_layers(traces, 'net-http_test')
 
     traces[1]['Layer'].must_equal 'net-http'
@@ -43,7 +43,7 @@ describe Oboe::Inst do
     traces[2]['HTTPStatus'].must_equal "200"
     traces[2].has_key?('Backtrace').must_equal Oboe::Config[:nethttp][:collect_backtraces]
   end
-  
+
   it "should trace a Net::HTTP request" do
     Oboe::API.start_trace('net-http_test', '', {}) do
       uri = URI('https://www.google.com')
@@ -54,7 +54,7 @@ describe Oboe::Inst do
 
     traces = get_all_traces
     traces.count.must_equal 5
-    
+
     validate_outer_layers(traces, 'net-http_test')
 
     traces[1]['Layer'].must_equal 'net-http'
@@ -66,7 +66,7 @@ describe Oboe::Inst do
     traces[2]['HTTPStatus'].must_equal "200"
     traces[2].has_key?('Backtrace').must_equal Oboe::Config[:nethttp][:collect_backtraces]
   end
-  
+
   it "should obey :collect_backtraces setting when true" do
     Oboe::Config[:nethttp][:collect_backtraces] = true
 

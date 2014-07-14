@@ -12,7 +12,7 @@ module Oboe
           Oboe::Util.send_include(::ActiveRecord::ConnectionAdapters::PostgreSQLAdapter,
                                     Oboe::Inst::ConnectionAdapters::Utils)
 
-          if (::ActiveRecord::VERSION::MAJOR == 3 and ::ActiveRecord::VERSION::MINOR > 0) or 
+          if (::ActiveRecord::VERSION::MAJOR == 3 and ::ActiveRecord::VERSION::MINOR > 0) or
                 ::ActiveRecord::VERSION::MAJOR == 4
 
             # ActiveRecord 3.1 and up
