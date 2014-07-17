@@ -6,7 +6,7 @@ gem "dalli"
 gem "memcache-client"
 gem "cassandra"
 gem "mongo"
-gem "bson_ext"
+gem "bson"
 gem "moped", "~> 1.5"
 gem "resque"
 gem "redis"
@@ -19,7 +19,6 @@ group :development, :test do
   gem "minitest-reporters"
   gem "rack-test"
   gem "appraisal"
-  gem "bson"
 end
 
 group :development do
