@@ -28,6 +28,7 @@ install:
 
 before_script:
   - bundle install --without development
+  - bundle exec appraisal install
   - bundle exec rake compile
 
 script: "bundle exec rake test"
