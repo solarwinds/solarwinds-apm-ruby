@@ -46,7 +46,6 @@ end
 # Retrieves all traces written to the trace file
 #
 def get_all_traces
-  require 'pry'
   io = File.open($trace_file, "r")
   contents = io.readlines(nil)
 
