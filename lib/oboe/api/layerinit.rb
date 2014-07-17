@@ -66,20 +66,20 @@ module Oboe
           elsif defined?(::WEBrick)
             platform_info['Ruby.AppContainer.Version'] = "WEBrick-#{::WEBrick::VERSION}"
           else
-            platform_info['Ruby.AppContainer.Version'] = "Unknown"
+            platform_info['Ruby.AppContainer.Version'] = File.basename($0)
           end
 
-          # If we couldn't load the c extension correctly, report the error to the dashboard.
-          unless Oboe.loaded
-            platform_info['Error'] = "Missing TraceView libraries.  Tracing disabled."
-          end
+        rescue StandardError, ScriptError => e
+          # Also rescue ScriptError (aka SyntaxError) in case one of the expected
+          # version defines don't exist
 
-        rescue StandardError => e
+          platform_info['Error'] = "Error in layerinit: #{e.message}"
+
           Oboe.logger.debug "Error in layerinit: #{e.message}"
           Oboe.logger.debug e.backtrace
         end
 
-        start_trace(layer, nil, platform_info) { }
+        start_trace(layer, nil, platform_info.merge('Force' => true)) { }
       end
 
       ##

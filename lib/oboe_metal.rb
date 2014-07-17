@@ -49,6 +49,8 @@ module Oboe
   class << self
     def sample?(opts = {})
       begin
+        return false unless Oboe.always?
+
         # Assure defaults since SWIG enforces Strings
         layer   = opts[:layer]      ? opts[:layer].strip      : ''
         xtrace  = opts[:xtrace]     ? opts[:xtrace].strip     : ''
