@@ -56,7 +56,7 @@ def get_all_traces
   traces = []
 
   until s.eof?
-    if defined?(::BSON::VERSION) and ::BSON::VERSION < "2.0"
+    if ::BSON.respond_to? :read_bson_document
       traces << BSON.read_bson_document(s)
     else
       traces << BSON::Document.from_bson(s)
