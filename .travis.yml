@@ -7,6 +7,10 @@ rvm:
   - 1.8.7
   - ree
 
+#gemfile:
+#  - gemfiles/mongo.gemfile
+#  - gemfiles/moped.gemfile
+
 # Attempt Travis/Cassandra fix re: https://github.com/travis-ci/travis-ci/issues/1484
 # Updated Cassandra: https://github.com/travis-ci/travis-ci/issues/1650
 before_install:
@@ -25,6 +29,8 @@ install:
 before_script:
   - bundle install --without development
   - bundle exec rake compile
+
+script: "bundle exec rake test"
 
 services: 
   - mongodb
