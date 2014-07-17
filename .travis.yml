@@ -30,6 +30,8 @@ before_script:
   - bundle install --without development
   - bundle exec rake compile
 
+script: "bundle exec rake test"
+
 services: 
   - mongodb
   - memcached
