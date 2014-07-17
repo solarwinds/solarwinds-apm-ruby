@@ -46,11 +46,24 @@ end
 # Retrieves all traces written to the trace file
 #
 def get_all_traces
+  require 'pry'
+  io = File.open($trace_file, "r")
+  contents = io.readlines(nil)
+
+  return contents if contents.empty?
+
+  s = StringIO.new(contents[0])
+
   traces = []
-  f = File.open($trace_file)
-  until f.eof?
-    traces << BSON.read_bson_document(f)
+
+  until s.eof?
+    if defined?(::BSON::VERSION) and ::BSON::VERSION < "2.0"
+      traces << BSON.read_bson_document(s)
+    else
+      traces << BSON::Document.from_bson(s)
+    end
   end
+
   traces
 end
 
