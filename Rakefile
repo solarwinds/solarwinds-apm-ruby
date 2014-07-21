@@ -9,6 +9,9 @@ Rake::TestTask.new do |t|
   t.libs << "test"
   t.test_files = FileList['test/**/*_test.rb']
   t.verbose = true
+  if defined?(JRUBY_VERSION)
+    t.ruby_opts = ["-J-javaagent:/usr/local/tracelytics/tracelyticsagent.jar"]
+  end
 end
 
 if !ENV["APPRAISAL_INITIALIZED"] && !ENV["TRAVIS"]
