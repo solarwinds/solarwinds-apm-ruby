@@ -88,7 +88,7 @@ module Oboe_metal
     #
     # Truncates the trace output file to zero
     #
-    def clear_all_traces
+    def self.clear_all_traces
       Oboe.reporter.reset
     end
 
@@ -97,7 +97,7 @@ module Oboe_metal
     #
     # Retrieves all traces written to the trace file
     #
-    def get_all_traces
+    def self.get_all_traces
       Oboe.reporter.getSentEventsAsBsonDocument
     end
 

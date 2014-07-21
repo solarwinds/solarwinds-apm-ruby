@@ -37,7 +37,7 @@ Oboe.logger.level = Logger::DEBUG
 # Truncates the trace output file to zero
 #
 def clear_all_traces
-  File.truncate($trace_file, 0)
+  Oboe::Reporter.clear_all_traces
 end
 
 ##
@@ -46,24 +46,7 @@ end
 # Retrieves all traces written to the trace file
 #
 def get_all_traces
-  io = File.open($trace_file, "r")
-  contents = io.readlines(nil)
-
-  return contents if contents.empty?
-
-  s = StringIO.new(contents[0])
-
-  traces = []
-
-  until s.eof?
-    if ::BSON.respond_to? :read_bson_document
-      traces << BSON.read_bson_document(s)
-    else
-      traces << BSON::Document.from_bson(s)
-    end
-  end
-
-  traces
+  Oboe::Reporter.get_all_traces
 end
 
 ##
