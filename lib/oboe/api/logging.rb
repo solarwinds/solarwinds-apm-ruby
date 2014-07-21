@@ -62,7 +62,7 @@ module Oboe
       def log_start(layer, xtrace, opts={})
         return if Oboe.never? or (opts.has_key?(:URL) and ::Oboe::Util.static_asset?(opts[:URL]))
 
-        if xtrace
+        if xtrace and not xtrace.to_s.empty?
           Oboe::Context.fromString(xtrace)
         end
 
