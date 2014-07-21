@@ -9,11 +9,16 @@ module Oboe_metal
   java_import 'com.tracelytics.joboe.SettingsReader'
   java_import 'com.tracelytics.joboe.Context'
   java_import 'com.tracelytics.joboe.Event'
+  java_import 'com.tracelytics.agent.Agent'
 
   class Context
     class << self
       def toString
         md = getMetadata.toString
+      end
+
+      def fromString(xtrace)
+        Context.setMetadata(xtrace)
       end
 
       def clear
@@ -115,13 +120,18 @@ module Oboe
     def sample?(opts = {})
       return false unless Oboe.always?
 
-      # Assure defaults since SWIG enforces Strings
-      opts[:layer]      ||= ''
-      opts[:xtrace]     ||= ''
-      opts['X-TV-Meta']   ||= ''
+      # Validation to make Joboe happy.  Assure that we have the KVs and that they
+      # are not empty strings.
+      opts[:layer]  = nil      if opts[:layer].is_a?(String)      and opts[:layer].empty?
+      opts[:xtrace] = nil      if opts[:xtrace].is_a?(String)     and opts[:xtrace].empty?
+      opts['X-TV-Meta'] = nil  if opts['X-TV-Meta'].is_a?(String) and opts['X-TV-Meta'].empty?
+
+      opts[:layer]      ||= nil
+      opts[:xtrace]     ||= nil
+      opts['X-TV-Meta'] ||= nil
 
       Java::ComTracelyticsJoboe::LayerUtil.shouldTraceRequest( opts[:layer],
-                                                               { 'X-Trace'   => opts[:xtrace],
+                                                               { 'X-Trace'   => opts[:xtrace]})
                                                                  'X-TV-Meta' => opts['X-TV-Meta'] } )
     end
 
@@ -135,5 +145,11 @@ module Oboe
   end
 end
 
-Oboe.loaded = true
+# Assure that the Joboe Java Agent was loaded via premain
+status = Java::ComTracelyticsAgent::Agent.getStatus
+unless status == Java::ComTracelyticsAgent::Agent::AgentStatus::UNINITIALIZED
+  Oboe.loaded = false
+else
+  Oboe.loaded = true
+end
 
