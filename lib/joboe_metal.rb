@@ -54,6 +54,23 @@ module Oboe_metal
           Oboe.reporter = Java::ComTracelyticsJoboe::ReporterFactory.getInstance().buildUdpReporter()
         end
 
+
+        # Import the tracing mode and sample rate settings
+        # from the Java agent (user configured in
+        # /usr/local/tracelytics/javaagent.json when under JRuby)
+        cfg = LayerUtil.getLocalSampleRate(nil, nil)
+
+        if cfg.hasSampleStartFlag
+          Oboe::Config.tracing_mode = 'always'
+        elsif cfg.hasSampleThroughFlag
+          Oboe::Config.tracing_mode = 'through'
+        else
+          Oboe::Config.tracing_mode = 'never'
+        end
+
+        Oboe::Config.sample_rate = cfg.sampleRate
+
+
         # Only report __Init from here if we are not instrumenting a framework.
         # Otherwise, frameworks will handle reporting __Init after full initialization
         unless defined?(::Rails) or defined?(::Sinatra) or defined?(::Padrino) or defined?(::Grape)
