@@ -94,7 +94,7 @@ module Oboe_metal
     # Truncates the trace output file to zero
     #
     def self.clear_all_traces
-      Oboe.reporter.reset
+      Oboe.reporter.reset if Oboe.loaded
     end
 
     ##
@@ -103,6 +103,7 @@ module Oboe_metal
     # Retrieves all traces written to the trace file
     #
     def self.get_all_traces
+      return [] unless Oboe.loaded
       Oboe.reporter.getSentEventsAsBsonDocument
     end
 
@@ -118,7 +119,7 @@ module Oboe
 
   class << self
     def sample?(opts = {})
-      return false unless Oboe.always?
+      return false unless Oboe.always? and  Oboe.loaded
 
       # Validation to make Joboe happy.  Assure that we have the KVs and that they
       # are not empty strings.
@@ -131,7 +132,7 @@ module Oboe
       opts['X-TV-Meta'] ||= nil
 
       Java::ComTracelyticsJoboe::LayerUtil.shouldTraceRequest( opts[:layer],
-                                                               { 'X-Trace'   => opts[:xtrace]})
+                                                               { 'X-Trace'   => opts[:xtrace],
                                                                  'X-TV-Meta' => opts['X-TV-Meta'] } )
     end
 
@@ -147,7 +148,7 @@ end
 
 # Assure that the Joboe Java Agent was loaded via premain
 status = Java::ComTracelyticsAgent::Agent.getStatus
-unless status == Java::ComTracelyticsAgent::Agent::AgentStatus::UNINITIALIZED
+if status == Java::ComTracelyticsAgent::Agent::AgentStatus::UNINITIALIZED
   Oboe.loaded = false
 else
   Oboe.loaded = true
