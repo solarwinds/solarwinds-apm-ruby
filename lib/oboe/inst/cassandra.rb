@@ -11,7 +11,7 @@ module Oboe
           report_kvs[:Op] = op.to_s
           report_kvs[:Cf] = column_family.to_s if column_family
           report_kvs[:Key] = keys.inspect if keys
-         
+
           # Open issue - how to handle multiple Cassandra servers
           report_kvs[:RemoteHost], report_kvs[:RemotePort] = @servers.first.split(":")
 
@@ -20,7 +20,7 @@ module Oboe
           if options.empty? and args.is_a?(Array)
             options = args.last if args.last.is_a?(Hash)
           end
-          
+
           unless options.empty?
             [:start_key, :finish_key, :key_count, :batch_size, :columns, :count, :start,
              :stop, :finish, :finished, :reversed, :consistency, :ttl].each do |k|
@@ -73,10 +73,10 @@ module Oboe
           send :count_columns_without_oboe, *args
         end
       end
-      
+
       def get_columns_with_oboe(column_family, key, *columns_and_options)
         args = [column_family, key] + columns_and_options
-        
+
         if Oboe.tracing? and not Oboe::Context.tracing_layer_op?(:multi_get_columns)
           report_kvs = extract_trace_details(:get_columns, column_family, key, columns_and_options)
 
@@ -87,7 +87,7 @@ module Oboe
           send :get_columns_without_oboe, *args
         end
       end
-      
+
       def multi_get_columns_with_oboe(column_family, key, *columns_and_options)
         return send :multi_get_columns_without_oboe, *args unless Oboe.tracing?
 
@@ -109,10 +109,10 @@ module Oboe
           send :get_without_oboe, *args
         end
       end
-      
+
       def multi_get_with_oboe(column_family, key, *columns_and_options)
         args = [column_family, key] + columns_and_options
-        
+
         if Oboe.tracing? and not Oboe::Context.tracing_layer_op?(:get)
           report_kvs = extract_trace_details(:multi_get, column_family, key, columns_and_options)
 
@@ -134,7 +134,7 @@ module Oboe
           send :exists_without_oboe?, *args
         end
       end
-      
+
       def get_range_single_with_oboe(column_family, options = {})
         if Oboe.tracing? and not Oboe::Context.tracing_layer_op?(:get_range_batch)
           report_kvs = extract_trace_details(:get_range_single, column_family, nil, nil)
@@ -147,10 +147,10 @@ module Oboe
           get_range_single_without_oboe(column_family, options)
         end
       end
-      
+
       def get_range_batch_with_oboe(column_family, options = {})
         return get_range_batch_without_oboe(column_family, options) unless Oboe.tracing?
-          
+
         report_kvs = extract_trace_details(:get_range_batch, column_family, nil, nil)
         args = [column_family, options]
 
@@ -158,7 +158,7 @@ module Oboe
           get_range_batch_without_oboe(column_family, options)
         end
       end
-      
+
       def get_indexed_slices_with_oboe(column_family, index_clause, *columns_and_options)
         return send :get_indexed_slices_without_oboe, *args unless Oboe.tracing?
 
@@ -174,7 +174,7 @@ module Oboe
         unless Oboe.tracing?
           return create_index_without_oboe(keyspace, column_family, column_name, validation_class)
         end
-          
+
         report_kvs = extract_trace_details(:create_index, column_family, nil, nil)
         begin
           report_kvs[:Keyspace] = keyspace.to_s
@@ -190,7 +190,7 @@ module Oboe
 
       def drop_index_with_oboe(keyspace, column_family, column_name)
         return drop_index_without_oboe(keyspace, column_family, column_name) unless Oboe.tracing?
-        
+
         report_kvs = extract_trace_details(:drop_index, column_family, nil, nil)
         begin
           report_kvs[:Keyspace] = keyspace.to_s
@@ -216,7 +216,7 @@ module Oboe
           add_column_family_without_oboe(cf_def)
         end
       end
-      
+
       def drop_column_family_with_oboe(column_family)
         return drop_column_family_without_oboe(column_family) unless Oboe.tracing?
 
@@ -226,7 +226,7 @@ module Oboe
           drop_column_family_without_oboe(column_family)
         end
       end
-      
+
       def add_keyspace_with_oboe(ks_def)
         return add_keyspace_without_oboe(ks_def) unless Oboe.tracing?
 
@@ -237,10 +237,10 @@ module Oboe
           add_keyspace_without_oboe(ks_def)
         end
       end
-      
+
       def drop_keyspace_with_oboe(keyspace)
         return drop_keyspace_without_oboe(keyspace) unless Oboe.tracing?
-          
+
         report_kvs = extract_trace_details(:drop_keyspace, nil, nil, nil)
         report_kvs[:Name] = keyspace.to_s rescue ""
 
@@ -254,11 +254,11 @@ end
 
 if defined?(::Cassandra) and Oboe::Config[:cassandra][:enabled]
   Oboe.logger.info "[oboe/loading] Instrumenting cassandra" if Oboe::Config[:verbose]
-  
+
   class ::Cassandra
     include Oboe::Inst::Cassandra
 
-    [ :insert, :remove, :count_columns, :get_columns, :multi_get_columns, :get, 
+    [ :insert, :remove, :count_columns, :get_columns, :multi_get_columns, :get,
       :multi_get, :get_range_single, :get_range_batch, :get_indexed_slices,
       :create_index, :drop_index, :add_column_family, :drop_column_family,
       :add_keyspace, :drop_keyspace].each do |m|

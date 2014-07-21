@@ -1,18 +1,18 @@
 require 'minitest_helper'
 require "redis"
-    
+
 describe Oboe::Inst::Redis, :sortedsets do
   attr_reader :entry_kvs, :exit_kvs, :redis, :redis_version
 
   def min_server_version(version)
     unless Gem::Version.new(@redis_version) >= Gem::Version.new(version.to_s)
-      skip "supported only on redis-server #{version} or greater" 
+      skip "supported only on redis-server #{version} or greater"
     end
   end
 
   before do
-    clear_all_traces 
-    
+    clear_all_traces
+
     @redis ||= Redis.new
 
     @redis_version ||= @redis.info["redis_version"]
@@ -34,10 +34,10 @@ describe Oboe::Inst::Redis, :sortedsets do
     traces[2]['KVOp'].must_equal "zadd"
     traces[2]['KVKey'].must_equal "time"
   end
-  
+
   it "should trace zcard" do
     min_server_version(1.2)
-      
+
     @redis.zadd("sauce", 0, "bechamel")
     @redis.zadd("sauce", 1, "veloute")
     @redis.zadd("sauce", 2, "espagnole")
@@ -53,10 +53,10 @@ describe Oboe::Inst::Redis, :sortedsets do
     traces[2]['KVOp'].must_equal "zcard"
     traces[2]['KVKey'].must_equal "sauce"
   end
-  
+
   it "should trace zcount" do
     min_server_version(2.0)
-      
+
     @redis.zadd("sauce", 0, "bechamel")
     @redis.zadd("sauce", 1, "veloute")
     @redis.zadd("sauce", 2, "espagnole")
@@ -72,10 +72,10 @@ describe Oboe::Inst::Redis, :sortedsets do
     traces[2]['KVOp'].must_equal "zcount"
     traces[2]['KVKey'].must_equal "sauce"
   end
-  
+
   it "should trace zincrby" do
     min_server_version(1.2)
-      
+
     @redis.zadd("sauce", 0, "bechamel")
     @redis.zadd("sauce", 1, "veloute")
     @redis.zadd("sauce", 2, "espagnole")
@@ -91,14 +91,14 @@ describe Oboe::Inst::Redis, :sortedsets do
     traces[2]['KVOp'].must_equal "zincrby"
     traces[2]['KVKey'].must_equal "sauce"
   end
-  
+
   it "should trace zinterstore" do
     min_server_version(2.0)
-      
+
     @redis.zadd("sauce", 0, "bechamel")
     @redis.zadd("sauce", 1, "veloute")
     @redis.zadd("sauce", 2, "espagnole")
-    
+
     @redis.zadd("beverage", 0, "milkshake")
     @redis.zadd("beverage", 1, "soda")
 
@@ -112,10 +112,10 @@ describe Oboe::Inst::Redis, :sortedsets do
     traces[2]['destination'].must_equal "zinterstore_dest"
     traces[2].has_key?('KVKey').must_equal false
   end
-  
+
   it "should trace zrange" do
     min_server_version(1.2)
-      
+
     @redis.zadd("sauce", 0, "bechamel")
     @redis.zadd("sauce", 1, "veloute")
     @redis.zadd("sauce", 2, "espagnole")
@@ -134,7 +134,7 @@ describe Oboe::Inst::Redis, :sortedsets do
 
   it "should trace zrangebyscore" do
     min_server_version(1.0)
-      
+
     @redis.zadd("sauce", 0, "bechamel")
     @redis.zadd("sauce", 1, "veloute")
     @redis.zadd("sauce", 2, "espagnole")
@@ -150,10 +150,10 @@ describe Oboe::Inst::Redis, :sortedsets do
     traces[2]['KVOp'].must_equal "zrangebyscore"
     traces[2]['KVKey'].must_equal "sauce"
   end
-  
+
   it "should trace zrank" do
     min_server_version(2.0)
-      
+
     @redis.zadd("sauce", 0, "bechamel")
     @redis.zadd("sauce", 1, "veloute")
     @redis.zadd("sauce", 2, "espagnole")
@@ -169,10 +169,10 @@ describe Oboe::Inst::Redis, :sortedsets do
     traces[2]['KVOp'].must_equal "zrank"
     traces[2]['KVKey'].must_equal "sauce"
   end
-  
+
   it "should trace zrem" do
     min_server_version(1.2)
-      
+
     @redis.zadd("sauce", 0, "bechamel")
     @redis.zadd("sauce", 1, "veloute")
     @redis.zadd("sauce", 2, "espagnole")
@@ -191,7 +191,7 @@ describe Oboe::Inst::Redis, :sortedsets do
 
   it "should trace zremrangebyrank" do
     min_server_version(2.0)
-      
+
     @redis.zadd("sauce", 0, "bechamel")
     @redis.zadd("sauce", 1, "veloute")
     @redis.zadd("sauce", 2, "espagnole")
@@ -212,7 +212,7 @@ describe Oboe::Inst::Redis, :sortedsets do
 
   it "should trace zremrangebyscore" do
     min_server_version(1.2)
-      
+
     @redis.zadd("sauce", 0, "bechamel")
     @redis.zadd("sauce", 1, "veloute")
     @redis.zadd("sauce", 2, "espagnole")
@@ -231,7 +231,7 @@ describe Oboe::Inst::Redis, :sortedsets do
 
   it "should trace zrevrange" do
     min_server_version(1.2)
-      
+
     @redis.zadd("sauce", 0, "bechamel")
     @redis.zadd("sauce", 1, "veloute")
     @redis.zadd("sauce", 2, "espagnole")
@@ -252,7 +252,7 @@ describe Oboe::Inst::Redis, :sortedsets do
 
   it "should trace zrevrangebyscore" do
     min_server_version(1.2)
-      
+
     @redis.zadd("sauce", 0, "bechamel")
     @redis.zadd("sauce", 1, "veloute")
     @redis.zadd("sauce", 2, "espagnole")
@@ -285,7 +285,7 @@ describe Oboe::Inst::Redis, :sortedsets do
     traces[2]['KVOp'].must_equal "zrevrank"
     traces[2]['KVKey'].must_equal "letters"
   end
-  
+
   it "should trace zscore" do
     min_server_version(1.2)
 

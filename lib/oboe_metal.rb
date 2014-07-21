@@ -3,7 +3,10 @@
 
 require 'base'
 
-module Oboe_metal
+module Oboe
+  extend OboeBase
+  include Oboe_metal
+
   class Reporter
     ##
     # Initialize the Oboe Context, reporter and report the initialization
@@ -12,7 +15,7 @@ module Oboe_metal
       return unless Oboe.loaded
 
       begin
-        Oboe_metal::Context.init() 
+        Oboe_metal::Context.init()
 
         if ENV['RACK_ENV'] == "test"
           Oboe.reporter = Oboe::FileReporter.new("/tmp/trace_output.bson")
@@ -36,15 +39,18 @@ module Oboe_metal
       Oboe.reporter.sendReport(evt)
     end
   end
-end
 
-module Oboe 
-  extend OboeBase
-  include Oboe_metal
+  class Event
+    def self.metadataString(evt)
+      evt.metadataString()
+    end
+  end
 
   class << self
     def sample?(opts = {})
       begin
+        return false unless Oboe.always?
+
         # Assure defaults since SWIG enforces Strings
         layer   = opts[:layer]      ? opts[:layer].strip      : ''
         xtrace  = opts[:xtrace]     ? opts[:xtrace].strip     : ''

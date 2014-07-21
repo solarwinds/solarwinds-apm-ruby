@@ -32,6 +32,10 @@ module Oboe_metal
     end
   end
 
+  def UdpReporter
+    Java::ComTracelyticsJoboe
+  end
+
   module Metadata
     Java::ComTracelyticsJoboeMetaData
   end
@@ -92,6 +96,8 @@ module Oboe
 
   class << self
     def sample?(opts = {})
+      return false unless Oboe.always?
+
       # Assure defaults since SWIG enforces Strings
       opts[:layer]      ||= ''
       opts[:xtrace]     ||= ''

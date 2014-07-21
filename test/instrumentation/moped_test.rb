@@ -1,11 +1,11 @@
 require 'minitest_helper'
 
-if RUBY_VERSION >= '1.9.3'
+if RUBY_VERSION >= '1.9.3' and (defined?(::Moped::VERSION) and ::Moped::VERSION < "2.0")
   # Moped is tested against MRI 1.9.3, 2.0.0, and JRuby (1.9).
 
   describe Oboe::Inst::Moped do
     before do
-      clear_all_traces 
+      clear_all_traces
       @session = Moped::Session.new([ "127.0.0.1:27017" ])
       @session.use :moped_test
       @users = @session[:users]
@@ -23,13 +23,13 @@ if RUBY_VERSION >= '1.9.3'
       @exit_kvs = { 'Layer' => 'mongo', 'Label' => 'exit' }
       @collect_backtraces = Oboe::Config[:moped][:collect_backtraces]
     end
-    
+
     after do
       Oboe::Config[:moped][:collect_backtraces] = @collect_backtraces
     end
 
     it 'Stock Moped should be loaded, defined and ready' do
-      defined?(::Moped).wont_match nil 
+      defined?(::Moped).wont_match nil
       defined?(::Moped::Database).wont_match nil
       defined?(::Moped::Indexes).wont_match nil
       defined?(::Moped::Query).wont_match nil
@@ -76,9 +76,9 @@ if RUBY_VERSION >= '1.9.3'
         command[:out] = "inline: 1"
         @session.command(command)
       end
-      
+
       traces = get_all_traces
-      
+
       traces.count.must_equal 4
       validate_outer_layers(traces, 'moped_test')
 
@@ -96,9 +96,9 @@ if RUBY_VERSION >= '1.9.3'
         @users.drop
         @session.drop
       end
-      
+
       traces = get_all_traces
-      
+
       traces.count.must_equal 6
       validate_outer_layers(traces, 'moped_test')
 
@@ -119,9 +119,9 @@ if RUBY_VERSION >= '1.9.3'
         @users.indexes.create({:name => 1}, {:unique => true})
         @users.indexes.drop
       end
-      
+
       traces = get_all_traces
-      
+
       traces.count.must_equal 10
       validate_outer_layers(traces, 'moped_test')
 
@@ -137,13 +137,13 @@ if RUBY_VERSION >= '1.9.3'
       traces[3]['Options'].must_equal "{\"unique\":true}"
       traces[3].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
       validate_event_keys(traces[4], @exit_kvs)
-      
+
       validate_event_keys(traces[5], @entry_kvs)
       traces[5]['QueryOp'].must_equal "indexes"
       traces[5]['Collection'].must_equal "users"
       traces[5].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
       validate_event_keys(traces[6], @exit_kvs)
-      
+
       validate_event_keys(traces[7], @entry_kvs)
       traces[7]['QueryOp'].must_equal "drop_indexes"
       traces[7]['Key'].must_equal "all"
@@ -155,9 +155,9 @@ if RUBY_VERSION >= '1.9.3'
       Oboe::API.start_trace('moped_test', '', {}) do
         @users.find.count
       end
-      
+
       traces = get_all_traces
-      
+
       traces.count.must_equal 6
       validate_outer_layers(traces, 'moped_test')
 
@@ -178,9 +178,9 @@ if RUBY_VERSION >= '1.9.3'
       Oboe::API.start_trace('moped_test', '', {}) do
         @users.find(:name => "Mary").sort(:city => 1, :created_at => -1)
       end
-      
+
       traces = get_all_traces
-      
+
       traces.count.must_equal 6
       validate_outer_layers(traces, 'moped_test')
 
@@ -198,14 +198,14 @@ if RUBY_VERSION >= '1.9.3'
       traces[3].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
       validate_event_keys(traces[4], @exit_kvs)
     end
-    
+
     it 'should trace find with limit' do
       Oboe::API.start_trace('moped_test', '', {}) do
         @users.find(:name => "Mary").limit(1)
       end
-      
+
       traces = get_all_traces
-      
+
       traces.count.must_equal 6
       validate_outer_layers(traces, 'moped_test')
 
@@ -228,9 +228,9 @@ if RUBY_VERSION >= '1.9.3'
       Oboe::API.start_trace('moped_test', '', {}) do
         @users.find(:name => "Mary").distinct(:city)
       end
-      
+
       traces = get_all_traces
-      
+
       traces.count.must_equal 6
       validate_outer_layers(traces, 'moped_test')
 
@@ -253,9 +253,9 @@ if RUBY_VERSION >= '1.9.3'
       Oboe::API.start_trace('moped_test', '', {}) do
         @users.find(:name => "Mary").update({:name => "Tool"}, [:multi])
       end
-      
+
       traces = get_all_traces
-      
+
       traces.count.must_equal 6
       validate_outer_layers(traces, 'moped_test')
 
@@ -279,9 +279,9 @@ if RUBY_VERSION >= '1.9.3'
       Oboe::API.start_trace('moped_test', '', {}) do
         @users.find(:name => "Mary").update_all({:name => "Tool"})
       end
-      
+
       traces = get_all_traces
-      
+
       traces.count.must_equal 6
       validate_outer_layers(traces, 'moped_test')
 
@@ -304,9 +304,9 @@ if RUBY_VERSION >= '1.9.3'
       Oboe::API.start_trace('moped_test', '', {}) do
         @users.find(:name => "Tool").upsert({:name => "Mary"})
       end
-      
+
       traces = get_all_traces
-      
+
       traces.count.must_equal 6
       validate_outer_layers(traces, 'moped_test')
 
@@ -330,9 +330,9 @@ if RUBY_VERSION >= '1.9.3'
       Oboe::API.start_trace('moped_test', '', {}) do
         @users.find(:name => "Mary").explain
       end
-      
+
       traces = get_all_traces
-      
+
       traces.count.must_equal 6
       validate_outer_layers(traces, 'moped_test')
 
@@ -357,9 +357,9 @@ if RUBY_VERSION >= '1.9.3'
         @users.find.modify({:query => { "$inc" => { :likes => 1 }}}, :new => true)
         @users.find.modify({:query => {}}, :remove => true)
       end
-      
+
       traces = get_all_traces
-      
+
       traces.count.must_equal 14
       validate_outer_layers(traces, 'moped_test')
 
@@ -377,7 +377,7 @@ if RUBY_VERSION >= '1.9.3'
       traces[3]['Options'].must_equal "{\"upsert\":true}"
       traces[3].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
       validate_event_keys(traces[4], @exit_kvs)
-      
+
       validate_event_keys(traces[7], @entry_kvs)
       traces[7]['QueryOp'].must_equal "modify"
       traces[7]['Update_Document'].must_equal "all"
@@ -386,7 +386,7 @@ if RUBY_VERSION >= '1.9.3'
       traces[7]['Change'].must_equal "{\"query\":{\"$inc\":{\"likes\":1}}}"
       traces[7].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
       validate_event_keys(traces[8], @exit_kvs)
-      
+
       validate_event_keys(traces[11], @entry_kvs)
       traces[11]['Collection'].must_equal "users"
       traces[11]['QueryOp'].must_equal "modify"
@@ -401,9 +401,9 @@ if RUBY_VERSION >= '1.9.3'
       Oboe::API.start_trace('moped_test', '', {}) do
         @users.find(:name => "Tool").remove
       end
-      
+
       traces = get_all_traces
-      
+
       traces.count.must_equal 6
       validate_outer_layers(traces, 'moped_test')
 
@@ -426,9 +426,9 @@ if RUBY_VERSION >= '1.9.3'
       Oboe::API.start_trace('moped_test', '', {}) do
         @users.find(:name => "Mary").remove_all
       end
-      
+
       traces = get_all_traces
-      
+
       traces.count.must_equal 6
       validate_outer_layers(traces, 'moped_test')
 
@@ -446,10 +446,10 @@ if RUBY_VERSION >= '1.9.3'
       traces[3].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
       validate_event_keys(traces[4], @exit_kvs)
     end
-    
+
     it "should obey :collect_backtraces setting when true" do
       Oboe::Config[:moped][:collect_backtraces] = true
-      
+
       Oboe::API.start_trace('moped_test', '', {}) do
         @users.find(:name => "Mary").limit(1)
       end
@@ -460,7 +460,7 @@ if RUBY_VERSION >= '1.9.3'
 
     it "should obey :collect_backtraces setting when false" do
       Oboe::Config[:moped][:collect_backtraces] = false
-      
+
       Oboe::API.start_trace('moped_test', '', {}) do
         @users.find(:name => "Mary").limit(1)
       end

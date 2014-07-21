@@ -7,8 +7,8 @@ if Oboe::Config[:nethttp][:enabled]
 
   Net::HTTP.class_eval do
     def request_with_oboe(*args, &block)
-      unless started? 
-        return request_without_oboe(*args, &block) 
+      unless started?
+        return request_without_oboe(*args, &block)
       end
 
       # Avoid cross host tracing for blacklisted domains
@@ -43,7 +43,7 @@ if Oboe::Config[:nethttp][:enabled]
             xtrace = resp.get_fields('X-Trace')
             xtrace = xtrace[0] if xtrace and xtrace.is_a?(Array)
 
-            if Oboe::XTrace.valid?(xtrace) and Oboe.tracing? 
+            if Oboe::XTrace.valid?(xtrace) and Oboe.tracing?
 
               # Assure that we received back a valid X-Trace with the same task_id
               if task_id == Oboe::XTrace.task_id(xtrace)
@@ -53,9 +53,9 @@ if Oboe::Config[:nethttp][:enabled]
               end
             end
           end
-          
+
           opts['HTTPStatus'] = resp.code
-        
+
           next resp
         ensure
           # Log the info event with the KVs in opts

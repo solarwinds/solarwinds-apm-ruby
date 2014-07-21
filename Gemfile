@@ -5,7 +5,6 @@ group :development, :test do
   gem 'minitest-reporters'
   gem 'rack-test'
   gem 'appraisal'
-  gem 'bson'
 end
 
 group :development do
@@ -21,7 +20,7 @@ gem 'dalli'
 gem 'memcache-client'
 gem 'cassandra'
 gem 'mongo'
-gem 'moped' if RUBY_VERSION >= '1.9'
+gem 'moped', '~> 1.5' if RUBY_VERSION >= '1.9'
 gem 'resque'
 gem 'redis'
 
@@ -36,6 +35,9 @@ gem 'sinatra'
 if RUBY_VERSION >= '1.9.3'
   gem 'padrino', '0.12.0'
   gem 'grape'
+  gem 'bson'
+else
+  gem 'bson', '1.10.2'
 end
 
 # Import dependencies from oboe.gemspec

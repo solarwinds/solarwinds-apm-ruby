@@ -11,7 +11,11 @@ Rake::TestTask.new do |t|
   t.verbose = true
 end
 
-task :default => :test
+if !ENV["APPRAISAL_INITIALIZED"] && !ENV["TRAVIS"]
+  task :default => :appraisal
+else
+  task :default => :test
+end
 
 desc "Build the gem's c extension"
 task :compile do

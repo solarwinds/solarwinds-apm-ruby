@@ -15,7 +15,7 @@ module Oboe
       INDEX_OPS      = [ :create, :drop ]
 
       # Moped::Query
-      QUERY_OPS      = [ :count, :sort, :limit, :distinct, :update, :update_all, :upsert, 
+      QUERY_OPS      = [ :count, :sort, :limit, :distinct, :update, :update_all, :upsert,
                          :explain, :modify, :remove, :remove_all ]
 
       # Moped::Collection
@@ -31,7 +31,7 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
     module ::Moped
       class Database
         include Oboe::Inst::Moped
-        
+
         def extract_trace_details(op)
           report_kvs = {}
           begin
@@ -46,7 +46,7 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
           end
           report_kvs
         end
-       
+
         def command_with_oboe(command)
           if Oboe.tracing? and not Oboe::Context.layer_op and command.has_key?(:mapreduce)
             begin
@@ -74,7 +74,7 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
             drop_without_oboe
           end
         end
-        
+
         Oboe::Inst::Moped::DB_OPS.each do |m|
           if method_defined?(m)
             class_eval "alias #{m}_without_oboe #{m}"
@@ -88,9 +88,9 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
 
   if defined?(::Moped::Indexes)
     module ::Moped
-      class Indexes 
+      class Indexes
         include Oboe::Inst::Moped
-        
+
         def extract_trace_details(op)
           report_kvs = {}
           begin
@@ -105,7 +105,7 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
           end
           report_kvs
         end
-        
+
         def create_with_oboe(key, options = {})
           return create_without_oboe(key, options = {}) unless Oboe.tracing?
 
@@ -123,10 +123,10 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
             create_without_oboe(key, options = {})
           end
         end
-        
+
         def drop_with_oboe(key = nil)
           return drop_without_oboe(key = nil) unless Oboe.tracing?
-            
+
           begin
             # We report :drop_indexes here to be consistent
             # with other mongo implementations
@@ -172,10 +172,10 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
           end
           report_kvs
         end
-        
+
         def count_with_oboe
           return count_without_oboe unless Oboe.tracing?
-            
+
           begin
             report_kvs = extract_trace_details(:count)
             report_kvs[:Query] = selector.empty? ? "all" : selector.to_json
@@ -190,7 +190,7 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
 
         def sort_with_oboe(sort)
           return sort_without_oboe(sort) unless Oboe.tracing?
-            
+
           begin
             report_kvs = extract_trace_details(:sort)
             report_kvs[:Query] = selector.empty? ? "all" : selector.to_json
@@ -203,7 +203,7 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
             sort_without_oboe(sort)
           end
         end
-        
+
         def limit_with_oboe(limit)
           if Oboe.tracing? and not Oboe::Context.tracing_layer_op?(:explain)
             begin
@@ -217,8 +217,8 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
             Oboe::API.trace('mongo', report_kvs) do
               limit_without_oboe(limit)
             end
-          else 
-            limit_without_oboe(limit) 
+          else
+            limit_without_oboe(limit)
           end
         end
 
@@ -237,7 +237,7 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
             distinct_without_oboe(key)
           end
         end
-        
+
         def update_with_oboe(change, flags = nil)
           if Oboe.tracing? and not Oboe::Context.tracing_layer_op?([:update_all, :upsert])
             begin
@@ -255,10 +255,10 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
             update_without_oboe(change, flags = nil)
           end
         end
-        
+
         def update_all_with_oboe(change)
           return update_all_without_oboe(change) unless Oboe.tracing?
-            
+
           begin
             report_kvs = extract_trace_details(:update_all)
             report_kvs[:Update_Document] = change.to_json
@@ -273,7 +273,7 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
 
         def upsert_with_oboe(change)
           return upsert_without_oboe(change) unless Oboe.tracing?
-          
+
           begin
             report_kvs = extract_trace_details(:upsert)
             report_kvs[:Query] = selector.to_json
@@ -289,7 +289,7 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
 
         def explain_with_oboe
           return explain_without_oboe unless Oboe.tracing?
-          
+
           begin
             report_kvs = extract_trace_details(:explain)
             report_kvs[:Query] = selector.empty? ? "all" : selector.to_json
@@ -318,7 +318,7 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
             modify_without_oboe(change, options)
           end
         end
-        
+
         def remove_with_oboe
           return remove_without_oboe unless Oboe.tracing?
 
@@ -384,7 +384,7 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
 
         def drop_with_oboe
           return drop_without_oboe unless Oboe.tracing?
-            
+
           # We report :drop_collection here to be consistent
           # with other mongo implementations
           report_kvs = extract_trace_details(:drop_collection)
@@ -396,7 +396,7 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
 
         def find_with_oboe(selector = {})
           return find_without_oboe(selector) unless Oboe.tracing?
-            
+
           begin
             report_kvs = extract_trace_details(:find)
             report_kvs[:Query] = selector.empty? ? "all" : selector.to_json
@@ -408,17 +408,17 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
             find_without_oboe(selector)
           end
         end
-        
+
         def indexes_with_oboe
           return indexes_without_oboe unless Oboe.tracing?
-            
+
           report_kvs = extract_trace_details(:indexes)
 
           Oboe::API.trace('mongo', report_kvs) do
             indexes_without_oboe
           end
         end
-        
+
         def insert_with_oboe(documents, flags = nil)
           if Oboe.tracing? and not Oboe::Context.tracing_layer_op?(:create_index)
             report_kvs = extract_trace_details(:insert)
@@ -430,17 +430,17 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
             insert_without_oboe(documents, flags)
           end
         end
-        
+
         def aggregate_with_oboe(pipeline)
           return aggregate_without_oboe(pipeline) unless Oboe.tracing?
-            
+
           report_kvs = extract_trace_details(:aggregate)
 
           Oboe::API.trace('mongo', report_kvs) do
             aggregate_without_oboe(pipeline)
           end
         end
-        
+
         Oboe::Inst::Moped::COLLECTION_OPS.each do |m|
           if method_defined?(m)
             class_eval "alias #{m}_without_oboe #{m}"

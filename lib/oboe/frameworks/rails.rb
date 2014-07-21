@@ -20,12 +20,12 @@ module Oboe
               return raw(ERB.new(@@rum_hdr_tmpl).result)
             end
           end
-        rescue Exception => e  
+        rescue StandardError => e
           Oboe.logger.warn "oboe_rum_header: #{e.message}."
           return ""
         end
       end
-      
+
       def oboe_rum_footer
         begin
           return unless Oboe::Config.rum_id
@@ -34,13 +34,13 @@ module Oboe
             # skip that step for now
             return raw(@@rum_ftr_tmpl)
           end
-        rescue Exception => e
+        rescue StandardError => e
           Oboe.logger.warn "oboe_rum_footer: #{e.message}."
           return ""
         end
       end
     end # Helpers
-      
+
     def self.load_initializer
       # Force load the TraceView Rails initializer if there is one
       # Prefer oboe.rb but give priority to the legacy tracelytics.rb if it exists
@@ -52,7 +52,7 @@ module Oboe
 
       if File.exists?("#{rails_root}/config/initializers/tracelytics.rb")
         tr_initializer = "#{rails_root}/config/initializers/tracelytics.rb"
-      else 
+      else
         tr_initializer = "#{rails_root}/config/initializers/oboe.rb"
       end
       require tr_initializer if File.exists?(tr_initializer)
@@ -68,8 +68,8 @@ module Oboe
           Oboe.logger.error "[oboe/loading] Error loading rails insrumentation file '#{f}' : #{e}"
         end
       end
-      
-      Oboe.logger.info "TraceView oboe gem #{Oboe::Version::STRING} successfully loaded." 
+
+      Oboe.logger.info "TraceView oboe gem #{Oboe::Version::STRING} successfully loaded."
     end
 
     def self.include_helpers
@@ -95,9 +95,9 @@ if defined?(::Rails)
   if ::Rails::VERSION::MAJOR > 2
     module Oboe
       class Railtie < ::Rails::Railtie
-        
+
         initializer 'oboe.helpers' do
-          Oboe::Rails.include_helpers        
+          Oboe::Rails.include_helpers
         end
 
         initializer 'oboe.rack' do |app|
@@ -122,7 +122,7 @@ if defined?(::Rails)
 
     Oboe::Rails.load_initializer
     Oboe::Loading.load_access_key
-    
+
     Rails.configuration.after_initialize do
       Oboe.logger.info "[oboe/loading] Instrumenting rack" if Oboe::Config[:verbose]
       Rails.configuration.middleware.insert 0, "Oboe::Rack"
@@ -130,7 +130,7 @@ if defined?(::Rails)
       Oboe::Inst.load_instrumentation
       Oboe::Rails.load_instrumentation
       Oboe::Rails.include_helpers
-      
+
       # Report __Init after fork when in Heroku
       Oboe::API.report_init unless Oboe.heroku?
     end

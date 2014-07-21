@@ -23,7 +23,7 @@ module Oboe
       def log(layer, label, opts={})
         log_event(layer, label, Oboe::Context.createEvent, opts)
       end
-  
+
       # Public: Report an exception.
       #
       # layer - The layer the reported event belongs to
@@ -49,7 +49,7 @@ module Oboe
           exn.instance_variable_set(:@oboe_logged, true)
         end
       end
-  
+
       # Public: Decide whether or not to start a trace, and report an event
       # appropriately.
       #
@@ -61,18 +61,18 @@ module Oboe
       # Returns nothing.
       def log_start(layer, xtrace, opts={})
         return if Oboe.never? or (opts.has_key?(:URL) and ::Oboe::Util.static_asset?(opts[:URL]))
-  
+
         if xtrace
           Oboe::Context.fromString(xtrace)
         end
-  
+
         if Oboe.tracing?
           log_entry(layer, opts)
-        elsif Oboe.always? and (Oboe.sample?(opts.merge(:layer => layer, :xtrace => xtrace)) or opts.has_key?('Force'))
+        elsif opts.has_key?('Force') or Oboe.sample?(opts.merge(:layer => layer, :xtrace => xtrace))
           log_event(layer, 'entry', Oboe::Context.startTrace, opts)
         end
       end
-  
+
       # Public: Report an exit event.
       #
       # layer - The layer the reported event belongs to
@@ -84,7 +84,7 @@ module Oboe
         Oboe::Context.clear
         xtrace
       end
-  
+
       def log_entry(layer, opts={}, protect_op=nil)
         Oboe::Context.layer_op = protect_op if protect_op
         log_event(layer, 'entry', Oboe::Context.createEvent, opts)
@@ -94,7 +94,7 @@ module Oboe
         Oboe::Context.layer_op = nil if protect_op
         log_event(layer, 'exit', Oboe::Context.createEvent, opts)
       end
-  
+
       # Internal: Report an event.
       #
       # layer - The layer the reported event belongs to
@@ -117,13 +117,13 @@ module Oboe
             event.addInfo('Layer', layer.to_s)
         end
         event.addInfo('Label', label.to_s)
-  
+
         opts.each do |k, v|
           event.addInfo(k.to_s, v.to_s) if valid_key? k
         end if !opts.nil? and opts.any?
- 
+
         Oboe::Reporter.sendReport(event) if Oboe.loaded
       end
     end
-  end 
+  end
 end

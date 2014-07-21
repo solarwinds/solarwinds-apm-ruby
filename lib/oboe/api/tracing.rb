@@ -32,10 +32,10 @@ module Oboe
       # Returns the result of the block.
       def trace(layer, opts={}, protect_op=nil)
         log_entry(layer, opts, protect_op)
-        begin 
+        begin
           yield
         rescue Exception => e
-          log_exception(layer, e) 
+          log_exception(layer, e)
           raise
         ensure
           log_exit(layer, {}, protect_op)
@@ -78,7 +78,7 @@ module Oboe
         begin
           result = yield
         rescue Exception => e
-          log_exception(layer, e) 
+          log_exception(layer, e)
           e.instance_variable_set(:@xtrace, log_end(layer))
           raise
         end

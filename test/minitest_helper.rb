@@ -3,7 +3,7 @@ require "minitest/reporters"
 
 ENV["RACK_ENV"] = "test"
 
-# FIXME: Temp hack to fix padrino-core calling RUBY_ENGINE when it's 
+# FIXME: Temp hack to fix padrino-core calling RUBY_ENGINE when it's
 # not defined under Ruby 1.8.7 and 1.9.3
 RUBY_ENGINE = "ruby" unless defined?(RUBY_ENGINE)
 
@@ -46,11 +46,23 @@ end
 # Retrieves all traces written to the trace file
 #
 def get_all_traces
+  io = File.open($trace_file, "r")
+  contents = io.readlines(nil)
+
+  return contents if contents.empty?
+
+  s = StringIO.new(contents[0])
+
   traces = []
-  f = File.open($trace_file)
-  until f.eof?
-    traces << BSON.read_bson_document(f)
+
+  until s.eof?
+    if ::BSON.respond_to? :read_bson_document
+      traces << BSON.read_bson_document(s)
+    else
+      traces << BSON::Document.from_bson(s)
+    end
   end
+
   traces
 end
 
@@ -103,7 +115,7 @@ end
 ##
 # layer_doesnt_have_key
 #
-# Checks an array of trace events to assure that a specific layer 
+# Checks an array of trace events to assure that a specific layer
 # (regardless of event type) doesn't have the specified key
 #
 def layer_doesnt_have_key(traces, layer, key)
@@ -118,7 +130,7 @@ end
 
 ##
 # Sinatra and Padrino Related Helpers
-# 
+#
 # Taken from padrino-core gem
 #
 
