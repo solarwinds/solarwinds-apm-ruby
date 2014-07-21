@@ -51,7 +51,7 @@ module Oboe_metal
         if ENV['RACK_ENV'] == "test"
           Oboe.reporter = Java::ComTracelyticsJoboe::TestReporter.new
         else
-          Oboe.reporter = Java::ComTracelyticsJoboe::UDPReporter.new(Oboe::Config[:reporter_host], Oboe::Config[:reporter_port].to_i)
+          Oboe.reporter = Java::ComTracelyticsJoboe::ReporterFactory.getInstance().buildUdpReporter()
         end
 
         # Only report __Init from here if we are not instrumenting a framework.
