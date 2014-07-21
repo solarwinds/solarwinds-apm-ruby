@@ -8,8 +8,8 @@ group :development, :test do
 end
 
 group :development do
-  gem 'ruby-debug',   :platform  => :mri_18
-  gem 'debugger',     :platform  => :mri_19
+  gem 'ruby-debug',   :platforms => [ :mri_18, :jruby ]
+  gem 'debugger',     :platform  =>   :mri_19
   gem 'byebug',       :platforms => [ :mri_20, :mri_21 ]
   gem 'perftools.rb', :platforms => [ :mri_20, :mri_21 ], :require => 'perftools'
   gem 'pry'
@@ -30,7 +30,12 @@ unless defined?(JRUBY_VERSION)
 end
 
 # Instrumented Frameworks
-gem 'sinatra'
+
+if defined?(JRUBY_VERSION)
+  gem 'sinatra', :require => false
+else
+  gem 'sinatra'
+end
 
 if RUBY_VERSION >= '1.9.3'
   gem 'padrino', '0.12.0'
