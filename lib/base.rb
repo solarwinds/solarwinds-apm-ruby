@@ -22,30 +22,23 @@ SAMPLE_SOURCE_MASK = 0b1111000000000000000000000000
 ZERO_SAMPLE_RATE_MASK   = 0b1111000000000000000000000000
 ZERO_SAMPLE_SOURCE_MASK = 0b0000111111111111111111111111
 
-module Oboe_metal
-  class Context
-    class << self
-      attr_accessor :layer_op
-
-      def tracing_layer_op?(operation)
-        if operation.is_a?(Array)
-          return operation.include?(@layer_op)
-        else
-          return @layer_op == operation
-        end
-      end
-    end
-  end
-end
-
 module OboeBase
   attr_accessor :reporter
   attr_accessor :loaded
   attr_accessor :sample_source
   attr_accessor :sample_rate
+  attr_accessor :layer_op
 
   def self.included(cls)
     self.loaded = true
+  end
+
+  def tracing_layer_op?(operation)
+    if operation.is_a?(Array)
+      return operation.include?(@layer_op)
+    else
+      return @layer_op == operation
+    end
   end
 
   def always?
