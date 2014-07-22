@@ -48,7 +48,7 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
         end
 
         def command_with_oboe(command)
-          if Oboe.tracing? and not Oboe::Context.layer_op and command.has_key?(:mapreduce)
+          if Oboe.tracing? and not Oboe.layer_op and command.has_key?(:mapreduce)
             begin
               report_kvs = extract_trace_details(:map_reduce)
               report_kvs[:Map_Function] = command[:map]
@@ -205,7 +205,7 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
         end
 
         def limit_with_oboe(limit)
-          if Oboe.tracing? and not Oboe::Context.tracing_layer_op?(:explain)
+          if Oboe.tracing? and not Oboe.tracing_layer_op?(:explain)
             begin
               report_kvs = extract_trace_details(:limit)
               report_kvs[:Query] = selector.empty? ? "all" : selector.to_json
@@ -239,7 +239,7 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
         end
 
         def update_with_oboe(change, flags = nil)
-          if Oboe.tracing? and not Oboe::Context.tracing_layer_op?([:update_all, :upsert])
+          if Oboe.tracing? and not Oboe.tracing_layer_op?([:update_all, :upsert])
             begin
               report_kvs = extract_trace_details(:update)
               report_kvs[:Flags] = flags.to_s if flags
@@ -420,7 +420,7 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
         end
 
         def insert_with_oboe(documents, flags = nil)
-          if Oboe.tracing? and not Oboe::Context.tracing_layer_op?(:create_index)
+          if Oboe.tracing? and not Oboe.tracing_layer_op?(:create_index)
             report_kvs = extract_trace_details(:insert)
 
             Oboe::API.trace('mongo', report_kvs) do

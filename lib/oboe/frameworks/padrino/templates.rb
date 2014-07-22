@@ -21,7 +21,7 @@ module Oboe
             report_kvs[:template] = engine
           end
 
-          if Oboe::Context.tracing_layer_op?('render')
+          if Oboe.tracing_layer_op?('render')
             # For recursive calls to :render (for sub-partials and layouts),
             # use method profiling.
             begin

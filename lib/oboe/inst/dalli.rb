@@ -25,7 +25,7 @@ module Oboe
       def perform_with_oboe(*all_args, &blk)
         op, key, *args = *all_args
 
-        if Oboe.tracing? and not Oboe::Context.tracing_layer_op?(:get_multi)
+        if Oboe.tracing? and not Oboe.tracing_layer_op?(:get_multi)
           Oboe::API.trace('memcache', { :KVOp => op, :KVKey => key }) do
             result = perform_without_oboe(*all_args, &blk)
 
