@@ -104,7 +104,7 @@ module Oboe_metal
     #
     def self.get_all_traces
       return [] unless Oboe.loaded
-      Oboe.reporter.getSentEventsAsBsonDocument
+      Oboe.reporter.getSentEventsAsBsonDocument.to_a
     end
 
     def self.sendReport(evt)
@@ -120,6 +120,8 @@ module Oboe
   class << self
     def sample?(opts = {})
       return false unless Oboe.always? and  Oboe.loaded
+
+      return true if ENV['RACK_ENV'] = "test"
 
       # Validation to make Joboe happy.  Assure that we have the KVs and that they
       # are not empty strings.
