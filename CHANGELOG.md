@@ -1,4 +1,4 @@
-# oboe 2.6.7 (07/14/2014)
+# oboe 2.6.7.1 (07/23/2014)
 
 This patch release includes better error handling, API clean-up and RUM template improvements.
 
