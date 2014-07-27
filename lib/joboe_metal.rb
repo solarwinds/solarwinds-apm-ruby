@@ -104,7 +104,21 @@ module Oboe_metal
     #
     def self.get_all_traces
       return [] unless Oboe.loaded
-      Oboe.reporter.getSentEventsAsBsonDocument.to_a
+
+      # Joboe TestReporter returns a Java::ComTracelyticsExtEbson::DefaultDocument
+      # document for traces which doesn't correctly support things like has_key? which
+      # raises an unhandled exception on non-existent key (duh).  Here we convert
+      # the Java::ComTracelyticsExtEbson::DefaultDocument doc to a pure array of Ruby
+      # hashes
+      traces = []
+      Oboe.reporter.getSentEventsAsBsonDocument.to_a.each do |e|
+        t = {}
+        e.each_pair { |k,v|
+          t[k] = v
+        }
+        traces << t
+      end
+      traces
     end
 
     def self.sendReport(evt)
