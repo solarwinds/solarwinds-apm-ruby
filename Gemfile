@@ -45,5 +45,5 @@ else
   gem 'bson', '1.10.2'
 end
 
-gemspec
+gemspec :name => :oboe
 
