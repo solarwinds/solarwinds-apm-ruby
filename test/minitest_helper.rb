@@ -1,3 +1,4 @@
+require "minitest/spec"
 require "minitest/autorun"
 require "minitest/reporters"
 
@@ -11,6 +12,10 @@ Minitest::Spec.new 'pry'
 
 unless RUBY_VERSION =~ /^1.8/
   MiniTest::Reporters.use! MiniTest::Reporters::SpecReporter.new
+end
+
+if defined?(JRUBY_VERSION)
+  ENV['JAVA_OPTS'] = "-J-javaagent:/usr/local/tracelytics/tracelyticsagent.jar"
 end
 
 require 'rubygems'
@@ -82,6 +87,7 @@ end
 # has he specified key
 #
 def layer_has_key(traces, layer, key)
+  return false if traces.empty?
   has_key = false
 
   traces.each do |t|
@@ -102,6 +108,7 @@ end
 # (regardless of event type) doesn't have the specified key
 #
 def layer_doesnt_have_key(traces, layer, key)
+  return false if traces.empty?
   has_key = false
 
   traces.each do |t|
