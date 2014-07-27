@@ -45,9 +45,5 @@ else
   gem 'bson', '1.10.2'
 end
 
-if defined?(JRUBY_VERSION)
-  gem 'oboe', :path => '.'
-else
-  gemspec :name => 'oboe'
-end
+gemspec
 
