@@ -8,5 +8,3 @@ class GrapeSimple < Grape::API
   end
 end
 
-use GrapeSimple
-
