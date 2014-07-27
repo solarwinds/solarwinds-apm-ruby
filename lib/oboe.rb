@@ -15,8 +15,8 @@ begin
         require '/usr/local/tracelytics/tracelyticsagent.jar'
         require 'joboe_metal'
       else
-        require 'oboe_metal'
         require 'oboe_metal.so'
+        require 'oboe_metal'
       end
     rescue LoadError
       Oboe.loaded = false
