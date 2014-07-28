@@ -53,7 +53,7 @@ module Oboe_metal
 
         Oboe_metal::Context.init()
 
-        if ENV['RACK_ENV'] == "test"
+        if ENV.has_key?("OBOE_GEM_TEST")
           Oboe.reporter = Oboe::FileReporter.new("/tmp/trace_output.bson")
         else
           Oboe.reporter = Oboe::UdpReporter.new(Oboe::Config[:reporter_host])
