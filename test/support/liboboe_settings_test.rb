@@ -24,6 +24,10 @@ class RackTestApp < Minitest::Test
   def test_localset_sample_source
     clear_all_traces
 
+    # In case this test gets run first, sleep for five seconds to give
+    # liboboe a chance to download SRv1 sampling info.
+    sleep 5
+
     get "/lobster"
 
     traces = get_all_traces
