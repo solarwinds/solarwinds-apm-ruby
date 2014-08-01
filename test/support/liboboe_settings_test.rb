@@ -25,6 +25,12 @@ unless defined?(JRUBY_VERSION)
     def test_localset_sample_source
       clear_all_traces
 
+      # In case this test gets run first, sleep for a bit to give
+      # liboboe a chance to download SRv1 sampling info.
+      sleep 10
+
+      get "/lobster"
+
       get "/lobster"
 
       traces = get_all_traces

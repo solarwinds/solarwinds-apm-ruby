@@ -53,7 +53,7 @@ module Oboe_metal
       begin
         return unless Oboe.loaded
 
-        if ENV['RACK_ENV'] == "test"
+        if ENV.has_key?("OBOE_GEM_TEST")
           Oboe.reporter = Java::ComTracelyticsJoboe::TestReporter.new
         else
           Oboe.reporter = Java::ComTracelyticsJoboe::ReporterFactory.getInstance().buildUdpReporter()
