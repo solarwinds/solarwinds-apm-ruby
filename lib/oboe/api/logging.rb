@@ -62,7 +62,7 @@ module Oboe
       def log_start(layer, xtrace, opts={})
         return if Oboe.never? or (opts.has_key?(:URL) and ::Oboe::Util.static_asset?(opts[:URL]))
 
-        if xtrace
+        if xtrace and not xtrace.to_s.empty?
           Oboe::Context.fromString(xtrace)
         end
 
@@ -86,12 +86,12 @@ module Oboe
       end
 
       def log_entry(layer, opts={}, protect_op=nil)
-        Oboe::Context.layer_op = protect_op if protect_op
+        Oboe.layer_op = protect_op if protect_op
         log_event(layer, 'entry', Oboe::Context.createEvent, opts)
       end
 
       def log_exit(layer, opts={}, protect_op=nil)
-        Oboe::Context.layer_op = nil if protect_op
+        Oboe.layer_op = nil if protect_op
         log_event(layer, 'exit', Oboe::Context.createEvent, opts)
       end
 

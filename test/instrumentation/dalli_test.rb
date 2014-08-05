@@ -1,6 +1,6 @@
 require 'minitest_helper'
 
-describe Oboe::Inst::Dalli do
+describe Oboe::Inst::Dalli < ::MiniTest::Spec  do
   before do
     clear_all_traces
     @dc = Dalli::Client.new

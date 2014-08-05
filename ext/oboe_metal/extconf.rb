@@ -5,12 +5,7 @@ require 'mkmf'
 require 'rbconfig'
 
 # Check if we're running in JRuby
-if RbConfig::CONFIG.has_key?('arch')
-  # nil meaning java string not found
-  jruby = (RbConfig::CONFIG['arch'] =~ /java/i) != nil
-else
-  jruby = false
-end
+jruby = defined?(JRUBY_VERSION) ? true : false
 
 openshift = ENV.has_key?('OPENSHIFT_TRACEVIEW_DIR')
 
