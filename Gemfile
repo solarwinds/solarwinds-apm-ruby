@@ -24,6 +24,7 @@ gem 'mongo'
 gem 'moped', '~> 1.5' if RUBY_VERSION >= '1.9'
 gem 'resque'
 gem 'redis'
+gem 'faraday'
 
 # Instrumented Frameworks
 gem 'sinatra'

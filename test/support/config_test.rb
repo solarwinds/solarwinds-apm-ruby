@@ -20,12 +20,14 @@ describe Oboe::Config do
     # Reset Oboe::Config to defaults
     Oboe::Config.initialize
 
+    # FIXME: We should instead read this instrumentation list from Oboe::Config 
+    # if possible
     instrumentation = [ :cassandra, :dalli, :nethttp, :memcached, :memcache, :mongo,
                         :moped, :rack, :resque, :action_controller, :action_view,
-                        :active_record ]
+                        :active_record, :faraday ]
 
     # Verify the number of individual instrumentations
-    instrumentation.count.must_equal 12
+    instrumentation.count.must_equal 13
 
     instrumentation.each do |k|
       Oboe::Config[k][:enabled].must_equal true
