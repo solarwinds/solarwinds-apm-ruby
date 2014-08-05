@@ -51,7 +51,7 @@ module Oboe
       end
 
       def enqueue_to_with_oboe(queue, klass, *args)
-        if Oboe.tracing? and not Oboe::Context.tracing_layer_op?(:enqueue)
+        if Oboe.tracing? and not Oboe.tracing_layer_op?(:enqueue)
           report_kvs = extract_trace_details(:enqueue_to, klass, args)
           report_kvs[:Queue] = queue.to_s if queue
 

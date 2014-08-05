@@ -11,7 +11,7 @@ module Oboe
       # layer - The layer the block of code belongs to.
       # opts - A hash containing key/value pairs that will be reported along
       # with the first event of this layer (optional).
-      # protect_op - specify the operating being traced.  Used to avoid
+      # protect_op - specify the operation being traced.  Used to avoid
       # double tracing between operations that call each other
       #
       # Example

@@ -70,7 +70,7 @@ module Oboe
       end
 
       def request_setup_with_oboe(*args)
-        if Oboe.tracing? and not Oboe::Context.tracing_layer_op?(:get_multi)
+        if Oboe.tracing? and not Oboe.tracing_layer_op?(:get_multi)
           server, cache_key = request_setup_without_oboe(*args)
 
           info_kvs = { :KVKey => cache_key, :RemoteHost => server.host }
