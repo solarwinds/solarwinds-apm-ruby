@@ -1,4 +1,3 @@
-require 'byebug'
 module Faraday
   class Request::TraceView < Faraday::Middleware
 
@@ -36,12 +35,12 @@ module Faraday
         #
         # Re-attach net::http edge unless blacklisted and is a valid X-Trace ID
         #unless blacklisted
-
+        #
         #  xtrace = env.response_headers['X-Trace']
-
+        #
         #  if Oboe::XTrace.valid?(xtrace) and Oboe.tracing?
-
-            # Assure that we received back a valid X-Trace with the same task_id
+        #
+        #    # Assure that we received back a valid X-Trace with the same task_id
         #    if task_id == Oboe::XTrace.task_id(xtrace)
         #      Oboe::Context.fromString(xtrace)
         #    else
