@@ -23,13 +23,11 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_localset_sample_source
-      clear_all_traces
-
-      # In case this test gets run first, sleep for a bit to give
-      # liboboe a chance to download SRv1 sampling info.
-      sleep 10
-
+      # We make an initial call here which will force the oboe gem to retrieve
+      # the sample_rate and sample_source from liboboe (via sample? method)
       get "/lobster"
+
+      clear_all_traces
 
       get "/lobster"
 
