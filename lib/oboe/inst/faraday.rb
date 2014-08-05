@@ -20,7 +20,8 @@ module Faraday
 
         report_kvs['IsService'] = 1
         report_kvs['RemoteProtocol'] = (env[:url].scheme == 'https') ? 'HTTPS' : 'HTTP'
-        report_kvs['RemoteHost'] = env[:url].port
+        report_kvs['RemoteHost'] = env[:url].host
+        report_kvs['RemotePort'] = env[:url].port
         report_kvs['ServiceArg'] = env[:url].path
         report_kvs['HTTPMethod'] = env.method
         report_kvs['Blacklisted'] = true if blacklisted
