@@ -22,11 +22,11 @@ class RackTestApp < Minitest::Test
   end
 
   def test_localset_sample_source
-    clear_all_traces
+    # We make an initial call here which will force the oboe gem to retrieve
+    # the sample_rate and sample_source from liboboe (via sample? method)
+    get "/lobster"
 
-    # In case this test gets run first, sleep for five seconds to give
-    # liboboe a chance to download SRv1 sampling info.
-    sleep 5
+    clear_all_traces
 
     get "/lobster"
 
