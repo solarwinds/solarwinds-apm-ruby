@@ -5,18 +5,20 @@ require 'base'
 
 module Oboe_metal
   include_package 'com.tracelytics.joboe'
-  import 'com.tracelytics.joboe'
-  include_package 'com.tracelytics.joboe.SettingsReader'
-  import 'com.tracelytics.joboe.SettingsReader'
-  include_package 'com.tracelytics.joboe.Context'
-  import 'com.tracelytics.joboe.Context'
-  include_package 'com.tracelytics.joboe.Event'
-  import 'com.tracelytics.joboe.Event'
+  java_import 'com.tracelytics.joboe.LayerUtil'
+  java_import 'com.tracelytics.joboe.SettingsReader'
+  java_import 'com.tracelytics.joboe.Context'
+  java_import 'com.tracelytics.joboe.Event'
+  java_import 'com.tracelytics.agent.Agent'
 
   class Context
     class << self
       def toString
         md = getMetadata.toString
+      end
+
+      def fromString(xtrace)
+        Context.setMetadata(xtrace)
       end
 
       def clear
@@ -51,13 +53,28 @@ module Oboe_metal
       begin
         return unless Oboe.loaded
 
-        Oboe_metal::Context.init()
-
         if ENV.has_key?("OBOE_GEM_TEST")
-          Oboe.reporter = Oboe::FileReporter.new("/tmp/trace_output.bson")
+          Oboe.reporter = Java::ComTracelyticsJoboe::TestReporter.new
         else
-          Oboe.reporter = Oboe::UdpReporter.new(Oboe::Config[:reporter_host])
+          Oboe.reporter = Java::ComTracelyticsJoboe::ReporterFactory.getInstance().buildUdpReporter()
         end
+
+
+        # Import the tracing mode and sample rate settings
+        # from the Java agent (user configured in
+        # /usr/local/tracelytics/javaagent.json when under JRuby)
+        cfg = LayerUtil.getLocalSampleRate(nil, nil)
+
+        if cfg.hasSampleStartFlag
+          Oboe::Config.tracing_mode = 'always'
+        elsif cfg.hasSampleThroughFlag
+          Oboe::Config.tracing_mode = 'through'
+        else
+          Oboe::Config.tracing_mode = 'never'
+        end
+
+        Oboe::Config.sample_rate = cfg.sampleRate
+
 
         # Only report __Init from here if we are not instrumenting a framework.
         # Otherwise, frameworks will handle reporting __Init after full initialization
@@ -71,8 +88,41 @@ module Oboe_metal
       end
     end
 
+    ##
+    # clear_all_traces
+    #
+    # Truncates the trace output file to zero
+    #
+    def self.clear_all_traces
+      Oboe.reporter.reset if Oboe.loaded
+    end
+
+    ##
+    # get_all_traces
+    #
+    # Retrieves all traces written to the trace file
+    #
+    def self.get_all_traces
+      return [] unless Oboe.loaded
+
+      # Joboe TestReporter returns a Java::ComTracelyticsExtEbson::DefaultDocument
+      # document for traces which doesn't correctly support things like has_key? which
+      # raises an unhandled exception on non-existent key (duh).  Here we convert
+      # the Java::ComTracelyticsExtEbson::DefaultDocument doc to a pure array of Ruby
+      # hashes
+      traces = []
+      Oboe.reporter.getSentEventsAsBsonDocument.to_a.each do |e|
+        t = {}
+        e.each_pair { |k,v|
+          t[k] = v
+        }
+        traces << t
+      end
+      traces
+    end
+
     def self.sendReport(evt)
-      evt.report
+      evt.report(Oboe.reporter)
     end
   end
 end
@@ -83,23 +133,40 @@ module Oboe
 
   class << self
     def sample?(opts = {})
-      return false unless Oboe.always?
+      return false unless Oboe.always? and  Oboe.loaded
 
-      # Assure defaults since SWIG enforces Strings
-      opts[:layer]      ||= ''
-      opts[:xtrace]     ||= ''
-      opts['X-TV-Meta']   ||= ''
-      Java::ComTracelyticsJoboeSettingsReader.shouldTraceRequest(opts[:layer], opts[:xtrace], opts['X-TV-Meta'])
+      return true if ENV['RACK_ENV'] = "test"
+
+      # Validation to make Joboe happy.  Assure that we have the KVs and that they
+      # are not empty strings.
+      opts[:layer]  = nil      if opts[:layer].is_a?(String)      and opts[:layer].empty?
+      opts[:xtrace] = nil      if opts[:xtrace].is_a?(String)     and opts[:xtrace].empty?
+      opts['X-TV-Meta'] = nil  if opts['X-TV-Meta'].is_a?(String) and opts['X-TV-Meta'].empty?
+
+      opts[:layer]      ||= nil
+      opts[:xtrace]     ||= nil
+      opts['X-TV-Meta'] ||= nil
+
+      Java::ComTracelyticsJoboe::LayerUtil.shouldTraceRequest( opts[:layer],
+                                                               { 'X-Trace'   => opts[:xtrace],
+                                                                 'X-TV-Meta' => opts['X-TV-Meta'] } )
     end
 
     def set_tracing_mode(mode)
-      # FIXME: TBD
+      Oboe.logger.warn "When using JRuby set the tracing mode in /usr/local/tracelytics/javaagent.json instead"
     end
 
     def set_sample_rate(rate)
-      # FIXME: TBD
+      # N/A
     end
   end
 end
 
-Oboe.loaded = true
+# Assure that the Joboe Java Agent was loaded via premain
+status = Java::ComTracelyticsAgent::Agent.getStatus
+if status == Java::ComTracelyticsAgent::Agent::AgentStatus::UNINITIALIZED
+  Oboe.loaded = false
+else
+  Oboe.loaded = true
+end
+

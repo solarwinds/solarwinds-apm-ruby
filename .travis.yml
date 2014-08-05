@@ -6,6 +6,7 @@ rvm:
   - 1.9.2
   - 1.8.7
   - ree
+  - jruby-19mode
 
 #gemfile:
 #  - gemfiles/mongo.gemfile
@@ -25,6 +26,7 @@ before_script: sleep 10
 install: 
   - wget https://www.tracelytics.com/install_tracelytics.sh
   - sudo sh ./install_tracelytics.sh f51e2a43-0ee5-4851-8a54-825773b3218e
+  - sudo apt-get install -y tracelytics-java-agent
 
 before_script:
   - bundle install --without development
@@ -38,3 +40,6 @@ services:
   - cassandra
   - redis
 
+matrix:
+  allow_failures:
+ 
