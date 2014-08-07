@@ -37,7 +37,12 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
           begin
             report_kvs[:Flavor] = Oboe::Inst::Moped::FLAVOR
             # FIXME: We're only grabbing the first of potentially multiple servers here
-            report_kvs[:RemoteHost], report_kvs[:RemotePort] = session.cluster.seeds.first.split(':')
+            if ::Moped::VERSION < "2.0.0"
+              report_kvs[:RemoteHost], report_kvs[:RemotePort] = session.cluster.seeds.first.split(':')
+            else
+              report_kvs[:RemoteHost] = session.cluster.seeds.first.address.host
+              report_kvs[:RemotePort] = session.cluster.seeds.first.address.port
+            end
             report_kvs[:Database] = name
             report_kvs[:QueryOp] = op.to_s
             report_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:moped][:collect_backtraces]
@@ -96,7 +101,12 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
           begin
             report_kvs[:Flavor] = Oboe::Inst::Moped::FLAVOR
             # FIXME: We're only grabbing the first of potentially multiple servers here
-            report_kvs[:RemoteHost], report_kvs[:RemotePort] = database.session.cluster.seeds.first.split(':')
+            if ::Moped::VERSION < "2.0.0"
+              report_kvs[:RemoteHost], report_kvs[:RemotePort] = database.session.cluster.seeds.first.split(':')
+            else
+              report_kvs[:RemoteHost] = database.session.cluster.seeds.first.address.host
+              report_kvs[:RemotePort] = database.session.cluster.seeds.first.address.port
+            end
             report_kvs[:Database] = database.name
             report_kvs[:QueryOp] = op.to_s
             report_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:moped][:collect_backtraces]
@@ -162,7 +172,12 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
           begin
             report_kvs[:Flavor] = Oboe::Inst::Moped::FLAVOR
             # FIXME: We're only grabbing the first of potentially multiple servers here
-            report_kvs[:RemoteHost], report_kvs[:RemotePort] = collection.database.session.cluster.seeds.first.split(':')
+            if ::Moped::VERSION < "2.0.0"
+              report_kvs[:RemoteHost], report_kvs[:RemotePort] = collection.database.session.cluster.seeds.first.split(':')
+            else
+              report_kvs[:RemoteHost] = collection.database.session.cluster.seeds.first.address.host
+              report_kvs[:RemotePort] = collection.database.session.cluster.seeds.first.address.port
+            end
             report_kvs[:Database] = collection.database.name
             report_kvs[:Collection] = collection.name
             report_kvs[:QueryOp] = op.to_s
@@ -371,9 +386,14 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
           begin
             report_kvs[:Flavor] = Oboe::Inst::Moped::FLAVOR
             # FIXME: We're only grabbing the first of potentially multiple servers here
-            report_kvs[:RemoteHost], report_kvs[:RemotePort] = @database.session.cluster.seeds.first.split(':')
-            report_kvs[:Database] = @database.name
-            report_kvs[:Collection] = @name
+            if ::Moped::VERSION < "2.0.0"
+              report_kvs[:RemoteHost], report_kvs[:RemotePort] = collection.database.session.cluster.seeds.first.split(':')
+            else
+              report_kvs[:RemoteHost] = database.session.cluster.seeds.first.address.host
+              report_kvs[:RemotePort] = database.session.cluster.seeds.first.address.port
+            end
+            report_kvs[:Database] = database.name
+            report_kvs[:Collection] = name
             report_kvs[:QueryOp] = op.to_s
             report_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:moped][:collect_backtraces]
           rescue StandardError => e
