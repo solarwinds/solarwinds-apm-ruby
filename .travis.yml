@@ -1,4 +1,8 @@
 language: ruby
+cache: 
+  bundler
+  directories:
+  - vendor/bundle
 rvm:
   - 2.1.1
   - 2.0.0
@@ -29,7 +33,7 @@ install:
   - sudo apt-get install -y tracelytics-java-agent
 
 before_script:
-  - bundle install --without development
+  - bundle install --without development --deployment
   - bundle exec rake compile
 
 script: "bundle exec rake test"
