@@ -1,8 +1,10 @@
 language: ruby
+
 cache: 
-  bundler
+  bundler: true
   directories:
   - vendor/bundle
+
 rvm:
   - 2.1.1
   - 2.0.0
