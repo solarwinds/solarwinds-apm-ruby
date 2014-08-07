@@ -387,7 +387,7 @@ if defined?(::Moped) and Oboe::Config[:moped][:enabled]
             report_kvs[:Flavor] = Oboe::Inst::Moped::FLAVOR
             # FIXME: We're only grabbing the first of potentially multiple servers here
             if ::Moped::VERSION < "2.0.0"
-              report_kvs[:RemoteHost], report_kvs[:RemotePort] = collection.database.session.cluster.seeds.first.split(':')
+              report_kvs[:RemoteHost], report_kvs[:RemotePort] = database.session.cluster.seeds.first.split(':')
             else
               report_kvs[:RemoteHost] = database.session.cluster.seeds.first.address.host
               report_kvs[:RemotePort] = database.session.cluster.seeds.first.address.port
