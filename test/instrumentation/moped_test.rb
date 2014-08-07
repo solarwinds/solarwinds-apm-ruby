@@ -1,6 +1,7 @@
 require 'minitest_helper'
+require 'byebug'
 
-if RUBY_VERSION >= '1.9.3' and (defined?(::Moped::VERSION) and ::Moped::VERSION < "2.0")
+if RUBY_VERSION >= '1.9.3'
   # Moped is tested against MRI 1.9.3, 2.0.0, and JRuby (1.9).
 
   describe Oboe::Inst::Moped do
