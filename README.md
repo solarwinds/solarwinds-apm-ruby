@@ -21,7 +21,7 @@ The oboe gem is [available on Rubygems](https://rubygems.org/gems/oboe) and can 
 gem install oboe
 ```
 
-or added to your bundle Gemfile and running `bundle install`:
+or added to _the end_ of your bundle Gemfile and running `bundle install`:
 
 ```ruby
 gem 'oboe'
