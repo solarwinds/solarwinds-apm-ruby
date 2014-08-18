@@ -133,23 +133,35 @@ module Oboe
 
   class << self
     def sample?(opts = {})
-      return false unless Oboe.always? and  Oboe.loaded
+      begin
+        return false unless Oboe.always? and  Oboe.loaded
 
-      return true if ENV['RACK_ENV'] = "test"
+        return true if ENV['OBOE_GEM_TEST'] = "test"
 
-      # Validation to make Joboe happy.  Assure that we have the KVs and that they
-      # are not empty strings.
-      opts[:layer]  = nil      if opts[:layer].is_a?(String)      and opts[:layer].empty?
-      opts[:xtrace] = nil      if opts[:xtrace].is_a?(String)     and opts[:xtrace].empty?
-      opts['X-TV-Meta'] = nil  if opts['X-TV-Meta'].is_a?(String) and opts['X-TV-Meta'].empty?
+        # Validation to make Joboe happy.  Assure that we have the KVs and that they
+        # are not empty strings.
+        opts[:layer]  = nil      if opts[:layer].is_a?(String)      and opts[:layer].empty?
+        opts[:xtrace] = nil      if opts[:xtrace].is_a?(String)     and opts[:xtrace].empty?
+        opts['X-TV-Meta'] = nil  if opts['X-TV-Meta'].is_a?(String) and opts['X-TV-Meta'].empty?
 
-      opts[:layer]      ||= nil
-      opts[:xtrace]     ||= nil
-      opts['X-TV-Meta'] ||= nil
+        opts[:layer]      ||= nil
+        opts[:xtrace]     ||= nil
+        opts['X-TV-Meta'] ||= nil
 
-      Java::ComTracelyticsJoboe::LayerUtil.shouldTraceRequest( opts[:layer],
-                                                               { 'X-Trace'   => opts[:xtrace],
-                                                                 'X-TV-Meta' => opts['X-TV-Meta'] } )
+        sr_cfg = Java::ComTracelyticsJoboe::LayerUtil.shouldTraceRequest( opts[:layer],
+                                 { 'X-Trace'   => opts[:xtrace], 'X-TV-Meta' => opts['X-TV-Meta'] } )
+
+        # Store the returned SampleRateConfig into Oboe::Config
+        if sr_cfg
+          Oboe::Config.sample_rate = sr_cfg.sampleRate
+          Oboe::Config.sample_source = sr_cfg.sampleRateSource.a
+        end
+
+        sr_cfg
+      rescue => e
+        Oboe.logger.debug "[oboe/debug] #{e.message}"
+        false
+      end
     end
 
     def set_tracing_mode(mode)
