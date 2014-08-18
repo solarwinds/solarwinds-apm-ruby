@@ -27,6 +27,8 @@ or added to _the end_ of your bundle Gemfile and running `bundle install`:
 gem 'oboe'
 ```
 
+On Heroku?  Use the `oboe-heroku` gem instead.  It wraps some additional functionality specialized for Heroku.
+
 # Running
 
 ## Rails
