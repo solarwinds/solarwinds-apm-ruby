@@ -14,7 +14,7 @@ module Oboe_metal
   class Context
     class << self
       def toString
-        md = getMetadata.toString
+        md = getMetadata.toHexString
       end
 
       def fromString(xtrace)
