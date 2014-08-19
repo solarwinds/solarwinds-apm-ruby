@@ -1,3 +1,22 @@
+# oboe 2.7.0 (08/13/2014)
+
+This minor release includes:
+
+* [JRuby instrumentation](https://github.com/appneta/oboe-ruby/pull/51) is back and better than ever
+* [Updated moped instrumentation](https://github.com/appneta/oboe-ruby/pull/63) to support moped v2 changes
+* Simplify start_trace by setting a default param: [#67](https://github.com/appneta/oboe-ruby/pull/67)
+
+Pushed to Rubygems: https://rubygems.org/gems/oboe/versions/2.7.0
+
+# oboe 2.6.8 (07/31/2014)
+
+This patch release includes:
+
+* Fix [instrumentation load for Padrino in test environments](https://github.com/appneta/oboe-ruby/pull/65)
+* [Add delay](https://github.com/appneta/oboe-ruby/pull/66) in test suite to allow downloading of sample rate info
+
+Pushed to Rubygems: https://rubygems.org/gems/oboe/versions/2.6.8
+
 # oboe 2.6.7.1 (07/23/2014)
 
 This patch release includes better error handling, API clean-up and RUM template improvements.

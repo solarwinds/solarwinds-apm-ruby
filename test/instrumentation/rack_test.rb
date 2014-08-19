@@ -21,9 +21,6 @@ class RackTestApp < Minitest::Test
   def test_get_the_lobster
     clear_all_traces
 
-    # This is failing under JRuby for some reason... TBI
-    skip if defined?(JRUBY_VERSION)
-
     get "/lobster"
 
     traces = get_all_traces
@@ -50,6 +47,7 @@ class RackTestApp < Minitest::Test
     assert traces[0].has_key?('SampleSource')
 
     assert last_response.ok?
+
     assert last_response['X-Trace']
   end
 
@@ -62,6 +60,14 @@ class RackTestApp < Minitest::Test
     assert traces.empty?
 
     assert last_response.status == 404
+  end
+
+  def test_must_return_xtrace_header
+    clear_all_traces
+    get "/lobster"
+    xtrace = last_response['X-Trace']
+    assert xtrace
+    assert Oboe::XTrace.valid?(xtrace)
   end
 end
 

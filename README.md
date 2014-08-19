@@ -21,11 +21,13 @@ The oboe gem is [available on Rubygems](https://rubygems.org/gems/oboe) and can 
 gem install oboe
 ```
 
-or added to your bundle Gemfile and running `bundle install`:
+or added to _the end_ of your bundle Gemfile and running `bundle install`:
 
 ```ruby
 gem 'oboe'
 ```
+
+On Heroku?  Use the `oboe-heroku` gem instead.  It wraps some additional functionality specialized for Heroku.
 
 # Running
 
@@ -33,7 +35,7 @@ gem 'oboe'
 
 No special steps are needed to instrument Ruby on Rails.  Once part of the bundle, the oboe gem will automatically detect Rails and instrument on stack initialization.
 
-*Note: You will still need to decide on your `tracing_mode` depending on whether you are running with an instrumented Apache or nginx in front of your Rails stack.  See below for more details.*
+*Note: Unless you are Heroku, you will still need to decide on your `tracing_mode` depending on whether you are running with an instrumented Apache or nginx in front of your Rails stack.  See below for more details.*
 
 ### The Install Generator
 
@@ -62,15 +64,11 @@ require 'oboe'
 # order to initiate tracing.
 Oboe::Config[:tracing_mode] = 'through'
 
-# You can remove the following line in production to allow for
-# auto sampling or managing the sample rate through the TraceView portal.
-# Oboe::Config[:sample_rate] = 1000000
-
 # You may want to replace the Oboe.logger with whichever logger you are using
 # Oboe.logger = Sinatra.logger
 ```
 
-Note: If you're on Heroku, you don't need to set `tracing_mode` or `sample_rate` - they will be automatically configured.
+Note: If you're on Heroku, you don't need to set `tracing_mode` - it will be automatically configured.
 
 Make sure that the oboe gem is loaded _after_ Sinatra either by listing `gem 'oboe'` after Sinatra in your Gemfile or calling the `require 'oboe'` directive after Sinatra is loaded.
 
@@ -90,14 +88,10 @@ Padrino.before_load do
   # from upstream) and "never". You must set this directive to "always" in
   # order to initiate tracing.
   Oboe::Config[:tracing_mode] = 'always'
-
-  # You can remove the following line in production to allow for
-  # auto sampling or managing the sample rate through the TraceView portal.
-  Oboe::Config[:sample_rate] = 1e6
 end
 ```
 
-Note: If you're on Heroku, you don't need to set `tracing_mode` or `sample_rate` - they will be automatically configured.
+Note: If you're on Heroku, you don't need to set `tracing_mode` - it will be automatically configured.
 
 ## Grape
 
@@ -114,10 +108,6 @@ You can instrument your Grape application by adding the following code to your `
     # order to initiate tracing.
     Oboe::Config[:tracing_mode] = 'through'
     
-    # You can remove the following line in production to allow for
-    # auto sampling or managing the sample rate through the TraceView portal.
-    # Oboe::Config[:sample_rate] = 1000000
-    
     ...
 
     class App < Grape::API
@@ -125,7 +115,7 @@ You can instrument your Grape application by adding the following code to your `
     end
 ```
 
-Note: If you're on Heroku, you don't need to set `tracing_mode` or `sample_rate` - they will be automatically configured.
+Note: If you're on Heroku, you don't need to set `tracing_mode` - it will be automatically configured.
 
 Make sure that the oboe gem is loaded _after_ Grape either by listing `gem 'oboe'` after Grape in your Gemfile or calling the `require 'oboe'` directive after Grape is loaded.
 
@@ -145,9 +135,6 @@ require 'oboe'
 
 # Tracing mode can be 'never', 'through' (to follow upstream) or 'always'
 Oboe::Config[:tracing_mode] = 'always'
-
-# Number of requests to trace out of each million
-Oboe::Config[:sample_rate] = 1000000
 
 Oboe::Ruby.initialize
 ```
