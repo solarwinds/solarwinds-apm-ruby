@@ -135,9 +135,9 @@ module Oboe
   class << self
     def sample?(opts = {})
       begin
-        return false unless Oboe.always? and  Oboe.loaded
+        return false unless Oboe.always? and Oboe.loaded
 
-        return true if ENV['OBOE_GEM_TEST'] = "test"
+        return true if ENV['OBOE_GEM_TEST'] == "test"
 
         # Validation to make Joboe happy.  Assure that we have the KVs and that they
         # are not empty strings.
@@ -150,7 +150,7 @@ module Oboe
         opts['X-TV-Meta'] ||= nil
 
         sr_cfg = Java::ComTracelyticsJoboe::LayerUtil.shouldTraceRequest( opts[:layer],
-                                 { 'X-Trace'   => opts[:xtrace], 'X-TV-Meta' => opts['X-TV-Meta'] } )
+                               { 'X-Trace' => opts[:xtrace], 'X-TV-Meta' => opts['X-TV-Meta'] } )
 
         # Store the returned SampleRateConfig into Oboe::Config
         if sr_cfg
