@@ -73,8 +73,9 @@ module Oboe_metal
           Oboe::Config.tracing_mode = 'never'
         end
 
+        Oboe.sample_rate = cfg.sampleRate
         Oboe::Config.sample_rate = cfg.sampleRate
-
+        Oboe::Config.sample_source = cfg.sampleRateSource.a
 
         # Only report __Init from here if we are not instrumenting a framework.
         # Otherwise, frameworks will handle reporting __Init after full initialization
@@ -153,8 +154,8 @@ module Oboe
 
         # Store the returned SampleRateConfig into Oboe::Config
         if sr_cfg
-          Oboe::Config.sample_rate = sr_cfg.sampleRate
-          Oboe::Config.sample_source = sr_cfg.sampleRateSource.a
+          Oboe.sample_rate = sr_cfg.sampleRate
+          Oboe.sample_source = sr_cfg.sampleRateSource.a
         end
 
         sr_cfg
