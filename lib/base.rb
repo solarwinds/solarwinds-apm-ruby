@@ -23,11 +23,13 @@ ZERO_SAMPLE_RATE_MASK   = 0b1111000000000000000000000000
 ZERO_SAMPLE_SOURCE_MASK = 0b0000111111111111111111111111
 
 module OboeBase
+  extend ::Oboe::ThreadLocal
+
   attr_accessor :reporter
   attr_accessor :loaded
   attr_accessor :sample_source
   attr_accessor :sample_rate
-  attr_accessor :layer_op
+  thread_local :layer_op
 
   def self.included(cls)
     self.loaded = true
