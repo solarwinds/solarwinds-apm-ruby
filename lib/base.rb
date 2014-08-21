@@ -37,9 +37,9 @@ module OboeBase
 
   def tracing_layer_op?(operation)
     if operation.is_a?(Array)
-      return operation.include?(@layer_op)
+      return operation.include?(Oboe.layer_op)
     else
-      return @layer_op == operation
+      return Oboe.layer_op == operation
     end
   end
 
