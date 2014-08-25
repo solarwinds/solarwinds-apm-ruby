@@ -22,10 +22,10 @@ describe Oboe::Config do
 
     instrumentation = [ :cassandra, :dalli, :nethttp, :memcached, :memcache, :mongo,
                         :moped, :rack, :resque, :action_controller, :action_view,
-                        :active_record ]
+                        :active_record, :em_http_request ]
 
     # Verify the number of individual instrumentations
-    instrumentation.count.must_equal 12
+    instrumentation.count.must_equal 13
 
     instrumentation.each do |k|
       Oboe::Config[k][:enabled].must_equal true

@@ -23,6 +23,7 @@ gem 'mongo'
 gem 'moped' if RUBY_VERSION >= '1.9'
 gem 'resque'
 gem 'redis'
+gem 'em-http-request'
 
 unless defined?(JRUBY_VERSION)
   gem 'memcached', '1.7.2' if RUBY_VERSION < '2.0.0'

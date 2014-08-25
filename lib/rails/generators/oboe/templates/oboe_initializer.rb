@@ -59,6 +59,7 @@ if defined?(Oboe::Config)
   # Oboe::Config[:nethttp][:enabled] = true
   # Oboe::Config[:redis][:enabled] = true
   # Oboe::Config[:resque][:enabled] = true
+  # Oboe::Config[:em_http_request][:enabled] = true
 
   #
   # Enabling/Disabling Backtrace Collection
@@ -80,6 +81,7 @@ if defined?(Oboe::Config)
   # Oboe::Config[:nethttp][:collect_backtraces] = true
   # Oboe::Config[:redis][:collect_backtraces] = false
   # Oboe::Config[:resque][:collect_backtraces] = true
+  # Oboe::Config[:em_http_request][:collect_backtraces] = true
   #
 
   #
