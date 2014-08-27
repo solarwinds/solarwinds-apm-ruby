@@ -7,6 +7,7 @@ begin
   require 'oboe/logger'
   require 'oboe/util'
   require 'oboe/xtrace'
+  require 'oboe/base'
 
   # If Oboe_metal is already defined then we are in a PaaS environment
   # with an alternate metal (such as Heroku: see the oboe-heroku gem)
@@ -32,13 +33,14 @@ begin
   end
 
   require 'oboe/config'
-  require 'oboe/loading'
-  require 'method_profiling'
-  require 'oboe/instrumentation'
-  require 'oboe/ruby'
 
-  # Frameworks
   if Oboe.loaded
+    require 'oboe/loading'
+    require 'method_profiling'
+    require 'oboe/instrumentation'
+    require 'oboe/ruby'
+
+    # Frameworks
     require 'oboe/frameworks/rails'   if defined?(::Rails)
     require 'oboe/frameworks/sinatra' if defined?(::Sinatra)
     require 'oboe/frameworks/padrino' if defined?(::Padrino)
