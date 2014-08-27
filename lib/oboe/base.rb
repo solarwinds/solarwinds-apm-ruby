@@ -99,3 +99,6 @@ module OboeBase
   end
 end
 
+module Oboe
+  extend OboeBase
+end
