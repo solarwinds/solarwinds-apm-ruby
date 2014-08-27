@@ -30,12 +30,17 @@ module Oboe
         @@config[k][:log_args] = true
       end
 
+      # Beta instrumentation disabled by default
+      Oboe::Config[:em_http_request][:enabled] = false
+      Oboe::Config[:eventmachine][:enabled] = false
+
       # Set collect_backtraces defaults
       Oboe::Config[:action_controller][:collect_backtraces] = true
       Oboe::Config[:active_record][:collect_backtraces] = true
       Oboe::Config[:action_view][:collect_backtraces] = true
       Oboe::Config[:cassandra][:collect_backtraces] = true
       Oboe::Config[:dalli][:collect_backtraces] = false
+      Oboe::Config[:em_http_request][:collect_backtraces] = false
       Oboe::Config[:eventmachine][:collect_backtraces] = false
       Oboe::Config[:memcache][:collect_backtraces] = false
       Oboe::Config[:memcached][:collect_backtraces] = false
@@ -44,7 +49,6 @@ module Oboe
       Oboe::Config[:nethttp][:collect_backtraces] = true
       Oboe::Config[:redis][:collect_backtraces] = false
       Oboe::Config[:resque][:collect_backtraces] = true
-      Oboe::Config[:em_http_request][:collect_backtraces] = false
 
       # Special instrument specific flags
       #
@@ -115,12 +119,12 @@ module Oboe
         # Assure value is an integer
         @@config[key.to_sym] = value.to_i
 
-        Oboe.set_sample_rate(value)
+        Oboe.set_sample_rate(value) if Oboe.loaded
       end
 
       # Update liboboe if updating :tracing_mode
       if key == :tracing_mode
-        Oboe.set_tracing_mode(value)
+        Oboe.set_tracing_mode(value) if Oboe.loaded
       end
     end
 
