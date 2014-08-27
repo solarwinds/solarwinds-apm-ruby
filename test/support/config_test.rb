@@ -20,7 +20,7 @@ describe Oboe::Config do
     # Reset Oboe::Config to defaults
     Oboe::Config.initialize
 
-    instrumentation = Oboe::Config.class_variable_get(:@@instrumentation)
+    instrumentation = Oboe::Config.instrumentation_list
 
     # Verify the number of individual instrumentations
     instrumentation.count.must_equal 14

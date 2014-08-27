@@ -126,6 +126,10 @@ module Oboe
       end
     end
 
+    def self.instrumentation_list
+      @@instrumentation
+    end
+
     def self.method_missing(sym, *args)
       if sym.to_s =~ /(.+)=$/
         self[$1] = args.first
