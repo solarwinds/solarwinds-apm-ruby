@@ -1,8 +1,6 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
-require 'base'
-
 module Oboe_metal
   include_package 'com.tracelytics.joboe'
   java_import 'com.tracelytics.joboe.LayerUtil'

@@ -12,7 +12,11 @@ group :development do
   gem 'debugger',     :platform  =>   :mri_19
   gem 'byebug',       :platforms => [ :mri_20, :mri_21 ]
   gem 'perftools.rb', :platforms => [ :mri_20, :mri_21 ], :require => 'perftools'
-  gem 'pry'
+  if RUBY_VERSION > '1.8.7'
+    gem 'pry'
+  else
+    gem 'pry', '0.9.12.4'
+  end
 end
 
 # Instrumented gems

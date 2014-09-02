@@ -2,22 +2,23 @@
 # All rights reserved.
 
 begin
-  require 'oboe/version'
-  require 'oboe/thread_local'
-  require 'oboe/logger'
-  require 'oboe/util'
-  require 'oboe/xtrace'
+  require "oboe/version"
+  require "oboe/thread_local"
+  require "oboe/logger"
+  require "oboe/util"
+  require "oboe/xtrace"
+  require "oboe/base"
 
   # If Oboe_metal is already defined then we are in a PaaS environment
   # with an alternate metal (such as Heroku: see the oboe-heroku gem)
   unless defined?(Oboe_metal)
     begin
       if RUBY_PLATFORM == 'java'
-        require '/usr/local/tracelytics/tracelyticsagent.jar'
-        require 'joboe_metal'
+        require "/usr/local/tracelytics/tracelyticsagent.jar"
+        require "joboe_metal"
       else
-        require 'oboe_metal.so'
-        require 'oboe_metal'
+        require "oboe_metal.so"
+        require "oboe_metal"
       end
     rescue LoadError
       Oboe.loaded = false
@@ -31,18 +32,19 @@ begin
     end
   end
 
-  require 'oboe/config'
-  require 'oboe/loading'
-  require 'method_profiling'
-  require 'oboe/instrumentation'
-  require 'oboe/ruby'
+  require "oboe/config"
 
-  # Frameworks
   if Oboe.loaded
-    require 'oboe/frameworks/rails'   if defined?(::Rails)
-    require 'oboe/frameworks/sinatra' if defined?(::Sinatra)
-    require 'oboe/frameworks/padrino' if defined?(::Padrino)
-    require 'oboe/frameworks/grape'   if defined?(::Grape)
+    require "oboe/loading"
+    require "method_profiling"
+    require "oboe/instrumentation"
+    require "oboe/ruby"
+
+    # Frameworks
+    require "oboe/frameworks/rails"   if defined?(::Rails)
+    require "oboe/frameworks/sinatra" if defined?(::Sinatra)
+    require "oboe/frameworks/padrino" if defined?(::Padrino)
+    require "oboe/frameworks/grape"   if defined?(::Grape)
   end
 rescue Exception => e
   $stderr.puts "[oboe/error] Problem loading: #{e.inspect}"
