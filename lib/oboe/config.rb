@@ -31,7 +31,7 @@ module Oboe
       end
 
       # Beta instrumentation disabled by default
-      Oboe::Config[:em_http_request][:enabled] = true
+      Oboe::Config[:em_http_request][:enabled] = false
 
       # Set collect_backtraces defaults
       Oboe::Config[:action_controller][:collect_backtraces] = true
