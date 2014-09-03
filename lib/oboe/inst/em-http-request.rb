@@ -5,14 +5,20 @@ module Oboe
         def setup_request_with_oboe(*args, &block)
           report_kvs = {}
 
-          report_kvs['IsService'] = 1
-          report_kvs['RemoteURL'] = @uri
-          report_kvs['HTTPMethod'] = args[0] if args.is_a?(Array) and args.length
-          report_kvs['Blacklisted'] = true if Oboe::API.blacklisted?(@uri)
+          begin
+            report_kvs["IsService"] = 1
+            report_kvs["RemoteURL"] = @uri
+            report_kvs["HTTPMethod"] = args[0]
+            report_kvs["Blacklisted"] = true if Oboe::API.blacklisted?(@uri)
 
-          report_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:em_http_request][:collect_backtraces]
+            if Oboe::Config[:em_http_request][:collect_backtraces]
+              report_kvs[:Backtrace] = Oboe::API.backtrace
+            end
+          rescue => e
+            Oboe.logger.debug "[oboe/debug] em-http-request KV error: #{e.inspect}"
+          end
 
-          ::Oboe::API.log_entry('em-http-request', report_kvs)
+          ::Oboe::API.log_entry("em-http-request", report_kvs)
           client = setup_request_without_oboe(*args, &block)
           client.req.headers["X-Trace"] = Oboe::Context.toString()
           client
@@ -22,11 +28,16 @@ module Oboe
       module HttpClient
         def parse_response_header_with_oboe(*args, &block)
           report_kvs = {}
-          report_kvs[:HTTPStatus] = args[2] if args.is_a?(Array) and args.length >= 3
-          report_kvs[:Async] = 1
+
+          begin
+            report_kvs[:HTTPStatus] = args[2]
+            report_kvs[:Async] = 1
+          rescue => e
+            Oboe.logger.debug "[oboe/debug] em-http-request KV error: #{e.inspect}"
+          end
 
           parse_response_header_without_oboe(*args, &block)
-          ::Oboe::API.log_exit('em-http-request', report_kvs)
+          ::Oboe::API.log_exit("em-http-request", report_kvs)
         end
       end
     end
