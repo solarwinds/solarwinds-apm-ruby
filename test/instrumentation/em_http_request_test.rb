@@ -35,18 +35,19 @@ describe Oboe::Inst::EventMachine::HttpConnection do
 
     traces = get_all_traces
 
-    traces.count.must_equal 5
+    traces.count.must_equal 4
     validate_outer_layers(traces, 'em-http-request_test')
 
     traces[1]["Layer"].must_equal "em-http-request"
     traces[1]["Label"].must_equal "entry"
-    traces[1]["Uri"].must_equal "http://appneta.com/"
+    traces[1]["IsService"].must_equal "1"
+    traces[1]["RemoteURL"].must_equal "http://appneta.com/"
     traces[1].has_key?('Backtrace').must_equal Oboe::Config[:em_http_request][:collect_backtraces]
 
-    traces[3]["Layer"].must_equal "em-http-request"
-    traces[3]["Label"].must_equal "exit"
-    traces[3]["Async"].must_equal "1"
-    traces[3].has_key?('Backtrace').must_equal Oboe::Config[:em_http_request][:collect_backtraces]
+    traces[2]["Layer"].must_equal "em-http-request"
+    traces[2]["Label"].must_equal "exit"
+    traces[2]["Async"].must_equal "1"
+    traces[2].has_key?('Backtrace').must_equal Oboe::Config[:em_http_request][:collect_backtraces]
   end
 
   it "should obey :collect_backtraces setting when true" do
