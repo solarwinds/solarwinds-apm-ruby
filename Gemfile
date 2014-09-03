@@ -27,6 +27,8 @@ gem 'mongo'
 gem 'moped' if RUBY_VERSION >= '1.9'
 gem 'resque'
 gem 'redis'
+gem 'eventmachine'
+gem 'em-synchrony'
 gem 'em-http-request'
 
 unless defined?(JRUBY_VERSION)
