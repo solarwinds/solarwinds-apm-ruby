@@ -4,7 +4,7 @@ module Oboe
       module HttpConnection
         def setup_request_with_oboe(*args, &block)
           report_kvs = {}
-          context = Oboe::Context.toString()
+          context = Oboe::Context.toString
           blacklisted = Oboe::API.blacklisted?(@uri)
 
           begin
@@ -21,11 +21,8 @@ module Oboe
           end
 
           ::Oboe::API.log_entry("em-http-request", report_kvs)
-
           client = setup_request_without_oboe(*args, &block)
-
           client.req.headers["X-Trace"] = context unless blacklisted
-
           client
         end
       end
@@ -47,14 +44,14 @@ module Oboe
 
           unless blacklisted
             headers = args[0]
-            context = Oboe::Context.toString()
+            context = Oboe::Context.toString
             task_id = Oboe::XTrace.task_id(context)
 
-            if headers.is_a?(Hash) and headers.has_key?("X-Trace")
+            if headers.is_a?(Hash) && headers.has_key?("X-Trace")
               xtrace = headers["X-Trace"]
             end
 
-            if Oboe::XTrace.valid?(xtrace) and Oboe.tracing?
+            if Oboe::XTrace.valid?(xtrace) && Oboe.tracing?
 
               # Assure that we received back a valid X-Trace with the same task_id
               if task_id == Oboe::XTrace.task_id(xtrace)
@@ -73,16 +70,16 @@ module Oboe
   end
 end
 
-if RUBY_VERSION >= '1.9'
-  if defined?(::EventMachine::HttpConnection) and defined?(::EventMachine::HttpClient) and Oboe::Config[:em_http_request][:enabled]
+if RUBY_VERSION >= "1.9"
+  if defined?(::EventMachine::HttpConnection) && defined?(::EventMachine::HttpClient) && Oboe::Config[:em_http_request][:enabled]
     Oboe.logger.info "[oboe/loading] Instrumenting em-http-request" if Oboe::Config[:verbose]
 
     class ::EventMachine::HttpConnection
       include Oboe::Inst::EventMachine::HttpConnection
 
       if method_defined?(:setup_request)
-        class_eval "alias :setup_request_without_oboe :setup_request"
-        class_eval "alias :setup_request :setup_request_with_oboe"
+        class_eval 'alias :setup_request_without_oboe :setup_request'
+        class_eval 'alias :setup_request :setup_request_with_oboe'
       else
         Oboe.logger.warn "[oboe/loading] Couldn't properly instrument em-http-request (:setup_request).  Partial traces may occur."
       end
@@ -92,8 +89,8 @@ if RUBY_VERSION >= '1.9'
       include Oboe::Inst::EventMachine::HttpClient
 
       if method_defined?(:parse_response_header)
-        class_eval "alias :parse_response_header_without_oboe :parse_response_header"
-        class_eval "alias :parse_response_header :parse_response_header_with_oboe"
+        class_eval 'alias :parse_response_header_without_oboe :parse_response_header'
+        class_eval 'alias :parse_response_header :parse_response_header_with_oboe'
       else
         Oboe.logger.warn "[oboe/loading] Couldn't properly instrument em-http-request (:parse_response_header).  Partial traces may occur."
       end

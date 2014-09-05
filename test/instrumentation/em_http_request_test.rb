@@ -3,7 +3,7 @@ require 'minitest_helper'
 # Disable this test on JRuby until we can investigate
 # "SOCKET: SET COMM INACTIVITY UNIMPLEMENTED 10"
 # https://travis-ci.org/appneta/oboe-ruby/jobs/33745752
-if RUBY_VERSION >= '1.9' and not defined?(JRUBY_VERSION)
+if RUBY_VERSION >= '1.9' and Oboe::Config[:em_http_request][:enabled] and not defined?(JRUBY_VERSION)
 
   describe Oboe::Inst::EventMachine::HttpConnection do
     before do
