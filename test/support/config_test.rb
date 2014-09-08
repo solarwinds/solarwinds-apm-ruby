@@ -30,7 +30,7 @@ describe Oboe::Config do
     Oboe::Config[:active_record][:enabled].must_equal true
     Oboe::Config[:cassandra][:enabled].must_equal true
     Oboe::Config[:dalli][:enabled].must_equal true
-    Oboe::Config[:em_http_request][:enabled].must_equal true
+    Oboe::Config[:em_http_request][:enabled].must_equal false
     Oboe::Config[:nethttp][:enabled].must_equal true
     Oboe::Config[:memcached][:enabled].must_equal true
     Oboe::Config[:memcache][:enabled].must_equal true
