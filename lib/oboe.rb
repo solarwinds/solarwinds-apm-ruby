@@ -8,9 +8,9 @@ begin
   require "oboe/util"
   require "oboe/xtrace"
 
-  # If Oboe_metal is already defined then we are in a PaaS environment
-  # with an alternate metal (such as Heroku: see the oboe-heroku gem)
-  unless defined?(Oboe_metal)
+  # If OboeHeroku is already defined then we are in a PaaS environment
+  # with an alternate metal (see the oboe-heroku gem)
+  unless defined?(OboeHeroku)
     require "oboe/base"
 
     begin
