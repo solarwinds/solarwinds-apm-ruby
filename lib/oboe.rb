@@ -7,11 +7,12 @@ begin
   require "oboe/logger"
   require "oboe/util"
   require "oboe/xtrace"
-  require "oboe/base"
 
   # If Oboe_metal is already defined then we are in a PaaS environment
   # with an alternate metal (such as Heroku: see the oboe-heroku gem)
   unless defined?(Oboe_metal)
+    require "oboe/base"
+
     begin
       if RUBY_PLATFORM == 'java'
         require "/usr/local/tracelytics/tracelyticsagent.jar"
