@@ -7,10 +7,10 @@ module Oboe
       include Oboe::API::Memcache
 
       def self.included(cls)
-        Oboe.logger.info "[oboe/loading] Instrumenting memcache" if Oboe::Config[:verbose]
+        Oboe.logger.info '[oboe/loading] Instrumenting memcache' if Oboe::Config[:verbose]
 
         cls.class_eval do
-          MEMCACHE_OPS.reject { |m| not method_defined?(m) }.each do |m|
+          MEMCACHE_OPS.reject { |m| !method_defined?(m) }.each do |m|
 
             define_method("#{m}_with_oboe") do |*args|
               report_kvs = { :KVOp => m }
@@ -18,12 +18,11 @@ module Oboe
 
               if Oboe.tracing?
                 Oboe::API.trace('memcache', report_kvs) do
-                  result = send("#{m}_without_oboe", *args)
+                  send("#{m}_without_oboe", *args)
                 end
               else
-                result = send("#{m}_without_oboe", *args)
+                send("#{m}_without_oboe", *args)
               end
-              result
             end
 
             class_eval "alias #{m}_without_oboe #{m}"
@@ -59,7 +58,7 @@ module Oboe
           Oboe.logger.debug e.backtrace
         end
 
-        Oboe::API.trace('memcache', {:KVOp => :get_multi}, :get_multi) do
+        Oboe::API.trace('memcache', { :KVOp => :get_multi }, :get_multi) do
           values = get_multi_without_oboe(args)
 
           info_kvs[:KVHitCount] = values.length
@@ -70,7 +69,7 @@ module Oboe
       end
 
       def request_setup_with_oboe(*args)
-        if Oboe.tracing? and not Oboe.tracing_layer_op?(:get_multi)
+        if Oboe.tracing? && !Oboe.tracing_layer_op?(:get_multi)
           server, cache_key = request_setup_without_oboe(*args)
 
           info_kvs = { :KVKey => cache_key, :RemoteHost => server.host }
@@ -92,14 +91,12 @@ module Oboe
 
         result
       end
-
     end # module MemCache
   end # module Inst
 end # module Oboe
 
-if defined?(::MemCache) and Oboe::Config[:memcache][:enabled]
+if defined?(::MemCache) && Oboe::Config[:memcache][:enabled]
   ::MemCache.class_eval do
     include Oboe::Inst::MemCache
   end
 end
-

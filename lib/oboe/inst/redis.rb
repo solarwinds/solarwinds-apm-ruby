@@ -6,9 +6,9 @@ module Oboe
     module Redis
       module Client
         # The operations listed in this constant skip collecting KVKey
-        NO_KEY_OPS = [ :keys, :randomkey, :scan, :sdiff, :sdiffstore, :sinter,
-                       :sinterstore, :smove, :sunion, :sunionstore, :zinterstore,
-                       :zunionstore, :publish, :select, :eval, :evalsha, :script ]
+        NO_KEY_OPS = [:keys, :randomkey, :scan, :sdiff, :sdiffstore, :sinter,
+                      :sinterstore, :smove, :sunion, :sunionstore, :zinterstore,
+                      :zunionstore, :publish, :select, :eval, :evalsha, :script]
 
         # Instead of a giant switch statement, we use a hash constant to map out what
         # KVs need to be collected for each of the many many Redis operations
@@ -38,7 +38,7 @@ module Oboe
           :smove           => { :source    => 1, :destination => 2 },
           :bitop           => { :operation => 1, :destkey     => 2 },
           :hincrbyfloat    => { :field     => 2, :increment   => 3 },
-          :zremrangebyrank => { :start     => 2, :stop        => 3 },
+          :zremrangebyrank => { :start     => 2, :stop        => 3 }
         }
 
         # The following operations don't require any special handling. For these,
@@ -78,7 +78,7 @@ module Oboe
             kvs[:KVOp] = command[0]
             kvs[:RemoteHost] = @options[:host]
 
-            unless NO_KEY_OPS.include? op or (command[1].is_a?(Array) and command[1].count > 1)
+            unless NO_KEY_OPS.include?(op) || (command[1].is_a?(Array) && command[1].count > 1)
               if command[1].is_a?(Array)
                 kvs[:KVKey] = command[1].first
               else
@@ -98,10 +98,10 @@ module Oboe
               when :set
                 if command.count > 3
                   options = command[3]
-                  kvs[:ex] = options[:ex] if options.has_key?(:ex)
-                  kvs[:px] = options[:px] if options.has_key?(:px)
-                  kvs[:nx] = options[:nx] if options.has_key?(:nx)
-                  kvs[:xx] = options[:xx] if options.has_key?(:xx)
+                  kvs[:ex] = options[:ex] if options.key?(:ex)
+                  kvs[:px] = options[:px] if options.key?(:px)
+                  kvs[:nx] = options[:nx] if options.key?(:nx)
+                  kvs[:xx] = options[:xx] if options.key?(:xx)
                 end
 
               when :get
@@ -115,7 +115,7 @@ module Oboe
 
               when :eval
                 if command[1].length > 1024
-                  kvs[:Script] = command[1][0..1023] + "(...snip...)"
+                  kvs[:Script] = command[1][0..1023] + '(...snip...)'
                 else
                   kvs[:Script] = command[1]
                 end
@@ -123,9 +123,9 @@ module Oboe
               when :script
                 kvs[:subcommand] = command[1]
                 kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:redis][:collect_backtraces]
-                if command[1] == "load"
+                if command[1] == 'load'
                   if command[1].length > 1024
-                    kvs[:Script] = command[2][0..1023] + "(...snip...)"
+                    kvs[:Script] = command[2][0..1023] + '(...snip...)'
                   else
                     kvs[:Script] = command[2]
                   end
@@ -143,12 +143,12 @@ module Oboe
                 else
                   kvs[:KVKeyCount] = command.count - 1
                 end
-                values = r.select{ |i| i }
+                values = r.select { |i| i }
                 kvs[:KVHitCount] = values.count
 
               when :hmget
                 kvs[:KVKeyCount] = command.count - 2
-                values = r.select{ |i| i }
+                values = r.select { |i| i }
                 kvs[:KVHitCount] = values.count
 
               when :mset, :msetnx
@@ -162,7 +162,7 @@ module Oboe
 
           rescue StandardError => e
             Oboe.logger.debug "Error collecting redis KVs: #{e.message}"
-            Oboe.logger.debug e.backtrace.join("\n")
+            Oboe.logger.debug e.backtrace.join('\n')
           end
 
           kvs
@@ -196,7 +196,7 @@ module Oboe
               pipeline.commands.each do |c|
                 ops << c.first
               end
-              kvs[:KVOps] = ops.join(", ")
+              kvs[:KVOps] = ops.join(', ')
             end
           rescue StandardError => e
             Oboe.logger.debug "[oboe/debug] Error extracting pipelined commands: #{e.message}"
@@ -236,8 +236,6 @@ module Oboe
         #
         def call_pipeline_with_oboe(pipeline)
           if Oboe.tracing?
-            report_kvs = {}
-
             # Fall back to the raw tracing API so we can pass KVs
             # back on exit (a limitation of the Oboe::API.trace
             # block method)  This removes the need for an info
@@ -265,8 +263,8 @@ module Oboe
 end
 
 if Oboe::Config[:redis][:enabled]
-  if defined?(::Redis) and Gem::Version.new(::Redis::VERSION) >= Gem::Version.new('3.0.0')
-    Oboe.logger.info "[oboe/loading] Instrumenting redis" if Oboe::Config[:verbose]
+  if defined?(::Redis) && Gem::Version.new(::Redis::VERSION) >= Gem::Version.new('3.0.0')
+    Oboe.logger.info '[oboe/loading] Instrumenting redis' if Oboe::Config[:verbose]
     ::Oboe::Util.send_include(::Redis::Client, ::Oboe::Inst::Redis::Client)
   end
 end
