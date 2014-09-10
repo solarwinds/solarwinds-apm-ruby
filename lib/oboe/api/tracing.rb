@@ -3,8 +3,9 @@
 
 module Oboe
   module API
+    ##
+    # Provides the higher-level tracing interface for the API.
     module Tracing
-
       # Public: Trace a given block of code. Detect any exceptions thrown by
       # the block and report errors.
       #
@@ -30,7 +31,7 @@ module Oboe
       #   result = computation_with_oboe(1000)
       #
       # Returns the result of the block.
-      def trace(layer, opts={}, protect_op=nil)
+      def trace(layer, opts = {}, protect_op = nil)
         log_entry(layer, opts, protect_op)
         begin
           yield
@@ -73,7 +74,7 @@ module Oboe
       # Returns a list of length two, the first element of which is the result
       # of the block, and the second element of which is the oboe context that
       # was set when the block completed execution.
-      def start_trace(layer, xtrace=nil, opts={})
+      def start_trace(layer, xtrace = nil, opts = {})
         log_start(layer, xtrace, opts)
         begin
           result = yield
@@ -114,7 +115,7 @@ module Oboe
       #   end
       #
       # Returns the result of the block.
-      def start_trace_with_target(layer, xtrace, target, opts={})
+      def start_trace_with_target(layer, xtrace, target, opts = {})
         log_start(layer, xtrace, opts)
         exit_evt = Oboe::Context.createEvent
         begin
@@ -124,7 +125,7 @@ module Oboe
           log_exception(layer, e)
           raise
         ensure
-          exit_evt.addEdge(Oboe::Context.get())
+          exit_evt.addEdge(Oboe::Context.get)
           log_event(layer, 'exit', exit_evt)
           Oboe::Context.clear
         end

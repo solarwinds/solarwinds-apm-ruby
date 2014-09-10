@@ -3,6 +3,8 @@
 
 module Oboe
   module API
+    ##
+    # Provides methods related to layer initialization and reporting
     module LayerInit
       # Internal: Report that instrumentation for the given layer has been
       # installed, as well as the version of instrumentation and version of
@@ -10,7 +12,7 @@ module Oboe
       #
       def report_init(layer = 'rack')
         # Don't send __Init in development or test
-        return if ["development", "test"].include? ENV['RACK_ENV']
+        return if %w(development test).include? ENV['RACK_ENV']
 
         # Don't send __Init if the c-extension hasn't loaded
         return unless Oboe.loaded
@@ -44,8 +46,8 @@ module Oboe
           platform_info['Ruby.Resque.Version']    = "Resque-#{::Resque::VERSION}"      if defined?(::Resque)
 
           # Special case since the Mongo 1.x driver doesn't embed the version number in the gem directly
-          if ::Gem.loaded_specs.has_key?('mongo')
-            platform_info['Ruby.Mongo.Version']     = "Mongo-#{::Gem.loaded_specs['mongo'].version.to_s}"
+          if ::Gem.loaded_specs.key?('mongo')
+            platform_info['Ruby.Mongo.Version']     = "Mongo-#{::Gem.loaded_specs['mongo'].version}"
           end
 
           # Report the server in use (if possible)
@@ -66,7 +68,7 @@ module Oboe
           elsif defined?(::WEBrick)
             platform_info['Ruby.AppContainer.Version'] = "WEBrick-#{::WEBrick::VERSION}"
           else
-            platform_info['Ruby.AppContainer.Version'] = File.basename($0)
+            platform_info['Ruby.AppContainer.Version'] = File.basename($PROGRAM_NAME)
           end
 
         rescue StandardError, ScriptError => e
@@ -79,14 +81,15 @@ module Oboe
           Oboe.logger.debug e.backtrace
         end
 
-        start_trace(layer, nil, platform_info.merge('Force' => true)) { }
+        start_trace(layer, nil, platform_info.merge('Force' => true)) {}
       end
 
       ##
       # force_trace has been deprecated and will be removed in a subsequent version.
       #
       def force_trace
-        Oboe.logger.warn "Oboe::API::LayerInit.force_trace has been deprecated and will be removed in a subsequent version."
+        Oboe.logger.warn 'Oboe::API::LayerInit.force_trace has been deprecated and will be ' \
+                         'removed in a subsequent version.'
 
         saved_mode = Oboe::Config[:tracing_mode]
         Oboe::Config[:tracing_mode] = 'always'

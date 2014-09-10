@@ -14,7 +14,7 @@ module Oboe
             define_method("#{m}_with_oboe") do |*args|
               opts = { :KVOp => m }
 
-              if args.length and args[0].class != Array
+              if args.length && !args[0].is_a?(Array)
                 opts[:KVKey] = args[0].to_s
                 rhost = remote_host(args[0].to_s)
                 opts[:RemoteHost] = rhost if rhost
