@@ -1,6 +1,9 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
+# Disable docs and Camelcase warns since we're implementing
+# an interface here.  See OboeBase for details.
+# rubocop:disable Style/Documentation, Style/MethodName
 module Oboe
   extend OboeBase
   include Oboe_metal
@@ -13,21 +16,21 @@ module Oboe
       return unless Oboe.loaded
 
       begin
-        Oboe_metal::Context.init()
+        Oboe_metal::Context.init
 
-        if ENV.has_key?("OBOE_GEM_TEST")
-          Oboe.reporter = Oboe::FileReporter.new("/tmp/trace_output.bson")
+        if ENV.key?('OBOE_GEM_TEST')
+          Oboe.reporter = Oboe::FileReporter.new('/tmp/trace_output.bson')
         else
           Oboe.reporter = Oboe::UdpReporter.new(Oboe::Config[:reporter_host], Oboe::Config[:reporter_port])
         end
 
         # Only report __Init from here if we are not instrumenting a framework.
         # Otherwise, frameworks will handle reporting __Init after full initialization
-        unless defined?(::Rails) or defined?(::Sinatra) or defined?(::Padrino) or defined?(::Grape)
+        unless defined?(::Rails) || defined?(::Sinatra) || defined?(::Padrino) || defined?(::Grape)
           Oboe::API.report_init
         end
 
-      rescue Exception => e
+      rescue => e
         $stderr.puts e.message
         raise
       end
@@ -52,7 +55,7 @@ module Oboe
     # Retrieves all traces written to the trace file
     #
     def self.get_all_traces
-      io = File.open($trace_file, "r")
+      io = File.open($trace_file, 'r')
       contents = io.readlines(nil)
 
       return contents if contents.empty?
@@ -75,7 +78,7 @@ module Oboe
 
   class Event
     def self.metadataString(evt)
-      evt.metadataString()
+      evt.metadataString
     end
   end
 
@@ -92,7 +95,7 @@ module Oboe
         rv = Oboe::Context.sampleRequest(layer, xtrace, tv_meta)
 
         # For older liboboe that returns true/false, just return that.
-        return rv if [TrueClass, FalseClass].include?(rv.class) or (rv == 0)
+        return rv if [TrueClass, FalseClass].include?(rv.class) || (rv == 0)
 
         # liboboe version > 1.3.1 returning a bit masked integer with SampleRate and
         # source embedded
@@ -126,13 +129,13 @@ module Oboe
     end
 
     def set_sample_rate(rate)
-      if Oboe.loaded
-        # Update liboboe with the new SampleRate value
-        Oboe::Context.setDefaultSampleRate(rate.to_i)
-      end
+      return unless Oboe.loaded
+
+      # Update liboboe with the new SampleRate value
+      Oboe::Context.setDefaultSampleRate(rate.to_i)
     end
   end
 end
+# rubocop:enable Style/Documentation
 
 Oboe.loaded = true
-

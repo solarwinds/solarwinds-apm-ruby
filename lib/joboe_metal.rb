@@ -48,42 +48,36 @@ module Oboe_metal
     # Initialize the Oboe Context, reporter and report the initialization
     #
     def self.start
-      begin
-        return unless Oboe.loaded
+      return unless Oboe.loaded
 
-        if ENV.has_key?("OBOE_GEM_TEST")
-          Oboe.reporter = Java::ComTracelyticsJoboe::TestReporter.new
-        else
-          Oboe.reporter = Java::ComTracelyticsJoboe::ReporterFactory.getInstance().buildUdpReporter()
-        end
+      if ENV.key?('OBOE_GEM_TEST')
+        Oboe.reporter = Java::ComTracelyticsJoboe::TestReporter.new
+      else
+        Oboe.reporter = Java::ComTracelyticsJoboe::ReporterFactory.getInstance.buildUdpReporter
+      end
 
 
-        # Import the tracing mode and sample rate settings
-        # from the Java agent (user configured in
-        # /usr/local/tracelytics/javaagent.json when under JRuby)
-        cfg = LayerUtil.getLocalSampleRate(nil, nil)
+      # Import the tracing mode and sample rate settings
+      # from the Java agent (user configured in
+      # /usr/local/tracelytics/javaagent.json when under JRuby)
+      cfg = LayerUtil.getLocalSampleRate(nil, nil)
 
-        if cfg.hasSampleStartFlag
-          Oboe::Config.tracing_mode = 'always'
-        elsif cfg.hasSampleThroughFlag
-          Oboe::Config.tracing_mode = 'through'
-        else
-          Oboe::Config.tracing_mode = 'never'
-        end
+      if cfg.hasSampleStartFlag
+        Oboe::Config.tracing_mode = 'always'
+      elsif cfg.hasSampleThroughFlag
+        Oboe::Config.tracing_mode = 'through'
+      else
+        Oboe::Config.tracing_mode = 'never'
+      end
 
-        Oboe.sample_rate = cfg.sampleRate
-        Oboe::Config.sample_rate = cfg.sampleRate
-        Oboe::Config.sample_source = cfg.sampleRateSource.a
+      Oboe.sample_rate = cfg.sampleRate
+      Oboe::Config.sample_rate = cfg.sampleRate
+      Oboe::Config.sample_source = cfg.sampleRateSource.a
 
-        # Only report __Init from here if we are not instrumenting a framework.
-        # Otherwise, frameworks will handle reporting __Init after full initialization
-        unless defined?(::Rails) or defined?(::Sinatra) or defined?(::Padrino) or defined?(::Grape)
-          Oboe::API.report_init
-        end
-
-      rescue Exception => e
-        $stderr.puts e.message
-        raise
+      # Only report __Init from here if we are not instrumenting a framework.
+      # Otherwise, frameworks will handle reporting __Init after full initialization
+      unless defined?(::Rails) || defined?(::Sinatra) || defined?(::Padrino) || defined?(::Grape)
+        Oboe::API.report_init
       end
     end
 
@@ -112,7 +106,7 @@ module Oboe_metal
       traces = []
       Oboe.reporter.getSentEventsAsBsonDocument.to_a.each do |e|
         t = {}
-        e.each_pair { |k,v|
+        e.each_pair { |k, v|
           t[k] = v
         }
         traces << t
@@ -133,22 +127,23 @@ module Oboe
   class << self
     def sample?(opts = {})
       begin
-        return false unless Oboe.always? and Oboe.loaded
+        return false unless Oboe.always? && Oboe.loaded
 
-        return true if ENV['OBOE_GEM_TEST'] == "test"
+        return true if ENV['OBOE_GEM_TEST'] == 'test'
 
         # Validation to make Joboe happy.  Assure that we have the KVs and that they
         # are not empty strings.
-        opts[:layer]  = nil      if opts[:layer].is_a?(String)      and opts[:layer].empty?
-        opts[:xtrace] = nil      if opts[:xtrace].is_a?(String)     and opts[:xtrace].empty?
-        opts['X-TV-Meta'] = nil  if opts['X-TV-Meta'].is_a?(String) and opts['X-TV-Meta'].empty?
+        opts[:layer]  = nil      if opts[:layer].is_a?(String)      && opts[:layer].empty?
+        opts[:xtrace] = nil      if opts[:xtrace].is_a?(String)     && opts[:xtrace].empty?
+        opts['X-TV-Meta'] = nil  if opts['X-TV-Meta'].is_a?(String) && opts['X-TV-Meta'].empty?
 
         opts[:layer]      ||= nil
         opts[:xtrace]     ||= nil
         opts['X-TV-Meta'] ||= nil
 
-        sr_cfg = Java::ComTracelyticsJoboe::LayerUtil.shouldTraceRequest( opts[:layer],
-                               { 'X-Trace' => opts[:xtrace], 'X-TV-Meta' => opts['X-TV-Meta'] } )
+        sr_cfg = Java::ComTracelyticsJoboe::LayerUtil.shouldTraceRequest(
+                                              opts[:layer],
+                                              { 'X-Trace' => opts[:xtrace], 'X-TV-Meta' => opts['X-TV-Meta'] })
 
         # Store the returned SampleRateConfig into Oboe::Config
         if sr_cfg
@@ -163,11 +158,11 @@ module Oboe
       end
     end
 
-    def set_tracing_mode(mode)
-      Oboe.logger.warn "When using JRuby set the tracing mode in /usr/local/tracelytics/javaagent.json instead"
+    def set_tracing_mode(_mode)
+      Oboe.logger.warn 'When using JRuby set the tracing mode in /usr/local/tracelytics/javaagent.json instead'
     end
 
-    def set_sample_rate(rate)
+    def set_sample_rate(_rate)
       # N/A
     end
   end
@@ -180,4 +175,3 @@ if status == Java::ComTracelyticsAgent::Agent::AgentStatus::UNINITIALIZED
 else
   Oboe.loaded = true
 end
-
