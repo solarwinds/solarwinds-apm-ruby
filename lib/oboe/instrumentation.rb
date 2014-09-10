@@ -2,6 +2,9 @@
 # All rights reserved.
 
 module Oboe
+  ##
+  # The Inst module holds all of the instrumentation extensions for various
+  # libraries suchs as Redis, Dalli and Resque.
   module Inst
     def self.load_instrumentation
       # Load the general instrumentation

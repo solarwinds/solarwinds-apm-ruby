@@ -11,9 +11,9 @@ module Oboe
   module Config
     @@config = {}
 
-    @@instrumentation = [ :action_controller, :action_view, :active_record,
-                          :cassandra, :dalli, :em_http_request, :nethttp, :memcached,
-                          :memcache, :mongo, :moped, :rack, :redis, :resque]
+    @@instrumentation = [:action_controller, :action_view, :active_record,
+                         :cassandra, :dalli, :em_http_request, :nethttp, :memcached,
+                         :memcache, :mongo, :moped, :rack, :redis, :resque]
     ##
     # Return the raw nested hash.
     #
@@ -21,7 +21,7 @@ module Oboe
       @@config
     end
 
-    def self.initialize(data={})
+    def self.initialize(_data = {})
       # Setup default instrumentation values
       @@instrumentation.each do |k|
         @@config[k] = {}
@@ -61,23 +61,23 @@ module Oboe
       @@config[:blacklist] = []
 
       # Access Key is empty until loaded from config file or env var
-      @@config[:access_key] = ""
+      @@config[:access_key] = ''
 
       # The oboe Ruby client has the ability to sanitize query literals
       # from SQL statements.  By default this is disabled.  Enable to
       # avoid collecting and reporting query literals to TraceView.
       @@config[:sanitize_sql] = false
 
-      if ENV.has_key?('OPENSHIFT_TRACEVIEW_TLYZER_IP')
+      if ENV.key?('OPENSHIFT_TRACEVIEW_TLYZER_IP')
         # We're running on OpenShift
-        @@config[:tracing_mode] = "always"
+        @@config[:tracing_mode] = 'always'
         @@config[:reporter_host] = ENV['OPENSHIFT_TRACEVIEW_TLYZER_IP']
         @@config[:reporter_port] = ENV['OPENSHIFT_TRACEVIEW_TLYZER_PORT']
       else
         # The default configuration
-        @@config[:tracing_mode] = "through"
-        @@config[:reporter_host] = "127.0.0.1"
-        @@config[:reporter_port] = "7831"
+        @@config[:tracing_mode] = 'through'
+        @@config[:reporter_host] = '127.0.0.1'
+        @@config[:reporter_port] = '7831'
       end
 
       @@config[:verbose] = false
@@ -101,17 +101,18 @@ module Oboe
       @@config[key.to_sym] = value
 
       if key == :sampling_rate
-        Oboe.logger.warn "WARNING: :sampling_rate is not a supported setting for Oboe::Config.  Please use :sample_rate."
+        Oboe.logger.warn 'sampling_rate is not a supported setting for Oboe::Config.  ' \
+                         'Please use :sample_rate.'
       end
 
       if key == :sample_rate
-        unless value.is_a?(Integer) or value.is_a?(Float)
-          raise "oboe :sample_rate must be a number between 1 and 1000000 (1m)"
+        unless value.is_a?(Integer) || value.is_a?(Float)
+          fail 'oboe :sample_rate must be a number between 1 and 1000000 (1m)'
         end
 
         # Validate :sample_rate value
         unless value.between?(1, 1e6)
-          raise "oboe :sample_rate must be between 1 and 1000000 (1m)"
+          fail 'oboe :sample_rate must be between 1 and 1000000 (1m)'
         end
 
         # Assure value is an integer
@@ -134,7 +135,7 @@ module Oboe
       if sym.to_s =~ /(.+)=$/
         self[$1] = args.first
       else
-        unless @@config.has_key?(sym)
+        unless @@config.key?(sym)
           Oboe.logger.warn "[oboe/warn] Unknown method call on Oboe::Config: #{sym}"
         end
         self[sym]
