@@ -2,6 +2,9 @@
 # All rights reserved.
 
 module Oboe
+  ##
+  # Provides utility methods for use while in the business
+  # of instrumenting code
   module Util
     class << self
       def contextual_name(cls)
@@ -11,10 +14,9 @@ module Oboe
         # ::ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter.to_s.split(/::/).last
         # => "AbstractMysqlAdapter"
         #
-        begin
-          cls.to_s.split(/::/).last
-        rescue
-        end
+        cls.to_s.split(/::/).last
+      rescue
+        cls
       end
 
       ##
@@ -23,10 +25,10 @@ module Oboe
       # Centralized utility method to alias a method on an arbitrary
       # class or module.
       #
-      def method_alias(cls, method, name=nil)
+      def method_alias(cls, method, name = nil)
         name ||= contextual_name(cls)
 
-        if cls.method_defined? method.to_sym or cls.private_method_defined? method.to_sym
+        if cls.method_defined?(method.to_sym) || cls.private_method_defined?(method.to_sym)
 
           # Strip '!' or '?' from method if present
           safe_method_name = method.to_s.chop if method.to_s =~ /\?$|\!$/
@@ -36,8 +38,8 @@ module Oboe
           with_oboe    = "#{safe_method_name}_with_oboe"
 
           # Only alias if we haven't done so already
-          unless cls.method_defined? without_oboe.to_sym or
-            cls.private_method_defined? without_oboe.to_sym
+          unless cls.method_defined?(without_oboe.to_sym) ||
+            cls.private_method_defined?(without_oboe.to_sym)
 
             cls.class_eval do
               alias_method without_oboe, "#{method}"
@@ -54,7 +56,7 @@ module Oboe
       # Centralized utility method to alias a class method on an arbitrary
       # class or module
       #
-      def class_method_alias(cls, method, name=nil)
+      def class_method_alias(cls, method, name = nil)
         name ||= contextual_name(cls)
 
         if cls.singleton_methods.include? method.to_sym
@@ -81,9 +83,7 @@ module Oboe
       # Centralized utility method to send an extend call for an
       # arbitrary class
       def send_extend(target_cls, cls)
-        if defined?(target_cls)
-          target_cls.send(:extend, cls)
-        end
+        target_cls.send(:extend, cls) if defined?(target_cls)
       end
 
       ##
@@ -92,9 +92,7 @@ module Oboe
       # Centralized utility method to send a include call for an
       # arbitrary class
       def send_include(target_cls, cls)
-        if defined?(target_cls)
-          target_cls.send(:include, cls)
-        end
+        target_cls.send(:include, cls) if defined?(target_cls)
       end
 
       ##
@@ -104,7 +102,7 @@ module Oboe
       # solely on filename)
       #
       def static_asset?(path)
-        return (path =~ /\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|ttf|woff|svg|less)$/i)
+        (path =~ /\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|ttf|woff|svg|less)$/i)
       end
 
       ##
@@ -112,7 +110,7 @@ module Oboe
       #
       # Even to my surprise, 'prettify' is a real word:
       # transitive v. To make pretty or prettier, especially in a superficial or insubstantial way.
-      #   from The American Heritage® Dictionary of the English Language, 4th Edition
+      #   from The American Heritage Dictionary of the English Language, 4th Edition
       #
       # This method makes things 'purty' for reporting.
       def prettify(x)
@@ -122,8 +120,6 @@ module Oboe
           x.to_s
         end
       end
-
     end
   end
 end
-

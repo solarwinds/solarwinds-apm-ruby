@@ -2,6 +2,9 @@
 # All rights reserved.
 
 module Oboe
+  ##
+  # The current version of the gem.  Used mainly by
+  # oboe.gemspec during gem build process
   module Version
     MAJOR = 2
     MINOR = 7
