@@ -22,6 +22,10 @@ SAMPLE_SOURCE_MASK = 0b1111000000000000000000000000
 ZERO_SAMPLE_RATE_MASK   = 0b1111000000000000000000000000
 ZERO_SAMPLE_SOURCE_MASK = 0b0000111111111111111111111111
 
+##
+# This module is the base module for the various implementations of Oboe reporting.
+# Current variations as of 2014-09-10 are a c-extension, JRuby (using TraceView Java
+# instrumentation) and a Heroku c-extension (with embedded tracelyzer)
 module OboeBase
   extend ::Oboe::ThreadLocal
 
@@ -31,7 +35,7 @@ module OboeBase
   attr_accessor :sample_rate
   thread_local :layer_op
 
-  def self.included(cls)
+  def self.included(_)
     self.loaded = true
   end
 
@@ -44,25 +48,25 @@ module OboeBase
   end
 
   def always?
-    Oboe::Config[:tracing_mode].to_s == "always"
+    Oboe::Config[:tracing_mode].to_s == 'always'
   end
 
   def never?
-    Oboe::Config[:tracing_mode].to_s == "never"
+    Oboe::Config[:tracing_mode].to_s == 'never'
   end
 
   def passthrough?
-    ["always", "through"].include?(Oboe::Config[:tracing_mode])
+    %w(always through).include?(Oboe::Config[:tracing_mode])
   end
 
   def through?
-    Oboe::Config[:tracing_mode] == "through"
+    Oboe::Config[:tracing_mode] == 'through'
   end
 
   def tracing?
     return false unless Oboe.loaded
 
-    Oboe::Context.isValid and not Oboe.never?
+    Oboe::Context.isValid && !Oboe.never?
   end
 
   def log(layer, label, options = {})
@@ -75,27 +79,27 @@ module OboeBase
   end
 
   def forking_webserver?
-    (defined?(::Unicorn) and ($0 =~ /unicorn/i)) ? true : false
+    (defined?(::Unicorn) && ($PROGRAM_NAME =~ /unicorn/i)) ? true : false
   end
 
   ##
   # These methods should be implemented by the descendants
   # (Oboe_metal, Oboe_metal (JRuby), Heroku_metal)
   #
-  def sample?(opts = {})
-    raise "sample? should be implemented by metal layer."
+  def sample?(_opts = {})
+    fail 'sample? should be implemented by metal layer.'
   end
 
-  def log(layer, label, options = {})
-    raise "log should be implemented by metal layer."
+  def log(_layer, _label, _options = {})
+    fail 'log should be implemented by metal layer.'
   end
 
-  def set_tracing_mode(mode)
-    raise "set_tracing_mode should be implemented by metal layer."
+  def set_tracing_mode(_mode)
+    fail 'set_tracing_mode should be implemented by metal layer.'
   end
 
-  def set_sample_rate(rate)
-    raise "set_sample_rate should be implemented by metal layer."
+  def set_sample_rate(_rate)
+    fail 'set_sample_rate should be implemented by metal layer.'
   end
 end
 
