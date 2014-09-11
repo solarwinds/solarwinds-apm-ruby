@@ -97,6 +97,7 @@ module Oboe
       # Returns a string representation of klass
       def get_class_name(klass)
         kv = {}
+
         if klass.to_s =~ /::/
           klass.class.to_s.rpartition('::').last
         else
@@ -104,7 +105,7 @@ module Oboe
             # Class
             kv['Class'] = klass.to_s
 
-          elsif !(klass.is_a?(Class) && klass.is_a?(Module))
+          elsif (!klass.is_a?(Class) && !klass.is_a?(Module))
             # Class instance
             kv['Class'] = klass.class.to_s
 
