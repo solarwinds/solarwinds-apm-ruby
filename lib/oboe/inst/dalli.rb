@@ -8,11 +8,11 @@ module Oboe
 
       def self.included(cls)
         cls.class_eval do
-          Oboe.logger.info "[oboe/loading] Instrumenting memcache (dalli)" if Oboe::Config[:verbose]
+          Oboe.logger.info '[oboe/loading] Instrumenting memcache (dalli)' if Oboe::Config[:verbose]
           if ::Dalli::Client.private_method_defined? :perform
             alias perform_without_oboe perform
             alias perform perform_with_oboe
-          else Oboe.logger.warn "[oboe/loading] Couldn't properly instrument Memcache (Dalli).  Partial traces may occur."
+          else Oboe.logger.warn '[oboe/loading] Couldn\'t properly instrument Memcache (Dalli).  Partial traces may occur.'
           end
 
           if ::Dalli::Client.method_defined? :get_multi
@@ -25,12 +25,12 @@ module Oboe
       def perform_with_oboe(*all_args, &blk)
         op, key, *args = *all_args
 
-        if Oboe.tracing? and not Oboe.tracing_layer_op?(:get_multi)
+        if Oboe.tracing? && !Oboe.tracing_layer_op?(:get_multi)
           Oboe::API.trace('memcache', { :KVOp => op, :KVKey => key }) do
             result = perform_without_oboe(*all_args, &blk)
 
             info_kvs = {}
-            info_kvs[:KVHit] = memcache_hit?(result) if op == :get and key.class == String
+            info_kvs[:KVHit] = memcache_hit?(result) if op == :get && key.class == String
             info_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:dalli][:collect_backtraces]
 
             Oboe::API.log('memcache', 'info', info_kvs) unless info_kvs.empty?
@@ -68,7 +68,7 @@ module Oboe
   end
 end
 
-if defined?(Dalli) and Oboe::Config[:dalli][:enabled]
+if defined?(Dalli) && Oboe::Config[:dalli][:enabled]
   ::Dalli::Client.module_eval do
     include Oboe::Inst::Dalli
   end

@@ -9,21 +9,21 @@ module Oboe
       FLAVOR = 'mongodb'
 
       # Operations for Mongo::DB
-      DB_OPS         = [ :create_collection, :drop_collection ]
+      DB_OPS         = [:create_collection, :drop_collection]
 
       # Operations for Mongo::Cursor
-      CURSOR_OPS     = [ :count ]
+      CURSOR_OPS     = [:count]
 
       # Operations for Mongo::Collection
-      COLL_WRITE_OPS = [ :find_and_modify, :insert, :map_reduce, :remove, :rename, :update ]
-      COLL_QUERY_OPS = [ :distinct, :find, :group ]
-      COLL_INDEX_OPS = [ :create_index, :drop_index, :drop_indexes, :ensure_index, :index_information ]
+      COLL_WRITE_OPS = [:find_and_modify, :insert, :map_reduce, :remove, :rename, :update]
+      COLL_QUERY_OPS = [:distinct, :find, :group]
+      COLL_INDEX_OPS = [:create_index, :drop_index, :drop_indexes, :ensure_index, :index_information]
     end
   end
 end
 
-if defined?(::Mongo) and Oboe::Config[:mongo][:enabled]
-  Oboe.logger.info "[oboe/loading] Instrumenting mongo" if Oboe::Config[:verbose]
+if defined?(::Mongo) && Oboe::Config[:mongo][:enabled]
+  Oboe.logger.info '[oboe/loading] Instrumenting mongo' if Oboe::Config[:verbose]
 
   if defined?(::Mongo::DB)
     module ::Mongo
@@ -31,7 +31,7 @@ if defined?(::Mongo) and Oboe::Config[:mongo][:enabled]
         include Oboe::Inst::Mongo
 
         # Instrument DB operations
-        Oboe::Inst::Mongo::DB_OPS.reject { |m| not method_defined?(m) }.each do |m|
+        Oboe::Inst::Mongo::DB_OPS.reject { |m| !method_defined?(m) }.each do |m|
           define_method("#{m}_with_oboe") do |*args|
             report_kvs = {}
 
@@ -77,7 +77,7 @@ if defined?(::Mongo) and Oboe::Config[:mongo][:enabled]
         include Oboe::Inst::Mongo
 
         # Instrument DB cursor operations
-        Oboe::Inst::Mongo::CURSOR_OPS.reject { |m| not method_defined?(m) }.each do |m|
+        Oboe::Inst::Mongo::CURSOR_OPS.reject { |m| !method_defined?(m) }.each do |m|
           define_method("#{m}_with_oboe") do |*args|
             report_kvs = {}
 
@@ -130,7 +130,7 @@ if defined?(::Mongo) and Oboe::Config[:mongo][:enabled]
             report_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:mongo][:collect_backtraces]
 
             report_kvs[:QueryOp] = m
-            report_kvs[:Query] = args[0].to_json if args and not args.empty? and args[0].class == Hash
+            report_kvs[:Query] = args[0].to_json if args && !args.empty? && args[0].class == Hash
           rescue StandardError => e
             Oboe.logger.debug "[oboe/debug] Exception in oboe_collect KV collection: #{e.inspect}"
           end
@@ -138,20 +138,20 @@ if defined?(::Mongo) and Oboe::Config[:mongo][:enabled]
         end
 
         # Instrument Collection write operations
-        Oboe::Inst::Mongo::COLL_WRITE_OPS.reject { |m| not method_defined?(m) }.each do |m|
+        Oboe::Inst::Mongo::COLL_WRITE_OPS.reject { |m| !method_defined?(m) }.each do |m|
           define_method("#{m}_with_oboe") do |*args|
             report_kvs = oboe_collect(m, args)
             args_length = args.length
 
             begin
-              if m == :find_and_modify and args[0] and args[0].has_key?(:update)
+              if m == :find_and_modify && args[0] && args[0].key?(:update)
                 report_kvs[:Update_Document] = args[0][:update].inspect
               end
 
               if m == :map_reduce
                 report_kvs[:Map_Function]    = args[0]
                 report_kvs[:Reduce_Function] = args[1]
-                report_kvs[:Limit] = args[2][:limit] if args[2] and args[2].has_key?(:limit)
+                report_kvs[:Limit] = args[2][:limit] if args[2] && args[2].key?(:limit)
               end
 
               report_kvs[:New_Collection_Name] = args[0] if m == :rename
@@ -159,7 +159,7 @@ if defined?(::Mongo) and Oboe::Config[:mongo][:enabled]
               if m == :update
                 if args_length >= 3
                   report_kvs[:Update_Document] = args[1].to_json
-                  report_kvs[:Multi] = args[2][:multi] if args[2] and args[2].has_key?(:multi)
+                  report_kvs[:Multi] = args[2][:multi] if args[2] && args[2].key?(:multi)
                 end
               end
             rescue
@@ -175,28 +175,28 @@ if defined?(::Mongo) and Oboe::Config[:mongo][:enabled]
         end
 
         # Instrument Collection query operations
-        Oboe::Inst::Mongo::COLL_QUERY_OPS.reject { |m| not method_defined?(m) }.each do |m|
+        Oboe::Inst::Mongo::COLL_QUERY_OPS.reject { |m| !method_defined?(m) }.each do |m|
           define_method("#{m}_with_oboe") do |*args, &blk|
             begin
               report_kvs = oboe_collect(m, args)
               args_length = args.length
 
-              if m == :distinct and args_length >= 2
+              if m == :distinct && args_length >= 2
                 report_kvs[:Key]   = args[0]
-                report_kvs[:Query] = args[1].to_json if args[1] and args[1].class == Hash
+                report_kvs[:Query] = args[1].to_json if args[1] && args[1].class == Hash
               end
 
-              if m == :find and args_length > 0
-                report_kvs[:Limit] = args[0][:limit] if !args[0].nil? and args[0].has_key?(:limit)
+              if m == :find && args_length > 0
+                report_kvs[:Limit] = args[0][:limit] if !args[0].nil? && args[0].key?(:limit)
               end
 
               if m == :group
                 unless args.empty?
                   if args[0].is_a?(Hash)
-                    report_kvs[:Group_Key]       = args[0][:key].to_json     if args[0].has_key?(:key)
-                    report_kvs[:Group_Condition] = args[0][:cond].to_json    if args[0].has_key?(:cond)
-                    report_kvs[:Group_Initial]   = args[0][:initial].to_json if args[0].has_key?(:initial)
-                    report_kvs[:Group_Reduce]    = args[0][:reduce]                if args[0].has_key?(:reduce)
+                    report_kvs[:Group_Key]       = args[0][:key].to_json     if args[0].key?(:key)
+                    report_kvs[:Group_Condition] = args[0][:cond].to_json    if args[0].key?(:cond)
+                    report_kvs[:Group_Initial]   = args[0][:initial].to_json if args[0].key?(:initial)
+                    report_kvs[:Group_Reduce]    = args[0][:reduce]          if args[0].key?(:reduce)
                   end
                 end
               end
@@ -213,14 +213,13 @@ if defined?(::Mongo) and Oboe::Config[:mongo][:enabled]
         end
 
         # Instrument Collection index operations
-        Oboe::Inst::Mongo::COLL_INDEX_OPS.reject { |m| not method_defined?(m) }.each do |m|
+        Oboe::Inst::Mongo::COLL_INDEX_OPS.reject { |m| !method_defined?(m) }.each do |m|
           define_method("#{m}_with_oboe") do |*args|
             report_kvs = oboe_collect(m, args)
-            _args = args || []
 
             begin
-              if [:create_index, :ensure_index, :drop_index].include? m and not _args.empty?
-                report_kvs[:Index] = _args[0].to_json
+              if [:create_index, :ensure_index, :drop_index].include?(m) && !args.empty?
+                report_kvs[:Index] = args[0].to_json
               end
             rescue
             end
@@ -237,4 +236,3 @@ if defined?(::Mongo) and Oboe::Config[:mongo][:enabled]
     end
   end
 end
-

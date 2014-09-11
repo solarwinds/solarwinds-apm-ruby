@@ -20,7 +20,7 @@ if Oboe::Config[:nethttp][:enabled]
         task_id = Oboe::XTrace.task_id(context)
 
         # Collect KVs to report in the info event
-        if args.length and args[0]
+        if args.length && args[0]
           req = args[0]
 
           opts['IsService'] = 1
@@ -41,9 +41,9 @@ if Oboe::Config[:nethttp][:enabled]
           # Re-attach net::http edge unless blacklisted and is a valid X-Trace ID
           unless blacklisted
             xtrace = resp.get_fields('X-Trace')
-            xtrace = xtrace[0] if xtrace and xtrace.is_a?(Array)
+            xtrace = xtrace[0] if xtrace && xtrace.is_a?(Array)
 
-            if Oboe::XTrace.valid?(xtrace) and Oboe.tracing?
+            if Oboe::XTrace.valid?(xtrace) && Oboe.tracing?
 
               # Assure that we received back a valid X-Trace with the same task_id
               if task_id == Oboe::XTrace.task_id(xtrace)
@@ -67,6 +67,6 @@ if Oboe::Config[:nethttp][:enabled]
     alias request_without_oboe request
     alias request request_with_oboe
 
-    Oboe.logger.info "[oboe/loading] Instrumenting net/http" if Oboe::Config[:verbose]
+    Oboe.logger.info '[oboe/loading] Instrumenting net/http' if Oboe::Config[:verbose]
   end
 end

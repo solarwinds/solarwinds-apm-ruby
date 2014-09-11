@@ -13,25 +13,25 @@ module Oboe
           report_kvs[:Key] = keys.inspect if keys
 
           # Open issue - how to handle multiple Cassandra servers
-          report_kvs[:RemoteHost], report_kvs[:RemotePort] = @servers.first.split(":")
+          report_kvs[:RemoteHost], report_kvs[:RemotePort] = @servers.first.split(':')
 
           report_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:cassandra][:collect_backtraces]
 
-          if options.empty? and args.is_a?(Array)
+          if options.empty? && args.is_a?(Array)
             options = args.last if args.last.is_a?(Hash)
           end
 
           unless options.empty?
             [:start_key, :finish_key, :key_count, :batch_size, :columns, :count, :start,
              :stop, :finish, :finished, :reversed, :consistency, :ttl].each do |k|
-              report_kvs[k.to_s.capitalize] = options[k] if options.has_key?(k)
+              report_kvs[k.to_s.capitalize] = options[k] if options.key?(k)
             end
 
             if op == :get_indexed_slices
               index_clause = columns_and_options[:index_clause] || {}
               unless index_clause.empty?
                 [:column_name, :value, :comparison].each do |k|
-                  report_kvs[k.to_s.capitalize] = index_clause[k] if index_clause.has_key?(k)
+                  report_kvs[k.to_s.capitalize] = index_clause[k] if index_clause.key?(k)
                 end
               end
             end
@@ -77,7 +77,7 @@ module Oboe
       def get_columns_with_oboe(column_family, key, *columns_and_options)
         args = [column_family, key] + columns_and_options
 
-        if Oboe.tracing? and not Oboe.tracing_layer_op?(:multi_get_columns)
+        if Oboe.tracing? && !Oboe.tracing_layer_op?(:multi_get_columns)
           report_kvs = extract_trace_details(:get_columns, column_family, key, columns_and_options)
 
           Oboe::API.trace('cassandra', report_kvs) do
@@ -113,7 +113,7 @@ module Oboe
       def multi_get_with_oboe(column_family, key, *columns_and_options)
         args = [column_family, key] + columns_and_options
 
-        if Oboe.tracing? and not Oboe.tracing_layer_op?(:get)
+        if Oboe.tracing? && !Oboe.tracing_layer_op?(:get)
           report_kvs = extract_trace_details(:multi_get, column_family, key, columns_and_options)
 
           Oboe::API.trace('cassandra', report_kvs) do
@@ -136,9 +136,8 @@ module Oboe
       end
 
       def get_range_single_with_oboe(column_family, options = {})
-        if Oboe.tracing? and not Oboe.tracing_layer_op?(:get_range_batch)
+        if Oboe.tracing? && !Oboe.tracing_layer_op?(:get_range_batch)
           report_kvs = extract_trace_details(:get_range_single, column_family, nil, nil)
-          args = [column_family, options]
 
           Oboe::API.trace('cassandra', report_kvs) do
             get_range_single_without_oboe(column_family, options)
@@ -152,7 +151,6 @@ module Oboe
         return get_range_batch_without_oboe(column_family, options) unless Oboe.tracing?
 
         report_kvs = extract_trace_details(:get_range_batch, column_family, nil, nil)
-        args = [column_family, options]
 
         Oboe::API.trace('cassandra', report_kvs, :get_range_batch) do
           get_range_batch_without_oboe(column_family, options)
@@ -208,7 +206,7 @@ module Oboe
 
         report_kvs = extract_trace_details(:add_column_family, nil, nil, nil)
         begin
-          report_kvs[:Cf] = cf_def[:name] if cf_def.is_a?(Hash) and cf_def.has_key?(:name)
+          report_kvs[:Cf] = cf_def[:name] if cf_def.is_a?(Hash) && cf_def.key?(:name)
         rescue
         end
 
@@ -231,7 +229,7 @@ module Oboe
         return add_keyspace_without_oboe(ks_def) unless Oboe.tracing?
 
         report_kvs = extract_trace_details(:add_keyspace, nil, nil, nil)
-        report_kvs[:Name] = ks_def.name rescue ""
+        report_kvs[:Name] = ks_def.name rescue ''
 
         Oboe::API.trace('cassandra', report_kvs) do
           add_keyspace_without_oboe(ks_def)
@@ -242,7 +240,7 @@ module Oboe
         return drop_keyspace_without_oboe(keyspace) unless Oboe.tracing?
 
         report_kvs = extract_trace_details(:drop_keyspace, nil, nil, nil)
-        report_kvs[:Name] = keyspace.to_s rescue ""
+        report_kvs[:Name] = keyspace.to_s rescue ''
 
         Oboe::API.trace('cassandra', report_kvs) do
           drop_keyspace_without_oboe(keyspace)
@@ -252,16 +250,16 @@ module Oboe
   end
 end
 
-if defined?(::Cassandra) and Oboe::Config[:cassandra][:enabled]
-  Oboe.logger.info "[oboe/loading] Instrumenting cassandra" if Oboe::Config[:verbose]
+if defined?(::Cassandra) && Oboe::Config[:cassandra][:enabled]
+  Oboe.logger.info '[oboe/loading] Instrumenting cassandra' if Oboe::Config[:verbose]
 
   class ::Cassandra
     include Oboe::Inst::Cassandra
 
-    [ :insert, :remove, :count_columns, :get_columns, :multi_get_columns, :get,
-      :multi_get, :get_range_single, :get_range_batch, :get_indexed_slices,
-      :create_index, :drop_index, :add_column_family, :drop_column_family,
-      :add_keyspace, :drop_keyspace].each do |m|
+    [:insert, :remove, :count_columns, :get_columns, :multi_get_columns, :get,
+     :multi_get, :get_range_single, :get_range_batch, :get_indexed_slices,
+     :create_index, :drop_index, :add_column_family, :drop_column_family,
+     :add_keyspace, :drop_keyspace].each do |m|
       if method_defined?(m)
         class_eval "alias #{m}_without_oboe #{m}"
         class_eval "alias #{m} #{m}_with_oboe"
@@ -273,7 +271,7 @@ if defined?(::Cassandra) and Oboe::Config[:cassandra][:enabled]
     if method_defined?(:exists?)
       alias exists_without_oboe? exists?
       alias exists? exists_with_oboe?
-    else Oboe.logger.warn "[oboe/loading] Couldn't properly instrument Cassandra (exists?).  Partial traces may occur."
+    else Oboe.logger.warn '[oboe/loading] Couldn\'t properly instrument Cassandra (exists?).  Partial traces may occur.'
     end
   end # class Cassandra
 end
