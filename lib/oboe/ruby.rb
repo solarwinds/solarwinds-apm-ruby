@@ -25,3 +25,7 @@ module Oboe
     end
   end
 end
+
+if Oboe.loaded and !Oboe.framework?
+  ::Oboe::Ruby.load
+end
