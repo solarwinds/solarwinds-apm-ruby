@@ -34,7 +34,6 @@ $trace_file = @trace_dir + "trace_output.bson"
 Oboe::Config[:verbose] = true
 Oboe::Config[:tracing_mode] = "always"
 Oboe::Config[:sample_rate] = 1000000
-Oboe::Ruby.load
 Oboe.logger.level = Logger::DEBUG
 
 ##
