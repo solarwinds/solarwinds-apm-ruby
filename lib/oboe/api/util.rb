@@ -5,6 +5,8 @@ require 'pp'
 
 module Oboe
   module API
+    ##
+    # General utility methods for the gem
     module Util
       BACKTRACE_CUTOFF = 200
 
@@ -15,7 +17,7 @@ module Oboe
       #
       # Return a boolean indicating whether or not key is reserved.
       def valid_key?(key)
-        !%w[ Label Layer Edge Timestamp Timestamp_u ].include? key.to_s
+        !%w(Label Layer Edge Timestamp Timestamp_u).include? key.to_s
       end
 
       # Internal: Get the current backtrace.
@@ -25,7 +27,9 @@ module Oboe
       #          made.
       #
       # Returns a string with each frame of the backtrace separated by '\r\n'.
-      def backtrace(ignore=1)
+      #
+      # FIXME: ignore is not currently used (see BACKTRACE_CUTOFF)
+      def backtrace(_ignore = 1)
         trim_backtrace(Kernel.caller).join("\r\n")
       end
 
@@ -59,7 +63,7 @@ module Oboe
         # Ensure that the blacklist is an array
         unless Oboe::Config.blacklist.is_a?(Array)
           val = Oboe::Config[:blacklist]
-          Oboe::Config[:blacklist] = [ val.to_s ]
+          Oboe::Config[:blacklist] = [val.to_s]
         end
 
         Oboe::Config.blacklist.each do |h|
@@ -93,25 +97,25 @@ module Oboe
       # Returns a string representation of klass
       def get_class_name(klass)
         kv = {}
+
         if klass.to_s =~ /::/
           klass.class.to_s.rpartition('::').last
         else
-          if klass.is_a?(Class) and klass.is_a?(Module)
+          if klass.is_a?(Class) && klass.is_a?(Module)
             # Class
-            kv["Class"] = klass.to_s
+            kv['Class'] = klass.to_s
 
-          elsif (not klass.is_a?(Class) and not klass.is_a?(Module))
+          elsif (!klass.is_a?(Class) && !klass.is_a?(Module))
             # Class instance
-            kv["Class"] = klass.class.to_s
+            kv['Class'] = klass.class.to_s
 
           else
             # Module
-            kv["Module"] = klass.to_s
+            kv['Module'] = klass.to_s
           end
         end
         kv
       end
-
     end
   end
 end

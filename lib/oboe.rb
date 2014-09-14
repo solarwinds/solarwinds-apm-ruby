@@ -3,13 +3,16 @@
 
 begin
   require 'oboe/version'
+  require 'oboe/thread_local'
   require 'oboe/logger'
   require 'oboe/util'
   require 'oboe/xtrace'
 
-  # If Oboe_metal is already defined then we are in a PaaS environment
-  # with an alternate metal (such as Heroku: see the oboe-heroku gem)
-  unless defined?(Oboe_metal)
+  # If OboeHeroku is already defined then we are in a PaaS environment
+  # with an alternate metal (see the oboe-heroku gem)
+  unless defined?(OboeHeroku)
+    require 'oboe/base'
+
     begin
       if RUBY_PLATFORM == 'java'
         require '/usr/local/tracelytics/tracelyticsagent.jar'
@@ -21,30 +24,30 @@ begin
     rescue LoadError
       Oboe.loaded = false
 
-      unless ENV['RAILS_GROUP'] == 'assets'
-        $stderr.puts "=============================================================="
-        $stderr.puts "Missing TraceView libraries.  Tracing disabled."
-        $stderr.puts "See: https://support.tv.appneta.com/solution/articles/137973"
-        $stderr.puts "=============================================================="
+      unless ENV['RAILS_GROUP'] == 'assets' or ENV['IGNORE_TRACEVIEW_WARNING']
+        $stderr.puts '=============================================================='
+        $stderr.puts 'Missing TraceView libraries.  Tracing disabled.'
+        $stderr.puts 'See: https://support.tv.appneta.com/solution/articles/137973'
+        $stderr.puts '=============================================================='
       end
     end
   end
 
   require 'oboe/config'
-  require 'oboe/loading'
-  require 'method_profiling'
-  require 'oboe/instrumentation'
-  require 'oboe/ruby'
 
-  # Frameworks
   if Oboe.loaded
+    require 'oboe/loading'
+    require 'oboe/method_profiling'
+    require 'oboe/instrumentation'
+    require 'oboe/ruby'
+
+    # Frameworks
     require 'oboe/frameworks/rails'   if defined?(::Rails)
     require 'oboe/frameworks/sinatra' if defined?(::Sinatra)
     require 'oboe/frameworks/padrino' if defined?(::Padrino)
     require 'oboe/frameworks/grape'   if defined?(::Grape)
   end
-rescue Exception => e
-  $stderr.puts "[oboe/error] Problem loading: #{e.inspect}"
+rescue => e
+  $stderr.puts '[oboe/error] Problem loading: #{e.inspect}'
   $stderr.puts e.backtrace
 end
-

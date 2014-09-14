@@ -12,7 +12,11 @@ group :development do
   gem 'debugger',     :platform  =>   :mri_19
   gem 'byebug',       :platforms => [ :mri_20, :mri_21 ]
   gem 'perftools.rb', :platforms => [ :mri_20, :mri_21 ], :require => 'perftools'
-  gem 'pry'
+  if RUBY_VERSION > '1.8.7'
+    gem 'pry'
+  else
+    gem 'pry', '0.9.12.4'
+  end
 end
 
 # Instrumented gems
@@ -20,10 +24,16 @@ gem 'dalli'
 gem 'memcache-client'
 gem 'cassandra'
 gem 'mongo'
-gem 'moped' if RUBY_VERSION >= '1.9'
 gem 'resque'
 gem 'redis'
 gem 'faraday'
+
+if RUBY_VERSION >= '1.9'
+  gem 'moped'
+  gem 'eventmachine'
+  gem 'em-synchrony'
+  gem 'em-http-request'
+end
 
 unless defined?(JRUBY_VERSION)
   gem 'memcached', '1.7.2' if RUBY_VERSION < '2.0.0'

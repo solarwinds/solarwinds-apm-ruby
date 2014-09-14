@@ -3,8 +3,9 @@
 
 module Oboe
   module API
+    ##
+    # Module that provides profiling of arbitrary blocks of code
     module Profiling
-
       ##
       # Public: Profile a given block of code. Detect any exceptions thrown by
       # the block and report errors.
@@ -24,8 +25,7 @@ module Oboe
       #   end
       #
       # Returns the result of the block.
-      def profile(profile_name, report_kvs={}, with_backtrace=false)
-
+      def profile(profile_name, report_kvs = {}, with_backtrace = false)
         report_kvs[:Language] ||= :ruby
         report_kvs[:ProfileName] ||= profile_name
         report_kvs[:Backtrace] = Oboe::API.backtrace if with_backtrace
@@ -34,7 +34,7 @@ module Oboe
 
         begin
           yield
-        rescue Exception => e
+        rescue => e
           log_exception(nil, e)
           raise
         ensure

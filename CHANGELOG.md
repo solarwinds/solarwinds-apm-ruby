@@ -1,12 +1,19 @@
-# oboe 2.7.0 (08/13/2014)
+# oboe 2.7.0.3 (08/19/2014)
 
 This minor release includes:
 
-* [JRuby instrumentation](https://github.com/appneta/oboe-ruby/pull/51) is back and better than ever
+* [JRuby instrumentation](https://github.com/appneta/oboe-ruby/pull/51) is back and better than ever.
 * [Updated moped instrumentation](https://github.com/appneta/oboe-ruby/pull/63) to support moped v2 changes
 * Simplify start_trace by setting a default param: [#67](https://github.com/appneta/oboe-ruby/pull/67)
 
-Pushed to Rubygems: https://rubygems.org/gems/oboe/versions/2.7.0
+This release also includes [our first pure java platform Ruby gem](https://rubygems.org/gems/oboe/versions/2.7.0.3-java) (no c-extension for JRuby yay!).
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/oboe/versions/2.7.0.3
+https://rubygems.org/gems/oboe/versions/2.7.0.3-java
+
+Related: http://www.appneta.com/blog/jruby-whole-java-world/
 
 # oboe 2.6.8 (07/31/2014)
 

@@ -7,7 +7,6 @@ require 'json'
 module Oboe
   module Inst
     module Resque
-
       def self.included(base)
         base.send :extend, ::Resque
       end
@@ -42,7 +41,7 @@ module Oboe
           report_kvs = extract_trace_details(:enqueue, klass, args)
 
           Oboe::API.trace('resque-client', report_kvs, :enqueue) do
-            args.push({:parent_trace_id => Oboe::Context.toString}) if Oboe::Config[:resque][:link_workers]
+            args.push(:parent_trace_id => Oboe::Context.toString) if Oboe::Config[:resque][:link_workers]
             enqueue_without_oboe(klass, *args)
           end
         else
@@ -51,12 +50,12 @@ module Oboe
       end
 
       def enqueue_to_with_oboe(queue, klass, *args)
-        if Oboe.tracing? and not Oboe.tracing_layer_op?(:enqueue)
+        if Oboe.tracing? && !Oboe.tracing_layer_op?(:enqueue)
           report_kvs = extract_trace_details(:enqueue_to, klass, args)
           report_kvs[:Queue] = queue.to_s if queue
 
           Oboe::API.trace('resque-client', report_kvs) do
-            args.push({:parent_trace_id => Oboe::Context.toString}) if Oboe::Config[:resque][:link_workers]
+            args.push(:parent_trace_id => Oboe::Context.toString) if Oboe::Config[:resque][:link_workers]
             enqueue_to_without_oboe(queue, klass, *args)
           end
         else
@@ -112,7 +111,7 @@ module Oboe
         rescue
         end
 
-        if last_arg.is_a?(Hash) and last_arg.has_key?('parent_trace_id')
+        if last_arg.is_a?(Hash) && last_arg.key?('parent_trace_id')
           begin
             # Since the enqueue was traced, we force trace the actual job execution and reference
             # the enqueue trace with ParentTraceID
@@ -148,12 +147,12 @@ module Oboe
 end
 
 if defined?(::Resque)
-  Oboe.logger.info "[oboe/loading] Instrumenting resque" if Oboe::Config[:verbose]
+  Oboe.logger.info '[oboe/loading] Instrumenting resque' if Oboe::Config[:verbose]
 
   ::Resque.module_eval do
     include Oboe::Inst::Resque
 
-    [ :enqueue, :enqueue_to, :dequeue ].each do |m|
+    [:enqueue, :enqueue_to, :dequeue].each do |m|
       if method_defined?(m)
         module_eval "alias #{m}_without_oboe #{m}"
         module_eval "alias #{m} #{m}_with_oboe"
@@ -171,7 +170,7 @@ if defined?(::Resque)
         alias perform_without_oboe perform
         alias perform perform_with_oboe
       elsif Oboe::Config[:verbose]
-        Oboe.logger.warn "[oboe/loading] Couldn't properly instrument ResqueWorker (perform).  Partial traces may occur."
+        Oboe.logger.warn '[oboe/loading] Couldn\'t properly instrument ResqueWorker (perform).  Partial traces may occur.'
       end
     end
   end
@@ -184,7 +183,7 @@ if defined?(::Resque)
         alias fail_without_oboe fail
         alias fail fail_with_oboe
       elsif Oboe::Config[:verbose]
-        Oboe.logger.warn "[oboe/loading] Couldn't properly instrument ResqueWorker (fail).  Partial traces may occur."
+        Oboe.logger.warn '[oboe/loading] Couldn\'t properly instrument ResqueWorker (fail).  Partial traces may occur.'
       end
     end
   end

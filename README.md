@@ -136,7 +136,7 @@ require 'oboe'
 # Tracing mode can be 'never', 'through' (to follow upstream) or 'always'
 Oboe::Config[:tracing_mode] = 'always'
 
-Oboe::Ruby.initialize
+Oboe::Ruby.load
 ```
 
 From here, you can use the Tracing API to instrument areas of code using `Oboe::API.start_trace` (see below).  If you prefer to instead dive directly into code, take a look at [this example](https://gist.github.com/pglombardo/8550713) of an instrumented Ruby script.
