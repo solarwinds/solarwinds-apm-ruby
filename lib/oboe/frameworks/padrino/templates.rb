@@ -8,10 +8,8 @@ module Oboe
         ::Oboe::Util.method_alias(klass, :render, ::Padrino::Rendering)
       end
 
-      def render_with_oboe(engine, data=nil, options={}, locals={}, &block)
-        unless Oboe.tracing?
-          render_without_oboe(engine, data, options, locals, &block)
-        else
+      def render_with_oboe(engine, data = nil, options = {}, locals = {}, &block)
+        if Oboe.tracing?
           report_kvs = {}
 
           if data
@@ -32,7 +30,7 @@ module Oboe
               report_kvs[:LineNumber]   = __LINE__
             rescue StandardError => e
               ::Oboe.logger.debug e.message
-              ::Oboe.logger.debug e.backtrace.join(", ")
+              ::Oboe.logger.debug e.backtrace.join(', ')
             end
 
             Oboe::API.profile(report_kvs[:template], report_kvs, false) do
@@ -51,9 +49,10 @@ module Oboe
               ::Oboe::API.log_exit('render', report_kvs)
             end
           end
+        else
+          render_without_oboe(engine, data, options, locals, &block)
         end
       end
     end
   end
 end
-

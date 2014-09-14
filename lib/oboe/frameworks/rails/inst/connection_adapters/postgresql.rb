@@ -7,12 +7,12 @@ module Oboe
       module FlavorInitializers
         def self.postgresql
 
-          Oboe.logger.info "[oboe/loading] Instrumenting activerecord postgresqladapter" if Oboe::Config[:verbose]
+          Oboe.logger.info '[oboe/loading] Instrumenting activerecord postgresqladapter' if Oboe::Config[:verbose]
 
           Oboe::Util.send_include(::ActiveRecord::ConnectionAdapters::PostgreSQLAdapter,
-                                    Oboe::Inst::ConnectionAdapters::Utils)
+                                  ::Oboe::Inst::ConnectionAdapters::Utils)
 
-          if (::ActiveRecord::VERSION::MAJOR == 3 and ::ActiveRecord::VERSION::MINOR > 0) or
+          if (::ActiveRecord::VERSION::MAJOR == 3 && ::ActiveRecord::VERSION::MINOR > 0) ||
                 ::ActiveRecord::VERSION::MAJOR == 4
 
             # ActiveRecord 3.1 and up

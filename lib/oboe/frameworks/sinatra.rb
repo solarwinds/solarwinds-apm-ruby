@@ -52,7 +52,7 @@ module Oboe
         end
       rescue StandardError => e
         Oboe.logger.warn "oboe_rum_header: #{e.message}."
-        return ""
+        return ''
       end
 
       def oboe_rum_footer
@@ -64,7 +64,7 @@ module Oboe
         end
       rescue StandardError => e
         Oboe.logger.warn "oboe_rum_footer: #{e.message}."
-        return ""
+        return ''
       end
     end
   end
@@ -74,7 +74,7 @@ if defined?(::Sinatra)
   require 'oboe/inst/rack'
   require 'oboe/frameworks/sinatra/templates'
 
-  Oboe.logger.info "[oboe/loading] Instrumenting Sinatra" if Oboe::Config[:verbose]
+  Oboe.logger.info '[oboe/loading] Instrumenting Sinatra' if Oboe::Config[:verbose]
 
   Oboe::Loading.load_access_key
   Oboe::Inst.load_instrumentation
@@ -83,7 +83,7 @@ if defined?(::Sinatra)
 
   # When in the gem TEST environment, we load this instrumentation regardless.
   # Otherwise, only when Padrino isn't around.
-  unless defined?(::Padrino) and not (ENV.has_key?("OBOE_GEM_TEST"))
+  unless defined?(::Padrino) and not (ENV.key?('OBOE_GEM_TEST'))
     # Padrino has 'enhanced' routes and rendering so the Sinatra
     # instrumentation won't work anyways.  Only load for pure Sinatra apps.
     ::Oboe::Util.send_include(::Sinatra::Base,      ::Oboe::Sinatra::Base)
@@ -93,4 +93,3 @@ if defined?(::Sinatra)
     Oboe::API.report_init unless Oboe.heroku?
   end
 end
-
