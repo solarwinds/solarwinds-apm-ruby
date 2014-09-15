@@ -1,16 +1,16 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
-if defined?(ActionView::Base) and Oboe::Config[:action_view][:enabled]
+if defined?(ActionView::Base) && Oboe::Config[:action_view][:enabled]
 
   if Rails::VERSION::MAJOR == 2
 
-    Oboe.logger.info "[oboe/loading] Instrumenting actionview" if Oboe::Config[:verbose]
+    Oboe.logger.info '[oboe/loading] Instrumenting actionview' if Oboe::Config[:verbose]
 
     ActionView::Partials.module_eval do
       alias :render_partial_without_oboe :render_partial
       def render_partial(options = {})
-        if options.has_key?(:partial) and options[:partial].is_a?(String)
+        if options.key?(:partial) && options[:partial].is_a?(String)
           entry_kvs = {}
           begin
             name  = Oboe::Util.prettify(options[:partial]) if options.is_a?(Hash)
@@ -34,7 +34,7 @@ if defined?(ActionView::Base) and Oboe::Config[:action_view][:enabled]
       def render_partial_collection(options = {})
         entry_kvs = {}
         begin
-          name  = "partial_collection"
+          name  = 'partial_collection'
           entry_kvs[:FunctionName] = :render_partial_collection
           entry_kvs[:Class]        = :Partials
           entry_kvs[:Module]       = :ActionView

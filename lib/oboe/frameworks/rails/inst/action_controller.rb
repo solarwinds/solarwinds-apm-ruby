@@ -69,7 +69,7 @@ module Oboe
   end
 end
 
-if defined?(ActionController::Base) and Oboe::Config[:action_controller][:enabled]
+if defined?(ActionController::Base) && Oboe::Config[:action_controller][:enabled]
   if ::Rails::VERSION::MAJOR == 4
 
     class ActionController::Base
@@ -98,8 +98,8 @@ if defined?(ActionController::Base) and Oboe::Config[:action_controller][:enable
 
       def perform_action(*arguments)
         report_kvs = {
-            :Controller  => @_request.path_parameters['controller'],
-            :Action      => @_request.path_parameters['action']
+          :Controller  => @_request.path_parameters['controller'],
+          :Action      => @_request.path_parameters['action']
         }
         Oboe::API.log(nil, 'info', report_kvs)
         perform_action_without_oboe(*arguments)
@@ -117,7 +117,6 @@ if defined?(ActionController::Base) and Oboe::Config[:action_controller][:enable
       end
     end
   end
-  Oboe.logger.info "[oboe/loading] Instrumenting actioncontroler" if Oboe::Config[:verbose]
+  Oboe.logger.info '[oboe/loading] Instrumenting actioncontroler' if Oboe::Config[:verbose]
 end
 # vim:set expandtab:tabstop=2
-

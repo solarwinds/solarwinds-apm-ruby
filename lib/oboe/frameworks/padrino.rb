@@ -61,6 +61,4 @@ if defined?(::Padrino)
     # Report __Init after fork when in Heroku
     Oboe::API.report_init unless Oboe.heroku?
   end
-
 end
-

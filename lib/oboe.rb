@@ -27,7 +27,7 @@ begin
       unless ENV['RAILS_GROUP'] == 'assets' or ENV['IGNORE_TRACEVIEW_WARNING']
         $stderr.puts '=============================================================='
         $stderr.puts 'Missing TraceView libraries.  Tracing disabled.'
-        $stderr.puts 'See: https://support.tv.appneta.com/solution/articles/137973'
+        $stderr.puts 'See: http://bit.ly/1DaNOjw'
         $stderr.puts '=============================================================='
       end
     end
@@ -39,14 +39,17 @@ begin
     require 'oboe/loading'
     require 'oboe/method_profiling'
     require 'oboe/instrumentation'
-    require 'oboe/ruby'
 
     # Frameworks
-    require 'oboe/frameworks/rails'   if defined?(::Rails)
-    require 'oboe/frameworks/sinatra' if defined?(::Sinatra)
-    require 'oboe/frameworks/padrino' if defined?(::Padrino)
-    require 'oboe/frameworks/grape'   if defined?(::Grape)
+    require 'oboe/frameworks/rails'
+    require 'oboe/frameworks/sinatra'
+    require 'oboe/frameworks/padrino'
+    require 'oboe/frameworks/grape'
   end
+
+  # Load Ruby module last.  If there is no framework detected,
+  # it will load all of the Ruby instrumentation
+  require 'oboe/ruby'
 rescue => e
   $stderr.puts '[oboe/error] Problem loading: #{e.inspect}'
   $stderr.puts e.backtrace

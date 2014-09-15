@@ -47,22 +47,42 @@ module OboeBase
     end
   end
 
+  ##
+  # Returns true if the tracing_mode is set to always.
+  # False otherwise
+  #
   def always?
     Oboe::Config[:tracing_mode].to_s == 'always'
   end
 
+  ##
+  # Returns true if the tracing_mode is set to never.
+  # False otherwise
+  #
   def never?
     Oboe::Config[:tracing_mode].to_s == 'never'
   end
 
+  ##
+  # Returns true if the tracing_mode is set to always or through.
+  # False otherwise
+  #
   def passthrough?
     %w(always through).include?(Oboe::Config[:tracing_mode])
   end
 
+  ##
+  # Returns true if the tracing_mode is set to through.
+  # False otherwise
+  #
   def through?
     Oboe::Config[:tracing_mode] == 'through'
   end
 
+  ##
+  # Returns true if we are currently tracing a request
+  # False otherwise
+  #
   def tracing?
     return false unless Oboe.loaded
 
@@ -78,8 +98,19 @@ module OboeBase
     false
   end
 
+  ##
+  # Determines if we are running under a forking webserver
+  #
   def forking_webserver?
     (defined?(::Unicorn) && ($PROGRAM_NAME =~ /unicorn/i)) ? true : false
+  end
+
+  ##
+  # Indicates whether a supported framework is in use
+  # or not
+  #
+  def framework?
+    defined?(::Rails) or defined?(::Sinatra) or defined?(::Padrino) or defined?(::Grape)
   end
 
   ##
