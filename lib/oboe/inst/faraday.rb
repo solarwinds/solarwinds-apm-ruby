@@ -1,60 +1,68 @@
-module Faraday
-  class Request::TraceView < Faraday::Middleware
-
-    Faraday::Request.register_middleware :traceview => self
-
-    def call(env)
-      report_kvs = {}
-      app = nil
-
-      context = Oboe::Context.toString()
-      task_id = Oboe::XTrace.task_id(context)
-
-      # Avoid cross host tracing for blacklisted domains
-      blacklisted = Oboe::API.blacklisted?(env.url.to_s)
-
-      Oboe::API.trace('faraday') do
-
-        # Add the X-Trace header to the outgoing request
-        env.request_headers['X-Trace'] = context unless blacklisted
-
-        report_kvs['IsService'] = 1
-        report_kvs['RemoteProtocol'] = (env[:url].scheme == 'https') ? 'HTTPS' : 'HTTP'
-        report_kvs['RemoteHost'] = env[:url].host
-        report_kvs['RemotePort'] = env[:url].port
-        report_kvs['ServiceArg'] = env[:url].path
-        report_kvs['HTTPMethod'] = env.method
-        report_kvs['Blacklisted'] = true if blacklisted
-        report_kvs['Backtrace'] = Oboe::API.backtrace if Oboe::Config[:faraday][:collect_backtraces]
-
-        app = @app.call(env)
-
-        # FIXME: We don't re-attach the X-Trace edge here because it has to be done
-        # on the layer that is making the actual http request.  If using the net::http layer
-        # it has to be done there.  We need a method to detect the adapter being used and
-        # then act off of that.
-        #
-        # Re-attach net::http edge unless blacklisted and is a valid X-Trace ID
-        #unless blacklisted
-        #
-        #  xtrace = env.response_headers['X-Trace']
-        #
-        #  if Oboe::XTrace.valid?(xtrace) and Oboe.tracing?
-        #
-        #    # Assure that we received back a valid X-Trace with the same task_id
-        #    if task_id == Oboe::XTrace.task_id(xtrace)
-        #      Oboe::Context.fromString(xtrace)
-        #    else
-        #      Oboe.logger.debug "Mismatched returned X-Trace ID : #{xtrace}"
-        #    end
-        #  end
-        #end
-
-        # Log the info event with the KVs in report_kvs
-        Oboe::API.log('faraday', 'info', report_kvs)
+module Oboe
+  module Inst
+    module FaradayConnection
+      def self.included(klass)
+        ::Oboe::Util.method_alias(klass, :run_request, ::Faraday::Connection)
       end
 
-      app
-    end # Oboe::API.start_trace
+      def run_request_with_oboe(method, url, body, headers)
+        kvs = {}
+        handle_service = !@builder.handlers.include?(Faraday::Adapter::NetHttp)
+
+        Oboe::API.trace('faraday', kvs) do
+          kvs['Middleware'] = @builder.handlers
+          kvs['Backtrace'] = Oboe::API.backtrace if Oboe::Config[:faraday][:collect_backtraces]
+
+          # Only send service KVs if we're not using the Net::HTTP adapter
+          if handle_service
+            blacklisted = Oboe::API.blacklisted?(@url_prefix.to_s)
+            context = Oboe::Context.toString
+            task_id = Oboe::XTrace.task_id(context)
+
+            # Avoid cross host tracing for blacklisted domains
+            # Conditionally add the X-Trace header to the outgoing request
+            @headers['X-Trace'] = context unless blacklisted
+
+            kvs['IsService'] = 1
+            kvs['RemoteProtocol'] = (@url_prefix.scheme == 'https') ? 'HTTPS' : 'HTTP'
+            kvs['RemoteHost'] = @url_prefix.host
+            kvs['RemotePort'] = @url_prefix.port
+            kvs['ServiceArg'] = url
+            kvs['HTTPMethod'] = method
+            kvs['Blacklisted'] = true if blacklisted
+          end
+
+          result = run_request_without_oboe(method, url, body, headers)
+
+          # Re-attach net::http edge unless it's blacklisted or if we don't have a
+          # valid X-Trace header
+          if handle_service && !blacklisted
+            xtrace = result.headers['X-Trace']
+
+            if Oboe::XTrace.valid?(xtrace) && Oboe.tracing?
+
+              # Assure that we received back a valid X-Trace with the same task_id
+              if task_id == Oboe::XTrace.task_id(xtrace)
+                Oboe::Context.fromString(xtrace)
+              else
+                Oboe.logger.debug "Mismatched returned X-Trace ID: #{xtrace}"
+              end
+            end
+          end
+
+          kvs['HTTPStatus'] = result.status
+          result
+        end
+      ensure
+        Oboe::API.log('faraday', 'info', kvs) if handle_service
+      end
+    end
+  end
+end
+
+if Oboe::Config[:faraday][:enabled]
+  if defined?(::Faraday)
+    Oboe.logger.info '[oboe/loading] Instrumenting faraday'
+    ::Oboe::Util.send_include(::Faraday::Connection, ::Oboe::Inst::FaradayConnection)
   end
 end
