@@ -123,7 +123,7 @@ You must explicitly tell your Grape application to use Oboe::Rack for tracing to
 
 ## Custom Ruby Scripts & Applications
 
-The oboe gem has the ability to instrument any arbitrary Ruby application or script as long as the gem is initialized with the manual methods:
+The oboe gem has the ability to instrument any arbitrary Ruby application or script.  Only the `tracing_mode` needs to be set to tell the oboe gem to initiate performance metric collection.
 
 ```ruby
 require 'rubygems'
@@ -135,11 +135,11 @@ require 'oboe'
 
 # Tracing mode can be 'never', 'through' (to follow upstream) or 'always'
 Oboe::Config[:tracing_mode] = 'always'
-
-Oboe::Ruby.load
 ```
 
 From here, you can use the Tracing API to instrument areas of code using `Oboe::API.start_trace` (see below).  If you prefer to instead dive directly into code, take a look at [this example](https://gist.github.com/pglombardo/8550713) of an instrumented Ruby script.
+
+Once inside of the `Oboe::API.start_trace` block, performance metrics will be automatically collected for all supported libraries and gems (Redis, Mongo, ActiveRecord etc..).
 
 ## Other
 
