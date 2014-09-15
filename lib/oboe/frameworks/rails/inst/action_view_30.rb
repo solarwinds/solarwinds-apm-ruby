@@ -1,9 +1,9 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
-if defined?(ActionView::Base) and Oboe::Config[:action_view][:enabled]
+if defined?(ActionView::Base) && Oboe::Config[:action_view][:enabled]
 
-  if Rails::VERSION::MAJOR == 3 and Rails::VERSION::MINOR == 0
+  if Rails::VERSION::MAJOR == 3 && Rails::VERSION::MINOR == 0
 
     ActionView::Partials::PartialRenderer.class_eval do
       alias :render_partial_without_oboe :render_partial

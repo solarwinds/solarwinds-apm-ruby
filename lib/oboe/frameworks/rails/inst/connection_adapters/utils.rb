@@ -28,12 +28,12 @@ module Oboe
               config = ::Rails.application.config.database_configuration[::Rails.env]
             end
 
-            opts[:Database]   = config["database"] if config.has_key?("database")
-            opts[:RemoteHost] = config["host"]     if config.has_key?("host")
-            opts[:Flavor]     = config["adapter"]  if config.has_key?("adapter")
+            opts[:Database]   = config['database'] if config.key?('database')
+            opts[:RemoteHost] = config['host']     if config.key?('host')
+            opts[:Flavor]     = config['adapter']  if config.key?('adapter')
           rescue StandardError => e
             Oboe.logger.debug "Exception raised capturing ActiveRecord KVs: #{e.inspect}"
-            Oboe.logger.debug e.backtrace.join("\n")
+            Oboe.logger.debug e.backtrace.join('\n')
           end
 
           return opts || {}
@@ -42,17 +42,17 @@ module Oboe
         # We don't want to trace framework caches.  Only instrument SQL that
         # directly hits the database.
         def ignore_payload?(name)
-          %w(SCHEMA EXPLAIN CACHE).include? name.to_s or
-            (name and name.to_sym == :skip_logging) or
-              name == "ActiveRecord::SchemaMigration Load"
+          %w(SCHEMA EXPLAIN CACHE).include?(name.to_s) ||
+            (name && name.to_sym == :skip_logging) ||
+              name == 'ActiveRecord::SchemaMigration Load'
         end
 
-        #def cfg
-        #  @config
-        #end
+        # def cfg
+        #   @config
+        # end
 
         def execute_with_oboe(sql, name = nil)
-          if Oboe.tracing? and !ignore_payload?(name)
+          if Oboe.tracing? && !ignore_payload?(name)
 
             opts = extract_trace_details(sql, name)
             Oboe::API.trace('activerecord', opts || {}) do
@@ -64,7 +64,7 @@ module Oboe
         end
 
         def exec_query_with_oboe(sql, name = nil, binds = [])
-          if Oboe.tracing? and !ignore_payload?(name)
+          if Oboe.tracing? && !ignore_payload?(name)
 
             opts = extract_trace_details(sql, name, binds)
             Oboe::API.trace('activerecord', opts || {}) do
@@ -76,7 +76,7 @@ module Oboe
         end
 
         def exec_delete_with_oboe(sql, name = nil, binds = [])
-          if Oboe.tracing? and !ignore_payload?(name)
+          if Oboe.tracing? && !ignore_payload?(name)
 
             opts = extract_trace_details(sql, name, binds)
             Oboe::API.trace('activerecord', opts || {}) do
@@ -88,7 +88,7 @@ module Oboe
         end
 
         def exec_insert_with_oboe(sql, name = nil, binds = [], *args)
-          if Oboe.tracing? and !ignore_payload?(name)
+          if Oboe.tracing? && !ignore_payload?(name)
 
             opts = extract_trace_details(sql, name, binds)
             Oboe::API.trace('activerecord', opts || {}) do
@@ -99,20 +99,19 @@ module Oboe
           end
         end
 
-        def begin_db_transaction_with_oboe()
+        def begin_db_transaction_with_oboe
           if Oboe.tracing?
             opts = {}
 
-            opts[:Query] = "BEGIN"
+            opts[:Query] = 'BEGIN'
             Oboe::API.trace('activerecord', opts || {}) do
-              begin_db_transaction_without_oboe()
+              begin_db_transaction_without_oboe
             end
           else
-            begin_db_transaction_without_oboe()
+            begin_db_transaction_without_oboe
           end
         end
       end # Utils
     end
   end
 end
-

@@ -1,16 +1,16 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
-if defined?(ActionView::Base) and Oboe::Config[:action_view][:enabled]
+if defined?(ActionView::Base) && Oboe::Config[:action_view][:enabled]
 
   ##
   # ActionView Instrumentation is version dependent.  ActionView 2.x is separate
   # and ActionView 3.0 is a special case.
   # Everything else goes here. (ActionView 3.1 - 4.0 as of this writing)
   #
-  if (Rails::VERSION::MAJOR == 3 and Rails::VERSION::MINOR > 0) or Rails::VERSION::MAJOR == 4
+  if (Rails::VERSION::MAJOR == 3 && Rails::VERSION::MINOR > 0) || Rails::VERSION::MAJOR == 4
 
-    Oboe.logger.info "[oboe/loading] Instrumenting actionview" if Oboe::Config[:verbose]
+    Oboe.logger.info '[oboe/loading] Instrumenting actionview' if Oboe::Config[:verbose]
 
     ActionView::PartialRenderer.class_eval do
       alias :render_partial_without_oboe :render_partial
@@ -45,7 +45,7 @@ if defined?(ActionView::Base) and Oboe::Config[:action_view][:enabled]
         end
 
         Oboe::API.profile(name, entry_kvs, Oboe::Config[:action_view][:collect_backtraces]) do
-          ret =  render_collection_without_oboe
+          render_collection_without_oboe
         end
       end
 
