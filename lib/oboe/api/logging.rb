@@ -84,14 +84,39 @@ module Oboe
         xtrace
       end
 
-      def log_entry(layer, opts = {}, protect_op = nil)
-        Oboe.layer_op = protect_op if protect_op
-        log_event(layer, 'entry', Oboe::Context.createEvent, opts)
+      ##
+      # Public: Log an entry event
+      #
+      # A helper method to create and log an
+      # entry event
+      #
+      # Returns an xtrace metadata string
+      def log_entry(layer, kvs = {}, op = nil)
+        Oboe.layer_op = op if op
+        log_event(layer, 'entry', Oboe::Context.createEvent, kvs)
       end
 
-      def log_exit(layer, opts = {}, protect_op = nil)
-        Oboe.layer_op = nil if protect_op
-        log_event(layer, 'exit', Oboe::Context.createEvent, opts)
+      ##
+      # Public: Log an info event
+      #
+      # A helper method to create and log an
+      # info event
+      #
+      # Returns an xtrace metadata string
+      def log_info(layer, kvs = {})
+        log_event(layer, 'info', Oboe::Context.createEvent, kvs)
+      end
+
+      ##
+      # Public: Log an exit event
+      #
+      # A helper method to create and log an
+      # exit event
+      #
+      # Returns an xtrace metadata string
+      def log_exit(layer, kvs = {}, op = nil)
+        Oboe.layer_op = nil if op
+        log_event(layer, 'exit', Oboe::Context.createEvent, kvs)
       end
 
       # Internal: Report an event.
