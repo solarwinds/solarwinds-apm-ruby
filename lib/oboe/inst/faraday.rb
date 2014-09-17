@@ -57,7 +57,7 @@ module Oboe
         Oboe::API.log_exception('faraday', e)
         raise e
       ensure
-        Oboe::API.log_exit('faraday', kvs)
+        Oboe::API.log_exit('faraday')
       end
     end
   end
