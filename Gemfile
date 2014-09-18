@@ -26,6 +26,8 @@ gem 'cassandra'
 gem 'mongo'
 gem 'resque'
 gem 'redis'
+gem 'faraday'
+gem 'excon'
 
 if RUBY_VERSION >= '1.9'
   gem 'moped'

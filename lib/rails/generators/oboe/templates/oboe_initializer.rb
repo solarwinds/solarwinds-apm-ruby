@@ -52,6 +52,7 @@ if defined?(Oboe::Config)
   # Oboe::Config[:action_view][:enabled] = true
   # Oboe::Config[:cassandra][:enabled] = true
   # Oboe::Config[:dalli][:enabled] = true
+  # Oboe::Config[:faraday][:enabled] = true
   # Oboe::Config[:memcache][:enabled] = true
   # Oboe::Config[:memcached][:enabled] = true
   # Oboe::Config[:mongo][:enabled] = true
@@ -74,6 +75,7 @@ if defined?(Oboe::Config)
   # Oboe::Config[:action_view][:collect_backtraces] = true
   # Oboe::Config[:cassandra][:collect_backtraces] = true
   # Oboe::Config[:dalli][:collect_backtraces] = false
+  # Oboe::Config[:faraday][:collect_backtraces] = false
   # Oboe::Config[:memcache][:collect_backtraces] = false
   # Oboe::Config[:memcached][:collect_backtraces] = false
   # Oboe::Config[:mongo][:collect_backtraces] = true

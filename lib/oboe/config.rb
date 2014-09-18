@@ -12,7 +12,7 @@ module Oboe
     @@config = {}
 
     @@instrumentation = [:action_controller, :action_view, :active_record,
-                         :cassandra, :dalli, :em_http_request, :nethttp, :memcached,
+                         :cassandra, :dalli, :em_http_request, :faraday, :nethttp, :memcached,
                          :memcache, :mongo, :moped, :rack, :redis, :resque]
     ##
     # Return the raw nested hash.
@@ -39,6 +39,7 @@ module Oboe
       Oboe::Config[:action_view][:collect_backtraces] = true
       Oboe::Config[:cassandra][:collect_backtraces] = true
       Oboe::Config[:dalli][:collect_backtraces] = false
+      Oboe::Config[:faraday][:collect_backtraces] = false
       Oboe::Config[:em_http_request][:collect_backtraces] = false
       Oboe::Config[:memcache][:collect_backtraces] = false
       Oboe::Config[:memcached][:collect_backtraces] = false

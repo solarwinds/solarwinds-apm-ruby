@@ -129,7 +129,7 @@ module Oboe
       begin
         return false unless Oboe.always? && Oboe.loaded
 
-        return true if ENV['OBOE_GEM_TEST'] == 'test'
+        return true if ENV.key?('OBOE_GEM_TEST')
 
         # Validation to make Joboe happy.  Assure that we have the KVs and that they
         # are not empty strings.
