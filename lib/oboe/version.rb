@@ -8,8 +8,8 @@ module Oboe
   module Version
     MAJOR = 2
     MINOR = 7
-    PATCH = 1
-    BUILD = 7
+    PATCH = 2
+    BUILD = 2
 
     STRING = [MAJOR, MINOR, PATCH, BUILD].compact.join('.')
   end
