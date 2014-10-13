@@ -52,6 +52,6 @@ begin
   # it will load all of the Ruby instrumentation
   require 'oboe/ruby'
 rescue => e
-  $stderr.puts '[oboe/error] Problem loading: #{e.inspect}'
+  $stderr.puts "[oboe/error] Problem loading: #{e.inspect}"
   $stderr.puts e.backtrace
 end
