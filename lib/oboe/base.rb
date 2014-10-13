@@ -35,8 +35,12 @@ module OboeBase
   attr_accessor :sample_rate
   thread_local :layer_op
 
-  def self.included(_)
-    self.loaded = true
+  def self.included(cls)
+    cls.loaded = true
+  end
+
+  def self.extended(cls)
+    cls.loaded = true
   end
 
   def tracing_layer_op?(operation)
