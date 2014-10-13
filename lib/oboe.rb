@@ -7,7 +7,7 @@ begin
   require 'oboe/logger'
   require 'oboe/util'
   require 'oboe/xtrace'
-  require 'oboe/investigate'
+  require 'oboe/support'
 
   # If OboeHeroku is already defined then we are in a PaaS environment
   # with an alternate metal (see the oboe-heroku gem)
