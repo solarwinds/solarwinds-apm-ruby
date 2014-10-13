@@ -41,6 +41,7 @@ module Oboe
     end
 
     Oboe.logger.warn "Oboe::Ruby defined?: #{yesno(defined?(Oboe::Ruby))}"
+    Oboe.logger.warn "Oboe.reporter: #{Oboe.reporter}"
 
     Oboe.logger.warn "********************************************************"
     Oboe.logger.warn "* Frameworks"
