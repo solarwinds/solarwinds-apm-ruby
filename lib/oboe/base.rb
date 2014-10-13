@@ -95,7 +95,7 @@ module OboeBase
   end
 
   def heroku?
-    false
+    ENV.key?('TRACEVIEW_URL')
   end
 
   ##
