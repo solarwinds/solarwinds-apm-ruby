@@ -139,7 +139,7 @@ module Oboe
           # Report the framework in use
           if defined?(::RailsLts)
             platform_info['Ruby.RailsLts.Version'] = "RailsLts-#{::RailsLts::VERSION}"
-          elsif if defined?(::Rails)
+          elsif defined?(::Rails)
             platform_info['Ruby.Rails.Version']    = "Rails-#{::Rails.version}"
           end
           platform_info['Ruby.Grape.Version']    = "Grape-#{::Grape::VERSION}" if defined?(::Grape)
