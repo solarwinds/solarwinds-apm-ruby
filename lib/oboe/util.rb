@@ -137,9 +137,13 @@ module Oboe
           platform_info['RubyHeroku.Oboe.Version'] = ::OboeHeroku::Version::STRING if defined?(::OboeHeroku)
 
           # Report the framework in use
-          platform_info['Ruby.Rails.Version'] = "Rails-#{::Rails.version}"  if defined?(::Rails)
-          platform_info['Ruby.Grape.Version'] = "Grape-#{::Grape::VERSION}" if defined?(::Grape)
-          platform_info['Ruby.Cramp.Version'] = "Cramp-#{::Cramp::VERSION}" if defined?(::Cramp)
+          if defined?(::RailsLts)
+            platform_info['Ruby.RailsLts.Version'] = "RailsLts-#{::RailsLts::VERSION}"
+          elsif if defined?(::Rails)
+            platform_info['Ruby.Rails.Version']    = "Rails-#{::Rails.version}"
+          end
+          platform_info['Ruby.Grape.Version']    = "Grape-#{::Grape::VERSION}" if defined?(::Grape)
+          platform_info['Ruby.Cramp.Version']    = "Cramp-#{::Cramp::VERSION}" if defined?(::Cramp)
 
           if defined?(::Padrino)
             platform_info['Ruby.Padrino.Version'] = "Padrino-#{::Padrino::VERSION}"
