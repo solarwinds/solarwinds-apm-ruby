@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Oboe::Collector" skipped="0" failures="0" errors="0" tests="3" assertions="26" time="10.105662175">
+  <testcase name="test_0001_should be loaded, defined, instantiated and ready" classname="Oboe::Collector" assertions="4" time="0.000134186">
+  </testcase>
+  <testcase name="test_0003_should generate metric traces" classname="Oboe::Collector" assertions="20" time="10.105332512">
+  </testcase>
+  <testcase name="test_0002_should have correct default Oboe::Config values" classname="Oboe::Collector" assertions="2" time="0.000195477">
+  </testcase>
+</testsuite>
