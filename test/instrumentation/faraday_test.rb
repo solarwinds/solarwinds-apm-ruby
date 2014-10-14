@@ -87,7 +87,7 @@ describe Oboe::Inst::FaradayConnection do
 
   it 'should trace a Faraday alternate request method' do
     Oboe::API.start_trace('faraday_test') do
-      Faraday.get('http://www.curlmyip.com', {a:1})
+      Faraday.get('http://www.curlmyip.com', {:a => 1})
     end
 
     traces = get_all_traces
