@@ -7,6 +7,7 @@ begin
   require 'oboe/logger'
   require 'oboe/util'
   require 'oboe/xtrace'
+  require 'oboe/support'
 
   # If OboeHeroku is already defined then we are in a PaaS environment
   # with an alternate metal (see the oboe-heroku gem)
@@ -51,6 +52,6 @@ begin
   # it will load all of the Ruby instrumentation
   require 'oboe/ruby'
 rescue => e
-  $stderr.puts '[oboe/error] Problem loading: #{e.inspect}'
+  $stderr.puts "[oboe/error] Problem loading: #{e.inspect}"
   $stderr.puts e.backtrace
 end
