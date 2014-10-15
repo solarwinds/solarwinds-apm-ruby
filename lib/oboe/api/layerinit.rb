@@ -17,7 +17,7 @@ module Oboe
         # Don't send __Init if the c-extension hasn't loaded
         return unless Oboe.loaded
 
-        platform_info = Oboe::Util.build_report
+        platform_info = Oboe::Util.build_init_report
         start_trace(layer, nil, platform_info.merge('Force' => true)) {}
       end
 
