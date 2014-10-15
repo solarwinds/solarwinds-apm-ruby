@@ -125,8 +125,9 @@ module Oboe
       #  build_report
       #
       # Internal: Build a hash of KVs that reports on the status of the
-      # running environment.
-      def build_report
+      # running environment.  This is used on stack boot in __Init reporting
+      # and for Oboe.support_report.
+      def build_init_report
         platform_info = { '__Init' => 1 }
 
         begin
@@ -154,6 +155,7 @@ module Oboe
           # Report the instrumented libraries
           platform_info['Ruby.Cassandra.Version'] = "Cassandra-#{::Cassandra.VERSION}" if defined?(::Cassandra)
           platform_info['Ruby.Dalli.Version']     = "Dalli-#{::Dalli::VERSION}"        if defined?(::Dalli)
+          platform_info['Ruby.Faraday.Version']   = "Faraday-#{::Faraday::VERSION}"    if defined?(::Faraday)
           platform_info['Ruby.MemCache.Version']  = "MemCache-#{::MemCache::VERSION}"  if defined?(::MemCache)
           platform_info['Ruby.Moped.Version']     = "Moped-#{::Moped::VERSION}"        if defined?(::Moped)
           platform_info['Ruby.Redis.Version']     = "Redis-#{::Redis::VERSION}"        if defined?(::Redis)
@@ -191,7 +193,7 @@ module Oboe
 
           platform_info['Error'] = "Error in build_report: #{e.message}"
 
-          Oboe.logger.debug "Error in build_report: #{e.message}"
+          Oboe.logger.warn "[oboe/warn] Error in build_init_report: #{e.message}"
           Oboe.logger.debug e.backtrace
         end
         platform_info
