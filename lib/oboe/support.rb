@@ -1,6 +1,8 @@
 # Copyright (c) 2014 AppNeta, Inc.
 # All rights reserved.
 
+require 'rbconfig'
+
 module Oboe
   ##
   # This module is used to debug problematic setups and/or environments.
@@ -75,13 +77,30 @@ module Oboe
     end
 
     Oboe.logger.warn "********************************************************"
+    Oboe.logger.warn "* Oboe::Config Values"
+    Oboe.logger.warn "********************************************************"
+    Oboe::Config.show.each { |k,v|
+      Oboe.logger.warn "#{k}: #{v}"
+    }
+
+    Oboe.logger.warn "********************************************************"
+    Oboe.logger.warn "* OS, Platform + Env"
+    Oboe.logger.warn "********************************************************"
+    Oboe.logger.warn RbConfig::CONFIG['host_os']
+    Oboe.logger.warn RbConfig::CONFIG['sitearch']
+    Oboe.logger.warn RbConfig::CONFIG['arch']
+    Oboe.logger.warn RUBY_PLATFORM
+    Oboe.logger.warn "RACK_ENV: #{ENV['RACK_ENV']}"
+    Oboe.logger.warn "RAILS_ENV: #{ENV['RAILS_ENV']}" if using_rails
+
+    Oboe.logger.warn "********************************************************"
     Oboe.logger.warn "* Raw __Init KVs"
     Oboe.logger.warn "********************************************************"
-    platform_info = Oboe::Util.build_report
+    platform_info = Oboe::Util.build_init_report
     platform_info.each { |k,v|
       Oboe.logger.warn "#{k}: #{v}"
     }
-    
+
     Oboe.logger.warn "********************************************************"
     Oboe.logger.warn "* END TraceView Support Report"
     Oboe.logger.warn "*   Support Email: traceviewsupport@appneta.com"
