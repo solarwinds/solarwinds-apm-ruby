@@ -35,9 +35,9 @@ begin
   end
 
   require 'oboe/config'
+  require 'oboe/loading'
 
   if Oboe.loaded
-    require 'oboe/loading'
     require 'oboe/method_profiling'
     require 'oboe/instrumentation'
 
