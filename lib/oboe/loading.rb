@@ -90,5 +90,5 @@ Oboe::Loading.require_api
 # Auto-start the Reporter unless we running Unicorn on Heroku
 # In that case, we start the reporters after fork
 unless Oboe.heroku? && Oboe.forking_webserver?
-  Oboe::Reporter.start
+  Oboe::Reporter.start if Oboe.loaded
 end
