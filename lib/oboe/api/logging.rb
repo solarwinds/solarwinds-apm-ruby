@@ -22,7 +22,9 @@ module Oboe
       #
       # Returns nothing.
       def log(layer, label, opts = {})
-        log_event(layer, label, Oboe::Context.createEvent, opts)
+        if Oboe.loaded
+          log_event(layer, label, Oboe::Context.createEvent, opts)
+        end
       end
 
       # Public: Report an exception.
@@ -41,7 +43,7 @@ module Oboe
       #
       # Returns nothing.
       def log_exception(layer, exn)
-        return if exn.instance_variable_get(:@oboe_logged)
+        return if !Oboe.loaded || exn.instance_variable_get(:@oboe_logged)
 
         kvs = { :ErrorClass => exn.class.name,
                 :Message => exn.message,
@@ -61,7 +63,8 @@ module Oboe
       #
       # Returns nothing.
       def log_start(layer, xtrace, opts = {})
-        return if Oboe.never? || (opts.key?(:URL) && ::Oboe::Util.static_asset?(opts[:URL]))
+        return if !Oboe.loaded || Oboe.never? || 
+                  (opts.key?(:URL) && ::Oboe::Util.static_asset?(opts[:URL]))
 
         Oboe::Context.fromString(xtrace) if xtrace && !xtrace.to_s.empty?
 
@@ -78,10 +81,12 @@ module Oboe
       #
       # Returns an xtrace metadata string
       def log_end(layer, opts = {})
-        log_event(layer, 'exit', Oboe::Context.createEvent, opts)
-        xtrace = Oboe::Context.toString
-        Oboe::Context.clear
-        xtrace
+        if Oboe.loaded
+          log_event(layer, 'exit', Oboe::Context.createEvent, opts)
+          xtrace = Oboe::Context.toString
+          Oboe::Context.clear
+          xtrace
+        end
       end
 
       ##
@@ -92,8 +97,10 @@ module Oboe
       #
       # Returns an xtrace metadata string
       def log_entry(layer, kvs = {}, op = nil)
-        Oboe.layer_op = op if op
-        log_event(layer, 'entry', Oboe::Context.createEvent, kvs)
+        if Oboe.loaded
+          Oboe.layer_op = op if op
+          log_event(layer, 'entry', Oboe::Context.createEvent, kvs)
+        end
       end
 
       ##
@@ -104,7 +111,9 @@ module Oboe
       #
       # Returns an xtrace metadata string
       def log_info(layer, kvs = {})
-        log_event(layer, 'info', Oboe::Context.createEvent, kvs)
+        if Oboe.loaded
+          log_event(layer, 'info', Oboe::Context.createEvent, kvs)
+        end
       end
 
       ##
@@ -115,8 +124,10 @@ module Oboe
       #
       # Returns an xtrace metadata string
       def log_exit(layer, kvs = {}, op = nil)
-        Oboe.layer_op = nil if op
-        log_event(layer, 'exit', Oboe::Context.createEvent, kvs)
+        if Oboe.loaded
+          Oboe.layer_op = nil if op
+          log_event(layer, 'exit', Oboe::Context.createEvent, kvs)
+        end
       end
 
       # Internal: Report an event.
@@ -137,14 +148,16 @@ module Oboe
       #
       # Returns nothing.
       def log_event(layer, label, event, opts = {})
-        event.addInfo('Layer', layer.to_s) if layer
-        event.addInfo('Label', label.to_s)
+        if Oboe.loaded
+          event.addInfo('Layer', layer.to_s) if layer
+          event.addInfo('Label', label.to_s)
 
-        opts.each do |k, v|
-          event.addInfo(k.to_s, v.to_s) if valid_key? k
-        end if !opts.nil? && opts.any?
+          opts.each do |k, v|
+            event.addInfo(k.to_s, v.to_s) if valid_key? k
+          end if !opts.nil? && opts.any?
 
-        Oboe::Reporter.sendReport(event) if Oboe.loaded
+          Oboe::Reporter.sendReport(event) if Oboe.loaded
+        end
       end
     end
   end
