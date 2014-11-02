@@ -4,11 +4,9 @@
 
 The following environment variables are detected by the oboe gem:
 
-* `IGNORE_TRACEVIEW_WARNING` - This existence of this environment variable tells the 
-oboe gem to not output the "missing TraceView libraries" message on stack initialization
+* `IGNORE_TRACEVIEW_WARNING` - tells the oboe gem to __not__ output the _missing TraceView libraries_ message on stack initialization
 
-* `OBOE_GEM_VERBOSE` - The existence of this environment variable sets the verbose flag
-(`Oboe::Config[:verbose]`)before gem load which may output valuable information during gem load.
+* `OBOE_GEM_VERBOSE` - sets the verbose flag (`Oboe::Config[:verbose]`) early in the gem loading process which may output valuable information
 
 ## Oboe::Config
 
