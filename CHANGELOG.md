@@ -1,3 +1,60 @@
+
+For the latest release info, see here:
+https://github.com/appneta/oboe-ruby/releases
+
+Dates in this file are in the format MM/DD/YYYY.
+
+# oboe 2.7.4.1 (10/26/2014)
+
+This patch release includes:
+
+* Make Oboe::API available even when liboboe.so is not #81 (thanks Cannon!)
+* Add OS and Oboe::Config info to support_report #80 
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/oboe/versions/2.7.4.1
+https://rubygems.org/gems/oboe/versions/2.7.4.1-java
+
+# oboe 2.7.3.1 (10/15/2014)
+
+This patch release includes:
+
+* Fix require statements under certain variations of REE-1.8.7: #78 (thanks @madrobby)
+* Faraday instrumentation fails to capture and pass params update block: #79
+* Add method to log environment details for support investigations (`Oboe.support_report`): #77
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/oboe/versions/2.7.3.1
+https://rubygems.org/gems/oboe/versions/2.7.3.1-java
+
+# oboe 2.7.2.2 (09/26/2014)
+
+This patch release includes:
+
+* New [Faraday](https://github.com/lostisland/faraday) instrumentation: https://github.com/appneta/oboe-ruby/pull/68
+* Auto-initialize instrumentation when no framework detected: https://github.com/appneta/oboe-ruby/pull/76
+* Willingly ignore traceview missing libraries warning: https://github.com/appneta/oboe-ruby/pull/75 (thanks @theist!)
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/oboe/versions/2.7.2.2
+https://rubygems.org/gems/oboe/versions/2.7.2.2-java
+
+# oboe 2.7.1.7 (09/08/2014)
+
+This patch release includes:
+
+* Fixed load stack trace when missing TraceView base libraries: [#72](https://github.com/appneta/oboe-ruby/pull/72) - thanks @theist!
+* Beta `em-http-request` instrumentation: [#60](https://github.com/appneta/oboe-ruby/pull/60)/[#73](https://github.com/appneta/oboe-ruby/pull/73) - Thanks @diogobenica!
+* Improved loading when on Heroku with oboe-heroku gem
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/oboe/versions/2.7.1.7
+https://rubygems.org/gems/oboe/versions/2.7.1.7-java
+
 # oboe 2.7.0.3 (08/19/2014)
 
 This minor release includes:
