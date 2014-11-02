@@ -29,6 +29,12 @@ gem 'oboe'
 
 On Heroku?  Use the `oboe-heroku` gem instead.  It wraps some additional functionality specialized for Heroku.
 
+## Oboe?
+
+What the heck is an [oboe](https://en.wikipedia.org/wiki/Oboe)?  
+
+_AKA Performance Instrumentation_
+
 # Running
 
 ## Rails
