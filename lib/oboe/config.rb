@@ -81,7 +81,7 @@ module Oboe
         @@config[:reporter_port] = '7831'
       end
 
-      @@config[:verbose] = false
+      @@config[:verbose] = ENV.key('OBOE_GEM_VERBOSE') ? true : false
     end
 
     def self.update!(data)
