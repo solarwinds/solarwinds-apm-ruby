@@ -166,6 +166,11 @@ module Oboe
             platform_info['Ruby.Mongo.Version']     = "Mongo-#{::Gem.loaded_specs['mongo'].version}"
           end
 
+          # Report the DB adapter in use
+          platform_info['Ruby.Mysql.Version']   = Mysql::GemVersion::VERSION   if defined?(Mysql::GemVersion::VERSION)
+          platform_info['Ruby.PG.Version']      = PG::VERSION                  if defined?(PG::VERSION)
+          platform_info['Ruby.Mysql2.Version']  = Mysql2::VERSION              if defined?(Mysql2::VERSION)
+
           # Report the server in use (if possible)
           if defined?(::Unicorn)
             platform_info['Ruby.AppContainer.Version'] = "Unicorn-#{::Unicorn::Const::UNICORN_VERSION}"
