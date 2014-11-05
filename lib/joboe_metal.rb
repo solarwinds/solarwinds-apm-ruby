@@ -169,9 +169,26 @@ module Oboe
 end
 
 # Assure that the Joboe Java Agent was loaded via premain
-status = Java::ComTracelyticsAgent::Agent.getStatus
-if status == Java::ComTracelyticsAgent::Agent::AgentStatus::UNINITIALIZED
-  Oboe.loaded = false
-else
-  Oboe.loaded = true
+case Java::ComTracelyticsAgent::Agent.getStatus
+  when Java::ComTracelyticsAgent::Agent::AgentStatus::INITIALIZED_SUCCESSFUL
+    Oboe.loaded = true
+
+  when Java::ComTracelyticsAgent::Agent::AgentStatus::INITIALIZED_FAILED
+    Oboe.loaded = false
+    $stderr.puts '=============================================================='
+    $stderr.puts 'TraceView Java Agent not initialized properly.'
+    $stderr.puts 'Possibly misconfigured?  Going into no-op mode.'
+    $stderr.puts 'See: http://bit.ly/1zwS5xj'
+    $stderr.puts '=============================================================='
+
+  when Java::ComTracelyticsAgent::Agent::AgentStatus::UNINITIALIZED
+    Oboe.loaded = false
+    $stderr.puts '=============================================================='
+    $stderr.puts 'TraceView Java Agent not loaded. Going into no-op mode.'
+    $stderr.puts 'To preload the TraceView java agent see:'
+    $stderr.puts 'https://support.appneta.com/cloud/installing-jruby-instrumentation'
+    $stderr.puts '=============================================================='
+
+  else
+    Oboe.loaded = false
 end
