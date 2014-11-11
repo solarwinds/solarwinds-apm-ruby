@@ -66,7 +66,7 @@ end
 
 if Oboe::Config[:faraday][:enabled]
   if defined?(::Faraday)
-    Oboe.logger.info '[oboe/loading] Instrumenting faraday'
+    Oboe.logger.info '[oboe/loading] Instrumenting faraday' if Oboe::Config[:verbose]
     ::Oboe::Util.send_include(::Faraday::Connection, ::Oboe::Inst::FaradayConnection)
   end
 end
