@@ -1,5 +1,3 @@
-require 'byebug'
-
 module Oboe
   module Inst
     module TyphoeusRequestOps
@@ -12,6 +10,11 @@ module Oboe
         Oboe::API.log_entry('typhoeus')
 
         response = run_without_oboe
+
+        if response.code == 0
+          Oboe::API.log('typhoeus', 'error', { :ErrorClass => response.return_code,
+                                               :ErrorMs => response.return_message })
+        end
 
         kvs = {}
         kvs[:HTTPStatus] = response.code
