@@ -1,4 +1,3 @@
-require 'byebug'
 module Oboe
   module Inst
     module TyphoeusRequestOps
@@ -63,6 +62,27 @@ module Oboe
         Oboe::API.log_exit('typhoeus')
       end
     end
+
+    module TyphoeusHydraRunnable
+      def self.included(klass)
+        ::Oboe::Util.method_alias(klass, :run, ::Typhoeus::Hydra)
+      end
+
+      def run_with_oboe
+        kvs = {}
+
+        kvs[:queued_requests] = queued_requests.count
+        kvs[:max_concurrency] = max_concurrency
+
+        # FIXME: Until we figure out a strategy to deal with libcurl internal
+        # threading and Ethon's use of easy handles, here we just do a simple
+        # trace of the hydra run.
+        Oboe::API.trace("typhoeus_hydra", kvs) do
+          run_without_oboe
+        end
+      end
+    end
+
   end
 end
 
@@ -70,5 +90,6 @@ if Oboe::Config[:typhoeus][:enabled]
   if defined?(::Typhoeus)
     Oboe.logger.info '[oboe/loading] Instrumenting typhoeus' if Oboe::Config[:verbose]
     ::Oboe::Util.send_include(::Typhoeus::Request::Operations, ::Oboe::Inst::TyphoeusRequestOps)
+    ::Oboe::Util.send_include(::Typhoeus::Hydra, ::Oboe::Inst::TyphoeusHydraRunnable)
   end
 end
