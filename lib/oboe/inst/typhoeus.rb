@@ -7,7 +7,15 @@ module Oboe
       end
 
       def run_with_oboe
+        return run_without_oboe unless Oboe.tracing?
+
         Oboe::API.log_entry('typhoeus')
+
+        # Prepare X-Trace header handling
+        blacklisted = Oboe::API.blacklisted?(url)
+        context = Oboe::Context.toString
+        task_id = Oboe::XTrace.task_id(context)
+        options[:headers]['X-Trace'] = context unless blacklisted
 
         response = run_without_oboe
 
@@ -19,10 +27,6 @@ module Oboe
         kvs = {}
         kvs[:HTTPStatus] = response.code
         kvs['Backtrace'] = Oboe::API.backtrace if Oboe::Config[:typhoeus][:collect_backtraces]
-
-        blacklisted = Oboe::API.blacklisted?(url)
-        context = Oboe::Context.toString
-        task_id = Oboe::XTrace.task_id(context)
 
         # Avoid cross host tracing for blacklisted domains
         # Conditionally add the X-Trace header to the outgoing request
@@ -42,7 +46,7 @@ module Oboe
         unless blacklisted
           xtrace = response.headers['X-Trace']
 
-          if Oboe::XTrace.valid?(xtrace) && Oboe.tracing?
+          if xtrace && Oboe::XTrace.valid?(xtrace) && Oboe.tracing?
 
             # Assure that we received back a valid X-Trace with the same task_id
             if task_id == Oboe::XTrace.task_id(xtrace)
