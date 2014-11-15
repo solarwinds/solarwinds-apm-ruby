@@ -46,6 +46,31 @@ describe Oboe::Inst::TyphoeusRequestOps do
     traces[3]['Label'].must_equal 'exit'
   end
 
+  it 'should trace a typhoeus request to an instr\'d app' do
+    Oboe::API.start_trace('typhoeus_test') do
+      Typhoeus.get("www.gameface.in/gamers")
+    end
+
+    traces = get_all_traces
+    traces.count.must_equal 5
+
+    validate_outer_layers(traces, 'typhoeus_test')
+
+    traces[1]['Layer'].must_equal 'typhoeus'
+    traces[1].key?('Backtrace').must_equal Oboe::Config[:typhoeus][:collect_backtraces]
+
+    traces[2]['Layer'].must_equal 'typhoeus'
+    traces[2]['Label'].must_equal 'info'
+    traces[2]['IsService'].must_equal '1'
+    traces[2]['RemoteProtocol'].must_equal 'http'
+    traces[2]['RemoteHost'].must_equal 'www.gameface.in'
+    traces[2]['ServiceArg'].must_equal '/gamers'
+    traces[2]['HTTPMethod'].must_equal 'get'
+    traces[2]['HTTPStatus'].must_equal '200'
+
+    traces[3]['Layer'].must_equal 'typhoeus'
+    traces[3]['Label'].must_equal 'exit'
+  end
   it 'should trace a typhoeus request with error' do
     Oboe::API.start_trace('typhoeus_test') do
       Typhoeus.get("thisdomaindoesntexisthopefully.asdf/products/traceview/")
