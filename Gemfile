@@ -28,6 +28,7 @@ gem 'resque'
 gem 'redis'
 gem 'faraday'
 gem 'excon'
+gem 'typhoeus'
 
 if RUBY_VERSION >= '1.9'
   gem 'moped'
