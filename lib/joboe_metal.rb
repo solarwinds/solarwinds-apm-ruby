@@ -57,22 +57,27 @@ module Oboe_metal
       end
 
 
-      # Import the tracing mode and sample rate settings
-      # from the Java agent (user configured in
-      # /usr/local/tracelytics/javaagent.json when under JRuby)
-      cfg = LayerUtil.getLocalSampleRate(nil, nil)
+      begin
+        # Import the tracing mode and sample rate settings
+        # from the Java agent (user configured in
+        # /usr/local/tracelytics/javaagent.json when under JRuby)
+        cfg = LayerUtil.getLocalSampleRate(nil, nil)
 
-      if cfg.hasSampleStartFlag
-        Oboe::Config.tracing_mode = 'always'
-      elsif cfg.hasSampleThroughFlag
-        Oboe::Config.tracing_mode = 'through'
-      else
-        Oboe::Config.tracing_mode = 'never'
+        if cfg.hasSampleStartFlag
+          Oboe::Config.tracing_mode = 'always'
+        elsif cfg.hasSampleThroughFlag
+          Oboe::Config.tracing_mode = 'through'
+        else
+          Oboe::Config.tracing_mode = 'never'
+        end
+
+        Oboe.sample_rate = cfg.sampleRate
+        Oboe::Config.sample_rate = cfg.sampleRate
+        Oboe::Config.sample_source = cfg.sampleRateSource.a
+      rescue => e
+        Oboe.logger.debug "[oboe/debug] Couldn't retrieve/acces joboe sampleRateCfg"
+        Oboe.logger.debug "[oboe/debug] #{e.message}"
       end
-
-      Oboe.sample_rate = cfg.sampleRate
-      Oboe::Config.sample_rate = cfg.sampleRate
-      Oboe::Config.sample_source = cfg.sampleRateSource.a
 
       # Only report __Init from here if we are not instrumenting a framework.
       # Otherwise, frameworks will handle reporting __Init after full initialization
@@ -147,8 +152,12 @@ module Oboe
 
         # Store the returned SampleRateConfig into Oboe::Config
         if sr_cfg
-          Oboe.sample_rate = sr_cfg.sampleRate
-          Oboe.sample_source = sr_cfg.sampleRateSource.a
+          begin
+            Oboe.sample_rate = sr_cfg.sampleRate
+            Oboe.sample_source = sr_cfg.sampleRateSource.a
+            # If we fail here, we do so quietly.  This was we don't spam logs
+            # on every request
+          end
         end
 
         sr_cfg
