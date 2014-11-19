@@ -131,7 +131,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
 
   it 'should trace a typhoeus HEAD request' do
     Oboe::API.start_trace('typhoeus_test') do
-      Typhoeus.head("http://www.appneta.com")
+      Typhoeus.head("http://www.appneta.com/")
     end
 
     traces = get_all_traces
