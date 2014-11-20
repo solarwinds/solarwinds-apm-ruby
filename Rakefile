@@ -98,6 +98,7 @@ task :recompile => [ :distclean, :compile ]
 
 task :console do
   Bundler.require(:default, :development)
+  Oboe::Config[:tracing_mode] = :always
   ARGV.clear
   Pry.start
 end

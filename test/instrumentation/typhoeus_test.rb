@@ -46,7 +46,116 @@ describe Oboe::Inst::TyphoeusRequestOps do
     traces[3]['Label'].must_equal 'exit'
   end
 
-  it 'should trace a typhoeus request to an instr\'d app' do
+  it 'should trace a typhoeus POST request' do
+    Oboe::API.start_trace('typhoeus_test') do
+      Typhoeus.post("https://internal.tv.appneta.com/api-v2/log_message", 
+                    :body => { :key => "oboe-ruby-fake", :content => "oboe-ruby repo test suite"})
+    end
+
+    traces = get_all_traces
+    traces.count.must_equal 5
+
+    validate_outer_layers(traces, 'typhoeus_test')
+
+    traces[1]['Layer'].must_equal 'typhoeus'
+    traces[1].key?('Backtrace').must_equal Oboe::Config[:typhoeus][:collect_backtraces]
+
+    traces[2]['Layer'].must_equal 'typhoeus'
+    traces[2]['Label'].must_equal 'info'
+    traces[2]['IsService'].must_equal '1'
+    traces[2]['RemoteProtocol'].downcase.must_equal 'https'
+    traces[2]['RemoteHost'].must_equal 'internal.tv.appneta.com'
+    traces[2]['RemotePort'].must_equal '443'
+    traces[2]['ServiceArg'].must_equal '/api-v2/log_message'
+    traces[2]['HTTPMethod'].must_equal 'post'
+    traces[2]['HTTPStatus'].must_equal '302'
+
+    traces[3]['Layer'].must_equal 'typhoeus'
+    traces[3]['Label'].must_equal 'exit'
+  end
+
+  it 'should trace a typhoeus PUT request' do
+    Oboe::API.start_trace('typhoeus_test') do
+      Typhoeus.put("https://internal.tv.appneta.com/api-v2/log_message", 
+                    :body => { :key => "oboe-ruby-fake", :content => "oboe-ruby repo test suite"})
+    end
+
+    traces = get_all_traces
+    traces.count.must_equal 5
+
+    validate_outer_layers(traces, 'typhoeus_test')
+
+    traces[1]['Layer'].must_equal 'typhoeus'
+    traces[1].key?('Backtrace').must_equal Oboe::Config[:typhoeus][:collect_backtraces]
+
+    traces[2]['Layer'].must_equal 'typhoeus'
+    traces[2]['Label'].must_equal 'info'
+    traces[2]['IsService'].must_equal '1'
+    traces[2]['RemoteProtocol'].downcase.must_equal 'https'
+    traces[2]['RemoteHost'].must_equal 'internal.tv.appneta.com'
+    traces[2]['RemotePort'].must_equal '443'
+    traces[2]['ServiceArg'].must_equal '/api-v2/log_message'
+    traces[2]['HTTPMethod'].must_equal 'put'
+    traces[2]['HTTPStatus'].must_equal '405'
+
+    traces[3]['Layer'].must_equal 'typhoeus'
+    traces[3]['Label'].must_equal 'exit'
+  end
+
+  it 'should trace a typhoeus DELETE request' do
+    Oboe::API.start_trace('typhoeus_test') do
+      Typhoeus.delete("https://internal.tv.appneta.com/api-v2/log_message")
+    end
+
+    traces = get_all_traces
+    traces.count.must_equal 5
+
+    validate_outer_layers(traces, 'typhoeus_test')
+
+    traces[1]['Layer'].must_equal 'typhoeus'
+    traces[1].key?('Backtrace').must_equal Oboe::Config[:typhoeus][:collect_backtraces]
+
+    traces[2]['Layer'].must_equal 'typhoeus'
+    traces[2]['Label'].must_equal 'info'
+    traces[2]['IsService'].must_equal '1'
+    traces[2]['RemoteProtocol'].downcase.must_equal 'https'
+    traces[2]['RemoteHost'].must_equal 'internal.tv.appneta.com'
+    traces[2]['RemotePort'].must_equal '443'
+    traces[2]['ServiceArg'].must_equal '/api-v2/log_message'
+    traces[2]['HTTPMethod'].must_equal 'delete'
+    traces[2]['HTTPStatus'].must_equal '405'
+
+    traces[3]['Layer'].must_equal 'typhoeus'
+    traces[3]['Label'].must_equal 'exit'
+  end
+
+  it 'should trace a typhoeus HEAD request' do
+    Oboe::API.start_trace('typhoeus_test') do
+      Typhoeus.head("http://www.appneta.com/")
+    end
+
+    traces = get_all_traces
+    traces.count.must_equal 5
+
+    validate_outer_layers(traces, 'typhoeus_test')
+
+    traces[1]['Layer'].must_equal 'typhoeus'
+    traces[1].key?('Backtrace').must_equal Oboe::Config[:typhoeus][:collect_backtraces]
+
+    traces[2]['Layer'].must_equal 'typhoeus'
+    traces[2]['Label'].must_equal 'info'
+    traces[2]['IsService'].must_equal '1'
+    traces[2]['RemoteProtocol'].downcase.must_equal 'http'
+    traces[2]['RemoteHost'].must_equal 'www.appneta.com'
+    traces[2]['ServiceArg'].must_equal '/'
+    traces[2]['HTTPMethod'].must_equal 'head'
+    traces[2]['HTTPStatus'].must_equal '200'
+
+    traces[3]['Layer'].must_equal 'typhoeus'
+    traces[3]['Label'].must_equal 'exit'
+  end
+
+  it 'should trace a typhoeus GET request to an instr\'d app' do
     Oboe::API.start_trace('typhoeus_test') do
       Typhoeus.get("www.gameface.in/gamers")
     end
@@ -71,7 +180,8 @@ describe Oboe::Inst::TyphoeusRequestOps do
     traces[3]['Layer'].must_equal 'typhoeus'
     traces[3]['Label'].must_equal 'exit'
   end
-  it 'should trace a typhoeus request with error' do
+
+  it 'should trace a typhoeus GET request with DNS error' do
     Oboe::API.start_trace('typhoeus_test') do
       Typhoeus.get("thisdomaindoesntexisthopefully.asdf/products/traceview/")
     end
