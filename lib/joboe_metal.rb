@@ -12,7 +12,7 @@ module Oboe_metal
   class Context
     class << self
       def toString
-        md = getMetadata.toHexString
+        getMetadata.toHexString
       end
 
       def fromString(xtrace)
@@ -201,3 +201,6 @@ case Java::ComTracelyticsAgent::Agent.getStatus
   else
     Oboe.loaded = false
 end
+
+Oboe.is_jruby = true
+
