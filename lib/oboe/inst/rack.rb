@@ -52,14 +52,22 @@ module Oboe
 
       if Oboe.always?
         # Only report these KVs under tracing_mode 'always' (never for 'through')
+        # These KVs need to be in the entry event for server side.
         report_kvs[:SampleRate]        = Oboe.sample_rate
         report_kvs[:SampleSource]      = Oboe.sample_source
       end
 
+      # Under JRuby, JOboe may have already started a trace.  Make note of this
+      # if so and don't clear context on log_end (see oboe/api/logging.rb)
+      Oboe.has_incoming_context = Oboe.tracing?
+
+      # Check for and validate X-Trace request header to pick up tracing context
       xtrace = env.is_a?(Hash) ? env['HTTP_X_TRACE'] : nil
+      xtrace_header = xtrace if xtrace && Oboe::Xtrace.valid?(xtrace)
+      Oboe.has_xtrace_header = xtrace_header
 
-      result, xtrace = Oboe::API.start_trace('rack', xtrace, report_kvs) do
-
+      # The actual block of work to instrument
+      result, xtrace = Oboe::API.start_trace('rack', xtrace_header, report_kvs) do
         status, headers, response = @app.call(env)
 
         if Oboe.tracing?
@@ -73,7 +81,11 @@ module Oboe
       xtrace = e.instance_variable_get(:@xtrace)
       raise
     ensure
-      result[1]['X-Trace'] = xtrace if result && Oboe::XTrace.valid?(xtrace)
+      if result && Oboe::XTrace.valid?(xtrace)
+        unless Oboe.is_jruby? && Oboe.is_continued_trace?
+          result[1]['X-Trace'] = xtrace
+        end
+      end
       return result
     end
   end
