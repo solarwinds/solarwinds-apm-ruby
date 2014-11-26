@@ -7,7 +7,7 @@ require 'oboe/frameworks/rails/inst/connection_adapters/mysql2'
 require 'oboe/frameworks/rails/inst/connection_adapters/postgresql'
 require 'oboe/frameworks/rails/inst/connection_adapters/oracle'
 
-if Oboe::Config[:active_record][:enabled]
+if Oboe::Config[:active_record][:enabled] && !defined?(JRUBY_VERSION)
   begin
     adapter = ActiveRecord::Base.connection.adapter_name.downcase
 
