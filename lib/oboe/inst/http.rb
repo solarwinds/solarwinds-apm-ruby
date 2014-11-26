@@ -11,6 +11,9 @@ if Oboe::Config[:nethttp][:enabled]
         return request_without_oboe(*args, &block)
       end
 
+      # If we're not tracing, just do a fast return
+      return request_without_oboe(*args, &block) unless Oboe.tracing?
+
       # Avoid cross host tracing for blacklisted domains
       blacklisted = Oboe::API.blacklisted?(addr_port)
 
