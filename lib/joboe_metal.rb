@@ -71,9 +71,9 @@ module Oboe_metal
           Oboe::Config.tracing_mode = 'never'
         end
 
-        Oboe.sample_rate = cfg.sampleRate
+        Oboe.sample_rate = cfg.getSampleRate
         Oboe::Config.sample_rate = cfg.sampleRate
-        Oboe::Config.sample_source = cfg.sampleRateSource.a
+        Oboe::Config.sample_source = cfg.sampleRateSourceValue
       rescue => e
         Oboe.logger.debug "[oboe/debug] Couldn't retrieve/acces joboe sampleRateCfg"
         Oboe.logger.debug "[oboe/debug] #{e.message}"
@@ -201,6 +201,3 @@ case Java::ComTracelyticsAgent::Agent.getStatus
   else
     Oboe.loaded = false
 end
-
-Oboe.is_jruby = true
-
