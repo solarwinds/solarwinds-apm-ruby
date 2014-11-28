@@ -63,8 +63,10 @@ module Oboe
 
       # Check for and validate X-Trace request header to pick up tracing context
       xtrace = env.is_a?(Hash) ? env['HTTP_X_TRACE'] : nil
-      xtrace_header = xtrace if xtrace && Oboe::Xtrace.valid?(xtrace)
+      xtrace_header = xtrace if xtrace && Oboe::XTrace.valid?(xtrace)
       Oboe.has_xtrace_header = xtrace_header
+
+      Oboe.is_continued_trace = Oboe.has_incoming_context or Oboe.has_xtrace_header
 
       # The actual block of work to instrument
       result, xtrace = Oboe::API.start_trace('rack', xtrace_header, report_kvs) do
@@ -82,7 +84,7 @@ module Oboe
       raise
     ensure
       if result && Oboe::XTrace.valid?(xtrace)
-        unless Oboe.is_jruby? && Oboe.is_continued_trace?
+        unless defined?(JRUBY_VERSION) && Oboe.is_continued_trace?
           result[1]['X-Trace'] = xtrace
         end
       end
@@ -90,3 +92,4 @@ module Oboe
     end
   end
 end
+
