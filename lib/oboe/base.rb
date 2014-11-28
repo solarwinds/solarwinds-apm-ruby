@@ -45,17 +45,19 @@ module OboeBase
   # hosted by a Java container (such as Tomcat or Glassfish) and
   # JOboe has already initiated tracing.  In this case, we shouldn't
   # pickup the X-Trace context in the X-Trace header and we shouldn't
-  # set the outgoing response X-Trace header.  Yeah I know.  Yuck.
-  thread_local :is_jruby
+  # set the outgoing response X-Trace header or clear context.
+  # Yeah I know.  Yuck.
 
-  # At the rack level, we already had a context running
+  # Occurs only on Jruby.  Indicates that Joboe (the java instrumentation)
+  # has already started tracing before it hit the JRuby instrumentation.
   thread_local :has_incoming_context
 
-  # Indicates the existence of an X-Trace request header
+  # Indicates the existence of a valid X-Trace request header
   thread_local :has_xtrace_header
 
-  # Did we start this trace or continue a trace either
-  # from an existing context or an incoming X-Trace header
+  # This indicates that this trace was continued from
+  # an incoming X-Trace request header or in the case
+  # of JRuby, a trace already started by JOboe.
   thread_local :is_continued_trace
 
   ##
@@ -68,7 +70,7 @@ module OboeBase
     cls.loaded = true
 
     # This gives us pretty accessors with questions marks at the end
-    # e.g. is_jruby --> is_jruby?
+    # e.g. is_continued_trace --> is_continued_trace?
     Oboe.methods.select{ |m| m =~ /^is_|^has_/ }.each do |c|
       unless c =~ /\?$|=$/
         # Oboe.logger.debug "aliasing #{c}? to #{c}"
@@ -77,18 +79,19 @@ module OboeBase
     end
   end
 
-
   ##
   # pickup_context
   #
   # Determines whether we should pickup context
-  # from an incoming request header.  The answer is generally
-  # yes but there are cases in JRuby (Tomcat, Glassfish) where
-  # we don't want to do this.
+  # from an incoming X-Trace request header.  The answer
+  # is generally yes but there are cases in JRuby under
+  # Tomcat (or Glassfish etc.) where tracing may have
+  # been already started by the Java instrumentation (Joboe)
+  # in which chase we don't want to do this.
   #
   def pickup_context?(xtrace)
     if Oboe::XTrace.valid?(xtrace)
-      if Oboe.jruby? && Oboe.tracing?
+      if defined?(JRUBY_VERSION) && Oboe.tracing?
         return false
       else
         return true
