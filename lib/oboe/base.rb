@@ -87,17 +87,16 @@ module OboeBase
   # is generally yes but there are cases in JRuby under
   # Tomcat (or Glassfish etc.) where tracing may have
   # been already started by the Java instrumentation (Joboe)
-  # in which chase we don't want to do this.
+  # in which case we don't want to do this.
   #
   def pickup_context?(xtrace)
-    if Oboe::XTrace.valid?(xtrace)
-      if defined?(JRUBY_VERSION) && Oboe.tracing?
-        return false
-      else
-        return true
-      end
+    return false unless Oboe::XTrace.valid?(xtrace)
+
+    if defined?(JRUBY_VERSION) && Oboe.tracing?
+      return false
+    else
+      return true
     end
-    false
   end
 
   ##
@@ -204,6 +203,3 @@ module OboeBase
   end
 end
 
-#module Oboe
-#  extend OboeBase
-#end
