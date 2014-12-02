@@ -4,12 +4,27 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# oboe 2.7.5.1 (11/20/2014)
+
+This patch release includes:
+
+* New [Typhoeus](https://github.com/typhoeus/typhoeus) instrumentation: #90
+* JRuby: Better Handling of Agent JSON Parsing Errors: #89
+* Faraday doesn't Log like the others; Fixup Verbose Logging: #79
+* Add DB Adapters to __Init reporting: #83
+* Extended Typhoeus tests: #92
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/oboe/versions/2.7.5.1
+https://rubygems.org/gems/oboe/versions/2.7.5.1-java
+
 # oboe 2.7.4.1 (10/26/2014)
 
 This patch release includes:
 
 * Make Oboe::API available even when liboboe.so is not #81 (thanks Cannon!)
-* Add OS and Oboe::Config info to support_report #80 
+* Add OS and Oboe::Config info to support report #80
 
 Pushed to Rubygems:
 
@@ -22,7 +37,7 @@ This patch release includes:
 
 * Fix require statements under certain variations of REE-1.8.7: #78 (thanks @madrobby)
 * Faraday instrumentation fails to capture and pass params update block: #79
-* Add method to log environment details for support investigations (`Oboe.support_report`): #77
+* Add method to log environment details for support investigations (`Oboe.support_ report`): #77
 
 Pushed to Rubygems:
 

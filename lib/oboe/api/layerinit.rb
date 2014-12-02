@@ -18,7 +18,19 @@ module Oboe
         return unless Oboe.loaded
 
         platform_info = Oboe::Util.build_init_report
+
+        # If already tracing, save and clear the context.  Restore it after
+        # the __Init is sent
+        context = nil
+
+        if Oboe.tracing?
+          context = Oboe::Context.toString
+          Oboe::Context.clear
+        end
+
         start_trace(layer, nil, platform_info.merge('Force' => true)) {}
+
+        Oboe::Context.fromString(context) if context
       end
 
       ##

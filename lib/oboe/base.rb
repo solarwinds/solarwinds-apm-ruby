@@ -35,14 +35,79 @@ module OboeBase
   attr_accessor :sample_rate
   thread_local :layer_op
 
-  def self.included(cls)
-    cls.loaded = true
-  end
+  # The following accessors indicate the incoming tracing state received
+  # by the rack layer.  These are primarily used to identify state
+  # between the Ruby and JOboe instrumentation under JRuby.
+  #
+  # This is because that even though there may be an incoming
+  # X-Trace request header, tracing may have already been started
+  # by Joboe.  Such a scenario occurs when the application is being
+  # hosted by a Java container (such as Tomcat or Glassfish) and
+  # JOboe has already initiated tracing.  In this case, we shouldn't
+  # pickup the X-Trace context in the X-Trace header and we shouldn't
+  # set the outgoing response X-Trace header or clear context.
+  # Yeah I know.  Yuck.
 
+  # Occurs only on Jruby.  Indicates that Joboe (the java instrumentation)
+  # has already started tracing before it hit the JRuby instrumentation.
+  thread_local :has_incoming_context
+
+  # Indicates the existence of a valid X-Trace request header
+  thread_local :has_xtrace_header
+
+  # This indicates that this trace was continued from
+  # an incoming X-Trace request header or in the case
+  # of JRuby, a trace already started by JOboe.
+  thread_local :is_continued_trace
+
+  ##
+  # extended
+  #
+  # Invoked when this module is extended.
+  # e.g. extend OboeBase
+  #
   def self.extended(cls)
     cls.loaded = true
+
+    # This gives us pretty accessors with questions marks at the end
+    # e.g. is_continued_trace --> is_continued_trace?
+    Oboe.methods.select{ |m| m =~ /^is_|^has_/ }.each do |c|
+      unless c =~ /\?$|=$/
+        # Oboe.logger.debug "aliasing #{c}? to #{c}"
+        alias_method "#{c}?", c
+      end
+    end
   end
 
+  ##
+  # pickup_context
+  #
+  # Determines whether we should pickup context
+  # from an incoming X-Trace request header.  The answer
+  # is generally yes but there are cases in JRuby under
+  # Tomcat (or Glassfish etc.) where tracing may have
+  # been already started by the Java instrumentation (Joboe)
+  # in which case we don't want to do this.
+  #
+  def pickup_context?(xtrace)
+    return false unless Oboe::XTrace.valid?(xtrace)
+
+    if defined?(JRUBY_VERSION) && Oboe.tracing?
+      return false
+    else
+      return true
+    end
+  end
+
+  ##
+  # tracing_layer_op?
+  #
+  # Queries the thread local variable about the current
+  # operation being traced.  This is used in cases of recursive
+  # operation tracing or one instrumented operation calling another.
+  #
+  # In such cases, we only want to trace the outermost operation.
+  #
   def tracing_layer_op?(operation)
     if operation.is_a?(Array)
       return operation.include?(Oboe.layer_op)

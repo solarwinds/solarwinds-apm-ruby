@@ -7,7 +7,7 @@ if RUBY_VERSION < '2.0' and not defined?(JRUBY_VERSION)
 
     before do
       clear_all_traces
-      @mc = ::Memcached::Rails.new(:servers => ['localhost'])
+      @mc = ::Memcached::Rails.new(:servers => ['127.0.0.1'])
 
       # These are standard entry/exit KVs that are passed up with all mongo operations
       @entry_kvs = {

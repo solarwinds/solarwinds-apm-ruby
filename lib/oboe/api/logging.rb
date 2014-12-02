@@ -63,12 +63,13 @@ module Oboe
       #
       # Returns nothing.
       def log_start(layer, xtrace, opts = {})
-        return if !Oboe.loaded || Oboe.never? || 
+        return if !Oboe.loaded || Oboe.never? ||
                   (opts.key?(:URL) && ::Oboe::Util.static_asset?(opts[:URL]))
 
-        Oboe::Context.fromString(xtrace) if xtrace && !xtrace.to_s.empty?
+        Oboe::Context.fromString(xtrace) if Oboe.pickup_context?(xtrace)
 
         if Oboe.tracing?
+          Oboe.is_continued_trace = true
           log_entry(layer, opts)
         elsif opts.key?('Force') || Oboe.sample?(opts.merge(:layer => layer, :xtrace => xtrace))
           log_event(layer, 'entry', Oboe::Context.startTrace, opts)
@@ -84,7 +85,7 @@ module Oboe
         if Oboe.loaded
           log_event(layer, 'exit', Oboe::Context.createEvent, opts)
           xtrace = Oboe::Context.toString
-          Oboe::Context.clear
+          Oboe::Context.clear unless Oboe.has_incoming_context?
           xtrace
         end
       end

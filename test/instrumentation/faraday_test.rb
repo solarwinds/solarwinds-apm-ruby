@@ -22,10 +22,11 @@ describe Oboe::Inst::FaradayConnection do
 
   it "should trace a Faraday request to an instr'd app" do
     Oboe::API.start_trace('faraday_test') do
-      conn = Faraday.new(:url => 'http://www.appneta.com') do |faraday|
+      conn = Faraday.new(:url => 'http://www.gameface.in') do |faraday|
         faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
       end
-      response = conn.get '/?q=ruby_test_suite'
+      response = conn.get '/games?q=1'
+      response.headers["x-trace"].wont_match nil
     end
 
     traces = get_all_traces
@@ -39,8 +40,8 @@ describe Oboe::Inst::FaradayConnection do
     traces[3]['Layer'].must_equal 'net-http'
     traces[3]['IsService'].must_equal '1'
     traces[3]['RemoteProtocol'].must_equal 'HTTP'
-    traces[3]['RemoteHost'].must_equal 'www.appneta.com'
-    traces[3]['ServiceArg'].must_equal '/?q=ruby_test_suite'
+    traces[3]['RemoteHost'].must_equal 'www.gameface.in'
+    traces[3]['ServiceArg'].must_equal '/games?q=1'
     traces[3]['HTTPMethod'].must_equal 'GET'
     traces[3]['HTTPStatus'].must_equal '200'
 
@@ -118,10 +119,10 @@ describe Oboe::Inst::FaradayConnection do
 
   it 'should trace a Faraday with an alternate adapter' do
     Oboe::API.start_trace('faraday_test') do
-      conn = Faraday.new(:url => 'http://www.google.com') do |faraday|
+      conn = Faraday.new(:url => 'http://www.curlmyip.com') do |faraday|
         faraday.adapter :excon
       end
-      response = conn.get '/?q=ruby_test_suite'
+      response = conn.get '/?q=1'
     end
 
     traces = get_all_traces
@@ -134,8 +135,8 @@ describe Oboe::Inst::FaradayConnection do
 
     traces[2]['IsService'].must_equal '1'
     traces[2]['RemoteProtocol'].must_equal 'HTTP'
-    traces[2]['RemoteHost'].must_equal 'www.google.com'
-    traces[2]['ServiceArg'].must_equal '/?q=ruby_test_suite'
+    traces[2]['RemoteHost'].must_equal 'www.curlmyip.com'
+    traces[2]['ServiceArg'].must_equal '/?q=1'
     traces[2]['HTTPMethod'].downcase.must_equal 'get'
 
     traces[2]['Layer'].must_equal 'faraday'
