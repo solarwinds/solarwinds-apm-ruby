@@ -4,7 +4,7 @@ require 'memcache'
 describe Oboe::API::Memcache do
   before do
     clear_all_traces
-    @mc = ::MemCache.new('localhost')
+    @mc = ::MemCache.new('127.0.0.1')
 
     # These are standard entry/exit KVs that are passed up with all mongo operations
     @entry_kvs = {
@@ -77,7 +77,7 @@ describe Oboe::API::Memcache do
 
     validate_event_keys(traces[2], @info_kvs)
     traces[2]['KVKey'].must_equal "msg"
-    traces[2]['RemoteHost'].must_equal "localhost"
+    traces[2]['RemoteHost'].must_equal "127.0.0.1"
     traces[2].has_key?('Backtrace').must_equal Oboe::Config[:memcache][:collect_backtraces]
 
     traces[3].has_key?('KVHit').must_equal true
