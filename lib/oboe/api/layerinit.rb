@@ -21,6 +21,8 @@ module Oboe
 
         # If already tracing, save and clear the context.  Restore it after
         # the __Init is sent
+        context = nil
+
         if Oboe.tracing?
           context = Oboe::Context.toString
           Oboe::Context.clear
