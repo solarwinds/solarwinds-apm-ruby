@@ -449,6 +449,27 @@ if RUBY_VERSION >= '1.9.3'
       validate_event_keys(traces[4], @exit_kvs)
     end
 
+    it 'should trace aggregate' do
+      Oboe::API.start_trace('moped_test', '', {}) do
+        @users.aggregate(
+          {'$match' => {:name => "Mary"}},
+          {'$group' => {"_id" => "$name"}}
+        )
+      end
+
+      traces = get_all_traces
+
+      traces.count.must_equal 4
+      validate_outer_layers(traces, 'moped_test')
+
+      validate_event_keys(traces[1], @entry_kvs)
+      traces[1]['QueryOp'].must_equal "aggregate"
+      traces[1]['Query'].must_equal "[{\"$match\"=>{:name=>\"Mary\"}}, {\"$group\"=>{\"_id\"=>\"$name\"}}]"
+      traces[1]['Collection'].must_equal "users"
+      traces[1].has_key?('Backtrace').must_equal Oboe::Config[:moped][:collect_backtraces]
+      validate_event_keys(traces[2], @exit_kvs)
+    end
+
     it "should obey :collect_backtraces setting when true" do
       Oboe::Config[:moped][:collect_backtraces] = true
 

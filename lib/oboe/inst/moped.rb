@@ -450,10 +450,11 @@ if defined?(::Moped) && Oboe::Config[:moped][:enabled]
           end
         end
 
-        def aggregate_with_oboe(pipeline)
+        def aggregate_with_oboe(*pipeline)
           return aggregate_without_oboe(pipeline) unless Oboe.tracing?
 
           report_kvs = extract_trace_details(:aggregate)
+          report_kvs[:Query] = pipeline
 
           Oboe::API.trace('mongo', report_kvs) do
             aggregate_without_oboe(pipeline)
