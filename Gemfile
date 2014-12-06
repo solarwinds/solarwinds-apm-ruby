@@ -11,7 +11,7 @@ group :development do
   gem 'ruby-debug',   :platforms => [ :mri_18, :jruby ]
   gem 'debugger',     :platform  =>   :mri_19
   gem 'byebug',       :platforms => [ :mri_20, :mri_21 ]
-  gem 'perftools.rb', :platforms => [ :mri_20, :mri_21 ], :require => 'perftools'
+#  gem 'perftools.rb', :platforms => [ :mri_20, :mri_21 ], :require => 'perftools'
   if RUBY_VERSION > '1.8.7'
     gem 'pry'
     gem 'pry-byebug', :platforms => [ :mri_20, :mri_21 ]
@@ -30,6 +30,10 @@ gem 'redis'
 gem 'faraday'
 gem 'excon'
 gem 'typhoeus'
+gem 'sequel', '4.13.0'
+
+# Database adapter gems needed by sequel
+gem 'pg'
 
 if RUBY_VERSION >= '1.9'
   gem 'moped'
