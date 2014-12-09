@@ -46,7 +46,8 @@ module Oboe
               alias_method "#{method}", with_oboe
             end
           end
-        else Oboe.logger.warn "[oboe/loading] Couldn't properly instrument #{name}.  Partial traces may occur."
+        else
+          Oboe.logger.warn "[oboe/loading] Couldn't properly instrument #{name}.#{method}.  Partial traces may occur."
         end
       end
 
