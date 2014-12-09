@@ -1,7 +1,6 @@
 require 'minitest_helper'
 
 if ENV.key?('TRAVIS_PSQL_PASS')
-  debugger
   DB = Sequel.connect("postgres://postgres:#{ENV['TRAVIS_PSQL_PASS']}@127.0.0.1:5432/travis_ci_test")
 else
   DB = Sequel.connect('postgres://postgres@127.0.0.1:5432/travis_ci_test')
@@ -15,7 +14,7 @@ unless DB.table_exists?(:items)
   end
 end
 
-describe Oboe::Inst::Sequel do
+describe ::Oboe::Inst::Sequel do
   before do
     clear_all_traces
 
@@ -40,10 +39,14 @@ describe Oboe::Inst::Sequel do
   end
 
   it 'sequel should have oboe methods defined' do
-    #::Sequel::Database
-    ::Sequel::Database.method_defined?(:extract_trace_details).must_equal true
-    ::Sequel::Database.method_defined?(:get_with_oboe).must_equal true
-    ::Sequel::Database.method_defined?(:execute_dui_with_oboe).must_equal true
+    # Sequel::Database
+    ::Sequel::Database.method_defined?(:run_with_oboe).must_equal true
+
+    # Sequel::Dataset
+    ::Sequel::Dataset.method_defined?(:execute_with_oboe).must_equal true
+    ::Sequel::Dataset.method_defined?(:execute_ddl_with_oboe).must_equal true
+    ::Sequel::Dataset.method_defined?(:execute_dui_with_oboe).must_equal true
+    ::Sequel::Dataset.method_defined?(:execute_insert_with_oboe).must_equal true
   end
 
   it "should obey :collect_backtraces setting when true" do
@@ -68,7 +71,7 @@ describe Oboe::Inst::Sequel do
     layer_doesnt_have_key(traces, 'sequel', 'Backtrace')
   end
 
-  it 'should trace DB.run select' do
+  it 'should trace DB.run insert' do
     Oboe::API.start_trace('sequel_test', '', {}) do
       DB.run("insert into items (name, price) values ('blah', '12')")
     end
@@ -84,7 +87,7 @@ describe Oboe::Inst::Sequel do
     validate_event_keys(traces[2], @exit_kvs)
   end
 
-  it 'should trace DB.run insert' do
+  it 'should trace DB.run select' do
     Oboe::API.start_trace('sequel_test', '', {}) do
       DB.run("select 1")
     end
@@ -100,40 +103,111 @@ describe Oboe::Inst::Sequel do
     validate_event_keys(traces[2], @exit_kvs)
   end
 
-  it 'should trace a dataset insert' do
+  it 'should trace a dataset insert and count' do
+    items = DB[:items]
+
     Oboe::API.start_trace('sequel_test', '', {}) do
-      items = DB[:items]
-      items.insert(:name => 'abc', :price => rand * 100)
-      x = items.count
-      puts x
+      items.insert(:name => 'abc', :price => 2.514461383352462)
+      items.count
     end
 
     traces = get_all_traces
-    debugger
+
+    traces.count.must_equal 8
+    validate_outer_layers(traces, 'sequel_test')
+
+    validate_event_keys(traces[3], @entry_kvs)
+    traces[3]['Query'].must_equal "INSERT INTO \"items\" (\"name\", \"price\") VALUES ('abc', 2.514461383352462) RETURNING \"id\""
+    traces[3].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
+    traces[4]['Layer'].must_equal "sequel"
+    traces[4]['Label'].must_equal "exit"
+    traces[5]['Query'].must_equal "SELECT count(*) AS \"count\" FROM \"items\" LIMIT 1"
+    validate_event_keys(traces[6], @exit_kvs)
+  end
+
+  it 'should trace a dataset filter' do
+    Oboe::API.start_trace('sequel_test', '', {}) do
+      DB[:items].filter(:name => 'abc').all
+    end
+
+    traces = get_all_traces
 
     traces.count.must_equal 4
     validate_outer_layers(traces, 'sequel_test')
 
     validate_event_keys(traces[1], @entry_kvs)
-    traces[1]['Query'].must_equal "select 1"
+    traces[1]['Query'].must_equal "SELECT * FROM \"items\" WHERE (\"name\" = 'abc')"
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
+    validate_event_keys(traces[2], @exit_kvs)
+  end
+
+  it 'should trace create table' do
+    # Drop the table if it already exists
+    DB.drop_table(:fake) if DB.table_exists?(:fake)
+
+    Oboe::API.start_trace('sequel_test', '', {}) do
+      DB.create_table :fake do
+        primary_key :id
+        String :name
+        Float :price
+      end
+    end
+
+    traces = get_all_traces
+
+    traces.count.must_equal 4
+    validate_outer_layers(traces, 'sequel_test')
+
+    validate_event_keys(traces[1], @entry_kvs)
+    traces[1]['Query'].must_equal "CREATE TABLE \"fake\" (\"id\" serial PRIMARY KEY, \"name\" text, \"price\" double precision)"
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
+    validate_event_keys(traces[2], @exit_kvs)
+  end
+
+  it 'should trace add index' do
+    # Drop the table if it already exists
+    DB.drop_table(:fake) if DB.table_exists?(:fake)
+
+    Oboe::API.start_trace('sequel_test', '', {}) do
+      DB.create_table :fake do
+        primary_key :id
+        String :name
+        Float :price
+      end
+    end
+
+    traces = get_all_traces
+
+    traces.count.must_equal 4
+    validate_outer_layers(traces, 'sequel_test')
+
+    validate_event_keys(traces[1], @entry_kvs)
+    traces[1]['Query'].must_equal "CREATE TABLE \"fake\" (\"id\" serial PRIMARY KEY, \"name\" text, \"price\" double precision)"
     traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
   end
 
   it 'should capture and report exceptions' do
-    Oboe::API.start_trace('sequel_test', '', {}) do
-      DB.run("this is bad sql")
+    begin
+      Oboe::API.start_trace('sequel_test', '', {}) do
+        DB.run("this is bad sql")
+      end
+    rescue
+      # Do nothing - we're testing exception logging
     end
 
     traces = get_all_traces
 
-    traces.count.must_equal 4
+    traces.count.must_equal 5
     validate_outer_layers(traces, 'sequel_test')
 
     validate_event_keys(traces[1], @entry_kvs)
-    traces[1]['Query'].must_equal "select 1"
+    traces[1]['Query'].must_equal "this is bad sql"
     traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
-    validate_event_keys(traces[2], @exit_kvs)
+    traces[2]['Layer'].must_equal "sequel"
+    traces[2]['Label'].must_equal "error"
+    traces[2].has_key?('Backtrace').must_equal true
+    traces[2]['ErrorClass'].must_equal "Sequel::DatabaseError"
+    validate_event_keys(traces[3], @exit_kvs)
   end
-
 end
