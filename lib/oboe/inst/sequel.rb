@@ -8,11 +8,17 @@ module Oboe
 
         if Oboe::Config[:sanitize_sql]
           # Sanitize SQL and don't report binds
-          kvs[:Query] = sql.gsub(/\'[\s\S][^\']*\'/, '?')
+          if sql.is_a?(Symbol)
+            kvs[:Query] = sql
+          else
+            kvs[:Query] = sql.gsub(/\'[\s\S][^\']*\'/, '?')
+          end
         else
           # Report raw SQL and any binds if they exist
           kvs[:Query] = sql.to_s
+          kvs[:QueryArgs] = opts[:arguments] if opts.is_a?(Hash) and opts.key?(:arguments)
         end
+        kvs[:IsPreparedStatement] = true if sql.is_a?(Symbol)
 
         kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:sequel][:collect_backtraces]
 
