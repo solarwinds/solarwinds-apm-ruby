@@ -1,5 +1,3 @@
-require 'byebug'
-
 module Oboe
   module Inst
     module Sequel
