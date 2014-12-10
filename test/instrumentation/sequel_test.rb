@@ -28,10 +28,12 @@ describe ::Oboe::Inst::Sequel do
 
     @exit_kvs = { 'Layer' => 'sequel', 'Label' => 'exit' }
     @collect_backtraces = Oboe::Config[:sequel][:collect_backtraces]
+    @sanitize_sql = Oboe::Config[:sanitize_sql]
   end
 
   after do
     Oboe::Config[:sequel][:collect_backtraces] = @collect_backtraces
+    Oboe::Config[:sanitize_sql] = @sanitize_sql
   end
 
   it 'Stock sequel should be loaded, defined and ready' do
@@ -125,6 +127,25 @@ describe ::Oboe::Inst::Sequel do
     validate_event_keys(traces[6], @exit_kvs)
   end
 
+  it 'should trace a dataset insert and obey query privacy' do
+    Oboe::Config[:sanitize_sql] = true
+    items = DB[:items]
+
+    Oboe::API.start_trace('sequel_test', '', {}) do
+      items.insert(:name => 'abc', :price => 2.514461383352462)
+    end
+
+    traces = get_all_traces
+
+    traces.count.must_equal 4
+    validate_outer_layers(traces, 'sequel_test')
+
+    validate_event_keys(traces[1], @entry_kvs)
+    traces[1]['Query'].must_equal "INSERT INTO \"items\" (\"name\", \"price\") VALUES (?, 2.514461383352462) RETURNING \"id\""
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
+    validate_event_keys(traces[2], @exit_kvs)
+  end
+
   it 'should trace a dataset filter' do
     Oboe::API.start_trace('sequel_test', '', {}) do
       DB[:items].filter(:name => 'abc').all
@@ -209,5 +230,68 @@ describe ::Oboe::Inst::Sequel do
     traces[2].has_key?('Backtrace').must_equal true
     traces[2]['ErrorClass'].must_equal "Sequel::DatabaseError"
     validate_event_keys(traces[3], @exit_kvs)
+  end
+
+  it 'should trace placeholder queries with bound vars' do
+    Oboe::API.start_trace('sequel_test', '', {}) do
+      ds = DB[:items].where(:name=>:$n)
+      ds.call(:select, :n=>'abc')
+      ds.call(:delete, :n=>'cba')
+    end
+
+    traces = get_all_traces
+
+    traces.count.must_equal 6
+    validate_outer_layers(traces, 'sequel_test')
+
+    validate_event_keys(traces[1], @entry_kvs)
+    traces[1]['Query'].must_equal "SELECT * FROM \"items\" WHERE (\"name\" = $1)"
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
+    traces[3]['Query'].must_equal "DELETE FROM \"items\" WHERE (\"name\" = $1)"
+    traces[3].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
+    validate_event_keys(traces[2], @exit_kvs)
+  end
+
+  it 'should trace prepared statements' do
+    ds = DB[:items].filter(:name=>:$n)
+    ps = ds.prepare(:select, :select_by_name)
+
+    Oboe::API.start_trace('sequel_test', '', {}) do
+      ps.call(:n=>'abc')
+    end
+
+    traces = get_all_traces
+
+    traces.count.must_equal 4
+    validate_outer_layers(traces, 'sequel_test')
+
+    validate_event_keys(traces[1], @entry_kvs)
+    traces[1]['Query'].must_equal "select_by_name"
+    traces[1]['QueryArgs'].must_equal "[\"abc\"]"
+    traces[1]['IsPreparedStatement'].must_equal "true"
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
+    validate_event_keys(traces[2], @exit_kvs)
+  end
+
+  it 'should trace prep\'d stmnts and obey query privacy' do
+    Oboe::Config[:sanitize_sql] = true
+    ds = DB[:items].filter(:name=>:$n)
+    ps = ds.prepare(:select, :select_by_name)
+
+    Oboe::API.start_trace('sequel_test', '', {}) do
+      ps.call(:n=>'abc')
+    end
+
+    traces = get_all_traces
+
+    traces.count.must_equal 4
+    validate_outer_layers(traces, 'sequel_test')
+
+    validate_event_keys(traces[1], @entry_kvs)
+    traces[1]['Query'].must_equal "select_by_name"
+    traces[1]['QueryArgs'].must_equal nil
+    traces[1]['IsPreparedStatement'].must_equal "true"
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
+    validate_event_keys(traces[2], @exit_kvs)
   end
 end
