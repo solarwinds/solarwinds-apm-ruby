@@ -30,10 +30,19 @@ gem 'redis'
 gem 'faraday'
 gem 'excon'
 gem 'typhoeus'
-gem 'sequel', '4.13.0'
+gem 'sequel'
+# gem 'sequel', '4.13.0'
+# gem 'sequel', :path => "/home/pglombardo/Projects/src/sequel"
 
 # Database adapter gems needed by sequel
-gem 'pg'
+if defined?(JRUBY_VERSION)
+  gem 'jdbc-postgresql'
+  gem 'jdbc-mysql'
+else
+  gem 'mysql'
+  gem 'mysql2'
+  gem 'pg'
+end
 
 if RUBY_VERSION >= '1.9'
   gem 'moped'
