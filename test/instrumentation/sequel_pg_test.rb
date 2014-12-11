@@ -107,6 +107,7 @@ describe ::Oboe::Inst::Sequel do
 
   it 'should trace a dataset insert and count' do
     items = DB[:items]
+    items.count
 
     Oboe::API.start_trace('sequel_test', '', {}) do
       items.insert(:name => 'abc', :price => 2.514461383352462)
@@ -130,6 +131,7 @@ describe ::Oboe::Inst::Sequel do
   it 'should trace a dataset insert and obey query privacy' do
     Oboe::Config[:sanitize_sql] = true
     items = DB[:items]
+    items.count
 
     Oboe::API.start_trace('sequel_test', '', {}) do
       items.insert(:name => 'abc', :price => 2.514461383352462)
@@ -147,8 +149,11 @@ describe ::Oboe::Inst::Sequel do
   end
 
   it 'should trace a dataset filter' do
+    items = DB[:items]
+    items.count
+
     Oboe::API.start_trace('sequel_test', '', {}) do
-      DB[:items].filter(:name => 'abc').all
+      items.filter(:name => 'abc').all
     end
 
     traces = get_all_traces
@@ -233,8 +238,11 @@ describe ::Oboe::Inst::Sequel do
   end
 
   it 'should trace placeholder queries with bound vars' do
+    items = DB[:items]
+    items.count
+
     Oboe::API.start_trace('sequel_test', '', {}) do
-      ds = DB[:items].where(:name=>:$n)
+      ds = items.where(:name=>:$n)
       ds.call(:select, :n=>'abc')
       ds.call(:delete, :n=>'cba')
     end
