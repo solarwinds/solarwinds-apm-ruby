@@ -31,8 +31,6 @@ gem 'faraday'
 gem 'excon'
 gem 'typhoeus'
 gem 'sequel'
-# gem 'sequel', '4.13.0'
-# gem 'sequel', :path => "/home/pglombardo/Projects/src/sequel"
 
 # Database adapter gems needed by sequel
 if defined?(JRUBY_VERSION)
