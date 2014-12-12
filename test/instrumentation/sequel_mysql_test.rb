@@ -1,20 +1,20 @@
 require 'minitest_helper'
 
 if ENV.key?('TRAVIS_MYSQL_PASS')
-  DB = Sequel.connect("mysql://root:#{ENV['TRAVIS_MYSQL_PASS']}@127.0.0.1:3306/travis_ci_test")
+  MYSQL_DB = Sequel.connect("mysql://root:#{ENV['TRAVIS_MYSQL_PASS']}@127.0.0.1:3306/travis_ci_test")
 else
-  DB = Sequel.connect('mysql://root@127.0.0.1:3306/travis_ci_test')
+  MYSQL_DB = Sequel.connect('mysql://root@127.0.0.1:3306/travis_ci_test')
 end
 
-unless DB.table_exists?(:items)
-  DB.create_table :items do
+unless MYSQL_DB.table_exists?(:items)
+  MYSQL_DB.create_table :items do
     primary_key :id
     String :name
     Float :price
   end
 end
 
-describe ::Oboe::Inst::Sequel do
+describe "Oboe::Inst::Sequel (mysql)" do
   before do
     clear_all_traces
 
@@ -55,7 +55,7 @@ describe ::Oboe::Inst::Sequel do
     Oboe::Config[:sequel][:collect_backtraces] = true
 
     Oboe::API.start_trace('sequel_test', '', {}) do
-      DB.run('select 1')
+      MYSQL_DB.run('select 1')
     end
 
     traces = get_all_traces
@@ -66,16 +66,16 @@ describe ::Oboe::Inst::Sequel do
     Oboe::Config[:sequel][:collect_backtraces] = false
 
     Oboe::API.start_trace('sequel_test', '', {}) do
-      DB.run('select 1')
+      MYSQL_DB.run('select 1')
     end
 
     traces = get_all_traces
     layer_doesnt_have_key(traces, 'sequel', 'Backtrace')
   end
 
-  it 'should trace DB.run insert' do
+  it 'should trace MYSQL_DB.run insert' do
     Oboe::API.start_trace('sequel_test', '', {}) do
-      DB.run("insert into items (name, price) values ('blah', '12')")
+      MYSQL_DB.run("insert into items (name, price) values ('blah', '12')")
     end
 
     traces = get_all_traces
@@ -89,9 +89,9 @@ describe ::Oboe::Inst::Sequel do
     validate_event_keys(traces[2], @exit_kvs)
   end
 
-  it 'should trace DB.run select' do
+  it 'should trace MYSQL_DB.run select' do
     Oboe::API.start_trace('sequel_test', '', {}) do
-      DB.run("select 1")
+      MYSQL_DB.run("select 1")
     end
 
     traces = get_all_traces
@@ -106,7 +106,7 @@ describe ::Oboe::Inst::Sequel do
   end
 
   it 'should trace a dataset insert and count' do
-    items = DB[:items]
+    items = MYSQL_DB[:items]
     items.count
 
     Oboe::API.start_trace('sequel_test', '', {}) do
@@ -130,7 +130,7 @@ describe ::Oboe::Inst::Sequel do
 
   it 'should trace a dataset insert and obey query privacy' do
     Oboe::Config[:sanitize_sql] = true
-    items = DB[:items]
+    items = MYSQL_DB[:items]
     items.count
 
     Oboe::API.start_trace('sequel_test', '', {}) do
@@ -149,7 +149,7 @@ describe ::Oboe::Inst::Sequel do
   end
 
   it 'should trace a dataset filter' do
-    items = DB[:items]
+    items = MYSQL_DB[:items]
     items.count
 
     Oboe::API.start_trace('sequel_test', '', {}) do
@@ -169,10 +169,10 @@ describe ::Oboe::Inst::Sequel do
 
   it 'should trace create table' do
     # Drop the table if it already exists
-    DB.drop_table(:fake) if DB.table_exists?(:fake)
+    MYSQL_DB.drop_table(:fake) if MYSQL_DB.table_exists?(:fake)
 
     Oboe::API.start_trace('sequel_test', '', {}) do
-      DB.create_table :fake do
+      MYSQL_DB.create_table :fake do
         primary_key :id
         String :name
         Float :price
@@ -192,10 +192,10 @@ describe ::Oboe::Inst::Sequel do
 
   it 'should trace add index' do
     # Drop the table if it already exists
-    DB.drop_table(:fake) if DB.table_exists?(:fake)
+    MYSQL_DB.drop_table(:fake) if MYSQL_DB.table_exists?(:fake)
 
     Oboe::API.start_trace('sequel_test', '', {}) do
-      DB.create_table :fake do
+      MYSQL_DB.create_table :fake do
         primary_key :id
         String :name
         Float :price
@@ -216,7 +216,7 @@ describe ::Oboe::Inst::Sequel do
   it 'should capture and report exceptions' do
     begin
       Oboe::API.start_trace('sequel_test', '', {}) do
-        DB.run("this is bad sql")
+        MYSQL_DB.run("this is bad sql")
       end
     rescue
       # Do nothing - we're testing exception logging
@@ -238,7 +238,7 @@ describe ::Oboe::Inst::Sequel do
   end
 
   it 'should trace placeholder queries with bound vars' do
-    items = DB[:items]
+    items = MYSQL_DB[:items]
     items.count
 
     Oboe::API.start_trace('sequel_test', '', {}) do
@@ -261,7 +261,7 @@ describe ::Oboe::Inst::Sequel do
   end
 
   it 'should trace prepared statements' do
-    ds = DB[:items].filter(:name=>:$n)
+    ds = MYSQL_DB[:items].filter(:name=>:$n)
     ps = ds.prepare(:select, :select_by_name)
 
     Oboe::API.start_trace('sequel_test', '', {}) do
@@ -283,7 +283,7 @@ describe ::Oboe::Inst::Sequel do
 
   it 'should trace prep\'d stmnts and obey query privacy' do
     Oboe::Config[:sanitize_sql] = true
-    ds = DB[:items].filter(:name=>:$n)
+    ds = MYSQL_DB[:items].filter(:name=>:$n)
     ps = ds.prepare(:select, :select_by_name)
 
     Oboe::API.start_trace('sequel_test', '', {}) do

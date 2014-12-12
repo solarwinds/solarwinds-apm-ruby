@@ -1,20 +1,20 @@
 require 'minitest_helper'
 
 if ENV.key?('TRAVIS_PSQL_PASS')
-  DB = Sequel.connect("postgres://postgres:#{ENV['TRAVIS_PSQL_PASS']}@127.0.0.1:5432/travis_ci_test")
+  PG_DB = Sequel.connect("postgres://postgres:#{ENV['TRAVIS_PSQL_PASS']}@127.0.0.1:5432/travis_ci_test")
 else
-  DB = Sequel.connect('postgres://postgres@127.0.0.1:5432/travis_ci_test')
+  PG_DB = Sequel.connect('postgres://postgres@127.0.0.1:5432/travis_ci_test')
 end
 
-unless DB.table_exists?(:items)
-  DB.create_table :items do
+unless PG_DB.table_exists?(:items)
+  PG_DB.create_table :items do
     primary_key :id
     String :name
     Float :price
   end
 end
 
-describe ::Oboe::Inst::Sequel do
+describe "Oboe::Inst::Sequel (postgres)" do
   before do
     clear_all_traces
 
@@ -55,7 +55,7 @@ describe ::Oboe::Inst::Sequel do
     Oboe::Config[:sequel][:collect_backtraces] = true
 
     Oboe::API.start_trace('sequel_test', '', {}) do
-      DB.run('select 1')
+      PG_DB.run('select 1')
     end
 
     traces = get_all_traces
@@ -66,16 +66,16 @@ describe ::Oboe::Inst::Sequel do
     Oboe::Config[:sequel][:collect_backtraces] = false
 
     Oboe::API.start_trace('sequel_test', '', {}) do
-      DB.run('select 1')
+      PG_DB.run('select 1')
     end
 
     traces = get_all_traces
     layer_doesnt_have_key(traces, 'sequel', 'Backtrace')
   end
 
-  it 'should trace DB.run insert' do
+  it 'should trace PG_DB.run insert' do
     Oboe::API.start_trace('sequel_test', '', {}) do
-      DB.run("insert into items (name, price) values ('blah', '12')")
+      PG_DB.run("insert into items (name, price) values ('blah', '12')")
     end
 
     traces = get_all_traces
@@ -89,9 +89,9 @@ describe ::Oboe::Inst::Sequel do
     validate_event_keys(traces[2], @exit_kvs)
   end
 
-  it 'should trace DB.run select' do
+  it 'should trace PG_DB.run select' do
     Oboe::API.start_trace('sequel_test', '', {}) do
-      DB.run("select 1")
+      PG_DB.run("select 1")
     end
 
     traces = get_all_traces
@@ -106,8 +106,10 @@ describe ::Oboe::Inst::Sequel do
   end
 
   it 'should trace a dataset insert and count' do
-    items = DB[:items]
-    items.count
+    items = PG_DB[:items]
+    # Preload the primary key to avoid breaking tests with the seemingly
+    # random lookup (random due to random test order)
+    PG_DB.primary_key(:items)
 
     Oboe::API.start_trace('sequel_test', '', {}) do
       items.insert(:name => 'abc', :price => 2.514461383352462)
@@ -116,22 +118,24 @@ describe ::Oboe::Inst::Sequel do
 
     traces = get_all_traces
 
-    traces.count.must_equal 8
+    traces.count.must_equal 6
     validate_outer_layers(traces, 'sequel_test')
 
-    validate_event_keys(traces[3], @entry_kvs)
-    traces[3]['Query'].must_equal "INSERT INTO \"items\" (\"name\", \"price\") VALUES ('abc', 2.514461383352462) RETURNING \"id\""
-    traces[3].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
-    traces[4]['Layer'].must_equal "sequel"
-    traces[4]['Label'].must_equal "exit"
-    traces[5]['Query'].must_equal "SELECT count(*) AS \"count\" FROM \"items\" LIMIT 1"
-    validate_event_keys(traces[6], @exit_kvs)
+    validate_event_keys(traces[1], @entry_kvs)
+    traces[1]['Query'].must_equal "INSERT INTO \"items\" (\"name\", \"price\") VALUES ('abc', 2.514461383352462) RETURNING \"id\""
+    traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
+    traces[2]['Layer'].must_equal "sequel"
+    traces[2]['Label'].must_equal "exit"
+    traces[3]['Query'].must_equal "SELECT count(*) AS \"count\" FROM \"items\" LIMIT 1"
+    validate_event_keys(traces[4], @exit_kvs)
   end
 
   it 'should trace a dataset insert and obey query privacy' do
     Oboe::Config[:sanitize_sql] = true
-    items = DB[:items]
-    items.first
+    items = PG_DB[:items]
+    # Preload the primary key to avoid breaking tests with the seemingly
+    # random lookup (random due to random test order)
+    PG_DB.primary_key(:items)
 
     Oboe::API.start_trace('sequel_test', '', {}) do
       items.insert(:name => 'abc', :price => 2.514461383352462)
@@ -149,7 +153,7 @@ describe ::Oboe::Inst::Sequel do
   end
 
   it 'should trace a dataset filter' do
-    items = DB[:items]
+    items = PG_DB[:items]
     items.count
 
     Oboe::API.start_trace('sequel_test', '', {}) do
@@ -169,10 +173,10 @@ describe ::Oboe::Inst::Sequel do
 
   it 'should trace create table' do
     # Drop the table if it already exists
-    DB.drop_table(:fake) if DB.table_exists?(:fake)
+    PG_DB.drop_table(:fake) if PG_DB.table_exists?(:fake)
 
     Oboe::API.start_trace('sequel_test', '', {}) do
-      DB.create_table :fake do
+      PG_DB.create_table :fake do
         primary_key :id
         String :name
         Float :price
@@ -192,10 +196,10 @@ describe ::Oboe::Inst::Sequel do
 
   it 'should trace add index' do
     # Drop the table if it already exists
-    DB.drop_table(:fake) if DB.table_exists?(:fake)
+    PG_DB.drop_table(:fake) if PG_DB.table_exists?(:fake)
 
     Oboe::API.start_trace('sequel_test', '', {}) do
-      DB.create_table :fake do
+      PG_DB.create_table :fake do
         primary_key :id
         String :name
         Float :price
@@ -216,7 +220,7 @@ describe ::Oboe::Inst::Sequel do
   it 'should capture and report exceptions' do
     begin
       Oboe::API.start_trace('sequel_test', '', {}) do
-        DB.run("this is bad sql")
+        PG_DB.run("this is bad sql")
       end
     rescue
       # Do nothing - we're testing exception logging
@@ -238,7 +242,7 @@ describe ::Oboe::Inst::Sequel do
   end
 
   it 'should trace placeholder queries with bound vars' do
-    items = DB[:items]
+    items = PG_DB[:items]
     items.count
 
     Oboe::API.start_trace('sequel_test', '', {}) do
@@ -261,7 +265,7 @@ describe ::Oboe::Inst::Sequel do
   end
 
   it 'should trace prepared statements' do
-    ds = DB[:items].filter(:name=>:$n)
+    ds = PG_DB[:items].filter(:name=>:$n)
     ps = ds.prepare(:select, :select_by_name)
 
     Oboe::API.start_trace('sequel_test', '', {}) do
@@ -283,7 +287,7 @@ describe ::Oboe::Inst::Sequel do
 
   it 'should trace prep\'d stmnts and obey query privacy' do
     Oboe::Config[:sanitize_sql] = true
-    ds = DB[:items].filter(:name=>:$n)
+    ds = PG_DB[:items].filter(:name=>:$n)
     ps = ds.prepare(:select, :select_by_name)
 
     Oboe::API.start_trace('sequel_test', '', {}) do
