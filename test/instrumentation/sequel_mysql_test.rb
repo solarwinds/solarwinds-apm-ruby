@@ -124,7 +124,7 @@ describe "Oboe::Inst::Sequel (mysql)" do
     traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
     traces[2]['Layer'].must_equal "sequel"
     traces[2]['Label'].must_equal "exit"
-    traces[3]['Query'].must_equal "SELECT count(*) AS `count` FROM `items` LIMIT 1"
+    traces[3]['Query'].downcase.must_equal "select count(*) as `count` from `items` limit 1"
     validate_event_keys(traces[4], @exit_kvs)
   end
 
