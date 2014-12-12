@@ -131,7 +131,7 @@ describe ::Oboe::Inst::Sequel do
   it 'should trace a dataset insert and obey query privacy' do
     Oboe::Config[:sanitize_sql] = true
     items = DB[:items]
-    items.count
+    items.first
 
     Oboe::API.start_trace('sequel_test', '', {}) do
       items.insert(:name => 'abc', :price => 2.514461383352462)
@@ -143,7 +143,7 @@ describe ::Oboe::Inst::Sequel do
     validate_outer_layers(traces, 'sequel_test')
 
     validate_event_keys(traces[1], @entry_kvs)
-    traces[1]['Query'].must_equal "INSERT INTO \"items\" (\"name\", \"price\") VALUES (?, 2.514461383352462) RETURNING \"id\""
+    traces[1]['Query'].must_equal "INSERT INTO \"items\" (\"name\", \"price\") VALUES (?, ?) RETURNING \"id\""
     traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
   end
