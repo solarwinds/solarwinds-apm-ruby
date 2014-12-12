@@ -20,7 +20,9 @@ module Oboe
 
         kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:sequel][:collect_backtraces]
 
-        if @pool
+        if ::Sequel::VERSION < '3.41.0' && !(self.class.to_s =~ /Dataset$/)
+          db_opts = @opts
+        elsif @pool
           db_opts = @pool.db.opts
         else
           db_opts = @db.opts
