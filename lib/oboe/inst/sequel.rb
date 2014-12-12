@@ -40,7 +40,6 @@ module Oboe
     module SequelDatabase
       def self.included(klass)
         ::Oboe::Util.method_alias(klass, :run, ::Sequel::Database)
-        ::Oboe::Util.method_alias(klass, :execute, ::Sequel::Database)
         ::Oboe::Util.method_alias(klass, :execute_ddl, ::Sequel::Database)
         ::Oboe::Util.method_alias(klass, :execute_dui, ::Sequel::Database)
         ::Oboe::Util.method_alias(klass, :execute_insert, ::Sequel::Database)
@@ -70,14 +69,6 @@ module Oboe
         raise e
       ensure
         Oboe::API.log_exit('sequel')
-      end
-
-      def execute_with_oboe(sql, opts=::Sequel::OPTS, &block)
-        # If we're already tracing a sequel operation, then this call likely came
-        # from Sequel::Dataset.  In this case, just pass it on.
-        return execute_without_oboe(sql, opts, &block) if Oboe.tracing_layer?('sequel')
-
-        exec_with_oboe(:execute_without_oboe, sql, opts, &block)
       end
 
       def execute_ddl_with_oboe(sql, opts=::Sequel::OPTS, &block)
