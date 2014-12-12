@@ -139,6 +139,14 @@ module Oboe
 end # module Oboe
 
 if Oboe::Config[:sequel][:enabled]
+  if defined?(::Sequel) && ::Sequel::VERSION < "4.0.0"
+    # For versions before 4.0.0, Sequel::OPTS wasn't defined.
+    # Define it as an empty hash for backwards compatibility.
+    module ::Sequel
+      OPTS = {}
+    end
+  end
+
   if defined?(::Sequel)
     Oboe.logger.info '[oboe/loading] Instrumenting sequel' if Oboe::Config[:verbose]
     ::Oboe::Util.send_include(::Sequel::Database, ::Oboe::Inst::Sequel)
