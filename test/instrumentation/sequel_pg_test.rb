@@ -122,7 +122,11 @@ describe "Oboe::Inst::Sequel (postgres)" do
     validate_outer_layers(traces, 'sequel_test')
 
     validate_event_keys(traces[1], @entry_kvs)
-    traces[1]['Query'].must_equal "INSERT INTO \"items\" (\"name\", \"price\") VALUES ('abc', 2.514461383352462) RETURNING \"id\""
+    if RUBY_VERSION < "1.9"
+      traces[1]['Query'].must_equal "INSERT INTO \"items\" (\"price\", \"name\") VALUES (2.51446138335246, 'abc') RETURNING \"id\""
+    else
+      traces[1]['Query'].must_equal "INSERT INTO \"items\" (\"name\", \"price\") VALUES ('abc', 2.514461383352462) RETURNING \"id\""
+    end
     traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
     traces[2]['Layer'].must_equal "sequel"
     traces[2]['Label'].must_equal "exit"
@@ -147,7 +151,11 @@ describe "Oboe::Inst::Sequel (postgres)" do
     validate_outer_layers(traces, 'sequel_test')
 
     validate_event_keys(traces[1], @entry_kvs)
-    traces[1]['Query'].must_equal "INSERT INTO \"items\" (\"name\", \"price\") VALUES (?, ?) RETURNING \"id\""
+    if RUBY_VERSION < "1.9"
+      traces[1]['Query'].must_equal "INSERT INTO \"items\" (\"price\", \"name\") VALUES (?, ?) RETURNING \"id\""
+    else
+      traces[1]['Query'].must_equal "INSERT INTO \"items\" (\"name\", \"price\") VALUES (?, ?) RETURNING \"id\""
+    end
     traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
   end
@@ -279,7 +287,11 @@ describe "Oboe::Inst::Sequel (postgres)" do
 
     validate_event_keys(traces[1], @entry_kvs)
     traces[1]['Query'].must_equal "select_by_name"
-    traces[1]['QueryArgs'].must_equal "[\"abc\"]"
+    if RUBY_VERSION < "1.9"
+      traces[1]['QueryArgs'].must_equal "abc"
+    else
+      traces[1]['QueryArgs'].must_equal "[\"abc\"]"
+    end
     traces[1]['IsPreparedStatement'].must_equal "true"
     traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
     validate_event_keys(traces[2], @exit_kvs)
