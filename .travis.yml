@@ -37,6 +37,7 @@ before_script:
   - bundle install --without development
   - bundle exec rake compile
   - psql -c 'create database travis_ci_test;' -U postgres
+  - mysql -e 'create database travis_ci_test;'
   - sleep 10
 
 script: "bundle exec rake test"
