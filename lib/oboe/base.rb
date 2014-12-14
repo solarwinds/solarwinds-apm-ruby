@@ -33,6 +33,7 @@ module OboeBase
   attr_accessor :loaded
   attr_accessor :sample_source
   attr_accessor :sample_rate
+  thread_local :layer
   thread_local :layer_op
 
   # The following accessors indicate the incoming tracing state received
@@ -97,6 +98,17 @@ module OboeBase
     else
       return true
     end
+  end
+
+  ##
+  # tracing_layer?
+  #
+  # Queries the thread local variable about the current
+  # layer being traced.  This is used in cases of recursive
+  # operation tracing or one instrumented operation calling another.
+  #
+  def tracing_layer?(layer)
+    return Oboe.layer == layer
   end
 
   ##

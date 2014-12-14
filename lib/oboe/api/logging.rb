@@ -153,6 +153,9 @@ module Oboe
           event.addInfo('Layer', layer.to_s) if layer
           event.addInfo('Label', label.to_s)
 
+          Oboe.layer = layer if label == 'entry'
+          Oboe.layer = nil   if label == 'exit'
+
           opts.each do |k, v|
             event.addInfo(k.to_s, v.to_s) if valid_key? k
           end if !opts.nil? && opts.any?
