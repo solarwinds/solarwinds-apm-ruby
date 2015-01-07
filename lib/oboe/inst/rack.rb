@@ -50,13 +50,6 @@ module Oboe
       report_kvs = {}
       report_kvs[:URL] = URI.unescape(req.path)
 
-      if Oboe.always?
-        # Only report these KVs under tracing_mode 'always' (never for 'through')
-        # These KVs need to be in the entry event for server side.
-        report_kvs[:SampleRate]        = Oboe.sample_rate
-        report_kvs[:SampleSource]      = Oboe.sample_source
-      end
-
       # Under JRuby, JOboe may have already started a trace.  Make note of this
       # if so and don't clear context on log_end (see oboe/api/logging.rb)
       Oboe.has_incoming_context = Oboe.tracing?
