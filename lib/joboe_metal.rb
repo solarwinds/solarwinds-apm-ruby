@@ -158,6 +158,9 @@ module Oboe
             # If we fail here, we do so quietly.  This was we don't spam logs
             # on every request
           end
+        else
+          Oboe.sample_rate = -1
+          Oboe.sample_source = -1
         end
 
         sr_cfg
