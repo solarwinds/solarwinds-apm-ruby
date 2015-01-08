@@ -4,6 +4,41 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# oboe 2.7.8.1
+
+This patch release includes:
+
+* Improved sampling management and reporting
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/oboe/versions/2.7.8.1
+https://rubygems.org/gems/oboe/versions/2.7.8.1-java
+
+
+# oboe 2.7.7.1
+
+This patch release includes:
+
+* Add support and instrumentation for Sequel: #91
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/oboe/versions/2.7.7.1
+https://rubygems.org/gems/oboe/versions/2.7.7.1-java
+
+# oboe 2.7.6.2
+
+This patch release includes:
+
+* Fixed metrics when hosting a JRuby application under a Java webserver such as Tomcat: #94
+* Fix for moped aggregate calls: #95
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/oboe/versions/2.7.6.2
+https://rubygems.org/gems/oboe/versions/2.7.6.2-java
+
 # oboe 2.7.5.1 (11/20/2014)
 
 This patch release includes:
