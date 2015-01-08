@@ -153,8 +153,8 @@ module Oboe
         # Store the returned SampleRateConfig into Oboe::Config
         if sr_cfg
           begin
-            Oboe.sample_rate = sr_cfg.sampleRate
-            Oboe.sample_source = sr_cfg.sampleRateSource.a
+            Oboe::Config.sample_rate = cfg.sampleRate
+            Oboe::Config.sample_source = cfg.sampleRateSourceValue
             # If we fail here, we do so quietly.  This was we don't spam logs
             # on every request
           end
@@ -163,7 +163,7 @@ module Oboe
           Oboe.sample_source = -1
         end
 
-        sr_cfg
+        sr_cfg ? true : false
       rescue => e
         Oboe.logger.debug "[oboe/debug] #{e.message}"
         false
