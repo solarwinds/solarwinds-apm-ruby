@@ -87,8 +87,6 @@ module Oboe
       begin
         return false unless Oboe.always? && Oboe.loaded
 
-        return true if ENV.key?('OBOE_GEM_TEST')
-
         # Assure defaults since SWIG enforces Strings
         layer   = opts[:layer]      ? opts[:layer].strip      : ''
         xtrace  = opts[:xtrace]     ? opts[:xtrace].strip     : ''
@@ -97,9 +95,15 @@ module Oboe
         rv = Oboe::Context.sampleRequest(layer, xtrace, tv_meta)
 
         if rv == 0
-          Oboe.sample_rate = -1
-          Oboe.sample_source = -1
-          false
+          if ENV.key?('OBOE_GEM_TEST')
+            # When in test, always trace and don't clear
+            # the stored sample rate/source
+            true
+          else
+            Oboe.sample_rate = -1
+            Oboe.sample_source = -1
+            false
+          end
         else
           # liboboe version > 1.3.1 returning a bit masked integer with SampleRate and
           # source embedded
