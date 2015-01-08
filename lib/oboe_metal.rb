@@ -85,7 +85,7 @@ module Oboe
   class << self
     def sample?(opts = {})
       begin
-        return false unless Oboe.always?
+        return false unless Oboe.always? && Oboe.loaded
 
         # Assure defaults since SWIG enforces Strings
         layer   = opts[:layer]      ? opts[:layer].strip      : ''
@@ -94,13 +94,17 @@ module Oboe
 
         rv = Oboe::Context.sampleRequest(layer, xtrace, tv_meta)
 
-        # For older liboboe that returns true/false, just return that.
-        return rv if [TrueClass, FalseClass].include?(rv.class) || (rv == 0)
-
-        # liboboe version > 1.3.1 returning a bit masked integer with SampleRate and
-        # source embedded
-        Oboe.sample_rate = (rv & SAMPLE_RATE_MASK)
-        Oboe.sample_source = (rv & SAMPLE_SOURCE_MASK) >> 24
+        if rv == 0
+          Oboe.sample_rate = -1
+          Oboe.sample_source = -1
+          false
+        else
+          # liboboe version > 1.3.1 returning a bit masked integer with SampleRate and
+          # source embedded
+          Oboe.sample_rate = (rv & SAMPLE_RATE_MASK)
+          Oboe.sample_source = (rv & SAMPLE_SOURCE_MASK) >> 24
+          true
+        end
       rescue StandardError => e
         Oboe.logger.debug "[oboe/error] sample? error: #{e.inspect}"
         false

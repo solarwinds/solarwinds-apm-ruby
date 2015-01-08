@@ -31,8 +31,8 @@ module OboeBase
 
   attr_accessor :reporter
   attr_accessor :loaded
-  attr_accessor :sample_source
-  attr_accessor :sample_rate
+  thread_local :sample_source
+  thread_local :sample_rate
   thread_local :layer
   thread_local :layer_op
 

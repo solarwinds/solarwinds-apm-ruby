@@ -45,6 +45,8 @@ class RackTestApp < Minitest::Test
 
     assert traces[0].has_key?('SampleRate')
     assert traces[0].has_key?('SampleSource')
+    assert traces[1].has_key?('ProcessID')
+    assert traces[1].has_key?('ThreadID')
 
     assert last_response.ok?
 

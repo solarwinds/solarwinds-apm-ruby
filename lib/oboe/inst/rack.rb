@@ -37,6 +37,8 @@ module Oboe
         report_kvs['Forwarded-Port']    = env['HTTP_X_FORWARDED_PORT']   if env.key?('HTTP_X_FORWARDED_PORT')
 
         report_kvs['Ruby.Oboe.Version'] = ::Oboe::Version::STRING
+        report_kvs['ProcessID']         = Process.pid
+        report_kvs['ThreadID']          = Thread.current.to_s[/0x\w*/]
       rescue StandardError => e
         # Discard any potential exceptions. Debug log and report whatever we can.
         Oboe.logger.debug "[oboe/debug] Rack KV collection error: #{e.inspect}"
@@ -49,13 +51,6 @@ module Oboe
 
       report_kvs = {}
       report_kvs[:URL] = URI.unescape(req.path)
-
-      if Oboe.always?
-        # Only report these KVs under tracing_mode 'always' (never for 'through')
-        # These KVs need to be in the entry event for server side.
-        report_kvs[:SampleRate]        = Oboe.sample_rate
-        report_kvs[:SampleSource]      = Oboe.sample_source
-      end
 
       # Under JRuby, JOboe may have already started a trace.  Make note of this
       # if so and don't clear context on log_end (see oboe/api/logging.rb)
