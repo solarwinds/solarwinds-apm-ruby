@@ -97,14 +97,14 @@ module Oboe
         if rv == 0
           Oboe.sample_rate = -1
           Oboe.sample_source = -1
+          false
         else
           # liboboe version > 1.3.1 returning a bit masked integer with SampleRate and
           # source embedded
           Oboe.sample_rate = (rv & SAMPLE_RATE_MASK)
           Oboe.sample_source = (rv & SAMPLE_SOURCE_MASK) >> 24
+          true
         end
-
-        rv
       rescue StandardError => e
         Oboe.logger.debug "[oboe/error] sample? error: #{e.inspect}"
         false
