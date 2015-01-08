@@ -39,7 +39,11 @@ if defined?(JRUBY_VERSION)
 else
   gem 'mysql'
   gem 'mysql2'
-  gem 'pg'
+  if RUBY_VERSION < '1.9.3'
+    gem 'pg', '0.17.1'
+  else
+    gem 'pg'
+  end
 end
 
 if RUBY_VERSION >= '1.9'
