@@ -87,6 +87,8 @@ module Oboe
       begin
         return false unless Oboe.always? && Oboe.loaded
 
+        return true if ENV.key?('OBOE_GEM_TEST')
+
         # Assure defaults since SWIG enforces Strings
         layer   = opts[:layer]      ? opts[:layer].strip      : ''
         xtrace  = opts[:xtrace]     ? opts[:xtrace].strip     : ''
