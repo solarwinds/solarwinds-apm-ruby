@@ -30,7 +30,7 @@ module Oboe
 
         # Avoid cross host tracing for blacklisted domains
         # Conditionally add the X-Trace header to the outgoing request
-        response.headers['X-Trace'] = context unless blacklisted
+        response.headers['X-Trace'] = context if blacklisted
 
         uri = URI(response.effective_url)
         kvs['IsService'] = 1
