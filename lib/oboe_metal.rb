@@ -27,7 +27,7 @@ module Oboe
         # Only report __Init from here if we are not instrumenting a framework.
         # Otherwise, frameworks will handle reporting __Init after full initialization
         unless defined?(::Rails) || defined?(::Sinatra) || defined?(::Padrino) || defined?(::Grape)
-          Oboe::API.report_init
+          Oboe::API.report_init unless ENV.key?('OBOE_GEM_TEST')
         end
 
       rescue => e
