@@ -220,7 +220,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
     traces[5]['Label'].must_equal 'info'
     traces[5]['IsService'].must_equal '1'
     traces[5]['RemoteProtocol'].downcase.must_equal 'http'
-    traces[5]['RemoteHost'].must_equal 'localhost'
+    traces[5]['RemoteHost'].must_equal '127.0.0.1'
     traces[5]['RemotePort'].must_equal '8000'
     traces[5]['ServiceArg'].must_equal '/'
     traces[5]['HTTPMethod'].must_equal 'get'
