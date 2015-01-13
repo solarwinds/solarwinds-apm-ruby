@@ -194,7 +194,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
       Rack::Handler::WEBrick.run(app, :Port => 8000)
     end
 
-    sleep(1)
+    sleep(2)
 
     Oboe::API.start_trace('outer') do
       res = Typhoeus.get("localhost:8000/")
