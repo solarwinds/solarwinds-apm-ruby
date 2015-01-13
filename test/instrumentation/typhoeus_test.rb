@@ -194,14 +194,13 @@ describe Oboe::Inst::TyphoeusRequestOps do
       Rack::Handler::WEBrick.run(app, :Port => 8000)
     end
 
-    sleep(2)
+    sleep(1)
 
     Oboe::API.start_trace('outer') do
-      res = Typhoeus.get("localhost:8000/")
+      res = Typhoeus.get("127.0.0.1:8000/")
     end
 
     traces = get_all_traces
-    pp traces
     traces.count.must_equal 8
 
     validate_outer_layers(traces, 'outer')
