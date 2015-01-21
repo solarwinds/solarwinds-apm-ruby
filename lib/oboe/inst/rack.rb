@@ -80,7 +80,7 @@ module Oboe
     ensure
       if result && Oboe::XTrace.valid?(xtrace)
         unless defined?(JRUBY_VERSION) && Oboe.is_continued_trace?
-          result[1]['X-Trace'] = xtrace
+          result[1]['X-Trace'] = xtrace if result[1].is_a?(Hash)
         end
       end
       return result
