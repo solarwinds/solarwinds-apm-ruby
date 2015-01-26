@@ -21,7 +21,7 @@ rvm:
 # Attempt Travis/Cassandra fix re: https://github.com/travis-ci/travis-ci/issues/1484
 # Updated Cassandra: https://github.com/travis-ci/travis-ci/issues/1650
 before_install:
-  - gem update --system 2.1.11
+  - gem update --system
   - gem --version
   - sudo sh -c "echo 'JVM_OPTS=\"\${JVM_OPTS} -Djava.net.preferIPv4Stack=false\"' >> /usr/local/cassandra/conf/cassandra-env.sh"
   - echo "127.0.0.1 localhost"  | sudo tee /etc/hosts
