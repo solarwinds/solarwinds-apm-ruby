@@ -185,6 +185,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
   it 'should trace a typhoeus GET request to an internal app' do
     # TODO: JRuby doesn't trace the inner rack app for some reason...
     skip if defined?(JRUBY_VERSION)
+
     Thread.new do
       app = Rack::Builder.new {
         use Oboe::Rack
@@ -203,13 +204,14 @@ describe Oboe::Inst::TyphoeusRequestOps do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 8
+    traces.count.must_equal 7
 
     validate_outer_layers(traces, 'outer')
 
-    traces[3]['Label'].must_equal 'info'
     traces[2]['Layer'].must_equal 'rack'
-    traces[4]['Layer'].must_equal 'rack'
+    traces[2]['Label'].must_equal 'entry'
+    traces[3]['Layer'].must_equal 'rack'
+    traces[3]['Label'].must_equal 'exit'
 
     # Verify typhoeus info edges to inner exit
     traces[5]['Edge'].must_equal traces[4]['X-Trace'][42...58]
@@ -218,18 +220,18 @@ describe Oboe::Inst::TyphoeusRequestOps do
     traces[1]['Layer'].must_equal 'typhoeus'
     traces[1].key?('Backtrace').must_equal Oboe::Config[:typhoeus][:collect_backtraces]
 
-    traces[5]['Layer'].must_equal 'typhoeus'
-    traces[5]['Label'].must_equal 'info'
-    traces[5]['IsService'].must_equal '1'
-    traces[5]['RemoteProtocol'].downcase.must_equal 'http'
-    traces[5]['RemoteHost'].must_equal '127.0.0.1'
-    traces[5]['RemotePort'].must_equal '8000'
-    traces[5]['ServiceArg'].must_equal '/'
-    traces[5]['HTTPMethod'].must_equal 'get'
-    traces[5]['HTTPStatus'].must_equal '200'
+    traces[4]['Layer'].must_equal 'typhoeus'
+    traces[4]['Label'].must_equal 'info'
+    traces[4]['IsService'].must_equal '1'
+    traces[4]['RemoteProtocol'].downcase.must_equal 'http'
+    traces[4]['RemoteHost'].must_equal '127.0.0.1'
+    traces[4]['RemotePort'].must_equal '8000'
+    traces[4]['ServiceArg'].must_equal '/'
+    traces[4]['HTTPMethod'].must_equal 'get'
+    traces[4]['HTTPStatus'].must_equal '200'
 
-    traces[6]['Layer'].must_equal 'typhoeus'
-    traces[6]['Label'].must_equal 'exit'
+    traces[5]['Layer'].must_equal 'typhoeus'
+    traces[5]['Label'].must_equal 'exit'
   end
 
   it 'should trace a typhoeus GET request with DNS error' do
