@@ -27,6 +27,10 @@ SimpleDemo.controllers do
   get "/render" do
     render :erb, "This is an erb render"
   end
+
+  get "/break" do
+    raise "This is a controller exception!"
+  end
 end
 
 ## If you want use this as a standalone app uncomment:

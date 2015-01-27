@@ -14,6 +14,10 @@ class SinatraSimple < Sinatra::Base
   get "/render" do
     render :erb, "This is an erb render"
   end
+
+  get "/break" do
+    raise "This is a controller exception!"
+  end
 end
 
 use SinatraSimple

@@ -52,38 +52,36 @@ module Oboe
       report_kvs = {}
       report_kvs[:URL] = URI.unescape(req.path)
 
-      # Under JRuby, JOboe may have already started a trace.  Make note of this
-      # if so and don't clear context on log_end (see oboe/api/logging.rb)
-      Oboe.has_incoming_context = Oboe.tracing?
-
       # Check for and validate X-Trace request header to pick up tracing context
       xtrace = env.is_a?(Hash) ? env['HTTP_X_TRACE'] : nil
       xtrace_header = xtrace if xtrace && Oboe::XTrace.valid?(xtrace)
-      Oboe.has_xtrace_header = xtrace_header
 
+      # Under JRuby, JOboe may have already started a trace.  Make note of this
+      # if so and don't clear context on log_end (see oboe/api/logging.rb)
+      Oboe.has_incoming_context = Oboe.tracing?
+      Oboe.has_xtrace_header = xtrace_header
       Oboe.is_continued_trace = Oboe.has_incoming_context or Oboe.has_xtrace_header
 
-      # The actual block of work to instrument
-      result, xtrace = Oboe::API.start_trace('rack', xtrace_header, report_kvs) do
-        status, headers, response = @app.call(env)
+      Oboe::API.log_start('rack', xtrace_header, report_kvs)
+      report_kvs = collect(req, env) if Oboe.tracing?
 
-        if Oboe.tracing?
-          report_kvs = collect(req, env)
-          Oboe::API.log(nil, 'info', report_kvs.merge!(:Status => status))
-        end
+      status, headers, response = @app.call(env)
 
-        [status, headers, response]
+      if Oboe.tracing?
+        xtrace = Oboe::API.log_end('rack', report_kvs.merge!(:Status => status))
       end
+
+      [status, headers, response]
     rescue Exception => e
-      xtrace = e.instance_variable_get(:@xtrace)
+      Oboe::API.log_exception('rack', e)
+      xtrace = Oboe::API.log_end('rack', report_kvs.merge!(:Status => 500))
       raise
     ensure
-      if result && Oboe::XTrace.valid?(xtrace)
+      if headers && Oboe::XTrace.valid?(xtrace)
         unless defined?(JRUBY_VERSION) && Oboe.is_continued_trace?
-          result[1]['X-Trace'] = xtrace
+          headers['X-Trace'] = xtrace if headers.is_a?(Hash)
         end
       end
-      return result
     end
   end
 end

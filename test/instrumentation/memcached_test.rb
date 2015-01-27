@@ -111,7 +111,7 @@ if RUBY_VERSION < '2.0' and not defined?(JRUBY_VERSION)
       traces[1]['KVKey'].must_equal "testKey"
 
       traces[2]['ErrorClass'].must_equal "Memcached::NotStored"
-      traces[2]['Message'].must_equal "Memcached::NotStored"
+      traces[2]['ErrorMsg'].must_equal "Memcached::NotStored"
     end
 
     it "should trace append" do
