@@ -46,7 +46,7 @@ module Oboe
         return if !Oboe.loaded || exn.instance_variable_get(:@oboe_logged)
 
         kvs = { :ErrorClass => exn.class.name,
-                :Message => exn.message,
+                :ErrorMsg => exn.message,
                 :Backtrace => exn.backtrace.join("\r\n") }
 
         exn.instance_variable_set(:@oboe_logged, true)

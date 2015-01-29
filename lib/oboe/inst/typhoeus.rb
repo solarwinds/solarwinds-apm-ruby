@@ -28,10 +28,6 @@ module Oboe
         kvs[:HTTPStatus] = response.code
         kvs['Backtrace'] = Oboe::API.backtrace if Oboe::Config[:typhoeus][:collect_backtraces]
 
-        # Avoid cross host tracing for blacklisted domains
-        # Conditionally add the X-Trace header to the outgoing request
-        response.headers['X-Trace'] = context unless blacklisted
-
         uri = URI(response.effective_url)
         kvs['IsService'] = 1
         kvs['RemoteProtocol'] = uri.scheme
