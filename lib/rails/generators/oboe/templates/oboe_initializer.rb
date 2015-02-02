@@ -40,6 +40,34 @@ if defined?(Oboe::Config)
   # avoid collecting and reporting query literals to TraceView.
   # Oboe::Config[:sanitize_sql] = false
 
+  # Do Not Trace
+  # These two values allow you to configure specific URL patterns to
+  # never be traced.  By default, this is set to common static file
+  # extensions but you may want to customize this list for your needs.
+  #
+  # dnt_regexp and dnt_opts is passed to Regexp.new to create
+  # a regular expression object.  That is then used to match against
+  # the incoming request path.
+  #
+  # The path string originates from the rack layer and is retrieved
+  # as follows:
+  #
+  #   req = ::Rack::Request.new(env)
+  #   path = URI.unescape(req.path)
+  #
+  # Usage:
+  #   Oboe::Config[:dnt_regexp] = "lobster$"
+  #   Oboe::Config[:dnt_opts]   = Regexp::IGNORECASE
+  #
+  # This will ignore all requests that end with the string lobster
+  # regardless of case
+  #
+  # Requests with positive matches (non nil) will not be traced.
+  # See lib/oboe/util.rb: Oboe::Util.static_asset?
+  #
+  # Oboe::Config[:dnt_regexp] = "\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|ttf|woff|svg|less)$"
+  # Oboe::Config[:dnt_opts]   = Regexp::IGNORECASE
+
   #
   # Enabling/Disabling Instrumentation
   #
