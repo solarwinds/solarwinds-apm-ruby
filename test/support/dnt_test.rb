@@ -42,5 +42,30 @@ class RackTestApp < Minitest::Test
 
     assert last_response.status == 404
   end
+
+  def test_complex_do_not_trace
+    clear_all_traces
+
+    dnt_original = Oboe::Config[:dnt_regexp]
+
+    # Do not trace .js files _except for_ show.js
+    Oboe::Config[:dnt_regexp] = "(\.js$)(?<!show.js)"
+
+    # First: We shouldn't trace general .js files
+    get "/javascripts/application.js"
+
+    traces = get_all_traces
+    assert traces.empty?
+
+    # Second: We should trace show.js
+    clear_all_traces
+
+    get "/javascripts/show.js"
+
+    traces = get_all_traces
+    assert !traces.empty?
+
+    Oboe::Config[:dnt_regexp] = dnt_original
+  end
 end
 
