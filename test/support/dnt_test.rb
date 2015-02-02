@@ -44,6 +44,8 @@ class RackTestApp < Minitest::Test
   end
 
   def test_complex_do_not_trace
+    skip "not supported" if RUBY_VERSION < '1.9'
+
     clear_all_traces
 
     dnt_original = Oboe::Config[:dnt_regexp]
