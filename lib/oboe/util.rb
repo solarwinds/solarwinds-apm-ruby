@@ -103,7 +103,7 @@ module Oboe
       # solely on filename)
       #
       def static_asset?(path)
-        (path =~ /\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|ttf|woff|svg|less)$/i)
+        (path =~ Regexp.new(Oboe::Config[:dnt_regexp], Oboe::Config[:dnt_opts]))
       end
 
       ##
