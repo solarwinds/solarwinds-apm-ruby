@@ -1,8 +1,6 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
-require 'byebug'
-
 module Oboe
   module Grape
     module API
