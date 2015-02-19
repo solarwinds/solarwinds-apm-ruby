@@ -23,7 +23,7 @@ describe Oboe::Config do
     instrumentation = Oboe::Config.instrumentation_list
 
     # Verify the number of individual instrumentations
-    instrumentation.count.must_equal 17
+    instrumentation.count.must_equal 18
 
     Oboe::Config[:action_controller][:enabled].must_equal true
     Oboe::Config[:action_view][:enabled].must_equal true
@@ -32,6 +32,7 @@ describe Oboe::Config do
     Oboe::Config[:dalli][:enabled].must_equal true
     Oboe::Config[:em_http_request][:enabled].must_equal false
     Oboe::Config[:faraday][:enabled].must_equal true
+    Oboe::Config[:grape][:enabled].must_equal true
     Oboe::Config[:nethttp][:enabled].must_equal true
     Oboe::Config[:memcached][:enabled].must_equal true
     Oboe::Config[:memcache][:enabled].must_equal true
@@ -48,6 +49,7 @@ describe Oboe::Config do
     Oboe::Config[:dalli][:log_args].must_equal true
     Oboe::Config[:em_http_request][:log_args].must_equal true
     Oboe::Config[:faraday][:log_args].must_equal true
+    Oboe::Config[:grape][:log_args].must_equal true
     Oboe::Config[:nethttp][:log_args].must_equal true
     Oboe::Config[:memcached][:log_args].must_equal true
     Oboe::Config[:memcache][:log_args].must_equal true
