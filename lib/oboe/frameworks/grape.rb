@@ -47,12 +47,35 @@ module Oboe
     module Middleware
       module Error
         def self.included(klass)
-          ::Oboe::Util.method_alias(klass, :call, ::Grape::Middleware::Error)
+          ::Oboe::Util.method_alias(klass, :error_response, ::Grape::Middleware::Error)
         end
 
-        def call_with_oboe(boom)
-          Oboe::API.log_exception(nil, boom) if Oboe.tracing?
-          call_without_oboe(boom)
+        def error_response_with_oboe(error = {})
+          status, headers, body = error_response_without_oboe(error)
+
+          if Oboe.tracing?
+            # Since Grape uses throw/catch and not Exceptions, we manually log
+            # the error here.
+            kvs = {}
+            kvs[:ErrorClass] = 'GrapeError'
+            kvs[:ErrorMsg] = error[:message] ? error[:message] : "No message given."
+            kvs[:Backtrace] = ::Oboe::API.backtrace if Oboe::Config[:grape][:collect_backtraces]
+
+            ::Oboe::API.log(nil, 'error', kvs)
+
+            # Since calls to error() are handled similar to abort in Grape.  We
+            # manually log the rack exit here since the original code won't
+            # be returned to
+            xtrace = Oboe::API.log_end('rack', :Status => status)
+
+            if headers && Oboe::XTrace.valid?(xtrace)
+              unless defined?(JRUBY_VERSION) && Oboe.is_continued_trace?
+                headers['X-Trace'] = xtrace if headers.is_a?(Hash)
+              end
+            end
+          end
+
+          [status, headers, body]
         end
       end
     end

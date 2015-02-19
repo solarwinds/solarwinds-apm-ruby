@@ -13,6 +13,10 @@ class GrapeSimple < Grape::API
     raise Exception.new("This should have http status code 500!")
   end
 
+  get "/error" do
+    error!("This is a error with 'error'!")
+  end
+
   get "/breakstring" do
     raise "This should have http status code 500!"
   end

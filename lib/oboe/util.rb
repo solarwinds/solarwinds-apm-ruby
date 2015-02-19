@@ -161,6 +161,7 @@ module Oboe
           platform_info['Ruby.Moped.Version']     = "Moped-#{::Moped::VERSION}"        if defined?(::Moped)
           platform_info['Ruby.Redis.Version']     = "Redis-#{::Redis::VERSION}"        if defined?(::Redis)
           platform_info['Ruby.Resque.Version']    = "Resque-#{::Resque::VERSION}"      if defined?(::Resque)
+          platform_info['Ruby.Typhoeus.Version']  = "Typhoeus-#{::Typhoeus::VERSION}"  if defined?(::Typhoeus::VERSION)
 
           # Special case since the Mongo 1.x driver doesn't embed the version number in the gem directly
           if ::Gem.loaded_specs.key?('mongo')
@@ -171,6 +172,7 @@ module Oboe
           platform_info['Ruby.Mysql.Version']   = Mysql::GemVersion::VERSION   if defined?(Mysql::GemVersion::VERSION)
           platform_info['Ruby.PG.Version']      = PG::VERSION                  if defined?(PG::VERSION)
           platform_info['Ruby.Mysql2.Version']  = Mysql2::VERSION              if defined?(Mysql2::VERSION)
+          platform_info['Ruby.Sequel.Version']  = ::Sequel::VERSION            if defined?(::Sequel::VERSION)
 
           # Report the server in use (if possible)
           if defined?(::Unicorn)
