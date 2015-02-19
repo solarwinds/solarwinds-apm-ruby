@@ -4,6 +4,41 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# oboe 2.7.11.1
+
+This patch release includes:
+
+* Grape instrumentation fixes and improvements: #102
+* Report Sequel and Typhoeus versions in __Init: #101
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/oboe/versions/2.7.11.1
+https://rubygems.org/gems/oboe/versions/2.7.11.1-java
+
+# oboe 2.7.10.1
+
+This patch release includes:
+
+* Add the ability to configure the do not trace list: #100
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/oboe/versions/2.7.10.1
+https://rubygems.org/gems/oboe/versions/2.7.10.1-java
+
+# oboe 2.7.9.6
+
+This patch release includes:
+
+* Better, faster, stronger Rack instrumentation: #99
+* A Typhoeus instrumentation fix for cross-app tracing: #97
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/oboe/versions/2.7.9.6
+https://rubygems.org/gems/oboe/versions/2.7.9.6-java
+
 # oboe 2.7.8.1
 
 This patch release includes:
