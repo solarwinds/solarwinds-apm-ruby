@@ -37,10 +37,16 @@ unless defined?(JRUBY_VERSION)
       validate_outer_layers(traces, 'rack')
 
       kvs = {}
-      kvs["SampleRate"] = "1000000"
-      kvs["SampleSource"] = OBOE_SAMPLE_RATE_SOURCE_FILE.to_s
+      kvs["SampleRate"] = 1000000
+      kvs["SampleSource"] = OBOE_SAMPLE_RATE_SOURCE_FILE
       validate_event_keys(traces[0], kvs)
 
     end
+  end
+
+  def validate_datatypes_support
+
+    Oboe::API.log_event('test_layer',
+  end
   end
 end

@@ -38,7 +38,7 @@ describe Oboe::Inst::FaradayConnection do
     traces[1].key?('Backtrace').must_equal Oboe::Config[:faraday][:collect_backtraces]
 
     traces[3]['Layer'].must_equal 'net-http'
-    traces[3]['IsService'].must_equal '1'
+    traces[3]['IsService'].must_equal 1
     traces[3]['RemoteProtocol'].must_equal 'HTTP'
     traces[3]['RemoteHost'].must_equal 'www.gameface.in'
     traces[3]['ServiceArg'].must_equal '/games?q=1'
@@ -69,7 +69,7 @@ describe Oboe::Inst::FaradayConnection do
     traces[1].key?('Backtrace').must_equal Oboe::Config[:faraday][:collect_backtraces]
 
     traces[3]['Layer'].must_equal 'net-http'
-    traces[3]['IsService'].must_equal '1'
+    traces[3]['IsService'].must_equal 1
     traces[3]['RemoteProtocol'].must_equal 'HTTP'
     traces[3]['RemoteHost'].must_equal 'www.curlmyip.com'
     traces[3]['ServiceArg'].must_equal '/?q=ruby_test_suite'
@@ -100,7 +100,7 @@ describe Oboe::Inst::FaradayConnection do
     traces[1].key?('Backtrace').must_equal Oboe::Config[:faraday][:collect_backtraces]
 
     traces[3]['Layer'].must_equal 'net-http'
-    traces[3]['IsService'].must_equal '1'
+    traces[3]['IsService'].must_equal 1
     traces[3]['RemoteProtocol'].must_equal 'HTTP'
     traces[3]['RemoteHost'].must_equal 'www.curlmyip.com'
     traces[3]['ServiceArg'].must_equal '/?a=1'
@@ -133,7 +133,7 @@ describe Oboe::Inst::FaradayConnection do
     traces[1]['Layer'].must_equal 'faraday'
     traces[1].key?('Backtrace').must_equal Oboe::Config[:faraday][:collect_backtraces]
 
-    traces[2]['IsService'].must_equal '1'
+    traces[2]['IsService'].must_equal 1
     traces[2]['RemoteProtocol'].must_equal 'HTTP'
     traces[2]['RemoteHost'].must_equal 'www.curlmyip.com'
     traces[2]['ServiceArg'].must_equal '/?q=1'
@@ -141,7 +141,7 @@ describe Oboe::Inst::FaradayConnection do
 
     traces[2]['Layer'].must_equal 'faraday'
     traces[2]['Label'].must_equal 'info'
-    traces[2]['HTTPStatus'].must_equal '200'
+    traces[2]['HTTPStatus'].must_equal 200
 
     traces[3]['Layer'].must_equal 'faraday'
     traces[3]['Label'].must_equal 'exit'

@@ -26,7 +26,7 @@ unless defined?(JRUBY_VERSION)
         'Label' => 'entry',
         'Database' => 'travis_ci_test',
         'RemoteHost' => '127.0.0.1',
-        'RemotePort' => '5432' }
+        'RemotePort' => 5432 }
 
       @exit_kvs = { 'Layer' => 'sequel', 'Label' => 'exit' }
       @collect_backtraces = Oboe::Config[:sequel][:collect_backtraces]
