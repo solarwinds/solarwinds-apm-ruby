@@ -181,7 +181,18 @@ module Oboe
           Oboe.layer = nil   if label == 'exit'
 
           opts.each do |k, v|
-            event.addInfo(k.to_s, v.to_s) if valid_key? k
+            if valid_key? k
+              if [Class, Module, Symbol, Array, Hash,
+                  TrueClass, FalseClass].include?(v.class)
+                value = v.to_s
+              elsif v.class == Set
+                value = v.to_a.to_s
+              else
+                value = v
+              end
+
+              event.addInfo(k.to_s, value) if valid_key? k
+            end
           end if !opts.nil? && opts.any?
 
           Oboe::Reporter.sendReport(event) if Oboe.loaded
