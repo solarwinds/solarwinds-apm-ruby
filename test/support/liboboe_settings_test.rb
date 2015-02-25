@@ -53,7 +53,7 @@ unless defined?(JRUBY_VERSION)
       result = Oboe::API.log_event('test_layer', 'entry', event, report_kvs)
 
       # Class
-      report_kvs[:TestData] = Minitest
+      report_kvs[:TestData] = Oboe::Reporter
       result = Oboe::API.log_event('test_layer', 'entry', event, report_kvs)
 
       # FalseClass
@@ -74,6 +74,10 @@ unless defined?(JRUBY_VERSION)
 
       # Integer
       report_kvs[:TestData] = 1
+      result = Oboe::API.log_event('test_layer', 'entry', event, report_kvs)
+
+      # Module
+      report_kvs[:TestData] = Oboe
       result = Oboe::API.log_event('test_layer', 'entry', event, report_kvs)
 
       # NilClass
