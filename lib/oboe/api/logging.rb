@@ -191,7 +191,7 @@ module Oboe
                 value = v
               end
 
-              event.addInfo(k.to_s, value) if valid_key? k
+              event.addInfo(k.to_s, value)
             end
           end if !opts.nil? && opts.any?
 
