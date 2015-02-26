@@ -122,11 +122,9 @@ unless defined?(JRUBY_VERSION)
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      if RUBY_VERSION < "1.9"
-        traces[1]['Query'].must_equal "INSERT INTO `items` (`price`, `name`) VALUES (2.51446138335246, 'abc')"
-      else
-        traces[1]['Query'].must_equal "INSERT INTO `items` (`name`, `price`) VALUES ('abc', 2.514461383352462)"
-      end
+
+      traces[1]['Query'].must_equal "INSERT INTO `items` (`price`, `name`) VALUES (2.51446138335246, 'abc')" ||
+                                    "INSERT INTO `items` (`name`, `price`) VALUES ('abc', 2.514461383352462)"
       traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
       traces[2]['Layer'].must_equal "sequel"
       traces[2]['Label'].must_equal "exit"
@@ -149,11 +147,9 @@ unless defined?(JRUBY_VERSION)
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      if RUBY_VERSION < "1.9"
-        traces[1]['Query'].must_equal "INSERT INTO `items` (`price`, `name`) VALUES (?, ?)"
-      else
-        traces[1]['Query'].must_equal "INSERT INTO `items` (`name`, `price`) VALUES (?, ?)"
-      end
+
+      traces[1]['Query'].must_equal "INSERT INTO `items` (`price`, `name`) VALUES (?, ?)" ||
+                                    "INSERT INTO `items` (`name`, `price`) VALUES (?, ?)"
       traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
