@@ -114,7 +114,7 @@ unless defined?(JRUBY_VERSION)
       PG_DB.primary_key(:items)
 
       Oboe::API.start_trace('sequel_test', '', {}) do
-        items.insert(:name => 'abc', :price => 2.514461383352462)
+        items.insert(:name => 'abc', :price => 2.514)
         items.count
       end
 
@@ -128,8 +128,8 @@ unless defined?(JRUBY_VERSION)
       # SQL column/value order can vary between Ruby and gem versions
       # Use must_include to test against one or the other
       [
-       "INSERT INTO \"items\" (\"price\", \"name\") VALUES (2.51446138335246, 'abc') RETURNING \"id\"",
-       "INSERT INTO \"items\" (\"name\", \"price\") VALUES ('abc', 2.514461383352462) RETURNING \"id\""
+       "INSERT INTO \"items\" (\"price\", \"name\") VALUES (2.514, 'abc') RETURNING \"id\"",
+       "INSERT INTO \"items\" (\"name\", \"price\") VALUES ('abc', 2.514) RETURNING \"id\""
       ].must_include traces[1]['Query']
 
       traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
