@@ -123,8 +123,13 @@ unless defined?(JRUBY_VERSION)
 
       validate_event_keys(traces[1], @entry_kvs)
 
-      traces[1]['Query'].must_equal "INSERT INTO `items` (`price`, `name`) VALUES (2.51446138335246, 'abc')" ||
-                                    "INSERT INTO `items` (`name`, `price`) VALUES ('abc', 2.514461383352462)"
+      # SQL column/value order can vary between Ruby and gem versions
+      # Use must_include to test against one or the other
+      [
+       "INSERT INTO `items` (`price`, `name`) VALUES (2.51446138335246, 'abc')",
+       "INSERT INTO `items` (`name`, `price`) VALUES ('abc', 2.514461383352462)"
+      ].must_include traces[1]['Query']
+
       traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
       traces[2]['Layer'].must_equal "sequel"
       traces[2]['Label'].must_equal "exit"
@@ -148,8 +153,13 @@ unless defined?(JRUBY_VERSION)
 
       validate_event_keys(traces[1], @entry_kvs)
 
-      traces[1]['Query'].must_equal "INSERT INTO `items` (`price`, `name`) VALUES (?, ?)" ||
-                                    "INSERT INTO `items` (`name`, `price`) VALUES (?, ?)"
+      # SQL column/value order can vary between Ruby and gem versions
+      # Use must_include to test against one or the other
+      [
+       "INSERT INTO `items` (`price`, `name`) VALUES (?, ?)",
+       "INSERT INTO `items` (`name`, `price`) VALUES (?, ?)"
+      ].must_include traces[1]['Query']
+
       traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
