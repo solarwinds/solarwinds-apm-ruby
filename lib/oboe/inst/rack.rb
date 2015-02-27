@@ -47,6 +47,11 @@ module Oboe
     end
 
     def call(env)
+      # If we're already tracing a rack layer, dont't start another one.
+      if Oboe.tracing? && Oboe.layer == 'rack'
+        return @app.call(env)
+      end
+
       req = ::Rack::Request.new(env)
 
       report_kvs = {}
