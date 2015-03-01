@@ -47,8 +47,17 @@ module Oboe
     end
 
     def call(env)
+      rack_skipped = false
+
+      # In the case of nested Ruby apps such as Grape inside of Rails
+      # or Grape inside of Grape, each app has it's own instance
+      # of rack middleware.  We avoid tracing rack more than once and
+      # instead start instrumenting from the first rack pass.
+
       # If we're already tracing a rack layer, dont't start another one.
       if Oboe.tracing? && Oboe.layer == 'rack'
+        rack_skipped = true
+        Oboe.logger.debug "[oboe/rack] Rack skipped!"
         return @app.call(env)
       end
 
@@ -68,21 +77,34 @@ module Oboe
       Oboe.is_continued_trace = Oboe.has_incoming_context or Oboe.has_xtrace_header
 
       Oboe::API.log_start('rack', xtrace_header, report_kvs)
-      report_kvs = collect(req, env) if Oboe.tracing?
 
-      status, headers, response = @app.call(env)
-
+      # We only trace a subset of requests based off of sample rate so if
+      # Oboe::API.log_start really did start a trace, we act accordingly here.
       if Oboe.tracing?
-        xtrace = Oboe::API.log_end('rack', report_kvs.merge!(:Status => status))
+        report_kvs = collect(req, env)
+
+        # We log an info event with the HTTP KVs found in Oboe::Rack.collect
+        # This is done here so in the case of stacks that try/catch/abort
+        # (looking at you Grape) we're sure the KVs get reported now as
+        # this code may not be returned to later.
+        Oboe::API.log_info('rack', report_kvs)
+
+        status, headers, response = @app.call(env)
+
+        xtrace = Oboe::API.log_end('rack', :Status => status)
+      else
+        status, headers, response = @app.call(env)
       end
 
       [status, headers, response]
     rescue Exception => e
-      Oboe::API.log_exception('rack', e)
-      xtrace = Oboe::API.log_end('rack', report_kvs.merge!(:Status => 500))
+      unless rack_skipped
+        Oboe::API.log_exception('rack', e)
+        xtrace = Oboe::API.log_end('rack', :Status => 500)
+      end
       raise
     ensure
-      if headers && Oboe::XTrace.valid?(xtrace)
+      if !rack_skipped && headers && Oboe::XTrace.valid?(xtrace)
         unless defined?(JRUBY_VERSION) && Oboe.is_continued_trace?
           headers['X-Trace'] = xtrace if headers.is_a?(Hash)
         end
