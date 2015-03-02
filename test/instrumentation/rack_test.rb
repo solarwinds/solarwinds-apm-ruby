@@ -24,7 +24,7 @@ class RackTestApp < Minitest::Test
     get "/lobster"
 
     traces = get_all_traces
-    traces.count.must_equal 2
+    traces.count.must_equal 3
 
     validate_outer_layers(traces, 'rack')
 
@@ -33,8 +33,7 @@ class RackTestApp < Minitest::Test
     validate_event_keys(traces[0], kvs)
 
     kvs.clear
-    kvs["Label"] = "exit"
-    kvs["Status"] = 200
+    kvs["Label"] = "info"
     kvs["HTTP-Host"] = "example.org"
     kvs["Port"] = 80
     kvs["Proto"] = "http"
@@ -47,6 +46,9 @@ class RackTestApp < Minitest::Test
     assert traces[0].has_key?('SampleSource')
     assert traces[1].has_key?('ProcessID')
     assert traces[1].has_key?('ThreadID')
+
+    assert traces[2]["Label"] == 'exit'
+    assert traces[2]["Status"] == 200
 
     assert last_response.ok?
 

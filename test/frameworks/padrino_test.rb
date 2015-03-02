@@ -13,17 +13,17 @@ if RUBY_VERSION >= '1.9.3'
       r = get "/render"
 
       traces = get_all_traces
-      traces.count.must_equal 8
+      traces.count.must_equal 9
 
       validate_outer_layers(traces, 'rack')
 
-      traces[1]['Layer'].must_equal "padrino"
-      traces[6]['Controller'].must_equal "SimpleDemo"
-      traces[7]['Label'].must_equal "exit"
+      traces[2]['Layer'].must_equal "padrino"
+      traces[7]['Controller'].must_equal "SimpleDemo"
+      traces[8]['Label'].must_equal "exit"
 
       # Validate the existence of the response header
       r.headers.key?('X-Trace').must_equal true
-      r.headers['X-Trace'].must_equal traces[7]['X-Trace']
+      r.headers['X-Trace'].must_equal traces[8]['X-Trace']
     end
   end
 end
