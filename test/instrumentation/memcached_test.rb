@@ -89,7 +89,7 @@ if RUBY_VERSION < '2.0' and not defined?(JRUBY_VERSION)
 
       traces[1]['KVOp'].must_equal "get_multi"
 
-      traces[2]['KVKeyCount'].must_equal "6"
+      traces[2]['KVKeyCount'].must_equal 6
       traces[2].has_key?('KVHitCount').must_equal true
     end
 

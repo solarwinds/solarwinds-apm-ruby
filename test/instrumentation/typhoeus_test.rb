@@ -36,12 +36,12 @@ describe Oboe::Inst::TyphoeusRequestOps do
 
     traces[2]['Layer'].must_equal 'typhoeus'
     traces[2]['Label'].must_equal 'info'
-    traces[2]['IsService'].must_equal '1'
+    traces[2]['IsService'].must_equal 1
     traces[2]['RemoteProtocol'].downcase.must_equal 'http'
     traces[2]['RemoteHost'].must_equal 'www.appneta.com'
     traces[2]['ServiceArg'].must_equal '/products/traceview/'
     traces[2]['HTTPMethod'].must_equal 'get'
-    traces[2]['HTTPStatus'].must_equal '200'
+    traces[2]['HTTPStatus'].must_equal 200
 
     traces[3]['Layer'].must_equal 'typhoeus'
     traces[3]['Label'].must_equal 'exit'
@@ -63,13 +63,13 @@ describe Oboe::Inst::TyphoeusRequestOps do
 
     traces[2]['Layer'].must_equal 'typhoeus'
     traces[2]['Label'].must_equal 'info'
-    traces[2]['IsService'].must_equal '1'
+    traces[2]['IsService'].must_equal 1
     traces[2]['RemoteProtocol'].downcase.must_equal 'https'
     traces[2]['RemoteHost'].must_equal 'internal.tv.appneta.com'
-    traces[2]['RemotePort'].must_equal '443'
+    traces[2]['RemotePort'].must_equal 443
     traces[2]['ServiceArg'].must_equal '/api-v2/log_message'
     traces[2]['HTTPMethod'].must_equal 'post'
-    traces[2]['HTTPStatus'].must_equal '302'
+    traces[2]['HTTPStatus'].must_equal 302
 
     traces[3]['Layer'].must_equal 'typhoeus'
     traces[3]['Label'].must_equal 'exit'
@@ -91,13 +91,13 @@ describe Oboe::Inst::TyphoeusRequestOps do
 
     traces[2]['Layer'].must_equal 'typhoeus'
     traces[2]['Label'].must_equal 'info'
-    traces[2]['IsService'].must_equal '1'
+    traces[2]['IsService'].must_equal 1
     traces[2]['RemoteProtocol'].downcase.must_equal 'https'
     traces[2]['RemoteHost'].must_equal 'internal.tv.appneta.com'
-    traces[2]['RemotePort'].must_equal '443'
+    traces[2]['RemotePort'].must_equal 443
     traces[2]['ServiceArg'].must_equal '/api-v2/log_message'
     traces[2]['HTTPMethod'].must_equal 'put'
-    traces[2]['HTTPStatus'].must_equal '405'
+    traces[2]['HTTPStatus'].must_equal 405
 
     traces[3]['Layer'].must_equal 'typhoeus'
     traces[3]['Label'].must_equal 'exit'
@@ -118,13 +118,13 @@ describe Oboe::Inst::TyphoeusRequestOps do
 
     traces[2]['Layer'].must_equal 'typhoeus'
     traces[2]['Label'].must_equal 'info'
-    traces[2]['IsService'].must_equal '1'
+    traces[2]['IsService'].must_equal 1
     traces[2]['RemoteProtocol'].downcase.must_equal 'https'
     traces[2]['RemoteHost'].must_equal 'internal.tv.appneta.com'
-    traces[2]['RemotePort'].must_equal '443'
+    traces[2]['RemotePort'].must_equal 443
     traces[2]['ServiceArg'].must_equal '/api-v2/log_message'
     traces[2]['HTTPMethod'].must_equal 'delete'
-    traces[2]['HTTPStatus'].must_equal '405'
+    traces[2]['HTTPStatus'].must_equal 405
 
     traces[3]['Layer'].must_equal 'typhoeus'
     traces[3]['Label'].must_equal 'exit'
@@ -145,12 +145,12 @@ describe Oboe::Inst::TyphoeusRequestOps do
 
     traces[2]['Layer'].must_equal 'typhoeus'
     traces[2]['Label'].must_equal 'info'
-    traces[2]['IsService'].must_equal '1'
+    traces[2]['IsService'].must_equal 1
     traces[2]['RemoteProtocol'].downcase.must_equal 'http'
     traces[2]['RemoteHost'].must_equal 'www.appneta.com'
     traces[2]['ServiceArg'].must_equal '/'
     traces[2]['HTTPMethod'].must_equal 'head'
-    traces[2]['HTTPStatus'].must_equal '200'
+    traces[2]['HTTPStatus'].must_equal 200
 
     traces[3]['Layer'].must_equal 'typhoeus'
     traces[3]['Label'].must_equal 'exit'
@@ -171,12 +171,12 @@ describe Oboe::Inst::TyphoeusRequestOps do
 
     traces[2]['Layer'].must_equal 'typhoeus'
     traces[2]['Label'].must_equal 'info'
-    traces[2]['IsService'].must_equal '1'
+    traces[2]['IsService'].must_equal 1
     traces[2]['RemoteProtocol'].downcase.must_equal 'http'
     traces[2]['RemoteHost'].must_equal 'www.gameface.in'
     traces[2]['ServiceArg'].must_equal '/gamers'
     traces[2]['HTTPMethod'].must_equal 'get'
-    traces[2]['HTTPStatus'].must_equal '200'
+    traces[2]['HTTPStatus'].must_equal 200
 
     traces[3]['Layer'].must_equal 'typhoeus'
     traces[3]['Label'].must_equal 'exit'
@@ -225,13 +225,13 @@ describe Oboe::Inst::TyphoeusRequestOps do
 
     traces[5]['Layer'].must_equal 'typhoeus'
     traces[5]['Label'].must_equal 'info'
-    traces[5]['IsService'].must_equal '1'
+    traces[5]['IsService'].must_equal 1
     traces[5]['RemoteProtocol'].downcase.must_equal 'http'
     traces[5]['RemoteHost'].must_equal '127.0.0.1'
-    traces[5]['RemotePort'].must_equal '8000'
+    traces[5]['RemotePort'].must_equal 8000
     traces[5]['ServiceArg'].must_equal '/'
     traces[5]['HTTPMethod'].must_equal 'get'
-    traces[5]['HTTPStatus'].must_equal '200'
+    traces[5]['HTTPStatus'].must_equal 200
 
     traces[6]['Layer'].must_equal 'typhoeus'
     traces[6]['Label'].must_equal 'exit'
@@ -255,12 +255,12 @@ describe Oboe::Inst::TyphoeusRequestOps do
 
     traces[3]['Layer'].must_equal 'typhoeus'
     traces[3]['Label'].must_equal 'info'
-    traces[3]['IsService'].must_equal '1'
+    traces[3]['IsService'].must_equal 1
     traces[3]['RemoteProtocol'].downcase.must_equal 'http'
     traces[3]['RemoteHost'].must_equal 'thisdomaindoesntexisthopefully.asdf'
     traces[3]['ServiceArg'].must_equal '/products/traceview/'
     traces[3]['HTTPMethod'].must_equal 'get'
-    traces[3]['HTTPStatus'].must_equal '0'
+    traces[3]['HTTPStatus'].must_equal 0
 
     traces[3]['Layer'].must_equal 'typhoeus'
     traces[3]['Label'].must_equal 'info'

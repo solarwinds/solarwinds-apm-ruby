@@ -18,7 +18,7 @@ if RUBY_VERSION >= '1.9.3'
         'Flavor' => 'mongodb',
         'Database' => 'moped_test',
         'RemoteHost' => '127.0.0.1',
-        'RemotePort' => '27017' }
+        'RemotePort' => 27017 }
 
       @exit_kvs = { 'Layer' => 'mongo', 'Label' => 'exit' }
       @collect_backtraces = Oboe::Config[:moped][:collect_backtraces]

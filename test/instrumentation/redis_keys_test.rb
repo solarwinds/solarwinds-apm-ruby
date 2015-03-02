@@ -130,7 +130,7 @@ describe Oboe::Inst::Redis, :keys do
     traces.count.must_equal 4
     traces[2]['KVOp'].must_equal "move"
     traces[2]['KVKey'].must_equal "piano"
-    traces[2]['db'].must_equal "1"
+    traces[2]['db'].must_equal 1
   end
 
   it "should trace persist" do
@@ -163,7 +163,7 @@ describe Oboe::Inst::Redis, :keys do
     traces.count.must_equal 4
     traces[2]['KVOp'].must_equal "pexpire"
     traces[2]['KVKey'].must_equal "sand"
-    traces[2]['milliseconds'].must_equal "8000"
+    traces[2]['milliseconds'].must_equal 8000
   end
 
   it "should trace pexpireat" do
@@ -181,7 +181,7 @@ describe Oboe::Inst::Redis, :keys do
     traces.count.must_equal 4
     traces[2]['KVOp'].must_equal "pexpireat"
     traces[2]['KVKey'].must_equal "sand"
-    traces[2]['milliseconds'].must_equal "8000"
+    traces[2]['milliseconds'].must_equal 8000
   end
 
   it "should trace pttl" do
@@ -252,7 +252,7 @@ describe Oboe::Inst::Redis, :keys do
     traces.count.must_equal 4
     traces[2]['KVOp'].must_equal "restore"
     traces[2]['KVKey'].must_equal "blue"
-    traces[2]['ttl'].must_equal "0"
+    traces[2]['ttl'].must_equal 0
   end
 
   it "should trace sort" do

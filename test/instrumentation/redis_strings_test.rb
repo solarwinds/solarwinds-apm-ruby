@@ -46,8 +46,8 @@ describe Oboe::Inst::Redis, :strings do
     traces = get_all_traces
     traces.count.must_equal 4
     traces[2]['KVOp'].must_equal "bitcount"
-    traces[2]['start'].must_equal "0"
-    traces[2]['stop'].must_equal "-1"
+    traces[2]['start'].must_equal 0
+    traces[2]['stop'].must_equal -1
   end
 
   it "should trace bitop (>=2.6)" do
@@ -89,7 +89,7 @@ describe Oboe::Inst::Redis, :strings do
     traces.count.must_equal 4
     traces[2]['KVOp'].must_equal "decrby"
     traces[2]['KVKey'].must_equal "decr"
-    traces[2]['decrement'].must_equal "1"
+    traces[2]['decrement'].must_equal 1
   end
 
   it "should trace get" do
@@ -120,7 +120,7 @@ describe Oboe::Inst::Redis, :strings do
     traces.count.must_equal 4
     traces[2]['KVOp'].must_equal "getbit"
     traces[2]['KVKey'].must_equal "diwore"
-    traces[2]['offset'].must_equal "3"
+    traces[2]['offset'].must_equal 3
   end
 
   it "should trace getrange" do
@@ -134,8 +134,8 @@ describe Oboe::Inst::Redis, :strings do
     traces.count.must_equal 4
     traces[2]['KVOp'].must_equal "getrange"
     traces[2]['KVKey'].must_equal "yourkey"
-    traces[2]['start'].must_equal "0"
-    traces[2]['end'].must_equal "3"
+    traces[2]['start'].must_equal 0
+    traces[2]['end'].must_equal 3
   end
 
   it "should trace getset" do
@@ -176,7 +176,7 @@ describe Oboe::Inst::Redis, :strings do
     traces.count.must_equal 4
     traces[2]['KVOp'].must_equal "incrby"
     traces[2]['KVKey'].must_equal "incr"
-    traces[2]['increment'].must_equal "1"
+    traces[2]['increment'].must_equal 1
   end
 
   it "should trace incrbyfloat" do
@@ -192,7 +192,7 @@ describe Oboe::Inst::Redis, :strings do
     traces.count.must_equal 4
     traces[2]['KVOp'].must_equal "incrbyfloat"
     traces[2]['KVKey'].must_equal "incrfloat"
-    traces[2]['increment'].must_equal "1.01"
+    traces[2]['increment'].must_equal 1.01
   end
 
   it "should trace mget" do
@@ -208,11 +208,11 @@ describe Oboe::Inst::Redis, :strings do
     traces = get_all_traces
     traces.count.must_equal 6
     traces[2]['KVOp'].must_equal "mget"
-    traces[2]['KVKeyCount'].must_equal "3"
-    traces[2]['KVHitCount'].must_equal "2"
+    traces[2]['KVKeyCount'].must_equal 3
+    traces[2]['KVHitCount'].must_equal 2
     traces[4]['KVOp'].must_equal "mget"
-    traces[4]['KVKeyCount'].must_equal "1"
-    traces[4]['KVHitCount'].must_equal "1"
+    traces[4]['KVKeyCount'].must_equal 1
+    traces[4]['KVHitCount'].must_equal 1
   end
 
   it "should trace mset" do
@@ -224,9 +224,9 @@ describe Oboe::Inst::Redis, :strings do
     traces = get_all_traces
     traces.count.must_equal 6
     traces[2]['KVOp'].must_equal "mset"
-    traces[2]['KVKeyCount'].must_equal "3"
+    traces[2]['KVKeyCount'].must_equal 3
     traces[4]['KVOp'].must_equal "mset"
-    traces[4]['KVKeyCount'].must_equal "1"
+    traces[4]['KVKeyCount'].must_equal 1
   end
 
   it "should trace msetnx" do
@@ -249,7 +249,7 @@ describe Oboe::Inst::Redis, :strings do
     traces.count.must_equal 4
     traces[2]['KVOp'].must_equal "psetex"
     traces[2]['KVKey'].must_equal "one"
-    traces[2]['ttl'].must_equal "60"
+    traces[2]['ttl'].must_equal 60
   end
 
   it "should trace basic set" do
@@ -274,7 +274,7 @@ describe Oboe::Inst::Redis, :strings do
     traces.count.must_equal 4
     traces[2]['KVOp'].must_equal "setbit"
     traces[2]['KVKey'].must_equal "yourkey"
-    traces[2]['offset'].must_equal "3"
+    traces[2]['offset'].must_equal 3
   end
 
   it "should trace setex" do
@@ -286,7 +286,7 @@ describe Oboe::Inst::Redis, :strings do
     traces.count.must_equal 4
     traces[2]['KVOp'].must_equal "setex"
     traces[2]['KVKey'].must_equal "one"
-    traces[2]['ttl'].must_equal "60"
+    traces[2]['ttl'].must_equal 60
   end
 
   it "should trace setnx" do
@@ -313,7 +313,7 @@ describe Oboe::Inst::Redis, :strings do
     traces.count.must_equal 4
     traces[2]['KVOp'].must_equal "setrange"
     traces[2]['KVKey'].must_equal "yourkey"
-    traces[2]['offset'].must_equal "2"
+    traces[2]['offset'].must_equal 2
   end
 
   it "should trace strlen" do

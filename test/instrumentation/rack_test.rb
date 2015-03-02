@@ -35,7 +35,7 @@ class RackTestApp < Minitest::Test
     kvs.clear
     kvs["Label"] = "info"
     kvs["HTTP-Host"] = "example.org"
-    kvs["Port"] = "80"
+    kvs["Port"] = 80
     kvs["Proto"] = "http"
     kvs["URL"] = "/lobster"
     kvs["Method"] = "GET"
@@ -48,7 +48,7 @@ class RackTestApp < Minitest::Test
     assert traces[1].has_key?('ThreadID')
 
     assert traces[2]["Label"] == 'exit'
-    assert traces[2]["Status"] == "200"
+    assert traces[2]["Status"] == 200
 
     assert last_response.ok?
 

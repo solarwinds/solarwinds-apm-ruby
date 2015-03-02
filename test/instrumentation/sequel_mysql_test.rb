@@ -26,7 +26,7 @@ unless defined?(JRUBY_VERSION)
         'Label' => 'entry',
         'Database' => 'travis_ci_test',
         'RemoteHost' => '127.0.0.1',
-        'RemotePort' => '3306' }
+        'RemotePort' => 3306 }
 
       @exit_kvs = { 'Layer' => 'sequel', 'Label' => 'exit' }
       @collect_backtraces = Oboe::Config[:sequel][:collect_backtraces]
@@ -112,7 +112,7 @@ unless defined?(JRUBY_VERSION)
       items.count
 
       Oboe::API.start_trace('sequel_test', '', {}) do
-        items.insert(:name => 'abc', :price => 2.514461383352462)
+        items.insert(:name => 'abc', :price => 2.514)
         items.count
       end
 
@@ -122,11 +122,14 @@ unless defined?(JRUBY_VERSION)
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      if RUBY_VERSION < "1.9"
-        traces[1]['Query'].must_equal "INSERT INTO `items` (`price`, `name`) VALUES (2.51446138335246, 'abc')"
-      else
-        traces[1]['Query'].must_equal "INSERT INTO `items` (`name`, `price`) VALUES ('abc', 2.514461383352462)"
-      end
+
+      # SQL column/value order can vary between Ruby and gem versions
+      # Use must_include to test against one or the other
+      [
+       "INSERT INTO `items` (`price`, `name`) VALUES (2.514, 'abc')",
+       "INSERT INTO `items` (`name`, `price`) VALUES ('abc', 2.514)"
+      ].must_include traces[1]['Query']
+
       traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
       traces[2]['Layer'].must_equal "sequel"
       traces[2]['Label'].must_equal "exit"
@@ -149,11 +152,14 @@ unless defined?(JRUBY_VERSION)
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      if RUBY_VERSION < "1.9"
-        traces[1]['Query'].must_equal "INSERT INTO `items` (`price`, `name`) VALUES (?, ?)"
-      else
-        traces[1]['Query'].must_equal "INSERT INTO `items` (`name`, `price`) VALUES (?, ?)"
-      end
+
+      # SQL column/value order can vary between Ruby and gem versions
+      # Use must_include to test against one or the other
+      [
+       "INSERT INTO `items` (`price`, `name`) VALUES (?, ?)",
+       "INSERT INTO `items` (`name`, `price`) VALUES (?, ?)"
+      ].must_include traces[1]['Query']
+
       traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end

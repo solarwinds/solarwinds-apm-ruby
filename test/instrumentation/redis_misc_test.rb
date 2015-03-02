@@ -46,7 +46,7 @@ describe Oboe::Inst::Redis, :misc do
     traces = get_all_traces
     traces.count.must_equal 4
     traces[2]['KVOp'].must_equal "select"
-    traces[2]['db'].must_equal "2"
+    traces[2]['db'].must_equal 2
   end
 
   it "should trace pipelined operations" do
@@ -66,7 +66,7 @@ describe Oboe::Inst::Redis, :misc do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[2]['KVOpCount'].must_equal "6"
+    traces[2]['KVOpCount'].must_equal 6
     traces[2]['KVOps'].must_equal "zadd, zadd, zadd, lpush, lpush, lpush"
   end
 
@@ -87,7 +87,7 @@ describe Oboe::Inst::Redis, :misc do
 
     traces = get_all_traces
     traces.count.must_equal 4
-    traces[2]['KVOpCount'].must_equal "8"
+    traces[2]['KVOpCount'].must_equal 8
     traces[2]['KVOps'].must_equal "multi, zadd, zadd, zadd, lpush, lpush, lpush, exec"
   end
 

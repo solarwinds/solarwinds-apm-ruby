@@ -136,7 +136,7 @@ if RUBY_VERSION >= '1.9.3'
       traces[4]['ErrorMsg'].must_equal "This is a error with 'error'!"
       traces[5]['Layer'].must_equal "rack"
       traces[5]['Label'].must_equal "exit"
-      traces[5]['Status'].must_equal "500"
+      traces[5]['Status'].must_equal 500
     end
   end
 end
