@@ -85,7 +85,7 @@ describe Oboe::Inst::Redis, :lists do
     traces = get_all_traces
     traces.count.must_equal 4
     traces[2]['KVOp'].must_equal "lindex"
-    traces[2]['index'].must_equal "1"
+    traces[2]['index'].must_equal 1
   end
 
   it "should trace linsert" do
@@ -182,8 +182,8 @@ describe Oboe::Inst::Redis, :lists do
     traces.count.must_equal 4
     traces[2]['KVOp'].must_equal "lrange"
     traces[2]['KVKey'].must_equal "protein types"
-    traces[2]['start'].must_equal "2"
-    traces[2]['stop'].must_equal "4"
+    traces[2]['start'].must_equal 2
+    traces[2]['stop'].must_equal 4
   end
 
   it "should trace lrem" do

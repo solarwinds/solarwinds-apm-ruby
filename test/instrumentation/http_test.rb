@@ -37,7 +37,7 @@ describe Oboe::Inst do
     validate_outer_layers(traces, 'net-http_test')
 
     traces[1]['Layer'].must_equal 'net-http'
-    traces[2]['IsService'].must_equal "1"
+    traces[2]['IsService'].must_equal 1
     traces[2]['RemoteProtocol'].must_equal "HTTP"
     traces[2]['RemoteHost'].must_equal "www.gameface.in"
     traces[2]['ServiceArg'].must_equal "/games?q=1"
@@ -59,7 +59,7 @@ describe Oboe::Inst do
     validate_outer_layers(traces, 'net-http_test')
 
     traces[1]['Layer'].must_equal 'net-http'
-    traces[2]['IsService'].must_equal "1"
+    traces[2]['IsService'].must_equal 1
     traces[2]['RemoteProtocol'].must_equal "HTTP"
     traces[2]['RemoteHost'].must_equal "www.curlmyip.com"
     traces[2]['ServiceArg'].must_equal "/?q=1"

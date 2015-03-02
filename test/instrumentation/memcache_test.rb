@@ -101,7 +101,7 @@ describe Oboe::API::Memcache do
     traces[1]['KVOp'].must_equal "get_multi"
 
     validate_event_keys(traces[2], @info_kvs)
-    traces[2]['KVKeyCount'].must_equal "6"
+    traces[2]['KVKeyCount'].must_equal 6
     traces[2].has_key?('KVHitCount').must_equal true
     traces[2].has_key?('Backtrace').must_equal Oboe::Config[:memcache][:collect_backtraces]
 

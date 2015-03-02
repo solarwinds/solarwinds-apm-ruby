@@ -34,9 +34,9 @@ class RackTestApp < Minitest::Test
 
     kvs.clear
     kvs["Label"] = "exit"
-    kvs["Status"] = "200"
+    kvs["Status"] = 200
     kvs["HTTP-Host"] = "example.org"
-    kvs["Port"] = "80"
+    kvs["Port"] = 80
     kvs["Proto"] = "http"
     kvs["URL"] = "/lobster"
     kvs["Method"] = "GET"

@@ -206,8 +206,8 @@ describe Oboe::Inst::Redis, :sortedsets do
     traces.count.must_equal 4
     traces[2]['KVOp'].must_equal "zremrangebyrank"
     traces[2]['KVKey'].must_equal "sauce"
-    traces[2]['start'].must_equal "-5"
-    traces[2]['stop'].must_equal "-1"
+    traces[2]['start'].must_equal -5
+    traces[2]['stop'].must_equal -1
   end
 
   it "should trace zremrangebyscore" do
@@ -246,8 +246,8 @@ describe Oboe::Inst::Redis, :sortedsets do
     traces.count.must_equal 4
     traces[2]['KVOp'].must_equal "zrevrange"
     traces[2]['KVKey'].must_equal "sauce"
-    traces[2]['start'].must_equal "0"
-    traces[2]['stop'].must_equal "-1"
+    traces[2]['start'].must_equal 0
+    traces[2]['stop'].must_equal -1
   end
 
   it "should trace zrevrangebyscore" do
