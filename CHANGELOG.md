@@ -4,6 +4,18 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# oboe 2.7.12.1
+
+This patch release includes:
+
+* Report values using BSON data types: #103
+* Avoid double tracing rack layer for nested apps: #104
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/oboe/versions/2.7.12.1
+https://rubygems.org/gems/oboe/versions/2.7.12.1-java
+
 # oboe 2.7.11.1
 
 This patch release includes:
