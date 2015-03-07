@@ -181,17 +181,22 @@ module Oboe
           Oboe.layer = nil   if label == 'exit'
 
           opts.each do |k, v|
+            value = nil
+
             if valid_key? k
-              if [Class, Module, Symbol, Array, Hash,
-                  TrueClass, FalseClass].include?(v.class)
-                value = v.to_s
+              if [Integer, Float, Fixnum, NilClass, String].include?(v.class)
+                value = v
               elsif v.class == Set
                 value = v.to_a.to_s
               else
-                value = v
+                value = v.to_s if v.respond_to?(:to_s)
               end
 
-              event.addInfo(k.to_s, value)
+              begin
+                event.addInfo(k.to_s, value)
+              rescue ArgumentError => e
+                Oboe.logger.debug "[oboe/debug] Couldn't add event KV: #{v.class}"
+              end
             end
           end if !opts.nil? && opts.any?
 
