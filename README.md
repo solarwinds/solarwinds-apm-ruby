@@ -5,7 +5,7 @@ The oboe gem provides AppNeta [TraceView](http://www.appneta.com/application-per
 
 ![Ruby TraceView](https://s3.amazonaws.com/pglombardo/oboe-ruby-header.png)
 
-It has the ability to report performance metrics on an array of libraries, databases and frameworks such as Rails, Mongo, Memcache, ActiveRecord, Cassandra, Rack, Resque [and more](https://support.appneta.com/cloud/ruby-instrumentation-release-notes)
+It has the ability to report performance metrics on an array of libraries, databases and frameworks such as Rails, Mongo, Memcache, ActiveRecord, Cassandra, Rack, Resque [and more](https://docs.appneta.com/ruby-instrumentation-supported-components)
 
 It requires a [TraceView](http://www.appneta.com/products/traceview/) account to view metrics.  Get yours, [it's free](http://www.appneta.com/products/traceview-free-account/).
 
@@ -45,7 +45,7 @@ No special steps are needed to instrument Ruby on Rails.  Once part of the bundl
 
 ### The Install Generator
 
-The oboe gem provides a Rails generator used to seed an oboe initializer where you can configure and control `tracing_mode`, `sample_rate` and [other options](https://support.appneta.com/cloud/configuring-ruby-instrumentation)
+The oboe gem provides a Rails generator used to seed an oboe initializer where you can configure and control `tracing_mode`, `sample_rate` and [other options](https://docs.appneta.com/configuring-ruby-instrumentation)
 
 To run the install generator run:
 
@@ -149,7 +149,7 @@ Once inside of the `Oboe::API.start_trace` block, performance metrics will be au
 
 ## Other
 
-You can send deploy notifications to TraceView and have the events show up on your dashboard.  See: [Capistrano Deploy Notifications with tlog](https://support.appneta.com/cloud/capistrano-deploy-notifications-tlog)
+You can send deploy notifications to TraceView and have the events show up on your dashboard.  See: [Capistrano Deploy Notifications with tlog](https://docs.appneta.com/capistrano-deploy-notifications-tlog)
 
 # Custom Tracing
 
@@ -204,11 +204,11 @@ class Engine
 end
 ```
 
-This example demonstrates method profiling of instance methods.  Class methods are profiled slightly differently.  See the TraceView [documentation portal](https://support.appneta.com/cloud/ruby-custom) for full details.
+This example demonstrates method profiling of instance methods.  Class methods are profiled slightly differently.  See the TraceView [documentation portal](https://docs.appneta.com/custom-ruby-instrumentation) for full details.
 
 # Support
 
-If you find a bug or would like to request an enhancement, feel free to file an issue.  For all other support requests, see our [support portal](https://support.appneta.com/cloud) or on IRC @ #appneta on [Freenode](http://freenode.net/).
+If you find a bug or would like to request an enhancement, feel free to file an issue.  For all other support requests, see our [support portal](https://tickets.appneta.com) or on IRC @ #appneta on [Freenode](http://freenode.net/).
 
 # Contributing
 
@@ -222,7 +222,7 @@ We at AppNeta have made a large effort to expose as much technical information a
 
 * The [TraceView blog](http://www.appneta.com/blog) has a constant stream of great technical articles.  (See [A Gentle X-Trace Introduction](http://www.appneta.com/blog/x-trace-introduction/) for details on the basic methodology that TraceView uses to gather structured performance data across hosts and stacks.)
 
-* The [TraceView Knowledge Base](https://support.tv.appneta.com) has a large collection of technical articles or, if needed, you can submit a support request directly to the team.
+* The [TraceView Documentation Portal](https://docs.appneta.com/ruby) has a large collection of technical articles or, if needed, you can [submit a support request](https://tickets.appneta.com) directly to the team.
 
 * You can also reach the TraceView team on our IRC channel #appneta on freenode.
 
@@ -255,7 +255,7 @@ Here, I'll use a stripped down version of the Dalli instrumentation (`lib/oboe/i
 
 The Dalli gem nicely routes all memcache operations through a single `perform` operation.  Wrapping this method allows us to capture all Dalli operations called by an application.
 
-First, we define a module (Oboe::Inst::Dalli) and our own custom `perform_with_oboe` method that we will use as a wrapper around Dalli's `perform` method.  We also declare an `included` method which automatically gets called when this module is included by another.  See ['included' Ruby reference documentation](http://apidock.com/ruby/Module/included).
+First, we define a module (Oboe::Inst::Dalli) and our own custom `perform_with_oboe` method that we will use as a wrapper around Dalli's `perform` method.  We also declare an `included` method which automatically gets called when this module is included by another.  See ['included' Ruby reference documentation](https://www.omniref.com/ruby/2.2.1/symbols/Module/included).
 
 ```ruby
 module Oboe
@@ -350,7 +350,7 @@ ii  liboboe-dev    1.1.1-precise1    Tracelytics common library -- development f
 ii  liboboe0       1.1.1-precise1    Tracelytics common library
 ```
 
-See [Installing Base Packages on Debian and Ubuntu](https://support.appneta.com/cloud/installing-traceview) in the Knowledge Base for details.  Our hacker extraordinaire [Rob Salmond](https://github.com/rsalmond) from the support team has even gotten these packages to [run on Gentoo](http://www.appneta.com/blog/unsupported-doesnt-work/)!
+See [Installing Base Packages on Debian and Ubuntu](https://docs.appneta.com/installation-overview) in the Knowledge Base for details.  Our hacker extraordinaire [Rob Salmond](https://github.com/rsalmond) from the support team has even gotten these packages to [run on Gentoo](http://www.appneta.com/blog/unsupported-doesnt-work/)!
 
 To see the code related to the C extension, take a look at `ext/oboe_metal/extconf.rb` for details.
 
