@@ -195,7 +195,7 @@ module Oboe
               begin
                 event.addInfo(k.to_s, value)
               rescue ArgumentError => e
-                Oboe.logger.debug "[oboe/debug] Couldn't add event KV: #{v.class}"
+                Oboe.logger.debug "[oboe/debug] Couldn't add event KV: #{k.to_s} => #{v.class}"
               end
             end
           end if !opts.nil? && opts.any?
