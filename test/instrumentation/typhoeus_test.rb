@@ -275,7 +275,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
 
       first_request  = Typhoeus::Request.new("www.appneta.com/products/traceview/")
       second_request = Typhoeus::Request.new("www.appneta.com/products/")
-      third_request  = Typhoeus::Request.new("www.curlmyip.com")
+      third_request  = Typhoeus::Request.new("www.curlmyip.de")
 
       hydra.queue first_request
       hydra.queue second_request

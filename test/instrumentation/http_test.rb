@@ -48,7 +48,7 @@ describe Oboe::Inst do
 
   it "should trace a Net::HTTP request" do
     Oboe::API.start_trace('net-http_test', '', {}) do
-      uri = URI('http://www.curlmyip.com')
+      uri = URI('http://www.curlmyip.de')
       http = Net::HTTP.new(uri.host, uri.port)
       http.get('/?q=1').read_body
     end
@@ -61,7 +61,7 @@ describe Oboe::Inst do
     traces[1]['Layer'].must_equal 'net-http'
     traces[2]['IsService'].must_equal 1
     traces[2]['RemoteProtocol'].must_equal "HTTP"
-    traces[2]['RemoteHost'].must_equal "www.curlmyip.com"
+    traces[2]['RemoteHost'].must_equal "www.curlmyip.de"
     traces[2]['ServiceArg'].must_equal "/?q=1"
     traces[2]['HTTPMethod'].must_equal "GET"
     traces[2]['HTTPStatus'].must_equal "200"
