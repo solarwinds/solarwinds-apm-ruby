@@ -3,7 +3,10 @@
 require 'rubygems'
 require 'bundler/setup'
 require 'rake/testtask'
-require 'appraisal'
+
+if RUBY_VERSION > '1.8.7'
+  require 'appraisal'
+end
 
 Rake::TestTask.new do |t|
   t.libs << "test"
