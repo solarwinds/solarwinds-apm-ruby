@@ -200,7 +200,7 @@ module Oboe
             end
           end if !opts.nil? && opts.any?
 
-          Oboe::Reporter.sendReport(event) if Oboe.loaded
+          Oboe::Reporter.sendReport(event)
         end
       end
     end
