@@ -183,7 +183,12 @@ module OboeBase
   # Determines if we are running under a forking webserver
   #
   def forking_webserver?
-    (defined?(::Unicorn) && ($PROGRAM_NAME =~ /unicorn/i)) ? true : false
+    if (defined?(::Unicorn) && ($PROGRAM_NAME =~ /unicorn/i)) ||
+       (defined?(::Puma)    && ($PROGRAM_NAME =~ /puma/i))
+      true
+    else
+      false
+    end
   end
 
   ##
