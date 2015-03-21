@@ -4,6 +4,17 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# oboe 2.7.13.3
+
+This build release includes:
+
+* Protect against unknown data type reporting: #106
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/oboe/versions/2.7.13.3
+https://rubygems.org/gems/oboe/versions/2.7.13.3-java
+
 # oboe 2.7.12.1
 
 This patch release includes:
