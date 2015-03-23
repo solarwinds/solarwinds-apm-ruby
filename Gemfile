@@ -33,6 +33,7 @@ gem 'faraday'
 gem 'excon'
 gem 'typhoeus'
 gem 'sequel'
+gem 'rest-client'
 
 # Database adapter gems needed by sequel
 if defined?(JRUBY_VERSION)
