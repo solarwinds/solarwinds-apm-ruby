@@ -7,12 +7,13 @@ if Oboe::Config[:nethttp][:enabled]
 
   Net::HTTP.class_eval do
     def request_with_oboe(*args, &block)
-      unless started?
-        return request_without_oboe(*args, &block)
-      end
 
       # If we're not tracing, just do a fast return
-      return request_without_oboe(*args, &block) unless Oboe.tracing?
+      # In the case of rest-client, we let it handle the timing
+      # and service KVs.
+      if !Oboe.tracing? || !started? || Oboe.tracing_layer?("rest-client")
+        return request_without_oboe(*args, &block)
+      end
 
       # Avoid cross host tracing for blacklisted domains
       blacklisted = Oboe::API.blacklisted?(addr_port)
