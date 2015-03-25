@@ -21,20 +21,6 @@ if defined?(Oboe::Config)
   # Verbose output of instrumentation initialization
   # Oboe::Config[:verbose] = <%= @verbose %>
 
-  #
-  # Resque Options
-  #
-  # :link_workers - associates Resque enqueue operations with the jobs they queue by piggybacking
-  #                 an additional argument on the Redis queue that is stripped prior to job
-  #                 processing
-  #                 !!! Note: Make sure both the enqueue side and the Resque workers are instrumented
-  #                 before enabling this or jobs will fail !!!
-  #                 (Default: false)
-  # Oboe::Config[:resque][:link_workers] = false
-  #
-  # Set to true to disable Resque argument logging (Default: false)
-  # Oboe::Config[:resque][:log_args] = false
-
   # The oboe Ruby client has the ability to sanitize query literals
   # from SQL statements.  By default this is disabled.  Enable to
   # avoid collecting and reporting query literals to TraceView.
@@ -69,6 +55,17 @@ if defined?(Oboe::Config)
   # Oboe::Config[:dnt_opts]   = Regexp::IGNORECASE
 
   #
+  # Rails Exception Logging
+  #
+  # In Rails, raised exceptions with rescue handlers via
+  # <tt>rescue_from</tt> are not reported to the TraceView
+  # dashboard by default.  Setting this value to true will
+  # report all raised exception regardless.
+  #
+  # Oboe::Config[:report_rescued_errors] = false
+  #
+
+  #
   # Enabling/Disabling Instrumentation
   #
   # If you're having trouble with one of the instrumentation libraries, they
@@ -80,6 +77,7 @@ if defined?(Oboe::Config)
   # Oboe::Config[:action_view][:enabled] = true
   # Oboe::Config[:cassandra][:enabled] = true
   # Oboe::Config[:dalli][:enabled] = true
+  # Oboe::Config[:em_http_request][:enabled] = true
   # Oboe::Config[:faraday][:enabled] = true
   # Oboe::Config[:memcache][:enabled] = true
   # Oboe::Config[:memcached][:enabled] = true
@@ -88,7 +86,9 @@ if defined?(Oboe::Config)
   # Oboe::Config[:nethttp][:enabled] = true
   # Oboe::Config[:redis][:enabled] = true
   # Oboe::Config[:resque][:enabled] = true
-  # Oboe::Config[:em_http_request][:enabled] = true
+  # Oboe::Config[:sequel][:enabled] = true
+  # Oboe::Config[:typhoeus][:enabled] = true
+  #
 
   #
   # Enabling/Disabling Backtrace Collection
@@ -103,6 +103,7 @@ if defined?(Oboe::Config)
   # Oboe::Config[:action_view][:collect_backtraces] = true
   # Oboe::Config[:cassandra][:collect_backtraces] = true
   # Oboe::Config[:dalli][:collect_backtraces] = false
+  # Oboe::Config[:em_http_request][:collect_backtraces] = true
   # Oboe::Config[:faraday][:collect_backtraces] = false
   # Oboe::Config[:memcache][:collect_backtraces] = false
   # Oboe::Config[:memcached][:collect_backtraces] = false
@@ -111,7 +112,8 @@ if defined?(Oboe::Config)
   # Oboe::Config[:nethttp][:collect_backtraces] = true
   # Oboe::Config[:redis][:collect_backtraces] = false
   # Oboe::Config[:resque][:collect_backtraces] = true
-  # Oboe::Config[:em_http_request][:collect_backtraces] = true
+  # Oboe::Config[:sequel][:collect_backtraces] = true
+  # Oboe::Config[:typhoeus][:collect_backtraces] = false
   #
 
   #
@@ -123,4 +125,17 @@ if defined?(Oboe::Config)
   #     'index#ok' => true
   # }
 
+  #
+  # Resque Options
+  #
+  # :link_workers - associates Resque enqueue operations with the jobs they queue by piggybacking
+  #                 an additional argument on the Redis queue that is stripped prior to job
+  #                 processing
+  #                 !!! Note: Make sure both the enqueue side and the Resque workers are instrumented
+  #                 before enabling this or jobs will fail !!!
+  #                 (Default: false)
+  # Oboe::Config[:resque][:link_workers] = false
+  #
+  # Set to true to disable Resque argument logging (Default: false)
+  # Oboe::Config[:resque][:log_args] = false
 end
