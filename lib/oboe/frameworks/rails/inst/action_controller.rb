@@ -61,9 +61,22 @@ module Oboe
       end
 
       def render_with_oboe(*args)
-        Oboe::API.trace('actionview', {}) do
-          render_without_oboe(*args)
-        end
+        Oboe::API.log_entry('actionview')
+        render_without_oboe(*args)
+
+      rescue StandardError => e
+        # Don't log exceptions if they have a rescue handler set
+        has_handler = false
+        rescue_handlers.detect { | klass_name, handler |
+          # Rescue handlers can be specified as strings or constant names
+          klass = self.class.const_get(klass_name) rescue nil
+          klass ||= klass_name.constantize rescue nil
+          has_handler = e.is_a?(klass) if klass
+        }
+        Oboe::API.log_exception(nil, e) unless has_handler
+        raise
+      ensure
+        Oboe::API.log_exit('actionview')
       end
     end
   end
