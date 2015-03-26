@@ -160,15 +160,22 @@ if defined?(ActionController::Base) && Oboe::Config[:action_controller][:enabled
   elsif ::Rails::VERSION::MAJOR == 2
 
     ActionController::Base.class_eval do
+      include ::Oboe::Inst::RailsBase
+
       alias :perform_action_without_oboe :perform_action
       alias :rescue_action_without_oboe :rescue_action
       alias :process_without_oboe :process
       alias :render_without_oboe :render
 
       def process(*args)
-        Oboe::API.trace('rails', {}) do
-          process_without_oboe(*args)
-        end
+        Oboe::API.log_entry('rails')
+        process_without_oboe(*args)
+
+      rescue Exception => e
+        Oboe::API.log_exception(nil, e) if log_rails_error?(e)
+        raise
+      ensure
+        Oboe::API.log_exit('rails')
       end
 
       def perform_action(*arguments)
@@ -181,14 +188,19 @@ if defined?(ActionController::Base) && Oboe::Config[:action_controller][:enabled
       end
 
       def rescue_action(exn)
-        Oboe::API.log_exception(nil, exn)
+        Oboe::API.log_exception(nil, exn) if log_rails_error?(exn)
         rescue_action_without_oboe(exn)
       end
 
       def render(options = nil, extra_options = {}, &block)
-        Oboe::API.trace('actionview', {}) do
-          render_without_oboe(options, extra_options, &block)
-        end
+        Oboe::API.log_entry('actionview')
+        render_without_oboe(options, extra_options, &block)
+
+      rescue Exception => e
+        Oboe::API.log_exception(nil, e) if log_rails_error?(e)
+        raise
+      ensure
+        Oboe::API.log_exit('actionview')
       end
     end
   end
