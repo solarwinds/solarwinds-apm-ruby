@@ -81,9 +81,14 @@ module Oboe
       end
 
       def process_with_oboe(*args)
-        Oboe::API.trace('rails', {}) do
-          process_without_oboe *args
-        end
+        Oboe::API.log_entry('rails')
+        process_without_oboe *args
+
+      rescue Exception => e
+        Oboe::API.log_exception(nil, e) if log_rails_error?(e)
+        raise
+      ensure
+        Oboe::API.log_exit('rails')
       end
 
       def process_action_with_oboe(*args)
@@ -125,9 +130,15 @@ module Oboe
           :Controller   => self.class.name,
           :Action       => self.action_name,
         }
-        Oboe::API.trace('rails', report_kvs) do
-          process_action_without_oboe(method_name, *args)
-        end
+
+        Oboe::API.log_entry('rails')
+        process_action_without_oboe(method_name, *args)
+
+      rescue Exception => e
+        Oboe::API.log_exception(nil, e) if log_rails_error?(e)
+        raise
+      ensure
+        Oboe::API.log_exit('rails')
       end
     end
   end
