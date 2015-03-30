@@ -101,6 +101,12 @@ module Oboe
       @@config[:dnt_regexp] = "\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|ttf|woff|svg|less)$"
       @@config[:dnt_opts]   = Regexp::IGNORECASE
 
+      # In Rails, raised exceptions with rescue handlers via
+      # <tt>rescue_from</tt> are not reported to the TraceView
+      # dashboard by default.  Setting this value to true will
+      # report all raised exception regardless.
+      @@config[:report_rescued_errors] = false
+
       if ENV.key?('OPENSHIFT_TRACEVIEW_TLYZER_IP')
         # We're running on OpenShift
         @@config[:tracing_mode] = 'always'
