@@ -26,6 +26,9 @@ module Oboe
           has_handler = exception.is_a?(klass) if klass
         }
         has_handler
+      rescue => e
+        Oboe.logger.debug "[oboe/debug] Error searching Rails handlers: #{e.message}"
+        return false
       end
 
       #
@@ -37,6 +40,10 @@ module Oboe
       # Oboe::Config[:report_rescued_errors]
       #
       def log_rails_error?(exception)
+        # As it's perculating up through the layers...  make sure that
+        # we only report it once.
+        return false if exception.instance_variable_get(:@oboe_logged)
+
         has_handler = has_handler?(exception)
 
         if !has_handler || (has_handler && Oboe::Config[:report_rescued_errors])
