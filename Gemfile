@@ -33,7 +33,11 @@ gem 'faraday'
 gem 'excon'
 gem 'typhoeus'
 gem 'sequel'
-gem 'rest-client'
+if RUBY_VERSION >= '1.9.3'
+  # rest-client depends on mime-types gem which only supports
+  # ruby 1.9.3 and up
+  gem 'rest-client'
+end
 
 # Database adapter gems needed by sequel
 if defined?(JRUBY_VERSION)
