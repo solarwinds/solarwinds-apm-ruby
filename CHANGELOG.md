@@ -4,6 +4,17 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# oboe 2.7.15.1
+
+This patch release includes:
+
+* Rails Instrumentation should respect top-level rescue handlers: #111
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/oboe/versions/2.7.15.1
+https://rubygems.org/gems/oboe/versions/2.7.15/1-java
+
 # oboe 2.7.14.1
 
 This patch release includes:
