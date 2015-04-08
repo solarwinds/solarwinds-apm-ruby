@@ -160,7 +160,7 @@ if RUBY_VERSION >= '1.9.3'
       traces[2]['Layer'].must_equal 'rest-client'
       traces[2]['Label'].must_equal 'error'
       traces[2]['ErrorClass'].must_equal 'SocketError'
-      traces[2]['ErrorMsg'].must_equal "getaddrinfo: Name or service not known"
+      traces[2].key?('ErrorMsg').must_equal true
       traces[2].key?('Backtrace').must_equal Oboe::Config[:rest_client][:collect_backtraces]
 
       traces[3]['Layer'].must_equal 'rest-client'
