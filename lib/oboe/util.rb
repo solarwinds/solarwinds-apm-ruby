@@ -154,14 +154,15 @@ module Oboe
           end
 
           # Report the instrumented libraries
-          platform_info['Ruby.Cassandra.Version'] = "Cassandra-#{::Cassandra.VERSION}" if defined?(::Cassandra)
-          platform_info['Ruby.Dalli.Version']     = "Dalli-#{::Dalli::VERSION}"        if defined?(::Dalli)
-          platform_info['Ruby.Faraday.Version']   = "Faraday-#{::Faraday::VERSION}"    if defined?(::Faraday)
-          platform_info['Ruby.MemCache.Version']  = "MemCache-#{::MemCache::VERSION}"  if defined?(::MemCache)
-          platform_info['Ruby.Moped.Version']     = "Moped-#{::Moped::VERSION}"        if defined?(::Moped)
-          platform_info['Ruby.Redis.Version']     = "Redis-#{::Redis::VERSION}"        if defined?(::Redis)
-          platform_info['Ruby.Resque.Version']    = "Resque-#{::Resque::VERSION}"      if defined?(::Resque)
-          platform_info['Ruby.Typhoeus.Version']  = "Typhoeus-#{::Typhoeus::VERSION}"  if defined?(::Typhoeus::VERSION)
+          platform_info['Ruby.Cassandra.Version']  = "Cassandra-#{::Cassandra.VERSION}"    if defined?(::Cassandra)
+          platform_info['Ruby.Dalli.Version']      = "Dalli-#{::Dalli::VERSION}"           if defined?(::Dalli)
+          platform_info['Ruby.Faraday.Version']    = "Faraday-#{::Faraday::VERSION}"       if defined?(::Faraday)
+          platform_info['Ruby.MemCache.Version']   = "MemCache-#{::MemCache::VERSION}"     if defined?(::MemCache)
+          platform_info['Ruby.Moped.Version']      = "Moped-#{::Moped::VERSION}"           if defined?(::Moped)
+          platform_info['Ruby.Redis.Version']      = "Redis-#{::Redis::VERSION}"           if defined?(::Redis)
+          platform_info['Ruby.Resque.Version']     = "Resque-#{::Resque::VERSION}"         if defined?(::Resque)
+          platform_info['Ruby.RestClient.Version'] = "RestClient-#{::RestClient::VERSION}" if defined?(::RestClient::VERSION)
+          platform_info['Ruby.Typhoeus.Version']   = "Typhoeus-#{::Typhoeus::VERSION}"     if defined?(::Typhoeus::VERSION)
 
           # Special case since the Mongo 1.x driver doesn't embed the version number in the gem directly
           if ::Gem.loaded_specs.key?('mongo')
