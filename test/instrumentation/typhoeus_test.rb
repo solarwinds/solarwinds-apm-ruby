@@ -166,7 +166,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
 
   it 'should trace a typhoeus GET request to an instr\'d app' do
     Oboe::API.start_trace('typhoeus_test') do
-      Typhoeus.get("127.0.0.1:8101")
+      Typhoeus.get("127.0.0.1:8101/")
     end
 
     traces = get_all_traces
