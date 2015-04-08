@@ -20,7 +20,7 @@ describe Oboe::Inst::RestClientRequest do
     end
   end
 
-  it "should trace a rest-client request to an instr'd app" do
+  it "should trace a request to an instr'd app" do
     response = nil
 
     Oboe::API.start_trace('rest_client_test') do
@@ -50,8 +50,8 @@ describe Oboe::Inst::RestClientRequest do
     Oboe::XTrace.valid?(xtrace).must_equal true
   end
 
-  it 'should trace a rest-client GET request' do
-    reponse = nil
+  it 'should trace a raw GET request' do
+    response = nil
 
     Oboe::API.start_trace('rest_client_test') do
       response = RestClient.get 'http://www.appneta.com/products/traceview?a=1'
@@ -74,6 +74,96 @@ describe Oboe::Inst::RestClientRequest do
     traces[2]['HTTPMethod'].must_equal 'GET'
     traces[2]['HTTPStatus'].must_equal 200
     traces[2].key?('Backtrace').must_equal Oboe::Config[:rest_client][:collect_backtraces]
+  end
+
+  it 'should trace a raw POST request' do
+    response = nil
+
+    Oboe::API.start_trace('rest_client_test') do
+      response = RestClient.post 'http://www.appneta.com/', :param1 => 'one', :nested => { :param2 => 'two' }
+    end
+
+    traces = get_all_traces
+    traces.count.must_equal 4
+
+    validate_outer_layers(traces, 'rest_client_test')
+
+    traces[1]['Layer'].must_equal 'rest-client'
+    traces[1]['Label'].must_equal 'entry'
+
+    traces[2]['Layer'].must_equal 'rest-client'
+    traces[2]['Label'].must_equal 'exit'
+    traces[2]['IsService'].must_equal 1
+    traces[2]['RemoteProtocol'].must_equal 'HTTP'
+    traces[2]['RemoteHost'].must_equal 'www.appneta.com'
+    traces[2]['ServiceArg'].must_equal '/'
+    traces[2]['HTTPMethod'].must_equal 'POST'
+    traces[2]['HTTPStatus'].must_equal 200
+    traces[2].key?('Backtrace').must_equal Oboe::Config[:rest_client][:collect_backtraces]
+  end
+
+  it 'should trace a ActiveResource style GET request' do
+    response = nil
+
+    Oboe::API.start_trace('rest_client_test') do
+      resource = RestClient::Resource.new 'http://www.appneta.com/products/traceview?a=1'
+      response = resource.get
+    end
+
+    traces = get_all_traces
+    traces.count.must_equal 4
+
+    validate_outer_layers(traces, 'rest_client_test')
+
+    traces[1]['Layer'].must_equal 'rest-client'
+    traces[1]['Label'].must_equal 'entry'
+
+    traces[2]['Layer'].must_equal 'rest-client'
+    traces[2]['Label'].must_equal 'exit'
+    traces[2]['IsService'].must_equal 1
+    traces[2]['RemoteProtocol'].must_equal 'HTTP'
+    traces[2]['RemoteHost'].must_equal 'www.appneta.com'
+    traces[2]['ServiceArg'].must_equal '/products/traceview?a=1'
+    traces[2]['HTTPMethod'].must_equal 'GET'
+    traces[2]['HTTPStatus'].must_equal 200
+    traces[2].key?('Backtrace').must_equal Oboe::Config[:rest_client][:collect_backtraces]
+  end
+
+  it 'should trace and capture raised exceptions' do
+    response = nil
+
+    Oboe::API.start_trace('rest_client_test') do
+      begin
+        RestClient.get 'http://s6KTgaz7636z/resource'
+      rescue
+        # We want an exception to be raised.  Just don't raise
+        # it beyond this point.
+      end
+    end
+
+    traces = get_all_traces
+    traces.count.must_equal 5
+
+    validate_outer_layers(traces, 'rest_client_test')
+
+    traces[1]['Layer'].must_equal 'rest-client'
+    traces[1]['Label'].must_equal 'entry'
+
+    traces[2]['Layer'].must_equal 'rest-client'
+    traces[2]['Label'].must_equal 'error'
+    traces[2]['ErrorClass'].must_equal 'SocketError'
+    traces[2]['ErrorMsg'].must_equal "getaddrinfo: Name or service not known"
+    traces[2].key?('Backtrace').must_equal Oboe::Config[:rest_client][:collect_backtraces]
+
+    traces[3]['Layer'].must_equal 'rest-client'
+    traces[3]['Label'].must_equal 'exit'
+    traces[3]['IsService'].must_equal 1
+    traces[3]['RemoteProtocol'].must_equal 'HTTP'
+    traces[3]['RemoteHost'].must_equal 's6KTgaz7636z'
+    traces[3]['ServiceArg'].must_equal '/resource'
+    traces[3]['HTTPMethod'].must_equal 'GET'
+    traces[3].key?('HTTPStatus').must_equal false
+    traces[3].key?('Backtrace').must_equal Oboe::Config[:rest_client][:collect_backtraces]
   end
 
   it 'should obey :collect_backtraces setting when true' do
