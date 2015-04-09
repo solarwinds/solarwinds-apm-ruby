@@ -19,8 +19,13 @@ module Oboe
       # will instead be detected at load time and initialization is
       # automatic.
       def load
-        Oboe::Loading.load_access_key
-        Oboe::Inst.load_instrumentation
+        # In case some apps call this manually, make sure
+        # that the gem is fully loaded and not in no-op
+        # mode (e.g. on unsupported platforms etc.)
+        if Oboe.loaded
+          Oboe::Loading.load_access_key
+          Oboe::Inst.load_instrumentation
+        end
       end
     end
   end
