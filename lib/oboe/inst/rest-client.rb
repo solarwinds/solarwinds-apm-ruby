@@ -57,7 +57,7 @@ module Oboe
           if blacklisted
             kvs['Blacklisted'] = true
           else
-            @headers['X-Trace'] = start_xtrace
+            @processed_headers['X-Trace'] = start_xtrace
           end
 
           # The core rest-client call
