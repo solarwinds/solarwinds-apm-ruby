@@ -150,7 +150,11 @@ describe Oboe::Inst::FaradayConnection do
 
     traces[4]['Layer'].must_equal 'faraday'
     traces[4]['Label'].must_equal 'info'
-    traces[4]['Middleware'].must_equal '[Faraday::Adapter::Excon]'
+    unless RUBY_VERSION < '1.9.3'
+      # FIXME: Ruby 1.8 is reporting an object instance instead of
+      # an array
+      traces[4]['Middleware'].must_equal '[Faraday::Adapter::Excon]'
+    end
 
     traces[5]['Layer'].must_equal 'faraday'
     traces[5]['Label'].must_equal 'exit'
