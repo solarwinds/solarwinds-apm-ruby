@@ -4,6 +4,19 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# oboe 2.7.16.1
+
+This patch release includes:
+
+* New rest-client instrumentation: #109
+* New excon instrumentation: #114
+* Fix `uninitialized constant` on unsupported platforms: #113
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/oboe/versions/2.7.16.1
+https://rubygems.org/gems/oboe/versions/2.7.16.1-java
+
 # oboe 2.7.15.1
 
 This patch release includes:
