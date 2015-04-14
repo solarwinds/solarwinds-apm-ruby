@@ -50,7 +50,7 @@ module Oboe
       Oboe::Config[:nethttp][:collect_backtraces] = true
       Oboe::Config[:redis][:collect_backtraces] = false
       Oboe::Config[:resque][:collect_backtraces] = true
-      Oboe::Config[:rest_client][:collect_backtraces] = true
+      Oboe::Config[:rest_client][:collect_backtraces] = false
       Oboe::Config[:sequel][:collect_backtraces] = true
       Oboe::Config[:typhoeus][:collect_backtraces] = false
 
