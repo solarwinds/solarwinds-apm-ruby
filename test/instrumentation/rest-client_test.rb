@@ -36,22 +36,31 @@ if RUBY_VERSION >= '1.9.3'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      traces.count.must_equal 7
 
       validate_outer_layers(traces, 'rest_client_test')
 
       traces[1]['Layer'].must_equal 'rest-client'
       traces[1]['Label'].must_equal 'entry'
 
-      traces[2]['Layer'].must_equal 'rest-client'
-      traces[2]['Label'].must_equal 'exit'
-      traces[2]['IsService'].must_equal 1
-      traces[2]['RemoteProtocol'].must_equal 'HTTP'
-      traces[2]['RemoteHost'].must_equal 'gameface.in'
-      traces[2]['ServiceArg'].must_equal '/gamers'
-      traces[2]['HTTPMethod'].must_equal 'GET'
-      traces[2]['HTTPStatus'].must_equal 200
-      traces[2].key?('Backtrace').must_equal Oboe::Config[:rest_client][:collect_backtraces]
+      traces[2]['Layer'].must_equal 'net-http'
+      traces[2]['Label'].must_equal 'entry'
+
+      traces[3]['Layer'].must_equal 'net-http'
+      traces[3]['Label'].must_equal 'info'
+      traces[3]['IsService'].must_equal 1
+      traces[3]['RemoteProtocol'].must_equal 'HTTP'
+      traces[3]['RemoteHost'].must_equal 'gameface.in'
+      traces[3]['ServiceArg'].must_equal '/gamers'
+      traces[3]['HTTPMethod'].must_equal 'GET'
+      traces[3]['HTTPStatus'].must_equal "200"
+      traces[3].key?('Backtrace').must_equal Oboe::Config[:nethttp][:collect_backtraces]
+
+      traces[4]['Layer'].must_equal 'net-http'
+      traces[4]['Label'].must_equal 'exit'
+
+      traces[5]['Layer'].must_equal 'rest-client'
+      traces[5]['Label'].must_equal 'exit'
 
       response.headers.key?(:x_trace).wont_equal nil
       xtrace = response.headers[:x_trace]
@@ -62,26 +71,35 @@ if RUBY_VERSION >= '1.9.3'
       response = nil
 
       Oboe::API.start_trace('rest_client_test') do
-        response = RestClient.get 'http://www.appneta.com/products/traceview?a=1'
+        response = RestClient.get 'http://www.appneta.com/products/traceview/?a=1'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      traces.count.must_equal 7
 
       validate_outer_layers(traces, 'rest_client_test')
 
       traces[1]['Layer'].must_equal 'rest-client'
       traces[1]['Label'].must_equal 'entry'
 
-      traces[2]['Layer'].must_equal 'rest-client'
-      traces[2]['Label'].must_equal 'exit'
-      traces[2]['IsService'].must_equal 1
-      traces[2]['RemoteProtocol'].must_equal 'HTTP'
-      traces[2]['RemoteHost'].must_equal 'www.appneta.com'
-      traces[2]['ServiceArg'].must_equal '/products/traceview?a=1'
-      traces[2]['HTTPMethod'].must_equal 'GET'
-      traces[2]['HTTPStatus'].must_equal 200
-      traces[2].key?('Backtrace').must_equal Oboe::Config[:rest_client][:collect_backtraces]
+      traces[2]['Layer'].must_equal 'net-http'
+      traces[2]['Label'].must_equal 'entry'
+
+      traces[3]['Layer'].must_equal 'net-http'
+      traces[3]['Label'].must_equal 'info'
+      traces[3]['IsService'].must_equal 1
+      traces[3]['RemoteProtocol'].must_equal 'HTTP'
+      traces[3]['RemoteHost'].must_equal 'www.appneta.com'
+      traces[3]['ServiceArg'].must_equal '/products/traceview/?a=1'
+      traces[3]['HTTPMethod'].must_equal 'GET'
+      traces[3]['HTTPStatus'].must_equal "200"
+      traces[3].key?('Backtrace').must_equal Oboe::Config[:nethttp][:collect_backtraces]
+
+      traces[4]['Layer'].must_equal 'net-http'
+      traces[4]['Label'].must_equal 'exit'
+
+      traces[5]['Layer'].must_equal 'rest-client'
+      traces[5]['Label'].must_equal 'exit'
     end
 
     it 'should trace a raw POST request' do
@@ -92,25 +110,70 @@ if RUBY_VERSION >= '1.9.3'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      traces.count.must_equal 7
 
       validate_outer_layers(traces, 'rest_client_test')
 
       traces[1]['Layer'].must_equal 'rest-client'
       traces[1]['Label'].must_equal 'entry'
 
-      traces[2]['Layer'].must_equal 'rest-client'
-      traces[2]['Label'].must_equal 'exit'
-      traces[2]['IsService'].must_equal 1
-      traces[2]['RemoteProtocol'].must_equal 'HTTP'
-      traces[2]['RemoteHost'].must_equal 'www.appneta.com'
-      traces[2]['ServiceArg'].must_equal '/'
-      traces[2]['HTTPMethod'].must_equal 'POST'
-      traces[2]['HTTPStatus'].must_equal 200
-      traces[2].key?('Backtrace').must_equal Oboe::Config[:rest_client][:collect_backtraces]
+      traces[2]['Layer'].must_equal 'net-http'
+      traces[2]['Label'].must_equal 'entry'
+
+      traces[3]['Layer'].must_equal 'net-http'
+      traces[3]['Label'].must_equal 'info'
+      traces[3]['IsService'].must_equal 1
+      traces[3]['RemoteProtocol'].must_equal 'HTTP'
+      traces[3]['RemoteHost'].must_equal 'www.appneta.com'
+      traces[3]['ServiceArg'].must_equal '/'
+      traces[3]['HTTPMethod'].must_equal 'POST'
+      traces[3]['HTTPStatus'].must_equal "200"
+      traces[3].key?('Backtrace').must_equal Oboe::Config[:nethttp][:collect_backtraces]
+
+      traces[4]['Layer'].must_equal 'net-http'
+      traces[4]['Label'].must_equal 'exit'
+
+      traces[5]['Layer'].must_equal 'rest-client'
+      traces[5]['Label'].must_equal 'exit'
     end
 
     it 'should trace a ActiveResource style GET request' do
+      response = nil
+
+      Oboe::API.start_trace('rest_client_test') do
+        resource = RestClient::Resource.new 'http://www.appneta.com/products/traceview/?a=1'
+        response = resource.get
+      end
+
+      traces = get_all_traces
+      traces.count.must_equal 7
+
+      validate_outer_layers(traces, 'rest_client_test')
+
+      traces[1]['Layer'].must_equal 'rest-client'
+      traces[1]['Label'].must_equal 'entry'
+
+      traces[2]['Layer'].must_equal 'net-http'
+      traces[2]['Label'].must_equal 'entry'
+
+      traces[3]['Layer'].must_equal 'net-http'
+      traces[3]['Label'].must_equal 'info'
+      traces[3]['IsService'].must_equal 1
+      traces[3]['RemoteProtocol'].must_equal 'HTTP'
+      traces[3]['RemoteHost'].must_equal 'www.appneta.com'
+      traces[3]['ServiceArg'].must_equal '/products/traceview/?a=1'
+      traces[3]['HTTPMethod'].must_equal 'GET'
+      traces[3]['HTTPStatus'].must_equal "200"
+      traces[3].key?('Backtrace').must_equal Oboe::Config[:nethttp][:collect_backtraces]
+
+      traces[4]['Layer'].must_equal 'net-http'
+      traces[4]['Label'].must_equal 'exit'
+
+      traces[5]['Layer'].must_equal 'rest-client'
+      traces[5]['Label'].must_equal 'exit'
+    end
+
+    it 'should trace requests with redirects' do
       response = nil
 
       Oboe::API.start_trace('rest_client_test') do
@@ -119,22 +182,53 @@ if RUBY_VERSION >= '1.9.3'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      traces.count.must_equal 12
 
       validate_outer_layers(traces, 'rest_client_test')
 
       traces[1]['Layer'].must_equal 'rest-client'
       traces[1]['Label'].must_equal 'entry'
 
-      traces[2]['Layer'].must_equal 'rest-client'
-      traces[2]['Label'].must_equal 'exit'
-      traces[2]['IsService'].must_equal 1
-      traces[2]['RemoteProtocol'].must_equal 'HTTP'
-      traces[2]['RemoteHost'].must_equal 'www.appneta.com'
-      traces[2]['ServiceArg'].must_equal '/products/traceview?a=1'
-      traces[2]['HTTPMethod'].must_equal 'GET'
-      traces[2]['HTTPStatus'].must_equal 200
-      traces[2].key?('Backtrace').must_equal Oboe::Config[:rest_client][:collect_backtraces]
+      traces[2]['Layer'].must_equal 'net-http'
+      traces[2]['Label'].must_equal 'entry'
+
+      traces[3]['Layer'].must_equal 'net-http'
+      traces[3]['Label'].must_equal 'info'
+      traces[3]['IsService'].must_equal 1
+      traces[3]['RemoteProtocol'].must_equal 'HTTP'
+      traces[3]['RemoteHost'].must_equal 'www.appneta.com'
+      traces[3]['ServiceArg'].must_equal '/products/traceview?a=1'
+      traces[3]['HTTPMethod'].must_equal 'GET'
+      traces[3]['HTTPStatus'].must_equal "301"
+      traces[3].key?('Backtrace').must_equal Oboe::Config[:nethttp][:collect_backtraces]
+
+      traces[4]['Layer'].must_equal 'net-http'
+      traces[4]['Label'].must_equal 'exit'
+
+      traces[5]['Layer'].must_equal 'rest-client'
+      traces[5]['Label'].must_equal 'entry'
+
+      traces[6]['Layer'].must_equal 'net-http'
+      traces[6]['Label'].must_equal 'entry'
+
+      traces[7]['Layer'].must_equal 'net-http'
+      traces[7]['Label'].must_equal 'info'
+      traces[7]['IsService'].must_equal 1
+      traces[7]['RemoteProtocol'].must_equal 'HTTP'
+      traces[7]['RemoteHost'].must_equal 'www.appneta.com'
+      traces[7]['ServiceArg'].must_equal '/products/traceview/?a=1'
+      traces[7]['HTTPMethod'].must_equal 'GET'
+      traces[7]['HTTPStatus'].must_equal "200"
+      traces[7].key?('Backtrace').must_equal Oboe::Config[:nethttp][:collect_backtraces]
+
+      traces[8]['Layer'].must_equal 'net-http'
+      traces[8]['Label'].must_equal 'exit'
+
+      traces[9]['Layer'].must_equal 'rest-client'
+      traces[9]['Label'].must_equal 'exit'
+
+      traces[10]['Layer'].must_equal 'rest-client'
+      traces[10]['Label'].must_equal 'exit'
     end
 
     it 'should trace and capture raised exceptions' do
@@ -161,17 +255,10 @@ if RUBY_VERSION >= '1.9.3'
       traces[2]['Label'].must_equal 'error'
       traces[2]['ErrorClass'].must_equal 'SocketError'
       traces[2].key?('ErrorMsg').must_equal true
-      traces[2].key?('Backtrace').must_equal Oboe::Config[:rest_client][:collect_backtraces]
+      traces[2].key?('Backtrace').must_equal true
 
       traces[3]['Layer'].must_equal 'rest-client'
       traces[3]['Label'].must_equal 'exit'
-      traces[3]['IsService'].must_equal 1
-      traces[3]['RemoteProtocol'].must_equal 'HTTP'
-      traces[3]['RemoteHost'].must_equal 's6KTgaz7636z'
-      traces[3]['ServiceArg'].must_equal '/resource'
-      traces[3]['HTTPMethod'].must_equal 'GET'
-      traces[3].key?('HTTPStatus').must_equal false
-      traces[3].key?('Backtrace').must_equal Oboe::Config[:rest_client][:collect_backtraces]
     end
 
     it 'should obey :collect_backtraces setting when true' do
