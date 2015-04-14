@@ -11,7 +11,7 @@ if Oboe::Config[:nethttp][:enabled]
       # If we're not tracing, just do a fast return
       # In the case of rest-client, we let it handle the timing
       # and service KVs.
-      if !Oboe.tracing? || !started? || Oboe.tracing_layer?("rest-client")
+      if !Oboe.tracing? || !started?
         return request_without_oboe(*args, &block)
       end
 
