@@ -23,7 +23,7 @@ describe Oboe::Config do
     instrumentation = Oboe::Config.instrumentation_list
 
     # Verify the number of individual instrumentations
-    instrumentation.count.must_equal 18
+    instrumentation.count.must_equal 19
 
     Oboe::Config[:action_controller][:enabled].must_equal true
     Oboe::Config[:action_view][:enabled].must_equal true
@@ -41,6 +41,9 @@ describe Oboe::Config do
     Oboe::Config[:rack][:enabled].must_equal true
     Oboe::Config[:redis][:enabled].must_equal true
     Oboe::Config[:resque][:enabled].must_equal true
+    Oboe::Config[:rest_client][:enabled].must_equal true
+    Oboe::Config[:sequel][:enabled].must_equal true
+    Oboe::Config[:typhoeus][:enabled].must_equal true
 
     Oboe::Config[:action_controller][:log_args].must_equal true
     Oboe::Config[:action_view][:log_args].must_equal true
@@ -58,6 +61,9 @@ describe Oboe::Config do
     Oboe::Config[:rack][:log_args].must_equal true
     Oboe::Config[:redis][:log_args].must_equal true
     Oboe::Config[:resque][:log_args].must_equal true
+    Oboe::Config[:rest_client][:log_args].must_equal true
+    Oboe::Config[:sequel][:log_args].must_equal true
+    Oboe::Config[:typhoeus][:log_args].must_equal true
 
     Oboe::Config[:resque][:link_workers].must_equal false
     Oboe::Config[:blacklist].is_a?(Array).must_equal true

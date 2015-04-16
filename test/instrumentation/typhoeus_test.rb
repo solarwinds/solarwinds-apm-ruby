@@ -208,9 +208,6 @@ describe Oboe::Inst::TyphoeusRequestOps do
 
     validate_outer_layers(traces, 'outer')
 
-    #require 'byebug'
-    #debugger
-
     traces[2]['Layer'].must_equal 'rack'
     traces[2]['Label'].must_equal 'entry'
     traces[4]['Layer'].must_equal 'rack'

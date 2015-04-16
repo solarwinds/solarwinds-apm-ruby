@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 group :development, :test do
-  gem 'minitest'
+  gem 'minitest', "5.5.1"
   gem 'minitest-reporters'
   gem 'rack-test'
   if RUBY_VERSION > '1.8.7'
@@ -33,6 +33,11 @@ gem 'faraday'
 gem 'excon'
 gem 'typhoeus'
 gem 'sequel'
+if RUBY_VERSION >= '1.9.3'
+  # rest-client depends on mime-types gem which only supports
+  # ruby 1.9.3 and up
+  gem 'rest-client'
+end
 
 # Database adapter gems needed by sequel
 if defined?(JRUBY_VERSION)
@@ -54,6 +59,12 @@ if RUBY_VERSION >= '1.9'
   gem 'em-synchrony'
   gem 'em-http-request'
 end
+
+# FIXME:Newer activesupport and i18n now require
+# ruby >= 1.9.3.  We limit their versions temporarily
+# until we figure out a better gem matrix for tests.
+gem "activesupport", "<= 4.0.4"
+gem "i18n", "< 0.7.0"
 
 unless defined?(JRUBY_VERSION)
   gem 'memcached', '1.7.2' if RUBY_VERSION < '2.0.0'

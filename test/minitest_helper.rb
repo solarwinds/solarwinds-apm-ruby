@@ -81,6 +81,41 @@ def validate_event_keys(event, kvs)
 end
 
 ##
+# has_edge?
+#
+# Searches the array of <tt>traces</tt> for
+# <tt>edge</tt>
+#
+def has_edge?(edge, traces)
+  traces.each do |t|
+    if Oboe::XTrace.edge_id(t["X-Trace"]) == edge
+      return true
+    end
+  end
+  Oboe.logger.debug "[oboe/debug] edge #{edge} not found in traces."
+  false
+end
+
+##
+# valid_edges?
+#
+# Runs through the array of <tt>traces</tt> to validate
+# that all edges connect.
+#
+# Not that this won't work for external cross-app tracing
+# since we won't have those remote traces to validate
+# against.
+#
+def valid_edges?(traces)
+  traces.reverse.each do  |t|
+    if t.key?("Edge")
+      return false unless has_edge?(t["Edge"], traces)
+    end
+  end
+  true
+end
+
+##
 # layer_has_key
 #
 # Checks an array of trace events if a specific layer (regardless of event type)
