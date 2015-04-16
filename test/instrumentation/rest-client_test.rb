@@ -38,6 +38,9 @@ if RUBY_VERSION >= '1.9.3'
       traces = get_all_traces
       traces.count.must_equal 7
 
+      # FIXME: We need to switch from making external calls to an internal test
+      # stack instead so we can validate cross-app traces.
+      # valid_edges?(traces).must_equal true
       validate_outer_layers(traces, 'rest_client_test')
 
       traces[1]['Layer'].must_equal 'rest-client'
@@ -77,6 +80,9 @@ if RUBY_VERSION >= '1.9.3'
       traces = get_all_traces
       traces.count.must_equal 7
 
+      # FIXME: We need to switch from making external calls to an internal test
+      # stack instead so we can validate cross-app traces.
+      # valid_edges?(traces).must_equal true
       validate_outer_layers(traces, 'rest_client_test')
 
       traces[1]['Layer'].must_equal 'rest-client'
@@ -112,6 +118,9 @@ if RUBY_VERSION >= '1.9.3'
       traces = get_all_traces
       traces.count.must_equal 7
 
+      # FIXME: We need to switch from making external calls to an internal test
+      # stack instead so we can validate cross-app traces.
+      # valid_edges?(traces).must_equal true
       validate_outer_layers(traces, 'rest_client_test')
 
       traces[1]['Layer'].must_equal 'rest-client'
@@ -148,6 +157,9 @@ if RUBY_VERSION >= '1.9.3'
       traces = get_all_traces
       traces.count.must_equal 7
 
+      # FIXME: We need to switch from making external calls to an internal test
+      # stack instead so we can validate cross-app traces.
+      # valid_edges?(traces).must_equal true
       validate_outer_layers(traces, 'rest_client_test')
 
       traces[1]['Layer'].must_equal 'rest-client'
@@ -184,6 +196,9 @@ if RUBY_VERSION >= '1.9.3'
       traces = get_all_traces
       traces.count.must_equal 12
 
+      # FIXME: We need to switch from making external calls to an internal test
+      # stack instead so we can validate cross-app traces.
+      # valid_edges?(traces).must_equal true
       validate_outer_layers(traces, 'rest_client_test')
 
       traces[1]['Layer'].must_equal 'rest-client'
@@ -246,6 +261,7 @@ if RUBY_VERSION >= '1.9.3'
       traces = get_all_traces
       traces.count.must_equal 5
 
+      valid_edges?(traces).must_equal true
       validate_outer_layers(traces, 'rest_client_test')
 
       traces[1]['Layer'].must_equal 'rest-client'
