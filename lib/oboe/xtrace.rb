@@ -45,6 +45,21 @@ module Oboe
       end
 
       ##
+      # Oboe::XTrace.edge_id
+      #
+      # Extract and return the edge_id portion of an X-Trace ID
+      #
+      def edge_id(xtrace)
+        return nil unless Oboe::XTrace.valid?(xtrace)
+
+        xtrace[42..57]
+      rescue StandardError => e
+        Oboe.logger.debug e.message
+        Oboe.logger.debug e.backtrace
+        return nil
+      end
+
+      ##
       # continue_service_context
       #
       # In the case of service calls such as external HTTP requests, we
