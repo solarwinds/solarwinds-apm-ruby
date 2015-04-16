@@ -7,10 +7,9 @@ if Oboe::Config[:nethttp][:enabled]
 
   Net::HTTP.class_eval do
     def request_with_oboe(*args, &block)
-
-      # If we're not tracing, just do a fast return
-      # In the case of rest-client, we let it handle the timing
-      # and service KVs.
+      # If we're not tracing, just do a fast return. Since
+      # net/http.request calls itself, only trace
+      # once the http session has been started.
       if !Oboe.tracing? || !started?
         return request_without_oboe(*args, &block)
       end
@@ -47,7 +46,7 @@ if Oboe::Config[:nethttp][:enabled]
             xtrace = resp.get_fields('X-Trace')
             xtrace = xtrace[0] if xtrace && xtrace.is_a?(Array)
 
-            if Oboe::XTrace.valid?(xtrace) && Oboe.tracing?
+            if Oboe::XTrace.valid?(xtrace)
 
               # Assure that we received back a valid X-Trace with the same task_id
               if task_id == Oboe::XTrace.task_id(xtrace)
@@ -59,6 +58,11 @@ if Oboe::Config[:nethttp][:enabled]
           end
 
           opts['HTTPStatus'] = resp.code
+
+          # If we get a redirect, report the location header
+          if [300..308].include? resp.code.to_i && resp.header["Location"]
+            opts["Location"] = resp.header["Location"]
+          end
 
           next resp
         ensure
