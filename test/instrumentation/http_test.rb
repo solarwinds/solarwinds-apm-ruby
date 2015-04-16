@@ -34,6 +34,10 @@ describe Oboe::Inst do
     traces = get_all_traces
     traces.count.must_equal 5
 
+    # FIXME: We need to switch from making external calls to an internal test
+    # stack instead so we can validate cross-app traces.
+    # valid_edges?(traces).must_equal true
+
     validate_outer_layers(traces, 'net-http_test')
 
     traces[1]['Layer'].must_equal 'net-http'
@@ -55,6 +59,7 @@ describe Oboe::Inst do
 
     traces = get_all_traces
     traces.count.must_equal 5
+    valid_edges?(traces).must_equal true
 
     validate_outer_layers(traces, 'net-http_test')
 
