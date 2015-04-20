@@ -1,3 +1,6 @@
+# Copyright (c) 2015 AppNeta, Inc.
+# All rights reserved.
+
 module Oboe
   module Inst
     module Sequel
