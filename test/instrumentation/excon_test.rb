@@ -2,7 +2,7 @@ require 'minitest_helper'
 require 'oboe/inst/rack'
 require File.expand_path(File.dirname(__FILE__) + '../../frameworks/apps/sinatra_simple')
 
-class TestApp < Minitest::Test
+class ExconTest < Minitest::Test
   include Rack::Test::Methods
 
   def app
