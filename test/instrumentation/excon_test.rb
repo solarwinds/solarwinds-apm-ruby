@@ -112,18 +112,20 @@ class TestApp < Minitest::Test
 
     Oboe::API.start_trace('excon_tests') do
       connection = Excon.new('http://www.gameface.in/')
-      connection.requests([{:method => :get}, {:method => :get}])
+      connection.requests([{:method => :get}, {:method => :put}])
     end
 
     traces = get_all_traces
-    assert_equal traces.count, 6
+    assert_equal traces.count, 4
     validate_outer_layers(traces, "excon_tests")
+    valid_edges?(traces)
 
     assert_equal traces[1]['IsService'], 1
     assert_equal traces[1]['RemoteHost'], 'www.gameface.in'
     assert_equal traces[1]['RemoteProtocol'], 'HTTP'
     assert_equal traces[1]['ServiceArg'], '/'
-    assert_equal traces[1]['HTTPMethod'], 'GET'
+    assert_equal traces[1]['Pipeline'], 'true'
+    assert_equal traces[1]['HTTPMethods'], 'GET, PUT'
     assert traces[1].key?('Backtrace')
   end
 
