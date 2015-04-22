@@ -6,26 +6,47 @@ module Oboe
     module ExconConnection
       def self.included(klass)
         ::Oboe::Util.method_alias(klass, :request, ::Excon::Connection)
+        ::Oboe::Util.method_alias(klass, :requests, ::Excon::Connection)
       end
 
       def oboe_collect(params)
-          kvs = {}
-          kvs['IsService'] = 1
-          kvs['RemoteProtocol'] = @data[:scheme].upcase
-          kvs['RemoteHost'] = @data[:hostname]
-          kvs['ServiceArg'] = @data[:path]
+        kvs = {}
+        kvs['IsService'] = 1
+        kvs['RemoteProtocol'] = @data[:scheme].upcase
+        kvs['RemoteHost'] = @data[:host]
+        kvs['ServiceArg'] = @data[:path]
+
+        if params.is_a?(Array)
+          methods = []
+          params.each do |p|
+            methods << p[:method].to_s.upcase
+          end
+          kvs['HTTPMethods'] = methods.join(', ')[0..1024]
+          kvs['Pipeline'] = true
+        else
           kvs['HTTPMethod'] = params[:method].upcase
-          kvs['Pipelined'] = params[:pipeline]
-          kvs['Backtrace'] = Oboe::API.backtrace if Oboe::Config[:excon][:collect_backtraces]
-          kvs
+        end
+        kvs['Backtrace'] = Oboe::API.backtrace if Oboe::Config[:excon][:collect_backtraces]
+        kvs
       rescue => e
         Oboe.logger.debug "[oboe/debug] Error capturing excon KVs: #{e.message}"
         Oboe.logger.debug e.backtrace.join('\n') if ::Oboe::Config[:verbose]
       end
 
+      def requests_with_oboe(pipeline_params)
+        responses = nil
+        Oboe::API.trace('excon', oboe_collect(pipeline_params)) do
+          responses = requests_without_oboe(pipeline_params)
+        end
+        responses
+      end
+
       def request_with_oboe(params={}, &block)
         # If we're not tracing, just do a fast return.
-        if !Oboe.tracing?
+        # If making HTTP pipeline requests (ordered batched)
+        # then just return as we're tracing from parent
+        # <tt>requests</tt>
+        if !Oboe.tracing? || params[:pipeline]
           return request_without_oboe(params, &block)
         end
 
@@ -47,9 +68,10 @@ module Oboe
           # The core excon call
           response = request_without_oboe(params, &block)
 
-          if response.is_a?(Hash)
-            response_context = response[:headers]["X-Trace"]
-          else
+          # excon only passes back a hash (datum) for HTTP pipelining...
+          # In that case, we should never arrive here but for the OCD, double check
+          # the datatype before trying to extract pertinent info
+          if response.is_a?(Excon::Response)
             response_context = response.headers['X-Trace']
             kvs['HTTPStatus'] = response.status
 
@@ -57,10 +79,10 @@ module Oboe
             if ((300..308).to_a.include? response.status.to_i) && response.headers.key?("Location")
               kvs["Location"] = response.headers["Location"]
             end
-          end
 
-          if response_context && !blacklisted
-            Oboe::XTrace.continue_service_context(req_context, response_context)
+            if response_context && !blacklisted
+              Oboe::XTrace.continue_service_context(req_context, response_context)
+            end
           end
 
           response
@@ -68,7 +90,7 @@ module Oboe
           Oboe::API.log_exception('excon', e)
           raise e
         ensure
-          Oboe::API.log_exit('excon', kvs)
+          Oboe::API.log_exit('excon', kvs) unless params[:pipeline]
         end
       end
     end
