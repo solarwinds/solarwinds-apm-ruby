@@ -69,7 +69,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
     traces[2]['RemotePort'].must_equal 443
     traces[2]['ServiceArg'].must_equal '/api-v2/log_message'
     traces[2]['HTTPMethod'].must_equal 'post'
-    traces[2]['HTTPStatus'].must_equal 302
+    traces[2]['HTTPStatus'].must_equal 502
 
     traces[3]['Layer'].must_equal 'typhoeus'
     traces[3]['Label'].must_equal 'exit'
@@ -77,7 +77,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
 
   it 'should trace a typhoeus PUT request' do
     Oboe::API.start_trace('typhoeus_test') do
-      Typhoeus.put("https://internal.tv.appneta.com/api-v2/log_message",
+      Typhoeus.put("https://api.tv.appneta.com/api-v2/log_message",
                     :body => { :key => "oboe-ruby-fake", :content => "oboe-ruby repo test suite"})
     end
 
@@ -93,11 +93,11 @@ describe Oboe::Inst::TyphoeusRequestOps do
     traces[2]['Label'].must_equal 'info'
     traces[2]['IsService'].must_equal 1
     traces[2]['RemoteProtocol'].downcase.must_equal 'https'
-    traces[2]['RemoteHost'].must_equal 'internal.tv.appneta.com'
+    traces[2]['RemoteHost'].must_equal 'api.tv.appneta.com'
     traces[2]['RemotePort'].must_equal 443
     traces[2]['ServiceArg'].must_equal '/api-v2/log_message'
     traces[2]['HTTPMethod'].must_equal 'put'
-    traces[2]['HTTPStatus'].must_equal 405
+    traces[2]['HTTPStatus'].must_equal 502
 
     traces[3]['Layer'].must_equal 'typhoeus'
     traces[3]['Label'].must_equal 'exit'
@@ -105,7 +105,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
 
   it 'should trace a typhoeus DELETE request' do
     Oboe::API.start_trace('typhoeus_test') do
-      Typhoeus.delete("https://internal.tv.appneta.com/api-v2/log_message")
+      Typhoeus.delete("https://api.tv.appneta.com/api-v2/log_message")
     end
 
     traces = get_all_traces
@@ -120,11 +120,11 @@ describe Oboe::Inst::TyphoeusRequestOps do
     traces[2]['Label'].must_equal 'info'
     traces[2]['IsService'].must_equal 1
     traces[2]['RemoteProtocol'].downcase.must_equal 'https'
-    traces[2]['RemoteHost'].must_equal 'internal.tv.appneta.com'
+    traces[2]['RemoteHost'].must_equal 'api.tv.appneta.com'
     traces[2]['RemotePort'].must_equal 443
     traces[2]['ServiceArg'].must_equal '/api-v2/log_message'
     traces[2]['HTTPMethod'].must_equal 'delete'
-    traces[2]['HTTPStatus'].must_equal 405
+    traces[2]['HTTPStatus'].must_equal 502
 
     traces[3]['Layer'].must_equal 'typhoeus'
     traces[3]['Label'].must_equal 'exit'
