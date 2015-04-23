@@ -69,6 +69,9 @@ class ExconTest < Minitest::Test
   end
 
   def test_persistent_requests
+    # Persistence was adding in 0.31.0
+    skip if Excon::VERSION < '0.31.0'
+
     clear_all_traces
 
     Oboe::API.start_trace('excon_tests') do
@@ -108,6 +111,8 @@ class ExconTest < Minitest::Test
   end
 
   def test_pipelined_requests
+    skip if Excon::VERSION <= '0.17.0'
+
     clear_all_traces
 
     Oboe::API.start_trace('excon_tests') do
