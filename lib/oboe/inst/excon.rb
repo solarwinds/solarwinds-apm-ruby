@@ -12,19 +12,19 @@ module Oboe
       def oboe_collect(params)
         kvs = {}
         kvs['IsService'] = 1
-        kvs['RemoteProtocol'] = @data[:scheme].upcase
+        kvs['RemoteProtocol'] = ::Oboe::Util.upcase(@data[:scheme])
         kvs['RemoteHost'] = @data[:host]
         kvs['ServiceArg'] = @data[:path]
 
         if params.is_a?(Array)
           methods = []
           params.each do |p|
-            methods << p[:method].to_s.upcase
+            methods << ::Oboe::Util.upcase(p[:method])
           end
           kvs['HTTPMethods'] = methods.join(', ')[0..1024]
           kvs['Pipeline'] = true
         else
-          kvs['HTTPMethod'] = params[:method].upcase
+          kvs['HTTPMethod'] = ::Oboe::Util.upcase(params[:method])
         end
         kvs['Backtrace'] = Oboe::API.backtrace if Oboe::Config[:excon][:collect_backtraces]
         kvs
