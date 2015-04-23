@@ -8,7 +8,8 @@ module Oboe
       def run_request_with_oboe(method, url, body, headers, &block)
         # Only send service KVs if we're not using the Net::HTTP adapter
         # Otherwise, the Net::HTTP instrumentation will send the service KVs
-        handle_service = !@builder.handlers.include?(Faraday::Adapter::NetHttp)
+        handle_service = !@builder.handlers.include?(Faraday::Adapter::NetHttp) &&
+                          !@builder.handlers.include?(Faraday::Adapter::Excon)
         Oboe::API.log_entry('faraday')
 
         result = run_request_without_oboe(method, url, body, headers, &block)
