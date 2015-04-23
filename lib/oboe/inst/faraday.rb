@@ -15,7 +15,6 @@ module Oboe
         result = run_request_without_oboe(method, url, body, headers, &block)
 
         kvs = {}
-        kvs[:HTTPStatus] = result.status
         kvs['Middleware'] = @builder.handlers
         kvs['Backtrace'] = Oboe::API.backtrace if Oboe::Config[:faraday][:collect_backtraces]
 
@@ -34,6 +33,7 @@ module Oboe
           kvs['RemotePort'] = @url_prefix.port
           kvs['ServiceArg'] = url
           kvs['HTTPMethod'] = method
+          kvs[:HTTPStatus] = result.status
           kvs['Blacklisted'] = true if blacklisted
 
           # Re-attach net::http edge unless it's blacklisted or if we don't have a
