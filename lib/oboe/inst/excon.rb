@@ -14,8 +14,15 @@ module Oboe
         kvs['IsService'] = 1
         kvs['RemoteProtocol'] = ::Oboe::Util.upcase(@data[:scheme])
         kvs['RemoteHost'] = @data[:host]
-        kvs['ServiceArg'] = @data[:path]
 
+        if @data[:query] && @data[:query].length
+          kvs['ServiceArg'] = @data[:path] + '?' + @data[:query]
+        else
+          kvs['ServiceArg'] = @data[:path]
+        end
+
+        # In the case of HTTP pipelining, params could be an array of
+        # request hashes.
         if params.is_a?(Array)
           methods = []
           params.each do |p|
