@@ -4,6 +4,7 @@ group :development, :test do
   gem 'minitest', "5.5.1"
   gem 'minitest-reporters'
   gem 'rack-test'
+  gem 'thin'
   if RUBY_VERSION > '1.8.7'
     gem 'appraisal'
   end
