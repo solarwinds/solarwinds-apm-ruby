@@ -33,11 +33,11 @@ module Oboe
 
         uri = URI(response.effective_url)
         kvs['IsService'] = 1
-        kvs['RemoteProtocol'] = uri.scheme
+        kvs['RemoteProtocol'] = ::Oboe::Util.upcase(uri.scheme)
         kvs['RemoteHost'] = uri.host
         kvs['RemotePort'] = uri.port ? uri.port : 80
         kvs['ServiceArg'] = uri.path
-        kvs['HTTPMethod'] = options[:method]
+        kvs['HTTPMethod'] = ::Oboe::Util.upcase(options[:method])
         kvs['Blacklisted'] = true if blacklisted
 
         # Re-attach net::http edge unless it's blacklisted or if we don't have a
