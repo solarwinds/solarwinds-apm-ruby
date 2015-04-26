@@ -27,6 +27,9 @@ require 'memcache'
 
 Bundler.require(:default, :test)
 
+# Our background Rack-app for http client testing
+require "./test/servers/rackapp_8101"
+
 @trace_dir = "/tmp/"
 $trace_file = @trace_dir + "trace_output.bson"
 
