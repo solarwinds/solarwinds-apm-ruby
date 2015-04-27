@@ -5,9 +5,7 @@ group :development, :test do
   gem 'minitest-reporters'
   gem 'rack-test'
   gem 'puma'
-  if RUBY_VERSION > '1.8.7'
-    gem 'appraisal'
-  end
+  gem 'appraisal'
 end
 
 group :development do
