@@ -26,7 +26,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
 
   it 'should trace a typhoeus request' do
     Oboe::API.start_trace('typhoeus_test') do
-      Typhoeus.get("localhost:8101/")
+      Typhoeus.get("http://127.0.0.1:8101/")
     end
 
     traces = get_all_traces
@@ -42,7 +42,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
     traces[5]['Label'].must_equal 'info'
     traces[5]['IsService'].must_equal 1
     traces[5]['RemoteProtocol'].must_equal 'HTTP'
-    traces[5]['RemoteHost'].must_equal 'localhost'
+    traces[5]['RemoteHost'].must_equal '127.0.0.1'
     traces[5]['ServiceArg'].must_equal '/'
     traces[5]['HTTPMethod'].must_equal 'GET'
     traces[5]['HTTPStatus'].must_equal 200
