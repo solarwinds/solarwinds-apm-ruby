@@ -27,22 +27,24 @@ class ExconTest < Minitest::Test
     clear_all_traces
 
     Oboe::API.start_trace('excon_tests') do
-      response = Excon.get('http://www.google.com/')
+      response = Excon.get('http://127.0.0.1:8101/')
     end
 
     traces = get_all_traces
-    assert_equal traces.count, 4
+    assert_equal traces.count, 7
     validate_outer_layers(traces, "excon_tests")
     valid_edges?(traces)
 
     assert_equal traces[1]['IsService'], 1
-    assert_equal traces[1]['RemoteHost'], 'www.google.com'
+    assert_equal traces[1]['RemoteHost'], '127.0.0.1'
     assert_equal traces[1]['RemoteProtocol'], 'HTTP'
     assert_equal traces[1]['ServiceArg'], '/'
     assert_equal traces[1]['HTTPMethod'], 'GET'
     assert traces[1].key?('Backtrace')
-    assert_equal traces[2]['HTTPStatus'], 302
-    assert traces[2].key?('Location')
+
+    assert_equal traces[5]['Layer'], 'excon'
+    assert_equal traces[5]['Label'], 'exit'
+    assert_equal traces[5]['HTTPStatus'], 200
   end
 
   def test_cross_app_tracing
