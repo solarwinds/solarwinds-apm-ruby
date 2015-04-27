@@ -59,12 +59,6 @@ if RUBY_VERSION >= '1.9'
   gem 'em-http-request'
 end
 
-# FIXME:Newer activesupport and i18n now require
-# ruby >= 1.9.3.  We limit their versions temporarily
-# until we figure out a better gem matrix for tests.
-gem "activesupport", "<= 4.0.4"
-gem "i18n", "< 0.7.0"
-
 unless defined?(JRUBY_VERSION)
   gem 'memcached', '1.7.2' if RUBY_VERSION < '2.0.0'
   gem 'bson_ext' # For Mongo, Yours Truly
