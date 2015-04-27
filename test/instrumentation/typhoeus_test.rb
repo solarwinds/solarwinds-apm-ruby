@@ -53,7 +53,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
 
   it 'should trace a typhoeus POST request' do
     Oboe::API.start_trace('typhoeus_test') do
-      Typhoeus.post("localhost:8101/",
+      Typhoeus.post("127.0.0.1:8101/",
                     :body => { :key => "oboe-ruby-fake", :content => "oboe-ruby repo test suite"})
     end
 
@@ -70,7 +70,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
     traces[5]['Label'].must_equal 'info'
     traces[5]['IsService'].must_equal 1
     traces[5]['RemoteProtocol'].must_equal 'HTTP'
-    traces[5]['RemoteHost'].must_equal 'localhost'
+    traces[5]['RemoteHost'].must_equal '127.0.0.1'
     traces[5]['RemotePort'].must_equal 8101
     traces[5]['ServiceArg'].must_equal '/'
     traces[5]['HTTPMethod'].must_equal 'POST'
@@ -82,7 +82,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
 
   it 'should trace a typhoeus PUT request' do
     Oboe::API.start_trace('typhoeus_test') do
-      Typhoeus.put("http://localhost:8101/",
+      Typhoeus.put("http://127.0.0.1:8101/",
                     :body => { :key => "oboe-ruby-fake", :content => "oboe-ruby repo test suite"})
     end
 
@@ -99,7 +99,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
     traces[5]['Label'].must_equal 'info'
     traces[5]['IsService'].must_equal 1
     traces[5]['RemoteProtocol'].must_equal 'HTTP'
-    traces[5]['RemoteHost'].must_equal 'localhost'
+    traces[5]['RemoteHost'].must_equal '127.0.0.1'
     traces[5]['RemotePort'].must_equal 8101
     traces[5]['ServiceArg'].must_equal '/'
     traces[5]['HTTPMethod'].must_equal 'PUT'
@@ -111,7 +111,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
 
   it 'should trace a typhoeus DELETE request' do
     Oboe::API.start_trace('typhoeus_test') do
-      Typhoeus.delete("http://localhost:8101/")
+      Typhoeus.delete("http://127.0.0.1:8101/")
     end
 
     traces = get_all_traces
@@ -127,7 +127,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
     traces[5]['Label'].must_equal 'info'
     traces[5]['IsService'].must_equal 1
     traces[5]['RemoteProtocol'].must_equal 'HTTP'
-    traces[5]['RemoteHost'].must_equal 'localhost'
+    traces[5]['RemoteHost'].must_equal '127.0.0.1'
     traces[5]['RemotePort'].must_equal 8101
     traces[5]['ServiceArg'].must_equal '/'
     traces[5]['HTTPMethod'].must_equal 'DELETE'
@@ -139,7 +139,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
 
   it 'should trace a typhoeus HEAD request' do
     Oboe::API.start_trace('typhoeus_test') do
-      Typhoeus.head("http://localhost:8101/")
+      Typhoeus.head("http://127.0.0.1:8101/")
     end
 
     traces = get_all_traces
@@ -155,7 +155,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
     traces[5]['Label'].must_equal 'info'
     traces[5]['IsService'].must_equal 1
     traces[5]['RemoteProtocol'].must_equal 'HTTP'
-    traces[5]['RemoteHost'].must_equal 'localhost'
+    traces[5]['RemoteHost'].must_equal '127.0.0.1'
     traces[5]['ServiceArg'].must_equal '/'
     traces[5]['HTTPMethod'].must_equal 'HEAD'
     traces[5]['HTTPStatus'].must_equal 200
@@ -166,7 +166,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
 
   it 'should trace a typhoeus GET request to an instr\'d app' do
     Oboe::API.start_trace('typhoeus_test') do
-      Typhoeus.get("localhost:8101")
+      Typhoeus.get("127.0.0.1:8101")
     end
 
     traces = get_all_traces
@@ -182,7 +182,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
     traces[5]['Label'].must_equal 'info'
     traces[5]['IsService'].must_equal 1
     traces[5]['RemoteProtocol'].must_equal 'HTTP'
-    traces[5]['RemoteHost'].must_equal 'localhost'
+    traces[5]['RemoteHost'].must_equal '127.0.0.1'
     traces[5]['ServiceArg'].must_equal '/'
     traces[5]['HTTPMethod'].must_equal 'GET'
     traces[5]['HTTPStatus'].must_equal 200
@@ -228,9 +228,9 @@ describe Oboe::Inst::TyphoeusRequestOps do
     Oboe::API.start_trace('typhoeus_test') do
       hydra = Typhoeus::Hydra.hydra
 
-      first_request  = Typhoeus::Request.new("localhost:8101/products/traceview/")
-      second_request = Typhoeus::Request.new("localhost:8101/products/")
-      third_request  = Typhoeus::Request.new("localhost:8101/")
+      first_request  = Typhoeus::Request.new("127.0.0.1:8101/products/traceview/")
+      second_request = Typhoeus::Request.new("127.0.0.1:8101/products/")
+      third_request  = Typhoeus::Request.new("127.0.0.1:8101/")
 
       hydra.queue first_request
       hydra.queue second_request
@@ -258,7 +258,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
     Oboe::Config[:typhoeus][:collect_backtraces] = true
 
     Oboe::API.start_trace('typhoeus_test') do
-      Typhoeus.get("localhost:8101/")
+      Typhoeus.get("127.0.0.1:8101/")
     end
 
     traces = get_all_traces
@@ -269,7 +269,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
     Oboe::Config[:typhoeus][:collect_backtraces] = false
 
     Oboe::API.start_trace('typhoeus_test') do
-      Typhoeus.get("localhost:8101/")
+      Typhoeus.get("127.0.0.1:8101/")
     end
 
     traces = get_all_traces
