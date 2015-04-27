@@ -27,9 +27,6 @@ require 'memcache'
 
 Bundler.require(:default, :test)
 
-# Our background Rack-app for http client testing
-require "./test/servers/rackapp_8101"
-
 @trace_dir = "/tmp/"
 $trace_file = @trace_dir + "trace_output.bson"
 
@@ -38,6 +35,9 @@ Oboe::Config[:verbose] = true
 Oboe::Config[:tracing_mode] = "always"
 Oboe::Config[:sample_rate] = 1000000
 Oboe.logger.level = Logger::DEBUG
+
+# Our background Rack-app for http client testing
+require "./test/servers/rackapp_8101"
 
 ##
 # clear_all_traces
