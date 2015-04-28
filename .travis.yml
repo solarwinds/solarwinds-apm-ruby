@@ -52,4 +52,7 @@ services:
 
 matrix:
   allow_failures:
+    # FIXME: Until the joboe test reporter supports cross thread
+    # event collection.
+    - rvm: jruby-19mode
 

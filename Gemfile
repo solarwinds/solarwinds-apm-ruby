@@ -4,7 +4,15 @@ group :development, :test do
   gem 'minitest', "5.5.1"
   gem 'minitest-reporters'
   gem 'rack-test'
-  if RUBY_VERSION > '1.8.7'
+  gem 'puma'
+  if RUBY_VERSION < '1.9.3'
+    # i18n 0.7.0 dropped support for Ruby 1.9.2 and older.  ActiveSupport
+    # depends on i18n 0.7.0 since v 4.0.5.  For < 1.9.2 Ruby support, lock
+    # down to these versions to maintain functionality.
+    gem 'i18n', '< 0.7.0'
+    gem 'activesupport', '< 4.0.5'
+    gem 'appraisal'
+  else
     gem 'appraisal'
   end
 end
@@ -59,12 +67,6 @@ if RUBY_VERSION >= '1.9'
   gem 'em-synchrony'
   gem 'em-http-request'
 end
-
-# FIXME:Newer activesupport and i18n now require
-# ruby >= 1.9.3.  We limit their versions temporarily
-# until we figure out a better gem matrix for tests.
-gem "activesupport", "<= 4.0.4"
-gem "i18n", "< 0.7.0"
 
 unless defined?(JRUBY_VERSION)
   gem 'memcached', '1.7.2' if RUBY_VERSION < '2.0.0'

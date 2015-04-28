@@ -123,6 +123,22 @@ module Oboe
       end
 
       ##
+      # upcase
+      #
+      # Occasionally, we want to send some values in all caps.  This is true
+      # for things like HTTP scheme or method.  This takes anything and does
+      # it's best to safely convert it to a string (if needed) and convert it
+      # to all uppercase.
+      def upcase(o)
+        if o.is_a?(String) || o.respond_to?(:to_s)
+          o.to_s.upcase
+        else
+          Oboe.logger.debug "[oboe/debug] Oboe::Util.upcase: could not convert #{o.class}"
+          "UNKNOWN"
+        end
+      end
+
+      ##
       #  build_report
       #
       # Internal: Build a hash of KVs that reports on the status of the
@@ -156,6 +172,7 @@ module Oboe
           # Report the instrumented libraries
           platform_info['Ruby.Cassandra.Version']  = "Cassandra-#{::Cassandra.VERSION}"    if defined?(::Cassandra)
           platform_info['Ruby.Dalli.Version']      = "Dalli-#{::Dalli::VERSION}"           if defined?(::Dalli)
+          platform_info['Ruby.Excon.Version']      = "Excon-#{::Excon::VERSION}"           if defined?(::Excon::VERSION)
           platform_info['Ruby.Faraday.Version']    = "Faraday-#{::Faraday::VERSION}"       if defined?(::Faraday)
           platform_info['Ruby.MemCache.Version']   = "MemCache-#{::MemCache::VERSION}"     if defined?(::MemCache)
           platform_info['Ruby.Moped.Version']      = "Moped-#{::Moped::VERSION}"           if defined?(::Moped)
@@ -190,7 +207,7 @@ module Oboe
             platform_info['Ruby.AppContainer.Version'] = "Mongrel2-#{::Mongrel2::VERSION}"
           elsif defined?(::Trinidad)
             platform_info['Ruby.AppContainer.Version'] = "Trinidad-#{::Trinidad::VERSION}"
-          elsif defined?(::WEBrick)
+          elsif defined?(::WEBrick::VERSION)
             platform_info['Ruby.AppContainer.Version'] = "WEBrick-#{::WEBrick::VERSION}"
           else
             platform_info['Ruby.AppContainer.Version'] = File.basename($PROGRAM_NAME)

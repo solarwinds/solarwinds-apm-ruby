@@ -60,7 +60,7 @@ if Oboe::Config[:nethttp][:enabled]
           opts['HTTPStatus'] = resp.code
 
           # If we get a redirect, report the location header
-          if [300..308].include? resp.code.to_i && resp.header["Location"]
+          if ((300..308).to_a.include? resp.code.to_i) && resp.header["Location"]
             opts["Location"] = resp.header["Location"]
           end
 

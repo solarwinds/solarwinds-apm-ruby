@@ -63,6 +63,7 @@ describe Oboe::Inst::FaradayConnection do
     traces = get_all_traces
     traces.count.must_equal 8
 
+    valid_edges?(traces)
     validate_outer_layers(traces, 'faraday_test')
 
     traces[1]['Layer'].must_equal 'faraday'
@@ -94,6 +95,7 @@ describe Oboe::Inst::FaradayConnection do
     traces = get_all_traces
     traces.count.must_equal 8
 
+    valid_edges?(traces)
     validate_outer_layers(traces, 'faraday_test')
 
     traces[1]['Layer'].must_equal 'faraday'
@@ -126,25 +128,36 @@ describe Oboe::Inst::FaradayConnection do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 5
+    traces.count.must_equal 7
 
+    valid_edges?(traces)
     validate_outer_layers(traces, 'faraday_test')
 
     traces[1]['Layer'].must_equal 'faraday'
     traces[1].key?('Backtrace').must_equal Oboe::Config[:faraday][:collect_backtraces]
 
+    traces[2]['Layer'].must_equal 'excon'
+    traces[2]['Label'].must_equal 'entry'
     traces[2]['IsService'].must_equal 1
     traces[2]['RemoteProtocol'].must_equal 'HTTP'
     traces[2]['RemoteHost'].must_equal 'www.curlmyip.de'
     traces[2]['ServiceArg'].must_equal '/?q=1'
-    traces[2]['HTTPMethod'].downcase.must_equal 'get'
+    traces[2]['HTTPMethod'].must_equal 'GET'
 
-    traces[2]['Layer'].must_equal 'faraday'
-    traces[2]['Label'].must_equal 'info'
-    traces[2]['HTTPStatus'].must_equal 200
-
-    traces[3]['Layer'].must_equal 'faraday'
+    traces[3]['Layer'].must_equal 'excon'
     traces[3]['Label'].must_equal 'exit'
+    traces[3]['HTTPStatus'].must_equal 200
+
+    traces[4]['Layer'].must_equal 'faraday'
+    traces[4]['Label'].must_equal 'info'
+    unless RUBY_VERSION < '1.9.3'
+      # FIXME: Ruby 1.8 is reporting an object instance instead of
+      # an array
+      traces[4]['Middleware'].must_equal '[Faraday::Adapter::Excon]'
+    end
+
+    traces[5]['Layer'].must_equal 'faraday'
+    traces[5]['Label'].must_equal 'exit'
   end
 
   it 'should obey :collect_backtraces setting when true' do

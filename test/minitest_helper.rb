@@ -36,6 +36,9 @@ Oboe::Config[:tracing_mode] = "always"
 Oboe::Config[:sample_rate] = 1000000
 Oboe.logger.level = Logger::DEBUG
 
+# Our background Rack-app for http client testing
+require "./test/servers/rackapp_8101"
+
 ##
 # clear_all_traces
 #

@@ -8,13 +8,13 @@ module Oboe
       def run_request_with_oboe(method, url, body, headers, &block)
         # Only send service KVs if we're not using the Net::HTTP adapter
         # Otherwise, the Net::HTTP instrumentation will send the service KVs
-        handle_service = !@builder.handlers.include?(Faraday::Adapter::NetHttp)
+        handle_service = !@builder.handlers.include?(Faraday::Adapter::NetHttp) &&
+                          !@builder.handlers.include?(Faraday::Adapter::Excon)
         Oboe::API.log_entry('faraday')
 
         result = run_request_without_oboe(method, url, body, headers, &block)
 
         kvs = {}
-        kvs[:HTTPStatus] = result.status
         kvs['Middleware'] = @builder.handlers
         kvs['Backtrace'] = Oboe::API.backtrace if Oboe::Config[:faraday][:collect_backtraces]
 
@@ -33,6 +33,7 @@ module Oboe
           kvs['RemotePort'] = @url_prefix.port
           kvs['ServiceArg'] = url
           kvs['HTTPMethod'] = method
+          kvs[:HTTPStatus] = result.status
           kvs['Blacklisted'] = true if blacklisted
 
           # Re-attach net::http edge unless it's blacklisted or if we don't have a
