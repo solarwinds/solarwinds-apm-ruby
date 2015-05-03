@@ -36,7 +36,13 @@ module Oboe
           blacklisted = Oboe::API.blacklisted?(uri.hostname)
 
           req_context = Oboe::Context.toString()
-          header['X-Trace'] = req_context unless blacklisted
+
+          # Be aware of various ways to call/use httpclient
+          if header.is_a?(Array)
+            header.push ["X-Trace", req_context]
+          elsif header.is_a?(Hash)
+            header['X-Trace'] = req_context unless blacklisted
+          end
 
           kvs = oboe_collect(method, uri, query)
           kvs['Blacklisted'] = true if blacklisted

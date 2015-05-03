@@ -43,6 +43,62 @@ class HTTPClientTest < Minitest::Test
     assert_equal traces[5]['HTTPStatus'], 200
   end
 
+  def test_get_with_header_hash
+    clear_all_traces
+
+    response = nil
+
+    Oboe::API.start_trace('httpclient_tests') do
+      clnt = HTTPClient.new
+      response = clnt.get('http://127.0.0.1:8101/', nil, { "SOAPAction" => "HelloWorld" })
+    end
+
+    traces = get_all_traces
+
+    assert_equal traces.count, 7
+    valid_edges?(traces)
+    validate_outer_layers(traces, "httpclient_tests")
+
+    assert_equal traces[1]['IsService'], 1
+    assert_equal traces[1]['RemoteHost'], '127.0.0.1'
+    assert_equal traces[1]['RemoteProtocol'], 'HTTP'
+    assert_equal traces[1]['ServiceArg'], '/'
+    assert_equal traces[1]['HTTPMethod'], 'GET'
+    assert traces[1].key?('Backtrace')
+
+    assert_equal traces[5]['Layer'], 'httpclient'
+    assert_equal traces[5]['Label'], 'exit'
+    assert_equal traces[5]['HTTPStatus'], 200
+  end
+
+  def test_get_with_header_array
+    clear_all_traces
+
+    response = nil
+
+    Oboe::API.start_trace('httpclient_tests') do
+      clnt = HTTPClient.new
+      response = clnt.get('http://127.0.0.1:8101/', nil, [["Accept", "text/plain"], ["Accept", "text/html"]])
+    end
+
+    traces = get_all_traces
+
+    assert_equal traces.count, 7
+    valid_edges?(traces)
+    validate_outer_layers(traces, "httpclient_tests")
+
+    assert_equal traces[1]['IsService'], 1
+    assert_equal traces[1]['RemoteHost'], '127.0.0.1'
+    assert_equal traces[1]['RemoteProtocol'], 'HTTP'
+    assert_equal traces[1]['ServiceArg'], '/'
+    assert_equal traces[1]['HTTPMethod'], 'GET'
+    assert traces[1].key?('Backtrace')
+
+    assert_equal traces[5]['Layer'], 'httpclient'
+    assert_equal traces[5]['Label'], 'exit'
+    assert_equal traces[5]['HTTPStatus'], 200
+  end
+
   def test_cross_app_tracing
     clear_all_traces
 
@@ -96,6 +152,7 @@ class HTTPClientTest < Minitest::Test
 
     traces = get_all_traces
     assert_equal traces.count, 5
+    valid_edges?(traces)
     validate_outer_layers(traces, "httpclient_tests")
 
     assert_equal traces[1]['IsService'], 1
