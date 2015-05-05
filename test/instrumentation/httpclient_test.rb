@@ -99,6 +99,68 @@ class HTTPClientTest < Minitest::Test
     assert_equal traces[5]['HTTPStatus'], 200
   end
 
+  def test_post_request
+    clear_all_traces
+
+    response = nil
+
+    Oboe::API.start_trace('httpclient_tests') do
+      clnt = HTTPClient.new
+      response = clnt.post('http://127.0.0.1:8101/')
+    end
+
+    traces = get_all_traces
+
+    assert_equal traces.count, 7
+    valid_edges?(traces)
+    validate_outer_layers(traces, "httpclient_tests")
+
+    assert_equal traces[1]['IsService'], 1
+    assert_equal traces[1]['RemoteHost'], '127.0.0.1'
+    assert_equal traces[1]['RemoteProtocol'], 'HTTP'
+    assert_equal traces[1]['ServiceArg'], '/'
+    assert_equal traces[1]['HTTPMethod'], 'POST'
+    assert traces[1].key?('Backtrace')
+
+    assert_equal traces[5]['Layer'], 'httpclient'
+    assert_equal traces[5]['Label'], 'exit'
+    assert_equal traces[5]['HTTPStatus'], 200
+  end
+
+  def test_async_get
+    clear_all_traces
+
+    conn = nil
+
+    Oboe::API.start_trace('httpclient_tests') do
+      clnt = HTTPClient.new
+      conn = clnt.get_async('http://127.0.0.1:8101/?blah=1')
+    end
+
+    # sleep for a few to allow async requests to finish
+    sleep 3
+
+    traces = get_all_traces
+    assert_equal traces.count, 7
+    valid_edges?(traces)
+
+    # FIXME: validate_outer_layers assumes that the traces
+    # are ordered which in the case of async, they aren't
+    # validate_outer_layers(traces, "httpclient_tests")
+
+    assert_equal traces[2]['Async'], 1
+    assert_equal traces[2]['IsService'], 1
+    assert_equal traces[2]['RemoteHost'], '127.0.0.1'
+    assert_equal traces[2]['RemoteProtocol'], 'HTTP'
+    assert_equal traces[2]['ServiceArg'], '/?blah=1'
+    assert_equal traces[2]['HTTPMethod'], 'GET'
+    assert traces[2].key?('Backtrace')
+
+    assert_equal traces[6]['Layer'], 'httpclient'
+    assert_equal traces[6]['Label'], 'exit'
+    assert_equal traces[6]['HTTPStatus'], 200
+  end
+
   def test_cross_app_tracing
     clear_all_traces
 
