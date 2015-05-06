@@ -10,12 +10,10 @@ module Oboe
         ::Oboe::Util.method_alias(klass, :do_get_stream, ::HTTPClient)
       end
 
-      def oboe_collect(method, uri, query)
+      def oboe_collect(method, uri)
         kvs = {}
         kvs['IsService'] = 1
-        kvs['RemoteProtocol'] = ::Oboe::Util.upcase(uri.scheme)
-        kvs['RemoteHost'] = uri.hostname
-        kvs['ServiceArg'] = uri.request_uri
+        kvs['RemoteURL'] = uri.to_s
         kvs['HTTPMethod'] = ::Oboe::Util.upcase(method)
         kvs['Backtrace'] = Oboe::API.backtrace if Oboe::Config[:httpclient][:collect_backtraces]
         kvs
@@ -36,7 +34,7 @@ module Oboe
           # Avoid cross host tracing for blacklisted domains
           blacklisted = Oboe::API.blacklisted?(uri.hostname)
 
-          kvs = oboe_collect(method, uri, query)
+          kvs = oboe_collect(method, uri)
           kvs['Blacklisted'] = true if blacklisted
 
           Oboe::API.log_entry('httpclient', kvs)
@@ -104,12 +102,11 @@ module Oboe
           response_context = nil
           uri = req.http_header.request_uri
           method = req.http_header.request_method
-          query = req.http_header.request_uri.query
 
           # Avoid cross host tracing for blacklisted domains
           blacklisted = Oboe::API.blacklisted?(uri.hostname)
 
-          kvs = oboe_collect(method, uri, query)
+          kvs = oboe_collect(method, uri)
           kvs['Blacklisted'] = true if blacklisted
           kvs['Async'] = 1
 

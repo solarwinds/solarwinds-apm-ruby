@@ -32,9 +32,7 @@ class HTTPClientTest < Minitest::Test
     validate_outer_layers(traces, "httpclient_tests")
 
     assert_equal traces[1]['IsService'], 1
-    assert_equal traces[1]['RemoteHost'], '127.0.0.1'
-    assert_equal traces[1]['RemoteProtocol'], 'HTTP'
-    assert_equal traces[1]['ServiceArg'], '/'
+    assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/'
     assert_equal traces[1]['HTTPMethod'], 'GET'
     assert traces[1].key?('Backtrace')
 
@@ -60,9 +58,7 @@ class HTTPClientTest < Minitest::Test
     validate_outer_layers(traces, "httpclient_tests")
 
     assert_equal traces[1]['IsService'], 1
-    assert_equal traces[1]['RemoteHost'], '127.0.0.1'
-    assert_equal traces[1]['RemoteProtocol'], 'HTTP'
-    assert_equal traces[1]['ServiceArg'], '/'
+    assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/'
     assert_equal traces[1]['HTTPMethod'], 'GET'
     assert traces[1].key?('Backtrace')
 
@@ -88,9 +84,7 @@ class HTTPClientTest < Minitest::Test
     validate_outer_layers(traces, "httpclient_tests")
 
     assert_equal traces[1]['IsService'], 1
-    assert_equal traces[1]['RemoteHost'], '127.0.0.1'
-    assert_equal traces[1]['RemoteProtocol'], 'HTTP'
-    assert_equal traces[1]['ServiceArg'], '/'
+    assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/'
     assert_equal traces[1]['HTTPMethod'], 'GET'
     assert traces[1].key?('Backtrace')
 
@@ -116,9 +110,7 @@ class HTTPClientTest < Minitest::Test
     validate_outer_layers(traces, "httpclient_tests")
 
     assert_equal traces[1]['IsService'], 1
-    assert_equal traces[1]['RemoteHost'], '127.0.0.1'
-    assert_equal traces[1]['RemoteProtocol'], 'HTTP'
-    assert_equal traces[1]['ServiceArg'], '/'
+    assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/'
     assert_equal traces[1]['HTTPMethod'], 'POST'
     assert traces[1].key?('Backtrace')
 
@@ -150,9 +142,7 @@ class HTTPClientTest < Minitest::Test
 
     assert_equal traces[2]['Async'], 1
     assert_equal traces[2]['IsService'], 1
-    assert_equal traces[2]['RemoteHost'], '127.0.0.1'
-    assert_equal traces[2]['RemoteProtocol'], 'HTTP'
-    assert_equal traces[2]['ServiceArg'], '/?blah=1'
+    assert_equal traces[2]['RemoteURL'], 'http://127.0.0.1:8101/?blah=1'
     assert_equal traces[2]['HTTPMethod'], 'GET'
     assert traces[2].key?('Backtrace')
 
@@ -182,9 +172,7 @@ class HTTPClientTest < Minitest::Test
     validate_outer_layers(traces, "httpclient_tests")
 
     assert_equal traces[1]['IsService'], 1
-    assert_equal traces[1]['RemoteHost'], '127.0.0.1'
-    assert_equal traces[1]['RemoteProtocol'], 'HTTP'
-    assert_equal traces[1]['ServiceArg'], '/'
+    assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/'
     assert_equal traces[1]['HTTPMethod'], 'GET'
     assert traces[1].key?('Backtrace')
 
@@ -218,9 +206,7 @@ class HTTPClientTest < Minitest::Test
     validate_outer_layers(traces, "httpclient_tests")
 
     assert_equal traces[1]['IsService'], 1
-    assert_equal traces[1]['RemoteHost'], 'asfjalkfjlajfljkaljf'
-    assert_equal traces[1]['RemoteProtocol'], 'HTTP'
-    assert_equal traces[1]['ServiceArg'], '/'
+    assert_equal traces[1]['RemoteURL'], 'http://asfjalkfjlajfljkaljf/'
     assert_equal traces[1]['HTTPMethod'], 'GET'
     assert traces[1].key?('Backtrace')
 
