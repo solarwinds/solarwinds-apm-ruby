@@ -99,6 +99,7 @@ module Oboe
         req.header.delete "oboe.context"
 
         begin
+          response = nil
           response_context = nil
           uri = req.http_header.request_uri
           method = req.http_header.request_method
@@ -117,7 +118,14 @@ module Oboe
           req.header.add('X-Trace', req_context)
 
           # The core httpclient call
-          response = do_get_stream_without_oboe(req, proxy, conn)
+          result = do_get_stream_without_oboe(req, proxy, conn)
+
+          # Older HTTPClient < 2.6.0 returns HTTPClient::Connection
+          if result.is_a?(::HTTP::Message)
+            response = result
+          else
+            response = conn.pop
+          end
 
           response_context = response.headers['X-Trace']
           kvs['HTTPStatus'] = response.status_code
@@ -131,7 +139,9 @@ module Oboe
             Oboe::XTrace.continue_service_context(req_context, response_context)
           end
 
-          response
+          # Older HTTPClient < 2.6.0 returns HTTPClient::Connection
+          conn.push response if result.is_a?(::HTTPClient::Connection)
+          result
         rescue => e
           Oboe::API.log_exception('httpclient', e)
           raise e
