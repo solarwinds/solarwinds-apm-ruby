@@ -51,23 +51,24 @@ class ExconTest < Minitest::Test
     clear_all_traces
 
     Oboe::API.start_trace('excon_tests') do
-      response = Excon.get('http://www.gameface.in/gamers')
+      response = Excon.get('http://127.0.0.1:8101/?blah=1')
       xtrace = response.headers['X-Trace']
       assert xtrace
       assert Oboe::XTrace.valid?(xtrace)
     end
 
     traces = get_all_traces
-    assert_equal traces.count, 4
+    assert_equal traces.count, 7
     validate_outer_layers(traces, "excon_tests")
+    valid_edges?(traces)
 
     assert_equal traces[1]['IsService'], 1
-    assert_equal traces[1]['RemoteHost'], 'www.gameface.in'
+    assert_equal traces[1]['RemoteHost'], '127.0.0.1'
     assert_equal traces[1]['RemoteProtocol'], 'HTTP'
-    assert_equal traces[1]['ServiceArg'], '/gamers'
+    assert_equal traces[1]['ServiceArg'], '/?blah=1'
     assert_equal traces[1]['HTTPMethod'], 'GET'
     assert traces[1].key?('Backtrace')
-    assert_equal traces[2]['HTTPStatus'], 200
+    assert_equal traces[5]['HTTPStatus'], 200
   end
 
   def test_persistent_requests
@@ -77,39 +78,40 @@ class ExconTest < Minitest::Test
     clear_all_traces
 
     Oboe::API.start_trace('excon_tests') do
-      connection = Excon.new('http://www.gameface.in/') # non-persistent by default
+      connection = Excon.new('http://127.0.0.1:8101/') # non-persistent by default
       connection.get # socket established, then closed
       connection.get(:persistent => true) # socket established, left open
       connection.get # socket reused, then closed
     end
 
     traces = get_all_traces
-    assert_equal traces.count, 8
+    assert_equal traces.count, 17
     validate_outer_layers(traces, "excon_tests")
+    valid_edges?(traces)
 
     assert_equal traces[1]['IsService'], 1
-    assert_equal traces[1]['RemoteHost'], 'www.gameface.in'
+    assert_equal traces[1]['RemoteHost'], '127.0.0.1'
     assert_equal traces[1]['RemoteProtocol'], 'HTTP'
     assert_equal traces[1]['ServiceArg'], '/'
     assert_equal traces[1]['HTTPMethod'], 'GET'
     assert traces[1].key?('Backtrace')
-    assert_equal traces[2]['HTTPStatus'], 200
+    assert_equal traces[5]['HTTPStatus'], 200
 
-    assert_equal traces[3]['IsService'], 1
-    assert_equal traces[3]['RemoteHost'], 'www.gameface.in'
-    assert_equal traces[3]['RemoteProtocol'], 'HTTP'
-    assert_equal traces[3]['ServiceArg'], '/'
-    assert_equal traces[3]['HTTPMethod'], 'GET'
-    assert traces[3].key?('Backtrace')
-    assert_equal traces[4]['HTTPStatus'], 200
+    assert_equal traces[6]['IsService'], 1
+    assert_equal traces[6]['RemoteHost'], '127.0.0.1'
+    assert_equal traces[6]['RemoteProtocol'], 'HTTP'
+    assert_equal traces[6]['ServiceArg'], '/'
+    assert_equal traces[6]['HTTPMethod'], 'GET'
+    assert traces[6].key?('Backtrace')
+    assert_equal traces[10]['HTTPStatus'], 200
 
-    assert_equal traces[5]['IsService'], 1
-    assert_equal traces[5]['RemoteHost'], 'www.gameface.in'
-    assert_equal traces[5]['RemoteProtocol'], 'HTTP'
-    assert_equal traces[5]['ServiceArg'], '/'
-    assert_equal traces[5]['HTTPMethod'], 'GET'
-    assert traces[5].key?('Backtrace')
-    assert_equal traces[6]['HTTPStatus'], 200
+    assert_equal traces[11]['IsService'], 1
+    assert_equal traces[11]['RemoteHost'], '127.0.0.1'
+    assert_equal traces[11]['RemoteProtocol'], 'HTTP'
+    assert_equal traces[11]['ServiceArg'], '/'
+    assert_equal traces[11]['HTTPMethod'], 'GET'
+    assert traces[11].key?('Backtrace')
+    assert_equal traces[15]['HTTPStatus'], 200
   end
 
   def test_pipelined_requests
@@ -118,17 +120,17 @@ class ExconTest < Minitest::Test
     clear_all_traces
 
     Oboe::API.start_trace('excon_tests') do
-      connection = Excon.new('http://www.gameface.in/')
+      connection = Excon.new('http://127.0.0.1:8101/')
       connection.requests([{:method => :get}, {:method => :put}])
     end
 
     traces = get_all_traces
-    assert_equal traces.count, 4
+    assert_equal traces.count, 10
     validate_outer_layers(traces, "excon_tests")
     valid_edges?(traces)
 
     assert_equal traces[1]['IsService'], 1
-    assert_equal traces[1]['RemoteHost'], 'www.gameface.in'
+    assert_equal traces[1]['RemoteHost'], '127.0.0.1'
     assert_equal traces[1]['RemoteProtocol'], 'HTTP'
     assert_equal traces[1]['ServiceArg'], '/'
     assert_equal traces[1]['Pipeline'], 'true'
@@ -141,7 +143,7 @@ class ExconTest < Minitest::Test
 
     begin
       Oboe::API.start_trace('excon_tests') do
-        connection = Excon.get('http://asfjalkfjlajfljkaljf/')
+        Excon.get('http://asfjalkfjlajfljkaljf/')
       end
     rescue
     end
@@ -149,6 +151,7 @@ class ExconTest < Minitest::Test
     traces = get_all_traces
     assert_equal traces.count, 5
     validate_outer_layers(traces, "excon_tests")
+    valid_edges?(traces)
 
     assert_equal traces[1]['IsService'], 1
     assert_equal traces[1]['RemoteHost'], 'asfjalkfjlajfljkaljf'
