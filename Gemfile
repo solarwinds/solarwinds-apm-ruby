@@ -3,6 +3,7 @@ source 'https://rubygems.org'
 group :development, :test do
   gem 'minitest', "5.5.1"
   gem 'minitest-reporters'
+  gem 'minitest-debugger'
   gem 'rack-test'
   gem 'puma'
   if RUBY_VERSION < '1.9.3'
