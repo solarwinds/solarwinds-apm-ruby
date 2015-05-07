@@ -28,15 +28,19 @@ module Oboe
         end
 
         kvs = {}
+        kvs['IsService'] = 1
         kvs[:HTTPStatus] = response.code
         kvs['Backtrace'] = Oboe::API.backtrace if Oboe::Config[:typhoeus][:collect_backtraces]
 
         uri = URI(response.effective_url)
-        kvs['IsService'] = 1
-        kvs['RemoteProtocol'] = ::Oboe::Util.upcase(uri.scheme)
-        kvs['RemoteHost'] = uri.host
-        kvs['RemotePort'] = uri.port ? uri.port : 80
-        kvs['ServiceArg'] = uri.path
+
+        # Conditionally log query params
+        if Oboe::Config[:typhoeus][:log_args]
+          kvs['RemoteURL'] = uri.to_s
+        else
+          kvs['RemoteURL'] = uri.to_s.split('?').first
+        end
+
         kvs['HTTPMethod'] = ::Oboe::Util.upcase(options[:method])
         kvs['Blacklisted'] = true if blacklisted
 
