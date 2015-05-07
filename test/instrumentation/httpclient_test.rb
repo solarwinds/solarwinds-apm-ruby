@@ -120,6 +120,8 @@ class HTTPClientTest < Minitest::Test
   end
 
   def test_async_get
+    skip if RUBY_VERSION < '1.9.2'
+
     clear_all_traces
 
     conn = nil
@@ -129,8 +131,8 @@ class HTTPClientTest < Minitest::Test
       conn = clnt.get_async('http://127.0.0.1:8101/?blah=1')
     end
 
-    # sleep for a few to allow async requests to finish
-    sleep 3
+    # Allow async request to finish
+    Thread.pass until conn.finished?
 
     traces = get_all_traces
     assert_equal traces.count, 7
