@@ -8,10 +8,12 @@ describe Oboe::Inst::TyphoeusRequestOps do
   before do
     clear_all_traces
     @collect_backtraces = Oboe::Config[:typhoeus][:collect_backtraces]
+    @log_args = Oboe::Config[:typhoeus][:log_args]
   end
 
   after do
     Oboe::Config[:typhoeus][:collect_backtraces] = @collect_backtraces
+    Oboe::Config[:typhoeus][:log_args] = @log_args
   end
 
   it 'Typhoeus should be defined and ready' do
@@ -41,9 +43,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
     traces[5]['Layer'].must_equal 'typhoeus'
     traces[5]['Label'].must_equal 'info'
     traces[5]['IsService'].must_equal 1
-    traces[5]['RemoteProtocol'].must_equal 'HTTP'
-    traces[5]['RemoteHost'].must_equal '127.0.0.1'
-    traces[5]['ServiceArg'].must_equal '/'
+    traces[5]['RemoteURL'].must_equal 'http://127.0.0.1:8101/'
     traces[5]['HTTPMethod'].must_equal 'GET'
     traces[5]['HTTPStatus'].must_equal 200
 
@@ -69,10 +69,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
     traces[5]['Layer'].must_equal 'typhoeus'
     traces[5]['Label'].must_equal 'info'
     traces[5]['IsService'].must_equal 1
-    traces[5]['RemoteProtocol'].must_equal 'HTTP'
-    traces[5]['RemoteHost'].must_equal '127.0.0.1'
-    traces[5]['RemotePort'].must_equal 8101
-    traces[5]['ServiceArg'].must_equal '/'
+    traces[5]['RemoteURL'].must_equal 'http://127.0.0.1:8101/'
     traces[5]['HTTPMethod'].must_equal 'POST'
     traces[5]['HTTPStatus'].must_equal 200
 
@@ -98,10 +95,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
     traces[5]['Layer'].must_equal 'typhoeus'
     traces[5]['Label'].must_equal 'info'
     traces[5]['IsService'].must_equal 1
-    traces[5]['RemoteProtocol'].must_equal 'HTTP'
-    traces[5]['RemoteHost'].must_equal '127.0.0.1'
-    traces[5]['RemotePort'].must_equal 8101
-    traces[5]['ServiceArg'].must_equal '/'
+    traces[5]['RemoteURL'].must_equal 'http://127.0.0.1:8101/'
     traces[5]['HTTPMethod'].must_equal 'PUT'
     traces[5]['HTTPStatus'].must_equal 200
 
@@ -126,10 +120,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
     traces[5]['Layer'].must_equal 'typhoeus'
     traces[5]['Label'].must_equal 'info'
     traces[5]['IsService'].must_equal 1
-    traces[5]['RemoteProtocol'].must_equal 'HTTP'
-    traces[5]['RemoteHost'].must_equal '127.0.0.1'
-    traces[5]['RemotePort'].must_equal 8101
-    traces[5]['ServiceArg'].must_equal '/'
+    traces[5]['RemoteURL'].must_equal 'http://127.0.0.1:8101/'
     traces[5]['HTTPMethod'].must_equal 'DELETE'
     traces[5]['HTTPStatus'].must_equal 200
 
@@ -154,9 +145,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
     traces[5]['Layer'].must_equal 'typhoeus'
     traces[5]['Label'].must_equal 'info'
     traces[5]['IsService'].must_equal 1
-    traces[5]['RemoteProtocol'].must_equal 'HTTP'
-    traces[5]['RemoteHost'].must_equal '127.0.0.1'
-    traces[5]['ServiceArg'].must_equal '/'
+    traces[5]['RemoteURL'].must_equal 'http://127.0.0.1:8101/'
     traces[5]['HTTPMethod'].must_equal 'HEAD'
     traces[5]['HTTPStatus'].must_equal 200
 
@@ -181,9 +170,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
     traces[5]['Layer'].must_equal 'typhoeus'
     traces[5]['Label'].must_equal 'info'
     traces[5]['IsService'].must_equal 1
-    traces[5]['RemoteProtocol'].must_equal 'HTTP'
-    traces[5]['RemoteHost'].must_equal '127.0.0.1'
-    traces[5]['ServiceArg'].must_equal '/'
+    traces[5]['RemoteURL'].must_equal 'http://127.0.0.1:8101/'
     traces[5]['HTTPMethod'].must_equal 'GET'
     traces[5]['HTTPStatus'].must_equal 200
 
@@ -211,9 +198,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
     traces[3]['Layer'].must_equal 'typhoeus'
     traces[3]['Label'].must_equal 'info'
     traces[3]['IsService'].must_equal 1
-    traces[3]['RemoteProtocol'].must_equal 'HTTP'
-    traces[3]['RemoteHost'].must_equal 'thisdomaindoesntexisthopefully.asdf'
-    traces[3]['ServiceArg'].must_equal '/products/traceview/'
+    traces[3]['RemoteURL'].must_equal 'http://thisdomaindoesntexisthopefully.asdf/products/traceview/'
     traces[3]['HTTPMethod'].must_equal 'GET'
     traces[3]['HTTPStatus'].must_equal 0
 
@@ -254,11 +239,33 @@ describe Oboe::Inst::TyphoeusRequestOps do
     traces[11]['Label'].must_equal 'exit'
   end
 
+  it 'should obey :log_args setting when true' do
+    Oboe::Config[:typhoeus][:log_args] = true
+
+    Oboe::API.start_trace('typhoeus_test') do
+      Typhoeus.get("127.0.0.1:8101/?blah=1")
+    end
+
+    traces = get_all_traces
+    traces[5]['RemoteURL'].must_equal 'http://127.0.0.1:8101/?blah=1'
+  end
+
+  it 'should obey :log_args setting when false' do
+    Oboe::Config[:typhoeus][:log_args] = false
+
+    Oboe::API.start_trace('typhoeus_test') do
+      Typhoeus.get("127.0.0.1:8101/?blah=1")
+    end
+
+    traces = get_all_traces
+    traces[5]['RemoteURL'].must_equal 'http://127.0.0.1:8101/'
+  end
+
   it 'should obey :collect_backtraces setting when true' do
     Oboe::Config[:typhoeus][:collect_backtraces] = true
 
     Oboe::API.start_trace('typhoeus_test') do
-      Typhoeus.get("127.0.0.1:8101/")
+      Typhoeus.get("127.0.0.1:8101/?blah=1")
     end
 
     traces = get_all_traces
