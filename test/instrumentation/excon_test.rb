@@ -169,5 +169,39 @@ class ExconTest < Minitest::Test
     assert_equal traces[3]['Layer'], 'excon'
     assert_equal traces[3]['Label'], 'exit'
   end
+
+  def test_obey_log_args_when_false
+    @log_args = Oboe::Config[:excon][:log_args]
+    clear_all_traces
+
+    Oboe::Config[:excon][:log_args] = false
+
+    Oboe::API.start_trace('excon_tests') do
+      Excon.get('http://127.0.0.1:8101/?blah=1')
+    end
+
+    traces = get_all_traces
+    assert_equal traces.count, 7
+    assert_equal traces[1]['ServiceArg'], '/'
+
+    Oboe::Config[:excon][:log_args] = @log_args
+  end
+
+  def test_obey_log_args_when_true
+    @log_args = Oboe::Config[:excon][:log_args]
+    clear_all_traces
+
+    Oboe::Config[:excon][:log_args] = true
+
+    Oboe::API.start_trace('excon_tests') do
+      Excon.get('http://127.0.0.1:8101/?blah=1')
+    end
+
+    traces = get_all_traces
+    assert_equal traces.count, 7
+    assert_equal traces[1]['ServiceArg'], '/?blah=1'
+
+    Oboe::Config[:excon][:log_args] = @log_args
+  end
 end
 
