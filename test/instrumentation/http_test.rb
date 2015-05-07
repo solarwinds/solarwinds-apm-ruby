@@ -5,10 +5,12 @@ describe Oboe::Inst do
   before do
     clear_all_traces
     @collect_backtraces = Oboe::Config[:nethttp][:collect_backtraces]
+    @log_args = Oboe::Config[:nethttp][:log_args]
   end
 
   after do
     Oboe::Config[:nethttp][:collect_backtraces] = @collect_backtraces
+    Oboe::Config[:nethttp][:log_args] = @log_args
   end
 
   it 'Net::HTTP should be defined and ready' do
@@ -78,6 +80,34 @@ describe Oboe::Inst do
     traces[5]['HTTPMethod'].must_equal "GET"
     traces[5]['HTTPStatus'].must_equal "200"
     traces[5].has_key?('Backtrace').must_equal Oboe::Config[:nethttp][:collect_backtraces]
+  end
+
+  it "should obey :log_args setting when true" do
+    Oboe::Config[:nethttp][:log_args] = true
+
+    Oboe::API.start_trace('nethttp_test', '', {}) do
+      uri = URI('http://127.0.0.1:8101/')
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = false
+      http.get('/?q=ruby_test_suite').read_body
+    end
+
+    traces = get_all_traces
+    traces[5]['ServiceArg'].must_equal '/?q=ruby_test_suite'
+  end
+
+  it "should obey :log_args setting when false" do
+    Oboe::Config[:nethttp][:log_args] = false
+
+    Oboe::API.start_trace('nethttp_test', '', {}) do
+      uri = URI('http://127.0.0.1:8101/')
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = false
+      http.get('/?q=ruby_test_suite').read_body
+    end
+
+    traces = get_all_traces
+    traces[5]['ServiceArg'].must_equal '/'
   end
 
   it "should obey :collect_backtraces setting when true" do
