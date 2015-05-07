@@ -29,7 +29,14 @@ if Oboe::Config[:nethttp][:enabled]
           opts['IsService'] = 1
           opts['RemoteProtocol'] = use_ssl? ? 'HTTPS' : 'HTTP'
           opts['RemoteHost'] = addr_port
-          opts['ServiceArg'] = req.path
+
+          # Conditionally log query params
+          if Oboe::Config[:nethttp][:log_args]
+            opts['ServiceArg'] = req.path
+          else
+            opts['ServiceArg'] = req.path.split('?').first
+          end
+
           opts['HTTPMethod'] = req.method
           opts['Blacklisted'] = true if blacklisted
           opts['Backtrace'] = Oboe::API.backtrace if Oboe::Config[:nethttp][:collect_backtraces]
