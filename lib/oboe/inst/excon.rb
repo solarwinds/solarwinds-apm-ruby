@@ -15,7 +15,8 @@ module Oboe
         kvs['RemoteProtocol'] = ::Oboe::Util.upcase(@data[:scheme])
         kvs['RemoteHost'] = @data[:host]
 
-        if @data[:query] && @data[:query].length
+        # Conditionally log query args
+        if Oboe::Config[:excon][:log_args] && (@data[:query] && @data[:query].length)
           kvs['ServiceArg'] = @data[:path] + '?' + @data[:query]
         else
           kvs['ServiceArg'] = @data[:path]
