@@ -27,12 +27,16 @@ class HTTPClientTest < Minitest::Test
 
     traces = get_all_traces
 
+    # Validate returned xtrace
+    assert response.headers.key?("X-Trace")
+    assert Oboe::XTrace.valid?(response.headers["X-Trace"])
+
     assert_equal traces.count, 7
     valid_edges?(traces)
     validate_outer_layers(traces, "httpclient_tests")
 
     assert_equal traces[1]['IsService'], 1
-    assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/'
+    assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/?keyword=ruby&lang=en'
     assert_equal traces[1]['HTTPMethod'], 'GET'
     assert traces[1].key?('Backtrace')
 
@@ -52,6 +56,10 @@ class HTTPClientTest < Minitest::Test
     end
 
     traces = get_all_traces
+
+    xtrace = response.headers['X-Trace']
+    assert xtrace
+    assert Oboe::XTrace.valid?(xtrace)
 
     assert_equal traces.count, 7
     valid_edges?(traces)
@@ -79,6 +87,10 @@ class HTTPClientTest < Minitest::Test
 
     traces = get_all_traces
 
+    xtrace = response.headers['X-Trace']
+    assert xtrace
+    assert Oboe::XTrace.valid?(xtrace)
+
     assert_equal traces.count, 7
     valid_edges?(traces)
     validate_outer_layers(traces, "httpclient_tests")
@@ -104,6 +116,10 @@ class HTTPClientTest < Minitest::Test
     end
 
     traces = get_all_traces
+
+    xtrace = response.headers['X-Trace']
+    assert xtrace
+    assert Oboe::XTrace.valid?(xtrace)
 
     assert_equal traces.count, 7
     valid_edges?(traces)
@@ -135,6 +151,7 @@ class HTTPClientTest < Minitest::Test
     Thread.pass until conn.finished?
 
     traces = get_all_traces
+    #require 'byebug'; debugger
     assert_equal traces.count, 7
     valid_edges?(traces)
 
@@ -174,7 +191,7 @@ class HTTPClientTest < Minitest::Test
     validate_outer_layers(traces, "httpclient_tests")
 
     assert_equal traces[1]['IsService'], 1
-    assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/'
+    assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/?keyword=ruby&lang=en'
     assert_equal traces[1]['HTTPMethod'], 'GET'
     assert traces[1].key?('Backtrace')
 
@@ -220,6 +237,60 @@ class HTTPClientTest < Minitest::Test
 
     assert_equal traces[3]['Layer'], 'httpclient'
     assert_equal traces[3]['Label'], 'exit'
+  end
+
+  def test_log_args_when_true
+    clear_all_traces
+
+    @log_args = Oboe::Config[:httpclient][:log_args]
+    Oboe::Config[:httpclient][:log_args] = true
+
+    response = nil
+
+    Oboe::API.start_trace('httpclient_tests') do
+      clnt = HTTPClient.new
+      response = clnt.get('http://127.0.0.1:8101/', :query => { :keyword => 'ruby', :lang => 'en' })
+    end
+
+    traces = get_all_traces
+
+    xtrace = response.headers['X-Trace']
+    assert xtrace
+    assert Oboe::XTrace.valid?(xtrace)
+
+    assert_equal traces.count, 7
+    valid_edges?(traces)
+
+    assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/?keyword=ruby&lang=en'
+
+    Oboe::Config[:httpclient][:log_args] = @log_args
+  end
+
+  def test_log_args_when_false
+    clear_all_traces
+
+    @log_args = Oboe::Config[:httpclient][:log_args]
+    Oboe::Config[:httpclient][:log_args] = false
+
+    response = nil
+
+    Oboe::API.start_trace('httpclient_tests') do
+      clnt = HTTPClient.new
+      response = clnt.get('http://127.0.0.1:8101/', :query => { :keyword => 'ruby', :lang => 'en' })
+    end
+
+    traces = get_all_traces
+
+    xtrace = response.headers['X-Trace']
+    assert xtrace
+    assert Oboe::XTrace.valid?(xtrace)
+
+    assert_equal traces.count, 7
+    valid_edges?(traces)
+
+    assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/'
+
+    Oboe::Config[:httpclient][:log_args] = @log_args
   end
 end
 
