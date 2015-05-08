@@ -138,6 +138,25 @@ module Oboe
         end
       end
 
+
+      ##
+      # to_query
+      #
+      # Used under Ruby 1.8.7 to convert a hash into a URL
+      # query.  A backport of Hash#to_query.
+      #
+      def to_query(h)
+        return "" unless h.is_a?(Hash)
+
+        # If called from a newer Ruby, use the builtin.
+        return h.to_query if RUBY_VERSION >= '1.9.3'
+
+        result = []
+
+        h.each { |k, v| result.push (k.to_s + '=' + v.to_s) }
+        return result.sort.join('&')
+      end
+
       ##
       #  build_report
       #
