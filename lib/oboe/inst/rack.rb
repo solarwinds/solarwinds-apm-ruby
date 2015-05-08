@@ -19,7 +19,6 @@ module Oboe
         report_kvs['Port']             = req.port
         report_kvs['Proto']            = req.scheme
         report_kvs['Query-String']     = URI.unescape(req.query_string) unless req.query_string.empty?
-        report_kvs[:URL]               = URI.unescape(req.path)
         report_kvs[:Method]            = req.request_method
         report_kvs['AJAX']             = true if req.xhr?
         report_kvs['ClientIP']         = req.ip
@@ -62,9 +61,13 @@ module Oboe
       end
 
       req = ::Rack::Request.new(env)
-
       report_kvs = {}
-      report_kvs[:URL] = URI.unescape(req.path)
+
+      if Oboe::Config[:rack][:log_args]
+        report_kvs[:URL] = URI.unescape(req.fullpath)
+      else
+        report_kvs[:URL] = URI.unescape(req.path)
+      end
 
       # Check for and validate X-Trace request header to pick up tracing context
       xtrace = env.is_a?(Hash) ? env['HTTP_X_TRACE'] : nil
