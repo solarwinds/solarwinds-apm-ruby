@@ -13,7 +13,7 @@ module Oboe
 
     @@instrumentation = [:action_controller, :action_view, :active_record,
                          :cassandra, :dalli, :em_http_request, :excon, :faraday,
-                         :grape, :nethttp, :memcached, :memcache, :mongo,
+                         :grape, :httpclient, :nethttp, :memcached, :memcache, :mongo,
                          :moped, :rack, :redis, :resque, :rest_client, :sequel,
                          :typhoeus]
     ##
@@ -41,10 +41,11 @@ module Oboe
       Oboe::Config[:action_view][:collect_backtraces] = true
       Oboe::Config[:cassandra][:collect_backtraces] = true
       Oboe::Config[:dalli][:collect_backtraces] = false
-      Oboe::Config[:faraday][:collect_backtraces] = false
-      Oboe::Config[:grape][:collect_backtraces] = true
       Oboe::Config[:em_http_request][:collect_backtraces] = false
       Oboe::Config[:excon][:collect_backtraces] = true
+      Oboe::Config[:faraday][:collect_backtraces] = false
+      Oboe::Config[:grape][:collect_backtraces] = true
+      Oboe::Config[:httpclient][:collect_backtraces] = true
       Oboe::Config[:memcache][:collect_backtraces] = false
       Oboe::Config[:memcached][:collect_backtraces] = false
       Oboe::Config[:mongo][:collect_backtraces] = true
