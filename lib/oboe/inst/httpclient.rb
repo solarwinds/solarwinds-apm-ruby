@@ -19,7 +19,7 @@ module Oboe
         # or as a part of uri (not both).  Here we handle both cases.
         if Oboe::Config[:httpclient][:log_args]
           if query
-            kvs['RemoteURL'] = uri.to_s + '?' + query.to_param
+            kvs['RemoteURL'] = uri.to_s + '?' + Oboe::Util.to_query(query)
           else
             kvs['RemoteURL'] = uri.to_s
           end
