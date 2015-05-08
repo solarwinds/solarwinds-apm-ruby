@@ -36,7 +36,11 @@ class HTTPClientTest < Minitest::Test
     validate_outer_layers(traces, "httpclient_tests")
 
     assert_equal traces[1]['IsService'], 1
-    assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/?keyword=ruby&lang=en'
+    if RUBY_VERSION < '1.9.3'
+      assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/'
+    else
+      assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/?keyword=ruby&lang=en'
+    end
     assert_equal traces[1]['HTTPMethod'], 'GET'
     assert traces[1].key?('Backtrace')
 
@@ -191,7 +195,11 @@ class HTTPClientTest < Minitest::Test
     validate_outer_layers(traces, "httpclient_tests")
 
     assert_equal traces[1]['IsService'], 1
-    assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/?keyword=ruby&lang=en'
+    if RUBY_VERSION < '1.9.3'
+      assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/'
+    else
+      assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/?keyword=ruby&lang=en'
+    end
     assert_equal traces[1]['HTTPMethod'], 'GET'
     assert traces[1].key?('Backtrace')
 
@@ -261,7 +269,11 @@ class HTTPClientTest < Minitest::Test
     assert_equal traces.count, 7
     valid_edges?(traces)
 
-    assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/?keyword=ruby&lang=en'
+    if RUBY_VERSION < '1.9.3'
+      assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/'
+    else
+      assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/?keyword=ruby&lang=en'
+    end
 
     Oboe::Config[:httpclient][:log_args] = @log_args
   end
