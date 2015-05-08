@@ -69,7 +69,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
     traces[5]['Layer'].must_equal 'typhoeus'
     traces[5]['Label'].must_equal 'info'
     traces[5]['IsService'].must_equal 1
-    traces[5]['RemoteURL'].must_equal 'http://127.0.0.1:8101/'
+    traces[5]['RemoteURL'].casecmp('http://127.0.0.1:8101/').must_equal 0
     traces[5]['HTTPMethod'].must_equal 'POST'
     traces[5]['HTTPStatus'].must_equal 200
 
@@ -170,7 +170,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
     traces[5]['Layer'].must_equal 'typhoeus'
     traces[5]['Label'].must_equal 'info'
     traces[5]['IsService'].must_equal 1
-    traces[5]['RemoteURL'].must_equal 'http://127.0.0.1:8101/'
+    traces[5]['RemoteURL'].casecmp('http://127.0.0.1:8101/').must_equal 0
     traces[5]['HTTPMethod'].must_equal 'GET'
     traces[5]['HTTPStatus'].must_equal 200
 
@@ -198,7 +198,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
     traces[3]['Layer'].must_equal 'typhoeus'
     traces[3]['Label'].must_equal 'info'
     traces[3]['IsService'].must_equal 1
-    traces[3]['RemoteURL'].must_equal 'http://thisdomaindoesntexisthopefully.asdf/products/traceview/'
+    traces[3]['RemoteURL'].casecmp('http://thisdomaindoesntexisthopefully.asdf/products/traceview/').must_equal 0
     traces[3]['HTTPMethod'].must_equal 'GET'
     traces[3]['HTTPStatus'].must_equal 0
 
@@ -247,7 +247,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
     end
 
     traces = get_all_traces
-    traces[5]['RemoteURL'].must_equal 'http://127.0.0.1:8101/?blah=1'
+    traces[5]['RemoteURL'].casecmp('http://127.0.0.1:8101/?blah=1').must_equal 0
   end
 
   it 'should obey :log_args setting when false' do
@@ -258,7 +258,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
     end
 
     traces = get_all_traces
-    traces[5]['RemoteURL'].must_equal 'http://127.0.0.1:8101/'
+    traces[5]['RemoteURL'].casecmp('http://127.0.0.1:8101/').must_equal 0
   end
 
   it 'should obey :collect_backtraces setting when true' do
