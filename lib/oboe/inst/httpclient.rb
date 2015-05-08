@@ -15,10 +15,10 @@ module Oboe
         kvs['IsService'] = 1
 
         # Conditionally log URL query params
-        # Because of the hook points, the query arg can come in under <tt>query</tt>
-        # or as a part of <tt>uri</tt> (not both).  Here we handle both cases.
+        # Because of the hook points, the query arg can come in under query
+        # or as a part of uri (not both).  Here we handle both cases.
         if Oboe::Config[:httpclient][:log_args]
-          if query and (RUBY_VERSION > '1.9.3')
+          if query
             kvs['RemoteURL'] = uri.to_s + '?' + query.to_param
           else
             kvs['RemoteURL'] = uri.to_s
@@ -33,8 +33,6 @@ module Oboe
       rescue => e
         Oboe.logger.debug "[oboe/debug] Error capturing httpclient KVs: #{e.message}"
         Oboe.logger.debug e.backtrace.join('\n') if ::Oboe::Config[:verbose]
-      ensure
-        return kvs
       end
 
       def do_request_with_oboe(method, uri, query, body, header, &block)
