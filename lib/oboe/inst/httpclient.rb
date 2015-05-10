@@ -15,8 +15,8 @@ module Oboe
         kvs['IsService'] = 1
 
         # Conditionally log URL query params
-        # Because of the hook points, the query arg can come in under query
-        # or as a part of uri (not both).  Here we handle both cases.
+        # Because of the hook points, the query arg can come in under <tt>query</tt>
+        # or as a part of <tt>uri</tt> (not both).  Here we handle both cases.
         if Oboe::Config[:httpclient][:log_args]
           if query
             kvs['RemoteURL'] = uri.to_s + '?' + Oboe::Util.to_query(query)
