@@ -16,6 +16,10 @@ module Oboe
                          :grape, :httpclient, :nethttp, :memcached, :memcache, :mongo,
                          :moped, :rack, :redis, :resque, :rest_client, :sequel,
                          :typhoeus]
+
+    # Subgrouping of instrumentation
+    @@http_clients = [:excon, :faraday, :httpclient, :nethttp, :rest_client, :typhoeus]
+
     ##
     # Return the raw nested hash.
     #
@@ -72,6 +76,33 @@ module Oboe
       # Access Key is empty until loaded from config file or env var
       @@config[:access_key] = ''
 
+      # Logging of outgoing HTTP query args
+      #
+      # This optionally disables the logging of query args of outgoing
+      # HTTP clients such as Net::HTTP, excon, typhoeus and others.
+      #
+      # This flag is global to all HTTP client instrumentation.
+      #
+      # To configure this on a per instrumentation basis, set this
+      # option to true and instead disable the instrumenstation specific
+      # option <tt>log_args</tt>:
+      #
+      #   Oboe::Config[:nethttp][:log_args] = false
+      #   Oboe::Config[:excon][:log_args] = false
+      #   Oboe::Config[:typhoeus][:log_args] = true
+      #
+      @@config[:include_url_query_params] = true
+
+      # Logging of incoming HTTP query args
+      #
+      # This optionally disables the logging of incoming URL request
+      # query args.
+      #
+      # This flag is global and currently only affects the Rack
+      # instrumentation which reports incoming request URLs and
+      # query args by default.
+      @@config[:include_remote_url_params] = true
+
       # The oboe Ruby client has the ability to sanitize query literals
       # from SQL statements.  By default this is disabled.  Enable to
       # avoid collecting and reporting query literals to TraceView.
@@ -111,6 +142,7 @@ module Oboe
       # report all raised exception regardless.
       @@config[:report_rescued_errors] = false
 
+      # Environment support for OpenShift.
       if ENV.key?('OPENSHIFT_TRACEVIEW_TLYZER_IP')
         # We're running on OpenShift
         @@config[:tracing_mode] = 'always'
@@ -146,9 +178,8 @@ module Oboe
       if key == :sampling_rate
         Oboe.logger.warn 'sampling_rate is not a supported setting for Oboe::Config.  ' \
                          'Please use :sample_rate.'
-      end
 
-      if key == :sample_rate
+      elsif key == :sample_rate
         unless value.is_a?(Integer) || value.is_a?(Float)
           fail 'oboe :sample_rate must be a number between 1 and 1000000 (1m)'
         end
@@ -160,8 +191,19 @@ module Oboe
 
         # Assure value is an integer
         @@config[key.to_sym] = value.to_i
-
         Oboe.set_sample_rate(value) if Oboe.loaded
+
+      elsif key == :include_url_query_params
+        # Obey the global flag and update all of the per instrumentation
+        # <tt>:log_args</tt> values.
+        @@http_clients.each do |i|
+          @@config[i][:log_args] = value
+        end
+
+      elsif key == :include_remote_url_params
+        # Obey the global flag and update all of the per instrumentation
+        # <tt>:log_args</tt> values.
+        @@config[:rack][:log_args] = value
       end
 
       # Update liboboe if updating :tracing_mode
@@ -170,18 +212,22 @@ module Oboe
       end
     end
 
-    def self.instrumentation_list
-      @@instrumentation
-    end
-
     def self.method_missing(sym, *args)
       if sym.to_s =~ /(.+)=$/
         self[$1] = args.first
       else
-        unless @@config.key?(sym)
-          Oboe.logger.warn "[oboe/warn] Unknown method call on Oboe::Config: #{sym}"
+        # Try part of the @@config hash first
+        if @@config.key?(sym)
+          self[sym]
+
+        # Then try as a class variable
+        elsif self.class_variables.include?("@@#{sym}".to_sym)
+          self.class_variable_get("@@#{sym}".to_sym)
+
+        # Congrats - You've won a brand new nil...
+        else
+          nil
         end
-        self[sym]
       end
     end
   end
