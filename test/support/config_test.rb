@@ -20,7 +20,7 @@ describe Oboe::Config do
     # Reset Oboe::Config to defaults
     Oboe::Config.initialize
 
-    instrumentation = Oboe::Config.instrumentation_list
+    instrumentation = Oboe::Config.instrumentation
 
     # Verify the number of individual instrumentations
     instrumentation.count.must_equal 21
@@ -74,5 +74,45 @@ describe Oboe::Config do
 
     Oboe::Config[:dnt_regexp].must_equal "\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|ttf|woff|svg|less)$"
     Oboe::Config[:dnt_opts].must_equal Regexp::IGNORECASE
+  end
+
+  def test_should_obey_globals
+    # Reset Oboe::Config to defaults
+    Oboe::Config.initialize
+
+    http_clients = Oboe::Config.http_clients
+
+    # After setting global options, the per instrumentation
+    # equivalents should follow suit.
+
+    #
+    # :include_url_query_params
+    #
+
+    # Check defaults
+    Oboe::Config[:include_url_query_params].must_equal true
+    http_clients.each do |i|
+      Oboe::Config[i][:log_args].must_equal true
+    end
+
+    # Check obedience
+    Oboe::Config[:include_url_query_params] = false
+    http_clients.each do |i|
+      Oboe::Config[i][:log_args].must_equal false
+    end
+
+    #
+    # :include_remote_url_params
+    #
+
+    # Check default
+    Oboe::Config[:include_remote_url_params].must_equal true
+    Oboe::Config[:rack][:log_args].must_equal true
+
+    # Check obedience
+    Oboe::Config[:include_remote_url_params] = false
+    Oboe::Config[:rack][:log_args].must_equal false
+
+
   end
 end
