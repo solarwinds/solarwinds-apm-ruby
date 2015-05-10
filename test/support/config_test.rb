@@ -82,6 +82,10 @@ describe Oboe::Config do
 
     http_clients = Oboe::Config.http_clients
 
+    # Restore these at the end
+    @url_query_params  = Oboe::Config[:include_url_query_params]
+    @remote_url_params = Oboe::Config[:include_remote_url_params]
+
     # After setting global options, the per instrumentation
     # equivalents should follow suit.
 
@@ -113,6 +117,8 @@ describe Oboe::Config do
     Oboe::Config[:include_remote_url_params] = false
     Oboe::Config[:rack][:log_args].must_equal false
 
-
+    # Restore the previous values
+    Oboe::Config[:include_url_query_params] = @url_query_params
+    Oboe::Config[:include_remote_url_params] = @remote_url_params
   end
 end
