@@ -69,6 +69,17 @@ module Oboe
     Oboe.logger.warn "Using Grape?: #{yesno(using_grape)}"
 
     Oboe.logger.warn "********************************************************"
+    Oboe.logger.warn "* ActiveRecord Adapter"
+    Oboe.logger.warn "********************************************************"
+    if defined?(::ActiveRecord)
+      if defined?(::ActiveRecord::Base.connection.adapter_name)
+        Oboe.logger.warn "ActiveRecord adapter: #{::ActiveRecord::Base.connection.adapter_name}"
+      end
+    else
+      Oboe.logger.warn "No ActiveRecord"
+    end
+
+    Oboe.logger.warn "********************************************************"
     Oboe.logger.warn "* TraceView Libraries"
     Oboe.logger.warn "********************************************************"
     files = []
