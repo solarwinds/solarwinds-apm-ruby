@@ -1,6 +1,7 @@
 require "minitest/spec"
 require "minitest/autorun"
 require "minitest/reporters"
+require "minitest/debugger" if ENV['DEBUG']
 
 ENV["RACK_ENV"] = "test"
 ENV["OBOE_GEM_TEST"] = "true"

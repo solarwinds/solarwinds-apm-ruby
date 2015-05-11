@@ -30,14 +30,15 @@ class RackTestApp < Minitest::Test
 
     kvs = {}
     kvs["Label"] = "entry"
+    kvs["URL"] = "/lobster"
     validate_event_keys(traces[0], kvs)
 
     kvs.clear
+    kvs["Layer"] = "rack"
     kvs["Label"] = "info"
     kvs["HTTP-Host"] = "example.org"
     kvs["Port"] = 80
     kvs["Proto"] = "http"
-    kvs["URL"] = "/lobster"
     kvs["Method"] = "GET"
     kvs["ClientIP"] = "127.0.0.1"
     validate_event_keys(traces[1], kvs)
@@ -72,6 +73,44 @@ class RackTestApp < Minitest::Test
     xtrace = last_response['X-Trace']
     assert xtrace
     assert Oboe::XTrace.valid?(xtrace)
+  end
+
+  def test_log_args_when_false
+    clear_all_traces
+
+    @log_args = Oboe::Config[:rack][:log_args]
+    Oboe::Config[:rack][:log_args] = false
+
+    get "/lobster?blah=1"
+
+    traces = get_all_traces
+
+    xtrace = last_response['X-Trace']
+    assert xtrace
+    assert Oboe::XTrace.valid?(xtrace)
+
+    traces[0]['URL'].must_equal "/lobster"
+
+    Oboe::Config[:rack][:log_args] = @log_args
+  end
+
+  def test_log_args_when_true
+    clear_all_traces
+
+    @log_args = Oboe::Config[:rack][:log_args]
+    Oboe::Config[:rack][:log_args] = true
+
+    get "/lobster?blah=1"
+
+    traces = get_all_traces
+
+    xtrace = last_response['X-Trace']
+    assert xtrace
+    assert Oboe::XTrace.valid?(xtrace)
+
+    traces[0]['URL'].must_equal "/lobster?blah=1"
+
+    Oboe::Config[:rack][:log_args] = @log_args
   end
 end
 

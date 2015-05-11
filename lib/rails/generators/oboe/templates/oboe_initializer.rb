@@ -1,9 +1,6 @@
 # AppNeta TraceView Initializer (the oboe gem)
 # http://www.appneta.com/products/traceview/
 #
-# Details on configuring your sample rate:
-# https://support.appneta.com/cloud/configuring-sampling
-#
 # More information on instrumenting Ruby applications can be found here:
 # https://support.appneta.com/cloud/installing-ruby-instrumentation
 
@@ -15,11 +12,35 @@ if defined?(Oboe::Config)
   # order to initiate tracing from Ruby.
   Oboe::Config[:tracing_mode] = '<%= @tracing_mode %>'
 
-  # sample_rate is a value from 0 - 1m indicating the fraction of requests per million to trace
-  # Oboe::Config[:sample_rate] = <%= @sample_rate %>
-
   # Verbose output of instrumentation initialization
   # Oboe::Config[:verbose] = <%= @verbose %>
+
+  # Logging of outgoing HTTP query args
+  #
+  # This optionally disables the logging of query args of outgoing
+  # HTTP clients such as Net::HTTP, excon, typhoeus and others.
+  #
+  # This flag is global to all HTTP client instrumentation.
+  #
+  # To configure this on a per instrumentation basis, set this
+  # option to true and instead disable the instrumenstation specific
+  # option <tt>log_args</tt>:
+  #
+  #   Oboe::Config[:nethttp][:log_args] = false
+  #   Oboe::Config[:excon][:log_args] = false
+  #   Oboe::Config[:typhoeus][:log_args] = true
+  #
+  Oboe::Config[:include_url_query_params] = true
+
+  # Logging of incoming HTTP query args
+  #
+  # This optionally disables the logging of incoming URL request
+  # query args.
+  #
+  # This flag is global and currently only affects the Rack
+  # instrumentation which reports incoming request URLs and
+  # query args by default.
+  Oboe::Config[:include_remote_url_params] = true
 
   # The oboe Ruby client has the ability to sanitize query literals
   # from SQL statements.  By default this is disabled.  Enable to
@@ -77,8 +98,10 @@ if defined?(Oboe::Config)
   # Oboe::Config[:action_view][:enabled] = true
   # Oboe::Config[:cassandra][:enabled] = true
   # Oboe::Config[:dalli][:enabled] = true
+  # Oboe::Config[:excon][:enabled] = true
   # Oboe::Config[:em_http_request][:enabled] = true
   # Oboe::Config[:faraday][:enabled] = true
+  # Oboe::Config[:httpclient][:enabled] = true
   # Oboe::Config[:memcache][:enabled] = true
   # Oboe::Config[:memcached][:enabled] = true
   # Oboe::Config[:mongo][:enabled] = true
@@ -86,6 +109,7 @@ if defined?(Oboe::Config)
   # Oboe::Config[:nethttp][:enabled] = true
   # Oboe::Config[:redis][:enabled] = true
   # Oboe::Config[:resque][:enabled] = true
+  # Oboe::Config[:rest_client][:enabled] = true
   # Oboe::Config[:sequel][:enabled] = true
   # Oboe::Config[:typhoeus][:enabled] = true
   #
@@ -103,8 +127,10 @@ if defined?(Oboe::Config)
   # Oboe::Config[:action_view][:collect_backtraces] = true
   # Oboe::Config[:cassandra][:collect_backtraces] = true
   # Oboe::Config[:dalli][:collect_backtraces] = false
+  # Oboe::Config[:excon][:collect_backtraces] = false
   # Oboe::Config[:em_http_request][:collect_backtraces] = true
   # Oboe::Config[:faraday][:collect_backtraces] = false
+  # Oboe::Config[:httpclient][:collect_backtraces] = false
   # Oboe::Config[:memcache][:collect_backtraces] = false
   # Oboe::Config[:memcached][:collect_backtraces] = false
   # Oboe::Config[:mongo][:collect_backtraces] = true
@@ -112,18 +138,10 @@ if defined?(Oboe::Config)
   # Oboe::Config[:nethttp][:collect_backtraces] = true
   # Oboe::Config[:redis][:collect_backtraces] = false
   # Oboe::Config[:resque][:collect_backtraces] = true
+  # Oboe::Config[:rest_client][:collect_backtraces] = true
   # Oboe::Config[:sequel][:collect_backtraces] = true
   # Oboe::Config[:typhoeus][:collect_backtraces] = false
   #
-
-  #
-  # Blacklist actions
-  #
-  # e.g. if your load balancer requests 'index#ok'
-  #
-  #   Oboe::Config[:action_blacklist] = {
-  #     'index#ok' => true
-  # }
 
   #
   # Resque Options

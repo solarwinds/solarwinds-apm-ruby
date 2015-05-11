@@ -10,10 +10,23 @@ module Oboe
         ::Oboe::Util.method_alias(klass, :do_get_stream, ::HTTPClient)
       end
 
-      def oboe_collect(method, uri)
+      def oboe_collect(method, uri, query = nil)
         kvs = {}
         kvs['IsService'] = 1
-        kvs['RemoteURL'] = uri.to_s
+
+        # Conditionally log URL query params
+        # Because of the hook points, the query arg can come in under <tt>query</tt>
+        # or as a part of <tt>uri</tt> (not both).  Here we handle both cases.
+        if Oboe::Config[:httpclient][:log_args]
+          if query
+            kvs['RemoteURL'] = uri.to_s + '?' + Oboe::Util.to_query(query)
+          else
+            kvs['RemoteURL'] = uri.to_s
+          end
+        else
+          kvs['RemoteURL'] = uri.to_s.split('?').first
+        end
+
         kvs['HTTPMethod'] = ::Oboe::Util.upcase(method)
         kvs['Backtrace'] = Oboe::API.backtrace if Oboe::Config[:httpclient][:collect_backtraces]
         kvs
@@ -34,7 +47,7 @@ module Oboe
           # Avoid cross host tracing for blacklisted domains
           blacklisted = Oboe::API.blacklisted?(uri.hostname)
 
-          kvs = oboe_collect(method, uri)
+          kvs = oboe_collect(method, uri, query)
           kvs['Blacklisted'] = true if blacklisted
 
           Oboe::API.log_entry('httpclient', kvs)
