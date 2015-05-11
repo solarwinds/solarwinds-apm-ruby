@@ -213,6 +213,8 @@ module Oboe
     end
 
     def self.method_missing(sym, *args)
+      class_var_name = "@@#{sym}"
+
       if sym.to_s =~ /(.+)=$/
         self[$1] = args.first
       else
@@ -221,8 +223,8 @@ module Oboe
           self[sym]
 
         # Then try as a class variable
-        elsif self.class_variables.include?("@@#{sym}".to_sym)
-          self.class_variable_get("@@#{sym}".to_sym)
+        elsif self.class_variable_defined?(class_var_name.to_sym)
+          self.class_eval(class_var_name)
 
         # Congrats - You've won a brand new nil...
         else
