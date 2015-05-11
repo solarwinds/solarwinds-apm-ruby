@@ -2,6 +2,7 @@
 # All rights reserved.
 
 require 'rbconfig'
+require 'logger'
 
 module Oboe
   ##
@@ -18,6 +19,9 @@ module Oboe
   end
 
   def self.support_report
+    @logger_level = Oboe.logger.level
+    Oboe.logger.level = ::Logger::DEBUG
+
     Oboe.logger.warn "********************************************************"
     Oboe.logger.warn "* BEGIN TraceView Support Report"
     Oboe.logger.warn "*   Please email the output of this report to traceviewsupport@appneta.com"
@@ -67,7 +71,11 @@ module Oboe
     Oboe.logger.warn "********************************************************"
     Oboe.logger.warn "* TraceView Libraries"
     Oboe.logger.warn "********************************************************"
-    files = Dir.glob('/usr/lib/liboboe*')
+    files = []
+    ['/usr/lib/liboboe*', '/usr/lib64/liboboe*'].each do |d|
+      files = Dir.glob(d)
+      break if !files.empty?
+    end
     if files.empty?
       Oboe.logger.warn "Error: No liboboe libs!"
     else
@@ -108,6 +116,8 @@ module Oboe
     Oboe.logger.warn "*   Freenode IRC: #appneta"
     Oboe.logger.warn "*   Github: https://github.com/appneta/oboe-ruby"
     Oboe.logger.warn "********************************************************"
+
+    Oboe.logger.level = @logger_level
     nil
   end
 end
