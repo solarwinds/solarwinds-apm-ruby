@@ -2,7 +2,7 @@ require 'minitest_helper'
 
 # The cassandra-rb client doesn't support JRuby
 # https://github.com/cassandra-rb/cassandra
-unless defined?(JRUBY_VERSION)
+if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
   describe Oboe::Inst::Cassandra do
     before do
       clear_all_traces

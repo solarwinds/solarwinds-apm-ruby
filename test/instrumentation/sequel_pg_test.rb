@@ -1,6 +1,6 @@
 require 'minitest_helper'
 
-unless defined?(JRUBY_VERSION)
+if defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
   if ENV.key?('TRAVIS_PSQL_PASS')
     PG_DB = Sequel.connect("postgres://postgres:#{ENV['TRAVIS_PSQL_PASS']}@127.0.0.1:5432/travis_ci_test")
