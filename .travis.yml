@@ -15,9 +15,10 @@ rvm:
   - ree
   - jruby-19mode
 
-#gemfile:
-#  - gemfiles/mongo.gemfile
-#  - gemfiles/moped.gemfile
+gemfile:
+  - gemfiles/grape.gemfile
+  - gemfiles/libraries.gemfile
+  - gemfiles/padrino.gemfile
 
 # Attempt Travis/Cassandra fix re: https://github.com/travis-ci/travis-ci/issues/1484
 # Updated Cassandra: https://github.com/travis-ci/travis-ci/issues/1650
