@@ -1,3 +1,5 @@
+require 'rubygems'
+require 'bundler/setup'
 require "minitest/spec"
 require "minitest/autorun"
 require "minitest/reporters"
@@ -20,22 +22,21 @@ if defined?(JRUBY_VERSION)
   ENV['JAVA_OPTS'] = "-J-javaagent:/usr/local/tracelytics/tracelyticsagent.jar"
 end
 
-require 'rubygems'
-require 'bundler'
-
-# Preload memcache-client
-require 'memcache'
-
-Bundler.require(:default, :test)
-
 @trace_dir = "/tmp/"
 $trace_file = @trace_dir + "trace_output.bson"
+
+Bundler.require(:default, :test)
 
 # Configure Oboe
 Oboe::Config[:verbose] = true
 Oboe::Config[:tracing_mode] = "always"
 Oboe::Config[:sample_rate] = 1000000
 Oboe.logger.level = Logger::DEBUG
+
+# Pre-create test databases (see also .travis.yml)
+# puts "Pre-creating test databases"
+# puts %x{mysql -u root -e 'create database travis_ci_test;'}
+# puts %x{psql -c 'create database travis_ci_test;' -U postgres}
 
 # Our background Rack-app for http client testing
 require "./test/servers/rackapp_8101"
