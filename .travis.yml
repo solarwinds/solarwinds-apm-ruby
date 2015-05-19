@@ -16,6 +16,9 @@ rvm:
   - jruby-19mode
 
 gemfile:
+  - gemfiles/rails23.gemfile
+  - gemfiles/rails32.gemfile
+  - gemfiles/rails40.gemfile
   - gemfiles/grape.gemfile
   - gemfiles/libraries.gemfile
   - gemfiles/padrino.gemfile
