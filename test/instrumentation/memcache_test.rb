@@ -1,5 +1,4 @@
 require 'minitest_helper'
-require 'memcache'
 
 describe Oboe::API::Memcache do
   before do
