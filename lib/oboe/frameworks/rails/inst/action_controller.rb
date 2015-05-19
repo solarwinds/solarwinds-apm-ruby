@@ -58,9 +58,9 @@ module Oboe
       # Our render wrapper that just times and conditionally
       # reports raised exceptions
       #
-      def render_with_oboe(*args)
+      def render_with_oboe(*args, &blk)
         Oboe::API.log_entry('actionview')
-        render_without_oboe(*args)
+        render_without_oboe(*args, &blk)
 
       rescue Exception => e
         Oboe::API.log_exception(nil, e) if log_rails_error?(e)
@@ -106,7 +106,7 @@ module Oboe
         Oboe::API.log(nil, 'info', report_kvs)
 
         process_action_without_oboe *args
-      rescue Exception => exception
+      rescue Exception
         report_kvs[:Status] = 500
         Oboe::API.log(nil, 'info', report_kvs)
         raise
