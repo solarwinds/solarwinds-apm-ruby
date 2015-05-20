@@ -25,15 +25,23 @@ module Oboe
       def perform_with_oboe(*all_args, &blk)
         op, key, *args = *all_args
 
+        report_kvs = {}
+        report_kvs[:KVOp] = op
+        report_kvs[:KVKey] = key
+        if @servers.is_a?(Array) && !@servers.empty?
+          report_kvs[:RemoteHost] = @servers.join(", ")
+        end
+
         if Oboe.tracing? && !Oboe.tracing_layer_op?(:get_multi)
-          Oboe::API.trace('memcache', { :KVOp => op, :KVKey => key }) do
+          Oboe::API.trace('memcache', report_kvs) do
             result = perform_without_oboe(*all_args, &blk)
 
-            info_kvs = {}
-            info_kvs[:KVHit] = memcache_hit?(result) if op == :get && key.class == String
-            info_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:dalli][:collect_backtraces]
+            # Clear the hash for a potential info event
+            report_kvs.clear
+            report_kvs[:KVHit] = memcache_hit?(result) if op == :get && key.class == String
+            report_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:dalli][:collect_backtraces]
 
-            Oboe::API.log('memcache', 'info', info_kvs) unless info_kvs.empty?
+            Oboe::API.log('memcache', 'info', report_kvs) unless report_kvs.empty?
             result
           end
         else
@@ -49,6 +57,9 @@ module Oboe
         begin
           info_kvs[:KVKeyCount] = keys.flatten.length
           info_kvs[:KVKeyCount] = (info_kvs[:KVKeyCount] - 1) if keys.last.is_a?(Hash) || keys.last.nil?
+          if @servers.is_a?(Array) && !@servers.empty?
+            info_kvs[:RemoteHost] = @servers.join(", ")
+          end
         rescue
           Oboe.logger.debug "[oboe/debug] Error collecting info keys: #{e.message}"
           Oboe.logger.debug e.backtrace
