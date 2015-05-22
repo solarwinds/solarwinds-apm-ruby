@@ -1,7 +1,7 @@
 require 'minitest_helper'
 require "redis"
 
-describe Oboe::Inst::Redis, :lists do
+describe "Redis Lists" do
   attr_reader :entry_kvs, :exit_kvs, :redis, :redis_version
 
   def min_server_version(version)
@@ -31,7 +31,7 @@ describe Oboe::Inst::Redis, :lists do
 
     @redis.lpush("savage", "zombie")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.blpop("savage")
     end
 
@@ -46,7 +46,7 @@ describe Oboe::Inst::Redis, :lists do
 
     @redis.lpush("savage", "the walking dead")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.brpop("savage")
     end
 
@@ -61,7 +61,7 @@ describe Oboe::Inst::Redis, :lists do
 
     @redis.lpush("savage", "night of the walking dead")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.brpoplpush("savage", "crawlies")
     end
 
@@ -78,7 +78,7 @@ describe Oboe::Inst::Redis, :lists do
     @redis.lpush("fringe", "dunham")
     @redis.lpush("fringe", "broyles")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.lindex("fringe", 1)
     end
 
@@ -95,7 +95,7 @@ describe Oboe::Inst::Redis, :lists do
     @redis.lpush("gods of old", "moon")
     @redis.lpush("gods of old", "night")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.linsert("gods of old", "BEFORE", "night", "river")
     end
 
@@ -112,7 +112,7 @@ describe Oboe::Inst::Redis, :lists do
     @redis.lpush("gods of old", "moon")
     @redis.lpush("gods of old", "night")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.llen("gods of old")
     end
 
@@ -129,7 +129,7 @@ describe Oboe::Inst::Redis, :lists do
     @redis.lpush("gods of old", "moon")
     @redis.lpush("gods of old", "night")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.lpop("gods of old")
     end
 
@@ -142,7 +142,7 @@ describe Oboe::Inst::Redis, :lists do
   it "should trace lpush" do
     min_server_version(1.0)
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.lpush("gods of old", "night")
     end
 
@@ -155,7 +155,7 @@ describe Oboe::Inst::Redis, :lists do
   it "should trace lpushx" do
     min_server_version(2.2)
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.lpushx("gods of old", "night")
     end
 
@@ -174,7 +174,7 @@ describe Oboe::Inst::Redis, :lists do
     @redis.rpush("protein types", "enzyme")
     @redis.rpush("protein types", "immunoglobulins")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.lrange("protein types", 2, 4)
     end
 
@@ -196,7 +196,7 @@ describe Oboe::Inst::Redis, :lists do
     @redis.rpush("australia", "tamworth")
     @redis.rpush("australia", "penrith")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.lrem("australia", -2, "sydney")
     end
 
@@ -214,7 +214,7 @@ describe Oboe::Inst::Redis, :lists do
     @redis.rpush("australia", "tamworth")
     @redis.rpush("australia", "penrith")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.lset("australia", 2, "Kalgoorlie")
     end
 
@@ -236,7 +236,7 @@ describe Oboe::Inst::Redis, :lists do
     @redis.rpush("australia", "tamworth")
     @redis.rpush("australia", "penrith")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.ltrim("australia", 2, 6)
     end
 
@@ -253,7 +253,7 @@ describe Oboe::Inst::Redis, :lists do
     @redis.rpush("santa esmeralda", "don't let me be misunderstood")
     @redis.rpush("santa esmeralda", "sevilla nights")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.rpop("santa esmeralda")
     end
 
@@ -270,7 +270,7 @@ describe Oboe::Inst::Redis, :lists do
     @redis.rpush("santa esmeralda", "don't let me be misunderstood")
     @redis.rpush("santa esmeralda", "sevilla nights")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.rpoplpush("santa esmeralda", "the gods of old")
     end
 
@@ -284,7 +284,7 @@ describe Oboe::Inst::Redis, :lists do
   it "should trace rpush" do
     min_server_version(1.0)
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.rpush("boney m", "rasputin")
     end
 
@@ -297,7 +297,7 @@ describe Oboe::Inst::Redis, :lists do
   it "should trace rpushx" do
     min_server_version(1.0)
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.rpushx("boney m", "rasputin")
     end
 

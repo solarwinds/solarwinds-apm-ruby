@@ -1,7 +1,7 @@
 require 'minitest_helper'
 require "redis"
 
-describe Oboe::Inst::Redis, :sets do
+describe "Redis Sets" do
   attr_reader :entry_kvs, :exit_kvs, :redis, :redis_version
 
   def min_server_version(version)
@@ -25,7 +25,7 @@ describe Oboe::Inst::Redis, :sets do
   it "should trace sadd" do
     min_server_version(1.0)
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.sadd("shrimp", "fried")
     end
 
@@ -44,7 +44,7 @@ describe Oboe::Inst::Redis, :sets do
     @redis.sadd("mother sauces", "hollandaise")
     @redis.sadd("mother sauces", "classic tomate")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.scard("mother sauces")
     end
 
@@ -63,7 +63,7 @@ describe Oboe::Inst::Redis, :sets do
     @redis.sadd("ab", "a")
     @redis.sadd("ab", "b")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.sdiff("abc", "ab")
     end
 
@@ -82,7 +82,7 @@ describe Oboe::Inst::Redis, :sets do
     @redis.sadd("ab", "a")
     @redis.sadd("ab", "b")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.sdiffstore("dest", "abc", "ab")
     end
 
@@ -101,7 +101,7 @@ describe Oboe::Inst::Redis, :sets do
     @redis.sadd("ab", "a")
     @redis.sadd("ab", "b")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.sinter("abc", "ab")
     end
 
@@ -120,7 +120,7 @@ describe Oboe::Inst::Redis, :sets do
     @redis.sadd("ab", "a")
     @redis.sadd("ab", "b")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.sinterstore("dest", "abc", "ab")
     end
 
@@ -141,7 +141,7 @@ describe Oboe::Inst::Redis, :sets do
     @redis.sadd("fibonacci", "5")
     @redis.sadd("fibonacci", "8")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.sismember("fibonacci", "5")
     end
 
@@ -160,7 +160,7 @@ describe Oboe::Inst::Redis, :sets do
     @redis.sadd("fibonacci", "2")
     @redis.sadd("fibonacci", "3")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.smembers("fibonacci")
     end
 
@@ -177,7 +177,7 @@ describe Oboe::Inst::Redis, :sets do
     @redis.sadd("numbers", "2")
     @redis.sadd("alpha", "two")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.smove("alpha", "numbers", "two")
     end
 
@@ -195,7 +195,7 @@ describe Oboe::Inst::Redis, :sets do
     @redis.sadd("fibonacci", "1")
     @redis.sadd("fibonacci", "1")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.spop("fibonacci")
     end
 
@@ -212,7 +212,7 @@ describe Oboe::Inst::Redis, :sets do
     @redis.sadd("fibonacci", "1")
     @redis.sadd("fibonacci", "1")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.srandmember("fibonacci")
     end
 
@@ -229,7 +229,7 @@ describe Oboe::Inst::Redis, :sets do
     @redis.sadd("fibonacci", "1")
     @redis.sadd("fibonacci", "1")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.srem("fibonacci", "0")
     end
 
@@ -246,7 +246,7 @@ describe Oboe::Inst::Redis, :sets do
     @redis.sadd("group1", "curly")
     @redis.sadd("group2", "larry")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.sunion("group1", "group2")
     end
 
@@ -263,7 +263,7 @@ describe Oboe::Inst::Redis, :sets do
     @redis.sadd("group1", "curly")
     @redis.sadd("group2", "larry")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.sunionstore("dest", "group1", "group2")
     end
 
@@ -280,7 +280,7 @@ describe Oboe::Inst::Redis, :sets do
     @redis.sadd("group1", "moe")
     @redis.sadd("group1", "curly")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.sscan("group1", 1)
     end
 

@@ -1,7 +1,7 @@
 require 'minitest_helper'
 require "redis"
 
-describe Oboe::Inst::Redis, :keys do
+describe "Redis Keys" do
   attr_reader :entry_kvs, :exit_kvs, :redis, :redis_version
 
   def min_server_version(version)
@@ -29,7 +29,7 @@ describe Oboe::Inst::Redis, :keys do
   it "should trace del" do
     @redis.setex("del_test", 60, "blah")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.del("del_test")
     end
 
@@ -42,7 +42,7 @@ describe Oboe::Inst::Redis, :keys do
   it "should trace del of multiple keys" do
     @redis.setex("del_test", 60, "blah")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.del(["del_test", "noexist", "maybe"])
     end
 
@@ -57,7 +57,7 @@ describe Oboe::Inst::Redis, :keys do
 
     @redis.setex("dump_test", 60, "blah")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.dump("del_test")
     end
 
@@ -70,7 +70,7 @@ describe Oboe::Inst::Redis, :keys do
   it "should trace exists" do
     @redis.setex("talking_heads", 60, "burning down the house")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @it_exists = @redis.exists("talking_heads")
     end
 
@@ -85,7 +85,7 @@ describe Oboe::Inst::Redis, :keys do
   it "should trace expire" do
     @redis.set("expire_please", "burning down the house")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.expire("expire_please", 120)
     end
 
@@ -98,7 +98,7 @@ describe Oboe::Inst::Redis, :keys do
   it "should trace expireat" do
     @redis.set("expireat_please", "burning down the house")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.expireat("expireat_please", Time.now.to_i)
     end
 
@@ -109,7 +109,7 @@ describe Oboe::Inst::Redis, :keys do
   end
 
   it "should trace keys" do
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.keys("del*")
     end
 
@@ -122,7 +122,7 @@ describe Oboe::Inst::Redis, :keys do
   it "should trace basic move" do
     @redis.set("piano", Time.now)
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.move("piano", 1)
     end
 
@@ -138,7 +138,7 @@ describe Oboe::Inst::Redis, :keys do
 
     @redis.setex("mine", 60, "blah")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.persist("mine")
     end
 
@@ -153,7 +153,7 @@ describe Oboe::Inst::Redis, :keys do
 
     @redis.set("sand", "blah")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @rv = @redis.pexpire("sand", 8000)
     end
 
@@ -171,7 +171,7 @@ describe Oboe::Inst::Redis, :keys do
 
     @redis.set("sand", "blah")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @rv = @redis.pexpireat("sand", 8000)
     end
 
@@ -189,7 +189,7 @@ describe Oboe::Inst::Redis, :keys do
 
     @redis.setex("sand", 120, "blah")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.pttl("sand")
     end
 
@@ -200,7 +200,7 @@ describe Oboe::Inst::Redis, :keys do
   end
 
   it "should trace randomkey" do
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.randomkey()
     end
 
@@ -212,7 +212,7 @@ describe Oboe::Inst::Redis, :keys do
   it "should trace rename" do
     @redis.setex("sand", 120, "blah")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.rename("sand", "sandy")
     end
 
@@ -226,7 +226,7 @@ describe Oboe::Inst::Redis, :keys do
   it "should trace renamenx" do
     @redis.setex("sand", 120, "blah")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.renamenx("sand", "sandy")
     end
 
@@ -244,7 +244,7 @@ describe Oboe::Inst::Redis, :keys do
     x = @redis.dump("qubit")
     @redis.del "blue"
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.restore("blue", 0, x)
     end
 
@@ -263,7 +263,7 @@ describe Oboe::Inst::Redis, :keys do
     @redis.rpush("penguin", "three")
     @redis.rpush("penguin", "four")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.sort("penguin", :order => "desc alpha", :store => "target")
     end
 
@@ -278,7 +278,7 @@ describe Oboe::Inst::Redis, :keys do
 
     @redis.setex("sand", 120, "blah")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.ttl("sand")
     end
 
@@ -293,7 +293,7 @@ describe Oboe::Inst::Redis, :keys do
 
     @redis.setex("sand", 120, "blah")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.type("sand")
     end
 
@@ -306,7 +306,7 @@ describe Oboe::Inst::Redis, :keys do
   it "should trace scan" do
     min_server_version(2.8)
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.scan(0)
     end
 

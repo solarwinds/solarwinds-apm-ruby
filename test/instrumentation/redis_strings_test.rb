@@ -1,7 +1,7 @@
 require 'minitest_helper'
 require "redis"
 
-describe Oboe::Inst::Redis, :strings do
+describe "Redis Strings" do
   attr_reader :entry_kvs, :exit_kvs, :redis, :redis_version
 
   def min_server_version(version)
@@ -25,7 +25,7 @@ describe Oboe::Inst::Redis, :strings do
   it "should trace append" do
     @redis.set("yourkey", "test")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.append("yourkey", "blah")
     end
 
@@ -39,7 +39,7 @@ describe Oboe::Inst::Redis, :strings do
 
     min_server_version("2.6")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.bitcount("yourkey")
     end
 
@@ -54,7 +54,7 @@ describe Oboe::Inst::Redis, :strings do
 
     min_server_version("2.6")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.bitop("not", "bitopkey", "yourkey")
     end
 
@@ -68,7 +68,7 @@ describe Oboe::Inst::Redis, :strings do
   it "should trace decr" do
     @redis.setex("decr", 60, 0)
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.decr("decr")
     end
 
@@ -81,7 +81,7 @@ describe Oboe::Inst::Redis, :strings do
   it "should trace decrby" do
     @redis.setex("decr", 60, 0)
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.decrby("decr", 1)
     end
 
@@ -95,7 +95,7 @@ describe Oboe::Inst::Redis, :strings do
   it "should trace get" do
     @redis.setex("diwore", 60, "okokok")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @rv = @redis.get("diwore")
     end
 
@@ -112,7 +112,7 @@ describe Oboe::Inst::Redis, :strings do
 
     @redis.setex("diwore", 60, "okokok")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.getbit("diwore", 3)
     end
 
@@ -126,7 +126,7 @@ describe Oboe::Inst::Redis, :strings do
   it "should trace getrange" do
     min_server_version(2.2)
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.getrange("yourkey", 0, 3)
     end
 
@@ -141,7 +141,7 @@ describe Oboe::Inst::Redis, :strings do
   it "should trace getset" do
     min_server_version(2.2)
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.getset("dollar", 0)
     end
 
@@ -155,7 +155,7 @@ describe Oboe::Inst::Redis, :strings do
   it "should trace incr" do
     @redis.setex("dotcom", 60, 0)
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.incr("dotcom")
     end
 
@@ -168,7 +168,7 @@ describe Oboe::Inst::Redis, :strings do
   it "should trace incrby" do
     @redis.setex("incr", 60, 0)
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.incrby("incr", 1)
     end
 
@@ -184,7 +184,7 @@ describe Oboe::Inst::Redis, :strings do
 
     @redis.setex("incrfloat", 60, 0.0)
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.incrbyfloat("incrfloat", 1.01)
     end
 
@@ -200,7 +200,7 @@ describe Oboe::Inst::Redis, :strings do
     @redis.setex("denmark", 60, "ok")
     @redis.setex("germany", 60, "ok")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.mget(["france", "nothing", "denmark"])
       @redis.mget("germany")
     end
@@ -216,7 +216,7 @@ describe Oboe::Inst::Redis, :strings do
   end
 
   it "should trace mset" do
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.mset(["one", 1, "two", 2, "three", 3])
       @redis.mset("one", 1)
     end
@@ -230,7 +230,7 @@ describe Oboe::Inst::Redis, :strings do
   end
 
   it "should trace msetnx" do
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.msetnx(["one", 1, "two", 2, "three", 3])
     end
 
@@ -241,7 +241,7 @@ describe Oboe::Inst::Redis, :strings do
 
   it "should trace psetex (>= v2.6)" do
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.psetex("one", 60, "hello")
     end
 
@@ -253,7 +253,7 @@ describe Oboe::Inst::Redis, :strings do
   end
 
   it "should trace basic set" do
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.set("one",   "hello")
     end
 
@@ -266,7 +266,7 @@ describe Oboe::Inst::Redis, :strings do
   it "should trace setbit" do
     min_server_version(2.2)
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.setbit("yourkey", 3, 0)
     end
 
@@ -278,7 +278,7 @@ describe Oboe::Inst::Redis, :strings do
   end
 
   it "should trace setex" do
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.setex("one", 60, "hello")
     end
 
@@ -290,7 +290,7 @@ describe Oboe::Inst::Redis, :strings do
   end
 
   it "should trace setnx" do
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.setnx("one", "hello")
     end
 
@@ -305,7 +305,7 @@ describe Oboe::Inst::Redis, :strings do
 
     @redis.setex("spandau_ballet", 60, "XXXXXXXXXXXXXXX")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.setrange("yourkey", 2, "ok")
     end
 
@@ -321,7 +321,7 @@ describe Oboe::Inst::Redis, :strings do
 
     @redis.setex("talking_heads", 60, "burning down the house")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.strlen("talking_heads")
     end
 

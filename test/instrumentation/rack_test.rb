@@ -1,7 +1,7 @@
 require 'minitest_helper'
 require 'rack/test'
 require 'rack/lobster'
-require 'oboe/inst/rack'
+require 'traceview/inst/rack'
 
 class RackTestApp < Minitest::Test
   include Rack::Test::Methods
@@ -10,7 +10,7 @@ class RackTestApp < Minitest::Test
     @app = Rack::Builder.new {
       use Rack::CommonLogger
       use Rack::ShowExceptions
-      use Oboe::Rack
+      use TraceView::Rack
       map "/lobster" do
         use Rack::Lint
         run Rack::Lobster.new
@@ -72,14 +72,14 @@ class RackTestApp < Minitest::Test
     get "/lobster"
     xtrace = last_response['X-Trace']
     assert xtrace
-    assert Oboe::XTrace.valid?(xtrace)
+    assert TraceView::XTrace.valid?(xtrace)
   end
 
   def test_log_args_when_false
     clear_all_traces
 
-    @log_args = Oboe::Config[:rack][:log_args]
-    Oboe::Config[:rack][:log_args] = false
+    @log_args = TraceView::Config[:rack][:log_args]
+    TraceView::Config[:rack][:log_args] = false
 
     get "/lobster?blah=1"
 
@@ -87,18 +87,18 @@ class RackTestApp < Minitest::Test
 
     xtrace = last_response['X-Trace']
     assert xtrace
-    assert Oboe::XTrace.valid?(xtrace)
+    assert TraceView::XTrace.valid?(xtrace)
 
     traces[0]['URL'].must_equal "/lobster"
 
-    Oboe::Config[:rack][:log_args] = @log_args
+    TraceView::Config[:rack][:log_args] = @log_args
   end
 
   def test_log_args_when_true
     clear_all_traces
 
-    @log_args = Oboe::Config[:rack][:log_args]
-    Oboe::Config[:rack][:log_args] = true
+    @log_args = TraceView::Config[:rack][:log_args]
+    TraceView::Config[:rack][:log_args] = true
 
     get "/lobster?blah=1"
 
@@ -106,11 +106,11 @@ class RackTestApp < Minitest::Test
 
     xtrace = last_response['X-Trace']
     assert xtrace
-    assert Oboe::XTrace.valid?(xtrace)
+    assert TraceView::XTrace.valid?(xtrace)
 
     traces[0]['URL'].must_equal "/lobster?blah=1"
 
-    Oboe::Config[:rack][:log_args] = @log_args
+    TraceView::Config[:rack][:log_args] = @log_args
   end
 end
 

@@ -1,30 +1,30 @@
 require 'minitest_helper'
 require 'net/http'
 
-describe Oboe::Inst do
+describe "Net::HTTP"  do
   before do
     clear_all_traces
-    @collect_backtraces = Oboe::Config[:nethttp][:collect_backtraces]
-    @log_args = Oboe::Config[:nethttp][:log_args]
+    @collect_backtraces = TraceView::Config[:nethttp][:collect_backtraces]
+    @log_args = TraceView::Config[:nethttp][:log_args]
   end
 
   after do
-    Oboe::Config[:nethttp][:collect_backtraces] = @collect_backtraces
-    Oboe::Config[:nethttp][:log_args] = @log_args
+    TraceView::Config[:nethttp][:collect_backtraces] = @collect_backtraces
+    TraceView::Config[:nethttp][:log_args] = @log_args
   end
 
   it 'Net::HTTP should be defined and ready' do
     defined?(::Net::HTTP).wont_match nil
   end
 
-  it 'Net::HTTP should have oboe methods defined' do
-    [ :request_with_oboe ].each do |m|
+  it 'Net::HTTP should have traceview methods defined' do
+    [ :request_with_traceview ].each do |m|
       ::Net::HTTP.method_defined?(m).must_equal true
     end
   end
 
   it "should trace a Net::HTTP request to an instr'd app" do
-    Oboe::API.start_trace('net-http_test', '', {}) do
+    TraceView::API.start_trace('net-http_test', '', {}) do
       uri = URI('http://127.0.0.1:8101/?q=1')
       http = Net::HTTP.new(uri.host, uri.port)
       request = Net::HTTP::Get.new(uri.request_uri)
@@ -56,11 +56,11 @@ describe Oboe::Inst do
     traces[5]['ServiceArg'].must_equal "/?q=1"
     traces[5]['HTTPMethod'].must_equal "GET"
     traces[5]['HTTPStatus'].must_equal "200"
-    traces[5].has_key?('Backtrace').must_equal Oboe::Config[:nethttp][:collect_backtraces]
+    traces[5].has_key?('Backtrace').must_equal TraceView::Config[:nethttp][:collect_backtraces]
   end
 
   it "should trace a GET request" do
-    Oboe::API.start_trace('net-http_test', '', {}) do
+    TraceView::API.start_trace('net-http_test', '', {}) do
       uri = URI('http://127.0.0.1:8101/')
       http = Net::HTTP.new(uri.host, uri.port)
       http.get('/?q=1').read_body
@@ -79,13 +79,13 @@ describe Oboe::Inst do
     traces[5]['ServiceArg'].must_equal "/?q=1"
     traces[5]['HTTPMethod'].must_equal "GET"
     traces[5]['HTTPStatus'].must_equal "200"
-    traces[5].has_key?('Backtrace').must_equal Oboe::Config[:nethttp][:collect_backtraces]
+    traces[5].has_key?('Backtrace').must_equal TraceView::Config[:nethttp][:collect_backtraces]
   end
 
   it "should obey :log_args setting when true" do
-    Oboe::Config[:nethttp][:log_args] = true
+    TraceView::Config[:nethttp][:log_args] = true
 
-    Oboe::API.start_trace('nethttp_test', '', {}) do
+    TraceView::API.start_trace('nethttp_test', '', {}) do
       uri = URI('http://127.0.0.1:8101/')
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = false
@@ -97,9 +97,9 @@ describe Oboe::Inst do
   end
 
   it "should obey :log_args setting when false" do
-    Oboe::Config[:nethttp][:log_args] = false
+    TraceView::Config[:nethttp][:log_args] = false
 
-    Oboe::API.start_trace('nethttp_test', '', {}) do
+    TraceView::API.start_trace('nethttp_test', '', {}) do
       uri = URI('http://127.0.0.1:8101/')
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = false
@@ -111,9 +111,9 @@ describe Oboe::Inst do
   end
 
   it "should obey :collect_backtraces setting when true" do
-    Oboe::Config[:nethttp][:collect_backtraces] = true
+    TraceView::Config[:nethttp][:collect_backtraces] = true
 
-    Oboe::API.start_trace('nethttp_test', '', {}) do
+    TraceView::API.start_trace('nethttp_test', '', {}) do
       uri = URI('http://127.0.0.1:8101/')
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = false
@@ -125,9 +125,9 @@ describe Oboe::Inst do
   end
 
   it "should obey :collect_backtraces setting when false" do
-    Oboe::Config[:nethttp][:collect_backtraces] = false
+    TraceView::Config[:nethttp][:collect_backtraces] = false
 
-    Oboe::API.start_trace('nethttp_test', '', {}) do
+    TraceView::API.start_trace('nethttp_test', '', {}) do
       uri = URI('http://127.0.0.1:8101/')
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = false

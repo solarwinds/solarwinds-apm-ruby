@@ -1,7 +1,7 @@
 require 'minitest_helper'
 require "redis"
 
-describe Oboe::Inst::Redis, :misc do
+describe "Redis Misc" do
   attr_reader :entry_kvs, :exit_kvs, :redis, :redis_version
 
   def min_server_version(version)
@@ -25,7 +25,7 @@ describe Oboe::Inst::Redis, :misc do
   it "should trace publish" do
     min_server_version(2.0)
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.publish("channel1", "Broadcasting live from silicon circuits.")
     end
 
@@ -39,7 +39,7 @@ describe Oboe::Inst::Redis, :misc do
   it "should trace select" do
     min_server_version(2.0)
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.select(2)
     end
 
@@ -52,7 +52,7 @@ describe Oboe::Inst::Redis, :misc do
   it "should trace pipelined operations" do
     min_server_version(1.2)
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.pipelined do
         @redis.zadd("staff", 0, "waiter")
         @redis.zadd("staff", 1, "busser")
@@ -73,7 +73,7 @@ describe Oboe::Inst::Redis, :misc do
   it "should trace multi with block" do
     min_server_version(1.2)
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.multi do
         @redis.zadd("presidents", 0, "Lincoln")
         @redis.zadd("presidents", 1, "Adams")
@@ -94,7 +94,7 @@ describe Oboe::Inst::Redis, :misc do
   it "should trace eval" do
     min_server_version(2.6)
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.eval("return 1")
       @redis.eval("return { KEYS, ARGV }", ["k1", "k2"], ["a1", "a2"])
       @redis.eval("return { KEYS, ARGV }", :keys => ["k1", "k2"], :argv => ["a1", "a2"])
@@ -115,7 +115,7 @@ describe Oboe::Inst::Redis, :misc do
 
     sha = @redis.script(:load, "return 1")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.evalsha(sha)
     end
 
@@ -128,7 +128,7 @@ describe Oboe::Inst::Redis, :misc do
   it "should trace script" do
     min_server_version(2.6)
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @sha = @redis.script(:load, "return 1")
       @it_exists1 = @redis.script(:exists, @sha)
       @it_exists2 = @redis.script(:exists, [@sha, "other_sha"])
