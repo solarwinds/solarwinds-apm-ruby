@@ -45,15 +45,15 @@ module Oboe_metal
 
   module Reporter
     ##
-    # Initialize the Oboe Context, reporter and report the initialization
+    # Initialize the TraceView Context, reporter and report the initialization
     #
     def self.start
-      return unless Oboe.loaded
+      return unless TraceView.loaded
 
       if ENV.key?('OBOE_GEM_TEST')
-        Oboe.reporter = Java::ComTracelyticsJoboe::TestReporter.new
+        TraceView.reporter = Java::ComTracelyticsJoboe::TestReporter.new
       else
-        Oboe.reporter = Java::ComTracelyticsJoboe::ReporterFactory.getInstance.buildUdpReporter
+        TraceView.reporter = Java::ComTracelyticsJoboe::ReporterFactory.getInstance.buildUdpReporter
       end
 
 
@@ -64,25 +64,25 @@ module Oboe_metal
         cfg = LayerUtil.getLocalSampleRate(nil, nil)
 
         if cfg.hasSampleStartFlag
-          Oboe::Config.tracing_mode = 'always'
+          TraceView::Config.tracing_mode = 'always'
         elsif cfg.hasSampleThroughFlag
-          Oboe::Config.tracing_mode = 'through'
+          TraceView::Config.tracing_mode = 'through'
         else
-          Oboe::Config.tracing_mode = 'never'
+          TraceView::Config.tracing_mode = 'never'
         end
 
-        Oboe.sample_rate = cfg.getSampleRate
-        Oboe::Config.sample_rate = cfg.sampleRate
-        Oboe::Config.sample_source = cfg.sampleRateSourceValue
+        TraceView.sample_rate = cfg.getSampleRate
+        TraceView::Config.sample_rate = cfg.sampleRate
+        TraceView::Config.sample_source = cfg.sampleRateSourceValue
       rescue => e
-        Oboe.logger.debug "[oboe/debug] Couldn't retrieve/acces joboe sampleRateCfg"
-        Oboe.logger.debug "[oboe/debug] #{e.message}"
+        TraceView.logger.debug "[traceview/debug] Couldn't retrieve/acces joboe sampleRateCfg"
+        TraceView.logger.debug "[traceview/debug] #{e.message}"
       end
 
       # Only report __Init from here if we are not instrumenting a framework.
       # Otherwise, frameworks will handle reporting __Init after full initialization
       unless defined?(::Rails) || defined?(::Sinatra) || defined?(::Padrino) || defined?(::Grape)
-        Oboe::API.report_init unless ENV.key?('OBOE_GEM_TEST')
+        TraceView::API.report_init unless ENV.key?('OBOE_GEM_TEST')
       end
     end
 
@@ -92,7 +92,7 @@ module Oboe_metal
     # Truncates the trace output file to zero
     #
     def self.clear_all_traces
-      Oboe.reporter.reset if Oboe.loaded
+      TraceView.reporter.reset if TraceView.loaded
     end
 
     ##
@@ -101,7 +101,7 @@ module Oboe_metal
     # Retrieves all traces written to the trace file
     #
     def self.get_all_traces
-      return [] unless Oboe.loaded
+      return [] unless TraceView.loaded
 
       # Joboe TestReporter returns a Java::ComTracelyticsExtEbson::DefaultDocument
       # document for traces which doesn't correctly support things like has_key? which
@@ -109,7 +109,7 @@ module Oboe_metal
       # the Java::ComTracelyticsExtEbson::DefaultDocument doc to a pure array of Ruby
       # hashes
       traces = []
-      Oboe.reporter.getSentEventsAsBsonDocument.to_a.each do |e|
+      TraceView.reporter.getSentEventsAsBsonDocument.to_a.each do |e|
         t = {}
         e.each_pair { |k, v|
           t[k] = v
@@ -120,19 +120,19 @@ module Oboe_metal
     end
 
     def self.sendReport(evt)
-      evt.report(Oboe.reporter)
+      evt.report(TraceView.reporter)
     end
   end
 end
 
-module Oboe
-  extend OboeBase
+module TraceView
+  extend TraceViewBase
   include Oboe_metal
 
   class << self
     def sample?(opts = {})
       begin
-        return false unless Oboe.always? && Oboe.loaded
+        return false unless TraceView.always? && TraceView.loaded
 
         return true if ENV.key?('OBOE_GEM_TEST')
 
@@ -150,28 +150,28 @@ module Oboe
                                               opts[:layer],
                                               { 'X-Trace' => opts[:xtrace], 'X-TV-Meta' => opts['X-TV-Meta'] })
 
-        # Store the returned SampleRateConfig into Oboe::Config
+        # Store the returned SampleRateConfig into TraceView::Config
         if sr_cfg
           begin
-            Oboe::Config.sample_rate = cfg.sampleRate
-            Oboe::Config.sample_source = cfg.sampleRateSourceValue
+            TraceView::Config.sample_rate = cfg.sampleRate
+            TraceView::Config.sample_source = cfg.sampleRateSourceValue
             # If we fail here, we do so quietly.  This was we don't spam logs
             # on every request
           end
         else
-          Oboe.sample_rate = -1
-          Oboe.sample_source = -1
+          TraceView.sample_rate = -1
+          TraceView.sample_source = -1
         end
 
         sr_cfg ? true : false
       rescue => e
-        Oboe.logger.debug "[oboe/debug] #{e.message}"
+        TraceView.logger.debug "[traceview/debug] #{e.message}"
         false
       end
     end
 
     def set_tracing_mode(_mode)
-      Oboe.logger.warn 'When using JRuby set the tracing mode in /usr/local/tracelytics/javaagent.json instead'
+      TraceView.logger.warn 'When using JRuby set the tracing mode in /usr/local/tracelytics/javaagent.json instead'
     end
 
     def set_sample_rate(_rate)
@@ -183,10 +183,10 @@ end
 # Assure that the Joboe Java Agent was loaded via premain
 case Java::ComTracelyticsAgent::Agent.getStatus
   when Java::ComTracelyticsAgent::Agent::AgentStatus::INITIALIZED_SUCCESSFUL
-    Oboe.loaded = true
+    TraceView.loaded = true
 
   when Java::ComTracelyticsAgent::Agent::AgentStatus::INITIALIZED_FAILED
-    Oboe.loaded = false
+    TraceView.loaded = false
     $stderr.puts '=============================================================='
     $stderr.puts 'TraceView Java Agent not initialized properly.'
     $stderr.puts 'Possibly misconfigured?  Going into no-op mode.'
@@ -194,7 +194,7 @@ case Java::ComTracelyticsAgent::Agent.getStatus
     $stderr.puts '=============================================================='
 
   when Java::ComTracelyticsAgent::Agent::AgentStatus::UNINITIALIZED
-    Oboe.loaded = false
+    TraceView.loaded = false
     $stderr.puts '=============================================================='
     $stderr.puts 'TraceView Java Agent not loaded. Going into no-op mode.'
     $stderr.puts 'To preload the TraceView java agent see:'
@@ -202,5 +202,5 @@ case Java::ComTracelyticsAgent::Agent.getStatus
     $stderr.puts '=============================================================='
 
   else
-    Oboe.loaded = false
+    TraceView.loaded = false
 end

@@ -1,11 +1,11 @@
 require 'minitest_helper'
 require 'rack/test'
 require 'rack/lobster'
-require 'oboe/inst/rack'
+require 'traceview/inst/rack'
 
 unless defined?(JRUBY_VERSION)
-  Oboe::Config[:tracing_mode] = 'always'
-  Oboe::Config[:sample_rate] = 1e6
+  TraceView::Config[:tracing_mode] = 'always'
+  TraceView::Config[:sample_rate] = 1e6
 
   class RackTestApp < Minitest::Test
     include Rack::Test::Methods
@@ -14,7 +14,7 @@ unless defined?(JRUBY_VERSION)
       @app = Rack::Builder.new {
         use Rack::CommonLogger
         use Rack::ShowExceptions
-        use Oboe::Rack
+        use TraceView::Rack
         map "/lobster" do
           use Rack::Lint
           run Rack::Lobster.new
@@ -23,7 +23,7 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_localset_sample_source
-      # We make an initial call here which will force the oboe gem to retrieve
+      # We make an initial call here which will force the traceview gem to retrieve
       # the sample_rate and sample_source from liboboe (via sample? method)
       get "/lobster"
 
@@ -45,61 +45,60 @@ unless defined?(JRUBY_VERSION)
     # Test logging of all Ruby datatypes against the SWIG wrapper
     # of addInfo which only has four overloads.
     def test_swig_datatypes_conversion
-      event = Oboe::Context.createEvent
+      event = TraceView::Context.createEvent
       report_kvs = {}
 
       # Array
       report_kvs[:TestData] = [0, 1, 2, 5, 7.0]
-      result = Oboe::API.log_event('test_layer', 'entry', event, report_kvs)
+      result = TraceView::API.log_event('test_layer', 'entry', event, report_kvs)
 
       # Class
-      report_kvs[:TestData] = Oboe::Reporter
-      result = Oboe::API.log_event('test_layer', 'entry', event, report_kvs)
+      report_kvs[:TestData] = TraceView::Reporter
+      result = TraceView::API.log_event('test_layer', 'entry', event, report_kvs)
 
       # FalseClass
       report_kvs[:TestData] = false
-      result = Oboe::API.log_event('test_layer', 'entry', event, report_kvs)
+      result = TraceView::API.log_event('test_layer', 'entry', event, report_kvs)
 
       # Fixnum
       report_kvs[:TestData] = 1_873_293_293
-      result = Oboe::API.log_event('test_layer', 'entry', event, report_kvs)
+      result = TraceView::API.log_event('test_layer', 'entry', event, report_kvs)
 
       # Float
       report_kvs[:TestData] = 1.0001
-      result = Oboe::API.log_event('test_layer', 'entry', event, report_kvs)
+      result = TraceView::API.log_event('test_layer', 'entry', event, report_kvs)
 
       # Hash
       report_kvs[:TestData] = Hash.new
-      result = Oboe::API.log_event('test_layer', 'entry', event, report_kvs)
+      result = TraceView::API.log_event('test_layer', 'entry', event, report_kvs)
 
       # Integer
       report_kvs[:TestData] = 1
-      result = Oboe::API.log_event('test_layer', 'entry', event, report_kvs)
+      result = TraceView::API.log_event('test_layer', 'entry', event, report_kvs)
 
       # Module
-      report_kvs[:TestData] = Oboe
-      result = Oboe::API.log_event('test_layer', 'entry', event, report_kvs)
+      report_kvs[:TestData] = TraceView
+      result = TraceView::API.log_event('test_layer', 'entry', event, report_kvs)
 
       # NilClass
       report_kvs[:TestData] = nil
-      result = Oboe::API.log_event('test_layer', 'entry', event, report_kvs)
+      result = TraceView::API.log_event('test_layer', 'entry', event, report_kvs)
 
       # Set
       report_kvs[:TestData] = Set.new(1..10)
-      result = Oboe::API.log_event('test_layer', 'entry', event, report_kvs)
+      result = TraceView::API.log_event('test_layer', 'entry', event, report_kvs)
 
       # String
       report_kvs[:TestData] = 'test value'
-      result = Oboe::API.log_event('test_layer', 'entry', event, report_kvs)
+      result = TraceView::API.log_event('test_layer', 'entry', event, report_kvs)
 
       # Symbol
       report_kvs[:TestData] = :TestValue
-      result = Oboe::API.log_event('test_layer', 'entry', event, report_kvs)
+      result = TraceView::API.log_event('test_layer', 'entry', event, report_kvs)
 
       # TrueClass
       report_kvs[:TestData] = true
-      result = Oboe::API.log_event('test_layer', 'entry', event, report_kvs)
+      result = TraceView::API.log_event('test_layer', 'entry', event, report_kvs)
     end
   end
-
 end
