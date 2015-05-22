@@ -32,7 +32,7 @@ module Oboe
 
       print_footer
 
-      template "oboe_initializer.rb", "config/initializers/oboe.rb"
+      template "oboe_initializer.rb", "config/initializers/traceview.rb"
     end
 
     private
@@ -67,7 +67,7 @@ module Oboe
 
       def print_footer
         say ""
-        say "You can change configuration values in the future by modifying config/initializers/oboe.rb"
+        say "You can change configuration values in the future by modifying config/initializers/traceview.rb"
         say ""
         say "Thanks! Creating the TraceView initializer..."
         say ""

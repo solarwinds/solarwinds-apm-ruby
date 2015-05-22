@@ -50,8 +50,15 @@ module TraceView
         rails_root = "#{RAILS_ROOT}"
       end
 
+      #
+      # We've been through 3 initializer names.  Try each one.
+      #
       if File.exists?("#{rails_root}/config/initializers/tracelytics.rb")
         tr_initializer = "#{rails_root}/config/initializers/tracelytics.rb"
+
+      elsif File.exists?("#{rails_root}/config/initializers/oboe.rb")
+        tr_initializer = "#{rails_root}/config/initializers/oboe.rb"
+
       else
         tr_initializer = "#{rails_root}/config/initializers/traceview.rb"
       end
@@ -69,7 +76,7 @@ module TraceView
         end
       end
 
-      TraceView.logger.info "TraceView traceview gem #{TraceView::Version::STRING} successfully loaded."
+      TraceView.logger.info "TraceView gem #{TraceView::Version::STRING} successfully loaded."
     end
 
     def self.include_helpers
