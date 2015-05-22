@@ -99,7 +99,7 @@ task :recompile => [ :distclean, :compile ]
 task :console do
   ENV['OBOE_GEM_VERBOSE'] = 'true'
   Bundler.require(:default, :development)
-  Oboe::Config[:tracing_mode] = :always
+  TraceView::Config[:tracing_mode] = :always
   ARGV.clear
   Pry.start
 end

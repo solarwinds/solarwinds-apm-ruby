@@ -46,7 +46,7 @@ require "./test/servers/rackapp_8101"
 # Truncates the trace output file to zero
 #
 def clear_all_traces
-  Oboe::Reporter.clear_all_traces
+  TraceView::Reporter.clear_all_traces
 end
 
 ##
@@ -55,7 +55,7 @@ end
 # Retrieves all traces written to the trace file
 #
 def get_all_traces
-  Oboe::Reporter.get_all_traces
+  TraceView::Reporter.get_all_traces
 end
 
 ##
@@ -92,11 +92,11 @@ end
 #
 def has_edge?(edge, traces)
   traces.each do |t|
-    if Oboe::XTrace.edge_id(t["X-Trace"]) == edge
+    if TraceView::XTrace.edge_id(t["X-Trace"]) == edge
       return true
     end
   end
-  Oboe.logger.debug "[oboe/debug] edge #{edge} not found in traces."
+  TraceView.logger.debug "[oboe/debug] edge #{edge} not found in traces."
   false
 end
 
