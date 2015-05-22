@@ -50,7 +50,7 @@ module Oboe_metal
     def self.start
       return unless TraceView.loaded
 
-      if ENV.key?('OBOE_GEM_TEST')
+      if ENV.key?('TRACEVIEW_GEM_TEST')
         TraceView.reporter = Java::ComTracelyticsJoboe::TestReporter.new
       else
         TraceView.reporter = Java::ComTracelyticsJoboe::ReporterFactory.getInstance.buildUdpReporter
@@ -82,7 +82,7 @@ module Oboe_metal
       # Only report __Init from here if we are not instrumenting a framework.
       # Otherwise, frameworks will handle reporting __Init after full initialization
       unless defined?(::Rails) || defined?(::Sinatra) || defined?(::Padrino) || defined?(::Grape)
-        TraceView::API.report_init unless ENV.key?('OBOE_GEM_TEST')
+        TraceView::API.report_init unless ENV.key?('TRACEVIEW_GEM_TEST')
       end
     end
 
@@ -134,7 +134,7 @@ module TraceView
       begin
         return false unless TraceView.always? && TraceView.loaded
 
-        return true if ENV.key?('OBOE_GEM_TEST')
+        return true if ENV.key?('TRACEVIEW_GEM_TEST')
 
         # Validation to make Joboe happy.  Assure that we have the KVs and that they
         # are not empty strings.

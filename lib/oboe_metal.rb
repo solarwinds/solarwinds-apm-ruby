@@ -18,7 +18,7 @@ module TraceView
       begin
         Oboe_metal::Context.init
 
-        if ENV.key?('OBOE_GEM_TEST')
+        if ENV.key?('TRACEVIEW_GEM_TEST')
           TraceView.reporter = TraceView::FileReporter.new('/tmp/trace_output.bson')
         else
           TraceView.reporter = TraceView::UdpReporter.new(TraceView::Config[:reporter_host], TraceView::Config[:reporter_port])
@@ -95,7 +95,7 @@ module TraceView
         rv = TraceView::Context.sampleRequest(layer, xtrace, tv_meta)
 
         if rv == 0
-          if ENV.key?('OBOE_GEM_TEST')
+          if ENV.key?('TRACEVIEW_GEM_TEST')
             # When in test, always trace and don't clear
             # the stored sample rate/source
             true

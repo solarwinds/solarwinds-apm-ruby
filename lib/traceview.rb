@@ -1,6 +1,10 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
+# Backward compatibility for supported environment variables
+ENV['TRACEVIEW_GEM_VERBOSE'] = ENV['OBOE_GEM_VERBOSE'] if ENV.key?('OBOE_GEM_VERBOSE')
+ENV['TRACEVIEW_GEM_TEST']    = ENV['OBOE_GEM_TEST']    if ENV.key?('OBOE_GEM_TEST')
+
 begin
   require 'traceview/version'
   require 'traceview/thread_local'

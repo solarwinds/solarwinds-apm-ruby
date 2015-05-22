@@ -155,7 +155,7 @@ module TraceView
         @@config[:reporter_port] = '7831'
       end
 
-      @@config[:verbose] = ENV.key?('OBOE_GEM_VERBOSE') ? true : false
+      @@config[:verbose] = ENV.key?('TRACEVIEW_GEM_VERBOSE') ? true : false
     end
 
     def self.update!(data)

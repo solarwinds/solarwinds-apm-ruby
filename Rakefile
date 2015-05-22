@@ -97,7 +97,7 @@ desc "Rebuild the gem's c extension"
 task :recompile => [ :distclean, :compile ]
 
 task :console do
-  ENV['OBOE_GEM_VERBOSE'] = 'true'
+  ENV['TRACEVIEW_GEM_VERBOSE'] = 'true'
   Bundler.require(:default, :development)
   TraceView::Config[:tracing_mode] = :always
   ARGV.clear
