@@ -1,9 +1,9 @@
 $:.push File.expand_path("../lib", __FILE__)
-require "oboe/version"
+require "traceview/version"
 
 Gem::Specification.new do |s|
-  s.name = %q{oboe}
-  s.version = Oboe::Version::STRING
+  s.name = %q{traceview}
+  s.version = TraceView::Version::STRING
   s.date = Time.now.strftime('%Y-%m-%d')
 
   s.license = "AppNeta Open License, Version 1.0"
@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.email = %q{traceviewsupport@appneta.com}
   s.homepage = %q{http://www.appneta.com/products/traceview/}
   s.summary = %q{AppNeta TraceView performance instrumentation gem for Ruby}
-  s.description = %q{The oboe gem provides TraceView instrumentation for MRI Ruby, JRuby and related frameworks.}
+  s.description = %q{The TraceView gem provides performance instrumentation for MRI Ruby, JRuby and related frameworks.}
 
   s.extra_rdoc_files = ["LICENSE"]
   s.files = `git ls-files`.split("\n")
