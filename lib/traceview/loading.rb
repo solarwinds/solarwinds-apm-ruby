@@ -3,7 +3,7 @@
 
 require 'digest/sha1'
 
-module Oboe
+module TraceView
   module Util
     ##
     # This module is used solely for RUM ID calculation
@@ -27,7 +27,7 @@ module Oboe
   end
 
   ##
-  # This module houses all of the loading functionality for the oboe gem.
+  # This module houses all of the loading functionality for the traceview gem.
   #
   # Note that this does not necessarily _have_ to include initialization routines
   # (although it can).
@@ -44,51 +44,51 @@ module Oboe
     def self.load_access_key
       if ENV.key?('TRACEVIEW_CUUID')
         # Preferably get access key from environment (e.g. Heroku)
-        Oboe::Config[:access_key] = ENV['TRACEVIEW_CUUID']
-        Oboe::Config[:rum_id] = Oboe::Util::Base64URL.encode(Digest::SHA1.digest('RUM' + Oboe::Config[:access_key]))
+        TraceView::Config[:access_key] = ENV['TRACEVIEW_CUUID']
+        TraceView::Config[:rum_id] = TraceView::Util::Base64URL.encode(Digest::SHA1.digest('RUM' + TraceView::Config[:access_key]))
       else
         # ..else read from system-wide configuration file
-        if Oboe::Config.access_key.empty?
+        if TraceView::Config.access_key.empty?
           config_file = '/etc/tracelytics.conf'
           return unless File.exist?(config_file)
 
           File.open(config_file).each do |line|
             if line =~ /^tracelyzer.access_key=/ || line =~ /^access_key/
               bits = line.split(/=/)
-              Oboe::Config[:access_key] = bits[1].strip
-              Oboe::Config[:rum_id] = Oboe::Util::Base64URL.encode(Digest::SHA1.digest('RUM' + Oboe::Config[:access_key]))
+              TraceView::Config[:access_key] = bits[1].strip
+              TraceView::Config[:rum_id] = TraceView::Util::Base64URL.encode(Digest::SHA1.digest('RUM' + TraceView::Config[:access_key]))
               break
             end
           end
         end
       end
     rescue StandardError => e
-      Oboe.logger.error "Trouble obtaining access_key and rum_id: #{e.inspect}"
+      TraceView.logger.error "Trouble obtaining access_key and rum_id: #{e.inspect}"
     end
 
     ##
-    # Load the oboe tracing API
+    # Load the traceview tracing API
     #
     def self.require_api
       pattern = File.join(File.dirname(__FILE__), 'api', '*.rb')
       Dir.glob(pattern) do |f|
         require f
       end
-      require 'oboe/api'
+      require 'traceview/api'
 
       begin
-        Oboe::API.extend_with_tracing
+        TraceView::API.extend_with_tracing
       rescue LoadError => e
-        Oboe.logger.fatal "[oboe/error] Couldn't load oboe api: #{e.message}"
+        TraceView.logger.fatal "[traceview/error] Couldn't load api: #{e.message}"
       end
     end
   end
 end
 
-Oboe::Loading.require_api
+TraceView::Loading.require_api
 
 # Auto-start the Reporter unless we running Unicorn on Heroku
 # In that case, we start the reporters after fork
-unless Oboe.heroku? && Oboe.forking_webserver?
-  Oboe::Reporter.start if Oboe.loaded
+unless TraceView.heroku? && TraceView.forking_webserver?
+  TraceView::Reporter.start if TraceView.loaded
 end

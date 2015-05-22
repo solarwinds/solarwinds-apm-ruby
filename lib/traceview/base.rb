@@ -23,11 +23,11 @@ ZERO_SAMPLE_RATE_MASK   = 0b1111000000000000000000000000
 ZERO_SAMPLE_SOURCE_MASK = 0b0000111111111111111111111111
 
 ##
-# This module is the base module for the various implementations of Oboe reporting.
+# This module is the base module for the various implementations of TraceView reporting.
 # Current variations as of 2014-09-10 are a c-extension, JRuby (using TraceView Java
 # instrumentation) and a Heroku c-extension (with embedded tracelyzer)
-module OboeBase
-  extend ::Oboe::ThreadLocal
+module TraceViewBase
+  extend ::TraceView::ThreadLocal
 
   attr_accessor :reporter
   attr_accessor :loaded
@@ -38,13 +38,13 @@ module OboeBase
 
   # The following accessors indicate the incoming tracing state received
   # by the rack layer.  These are primarily used to identify state
-  # between the Ruby and JOboe instrumentation under JRuby.
+  # between the Ruby and JTraceView instrumentation under JRuby.
   #
   # This is because that even though there may be an incoming
   # X-Trace request header, tracing may have already been started
   # by Joboe.  Such a scenario occurs when the application is being
   # hosted by a Java container (such as Tomcat or Glassfish) and
-  # JOboe has already initiated tracing.  In this case, we shouldn't
+  # JTraceView has already initiated tracing.  In this case, we shouldn't
   # pickup the X-Trace context in the X-Trace header and we shouldn't
   # set the outgoing response X-Trace header or clear context.
   # Yeah I know.  Yuck.
@@ -58,23 +58,23 @@ module OboeBase
 
   # This indicates that this trace was continued from
   # an incoming X-Trace request header or in the case
-  # of JRuby, a trace already started by JOboe.
+  # of JRuby, a trace already started by JTraceView.
   thread_local :is_continued_trace
 
   ##
   # extended
   #
   # Invoked when this module is extended.
-  # e.g. extend OboeBase
+  # e.g. extend TraceViewBase
   #
   def self.extended(cls)
     cls.loaded = true
 
     # This gives us pretty accessors with questions marks at the end
     # e.g. is_continued_trace --> is_continued_trace?
-    Oboe.methods.select{ |m| m =~ /^is_|^has_/ }.each do |c|
+    TraceView.methods.select{ |m| m =~ /^is_|^has_/ }.each do |c|
       unless c =~ /\?$|=$/
-        # Oboe.logger.debug "aliasing #{c}? to #{c}"
+        # TraceView.logger.debug "aliasing #{c}? to #{c}"
         alias_method "#{c}?", c
       end
     end
@@ -91,9 +91,9 @@ module OboeBase
   # in which case we don't want to do this.
   #
   def pickup_context?(xtrace)
-    return false unless Oboe::XTrace.valid?(xtrace)
+    return false unless TraceView::XTrace.valid?(xtrace)
 
-    if defined?(JRUBY_VERSION) && Oboe.tracing?
+    if defined?(JRUBY_VERSION) && TraceView.tracing?
       return false
     else
       return true
@@ -108,7 +108,7 @@ module OboeBase
   # operation tracing or one instrumented operation calling another.
   #
   def tracing_layer?(layer)
-    return Oboe.layer == layer
+    return TraceView.layer == layer
   end
 
   ##
@@ -122,9 +122,9 @@ module OboeBase
   #
   def tracing_layer_op?(operation)
     if operation.is_a?(Array)
-      return operation.include?(Oboe.layer_op)
+      return operation.include?(TraceView.layer_op)
     else
-      return Oboe.layer_op == operation
+      return TraceView.layer_op == operation
     end
   end
 
@@ -133,7 +133,7 @@ module OboeBase
   # False otherwise
   #
   def always?
-    Oboe::Config[:tracing_mode].to_s == 'always'
+    TraceView::Config[:tracing_mode].to_s == 'always'
   end
 
   ##
@@ -141,7 +141,7 @@ module OboeBase
   # False otherwise
   #
   def never?
-    Oboe::Config[:tracing_mode].to_s == 'never'
+    TraceView::Config[:tracing_mode].to_s == 'never'
   end
 
   ##
@@ -149,7 +149,7 @@ module OboeBase
   # False otherwise
   #
   def passthrough?
-    %w(always through).include?(Oboe::Config[:tracing_mode])
+    %w(always through).include?(TraceView::Config[:tracing_mode])
   end
 
   ##
@@ -157,7 +157,7 @@ module OboeBase
   # False otherwise
   #
   def through?
-    Oboe::Config[:tracing_mode] == 'through'
+    TraceView::Config[:tracing_mode] == 'through'
   end
 
   ##
@@ -165,14 +165,14 @@ module OboeBase
   # False otherwise
   #
   def tracing?
-    return false unless Oboe.loaded
+    return false unless TraceView.loaded
 
-    Oboe::Context.isValid && !Oboe.never?
+    TraceView::Context.isValid && !TraceView.never?
   end
 
   def log(layer, label, options = {})
-    # WARN: Oboe.log will be deprecated in a future release.  Please use Oboe::API.log instead.
-    Oboe::API.log(layer, label, options)
+    # WARN: TraceView.log will be deprecated in a future release.  Please use TraceView::API.log instead.
+    TraceView::API.log(layer, label, options)
   end
 
   def heroku?
@@ -201,7 +201,7 @@ module OboeBase
 
   ##
   # These methods should be implemented by the descendants
-  # (Oboe_metal, Oboe_metal (JRuby), Heroku_metal)
+  # (Oboe_metal, JOboe_metal (JRuby), Heroku_metal)
   #
   def sample?(_opts = {})
     fail 'sample? should be implemented by metal layer.'
@@ -220,6 +220,6 @@ module OboeBase
   end
 end
 
-module Oboe
-  extend OboeBase
+module TraceView
+  extend TraceViewBase
 end

@@ -1,7 +1,7 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
-module Oboe
+module TraceView
   module API
     ##
     # Utility methods for the Memcache instrumentation

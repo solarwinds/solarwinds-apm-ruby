@@ -1,25 +1,25 @@
 # Copyright (c) 2014 AppNeta, Inc.
 # All rights reserved.
 
-module Oboe
+module TraceView
   module PadrinoInst
     module Routing
       def self.included(klass)
-        ::Oboe::Util.method_alias(klass, :dispatch!, ::Padrino::Routing)
+        ::TraceView::Util.method_alias(klass, :dispatch!, ::Padrino::Routing)
       end
 
-      def dispatch_with_oboe
-        if Oboe.tracing?
+      def dispatch_with_traceview
+        if TraceView.tracing?
           report_kvs = {}
 
           # Fall back to the raw tracing API so we can pass KVs
-          # back on exit (a limitation of the Oboe::API.trace
+          # back on exit (a limitation of the TraceView::API.trace
           # block method) This removes the need for an info
           # event to send additonal KVs
-          ::Oboe::API.log_entry('padrino', {})
+          ::TraceView::API.log_entry('padrino', {})
 
           begin
-            r = dispatch_without_oboe
+            r = dispatch_without_traceview
 
             # Report Controller/Action as best possible
             if request.controller and not request.controller.empty?
@@ -31,10 +31,10 @@ module Oboe
             report_kvs[:Action] = request.action
             r
            ensure
-            ::Oboe::API.log_exit('padrino', report_kvs)
+            ::TraceView::API.log_exit('padrino', report_kvs)
            end
         else
-          dispatch_without_oboe
+          dispatch_without_traceview
         end
       end
     end
@@ -44,21 +44,21 @@ end
 if defined?(::Padrino)
   # This instrumentation is a superset of the Sinatra instrumentation similar
   # to how Padrino is a superset of Sinatra itself.
-  ::Oboe.logger.info "[oboe/loading] Instrumenting Padrino" if Oboe::Config[:verbose]
+  ::TraceView.logger.info "[traceview/loading] Instrumenting Padrino" if TraceView::Config[:verbose]
 
-  require 'oboe/frameworks/padrino/templates'
+  require 'traceview/frameworks/padrino/templates'
 
   Padrino.after_load do
-    ::Oboe.logger = ::Padrino.logger if ::Padrino.respond_to?(:logger)
-    ::Oboe::Loading.load_access_key
-    ::Oboe::Inst.load_instrumentation
+    ::TraceView.logger = ::Padrino.logger if ::Padrino.respond_to?(:logger)
+    ::TraceView::Loading.load_access_key
+    ::TraceView::Inst.load_instrumentation
 
-    ::Oboe::Util.send_include(::Padrino::Routing::InstanceMethods, ::Oboe::PadrinoInst::Routing)
+    ::TraceView::Util.send_include(::Padrino::Routing::InstanceMethods, ::TraceView::PadrinoInst::Routing)
     if defined?(::Padrino::Rendering)
-      ::Oboe::Util.send_include(::Padrino::Rendering::InstanceMethods, ::Oboe::PadrinoInst::Rendering)
+      ::TraceView::Util.send_include(::Padrino::Rendering::InstanceMethods, ::TraceView::PadrinoInst::Rendering)
     end
 
     # Report __Init after fork when in Heroku
-    Oboe::API.report_init unless Oboe.heroku?
+    TraceView::API.report_init unless TraceView.heroku?
   end
 end

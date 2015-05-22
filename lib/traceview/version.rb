@@ -1,10 +1,10 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
-module Oboe
+module TraceView
   ##
   # The current version of the gem.  Used mainly by
-  # oboe.gemspec during gem build process
+  # traceview.gemspec during gem build process
   module Version
     MAJOR = 2
     MINOR = 7

@@ -1,14 +1,14 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
-module Oboe
+module TraceView
   ##
   # Methods to act on, manipulate or investigate an X-Trace
   # value
   module XTrace
     class << self
       ##
-      #  Oboe::XTrace.valid?
+      #  TraceView::XTrace.valid?
       #
       #  Perform basic validation on a potential X-Trace ID
       #
@@ -24,38 +24,38 @@ module Oboe
 
         true
       rescue StandardError => e
-        Oboe.logger.debug e.message
-        Oboe.logger.debug e.backtrace
+        TraceView.logger.debug e.message
+        TraceView.logger.debug e.backtrace
         false
       end
 
       ##
-      # Oboe::XTrace.task_id
+      # TraceView::XTrace.task_id
       #
       # Extract and return the task_id portion of an X-Trace ID
       #
       def task_id(xtrace)
-        return nil unless Oboe::XTrace.valid?(xtrace)
+        return nil unless TraceView::XTrace.valid?(xtrace)
 
         xtrace[2..41]
       rescue StandardError => e
-        Oboe.logger.debug e.message
-        Oboe.logger.debug e.backtrace
+        TraceView.logger.debug e.message
+        TraceView.logger.debug e.backtrace
         return nil
       end
 
       ##
-      # Oboe::XTrace.edge_id
+      # TraceView::XTrace.edge_id
       #
       # Extract and return the edge_id portion of an X-Trace ID
       #
       def edge_id(xtrace)
-        return nil unless Oboe::XTrace.valid?(xtrace)
+        return nil unless TraceView::XTrace.valid?(xtrace)
 
         xtrace[42..57]
       rescue StandardError => e
-        Oboe.logger.debug e.message
-        Oboe.logger.debug e.backtrace
+        TraceView.logger.debug e.message
+        TraceView.logger.debug e.backtrace
         return nil
       end
 
@@ -75,13 +75,13 @@ module Oboe
       # if that be the case)
       #
       def continue_service_context(start, finish)
-        if Oboe::XTrace.valid?(finish) && Oboe.tracing?
+        if TraceView::XTrace.valid?(finish) && TraceView.tracing?
 
           # Assure that we received back a valid X-Trace with the same task_id
-          if Oboe::XTrace.task_id(start) == Oboe::XTrace.task_id(finish)
-            Oboe::Context.fromString(finish)
+          if TraceView::XTrace.task_id(start) == TraceView::XTrace.task_id(finish)
+            TraceView::Context.fromString(finish)
           else
-            Oboe.logger.debug "Mismatched returned X-Trace ID: #{finish}"
+            TraceView.logger.debug "Mismatched returned X-Trace ID: #{finish}"
           end
         end
       end

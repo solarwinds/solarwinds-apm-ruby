@@ -1,27 +1,27 @@
-module Oboe
+module TraceView
   module Inst
     module FaradayConnection
       def self.included(klass)
-        ::Oboe::Util.method_alias(klass, :run_request, ::Faraday::Connection)
+        ::TraceView::Util.method_alias(klass, :run_request, ::Faraday::Connection)
       end
 
-      def run_request_with_oboe(method, url, body, headers, &block)
+      def run_request_with_traceview(method, url, body, headers, &block)
         # Only send service KVs if we're not using the Net::HTTP adapter
         # Otherwise, the Net::HTTP instrumentation will send the service KVs
         handle_service = !@builder.handlers.include?(Faraday::Adapter::NetHttp) &&
                           !@builder.handlers.include?(Faraday::Adapter::Excon)
-        Oboe::API.log_entry('faraday')
+        TraceView::API.log_entry('faraday')
 
-        result = run_request_without_oboe(method, url, body, headers, &block)
+        result = run_request_without_traceview(method, url, body, headers, &block)
 
         kvs = {}
         kvs['Middleware'] = @builder.handlers
-        kvs['Backtrace'] = Oboe::API.backtrace if Oboe::Config[:faraday][:collect_backtraces]
+        kvs['Backtrace'] = TraceView::API.backtrace if TraceView::Config[:faraday][:collect_backtraces]
 
         if handle_service
-          blacklisted = Oboe::API.blacklisted?(@url_prefix.to_s)
-          context = Oboe::Context.toString
-          task_id = Oboe::XTrace.task_id(context)
+          blacklisted = TraceView::API.blacklisted?(@url_prefix.to_s)
+          context = TraceView::Context.toString
+          task_id = TraceView::XTrace.task_id(context)
 
           # Avoid cross host tracing for blacklisted domains
           # Conditionally add the X-Trace header to the outgoing request
@@ -41,33 +41,33 @@ module Oboe
           unless blacklisted
             xtrace = result.headers['X-Trace']
 
-            if Oboe::XTrace.valid?(xtrace) && Oboe.tracing?
+            if TraceView::XTrace.valid?(xtrace) && TraceView.tracing?
 
               # Assure that we received back a valid X-Trace with the same task_id
-              if task_id == Oboe::XTrace.task_id(xtrace)
-                Oboe::Context.fromString(xtrace)
+              if task_id == TraceView::XTrace.task_id(xtrace)
+                TraceView::Context.fromString(xtrace)
               else
-                Oboe.logger.debug "Mismatched returned X-Trace ID: #{xtrace}"
+                TraceView.logger.debug "Mismatched returned X-Trace ID: #{xtrace}"
               end
             end
           end
         end
 
-        Oboe::API.log('faraday', 'info', kvs)
+        TraceView::API.log('faraday', 'info', kvs)
         result
       rescue => e
-        Oboe::API.log_exception('faraday', e)
+        TraceView::API.log_exception('faraday', e)
         raise e
       ensure
-        Oboe::API.log_exit('faraday')
+        TraceView::API.log_exit('faraday')
       end
     end
   end
 end
 
-if Oboe::Config[:faraday][:enabled]
+if TraceView::Config[:faraday][:enabled]
   if defined?(::Faraday)
-    Oboe.logger.info '[oboe/loading] Instrumenting faraday' if Oboe::Config[:verbose]
-    ::Oboe::Util.send_include(::Faraday::Connection, ::Oboe::Inst::FaradayConnection)
+    TraceView.logger.info '[traceview/loading] Instrumenting faraday' if TraceView::Config[:verbose]
+    ::TraceView::Util.send_include(::Faraday::Connection, ::TraceView::Inst::FaradayConnection)
   end
 end

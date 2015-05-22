@@ -1,16 +1,16 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
-if defined?(ActionView::Base) && Oboe::Config[:action_view][:enabled]
+if defined?(ActionView::Base) && TraceView::Config[:action_view][:enabled]
 
   if Rails::VERSION::MAJOR == 3 && Rails::VERSION::MINOR == 0
 
     ActionView::Partials::PartialRenderer.class_eval do
-      alias :render_partial_without_oboe :render_partial
+      alias :render_partial_without_traceview :render_partial
       def render_partial(object = @object)
         entry_kvs = {}
         begin
-          name  = Oboe::Util.prettify(@options[:partial]) if @options.is_a?(Hash)
+          name  = TraceView::Util.prettify(@options[:partial]) if @options.is_a?(Hash)
           entry_kvs[:FunctionName] = :render_partial
           entry_kvs[:Class]        = :PartialRenderer
           entry_kvs[:Module]       = 'ActionView::Partials'
@@ -19,16 +19,16 @@ if defined?(ActionView::Base) && Oboe::Config[:action_view][:enabled]
         rescue
         end
 
-        Oboe::API.profile(name, entry_kvs, Oboe::Config[:action_view][:collect_backtraces]) do
-          render_partial_without_oboe(object)
+        TraceView::API.profile(name, entry_kvs, TraceView::Config[:action_view][:collect_backtraces]) do
+          render_partial_without_traceview(object)
         end
       end
 
-      alias :render_collection_without_oboe :render_collection
+      alias :render_collection_without_traceview :render_collection
       def render_collection
         entry_kvs = {}
         begin
-          name  = Oboe::Util.prettify(@path)
+          name  = TraceView::Util.prettify(@path)
           entry_kvs[:FunctionName] = :render_collection
           entry_kvs[:Class]        = :PartialRenderer
           entry_kvs[:Module]       = 'ActionView::Partials'
@@ -37,8 +37,8 @@ if defined?(ActionView::Base) && Oboe::Config[:action_view][:enabled]
         rescue
         end
 
-        Oboe::API.profile(name, entry_kvs, Oboe::Config[:action_view][:collect_backtraces]) do
-          render_collection_without_oboe
+        TraceView::API.profile(name, entry_kvs, TraceView::Config[:action_view][:collect_backtraces]) do
+          render_collection_without_traceview
         end
       end
     end

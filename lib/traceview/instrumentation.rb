@@ -1,7 +1,7 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
-module Oboe
+module TraceView
   ##
   # The Inst module holds all of the instrumentation extensions for various
   # libraries suchs as Redis, Dalli and Resque.
@@ -13,7 +13,7 @@ module Oboe
         begin
           require f
         rescue => e
-          Oboe.logger.error "[oboe/loading] Error loading instrumentation file '#{f}' : #{e}"
+          TraceView.logger.error "[traceview/loading] Error loading instrumentation file '#{f}' : #{e}"
         end
       end
     end

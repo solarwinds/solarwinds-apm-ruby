@@ -1,7 +1,7 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
-module Oboe
+module TraceView
   module Rails
     module Helpers
       extend ActiveSupport::Concern if defined?(::Rails) and ::Rails::VERSION::MAJOR > 2
@@ -10,10 +10,10 @@ module Oboe
       @@rum_hdr_tmpl = File.read(File.dirname(__FILE__) + '/rails/helpers/rum/rum_header.js.erb')
       @@rum_ftr_tmpl = File.read(File.dirname(__FILE__) + '/rails/helpers/rum/rum_footer.js.erb')
 
-      def oboe_rum_header
+      def traceview_rum_header
         begin
-          return unless Oboe::Config.rum_id
-          if Oboe.tracing?
+          return unless TraceView::Config.rum_id
+          if TraceView.tracing?
             if request.xhr?
               return raw(ERB.new(@@rum_xhr_tmpl).result)
             else
@@ -21,21 +21,21 @@ module Oboe
             end
           end
         rescue StandardError => e
-          Oboe.logger.warn "oboe_rum_header: #{e.message}."
+          TraceView.logger.warn "traceview_rum_header: #{e.message}."
           return ""
         end
       end
 
-      def oboe_rum_footer
+      def traceview_rum_footer
         begin
-          return unless Oboe::Config.rum_id
-          if Oboe.tracing?
+          return unless TraceView::Config.rum_id
+          if TraceView.tracing?
             # Even though the footer template is named xxxx.erb, there are no ERB tags in it so we'll
             # skip that step for now
             return raw(@@rum_ftr_tmpl)
           end
         rescue StandardError => e
-          Oboe.logger.warn "oboe_rum_footer: #{e.message}."
+          TraceView.logger.warn "traceview_rum_footer: #{e.message}."
           return ""
         end
       end
@@ -43,7 +43,7 @@ module Oboe
 
     def self.load_initializer
       # Force load the TraceView Rails initializer if there is one
-      # Prefer oboe.rb but give priority to the legacy tracelytics.rb if it exists
+      # Prefer traceview.rb but give priority to the legacy tracelytics.rb if it exists
       if ::Rails::VERSION::MAJOR > 2
         rails_root = "#{::Rails.root.to_s}"
       else
@@ -53,7 +53,7 @@ module Oboe
       if File.exists?("#{rails_root}/config/initializers/tracelytics.rb")
         tr_initializer = "#{rails_root}/config/initializers/tracelytics.rb"
       else
-        tr_initializer = "#{rails_root}/config/initializers/oboe.rb"
+        tr_initializer = "#{rails_root}/config/initializers/traceview.rb"
       end
       require tr_initializer if File.exists?(tr_initializer)
     end
@@ -65,74 +65,74 @@ module Oboe
         begin
           require f
         rescue => e
-          Oboe.logger.error "[oboe/loading] Error loading rails insrumentation file '#{f}' : #{e}"
+          TraceView.logger.error "[traceview/loading] Error loading rails insrumentation file '#{f}' : #{e}"
         end
       end
 
-      Oboe.logger.info "TraceView oboe gem #{Oboe::Version::STRING} successfully loaded."
+      TraceView.logger.info "TraceView traceview gem #{TraceView::Version::STRING} successfully loaded."
     end
 
     def self.include_helpers
       # TBD: This would make the helpers available to controllers which is occasionally desired.
       # ActiveSupport.on_load(:action_controller) do
-      #   include Oboe::Rails::Helpers
+      #   include TraceView::Rails::Helpers
       # end
       if ::Rails::VERSION::MAJOR > 2
         ActiveSupport.on_load(:action_view) do
-          include Oboe::Rails::Helpers
+          include TraceView::Rails::Helpers
         end
       else
-        ActionView::Base.send :include, Oboe::Rails::Helpers
+        ActionView::Base.send :include, TraceView::Rails::Helpers
       end
     end
 
   end # Rails
-end # Oboe
+end # TraceView
 
 if defined?(::Rails)
-  require 'oboe/inst/rack'
+  require 'traceview/inst/rack'
 
   if ::Rails::VERSION::MAJOR > 2
-    module Oboe
+    module TraceView
       class Railtie < ::Rails::Railtie
 
-        initializer 'oboe.helpers' do
-          Oboe::Rails.include_helpers
+        initializer 'traceview.helpers' do
+          TraceView::Rails.include_helpers
         end
 
-        initializer 'oboe.rack' do |app|
-          Oboe.logger.info "[oboe/loading] Instrumenting rack" if Oboe::Config[:verbose]
-          app.config.middleware.insert 0, "Oboe::Rack"
+        initializer 'traceview.rack' do |app|
+          TraceView.logger.info "[traceview/loading] Instrumenting rack" if TraceView::Config[:verbose]
+          app.config.middleware.insert 0, "TraceView::Rack"
         end
 
         config.after_initialize do
-          Oboe.logger = ::Rails.logger if ::Rails.logger
+          TraceView.logger = ::Rails.logger if ::Rails.logger
 
-          Oboe::Loading.load_access_key
-          Oboe::Inst.load_instrumentation
-          Oboe::Rails.load_instrumentation
+          TraceView::Loading.load_access_key
+          TraceView::Inst.load_instrumentation
+          TraceView::Rails.load_instrumentation
 
           # Report __Init after fork when in Heroku
-          Oboe::API.report_init unless Oboe.heroku?
+          TraceView::API.report_init unless TraceView.heroku?
         end
       end
     end
   else
-    Oboe.logger = ::Rails.logger if ::Rails.logger
+    TraceView.logger = ::Rails.logger if ::Rails.logger
 
-    Oboe::Rails.load_initializer
-    Oboe::Loading.load_access_key
+    TraceView::Rails.load_initializer
+    TraceView::Loading.load_access_key
 
     Rails.configuration.after_initialize do
-      Oboe.logger.info "[oboe/loading] Instrumenting rack" if Oboe::Config[:verbose]
-      Rails.configuration.middleware.insert 0, "Oboe::Rack"
+      TraceView.logger.info "[traceview/loading] Instrumenting rack" if TraceView::Config[:verbose]
+      Rails.configuration.middleware.insert 0, "TraceView::Rack"
 
-      Oboe::Inst.load_instrumentation
-      Oboe::Rails.load_instrumentation
-      Oboe::Rails.include_helpers
+      TraceView::Inst.load_instrumentation
+      TraceView::Rails.load_instrumentation
+      TraceView::Rails.include_helpers
 
       # Report __Init after fork when in Heroku
-      Oboe::API.report_init unless Oboe.heroku?
+      TraceView::API.report_init unless TraceView.heroku?
     end
   end
 end

@@ -3,7 +3,7 @@
 
 require 'pp'
 
-module Oboe
+module TraceView
   module API
     ##
     # General utility methods for the gem
@@ -11,7 +11,7 @@ module Oboe
       BACKTRACE_CUTOFF = 200
 
       # Internal: Check whether the provided key is reserved or not. Reserved
-      # keys are either keys that are handled by liboboe calls or the oboe gem.
+      # keys are either keys that are handled by liboboe calls or the traceview gem.
       #
       # key - the key to check.
       #
@@ -58,15 +58,15 @@ module Oboe
       #
       # Returns a boolean on blacklisted state
       def blacklisted?(addr_port)
-        return false unless Oboe::Config.blacklist
+        return false unless TraceView::Config.blacklist
 
         # Ensure that the blacklist is an array
-        unless Oboe::Config.blacklist.is_a?(Array)
-          val = Oboe::Config[:blacklist]
-          Oboe::Config[:blacklist] = [val.to_s]
+        unless TraceView::Config.blacklist.is_a?(Array)
+          val = TraceView::Config[:blacklist]
+          TraceView::Config[:blacklist] = [val.to_s]
         end
 
-        Oboe::Config.blacklist.each do |h|
+        TraceView::Config.blacklist.each do |h|
           return true if addr_port.to_s.match(h.to_s)
         end
 

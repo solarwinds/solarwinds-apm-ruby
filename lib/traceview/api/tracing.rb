@@ -1,7 +1,7 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
-module Oboe
+module TraceView
   module API
     ##
     # Provides the higher-level tracing interface for the API.
@@ -117,17 +117,17 @@ module Oboe
       # Returns the result of the block.
       def start_trace_with_target(layer, xtrace, target, opts = {})
         log_start(layer, xtrace, opts)
-        exit_evt = Oboe::Context.createEvent
+        exit_evt = TraceView::Context.createEvent
         begin
-          target['X-Trace'] = Oboe::Event.metadataString(exit_evt) if Oboe.tracing?
+          target['X-Trace'] = TraceView::Event.metadataString(exit_evt) if TraceView.tracing?
           yield
         rescue Exception => e
           log_exception(layer, e)
           raise
         ensure
-          exit_evt.addEdge(Oboe::Context.get)
+          exit_evt.addEdge(TraceView::Context.get)
           log_event(layer, 'exit', exit_evt)
-          Oboe::Context.clear
+          TraceView::Context.clear
         end
       end
     end

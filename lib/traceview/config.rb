@@ -1,12 +1,12 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
-module Oboe
+module TraceView
   ##
   # This module exposes a nested configuration hash that can be used to
-  # configure and/or modify the functionality of the oboe gem.
+  # configure and/or modify the functionality of the traceview gem.
   #
-  # Use Oboe::Config.show to view the entire nested hash.
+  # Use TraceView::Config.show to view the entire nested hash.
   #
   module Config
     @@config = {}
@@ -37,29 +37,29 @@ module Oboe
       end
 
       # Beta instrumentation disabled by default
-      Oboe::Config[:em_http_request][:enabled] = false
+      TraceView::Config[:em_http_request][:enabled] = false
 
       # Set collect_backtraces defaults
-      Oboe::Config[:action_controller][:collect_backtraces] = true
-      Oboe::Config[:active_record][:collect_backtraces] = true
-      Oboe::Config[:action_view][:collect_backtraces] = true
-      Oboe::Config[:cassandra][:collect_backtraces] = true
-      Oboe::Config[:dalli][:collect_backtraces] = false
-      Oboe::Config[:em_http_request][:collect_backtraces] = false
-      Oboe::Config[:excon][:collect_backtraces] = true
-      Oboe::Config[:faraday][:collect_backtraces] = false
-      Oboe::Config[:grape][:collect_backtraces] = true
-      Oboe::Config[:httpclient][:collect_backtraces] = true
-      Oboe::Config[:memcache][:collect_backtraces] = false
-      Oboe::Config[:memcached][:collect_backtraces] = false
-      Oboe::Config[:mongo][:collect_backtraces] = true
-      Oboe::Config[:moped][:collect_backtraces] = true
-      Oboe::Config[:nethttp][:collect_backtraces] = true
-      Oboe::Config[:redis][:collect_backtraces] = false
-      Oboe::Config[:resque][:collect_backtraces] = true
-      Oboe::Config[:rest_client][:collect_backtraces] = false
-      Oboe::Config[:sequel][:collect_backtraces] = true
-      Oboe::Config[:typhoeus][:collect_backtraces] = false
+      TraceView::Config[:action_controller][:collect_backtraces] = true
+      TraceView::Config[:active_record][:collect_backtraces] = true
+      TraceView::Config[:action_view][:collect_backtraces] = true
+      TraceView::Config[:cassandra][:collect_backtraces] = true
+      TraceView::Config[:dalli][:collect_backtraces] = false
+      TraceView::Config[:em_http_request][:collect_backtraces] = false
+      TraceView::Config[:excon][:collect_backtraces] = true
+      TraceView::Config[:faraday][:collect_backtraces] = false
+      TraceView::Config[:grape][:collect_backtraces] = true
+      TraceView::Config[:httpclient][:collect_backtraces] = true
+      TraceView::Config[:memcache][:collect_backtraces] = false
+      TraceView::Config[:memcached][:collect_backtraces] = false
+      TraceView::Config[:mongo][:collect_backtraces] = true
+      TraceView::Config[:moped][:collect_backtraces] = true
+      TraceView::Config[:nethttp][:collect_backtraces] = true
+      TraceView::Config[:redis][:collect_backtraces] = false
+      TraceView::Config[:resque][:collect_backtraces] = true
+      TraceView::Config[:rest_client][:collect_backtraces] = false
+      TraceView::Config[:sequel][:collect_backtraces] = true
+      TraceView::Config[:typhoeus][:collect_backtraces] = false
 
       # Special instrument specific flags
       #
@@ -70,7 +70,7 @@ module Oboe
       #                 (Default: false)
       @@config[:resque][:link_workers] = false
 
-      # Setup an empty host blacklist (see: Oboe::API::Util.blacklisted?)
+      # Setup an empty host blacklist (see: TraceView::API::Util.blacklisted?)
       @@config[:blacklist] = []
 
       # Access Key is empty until loaded from config file or env var
@@ -87,9 +87,9 @@ module Oboe
       # option to true and instead disable the instrumenstation specific
       # option <tt>log_args</tt>:
       #
-      #   Oboe::Config[:nethttp][:log_args] = false
-      #   Oboe::Config[:excon][:log_args] = false
-      #   Oboe::Config[:typhoeus][:log_args] = true
+      #   TraceView::Config[:nethttp][:log_args] = false
+      #   TraceView::Config[:excon][:log_args] = false
+      #   TraceView::Config[:typhoeus][:log_args] = true
       #
       @@config[:include_url_query_params] = true
 
@@ -103,7 +103,7 @@ module Oboe
       # query args by default.
       @@config[:include_remote_url_params] = true
 
-      # The oboe Ruby client has the ability to sanitize query literals
+      # The TraceView Ruby gem has the ability to sanitize query literals
       # from SQL statements.  By default this is disabled.  Enable to
       # avoid collecting and reporting query literals to TraceView.
       @@config[:sanitize_sql] = false
@@ -124,14 +124,14 @@ module Oboe
       #   path = URI.unescape(req.path)
       #
       # Usage:
-      #   Oboe::Config[:dnt_regexp] = "lobster$"
-      #   Oboe::Config[:dnt_opts]   = Regexp::IGNORECASE
+      #   TraceView::Config[:dnt_regexp] = "lobster$"
+      #   TraceView::Config[:dnt_opts]   = Regexp::IGNORECASE
       #
       # This will ignore all requests that end with the string lobster
       # regardless of case
       #
       # Requests with positive matches (non nil) will not be traced.
-      # See lib/oboe/util.rb: Oboe::Util.static_asset?
+      # See lib/traceview/util.rb: TraceView::Util.static_asset?
       #
       @@config[:dnt_regexp] = "\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|ttf|woff|svg|less)$"
       @@config[:dnt_opts]   = Regexp::IGNORECASE
@@ -176,22 +176,22 @@ module Oboe
       @@config[key.to_sym] = value
 
       if key == :sampling_rate
-        Oboe.logger.warn 'sampling_rate is not a supported setting for Oboe::Config.  ' \
+        TraceView.logger.warn 'sampling_rate is not a supported setting for TraceView::Config.  ' \
                          'Please use :sample_rate.'
 
       elsif key == :sample_rate
         unless value.is_a?(Integer) || value.is_a?(Float)
-          fail 'oboe :sample_rate must be a number between 1 and 1000000 (1m)'
+          fail 'traceview :sample_rate must be a number between 1 and 1000000 (1m)'
         end
 
         # Validate :sample_rate value
         unless value.between?(1, 1e6)
-          fail 'oboe :sample_rate must be between 1 and 1000000 (1m)'
+          fail 'traceview :sample_rate must be between 1 and 1000000 (1m)'
         end
 
         # Assure value is an integer
         @@config[key.to_sym] = value.to_i
-        Oboe.set_sample_rate(value) if Oboe.loaded
+        TraceView.set_sample_rate(value) if TraceView.loaded
 
       elsif key == :include_url_query_params
         # Obey the global flag and update all of the per instrumentation
@@ -208,7 +208,7 @@ module Oboe
 
       # Update liboboe if updating :tracing_mode
       if key == :tracing_mode
-        Oboe.set_tracing_mode(value) if Oboe.loaded
+        TraceView.set_tracing_mode(value) if TraceView.loaded
       end
     end
 
@@ -235,4 +235,4 @@ module Oboe
   end
 end
 
-Oboe::Config.initialize
+TraceView::Config.initialize

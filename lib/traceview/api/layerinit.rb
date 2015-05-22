@@ -1,7 +1,7 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
-module Oboe
+module TraceView
   module API
     ##
     # Provides methods related to layer initialization and reporting
@@ -15,36 +15,36 @@ module Oboe
         return if %w(development test).include? ENV['RACK_ENV']
 
         # Don't send __Init if the c-extension hasn't loaded
-        return unless Oboe.loaded
+        return unless TraceView.loaded
 
-        platform_info = Oboe::Util.build_init_report
+        platform_info = TraceView::Util.build_init_report
 
         # If already tracing, save and clear the context.  Restore it after
         # the __Init is sent
         context = nil
 
-        if Oboe.tracing?
-          context = Oboe::Context.toString
-          Oboe::Context.clear
+        if TraceView.tracing?
+          context = TraceView::Context.toString
+          TraceView::Context.clear
         end
 
         start_trace(layer, nil, platform_info.merge('Force' => true)) {}
 
-        Oboe::Context.fromString(context) if context
+        TraceView::Context.fromString(context) if context
       end
 
       ##
       # force_trace has been deprecated and will be removed in a subsequent version.
       #
       def force_trace
-        Oboe.logger.warn 'Oboe::API::LayerInit.force_trace has been deprecated and will be ' \
+        TraceView.logger.warn 'TraceView::API::LayerInit.force_trace has been deprecated and will be ' \
                          'removed in a subsequent version.'
 
-        saved_mode = Oboe::Config[:tracing_mode]
-        Oboe::Config[:tracing_mode] = 'always'
+        saved_mode = TraceView::Config[:tracing_mode]
+        TraceView::Config[:tracing_mode] = 'always'
         yield
       ensure
-        Oboe::Config[:tracing_mode] = saved_mode
+        TraceView::Config[:tracing_mode] = saved_mode
       end
     end
   end

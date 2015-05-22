@@ -1,19 +1,19 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
-if defined?(ActionView::Base) && Oboe::Config[:action_view][:enabled]
+if defined?(ActionView::Base) && TraceView::Config[:action_view][:enabled]
 
   if Rails::VERSION::MAJOR == 2
 
-    Oboe.logger.info '[oboe/loading] Instrumenting actionview' if Oboe::Config[:verbose]
+    TraceView.logger.info '[traceview/loading] Instrumenting actionview' if TraceView::Config[:verbose]
 
     ActionView::Partials.module_eval do
-      alias :render_partial_without_oboe :render_partial
+      alias :render_partial_without_traceview :render_partial
       def render_partial(options = {})
         if options.key?(:partial) && options[:partial].is_a?(String)
           entry_kvs = {}
           begin
-            name  = Oboe::Util.prettify(options[:partial]) if options.is_a?(Hash)
+            name  = TraceView::Util.prettify(options[:partial]) if options.is_a?(Hash)
             entry_kvs[:FunctionName] = :render_partial
             entry_kvs[:Class]        = :Partials
             entry_kvs[:Module]       = :ActionView
@@ -22,15 +22,15 @@ if defined?(ActionView::Base) && Oboe::Config[:action_view][:enabled]
           rescue
           end
 
-          Oboe::API.profile(name, entry_kvs, Oboe::Config[:action_view][:collect_backtraces]) do
-            render_partial_without_oboe(options)
+          TraceView::API.profile(name, entry_kvs, TraceView::Config[:action_view][:collect_backtraces]) do
+            render_partial_without_traceview(options)
           end
         else
-          render_partial_without_oboe(options)
+          render_partial_without_traceview(options)
         end
       end
 
-      alias :render_partial_collection_without_oboe :render_partial_collection
+      alias :render_partial_collection_without_traceview :render_partial_collection
       def render_partial_collection(options = {})
         entry_kvs = {}
         begin
@@ -43,8 +43,8 @@ if defined?(ActionView::Base) && Oboe::Config[:action_view][:enabled]
         rescue
         end
 
-        Oboe::API.profile(name, entry_kvs, Oboe::Config[:action_view][:collect_backtraces]) do
-          render_partial_collection_without_oboe(options)
+        TraceView::API.profile(name, entry_kvs, TraceView::Config[:action_view][:collect_backtraces]) do
+          render_partial_collection_without_traceview(options)
         end
       end
     end

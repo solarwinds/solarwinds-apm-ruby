@@ -3,7 +3,7 @@
 
 require 'logger'
 
-module Oboe
+module TraceView
   class << self
     attr_accessor :logger
   end
@@ -11,31 +11,31 @@ module Oboe
   class Logger
     # Fatal message
     def fatal(string, exception = nil)
-      Oboe.logger.fatal(string) if Oboe.logger
+      TraceView.logger.fatal(string) if TraceView.logger
     end
 
     # Error message
     def error(msg, exception = nil)
-      Oboe.logger.error(string) if Oboe.logger
+      TraceView.logger.error(string) if TraceView.logger
     end
 
     # Warn message
     def warn(msg, exception = nil)
-      Oboe.logger.warn(string) if Oboe.logger
+      TraceView.logger.warn(string) if TraceView.logger
     end
 
     # Info message
     def info(msg, exception = nil)
-      Oboe.logger.info(string) if Oboe.logger
+      TraceView.logger.info(string) if TraceView.logger
     end
 
     # Debug message
     def debug(msg, exception = nil)
-      Oboe.logger.debug(string) if Oboe.logger
+      TraceView.logger.debug(string) if TraceView.logger
     end
 
   end
 end
 
-Oboe.logger = Logger.new(STDERR)
+TraceView.logger = Logger.new(STDERR)
 

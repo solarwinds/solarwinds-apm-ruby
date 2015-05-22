@@ -1,47 +1,47 @@
 # Copyright (c) 2015 AppNeta, Inc.
 # All rights reserved.
 
-module Oboe
+module TraceView
   module Inst
     module TyphoeusRequestOps
 
       def self.included(klass)
-        ::Oboe::Util.method_alias(klass, :run, ::Typhoeus::Request::Operations)
+        ::TraceView::Util.method_alias(klass, :run, ::Typhoeus::Request::Operations)
       end
 
-      def run_with_oboe
-        return run_without_oboe unless Oboe.tracing?
+      def run_with_traceview
+        return run_without_traceview unless TraceView.tracing?
 
-        Oboe::API.log_entry('typhoeus')
+        TraceView::API.log_entry('typhoeus')
 
         # Prepare X-Trace header handling
-        blacklisted = Oboe::API.blacklisted?(url)
-        context = Oboe::Context.toString
-        task_id = Oboe::XTrace.task_id(context)
+        blacklisted = TraceView::API.blacklisted?(url)
+        context = TraceView::Context.toString
+        task_id = TraceView::XTrace.task_id(context)
         options[:headers]['X-Trace'] = context unless blacklisted
 
-        response = run_without_oboe
+        response = run_without_traceview
 
         if response.code == 0
-          Oboe::API.log('typhoeus', 'error', { :ErrorClass => response.return_code,
+          TraceView::API.log('typhoeus', 'error', { :ErrorClass => response.return_code,
                                                :ErrorMsg => response.return_message })
         end
 
         kvs = {}
         kvs['IsService'] = 1
         kvs[:HTTPStatus] = response.code
-        kvs['Backtrace'] = Oboe::API.backtrace if Oboe::Config[:typhoeus][:collect_backtraces]
+        kvs['Backtrace'] = TraceView::API.backtrace if TraceView::Config[:typhoeus][:collect_backtraces]
 
         uri = URI(response.effective_url)
 
         # Conditionally log query params
-        if Oboe::Config[:typhoeus][:log_args]
+        if TraceView::Config[:typhoeus][:log_args]
           kvs['RemoteURL'] = uri.to_s
         else
           kvs['RemoteURL'] = uri.to_s.split('?').first
         end
 
-        kvs['HTTPMethod'] = ::Oboe::Util.upcase(options[:method])
+        kvs['HTTPMethod'] = ::TraceView::Util.upcase(options[:method])
         kvs['Blacklisted'] = true if blacklisted
 
         # Re-attach net::http edge unless it's blacklisted or if we don't have a
@@ -49,33 +49,33 @@ module Oboe
         unless blacklisted
           xtrace = response.headers['X-Trace']
 
-          if xtrace && Oboe::XTrace.valid?(xtrace) && Oboe.tracing?
+          if xtrace && TraceView::XTrace.valid?(xtrace) && TraceView.tracing?
 
             # Assure that we received back a valid X-Trace with the same task_id
-            if task_id == Oboe::XTrace.task_id(xtrace)
-              Oboe::Context.fromString(xtrace)
+            if task_id == TraceView::XTrace.task_id(xtrace)
+              TraceView::Context.fromString(xtrace)
             else
-              Oboe.logger.debug "Mismatched returned X-Trace ID: #{xtrace}"
+              TraceView.logger.debug "Mismatched returned X-Trace ID: #{xtrace}"
             end
           end
         end
 
-        Oboe::API.log('typhoeus', 'info', kvs)
+        TraceView::API.log('typhoeus', 'info', kvs)
         response
       rescue => e
-        Oboe::API.log_exception('typhoeus', e)
+        TraceView::API.log_exception('typhoeus', e)
         raise e
       ensure
-        Oboe::API.log_exit('typhoeus')
+        TraceView::API.log_exit('typhoeus')
       end
     end
 
     module TyphoeusHydraRunnable
       def self.included(klass)
-        ::Oboe::Util.method_alias(klass, :run, ::Typhoeus::Hydra)
+        ::TraceView::Util.method_alias(klass, :run, ::Typhoeus::Hydra)
       end
 
-      def run_with_oboe
+      def run_with_traceview
         kvs = {}
 
         kvs[:queued_requests] = queued_requests.count
@@ -84,8 +84,8 @@ module Oboe
         # FIXME: Until we figure out a strategy to deal with libcurl internal
         # threading and Ethon's use of easy handles, here we just do a simple
         # trace of the hydra run.
-        Oboe::API.trace("typhoeus_hydra", kvs) do
-          run_without_oboe
+        TraceView::API.trace("typhoeus_hydra", kvs) do
+          run_without_traceview
         end
       end
     end
@@ -93,10 +93,10 @@ module Oboe
   end
 end
 
-if Oboe::Config[:typhoeus][:enabled]
+if TraceView::Config[:typhoeus][:enabled]
   if defined?(::Typhoeus)
-    Oboe.logger.info '[oboe/loading] Instrumenting typhoeus' if Oboe::Config[:verbose]
-    ::Oboe::Util.send_include(::Typhoeus::Request::Operations, ::Oboe::Inst::TyphoeusRequestOps)
-    ::Oboe::Util.send_include(::Typhoeus::Hydra, ::Oboe::Inst::TyphoeusHydraRunnable)
+    TraceView.logger.info '[traceview/loading] Instrumenting typhoeus' if TraceView::Config[:verbose]
+    ::TraceView::Util.send_include(::Typhoeus::Request::Operations, ::TraceView::Inst::TyphoeusRequestOps)
+    ::TraceView::Util.send_include(::Typhoeus::Hydra, ::TraceView::Inst::TyphoeusHydraRunnable)
   end
 end

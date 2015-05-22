@@ -1,11 +1,11 @@
-module Oboe
+module TraceView
   module Inst
     module EventMachine
       module HttpConnection
-        def setup_request_with_oboe(*args, &block)
+        def setup_request_with_traceview(*args, &block)
           report_kvs = {}
-          context = Oboe::Context.toString
-          blacklisted = Oboe::API.blacklisted?(@uri)
+          context = TraceView::Context.toString
+          blacklisted = TraceView::API.blacklisted?(@uri)
 
           begin
             report_kvs['IsService'] = 1
@@ -13,57 +13,57 @@ module Oboe
             report_kvs['HTTPMethod'] = args[0]
             report_kvs['Blacklisted'] = true if blacklisted
 
-            if Oboe::Config[:em_http_request][:collect_backtraces]
-              report_kvs[:Backtrace] = Oboe::API.backtrace
+            if TraceView::Config[:em_http_request][:collect_backtraces]
+              report_kvs[:Backtrace] = TraceView::API.backtrace
             end
           rescue => e
-            Oboe.logger.debug "[oboe/debug] em-http-request KV error: #{e.inspect}"
+            TraceView.logger.debug "[traceview/debug] em-http-request KV error: #{e.inspect}"
           end
 
-          ::Oboe::API.log_entry('em-http-request', report_kvs)
-          client = setup_request_without_oboe(*args, &block)
+          ::TraceView::API.log_entry('em-http-request', report_kvs)
+          client = setup_request_without_traceview(*args, &block)
           client.req.headers['X-Trace'] = context unless blacklisted
           client
         end
       end
 
       module HttpClient
-        def parse_response_header_with_oboe(*args, &block)
+        def parse_response_header_with_traceview(*args, &block)
           report_kvs = {}
           xtrace = nil
-          blacklisted = Oboe::API.blacklisted?(@uri)
+          blacklisted = TraceView::API.blacklisted?(@uri)
 
           begin
             report_kvs[:HTTPStatus] = args[2]
             report_kvs[:Async] = 1
           rescue => e
-            Oboe.logger.debug "[oboe/debug] em-http-request KV error: #{e.inspect}"
+            TraceView.logger.debug "[traceview/debug] em-http-request KV error: #{e.inspect}"
           end
 
-          parse_response_header_without_oboe(*args, &block)
+          parse_response_header_without_traceview(*args, &block)
 
           unless blacklisted
             headers = args[0]
-            context = Oboe::Context.toString
-            task_id = Oboe::XTrace.task_id(context)
+            context = TraceView::Context.toString
+            task_id = TraceView::XTrace.task_id(context)
 
             if headers.is_a?(Hash) && headers.key?('X-Trace')
               xtrace = headers['X-Trace']
             end
 
-            if Oboe::XTrace.valid?(xtrace) && Oboe.tracing?
+            if TraceView::XTrace.valid?(xtrace) && TraceView.tracing?
 
               # Assure that we received back a valid X-Trace with the same task_id
-              if task_id == Oboe::XTrace.task_id(xtrace)
-                Oboe::Context.fromString(xtrace)
+              if task_id == TraceView::XTrace.task_id(xtrace)
+                TraceView::Context.fromString(xtrace)
               else
-                Oboe.logger.debug "Mismatched returned X-Trace ID : #{xtrace}"
+                TraceView.logger.debug "Mismatched returned X-Trace ID : #{xtrace}"
               end
             end
 
           end
 
-          ::Oboe::API.log_exit('em-http-request', report_kvs)
+          ::TraceView::API.log_exit('em-http-request', report_kvs)
         end
       end
     end
@@ -71,28 +71,28 @@ module Oboe
 end
 
 if RUBY_VERSION >= '1.9'
-  if defined?(::EventMachine::HttpConnection) && defined?(::EventMachine::HttpClient) && Oboe::Config[:em_http_request][:enabled]
-    Oboe.logger.info '[oboe/loading] Instrumenting em-http-request' if Oboe::Config[:verbose]
+  if defined?(::EventMachine::HttpConnection) && defined?(::EventMachine::HttpClient) && TraceView::Config[:em_http_request][:enabled]
+    TraceView.logger.info '[traceview/loading] Instrumenting em-http-request' if TraceView::Config[:verbose]
 
     class ::EventMachine::HttpConnection
-      include Oboe::Inst::EventMachine::HttpConnection
+      include TraceView::Inst::EventMachine::HttpConnection
 
       if method_defined?(:setup_request)
-        class_eval 'alias :setup_request_without_oboe :setup_request'
-        class_eval 'alias :setup_request :setup_request_with_oboe'
+        class_eval 'alias :setup_request_without_traceview :setup_request'
+        class_eval 'alias :setup_request :setup_request_with_traceview'
       else
-        Oboe.logger.warn '[oboe/loading] Couldn\'t properly instrument em-http-request (:setup_request).  Partial traces may occur.'
+        TraceView.logger.warn '[traceview/loading] Couldn\'t properly instrument em-http-request (:setup_request).  Partial traces may occur.'
       end
     end
 
     class ::EventMachine::HttpClient
-      include Oboe::Inst::EventMachine::HttpClient
+      include TraceView::Inst::EventMachine::HttpClient
 
       if method_defined?(:parse_response_header)
-        class_eval 'alias :parse_response_header_without_oboe :parse_response_header'
-        class_eval 'alias :parse_response_header :parse_response_header_with_oboe'
+        class_eval 'alias :parse_response_header_without_traceview :parse_response_header'
+        class_eval 'alias :parse_response_header :parse_response_header_with_traceview'
       else
-        Oboe.logger.warn '[oboe/loading] Couldn\'t properly instrument em-http-request (:parse_response_header).  Partial traces may occur.'
+        TraceView.logger.warn '[traceview/loading] Couldn\'t properly instrument em-http-request (:parse_response_header).  Partial traces may occur.'
       end
     end
   end

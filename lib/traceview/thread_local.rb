@@ -1,13 +1,13 @@
 # Copyright (c) 2014 AppNeta, Inc.
 # All rights reserved.
 
-module Oboe
+module TraceView
   ##
-  # Provides thread local storage for Oboe.
+  # Provides thread local storage for TraceView.
   #
   # Example usage:
-  # module OboeBase
-  #   extend ::Oboe::ThreadLocal
+  # module TraceViewBase
+  #   extend ::TraceView::ThreadLocal
   #   thread_local :layer_op
   # end
   module ThreadLocal

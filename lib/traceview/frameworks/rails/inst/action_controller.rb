@@ -1,7 +1,7 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
-module Oboe
+module TraceView
   module Inst
     #
     # RailsBase
@@ -27,7 +27,7 @@ module Oboe
         }
         has_handler
       rescue => e
-        Oboe.logger.debug "[oboe/debug] Error searching Rails handlers: #{e.message}"
+        TraceView.logger.debug "[traceview/debug] Error searching Rails handlers: #{e.message}"
         return false
       end
 
@@ -37,36 +37,36 @@ module Oboe
       # Determins whether we should log a raised exception to the
       # TraceView dashboard.  This is determined by whether the exception
       # has a rescue handler setup and the value of
-      # Oboe::Config[:report_rescued_errors]
+      # TraceView::Config[:report_rescued_errors]
       #
       def log_rails_error?(exception)
         # As it's perculating up through the layers...  make sure that
         # we only report it once.
-        return false if exception.instance_variable_get(:@oboe_logged)
+        return false if exception.instance_variable_get(:@traceview_logged)
 
         has_handler = has_handler?(exception)
 
-        if !has_handler || (has_handler && Oboe::Config[:report_rescued_errors])
+        if !has_handler || (has_handler && TraceView::Config[:report_rescued_errors])
           return true
         end
         false
       end
 
       #
-      # render_with_oboe
+      # render_with_traceview
       #
       # Our render wrapper that just times and conditionally
       # reports raised exceptions
       #
-      def render_with_oboe(*args, &blk)
-        Oboe::API.log_entry('actionview')
-        render_without_oboe(*args, &blk)
+      def render_with_traceview(*args, &blk)
+        TraceView::API.log_entry('actionview')
+        render_without_traceview(*args, &blk)
 
       rescue Exception => e
-        Oboe::API.log_exception(nil, e) if log_rails_error?(e)
+        TraceView::API.log_exception(nil, e) if log_rails_error?(e)
         raise
       ensure
-        Oboe::API.log_exit('actionview')
+        TraceView::API.log_exit('actionview')
       end
     end
 
@@ -77,38 +77,38 @@ module Oboe
     # to Rails v3
     #
     module ActionController3
-      include ::Oboe::Inst::RailsBase
+      include ::TraceView::Inst::RailsBase
 
       def self.included(base)
         base.class_eval do
-          alias_method_chain :process, :oboe
-          alias_method_chain :process_action, :oboe
-          alias_method_chain :render, :oboe
+          alias_method_chain :process, :traceview
+          alias_method_chain :process_action, :traceview
+          alias_method_chain :render, :traceview
         end
       end
 
-      def process_with_oboe(*args)
-        Oboe::API.log_entry('rails')
-        process_without_oboe *args
+      def process_with_traceview(*args)
+        TraceView::API.log_entry('rails')
+        process_without_traceview *args
 
       rescue Exception => e
-        Oboe::API.log_exception(nil, e) if log_rails_error?(e)
+        TraceView::API.log_exception(nil, e) if log_rails_error?(e)
         raise
       ensure
-        Oboe::API.log_exit('rails')
+        TraceView::API.log_exit('rails')
       end
 
-      def process_action_with_oboe(*args)
+      def process_action_with_traceview(*args)
         report_kvs = {
           :Controller   => self.class.name,
           :Action       => self.action_name,
         }
-        Oboe::API.log(nil, 'info', report_kvs)
+        TraceView::API.log(nil, 'info', report_kvs)
 
-        process_action_without_oboe *args
+        process_action_without_traceview *args
       rescue Exception
         report_kvs[:Status] = 500
-        Oboe::API.log(nil, 'info', report_kvs)
+        TraceView::API.log(nil, 'info', report_kvs)
         raise
       end
     end
@@ -120,69 +120,69 @@ module Oboe
     # to Rails v4
     #
     module ActionController4
-      include ::Oboe::Inst::RailsBase
+      include ::TraceView::Inst::RailsBase
 
       def self.included(base)
         base.class_eval do
-          alias_method_chain :process_action, :oboe
-          alias_method_chain :render, :oboe
+          alias_method_chain :process_action, :traceview
+          alias_method_chain :render, :traceview
         end
       end
 
-      def process_action_with_oboe(method_name, *args)
-        return process_action_without_oboe(method_name, *args) if Oboe::Config[:action_blacklist].present? &&
-          Oboe::Config[:action_blacklist][[self.controller_name, self.action_name].join('#')]
+      def process_action_with_traceview(method_name, *args)
+        return process_action_without_traceview(method_name, *args) if TraceView::Config[:action_blacklist].present? &&
+          TraceView::Config[:action_blacklist][[self.controller_name, self.action_name].join('#')]
 
         report_kvs = {
           :Controller   => self.class.name,
           :Action       => self.action_name,
         }
 
-        Oboe::API.log_entry('rails')
-        process_action_without_oboe(method_name, *args)
+        TraceView::API.log_entry('rails')
+        process_action_without_traceview(method_name, *args)
 
       rescue Exception => e
-        Oboe::API.log_exception(nil, e) if log_rails_error?(e)
+        TraceView::API.log_exception(nil, e) if log_rails_error?(e)
         raise
       ensure
-        Oboe::API.log_exit('rails')
+        TraceView::API.log_exit('rails')
       end
     end
   end
 end
 
-if defined?(ActionController::Base) && Oboe::Config[:action_controller][:enabled]
+if defined?(ActionController::Base) && TraceView::Config[:action_controller][:enabled]
   if ::Rails::VERSION::MAJOR == 4
 
     class ActionController::Base
-      include Oboe::Inst::ActionController4
+      include TraceView::Inst::ActionController4
     end
 
   elsif ::Rails::VERSION::MAJOR == 3
 
     class ActionController::Base
-      include Oboe::Inst::ActionController3
+      include TraceView::Inst::ActionController3
     end
 
   elsif ::Rails::VERSION::MAJOR == 2
 
     ActionController::Base.class_eval do
-      include ::Oboe::Inst::RailsBase
+      include ::TraceView::Inst::RailsBase
 
-      alias :perform_action_without_oboe :perform_action
-      alias :rescue_action_without_oboe :rescue_action
-      alias :process_without_oboe :process
-      alias :render_without_oboe :render
+      alias :perform_action_without_traceview :perform_action
+      alias :rescue_action_without_traceview :rescue_action
+      alias :process_without_traceview :process
+      alias :render_without_traceview :render
 
       def process(*args)
-        Oboe::API.log_entry('rails')
-        process_without_oboe(*args)
+        TraceView::API.log_entry('rails')
+        process_without_traceview(*args)
 
       rescue Exception => e
-        Oboe::API.log_exception(nil, e) if log_rails_error?(e)
+        TraceView::API.log_exception(nil, e) if log_rails_error?(e)
         raise
       ensure
-        Oboe::API.log_exit('rails')
+        TraceView::API.log_exit('rails')
       end
 
       def perform_action(*arguments)
@@ -190,27 +190,27 @@ if defined?(ActionController::Base) && Oboe::Config[:action_controller][:enabled
           :Controller  => @_request.path_parameters['controller'],
           :Action      => @_request.path_parameters['action']
         }
-        Oboe::API.log(nil, 'info', report_kvs)
-        perform_action_without_oboe(*arguments)
+        TraceView::API.log(nil, 'info', report_kvs)
+        perform_action_without_traceview(*arguments)
       end
 
       def rescue_action(exn)
-        Oboe::API.log_exception(nil, exn) if log_rails_error?(exn)
-        rescue_action_without_oboe(exn)
+        TraceView::API.log_exception(nil, exn) if log_rails_error?(exn)
+        rescue_action_without_traceview(exn)
       end
 
       def render(options = nil, extra_options = {}, &block)
-        Oboe::API.log_entry('actionview')
-        render_without_oboe(options, extra_options, &block)
+        TraceView::API.log_entry('actionview')
+        render_without_traceview(options, extra_options, &block)
 
       rescue Exception => e
-        Oboe::API.log_exception(nil, e) if log_rails_error?(e)
+        TraceView::API.log_exception(nil, e) if log_rails_error?(e)
         raise
       ensure
-        Oboe::API.log_exit('actionview')
+        TraceView::API.log_exit('actionview')
       end
     end
   end
-  Oboe.logger.info '[oboe/loading] Instrumenting actioncontroler' if Oboe::Config[:verbose]
+  TraceView.logger.info '[traceview/loading] Instrumenting actioncontroler' if TraceView::Config[:verbose]
 end
 # vim:set expandtab:tabstop=2

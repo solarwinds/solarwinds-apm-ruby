@@ -1,7 +1,7 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
-module Oboe
+module TraceView
   module API
     ##
     # This modules provides the X-Trace logging facilities.
@@ -22,8 +22,8 @@ module Oboe
       #
       # Returns nothing.
       def log(layer, label, opts = {})
-        if Oboe.loaded
-          log_event(layer, label, Oboe::Context.createEvent, opts)
+        if TraceView.loaded
+          log_event(layer, label, TraceView::Context.createEvent, opts)
         end
       end
 
@@ -35,7 +35,7 @@ module Oboe
       # Example
       #
       #   begin
-      #     function_without_oboe()
+      #     function_without_traceview()
       #   rescue Exception => e
       #     log_exception('rails', e)
       #     raise
@@ -43,7 +43,7 @@ module Oboe
       #
       # Returns nothing.
       def log_exception(layer, exn)
-        return if !Oboe.loaded || exn.instance_variable_get(:@oboe_logged)
+        return if !TraceView.loaded || exn.instance_variable_get(:@oboe_logged)
 
         kvs = { :ErrorClass => exn.class.name,
                 :ErrorMsg => exn.message,
@@ -63,20 +63,20 @@ module Oboe
       #
       # Returns nothing.
       def log_start(layer, xtrace, opts = {})
-        return if !Oboe.loaded || Oboe.never? ||
-                  (opts.key?(:URL) && ::Oboe::Util.static_asset?(opts[:URL]))
+        return if !TraceView.loaded || TraceView.never? ||
+                  (opts.key?(:URL) && ::TraceView::Util.static_asset?(opts[:URL]))
 
-        Oboe::Context.fromString(xtrace) if Oboe.pickup_context?(xtrace)
+        TraceView::Context.fromString(xtrace) if TraceView.pickup_context?(xtrace)
 
-        if Oboe.tracing?
+        if TraceView.tracing?
           # Pre-existing context.  Either we inherited context from an
           # incoming X-Trace request header or under JRuby, Joboe started
           # tracing before the JRuby code was called (e.g. Tomcat)
-          Oboe.is_continued_trace = true
+          TraceView.is_continued_trace = true
 
-          if Oboe.has_xtrace_header
+          if TraceView.has_xtrace_header
             opts[:TraceOrigin] = :continued_header
-          elsif Oboe.has_incoming_context
+          elsif TraceView.has_incoming_context
             opts[:TraceOrigin] = :continued_context
           else
             opts[:TraceOrigin] = :continued
@@ -87,16 +87,16 @@ module Oboe
         elsif opts.key?('Force')
           # Forced tracing: used by __Init reporting
           opts[:TraceOrigin] = :forced
-          log_event(layer, 'entry', Oboe::Context.startTrace, opts)
+          log_event(layer, 'entry', TraceView::Context.startTrace, opts)
 
-        elsif Oboe.sample?(opts.merge(:layer => layer, :xtrace => xtrace))
+        elsif TraceView.sample?(opts.merge(:layer => layer, :xtrace => xtrace))
           # Probablistic tracing of a subset of requests based off of
           # sample rate and sample source
-          opts[:SampleRate]        = Oboe.sample_rate
-          opts[:SampleSource]      = Oboe.sample_source
+          opts[:SampleRate]        = TraceView.sample_rate
+          opts[:SampleSource]      = TraceView.sample_source
           opts[:TraceOrigin] = :always_sampled
 
-          log_event(layer, 'entry', Oboe::Context.startTrace, opts)
+          log_event(layer, 'entry', TraceView::Context.startTrace, opts)
         end
       end
 
@@ -106,10 +106,10 @@ module Oboe
       #
       # Returns an xtrace metadata string
       def log_end(layer, opts = {})
-        if Oboe.loaded
-          log_event(layer, 'exit', Oboe::Context.createEvent, opts)
-          xtrace = Oboe::Context.toString
-          Oboe::Context.clear unless Oboe.has_incoming_context?
+        if TraceView.loaded
+          log_event(layer, 'exit', TraceView::Context.createEvent, opts)
+          xtrace = TraceView::Context.toString
+          TraceView::Context.clear unless TraceView.has_incoming_context?
           xtrace
         end
       end
@@ -122,9 +122,9 @@ module Oboe
       #
       # Returns an xtrace metadata string
       def log_entry(layer, kvs = {}, op = nil)
-        if Oboe.loaded
-          Oboe.layer_op = op if op
-          log_event(layer, 'entry', Oboe::Context.createEvent, kvs)
+        if TraceView.loaded
+          TraceView.layer_op = op if op
+          log_event(layer, 'entry', TraceView::Context.createEvent, kvs)
         end
       end
 
@@ -136,8 +136,8 @@ module Oboe
       #
       # Returns an xtrace metadata string
       def log_info(layer, kvs = {})
-        if Oboe.loaded
-          log_event(layer, 'info', Oboe::Context.createEvent, kvs)
+        if TraceView.loaded
+          log_event(layer, 'info', TraceView::Context.createEvent, kvs)
         end
       end
 
@@ -149,9 +149,9 @@ module Oboe
       #
       # Returns an xtrace metadata string
       def log_exit(layer, kvs = {}, op = nil)
-        if Oboe.loaded
-          Oboe.layer_op = nil if op
-          log_event(layer, 'exit', Oboe::Context.createEvent, kvs)
+        if TraceView.loaded
+          TraceView.layer_op = nil if op
+          log_event(layer, 'exit', TraceView::Context.createEvent, kvs)
         end
       end
 
@@ -165,20 +165,20 @@ module Oboe
       #
       # Examples
       #
-      #   entry = Oboe::Context.createEvent
+      #   entry = TraceView::Context.createEvent
       #   log_event('rails', 'entry', exit, { :controller => 'user', :action => 'index' })
-      #   exit = Oboe::Context.createEvent
+      #   exit = TraceView::Context.createEvent
       #   exit.addEdge(entry.getMetadata)
       #   log_event('rails', 'exit', exit)
       #
       # Returns nothing.
       def log_event(layer, label, event, opts = {})
-        if Oboe.loaded
+        if TraceView.loaded
           event.addInfo('Layer', layer.to_s) if layer
           event.addInfo('Label', label.to_s)
 
-          Oboe.layer = layer if label == 'entry'
-          Oboe.layer = nil   if label == 'exit'
+          TraceView.layer = layer if label == 'entry'
+          TraceView.layer = nil   if label == 'exit'
 
           opts.each do |k, v|
             value = nil
@@ -195,12 +195,13 @@ module Oboe
               begin
                 event.addInfo(k.to_s, value)
               rescue ArgumentError => e
-                Oboe.logger.debug "[oboe/debug] Couldn't add event KV: #{k.to_s} => #{v.class}"
+                TraceView.logger.debug "[TraceView/debug] Couldn't add event KV: #{k.to_s} => #{v.class}"
+                TraceView.logger.debug "[TraceView/debug] #{e.message}"
               end
             end
           end if !opts.nil? && opts.any?
 
-          Oboe::Reporter.sendReport(event)
+          TraceView::Reporter.sendReport(event)
         end
       end
     end

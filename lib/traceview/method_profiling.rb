@@ -7,7 +7,7 @@
 #
 # Example usage:
 # class MyApp
-#   include OboeMethodProfiling
+#   include TraceViewMethodProfiling
 #
 #   def process_request()
 #     # The hard work
@@ -16,7 +16,7 @@
 #   # call syntax: profile_method <method>, <profile_name>
 #   profile_method :process_request, 'request_processor'
 # end
-module OboeMethodProfiling
+module TraceViewMethodProfiling
   def self.included(klass)
     klass.extend ClassMethods
   end
@@ -46,38 +46,38 @@ module OboeMethodProfiling
         line = line.gsub /[\'\"]/, ''
 
         # profiling via ruby-prof, is it possible to get return value of profiled code?
-        code = "def _oboe_profiled_#{method_name}(*args, &block)
+        code = "def _traceview_profiled_#{method_name}(*args, &block)
                   entry_kvs                  = {}
                   entry_kvs['Language']      = 'ruby'
-                  entry_kvs['ProfileName']   = '#{Oboe::Util.prettify(profile_name)}'
-                  entry_kvs['FunctionName']  = '#{Oboe::Util.prettify(method_name)}'
+                  entry_kvs['ProfileName']   = '#{TraceView::Util.prettify(profile_name)}'
+                  entry_kvs['FunctionName']  = '#{TraceView::Util.prettify(method_name)}'
                   entry_kvs['File']          = '#{file}'
                   entry_kvs['LineNumber']    = '#{line}'
-                  entry_kvs['Args']          = Oboe::API.pps(*args) if #{store_args}
-                  entry_kvs.merge!(::Oboe::API.get_class_name(self))
+                  entry_kvs['Args']          = TraceView::API.pps(*args) if #{store_args}
+                  entry_kvs.merge!(::TraceView::API.get_class_name(self))
 
-                  Oboe::API.log(nil, 'profile_entry', entry_kvs)
+                  TraceView::API.log(nil, 'profile_entry', entry_kvs)
 
-                  ret = _oboe_orig_#{method_name}(*args, &block)
+                  ret = _traceview_orig_#{method_name}(*args, &block)
 
                   exit_kvs =  {}
                   exit_kvs['Language'] = 'ruby'
-                  exit_kvs['ProfileName'] = '#{Oboe::Util.prettify(profile_name)}'
-                  exit_kvs['ReturnValue'] = Oboe::API.pps(ret) if #{store_return}
+                  exit_kvs['ProfileName'] = '#{TraceView::Util.prettify(profile_name)}'
+                  exit_kvs['ReturnValue'] = TraceView::API.pps(ret) if #{store_return}
 
-                  Oboe::API.log(nil, 'profile_exit', exit_kvs)
+                  TraceView::API.log(nil, 'profile_exit', exit_kvs)
                   ret
                 end"
       rescue => e
-        Oboe.logger.warn "[oboe/warn] profile_method: #{e.inspect}"
+        TraceView.logger.warn "[traceview/warn] profile_method: #{e.inspect}"
       end
 
       begin
         class_eval code, __FILE__, __LINE__
-        alias_method "_oboe_orig_#{method_name}", method_name
-        alias_method method_name, "_oboe_profiled_#{method_name}"
+        alias_method "_traceview_orig_#{method_name}", method_name
+        alias_method method_name, "_traceview_profiled_#{method_name}"
       rescue => e
-        Oboe.logger.warn "[oboe/warn] Fatal error profiling method (#{method_name}): #{e.inspect}" if Oboe::Config[:verbose]
+        TraceView.logger.warn "[traceview/warn] Fatal error profiling method (#{method_name}): #{e.inspect}" if TraceView::Config[:verbose]
       end
     end
   end

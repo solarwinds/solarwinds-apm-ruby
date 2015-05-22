@@ -3,7 +3,7 @@
 
 require 'json'
 
-module Oboe
+module TraceView
   module Inst
     module Mongo
       FLAVOR = 'mongodb'
@@ -22,21 +22,21 @@ module Oboe
   end
 end
 
-if defined?(::Mongo) && Oboe::Config[:mongo][:enabled]
-  Oboe.logger.info '[oboe/loading] Instrumenting mongo' if Oboe::Config[:verbose]
+if defined?(::Mongo) && TraceView::Config[:mongo][:enabled]
+  TraceView.logger.info '[traceview/loading] Instrumenting mongo' if TraceView::Config[:verbose]
 
   if defined?(::Mongo::DB)
     module ::Mongo
       class DB
-        include Oboe::Inst::Mongo
+        include TraceView::Inst::Mongo
 
         # Instrument DB operations
-        Oboe::Inst::Mongo::DB_OPS.reject { |m| !method_defined?(m) }.each do |m|
-          define_method("#{m}_with_oboe") do |*args|
+        TraceView::Inst::Mongo::DB_OPS.reject { |m| !method_defined?(m) }.each do |m|
+          define_method("#{m}_with_traceview") do |*args|
             report_kvs = {}
 
             begin
-              report_kvs[:Flavor] = Oboe::Inst::Mongo::FLAVOR
+              report_kvs[:Flavor] = TraceView::Inst::Mongo::FLAVOR
 
               report_kvs[:Database] = @name
 
@@ -55,17 +55,17 @@ if defined?(::Mongo) && Oboe::Config[:mongo][:enabled]
               report_kvs[:New_Collection_Name] = args[0] if m == :create_collection
               report_kvs[:Collection] = args[0]          if m == :drop_collection
 
-              report_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:mongo][:collect_backtraces]
+              report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:mongo][:collect_backtraces]
             rescue
             end
 
-            Oboe::API.trace('mongo', report_kvs) do
-              send("#{m}_without_oboe", *args)
+            TraceView::API.trace('mongo', report_kvs) do
+              send("#{m}_without_traceview", *args)
             end
           end
 
-          class_eval "alias #{m}_without_oboe #{m}"
-          class_eval "alias #{m} #{m}_with_oboe"
+          class_eval "alias #{m}_without_traceview #{m}"
+          class_eval "alias #{m} #{m}_with_traceview"
         end
       end
     end
@@ -74,15 +74,15 @@ if defined?(::Mongo) && Oboe::Config[:mongo][:enabled]
   if defined?(::Mongo::Cursor)
     module ::Mongo
       class Cursor
-        include Oboe::Inst::Mongo
+        include TraceView::Inst::Mongo
 
         # Instrument DB cursor operations
-        Oboe::Inst::Mongo::CURSOR_OPS.reject { |m| !method_defined?(m) }.each do |m|
-          define_method("#{m}_with_oboe") do |*args|
+        TraceView::Inst::Mongo::CURSOR_OPS.reject { |m| !method_defined?(m) }.each do |m|
+          define_method("#{m}_with_traceview") do |*args|
             report_kvs = {}
 
             begin
-              report_kvs[:Flavor] = Oboe::Inst::Mongo::FLAVOR
+              report_kvs[:Flavor] = TraceView::Inst::Mongo::FLAVOR
 
               report_kvs[:Database] = @db.name
               report_kvs[:RemoteHost] = @connection.host
@@ -100,13 +100,13 @@ if defined?(::Mongo) && Oboe::Config[:mongo][:enabled]
             rescue
             end
 
-            Oboe::API.trace('mongo', report_kvs) do
-              send("#{m}_without_oboe", *args)
+            TraceView::API.trace('mongo', report_kvs) do
+              send("#{m}_without_traceview", *args)
             end
           end
 
-          class_eval "alias #{m}_without_oboe #{m}"
-          class_eval "alias #{m} #{m}_with_oboe"
+          class_eval "alias #{m}_without_traceview #{m}"
+          class_eval "alias #{m} #{m}_with_traceview"
         end
       end
     end
@@ -115,32 +115,32 @@ if defined?(::Mongo) && Oboe::Config[:mongo][:enabled]
   if defined?(::Mongo::Collection)
     module ::Mongo
       class Collection
-        include Oboe::Inst::Mongo
+        include TraceView::Inst::Mongo
 
-        def oboe_collect(m, args)
+        def traceview_collect(m, args)
           begin
             report_kvs = {}
-            report_kvs[:Flavor] = Oboe::Inst::Mongo::FLAVOR
+            report_kvs[:Flavor] = TraceView::Inst::Mongo::FLAVOR
 
             report_kvs[:Database] = @db.name
             report_kvs[:RemoteHost] = @db.connection.host
             report_kvs[:RemotePort] = @db.connection.port
             report_kvs[:Collection] = @name
 
-            report_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:mongo][:collect_backtraces]
+            report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:mongo][:collect_backtraces]
 
             report_kvs[:QueryOp] = m
             report_kvs[:Query] = args[0].to_json if args && !args.empty? && args[0].class == Hash
           rescue StandardError => e
-            Oboe.logger.debug "[oboe/debug] Exception in oboe_collect KV collection: #{e.inspect}"
+            TraceView.logger.debug "[traceview/debug] Exception in traceview_collect KV collection: #{e.inspect}"
           end
           report_kvs
         end
 
         # Instrument Collection write operations
-        Oboe::Inst::Mongo::COLL_WRITE_OPS.reject { |m| !method_defined?(m) }.each do |m|
-          define_method("#{m}_with_oboe") do |*args|
-            report_kvs = oboe_collect(m, args)
+        TraceView::Inst::Mongo::COLL_WRITE_OPS.reject { |m| !method_defined?(m) }.each do |m|
+          define_method("#{m}_with_traceview") do |*args|
+            report_kvs = traceview_collect(m, args)
             args_length = args.length
 
             begin
@@ -165,20 +165,20 @@ if defined?(::Mongo) && Oboe::Config[:mongo][:enabled]
             rescue
             end
 
-            Oboe::API.trace('mongo', report_kvs) do
-              send("#{m}_without_oboe", *args)
+            TraceView::API.trace('mongo', report_kvs) do
+              send("#{m}_without_traceview", *args)
             end
           end
 
-          class_eval "alias #{m}_without_oboe #{m}"
-          class_eval "alias #{m} #{m}_with_oboe"
+          class_eval "alias #{m}_without_traceview #{m}"
+          class_eval "alias #{m} #{m}_with_traceview"
         end
 
         # Instrument Collection query operations
-        Oboe::Inst::Mongo::COLL_QUERY_OPS.reject { |m| !method_defined?(m) }.each do |m|
-          define_method("#{m}_with_oboe") do |*args, &blk|
+        TraceView::Inst::Mongo::COLL_QUERY_OPS.reject { |m| !method_defined?(m) }.each do |m|
+          define_method("#{m}_with_traceview") do |*args, &blk|
             begin
-              report_kvs = oboe_collect(m, args)
+              report_kvs = traceview_collect(m, args)
               args_length = args.length
 
               if m == :distinct && args_length >= 2
@@ -203,19 +203,19 @@ if defined?(::Mongo) && Oboe::Config[:mongo][:enabled]
             rescue
             end
 
-            Oboe::API.trace('mongo', report_kvs) do
-              send("#{m}_without_oboe", *args, &blk)
+            TraceView::API.trace('mongo', report_kvs) do
+              send("#{m}_without_traceview", *args, &blk)
             end
           end
 
-          class_eval "alias #{m}_without_oboe #{m}"
-          class_eval "alias #{m} #{m}_with_oboe"
+          class_eval "alias #{m}_without_traceview #{m}"
+          class_eval "alias #{m} #{m}_with_traceview"
         end
 
         # Instrument Collection index operations
-        Oboe::Inst::Mongo::COLL_INDEX_OPS.reject { |m| !method_defined?(m) }.each do |m|
-          define_method("#{m}_with_oboe") do |*args|
-            report_kvs = oboe_collect(m, args)
+        TraceView::Inst::Mongo::COLL_INDEX_OPS.reject { |m| !method_defined?(m) }.each do |m|
+          define_method("#{m}_with_traceview") do |*args|
+            report_kvs = traceview_collect(m, args)
 
             begin
               if [:create_index, :ensure_index, :drop_index].include?(m) && !args.empty?
@@ -224,13 +224,13 @@ if defined?(::Mongo) && Oboe::Config[:mongo][:enabled]
             rescue
             end
 
-            Oboe::API.trace('mongo', report_kvs) do
-              send("#{m}_without_oboe", *args)
+            TraceView::API.trace('mongo', report_kvs) do
+              send("#{m}_without_traceview", *args)
             end
           end
 
-          class_eval "alias #{m}_without_oboe #{m}"
-          class_eval "alias #{m} #{m}_with_oboe"
+          class_eval "alias #{m}_without_traceview #{m}"
+          class_eval "alias #{m} #{m}_with_traceview"
         end
       end
     end

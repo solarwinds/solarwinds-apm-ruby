@@ -1,28 +1,28 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
-module Oboe
+module TraceView
   module Inst
     module Dalli
-      include Oboe::API::Memcache
+      include TraceView::API::Memcache
 
       def self.included(cls)
         cls.class_eval do
-          Oboe.logger.info '[oboe/loading] Instrumenting memcache (dalli)' if Oboe::Config[:verbose]
+          TraceView.logger.info '[traceview/loading] Instrumenting memcache (dalli)' if TraceView::Config[:verbose]
           if ::Dalli::Client.private_method_defined? :perform
-            alias perform_without_oboe perform
-            alias perform perform_with_oboe
-          else Oboe.logger.warn '[oboe/loading] Couldn\'t properly instrument Memcache (Dalli).  Partial traces may occur.'
+            alias perform_without_traceview perform
+            alias perform perform_with_traceview
+          else TraceView.logger.warn '[traceview/loading] Couldn\'t properly instrument Memcache (Dalli).  Partial traces may occur.'
           end
 
           if ::Dalli::Client.method_defined? :get_multi
-            alias get_multi_without_oboe get_multi
-            alias get_multi get_multi_with_oboe
+            alias get_multi_without_traceview get_multi
+            alias get_multi get_multi_with_traceview
           end
         end
       end
 
-      def perform_with_oboe(*all_args, &blk)
+      def perform_with_traceview(*all_args, &blk)
         op, key, *args = *all_args
 
         report_kvs = {}
@@ -32,25 +32,25 @@ module Oboe
           report_kvs[:RemoteHost] = @servers.join(", ")
         end
 
-        if Oboe.tracing? && !Oboe.tracing_layer_op?(:get_multi)
-          Oboe::API.trace('memcache', report_kvs) do
-            result = perform_without_oboe(*all_args, &blk)
+        if TraceView.tracing? && !TraceView.tracing_layer_op?(:get_multi)
+          TraceView::API.trace('memcache', report_kvs) do
+            result = perform_without_traceview(*all_args, &blk)
 
             # Clear the hash for a potential info event
             report_kvs.clear
             report_kvs[:KVHit] = memcache_hit?(result) if op == :get && key.class == String
-            report_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:dalli][:collect_backtraces]
+            report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:dalli][:collect_backtraces]
 
-            Oboe::API.log('memcache', 'info', report_kvs) unless report_kvs.empty?
+            TraceView::API.log('memcache', 'info', report_kvs) unless report_kvs.empty?
             result
           end
         else
-          perform_without_oboe(*all_args, &blk)
+          perform_without_traceview(*all_args, &blk)
         end
       end
 
-      def get_multi_with_oboe(*keys)
-        return get_multi_without_oboe(keys) unless Oboe.tracing?
+      def get_multi_with_traceview(*keys)
+        return get_multi_without_traceview(keys) unless TraceView.tracing?
 
         info_kvs = {}
 
@@ -61,16 +61,16 @@ module Oboe
             info_kvs[:RemoteHost] = @servers.join(", ")
           end
         rescue
-          Oboe.logger.debug "[oboe/debug] Error collecting info keys: #{e.message}"
-          Oboe.logger.debug e.backtrace
+          TraceView.logger.debug "[traceview/debug] Error collecting info keys: #{e.message}"
+          TraceView.logger.debug e.backtrace
         end
 
-        Oboe::API.trace('memcache', { :KVOp => :get_multi }, :get_multi) do
-          values = get_multi_without_oboe(keys)
+        TraceView::API.trace('memcache', { :KVOp => :get_multi }, :get_multi) do
+          values = get_multi_without_traceview(keys)
 
           info_kvs[:KVHitCount] = values.length
-          info_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:dalli][:collect_backtraces]
-          Oboe::API.log('memcache', 'info', info_kvs)
+          info_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:dalli][:collect_backtraces]
+          TraceView::API.log('memcache', 'info', info_kvs)
 
           values
         end
@@ -79,8 +79,8 @@ module Oboe
   end
 end
 
-if defined?(Dalli) && Oboe::Config[:dalli][:enabled]
+if defined?(Dalli) && TraceView::Config[:dalli][:enabled]
   ::Dalli::Client.module_eval do
-    include Oboe::Inst::Dalli
+    include TraceView::Inst::Dalli
   end
 end

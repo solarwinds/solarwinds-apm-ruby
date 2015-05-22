@@ -1,45 +1,45 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
-module Oboe
+module TraceView
   module Grape
     module API
       def self.extended(klass)
-        ::Oboe::Util.class_method_alias(klass, :inherited, ::Grape::API)
+        ::TraceView::Util.class_method_alias(klass, :inherited, ::Grape::API)
       end
 
-      def inherited_with_oboe(subclass)
-        inherited_without_oboe(subclass)
+      def inherited_with_traceview(subclass)
+        inherited_without_traceview(subclass)
 
-        subclass.use ::Oboe::Rack
+        subclass.use ::TraceView::Rack
       end
     end
 
     module Endpoint
       def self.included(klass)
-        ::Oboe::Util.method_alias(klass, :run, ::Grape::Endpoint)
+        ::TraceView::Util.method_alias(klass, :run, ::Grape::Endpoint)
       end
 
-      def run_with_oboe(env)
-        if Oboe.tracing?
+      def run_with_traceview(env)
+        if TraceView.tracing?
           report_kvs = {}
 
           report_kvs[:Controller] = self.class
           report_kvs[:Action] = env['PATH_INFO']
 
           # Fall back to the raw tracing API so we can pass KVs
-          # back on exit (a limitation of the Oboe::API.trace
+          # back on exit (a limitation of the TraceView::API.trace
           # block method) This removes the need for an info
           # event to send additonal KVs
-          ::Oboe::API.log_entry('grape', {})
+          ::TraceView::API.log_entry('grape', {})
 
           begin
-            run_without_oboe(env)
+            run_without_traceview(env)
           ensure
-            ::Oboe::API.log_exit('grape', report_kvs)
+            ::TraceView::API.log_exit('grape', report_kvs)
           end
         else
-          run_without_oboe(env)
+          run_without_traceview(env)
         end
       end
     end
@@ -47,29 +47,29 @@ module Oboe
     module Middleware
       module Error
         def self.included(klass)
-          ::Oboe::Util.method_alias(klass, :error_response, ::Grape::Middleware::Error)
+          ::TraceView::Util.method_alias(klass, :error_response, ::Grape::Middleware::Error)
         end
 
-        def error_response_with_oboe(error = {})
-          status, headers, body = error_response_without_oboe(error)
+        def error_response_with_traceview(error = {})
+          status, headers, body = error_response_without_traceview(error)
 
-          if Oboe.tracing?
+          if TraceView.tracing?
             # Since Grape uses throw/catch and not Exceptions, we manually log
             # the error here.
             kvs = {}
             kvs[:ErrorClass] = 'GrapeError'
             kvs[:ErrorMsg] = error[:message] ? error[:message] : "No message given."
-            kvs[:Backtrace] = ::Oboe::API.backtrace if Oboe::Config[:grape][:collect_backtraces]
+            kvs[:Backtrace] = ::TraceView::API.backtrace if TraceView::Config[:grape][:collect_backtraces]
 
-            ::Oboe::API.log(nil, 'error', kvs)
+            ::TraceView::API.log(nil, 'error', kvs)
 
             # Since calls to error() are handled similar to abort in Grape.  We
             # manually log the rack exit here since the original code won't
             # be returned to
-            xtrace = Oboe::API.log_end('rack', :Status => status)
+            xtrace = TraceView::API.log_end('rack', :Status => status)
 
-            if headers && Oboe::XTrace.valid?(xtrace)
-              unless defined?(JRUBY_VERSION) && Oboe.is_continued_trace?
+            if headers && TraceView::XTrace.valid?(xtrace)
+              unless defined?(JRUBY_VERSION) && TraceView.is_continued_trace?
                 headers['X-Trace'] = xtrace if headers.is_a?(Hash)
               end
             end
@@ -83,15 +83,15 @@ module Oboe
 end
 
 if defined?(::Grape)
-  require 'oboe/inst/rack'
+  require 'traceview/inst/rack'
 
-  Oboe.logger.info "[oboe/loading] Instrumenting Grape" if Oboe::Config[:verbose]
+  TraceView.logger.info "[traceview/loading] Instrumenting Grape" if TraceView::Config[:verbose]
 
-  Oboe::Loading.load_access_key
-  Oboe::Inst.load_instrumentation
+  TraceView::Loading.load_access_key
+  TraceView::Inst.load_instrumentation
 
-  ::Oboe::Util.send_extend(::Grape::API,               ::Oboe::Grape::API)
-  ::Oboe::Util.send_include(::Grape::Endpoint,          ::Oboe::Grape::Endpoint)
-  ::Oboe::Util.send_include(::Grape::Middleware::Error, ::Oboe::Grape::Middleware::Error)
+  ::TraceView::Util.send_extend(::Grape::API,               ::TraceView::Grape::API)
+  ::TraceView::Util.send_include(::Grape::Endpoint,          ::TraceView::Grape::Endpoint)
+  ::TraceView::Util.send_include(::Grape::Middleware::Error, ::TraceView::Grape::Middleware::Error)
 end
 

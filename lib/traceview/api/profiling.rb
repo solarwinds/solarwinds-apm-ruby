@@ -1,7 +1,7 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
-module Oboe
+module TraceView
   module API
     ##
     # Module that provides profiling of arbitrary blocks of code
@@ -19,7 +19,7 @@ module Oboe
       # Example
       #
       #   def computation(n)
-      #     Oboe::API.profile('fib', { :n => n }) do
+      #     TraceView::API.profile('fib', { :n => n }) do
       #       fib(n)
       #     end
       #   end
@@ -28,9 +28,9 @@ module Oboe
       def profile(profile_name, report_kvs = {}, with_backtrace = false)
         report_kvs[:Language] ||= :ruby
         report_kvs[:ProfileName] ||= profile_name
-        report_kvs[:Backtrace] = Oboe::API.backtrace if with_backtrace
+        report_kvs[:Backtrace] = TraceView::API.backtrace if with_backtrace
 
-        Oboe::API.log(nil, 'profile_entry', report_kvs)
+        TraceView::API.log(nil, 'profile_entry', report_kvs)
 
         begin
           yield
@@ -42,7 +42,7 @@ module Oboe
           exit_kvs[:Language] = :ruby
           exit_kvs[:ProfileName] = report_kvs[:ProfileName]
 
-          Oboe::API.log(nil, 'profile_exit', exit_kvs)
+          TraceView::API.log(nil, 'profile_exit', exit_kvs)
         end
       end
     end

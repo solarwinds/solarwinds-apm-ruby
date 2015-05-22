@@ -1,7 +1,7 @@
 # Copyright (c) 2014 AppNeta, Inc.
 # All rights reserved.
 
-module Oboe
+module TraceView
   module Inst
     module Redis
       module Client
@@ -59,8 +59,8 @@ module Oboe
         def self.included(klass)
           # We wrap two of the Redis methods to instrument
           # operations
-          ::Oboe::Util.method_alias(klass, :call, ::Redis::Client)
-          ::Oboe::Util.method_alias(klass, :call_pipeline, ::Redis::Client)
+          ::TraceView::Util.method_alias(klass, :call, ::Redis::Client)
+          ::TraceView::Util.method_alias(klass, :call_pipeline, ::Redis::Client)
         end
 
         # Given any Redis operation command array, this method
@@ -122,7 +122,7 @@ module Oboe
 
               when :script
                 kvs[:subcommand] = command[1]
-                kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:redis][:collect_backtraces]
+                kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:redis][:collect_backtraces]
                 if command[1] == 'load'
                   if command[1].length > 1024
                     kvs[:Script] = command[2][0..1023] + '(...snip...)'
@@ -161,8 +161,8 @@ module Oboe
             end # if KV_COLLECT_MAP[op]
 
           rescue StandardError => e
-            Oboe.logger.debug "Error collecting redis KVs: #{e.message}"
-            Oboe.logger.debug e.backtrace.join('\n')
+            TraceView.logger.debug "Error collecting redis KVs: #{e.message}"
+            TraceView.logger.debug e.backtrace.join('\n')
           end
 
           kvs
@@ -178,7 +178,7 @@ module Oboe
 
           begin
             kvs[:RemoteHost] = @options[:host]
-            kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:redis][:collect_backtraces]
+            kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:redis][:collect_backtraces]
 
             command_count = pipeline.commands.count
             kvs[:KVOpCount] = command_count
@@ -199,8 +199,8 @@ module Oboe
               kvs[:KVOps] = ops.join(', ')
             end
           rescue StandardError => e
-            Oboe.logger.debug "[oboe/debug] Error extracting pipelined commands: #{e.message}"
-            Oboe.logger.debug e.backtrace
+            TraceView.logger.debug "[traceview/debug] Error extracting pipelined commands: #{e.message}"
+            TraceView.logger.debug e.backtrace
           end
           kvs
         end
@@ -210,23 +210,23 @@ module Oboe
         # (when tracing) we capture KVs to report and pass
         # the call along
         #
-        def call_with_oboe(command, &block)
-          if Oboe.tracing?
-            ::Oboe::API.log_entry('redis', {})
+        def call_with_traceview(command, &block)
+          if TraceView.tracing?
+            ::TraceView::API.log_entry('redis', {})
 
             begin
-              r = call_without_oboe(command, &block)
+              r = call_without_traceview(command, &block)
               report_kvs = extract_trace_details(command, r)
               r
             rescue StandardError => e
-              ::Oboe::API.log_exception('redis', e)
+              ::TraceView::API.log_exception('redis', e)
               raise
             ensure
-              ::Oboe::API.log_exit('redis', report_kvs)
+              ::TraceView::API.log_exit('redis', report_kvs)
             end
 
           else
-            call_without_oboe(command, &block)
+            call_without_traceview(command, &block)
           end
         end
 
@@ -234,26 +234,26 @@ module Oboe
         # The wrapper method for Redis::Client.call_pipeline.  Here
         # (when tracing) we capture KVs to report and pass the call along
         #
-        def call_pipeline_with_oboe(pipeline)
-          if Oboe.tracing?
+        def call_pipeline_with_traceview(pipeline)
+          if TraceView.tracing?
             # Fall back to the raw tracing API so we can pass KVs
-            # back on exit (a limitation of the Oboe::API.trace
+            # back on exit (a limitation of the TraceView::API.trace
             # block method)  This removes the need for an info
             # event to send additonal KVs
-            ::Oboe::API.log_entry('redis', {})
+            ::TraceView::API.log_entry('redis', {})
 
             report_kvs = extract_pipeline_details(pipeline)
 
             begin
-              call_pipeline_without_oboe(pipeline)
+              call_pipeline_without_traceview(pipeline)
             rescue StandardError => e
-              ::Oboe::API.log_exception('redis', e)
+              ::TraceView::API.log_exception('redis', e)
               raise
             ensure
-              ::Oboe::API.log_exit('redis', report_kvs)
+              ::TraceView::API.log_exit('redis', report_kvs)
             end
           else
-            call_pipeline_without_oboe(pipeline)
+            call_pipeline_without_traceview(pipeline)
           end
         end
 
@@ -262,10 +262,10 @@ module Oboe
   end
 end
 
-if Oboe::Config[:redis][:enabled]
+if TraceView::Config[:redis][:enabled]
   if defined?(::Redis) && Gem::Version.new(::Redis::VERSION) >= Gem::Version.new('3.0.0')
-    Oboe.logger.info '[oboe/loading] Instrumenting redis' if Oboe::Config[:verbose]
-    ::Oboe::Util.send_include(::Redis::Client, ::Oboe::Inst::Redis::Client)
+    TraceView.logger.info '[traceview/loading] Instrumenting redis' if TraceView::Config[:verbose]
+    ::TraceView::Util.send_include(::Redis::Client, ::TraceView::Inst::Redis::Client)
   end
 end
 

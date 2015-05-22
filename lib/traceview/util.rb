@@ -1,7 +1,7 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
-module Oboe
+module TraceView
   ##
   # Provides utility methods for use while in the business
   # of instrumenting code
@@ -34,20 +34,20 @@ module Oboe
           safe_method_name = method.to_s.chop if method.to_s =~ /\?$|\!$/
           safe_method_name ||= method
 
-          without_oboe = "#{safe_method_name}_without_oboe"
-          with_oboe    = "#{safe_method_name}_with_oboe"
+          without_traceview = "#{safe_method_name}_without_traceview"
+          with_traceview    = "#{safe_method_name}_with_traceview"
 
           # Only alias if we haven't done so already
-          unless cls.method_defined?(without_oboe.to_sym) ||
-            cls.private_method_defined?(without_oboe.to_sym)
+          unless cls.method_defined?(without_traceview.to_sym) ||
+            cls.private_method_defined?(without_traceview.to_sym)
 
             cls.class_eval do
-              alias_method without_oboe, "#{method}"
-              alias_method "#{method}", with_oboe
+              alias_method without_traceview, "#{method}"
+              alias_method "#{method}", with_traceview
             end
           end
         else
-          Oboe.logger.warn "[oboe/loading] Couldn't properly instrument #{name}.#{method}.  Partial traces may occur."
+          TraceView.logger.warn "[traceview/loading] Couldn't properly instrument #{name}.#{method}.  Partial traces may occur."
         end
       end
 
@@ -66,15 +66,15 @@ module Oboe
           safe_method_name = method.to_s.chop if method.to_s =~ /\?$|\!$/
           safe_method_name ||= method
 
-          without_oboe = "#{safe_method_name}_without_oboe"
-          with_oboe    = "#{safe_method_name}_with_oboe"
+          without_traceview = "#{safe_method_name}_without_traceview"
+          with_traceview    = "#{safe_method_name}_with_traceview"
 
           # Only alias if we haven't done so already
-          unless cls.singleton_methods.include? without_oboe.to_sym
-            cls.singleton_class.send(:alias_method, without_oboe, "#{method}")
-            cls.singleton_class.send(:alias_method, "#{method}", with_oboe)
+          unless cls.singleton_methods.include? without_traceview.to_sym
+            cls.singleton_class.send(:alias_method, without_traceview, "#{method}")
+            cls.singleton_class.send(:alias_method, "#{method}", with_traceview)
           end
-        else Oboe.logger.warn "[oboe/loading] Couldn't properly instrument #{name}.  Partial traces may occur."
+        else TraceView.logger.warn "[traceview/loading] Couldn't properly instrument #{name}.  Partial traces may occur."
         end
       end
 
@@ -103,7 +103,7 @@ module Oboe
       # solely on filename)
       #
       def static_asset?(path)
-        (path =~ Regexp.new(Oboe::Config[:dnt_regexp], Oboe::Config[:dnt_opts]))
+        (path =~ Regexp.new(TraceView::Config[:dnt_regexp], TraceView::Config[:dnt_opts]))
       end
 
       ##
@@ -133,7 +133,7 @@ module Oboe
         if o.is_a?(String) || o.respond_to?(:to_s)
           o.to_s.upcase
         else
-          Oboe.logger.debug "[oboe/debug] Oboe::Util.upcase: could not convert #{o.class}"
+          TraceView.logger.debug "[traceview/debug] TraceView::Util.upcase: could not convert #{o.class}"
           "UNKNOWN"
         end
       end
@@ -162,7 +162,7 @@ module Oboe
       #
       # Internal: Build a hash of KVs that reports on the status of the
       # running environment.  This is used on stack boot in __Init reporting
-      # and for Oboe.support_report.
+      # and for TraceView.support_report.
       def build_init_report
         platform_info = { '__Init' => 1 }
 
@@ -170,9 +170,9 @@ module Oboe
           platform_info['Force']                   = true
           platform_info['Ruby.Platform.Version']   = RUBY_PLATFORM
           platform_info['Ruby.Version']            = RUBY_VERSION
-          platform_info['Ruby.Oboe.Version']       = ::Oboe::Version::STRING
-          platform_info['RubyHeroku.Oboe.Version'] = ::OboeHeroku::Version::STRING if defined?(::OboeHeroku)
-          platform_info['Ruby.TraceMode.Version']  = ::Oboe::Config[:tracing_mode]
+          platform_info['Ruby.TraceView.Version']       = ::TraceView::Version::STRING
+          platform_info['RubyHeroku.TraceView.Version'] = ::TraceViewHeroku::Version::STRING if defined?(::TraceViewHeroku)
+          platform_info['Ruby.TraceMode.Version']  = ::TraceView::Config[:tracing_mode]
 
           # Report the framework in use
           if defined?(::RailsLts)
@@ -240,8 +240,8 @@ module Oboe
 
           platform_info['Error'] = "Error in build_report: #{e.message}"
 
-          Oboe.logger.warn "[oboe/warn] Error in build_init_report: #{e.message}"
-          Oboe.logger.debug e.backtrace
+          TraceView.logger.warn "[traceview/warn] Error in build_init_report: #{e.message}"
+          TraceView.logger.debug e.backtrace
         end
         platform_info
       end

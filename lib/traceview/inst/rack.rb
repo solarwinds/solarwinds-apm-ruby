@@ -3,7 +3,7 @@
 
 require 'uri'
 
-module Oboe
+module TraceView
   class Rack
     attr_reader :app
 
@@ -35,12 +35,12 @@ module Oboe
         report_kvs['Forwarded-Proto']   = env['HTTP_X_FORWARDED_PROTO']  if env.key?('HTTP_X_FORWARDED_PROTO')
         report_kvs['Forwarded-Port']    = env['HTTP_X_FORWARDED_PORT']   if env.key?('HTTP_X_FORWARDED_PORT')
 
-        report_kvs['Ruby.Oboe.Version'] = ::Oboe::Version::STRING
+        report_kvs['Ruby.TraceView.Version'] = ::TraceView::Version::STRING
         report_kvs['ProcessID']         = Process.pid
         report_kvs['ThreadID']          = Thread.current.to_s[/0x\w*/]
       rescue StandardError => e
         # Discard any potential exceptions. Debug log and report whatever we can.
-        Oboe.logger.debug "[oboe/debug] Rack KV collection error: #{e.inspect}"
+        TraceView.logger.debug "[traceview/debug] Rack KV collection error: #{e.inspect}"
       end
       report_kvs
     end
@@ -54,16 +54,16 @@ module Oboe
       # instead start instrumenting from the first rack pass.
 
       # If we're already tracing a rack layer, dont't start another one.
-      if Oboe.tracing? && Oboe.layer == 'rack'
+      if TraceView.tracing? && TraceView.layer == 'rack'
         rack_skipped = true
-        Oboe.logger.debug "[oboe/rack] Rack skipped!"
+        TraceView.logger.debug "[traceview/rack] Rack skipped!"
         return @app.call(env)
       end
 
       req = ::Rack::Request.new(env)
       report_kvs = {}
 
-      if Oboe::Config[:rack][:log_args]
+      if TraceView::Config[:rack][:log_args]
         report_kvs[:URL] = URI.unescape(req.fullpath)
       else
         report_kvs[:URL] = URI.unescape(req.path)
@@ -71,30 +71,30 @@ module Oboe
 
       # Check for and validate X-Trace request header to pick up tracing context
       xtrace = env.is_a?(Hash) ? env['HTTP_X_TRACE'] : nil
-      xtrace_header = xtrace if xtrace && Oboe::XTrace.valid?(xtrace)
+      xtrace_header = xtrace if xtrace && TraceView::XTrace.valid?(xtrace)
 
-      # Under JRuby, JOboe may have already started a trace.  Make note of this
-      # if so and don't clear context on log_end (see oboe/api/logging.rb)
-      Oboe.has_incoming_context = Oboe.tracing?
-      Oboe.has_xtrace_header = xtrace_header
-      Oboe.is_continued_trace = Oboe.has_incoming_context or Oboe.has_xtrace_header
+      # Under JRuby, JTraceView may have already started a trace.  Make note of this
+      # if so and don't clear context on log_end (see traceview/api/logging.rb)
+      TraceView.has_incoming_context = TraceView.tracing?
+      TraceView.has_xtrace_header = xtrace_header
+      TraceView.is_continued_trace = TraceView.has_incoming_context or TraceView.has_xtrace_header
 
-      Oboe::API.log_start('rack', xtrace_header, report_kvs)
+      TraceView::API.log_start('rack', xtrace_header, report_kvs)
 
       # We only trace a subset of requests based off of sample rate so if
-      # Oboe::API.log_start really did start a trace, we act accordingly here.
-      if Oboe.tracing?
+      # TraceView::API.log_start really did start a trace, we act accordingly here.
+      if TraceView.tracing?
         report_kvs = collect(req, env)
 
-        # We log an info event with the HTTP KVs found in Oboe::Rack.collect
+        # We log an info event with the HTTP KVs found in TraceView::Rack.collect
         # This is done here so in the case of stacks that try/catch/abort
         # (looking at you Grape) we're sure the KVs get reported now as
         # this code may not be returned to later.
-        Oboe::API.log_info('rack', report_kvs)
+        TraceView::API.log_info('rack', report_kvs)
 
         status, headers, response = @app.call(env)
 
-        xtrace = Oboe::API.log_end('rack', :Status => status)
+        xtrace = TraceView::API.log_end('rack', :Status => status)
       else
         status, headers, response = @app.call(env)
       end
@@ -102,13 +102,13 @@ module Oboe
       [status, headers, response]
     rescue Exception => e
       unless rack_skipped
-        Oboe::API.log_exception('rack', e)
-        xtrace = Oboe::API.log_end('rack', :Status => 500)
+        TraceView::API.log_exception('rack', e)
+        xtrace = TraceView::API.log_end('rack', :Status => 500)
       end
       raise
     ensure
-      if !rack_skipped && headers && Oboe::XTrace.valid?(xtrace)
-        unless defined?(JRUBY_VERSION) && Oboe.is_continued_trace?
+      if !rack_skipped && headers && TraceView::XTrace.valid?(xtrace)
+        unless defined?(JRUBY_VERSION) && TraceView.is_continued_trace?
           headers['X-Trace'] = xtrace if headers.is_a?(Hash)
         end
       end

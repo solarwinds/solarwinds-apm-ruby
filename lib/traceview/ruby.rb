@@ -1,7 +1,7 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
-module Oboe
+module TraceView
   ##
   # This module provides a method to manually initialize the
   # Ruby instrumentation.  Normally this is done by detecting
@@ -22,15 +22,15 @@ module Oboe
         # In case some apps call this manually, make sure
         # that the gem is fully loaded and not in no-op
         # mode (e.g. on unsupported platforms etc.)
-        if Oboe.loaded
-          Oboe::Loading.load_access_key
-          Oboe::Inst.load_instrumentation
+        if TraceView.loaded
+          TraceView::Loading.load_access_key
+          TraceView::Inst.load_instrumentation
         end
       end
     end
   end
 end
 
-if Oboe.loaded and !Oboe.framework?
-  ::Oboe::Ruby.load
+if TraceView.loaded and !TraceView.framework?
+  ::TraceView::Ruby.load
 end

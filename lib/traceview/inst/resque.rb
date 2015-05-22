@@ -4,7 +4,7 @@
 require 'socket'
 require 'json'
 
-module Oboe
+module TraceView
   module Inst
     module Resque
       def self.included(base)
@@ -18,7 +18,7 @@ module Oboe
           report_kvs[:Op] = op.to_s
           report_kvs[:Class] = klass.to_s if klass
 
-          if Oboe::Config[:resque][:log_args]
+          if TraceView::Config[:resque][:log_args]
             kv_args = args.to_json
 
             # Limit the argument json string to 1024 bytes
@@ -29,55 +29,55 @@ module Oboe
             end
           end
 
-          report_kvs[:Backtrace] = Oboe::API.backtrace if Oboe::Config[:resque][:collect_backtraces]
+          report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:resque][:collect_backtraces]
         rescue
         end
 
         report_kvs
       end
 
-      def enqueue_with_oboe(klass, *args)
-        if Oboe.tracing?
+      def enqueue_with_traceview(klass, *args)
+        if TraceView.tracing?
           report_kvs = extract_trace_details(:enqueue, klass, args)
 
-          Oboe::API.trace('resque-client', report_kvs, :enqueue) do
-            args.push(:parent_trace_id => Oboe::Context.toString) if Oboe::Config[:resque][:link_workers]
-            enqueue_without_oboe(klass, *args)
+          TraceView::API.trace('resque-client', report_kvs, :enqueue) do
+            args.push(:parent_trace_id => TraceView::Context.toString) if TraceView::Config[:resque][:link_workers]
+            enqueue_without_traceview(klass, *args)
           end
         else
-          enqueue_without_oboe(klass, *args)
+          enqueue_without_traceview(klass, *args)
         end
       end
 
-      def enqueue_to_with_oboe(queue, klass, *args)
-        if Oboe.tracing? && !Oboe.tracing_layer_op?(:enqueue)
+      def enqueue_to_with_traceview(queue, klass, *args)
+        if TraceView.tracing? && !TraceView.tracing_layer_op?(:enqueue)
           report_kvs = extract_trace_details(:enqueue_to, klass, args)
           report_kvs[:Queue] = queue.to_s if queue
 
-          Oboe::API.trace('resque-client', report_kvs) do
-            args.push(:parent_trace_id => Oboe::Context.toString) if Oboe::Config[:resque][:link_workers]
-            enqueue_to_without_oboe(queue, klass, *args)
+          TraceView::API.trace('resque-client', report_kvs) do
+            args.push(:parent_trace_id => TraceView::Context.toString) if TraceView::Config[:resque][:link_workers]
+            enqueue_to_without_traceview(queue, klass, *args)
           end
         else
-          enqueue_to_without_oboe(queue, klass, *args)
+          enqueue_to_without_traceview(queue, klass, *args)
         end
       end
 
-      def dequeue_with_oboe(klass, *args)
-        if Oboe.tracing?
+      def dequeue_with_traceview(klass, *args)
+        if TraceView.tracing?
           report_kvs = extract_trace_details(:dequeue, klass, args)
 
-          Oboe::API.trace('resque-client', report_kvs) do
-            dequeue_without_oboe(klass, *args)
+          TraceView::API.trace('resque-client', report_kvs) do
+            dequeue_without_traceview(klass, *args)
           end
         else
-          dequeue_without_oboe(klass, *args)
+          dequeue_without_traceview(klass, *args)
         end
       end
     end
 
     module ResqueWorker
-      def perform_with_oboe(job)
+      def perform_with_traceview(job)
         report_kvs = {}
         last_arg = nil
 
@@ -96,7 +96,7 @@ module Oboe
 
           report_kvs[:Class] = job.payload['class']
 
-          if Oboe::Config[:resque][:log_args]
+          if TraceView::Config[:resque][:log_args]
             kv_args = job.payload['args'].to_json
 
             # Limit the argument json string to 1024 bytes
@@ -123,67 +123,67 @@ module Oboe
 
           # Force this trace regardless of sampling rate so that child trace can be
           # link to parent trace.
-          Oboe::API.start_trace('resque-worker', nil, report_kvs.merge('Force' => true)) do
-            perform_without_oboe(job)
+          TraceView::API.start_trace('resque-worker', nil, report_kvs.merge('Force' => true)) do
+            perform_without_traceview(job)
           end
 
         else
-          Oboe::API.start_trace('resque-worker', nil, report_kvs) do
-            perform_without_oboe(job)
+          TraceView::API.start_trace('resque-worker', nil, report_kvs) do
+            perform_without_traceview(job)
           end
         end
       end
     end
 
     module ResqueJob
-      def fail_with_oboe(exception)
-        if Oboe.tracing?
-          Oboe::API.log_exception('resque', exception)
+      def fail_with_traceview(exception)
+        if TraceView.tracing?
+          TraceView::API.log_exception('resque', exception)
         end
-        fail_without_oboe(exception)
+        fail_without_traceview(exception)
       end
     end
   end
 end
 
 if defined?(::Resque)
-  Oboe.logger.info '[oboe/loading] Instrumenting resque' if Oboe::Config[:verbose]
+  TraceView.logger.info '[traceview/loading] Instrumenting resque' if TraceView::Config[:verbose]
 
   ::Resque.module_eval do
-    include Oboe::Inst::Resque
+    include TraceView::Inst::Resque
 
     [:enqueue, :enqueue_to, :dequeue].each do |m|
       if method_defined?(m)
-        module_eval "alias #{m}_without_oboe #{m}"
-        module_eval "alias #{m} #{m}_with_oboe"
-      elsif Oboe::Config[:verbose]
-        Oboe.logger.warn "[oboe/loading] Couldn't properly instrument Resque (#{m}).  Partial traces may occur."
+        module_eval "alias #{m}_without_traceview #{m}"
+        module_eval "alias #{m} #{m}_with_traceview"
+      elsif TraceView::Config[:verbose]
+        TraceView.logger.warn "[traceview/loading] Couldn't properly instrument Resque (#{m}).  Partial traces may occur."
       end
     end
   end
 
   if defined?(::Resque::Worker)
     ::Resque::Worker.class_eval do
-      include Oboe::Inst::ResqueWorker
+      include TraceView::Inst::ResqueWorker
 
       if method_defined?(:perform)
-        alias perform_without_oboe perform
-        alias perform perform_with_oboe
-      elsif Oboe::Config[:verbose]
-        Oboe.logger.warn '[oboe/loading] Couldn\'t properly instrument ResqueWorker (perform).  Partial traces may occur.'
+        alias perform_without_traceview perform
+        alias perform perform_with_traceview
+      elsif TraceView::Config[:verbose]
+        TraceView.logger.warn '[traceview/loading] Couldn\'t properly instrument ResqueWorker (perform).  Partial traces may occur.'
       end
     end
   end
 
   if defined?(::Resque::Job)
     ::Resque::Job.class_eval do
-      include Oboe::Inst::ResqueJob
+      include TraceView::Inst::ResqueJob
 
       if method_defined?(:fail)
-        alias fail_without_oboe fail
-        alias fail fail_with_oboe
-      elsif Oboe::Config[:verbose]
-        Oboe.logger.warn '[oboe/loading] Couldn\'t properly instrument ResqueWorker (fail).  Partial traces may occur.'
+        alias fail_without_traceview fail
+        alias fail fail_with_traceview
+      elsif TraceView::Config[:verbose]
+        TraceView.logger.warn '[traceview/loading] Couldn\'t properly instrument ResqueWorker (fail).  Partial traces may occur.'
       end
     end
   end
