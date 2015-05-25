@@ -241,8 +241,6 @@ if RUBY_VERSION >= '1.9.3'
     end
 
     it 'should trace and capture raised exceptions' do
-      response = nil
-
       TraceView::API.start_trace('rest_client_test') do
         begin
           RestClient.get 'http://s6KTgaz7636z/resource'
