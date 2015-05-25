@@ -313,7 +313,6 @@ unless defined?(JRUBY_VERSION)
 
     it 'should trace adding a keyspace' do
       ks_name = (0...10).map{ ('a'..'z').to_a[rand(26)] }.join
-      column_families = [{:name =>"a"}, {:name => "b", :type => :super}]
       ks_def = CassandraThrift::KsDef.new(:name => ks_name,
                 :strategy_class => "org.apache.cassandra.locator.SimpleStrategy",
                 :strategy_options => { 'replication_factor' => '2' },
