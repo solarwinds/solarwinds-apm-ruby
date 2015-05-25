@@ -2,6 +2,7 @@
 # All rights reserved.
 
 require 'uri'
+require 'cgi'
 
 module TraceView
   class Rack
@@ -18,10 +19,13 @@ module TraceView
         report_kvs['HTTP-Host']        = req.host
         report_kvs['Port']             = req.port
         report_kvs['Proto']            = req.scheme
-        report_kvs['Query-String']     = URI.unescape(req.query_string) unless req.query_string.empty?
         report_kvs[:Method]            = req.request_method
         report_kvs['AJAX']             = true if req.xhr?
         report_kvs['ClientIP']         = req.ip
+
+        if TraceView::Config[:rack][:log_args]
+          report_kvs['Query-String']     = ::CGI.unescape(req.query_string) unless req.query_string.empty?
+        end
 
         report_kvs['X-TV-Meta']         = env['HTTP_X_TV_META']          if env.key?('HTTP_X_TV_META')
 
@@ -64,9 +68,9 @@ module TraceView
       report_kvs = {}
 
       if TraceView::Config[:rack][:log_args]
-        report_kvs[:URL] = URI.unescape(req.fullpath)
+        report_kvs[:URL] = ::CGI.unescape(req.fullpath)
       else
-        report_kvs[:URL] = URI.unescape(req.path)
+        report_kvs[:URL] = ::CGI.unescape(req.path)
       end
 
       # Check for and validate X-Trace request header to pick up tracing context
