@@ -5,6 +5,7 @@ require "minitest/debugger" if ENV['DEBUG']
 
 ENV["RACK_ENV"] = "test"
 ENV["TRACEVIEW_GEM_TEST"] = "true"
+ENV["TRACEVIEW_GEM_VERBOSE"] = "true"
 
 # FIXME: Temp hack to fix padrino-core calling RUBY_ENGINE when it's
 # not defined under Ruby 1.8.7 and 1.9.3
