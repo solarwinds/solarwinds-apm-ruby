@@ -2,5 +2,6 @@
 # All rights reserved.
 
 # This module is provided for backward compatibility.
-require 'oboe/backward_compatibility'
+# It simply redirects to the traceview module which will
+# also load backward compatibility support.
 require 'traceview'
