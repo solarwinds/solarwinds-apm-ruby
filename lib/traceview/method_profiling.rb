@@ -42,8 +42,8 @@ module TraceViewMethodProfiling
         end
 
         # Safety:  Make sure there are no quotes or double quotes to break the class_eval
-        file = file.gsub /[\'\"]/, ''
-        line = line.gsub /[\'\"]/, ''
+        file = file.gsub(/[\'\"]/, '')
+        line = line.gsub(/[\'\"]/, '')
 
         # profiling via ruby-prof, is it possible to get return value of profiled code?
         code = "def _traceview_profiled_#{method_name}(*args, &block)
