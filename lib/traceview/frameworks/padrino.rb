@@ -30,9 +30,9 @@ module TraceView
 
             report_kvs[:Action] = request.action
             r
-           ensure
+          ensure
             ::TraceView::API.log_exit('padrino', report_kvs)
-           end
+          end
         else
           dispatch_without_traceview
         end
