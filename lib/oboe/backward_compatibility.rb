@@ -1,6 +1,9 @@
 require 'traceview/thread_local'
 
 module Oboe
+  extend TraceViewBase
+  include Oboe_metal
+
   #
   # Support for Oboe::API calls
   #
