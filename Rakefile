@@ -9,8 +9,10 @@ Rake::TestTask.new do |t|
   t.libs << "test"
   t.test_files = FileList['test/**/*_test.rb']
   t.verbose = true
+  t.ruby_opts = []
+  # t.ruby_opts << ['-w']
   if defined?(JRUBY_VERSION)
-    t.ruby_opts = ["-J-javaagent:/usr/local/tracelytics/tracelyticsagent.jar"]
+    t.ruby_opts << ["-J-javaagent:/usr/local/tracelytics/tracelyticsagent.jar"]
   end
 end
 
