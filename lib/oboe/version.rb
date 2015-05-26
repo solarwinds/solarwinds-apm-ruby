@@ -8,7 +8,7 @@ module Oboe
   module Version
     MAJOR = 2
     MINOR = 7
-    PATCH = 18
+    PATCH = 19
     BUILD = nil
 
     STRING = [MAJOR, MINOR, PATCH, BUILD].compact.join('.')
