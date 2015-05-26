@@ -62,7 +62,7 @@ module TraceView
       #        with this event (optional).
       #
       # Returns nothing.
-      def log_start(layer, xtrace, opts = {})
+      def log_start(layer, xtrace = nil, opts = {})
         return if !TraceView.loaded || TraceView.never? ||
                   (opts.key?(:URL) && ::TraceView::Util.static_asset?(opts[:URL]))
 
