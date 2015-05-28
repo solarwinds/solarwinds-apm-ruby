@@ -172,7 +172,7 @@ Oboe::API.start_trace('parent_process') do
     # so we have to clear it and start again.
     Oboe::Context.clear
 
-    Oboe::API.start_trace('worker_process', { :job_id => job.id }) do
+    Oboe::API.start_trace('worker_process', nil, { :job_id => job.id }) do
       do_work(job)
     end
   end
