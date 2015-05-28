@@ -4,6 +4,23 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# traceview 3.0.0
+
+The oboe gem has been renamed to traceview.  The final oboe
+gem (2.7.19) has a post-install deprecation warning and will
+not have anymore updates.
+
+All development going forward will be done on this traceview gem.
+
+As a first release, this is simply a renamed version of oboe gem 2.7.19.
+
+It contains no bug fixes or new features.
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.0.0
+https://rubygems.org/gems/traceview/versions/3.0.0-java
+
 # oboe 2.7.19
 
 __Note that this will be the last release for the oboe gem.   The gem
