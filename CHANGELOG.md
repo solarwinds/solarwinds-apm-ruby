@@ -4,6 +4,26 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# oboe 2.7.19
+
+__Note that this will be the last release for the oboe gem.   The gem
+will be renamed to _traceview_ and all future updates will be to that
+other gem.__
+
+This version will show a post-install warning message stating this.  A
+final version of this gem will be released with only a deprecation
+warning.
+
+This patch release includes the following fix:
+
+* Report TraceMode in __Init: #120
+* Add RemoteHost reporting to Dalli Instrumentation: #119
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/oboe/versions/2.7.19
+https://rubygems.org/gems/oboe/versions/2.7.19-java
+
 # oboe 2.7.18
 
 This patch release includes the following fix:
