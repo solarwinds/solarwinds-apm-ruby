@@ -1,7 +1,7 @@
 require 'minitest_helper'
 require "redis"
 
-describe Oboe::Inst::Redis, :sortedsets do
+describe "Redis Sorted Sets" do
   attr_reader :entry_kvs, :exit_kvs, :redis, :redis_version
 
   def min_server_version(version)
@@ -25,7 +25,7 @@ describe Oboe::Inst::Redis, :sortedsets do
   it "should trace zadd" do
     min_server_version(1.2)
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.zadd("time", 0, "past")
     end
 
@@ -44,7 +44,7 @@ describe Oboe::Inst::Redis, :sortedsets do
     @redis.zadd("sauce", 3, "hollandaise")
     @redis.zadd("sauce", 4, "classic tomate")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.zcard("sauce")
     end
 
@@ -63,7 +63,7 @@ describe Oboe::Inst::Redis, :sortedsets do
     @redis.zadd("sauce", 3, "hollandaise")
     @redis.zadd("sauce", 4, "classic tomate")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.zcount("sauce", 1, 3)
     end
 
@@ -82,7 +82,7 @@ describe Oboe::Inst::Redis, :sortedsets do
     @redis.zadd("sauce", 3, "hollandaise")
     @redis.zadd("sauce", 4, "classic tomate")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.zincrby("sauce", 1, "veloute")
     end
 
@@ -102,7 +102,7 @@ describe Oboe::Inst::Redis, :sortedsets do
     @redis.zadd("beverage", 0, "milkshake")
     @redis.zadd("beverage", 1, "soda")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.zinterstore("zinterstore_dest", [ "sauce", "beverage" ], :weights => [2, 3])
     end
 
@@ -122,7 +122,7 @@ describe Oboe::Inst::Redis, :sortedsets do
     @redis.zadd("sauce", 3, "hollandaise")
     @redis.zadd("sauce", 4, "classic tomate")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.zrange("sauce", 1, 3)
     end
 
@@ -141,7 +141,7 @@ describe Oboe::Inst::Redis, :sortedsets do
     @redis.zadd("sauce", 3, "hollandaise")
     @redis.zadd("sauce", 4, "classic tomate")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.zrangebyscore("sauce", "5", "(100")
     end
 
@@ -160,7 +160,7 @@ describe Oboe::Inst::Redis, :sortedsets do
     @redis.zadd("sauce", 3, "hollandaise")
     @redis.zadd("sauce", 4, "classic tomate")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.zrank("sauce", "veloute")
     end
 
@@ -179,7 +179,7 @@ describe Oboe::Inst::Redis, :sortedsets do
     @redis.zadd("sauce", 3, "hollandaise")
     @redis.zadd("sauce", 4, "classic tomate")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.zrem("sauce", "veloute")
     end
 
@@ -198,7 +198,7 @@ describe Oboe::Inst::Redis, :sortedsets do
     @redis.zadd("sauce", 3, "hollandaise")
     @redis.zadd("sauce", 4, "classic tomate")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.zremrangebyrank("sauce", -5, -1)
     end
 
@@ -219,7 +219,7 @@ describe Oboe::Inst::Redis, :sortedsets do
     @redis.zadd("sauce", 3, "hollandaise")
     @redis.zadd("sauce", 4, "classic tomate")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.zremrangebyscore("sauce", -5, -1)
     end
 
@@ -238,7 +238,7 @@ describe Oboe::Inst::Redis, :sortedsets do
     @redis.zadd("sauce", 3, "hollandaise")
     @redis.zadd("sauce", 4, "classic tomate")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.zrevrange("sauce", 0, -1)
     end
 
@@ -259,7 +259,7 @@ describe Oboe::Inst::Redis, :sortedsets do
     @redis.zadd("sauce", 3, "hollandaise")
     @redis.zadd("sauce", 4, "classic tomate")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.zrevrangebyscore("sauce", "(100", "5")
     end
 
@@ -276,7 +276,7 @@ describe Oboe::Inst::Redis, :sortedsets do
     @redis.zadd("letters", 1, "b")
     @redis.zadd("letters", 1, "c")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.zrevrank("letters", "c")
     end
 
@@ -294,7 +294,7 @@ describe Oboe::Inst::Redis, :sortedsets do
     @redis.zadd("elements", 1, "earth")
     @redis.zadd("elements", 1, "air")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.zscore("elements", "earth")
     end
 
@@ -311,7 +311,7 @@ describe Oboe::Inst::Redis, :sortedsets do
     @redis.zadd("colors", 1, "yellowish")
     @redis.zadd("codes", 0, "0xff")
 
-    Oboe::API.start_trace('redis_test', '', {}) do
+    TraceView::API.start_trace('redis_test', '', {}) do
       @redis.zunionstore("zdest", ["colors", "codes"])
     end
 

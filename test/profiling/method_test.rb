@@ -1,6 +1,6 @@
 require 'minitest_helper'
 
-describe OboeMethodProfiling do
+describe "TraceViewMethodProfiling" do
   before do
     clear_all_traces
     # Conditionally Undefine TestWorker
@@ -9,7 +9,7 @@ describe OboeMethodProfiling do
   end
 
   it 'should be loaded, defined and ready' do
-    defined?(::OboeMethodProfiling).wont_match nil
+    defined?(::TraceViewMethodProfiling).wont_match nil
   end
 
   it 'should trace Class methods' do
@@ -19,12 +19,12 @@ describe OboeMethodProfiling do
       end
 
       class << self
-        include OboeMethodProfiling
+        include TraceViewMethodProfiling
         profile_method :do_work, 'do_work'
       end
     end
 
-    ::Oboe::API.start_trace('method_profiling', '', {}) do
+    ::TraceView::API.start_trace('method_profiling', '', {}) do
       # Call the profiled class method
       TestWorker.do_work
     end
@@ -62,11 +62,11 @@ describe OboeMethodProfiling do
         sleep 1
       end
 
-      include OboeMethodProfiling
+      include TraceViewMethodProfiling
       profile_method :do_work, 'do_work'
     end
 
-    ::Oboe::API.start_trace('method_profiling', '', {}) do
+    ::TraceView::API.start_trace('method_profiling', '', {}) do
       # Call the profiled class method
       tw = TestWorker.new
       tw.do_work
@@ -106,12 +106,12 @@ describe OboeMethodProfiling do
       end
 
       class << self
-        include OboeMethodProfiling
+        include TraceViewMethodProfiling
         profile_method :do_work, 'do_work'
       end
     end
 
-    ::Oboe::API.start_trace('method_profiling', '', {}) do
+    ::TraceView::API.start_trace('method_profiling', '', {}) do
       # Call the profiled class method
       TestWorker.do_work
     end
@@ -150,13 +150,13 @@ describe OboeMethodProfiling do
       end
 
       class << self
-        include OboeMethodProfiling
+        include TraceViewMethodProfiling
         # Default call method
         profile_method :do_work, 'do_work'
       end
     end
 
-    ::Oboe::API.start_trace('method_profiling', '', {}) do
+    ::TraceView::API.start_trace('method_profiling', '', {}) do
       # Call the profiled class method
       TestWorker.do_work('String Argument', 203984, ["1", "2", 3], { :color => :black })
     end
@@ -176,12 +176,12 @@ describe OboeMethodProfiling do
       end
 
       class << self
-        include OboeMethodProfiling
+        include TraceViewMethodProfiling
         profile_method :do_work, 'do_work', true, true
       end
     end
 
-    ::Oboe::API.start_trace('method_profiling', '', {}) do
+    ::TraceView::API.start_trace('method_profiling', '', {}) do
       # Call the profiled class method
       TestWorker.do_work('String Argument', 203984, ["1", "2", 3], { :color => :black })
     end

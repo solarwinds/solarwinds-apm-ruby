@@ -16,7 +16,7 @@ unless defined?(JRUBY_VERSION)
     end
   end
 
-  describe "Oboe::Inst::Sequel (mysql)" do
+  describe "Sequel (mysql)" do
     before do
       clear_all_traces
 
@@ -29,34 +29,34 @@ unless defined?(JRUBY_VERSION)
         'RemotePort' => 3306 }
 
       @exit_kvs = { 'Layer' => 'sequel', 'Label' => 'exit' }
-      @collect_backtraces = Oboe::Config[:sequel][:collect_backtraces]
-      @sanitize_sql = Oboe::Config[:sanitize_sql]
+      @collect_backtraces = TraceView::Config[:sequel][:collect_backtraces]
+      @sanitize_sql = TraceView::Config[:sanitize_sql]
     end
 
     after do
-      Oboe::Config[:sequel][:collect_backtraces] = @collect_backtraces
-      Oboe::Config[:sanitize_sql] = @sanitize_sql
+      TraceView::Config[:sequel][:collect_backtraces] = @collect_backtraces
+      TraceView::Config[:sanitize_sql] = @sanitize_sql
     end
 
     it 'Stock sequel should be loaded, defined and ready' do
       defined?(::Sequel).wont_match nil
     end
 
-    it 'sequel should have oboe methods defined' do
+    it 'sequel should have traceview methods defined' do
       # Sequel::Database
-      ::Sequel::Database.method_defined?(:run_with_oboe).must_equal true
+      ::Sequel::Database.method_defined?(:run_with_traceview).must_equal true
 
       # Sequel::Dataset
-      ::Sequel::Dataset.method_defined?(:execute_with_oboe).must_equal true
-      ::Sequel::Dataset.method_defined?(:execute_ddl_with_oboe).must_equal true
-      ::Sequel::Dataset.method_defined?(:execute_dui_with_oboe).must_equal true
-      ::Sequel::Dataset.method_defined?(:execute_insert_with_oboe).must_equal true
+      ::Sequel::Dataset.method_defined?(:execute_with_traceview).must_equal true
+      ::Sequel::Dataset.method_defined?(:execute_ddl_with_traceview).must_equal true
+      ::Sequel::Dataset.method_defined?(:execute_dui_with_traceview).must_equal true
+      ::Sequel::Dataset.method_defined?(:execute_insert_with_traceview).must_equal true
     end
 
     it "should obey :collect_backtraces setting when true" do
-      Oboe::Config[:sequel][:collect_backtraces] = true
+      TraceView::Config[:sequel][:collect_backtraces] = true
 
-      Oboe::API.start_trace('sequel_test', '', {}) do
+      TraceView::API.start_trace('sequel_test', '', {}) do
         MYSQL_DB.run('select 1')
       end
 
@@ -65,9 +65,9 @@ unless defined?(JRUBY_VERSION)
     end
 
     it "should obey :collect_backtraces setting when false" do
-      Oboe::Config[:sequel][:collect_backtraces] = false
+      TraceView::Config[:sequel][:collect_backtraces] = false
 
-      Oboe::API.start_trace('sequel_test', '', {}) do
+      TraceView::API.start_trace('sequel_test', '', {}) do
         MYSQL_DB.run('select 1')
       end
 
@@ -76,7 +76,7 @@ unless defined?(JRUBY_VERSION)
     end
 
     it 'should trace MYSQL_DB.run insert' do
-      Oboe::API.start_trace('sequel_test', '', {}) do
+      TraceView::API.start_trace('sequel_test', '', {}) do
         MYSQL_DB.run("insert into items (name, price) values ('blah', '12')")
       end
 
@@ -87,12 +87,12 @@ unless defined?(JRUBY_VERSION)
 
       validate_event_keys(traces[1], @entry_kvs)
       traces[1]['Query'].must_equal "insert into items (name, price) values ('blah', '12')"
-      traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
     it 'should trace MYSQL_DB.run select' do
-      Oboe::API.start_trace('sequel_test', '', {}) do
+      TraceView::API.start_trace('sequel_test', '', {}) do
         MYSQL_DB.run("select 1")
       end
 
@@ -103,7 +103,7 @@ unless defined?(JRUBY_VERSION)
 
       validate_event_keys(traces[1], @entry_kvs)
       traces[1]['Query'].must_equal "select 1"
-      traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -111,7 +111,7 @@ unless defined?(JRUBY_VERSION)
       items = MYSQL_DB[:items]
       items.count
 
-      Oboe::API.start_trace('sequel_test', '', {}) do
+      TraceView::API.start_trace('sequel_test', '', {}) do
         items.insert(:name => 'abc', :price => 2.514)
         items.count
       end
@@ -130,7 +130,7 @@ unless defined?(JRUBY_VERSION)
        "INSERT INTO `items` (`name`, `price`) VALUES ('abc', 2.514)"
       ].must_include traces[1]['Query']
 
-      traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:sequel][:collect_backtraces]
       traces[2]['Layer'].must_equal "sequel"
       traces[2]['Label'].must_equal "exit"
       traces[3]['Query'].downcase.must_equal "select count(*) as `count` from `items` limit 1"
@@ -138,11 +138,11 @@ unless defined?(JRUBY_VERSION)
     end
 
     it 'should trace a dataset insert and obey query privacy' do
-      Oboe::Config[:sanitize_sql] = true
+      TraceView::Config[:sanitize_sql] = true
       items = MYSQL_DB[:items]
       items.count
 
-      Oboe::API.start_trace('sequel_test', '', {}) do
+      TraceView::API.start_trace('sequel_test', '', {}) do
         items.insert(:name => 'abc', :price => 2.514461383352462)
       end
 
@@ -160,7 +160,7 @@ unless defined?(JRUBY_VERSION)
        "INSERT INTO `items` (`name`, `price`) VALUES (?, ?)"
       ].must_include traces[1]['Query']
 
-      traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -168,7 +168,7 @@ unless defined?(JRUBY_VERSION)
       items = MYSQL_DB[:items]
       items.count
 
-      Oboe::API.start_trace('sequel_test', '', {}) do
+      TraceView::API.start_trace('sequel_test', '', {}) do
         items.filter(:name => 'abc').all
       end
 
@@ -179,7 +179,7 @@ unless defined?(JRUBY_VERSION)
 
       validate_event_keys(traces[1], @entry_kvs)
       traces[1]['Query'].must_equal "SELECT * FROM `items` WHERE (`name` = 'abc')"
-      traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -187,7 +187,7 @@ unless defined?(JRUBY_VERSION)
       # Drop the table if it already exists
       MYSQL_DB.drop_table(:fake) if MYSQL_DB.table_exists?(:fake)
 
-      Oboe::API.start_trace('sequel_test', '', {}) do
+      TraceView::API.start_trace('sequel_test', '', {}) do
         MYSQL_DB.create_table :fake do
           primary_key :id
           String :name
@@ -202,7 +202,7 @@ unless defined?(JRUBY_VERSION)
 
       validate_event_keys(traces[1], @entry_kvs)
       traces[1]['Query'].must_equal "CREATE TABLE `fake` (`id` integer PRIMARY KEY AUTO_INCREMENT, `name` varchar(255), `price` double precision)"
-      traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -210,7 +210,7 @@ unless defined?(JRUBY_VERSION)
       # Drop the table if it already exists
       MYSQL_DB.drop_table(:fake) if MYSQL_DB.table_exists?(:fake)
 
-      Oboe::API.start_trace('sequel_test', '', {}) do
+      TraceView::API.start_trace('sequel_test', '', {}) do
         MYSQL_DB.create_table :fake do
           primary_key :id
           String :name
@@ -225,13 +225,13 @@ unless defined?(JRUBY_VERSION)
 
       validate_event_keys(traces[1], @entry_kvs)
       traces[1]['Query'].must_equal "CREATE TABLE `fake` (`id` integer PRIMARY KEY AUTO_INCREMENT, `name` varchar(255), `price` double precision)"
-      traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
     it 'should capture and report exceptions' do
       begin
-        Oboe::API.start_trace('sequel_test', '', {}) do
+        TraceView::API.start_trace('sequel_test', '', {}) do
           MYSQL_DB.run("this is bad sql")
         end
       rescue
@@ -245,7 +245,7 @@ unless defined?(JRUBY_VERSION)
 
       validate_event_keys(traces[1], @entry_kvs)
       traces[1]['Query'].must_equal "this is bad sql"
-      traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:sequel][:collect_backtraces]
       traces[2]['Layer'].must_equal "sequel"
       traces[2]['Label'].must_equal "error"
       traces[2].has_key?('Backtrace').must_equal true
@@ -257,7 +257,7 @@ unless defined?(JRUBY_VERSION)
       items = MYSQL_DB[:items]
       items.count
 
-      Oboe::API.start_trace('sequel_test', '', {}) do
+      TraceView::API.start_trace('sequel_test', '', {}) do
         ds = items.where(:name=>:$n)
         ds.call(:select, :n=>'abc')
         ds.call(:delete, :n=>'cba')
@@ -270,9 +270,9 @@ unless defined?(JRUBY_VERSION)
 
       validate_event_keys(traces[1], @entry_kvs)
       traces[1]['Query'].must_equal "SELECT * FROM `items` WHERE (`name` = 'abc')"
-      traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:sequel][:collect_backtraces]
       traces[3]['Query'].must_equal "DELETE FROM `items` WHERE (`name` = 'cba')"
-      traces[3].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
+      traces[3].has_key?('Backtrace').must_equal TraceView::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -280,7 +280,7 @@ unless defined?(JRUBY_VERSION)
       ds = MYSQL_DB[:items].filter(:name=>:$n)
       ps = ds.prepare(:select, :select_by_name)
 
-      Oboe::API.start_trace('sequel_test', '', {}) do
+      TraceView::API.start_trace('sequel_test', '', {}) do
         ps.call(:n=>'abc')
       end
 
@@ -297,16 +297,16 @@ unless defined?(JRUBY_VERSION)
         traces[1]['QueryArgs'].must_equal "[\"abc\"]"
       end
       traces[1]['IsPreparedStatement'].must_equal "true"
-      traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
     it 'should trace prep\'d stmnts and obey query privacy' do
-      Oboe::Config[:sanitize_sql] = true
+      TraceView::Config[:sanitize_sql] = true
       ds = MYSQL_DB[:items].filter(:name=>:$n)
       ps = ds.prepare(:select, :select_by_name)
 
-      Oboe::API.start_trace('sequel_test', '', {}) do
+      TraceView::API.start_trace('sequel_test', '', {}) do
         ps.call(:n=>'abc')
       end
 
@@ -319,7 +319,7 @@ unless defined?(JRUBY_VERSION)
       traces[1]['Query'].must_equal "select_by_name"
       traces[1]['QueryArgs'].must_equal nil
       traces[1]['IsPreparedStatement'].must_equal "true"
-      traces[1].has_key?('Backtrace').must_equal Oboe::Config[:sequel][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
   end

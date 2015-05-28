@@ -1,28 +1,28 @@
 require 'minitest_helper'
 
 if RUBY_VERSION >= '1.9.3'
-  describe Oboe::Inst::RestClientRequest do
+  describe "RestClient" do
     before do
       clear_all_traces
-      @collect_backtraces = Oboe::Config[:rest_client][:collect_backtraces]
+      @collect_backtraces = TraceView::Config[:rest_client][:collect_backtraces]
     end
 
     after do
-      Oboe::Config[:rest_client][:collect_backtraces] = @collect_backtraces
+      TraceView::Config[:rest_client][:collect_backtraces] = @collect_backtraces
     end
 
     it 'RestClient should be defined and ready' do
       defined?(::RestClient).wont_match nil
     end
 
-    it 'RestClient should have oboe methods defined' do
-      [ :execute_with_oboe ].each do |m|
+    it 'RestClient should have traceview methods defined' do
+      [ :execute_with_traceview ].each do |m|
         ::RestClient::Request.method_defined?(m).must_equal true
       end
     end
 
     it "should report rest-client version in __Init" do
-      init_kvs = ::Oboe::Util.build_init_report
+      init_kvs = ::TraceView::Util.build_init_report
 
       init_kvs.key?('Ruby.RestClient.Version').must_equal true
       init_kvs['Ruby.RestClient.Version'].must_equal "RestClient-#{::RestClient::VERSION}"
@@ -31,7 +31,7 @@ if RUBY_VERSION >= '1.9.3'
     it "should trace a request to an instr'd app" do
       response = nil
 
-      Oboe::API.start_trace('rest_client_test') do
+      TraceView::API.start_trace('rest_client_test') do
         response = RestClient.get 'http://127.0.0.1:8101/'
       end
 
@@ -55,7 +55,7 @@ if RUBY_VERSION >= '1.9.3'
       traces[6]['ServiceArg'].must_equal '/'
       traces[6]['HTTPMethod'].must_equal 'GET'
       traces[6]['HTTPStatus'].must_equal "200"
-      traces[6].key?('Backtrace').must_equal Oboe::Config[:nethttp][:collect_backtraces]
+      traces[6].key?('Backtrace').must_equal TraceView::Config[:nethttp][:collect_backtraces]
 
       traces[7]['Layer'].must_equal 'net-http'
       traces[7]['Label'].must_equal 'exit'
@@ -65,13 +65,13 @@ if RUBY_VERSION >= '1.9.3'
 
       response.headers.key?(:x_trace).wont_equal nil
       xtrace = response.headers[:x_trace]
-      Oboe::XTrace.valid?(xtrace).must_equal true
+      TraceView::XTrace.valid?(xtrace).must_equal true
     end
 
     it 'should trace a raw GET request' do
       response = nil
 
-      Oboe::API.start_trace('rest_client_test') do
+      TraceView::API.start_trace('rest_client_test') do
         response = RestClient.get 'http://127.0.0.1:8101/?a=1'
       end
 
@@ -97,7 +97,7 @@ if RUBY_VERSION >= '1.9.3'
       traces[6]['ServiceArg'].must_equal '/?a=1'
       traces[6]['HTTPMethod'].must_equal 'GET'
       traces[6]['HTTPStatus'].must_equal "200"
-      traces[6].key?('Backtrace').must_equal Oboe::Config[:nethttp][:collect_backtraces]
+      traces[6].key?('Backtrace').must_equal TraceView::Config[:nethttp][:collect_backtraces]
 
       traces[7]['Layer'].must_equal 'net-http'
       traces[7]['Label'].must_equal 'exit'
@@ -109,7 +109,7 @@ if RUBY_VERSION >= '1.9.3'
     it 'should trace a raw POST request' do
       response = nil
 
-      Oboe::API.start_trace('rest_client_test') do
+      TraceView::API.start_trace('rest_client_test') do
         response = RestClient.post 'http://127.0.0.1:8101/', :param1 => 'one', :nested => { :param2 => 'two' }
       end
 
@@ -133,7 +133,7 @@ if RUBY_VERSION >= '1.9.3'
       traces[6]['ServiceArg'].must_equal '/'
       traces[6]['HTTPMethod'].must_equal 'POST'
       traces[6]['HTTPStatus'].must_equal "200"
-      traces[6].key?('Backtrace').must_equal Oboe::Config[:nethttp][:collect_backtraces]
+      traces[6].key?('Backtrace').must_equal TraceView::Config[:nethttp][:collect_backtraces]
 
       traces[7]['Layer'].must_equal 'net-http'
       traces[7]['Label'].must_equal 'exit'
@@ -145,7 +145,7 @@ if RUBY_VERSION >= '1.9.3'
     it 'should trace a ActiveResource style GET request' do
       response = nil
 
-      Oboe::API.start_trace('rest_client_test') do
+      TraceView::API.start_trace('rest_client_test') do
         resource = RestClient::Resource.new 'http://127.0.0.1:8101/?a=1'
         response = resource.get
       end
@@ -170,7 +170,7 @@ if RUBY_VERSION >= '1.9.3'
       traces[6]['ServiceArg'].must_equal '/?a=1'
       traces[6]['HTTPMethod'].must_equal 'GET'
       traces[6]['HTTPStatus'].must_equal "200"
-      traces[6].key?('Backtrace').must_equal Oboe::Config[:nethttp][:collect_backtraces]
+      traces[6].key?('Backtrace').must_equal TraceView::Config[:nethttp][:collect_backtraces]
 
       traces[7]['Layer'].must_equal 'net-http'
       traces[7]['Label'].must_equal 'exit'
@@ -182,7 +182,7 @@ if RUBY_VERSION >= '1.9.3'
     it 'should trace requests with redirects' do
       response = nil
 
-      Oboe::API.start_trace('rest_client_test') do
+      TraceView::API.start_trace('rest_client_test') do
         resource = RestClient::Resource.new 'http://www.appneta.com/products/traceview?a=1'
         response = resource.get
       end
@@ -209,7 +209,7 @@ if RUBY_VERSION >= '1.9.3'
       traces[3]['ServiceArg'].must_equal '/products/traceview?a=1'
       traces[3]['HTTPMethod'].must_equal 'GET'
       traces[3]['HTTPStatus'].must_equal "301"
-      traces[3].key?('Backtrace').must_equal Oboe::Config[:nethttp][:collect_backtraces]
+      traces[3].key?('Backtrace').must_equal TraceView::Config[:nethttp][:collect_backtraces]
 
       traces[4]['Layer'].must_equal 'net-http'
       traces[4]['Label'].must_equal 'exit'
@@ -228,7 +228,7 @@ if RUBY_VERSION >= '1.9.3'
       traces[7]['ServiceArg'].must_equal '/products/traceview/?a=1'
       traces[7]['HTTPMethod'].must_equal 'GET'
       traces[7]['HTTPStatus'].must_equal "200"
-      traces[7].key?('Backtrace').must_equal Oboe::Config[:nethttp][:collect_backtraces]
+      traces[7].key?('Backtrace').must_equal TraceView::Config[:nethttp][:collect_backtraces]
 
       traces[8]['Layer'].must_equal 'net-http'
       traces[8]['Label'].must_equal 'exit'
@@ -241,9 +241,7 @@ if RUBY_VERSION >= '1.9.3'
     end
 
     it 'should trace and capture raised exceptions' do
-      response = nil
-
-      Oboe::API.start_trace('rest_client_test') do
+      TraceView::API.start_trace('rest_client_test') do
         begin
           RestClient.get 'http://s6KTgaz7636z/resource'
         rescue
@@ -272,9 +270,9 @@ if RUBY_VERSION >= '1.9.3'
     end
 
     it 'should obey :collect_backtraces setting when true' do
-      Oboe::Config[:rest_client][:collect_backtraces] = true
+      TraceView::Config[:rest_client][:collect_backtraces] = true
 
-      Oboe::API.start_trace('rest_client_test') do
+      TraceView::API.start_trace('rest_client_test') do
         RestClient.get('http://127.0.0.1:8101/', {:a => 1})
       end
 
@@ -283,9 +281,9 @@ if RUBY_VERSION >= '1.9.3'
     end
 
     it 'should obey :collect_backtraces setting when false' do
-      Oboe::Config[:rest_client][:collect_backtraces] = false
+      TraceView::Config[:rest_client][:collect_backtraces] = false
 
-      Oboe::API.start_trace('rest_client_test') do
+      TraceView::API.start_trace('rest_client_test') do
         RestClient.get('http://127.0.0.1:8101/', {:a => 1})
       end
 

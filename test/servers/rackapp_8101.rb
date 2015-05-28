@@ -2,13 +2,13 @@
 # All rights reserved.
 
 require 'rack/handler/puma'
-require 'oboe/inst/rack'
+require 'traceview/inst/rack'
 
-Oboe.logger.info "[oboe/info] Starting background utility rack app on localhost:8101."
+TraceView.logger.info "[oboe/info] Starting background utility rack app on localhost:8101."
 
 Thread.new do
   app = Rack::Builder.new {
-    use Oboe::Rack
+    use TraceView::Rack
     run Proc.new { |env|
       [200, {"Content-Type" => "text/html"}, ['Hello TraceView!']]
     }

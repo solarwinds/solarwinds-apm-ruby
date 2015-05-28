@@ -12,8 +12,9 @@ describe Sinatra do
     r = get "/render"
 
     traces = get_all_traces
-    traces.count.must_equal 9
 
+    traces.count.must_equal 9
+    valid_edges?(traces).must_equal true
     validate_outer_layers(traces, 'rack')
 
     traces[2]['Layer'].must_equal "sinatra"

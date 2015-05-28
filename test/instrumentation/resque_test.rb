@@ -1,6 +1,6 @@
 require 'minitest_helper'
 
-describe Oboe::Inst::Resque do
+describe "Resque" do
   before do
     clear_all_traces
 
@@ -18,21 +18,21 @@ describe Oboe::Inst::Resque do
     defined?(::Resque::Job).wont_match nil
   end
 
-  it 'Resque should have oboe methods defined' do
+  it 'Resque should have traceview methods defined' do
     [ :enqueue, :enqueue_to, :dequeue ].each do |m|
-      ::Resque.method_defined?("#{m}_with_oboe").must_equal true
+      ::Resque.method_defined?("#{m}_with_traceview").must_equal true
     end
 
-    ::Resque::Worker.method_defined?("perform_with_oboe").must_equal true
-    ::Resque::Job.method_defined?("fail_with_oboe").must_equal true
+    ::Resque::Worker.method_defined?("perform_with_traceview").must_equal true
+    ::Resque::Job.method_defined?("fail_with_traceview").must_equal true
   end
 
   it "should trace enqueue" do
     skip
-    Oboe::API.start_trace('resque-client_test', '', {}) do
-      Resque.enqueue(OboeResqueJob, { :generate => :activerecord, :delay => rand(5..30).to_f })
-      Resque.enqueue(OboeResqueJobThatFails)
-      Resque.dequeue(OboeResqueJob, { :generate => :moped })
+    TraceView::API.start_trace('resque-client_test', '', {}) do
+      Resque.enqueue(TraceViewResqueJob, { :generate => :activerecord, :delay => rand(5..30).to_f })
+      Resque.enqueue(TraceViewResqueJobThatFails)
+      Resque.dequeue(TraceViewResqueJob, { :generate => :moped })
     end
 
     traces = get_all_traces
@@ -46,8 +46,8 @@ describe Oboe::Inst::Resque do
 
   it "should trace dequeue" do
     skip
-    Oboe::API.start_trace('resque-client_test', '', {}) do
-      Resque.dequeue(OboeResqueJob, { :generate => :moped })
+    TraceView::API.start_trace('resque-client_test', '', {}) do
+      Resque.dequeue(TraceViewResqueJob, { :generate => :moped })
     end
 
     traces = get_all_traces
