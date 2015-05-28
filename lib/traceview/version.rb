@@ -6,9 +6,9 @@ module TraceView
   # The current version of the gem.  Used mainly by
   # traceview.gemspec during gem build process
   module Version
-    MAJOR = 2
-    MINOR = 7
-    PATCH = 19
+    MAJOR = 3
+    MINOR = 0
+    PATCH = 0
     BUILD = nil
 
     STRING = [MAJOR, MINOR, PATCH, BUILD].compact.join('.')
