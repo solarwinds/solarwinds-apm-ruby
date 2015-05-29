@@ -158,7 +158,7 @@ module TraceView
       end
 
       ##
-      #  build_report
+      #  build_init_report
       #
       # Internal: Build a hash of KVs that reports on the status of the
       # running environment.  This is used on stack boot in __Init reporting
