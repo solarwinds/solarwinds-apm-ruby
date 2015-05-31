@@ -2,6 +2,10 @@ require 'minitest_helper'
 
 describe "BackwardCompatibility" do
 
+  it 'should still export to Oboe::Ruby' do
+    defined?(::Oboe::Ruby).must_equal "constant"
+  end
+
   it 'should still respond to Oboe::Config' do
     @verbose = Oboe::Config[:verbose]
     @dalli_enabled = Oboe::Config[:dalli][:enabled]
@@ -55,7 +59,7 @@ describe "BackwardCompatibility" do
     validate_outer_layers(traces, 'api_test')
   end
 
-  it 'should still support Oboe.profile'do
+  it 'should still support Oboe::API.profile'do
     clear_all_traces
 
     Oboe::API.start_trace('outer_profile_test') do
