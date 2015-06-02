@@ -25,6 +25,7 @@ module TraceView
           return ""
         end
       end
+      alias_method :oboe_rum_header, :traceview_rum_header
 
       def traceview_rum_footer
         begin
@@ -39,6 +40,7 @@ module TraceView
           return ""
         end
       end
+      alias_method :oboe_rum_footer, :traceview_rum_footer
     end # Helpers
 
     def self.load_initializer
