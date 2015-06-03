@@ -1,15 +1,14 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
-module Oboe
+module TraceView
   class InstallGenerator < ::Rails::Generators::Base
     source_root File.join(File.dirname(__FILE__), 'templates')
-    desc "Copies an oboe initializer files to your application."
+    desc "Copies a TraceView gem initializer file to your application."
 
     def copy_initializer
       # Set defaults
       @tracing_mode = 'through'
-      @sample_rate = '300000'
       @verbose = 'false'
 
       print_header
@@ -32,7 +31,7 @@ module Oboe
 
       print_footer
 
-      template "oboe_initializer.rb", "config/initializers/traceview.rb"
+      template "traceview_initializer.rb", "config/initializers/traceview.rb"
     end
 
     private
@@ -46,11 +45,11 @@ module Oboe
         say shell.set_color "Documentation Links", :magenta
         say "-------------------"
         say ""
-        say "Details on configuring your sample rate:"
-        say "https://support.appneta.com/cloud/configuring-sampling"
+        say "TraceView Installation Overview:"
+        say "https://docs.appneta.com/installation-overview"
         say ""
         say "More information on instrumenting Ruby applications can be found here:"
-        say "https://support.appneta.com/cloud/installing-ruby-instrumentation"
+        say "https://docs.appneta.com/installing-ruby-instrumentation"
       end
 
       def print_body
