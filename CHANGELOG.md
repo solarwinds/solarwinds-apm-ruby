@@ -4,6 +4,17 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# traceview 3.0.1
+
+This patch release includes the following fix:
+
+* Add missing backcompat support bits: #122
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.0.1
+https://rubygems.org/gems/traceview/versions/3.0.1-java
+
 # traceview 3.0.0
 
 The oboe gem has been renamed to traceview.  The final oboe
