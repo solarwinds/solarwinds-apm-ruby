@@ -8,8 +8,7 @@ It has the ability to report performance metrics on an array of libraries, datab
 
 It requires a [TraceView](http://www.appneta.com/products/traceview/) account to view metrics.  Get yours, [it's free](http://www.appneta.com/products/traceview-free-account/).
 
-[![Oboe API Documentation](https://www.omniref.com/ruby/gems/traceview.png)](https://www.omniref.com/ruby/gems/oboe)
-[![Gem Version](https://badge.fury.io/rb/traceview.png)](http://badge.fury.io/rb/oboe)
+[![Gem Version](https://badge.fury.io/rb/traceview.png)](http://badge.fury.io/rb/traceview)
 [![Build Status](https://travis-ci.org/appneta/oboe-ruby.png?branch=master)](https://travis-ci.org/appneta/oboe-ruby)
 [![Code Climate](https://codeclimate.com/github/appneta/oboe-ruby.png)](https://codeclimate.com/github/appneta/oboe-ruby)
 
@@ -174,7 +173,7 @@ This tracing state of a request can also be queried by using `TraceView.tracing?
 
 If you need to instrument code outside the context of a request (such as a cron job, background job or an arbitrary ruby script), use `TraceView::API.start_trace` instead which will initiate new traces based on configuration and probability (based on the sample rate).
 
-Find more details in the [RubyDoc page](http://rdoc.info/gems/oboe/TraceView/API/Tracing) or in [this example](https://gist.github.com/pglombardo/8550713) on how to use the Tracing API in an independent Ruby script.
+Find more details in the [RubyDoc page](http://rdoc.info/gems/traceview/TraceView/API/Tracing) or in [this example](https://gist.github.com/pglombardo/8550713) on how to use the Tracing API in an independent Ruby script.
 
 ## Tracing Methods
 
