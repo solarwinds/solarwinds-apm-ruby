@@ -1,4 +1,4 @@
-# AppNeta TraceView Initializer (the oboe gem)
+# AppNeta TraceView Initializer (for the traceview gem)
 # http://www.appneta.com/products/traceview/
 #
 # More information on instrumenting Ruby applications can be found here:
@@ -42,7 +42,7 @@ if defined?(TraceView::Config)
   # query args by default.
   TraceView::Config[:include_remote_url_params] = true
 
-  # The oboe Ruby client has the ability to sanitize query literals
+  # The TraceView Ruby client has the ability to sanitize query literals
   # from SQL statements.  By default this is disabled.  Enable to
   # avoid collecting and reporting query literals to TraceView.
   # TraceView::Config[:sanitize_sql] = false
@@ -70,7 +70,7 @@ if defined?(TraceView::Config)
   # regardless of case
   #
   # Requests with positive matches (non nil) will not be traced.
-  # See lib/oboe/util.rb: TraceView::Util.static_asset?
+  # See lib/traceview/util.rb: TraceView::Util.static_asset?
   #
   # TraceView::Config[:dnt_regexp] = "\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|ttf|woff|svg|less)$"
   # TraceView::Config[:dnt_opts]   = Regexp::IGNORECASE

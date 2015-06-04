@@ -54,6 +54,7 @@ module TraceView
         TraceView.logger.warn "traceview_rum_header: #{e.message}."
         return ''
       end
+      alias_method :oboe_rum_header, :traceview_rum_header
 
       def traceview_rum_footer
         return unless TraceView::Config.rum_id
@@ -66,6 +67,7 @@ module TraceView
         TraceView.logger.warn "traceview_rum_footer: #{e.message}."
         return ''
       end
+      alias_method :oboe_rum_footer, :traceview_rum_footer
     end
   end
 end

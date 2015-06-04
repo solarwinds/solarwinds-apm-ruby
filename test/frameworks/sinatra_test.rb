@@ -26,5 +26,13 @@ describe Sinatra do
     r.headers.key?('X-Trace').must_equal true
     r.headers['X-Trace'].must_equal traces[8]['X-Trace']
   end
+
+  it "should have RUM code in the response" do
+    @app = SinatraSimple
+
+    r = get "/render"
+
+    (r.body =~ /tly.js/).wont_equal nil
+  end
 end
 
