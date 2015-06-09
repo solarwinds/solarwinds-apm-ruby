@@ -16,12 +16,10 @@ rvm:
   - jruby-19mode
 
 gemfile:
+  - Gemfile
   - gemfiles/rails23.gemfile
   - gemfiles/rails32.gemfile
   - gemfiles/rails40.gemfile
-  - gemfiles/grape.gemfile
-  - gemfiles/libraries.gemfile
-  - gemfiles/padrino.gemfile
 
 # Attempt Travis/Cassandra fix re: https://github.com/travis-ci/travis-ci/issues/1484
 # Updated Cassandra: https://github.com/travis-ci/travis-ci/issues/1650
