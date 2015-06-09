@@ -12,8 +12,9 @@ describe Sinatra do
     r = get "/render"
 
     traces = get_all_traces
-    traces.count.must_equal 9
 
+    traces.count.must_equal 9
+    valid_edges?(traces).must_equal true
     validate_outer_layers(traces, 'rack')
 
     traces[2]['Layer'].must_equal "sinatra"
@@ -24,6 +25,14 @@ describe Sinatra do
     # Validate the existence of the response header
     r.headers.key?('X-Trace').must_equal true
     r.headers['X-Trace'].must_equal traces[8]['X-Trace']
+  end
+
+  it "should have RUM code in the response" do
+    @app = SinatraSimple
+
+    r = get "/render"
+
+    (r.body =~ /tly.js/).wont_equal nil
   end
 end
 

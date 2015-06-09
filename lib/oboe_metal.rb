@@ -4,30 +4,30 @@
 # Disable docs and Camelcase warns since we're implementing
 # an interface here.  See OboeBase for details.
 # rubocop:disable Style/Documentation, Style/MethodName
-module Oboe
-  extend OboeBase
+module TraceView
+  extend TraceViewBase
   include Oboe_metal
 
   class Reporter
     ##
-    # Initialize the Oboe Context, reporter and report the initialization
+    # Initialize the TraceView Context, reporter and report the initialization
     #
     def self.start
-      return unless Oboe.loaded
+      return unless TraceView.loaded
 
       begin
         Oboe_metal::Context.init
 
-        if ENV.key?('OBOE_GEM_TEST')
-          Oboe.reporter = Oboe::FileReporter.new('/tmp/trace_output.bson')
+        if ENV.key?('TRACEVIEW_GEM_TEST')
+          TraceView.reporter = TraceView::FileReporter.new('/tmp/trace_output.bson')
         else
-          Oboe.reporter = Oboe::UdpReporter.new(Oboe::Config[:reporter_host], Oboe::Config[:reporter_port])
+          TraceView.reporter = TraceView::UdpReporter.new(TraceView::Config[:reporter_host], TraceView::Config[:reporter_port])
         end
 
         # Only report __Init from here if we are not instrumenting a framework.
         # Otherwise, frameworks will handle reporting __Init after full initialization
         unless defined?(::Rails) || defined?(::Sinatra) || defined?(::Padrino) || defined?(::Grape)
-          Oboe::API.report_init unless ENV.key?('OBOE_GEM_TEST')
+          TraceView::API.report_init unless ENV.key?('TRACEVIEW_GEM_TEST')
         end
 
       rescue => e
@@ -37,7 +37,7 @@ module Oboe
     end
 
     def self.sendReport(evt)
-      Oboe.reporter.sendReport(evt)
+      TraceView.reporter.sendReport(evt)
     end
 
     ##
@@ -85,67 +85,67 @@ module Oboe
   class << self
     def sample?(opts = {})
       begin
-        return false unless Oboe.always? && Oboe.loaded
+        return false unless TraceView.always? && TraceView.loaded
 
         # Assure defaults since SWIG enforces Strings
         layer   = opts[:layer]      ? opts[:layer].strip      : ''
         xtrace  = opts[:xtrace]     ? opts[:xtrace].strip     : ''
         tv_meta = opts['X-TV-Meta'] ? opts['X-TV-Meta'].strip : ''
 
-        rv = Oboe::Context.sampleRequest(layer, xtrace, tv_meta)
+        rv = TraceView::Context.sampleRequest(layer, xtrace, tv_meta)
 
         if rv == 0
-          if ENV.key?('OBOE_GEM_TEST')
+          if ENV.key?('TRACEVIEW_GEM_TEST')
             # When in test, always trace and don't clear
             # the stored sample rate/source
             true
           else
-            Oboe.sample_rate = -1
-            Oboe.sample_source = -1
+            TraceView.sample_rate = -1
+            TraceView.sample_source = -1
             false
           end
         else
           # liboboe version > 1.3.1 returning a bit masked integer with SampleRate and
           # source embedded
-          Oboe.sample_rate = (rv & SAMPLE_RATE_MASK)
-          Oboe.sample_source = (rv & SAMPLE_SOURCE_MASK) >> 24
+          TraceView.sample_rate = (rv & SAMPLE_RATE_MASK)
+          TraceView.sample_source = (rv & SAMPLE_SOURCE_MASK) >> 24
           true
         end
       rescue StandardError => e
-        Oboe.logger.debug "[oboe/error] sample? error: #{e.inspect}"
+        TraceView.logger.debug "[oboe/error] sample? error: #{e.inspect}"
         false
       end
     end
 
     def set_tracing_mode(mode)
-      return unless Oboe.loaded
+      return unless TraceView.loaded
 
       value = mode.to_sym
 
       case value
       when :never
-        Oboe::Context.setTracingMode(OBOE_TRACE_NEVER)
+        TraceView::Context.setTracingMode(OBOE_TRACE_NEVER)
 
       when :always
-        Oboe::Context.setTracingMode(OBOE_TRACE_ALWAYS)
+        TraceView::Context.setTracingMode(OBOE_TRACE_ALWAYS)
 
       when :through
-        Oboe::Context.setTracingMode(OBOE_TRACE_THROUGH)
+        TraceView::Context.setTracingMode(OBOE_TRACE_THROUGH)
 
       else
-        Oboe.logger.fatal "[oboe/error] Invalid tracing mode set: #{mode}"
-        Oboe::Context.setTracingMode(OBOE_TRACE_THROUGH)
+        TraceView.logger.fatal "[oboe/error] Invalid tracing mode set: #{mode}"
+        TraceView::Context.setTracingMode(OBOE_TRACE_THROUGH)
       end
     end
 
     def set_sample_rate(rate)
-      return unless Oboe.loaded
+      return unless TraceView.loaded
 
       # Update liboboe with the new SampleRate value
-      Oboe::Context.setDefaultSampleRate(rate.to_i)
+      TraceView::Context.setDefaultSampleRate(rate.to_i)
     end
   end
 end
 # rubocop:enable Style/Documentation
 
-Oboe.loaded = true
+TraceView.loaded = true

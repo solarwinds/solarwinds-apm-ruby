@@ -1,7 +1,7 @@
 require 'minitest_helper'
 
 if defined?(::Redis)
-  describe Oboe::Inst::Redis, :sortedsets do
+  describe "Redis Sorted Sets" do
     attr_reader :entry_kvs, :exit_kvs, :redis, :redis_version
 
     def min_server_version(version)
@@ -25,14 +25,19 @@ if defined?(::Redis)
     it "should trace zadd" do
       min_server_version(1.2)
 
-      Oboe::API.start_trace('redis_test', '', {}) do
+      TraceView::API.start_trace('redis_test', '', {}) do
         @redis.zadd("time", 0, "past")
       end
 
+<<<<<<< HEAD
       traces = get_all_traces
       traces.count.must_equal 4
       traces[2]['KVOp'].must_equal "zadd"
       traces[2]['KVKey'].must_equal "time"
+=======
+    TraceView::API.start_trace('redis_test', '', {}) do
+      @redis.zadd("time", 0, "past")
+>>>>>>> master
     end
 
     it "should trace zcard" do
@@ -44,14 +49,19 @@ if defined?(::Redis)
       @redis.zadd("sauce", 3, "hollandaise")
       @redis.zadd("sauce", 4, "classic tomate")
 
-      Oboe::API.start_trace('redis_test', '', {}) do
+      TraceView::API.start_trace('redis_test', '', {}) do
         @redis.zcard("sauce")
       end
 
+<<<<<<< HEAD
       traces = get_all_traces
       traces.count.must_equal 4
       traces[2]['KVOp'].must_equal "zcard"
       traces[2]['KVKey'].must_equal "sauce"
+=======
+    TraceView::API.start_trace('redis_test', '', {}) do
+      @redis.zcard("sauce")
+>>>>>>> master
     end
 
     it "should trace zcount" do
@@ -63,14 +73,19 @@ if defined?(::Redis)
       @redis.zadd("sauce", 3, "hollandaise")
       @redis.zadd("sauce", 4, "classic tomate")
 
-      Oboe::API.start_trace('redis_test', '', {}) do
+      TraceView::API.start_trace('redis_test', '', {}) do
         @redis.zcount("sauce", 1, 3)
       end
 
+<<<<<<< HEAD
       traces = get_all_traces
       traces.count.must_equal 4
       traces[2]['KVOp'].must_equal "zcount"
       traces[2]['KVKey'].must_equal "sauce"
+=======
+    TraceView::API.start_trace('redis_test', '', {}) do
+      @redis.zcount("sauce", 1, 3)
+>>>>>>> master
     end
 
     it "should trace zincrby" do
@@ -82,14 +97,19 @@ if defined?(::Redis)
       @redis.zadd("sauce", 3, "hollandaise")
       @redis.zadd("sauce", 4, "classic tomate")
 
-      Oboe::API.start_trace('redis_test', '', {}) do
+      TraceView::API.start_trace('redis_test', '', {}) do
         @redis.zincrby("sauce", 1, "veloute")
       end
 
+<<<<<<< HEAD
       traces = get_all_traces
       traces.count.must_equal 4
       traces[2]['KVOp'].must_equal "zincrby"
       traces[2]['KVKey'].must_equal "sauce"
+=======
+    TraceView::API.start_trace('redis_test', '', {}) do
+      @redis.zincrby("sauce", 1, "veloute")
+>>>>>>> master
     end
 
     it "should trace zinterstore" do
@@ -102,15 +122,20 @@ if defined?(::Redis)
       @redis.zadd("beverage", 0, "milkshake")
       @redis.zadd("beverage", 1, "soda")
 
-      Oboe::API.start_trace('redis_test', '', {}) do
+      TraceView::API.start_trace('redis_test', '', {}) do
         @redis.zinterstore("zinterstore_dest", [ "sauce", "beverage" ], :weights => [2, 3])
       end
 
+<<<<<<< HEAD
       traces = get_all_traces
       traces.count.must_equal 4
       traces[2]['KVOp'].must_equal "zinterstore"
       traces[2]['destination'].must_equal "zinterstore_dest"
       traces[2].has_key?('KVKey').must_equal false
+=======
+    TraceView::API.start_trace('redis_test', '', {}) do
+      @redis.zinterstore("zinterstore_dest", [ "sauce", "beverage" ], :weights => [2, 3])
+>>>>>>> master
     end
 
     it "should trace zrange" do
@@ -122,14 +147,19 @@ if defined?(::Redis)
       @redis.zadd("sauce", 3, "hollandaise")
       @redis.zadd("sauce", 4, "classic tomate")
 
-      Oboe::API.start_trace('redis_test', '', {}) do
+      TraceView::API.start_trace('redis_test', '', {}) do
         @redis.zrange("sauce", 1, 3)
       end
 
+<<<<<<< HEAD
       traces = get_all_traces
       traces.count.must_equal 4
       traces[2]['KVOp'].must_equal "zrange"
       traces[2]['KVKey'].must_equal "sauce"
+=======
+    TraceView::API.start_trace('redis_test', '', {}) do
+      @redis.zrange("sauce", 1, 3)
+>>>>>>> master
     end
 
     it "should trace zrangebyscore" do
@@ -141,14 +171,19 @@ if defined?(::Redis)
       @redis.zadd("sauce", 3, "hollandaise")
       @redis.zadd("sauce", 4, "classic tomate")
 
-      Oboe::API.start_trace('redis_test', '', {}) do
+      TraceView::API.start_trace('redis_test', '', {}) do
         @redis.zrangebyscore("sauce", "5", "(100")
       end
 
+<<<<<<< HEAD
       traces = get_all_traces
       traces.count.must_equal 4
       traces[2]['KVOp'].must_equal "zrangebyscore"
       traces[2]['KVKey'].must_equal "sauce"
+=======
+    TraceView::API.start_trace('redis_test', '', {}) do
+      @redis.zrangebyscore("sauce", "5", "(100")
+>>>>>>> master
     end
 
     it "should trace zrank" do
@@ -160,14 +195,19 @@ if defined?(::Redis)
       @redis.zadd("sauce", 3, "hollandaise")
       @redis.zadd("sauce", 4, "classic tomate")
 
-      Oboe::API.start_trace('redis_test', '', {}) do
+      TraceView::API.start_trace('redis_test', '', {}) do
         @redis.zrank("sauce", "veloute")
       end
 
+<<<<<<< HEAD
       traces = get_all_traces
       traces.count.must_equal 4
       traces[2]['KVOp'].must_equal "zrank"
       traces[2]['KVKey'].must_equal "sauce"
+=======
+    TraceView::API.start_trace('redis_test', '', {}) do
+      @redis.zrank("sauce", "veloute")
+>>>>>>> master
     end
 
     it "should trace zrem" do
@@ -179,10 +219,11 @@ if defined?(::Redis)
       @redis.zadd("sauce", 3, "hollandaise")
       @redis.zadd("sauce", 4, "classic tomate")
 
-      Oboe::API.start_trace('redis_test', '', {}) do
+      TraceView::API.start_trace('redis_test', '', {}) do
         @redis.zrem("sauce", "veloute")
       end
 
+<<<<<<< HEAD
       traces = get_all_traces
       traces.count.must_equal 4
       traces[2]['KVOp'].must_equal "zrem"
@@ -198,7 +239,7 @@ if defined?(::Redis)
       @redis.zadd("sauce", 3, "hollandaise")
       @redis.zadd("sauce", 4, "classic tomate")
 
-      Oboe::API.start_trace('redis_test', '', {}) do
+      TraceView::API.start_trace('redis_test', '', {}) do
         @redis.zremrangebyrank("sauce", -5, -1)
       end
 
@@ -208,6 +249,29 @@ if defined?(::Redis)
       traces[2]['KVKey'].must_equal "sauce"
       traces[2]['start'].must_equal -5
       traces[2]['stop'].must_equal -1
+=======
+    TraceView::API.start_trace('redis_test', '', {}) do
+      @redis.zrem("sauce", "veloute")
+    end
+
+    traces = get_all_traces
+    traces.count.must_equal 4
+    traces[2]['KVOp'].must_equal "zrem"
+    traces[2]['KVKey'].must_equal "sauce"
+  end
+
+  it "should trace zremrangebyrank" do
+    min_server_version(2.0)
+
+    @redis.zadd("sauce", 0, "bechamel")
+    @redis.zadd("sauce", 1, "veloute")
+    @redis.zadd("sauce", 2, "espagnole")
+    @redis.zadd("sauce", 3, "hollandaise")
+    @redis.zadd("sauce", 4, "classic tomate")
+
+    TraceView::API.start_trace('redis_test', '', {}) do
+      @redis.zremrangebyrank("sauce", -5, -1)
+>>>>>>> master
     end
 
     it "should trace zremrangebyscore" do
@@ -219,10 +283,11 @@ if defined?(::Redis)
       @redis.zadd("sauce", 3, "hollandaise")
       @redis.zadd("sauce", 4, "classic tomate")
 
-      Oboe::API.start_trace('redis_test', '', {}) do
+      TraceView::API.start_trace('redis_test', '', {}) do
         @redis.zremrangebyscore("sauce", -5, -1)
       end
 
+<<<<<<< HEAD
       traces = get_all_traces
       traces.count.must_equal 4
       traces[2]['KVOp'].must_equal "zremrangebyscore"
@@ -238,7 +303,7 @@ if defined?(::Redis)
       @redis.zadd("sauce", 3, "hollandaise")
       @redis.zadd("sauce", 4, "classic tomate")
 
-      Oboe::API.start_trace('redis_test', '', {}) do
+      TraceView::API.start_trace('redis_test', '', {}) do
         @redis.zrevrange("sauce", 0, -1)
       end
 
@@ -248,6 +313,29 @@ if defined?(::Redis)
       traces[2]['KVKey'].must_equal "sauce"
       traces[2]['start'].must_equal 0
       traces[2]['stop'].must_equal -1
+=======
+    TraceView::API.start_trace('redis_test', '', {}) do
+      @redis.zremrangebyscore("sauce", -5, -1)
+    end
+
+    traces = get_all_traces
+    traces.count.must_equal 4
+    traces[2]['KVOp'].must_equal "zremrangebyscore"
+    traces[2]['KVKey'].must_equal "sauce"
+  end
+
+  it "should trace zrevrange" do
+    min_server_version(1.2)
+
+    @redis.zadd("sauce", 0, "bechamel")
+    @redis.zadd("sauce", 1, "veloute")
+    @redis.zadd("sauce", 2, "espagnole")
+    @redis.zadd("sauce", 3, "hollandaise")
+    @redis.zadd("sauce", 4, "classic tomate")
+
+    TraceView::API.start_trace('redis_test', '', {}) do
+      @redis.zrevrange("sauce", 0, -1)
+>>>>>>> master
     end
 
     it "should trace zrevrangebyscore" do
@@ -259,14 +347,19 @@ if defined?(::Redis)
       @redis.zadd("sauce", 3, "hollandaise")
       @redis.zadd("sauce", 4, "classic tomate")
 
-      Oboe::API.start_trace('redis_test', '', {}) do
+      TraceView::API.start_trace('redis_test', '', {}) do
         @redis.zrevrangebyscore("sauce", "(100", "5")
       end
 
+<<<<<<< HEAD
       traces = get_all_traces
       traces.count.must_equal 4
       traces[2]['KVOp'].must_equal "zrevrangebyscore"
       traces[2]['KVKey'].must_equal "sauce"
+=======
+    TraceView::API.start_trace('redis_test', '', {}) do
+      @redis.zrevrangebyscore("sauce", "(100", "5")
+>>>>>>> master
     end
 
     it "should trace zrevrank" do
@@ -276,14 +369,19 @@ if defined?(::Redis)
       @redis.zadd("letters", 1, "b")
       @redis.zadd("letters", 1, "c")
 
-      Oboe::API.start_trace('redis_test', '', {}) do
+      TraceView::API.start_trace('redis_test', '', {}) do
         @redis.zrevrank("letters", "c")
       end
 
+<<<<<<< HEAD
       traces = get_all_traces
       traces.count.must_equal 4
       traces[2]['KVOp'].must_equal "zrevrank"
       traces[2]['KVKey'].must_equal "letters"
+=======
+    TraceView::API.start_trace('redis_test', '', {}) do
+      @redis.zrevrank("letters", "c")
+>>>>>>> master
     end
 
     it "should trace zscore" do
@@ -294,7 +392,7 @@ if defined?(::Redis)
       @redis.zadd("elements", 1, "earth")
       @redis.zadd("elements", 1, "air")
 
-      Oboe::API.start_trace('redis_test', '', {}) do
+      TraceView::API.start_trace('redis_test', '', {}) do
         @redis.zscore("elements", "earth")
       end
 
@@ -311,7 +409,7 @@ if defined?(::Redis)
       @redis.zadd("colors", 1, "yellowish")
       @redis.zadd("codes", 0, "0xff")
 
-      Oboe::API.start_trace('redis_test', '', {}) do
+      TraceView::API.start_trace('redis_test', '', {}) do
         @redis.zunionstore("zdest", ["colors", "codes"])
       end
 

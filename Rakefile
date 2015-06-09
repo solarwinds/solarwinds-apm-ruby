@@ -31,8 +31,10 @@ Rake::TestTask.new do |t|
   end
 
   t.verbose = true
+  t.ruby_opts = []
+  # t.ruby_opts << ['-w']
   if defined?(JRUBY_VERSION)
-    t.ruby_opts = ["-J-javaagent:/usr/local/tracelytics/tracelyticsagent.jar"]
+    t.ruby_opts << ["-J-javaagent:/usr/local/tracelytics/tracelyticsagent.jar"]
   end
 end
 
@@ -113,9 +115,9 @@ desc "Rebuild the gem's c extension"
 task :recompile => [ :distclean, :compile ]
 
 task :console do
-  ENV['OBOE_GEM_VERBOSE'] = 'true'
+  ENV['TRACEVIEW_GEM_VERBOSE'] = 'true'
   Bundler.require(:default, :development)
-  Oboe::Config[:tracing_mode] = :always
+  TraceView::Config[:tracing_mode] = :always
   ARGV.clear
   Pry.start
 end

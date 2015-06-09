@@ -4,6 +4,65 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# traceview 3.0.1
+
+This patch release includes the following fix:
+
+* Add missing backcompat support bits: #122
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.0.1
+https://rubygems.org/gems/traceview/versions/3.0.1-java
+
+# traceview 3.0.0
+
+The oboe gem has been renamed to traceview.  The final oboe
+gem (2.7.19) has a post-install deprecation warning and will
+not have anymore updates.
+
+All development going forward will be done on this traceview gem.
+
+As a first release, this is simply a renamed version of oboe gem 2.7.19.
+
+It contains no bug fixes or new features.
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.0.0
+https://rubygems.org/gems/traceview/versions/3.0.0-java
+
+# oboe 2.7.19
+
+__Note that this will be the last release for the oboe gem.   The gem
+will be renamed to _traceview_ and all future updates will be to that
+other gem.__
+
+This version will show a post-install warning message stating this.  A
+final version of this gem will be released with only a deprecation
+warning.
+
+This patch release includes the following fix:
+
+* Report TraceMode in __Init: #120
+* Add RemoteHost reporting to Dalli Instrumentation: #119
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/oboe/versions/2.7.19
+https://rubygems.org/gems/oboe/versions/2.7.19-java
+
+# oboe 2.7.18
+
+This patch release includes the following fix:
+
+* For custom ActionView renderers, properly accept and pass on blocks: #118
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/oboe/versions/2.7.18
+https://rubygems.org/gems/oboe/versions/2.7.18-java
+
 # oboe 2.7.17.1
 
 This patch release includes:

@@ -1,27 +1,27 @@
 require 'minitest_helper'
 
-describe Oboe::Inst::FaradayConnection do
+describe "Faraday" do
   before do
     clear_all_traces
-    @collect_backtraces = Oboe::Config[:faraday][:collect_backtraces]
+    @collect_backtraces = TraceView::Config[:faraday][:collect_backtraces]
   end
 
   after do
-    Oboe::Config[:faraday][:collect_backtraces] = @collect_backtraces
+    TraceView::Config[:faraday][:collect_backtraces] = @collect_backtraces
   end
 
   it 'Faraday should be defined and ready' do
     defined?(::Faraday).wont_match nil
   end
 
-  it 'Faraday should have oboe methods defined' do
-    [ :run_request_with_oboe ].each do |m|
+  it 'Faraday should have traceview methods defined' do
+    [ :run_request_with_traceview ].each do |m|
       ::Faraday::Connection.method_defined?(m).must_equal true
     end
   end
 
   it "should trace cross-app request" do
-    Oboe::API.start_trace('faraday_test') do
+    TraceView::API.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
         faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
       end
@@ -35,7 +35,7 @@ describe Oboe::Inst::FaradayConnection do
     validate_outer_layers(traces, 'faraday_test')
 
     traces[1]['Layer'].must_equal 'faraday'
-    traces[1].key?('Backtrace').must_equal Oboe::Config[:faraday][:collect_backtraces]
+    traces[1].key?('Backtrace').must_equal TraceView::Config[:faraday][:collect_backtraces]
 
     traces[6]['Layer'].must_equal 'net-http'
     traces[6]['IsService'].must_equal 1
@@ -53,7 +53,7 @@ describe Oboe::Inst::FaradayConnection do
   end
 
   it 'should trace a Faraday request' do
-    Oboe::API.start_trace('faraday_test') do
+    TraceView::API.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
         faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
       end
@@ -67,7 +67,7 @@ describe Oboe::Inst::FaradayConnection do
     validate_outer_layers(traces, 'faraday_test')
 
     traces[1]['Layer'].must_equal 'faraday'
-    traces[1].key?('Backtrace').must_equal Oboe::Config[:faraday][:collect_backtraces]
+    traces[1].key?('Backtrace').must_equal TraceView::Config[:faraday][:collect_backtraces]
 
     traces[6]['Layer'].must_equal 'net-http'
     traces[6]['Label'].must_equal 'info'
@@ -89,7 +89,7 @@ describe Oboe::Inst::FaradayConnection do
   end
 
   it 'should trace a Faraday class style request' do
-    Oboe::API.start_trace('faraday_test') do
+    TraceView::API.start_trace('faraday_test') do
       Faraday.get('http://127.0.0.1:8101/', {:a => 1})
     end
 
@@ -100,7 +100,7 @@ describe Oboe::Inst::FaradayConnection do
     validate_outer_layers(traces, 'faraday_test')
 
     traces[1]['Layer'].must_equal 'faraday'
-    traces[1].key?('Backtrace').must_equal Oboe::Config[:faraday][:collect_backtraces]
+    traces[1].key?('Backtrace').must_equal TraceView::Config[:faraday][:collect_backtraces]
 
     traces[6]['Layer'].must_equal 'net-http'
     traces[6]['Label'].must_equal 'info'
@@ -122,7 +122,7 @@ describe Oboe::Inst::FaradayConnection do
   end
 
   it 'should trace a Faraday with the excon adapter' do
-    Oboe::API.start_trace('faraday_test') do
+    TraceView::API.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
         faraday.adapter :excon
       end
@@ -136,7 +136,7 @@ describe Oboe::Inst::FaradayConnection do
     validate_outer_layers(traces, 'faraday_test')
 
     traces[1]['Layer'].must_equal 'faraday'
-    traces[1].key?('Backtrace').must_equal Oboe::Config[:faraday][:collect_backtraces]
+    traces[1].key?('Backtrace').must_equal TraceView::Config[:faraday][:collect_backtraces]
 
     traces[2]['Layer'].must_equal 'excon'
     traces[2]['Label'].must_equal 'entry'
@@ -165,7 +165,7 @@ describe Oboe::Inst::FaradayConnection do
   it 'should trace a Faraday with the httpclient adapter' do
     skip "FIXME: once HTTPClient instrumentation is done"
 
-    Oboe::API.start_trace('faraday_test') do
+    TraceView::API.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
         faraday.adapter :httpclient
       end
@@ -179,7 +179,7 @@ describe Oboe::Inst::FaradayConnection do
     validate_outer_layers(traces, 'faraday_test')
 
     traces[1]['Layer'].must_equal 'faraday'
-    traces[1].key?('Backtrace').must_equal Oboe::Config[:faraday][:collect_backtraces]
+    traces[1].key?('Backtrace').must_equal TraceView::Config[:faraday][:collect_backtraces]
 
     traces[2]['Layer'].must_equal 'excon'
     traces[2]['Label'].must_equal 'entry'
@@ -206,9 +206,9 @@ describe Oboe::Inst::FaradayConnection do
   end
 
   it 'should obey :collect_backtraces setting when true' do
-    Oboe::Config[:faraday][:collect_backtraces] = true
+    TraceView::Config[:faraday][:collect_backtraces] = true
 
-    Oboe::API.start_trace('faraday_test') do
+    TraceView::API.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
         faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
       end
@@ -220,9 +220,9 @@ describe Oboe::Inst::FaradayConnection do
   end
 
   it 'should obey :collect_backtraces setting when false' do
-    Oboe::Config[:faraday][:collect_backtraces] = false
+    TraceView::Config[:faraday][:collect_backtraces] = false
 
-    Oboe::API.start_trace('faraday_test') do
+    TraceView::API.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
         faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
       end

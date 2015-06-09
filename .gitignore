@@ -1,4 +1,6 @@
 oboe*.gem
+Gemfile.lock
+.ruby-version
 *~
 *.swp
 lib/oboe_metal.so
