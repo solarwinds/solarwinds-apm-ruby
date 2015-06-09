@@ -142,14 +142,10 @@ module TraceView
       ##
       # to_query
       #
-      # Used under Ruby 1.8.7 to convert a hash into a URL
-      # query.  A backport of Hash#to_query.
+      # Used to convert a hash into a URL # query.
       #
       def to_query(h)
         return "" unless h.is_a?(Hash)
-
-        # If called from a newer Ruby, use the builtin.
-        return h.to_query if RUBY_VERSION >= '1.9.3'
 
         result = []
 
