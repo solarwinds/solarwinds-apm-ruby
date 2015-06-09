@@ -7,17 +7,33 @@ require 'appraisal'
 
 Rake::TestTask.new do |t|
   t.libs << "test"
-  t.test_files = FileList['test/**/*_test.rb']
+
+  # Since we support so many libraries and frameworks, tests
+  # runs are segmented into gemfiles that have different
+  # sets and versions of gem (libraries and frameworks).
+  #
+  # Here we detect the Gemfile the tests are being run against
+  # and load the appropriate tests.
+  #
+  case File.basename(ENV['BUNDLE_GEMFILE'])
+  when /rails/
+    t.test_files = FileList['test/frameworks/rails*_test.rb']
+  when /padrino/
+    t.test_files = FileList['test/frameworks/padrino*_test.rb']
+  when /sinatra/
+    t.test_files = FileList['test/frameworks/sinatra*_test.rb']
+  when /sinatra/
+    t.test_files = FileList['test/frameworks/grape*_test.rb']
+  when "Gemfile"
+    t.test_files = FileList['test/support/*_test.rb'] +
+                   FileList['test/instrumentation/*_test.rb'] +
+                   FileList['test/profiling/*_test.rb']
+  end
+
   t.verbose = true
   if defined?(JRUBY_VERSION)
     t.ruby_opts = ["-J-javaagent:/usr/local/tracelytics/tracelyticsagent.jar"]
   end
-end
-
-if !ENV["APPRAISAL_INITIALIZED"] && !ENV["TRAVIS"]
-  task :default => :appraisal
-else
-  task :default => :test
 end
 
 desc "Build the gem's c extension"
