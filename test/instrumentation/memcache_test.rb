@@ -1,4 +1,5 @@
 require 'minitest_helper'
+require 'memcache'
 
 describe "Memcache" do
   before do
