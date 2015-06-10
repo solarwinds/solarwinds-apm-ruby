@@ -149,7 +149,7 @@ module TraceView
 
         result = []
 
-        h.each { |k, v| result.push (k.to_s + '=' + v.to_s) }
+        h.each { |k, v| result.push(k.to_s + '=' + v.to_s) }
         return result.sort.join('&')
       end
 
