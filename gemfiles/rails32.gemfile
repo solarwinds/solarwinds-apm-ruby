@@ -3,7 +3,13 @@
 source "https://rubygems.org"
 
 gem "sinatra"
-gem "bson"
+
+if RUBY_VERSION >= '1.9.3'
+  gem 'bson'
+else
+  gem 'bson', '<= 2.2.3'
+end
+
 gem "rails", "~>3.2"
 
 group :development, :test do
