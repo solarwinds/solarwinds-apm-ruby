@@ -1,21 +1,19 @@
 source 'https://rubygems.org'
 
 group :development, :test do
-  gem 'minitest'
-  gem 'minitest-reporters'
-  gem 'minitest-debugger', :require => false
-  gem 'rack-test'
-  gem 'puma'
   if RUBY_VERSION < '1.9.3'
     # i18n 0.7.0 dropped support for Ruby 1.9.2 and older.  ActiveSupport
     # depends on i18n 0.7.0 since v 4.0.5.  For < 1.9.2 Ruby support, lock
     # down to these versions to maintain functionality.
     gem 'i18n', '< 0.7.0'
     gem 'activesupport', '< 4.0.5'
-    gem 'appraisal'
-  else
-    gem 'appraisal'
   end
+  gem 'minitest'
+  gem 'minitest-reporters'
+  gem 'minitest-debugger', :require => false
+  gem 'rack-test'
+  gem 'puma'
+  gem 'appraisal'
 end
 
 group :development do
