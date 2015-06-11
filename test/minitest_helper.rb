@@ -4,6 +4,7 @@ require "minitest/spec"
 require "minitest/autorun"
 require "minitest/reporters"
 require "minitest/debugger" if ENV['DEBUG']
+require "sinatra"
 
 ENV["RACK_ENV"] = "test"
 ENV["TRACEVIEW_GEM_TEST"] = "true"
