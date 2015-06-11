@@ -17,8 +17,7 @@ rvm:
 
 gemfile:
   - gemfiles/libraries.gemfile
-  - gemfiles/padrino.gemfile
-  - gemfiles/grape.gemfile
+  - gemfiles/frameworks.gemfile
   - gemfiles/rails23.gemfile
   - gemfiles/rails32.gemfile
   - gemfiles/rails40.gemfile
@@ -33,21 +32,18 @@ matrix:
     - rvm: 1.9.2
       gemfile: gemfiles/rails40.gemfile
 
-    # Grape require Ruby 1.9.3 or higher
+    # Other frameworks tested on Ruby 1.9.3 or higher
     - rvm: 1.8.7
-      gemfile: gemfiles/grape.gemfile
+      gemfile: gemfiles/frameworks.gemfile
     - rvm: ree
-      gemfile: gemfiles/grape.gemfile
+      gemfile: gemfiles/frameworks.gemfile
     - rvm: 1.9.2
-      gemfile: gemfiles/grape.gemfile
+      gemfile: gemfiles/frameworks.gemfile
 
-    # Padrino require Ruby 1.9.3 or higher
-    - rvm: 1.8.7
-      gemfile: gemfiles/padrino.gemfile
-    - rvm: ree
-      gemfile: gemfiles/padrino.gemfile
-    - rvm: 1.9.2
-      gemfile: gemfiles/padrino.gemfile
+  allow_failures:
+    # FIXME: Until the joboe test reporter supports cross thread
+    # event collection.
+    - rvm: jruby-19mode
 
 # Attempt Travis/Cassandra fix re: https://github.com/travis-ci/travis-ci/issues/1484
 # Updated Cassandra: https://github.com/travis-ci/travis-ci/issues/1650
@@ -66,7 +62,7 @@ install:
   - sudo apt-get install -y tracelytics-java-agent
 
 before_script:
-  - bundle install --without development
+  - bundle install --jobs=3 --retry=3 --without development
   - bundle exec rake compile
   - psql -c 'create database travis_ci_test;' -U postgres
   - mysql -e 'create database travis_ci_test;'
@@ -79,10 +75,3 @@ services:
   - memcached
   - cassandra
   - redis
-
-matrix:
-  allow_failures:
-    # FIXME: Until the joboe test reporter supports cross thread
-    # event collection.
-    - rvm: jruby-19mode
-

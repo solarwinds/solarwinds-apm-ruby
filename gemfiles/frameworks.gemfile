@@ -20,6 +20,7 @@ else
   gem 'sinatra'
 end
 
+gem "grape"
 gem "padrino"
 
 gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')
