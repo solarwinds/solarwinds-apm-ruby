@@ -17,15 +17,14 @@ Rake::TestTask.new do |t|
   case File.basename(ENV['BUNDLE_GEMFILE'])
   when /rails/
     t.test_files = FileList['test/frameworks/rails*_test.rb']
-  when /padrino/
-    t.test_files = FileList['test/frameworks/padrino*_test.rb']
-  when /grape/
+  when /frameworks/
     t.test_files = FileList['test/frameworks/grape*_test.rb']
+    t.test_files = FileList['test/frameworks/padrino*_test.rb']
+    t.test_files = FileList['test/frameworks/sinatra*_test.rb']
   when /libraries/
     t.test_files = FileList['test/support/*_test.rb'] +
                    FileList['test/instrumentation/*_test.rb'] +
-                   FileList['test/profiling/*_test.rb'] +
-                   FileList['test/frameworks/sinatra*_test.rb']
+                   FileList['test/profiling/*_test.rb']
   end
 
   t.verbose = true
