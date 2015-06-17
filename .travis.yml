@@ -10,7 +10,6 @@ rvm:
   - 2.1.6
   - 2.0.0
   - 1.9.3
-  - 1.9.2
   - 1.8.7
   - ree
   - jruby-19mode
@@ -18,26 +17,29 @@ rvm:
 gemfile:
   - gemfiles/libraries.gemfile
   - gemfiles/frameworks.gemfile
-  - gemfiles/rails23.gemfile
+  - gemfiles/rails30.gemfile
+  - gemfiles/rails31.gemfile
   - gemfiles/rails32.gemfile
   - gemfiles/rails40.gemfile
+  - gemfiles/rails41.gemfile
+  - gemfiles/rails42.gemfile
 
 matrix:
   exclude:
-    # Rails 4.0 requires Ruby 1.9.3 or higher
+    # Rails 4.0+ requires Ruby 1.9.3 or higher
     - rvm: 1.8.7
       gemfile: gemfiles/rails40.gemfile
+      gemfile: gemfiles/rails41.gemfile
+      gemfile: gemfiles/rails42.gemfile
     - rvm: ree
       gemfile: gemfiles/rails40.gemfile
-    - rvm: 1.9.2
-      gemfile: gemfiles/rails40.gemfile
+      gemfile: gemfiles/rails41.gemfile
+      gemfile: gemfiles/rails42.gemfile
 
     # Other frameworks tested on Ruby 1.9.3 or higher
     - rvm: 1.8.7
       gemfile: gemfiles/frameworks.gemfile
     - rvm: ree
-      gemfile: gemfiles/frameworks.gemfile
-    - rvm: 1.9.2
       gemfile: gemfiles/frameworks.gemfile
 
   allow_failures:
