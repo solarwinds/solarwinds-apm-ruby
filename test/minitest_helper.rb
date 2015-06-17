@@ -43,6 +43,16 @@ TraceView.logger.level = Logger::DEBUG
 # Our background Rack-app for http client testing
 require "./test/servers/rackapp_8101"
 
+# Conditionally load other background servers
+# depending on what we're testing
+#
+case File.basename(ENV['BUNDLE_GEMFILE'])
+when /rails4/
+  require "./test/servers/rails4x_8140"
+when /frameworks/
+when /libraries/
+end
+
 ##
 # clear_all_traces
 #
