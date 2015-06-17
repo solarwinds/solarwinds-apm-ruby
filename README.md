@@ -186,12 +186,12 @@ The pattern for Method Profiling is as follows:
 # It identifies this custom trace in your dashboard.
 #
 class Engine
-    include TraceViewMethodProfiling
-
     def processor()
         # body of method
     end
-
+    
+    include TraceViewMethodProfiling
+    
     # call syntax: profile_method <method>, <profile_name>
     profile_method :processor, 'processor'
 end
