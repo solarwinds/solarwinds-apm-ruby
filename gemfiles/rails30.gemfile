@@ -41,7 +41,7 @@ else
   gem 'sinatra'
 end
 
-gem "rails", "~>3.2"
+gem "rails", "~>3.0"
 
 gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')
 # vim:syntax=ruby
