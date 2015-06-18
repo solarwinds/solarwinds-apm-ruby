@@ -8,7 +8,7 @@ group :development, :test do
   gem 'rack-test'
   gem 'puma'
   if RUBY_VERSION < '1.9.3'
-    gem 'bson', '<= 2.2.3'
+    gem 'bson', '<= 1.12.3'
   else
     gem 'bson'
   end
