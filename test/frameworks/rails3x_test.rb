@@ -9,7 +9,7 @@ if defined?(::Rails)
 
     it "should trace a request to a rails stack" do
 
-      uri = URI.parse('http://localhost:8140/hello/world')
+      uri = URI.parse('http://127.0.0.1:8140/hello/world')
       r = Net::HTTP.get_response(uri)
 
       traces = get_all_traces
@@ -51,7 +51,7 @@ if defined?(::Rails)
 
     it "should trace a request to a rails metal stack" do
 
-      uri = URI.parse('http://localhost:8140/hello/metal')
+      uri = URI.parse('http://127.0.0.1:8140/hello/metal')
       r = Net::HTTP.get_response(uri)
 
       traces = get_all_traces
