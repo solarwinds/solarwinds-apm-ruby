@@ -47,7 +47,9 @@ require "./test/servers/rackapp_8101"
 # Truncates the trace output file to zero
 #
 def clear_all_traces
-  TraceView::Reporter.clear_all_traces
+  if TraceView.loaded
+    TraceView::Reporter.clear_all_traces
+  end
 end
 
 ##
@@ -56,7 +58,11 @@ end
 # Retrieves all traces written to the trace file
 #
 def get_all_traces
-  TraceView::Reporter.get_all_traces
+  if TraceView.loaded
+    TraceView::Reporter.get_all_traces
+  else
+    []
+  end
 end
 
 ##
