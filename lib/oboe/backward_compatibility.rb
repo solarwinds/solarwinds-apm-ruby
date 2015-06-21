@@ -76,9 +76,7 @@ module OboeMethodProfiling
   end
 
   module ClassMethods
-    if TraceView.loaded
-      include TraceViewMethodProfiling::ClassMethods
-    end
+    include TraceViewMethodProfiling::ClassMethods
   end
 end
 
