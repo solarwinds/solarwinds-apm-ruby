@@ -2,7 +2,9 @@ require 'traceview/thread_local'
 
 module Oboe
   extend TraceViewBase
-  include Oboe_metal
+  if TraceView.loaded
+    include Oboe_metal
+  end
 
   #
   # Support for Oboe::API calls
@@ -74,7 +76,9 @@ module OboeMethodProfiling
   end
 
   module ClassMethods
-    include TraceViewMethodProfiling::ClassMethods
+    if TraceView.loaded
+      include TraceViewMethodProfiling::ClassMethods
+    end
   end
 end
 
