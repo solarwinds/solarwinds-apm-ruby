@@ -250,7 +250,12 @@ module TraceView
   end
 end
 
-if defined?(::Cassandra) && TraceView::Config[:cassandra][:enabled]
+# There are two main Cassandra clients for Ruby.  This one from Twitter
+# and the other from datastax.  This one defined ::Cassandra as a class
+# and datastax defines it as a module.  We use this to detect
+# and differentiate between the client in use.
+
+if defined?(::Cassandra) && ::Cassandra.is_a?(Class) && TraceView::Config[:cassandra][:enabled]
   TraceView.logger.info '[traceview/loading] Instrumenting cassandra' if TraceView::Config[:verbose]
 
   class ::Cassandra

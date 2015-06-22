@@ -1,5 +1,6 @@
 oboe*.gem
 Gemfile.lock
+gemfiles/*.lock
 .ruby-version
 *~
 *.swp
