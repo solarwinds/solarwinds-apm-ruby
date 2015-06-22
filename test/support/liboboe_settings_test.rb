@@ -37,8 +37,7 @@ unless defined?(JRUBY_VERSION)
       validate_outer_layers(traces, 'rack')
 
       kvs = {}
-      # FIXME: This is failing only on Travis
-      # kvs["SampleRate"] = 1000000
+      kvs["SampleRate"] = 1000000
       kvs["SampleSource"] = OBOE_SAMPLE_RATE_SOURCE_FILE
       validate_event_keys(traces[0], kvs)
     end
