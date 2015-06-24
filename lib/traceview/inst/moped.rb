@@ -264,10 +264,10 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
             end
 
             TraceView::API.trace('mongo', report_kvs) do
-              update_without_traceview(change)
+              update_without_traceview(change, flags)
             end
           else
-            update_without_traceview(change)
+            update_without_traceview(change, flags)
           end
         end
 
