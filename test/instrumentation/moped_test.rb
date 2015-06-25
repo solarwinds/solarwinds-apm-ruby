@@ -273,6 +273,9 @@ if RUBY_VERSION >= '1.9.3'
       new_tool_count = @users.find(:name => "Tool").count
       new_tool_count.must_equal mary_count
 
+      new_mary_count = @users.find(:name => "Mary").count
+      new_mary_count.must_equal = 0
+
       traces = get_all_traces
       # TODO: remove me
       puts traces.inspect

@@ -253,7 +253,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
           end
         end
 
-        def update_with_traceview(change, flags = nil)
+        def update_with_traceview(change, flags = [])
           if TraceView.tracing? && !TraceView.tracing_layer_op?([:update_all, :upsert])
             begin
               report_kvs = extract_trace_details(:update)
@@ -265,15 +265,15 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
 
             TraceView::API.trace('mongo', report_kvs) do
               # original line:
-              update_without_traceview(change, flags = nil)
+              # update_without_traceview(change, flags = nil)
               # our supposed fix:
-              # update_without_traceview(change, flags)
+              update_without_traceview(change, flags)
             end
           else
             # original line:
-            update_without_traceview(change, flags = nil)
+            # update_without_traceview(change, flags = nil)
             # our supposed fix:
-            # update_without_traceview(change, flags)
+            update_without_traceview(change, flags)
           end
         end
 
