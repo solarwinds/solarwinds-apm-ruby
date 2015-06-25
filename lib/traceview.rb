@@ -40,9 +40,9 @@ begin
 
   require 'traceview/config'
   require 'traceview/loading'
+  require 'traceview/method_profiling'
 
   if TraceView.loaded
-    require 'traceview/method_profiling'
     require 'traceview/instrumentation'
 
     # Frameworks

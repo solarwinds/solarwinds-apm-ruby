@@ -22,7 +22,11 @@ module TraceViewMethodProfiling
   end
 
   module ClassMethods
-    def profile_method(method_name, profile_name, store_args = false, store_return = false, *_)
+    def profile_method_noop(*args)
+      nil
+    end
+
+    def profile_method_real(method_name, profile_name, store_args = false, store_return = false, *_)
       begin
         # this only gets file and line where profiling is turned on, presumably
         # right after the function definition. ruby 1.9 and 2.0 has nice introspection (Method.source_location)
@@ -80,5 +84,14 @@ module TraceViewMethodProfiling
         TraceView.logger.warn "[traceview/warn] Fatal error profiling method (#{method_name}): #{e.inspect}" if TraceView::Config[:verbose]
       end
     end
+
+    # This allows this module to be included and called even if the gem is in
+    # no-op mode (no base libraries).
+    if TraceView.loaded
+      alias :profile_method :profile_method_real
+    else
+      alias :profile_method :profile_method_noop
+    end
+
   end
 end

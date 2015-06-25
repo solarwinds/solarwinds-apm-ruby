@@ -4,6 +4,19 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# traceview 3.0.2
+
+This patch release includes the following fixes:
+
+* Add alternate module capitalization for easiness: #126
+* Cassandra instrumentation loading for wrong client: #125
+* Fix broken no-op mode when missing host libs: #124
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.0.2
+https://rubygems.org/gems/traceview/versions/3.0.2-java
+
 # traceview 3.0.1
 
 This patch release includes the following fix:
