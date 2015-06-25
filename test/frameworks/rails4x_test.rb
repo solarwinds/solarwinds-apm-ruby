@@ -27,12 +27,8 @@ if defined?(::Rails)
 
       traces[2]['Layer'].must_equal "rails"
       traces[2]['Label'].must_equal "entry"
-
-      # FIXME: Rails 4.x is missing a rails info event that reports
-      # controller/action.
-      #traces[3]['Label'].must_equal "info"
-      #traces[3]['Controller'].must_equal "HelloController"
-      #traces[3]['Action'].must_equal "world"
+      traces[2]['Controller'].must_equal "HelloController"
+      traces[2]['Action'].must_equal "world"
 
       traces[3]['Layer'].must_equal "actionview"
       traces[3]['Label'].must_equal "entry"
