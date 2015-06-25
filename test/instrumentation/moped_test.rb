@@ -259,21 +259,25 @@ if RUBY_VERSION >= '1.9.3'
       tool_count = @users.find(:name => "Tool").count
       tool_count.must_equal 0
       TraceView::API.start_trace('moped_test', '', {}) do
+        # TODO: remove me:
         # Proposed new lines:
         old_attrs = { :name => "Mary" }
         new_attrs = { :name => "Tool" }
         @users.find(old_attrs).update({ '$set' => new_attrs }, { :multi => true })
 
+        # TODO: remove me:
         # Old line:
-        @users.find(:name => "Mary").update({:name => "Tool"}, [:multi])
+        # @users.find(:name => "Mary").update({:name => "Tool"}, [:multi])
       end
 
       new_tool_count = @users.find(:name => "Tool").count
       new_tool_count.must_equal mary_count
 
       traces = get_all_traces
+      # TODO: remove me
+      puts traces.inspect
 
-      traces.count.must_equal 6
+      traces.count.must_equal 10
       validate_outer_layers(traces, 'moped_test')
 
       validate_event_keys(traces[1], @entry_kvs)
@@ -286,7 +290,7 @@ if RUBY_VERSION >= '1.9.3'
       validate_event_keys(traces[3], @entry_kvs)
       traces[3]['QueryOp'].must_equal "update"
       traces[3]['Update_Document'].must_equal "{\"name\":\"Tool\"}"
-      traces[3]['Flags'].must_equal "[:multi]"
+      traces[3]['Flags'].must_equal "{:multi=>true}"
       traces[3]['Collection'].must_equal "users"
       traces[3].has_key?('Backtrace').must_equal TraceView::Config[:moped][:collect_backtraces]
       validate_event_keys(traces[4], @exit_kvs)
