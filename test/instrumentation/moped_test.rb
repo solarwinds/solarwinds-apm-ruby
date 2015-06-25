@@ -252,9 +252,16 @@ if RUBY_VERSION >= '1.9.3'
     end
 
     it 'should trace find and update' do
+      2.times { @users.insert(:name => "Mary") }
+      mary_count = @users.find(:name => "Mary").count
+      tool_count = @users.find(:name => "Tool").count
+      tool_count.must_equal 0
       TraceView::API.start_trace('moped_test', '', {}) do
         @users.find(:name => "Mary").update({:name => "Tool"}, [:multi])
       end
+
+      new_tool_count = @users.find(:name => "Tool").count
+      new_tool_count.must_equal mary_count
 
       traces = get_all_traces
 
@@ -278,15 +285,9 @@ if RUBY_VERSION >= '1.9.3'
     end
 
     it 'should trace find and update_all' do
-      @users.insert(:name => "Mary")
-      mary_count = @users.find(:name => "Mary").count
-      tool_count = @users.find(:name => "Tool").count
-      tool_count.must_equal 0
-
       TraceView::API.start_trace('moped_test', '', {}) do
         @users.find(:name => "Mary").update_all({:name => "Tool"})
       end
-      new_tool_count.must_equal mary_count
 
       traces = get_all_traces
 
@@ -304,7 +305,6 @@ if RUBY_VERSION >= '1.9.3'
       traces[3]['QueryOp'].must_equal "update_all"
       traces[3]['Update_Document'].must_equal "{\"name\":\"Tool\"}"
       traces[3]['Collection'].must_equal "users"
-      traces[3]['Flags'].must_equal "[:multi]"
       traces[3].has_key?('Backtrace').must_equal TraceView::Config[:moped][:collect_backtraces]
       validate_event_keys(traces[4], @exit_kvs)
     end
