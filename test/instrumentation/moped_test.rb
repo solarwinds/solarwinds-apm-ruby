@@ -278,10 +278,8 @@ if RUBY_VERSION >= '1.9.3'
       new_mary_count.must_equal 0
 
       traces = get_all_traces
-      # TODO: remove me
-      puts traces.inspect
 
-      traces.count.must_equal 10
+      traces.count.must_equal 6
       validate_outer_layers(traces, 'moped_test')
 
       validate_event_keys(traces[1], @entry_kvs)
