@@ -253,7 +253,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
           end
         end
 
-        def update_with_traceview(change, flags = [])
+        def update_with_traceview(change, flags = nil)
           if TraceView.tracing? && !TraceView.tracing_layer_op?([:update_all, :upsert])
             begin
               report_kvs = extract_trace_details(:update)
