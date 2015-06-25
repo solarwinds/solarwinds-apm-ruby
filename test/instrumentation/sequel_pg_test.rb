@@ -1,3 +1,6 @@
+# Copyright (c) 2015 AppNeta, Inc.
+# All rights reserved.
+
 require 'minitest_helper'
 
 if defined?(::Sequel) && !defined?(JRUBY_VERSION)

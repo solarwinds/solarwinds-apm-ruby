@@ -1,3 +1,6 @@
+# Copyright (c) 2015 AppNeta, Inc.
+# All rights reserved.
+
 require 'minitest_helper'
 
 if defined?(::Redis)
@@ -47,7 +50,7 @@ if defined?(::Redis)
       traces.count.must_equal 4
       traces[2]['KVOp'].must_equal "bitcount"
       traces[2]['start'].must_equal 0
-      traces[2]['stop'].must_equal -1
+      traces[2]['stop'].must_equal (-1)
     end
 
     it "should trace bitop (>=2.6)" do

@@ -1,3 +1,6 @@
+# Copyright (c) 2015 AppNeta, Inc.
+# All rights reserved.
+
 require 'minitest_helper'
 
 if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
@@ -93,8 +96,8 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
       @app = GrapeSimple
 
       begin
-        r = get "/break"
-      rescue Exception => e
+        get "/break"
+      rescue Exception
         # Do not handle/raise this error so
         # we can continue to test
       end

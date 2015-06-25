@@ -1,3 +1,6 @@
+# Copyright (c) 2015 AppNeta, Inc.
+# All rights reserved.
+
 require "minitest_helper"
 require File.expand_path(File.dirname(__FILE__) + '/apps/sinatra_simple')
 

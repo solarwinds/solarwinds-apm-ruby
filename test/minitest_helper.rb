@@ -1,3 +1,6 @@
+# Copyright (c) 2015 AppNeta, Inc.
+# All rights reserved.
+
 require 'rubygems'
 require 'bundler/setup'
 require "minitest/spec"

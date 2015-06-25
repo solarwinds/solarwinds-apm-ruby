@@ -1,3 +1,6 @@
+# Copyright (c) 2015 AppNeta, Inc.
+# All rights reserved.
+
 require 'minitest_helper'
 require 'traceview/inst/rack'
 require File.expand_path(File.dirname(__FILE__) + '../../frameworks/apps/sinatra_simple')
