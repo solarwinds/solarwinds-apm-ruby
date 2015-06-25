@@ -9,6 +9,7 @@ if RUBY_VERSION >= '1.9.3'
       @session = Moped::Session.new([ "127.0.0.1:27017" ])
       @session.use :moped_test
       @users = @session[:users]
+      @users.drop
       @users.insert({ :name => "Syd", :city => "Boston" })
 
       # These are standard entry/exit KVs that are passed up with all moped operations
