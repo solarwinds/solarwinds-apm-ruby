@@ -254,9 +254,17 @@ if RUBY_VERSION >= '1.9.3'
     it 'should trace find and update' do
       2.times { @users.insert(:name => "Mary") }
       mary_count = @users.find(:name => "Mary").count
+      mary_count.wont_equal 0
+
       tool_count = @users.find(:name => "Tool").count
       tool_count.must_equal 0
       TraceView::API.start_trace('moped_test', '', {}) do
+        # Proposed new lines:
+        old_attrs = { :name => "Mary" }
+        new_attrs = { :name => "Tool" }
+        @users.find(old_attrs).update({ '$set' => new_attrs }, { :multi => true })
+
+        # Old line:
         @users.find(:name => "Mary").update({:name => "Tool"}, [:multi])
       end
 
