@@ -16,7 +16,9 @@ Rake::TestTask.new do |t|
   #
   case File.basename(ENV['BUNDLE_GEMFILE'])
   when /rails/
-    t.test_files = FileList['test/frameworks/rails*_test.rb']
+    # Pre-load rails to get the major version number
+    require 'rails'
+    t.test_files = FileList["test/frameworks/rails#{Rails::VERSION::MAJOR}x_test.rb"]
   when /frameworks/
     t.test_files = FileList['test/frameworks/grape*_test.rb']
     t.test_files = FileList['test/frameworks/padrino*_test.rb']
