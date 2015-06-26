@@ -16,6 +16,7 @@ if RUBY_VERSION >= '1.9.3'
       @session = Moped::Session.new([ ENV['TV_MONGO_SERVER'] ])
       @session.use :moped_test
       @users = @session[:users]
+      @users.drop
       @users.insert({ :name => "Syd", :city => "Boston" })
 
       # These are standard entry/exit KVs that are passed up with all moped operations
@@ -259,9 +260,24 @@ if RUBY_VERSION >= '1.9.3'
     end
 
     it 'should trace find and update' do
+      2.times { @users.insert(:name => "Mary") }
+      mary_count = @users.find(:name => "Mary").count
+      mary_count.wont_equal 0
+
+      tool_count = @users.find(:name => "Tool").count
+      tool_count.must_equal 0
+
       TraceView::API.start_trace('moped_test', '', {}) do
-        @users.find(:name => "Mary").update({:name => "Tool"}, [:multi])
+        old_attrs = { :name => "Mary" }
+        new_attrs = { :name => "Tool" }
+        @users.find(old_attrs).update({ '$set' => new_attrs }, { :multi => true })
       end
+
+      new_tool_count = @users.find(:name => "Tool").count
+      new_tool_count.must_equal mary_count
+
+      new_mary_count = @users.find(:name => "Mary").count
+      new_mary_count.must_equal 0
 
       traces = get_all_traces
 
@@ -277,8 +293,8 @@ if RUBY_VERSION >= '1.9.3'
 
       validate_event_keys(traces[3], @entry_kvs)
       traces[3]['QueryOp'].must_equal "update"
-      traces[3]['Update_Document'].must_equal "{\"name\":\"Tool\"}"
-      traces[3]['Flags'].must_equal "[:multi]"
+      traces[3]['Update_Document'].must_equal "{\"$set\":{\"name\":\"Tool\"}}"
+      traces[3]['Flags'].must_equal "{:multi=>true}"
       traces[3]['Collection'].must_equal "users"
       traces[3].has_key?('Backtrace').must_equal TraceView::Config[:moped][:collect_backtraces]
       validate_event_keys(traces[4], @exit_kvs)
