@@ -1,10 +1,21 @@
+# Copyright (c) 2015 AppNeta, Inc.
+# All rights reserved.
+
 require 'minitest_helper'
+
+unless ENV['TV_MONGO_SERVER']
+  ENV['TV_MONGO_SERVER'] = "127.0.0.1:27017"
+end
 
 if defined?(::BSON::VERSION) and (BSON::VERSION < "2.0")
   describe "Mongo" do
     before do
       clear_all_traces
-      @connection = Mongo::Connection.new("localhost", 27017, :slave_ok => true)
+
+      @mongo_server = ENV['TV_MONGO_SERVER'].split(':')[0]
+      @mongo_port   = ENV['TV_MONGO_SERVER'].split(':')[1]
+
+      @connection = Mongo::Connection.new(@mongo_server, @mongo_port, :slave_ok => true)
       @db = @connection.db("test-#{ENV['RACK_ENV']}")
 
       @collections = @db.collection_names
@@ -16,8 +27,8 @@ if defined?(::BSON::VERSION) and (BSON::VERSION < "2.0")
         'Label' => 'entry',
         'Flavor' => 'mongodb',
         'Database' => 'test-test',
-        'RemoteHost' => 'localhost',
-        'RemotePort' => '27017' }
+        'RemoteHost' => @mongo_server,
+        'RemotePort' => @mongo_port }
 
       @exit_kvs = { 'Layer' => 'mongo', 'Label' => 'exit' }
       @collect_backtraces = TraceView::Config[:mongo][:collect_backtraces]

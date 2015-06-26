@@ -5,20 +5,22 @@ module TraceView
   module API
     ##
     # This modules provides the X-Trace logging facilities.
+    #
     module Logging
+      ##
       # Public: Report an event in an active trace.
       #
-      # layer - The layer the reported event belongs to
-      # label - The label for the reported event. See API documentation for
-      #         reserved labels and usage.
-      # opts - A hash containing key/value pairs that will be reported along
-      #        with this event (optional).
+      # ==== Arguments
       #
-      # Example
+      # * +layer+ - The layer the reported event belongs to
+      # * +label+ - The label for the reported event. See API documentation for reserved labels and usage.
+      # * +opts+ - A hash containing key/value pairs that will be reported along with this event (optional).
       #
-      #   log('logical_layer', 'entry')
-      #   log('logical_layer', 'info', { :list_length => 20 })
-      #   log('logical_layer', 'exit')
+      # ==== Example
+      #
+      #   TraceView::API.log('logical_layer', 'entry')
+      #   TraceView::API.log('logical_layer', 'info', { :list_length => 20 })
+      #   TraceView::API.log('logical_layer', 'exit')
       #
       # Returns nothing.
       def log(layer, label, opts = {})
@@ -27,17 +29,20 @@ module TraceView
         end
       end
 
+      ##
       # Public: Report an exception.
       #
-      # layer - The layer the reported event belongs to
-      # exn - The exception to report
+      # ==== Arguments
       #
-      # Example
+      # * +layer+ - The layer the reported event belongs to
+      # * +exn+ - The exception to report
+      #
+      # ==== Example
       #
       #   begin
-      #     function_without_traceview()
+      #     my_iffy_method
       #   rescue Exception => e
-      #     log_exception('rails', e)
+      #     TraceView::API.log_exception('rails', e)
       #     raise
       #   end
       #
@@ -53,15 +58,20 @@ module TraceView
         log(layer, 'error', kvs)
       end
 
+      ##
       # Public: Decide whether or not to start a trace, and report an event
       # appropriately.
       #
-      # layer - The layer the reported event belongs to
-      # xtrace - An xtrace metadata string, or nil.
-      # opts - A hash containing key/value pairs that will be reported along
-      #        with this event (optional).
+      # ==== Attributes
       #
-      # Returns nothing.
+      # * +layer+ - The layer the reported event belongs to
+      # * +xtrace+ - An xtrace metadata string, or nil.  Used for cross-application tracing.
+      # * +opts+ - A hash containing key/value pairs that will be reported along with this event (optional).
+      #
+      # ==== Example
+      #
+      #   Oboe::API.log_start(:layer_name, nil, { :id => @user.id })
+      #
       def log_start(layer, xtrace = nil, opts = {})
         return if !TraceView.loaded || TraceView.never? ||
                   (opts.key?(:URL) && ::TraceView::Util.static_asset?(opts[:URL]))
@@ -100,9 +110,17 @@ module TraceView
         end
       end
 
-      # Public: Report an exit event.
+      ##
+      # Public: Report an exit event and potentially clear the tracing context.
       #
-      # layer - The layer the reported event belongs to
+      # ==== Attributes
+      #
+      # * +layer+ - The layer the reported event belongs to
+      # * +opts+ - A hash containing key/value pairs that will be reported along with this event (optional).
+      #
+      # ==== Example
+      #
+      #   Oboe::API.log_end(:layer_name, { :id => @user.id })
       #
       # Returns an xtrace metadata string
       def log_end(layer, opts = {})
@@ -117,8 +135,17 @@ module TraceView
       ##
       # Public: Log an entry event
       #
-      # A helper method to create and log an
-      # entry event
+      # A helper method to create and log an entry event
+      #
+      # ==== Attributes
+      #
+      # * +layer+ - The layer the reported event belongs to
+      # * +kvs+ - A hash containing key/value pairs that will be reported along with this event (optional).
+      # * +op+ - To identify the current operation being traced.  Used to avoid double tracing recursive calls.
+      #
+      # ==== Example
+      #
+      #   Oboe::API.log_entry(:layer_name, { :id => @user.id })
       #
       # Returns an xtrace metadata string
       def log_entry(layer, kvs = {}, op = nil)
@@ -131,8 +158,16 @@ module TraceView
       ##
       # Public: Log an info event
       #
-      # A helper method to create and log an
-      # info event
+      # A helper method to create and log an info event
+      #
+      # ==== Attributes
+      #
+      # * +layer+ - The layer the reported event belongs to
+      # * +kvs+ - A hash containing key/value pairs that will be reported along with this event (optional).
+      #
+      # ==== Example
+      #
+      #   Oboe::API.log_info(:layer_name, { :id => @user.id })
       #
       # Returns an xtrace metadata string
       def log_info(layer, kvs = {})
@@ -144,8 +179,17 @@ module TraceView
       ##
       # Public: Log an exit event
       #
-      # A helper method to create and log an
-      # exit event
+      # A helper method to create and log an exit event
+      #
+      # ==== Attributes
+      #
+      # * +layer+ - The layer the reported event belongs to
+      # * +kvs+ - A hash containing key/value pairs that will be reported along with this event (optional).
+      # * +op+ - To identify the current operation being traced.  Used to avoid double tracing recursive calls.
+      #
+      # ==== Example
+      #
+      #   Oboe::API.log_exit(:layer_name, { :id => @user.id })
       #
       # Returns an xtrace metadata string
       def log_exit(layer, kvs = {}, op = nil)
@@ -155,23 +199,25 @@ module TraceView
         end
       end
 
+      ##
       # Internal: Report an event.
       #
-      # layer - The layer the reported event belongs to
-      # label - The label for the reported event. See API documentation for
-      #         reserved labels and usage.
-      # opts - A hash containing key/value pairs that will be reported along
-      #        with this event (optional).
+      # ==== Attributes
       #
-      # Examples
+      # * +layer+ - The layer the reported event belongs to
+      # * +label+ - The label for the reported event.  See API documentation for reserved labels and usage.
+      # * +event+ - The pre-existing TraceView context event.  See TraceView::Context.createEvent
+      # * +opts+ - A hash containing key/value pairs that will be reported along with this event (optional).
+      #
+      # ==== Example
       #
       #   entry = TraceView::Context.createEvent
-      #   log_event('rails', 'entry', exit, { :controller => 'user', :action => 'index' })
-      #   exit = TraceView::Context.createEvent
-      #   exit.addEdge(entry.getMetadata)
-      #   log_event('rails', 'exit', exit)
+      #   Oboe::API.log_event(:layer_name, 'entry',  entry_event, { :id => @user.id })
       #
-      # Returns nothing.
+      #   exit_event = TraceView::Context.createEvent
+      #   exit_event.addEdge(entry.getMetadata)
+      #   Oboe::API.log_event(:layer_name, 'exit',  exit_event, { :id => @user.id })
+      #
       def log_event(layer, label, event, opts = {})
         if TraceView.loaded
           event.addInfo('Layer', layer.to_s) if layer

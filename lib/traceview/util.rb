@@ -142,18 +142,14 @@ module TraceView
       ##
       # to_query
       #
-      # Used under Ruby 1.8.7 to convert a hash into a URL
-      # query.  A backport of Hash#to_query.
+      # Used to convert a hash into a URL # query.
       #
       def to_query(h)
         return "" unless h.is_a?(Hash)
 
-        # If called from a newer Ruby, use the builtin.
-        return h.to_query if RUBY_VERSION >= '1.9.3'
-
         result = []
 
-        h.each { |k, v| result.push (k.to_s + '=' + v.to_s) }
+        h.each { |k, v| result.push(k.to_s + '=' + v.to_s) }
         return result.sort.join('&')
       end
 
@@ -167,38 +163,38 @@ module TraceView
         platform_info = { '__Init' => 1 }
 
         begin
-          platform_info['Force']                   = true
-          platform_info['Ruby.Platform.Version']   = RUBY_PLATFORM
-          platform_info['Ruby.Version']            = RUBY_VERSION
+          platform_info['Force']                        = true
+          platform_info['Ruby.Platform.Version']        = RUBY_PLATFORM
+          platform_info['Ruby.Version']                 = RUBY_VERSION
           platform_info['Ruby.TraceView.Version']       = ::TraceView::Version::STRING
           platform_info['RubyHeroku.TraceView.Version'] = ::TraceViewHeroku::Version::STRING if defined?(::TraceViewHeroku)
-          platform_info['Ruby.TraceMode.Version']  = ::TraceView::Config[:tracing_mode]
+          platform_info['Ruby.TraceMode.Version']       = ::TraceView::Config[:tracing_mode]
 
           # Report the framework in use
-          if defined?(::RailsLts)
-            platform_info['Ruby.RailsLts.Version'] = "RailsLts-#{::RailsLts::VERSION}"
-          elsif defined?(::Rails)
-            platform_info['Ruby.Rails.Version']    = "Rails-#{::Rails.version}"
+          if defined?(::RailsLts::VERSION)
+            platform_info['Ruby.RailsLts.Version']  = "RailsLts-#{::RailsLts::VERSION}"
+          elsif defined?(::Rails.version)
+            platform_info['Ruby.Rails.Version']     = "Rails-#{::Rails.version}"
           end
-          platform_info['Ruby.Grape.Version']    = "Grape-#{::Grape::VERSION}" if defined?(::Grape)
-          platform_info['Ruby.Cramp.Version']    = "Cramp-#{::Cramp::VERSION}" if defined?(::Cramp)
+          platform_info['Ruby.Grape.Version']       = "Grape-#{::Grape::VERSION}" if defined?(::Grape::VERSION)
+          platform_info['Ruby.Cramp.Version']       = "Cramp-#{::Cramp::VERSION}" if defined?(::Cramp::VERSION)
 
-          if defined?(::Padrino)
-            platform_info['Ruby.Padrino.Version'] = "Padrino-#{::Padrino::VERSION}"
-          elsif defined?(::Sinatra)
-            platform_info['Ruby.Sinatra.Version'] = "Sinatra-#{::Sinatra::VERSION}"
+          if defined?(::Padrino::VERSION)
+            platform_info['Ruby.Padrino.Version']   = "Padrino-#{::Padrino::VERSION}"
+          elsif defined?(::Sinatra::VERSION)
+            platform_info['Ruby.Sinatra.Version']   = "Sinatra-#{::Sinatra::VERSION}"
           end
 
           # Report the instrumented libraries
-          platform_info['Ruby.Cassandra.Version']  = "Cassandra-#{::Cassandra.VERSION}"    if defined?(::Cassandra)
-          platform_info['Ruby.Dalli.Version']      = "Dalli-#{::Dalli::VERSION}"           if defined?(::Dalli)
+          platform_info['Ruby.Cassandra.Version']  = "Cassandra-#{::Cassandra.VERSION}"    if defined?(::Cassandra.VERSION)
+          platform_info['Ruby.Dalli.Version']      = "Dalli-#{::Dalli::VERSION}"           if defined?(::Dalli::VERSION)
           platform_info['Ruby.Excon.Version']      = "Excon-#{::Excon::VERSION}"           if defined?(::Excon::VERSION)
-          platform_info['Ruby.Faraday.Version']    = "Faraday-#{::Faraday::VERSION}"       if defined?(::Faraday)
+          platform_info['Ruby.Faraday.Version']    = "Faraday-#{::Faraday::VERSION}"       if defined?(::Faraday::VERSION)
           platform_info['Ruby.HTTPClient.Version'] = "HTTPClient-#{::HTTPClient::VERSION}" if defined?(::HTTPClient::VERSION)
-          platform_info['Ruby.MemCache.Version']   = "MemCache-#{::MemCache::VERSION}"     if defined?(::MemCache)
-          platform_info['Ruby.Moped.Version']      = "Moped-#{::Moped::VERSION}"           if defined?(::Moped)
-          platform_info['Ruby.Redis.Version']      = "Redis-#{::Redis::VERSION}"           if defined?(::Redis)
-          platform_info['Ruby.Resque.Version']     = "Resque-#{::Resque::VERSION}"         if defined?(::Resque)
+          platform_info['Ruby.MemCache.Version']   = "MemCache-#{::MemCache::VERSION}"     if defined?(::MemCache::VERSION)
+          platform_info['Ruby.Moped.Version']      = "Moped-#{::Moped::VERSION}"           if defined?(::Moped::VERSION)
+          platform_info['Ruby.Redis.Version']      = "Redis-#{::Redis::VERSION}"           if defined?(::Redis::VERSION)
+          platform_info['Ruby.Resque.Version']     = "Resque-#{::Resque::VERSION}"         if defined?(::Resque::VERSION)
           platform_info['Ruby.RestClient.Version'] = "RestClient-#{::RestClient::VERSION}" if defined?(::RestClient::VERSION)
           platform_info['Ruby.Typhoeus.Version']   = "Typhoeus-#{::Typhoeus::VERSION}"     if defined?(::Typhoeus::VERSION)
 
@@ -214,19 +210,19 @@ module TraceView
           platform_info['Ruby.Sequel.Version']  = ::Sequel::VERSION            if defined?(::Sequel::VERSION)
 
           # Report the server in use (if possible)
-          if defined?(::Unicorn)
+          if defined?(::Unicorn::Const::UNICORN_VERSION)
             platform_info['Ruby.AppContainer.Version'] = "Unicorn-#{::Unicorn::Const::UNICORN_VERSION}"
-          elsif defined?(::Puma)
+          elsif defined?(::Puma::Const::PUMA_VERSION)
             platform_info['Ruby.AppContainer.Version'] = "Puma-#{::Puma::Const::PUMA_VERSION} (#{::Puma::Const::CODE_NAME})"
-          elsif defined?(::PhusionPassenger)
+          elsif defined?(::PhusionPassenger::PACKAGE_NAME)
             platform_info['Ruby.AppContainer.Version'] = "#{::PhusionPassenger::PACKAGE_NAME}-#{::PhusionPassenger::VERSION_STRING}"
-          elsif defined?(::Thin)
+          elsif defined?(::Thin::VERSION::STRING)
             platform_info['Ruby.AppContainer.Version'] = "Thin-#{::Thin::VERSION::STRING} (#{::Thin::VERSION::CODENAME})"
-          elsif defined?(::Mongrel)
+          elsif defined?(::Mongrel::Const::MONGREL_VERSION)
             platform_info['Ruby.AppContainer.Version'] = "Mongrel-#{::Mongrel::Const::MONGREL_VERSION}"
-          elsif defined?(::Mongrel2)
+          elsif defined?(::Mongrel2::VERSION)
             platform_info['Ruby.AppContainer.Version'] = "Mongrel2-#{::Mongrel2::VERSION}"
-          elsif defined?(::Trinidad)
+          elsif defined?(::Trinidad::VERSION)
             platform_info['Ruby.AppContainer.Version'] = "Trinidad-#{::Trinidad::VERSION}"
           elsif defined?(::WEBrick::VERSION)
             platform_info['Ruby.AppContainer.Version'] = "WEBrick-#{::WEBrick::VERSION}"

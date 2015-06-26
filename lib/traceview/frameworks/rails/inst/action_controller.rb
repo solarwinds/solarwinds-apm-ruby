@@ -138,7 +138,7 @@ module TraceView
           :Action       => self.action_name,
         }
 
-        TraceView::API.log_entry('rails')
+        TraceView::API.log_entry('rails', report_kvs)
         process_action_without_traceview(method_name, *args)
 
       rescue Exception => e

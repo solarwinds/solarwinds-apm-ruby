@@ -6,18 +6,50 @@ cache:
   - vendor/bundle
 
 rvm:
-  - 2.2.0
-  - 2.1.1
+  - 2.2.2
+  - 2.1.6
   - 2.0.0
   - 1.9.3
-  - 1.9.2
   - 1.8.7
   - ree
   - jruby-19mode
 
-#gemfile:
-#  - gemfiles/mongo.gemfile
-#  - gemfiles/moped.gemfile
+gemfile:
+  - gemfiles/libraries.gemfile
+  - gemfiles/frameworks.gemfile
+  - gemfiles/rails30.gemfile
+  - gemfiles/rails31.gemfile
+  - gemfiles/rails32.gemfile
+  - gemfiles/rails40.gemfile
+  - gemfiles/rails41.gemfile
+  - gemfiles/rails42.gemfile
+
+matrix:
+  exclude:
+    # Rails 4.0+ requires Ruby 1.9.3 or higher
+    - rvm: 1.8.7
+      gemfile: gemfiles/rails40.gemfile
+    - rvm: 1.8.7
+      gemfile: gemfiles/rails41.gemfile
+    - rvm: 1.8.7
+      gemfile: gemfiles/rails42.gemfile
+    - rvm: ree
+      gemfile: gemfiles/rails40.gemfile
+    - rvm: ree
+      gemfile: gemfiles/rails41.gemfile
+    - rvm: ree
+      gemfile: gemfiles/rails42.gemfile
+
+    # Other frameworks tested on Ruby 1.9.3 or higher
+    - rvm: 1.8.7
+      gemfile: gemfiles/frameworks.gemfile
+    - rvm: ree
+      gemfile: gemfiles/frameworks.gemfile
+
+  allow_failures:
+    # FIXME: Until the joboe test reporter supports cross thread
+    # event collection.
+    - rvm: jruby-19mode
 
 # Attempt Travis/Cassandra fix re: https://github.com/travis-ci/travis-ci/issues/1484
 # Updated Cassandra: https://github.com/travis-ci/travis-ci/issues/1650
@@ -36,7 +68,7 @@ install:
   - sudo apt-get install -y tracelytics-java-agent
 
 before_script:
-  - bundle install --without development
+  - bundle install --jobs=3 --retry=3 --without development
   - bundle exec rake compile
   - psql -c 'create database travis_ci_test;' -U postgres
   - mysql -e 'create database travis_ci_test;'
@@ -49,10 +81,3 @@ services:
   - memcached
   - cassandra
   - redis
-
-matrix:
-  allow_failures:
-    # FIXME: Until the joboe test reporter supports cross thread
-    # event collection.
-    - rvm: jruby-19mode
-

@@ -1,5 +1,9 @@
-if RUBY_VERSION >= '1.9.3'
-  require "minitest_helper"
+# Copyright (c) 2015 AppNeta, Inc.
+# All rights reserved.
+
+require "minitest_helper"
+
+if RUBY_VERSION >= '1.9.3' and defined?(::Padrino)
   require File.expand_path(File.dirname(__FILE__) + '/apps/padrino_simple')
 
   describe Padrino do

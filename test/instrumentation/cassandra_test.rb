@@ -1,13 +1,20 @@
+# Copyright (c) 2015 AppNeta, Inc.
+# All rights reserved.
+
 require 'minitest_helper'
+
+unless ENV['TV_CASSANDRA_SERVER']
+  ENV['TV_CASSANDRA_SERVER'] = "127.0.0.1:9160"
+end
 
 # The cassandra-rb client doesn't support JRuby
 # https://github.com/cassandra-rb/cassandra
-unless defined?(JRUBY_VERSION)
+if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
   describe "Cassandra" do
     before do
       clear_all_traces
 
-      @client = Cassandra.new("system", "127.0.0.1:9160", { :timeout => 10 })
+      @client = Cassandra.new("system", ENV['TV_CASSANDRA_SERVER'], { :timeout => 10 })
       @client.disable_node_auto_discovery!
 
       @ks_name = "AppNetaCassandraTest"
@@ -34,8 +41,8 @@ unless defined?(JRUBY_VERSION)
       @entry_kvs = {
         'Layer' => 'cassandra',
         'Label' => 'entry',
-        'RemoteHost' => '127.0.0.1',
-        'RemotePort' => '9160' }
+        'RemoteHost' => ENV['TV_CASSANDRA_SERVER'].split(':')[0],
+        'RemotePort' => ENV['TV_CASSANDRA_SERVER'].split(':')[1] }
 
       @exit_kvs = { 'Layer' => 'cassandra', 'Label' => 'exit' }
       @collect_backtraces = TraceView::Config[:cassandra][:collect_backtraces]

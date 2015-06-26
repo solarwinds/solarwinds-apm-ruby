@@ -4,7 +4,7 @@
 require 'rack/handler/puma'
 require 'traceview/inst/rack'
 
-TraceView.logger.info "[oboe/info] Starting background utility rack app on localhost:8101."
+TraceView.logger.info "[traceview/info] Starting background utility rack app on localhost:8101."
 
 Thread.new do
   app = Rack::Builder.new {

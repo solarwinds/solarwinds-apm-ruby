@@ -1,4 +1,11 @@
+# Copyright (c) 2015 AppNeta, Inc.
+# All rights reserved.
+
 require 'minitest_helper'
+
+unless ENV['TV_MONGO_SERVER']
+  ENV['TV_MONGO_SERVER'] = "127.0.0.1:27017"
+end
 
 if RUBY_VERSION >= '1.9.3'
   # Moped is tested against MRI 1.9.3, 2.0.0, and JRuby (1.9).
@@ -6,7 +13,7 @@ if RUBY_VERSION >= '1.9.3'
   describe "Moped" do
     before do
       clear_all_traces
-      @session = Moped::Session.new([ "127.0.0.1:27017" ])
+      @session = Moped::Session.new([ ENV['TV_MONGO_SERVER'] ])
       @session.use :moped_test
       @users = @session[:users]
       @users.insert({ :name => "Syd", :city => "Boston" })
@@ -17,8 +24,8 @@ if RUBY_VERSION >= '1.9.3'
         'Label' => 'entry',
         'Flavor' => 'mongodb',
         'Database' => 'moped_test',
-        'RemoteHost' => '127.0.0.1',
-        'RemotePort' => 27017 }
+        'RemoteHost' => ENV['TV_MONGO_SERVER'].split(':')[0],
+        'RemotePort' => ENV['TV_MONGO_SERVER'].split(':')[1].to_i }
 
       @exit_kvs = { 'Layer' => 'mongo', 'Label' => 'exit' }
       @collect_backtraces = TraceView::Config[:moped][:collect_backtraces]

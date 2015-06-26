@@ -1,0 +1,27 @@
+source "https://rubygems.org"
+
+group :development, :test do
+  gem 'rake'
+  gem 'minitest'
+  gem 'minitest-reporters'
+  gem 'minitest-debugger', :require => false
+  gem 'rack-test'
+  gem 'puma'
+  if RUBY_VERSION < '1.9.3'
+    gem 'bson', '<= 1.12.3'
+  else
+    gem 'bson'
+  end
+end
+
+if defined?(JRUBY_VERSION)
+  gem 'sinatra', :require => false
+else
+  gem 'sinatra'
+end
+
+gem "grape"
+gem "padrino"
+
+gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')
+# vim:syntax=ruby

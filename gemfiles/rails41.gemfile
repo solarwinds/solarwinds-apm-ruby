@@ -1,4 +1,4 @@
-source 'https://rubygems.org'
+source "https://rubygems.org"
 
 group :development, :test do
   gem 'rake'
@@ -7,11 +7,7 @@ group :development, :test do
   gem 'minitest-debugger', :require => false
   gem 'rack-test'
   gem 'puma'
-  if RUBY_VERSION < '1.9.3'
-    gem 'bson', '<= 1.12.3'
-  else
-    gem 'bson'
-  end
+  gem 'bson'
 end
 
 group :development do
@@ -33,5 +29,7 @@ else
   gem 'sinatra'
 end
 
-gemspec
+gem "rails", "~>4.1"
 
+gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')
+# vim:syntax=ruby

@@ -1,6 +1,9 @@
+# Copyright (c) 2015 AppNeta, Inc.
+# All rights reserved.
+
 require 'minitest_helper'
 
-unless defined?(JRUBY_VERSION)
+if defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
   if ENV.key?('TRAVIS_MYSQL_PASS')
     MYSQL2_DB = Sequel.connect("mysql2://root:#{ENV['TRAVIS_MYSQL_PASS']}@127.0.0.1:3306/travis_ci_test")

@@ -1,5 +1,14 @@
+# Copyright (c) 2015 AppNeta, Inc.
+# All rights reserved.
+
 require 'minitest_helper'
+
+# FIXME: Since memcache is loaded late, the instrumentation
+# loaded out of order.  Here we force inject instrumentation
 require 'memcache'
+::MemCache.class_eval do
+  include TraceView::Inst::MemCache
+end
 
 describe "Memcache" do
   before do

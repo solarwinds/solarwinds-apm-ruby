@@ -1,7 +1,13 @@
+# Copyright (c) 2015 AppNeta, Inc.
+# All rights reserved.
+
+require 'rubygems'
+require 'bundler/setup'
 require "minitest/spec"
 require "minitest/autorun"
 require "minitest/reporters"
 require "minitest/debugger" if ENV['DEBUG']
+require "sinatra"
 
 ENV["RACK_ENV"] = "test"
 ENV["TRACEVIEW_GEM_TEST"] = "true"
@@ -21,16 +27,10 @@ if defined?(JRUBY_VERSION)
   ENV['JAVA_OPTS'] = "-J-javaagent:/usr/local/tracelytics/tracelyticsagent.jar"
 end
 
-require 'rubygems'
-require 'bundler'
-
-# Preload memcache-client
-require 'memcache'
-
-Bundler.require(:default, :test)
-
 @trace_dir = "/tmp/"
 $trace_file = @trace_dir + "trace_output.bson"
+
+Bundler.require(:default, :test)
 
 # Configure TraceView
 TraceView::Config[:verbose] = true
@@ -38,8 +38,25 @@ TraceView::Config[:tracing_mode] = "always"
 TraceView::Config[:sample_rate] = 1000000
 TraceView.logger.level = Logger::DEBUG
 
+# Pre-create test databases (see also .travis.yml)
+# puts "Pre-creating test databases"
+# puts %x{mysql -u root -e 'create database travis_ci_test;'}
+# puts %x{psql -c 'create database travis_ci_test;' -U postgres}
+
 # Our background Rack-app for http client testing
 require "./test/servers/rackapp_8101"
+
+# Conditionally load other background servers
+# depending on what we're testing
+#
+case File.basename(ENV['BUNDLE_GEMFILE'])
+when /rails4/
+  require "./test/servers/rails4x_8140"
+when /rails3/
+  require "./test/servers/rails3x_8140"
+when /frameworks/
+when /libraries/
+end
 
 ##
 # clear_all_traces
