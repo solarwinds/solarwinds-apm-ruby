@@ -172,6 +172,7 @@ module Oboe
           platform_info['Ruby.Version']            = RUBY_VERSION
           platform_info['Ruby.Oboe.Version']       = ::Oboe::Version::STRING
           platform_info['RubyHeroku.Oboe.Version'] = ::OboeHeroku::Version::STRING if defined?(::OboeHeroku)
+          platform_info['Ruby.TraceMode.Version']  = ::Oboe::Config[:tracing_mode]
 
           # Report the framework in use
           if defined?(::RailsLts)

@@ -36,6 +36,7 @@ describe Oboe::Inst::Dalli < ::MiniTest::Spec  do
     traces[1].has_key?("KVKey").must_equal true
     traces[1]['Layer'].must_equal "memcache"
     traces[1]['KVKey'].must_equal "some_key"
+    traces[1]['RemoteHost'].must_equal "127.0.0.1:11211"
   end
 
   it 'should trace get' do
@@ -50,6 +51,7 @@ describe Oboe::Inst::Dalli < ::MiniTest::Spec  do
 
     traces[1]['KVOp'].must_equal "get"
     traces[1]['KVKey'].must_equal "some_key"
+    traces[1]['RemoteHost'].must_equal "127.0.0.1:11211"
     traces[2]['Label'].must_equal "info"
     traces[2].has_key?('KVHit').must_equal true
     traces[3]['Label'].must_equal "exit"
@@ -67,6 +69,7 @@ describe Oboe::Inst::Dalli < ::MiniTest::Spec  do
 
     traces[1]['KVOp'].must_equal "get_multi"
     traces[2]['Label'].must_equal "info"
+    traces[2]['RemoteHost'].must_equal "127.0.0.1:11211"
     traces[2].has_key?('KVKeyCount').must_equal true
     traces[2].has_key?('KVHitCount').must_equal true
     traces[3]['Label'].must_equal "exit"
@@ -86,6 +89,7 @@ describe Oboe::Inst::Dalli < ::MiniTest::Spec  do
 
     traces[1]['KVOp'].must_equal "incr"
     traces[1]['KVKey'].must_equal "dalli_key_counter"
+    traces[1]['RemoteHost'].must_equal "127.0.0.1:11211"
     traces[2]['Label'].must_equal "exit"
   end
 
@@ -103,6 +107,7 @@ describe Oboe::Inst::Dalli < ::MiniTest::Spec  do
 
     traces[1]['KVOp'].must_equal "decr"
     traces[1]['KVKey'].must_equal "dalli_key_counter"
+    traces[1]['RemoteHost'].must_equal "127.0.0.1:11211"
     traces[2]['Label'].must_equal "exit"
   end
 
@@ -120,6 +125,7 @@ describe Oboe::Inst::Dalli < ::MiniTest::Spec  do
 
     traces[1]['KVOp'].must_equal "replace"
     traces[1]['KVKey'].must_equal "some_key"
+    traces[1]['RemoteHost'].must_equal "127.0.0.1:11211"
     traces[2]['Label'].must_equal "exit"
   end
 
@@ -137,6 +143,7 @@ describe Oboe::Inst::Dalli < ::MiniTest::Spec  do
 
     traces[1]['KVOp'].must_equal "delete"
     traces[1]['KVKey'].must_equal "some_key"
+    traces[1]['RemoteHost'].must_equal "127.0.0.1:11211"
   end
 
   it "should obey :collect_backtraces setting when true" do

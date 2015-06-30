@@ -4,6 +4,29 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# oboe 2.7.18
+
+This patch release includes the following fix:
+
+* For custom ActionView renderers, properly accept and pass on blocks: #118
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/oboe/versions/2.7.18
+https://rubygems.org/gems/oboe/versions/2.7.18-java
+
+# oboe 2.7.17.1
+
+This patch release includes:
+
+* New config option to optionally not report URL query parameters: #116
+* New HTTPClient instrumentation: #115
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/oboe/versions/2.7.17.1
+https://rubygems.org/gems/oboe/versions/2.7.17.1-java
+
 # oboe 2.7.16.1
 
 This patch release includes:
