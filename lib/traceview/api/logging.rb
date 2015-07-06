@@ -36,23 +36,24 @@ module TraceView
       #
       # * +layer+ - The layer the reported event belongs to
       # * +exn+ - The exception to report
+      # * +kvs+ - Custom params if you want to log extra information
       #
       # ==== Example
       #
       #   begin
       #     my_iffy_method
       #   rescue Exception => e
-      #     TraceView::API.log_exception('rails', e)
+      #     TraceView::API.log_exception('rails', e, { user: user_id })
       #     raise
       #   end
       #
       # Returns nothing.
-      def log_exception(layer, exn)
+      def log_exception(layer, exn, kvs = {})
         return if !TraceView.loaded || exn.instance_variable_get(:@oboe_logged)
 
-        kvs = { :ErrorClass => exn.class.name,
-                :ErrorMsg => exn.message,
-                :Backtrace => exn.backtrace.join("\r\n") }
+        kvs.merge!(:ErrorClass => exn.class.name,
+                   :ErrorMsg => exn.message,
+                   :Backtrace => exn.backtrace.join("\r\n"))
 
         exn.instance_variable_set(:@oboe_logged, true)
         log(layer, 'error', kvs)
