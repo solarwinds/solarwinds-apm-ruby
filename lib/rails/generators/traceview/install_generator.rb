@@ -6,6 +6,8 @@ module TraceView
     source_root File.join(File.dirname(__FILE__), 'templates')
     desc "Copies a TraceView gem initializer file to your application."
 
+    @namespace = "traceview:install"
+
     def copy_initializer
       # Set defaults
       @tracing_mode = 'through'
