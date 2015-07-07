@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 group :development, :test do
   gem 'rake'
   gem 'minitest'
-  gem 'minitest-reporters'
+  gem 'minitest-reporters', '< 1.0.18'
   gem 'minitest-debugger', :require => false
   gem 'rack-test'
   gem 'puma'
