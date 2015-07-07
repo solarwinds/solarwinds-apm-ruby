@@ -12,7 +12,7 @@ module TraceView
           begin
             if TraceView::Config[:sanitize_sql]
               # Sanitize SQL and don't report binds
-              opts[:Query] = sql.gsub(/\'[\s\S][^\']*\'/, '?')
+              opts[:Query] = TraceView::Util.sanitize_sql(sql)
             else
               # Report raw SQL and any binds if they exist
               opts[:Query] = sql.to_s
