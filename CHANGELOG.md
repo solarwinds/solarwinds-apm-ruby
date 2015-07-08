@@ -4,6 +4,31 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# traceview 3.0.4
+
+This patch release includes the following fixes:
+
+* Rails generator broken after gem rename: #128
+* Allow custom params for logging exceptions: #130 (thanks @sliuu !)
+* SQL Sanitize missing integers for ActiveRecord adapters: #131
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.0.4
+https://rubygems.org/gems/traceview/versions/3.0.4-java
+
+# traceview 3.0.3
+
+This patch release includes the following fixes:
+
+* Fix missing Controller/Action reporting for Rails 4 and add Rails test coverage: #123
+* Fix Moped update default parameter: #127 (thanks to @maxjacobson, @lifegiver, @abmcdubb and @mradmacher!)
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.0.3
+https://rubygems.org/gems/traceview/versions/3.0.3-java
+
 # traceview 3.0.2
 
 This patch release includes the following fixes:
