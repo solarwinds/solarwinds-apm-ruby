@@ -109,7 +109,7 @@ module TraceView
       @@config[:sanitize_sql] = false
 
       # The regular expression used to sanitize SQL.
-      @@config[:sanitize_sql_regexp] = '(\'[\s\S][^\']*\'|\d*\.\d*|\d|NULL)'
+      @@config[:sanitize_sql_regexp] = '(\'[\s\S][^\']*\'|\d*\.\d+|\d+|NULL)'
       @@config[:sanitize_sql_opts]   = Regexp::IGNORECASE
 
       # Do Not Trace
