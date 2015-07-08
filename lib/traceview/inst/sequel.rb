@@ -12,7 +12,7 @@ module TraceView
           if sql.is_a?(Symbol)
             kvs[:Query] = sql
           else
-            kvs[:Query] = sql.gsub(/('[\s\S][^\']*\'|\d*\.\d*)/, '?')
+            kvs[:Query] = TraceView::Util.sanitize_sql(sql)
           end
         else
           # Report raw SQL and any binds if they exist
