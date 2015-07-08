@@ -71,7 +71,7 @@ module TraceView
       #
       # ==== Example
       #
-      #   Oboe::API.log_start(:layer_name, nil, { :id => @user.id })
+      #   TraceView::API.log_start(:layer_name, nil, { :id => @user.id })
       #
       def log_start(layer, xtrace = nil, opts = {})
         return if !TraceView.loaded || TraceView.never? ||
@@ -121,7 +121,7 @@ module TraceView
       #
       # ==== Example
       #
-      #   Oboe::API.log_end(:layer_name, { :id => @user.id })
+      #   TraceView::API.log_end(:layer_name, { :id => @user.id })
       #
       # Returns an xtrace metadata string
       def log_end(layer, opts = {})
@@ -146,7 +146,7 @@ module TraceView
       #
       # ==== Example
       #
-      #   Oboe::API.log_entry(:layer_name, { :id => @user.id })
+      #   TraceView::API.log_entry(:layer_name, { :id => @user.id })
       #
       # Returns an xtrace metadata string
       def log_entry(layer, kvs = {}, op = nil)
@@ -168,7 +168,7 @@ module TraceView
       #
       # ==== Example
       #
-      #   Oboe::API.log_info(:layer_name, { :id => @user.id })
+      #   TraceView::API.log_info(:layer_name, { :id => @user.id })
       #
       # Returns an xtrace metadata string
       def log_info(layer, kvs = {})
@@ -190,7 +190,7 @@ module TraceView
       #
       # ==== Example
       #
-      #   Oboe::API.log_exit(:layer_name, { :id => @user.id })
+      #   TraceView::API.log_exit(:layer_name, { :id => @user.id })
       #
       # Returns an xtrace metadata string
       def log_exit(layer, kvs = {}, op = nil)
@@ -213,11 +213,11 @@ module TraceView
       # ==== Example
       #
       #   entry = TraceView::Context.createEvent
-      #   Oboe::API.log_event(:layer_name, 'entry',  entry_event, { :id => @user.id })
+      #   TraceView::API.log_event(:layer_name, 'entry',  entry_event, { :id => @user.id })
       #
       #   exit_event = TraceView::Context.createEvent
       #   exit_event.addEdge(entry.getMetadata)
-      #   Oboe::API.log_event(:layer_name, 'exit',  exit_event, { :id => @user.id })
+      #   TraceView::API.log_event(:layer_name, 'exit',  exit_event, { :id => @user.id })
       #
       def log_event(layer, label, event, opts = {})
         if TraceView.loaded

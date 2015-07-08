@@ -108,6 +108,10 @@ module TraceView
       # avoid collecting and reporting query literals to TraceView.
       @@config[:sanitize_sql] = false
 
+      # The regular expression used to sanitize SQL.
+      @@config[:sanitize_sql_regexp] = '(\'[\s\S][^\']*\'|\d*\.\d*|\d|NULL)'
+      @@config[:sanitize_sql_opts]   = Regexp::IGNORECASE
+
       # Do Not Trace
       # These two values allow you to configure specific URL patterns to
       # never be traced.  By default, this is set to common static file

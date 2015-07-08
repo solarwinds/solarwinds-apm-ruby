@@ -154,11 +154,29 @@ module TraceView
       end
 
       ##
+      # sanitize_sql
+      #
+      # Used to remove query literals from SQL.  Used by all
+      # DB adapter instrumentation.
+      #
+      # The regular expression passed to String.gsub is configurable
+      # via TraceView::Config[:sanitize_sql_regexp] and
+      # TraceView::Config[:sanitize_sql_opts].
+      #
+      def sanitize_sql(sql)
+        return sql unless TraceView::Config[:sanitize_sql]
+
+        regexp = Regexp.new(TraceView::Config[:sanitize_sql_regexp], TraceView::Config[:sanitize_sql_opts])
+        sql.gsub(regexp, '?')
+      end
+
+      ##
       #  build_init_report
       #
       # Internal: Build a hash of KVs that reports on the status of the
       # running environment.  This is used on stack boot in __Init reporting
       # and for TraceView.support_report.
+      #
       def build_init_report
         platform_info = { '__Init' => 1 }
 
