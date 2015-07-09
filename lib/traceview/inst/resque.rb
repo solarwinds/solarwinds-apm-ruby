@@ -30,7 +30,8 @@ module TraceView
           end
 
           report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:resque][:collect_backtraces]
-        rescue
+        rescue => e
+          TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
         end
 
         report_kvs
@@ -108,7 +109,8 @@ module TraceView
           end
 
           last_arg = job.payload['args'].last
-        rescue
+        rescue => e
+          TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
         end
 
         if last_arg.is_a?(Hash) && last_arg.key?('parent_trace_id')
@@ -118,7 +120,8 @@ module TraceView
             report_kvs[:ParentTraceID] = last_arg['parent_trace_id']
             job.payload['args'].pop
 
-          rescue
+          rescue => e
+            TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
           end
 
           # Force this trace regardless of sampling rate so that child trace can be

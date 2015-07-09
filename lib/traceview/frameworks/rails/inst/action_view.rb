@@ -23,7 +23,8 @@ if defined?(ActionView::Base) && TraceView::Config[:action_view][:enabled]
           entry_kvs[:Module]       = :ActionView
           entry_kvs[:File]         = __FILE__
           entry_kvs[:LineNumber]   = __LINE__
-        rescue
+        rescue => e
+          TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
         end
 
         TraceView::API.profile(name, entry_kvs, TraceView::Config[:action_view][:collect_backtraces]) do
@@ -41,7 +42,8 @@ if defined?(ActionView::Base) && TraceView::Config[:action_view][:enabled]
           entry_kvs[:Module]       = :ActionView
           entry_kvs[:File]         = __FILE__
           entry_kvs[:LineNumber]   = __LINE__
-        rescue
+        rescue => e
+          TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
         end
 
         TraceView::API.profile(name, entry_kvs, TraceView::Config[:action_view][:collect_backtraces]) do
