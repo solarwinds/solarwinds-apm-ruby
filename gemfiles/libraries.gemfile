@@ -43,6 +43,7 @@ else
   gem 'sinatra'
 end
 
+gem 'bunny'
 gem 'dalli'
 gem 'memcache-client'
 gem 'cassandra'
