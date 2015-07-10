@@ -11,7 +11,7 @@ module TraceView
   module Config
     @@config = {}
 
-    @@instrumentation = [:action_controller, :action_view, :active_record,
+    @@instrumentation = [:action_controller, :action_view, :active_record, :bunny,
                          :cassandra, :dalli, :em_http_request, :excon, :faraday,
                          :grape, :httpclient, :nethttp, :memcached, :memcache, :mongo,
                          :moped, :rack, :redis, :resque, :rest_client, :sequel,
@@ -42,6 +42,7 @@ module TraceView
       # Set collect_backtraces defaults
       TraceView::Config[:action_controller][:collect_backtraces] = true
       TraceView::Config[:active_record][:collect_backtraces] = true
+      TraceView::Config[:bunny][:collect_backtraces] = true
       TraceView::Config[:action_view][:collect_backtraces] = true
       TraceView::Config[:cassandra][:collect_backtraces] = true
       TraceView::Config[:dalli][:collect_backtraces] = false
