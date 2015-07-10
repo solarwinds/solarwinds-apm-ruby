@@ -81,3 +81,4 @@ services:
   - memcached
   - cassandra
   - redis
+  - rabbitmq
