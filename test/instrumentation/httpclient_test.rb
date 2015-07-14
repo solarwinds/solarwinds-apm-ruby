@@ -154,7 +154,6 @@ class HTTPClientTest < Minitest::Test
     Thread.pass until conn.finished?
 
     traces = get_all_traces
-    #require 'byebug'; debugger
     assert_equal traces.count, 7
     valid_edges?(traces)
 
