@@ -14,6 +14,7 @@ module TraceView
           require f
         rescue => e
           TraceView.logger.error "[traceview/loading] Error loading instrumentation file '#{f}' : #{e}"
+          TraceView.logger.debug "[traceview/loading] #{e.backtrace.first}"
         end
       end
     end
