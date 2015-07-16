@@ -12,13 +12,13 @@ module TraceView
     @@config = {}
 
     @@instrumentation = [:action_controller, :action_view, :active_record,
-                         :cassandra, :dalli, :em_http_request, :excon, :faraday,
+                         :cassandra, :curb, :dalli, :em_http_request, :excon, :faraday,
                          :grape, :httpclient, :nethttp, :memcached, :memcache, :mongo,
                          :moped, :rack, :redis, :resque, :rest_client, :sequel,
                          :typhoeus]
 
     # Subgrouping of instrumentation
-    @@http_clients = [:excon, :faraday, :httpclient, :nethttp, :rest_client, :typhoeus]
+    @@http_clients = [:curb, :excon, :faraday, :httpclient, :nethttp, :rest_client, :typhoeus]
 
     ##
     # Return the raw nested hash.
@@ -44,6 +44,7 @@ module TraceView
       TraceView::Config[:active_record][:collect_backtraces] = true
       TraceView::Config[:action_view][:collect_backtraces] = true
       TraceView::Config[:cassandra][:collect_backtraces] = true
+      TraceView::Config[:curb][:collect_backtraces] = true
       TraceView::Config[:dalli][:collect_backtraces] = false
       TraceView::Config[:em_http_request][:collect_backtraces] = false
       TraceView::Config[:excon][:collect_backtraces] = true
