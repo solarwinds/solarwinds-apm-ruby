@@ -18,6 +18,11 @@ module TraceView
           kvs[:RemoteHost] = channel.connection.host
           kvs[:RemotePort] = channel.connection.port
           kvs[:VirtualHost] = channel.connection.vhost
+          if @name.is_a?(String) && !@name.empty?
+            kvs[:ExchangeName] = @name
+          else
+            kvs[:ExchangeName] = :default
+          end
 
           TraceView::API.log_entry('rabbitmq')
 
@@ -46,6 +51,12 @@ module TraceView
           kvs[:RemoteHost] = @connection.host
           kvs[:RemotePort] = @connection.port
           kvs[:VirtualHost] = @connection.vhost
+
+          if @name.is_a?(String) && !@name.empty?
+            kvs[:ExchangeName] = @name
+          else
+            kvs[:ExchangeName] = :default
+          end
 
           TraceView::API.log_entry('rabbitmq')
 
