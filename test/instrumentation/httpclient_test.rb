@@ -295,5 +295,28 @@ class HTTPClientTest < Minitest::Test
 
     TraceView::Config[:httpclient][:log_args] = @log_args
   end
+
+  def test_without_tracing
+    clear_all_traces
+
+    @tm = TraceView::Config[:tracing_mode]
+    TraceView::Config[:tracing_mode] = :never
+
+    response = nil
+
+    TraceView::API.start_trace('httpclient_tests') do
+      clnt = HTTPClient.new
+      response = clnt.get('http://127.0.0.1:8101/', :query => { :keyword => 'ruby', :lang => 'en' })
+    end
+
+    xtrace = response.headers['X-Trace']
+    assert xtrace == nil
+
+    traces = get_all_traces
+
+    assert_equal traces.count, 0
+
+    TraceView::Config[:tracing_mode] = @tm
+  end
 end
 
