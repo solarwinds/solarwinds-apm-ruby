@@ -228,7 +228,7 @@ module TraceView
 
             begin
               r = call_without_traceview(command, &block)
-              report_kvs = extract_trace_details(command.dup, r)
+              report_kvs = extract_trace_details(command, r)
               r
             rescue StandardError => e
               ::TraceView::API.log_exception('redis', e)

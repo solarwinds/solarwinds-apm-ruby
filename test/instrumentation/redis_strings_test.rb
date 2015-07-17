@@ -268,7 +268,7 @@ if defined?(::Redis)
 
     it "should trace set + expiration" do
       TraceView::API.start_trace('redis_test', '', {}) do
-        @redis.set("one", "hello", ex: 12)
+        @redis.set("one", "hello", :ex => 12)
       end
 
       traces = get_all_traces
