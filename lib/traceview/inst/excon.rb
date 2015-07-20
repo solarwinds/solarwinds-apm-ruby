@@ -16,8 +16,12 @@ module TraceView
         kvs['RemoteHost'] = @data[:host]
 
         # Conditionally log query args
-        if TraceView::Config[:excon][:log_args] && (@data[:query] && @data[:query].length)
-          kvs['ServiceArg'] = @data[:path] + '?' + @data[:query]
+        if TraceView::Config[:excon][:log_args] && @data[:query]
+          if @data[:query].is_a?(Hash)
+            kvs['ServiceArg'] = @data[:path] + '?' + URI.encode_www_form(@data[:query])
+          else
+            kvs['ServiceArg'] = @data[:path] + '?' + @data[:query]
+          end
         else
           kvs['ServiceArg'] = @data[:path]
         end
