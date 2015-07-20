@@ -266,6 +266,18 @@ if defined?(::Redis)
       traces[2]['KVKey'].must_equal "one"
     end
 
+    it "should trace set + expiration" do
+      TraceView::API.start_trace('redis_test', '', {}) do
+        @redis.set("one", "hello", :ex => 12)
+      end
+
+      traces = get_all_traces
+      traces.count.must_equal 4
+      traces[2]['KVOp'].must_equal "set"
+      traces[2]['KVKey'].must_equal "one"
+      traces[2][:ex].must_equal 12
+    end
+
     it "should trace setbit" do
       min_server_version(2.2)
 
