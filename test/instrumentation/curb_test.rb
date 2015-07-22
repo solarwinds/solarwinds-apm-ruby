@@ -12,14 +12,6 @@ class CurbTest < Minitest::Test
     SinatraSimple
   end
 
-  def test_must_return_xtrace_header
-    clear_all_traces
-    get "/"
-    xtrace = last_response['X-Trace']
-    assert xtrace
-    assert TraceView::XTrace.valid?(xtrace)
-  end
-
   def test_reports_version_init
     init_kvs = ::TraceView::Util.build_init_report
     assert init_kvs.key?('Ruby.Curb.Version')
@@ -29,8 +21,10 @@ class CurbTest < Minitest::Test
   def test_class_get_request
     clear_all_traces
 
+    http = nil
+
     TraceView::API.start_trace('curb_tests') do
-      Curl.get('http://127.0.0.1:8101/')
+      http = Curl.get('http://127.0.0.1:8101/')
     end
 
     traces = get_all_traces
@@ -52,12 +46,15 @@ class CurbTest < Minitest::Test
   def test_cross_app_tracing
     clear_all_traces
 
+    response = nil
+
     TraceView::API.start_trace('curb_tests') do
       response = ::Curl.get('http://127.0.0.1:8101/?blah=1')
-      xtrace = response.headers['X-Trace']
-      assert xtrace
-      assert TraceView::XTrace.valid?(xtrace)
     end
+
+    xtrace = response.headers['X-Trace']
+    assert xtrace
+    assert TraceView::XTrace.valid?(xtrace)
 
     traces = get_all_traces
     assert_equal traces.count, 7
@@ -109,9 +106,13 @@ class CurbTest < Minitest::Test
 
     TraceView::Config[:curb][:log_args] = false
 
+    http = nil
+
     TraceView::API.start_trace('curb_tests') do
-      Curl.get('http://127.0.0.1:8101/?blah=1')
+      http = Curl.get('http://127.0.0.1:8101/?blah=1')
     end
+
+    assert http.headers['X-Trace'] != nil
 
     traces = get_all_traces
     assert_equal traces.count, 7
@@ -126,15 +127,39 @@ class CurbTest < Minitest::Test
 
     TraceView::Config[:curb][:log_args] = true
 
+    http = nil
+
     TraceView::API.start_trace('curb_tests') do
-      ::Curl.get('http://127.0.0.1:8101/?blah=1')
+      http = ::Curl.get('http://127.0.0.1:8101/?blah=1')
     end
+
+    assert http.headers['X-Trace'] != nil
 
     traces = get_all_traces
     assert_equal traces.count, 7
     assert_equal traces[1]['RemoteURL'], "http://127.0.0.1:8101/?blah=1&"
 
     TraceView::Config[:curb][:log_args] = @log_args
+  end
+
+  def test_without_tracing
+    clear_all_traces
+
+    @tm = TraceView::Config[:tracing_mode]
+    TraceView::Config[:tracing_mode] = :never
+
+    http = nil
+
+    TraceView::API.start_trace('httpclient_tests') do
+      http = ::Curl.get('http://127.0.0.1:8101/?blah=1')
+    end
+
+    assert http.headers['X-Trace'] == nil
+
+    traces = get_all_traces
+    assert_equal traces.count, 0
+
+    TraceView::Config[:tracing_mode] = @tm
   end
 end
 
