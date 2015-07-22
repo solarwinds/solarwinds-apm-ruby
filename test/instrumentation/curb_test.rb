@@ -43,6 +43,92 @@ class CurbTest < Minitest::Test
     assert_equal traces[5]['HTTPStatus'], 200
   end
 
+  def test_class_post_request
+    clear_all_traces
+
+    http = nil
+
+    TraceView::API.start_trace('curb_tests') do
+      http = Curl.post('http://127.0.0.1:8101/')
+    end
+
+    traces = get_all_traces
+    assert_equal traces.count, 7
+    validate_outer_layers(traces, "curb_tests")
+    valid_edges?(traces)
+
+    assert_equal traces[1]['IsService'], 1
+    assert_equal traces[1]['RemoteURL'], "http://127.0.0.1:8101/"
+    # FIXME
+    # assert_equal traces[1]['HTTPMethod'], 'POST'
+    assert traces[1].key?('Backtrace')
+
+    assert_equal traces[5]['Layer'], 'curb'
+    assert_equal traces[5]['Label'], 'exit'
+    assert_equal traces[5]['HTTPStatus'], 200
+  end
+
+  def test_class_fetch
+    clear_all_traces
+
+    response = nil
+
+    TraceView::API.start_trace('curb_tests') do
+      response = Curl::Easy.perform("http://127.0.0.1:8101/")
+    end
+
+    xtrace = response.headers['X-Trace']
+    assert xtrace
+    assert TraceView::XTrace.valid?(xtrace)
+
+    traces = get_all_traces
+    assert_equal traces.count, 7
+    validate_outer_layers(traces, "curb_tests")
+    valid_edges?(traces)
+
+    assert_equal traces[1]['IsService'], 1
+    assert_equal traces[1]['RemoteURL'], "http://127.0.0.1:8101/"
+    # FIXME
+    # assert_equal traces[1]['HTTPMethod'], 'POST'
+    assert traces[1].key?('Backtrace')
+
+    assert_equal traces[5]['Layer'], 'curb'
+    assert_equal traces[5]['Label'], 'exit'
+    assert_equal traces[5]['HTTPStatus'], 200
+  end
+
+  def test_class_fetch_with_block
+    clear_all_traces
+
+    response = nil
+
+    TraceView::API.start_trace('curb_tests') do
+      response = Curl::Easy.perform("http://127.0.0.1:8101/") do |curl|
+        curl.headers["User-Agent"] = "myapp-0.0"
+        curl.verbose = true
+      end
+    end
+
+    xtrace = response.headers['X-Trace']
+    assert xtrace
+    assert TraceView::XTrace.valid?(xtrace)
+
+    traces = get_all_traces
+    assert_equal traces.count, 7
+    validate_outer_layers(traces, "curb_tests")
+    valid_edges?(traces)
+
+    assert_equal traces[1]['IsService'], 1
+    assert_equal traces[1]['RemoteURL'], "http://127.0.0.1:8101/"
+    # FIXME
+    # assert_equal traces[1]['HTTPMethod'], 'POST'
+    assert traces[1].key?('Backtrace')
+
+    assert_equal traces[5]['Layer'], 'curb'
+    assert_equal traces[5]['Label'], 'exit'
+    assert_equal traces[5]['HTTPStatus'], 200
+  end
+
   def test_cross_app_tracing
     clear_all_traces
 
