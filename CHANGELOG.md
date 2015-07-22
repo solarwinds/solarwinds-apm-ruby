@@ -4,6 +4,18 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# traceview 3.0.5
+
+This patch release includes the following fixes:
+
+* Fix "undefined method" in httpclient instrumentation: #134
+* Fix Redis set operation to work with array versus hash: #133
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.0.5
+https://rubygems.org/gems/traceview/versions/3.0.5-java
+
 # traceview 3.0.4
 
 This patch release includes the following fixes:

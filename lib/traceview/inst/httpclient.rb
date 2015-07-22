@@ -38,7 +38,7 @@ module TraceView
       def do_request_with_traceview(method, uri, query, body, header, &block)
         # If we're not tracing, just do a fast return.
         if !TraceView.tracing?
-          return request_without_traceview(method, uri, query, body, header, &block)
+          return do_request_without_traceview(method, uri, query, body, header, &block)
         end
 
         begin

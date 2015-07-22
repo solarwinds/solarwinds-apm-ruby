@@ -97,11 +97,23 @@ module TraceView
               case op
               when :set
                 if command.count > 3
-                  options = command[3]
-                  kvs[:ex] = options[:ex] if options.key?(:ex)
-                  kvs[:px] = options[:px] if options.key?(:px)
-                  kvs[:nx] = options[:nx] if options.key?(:nx)
-                  kvs[:xx] = options[:xx] if options.key?(:xx)
+                  if command[3].is_a?(Hash)
+                    options = command[3]
+                    kvs[:ex] = options[:ex] if options.key?(:ex)
+                    kvs[:px] = options[:px] if options.key?(:px)
+                    kvs[:nx] = options[:nx] if options.key?(:nx)
+                    kvs[:xx] = options[:xx] if options.key?(:xx)
+                  else
+                    options = command[3..-1]
+                    until (opts = options.shift(2)).empty?
+                      case opts[0]
+                      when "EX"; kvs[:ex] = opts[1]
+                      when "PX"; kvs[:px] = opts[1]
+                      when "NX"; kvs[:nx] = opts[1]
+                      when "XX"; kvs[:xx] = opts[1]
+                      end
+                    end
+                  end
                 end
 
               when :get
