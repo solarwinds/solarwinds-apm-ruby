@@ -35,6 +35,9 @@ module TraceViewBase
   thread_local :sample_rate
   thread_local :layer
   thread_local :layer_op
+  # Semaphore used during the test suite to test
+  # global config options.
+  thread_local :config_lock
 
   # The following accessors indicate the incoming tracing state received
   # by the rack layer.  These are primarily used to identify state
