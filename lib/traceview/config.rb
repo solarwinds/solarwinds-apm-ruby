@@ -147,6 +147,15 @@ module TraceView
       # report all raised exception regardless.
       @@config[:report_rescued_errors] = false
 
+      # By default, the curb instrumentation will not link
+      # outgoing requests with remotely instrumented
+      # webservers (cross host tracing).  This is because at it's
+      # core, curb could be using the TraceView libcurl instrumentation
+      # which unfortunately it cannot detect.  If you're sure this is not
+      # the case, you can enable cross host tracing for the curb HTTP client
+      # here.  Set to true to enable.
+      @@config[:curb][:cross_host] = false
+
       # Environment support for OpenShift.
       if ENV.key?('OPENSHIFT_TRACEVIEW_TLYZER_IP')
         # We're running on OpenShift
