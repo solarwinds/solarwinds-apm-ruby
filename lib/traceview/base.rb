@@ -251,3 +251,4 @@ end
 # Setup an alias so we don't bug users
 # about single letter capitalization
 Traceview = TraceView
+TV = TraceView
