@@ -8,6 +8,24 @@ require File.expand_path(File.dirname(__FILE__) + '../../frameworks/apps/sinatra
 class CurbTest < Minitest::Test
   include Rack::Test::Methods
 
+  def setup
+    TraceView.config_lock.synchronize {
+      @cb = TraceView::Config[:curb][:collect_backtraces]
+      @log_args = TraceView::Config[:curb][:log_args]
+      @tm = TraceView::Config[:tracing_mode]
+      @cross_host = TraceView::Config[:curb][:cross_host]
+    }
+  end
+
+  def teardown
+    TraceView.config_lock.synchronize {
+      TraceView::Config[:curb][:collect_backtraces] = @cb
+      TraceView::Config[:curb][:log_args] = @log_args
+      TraceView::Config[:tracing_mode] = @tm
+      TraceView::Config[:curb][:cross_host] = @cross_host
+    }
+  end
+
   def app
     SinatraSimple
   end
@@ -165,6 +183,67 @@ class CurbTest < Minitest::Test
     assert_equal 200,                       traces[5]['HTTPStatus']
   end
 
+  def test_easy_http_put
+    clear_all_traces
+
+    c = nil
+
+    TraceView::API.start_trace('curb_tests') do
+      c = Curl::Easy.new("http://127.0.0.1:8101/")
+      c.http_put(:id => 1)
+    end
+
+    assert c.is_a?(::Curl::Easy), "Response type"
+    assert c.response_code == 200
+    assert c.header_str =~ /X-Trace/, "X-Trace response header"
+
+    traces = get_all_traces
+    assert_equal 7, traces.count, "Trace count"
+    validate_outer_layers(traces, "curb_tests")
+
+    assert_equal 'curb',                    traces[1]['Layer']
+    assert_equal 'entry',                   traces[1]['Label']
+    assert_equal 1,                         traces[1]['IsService']
+    assert_equal "http://127.0.0.1:8101/",  traces[1]['RemoteURL']
+    assert_equal 'PUT',                     traces[1]['HTTPMethod'], "HTTP Method"
+    assert       traces[1].key?('Backtrace')
+
+    assert_equal 'curb',                    traces[5]['Layer']
+    assert_equal 'exit',                    traces[5]['Label']
+    assert_equal 200,                       traces[5]['HTTPStatus']
+  end
+
+  def test_easy_http_post
+    clear_all_traces
+
+    c = nil
+
+    TraceView::API.start_trace('curb_tests') do
+      url = "http://127.0.0.1:8101/"
+      c = Curl::Easy.new(url)
+      c.http_post(url, :id => 1)
+    end
+
+    assert c.is_a?(::Curl::Easy), "Response type"
+    assert c.response_code == 200
+    assert c.header_str =~ /X-Trace/, "X-Trace response header"
+
+    traces = get_all_traces
+    assert_equal 7, traces.count, "Trace count"
+    validate_outer_layers(traces, "curb_tests")
+
+    assert_equal 'curb',                    traces[1]['Layer']
+    assert_equal 'entry',                   traces[1]['Label']
+    assert_equal 1,                         traces[1]['IsService']
+    assert_equal "http://127.0.0.1:8101/",  traces[1]['RemoteURL']
+    assert_equal 'POST',                    traces[1]['HTTPMethod'], "HTTP Method"
+    assert       traces[1].key?('Backtrace')
+
+    assert_equal 'curb',                    traces[5]['Layer']
+    assert_equal 'exit',                    traces[5]['Label']
+    assert_equal 200,                       traces[5]['HTTPStatus']
+  end
+
   def test_class_fetch_with_block
     clear_all_traces
 
@@ -199,15 +278,17 @@ class CurbTest < Minitest::Test
 
   def test_cross_app_tracing
     clear_all_traces
-
-    @cross_host = TraceView::Config[:curb][:cross_host]
-    TraceView::Config[:curb][:cross_host] = true
-
     response = nil
 
-    TraceView::API.start_trace('curb_tests') do
-      response = ::Curl.get('http://127.0.0.1:8101/?curb_cross_host=1')
-    end
+    # When testing global config options, use the config_locak
+    # semaphore to lock between other running tests.
+    TraceView.config_lock.synchronize {
+      TraceView::Config[:curb][:cross_host] = true
+
+      TraceView::API.start_trace('curb_tests') do
+        response = ::Curl.get('http://127.0.0.1:8101/?curb_cross_host=1')
+      end
+    }
 
     xtrace = response.headers['X-Trace']
     assert xtrace, "X-Trace response header"
@@ -230,7 +311,6 @@ class CurbTest < Minitest::Test
     assert_equal 'exit',                    traces[5]['Label']
     assert_equal 200,                       traces[5]['HTTPStatus']
 
-    TraceView::Config[:curb][:cross_host] = @cross_host
   end
 
   def test_multi_basic
@@ -320,47 +400,47 @@ class CurbTest < Minitest::Test
   end
 
   def test_obey_log_args_when_false
-    @log_args = TraceView::Config[:curb][:log_args]
     clear_all_traces
 
-    TraceView::Config[:curb][:log_args] = false
+    # When testing global config options, use the config_locak
+    # semaphore to lock between other running tests.
+    TraceView.config_lock.synchronize {
+      TraceView::Config[:curb][:log_args] = false
 
-    http = nil
+      http = nil
 
-    TraceView::API.start_trace('curb_tests') do
-      http = Curl.get('http://127.0.0.1:8101/?blah=1')
-    end
+      TraceView::API.start_trace('curb_tests') do
+        http = Curl.get('http://127.0.0.1:8101/?blah=1')
+      end
+    }
 
     traces = get_all_traces
     assert_equal 7, traces.count, "Trace count"
     assert_equal "http://127.0.0.1:8101/",         traces[1]['RemoteURL']
-
-    TraceView::Config[:curb][:log_args] = @log_args
   end
 
   def test_obey_log_args_when_true
-    @log_args = TraceView::Config[:curb][:log_args]
     clear_all_traces
 
-    TraceView::Config[:curb][:log_args] = true
+    # When testing global config options, use the config_locak
+    # semaphore to lock between other running tests.
+    TraceView.config_lock.synchronize {
+      TraceView::Config[:curb][:log_args] = true
 
-    http = nil
+      http = nil
 
-    TraceView::API.start_trace('curb_tests') do
-      http = ::Curl.get('http://127.0.0.1:8101/?blah=1')
-    end
+      TraceView::API.start_trace('curb_tests') do
+        http = ::Curl.get('http://127.0.0.1:8101/?blah=1')
+      end
+    }
 
     traces = get_all_traces
     assert_equal 7, traces.count, "Trace count"
     assert_equal "http://127.0.0.1:8101/?blah=1&", traces[1]['RemoteURL']
-
-    TraceView::Config[:curb][:log_args] = @log_args
   end
 
   def test_without_tracing_class_get
     clear_all_traces
-
-    @tm = TraceView::Config[:tracing_mode]
     TraceView::Config[:tracing_mode] = :never
 
     response = nil
@@ -375,21 +455,21 @@ class CurbTest < Minitest::Test
 
     traces = get_all_traces
     assert_equal 0, traces.count, "Trace count"
-
-    TraceView::Config[:tracing_mode] = @tm
   end
 
   def test_without_tracing_easy_perform
     clear_all_traces
-
-    @tm = TraceView::Config[:tracing_mode]
-    TraceView::Config[:tracing_mode] = :never
-
     response = nil
 
-    TraceView::API.start_trace('curb_tests') do
-      response = Curl::Easy.perform("http://127.0.0.1:8101/")
-    end
+    # When testing global config options, use the config_locak
+    # semaphore to lock between other running tests.
+    TraceView.config_lock.synchronize {
+      TraceView::Config[:tracing_mode] = :never
+
+      TraceView::API.start_trace('curb_tests') do
+        response = Curl::Easy.perform("http://127.0.0.1:8101/")
+      end
+    }
 
     assert response.headers['X-Trace'] == nil
     assert response.body_str == "Hello TraceView!"
@@ -397,36 +477,37 @@ class CurbTest < Minitest::Test
 
     traces = get_all_traces
     assert_equal 0, traces.count, "Trace count"
-
-    TraceView::Config[:tracing_mode] = @tm
   end
 
   def test_obey_collect_backtraces_when_true
-    @cb = TraceView::Config[:curb][:collect_backtraces]
-    TraceView::Config[:curb][:collect_backtraces] = true
+    # When testing global config options, use the config_locak
+    # semaphore to lock between other running tests.
+    TraceView.config_lock.synchronize {
+      TraceView::Config[:curb][:collect_backtraces] = true
 
-    TraceView::API.start_trace('curb_test') do
-      Curl.get("http://127.0.0.1:8101/")
-    end
+      TraceView::API.start_trace('curb_test') do
+        Curl.get("http://127.0.0.1:8101/")
+      end
+    }
 
     traces = get_all_traces
     layer_has_key(traces, 'curb', 'Backtrace')
-
-    TraceView::Config[:curb][:collect_backtraces] = @cb
   end
 
   def test_obey_collect_backtraces_when_false
-    @cb = TraceView::Config[:curb][:collect_backtraces]
-    TraceView::Config[:curb][:collect_backtraces] = false
+    skip
+    # When testing global config options, use the config_locak
+    # semaphore to lock between other running tests.
+    TraceView.config_lock.synchronize {
+      TraceView::Config[:curb][:collect_backtraces] = false
 
-    TraceView::API.start_trace('curb_test') do
-      Curl.get("http://127.0.0.1:8101/")
-    end
+      TraceView::API.start_trace('curb_test') do
+        Curl.get("http://127.0.0.1:8101/")
+      end
+    }
 
     traces = get_all_traces
     layer_doesnt_have_key(traces, 'curb', 'Backtrace')
-
-    TraceView::Config[:curb][:collect_backtraces] = @cb
   end
 end
 
