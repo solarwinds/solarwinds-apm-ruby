@@ -9,6 +9,7 @@ class CurbTest < Minitest::Test
   include Rack::Test::Methods
 
   def setup
+    clear_all_traces
     TraceView.config_lock.synchronize {
       @cb = TraceView::Config[:curb][:collect_backtraces]
       @log_args = TraceView::Config[:curb][:log_args]
@@ -37,8 +38,6 @@ class CurbTest < Minitest::Test
   end
 
   def test_class_get_request
-    clear_all_traces
-
     response = nil
 
     TraceView::API.start_trace('curb_tests') do
@@ -66,8 +65,6 @@ class CurbTest < Minitest::Test
   end
 
   def test_class_delete_request
-    clear_all_traces
-
     response = nil
 
     TraceView::API.start_trace('curb_tests') do
@@ -95,8 +92,6 @@ class CurbTest < Minitest::Test
   end
 
   def test_class_post_request
-    clear_all_traces
-
     response = nil
 
     TraceView::API.start_trace('curb_tests') do
@@ -124,8 +119,6 @@ class CurbTest < Minitest::Test
   end
 
   def test_easy_class_perform
-    clear_all_traces
-
     response = nil
 
     TraceView::API.start_trace('curb_tests') do
@@ -154,8 +147,6 @@ class CurbTest < Minitest::Test
   end
 
   def test_easy_http_head
-    clear_all_traces
-
     c = nil
 
     TraceView::API.start_trace('curb_tests') do
@@ -184,8 +175,6 @@ class CurbTest < Minitest::Test
   end
 
   def test_easy_http_put
-    clear_all_traces
-
     c = nil
 
     TraceView::API.start_trace('curb_tests') do
@@ -214,8 +203,6 @@ class CurbTest < Minitest::Test
   end
 
   def test_easy_http_post
-    clear_all_traces
-
     c = nil
 
     TraceView::API.start_trace('curb_tests') do
@@ -245,8 +232,6 @@ class CurbTest < Minitest::Test
   end
 
   def test_class_fetch_with_block
-    clear_all_traces
-
     response = nil
 
     TraceView::API.start_trace('curb_tests') do
@@ -277,7 +262,6 @@ class CurbTest < Minitest::Test
   end
 
   def test_cross_app_tracing
-    clear_all_traces
     response = nil
 
     # When testing global config options, use the config_locak
@@ -314,8 +298,6 @@ class CurbTest < Minitest::Test
   end
 
   def test_multi_basic
-    clear_all_traces
-
     responses = nil
     easy_options = {:follow_location => true}
     multi_options = {:pipeline => false}
@@ -342,8 +324,6 @@ class CurbTest < Minitest::Test
   end
 
   def test_multi_basic_pipeline
-    clear_all_traces
-
     responses = nil
     easy_options = {:follow_location => true}
     multi_options = {:pipeline => true}
@@ -370,8 +350,6 @@ class CurbTest < Minitest::Test
   end
 
   def test_requests_with_errors
-    clear_all_traces
-
     begin
       TraceView::API.start_trace('curb_tests') do
         Curl.get('http://asfjalkfjlajfljkaljf/')
@@ -400,8 +378,6 @@ class CurbTest < Minitest::Test
   end
 
   def test_obey_log_args_when_false
-    clear_all_traces
-
     # When testing global config options, use the config_locak
     # semaphore to lock between other running tests.
     TraceView.config_lock.synchronize {
@@ -420,8 +396,6 @@ class CurbTest < Minitest::Test
   end
 
   def test_obey_log_args_when_true
-    clear_all_traces
-
     # When testing global config options, use the config_locak
     # semaphore to lock between other running tests.
     TraceView.config_lock.synchronize {
@@ -440,7 +414,6 @@ class CurbTest < Minitest::Test
   end
 
   def test_without_tracing_class_get
-    clear_all_traces
     TraceView::Config[:tracing_mode] = :never
 
     response = nil
@@ -458,7 +431,6 @@ class CurbTest < Minitest::Test
   end
 
   def test_without_tracing_easy_perform
-    clear_all_traces
     response = nil
 
     # When testing global config options, use the config_locak
@@ -484,6 +456,7 @@ class CurbTest < Minitest::Test
     # semaphore to lock between other running tests.
     TraceView.config_lock.synchronize {
       TraceView::Config[:curb][:collect_backtraces] = true
+      sleep 1
 
       TraceView::API.start_trace('curb_test') do
         Curl.get("http://127.0.0.1:8101/")
@@ -495,7 +468,6 @@ class CurbTest < Minitest::Test
   end
 
   def test_obey_collect_backtraces_when_false
-    skip
     # When testing global config options, use the config_locak
     # semaphore to lock between other running tests.
     TraceView.config_lock.synchronize {
