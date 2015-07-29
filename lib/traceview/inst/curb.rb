@@ -164,11 +164,11 @@ module TraceView
       #
       # ::Curl::Easy.new.http wrapper
       #
-      def http_with_traceview(verb)
+      def http_with_traceview(verb, &block)
         # If we're not tracing, just do a fast return.
         return http_without_traceview(verb) if !TraceView.tracing?
 
-        profile_curb_method({ :HTTPMethod => verb }, :http_without_traceview, [verb])
+        profile_curb_method({ :HTTPMethod => verb }, :http_without_traceview, [verb], &block)
       end
     end
 
