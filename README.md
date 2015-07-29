@@ -351,6 +351,8 @@ You can read more about Ruby gems with C extensions in the [Rubygems Guides](htt
 
 ## Running the Tests
 
+![TraceView Ruby Tests](https://s3.amazonaws.com/appneta/tv_ruby_tests.png)
+
 The tests bundled with the gem are implemented using [Minitest](https://github.com/seattlerb/minitest).  The tests are currently used to validate the sanity of the traces generated and basic gem functionality.
 
 After a bundle install, the tests can be run as:
