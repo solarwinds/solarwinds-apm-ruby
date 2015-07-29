@@ -4,9 +4,9 @@
 module TraceView
   module Inst
 
-    # Curb instrumentation wraps instance and class methods in three classes: Curl,
+    # Curb instrumentation wraps instance and class methods in two classes:
     # Curl::Easy and Curl::Multi.  This CurlUtility module is used as a common module
-    # to be shared among all three Curl modules
+    # to be shared among both modules.
     module CurlUtility
 
       ##
@@ -256,10 +256,13 @@ module TraceView
       end
     end
 
-    module CurlMulti
-      # Common methods
-      include TraceView::Inst::CurlUtility
-
+    ##
+    # CurlMultiCM
+    #
+    # This module contains the class method wrappers for the CurlMulti class.
+    # This module should be _extended_ by CurlMulti.
+    #
+    module CurlMultiCM
       def self.extended(klass)
         ::TraceView::Util.class_method_alias(klass, :http, ::Curl::Multi)
       end
@@ -269,10 +272,46 @@ module TraceView
       #
       # ::Curl::Multi.new.http wrapper
       #
-      def http_with_traceview(urls_with_config, multi_options={}, &blk)
+      def http_with_traceview(urls_with_config, multi_options={}, &block)
         # If we're not tracing, just do a fast return.
         if !TraceView.tracing?
-          return http_without_traceview(urls_with_config, multi_options={}, &blk)
+          return http_without_traceview(urls_with_config, multi_options, &block)
+        end
+
+        begin
+          TraceView::API.log_entry('curb_multi')
+
+          # The core curb call
+          http_without_traceview(urls_with_config, multi_options, &block)
+        rescue => e
+          TraceView::API.log_exception('curb_multi', e)
+          raise e
+        ensure
+          TraceView::API.log_exit('curb_multi')
+        end
+      end
+    end
+
+    ##
+    # CurlMultiIM
+    #
+    # This module contains the instance method wrappers for the CurlMulti class.
+    # This module should be _included_ into CurlMulti.
+    #
+    module CurlMultiIM
+      def self.included(klass)
+        ::TraceView::Util.method_alias(klass, :perform, ::Curl::Multi)
+      end
+
+      ##
+      # perform_with_traceview
+      #
+      # ::Curl::Multi.new.perform wrapper
+      #
+      def perform_with_traceview(&block)
+        # If we're not tracing or we're not already tracing curb, just do a fast return.
+        if !TraceView.tracing? || ['curb', 'curb_multi'].include?(TraceView.layer)
+          return perform_without_traceview(&block)
         end
 
         begin
@@ -282,7 +321,7 @@ module TraceView
           kvs.clear
 
           # The core curb call
-          http_without_traceview(urls_with_config, multi_options, &blk)
+          perform_without_traceview(&block)
         rescue => e
           TraceView::API.log_exception('curb_multi', e)
           raise e
@@ -297,5 +336,6 @@ end
 if TraceView::Config[:curb][:enabled] && defined?(::Curl)
   ::TraceView.logger.info '[traceview/loading] Instrumenting curb' if TraceView::Config[:verbose]
   ::TraceView::Util.send_include(::Curl::Easy, ::TraceView::Inst::CurlEasy)
-  ::TraceView::Util.send_extend(::Curl::Multi, ::TraceView::Inst::CurlMulti)
+  ::TraceView::Util.send_extend(::Curl::Multi, ::TraceView::Inst::CurlMultiCM)
+  ::TraceView::Util.send_include(::Curl::Multi, ::TraceView::Inst::CurlMultiIM)
 end
