@@ -202,20 +202,24 @@ module TraceViewBase
     env = ENV['RACK_ENV'] || ENV['RAILS_ENV']
     return unless [ "development", "test" ].include? env
 
-    require 'pry-byebug'
+    if RUBY_VERSION > '1.8.7'
+      require 'pry-byebug'
 
-    if defined?(PryByebug)
-      Pry.commands.alias_command 'c', 'continue'
-      Pry.commands.alias_command 's', 'step'
-      Pry.commands.alias_command 'n', 'next'
-      Pry.commands.alias_command 'f', 'finish'
+      if defined?(PryByebug)
+        Pry.commands.alias_command 'c', 'continue'
+        Pry.commands.alias_command 's', 'step'
+        Pry.commands.alias_command 'n', 'next'
+        Pry.commands.alias_command 'f', 'finish'
 
-      Pry::Commands.command /^$/, "repeat last command" do
-        _pry_.run_command Pry.history.to_a.last
+        Pry::Commands.command /^$/, "repeat last command" do
+          _pry_.run_command Pry.history.to_a.last
+        end
       end
-    end
 
-    binding.pry
+      binding.pry
+    else
+      require 'ruby-debug'; debugger
+    end
   end
 
   ##
