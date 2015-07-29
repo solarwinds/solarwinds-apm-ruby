@@ -297,7 +297,7 @@ class CurbTest < Minitest::Test
 
   end
 
-  def test_multi_basic
+  def test_multi_basic_get
     responses = nil
     easy_options = {:follow_location => true}
     multi_options = {:pipeline => false}
@@ -323,7 +323,33 @@ class CurbTest < Minitest::Test
     assert_equal traces[11]['Label'], 'exit'
   end
 
-  def test_multi_basic_pipeline
+  def test_multi_basic_post
+    responses = nil
+    easy_options = {:follow_location => true, :multipart_form_post => true}
+    multi_options = {:pipeline => true}
+
+    urls = []
+    urls << { :url => "http://127.0.0.1:8101/1", :post_fields => { :id => 1 } }
+    urls << { :url => "http://127.0.0.1:8101/2", :post_fields => { :id => 2 } }
+    urls << { :url => "http://127.0.0.1:8101/3", :post_fields => { :id => 3 } }
+
+    TraceView::API.start_trace('curb_tests') do
+      responses = Curl::Multi.post(urls, easy_options, multi_options) do |easy|
+        nil
+      end
+    end
+
+    traces = get_all_traces
+    assert_equal 13, traces.count, "Trace count"
+    validate_outer_layers(traces, "curb_tests")
+
+    assert_equal traces[1]['Layer'], 'curb_multi'
+    assert_equal traces[1]['Label'], 'entry'
+    assert_equal traces[11]['Layer'], 'curb_multi'
+    assert_equal traces[11]['Label'], 'exit'
+  end
+
+  def test_multi_basic_get_pipeline
     responses = nil
     easy_options = {:follow_location => true}
     multi_options = {:pipeline => true}
@@ -335,6 +361,39 @@ class CurbTest < Minitest::Test
 
     TraceView::API.start_trace('curb_tests') do
       responses = Curl::Multi.get(urls, easy_options, multi_options) do |easy|
+        nil
+      end
+    end
+
+    traces = get_all_traces
+    assert_equal 13, traces.count, "Trace count"
+    validate_outer_layers(traces, "curb_tests")
+
+    assert_equal traces[1]['Layer'], 'curb_multi'
+    assert_equal traces[1]['Label'], 'entry'
+    assert_equal traces[11]['Layer'], 'curb_multi'
+    assert_equal traces[11]['Label'], 'exit'
+  end
+
+  def test_multi_advanced_get
+    responses = {}
+
+    urls = []
+    urls << "http://127.0.0.1:8101/?one=1"
+    urls << "http://127.0.0.1:8101/?two=2"
+    urls << "http://127.0.0.1:8101/?three=3"
+
+    TraceView::API.start_trace('curb_tests') do
+      m = Curl::Multi.new
+      urls.each do |url|
+        responses[url] = ""
+        c = Curl::Easy.new(url) do |curl|
+          curl.follow_location = true
+        end
+        m.add c
+      end
+
+      m.perform do
         nil
       end
     end
