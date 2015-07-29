@@ -32,6 +32,8 @@ On Heroku?  Use the `oboe-heroku` gem instead.  It wraps some additional functio
 
 ## Rails
 
+![Ruby on Rails](http://www.appneta.com/images/logos/frameworks/rails.png)
+
 No special steps are needed to instrument Ruby on Rails.  Once part of the bundle, the traceview gem will automatically detect Rails and instrument on stack initialization.
 
 *Note: Unless you are Heroku, you will still need to decide on your `tracing_mode` depending on whether you are running with an instrumented Apache or nginx in front of your Rails stack.  See below for more details.*
@@ -49,6 +51,8 @@ bundle exec rails generate traceview:install
 After the prompts, this will create an initializer: `config/initializers/traceview.rb`.
 
 ## Sinatra
+
+![Sinatra](http://www.appneta.com/images/logos/frameworks/sinatra.png)
 
 You can instrument your Sinatra application by adding the following code to your `config.ru` Rackup file:
 
@@ -75,6 +79,8 @@ With this, the traceview gem will automatically detect Sinatra on boot and instr
 
 ## Padrino
 
+![Padrino](http://www.appneta.com/images/logos/frameworks/padrino.png)
+
 As long as the traceview gem is in your `Gemfile` (inserted after the `gem 'padrino'` directive) and you are calling `Bundler.require`, the traceview gem will automatically instrument Padrino applications.
 
 If you need to set `TraceView::Config` values on stack boot, you can do so by adding the following
@@ -93,6 +99,8 @@ end
 Note: If you're on Heroku, you don't need to set `tracing_mode` - it will be automatically configured.
 
 ## Grape
+
+![Grape](http://www.appneta.com/images/logos/frameworks/grape.png)
 
 You can instrument your Grape application by adding the following code to your `config.ru` Rackup file:
 
