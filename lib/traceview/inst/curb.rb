@@ -333,7 +333,7 @@ module TraceView
   end
 end
 
-if TraceView::Config[:curb][:enabled] && defined?(::Curl)
+if TraceView::Config[:curb][:enabled] && defined?(::Curl) && RUBY_VERSION > '1.8.7'
   ::TraceView.logger.info '[traceview/loading] Instrumenting curb' if TraceView::Config[:verbose]
   ::TraceView::Util.send_include(::Curl::Easy, ::TraceView::Inst::CurlEasy)
   ::TraceView::Util.send_extend(::Curl::Multi, ::TraceView::Inst::CurlMultiCM)
