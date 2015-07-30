@@ -56,14 +56,13 @@ if RUBY_VERSION > '1.8.7'
 
       assert_equal 'curb',                    traces[1]['Layer']
       assert_equal 'entry',                   traces[1]['Label']
-      assert_equal 1,                         traces[1]['IsService']
-      assert_equal 'GET',                     traces[1]['HTTPMethod'], "HTTP Method"
-      assert_equal "http://127.0.0.1:8101/",  traces[1]['RemoteURL']
-      assert       traces[1].key?('Backtrace')
+      assert_equal false,                     traces[1].key?('IsService')
+      assert_equal false,                     traces[1].key?('RemoteURL')
+      assert_equal false,                     traces[1].key?('HTTPMethod')
+      assert traces[1].key?('Backtrace')
 
       assert_equal 'curb',                    traces[5]['Layer']
       assert_equal 'exit',                    traces[5]['Label']
-      assert_equal 200,                       traces[5]['HTTPStatus']
     end
 
     def test_class_delete_request
@@ -83,14 +82,13 @@ if RUBY_VERSION > '1.8.7'
 
       assert_equal 'curb',                    traces[1]['Layer']
       assert_equal 'entry',                   traces[1]['Label']
-      assert_equal 1,                         traces[1]['IsService']
-      assert_equal 'DELETE',                  traces[1]['HTTPMethod'], "HTTP Method"
-      assert_equal "http://127.0.0.1:8101/?curb_delete_test",  traces[1]['RemoteURL']
-      assert       traces[1].key?('Backtrace')
+      assert_equal false,                     traces[1].key?('IsService')
+      assert_equal false,                     traces[1].key?('RemoteURL')
+      assert_equal false,                     traces[1].key?('HTTPMethod')
+      assert traces[1].key?('Backtrace')
 
       assert_equal 'curb',                    traces[5]['Layer']
       assert_equal 'exit',                    traces[5]['Label']
-      assert_equal 200,                       traces[5]['HTTPStatus']
     end
 
     def test_class_post_request
@@ -110,14 +108,13 @@ if RUBY_VERSION > '1.8.7'
 
       assert_equal 'curb',                    traces[1]['Layer']
       assert_equal 'entry',                   traces[1]['Label']
-      assert_equal 1,                         traces[1]['IsService']
-      assert_equal "http://127.0.0.1:8101/",  traces[1]['RemoteURL']
-      assert_equal 'POST',                    traces[1]['HTTPMethod'], "HTTP Method"
-      assert       traces[1].key?('Backtrace')
+      assert_equal false,                     traces[1].key?('IsService')
+      assert_equal false,                     traces[1].key?('RemoteURL')
+      assert_equal false,                     traces[1].key?('HTTPMethod')
+      assert traces[1].key?('Backtrace')
 
       assert_equal 'curb',                    traces[5]['Layer']
       assert_equal 'exit',                    traces[5]['Label']
-      assert_equal 200,                       traces[5]['HTTPStatus']
     end
 
     def test_easy_class_perform
@@ -138,14 +135,13 @@ if RUBY_VERSION > '1.8.7'
 
       assert_equal 'curb',                    traces[1]['Layer']
       assert_equal 'entry',                   traces[1]['Label']
-      assert_equal 1,                         traces[1]['IsService']
-      assert_equal "http://127.0.0.1:8101/",  traces[1]['RemoteURL']
-      assert_equal 'GET',                     traces[1]['HTTPMethod'], "HTTP Method"
-      assert       traces[1].key?('Backtrace')
+      assert_equal false,                     traces[1].key?('IsService')
+      assert_equal false,                     traces[1].key?('RemoteURL')
+      assert_equal false,                     traces[1].key?('HTTPMethod')
+      assert traces[1].key?('Backtrace')
 
       assert_equal 'curb',                    traces[5]['Layer']
       assert_equal 'exit',                    traces[5]['Label']
-      assert_equal 200,                       traces[5]['HTTPStatus']
     end
 
     def test_easy_http_head
@@ -166,14 +162,13 @@ if RUBY_VERSION > '1.8.7'
 
       assert_equal 'curb',                    traces[1]['Layer']
       assert_equal 'entry',                   traces[1]['Label']
-      assert_equal 1,                         traces[1]['IsService']
-      assert_equal "http://127.0.0.1:8101/",  traces[1]['RemoteURL']
-      assert_equal 'GET',                     traces[1]['HTTPMethod'], "HTTP Method"
-      assert       traces[1].key?('Backtrace')
+      assert_equal false,                     traces[1].key?('IsService')
+      assert_equal false,                     traces[1].key?('RemoteURL')
+      assert_equal false,                     traces[1].key?('HTTPMethod')
+      assert traces[1].key?('Backtrace')
 
       assert_equal 'curb',                    traces[5]['Layer']
       assert_equal 'exit',                    traces[5]['Label']
-      assert_equal 200,                       traces[5]['HTTPStatus']
     end
 
     def test_easy_http_put
@@ -194,14 +189,13 @@ if RUBY_VERSION > '1.8.7'
 
       assert_equal 'curb',                    traces[1]['Layer']
       assert_equal 'entry',                   traces[1]['Label']
-      assert_equal 1,                         traces[1]['IsService']
-      assert_equal "http://127.0.0.1:8101/",  traces[1]['RemoteURL']
-      assert_equal 'PUT',                     traces[1]['HTTPMethod'], "HTTP Method"
-      assert       traces[1].key?('Backtrace')
+      assert_equal false,                     traces[1].key?('IsService')
+      assert_equal false,                     traces[1].key?('RemoteURL')
+      assert_equal false,                     traces[1].key?('HTTPMethod')
+      assert traces[1].key?('Backtrace')
 
       assert_equal 'curb',                    traces[5]['Layer']
       assert_equal 'exit',                    traces[5]['Label']
-      assert_equal 200,                       traces[5]['HTTPStatus']
     end
 
     def test_easy_http_post
@@ -223,14 +217,13 @@ if RUBY_VERSION > '1.8.7'
 
       assert_equal 'curb',                    traces[1]['Layer']
       assert_equal 'entry',                   traces[1]['Label']
-      assert_equal 1,                         traces[1]['IsService']
-      assert_equal "http://127.0.0.1:8101/",  traces[1]['RemoteURL']
-      assert_equal 'POST',                    traces[1]['HTTPMethod'], "HTTP Method"
-      assert       traces[1].key?('Backtrace')
+      assert_equal false,                     traces[1].key?('IsService')
+      assert_equal false,                     traces[1].key?('RemoteURL')
+      assert_equal false,                     traces[1].key?('HTTPMethod')
+      assert traces[1].key?('Backtrace')
 
       assert_equal 'curb',                    traces[5]['Layer']
       assert_equal 'exit',                    traces[5]['Label']
-      assert_equal 200,                       traces[5]['HTTPStatus']
     end
 
     def test_class_fetch_with_block
@@ -253,14 +246,14 @@ if RUBY_VERSION > '1.8.7'
       assert_equal 'curb',                    traces[1]['Layer']
       assert_equal 'entry',                   traces[1]['Label']
       assert_equal traces[5]['Label'], 'exit'
-      assert_equal 1,                         traces[1]['IsService']
-      assert_equal "http://127.0.0.1:8101/",  traces[1]['RemoteURL']
-      assert_equal 'GET',                     traces[1]['HTTPMethod']
+      assert_equal false,                     traces[1].key?('IsService')
+      assert_equal false,                     traces[1].key?('RemoteURL')
+      assert_equal false,                     traces[1].key?('HTTPMethod')
       assert traces[1].key?('Backtrace')
 
       assert_equal 'curb',                    traces[5]['Layer']
       assert_equal 'exit',                    traces[5]['Label']
-      assert_equal 200,                       traces[5]['HTTPStatus']
+      assert_equal false,                     traces[5].key?('HTTPStatus')
     end
 
     def test_cross_app_tracing
@@ -423,9 +416,9 @@ if RUBY_VERSION > '1.8.7'
       validate_outer_layers(traces, "curb_tests")
       assert valid_edges?(traces), "Trace edge validation"
 
-      assert_equal 1,                                traces[1]['IsService']
-      assert_equal 'http://asfjalkfjlajfljkaljf/',   traces[1]['RemoteURL']
-      assert_equal 'GET',                            traces[1]['HTTPMethod']
+      assert_equal false,                     traces[1].key?('IsService')
+      assert_equal false,                     traces[1].key?('RemoteURL')
+      assert_equal false,                     traces[1].key?('HTTPMethod')
       assert traces[1].key?('Backtrace')
 
       assert_equal 'curb',                           traces[2]['Layer']
@@ -443,6 +436,7 @@ if RUBY_VERSION > '1.8.7'
       # semaphore to lock between other running tests.
       TraceView.config_lock.synchronize {
         TraceView::Config[:curb][:log_args] = false
+        TraceView::Config[:curb][:cross_host] = true
 
         http = nil
 
@@ -461,6 +455,7 @@ if RUBY_VERSION > '1.8.7'
       # semaphore to lock between other running tests.
       TraceView.config_lock.synchronize {
         TraceView::Config[:curb][:log_args] = true
+        TraceView::Config[:curb][:cross_host] = true
 
         http = nil
 
