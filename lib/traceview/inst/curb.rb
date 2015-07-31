@@ -17,21 +17,23 @@ module TraceView
       #
       def traceview_collect(verb = nil)
         kvs = {}
-        kvs['IsService'] = 1
 
-        # Conditionally log query args
-        if TraceView::Config[:curb][:log_args]
-          kvs[:RemoteURL] = url
-        else
-          kvs[:RemoteURL] = url.split('?').first
+        if TraceView::Config[:curb][:cross_host]
+          kvs['IsService'] = 1
+
+          # Conditionally log query args
+          if TraceView::Config[:curb][:log_args]
+            kvs[:RemoteURL] = url
+          else
+            kvs[:RemoteURL] = url.split('?').first
+          end
+
+          kvs[:HTTPMethod] = verb if verb
         end
-
-        kvs[:HTTPMethod] = verb if verb
 
         # Avoid cross host tracing for blacklisted domains
-        if TraceView::API.blacklisted?(URI(url).hostname)
-          kvs['Blacklisted'] = true
-        end
+        kvs[:blacklisted] = TraceView::API.blacklisted?(URI(url).hostname)
+        kvs['Backtrace'] = TraceView::API.backtrace if TraceView::Config[:curb][:collect_backtraces]
 
         kvs
       rescue => e
@@ -51,23 +53,17 @@ module TraceView
 
         begin
           response_context = nil
+          req_context = nil
           handle_cross_host = TraceView::Config[:curb][:cross_host]
-
-          if handle_cross_host
-            kvs.merge! traceview_collect
-
-            # Avoid cross host tracing for blacklisted domains
-            blacklisted = TraceView::API.blacklisted?(URI(url).hostname)
-
-            req_context = TraceView::Context.toString()
-            self.headers['X-Trace'] = req_context unless blacklisted
-            kvs['Blacklisted'] = true if blacklisted
-          end
-
-          kvs['Backtrace'] = TraceView::API.backtrace if TraceView::Config[:curb][:collect_backtraces]
+          kvs.merge! traceview_collect
 
           TraceView::API.log_entry('curb', kvs)
           kvs.clear
+
+          if handle_cross_host && !kvs[:blacklisted]
+            req_context = TraceView::Context.toString()
+            self.headers['X-Trace'] = req_context
+          end
 
           # The core curb call
           response = self.send(method, *args, &block)
@@ -80,8 +76,14 @@ module TraceView
               kvs["Location"] = headers["Location"]
             end
 
-            response_context = headers['X-Trace']
-            if response_context && !blacklisted
+            # Curb only provides a single long string of all response headers (yuck!).  So we are forced
+            # to process that string to pull out the response X-Trace value.
+            # Taken from https://stackoverflow.com/questions/14345805/curb-get-response-headers
+            _, *response_headers = header_str.split(/[\r\n]+/).map(&:strip)
+            response_headers = Hash[response_headers.flat_map{ |s| s.scan(/^(\S+): (.+)/) }]
+
+            response_context = response_headers['X-Trace']
+            if response_context && !kvs[:blacklisted]
               TraceView::XTrace.continue_service_context(req_context, response_context)
             end
           end
