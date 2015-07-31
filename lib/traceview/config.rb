@@ -154,6 +154,9 @@ module TraceView
       # which unfortunately it cannot detect.  If you're sure this is not
       # the case, you can enable cross host tracing for the curb HTTP client
       # here.  Set to true to enable.
+      #
+      # To install the TraceView libcurl instrumentation, see here:
+      # http://docs.appneta.com/installing-libcurl-instrumentation
       @@config[:curb][:cross_host] = false
 
       # Environment support for OpenShift.
