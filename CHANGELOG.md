@@ -4,6 +4,17 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# traceview 3.1.0
+
+This minor release adds the following:
+
+* New Curb HTTP client instrumentation: #132
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.1.0
+https://rubygems.org/gems/traceview/versions/3.1.0-java
+
 # traceview 3.0.5
 
 This patch release includes the following fixes:
