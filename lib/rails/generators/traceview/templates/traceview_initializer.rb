@@ -97,6 +97,7 @@ if defined?(TraceView::Config)
   # TraceView::Config[:active_record][:enabled] = true
   # TraceView::Config[:action_view][:enabled] = true
   # TraceView::Config[:cassandra][:enabled] = true
+  # TraceView::Config[:curb][:enabled] = true
   # TraceView::Config[:dalli][:enabled] = true
   # TraceView::Config[:excon][:enabled] = true
   # TraceView::Config[:em_http_request][:enabled] = true
@@ -126,6 +127,7 @@ if defined?(TraceView::Config)
   # TraceView::Config[:active_record][:collect_backtraces] = true
   # TraceView::Config[:action_view][:collect_backtraces] = true
   # TraceView::Config[:cassandra][:collect_backtraces] = true
+  # TraceView::Config[:curb][:collect_backtraces] = true
   # TraceView::Config[:dalli][:collect_backtraces] = false
   # TraceView::Config[:excon][:collect_backtraces] = false
   # TraceView::Config[:em_http_request][:collect_backtraces] = true
@@ -142,6 +144,22 @@ if defined?(TraceView::Config)
   # TraceView::Config[:sequel][:collect_backtraces] = true
   # TraceView::Config[:typhoeus][:collect_backtraces] = false
   #
+
+  # By default, the curb instrumentation will not link
+  # outgoing requests with remotely instrumented
+  # webservers (aka cross host tracing).  This is because the
+  # instrumentation can't detect if the independent libcurl
+  # instrumentation is in use or not.
+  #
+  # If you're sure that it's not in use/installed, then you can
+  # enable cross host tracing for the curb HTTP client
+  # here.  Set TraceView::Config[:curb][:cross_host] to true
+  # to enable.
+  #
+  # Alternatively, if you would like to install the separate
+  # libcurl instrumentation, see here:
+  # http://docs.appneta.com/installing-libcurl-instrumentation
+  # TraceView::Config[:curb][:cross_host] = false
 
   #
   # Resque Options
