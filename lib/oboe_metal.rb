@@ -1,6 +1,8 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
+require 'thread'
+
 # Disable docs and Camelcase warns since we're implementing
 # an interface here.  See OboeBase for details.
 # rubocop:disable Style/Documentation, Style/MethodName
@@ -149,3 +151,4 @@ end
 # rubocop:enable Style/Documentation
 
 TraceView.loaded = true
+TraceView.config_lock = Mutex.new

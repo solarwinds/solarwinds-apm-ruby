@@ -12,13 +12,13 @@ module TraceView
     @@config = {}
 
     @@instrumentation = [:action_controller, :action_view, :active_record,
-                         :cassandra, :dalli, :em_http_request, :excon, :faraday,
+                         :cassandra, :curb, :dalli, :em_http_request, :excon, :faraday,
                          :grape, :httpclient, :nethttp, :memcached, :memcache, :mongo,
                          :moped, :rack, :redis, :resque, :rest_client, :sequel,
                          :typhoeus]
 
     # Subgrouping of instrumentation
-    @@http_clients = [:excon, :faraday, :httpclient, :nethttp, :rest_client, :typhoeus]
+    @@http_clients = [:curb, :excon, :faraday, :httpclient, :nethttp, :rest_client, :typhoeus]
 
     ##
     # Return the raw nested hash.
@@ -44,6 +44,7 @@ module TraceView
       TraceView::Config[:active_record][:collect_backtraces] = true
       TraceView::Config[:action_view][:collect_backtraces] = true
       TraceView::Config[:cassandra][:collect_backtraces] = true
+      TraceView::Config[:curb][:collect_backtraces] = true
       TraceView::Config[:dalli][:collect_backtraces] = false
       TraceView::Config[:em_http_request][:collect_backtraces] = false
       TraceView::Config[:excon][:collect_backtraces] = true
@@ -145,6 +146,22 @@ module TraceView
       # dashboard by default.  Setting this value to true will
       # report all raised exception regardless.
       @@config[:report_rescued_errors] = false
+
+      # By default, the curb instrumentation will not link
+      # outgoing requests with remotely instrumented
+      # webservers (aka cross host tracing).  This is because the
+      # instrumentation can't detect if the independent libcurl
+      # instrumentation is in use or not.
+      #
+      # If you're sure that it's not in use/installed, then you can
+      # enable cross host tracing for the curb HTTP client
+      # here.  Set TraceView::Config[:curb][:cross_host] to true
+      # to enable.
+      #
+      # Alternatively, if you would like to install the separate
+      # libcurl instrumentation, see here:
+      # http://docs.appneta.com/installing-libcurl-instrumentation
+      @@config[:curb][:cross_host] = false
 
       # Environment support for OpenShift.
       if ENV.key?('OPENSHIFT_TRACEVIEW_TLYZER_IP')
