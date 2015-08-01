@@ -149,13 +149,17 @@ module TraceView
 
       # By default, the curb instrumentation will not link
       # outgoing requests with remotely instrumented
-      # webservers (cross host tracing).  This is because at it's
-      # core, curb could be using the TraceView libcurl instrumentation
-      # which unfortunately it cannot detect.  If you're sure this is not
-      # the case, you can enable cross host tracing for the curb HTTP client
-      # here.  Set to true to enable.
+      # webservers (aka cross host tracing).  This is because the
+      # instrumentation can't detect if the independent libcurl
+      # instrumentation is in use or not.
       #
-      # To install the TraceView libcurl instrumentation, see here:
+      # If you're sure that it's not in use/installed, then you can
+      # enable cross host tracing for the curb HTTP client
+      # here.  Set TraceView::Config[:curb][:cross_host] to true
+      # to enable.
+      #
+      # Alternatively, if you would like to install the separate
+      # libcurl instrumentation, see here:
       # http://docs.appneta.com/installing-libcurl-instrumentation
       @@config[:curb][:cross_host] = false
 
