@@ -27,7 +27,7 @@ while true do
         Oboe::Context.clear
         result = nil
 
-        Oboe::API.start_trace('do_the_work', :job_id => job.id) do
+        Oboe::API.start_trace('do_the_work', nil, :job_id => job.id) do
           result = do_the_work(job)
         end
 

@@ -1,5 +1,8 @@
+# Copyright (c) 2015 AppNeta, Inc.
+# All rights reserved.
+
 require 'minitest_helper'
-require 'oboe/inst/rack'
+require 'traceview/inst/rack'
 require File.expand_path(File.dirname(__FILE__) + '../../frameworks/apps/sinatra_simple')
 
 class HTTPClientTest < Minitest::Test
@@ -10,7 +13,7 @@ class HTTPClientTest < Minitest::Test
   end
 
   def test_reports_version_init
-    init_kvs = ::Oboe::Util.build_init_report
+    init_kvs = ::TraceView::Util.build_init_report
     assert init_kvs.key?('Ruby.HTTPClient.Version')
     assert_equal init_kvs['Ruby.HTTPClient.Version'], "HTTPClient-#{::HTTPClient::VERSION}"
   end
@@ -20,7 +23,7 @@ class HTTPClientTest < Minitest::Test
 
     response = nil
 
-    Oboe::API.start_trace('httpclient_tests') do
+    TraceView::API.start_trace('httpclient_tests') do
       clnt = HTTPClient.new
       response = clnt.get('http://127.0.0.1:8101/', :query => { :keyword => 'ruby', :lang => 'en' })
     end
@@ -29,7 +32,7 @@ class HTTPClientTest < Minitest::Test
 
     # Validate returned xtrace
     assert response.headers.key?("X-Trace")
-    assert Oboe::XTrace.valid?(response.headers["X-Trace"])
+    assert TraceView::XTrace.valid?(response.headers["X-Trace"])
 
     assert_equal traces.count, 7
     valid_edges?(traces)
@@ -50,7 +53,7 @@ class HTTPClientTest < Minitest::Test
 
     response = nil
 
-    Oboe::API.start_trace('httpclient_tests') do
+    TraceView::API.start_trace('httpclient_tests') do
       clnt = HTTPClient.new
       response = clnt.get('http://127.0.0.1:8101/', nil, { "SOAPAction" => "HelloWorld" })
     end
@@ -59,7 +62,7 @@ class HTTPClientTest < Minitest::Test
 
     xtrace = response.headers['X-Trace']
     assert xtrace
-    assert Oboe::XTrace.valid?(xtrace)
+    assert TraceView::XTrace.valid?(xtrace)
 
     assert_equal traces.count, 7
     valid_edges?(traces)
@@ -80,7 +83,7 @@ class HTTPClientTest < Minitest::Test
 
     response = nil
 
-    Oboe::API.start_trace('httpclient_tests') do
+    TraceView::API.start_trace('httpclient_tests') do
       clnt = HTTPClient.new
       response = clnt.get('http://127.0.0.1:8101/', nil, [["Accept", "text/plain"], ["Accept", "text/html"]])
     end
@@ -89,7 +92,7 @@ class HTTPClientTest < Minitest::Test
 
     xtrace = response.headers['X-Trace']
     assert xtrace
-    assert Oboe::XTrace.valid?(xtrace)
+    assert TraceView::XTrace.valid?(xtrace)
 
     assert_equal traces.count, 7
     valid_edges?(traces)
@@ -110,7 +113,7 @@ class HTTPClientTest < Minitest::Test
 
     response = nil
 
-    Oboe::API.start_trace('httpclient_tests') do
+    TraceView::API.start_trace('httpclient_tests') do
       clnt = HTTPClient.new
       response = clnt.post('http://127.0.0.1:8101/')
     end
@@ -119,7 +122,7 @@ class HTTPClientTest < Minitest::Test
 
     xtrace = response.headers['X-Trace']
     assert xtrace
-    assert Oboe::XTrace.valid?(xtrace)
+    assert TraceView::XTrace.valid?(xtrace)
 
     assert_equal traces.count, 7
     valid_edges?(traces)
@@ -142,7 +145,7 @@ class HTTPClientTest < Minitest::Test
 
     conn = nil
 
-    Oboe::API.start_trace('httpclient_tests') do
+    TraceView::API.start_trace('httpclient_tests') do
       clnt = HTTPClient.new
       conn = clnt.get_async('http://127.0.0.1:8101/?blah=1')
     end
@@ -175,14 +178,14 @@ class HTTPClientTest < Minitest::Test
 
     response = nil
 
-    Oboe::API.start_trace('httpclient_tests') do
+    TraceView::API.start_trace('httpclient_tests') do
       clnt = HTTPClient.new
       response = clnt.get('http://127.0.0.1:8101/', :query => { :keyword => 'ruby', :lang => 'en' })
     end
 
     xtrace = response.headers['X-Trace']
     assert xtrace
-    assert Oboe::XTrace.valid?(xtrace)
+    assert TraceView::XTrace.valid?(xtrace)
 
     traces = get_all_traces
 
@@ -212,7 +215,7 @@ class HTTPClientTest < Minitest::Test
 
     result = nil
     begin
-      Oboe::API.start_trace('httpclient_tests') do
+      TraceView::API.start_trace('httpclient_tests') do
         clnt = HTTPClient.new
         result = clnt.get('http://asfjalkfjlajfljkaljf/')
       end
@@ -242,12 +245,12 @@ class HTTPClientTest < Minitest::Test
   def test_log_args_when_true
     clear_all_traces
 
-    @log_args = Oboe::Config[:httpclient][:log_args]
-    Oboe::Config[:httpclient][:log_args] = true
+    @log_args = TraceView::Config[:httpclient][:log_args]
+    TraceView::Config[:httpclient][:log_args] = true
 
     response = nil
 
-    Oboe::API.start_trace('httpclient_tests') do
+    TraceView::API.start_trace('httpclient_tests') do
       clnt = HTTPClient.new
       response = clnt.get('http://127.0.0.1:8101/', :query => { :keyword => 'ruby', :lang => 'en' })
     end
@@ -256,25 +259,25 @@ class HTTPClientTest < Minitest::Test
 
     xtrace = response.headers['X-Trace']
     assert xtrace
-    assert Oboe::XTrace.valid?(xtrace)
+    assert TraceView::XTrace.valid?(xtrace)
 
     assert_equal traces.count, 7
     valid_edges?(traces)
 
     assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/?keyword=ruby&lang=en'
 
-    Oboe::Config[:httpclient][:log_args] = @log_args
+    TraceView::Config[:httpclient][:log_args] = @log_args
   end
 
   def test_log_args_when_false
     clear_all_traces
 
-    @log_args = Oboe::Config[:httpclient][:log_args]
-    Oboe::Config[:httpclient][:log_args] = false
+    @log_args = TraceView::Config[:httpclient][:log_args]
+    TraceView::Config[:httpclient][:log_args] = false
 
     response = nil
 
-    Oboe::API.start_trace('httpclient_tests') do
+    TraceView::API.start_trace('httpclient_tests') do
       clnt = HTTPClient.new
       response = clnt.get('http://127.0.0.1:8101/', :query => { :keyword => 'ruby', :lang => 'en' })
     end
@@ -283,14 +286,37 @@ class HTTPClientTest < Minitest::Test
 
     xtrace = response.headers['X-Trace']
     assert xtrace
-    assert Oboe::XTrace.valid?(xtrace)
+    assert TraceView::XTrace.valid?(xtrace)
 
     assert_equal traces.count, 7
     valid_edges?(traces)
 
     assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/'
 
-    Oboe::Config[:httpclient][:log_args] = @log_args
+    TraceView::Config[:httpclient][:log_args] = @log_args
+  end
+
+  def test_without_tracing
+    clear_all_traces
+
+    @tm = TraceView::Config[:tracing_mode]
+    TraceView::Config[:tracing_mode] = :never
+
+    response = nil
+
+    TraceView::API.start_trace('httpclient_tests') do
+      clnt = HTTPClient.new
+      response = clnt.get('http://127.0.0.1:8101/', :query => { :keyword => 'ruby', :lang => 'en' })
+    end
+
+    xtrace = response.headers['X-Trace']
+    assert xtrace == nil
+
+    traces = get_all_traces
+
+    assert_equal traces.count, 0
+
+    TraceView::Config[:tracing_mode] = @tm
   end
 end
 

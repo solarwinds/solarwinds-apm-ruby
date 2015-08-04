@@ -1,5 +1,8 @@
+# Copyright (c) 2015 AppNeta, Inc.
+# All rights reserved.
+
 require 'minitest_helper'
-require 'oboe/inst/rack'
+require 'traceview/inst/rack'
 require File.expand_path(File.dirname(__FILE__) + '../../frameworks/apps/sinatra_simple')
 
 class ExconTest < Minitest::Test
@@ -14,11 +17,11 @@ class ExconTest < Minitest::Test
     get "/"
     xtrace = last_response['X-Trace']
     assert xtrace
-    assert Oboe::XTrace.valid?(xtrace)
+    assert TraceView::XTrace.valid?(xtrace)
   end
 
   def test_reports_version_init
-    init_kvs = ::Oboe::Util.build_init_report
+    init_kvs = ::TraceView::Util.build_init_report
     assert init_kvs.key?('Ruby.Excon.Version')
     assert_equal init_kvs['Ruby.Excon.Version'], "Excon-#{::Excon::VERSION}"
   end
@@ -26,8 +29,8 @@ class ExconTest < Minitest::Test
   def test_class_get_request
     clear_all_traces
 
-    Oboe::API.start_trace('excon_tests') do
-      response = Excon.get('http://127.0.0.1:8101/')
+    TraceView::API.start_trace('excon_tests') do
+      Excon.get('http://127.0.0.1:8101/')
     end
 
     traces = get_all_traces
@@ -50,11 +53,11 @@ class ExconTest < Minitest::Test
   def test_cross_app_tracing
     clear_all_traces
 
-    Oboe::API.start_trace('excon_tests') do
+    TraceView::API.start_trace('excon_tests') do
       response = Excon.get('http://127.0.0.1:8101/?blah=1')
       xtrace = response.headers['X-Trace']
       assert xtrace
-      assert Oboe::XTrace.valid?(xtrace)
+      assert TraceView::XTrace.valid?(xtrace)
     end
 
     traces = get_all_traces
@@ -77,7 +80,7 @@ class ExconTest < Minitest::Test
 
     clear_all_traces
 
-    Oboe::API.start_trace('excon_tests') do
+    TraceView::API.start_trace('excon_tests') do
       connection = Excon.new('http://127.0.0.1:8101/') # non-persistent by default
       connection.get # socket established, then closed
       connection.get(:persistent => true) # socket established, left open
@@ -119,7 +122,7 @@ class ExconTest < Minitest::Test
 
     clear_all_traces
 
-    Oboe::API.start_trace('excon_tests') do
+    TraceView::API.start_trace('excon_tests') do
       connection = Excon.new('http://127.0.0.1:8101/')
       connection.requests([{:method => :get}, {:method => :put}])
     end
@@ -142,7 +145,7 @@ class ExconTest < Minitest::Test
     clear_all_traces
 
     begin
-      Oboe::API.start_trace('excon_tests') do
+      TraceView::API.start_trace('excon_tests') do
         Excon.get('http://asfjalkfjlajfljkaljf/')
       end
     rescue
@@ -171,12 +174,12 @@ class ExconTest < Minitest::Test
   end
 
   def test_obey_log_args_when_false
-    @log_args = Oboe::Config[:excon][:log_args]
+    @log_args = TraceView::Config[:excon][:log_args]
     clear_all_traces
 
-    Oboe::Config[:excon][:log_args] = false
+    TraceView::Config[:excon][:log_args] = false
 
-    Oboe::API.start_trace('excon_tests') do
+    TraceView::API.start_trace('excon_tests') do
       Excon.get('http://127.0.0.1:8101/?blah=1')
     end
 
@@ -184,16 +187,16 @@ class ExconTest < Minitest::Test
     assert_equal traces.count, 7
     assert_equal traces[1]['ServiceArg'], '/'
 
-    Oboe::Config[:excon][:log_args] = @log_args
+    TraceView::Config[:excon][:log_args] = @log_args
   end
 
   def test_obey_log_args_when_true
-    @log_args = Oboe::Config[:excon][:log_args]
+    @log_args = TraceView::Config[:excon][:log_args]
     clear_all_traces
 
-    Oboe::Config[:excon][:log_args] = true
+    TraceView::Config[:excon][:log_args] = true
 
-    Oboe::API.start_trace('excon_tests') do
+    TraceView::API.start_trace('excon_tests') do
       Excon.get('http://127.0.0.1:8101/?blah=1')
     end
 
@@ -201,7 +204,7 @@ class ExconTest < Minitest::Test
     assert_equal traces.count, 7
     assert_equal traces[1]['ServiceArg'], '/?blah=1'
 
-    Oboe::Config[:excon][:log_args] = @log_args
+    TraceView::Config[:excon][:log_args] = @log_args
   end
 end
 

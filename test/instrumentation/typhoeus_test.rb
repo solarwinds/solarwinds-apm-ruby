@@ -4,30 +4,30 @@
 require 'minitest_helper'
 require 'rack'
 
-describe Oboe::Inst::TyphoeusRequestOps do
+describe "Typhoeus" do
   before do
     clear_all_traces
-    @collect_backtraces = Oboe::Config[:typhoeus][:collect_backtraces]
-    @log_args = Oboe::Config[:typhoeus][:log_args]
+    @collect_backtraces = TraceView::Config[:typhoeus][:collect_backtraces]
+    @log_args = TraceView::Config[:typhoeus][:log_args]
   end
 
   after do
-    Oboe::Config[:typhoeus][:collect_backtraces] = @collect_backtraces
-    Oboe::Config[:typhoeus][:log_args] = @log_args
+    TraceView::Config[:typhoeus][:collect_backtraces] = @collect_backtraces
+    TraceView::Config[:typhoeus][:log_args] = @log_args
   end
 
   it 'Typhoeus should be defined and ready' do
     defined?(::Typhoeus::Request::Operations).wont_match nil
   end
 
-  it 'Typhoeus should have oboe methods defined' do
-    [ :run_with_oboe ].each do |m|
+  it 'Typhoeus should have traceview methods defined' do
+    [ :run_with_traceview ].each do |m|
       ::Typhoeus::Request::Operations.method_defined?(m).must_equal true
     end
   end
 
   it 'should trace a typhoeus request' do
-    Oboe::API.start_trace('typhoeus_test') do
+    TraceView::API.start_trace('typhoeus_test') do
       Typhoeus.get("http://127.0.0.1:8101/")
     end
 
@@ -38,7 +38,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
     validate_outer_layers(traces, 'typhoeus_test')
 
     traces[1]['Layer'].must_equal 'typhoeus'
-    traces[1].key?('Backtrace').must_equal Oboe::Config[:typhoeus][:collect_backtraces]
+    traces[1].key?('Backtrace').must_equal TraceView::Config[:typhoeus][:collect_backtraces]
 
     traces[5]['Layer'].must_equal 'typhoeus'
     traces[5]['Label'].must_equal 'info'
@@ -52,9 +52,9 @@ describe Oboe::Inst::TyphoeusRequestOps do
   end
 
   it 'should trace a typhoeus POST request' do
-    Oboe::API.start_trace('typhoeus_test') do
+    TraceView::API.start_trace('typhoeus_test') do
       Typhoeus.post("127.0.0.1:8101/",
-                    :body => { :key => "oboe-ruby-fake", :content => "oboe-ruby repo test suite"})
+                    :body => { :key => "traceview-ruby-fake", :content => "traceview-ruby repo test suite"})
     end
 
     traces = get_all_traces
@@ -64,7 +64,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
     validate_outer_layers(traces, 'typhoeus_test')
 
     traces[1]['Layer'].must_equal 'typhoeus'
-    traces[1].key?('Backtrace').must_equal Oboe::Config[:typhoeus][:collect_backtraces]
+    traces[1].key?('Backtrace').must_equal TraceView::Config[:typhoeus][:collect_backtraces]
 
     traces[5]['Layer'].must_equal 'typhoeus'
     traces[5]['Label'].must_equal 'info'
@@ -78,9 +78,9 @@ describe Oboe::Inst::TyphoeusRequestOps do
   end
 
   it 'should trace a typhoeus PUT request' do
-    Oboe::API.start_trace('typhoeus_test') do
+    TraceView::API.start_trace('typhoeus_test') do
       Typhoeus.put("http://127.0.0.1:8101/",
-                    :body => { :key => "oboe-ruby-fake", :content => "oboe-ruby repo test suite"})
+                    :body => { :key => "traceview-ruby-fake", :content => "traceview-ruby repo test suite"})
     end
 
     traces = get_all_traces
@@ -90,7 +90,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
     validate_outer_layers(traces, 'typhoeus_test')
 
     traces[1]['Layer'].must_equal 'typhoeus'
-    traces[1].key?('Backtrace').must_equal Oboe::Config[:typhoeus][:collect_backtraces]
+    traces[1].key?('Backtrace').must_equal TraceView::Config[:typhoeus][:collect_backtraces]
 
     traces[5]['Layer'].must_equal 'typhoeus'
     traces[5]['Label'].must_equal 'info'
@@ -104,7 +104,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
   end
 
   it 'should trace a typhoeus DELETE request' do
-    Oboe::API.start_trace('typhoeus_test') do
+    TraceView::API.start_trace('typhoeus_test') do
       Typhoeus.delete("http://127.0.0.1:8101/")
     end
 
@@ -115,7 +115,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
     validate_outer_layers(traces, 'typhoeus_test')
 
     traces[1]['Layer'].must_equal 'typhoeus'
-    traces[1].key?('Backtrace').must_equal Oboe::Config[:typhoeus][:collect_backtraces]
+    traces[1].key?('Backtrace').must_equal TraceView::Config[:typhoeus][:collect_backtraces]
 
     traces[5]['Layer'].must_equal 'typhoeus'
     traces[5]['Label'].must_equal 'info'
@@ -129,7 +129,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
   end
 
   it 'should trace a typhoeus HEAD request' do
-    Oboe::API.start_trace('typhoeus_test') do
+    TraceView::API.start_trace('typhoeus_test') do
       Typhoeus.head("http://127.0.0.1:8101/")
     end
 
@@ -140,7 +140,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
     validate_outer_layers(traces, 'typhoeus_test')
 
     traces[1]['Layer'].must_equal 'typhoeus'
-    traces[1].key?('Backtrace').must_equal Oboe::Config[:typhoeus][:collect_backtraces]
+    traces[1].key?('Backtrace').must_equal TraceView::Config[:typhoeus][:collect_backtraces]
 
     traces[5]['Layer'].must_equal 'typhoeus'
     traces[5]['Label'].must_equal 'info'
@@ -154,7 +154,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
   end
 
   it 'should trace a typhoeus GET request to an instr\'d app' do
-    Oboe::API.start_trace('typhoeus_test') do
+    TraceView::API.start_trace('typhoeus_test') do
       Typhoeus.get("127.0.0.1:8101/")
     end
 
@@ -165,7 +165,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
     validate_outer_layers(traces, 'typhoeus_test')
 
     traces[1]['Layer'].must_equal 'typhoeus'
-    traces[1].key?('Backtrace').must_equal Oboe::Config[:typhoeus][:collect_backtraces]
+    traces[1].key?('Backtrace').must_equal TraceView::Config[:typhoeus][:collect_backtraces]
 
     traces[5]['Layer'].must_equal 'typhoeus'
     traces[5]['Label'].must_equal 'info'
@@ -179,7 +179,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
   end
 
   it 'should trace a typhoeus GET request with DNS error' do
-    Oboe::API.start_trace('typhoeus_test') do
+    TraceView::API.start_trace('typhoeus_test') do
       Typhoeus.get("thisdomaindoesntexisthopefully.asdf/products/traceview/")
     end
 
@@ -190,7 +190,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
     validate_outer_layers(traces, 'typhoeus_test')
 
     traces[1]['Layer'].must_equal 'typhoeus'
-    traces[1].key?('Backtrace').must_equal Oboe::Config[:typhoeus][:collect_backtraces]
+    traces[1].key?('Backtrace').must_equal TraceView::Config[:typhoeus][:collect_backtraces]
 
     traces[2]['Layer'].must_equal 'typhoeus'
     traces[2]['Label'].must_equal 'error'
@@ -210,7 +210,7 @@ describe Oboe::Inst::TyphoeusRequestOps do
   end
 
   it 'should trace parallel typhoeus requests' do
-    Oboe::API.start_trace('typhoeus_test') do
+    TraceView::API.start_trace('typhoeus_test') do
       hydra = Typhoeus::Hydra.hydra
 
       first_request  = Typhoeus::Request.new("127.0.0.1:8101/products/traceview/")
@@ -240,9 +240,9 @@ describe Oboe::Inst::TyphoeusRequestOps do
   end
 
   it 'should obey :log_args setting when true' do
-    Oboe::Config[:typhoeus][:log_args] = true
+    TraceView::Config[:typhoeus][:log_args] = true
 
-    Oboe::API.start_trace('typhoeus_test') do
+    TraceView::API.start_trace('typhoeus_test') do
       Typhoeus.get("127.0.0.1:8101/?blah=1")
     end
 
@@ -251,9 +251,9 @@ describe Oboe::Inst::TyphoeusRequestOps do
   end
 
   it 'should obey :log_args setting when false' do
-    Oboe::Config[:typhoeus][:log_args] = false
+    TraceView::Config[:typhoeus][:log_args] = false
 
-    Oboe::API.start_trace('typhoeus_test') do
+    TraceView::API.start_trace('typhoeus_test') do
       Typhoeus.get("127.0.0.1:8101/?blah=1")
     end
 
@@ -262,9 +262,9 @@ describe Oboe::Inst::TyphoeusRequestOps do
   end
 
   it 'should obey :collect_backtraces setting when true' do
-    Oboe::Config[:typhoeus][:collect_backtraces] = true
+    TraceView::Config[:typhoeus][:collect_backtraces] = true
 
-    Oboe::API.start_trace('typhoeus_test') do
+    TraceView::API.start_trace('typhoeus_test') do
       Typhoeus.get("127.0.0.1:8101/?blah=1")
     end
 
@@ -273,9 +273,9 @@ describe Oboe::Inst::TyphoeusRequestOps do
   end
 
   it 'should obey :collect_backtraces setting when false' do
-    Oboe::Config[:typhoeus][:collect_backtraces] = false
+    TraceView::Config[:typhoeus][:collect_backtraces] = false
 
-    Oboe::API.start_trace('typhoeus_test') do
+    TraceView::API.start_trace('typhoeus_test') do
       Typhoeus.get("127.0.0.1:8101/")
     end
 

@@ -1,10 +1,17 @@
+# Copyright (c) 2015 AppNeta, Inc.
+# All rights reserved.
+
+require 'rubygems'
+require 'bundler/setup'
 require "minitest/spec"
 require "minitest/autorun"
 require "minitest/reporters"
 require "minitest/debugger" if ENV['DEBUG']
+require "sinatra"
 
 ENV["RACK_ENV"] = "test"
-ENV["OBOE_GEM_TEST"] = "true"
+ENV["TRACEVIEW_GEM_TEST"] = "true"
+ENV["TRACEVIEW_GEM_VERBOSE"] = "true"
 
 # FIXME: Temp hack to fix padrino-core calling RUBY_ENGINE when it's
 # not defined under Ruby 1.8.7 and 1.9.3
@@ -20,25 +27,36 @@ if defined?(JRUBY_VERSION)
   ENV['JAVA_OPTS'] = "-J-javaagent:/usr/local/tracelytics/tracelyticsagent.jar"
 end
 
-require 'rubygems'
-require 'bundler'
-
-# Preload memcache-client
-require 'memcache'
-
-Bundler.require(:default, :test)
-
 @trace_dir = "/tmp/"
 $trace_file = @trace_dir + "trace_output.bson"
 
-# Configure Oboe
-Oboe::Config[:verbose] = true
-Oboe::Config[:tracing_mode] = "always"
-Oboe::Config[:sample_rate] = 1000000
-Oboe.logger.level = Logger::DEBUG
+Bundler.require(:default, :test)
+
+# Configure TraceView
+TraceView::Config[:verbose] = true
+TraceView::Config[:tracing_mode] = "always"
+TraceView::Config[:sample_rate] = 1000000
+TraceView.logger.level = Logger::DEBUG
+
+# Pre-create test databases (see also .travis.yml)
+# puts "Pre-creating test databases"
+# puts %x{mysql -u root -e 'create database travis_ci_test;'}
+# puts %x{psql -c 'create database travis_ci_test;' -U postgres}
 
 # Our background Rack-app for http client testing
 require "./test/servers/rackapp_8101"
+
+# Conditionally load other background servers
+# depending on what we're testing
+#
+case File.basename(ENV['BUNDLE_GEMFILE'])
+when /rails4/
+  require "./test/servers/rails4x_8140"
+when /rails3/
+  require "./test/servers/rails3x_8140"
+when /frameworks/
+when /libraries/
+end
 
 ##
 # clear_all_traces
@@ -46,7 +64,9 @@ require "./test/servers/rackapp_8101"
 # Truncates the trace output file to zero
 #
 def clear_all_traces
-  Oboe::Reporter.clear_all_traces
+  if TraceView.loaded
+    TraceView::Reporter.clear_all_traces
+  end
 end
 
 ##
@@ -55,7 +75,11 @@ end
 # Retrieves all traces written to the trace file
 #
 def get_all_traces
-  Oboe::Reporter.get_all_traces
+  if TraceView.loaded
+    TraceView::Reporter.get_all_traces
+  else
+    []
+  end
 end
 
 ##
@@ -92,11 +116,11 @@ end
 #
 def has_edge?(edge, traces)
   traces.each do |t|
-    if Oboe::XTrace.edge_id(t["X-Trace"]) == edge
+    if TraceView::XTrace.edge_id(t["X-Trace"]) == edge
       return true
     end
   end
-  Oboe.logger.debug "[oboe/debug] edge #{edge} not found in traces."
+  TraceView.logger.debug "[oboe/debug] edge #{edge} not found in traces."
   false
 end
 

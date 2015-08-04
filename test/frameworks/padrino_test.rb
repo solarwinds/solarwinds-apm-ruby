@@ -1,5 +1,9 @@
-if RUBY_VERSION >= '1.9.3'
-  require "minitest_helper"
+# Copyright (c) 2015 AppNeta, Inc.
+# All rights reserved.
+
+require "minitest_helper"
+
+if RUBY_VERSION >= '1.9.3' and defined?(::Padrino)
   require File.expand_path(File.dirname(__FILE__) + '/apps/padrino_simple')
 
   describe Padrino do
@@ -13,8 +17,9 @@ if RUBY_VERSION >= '1.9.3'
       r = get "/render"
 
       traces = get_all_traces
-      traces.count.must_equal 9
 
+      traces.count.must_equal 9
+      valid_edges?(traces).must_equal true
       validate_outer_layers(traces, 'rack')
 
       traces[2]['Layer'].must_equal "padrino"

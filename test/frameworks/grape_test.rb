@@ -1,5 +1,9 @@
-if RUBY_VERSION >= '1.9.3'
-  require 'minitest_helper'
+# Copyright (c) 2015 AppNeta, Inc.
+# All rights reserved.
+
+require 'minitest_helper'
+
+if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
   require File.expand_path(File.dirname(__FILE__) + '/apps/grape_simple')
   require File.expand_path(File.dirname(__FILE__) + '/apps/grape_nested')
 
@@ -92,8 +96,8 @@ if RUBY_VERSION >= '1.9.3'
       @app = GrapeSimple
 
       begin
-        r = get "/break"
-      rescue Exception => e
+        get "/break"
+      rescue Exception
         # Do not handle/raise this error so
         # we can continue to test
       end

@@ -1,14 +1,17 @@
+# Copyright (c) 2015 AppNeta, Inc.
+# All rights reserved.
+
 require 'minitest_helper'
 
-describe Oboe::Inst::Dalli < ::MiniTest::Spec  do
+describe "Dalli" do
   before do
     clear_all_traces
     @dc = Dalli::Client.new
-    @collect_backtraces = Oboe::Config[:dalli][:collect_backtraces]
+    @collect_backtraces = TraceView::Config[:dalli][:collect_backtraces]
   end
 
   after do
-    Oboe::Config[:dalli][:collect_backtraces] = @collect_backtraces
+    TraceView::Config[:dalli][:collect_backtraces] = @collect_backtraces
   end
 
   it 'Stock Dalli should be loaded, defined and ready' do
@@ -16,14 +19,14 @@ describe Oboe::Inst::Dalli < ::MiniTest::Spec  do
     defined?(::Dalli::Client).wont_match nil
   end
 
-  it 'should have oboe methods defined' do
-    [ :perform_with_oboe, :get_multi_with_oboe ].each do |m|
+  it 'should have traceview methods defined' do
+    [ :perform_with_traceview, :get_multi_with_traceview].each do |m|
       ::Dalli::Client.method_defined?(m).must_equal true
     end
   end
 
   it 'should trace set' do
-    Oboe::API.start_trace('dalli_test', '', {}) do
+    TraceView::API.start_trace('dalli_test', '', {}) do
       @dc.set('some_key', 1234)
     end
 
@@ -40,7 +43,7 @@ describe Oboe::Inst::Dalli < ::MiniTest::Spec  do
   end
 
   it 'should trace get' do
-    Oboe::API.start_trace('dalli_test', '', {}) do
+    TraceView::API.start_trace('dalli_test', '', {}) do
       @dc.get('some_key')
     end
 
@@ -58,7 +61,7 @@ describe Oboe::Inst::Dalli < ::MiniTest::Spec  do
   end
 
   it 'should trace get_multi' do
-    Oboe::API.start_trace('dalli_test', '', {}) do
+    TraceView::API.start_trace('dalli_test', '', {}) do
       @dc.get_multi([:one, :two, :three, :four, :five, :six])
     end
 
@@ -78,7 +81,7 @@ describe Oboe::Inst::Dalli < ::MiniTest::Spec  do
   it "should trace increment" do
     @dc.incr("dalli_key_counter", 1, nil, 0)
 
-    Oboe::API.start_trace('dalli_test', '', {}) do
+    TraceView::API.start_trace('dalli_test', '', {}) do
       @dc.incr("dalli_key_counter")
     end
 
@@ -96,7 +99,7 @@ describe Oboe::Inst::Dalli < ::MiniTest::Spec  do
   it "should trace decrement" do
     @dc.incr("dalli_key_counter", 1, nil, 0)
 
-    Oboe::API.start_trace('dalli_test', '', {}) do
+    TraceView::API.start_trace('dalli_test', '', {}) do
       @dc.decr("dalli_key_counter")
     end
 
@@ -114,7 +117,7 @@ describe Oboe::Inst::Dalli < ::MiniTest::Spec  do
   it "should trace replace" do
     @dc.set('some_key', 1)
 
-    Oboe::API.start_trace('dalli_test', '', {}) do
+    TraceView::API.start_trace('dalli_test', '', {}) do
       @dc.replace("some_key", "woop")
     end
 
@@ -132,7 +135,7 @@ describe Oboe::Inst::Dalli < ::MiniTest::Spec  do
   it "should trace delete" do
     @dc.set('some_key', 1)
 
-    Oboe::API.start_trace('dalli_test', '', {}) do
+    TraceView::API.start_trace('dalli_test', '', {}) do
       @dc.delete("some_key")
     end
 
@@ -148,9 +151,9 @@ describe Oboe::Inst::Dalli < ::MiniTest::Spec  do
 
   it "should obey :collect_backtraces setting when true" do
     @dc.set('some_key', 1)
-    Oboe::Config[:dalli][:collect_backtraces] = true
+    TraceView::Config[:dalli][:collect_backtraces] = true
 
-    Oboe::API.start_trace('dalli_test', '', {}) do
+    TraceView::API.start_trace('dalli_test', '', {}) do
       @dc.get('some_key')
     end
 
@@ -159,9 +162,9 @@ describe Oboe::Inst::Dalli < ::MiniTest::Spec  do
   end
 
   it "should obey :collect_backtraces setting when false" do
-    Oboe::Config[:dalli][:collect_backtraces] = false
+    TraceView::Config[:dalli][:collect_backtraces] = false
 
-    Oboe::API.start_trace('dalli_test', '', {}) do
+    TraceView::API.start_trace('dalli_test', '', {}) do
       @dc.get('some_key')
     end
 

@@ -4,6 +4,115 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# traceview 3.1.0
+
+This minor release adds the following:
+
+* New Curb HTTP client instrumentation: #132
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.1.0
+https://rubygems.org/gems/traceview/versions/3.1.0-java
+
+# traceview 3.0.5
+
+This patch release includes the following fixes:
+
+* Fix "undefined method" in httpclient instrumentation: #134
+* Fix Redis set operation to work with array versus hash: #133
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.0.5
+https://rubygems.org/gems/traceview/versions/3.0.5-java
+
+# traceview 3.0.4
+
+This patch release includes the following fixes:
+
+* Rails generator broken after gem rename: #128
+* Allow custom params for logging exceptions: #130 (thanks @sliuu !)
+* SQL Sanitize missing integers for ActiveRecord adapters: #131
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.0.4
+https://rubygems.org/gems/traceview/versions/3.0.4-java
+
+# traceview 3.0.3
+
+This patch release includes the following fixes:
+
+* Fix missing Controller/Action reporting for Rails 4 and add Rails test coverage: #123
+* Fix Moped update default parameter: #127 (thanks to @maxjacobson, @lifegiver, @abmcdubb and @mradmacher!)
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.0.3
+https://rubygems.org/gems/traceview/versions/3.0.3-java
+
+# traceview 3.0.2
+
+This patch release includes the following fixes:
+
+* Add alternate module capitalization for easiness: #126
+* Cassandra instrumentation loading for wrong client: #125
+* Fix broken no-op mode when missing host libs: #124
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.0.2
+https://rubygems.org/gems/traceview/versions/3.0.2-java
+
+# traceview 3.0.1
+
+This patch release includes the following fix:
+
+* Add missing backcompat support bits: #122
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.0.1
+https://rubygems.org/gems/traceview/versions/3.0.1-java
+
+# traceview 3.0.0
+
+The oboe gem has been renamed to traceview.  The final oboe
+gem (2.7.19) has a post-install deprecation warning and will
+not have anymore updates.
+
+All development going forward will be done on this traceview gem.
+
+As a first release, this is simply a renamed version of oboe gem 2.7.19.
+
+It contains no bug fixes or new features.
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.0.0
+https://rubygems.org/gems/traceview/versions/3.0.0-java
+
+# oboe 2.7.19
+
+__Note that this will be the last release for the oboe gem.   The gem
+will be renamed to _traceview_ and all future updates will be to that
+other gem.__
+
+This version will show a post-install warning message stating this.  A
+final version of this gem will be released with only a deprecation
+warning.
+
+This patch release includes the following fix:
+
+* Report TraceMode in __Init: #120
+* Add RemoteHost reporting to Dalli Instrumentation: #119
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/oboe/versions/2.7.19
+https://rubygems.org/gems/oboe/versions/2.7.19-java
+
 # oboe 2.7.18
 
 This patch release includes the following fix:

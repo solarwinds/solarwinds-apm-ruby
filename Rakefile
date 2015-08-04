@@ -3,21 +3,38 @@
 require 'rubygems'
 require 'bundler/setup'
 require 'rake/testtask'
-require 'appraisal'
 
 Rake::TestTask.new do |t|
   t.libs << "test"
-  t.test_files = FileList['test/**/*_test.rb']
-  t.verbose = true
-  if defined?(JRUBY_VERSION)
-    t.ruby_opts = ["-J-javaagent:/usr/local/tracelytics/tracelyticsagent.jar"]
-  end
-end
 
-if !ENV["APPRAISAL_INITIALIZED"] && !ENV["TRAVIS"]
-  task :default => :appraisal
-else
-  task :default => :test
+  # Since we support so many libraries and frameworks, tests
+  # runs are segmented into gemfiles that have different
+  # sets and versions of gems (libraries and frameworks).
+  #
+  # Here we detect the Gemfile the tests are being run against
+  # and load the appropriate tests.
+  #
+  case File.basename(ENV['BUNDLE_GEMFILE'])
+  when /rails/
+    # Pre-load rails to get the major version number
+    require 'rails'
+    t.test_files = FileList["test/frameworks/rails#{Rails::VERSION::MAJOR}x_test.rb"]
+  when /frameworks/
+    t.test_files = FileList['test/frameworks/grape*_test.rb']
+    t.test_files = FileList['test/frameworks/padrino*_test.rb']
+    t.test_files = FileList['test/frameworks/sinatra*_test.rb']
+  when /libraries/
+    t.test_files = FileList['test/support/*_test.rb'] +
+                   FileList['test/instrumentation/*_test.rb'] +
+                   FileList['test/profiling/*_test.rb']
+  end
+
+  t.verbose = true
+  t.ruby_opts = []
+  # t.ruby_opts << ['-w']
+  if defined?(JRUBY_VERSION)
+    t.ruby_opts << ["-J-javaagent:/usr/local/tracelytics/tracelyticsagent.jar"]
+  end
 end
 
 desc "Build the gem's c extension"
@@ -97,9 +114,9 @@ desc "Rebuild the gem's c extension"
 task :recompile => [ :distclean, :compile ]
 
 task :console do
-  ENV['OBOE_GEM_VERBOSE'] = 'true'
+  ENV['TRACEVIEW_GEM_VERBOSE'] = 'true'
   Bundler.require(:default, :development)
-  Oboe::Config[:tracing_mode] = :always
+  TraceView::Config[:tracing_mode] = :always
   ARGV.clear
   Pry.start
 end

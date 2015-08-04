@@ -1,7 +1,10 @@
+# Copyright (c) 2015 AppNeta, Inc.
+# All rights reserved.
+
 require 'minitest_helper'
 require 'rack/test'
 require 'rack/lobster'
-require 'oboe/inst/rack'
+require 'traceview/inst/rack'
 
 class RackTestApp < Minitest::Test
   include Rack::Test::Methods
@@ -10,7 +13,7 @@ class RackTestApp < Minitest::Test
     @app = Rack::Builder.new {
       use Rack::CommonLogger
       use Rack::ShowExceptions
-      use Oboe::Rack
+      use TraceView::Rack
       map "/lobster" do
         use Rack::Lint
         run Rack::Lobster.new
@@ -21,15 +24,15 @@ class RackTestApp < Minitest::Test
   def test_custom_do_not_trace
     clear_all_traces
 
-    dnt_original = Oboe::Config[:dnt_regexp]
-    Oboe::Config[:dnt_regexp] = "lobster$"
+    dnt_original = TraceView::Config[:dnt_regexp]
+    TraceView::Config[:dnt_regexp] = "lobster$"
 
     get "/lobster"
 
     traces = get_all_traces
     assert traces.empty?
 
-    Oboe::Config[:dnt_regexp] = dnt_original
+    TraceView::Config[:dnt_regexp] = dnt_original
   end
 
   def test_do_not_trace_static_assets
@@ -48,10 +51,10 @@ class RackTestApp < Minitest::Test
 
     clear_all_traces
 
-    dnt_original = Oboe::Config[:dnt_regexp]
+    dnt_original = TraceView::Config[:dnt_regexp]
 
     # Do not trace .js files _except for_ show.js
-    Oboe::Config[:dnt_regexp] = "(\.js$)(?<!show.js)"
+    TraceView::Config[:dnt_regexp] = "(\.js$)(?<!show.js)"
 
     # First: We shouldn't trace general .js files
     get "/javascripts/application.js"
@@ -67,7 +70,7 @@ class RackTestApp < Minitest::Test
     traces = get_all_traces
     assert !traces.empty?
 
-    Oboe::Config[:dnt_regexp] = dnt_original
+    TraceView::Config[:dnt_regexp] = dnt_original
   end
 end
 
