@@ -57,6 +57,7 @@ module TraceView
     TraceView.logger.warn "Using Rails?: #{yesno(using_rails)}"
     if using_rails
       TraceView.logger.warn "TraceView::Rails loaded?: #{yesno(defined?(::TraceView::Rails))}"
+      TraceView.logger.warn "TraceView::Rack middleware loaded?: #{yesno(::Rails.configuration.middleware.include? TraceView::Rack)}"
     end
 
     using_sinatra = defined?(::Sinatra)
@@ -105,9 +106,9 @@ module TraceView
     TraceView.logger.warn "********************************************************"
     TraceView.logger.warn "* OS, Platform + Env"
     TraceView.logger.warn "********************************************************"
-    TraceView.logger.warn RbConfig::CONFIG['host_os']
-    TraceView.logger.warn RbConfig::CONFIG['sitearch']
-    TraceView.logger.warn RbConfig::CONFIG['arch']
+    TraceView.logger.warn "host_os: " + RbConfig::CONFIG['host_os']
+    TraceView.logger.warn "sitearch: " + RbConfig::CONFIG['sitearch']
+    TraceView.logger.warn "arch: " + RbConfig::CONFIG['arch']
     TraceView.logger.warn RUBY_PLATFORM
     TraceView.logger.warn "RACK_ENV: #{ENV['RACK_ENV']}"
     TraceView.logger.warn "RAILS_ENV: #{ENV['RAILS_ENV']}" if using_rails
