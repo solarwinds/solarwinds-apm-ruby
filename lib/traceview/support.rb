@@ -2,6 +2,7 @@
 # All rights reserved.
 
 require 'rbconfig'
+require 'logger'
 
 module TraceView
   ##
@@ -18,6 +19,9 @@ module TraceView
   end
 
   def self.support_report
+    @logger_level = TraceView.logger.level
+    TraceView.logger.level = ::Logger::DEBUG
+
     TraceView.logger.warn "********************************************************"
     TraceView.logger.warn "* BEGIN TraceView Support Report"
     TraceView.logger.warn "*   Please email the output of this report to traceviewsupport@appneta.com"
@@ -33,7 +37,7 @@ module TraceView
     using_jruby = defined?(JRUBY_VERSION)
     TraceView.logger.warn "Using JRuby?: #{yesno(using_jruby)}"
     if using_jruby
-      TraceView.logger.warn "Jtraceview Agent Status: #{Java::ComTracelyticsAgent::Agent.getStatus}"
+      TraceView.logger.warn "Joboe Agent Status: #{Java::ComTracelyticsAgent::Agent.getStatus}"
     end
 
     on_heroku = TraceView.heroku?
@@ -53,6 +57,7 @@ module TraceView
     TraceView.logger.warn "Using Rails?: #{yesno(using_rails)}"
     if using_rails
       TraceView.logger.warn "TraceView::Rails loaded?: #{yesno(defined?(::TraceView::Rails))}"
+      TraceView.logger.warn "TraceView::Rack middleware loaded?: #{yesno(::Rails.configuration.middleware.include? TraceView::Rack)}"
     end
 
     using_sinatra = defined?(::Sinatra)
@@ -65,9 +70,24 @@ module TraceView
     TraceView.logger.warn "Using Grape?: #{yesno(using_grape)}"
 
     TraceView.logger.warn "********************************************************"
+    TraceView.logger.warn "* ActiveRecord Adapter"
+    TraceView.logger.warn "********************************************************"
+    if defined?(::ActiveRecord)
+      if defined?(::ActiveRecord::Base.connection.adapter_name)
+        TraceView.logger.warn "ActiveRecord adapter: #{::ActiveRecord::Base.connection.adapter_name}"
+      end
+    else
+      TraceView.logger.warn "No ActiveRecord"
+    end
+
+    TraceView.logger.warn "********************************************************"
     TraceView.logger.warn "* TraceView Libraries"
     TraceView.logger.warn "********************************************************"
-    files = Dir.glob('/usr/lib/liboboe*')
+    files = []
+    ['/usr/lib/liboboe*', '/usr/lib64/liboboe*'].each do |d|
+      files = Dir.glob(d)
+      break if !files.empty?
+    end
     if files.empty?
       TraceView.logger.warn "Error: No liboboe libs!"
     else
@@ -86,9 +106,9 @@ module TraceView
     TraceView.logger.warn "********************************************************"
     TraceView.logger.warn "* OS, Platform + Env"
     TraceView.logger.warn "********************************************************"
-    TraceView.logger.warn RbConfig::CONFIG['host_os']
-    TraceView.logger.warn RbConfig::CONFIG['sitearch']
-    TraceView.logger.warn RbConfig::CONFIG['arch']
+    TraceView.logger.warn "host_os: " + RbConfig::CONFIG['host_os']
+    TraceView.logger.warn "sitearch: " + RbConfig::CONFIG['sitearch']
+    TraceView.logger.warn "arch: " + RbConfig::CONFIG['arch']
     TraceView.logger.warn RUBY_PLATFORM
     TraceView.logger.warn "RACK_ENV: #{ENV['RACK_ENV']}"
     TraceView.logger.warn "RAILS_ENV: #{ENV['RAILS_ENV']}" if using_rails
@@ -106,8 +126,10 @@ module TraceView
     TraceView.logger.warn "*   Support Email: traceviewsupport@appneta.com"
     TraceView.logger.warn "*   Support Portal: https://support.tv.appneta.com"
     TraceView.logger.warn "*   Freenode IRC: #appneta"
-    TraceView.logger.warn "*   Github: https://github.com/appneta/traceview-ruby"
+    TraceView.logger.warn "*   Github: https://github.com/appneta/oboe-ruby"
     TraceView.logger.warn "********************************************************"
+
+    TraceView.logger.level = @logger_level
     nil
   end
 end
