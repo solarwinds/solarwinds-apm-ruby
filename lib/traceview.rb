@@ -40,6 +40,7 @@ begin
 
   require 'traceview/config'
   require 'traceview/loading'
+  require 'traceview/legacy_method_profiling'
   require 'traceview/method_profiling'
 
   if TraceView.loaded
