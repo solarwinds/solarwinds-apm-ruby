@@ -116,7 +116,7 @@ module TraceView
           if instance_method
             klass.class_eval do
               define_method(with_traceview) { | *args, &block |
-                profile_wrapper(without_traceview, report_kvs, *args, &block)
+                profile_wrapper(without_traceview, report_kvs, report_arguments, report_result, *args, &block)
               }
 
               alias_method without_traceview, "#{method}"
@@ -124,7 +124,7 @@ module TraceView
             end
           elsif class_method
             klass.define_singleton_method(with_traceview) { | *args, &block |
-              profile_wrapper(without_traceview, report_kvs, *args, &block)
+              profile_wrapper(without_traceview, report_kvs, report_arguments, report_result, *args, &block)
             }
 
             klass.singleton_class.class_eval do
