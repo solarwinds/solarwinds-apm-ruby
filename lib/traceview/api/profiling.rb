@@ -47,8 +47,8 @@ module TraceView
       end
 
       ##
-      # Public: Profile an arbitrary method on a class.  That method can be of any (accessible)
-      # type (instance, class etc.).
+      # Public: Profile an arbitrary method on a class or module.  That method can be of any (accessible)
+      # type (instance, singleton etc.).
       #
       def profile_method(klass, method, report_arguments = false, report_result = false)
 
@@ -108,7 +108,7 @@ module TraceView
             source_location = klass.instance_method(method).source_location
           elsif class_method
             ::TraceView::Util.send_extend(klass, ::TraceView::MethodProfiling)
-            source_location = klass.singleton_method(method).source_location
+            source_location = klass.method(method).source_location
           end
           report_kvs[:File] = source_location[0]
           report_kvs[:LineNumber] = source_location[1]
