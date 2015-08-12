@@ -346,7 +346,7 @@ describe "TraceViewMethodProfiling" do
   it 'should profile methods that use blocks' do
     class TestKlass
       def self.do_work(&block)
-        return block.call
+        yield
       end
     end
 
@@ -355,7 +355,7 @@ describe "TraceViewMethodProfiling" do
 
     ::TraceView::API.start_trace('method_profiling', '', {}) do
       result = TestKlass.do_work do
-        return 787
+        787
       end
     end
 
