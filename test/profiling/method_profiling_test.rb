@@ -51,6 +51,7 @@ describe "TraceViewMethodProfiling" do
 
     traces = get_all_traces
     traces.count.must_equal 4
+    assert valid_edges?(traces), "Trace edge validation"
 
     validate_outer_layers(traces, 'method_profiling')
 
@@ -131,6 +132,7 @@ describe "TraceViewMethodProfiling" do
 
     traces = get_all_traces
     traces.count.must_equal 4
+    assert valid_edges?(traces), "Trace edge validation"
 
     validate_outer_layers(traces, 'method_profiling')
 
@@ -177,6 +179,7 @@ describe "TraceViewMethodProfiling" do
 
     traces = get_all_traces
     traces.count.must_equal 4
+    assert valid_edges?(traces), "Trace edge validation"
 
     validate_outer_layers(traces, 'method_profiling')
 
@@ -220,6 +223,7 @@ describe "TraceViewMethodProfiling" do
 
     traces = get_all_traces
     traces.count.must_equal 4
+    assert valid_edges?(traces), "Trace edge validation"
 
     validate_outer_layers(traces, 'method_profiling')
 
@@ -263,6 +267,7 @@ describe "TraceViewMethodProfiling" do
 
     traces = get_all_traces
     traces.count.must_equal 4
+    assert valid_edges?(traces), "Trace edge validation"
 
     validate_outer_layers(traces, 'method_profiling')
 
@@ -311,6 +316,7 @@ describe "TraceViewMethodProfiling" do
 
     traces = get_all_traces
     traces.count.must_equal 4
+    assert valid_edges?(traces), "Trace edge validation"
 
     validate_outer_layers(traces, 'method_profiling')
 
@@ -338,7 +344,48 @@ describe "TraceViewMethodProfiling" do
   end
 
   it 'should profile methods that use blocks' do
-    skip
+    class TestKlass
+      def self.do_work(&block)
+        return block.call
+      end
+    end
+
+    result = TraceView::API.profile_method(TestKlass, :do_work)
+    assert_equal true, result, "profile_method return value must be true"
+
+    ::TraceView::API.start_trace('method_profiling', '', {}) do
+      result = TestKlass.do_work do
+        return 787
+      end
+    end
+
+    traces = get_all_traces
+    traces.count.must_equal 4
+    assert valid_edges?(traces), "Trace edge validation"
+
+    validate_outer_layers(traces, 'method_profiling')
+
+    result.must_equal 787
+
+    kvs = {}
+    kvs["Label"] = 'profile_entry'
+    kvs["Language"] = "ruby"
+    kvs["ProfileName"] = "do_work"
+    kvs["Class"] = "TestKlass"
+
+    validate_event_keys(traces[1], kvs)
+
+    traces[1].key?("Layer").must_equal false
+    traces[1].key?("File").must_equal true
+    traces[1].key?("LineNumber").must_equal true
+
+    kvs.clear
+    kvs["Label"] = "profile_exit"
+    kvs["Language"] = "ruby"
+    kvs["ProfileName"] = "do_work"
+
+    validate_event_keys(traces[2], kvs)
+    traces[2].key?("Layer").must_equal false
   end
 
   it 'should profile methods with various argument types' do
@@ -364,6 +411,7 @@ describe "TraceViewMethodProfiling" do
 
     traces = get_all_traces
     traces.count.must_equal 4
+    assert valid_edges?(traces), "Trace edge validation"
 
     validate_outer_layers(traces, 'method_profiling')
 
@@ -412,6 +460,7 @@ describe "TraceViewMethodProfiling" do
 
     traces = get_all_traces
     traces.count.must_equal 4
+    assert valid_edges?(traces), "Trace edge validation"
 
     validate_outer_layers(traces, 'method_profiling')
 
