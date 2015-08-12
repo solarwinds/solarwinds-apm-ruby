@@ -17,6 +17,8 @@ module TraceView
                          :moped, :rack, :redis, :resque, :rest_client, :sequel,
                          :typhoeus]
 
+    @@api = [ :method_profiling ]
+
     # Subgrouping of instrumentation
     @@http_clients = [:curb, :excon, :faraday, :httpclient, :nethttp, :rest_client, :typhoeus]
 
@@ -29,7 +31,7 @@ module TraceView
 
     def self.initialize(_data = {})
       # Setup default instrumentation values
-      @@instrumentation.each do |k|
+      (@@instrumentation + @@api).each do |k|
         @@config[k] = {}
         @@config[k][:enabled] = true
         @@config[k][:collect_backtraces] = false
@@ -61,6 +63,11 @@ module TraceView
       TraceView::Config[:rest_client][:collect_backtraces] = false
       TraceView::Config[:sequel][:collect_backtraces] = true
       TraceView::Config[:typhoeus][:collect_backtraces] = false
+
+      # Backtrace config for method profiling.
+      # TraceView::API.profile_method(Klass, method, report_arguments, report_result)
+      # See: http://docs.appneta.com/ruby
+      TraceView::Config[:method_profiling][:collect_backtraces] = false
 
       # Special instrument specific flags
       #

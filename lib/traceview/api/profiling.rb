@@ -94,7 +94,7 @@ module TraceView
           report_kvs = {}
           report_kvs[:Language] ||= :ruby
           report_kvs[:ProfileName] ||= method
-          report_kvs[:Backtrace] = TraceView::API.backtrace
+          report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:method_profiling][:collect_backtraces]
 
           if klass.is_a?(Class)
             report_kvs[:Class] = klass.to_s
