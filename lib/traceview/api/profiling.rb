@@ -52,17 +52,19 @@ module TraceView
       #
       def profile_method(klass, method, report_arguments = false, report_result = false)
 
-        # Argument validation
-        unless klass.is_a?(Class) || klass.is_a?(Module)
-          TraceView.logger.warn "[traceview/error] Not sure what to do with #{klass}.  Send a class or module."
+        if RUBY_VERSION <= '1.9.3'
+          TraceView.logger.warn "[traceview/error] profile_method: Use the legacy method profiling for Ruby versions before 1.9.3"
           return false
-        end
 
-        unless method.is_a?(Symbol)
+        elsif !klass.is_a?(Module)
+          TraceView.logger.warn "[traceview/error] profile_method: Not sure what to do with #{klass}.  Send a class or module."
+          return false
+
+        elsif !method.is_a?(Symbol)
           if method.is_a?(String)
             method = method.to_sym
           else
-            TraceView.logger.warn "[traceview/error] Not sure what to do with #{method}.  Send a string or symbol for method."
+            TraceView.logger.warn "[traceview/error] profile_method: Not sure what to do with #{method}.  Send a string or symbol for method."
             return false
           end
         end
@@ -72,7 +74,7 @@ module TraceView
 
         # Make sure the request klass::method exists
         if !instance_method && !class_method
-          TraceView.logger.warn "[traceview/error] Can't instrument #{klass}.#{method} as it doesn't seem to exist."
+          TraceView.logger.warn "[traceview/error] profile_method: Can't instrument #{klass}.#{method} as it doesn't seem to exist."
           TraceView.logger.warn "[traceview/error] #{__FILE__}:#{__LINE__}"
           return false
         end
@@ -134,8 +136,8 @@ module TraceView
           end
 
         else
-          TraceView.logger.warn "[traceview/error] #{klass}::#{method} already profiled."
-          TraceView.logger.warn "[traceview/error] #{__FILE__}:#{__LINE__}"
+          TraceView.logger.warn "[traceview/error] profile_method: #{klass}::#{method} already profiled."
+          TraceView.logger.warn "[traceview/error] profile_method: #{__FILE__}:#{__LINE__}"
           return false
         end
         true
