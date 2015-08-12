@@ -47,8 +47,17 @@ module TraceView
       end
 
       ##
-      # Public: Profile an arbitrary method on a class or module.  That method can be of any (accessible)
-      # type (instance, singleton etc.).
+      # Public: Profile a method on a class or module.  That method can be of any (accessible)
+      # type (instance, singleton, private, protected etc.).
+      #
+      # klass            - the class or module that has the method to profile
+      # method           - the method to profile.  Can be singleton, instance, private etc...
+      # report_arguments - report the arguments passed to <tt>method</tt> on each profile
+      # report_result    - report the return value of <tt>method</tt> on each profile
+      #
+      # Example
+      #
+      #   TraceView::API.profile_method(Array, :sort, true)
       #
       def profile_method(klass, method, report_arguments = false, report_result = false)
 
@@ -78,8 +87,6 @@ module TraceView
           TraceView.logger.warn "[traceview/error] #{__FILE__}:#{__LINE__}"
           return false
         end
-
-        # assert instance_method || class_method
 
         # Strip '!' or '?' from method if present
         safe_method_name = method.to_s.chop if method.to_s =~ /\?$|\!$/
