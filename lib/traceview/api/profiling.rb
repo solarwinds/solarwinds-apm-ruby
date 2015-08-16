@@ -52,15 +52,21 @@ module TraceView
       #
       # klass   - the class or module that has the method to profile
       # method  - the method to profile.  Can be singleton, instance, private etc...
-      # opts    - a hash specifying options to be used:
-      #           * :report_arguments - report the arguments passed to <tt>method</tt> on each profile
-      #           * :report_result    - report the return value of <tt>method</tt> on each profile
-      #           * :layer_name       - alternate name for the layer reported in the dashboard (otherwise
-      #                                 defaults to the name of the method being profiled)
+      # opts    - a hash specifying the one or more of the following options:
+      #           * :arguments  - report the arguments passed to <tt>method</tt> on each profile
+      #           * :result     - report the return value of <tt>method</tt> on each profile
+      #           * :backtrace  - report the return value of <tt>method</tt> on each profile
+      #           * :name       - alternate name for the profile reported in the dashboard (otherwise
+      #                           defaults to the name of the method being profiled)
       #
       # Example
       #
-      #   TraceView::API.profile_method(Array, :sort, :layer_name => "array_sort")
+      #   opts = {}
+      #   opts[:backtrace] = true
+      #   opts[:arguments] = false
+      #   opts[:name] = :array_sort
+      #
+      #   TraceView::API.profile_method(Array, :sort, opts)
       #
       def profile_method(klass, method, opts = {})
 
@@ -105,8 +111,8 @@ module TraceView
 
           report_kvs = {}
           report_kvs[:Language] ||= :ruby
-          report_kvs[:ProfileName] ||= opts[:layer_name] ? opts[:layer_name] : method
-          report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:method_profiling][:collect_backtraces]
+          report_kvs[:ProfileName] ||= opts[:name] ? opts[:name] : method
+          report_kvs[:Backtrace] = TraceView::API.backtrace if opts[:backtrace]
 
           if klass.is_a?(Class)
             report_kvs[:Class] = klass.to_s

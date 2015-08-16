@@ -6,9 +6,9 @@ module TraceView
 
       begin
         report_kvs[:MethodName] = method
-        report_kvs[:Arguments] = args if opts[:report_arguments]
+        report_kvs[:Arguments] = args if opts[:arguments]
         rv = self.send(method, *args, &block)
-        report_kvs[:ReturnValue] = rv if opts[:report_result]
+        report_kvs[:ReturnValue] = rv if opts[:result]
         rv
       rescue => e
         TraceView::API.log_exception(nil, e)
