@@ -165,19 +165,19 @@ if RUBY_VERSION >= '1.9.3'
     it 'should trace class private instance methods' do
       class TestKlass
         private
-        def do_work
+        def do_work_privately
           return 687
         end
       end
 
-      result = TraceView::API.profile_method(TestKlass, :do_work)
+      result = TraceView::API.profile_method(TestKlass, :do_work_privately)
       assert_equal true, result, "profile_method return value must be true"
 
       result = nil
 
       ::TraceView::API.start_trace('method_profiling', '', {}) do
         # Call the profiled class method
-        result = TestKlass.new.do_work
+        result = TestKlass.new.do_work_privately
       end
 
       traces = get_all_traces
@@ -191,7 +191,7 @@ if RUBY_VERSION >= '1.9.3'
       kvs = {}
       kvs["Label"] = 'profile_entry'
       kvs["Language"] = "ruby"
-      kvs["ProfileName"] = "do_work"
+      kvs["ProfileName"] = "do_work_privately"
       kvs["Class"] = "TestKlass"
 
       validate_event_keys(traces[1], kvs)
@@ -203,7 +203,7 @@ if RUBY_VERSION >= '1.9.3'
       kvs.clear
       kvs["Label"] = "profile_exit"
       kvs["Language"] = "ruby"
-      kvs["ProfileName"] = "do_work"
+      kvs["ProfileName"] = "do_work_privately"
 
       validate_event_keys(traces[2], kvs)
       traces[2].key?("Layer").must_equal false
@@ -212,16 +212,16 @@ if RUBY_VERSION >= '1.9.3'
     it 'should trace class private singleton methods' do
       class TestKlass
         private
-        def self.do_work
+        def self.do_work_privately
           return 687
         end
       end
 
-      result = TraceView::API.profile_method(TestKlass, :do_work)
+      result = TraceView::API.profile_method(TestKlass, :do_work_privately)
       assert_equal true, result, "profile_method return value must be true"
 
       ::TraceView::API.start_trace('method_profiling', '', {}) do
-        result = TestKlass.do_work
+        result = TestKlass.do_work_privately
       end
 
       traces = get_all_traces
@@ -235,7 +235,7 @@ if RUBY_VERSION >= '1.9.3'
       kvs = {}
       kvs["Label"] = 'profile_entry'
       kvs["Language"] = "ruby"
-      kvs["ProfileName"] = "do_work"
+      kvs["ProfileName"] = "do_work_privately"
       kvs["Class"] = "TestKlass"
 
       validate_event_keys(traces[1], kvs)
@@ -247,7 +247,7 @@ if RUBY_VERSION >= '1.9.3'
       kvs.clear
       kvs["Label"] = "profile_exit"
       kvs["Language"] = "ruby"
-      kvs["ProfileName"] = "do_work"
+      kvs["ProfileName"] = "do_work_privately"
 
       validate_event_keys(traces[2], kvs)
       traces[2].key?("Layer").must_equal false
@@ -256,7 +256,6 @@ if RUBY_VERSION >= '1.9.3'
     it 'should trace module singleton methods' do
       module TestModule
         def self.do_work
-          sleep 1
           return 687
         end
       end
@@ -300,7 +299,6 @@ if RUBY_VERSION >= '1.9.3'
     it 'should trace module instance methods' do
       module TestModule
         def do_work
-          sleep 1
           return 687
         end
       end
@@ -389,10 +387,6 @@ if RUBY_VERSION >= '1.9.3'
 
       validate_event_keys(traces[2], kvs)
       traces[2].key?("Layer").must_equal false
-    end
-
-    it 'should profile methods with various argument types' do
-      skip
     end
 
     it 'should not store arguments and return value by default' do
