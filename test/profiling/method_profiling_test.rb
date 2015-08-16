@@ -69,6 +69,7 @@ if RUBY_VERSION >= '1.9.3'
       validate_event_keys(traces[1], kvs)
 
       traces[1].key?("Layer").must_equal false
+      traces[1].key?("Module").must_equal false
       traces[1].key?("File").must_equal true
       traces[1].key?("LineNumber").must_equal true
 
@@ -150,6 +151,7 @@ if RUBY_VERSION >= '1.9.3'
       validate_event_keys(traces[1], kvs)
 
       traces[1].key?("Layer").must_equal false
+      traces[1].key?("Module").must_equal false
       traces[1].key?("File").must_equal true
       traces[1].key?("LineNumber").must_equal true
 
@@ -197,6 +199,7 @@ if RUBY_VERSION >= '1.9.3'
       validate_event_keys(traces[1], kvs)
 
       traces[1].key?("Layer").must_equal false
+      traces[1].key?("Module").must_equal false
       traces[1].key?("File").must_equal true
       traces[1].key?("LineNumber").must_equal true
 
@@ -241,6 +244,7 @@ if RUBY_VERSION >= '1.9.3'
       validate_event_keys(traces[1], kvs)
 
       traces[1].key?("Layer").must_equal false
+      traces[1].key?("Module").must_equal false
       traces[1].key?("File").must_equal true
       traces[1].key?("LineNumber").must_equal true
 
@@ -284,6 +288,7 @@ if RUBY_VERSION >= '1.9.3'
       validate_event_keys(traces[1], kvs)
 
       traces[1].key?("Layer").must_equal false
+      traces[1].key?("Class").must_equal false
       traces[1].key?("File").must_equal true
       traces[1].key?("LineNumber").must_equal true
 
@@ -332,6 +337,7 @@ if RUBY_VERSION >= '1.9.3'
       validate_event_keys(traces[1], kvs)
 
       traces[1].key?("Layer").must_equal false
+      traces[1].key?("Class").must_equal false
       traces[1].key?("File").must_equal true
       traces[1].key?("LineNumber").must_equal true
 
@@ -377,6 +383,7 @@ if RUBY_VERSION >= '1.9.3'
       validate_event_keys(traces[1], kvs)
 
       traces[1].key?("Layer").must_equal false
+      traces[1].key?("Module").must_equal false
       traces[1].key?("File").must_equal true
       traces[1].key?("LineNumber").must_equal true
 
@@ -423,6 +430,7 @@ if RUBY_VERSION >= '1.9.3'
       validate_event_keys(traces[1], kvs)
 
       traces[1].key?("Layer").must_equal false
+      traces[1].key?("Module").must_equal false
       traces[1].key?("File").must_equal true
       traces[1].key?("LineNumber").must_equal true
 
@@ -472,6 +480,7 @@ if RUBY_VERSION >= '1.9.3'
       validate_event_keys(traces[1], kvs)
 
       traces[1].key?("Layer").must_equal false
+      traces[1].key?("Module").must_equal false
       traces[1].key?("File").must_equal true
       traces[1].key?("LineNumber").must_equal true
 
