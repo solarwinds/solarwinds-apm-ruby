@@ -2,7 +2,7 @@
 module TraceView
   module MethodProfiling
     def profile_wrapper(method, report_kvs, opts, *args, &block)
-      report_kvs[:Backtrace] = TraceView::API.backtrace if opts[:backtrace]
+      report_kvs[:Backtrace] = TraceView::API.backtrace(2) if opts[:backtrace]
       report_kvs[:Arguments] = args if opts[:arguments]
 
       TraceView::API.log(nil, 'profile_entry', report_kvs)
