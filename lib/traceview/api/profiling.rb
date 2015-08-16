@@ -111,7 +111,7 @@ module TraceView
           report_kvs = {}
           report_kvs[:Language] ||= :ruby
           report_kvs[:ProfileName] ||= opts[:name] ? opts[:name] : method
-          report_kvs[:Backtrace] = TraceView::API.backtrace if opts[:backtrace]
+          report_kvs[:MethodName] = safe_method_name
 
           if klass.is_a?(Class)
             report_kvs[:Class] = klass.to_s
@@ -127,8 +127,12 @@ module TraceView
             ::TraceView::Util.send_extend(klass, ::TraceView::MethodProfiling)
             source_location = klass.method(method).source_location
           end
-          report_kvs[:File] = source_location[0]
-          report_kvs[:LineNumber] = source_location[1]
+
+          # We won't have access to this info for native methods (those not defined in Ruby).
+          if source_location.is_a?(Array) && source_location.length == 2
+            report_kvs[:File] = source_location[0]
+            report_kvs[:LineNumber] = source_location[1]
+          end
 
           if instance_method
             klass.class_eval do
