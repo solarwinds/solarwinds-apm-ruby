@@ -453,7 +453,11 @@ if RUBY_VERSION >= '1.9.3'
         end
       end
 
-      result = TraceView::API.profile_method(TestKlass, :do_work, true, true)
+      opts = {}
+      opts[:report_arguments] = true
+      opts[:report_result] = true
+
+      result = TraceView::API.profile_method(TestKlass, :do_work, opts)
       assert_equal true, result, "profile_method return value must be true"
 
       result = nil
