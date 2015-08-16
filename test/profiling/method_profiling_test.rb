@@ -454,8 +454,8 @@ if RUBY_VERSION >= '1.9.3'
       end
 
       opts = {}
-      opts[:report_arguments] = true
-      opts[:report_result] = true
+      opts[:arguments] = true
+      opts[:result] = true
 
       result = TraceView::API.profile_method(TestKlass, :do_work, opts)
       assert_equal true, result, "profile_method return value must be true"
@@ -501,6 +501,81 @@ if RUBY_VERSION >= '1.9.3'
 
       traces[2].key?("ReturnValue").must_equal true
       traces[2]["ReturnValue"].must_equal 687
+    end
+
+    it 'should not report backtraces by default' do
+      class TestKlass
+        def do_work(blah = {})
+          return 687
+        end
+      end
+
+      result = TraceView::API.profile_method(TestKlass, :do_work)
+      assert_equal true, result, "profile_method return value must be true"
+
+      result = nil
+
+      ::TraceView::API.start_trace('method_profiling', '', {}) do
+        # Call the profiled class method
+        result = TestKlass.new.do_work(:ok => :blue)
+      end
+
+      traces = get_all_traces
+      traces.count.must_equal 4
+      assert valid_edges?(traces), "Trace edge validation"
+
+      validate_outer_layers(traces, 'method_profiling')
+
+      result.must_equal 687
+
+      kvs = {}
+      kvs["Label"] = 'profile_entry'
+      kvs["Language"] = "ruby"
+      kvs["ProfileName"] = "do_work"
+      kvs["Class"] = "TestKlass"
+
+      validate_event_keys(traces[1], kvs)
+
+      traces.each { |t|
+        t.key?("Backtrace").must_equal false, "shoudn't have backtrace"
+      }
+    end
+
+    it 'should report backtraces when requested' do
+      class TestKlass
+        def do_work(blah = {})
+          return 687
+        end
+      end
+
+      opts = { :backtrace => true }
+      result = TraceView::API.profile_method(TestKlass, :do_work, opts)
+      assert_equal true, result, "profile_method return value must be true"
+
+      result = nil
+
+      ::TraceView::API.start_trace('method_profiling', '', {}) do
+        # Call the profiled class method
+        result = TestKlass.new.do_work(:ok => :blue)
+      end
+
+      traces = get_all_traces
+      traces.count.must_equal 4
+      assert valid_edges?(traces), "Trace edge validation"
+
+      validate_outer_layers(traces, 'method_profiling')
+
+      result.must_equal 687
+
+      kvs = {}
+      kvs["Label"] = 'profile_entry'
+      kvs["Language"] = "ruby"
+      kvs["ProfileName"] = "do_work"
+      kvs["Class"] = "TestKlass"
+
+      validate_event_keys(traces[1], kvs)
+
+      traces[1].key?("Backtrace").must_equal true, "should report a backtrace"
     end
   end
 end
