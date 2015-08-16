@@ -50,14 +50,13 @@ module TraceView
       # Public: Profile a method on a class or module.  That method can be of any (accessible)
       # type (instance, singleton, private, protected etc.).
       #
-      # klass   - the class or module that has the method to profile
-      # method  - the method to profile.  Can be singleton, instance, private etc...
-      # opts    - a hash specifying the one or more of the following options:
-      #           * :arguments  - report the arguments passed to <tt>method</tt> on each profile
-      #           * :result     - report the return value of <tt>method</tt> on each profile
-      #           * :backtrace  - report the return value of <tt>method</tt> on each profile
-      #           * :name       - alternate name for the profile reported in the dashboard (otherwise
-      #                           defaults to the name of the method being profiled)
+      # klass  - the class or module that has the method to profile
+      # method - the method to profile.  Can be singleton, instance, private etc...
+      # opts   - a hash specifying the one or more of the following options:
+      #          * :arguments  - report the arguments passed to <tt>method</tt> on each profile (default: false)
+      #          * :result     - report the return value of <tt>method</tt> on each profile (default: false)
+      #          * :backtrace  - report the return value of <tt>method</tt> on each profile (default: false)
+      #          * :name       - alternate name for the profile reported in the dashboard (default: method name)
       #
       # Example
       #
