@@ -65,6 +65,7 @@ if RUBY_VERSION >= '1.9.3'
       kvs["Language"] = "ruby"
       kvs["ProfileName"] = "do_work"
       kvs["Class"] = "TestKlass"
+      kvs["MethodName"] = "do_work"
 
       validate_event_keys(traces[1], kvs)
 
@@ -147,6 +148,7 @@ if RUBY_VERSION >= '1.9.3'
       kvs["Language"] = "ruby"
       kvs["ProfileName"] = "do_work"
       kvs["Class"] = "TestKlass"
+      kvs["MethodName"] = "do_work"
 
       validate_event_keys(traces[1], kvs)
 
@@ -195,6 +197,7 @@ if RUBY_VERSION >= '1.9.3'
       kvs["Language"] = "ruby"
       kvs["ProfileName"] = "do_work_privately"
       kvs["Class"] = "TestKlass"
+      kvs["MethodName"] = "do_work_privately"
 
       validate_event_keys(traces[1], kvs)
 
@@ -240,6 +243,7 @@ if RUBY_VERSION >= '1.9.3'
       kvs["Language"] = "ruby"
       kvs["ProfileName"] = "do_work_privately"
       kvs["Class"] = "TestKlass"
+      kvs["MethodName"] = "do_work_privately"
 
       validate_event_keys(traces[1], kvs)
 
@@ -284,6 +288,7 @@ if RUBY_VERSION >= '1.9.3'
       kvs["Language"] = "ruby"
       kvs["ProfileName"] = "do_work"
       kvs["Module"] = "TestModule"
+      kvs["MethodName"] = "do_work"
 
       validate_event_keys(traces[1], kvs)
 
@@ -333,6 +338,7 @@ if RUBY_VERSION >= '1.9.3'
       kvs["Language"] = "ruby"
       kvs["ProfileName"] = "do_work"
       kvs["Module"] = "TestModule"
+      kvs["MethodName"] = "do_work"
 
       validate_event_keys(traces[1], kvs)
 
@@ -379,6 +385,7 @@ if RUBY_VERSION >= '1.9.3'
       kvs["Language"] = "ruby"
       kvs["ProfileName"] = "do_work"
       kvs["Class"] = "TestKlass"
+      kvs["MethodName"] = "do_work"
 
       validate_event_keys(traces[1], kvs)
 
@@ -426,6 +433,7 @@ if RUBY_VERSION >= '1.9.3'
       kvs["Language"] = "ruby"
       kvs["ProfileName"] = "do_work"
       kvs["Class"] = "TestKlass"
+      kvs["MethodName"] = "do_work"
 
       validate_event_keys(traces[1], kvs)
 
@@ -480,6 +488,7 @@ if RUBY_VERSION >= '1.9.3'
       kvs["Language"] = "ruby"
       kvs["ProfileName"] = "do_work"
       kvs["Class"] = "TestKlass"
+      kvs["MethodName"] = "do_work"
 
       validate_event_keys(traces[1], kvs)
 
@@ -533,6 +542,7 @@ if RUBY_VERSION >= '1.9.3'
       kvs["Language"] = "ruby"
       kvs["ProfileName"] = "do_work"
       kvs["Class"] = "TestKlass"
+      kvs["MethodName"] = "do_work"
 
       validate_event_keys(traces[1], kvs)
 
@@ -572,6 +582,7 @@ if RUBY_VERSION >= '1.9.3'
       kvs["Language"] = "ruby"
       kvs["ProfileName"] = "do_work"
       kvs["Class"] = "TestKlass"
+      kvs["MethodName"] = "do_work"
 
       validate_event_keys(traces[1], kvs)
 
