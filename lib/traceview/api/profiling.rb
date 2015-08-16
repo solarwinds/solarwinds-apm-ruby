@@ -50,16 +50,19 @@ module TraceView
       # Public: Profile a method on a class or module.  That method can be of any (accessible)
       # type (instance, singleton, private, protected etc.).
       #
-      # klass            - the class or module that has the method to profile
-      # method           - the method to profile.  Can be singleton, instance, private etc...
-      # report_arguments - report the arguments passed to <tt>method</tt> on each profile
-      # report_result    - report the return value of <tt>method</tt> on each profile
+      # klass   - the class or module that has the method to profile
+      # method  - the method to profile.  Can be singleton, instance, private etc...
+      # opts    - a hash specifying options to be used:
+      #           * :report_arguments - report the arguments passed to <tt>method</tt> on each profile
+      #           * :report_result    - report the return value of <tt>method</tt> on each profile
+      #           * :layer_name       - alternate name for the layer reported in the dashboard (otherwise
+      #                                 defaults to the name of the method being profiled)
       #
       # Example
       #
-      #   TraceView::API.profile_method(Array, :sort, true)
+      #   TraceView::API.profile_method(Array, :sort, :layer_name => "array_sort")
       #
-      def profile_method(klass, method, report_arguments = false, report_result = false)
+      def profile_method(klass, method, opts = {})
 
         if RUBY_VERSION < '1.9.3'
           TraceView.logger.warn "[traceview/error] profile_method: Use the legacy method profiling for Ruby versions before 1.9.3"
@@ -102,7 +105,7 @@ module TraceView
 
           report_kvs = {}
           report_kvs[:Language] ||= :ruby
-          report_kvs[:ProfileName] ||= method
+          report_kvs[:ProfileName] ||= opts[:layer_name] ? opts[:layer_name] : method
           report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:method_profiling][:collect_backtraces]
 
           if klass.is_a?(Class)
@@ -125,7 +128,7 @@ module TraceView
           if instance_method
             klass.class_eval do
               define_method(with_traceview) { | *args, &block |
-                profile_wrapper(without_traceview, report_kvs, report_arguments, report_result, *args, &block)
+                profile_wrapper(without_traceview, report_kvs, opts, *args, &block)
               }
 
               alias_method without_traceview, "#{method}"
@@ -133,7 +136,7 @@ module TraceView
             end
           elsif class_method
             klass.define_singleton_method(with_traceview) { | *args, &block |
-              profile_wrapper(without_traceview, report_kvs, report_arguments, report_result, *args, &block)
+              profile_wrapper(without_traceview, report_kvs, opts, *args, &block)
             }
 
             klass.singleton_class.class_eval do
