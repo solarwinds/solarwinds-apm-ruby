@@ -61,7 +61,7 @@ module TraceView
       #
       def profile_method(klass, method, report_arguments = false, report_result = false)
 
-        if RUBY_VERSION <= '1.9.3'
+        if RUBY_VERSION < '1.9.3'
           TraceView.logger.warn "[traceview/error] profile_method: Use the legacy method profiling for Ruby versions before 1.9.3"
           return false
 
