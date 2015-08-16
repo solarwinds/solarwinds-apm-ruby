@@ -63,9 +63,10 @@ before_install:
   - sudo service cassandra start
 
 install:
-  - wget https://www.tracelytics.com/install_tracelytics.sh
-  - sudo sh ./install_tracelytics.sh f51e2a43-0ee5-4851-8a54-825773b3218e
-  - sudo apt-get install -y tracelytics-java-agent
+  - wget https://files.appneta.com/install_appneta.sh
+  - /usr/bin/env bash ./install_appneta.sh f51e2a43-0ee5-4851-8a54-825773b3218e
+  - apt-get install -y tracelytics-java-agent
+  - service tracelyzer start
 
 before_script:
   - bundle install --jobs=3 --retry=3 --without development
