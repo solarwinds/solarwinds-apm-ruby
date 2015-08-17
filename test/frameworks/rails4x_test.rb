@@ -71,8 +71,10 @@ if defined?(::Rails)
       traces[2]['Label'].must_equal "profile_entry"
       traces[2]['Language'].must_equal "ruby"
       traces[2]['ProfileName'].must_equal "world"
-      traces[2]['FunctionName'].must_equal "world"
+      traces[2]['MethodName'].must_equal "world"
       traces[2]['Class'].must_equal "FerroController"
+      traces[2]['Controller'].must_equal "FerroController"
+      traces[2]['Action'].must_equal "world"
 
       traces[3]['Label'].must_equal "profile_exit"
       traces[3]['Language'].must_equal "ruby"
