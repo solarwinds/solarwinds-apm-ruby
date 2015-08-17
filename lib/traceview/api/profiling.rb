@@ -53,10 +53,11 @@ module TraceView
       # klass  - the class or module that has the method to profile
       # method - the method to profile.  Can be singleton, instance, private etc...
       # opts   - a hash specifying the one or more of the following options:
-      #          * :arguments  - report the arguments passed to <tt>method</tt> on each profile (default: false)
-      #          * :result     - report the return value of <tt>method</tt> on each profile (default: false)
-      #          * :backtrace  - report the return value of <tt>method</tt> on each profile (default: false)
-      #          * :name       - alternate name for the profile reported in the dashboard (default: method name)
+      #   * :arguments  - report the arguments passed to <tt>method</tt> on each profile (default: false)
+      #   * :result     - report the return value of <tt>method</tt> on each profile (default: false)
+      #   * :backtrace  - report the return value of <tt>method</tt> on each profile (default: false)
+      #   * :name       - alternate name for the profile reported in the dashboard (default: method name)
+      # extra_kvs - a hash containing any additional KVs you would like reported with the profile
       #
       # Example
       #
@@ -67,7 +68,7 @@ module TraceView
       #
       #   TraceView::API.profile_method(Array, :sort, opts)
       #
-      def profile_method(klass, method, opts = {})
+      def profile_method(klass, method, opts = {}, extra_kvs = {})
 
         if RUBY_VERSION < '1.9.3'
           TraceView.logger.warn "[traceview/error] profile_method: Use the legacy method profiling for Ruby versions before 1.9.3"
@@ -131,6 +132,9 @@ module TraceView
             report_kvs[:File] = source_location[0]
             report_kvs[:LineNumber] = source_location[1]
           end
+
+          # Merge in any extra_kvs requested
+          report_kvs.merge!(extra_kvs)
 
           if instance_method
             klass.class_eval do
