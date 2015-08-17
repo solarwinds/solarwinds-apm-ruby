@@ -28,7 +28,7 @@ module TraceView
       #
       # Returns a string with each frame of the backtrace separated by '\r\n'.
       #
-      def backtrace(ignore = 1)
+      def backtrace(ignore = 0)
         bt = Kernel.caller
         bt.slice!(0, ignore)
         trim_backtrace(bt).join("\r\n")
