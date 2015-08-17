@@ -104,45 +104,44 @@ module TraceView
         without_traceview = "#{safe_method_name}_without_traceview"
         with_traceview    = "#{safe_method_name}_with_traceview"
 
-        unless klass.instance_methods.include?(with_traceview.to_sym) ||
+        # Check if already profiled
+        if klass.instance_methods.include?(with_traceview.to_sym) ||
           klass.singleton_methods.include?(with_traceview.to_sym)
-
-          source_location = []
-          if instance_method
-            ::TraceView::Util.send_include(klass, ::TraceView::MethodProfiling)
-            source_location = klass.instance_method(method).source_location
-          elsif class_method
-            ::TraceView::Util.send_extend(klass, ::TraceView::MethodProfiling)
-            source_location = klass.method(method).source_location
-          end
-
-          report_kvs = collect_profile_kvs(klass, method, opts, extra_kvs, source_location)
-          report_kvs[:MethodName] = safe_method_name
-
-          if instance_method
-            klass.class_eval do
-              define_method(with_traceview) { | *args, &block |
-                profile_wrapper(without_traceview, report_kvs, opts, *args, &block)
-              }
-
-              alias_method without_traceview, "#{method}"
-              alias_method "#{method}", with_traceview
-            end
-          elsif class_method
-            klass.define_singleton_method(with_traceview) { | *args, &block |
-              profile_wrapper(without_traceview, report_kvs, opts, *args, &block)
-            }
-
-            klass.singleton_class.class_eval do
-              alias_method without_traceview, "#{method}"
-              alias_method "#{method}", with_traceview
-            end
-          end
-
-        else
           TraceView.logger.warn "[traceview/error] profile_method: #{klass}::#{method} already profiled."
           TraceView.logger.warn "[traceview/error] profile_method: #{__FILE__}:#{__LINE__}"
           return false
+        end
+
+        source_location = []
+        if instance_method
+          ::TraceView::Util.send_include(klass, ::TraceView::MethodProfiling)
+          source_location = klass.instance_method(method).source_location
+        elsif class_method
+          ::TraceView::Util.send_extend(klass, ::TraceView::MethodProfiling)
+          source_location = klass.method(method).source_location
+        end
+
+        report_kvs = collect_profile_kvs(klass, method, opts, extra_kvs, source_location)
+        report_kvs[:MethodName] = safe_method_name
+
+        if instance_method
+          klass.class_eval do
+            define_method(with_traceview) { | *args, &block |
+              profile_wrapper(without_traceview, report_kvs, opts, *args, &block)
+            }
+
+            alias_method without_traceview, "#{method}"
+            alias_method "#{method}", with_traceview
+          end
+        elsif class_method
+          klass.define_singleton_method(with_traceview) { | *args, &block |
+            profile_wrapper(without_traceview, report_kvs, opts, *args, &block)
+          }
+
+          klass.singleton_class.class_eval do
+            alias_method without_traceview, "#{method}"
+            alias_method "#{method}", with_traceview
+          end
         end
         true
       end
