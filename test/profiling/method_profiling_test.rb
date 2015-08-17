@@ -588,5 +588,44 @@ if RUBY_VERSION >= '1.9.3'
 
       traces[1].key?("Backtrace").must_equal true, "should report a backtrace"
     end
+
+    it 'should report extra KVs when requested' do
+      class TestKlass
+        def do_work(blah = {})
+          return 687
+        end
+      end
+
+      opts = { :backtrace => true }
+      result = TraceView::API.profile_method(TestKlass, :do_work, opts, :another => "value")
+      assert_equal true, result, "profile_method return value must be true"
+
+      result = nil
+
+      ::TraceView::API.start_trace('method_profiling', '', {}) do
+        # Call the profiled class method
+        result = TestKlass.new.do_work(:ok => :blue)
+      end
+
+      traces = get_all_traces
+      traces.count.must_equal 4
+      assert valid_edges?(traces), "Trace edge validation"
+
+      validate_outer_layers(traces, 'method_profiling')
+
+      result.must_equal 687
+
+      kvs = {}
+      kvs["Label"] = 'profile_entry'
+      kvs["Language"] = "ruby"
+      kvs["ProfileName"] = "do_work"
+      kvs["Class"] = "TestKlass"
+      kvs["MethodName"] = "do_work"
+      kvs["another"] = "value"
+
+      validate_event_keys(traces[1], kvs)
+
+      traces[1].key?("Backtrace").must_equal true, "should report a backtrace"
+    end
   end
 end
