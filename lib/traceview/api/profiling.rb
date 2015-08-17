@@ -106,8 +106,6 @@ module TraceView
         unless klass.instance_methods.include?(with_traceview.to_sym) ||
           klass.singleton_methods.include?(with_traceview.to_sym)
 
-          ::TraceView::Util.send_include(klass, ::TraceView::MethodProfiling)
-
           report_kvs = {}
           report_kvs[:Language] ||= :ruby
           report_kvs[:ProfileName] ||= opts[:name] ? opts[:name] : method
