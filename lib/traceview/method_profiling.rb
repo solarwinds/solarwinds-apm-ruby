@@ -16,6 +16,8 @@ module TraceView
         raise
       ensure
         report_kvs.delete(:Backtrace)
+        report_kvs.delete(:Controller)
+        report_kvs.delete(:Action)
         TraceView::API.log(nil, 'profile_exit', report_kvs)
       end
     end

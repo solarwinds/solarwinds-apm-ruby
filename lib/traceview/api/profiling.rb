@@ -107,17 +107,6 @@ module TraceView
         unless klass.instance_methods.include?(with_traceview.to_sym) ||
           klass.singleton_methods.include?(with_traceview.to_sym)
 
-          report_kvs = {}
-          report_kvs[:Language] ||= :ruby
-          report_kvs[:ProfileName] ||= opts[:name] ? opts[:name] : method
-          report_kvs[:MethodName] = safe_method_name
-
-          if klass.is_a?(Class)
-            report_kvs[:Class] = klass.to_s
-          else
-            report_kvs[:Module] = klass.to_s
-          end
-
           source_location = []
           if instance_method
             ::TraceView::Util.send_include(klass, ::TraceView::MethodProfiling)
@@ -127,14 +116,8 @@ module TraceView
             source_location = klass.method(method).source_location
           end
 
-          # We won't have access to this info for native methods (those not defined in Ruby).
-          if source_location.is_a?(Array) && source_location.length == 2
-            report_kvs[:File] = source_location[0]
-            report_kvs[:LineNumber] = source_location[1]
-          end
-
-          # Merge in any extra_kvs requested
-          report_kvs.merge!(extra_kvs)
+          report_kvs = collect_profile_kvs(klass, method, opts, extra_kvs, source_location)
+          report_kvs[:MethodName] = safe_method_name
 
           if instance_method
             klass.class_eval do
@@ -162,6 +145,48 @@ module TraceView
           return false
         end
         true
+      end
+
+      private
+
+      ##
+      # Private: Helper method to aggregate KVs to report
+      #
+      # klass  - the class or module that has the method to profile
+      # method - the method to profile.  Can be singleton, instance, private etc...
+      # opts   - a hash specifying the one or more of the following options:
+      #   * :arguments  - report the arguments passed to <tt>method</tt> on each profile (default: false)
+      #   * :result     - report the return value of <tt>method</tt> on each profile (default: false)
+      #   * :backtrace  - report the return value of <tt>method</tt> on each profile (default: false)
+      #   * :name       - alternate name for the profile reported in the dashboard (default: method name)
+      # extra_kvs - a hash containing any additional KVs you would like reported with the profile
+      # source_location - array returned from klass.method(:name).source_location
+      #
+      def collect_profile_kvs(klass, method, opts, extra_kvs, source_location)
+        report_kvs = {}
+        report_kvs[:Language] ||= :ruby
+        report_kvs[:ProfileName] ||= opts[:name] ? opts[:name] : method
+
+        if klass.is_a?(Class)
+          report_kvs[:Class] = klass.to_s
+        else
+          report_kvs[:Module] = klass.to_s
+        end
+
+        # If this is a Rails Controller, report the KVs
+        if defined?(::AbstractController::Base) && klass.ancestors.include?(::AbstractController::Base)
+          report_kvs[:Controller] = klass.to_s
+          report_kvs[:Action] = method.to_s
+        end
+
+        # We won't have access to this info for native methods (those not defined in Ruby).
+        if source_location.is_a?(Array) && source_location.length == 2
+          report_kvs[:File] = source_location[0]
+          report_kvs[:LineNumber] = source_location[1]
+        end
+
+        # Merge in any extra_kvs requested
+        report_kvs.merge!(extra_kvs)
       end
     end
   end
