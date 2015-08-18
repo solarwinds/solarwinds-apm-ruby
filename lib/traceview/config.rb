@@ -18,7 +18,7 @@ module TraceView
                          :typhoeus]
 
     # Subgrouping of instrumentation
-    @@http_clients = [:curb, :excon, :faraday, :httpclient, :nethttp, :rest_client, :typhoeus]
+    @@http_clients = [:curb, :excon, :em_http_request, :faraday, :httpclient, :nethttp, :rest_client, :typhoeus]
 
     ##
     # Return the raw nested hash.
@@ -217,14 +217,14 @@ module TraceView
       elsif key == :include_url_query_params
         # Obey the global flag and update all of the per instrumentation
         # <tt>:log_args</tt> values.
-        @@http_clients.each do |i|
-          @@config[i][:log_args] = value
-        end
+        @@config[:rack][:log_args] = value
 
       elsif key == :include_remote_url_params
         # Obey the global flag and update all of the per instrumentation
         # <tt>:log_args</tt> values.
-        @@config[:rack][:log_args] = value
+        @@http_clients.each do |i|
+          @@config[i][:log_args] = value
+        end
       end
 
       # Update liboboe if updating :tracing_mode
