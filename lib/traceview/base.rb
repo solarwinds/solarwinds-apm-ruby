@@ -168,9 +168,8 @@ module TraceViewBase
   # False otherwise
   #
   def tracing?
-    return false unless TraceView.loaded
-
-    TraceView::Context.isValid && !TraceView.never?
+    return false if !TraceView.loaded || TraceView.never?
+    TraceView::Context.isValid
   end
 
   def log(layer, label, options = {})
