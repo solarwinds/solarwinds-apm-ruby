@@ -99,31 +99,31 @@ describe "TraceView::Config" do
     # equivalents should follow suit.
 
     #
-    # :include_url_query_params
+    # :include_remote_url_params
     #
 
     # Check defaults
-    TraceView::Config[:include_url_query_params].must_equal true
+    TraceView::Config[:include_remote_url_params].must_equal true
     http_clients.each do |i|
       TraceView::Config[i][:log_args].must_equal true
     end
 
     # Check obedience
-    TraceView::Config[:include_url_query_params] = false
+    TraceView::Config[:include_remote_url_params] = false
     http_clients.each do |i|
       TraceView::Config[i][:log_args].must_equal false
     end
 
     #
-    # :include_remote_url_params
+    # :include_url_query_params
     #
 
     # Check default
-    TraceView::Config[:include_remote_url_params].must_equal true
+    TraceView::Config[:include_url_query_params].must_equal true
     TraceView::Config[:rack][:log_args].must_equal true
 
     # Check obedience
-    TraceView::Config[:include_remote_url_params] = false
+    TraceView::Config[:include_url_query_params] = false
     TraceView::Config[:rack][:log_args].must_equal false
 
     # Restore the previous values
