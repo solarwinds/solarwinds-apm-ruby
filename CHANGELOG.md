@@ -4,6 +4,18 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# traceview 3.2.0
+
+This minor release adds the following:
+
+* New and improved method profiling: #135
+* Fix URL Query config: #136
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.2.0
+https://rubygems.org/gems/traceview/versions/3.2.0-java
+
 # traceview 3.1.0
 
 This minor release adds the following:
