@@ -70,6 +70,10 @@ module TraceView
       #
       def profile_method(klass, method, opts = {}, extra_kvs = {})
 
+        # If we're on an unsupported platform (ahem Mac), just act
+        # like we did something to nicely play the no-op part.
+        return true unless TraceView.loaded
+
         if RUBY_VERSION < '1.9.3'
           TraceView.logger.warn "[traceview/error] profile_method: Use the legacy method profiling for Ruby versions before 1.9.3"
           return false
