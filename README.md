@@ -12,6 +12,8 @@ It requires a [TraceView](http://www.appneta.com/products/traceview/) account to
 [![Build Status](https://travis-ci.org/appneta/oboe-ruby.png?branch=master)](https://travis-ci.org/appneta/oboe-ruby)
 [![Code Climate](https://codeclimate.com/github/appneta/oboe-ruby.png)](https://codeclimate.com/github/appneta/oboe-ruby)
 
+_Note: The repository name has been changed to ruby-traceview.  Please update your github remotes with `git remote set-url origin git@github.com:appneta/ruby-traceview.git`._
+
 # Installation
 
 The traceview gem is [available on Rubygems](https://rubygems.org/gems/traceview) and can be installed with:
