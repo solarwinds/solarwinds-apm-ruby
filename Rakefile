@@ -97,8 +97,8 @@ task :distclean do
     mkmf_log = File.expand_path('ext/oboe_metal/mkmf.log')
 
     if File.exists? mkmf_log
-      Dir.chdir ext_dir
       File.delete symlink if File.exist? symlink
+      Dir.chdir ext_dir
       sh '/usr/bin/env make distclean'
 
       Dir.chdir pwd
