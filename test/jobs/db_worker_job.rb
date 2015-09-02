@@ -2,7 +2,9 @@
 require_relative './job_initializer'
 
 class DBWorkerJob
-  def perform
+  include Sidekiq::Worker
+
+  def perform(*args)
     return unless defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
     if ENV.key?('TRAVIS_MYSQL_PASS')
