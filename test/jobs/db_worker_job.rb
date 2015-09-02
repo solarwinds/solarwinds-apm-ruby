@@ -1,3 +1,6 @@
+
+require_relative './job_initializer'
+
 class DBWorkerJob
   def perform
     return unless defined?(::Sequel) && !defined?(JRUBY_VERSION)
