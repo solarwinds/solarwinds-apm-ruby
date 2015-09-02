@@ -60,7 +60,7 @@ module TraceView
       TraceView::Config[:resque][:collect_backtraces] = true
       TraceView::Config[:rest_client][:collect_backtraces] = false
       TraceView::Config[:sequel][:collect_backtraces] = true
-      TraceView::Config[:sidekiq][:collect_backtraces] = true
+      TraceView::Config[:sidekiq][:collect_backtraces] = false
       TraceView::Config[:typhoeus][:collect_backtraces] = false
 
       # Special instrument specific flags
