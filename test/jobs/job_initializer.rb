@@ -1,4 +1,4 @@
-ENV['BUNDLE_GEMFILE'] = Dir.pwd + "gemfiles/libraries.gemfile"
+ENV['BUNDLE_GEMFILE'] = Dir.pwd + "/gemfiles/libraries.gemfile"
 
 require 'rubygems'
 require 'bundler/setup'
