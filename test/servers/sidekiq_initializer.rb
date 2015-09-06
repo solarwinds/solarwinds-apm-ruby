@@ -2,9 +2,9 @@ ENV['BUNDLE_GEMFILE'] = Dir.pwd + "/gemfiles/libraries.gemfile"
 
 require 'rubygems'
 require 'bundler/setup'
-require_relative './db_worker_job'
-require_relative './remote_call_worker_job'
-require_relative './error_worker_job'
+require_relative '../jobs/db_worker_job'
+require_relative '../jobs/remote_call_worker_job'
+require_relative '../jobs/error_worker_job'
 
 ENV["RACK_ENV"] = "test"
 ENV["TRACEVIEW_GEM_TEST"] = "true"
