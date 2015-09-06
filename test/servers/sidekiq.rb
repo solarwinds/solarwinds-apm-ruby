@@ -4,7 +4,7 @@ TraceView.logger.info "[traceview/servers] Starting up background Sidekiq."
 
 options = []
 arguments = ""
-options << ["-r", Dir.pwd + "/test/jobs/job_initializer.rb"]
+options << ["-r", Dir.pwd + "/test/servers/sidekiq_initializer.rb"]
 options << ["-q", "critical,20", "-q", "default"]
 options << ["-P", "/tmp/sidekiq_#{Process.pid}.pid"]
 
