@@ -51,9 +51,6 @@ TraceView.logger.level = Logger::DEBUG
 # Our background Rack-app for http client testing
 require "./test/servers/rackapp_8101"
 
-# Background Sidekiq thread
-require './test/servers/sidekiq.rb'
-
 # Conditionally load other background servers
 # depending on what we're testing
 #
@@ -64,6 +61,8 @@ when /rails3/
   require "./test/servers/rails3x_8140"
 when /frameworks/
 when /libraries/
+  # Background Sidekiq thread
+  require './test/servers/sidekiq.rb'
 end
 
 ##
