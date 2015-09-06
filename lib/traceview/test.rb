@@ -1,0 +1,17 @@
+# Copyright (c) 2015 AppNeta, Inc.
+# All rights reserved.
+
+module TraceView
+  module Test
+    class << self
+      def load_extras
+        # Load all of the test workers
+        pattern = File.join(File.dirname(__FILE__), '../../test/jobs/', '*.rb')
+        Dir.glob(pattern) do |f|
+          TV.logger.debug "Loading test job file: #{f}"
+          require f
+        end
+      end
+    end
+  end
+end
