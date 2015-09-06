@@ -5,8 +5,7 @@ TraceView.logger.info "[traceview/servers] Starting up background Sidekiq."
 options = []
 arguments = ""
 options << ["-r", Dir.pwd + "/test/jobs/job_initializer.rb"]
-options << ["-c", "2"]
-options << ["-q", "critical,2", "-q", "default"]
+options << ["-q", "critical,20", "-q", "default"]
 options << ["-P", "/tmp/sidekiq_#{Process.pid}.pid"]
 
 options.flatten.each do |x|
@@ -21,11 +20,12 @@ Thread.new do
 end
 
 # Allow Sidekiq to boot up
-sleep 2
+sleep 10
 
 # Add a hook to shutdown sidekiq after Minitest finished running
 Minitest.after_run {
   TraceView.logger.warn "[traceview/servers] Shutting down Sidekiq. (pid: #{@sidekiq_pid})"
   pid = File.read("/tmp/sidekiq_#{Process.pid}.pid").chomp
   Process.kill(:TERM, pid.to_i)
+  File.unlink "/tmp/sidekiq_#{Process.pid}.pid"
 }
