@@ -1,6 +1,3 @@
-
-require_relative './job_initializer'
-
 class RemoteCallWorkerJob
   include Sidekiq::Worker
 
