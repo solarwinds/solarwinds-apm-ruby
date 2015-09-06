@@ -33,7 +33,6 @@ class SidekiqWorkerTest < Minitest::Test
     sleep 5
 
     traces = get_all_traces
-    require 'pry-byebug'; binding.pry
     assert_equal 19, traces.count, "Trace count"
     validate_outer_layers(traces, "sidekiq-worker")
     valid_edges?(traces)
