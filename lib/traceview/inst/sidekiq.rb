@@ -51,7 +51,7 @@ module TraceView
   end
 end
 
-if defined?(::Sidekiq) && TraceView::Config[:sidekiq][:enabled]
+if defined?(::Sidekiq) && RUBY_VERSION >= '2.0' && TraceView::Config[:sidekiq][:enabled]
   ::TraceView.logger.info '[traceview/loading] Instrumenting sidekiq' if TraceView::Config[:verbose]
 
   ::Sidekiq.configure_server do |config|
