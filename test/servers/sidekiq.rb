@@ -1,3 +1,6 @@
+# Copyright (c) 2015 AppNeta, Inc.
+# All rights reserved.
+
 require 'sidekiq/cli'
 
 TraceView.logger.info "[traceview/servers] Starting up background Sidekiq."
