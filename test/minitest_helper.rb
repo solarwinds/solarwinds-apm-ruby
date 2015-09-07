@@ -61,8 +61,10 @@ when /rails3/
   require "./test/servers/rails3x_8140"
 when /frameworks/
 when /libraries/
-  # Background Sidekiq thread
-  require './test/servers/sidekiq.rb'
+  if RUBY_VERSION >= '2.0'
+    # Background Sidekiq thread
+    require './test/servers/sidekiq.rb'
+  end
 end
 
 ##
