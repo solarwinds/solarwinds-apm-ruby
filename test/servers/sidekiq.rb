@@ -9,6 +9,7 @@ options = []
 arguments = ""
 options << ["-r", Dir.pwd + "/test/servers/sidekiq_initializer.rb"]
 options << ["-q", "critical,20", "-q", "default"]
+options << ["-c", "10"]
 options << ["-P", "/tmp/sidekiq_#{Process.pid}.pid"]
 
 options.flatten.each do |x|
