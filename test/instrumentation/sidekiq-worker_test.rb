@@ -28,7 +28,7 @@ if RUBY_VERSION >= '2.0'
 
     def test_job_run
       # Queue up a job to be run
-      Sidekiq::Client.push('queue' => 'critical', 'class' => RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
+      jid = Sidekiq::Client.push('queue' => 'critical', 'class' => RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
 
       # Allow the job to be run
       sleep 5
@@ -38,16 +38,23 @@ if RUBY_VERSION >= '2.0'
       validate_outer_layers(traces, "sidekiq-worker")
       valid_edges?(traces)
 
-      assert_equal "sidekiq-worker", traces[0]['Layer']
-      assert_equal "entry", traces[0]['Label']
-      assert_equal "perform", traces[0]['Op']
-      assert_equal traces[0].key?('HTTP-Host'), true
+      # Validate entry layer KVs
+      assert_equal traces[0].key?('SampleRate'), true
+      assert_equal traces[0].key?('SampleSource'), true
+
+      # Validate Webserver Spec KVs
+      assert_equal Socket.gethostname, traces[0]['HTTP-Host']
       assert_equal "Worker", traces[0]['Method']
-      assert_equal "[1, 2, 3]", traces[0]['Args']
       assert_equal "Sidekiq_critical", traces[0]['Controller']
       assert_equal "RemoteCallWorkerJob", traces[0]['Action']
       assert_equal "/sidekiq/critical/RemoteCallWorkerJob", traces[0]['URL']
-      assert_equal "critical", traces[0]['Queue']
+
+      # Validate Job Spec KVs
+      assert_equal "job", traces[0]['Spec']
+      assert_equal "RemoteCallWorkerJob", traces[0]['JobName']
+      assert_equal jid, traces[0]['JobID']
+      assert_equal "critical", traces[0]['Source']
+      assert_equal "[1, 2, 3]", traces[0]['Args']
 
       assert_equal traces[0].key?('Backtrace'), false
       assert_equal traces[4]['Layer'], "excon"
@@ -57,7 +64,7 @@ if RUBY_VERSION >= '2.0'
 
     def test_jobs_with_errors
       # Queue up a job to be run
-      Sidekiq::Client.push('queue' => 'critical', 'class' => ErrorWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
+      jid = Sidekiq::Client.push('queue' => 'critical', 'class' => ErrorWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
 
       # Allow the job to be run
       sleep 5
@@ -66,6 +73,20 @@ if RUBY_VERSION >= '2.0'
       assert_equal 3, traces.count, "Trace count"
       validate_outer_layers(traces, "sidekiq-worker")
       valid_edges?(traces)
+
+      # Validate Webserver Spec KVs
+      assert_equal Socket.gethostname, traces[0]['HTTP-Host']
+      assert_equal "Worker", traces[0]['Method']
+      assert_equal "Sidekiq_critical", traces[0]['Controller']
+      assert_equal "ErrorWorkerJob", traces[0]['Action']
+      assert_equal "/sidekiq/critical/ErrorWorkerJob", traces[0]['URL']
+
+      # Validate Job Spec KVs
+      assert_equal "job", traces[0]['Spec']
+      assert_equal "ErrorWorkerJob", traces[0]['JobName']
+      assert_equal jid, traces[0]['JobID']
+      assert_equal "critical", traces[0]['Source']
+      assert_equal "[1, 2, 3]", traces[0]['Args']
 
       assert_equal traces[1]['Layer'], 'sidekiq-worker'
       assert_equal traces[1]['Label'], 'error'
