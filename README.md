@@ -9,7 +9,7 @@ It has the ability to report performance metrics on an array of libraries, datab
 It requires a [TraceView](http://www.appneta.com/products/traceview/) account to view metrics.  Get yours, [it's free](http://www.appneta.com/products/traceview-free-account/).
 
 [![Gem Version](https://badge.fury.io/rb/traceview.png)](http://badge.fury.io/rb/traceview)
-[![Build Status](https://travis-ci.org/appneta/oboe-ruby.png?branch=master)](https://travis-ci.org/appneta/oboe-ruby)
+[![Build Status](https://travis-ci.org/appneta/ruby-traceview.png?branch=master)](https://travis-ci.org/appneta/ruby-traceview)
 [![Code Climate](https://codeclimate.com/github/appneta/oboe-ruby.png)](https://codeclimate.com/github/appneta/oboe-ruby)
 
 _Note: The repository name has been changed to ruby-traceview.  Please update your github remotes with `git remote set-url origin git@github.com:appneta/ruby-traceview.git`._
