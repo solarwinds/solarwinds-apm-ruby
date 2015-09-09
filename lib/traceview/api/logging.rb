@@ -105,7 +105,7 @@ module TraceView
           # sample rate and sample source
           opts[:SampleRate]        = TraceView.sample_rate
           opts[:SampleSource]      = TraceView.sample_source
-          opts[:TraceOrigin] = :always_sampled
+          opts[:TraceOrigin]       = :always_sampled
 
           log_event(layer, 'entry', TraceView::Context.startTrace, opts)
         end
