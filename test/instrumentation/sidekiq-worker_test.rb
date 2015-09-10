@@ -39,9 +39,9 @@ if RUBY_VERSION >= '2.0'
       valid_edges?(traces)
 
       # Validate entry layer KVs
-      assert_equal traces[0]['TraceOrigin'], 'always_sampled', "is always_sampled"
-      assert_equal traces[0].key?('SampleRate'), true, "has SampleRate KV"
-      assert_equal traces[0].key?('SampleSource'), true, "has SampleSource KV"
+      assert_equal 'always_sampled', traces[0]['TraceOrigin'],       "is always_sampled"
+      assert_equal true,             traces[0].key?('SampleRate'),   "has SampleRate KV"
+      assert_equal true,             traces[0].key?('SampleSource'), "has SampleSource KV"
 
       # Validate Webserver Spec KVs
       assert_equal Socket.gethostname, traces[0]['HTTP-Host']
