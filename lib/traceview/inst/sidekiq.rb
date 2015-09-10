@@ -19,7 +19,6 @@ module TraceView
 
         # Webserver Spec KVs
         report_kvs['HTTP-Host'] = Socket.gethostname
-        report_kvs[:Method] = 'Worker'
         report_kvs[:Controller] = "Sidekiq_#{queue}"
         report_kvs[:Action] = msg['class']
         report_kvs[:URL] = "/sidekiq/#{args[2]}/#{args[1]['class'].to_s}"
@@ -34,6 +33,7 @@ module TraceView
 
       result = nil
       report_kvs = collect_kvs(args)
+
 
       result = TraceView::API.start_trace('sidekiq-worker', nil, report_kvs) do
         yield
