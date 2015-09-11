@@ -9,7 +9,10 @@ class RemoteCallWorkerJob
     # off with an excon call to the background rack webserver.
     @dc = Dalli::Client.new
     @dc.get(rand(10).to_s)
-    Excon.get('http://127.0.0.1:8101/')
+    uri = URI('http://gameface.in/gamers')
+    http = Net::HTTP.new(uri.host, uri.port)
+    request = Net::HTTP::Get.new(uri.request_uri)
+    http.request(request)
     @dc.get(rand(10).to_s)
     @dc.get(rand(10).to_s)
     @dc.get_multi([:one, :two, :three, :four, :five, :six])
