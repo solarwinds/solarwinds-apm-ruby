@@ -77,7 +77,6 @@ if RUBY_VERSION >= '2.0'
 
       # Validate Webserver Spec KVs
       assert_equal Socket.gethostname, traces[0]['HTTP-Host']
-      assert_equal "Worker", traces[0]['Method']
       assert_equal "Sidekiq_critical", traces[0]['Controller']
       assert_equal "ErrorWorkerJob", traces[0]['Action']
       assert_equal "/sidekiq/critical/ErrorWorkerJob", traces[0]['URL']
