@@ -215,6 +215,9 @@ module TraceView
         @@config[key.to_sym] = value.to_i
         TraceView.set_sample_rate(value) if TraceView.loaded
 
+      elsif key == :action_blacklist
+        TraceView.logger.warn "[traceview/deprecation] :action_blacklist will be deprecated in a future version."
+
       elsif key == :include_url_query_params
         # Obey the global flag and update all of the per instrumentation
         # <tt>:log_args</tt> values.
