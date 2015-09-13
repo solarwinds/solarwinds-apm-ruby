@@ -23,7 +23,7 @@ if RUBY_VERSION >= '2.0'
     def test_reports_version_init
       init_kvs = ::TraceView::Util.build_init_report
       assert init_kvs.key?('Ruby.Sidekiq.Version')
-      assert_equal init_kvs['Ruby.Sidekiq.Version'], "Sidekiq-#{::Sidekiq::VERSION}"
+      assert_equal "Sidekiq-#{::Sidekiq::VERSION}", init_kvs['Ruby.Sidekiq.Version']
     end
 
     def test_job_run
@@ -34,7 +34,7 @@ if RUBY_VERSION >= '2.0'
       sleep 5
 
       traces = get_all_traces
-      assert_equal 19, traces.count, "Trace count"
+      assert_equal 17, traces.count, "Trace count"
       validate_outer_layers(traces, "sidekiq-worker")
       valid_edges?(traces)
 
@@ -44,23 +44,22 @@ if RUBY_VERSION >= '2.0'
       assert_equal true,             traces[0].key?('SampleSource'), "has SampleSource KV"
 
       # Validate Webserver Spec KVs
-      assert_equal Socket.gethostname, traces[0]['HTTP-Host']
-      assert_equal "Worker", traces[0]['Method']
-      assert_equal "Sidekiq_critical", traces[0]['Controller']
+      assert_equal Socket.gethostname,    traces[0]['HTTP-Host']
+      assert_equal "Sidekiq_critical",    traces[0]['Controller']
       assert_equal "RemoteCallWorkerJob", traces[0]['Action']
       assert_equal "/sidekiq/critical/RemoteCallWorkerJob", traces[0]['URL']
 
       # Validate Job Spec KVs
-      assert_equal "job", traces[0]['Spec']
+      assert_equal "job",                 traces[0]['Spec']
       assert_equal "RemoteCallWorkerJob", traces[0]['JobName']
-      assert_equal jid, traces[0]['JobID']
-      assert_equal "critical", traces[0]['Source']
-      assert_equal "[1, 2, 3]", traces[0]['Args']
+      assert_equal jid,                   traces[0]['JobID']
+      assert_equal "critical",            traces[0]['Source']
+      assert_equal "[1, 2, 3]",           traces[0]['Args']
 
-      assert_equal traces[0].key?('Backtrace'), false
-      assert_equal traces[4]['Layer'], "excon"
-      assert_equal traces[4]['Label'], "entry"
-      assert_equal traces[17]['Layer'], "memcache"
+      assert_equal false,                 traces[0].key?('Backtrace')
+      assert_equal "net-http",            traces[4]['Layer']
+      assert_equal "entry",               traces[4]['Label']
+      assert_equal "memcache",            traces[15]['Layer']
     end
 
     def test_jobs_with_errors
