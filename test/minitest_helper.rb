@@ -147,7 +147,6 @@ def valid_edges?(traces)
   traces.reverse.each do  |t|
     if t.key?("Edge")
       unless has_edge?(t["Edge"], traces)
-        require 'byebug'; debugger
         return false
       end
     end
