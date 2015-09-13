@@ -100,6 +100,8 @@ module TraceView
           if ENV.key?('TRACEVIEW_GEM_TEST')
             # When in test, always trace and don't clear
             # the stored sample rate/source
+            TraceView.sample_rate ||= -1
+            TraceView.sample_source ||= -1
             true
           else
             TraceView.sample_rate = -1
