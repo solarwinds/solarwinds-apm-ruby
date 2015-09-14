@@ -97,5 +97,9 @@ if RUBY_VERSION >= '2.0'
     def test_collect_backtraces_default_value
       assert_equal TV::Config[:sidekiq][:collect_backtraces], false, "default backtrace collection"
     end
+
+    def test_log_args_default_value
+      assert_equal TV::Config[:sidekiq][:log_args], true, "log_args default "
+    end
   end
 end
