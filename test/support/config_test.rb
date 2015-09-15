@@ -30,7 +30,7 @@ describe "TraceView::Config" do
     instrumentation = TraceView::Config.instrumentation
 
     # Verify the number of individual instrumentations
-    instrumentation.count.must_equal 22
+    instrumentation.count.must_equal 23
 
     TraceView::Config[:action_controller][:enabled].must_equal true
     TraceView::Config[:action_view][:enabled].must_equal true
@@ -53,6 +53,7 @@ describe "TraceView::Config" do
     TraceView::Config[:resque][:enabled].must_equal true
     TraceView::Config[:rest_client][:enabled].must_equal true
     TraceView::Config[:sequel][:enabled].must_equal true
+    TraceView::Config[:sidekiq][:enabled].must_equal true
     TraceView::Config[:typhoeus][:enabled].must_equal true
 
     TraceView::Config[:action_controller][:log_args].must_equal true
@@ -76,6 +77,7 @@ describe "TraceView::Config" do
     TraceView::Config[:resque][:log_args].must_equal true
     TraceView::Config[:rest_client][:log_args].must_equal true
     TraceView::Config[:sequel][:log_args].must_equal true
+    TraceView::Config[:sidekiq][:log_args].must_equal true
     TraceView::Config[:typhoeus][:log_args].must_equal true
 
     TraceView::Config[:resque][:link_workers].must_equal false

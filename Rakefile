@@ -5,6 +5,8 @@ require 'bundler/setup'
 require 'rake/testtask'
 
 Rake::TestTask.new do |t|
+  t.verbose = true
+  t.ruby_opts = []
   t.libs << "test"
 
   # Since we support so many libraries and frameworks, tests
@@ -29,8 +31,6 @@ Rake::TestTask.new do |t|
                    FileList['test/profiling/*_test.rb']
   end
 
-  t.verbose = true
-  t.ruby_opts = []
   # t.ruby_opts << ['-w']
   if defined?(JRUBY_VERSION)
     t.ruby_opts << ["-J-javaagent:/usr/local/tracelytics/tracelyticsagent.jar"]
@@ -97,8 +97,8 @@ task :distclean do
     mkmf_log = File.expand_path('ext/oboe_metal/mkmf.log')
 
     if File.exists? mkmf_log
-      Dir.chdir ext_dir
       File.delete symlink if File.exist? symlink
+      Dir.chdir ext_dir
       sh '/usr/bin/env make distclean'
 
       Dir.chdir pwd
@@ -114,9 +114,11 @@ desc "Rebuild the gem's c extension"
 task :recompile => [ :distclean, :compile ]
 
 task :console do
+  require 'traceview/test'
   ENV['TRACEVIEW_GEM_VERBOSE'] = 'true'
   Bundler.require(:default, :development)
   TraceView::Config[:tracing_mode] = :always
+  TV::Test.load_extras
   ARGV.clear
   Pry.start
 end

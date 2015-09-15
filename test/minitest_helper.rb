@@ -61,6 +61,10 @@ when /rails3/
   require "./test/servers/rails3x_8140"
 when /frameworks/
 when /libraries/
+  if RUBY_VERSION >= '2.0'
+    # Background Sidekiq thread
+    require './test/servers/sidekiq.rb'
+  end
 end
 
 ##
@@ -143,7 +147,6 @@ def valid_edges?(traces)
   traces.reverse.each do  |t|
     if t.key?("Edge")
       unless has_edge?(t["Edge"], traces)
-        require 'byebug'; debugger
         return false
       end
     end

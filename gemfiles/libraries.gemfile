@@ -54,6 +54,7 @@ gem 'mongo'
 gem 'redis'
 gem 'resque'
 gem 'sequel'
+gem "sidekiq" if RUBY_VERSION >= '2.0'
 gem 'typhoeus'
 
 # Database adapter gems needed by sequel
