@@ -38,10 +38,7 @@ module TraceView
           raise
         end
       end
-
-      def restart
-
-      end
+      alias :restart :start
 
       def sendReport(evt)
         TraceView.reporter.sendReport(evt)
