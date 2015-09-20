@@ -6,9 +6,11 @@ module TraceView
         # keep calm and instrument on.
 
         report_kvs = {}
-        _, msg, queue = args
+        _, msg, queue, redis_pool = args
 
-        report_kvs['Backtrace'] = TV::API.backtrace if TV::Config[:sidekiq][:collect_backtraces]
+        report_kvs[:Spec] = :mq
+        report_kvs[:Broker] = 'sidekiq'
+        report_kvs[:Backtrace] = TV::API.backtrace if TV::Config[:sidekiq][:collect_backtraces]
       rescue => e
         TraceView.logger.warn "[traceview/sidekiq] Non-fatal error capturing KVs: #{e.message}"
       end
@@ -21,11 +23,15 @@ module TraceView
       result = nil
       report_kvs = collect_kvs(args)
 
-      result = TraceView::API.start_trace('sidekiq-client', nil, report_kvs) do
-        yield
-      end
+      TraceView::API.log_entry('sidekiq-client', report_kvs)
+      result = yield
 
-      result[0]
+      report_kvs = { :JobID => result["jid"] }
+    rescue => e
+      TraceView::API.log_exception('sidekiq-client', e, report_kvs)
+      raise
+    ensure
+      TraceView::API.log_exit('sidekiq-client', report_kvs)
     end
   end
 end
