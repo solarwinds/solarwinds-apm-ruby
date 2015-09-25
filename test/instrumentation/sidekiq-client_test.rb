@@ -22,7 +22,7 @@ if RUBY_VERSION >= '2.0'
 
     def test_enqueue
       # Queue up a job to be run
-      jid, xtrace = ::TraceView::API.start_trace(:enqueue_test) do
+      jid, _ = ::TraceView::API.start_trace(:enqueue_test) do
         Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
       end
 
@@ -30,14 +30,22 @@ if RUBY_VERSION >= '2.0'
       sleep 5
 
       traces = get_all_traces
-      assert_equal 6, traces.count, "Trace count"
-      validate_outer_layers(traces, 'enqueue_test')
+      assert_equal 23, traces.count, "Trace count"
       valid_edges?(traces)
 
-      assert_equal 'sidekiq-client', traces[1]['Layer']
-      assert_equal 'entry',          traces[1]['Label']
-      assert_equal 'sidekiq-client', traces[2]['Layer']
-      assert_equal 'exit',           traces[2]['Label']
+      assert_equal 'sidekiq-client',       traces[1]['Layer']
+      assert_equal 'entry',                traces[1]['Label']
+
+      assert_equal 'msgclient',            traces[1]['Spec']
+      assert_equal 'sidekiq',              traces[1]['Flavor']
+      assert_equal 'critical',             traces[1]['Queue']
+      assert_equal jid,                    traces[1]['MsgID']
+      assert_equal "RemoteCallWorkerJob",  traces[1]['JobName']
+      assert_equal 'false',                traces[1]['Retry']
+      assert_equal false,                  traces[1].key?('Backtrace')
+
+      assert_equal 'sidekiq-client',       traces[2]['Layer']
+      assert_equal 'exit',                 traces[2]['Label']
     end
 
     def test_collect_backtraces_default_value
