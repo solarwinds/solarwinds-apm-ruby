@@ -28,8 +28,6 @@ or added to _the end_ of your bundle Gemfile and running `bundle install`:
 gem 'traceview'
 ```
 
-On Heroku?  Use the `oboe-heroku` gem instead.  It wraps some additional functionality specialized for Heroku.
-
 # Running
 
 ## Rails
@@ -38,7 +36,7 @@ On Heroku?  Use the `oboe-heroku` gem instead.  It wraps some additional functio
 
 No special steps are needed to instrument Ruby on Rails.  Once part of the bundle, the traceview gem will automatically detect Rails and instrument on stack initialization.
 
-*Note: Unless you are Heroku, you will still need to decide on your `tracing_mode` depending on whether you are running with an instrumented Apache or nginx in front of your Rails stack.  See below for more details.*
+*Note: You will still need to decide on your `tracing_mode` depending on whether you are running with an instrumented Apache or nginx in front of your Rails stack.  See below for more details.*
 
 ### The Install Generator
 
@@ -73,8 +71,6 @@ TraceView::Config[:tracing_mode] = 'through'
 # TraceView.logger = Sinatra.logger
 ```
 
-Note: If you're on Heroku, you don't need to set `tracing_mode` - it will be automatically configured.
-
 Make sure that the traceview gem is loaded _after_ Sinatra either by listing `gem 'traceview'` after Sinatra in your Gemfile or calling the `require 'traceview'` directive after Sinatra is loaded.
 
 With this, the traceview gem will automatically detect Sinatra on boot and instrument key components.
@@ -97,8 +93,6 @@ Padrino.before_load do
   TraceView::Config[:tracing_mode] = 'always'
 end
 ```
-
-Note: If you're on Heroku, you don't need to set `tracing_mode` - it will be automatically configured.
 
 ## Grape
 
@@ -123,8 +117,6 @@ You can instrument your Grape application by adding the following code to your `
       use TraceView::Rack
     end
 ```
-
-Note: If you're on Heroku, you don't need to set `tracing_mode` - it will be automatically configured.
 
 Make sure that the traceview gem is loaded _after_ Grape either by listing `gem 'traceview'` after Grape in your Gemfile or calling the `require 'traceview'` directive after Grape is loaded.
 
