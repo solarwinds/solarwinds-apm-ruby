@@ -90,9 +90,9 @@ module TraceView
         return false unless TraceView.always? && TraceView.loaded
 
         # Assure defaults since SWIG enforces Strings
-        layer   = opts[:layer]      ? opts[:layer].strip      : ''
-        xtrace  = opts[:xtrace]     ? opts[:xtrace].strip     : ''
-        tv_meta = opts['X-TV-Meta'] ? opts['X-TV-Meta'].strip : ''
+        layer   = opts[:layer]      ? opts[:layer].to_s.strip      : ''
+        xtrace  = opts[:xtrace]     ? opts[:xtrace].to_s.strip     : ''
+        tv_meta = opts['X-TV-Meta'] ? opts['X-TV-Meta'].to_s.strip : ''
 
         rv = TraceView::Context.sampleRequest(layer, xtrace, tv_meta)
 
