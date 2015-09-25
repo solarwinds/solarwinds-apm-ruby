@@ -1,7 +1,7 @@
 # Copyright (c) 2015 AppNeta, Inc.
 # All rights reserved.
 
-if RUBY_VERSION > '1.8.7'
+if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
 
   require 'minitest_helper'
   require 'traceview/inst/rack'
