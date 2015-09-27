@@ -101,5 +101,76 @@ if RUBY_VERSION >= '2.0'
     def test_log_args_default_value
       assert_equal TV::Config[:sidekiqworker][:log_args], true, "log_args default "
     end
+
+    def test_obey_collect_backtraces_when_false
+      TraceView::Config[:sidekiqworker][:collect_backtraces] = false
+
+      # Queue up a job to be run
+      ::TraceView::API.start_trace(:enqueue_test) do
+        Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
+      end
+
+      # Allow the job to be run
+      sleep 5
+
+      traces = get_all_traces
+      assert_equal 23, traces.count, "Trace count"
+      valid_edges?(traces)
+      assert_equal 'sidekiq-worker',   traces[1]['Layer']
+      assert_equal false,              traces[1].key?('Backtrace')
+    end
+
+    def test_obey_collect_backtraces_when_true
+      TraceView::Config[:sidekiqworker][:collect_backtraces] = true
+
+      # Queue up a job to be run
+      ::TraceView::API.start_trace(:enqueue_test) do
+        Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
+      end
+
+      # Allow the job to be run
+      sleep 5
+
+      traces = get_all_traces
+      assert_equal 23, traces.count, "Trace count"
+      valid_edges?(traces)
+      assert_equal 'sidekiq-worker',   traces[1]['Layer']
+      assert_equal true,               traces[1].key?('Backtrace')
+    end
+
+    def test_obey_log_args_when_false
+      TraceView::Config[:sidekiqworker][:log_args] = false
+
+      # Queue up a job to be run
+      ::TraceView::API.start_trace(:enqueue_test) do
+        Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
+      end
+
+      # Allow the job to be run
+      sleep 5
+
+      traces = get_all_traces
+      assert_equal 23, traces.count, "Trace count"
+      valid_edges?(traces)
+      assert_equal false, traces[1].key?('Args')
+    end
+
+    def test_obey_log_args_when_true
+      TraceView::Config[:sidekiqworker][:log_args] = true
+
+      # Queue up a job to be run
+      ::TraceView::API.start_trace(:enqueue_test) do
+        Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
+      end
+
+      # Allow the job to be run
+      sleep 5
+
+      traces = get_all_traces
+      assert_equal 23, traces.count, "Trace count"
+      valid_edges?(traces)
+      assert_equal true,         traces[1].key?('Args')
+      assert_equal '[1, 2, 3]',  traces[1]['Args']
+    end
   end
 end
