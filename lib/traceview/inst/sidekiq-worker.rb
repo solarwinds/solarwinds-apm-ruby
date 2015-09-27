@@ -15,7 +15,7 @@ module TraceView
         report_kvs[:JobName] = msg['class']
         report_kvs[:JobID] = msg['jid']
         report_kvs[:Source] = msg['queue']
-        report_kvs[:Args] = msg['args'].to_s if TraceView::Config[:sidekiqworker][:log_args]
+        report_kvs[:Args] = msg['args'].to_s[0..1024] if TraceView::Config[:sidekiqworker][:log_args]
 
         # Webserver Spec KVs
         report_kvs['HTTP-Host'] = Socket.gethostname

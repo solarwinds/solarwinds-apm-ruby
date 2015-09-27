@@ -11,11 +11,11 @@ module TraceView
         report_kvs[:Spec]      = :msgclient
         report_kvs[:Flavor]    = :sidekiq
         report_kvs[:Queue]     = queue
-        report_kvs[:Retry]     = msg["retry"]
+        report_kvs[:Retry]     = msg['retry']
         report_kvs[:JobName]   = worker_class
-        report_kvs[:MsgID]     = msg["jid"]
-        report_kvs[:Args]      = msg["args"]       if TV::Config[:sidekiqclient][:log_args]
-        report_kvs[:Backtrace] = TV::API.backtrace if TV::Config[:sidekiqclient][:collect_backtraces]
+        report_kvs[:MsgID]     = msg['jid']
+        report_kvs[:Args]      = msg['args'].to_s[0..1024] if TV::Config[:sidekiqclient][:log_args]
+        report_kvs[:Backtrace] = TV::API.backtrace         if TV::Config[:sidekiqclient][:collect_backtraces]
       rescue => e
         TraceView.logger.warn "[traceview/sidekiq] Non-fatal error capturing KVs: #{e.message}"
       end
