@@ -12,8 +12,11 @@ module TraceView
 
   class Reporter
     class << self
+
       ##
-      # Initialize the TraceView Context, reporter and report the initialization
+      # start
+      #
+      # Start the TraceView Reporter
       #
       def start
         return unless TraceView.loaded
@@ -40,6 +43,11 @@ module TraceView
       end
       alias :restart :start
 
+      ##
+      # sendReport
+      #
+      # Send the report for the given event
+      #
       def sendReport(evt)
         TraceView.reporter.sendReport(evt)
       end
