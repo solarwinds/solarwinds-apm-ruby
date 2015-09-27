@@ -29,7 +29,7 @@ module TraceView
       report_kvs = collect_kvs(args)
 
       TraceView::API.log_entry('sidekiq-client', report_kvs)
-      args[1]['X-Trace'] = TraceView::Context.toString
+      args[1]['X-Trace'] = TraceView::Context.toString if TraceView.tracing?
 
       result = yield
 
