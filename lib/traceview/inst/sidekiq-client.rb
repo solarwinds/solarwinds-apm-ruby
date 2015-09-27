@@ -14,8 +14,8 @@ module TraceView
         report_kvs[:Retry]     = msg["retry"]
         report_kvs[:JobName]   = worker_class
         report_kvs[:MsgID]     = msg["jid"]
-        report_kvs[:Args]      = msg["args"]
-        report_kvs[:Backtrace] = TV::API.backtrace if TV::Config[:sidekiq][:collect_backtraces]
+        report_kvs[:Args]      = msg["args"]       if TV::Config[:sidekiqclient][:log_args]
+        report_kvs[:Backtrace] = TV::API.backtrace if TV::Config[:sidekiqclient][:collect_backtraces]
       rescue => e
         TraceView.logger.warn "[traceview/sidekiq] Non-fatal error capturing KVs: #{e.message}"
       end
@@ -44,7 +44,7 @@ module TraceView
   end
 end
 
-if defined?(::Sidekiq) && RUBY_VERSION >= '2.0' && TraceView::Config[:sidekiq][:enabled]
+if defined?(::Sidekiq) && RUBY_VERSION >= '2.0' && TraceView::Config[:sidekiqclient][:enabled]
   ::Sidekiq.configure_client do |config|
     config.client_middleware do |chain|
       ::TraceView.logger.info '[traceview/loading] Adding Sidekiq client middleware' if TraceView::Config[:verbose]

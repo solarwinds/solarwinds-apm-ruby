@@ -11,13 +11,13 @@ if RUBY_VERSION >= '2.0'
   class SidekiqClientTest < Minitest::Test
     def setup
       clear_all_traces
-      @collect_backtraces = TraceView::Config[:sidekiq][:collect_backtraces]
-      @log_args = TraceView::Config[:sidekiq][:log_args]
+      @collect_backtraces = TraceView::Config[:sidekiqclient][:collect_backtraces]
+      @log_args = TraceView::Config[:sidekiqclient][:log_args]
     end
 
     def teardown
-      TraceView::Config[:sidekiq][:collect_backtraces] = @collect_backtraces
-      TraceView::Config[:sidekiq][:log_args] = @log_args
+      TraceView::Config[:sidekiqclient][:collect_backtraces] = @collect_backtraces
+      TraceView::Config[:sidekiqclient][:log_args] = @log_args
     end
 
     def test_enqueue
@@ -40,6 +40,7 @@ if RUBY_VERSION >= '2.0'
       assert_equal 'sidekiq',              traces[1]['Flavor']
       assert_equal 'critical',             traces[1]['Queue']
       assert_equal jid,                    traces[1]['MsgID']
+      assert_equal '[1, 2, 3]',            traces[1]['Args']
       assert_equal "RemoteCallWorkerJob",  traces[1]['JobName']
       assert_equal 'false',                traces[1]['Retry']
       assert_equal false,                  traces[1].key?('Backtrace')
@@ -49,11 +50,11 @@ if RUBY_VERSION >= '2.0'
     end
 
     def test_collect_backtraces_default_value
-      assert_equal TV::Config[:sidekiq][:collect_backtraces], false, "default backtrace collection"
+      assert_equal TV::Config[:sidekiqclient][:collect_backtraces], false, "default backtrace collection"
     end
 
     def test_log_args_default_value
-      assert_equal TV::Config[:sidekiq][:log_args], true, "log_args default "
+      assert_equal TV::Config[:sidekiqclient][:log_args], true, "log_args default "
     end
   end
 end

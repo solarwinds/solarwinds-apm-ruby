@@ -11,13 +11,13 @@ if RUBY_VERSION >= '2.0'
   class SidekiqWorkerTest < Minitest::Test
     def setup
       clear_all_traces
-      @collect_backtraces = TraceView::Config[:sidekiq][:collect_backtraces]
-      @log_args = TraceView::Config[:sidekiq][:log_args]
+      @collect_backtraces = TraceView::Config[:sidekiqworker][:collect_backtraces]
+      @log_args = TraceView::Config[:sidekiqworker][:log_args]
     end
 
     def teardown
-      TraceView::Config[:sidekiq][:collect_backtraces] = @collect_backtraces
-      TraceView::Config[:sidekiq][:log_args] = @log_args
+      TraceView::Config[:sidekiqworker][:collect_backtraces] = @collect_backtraces
+      TraceView::Config[:sidekiqworker][:log_args] = @log_args
     end
 
     def test_reports_version_init
@@ -95,11 +95,11 @@ if RUBY_VERSION >= '2.0'
     end
 
     def test_collect_backtraces_default_value
-      assert_equal TV::Config[:sidekiq][:collect_backtraces], false, "default backtrace collection"
+      assert_equal TV::Config[:sidekiqworker][:collect_backtraces], false, "default backtrace collection"
     end
 
     def test_log_args_default_value
-      assert_equal TV::Config[:sidekiq][:log_args], true, "log_args default "
+      assert_equal TV::Config[:sidekiqworker][:log_args], true, "log_args default "
     end
   end
 end

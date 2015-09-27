@@ -8,14 +8,14 @@ module TraceView
         report_kvs = {}
         _, msg, queue = args
 
-        report_kvs['Backtrace'] = TV::API.backtrace if TV::Config[:sidekiq][:collect_backtraces]
+        report_kvs['Backtrace'] = TV::API.backtrace if TV::Config[:sidekiqworker][:collect_backtraces]
 
         # Background Job Spec KVs
         report_kvs[:Spec] = :job
         report_kvs[:JobName] = msg['class']
         report_kvs[:JobID] = msg['jid']
         report_kvs[:Source] = msg['queue']
-        report_kvs[:Args] = msg['args'].to_s if TraceView::Config[:sidekiq][:log_args]
+        report_kvs[:Args] = msg['args'].to_s if TraceView::Config[:sidekiqworker][:log_args]
 
         # Webserver Spec KVs
         report_kvs['HTTP-Host'] = Socket.gethostname
@@ -49,7 +49,7 @@ module TraceView
   end
 end
 
-if defined?(::Sidekiq) && RUBY_VERSION >= '2.0' && TraceView::Config[:sidekiq][:enabled]
+if defined?(::Sidekiq) && RUBY_VERSION >= '2.0' && TraceView::Config[:sidekiqworker][:enabled]
   ::TraceView.logger.info '[traceview/loading] Instrumenting sidekiq' if TraceView::Config[:verbose]
 
   ::Sidekiq.configure_server do |config|
