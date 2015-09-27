@@ -30,12 +30,17 @@ module TraceView
 
     def call(*args)
       # args: 0: worker, 1: msg, 2: queue
-
       result = nil
       report_kvs = collect_kvs(args)
 
+      # Continue the trace from the enqueue side?
+      incoming_context = nil
+      if TraceView::XTrace.valid?(args[1]['X-Trace'])
+        incoming_context = args[1]['X-Trace']
+        report_kvs[:Async] = true
+      end
 
-      result = TraceView::API.start_trace('sidekiq-worker', nil, report_kvs) do
+      result = TraceView::API.start_trace('sidekiq-worker', incoming_context, report_kvs) do
         yield
       end
 
