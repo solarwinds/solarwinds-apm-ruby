@@ -27,6 +27,7 @@ Rake::TestTask.new do |t|
     t.test_files = FileList['test/frameworks/sinatra*_test.rb']
   when /libraries/
     t.test_files = FileList['test/support/*_test.rb'] +
+                   FileList['test/reporter/*_test.rb'] +
                    FileList['test/instrumentation/*_test.rb'] +
                    FileList['test/profiling/*_test.rb']
   end
