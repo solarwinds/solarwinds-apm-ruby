@@ -44,7 +44,7 @@ else
 end
 
 gem 'cassandra'
-gem 'curb'
+gem 'curb' unless defined?(JRUBY_VERSION)
 gem 'dalli'
 gem 'excon'
 gem 'faraday'
