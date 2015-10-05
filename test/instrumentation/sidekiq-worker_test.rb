@@ -51,7 +51,7 @@ if RUBY_VERSION >= '2.0'
 
       # Validate Job Spec KVs
       assert_equal "job",                 traces[0]['Spec']
-      assert_equal 'sidekiq',             traces[1]['Flavor']
+      assert_equal 'sidekiq',             traces[0]['Flavor']
       assert_equal "RemoteCallWorkerJob", traces[0]['JobName']
       assert_equal jid,                   traces[0]['MsgID']
       assert_equal "critical",            traces[0]['Queue']
@@ -84,7 +84,7 @@ if RUBY_VERSION >= '2.0'
 
       # Validate Job Spec KVs
       assert_equal "job",             traces[0]['Spec']
-      assert_equal 'sidekiq',         traces[1]['Flavor']
+      assert_equal 'sidekiq',         traces[0]['Flavor']
       assert_equal "ErrorWorkerJob",  traces[0]['JobName']
       assert_equal jid,               traces[0]['MsgID']
       assert_equal "critical",        traces[0]['Queue']
