@@ -51,10 +51,12 @@ if RUBY_VERSION >= '2.0'
 
       # Validate Job Spec KVs
       assert_equal "job",                 traces[0]['Spec']
+      assert_equal 'sidekiq',             traces[1]['Flavor']
       assert_equal "RemoteCallWorkerJob", traces[0]['JobName']
-      assert_equal jid,                   traces[0]['JobID']
-      assert_equal "critical",            traces[0]['Source']
+      assert_equal jid,                   traces[0]['MsgID']
+      assert_equal "critical",            traces[0]['Queue']
       assert_equal "[1, 2, 3]",           traces[0]['Args']
+      assert_equal "false",               traces[0]['Retry']
 
       assert_equal false,                 traces[0].key?('Backtrace')
       assert_equal "net-http",            traces[4]['Layer']
@@ -75,17 +77,19 @@ if RUBY_VERSION >= '2.0'
       valid_edges?(traces)
 
       # Validate Webserver Spec KVs
-      assert_equal Socket.gethostname, traces[0]['HTTP-Host']
-      assert_equal "Sidekiq_critical", traces[0]['Controller']
-      assert_equal "ErrorWorkerJob", traces[0]['Action']
-      assert_equal "/sidekiq/critical/ErrorWorkerJob", traces[0]['URL']
+      assert_equal Socket.gethostname,                  traces[0]['HTTP-Host']
+      assert_equal "Sidekiq_critical",                  traces[0]['Controller']
+      assert_equal "ErrorWorkerJob",                    traces[0]['Action']
+      assert_equal "/sidekiq/critical/ErrorWorkerJob",  traces[0]['URL']
 
       # Validate Job Spec KVs
-      assert_equal "job", traces[0]['Spec']
-      assert_equal "ErrorWorkerJob", traces[0]['JobName']
-      assert_equal jid, traces[0]['JobID']
-      assert_equal "critical", traces[0]['Source']
-      assert_equal "[1, 2, 3]", traces[0]['Args']
+      assert_equal "job",             traces[0]['Spec']
+      assert_equal 'sidekiq',         traces[1]['Flavor']
+      assert_equal "ErrorWorkerJob",  traces[0]['JobName']
+      assert_equal jid,               traces[0]['MsgID']
+      assert_equal "critical",        traces[0]['Queue']
+      assert_equal "[1, 2, 3]",       traces[0]['Args']
+      assert_equal "false",           traces[0]['Retry']
 
       assert_equal traces[1]['Layer'], 'sidekiq-worker'
       assert_equal traces[1]['Label'], 'error'

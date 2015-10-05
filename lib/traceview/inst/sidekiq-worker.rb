@@ -4,18 +4,18 @@ module TraceView
       begin
         # Attempt to collect up pertinent info.  If we hit something unexpected,
         # keep calm and instrument on.
-
         report_kvs = {}
-        _, msg, queue = args
-
-        report_kvs['Backtrace'] = TV::API.backtrace if TV::Config[:sidekiqworker][:collect_backtraces]
+        worker, msg, queue = args
 
         # Background Job Spec KVs
         report_kvs[:Spec] = :job
-        report_kvs[:JobName] = msg['class']
-        report_kvs[:JobID] = msg['jid']
-        report_kvs[:Source] = msg['queue']
-        report_kvs[:Args] = msg['args'].to_s[0..1024] if TraceView::Config[:sidekiqworker][:log_args]
+        report_kvs[:Flavor]    = :sidekiq
+        report_kvs[:Queue]     = queue
+        report_kvs[:Retry]     = msg['retry']
+        report_kvs[:JobName]   = worker.class.to_s
+        report_kvs[:MsgID]     = msg['jid']
+        report_kvs[:Args]      = msg['args'].to_s[0..1024] if TV::Config[:sidekiqworker][:log_args]
+        report_kvs['Backtrace'] = TV::API.backtrace        if TV::Config[:sidekiqworker][:collect_backtraces]
 
         # Webserver Spec KVs
         report_kvs['HTTP-Host'] = Socket.gethostname
@@ -35,7 +35,7 @@ module TraceView
 
       # Continue the trace from the enqueue side?
       incoming_context = nil
-      if TraceView::XTrace.valid?(args[1]['X-Trace'])
+      if args[1].is_a?(Hash) && TraceView::XTrace.valid?(args[1]['X-Trace'])
         incoming_context = args[1]['X-Trace']
         report_kvs[:Async] = true
       end
