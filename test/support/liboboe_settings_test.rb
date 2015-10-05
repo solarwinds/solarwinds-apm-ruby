@@ -1,6 +1,7 @@
 # Copyright (c) 2015 AppNeta, Inc.
 # All rights reserved.
 
+require 'set'
 require 'minitest_helper'
 require 'rack/test'
 require 'rack/lobster'
