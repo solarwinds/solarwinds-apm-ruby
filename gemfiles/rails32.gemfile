@@ -8,6 +8,11 @@ if RUBY_VERSION < '1.9.3'
   gem 'activesupport', '< 4.0'
 end
 
+if RUBY_VERSION < '2.0.0'
+  # rack-cache dropped support for Ruby 1.9
+  gem 'rack-cache', '1.2'
+end
+
 group :development, :test do
   gem 'rake'
   gem 'minitest'
