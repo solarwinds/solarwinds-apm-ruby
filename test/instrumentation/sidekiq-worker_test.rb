@@ -11,13 +11,13 @@ if RUBY_VERSION >= '2.0'
   class SidekiqWorkerTest < Minitest::Test
     def setup
       clear_all_traces
-      @collect_backtraces = TraceView::Config[:sidekiq][:collect_backtraces]
-      @log_args = TraceView::Config[:sidekiq][:log_args]
+      @collect_backtraces = TraceView::Config[:sidekiqworker][:collect_backtraces]
+      @log_args = TraceView::Config[:sidekiqworker][:log_args]
     end
 
     def teardown
-      TraceView::Config[:sidekiq][:collect_backtraces] = @collect_backtraces
-      TraceView::Config[:sidekiq][:log_args] = @log_args
+      TraceView::Config[:sidekiqworker][:collect_backtraces] = @collect_backtraces
+      TraceView::Config[:sidekiqworker][:log_args] = @log_args
     end
 
     def test_reports_version_init
@@ -51,10 +51,12 @@ if RUBY_VERSION >= '2.0'
 
       # Validate Job Spec KVs
       assert_equal "job",                 traces[0]['Spec']
+      assert_equal 'sidekiq',             traces[0]['Flavor']
       assert_equal "RemoteCallWorkerJob", traces[0]['JobName']
-      assert_equal jid,                   traces[0]['JobID']
-      assert_equal "critical",            traces[0]['Source']
+      assert_equal jid,                   traces[0]['MsgID']
+      assert_equal "critical",            traces[0]['Queue']
       assert_equal "[1, 2, 3]",           traces[0]['Args']
+      assert_equal "false",               traces[0]['Retry']
 
       assert_equal false,                 traces[0].key?('Backtrace')
       assert_equal "net-http",            traces[4]['Layer']
@@ -75,17 +77,19 @@ if RUBY_VERSION >= '2.0'
       valid_edges?(traces)
 
       # Validate Webserver Spec KVs
-      assert_equal Socket.gethostname, traces[0]['HTTP-Host']
-      assert_equal "Sidekiq_critical", traces[0]['Controller']
-      assert_equal "ErrorWorkerJob", traces[0]['Action']
-      assert_equal "/sidekiq/critical/ErrorWorkerJob", traces[0]['URL']
+      assert_equal Socket.gethostname,                  traces[0]['HTTP-Host']
+      assert_equal "Sidekiq_critical",                  traces[0]['Controller']
+      assert_equal "ErrorWorkerJob",                    traces[0]['Action']
+      assert_equal "/sidekiq/critical/ErrorWorkerJob",  traces[0]['URL']
 
       # Validate Job Spec KVs
-      assert_equal "job", traces[0]['Spec']
-      assert_equal "ErrorWorkerJob", traces[0]['JobName']
-      assert_equal jid, traces[0]['JobID']
-      assert_equal "critical", traces[0]['Source']
-      assert_equal "[1, 2, 3]", traces[0]['Args']
+      assert_equal "job",             traces[0]['Spec']
+      assert_equal 'sidekiq',         traces[0]['Flavor']
+      assert_equal "ErrorWorkerJob",  traces[0]['JobName']
+      assert_equal jid,               traces[0]['MsgID']
+      assert_equal "critical",        traces[0]['Queue']
+      assert_equal "[1, 2, 3]",       traces[0]['Args']
+      assert_equal "false",           traces[0]['Retry']
 
       assert_equal traces[1]['Layer'], 'sidekiq-worker'
       assert_equal traces[1]['Label'], 'error'
@@ -95,11 +99,82 @@ if RUBY_VERSION >= '2.0'
     end
 
     def test_collect_backtraces_default_value
-      assert_equal TV::Config[:sidekiq][:collect_backtraces], false, "default backtrace collection"
+      assert_equal TV::Config[:sidekiqworker][:collect_backtraces], false, "default backtrace collection"
     end
 
     def test_log_args_default_value
-      assert_equal TV::Config[:sidekiq][:log_args], true, "log_args default "
+      assert_equal TV::Config[:sidekiqworker][:log_args], true, "log_args default "
+    end
+
+    def test_obey_collect_backtraces_when_false
+      TraceView::Config[:sidekiqworker][:collect_backtraces] = false
+
+      # Queue up a job to be run
+      Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
+
+      # Allow the job to be run
+      sleep 5
+
+      traces = get_all_traces
+      assert_equal 17, traces.count, "Trace count"
+      valid_edges?(traces)
+      assert_equal 'sidekiq-worker',   traces[0]['Layer']
+      assert_equal false,              traces[0].key?('Backtrace')
+    end
+
+    def test_obey_collect_backtraces_when_true
+      # FIXME: This can't be tested with the current Sidekiq minitest integration (e.g. already booted
+      # sidekiq in a different process)
+      skip
+
+      TraceView::Config[:sidekiqworker][:collect_backtraces] = true
+
+      # Queue up a job to be run
+      Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
+
+      # Allow the job to be run
+      sleep 5
+
+      traces = get_all_traces
+      assert_equal 17, traces.count, "Trace count"
+      valid_edges?(traces)
+      assert_equal 'sidekiq-worker',   traces[0]['Layer']
+      assert_equal true,               traces[0].key?('Backtrace')
+    end
+
+    def test_obey_log_args_when_false
+      # FIXME: This can't be tested with the current Sidekiq minitest integration (e.g. already booted
+      # sidekiq in a different process)
+      skip
+
+      TraceView::Config[:sidekiqworker][:log_args] = false
+
+      # Queue up a job to be run
+      Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
+
+      # Allow the job to be run
+      sleep 5
+
+      traces = get_all_traces
+      assert_equal 17, traces.count, "Trace count"
+      valid_edges?(traces)
+      assert_equal false, traces[0].key?('Args')
+    end
+
+    def test_obey_log_args_when_true
+      TraceView::Config[:sidekiqworker][:log_args] = true
+
+      # Queue up a job to be run
+      Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
+
+      # Allow the job to be run
+      sleep 5
+
+      traces = get_all_traces
+      assert_equal 17, traces.count, "Trace count"
+      valid_edges?(traces)
+      assert_equal true,         traces[0].key?('Args')
+      assert_equal '[1, 2, 3]',  traces[0]['Args']
     end
   end
 end

@@ -1,6 +1,13 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
+# Make sure Set is loaded if possible.
+begin
+  require 'set'
+rescue LoadError
+  class Set; end
+end
+
 module TraceView
   module API
     ##

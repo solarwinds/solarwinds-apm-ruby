@@ -14,8 +14,8 @@ module TraceView
     @@instrumentation = [:action_controller, :action_view, :active_record,
                          :cassandra, :curb, :dalli, :em_http_request, :excon, :faraday,
                          :grape, :httpclient, :nethttp, :memcached, :memcache, :mongo,
-                         :moped, :rack, :redis, :resque, :rest_client, :sequel, :sidekiq,
-                         :typhoeus]
+                         :moped, :rack, :redis, :resque, :rest_client, :sequel, :sidekiqclient,
+                         :sidekiqworker, :typhoeus]
 
     # Subgrouping of instrumentation
     @@http_clients = [:curb, :excon, :em_http_request, :faraday, :httpclient, :nethttp, :rest_client, :typhoeus]
@@ -60,7 +60,8 @@ module TraceView
       TraceView::Config[:resque][:collect_backtraces] = true
       TraceView::Config[:rest_client][:collect_backtraces] = false
       TraceView::Config[:sequel][:collect_backtraces] = true
-      TraceView::Config[:sidekiq][:collect_backtraces] = false
+      TraceView::Config[:sidekiqclient][:collect_backtraces] = false
+      TraceView::Config[:sidekiqworker][:collect_backtraces] = false
       TraceView::Config[:typhoeus][:collect_backtraces] = false
 
       # Special instrument specific flags

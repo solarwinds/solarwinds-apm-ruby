@@ -4,6 +4,20 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# traceview 3.3.0
+
+This patch release includes the following fixes:
+
+* New [Sidekiq](http://sidekiq.org/) instrumentation: #138, #139
+* Require `Set` before referencing it: #143
+* Add `:action_blacklist` deprecation warning: #137
+* Add a way to restart the reporter via `TraceView::Reporter.restart`: #140
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.3.0
+https://rubygems.org/gems/traceview/versions/3.3.0-java
+
 # traceview 3.2.1
 
 This minor release adds the following:
