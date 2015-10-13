@@ -217,7 +217,7 @@ module TraceView
         TraceView.set_sample_rate(value) if TraceView.loaded
 
       elsif key == :action_blacklist
-        TraceView.logger.warn "[traceview/deprecation] :action_blacklist will be deprecated in a future version."
+        TraceView.logger.warn "[traceview/unsupported] :action_blacklist has been deprecated and no longer functions."
 
       elsif key == :include_url_query_params
         # Obey the global flag and update all of the per instrumentation
