@@ -2,6 +2,8 @@
 # All rights reserved.
 
 require 'minitest_helper'
+require_relative "../jobs/resque/remote_call_worker_job"
+require_relative "../jobs/resque/error_worker_job"
 
 describe "Resque" do
   before do
@@ -9,10 +11,10 @@ describe "Resque" do
 
     # These are standard entry/exit KVs that are passed up with all moped operations
     @entry_kvs = {
-      'Layer' => 'resque',
+      'Layer' => 'resque-client',
       'Label' => 'entry' }
 
-    @exit_kvs = { 'Layer' => 'resque', 'Label' => 'exit' }
+    @exit_kvs = { 'Layer' => 'resque-client', 'Label' => 'exit' }
   end
 
   it 'Stock Resque should be loaded, defined and ready' do
@@ -31,35 +33,30 @@ describe "Resque" do
   end
 
   it "should trace enqueue" do
-    skip
     TraceView::API.start_trace('resque-client_test', '', {}) do
-      Resque.enqueue(TraceViewResqueJob, { :generate => :activerecord, :delay => rand(5..30).to_f })
-      Resque.enqueue(TraceViewResqueJobThatFails)
-      Resque.dequeue(TraceViewResqueJob, { :generate => :moped })
+      Resque.enqueue(ResqueRemoteCallWorkerJob)
     end
 
     traces = get_all_traces
-
-    traces.count.must_equal 4
+    traces.count.must_equal 6
     validate_outer_layers(traces, 'resque-client_test')
 
     validate_event_keys(traces[1], @entry_kvs)
-    validate_event_keys(traces[2], @exit_kvs)
+    validate_event_keys(traces[4], @exit_kvs)
   end
 
   it "should trace dequeue" do
-    skip
     TraceView::API.start_trace('resque-client_test', '', {}) do
-      Resque.dequeue(TraceViewResqueJob, { :generate => :moped })
+      Resque.dequeue(ResqueRemoteCallWorkerJob, { :generate => :moped })
     end
 
     traces = get_all_traces
 
-    traces.count.must_equal 4
+    traces.count.must_equal 6
     validate_outer_layers(traces, 'resque-client_test')
 
     validate_event_keys(traces[1], @entry_kvs)
-    validate_event_keys(traces[2], @exit_kvs)
+    validate_event_keys(traces[4], @exit_kvs)
   end
 end
 
