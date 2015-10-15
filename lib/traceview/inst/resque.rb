@@ -146,7 +146,7 @@ module TraceView
   end
 end
 
-if defined?(::Resque)
+if defined?(::Resque) && RUBY_VERSION > '1.9.3'
   TraceView.logger.info '[traceview/loading] Instrumenting resque' if TraceView::Config[:verbose]
 
   ::Resque.module_eval do
