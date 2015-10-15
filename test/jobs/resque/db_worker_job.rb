@@ -2,6 +2,8 @@
 # All rights reserved.
 
 class ResqueDBWorkerJob
+  @queue = :normal
+
   def perform(*args)
     return unless defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
