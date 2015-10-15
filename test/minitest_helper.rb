@@ -62,8 +62,12 @@ when /rails3/
 when /frameworks/
 when /libraries/
   if RUBY_VERSION >= '2.0'
-    # Background Sidekiq thread
-    require './test/servers/sidekiq.rb'
+    # Load Sidekiq if TEST isn't defined or if it is, it calls
+    # out the sidekiq tests
+    if !ENV.key?('TEST') || ENV['TEST'] =~ /sidekiq/
+      # Background Sidekiq thread
+      require './test/servers/sidekiq.rb'
+    end
   end
 end
 
