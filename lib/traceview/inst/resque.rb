@@ -18,7 +18,7 @@ module TraceView
           report_kvs[:Op] = op.to_s
           report_kvs[:Class] = klass.to_s if klass
 
-          if TraceView::Config[:resque][:log_args]
+          if TraceView::Config[:resqueclient][:log_args]
             kv_args = args.to_json
 
             # Limit the argument json string to 1024 bytes
@@ -29,7 +29,7 @@ module TraceView
             end
           end
 
-          report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:resque][:collect_backtraces]
+          report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:resqueclient][:collect_backtraces]
         rescue
         end
 
