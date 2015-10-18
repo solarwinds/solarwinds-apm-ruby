@@ -41,7 +41,6 @@ module TraceView
           report_kvs = extract_trace_details(:enqueue, klass, args)
 
           TraceView::API.trace('resque-client', report_kvs, :enqueue) do
-            args.push(:parent_trace_id => TraceView::Context.toString) if TraceView::Config[:resque][:link_workers]
             enqueue_without_traceview(klass, *args)
           end
         else
@@ -55,7 +54,6 @@ module TraceView
           report_kvs[:Queue] = queue.to_s if queue
 
           TraceView::API.trace('resque-client', report_kvs) do
-            args.push(:parent_trace_id => TraceView::Context.toString) if TraceView::Config[:resque][:link_workers]
             enqueue_to_without_traceview(queue, klass, *args)
           end
         else
@@ -111,26 +109,8 @@ module TraceView
         rescue
         end
 
-        if last_arg.is_a?(Hash) && last_arg.key?('parent_trace_id')
-          begin
-            # Since the enqueue was traced, we force trace the actual job execution and reference
-            # the enqueue trace with ParentTraceID
-            report_kvs[:ParentTraceID] = last_arg['parent_trace_id']
-            job.payload['args'].pop
-
-          rescue
-          end
-
-          # Force this trace regardless of sampling rate so that child trace can be
-          # link to parent trace.
-          TraceView::API.start_trace('resque-worker', nil, report_kvs.merge('Force' => true)) do
-            perform_without_traceview(job)
-          end
-
-        else
-          TraceView::API.start_trace('resque-worker', nil, report_kvs) do
-            perform_without_traceview(job)
-          end
+        TraceView::API.start_trace('resque-worker', nil, report_kvs) do
+          perform_without_traceview(job)
         end
       end
     end
