@@ -65,17 +65,8 @@ module TraceView
       TraceView::Config[:sidekiqworker][:collect_backtraces] = false
       TraceView::Config[:typhoeus][:collect_backtraces] = false
 
-      # Resque
+      # Legacy Resque config support.  To be removed in a future version
       @@config[:resque] = {}
-
-      # Special instrument specific flags
-      #
-      # :link_workers - associates enqueue operations with the jobs they queue by piggybacking
-      #                 an additional argument that is stripped prior to job proecessing
-      #                 !!Note: Make sure both the queue side and the Resque workers are instrumented
-      #                 or jobs will fail
-      #                 (Default: false)
-      @@config[:resque][:link_workers] = false
 
       # Setup an empty host blacklist (see: TraceView::API::Util.blacklisted?)
       @@config[:blacklist] = []
@@ -196,6 +187,11 @@ module TraceView
     end
 
     def self.[](key)
+      if key == :resque
+        TraceView.logger.warn "[traceview/warn] :resque config is deprecated.  It is now split into :resqueclient and :resqueworker."
+        TraceView.logger.warn "[traceview/warn] Called from #{Kernel.caller[0]}"
+      end
+
       @@config[key.to_sym]
     end
 
@@ -222,6 +218,10 @@ module TraceView
 
       elsif key == :action_blacklist
         TraceView.logger.warn "[traceview/deprecation] :action_blacklist will be deprecated in a future version."
+
+      elsif key == :resque
+        TraceView.logger.warn "[traceview/warn] :resque config is deprecated.  It is now split into :resqueclient and :resqueworker."
+        TraceView.logger.warn "[traceview/warn] Called from #{Kernel.caller[0]}"
 
       elsif key == :include_url_query_params
         # Obey the global flag and update all of the per instrumentation
