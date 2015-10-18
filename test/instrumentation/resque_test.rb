@@ -60,7 +60,8 @@ if RUBY_VERSION >= '1.9.3'
     end
 
     def test_legacy_resque_config
-      skip
+      assert_equal true, (TraceView::Config[:resque][:enabled] = true), "set legacy resque config options don't die"
+      assert_equal true, (TraceView::Config[:resque][:link_workers] = true), "set legacy resque config options don't die"
     end
 
     def test_collect_backtraces_default_value
