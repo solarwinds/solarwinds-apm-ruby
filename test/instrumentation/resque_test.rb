@@ -27,6 +27,11 @@ if RUBY_VERSION >= '1.9.3'
       assert_equal true, ::Resque::Job.method_defined?("fail_with_traceview")
     end
 
+    def not_tracing_validation
+      assert_equal true, Resque.enqueue(ResqueRemoteCallWorkerJob), "not tracing; enqueue return value"
+      assert_equal true, Resque.enqueue(ResqueRemoteCallWorkerJob, 1, 2, "3"), "not tracing; enqueue extra params"
+    end
+
     def test_enqueue
       TraceView::API.start_trace('resque-client_test', '', {}) do
         Resque.enqueue(ResqueRemoteCallWorkerJob)
