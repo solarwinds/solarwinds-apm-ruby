@@ -6,9 +6,12 @@ require 'json'
 
 module TraceView
   module Inst
-    module Resque
-      def self.included(base)
-        base.send :extend, ::Resque
+    module ResqueClient
+      def self.included(klass)
+        klass.send :extend, ::Resque
+        ::TraceView::Util.method_alias(klass, :enqueue, ::Resque)
+        ::TraceView::Util.method_alias(klass, :enqueue_to, ::Resque)
+        ::TraceView::Util.method_alias(klass, :dequeue, ::Resque)
       end
 
       def extract_trace_details(op, klass, args)
@@ -75,6 +78,10 @@ module TraceView
     end
 
     module ResqueWorker
+      def self.included(klass)
+        ::TraceView::Util.method_alias(klass, :perform, ::Resque::Worker)
+      end
+
       def perform_with_traceview(job)
         report_kvs = {}
         last_arg = nil
@@ -116,6 +123,10 @@ module TraceView
     end
 
     module ResqueJob
+      def self.included(klass)
+        ::TraceView::Util.method_alias(klass, :fail, ::Resque::Job)
+      end
+
       def fail_with_traceview(exception)
         if TraceView.tracing?
           TraceView::API.log_exception('resque', exception)
@@ -129,44 +140,9 @@ end
 if defined?(::Resque) && RUBY_VERSION > '1.9.3'
   TraceView.logger.info '[traceview/loading] Instrumenting resque' if TraceView::Config[:verbose]
 
-  ::Resque.module_eval do
-    include TraceView::Inst::Resque
-
-    [:enqueue, :enqueue_to, :dequeue].each do |m|
-      if method_defined?(m)
-        module_eval "alias #{m}_without_traceview #{m}"
-        module_eval "alias #{m} #{m}_with_traceview"
-      elsif TraceView::Config[:verbose]
-        TraceView.logger.warn "[traceview/loading] Couldn't properly instrument Resque (#{m}).  Partial traces may occur."
-      end
-    end
-  end
-
-  if defined?(::Resque::Worker)
-    ::Resque::Worker.class_eval do
-      include TraceView::Inst::ResqueWorker
-
-      if method_defined?(:perform)
-        alias perform_without_traceview perform
-        alias perform perform_with_traceview
-      elsif TraceView::Config[:verbose]
-        TraceView.logger.warn '[traceview/loading] Couldn\'t properly instrument ResqueWorker (perform).  Partial traces may occur.'
-      end
-    end
-  end
-
-  if defined?(::Resque::Job)
-    ::Resque::Job.class_eval do
-      include TraceView::Inst::ResqueJob
-
-      if method_defined?(:fail)
-        alias fail_without_traceview fail
-        alias fail fail_with_traceview
-      elsif TraceView::Config[:verbose]
-        TraceView.logger.warn '[traceview/loading] Couldn\'t properly instrument ResqueWorker (fail).  Partial traces may occur.'
-      end
-    end
-  end
+  ::TraceView::Util.send_include(::Resque,         ::TraceView::Inst::ResqueClient)
+  ::TraceView::Util.send_include(::Resque::Worker, ::TraceView::Inst::ResqueWorker)
+  ::TraceView::Util.send_include(::Resque::Job,    ::TraceView::Inst::ResqueJob)
 end
 
 
