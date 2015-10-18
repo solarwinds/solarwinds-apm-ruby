@@ -4,7 +4,7 @@
 class ResqueDBWorkerJob
   @queue = :normal
 
-  def perform(*args)
+  def self.perform(*args)
     return unless defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
     if ENV.key?('TRAVIS_MYSQL_PASS')

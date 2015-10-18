@@ -4,7 +4,7 @@
 class ResqueErrorWorkerJob
   @queue = :critical
 
-  def perform(*args)
+  def self.perform(*args)
     raise "This is a worker error yeah!"
   end
 end

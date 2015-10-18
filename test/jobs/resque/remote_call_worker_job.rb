@@ -4,7 +4,7 @@
 class ResqueRemoteCallWorkerJob
   @queue = :critical
 
-  def perform(*args)
+  def self.perform(*args)
     # Make some random Dalli (memcache) calls and top it
     # off with an excon call to the background rack webserver.
     @dc = Dalli::Client.new
