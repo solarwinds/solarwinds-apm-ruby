@@ -18,8 +18,9 @@ module TraceView
         report_kvs = {}
 
         begin
-          report_kvs[:Op] = op.to_s
-          report_kvs[:Class] = klass.to_s if klass
+          report_kvs[:Spec] = :pushq
+          report_kvs[:Flavor] = :resque
+          report_kvs[:JobName] = klass.to_s
 
           if TraceView::Config[:resqueclient][:log_args]
             kv_args = args.to_json
@@ -33,7 +34,9 @@ module TraceView
           end
 
           report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:resqueclient][:collect_backtraces]
-        rescue
+          report_kvs[:Queue] = klass.instance_variable_get(:@queue)
+        rescue => e
+          TraceView.logger.debug "[traceview/resque] Error collecting resqueclient KVs: #{e.message}"
         end
 
         report_kvs
