@@ -42,10 +42,14 @@ if RUBY_VERSION >= '1.9.3'
       assert_equal 6, traces.count, "trace count"
       validate_outer_layers(traces, 'resque-client_test')
 
-      assert_equal "resque-client", traces[1]['Layer'], "entry event layer name"
-      assert_equal "entry",         traces[1]['Label'], "entry event label"
-      assert_equal "resque-client", traces[4]['Layer'], "exit event layer name"
-      assert_equal "exit",         traces[4]['Label'], "exit event label"
+      assert_equal "resque-client",              traces[1]['Layer'], "entry event layer name"
+      assert_equal "entry",                      traces[1]['Label'], "entry event label"
+      assert_equal "pushq",                      traces[1]['Spec']
+      assert_equal "resque",                     traces[1]['Flavor']
+      assert_equal "ResqueRemoteCallWorkerJob",  traces[1]['JobName']
+      assert_equal "critical",                   traces[1]['Queue']
+      assert_equal "resque-client",              traces[4]['Layer'], "exit event layer name"
+      assert_equal "exit",                       traces[4]['Label'], "exit event label"
     end
 
     def test_dequeue
@@ -58,10 +62,14 @@ if RUBY_VERSION >= '1.9.3'
       assert_equal 6, traces.count, "trace count"
       validate_outer_layers(traces, 'resque-client_test')
 
-      assert_equal "resque-client", traces[1]['Layer'], "entry event layer name"
-      assert_equal "entry",         traces[1]['Label'], "entry event label"
-      assert_equal "resque-client", traces[4]['Layer'], "exit event layer name"
-      assert_equal "exit",         traces[4]['Label'], "exit event label"
+      assert_equal "resque-client",              traces[1]['Layer'], "entry event layer name"
+      assert_equal "entry",                      traces[1]['Label'], "entry event label"
+      assert_equal "pushq",                      traces[1]['Spec']
+      assert_equal "resque",                     traces[1]['Flavor']
+      assert_equal "ResqueRemoteCallWorkerJob",  traces[1]['JobName']
+      assert_equal "critical",                   traces[1]['Queue']
+      assert_equal "resque-client",              traces[4]['Layer'], "exit event layer name"
+      assert_equal "exit",                        traces[4]['Label'], "exit event label"
     end
 
     def test_legacy_resque_config
@@ -91,10 +99,14 @@ if RUBY_VERSION >= '1.9.3'
 
       assert_equal false,           traces[1].key?('Backtrace')
 
-      assert_equal "resque-client", traces[1]['Layer'], "entry event layer name"
-      assert_equal "entry",         traces[1]['Label'], "entry event label"
-      assert_equal "resque-client", traces[4]['Layer'], "exit event layer name"
-      assert_equal "exit",         traces[4]['Label'], "exit event label"
+      assert_equal "resque-client",              traces[1]['Layer'], "entry event layer name"
+      assert_equal "entry",                      traces[1]['Label'], "entry event label"
+      assert_equal "pushq",                      traces[1]['Spec']
+      assert_equal "resque",                     traces[1]['Flavor']
+      assert_equal "ResqueRemoteCallWorkerJob",  traces[1]['JobName']
+      assert_equal "critical",                   traces[1]['Queue']
+      assert_equal "resque-client",              traces[4]['Layer'], "exit event layer name"
+      assert_equal "exit",                       traces[4]['Label'], "exit event label"
     end
 
     def test_obey_collect_backtraces_when_true
@@ -111,10 +123,14 @@ if RUBY_VERSION >= '1.9.3'
 
       assert_equal true,           traces[1].key?('Backtrace')
 
-      assert_equal "resque-client", traces[1]['Layer'], "entry event layer name"
-      assert_equal "entry",         traces[1]['Label'], "entry event label"
-      assert_equal "resque-client", traces[4]['Layer'], "exit event layer name"
-      assert_equal "exit",         traces[4]['Label'], "exit event label"
+      assert_equal "resque-client",              traces[1]['Layer'], "entry event layer name"
+      assert_equal "entry",                      traces[1]['Label'], "entry event label"
+      assert_equal "pushq",                      traces[1]['Spec']
+      assert_equal "resque",                     traces[1]['Flavor']
+      assert_equal "ResqueRemoteCallWorkerJob",  traces[1]['JobName']
+      assert_equal "critical",                   traces[1]['Queue']
+      assert_equal "resque-client",              traces[4]['Layer'], "exit event layer name"
+      assert_equal "exit",                       traces[4]['Label'], "exit event label"
     end
 
     def test_obey_log_args_when_false
@@ -131,10 +147,14 @@ if RUBY_VERSION >= '1.9.3'
 
       assert_equal false,           traces[1].key?('Args')
 
-      assert_equal "resque-client", traces[1]['Layer'], "entry event layer name"
-      assert_equal "entry",         traces[1]['Label'], "entry event label"
-      assert_equal "resque-client", traces[4]['Layer'], "exit event layer name"
-      assert_equal "exit",          traces[4]['Label'], "exit event label"
+      assert_equal "resque-client",              traces[1]['Layer'], "entry event layer name"
+      assert_equal "entry",                      traces[1]['Label'], "entry event label"
+      assert_equal "pushq",                      traces[1]['Spec']
+      assert_equal "resque",                     traces[1]['Flavor']
+      assert_equal "ResqueRemoteCallWorkerJob",  traces[1]['JobName']
+      assert_equal "critical",                   traces[1]['Queue']
+      assert_equal "resque-client",              traces[4]['Layer'], "exit event layer name"
+      assert_equal "exit",                       traces[4]['Label'], "exit event label"
     end
 
     def test_obey_log_args_when_true
@@ -152,10 +172,14 @@ if RUBY_VERSION >= '1.9.3'
       assert_equal true,            traces[1].key?('Args')
       assert_equal "[1,2,3]",     traces[1]['Args']
 
-      assert_equal "resque-client", traces[1]['Layer'], "entry event layer name"
-      assert_equal "entry",         traces[1]['Label'], "entry event label"
-      assert_equal "resque-client", traces[4]['Layer'], "exit event layer name"
-      assert_equal "exit",          traces[4]['Label'], "exit event label"
+      assert_equal "resque-client",              traces[1]['Layer'], "entry event layer name"
+      assert_equal "entry",                      traces[1]['Label'], "entry event label"
+      assert_equal "pushq",                      traces[1]['Spec']
+      assert_equal "resque",                     traces[1]['Flavor']
+      assert_equal "ResqueRemoteCallWorkerJob",  traces[1]['JobName']
+      assert_equal "critical",                   traces[1]['Queue']
+      assert_equal "resque-client",              traces[4]['Layer'], "exit event layer name"
+      assert_equal "exit",                       traces[4]['Label'], "exit event label"
     end
   end
 end
