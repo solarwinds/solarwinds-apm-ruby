@@ -87,24 +87,22 @@ module TraceView
 
       def perform_with_traceview(job)
         report_kvs = {}
-        last_arg = nil
 
         begin
-          report_kvs[:Op] = :perform
+          report_kvs[:Spec] = :job
+          report_kvs[:Flavor] = :resque
+          report_kvs[:JobName] = job.payload['class'].to_s
+          report_kvs[:Queue] = job.queue
 
           # Set these keys for the ability to separate out
           # background tasks into a separate app on the server-side UI
-          report_kvs[:Controller] = :Resque
-          report_kvs[:Action] = :perform
 
           report_kvs['HTTP-Host'] = Socket.gethostname
-          report_kvs[:URL] = '/resque/' + job.queue
-          report_kvs[:Method] = 'NONE'
-          report_kvs[:Queue] = job.queue
+          report_kvs[:Controller] = "Resque_#{job.queue}"
+          report_kvs[:Action] = job.payload['class'].to_s
+          report_kvs[:URL] = "/resque/#{job.queue}/#{job.payload['class']}"
 
-          report_kvs[:Class] = job.payload['class']
-
-          if TraceView::Config[:resque][:log_args]
+          if TraceView::Config[:resqueworker][:log_args]
             kv_args = job.payload['args'].to_json
 
             # Limit the argument json string to 1024 bytes
@@ -115,7 +113,7 @@ module TraceView
             end
           end
 
-          last_arg = job.payload['args'].last
+          report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:resqueworker][:collect_backtraces]
         rescue
         end
 
