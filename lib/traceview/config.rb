@@ -57,8 +57,8 @@ module TraceView
       TraceView::Config[:moped][:collect_backtraces] = true
       TraceView::Config[:nethttp][:collect_backtraces] = true
       TraceView::Config[:redis][:collect_backtraces] = false
-      TraceView::Config[:resqueclient][:collect_backtraces] = false
-      TraceView::Config[:resqueworker][:collect_backtraces] = true
+      TraceView::Config[:resqueclient][:collect_backtraces] = true
+      TraceView::Config[:resqueworker][:collect_backtraces] = false
       TraceView::Config[:rest_client][:collect_backtraces] = false
       TraceView::Config[:sequel][:collect_backtraces] = true
       TraceView::Config[:sidekiqclient][:collect_backtraces] = false
