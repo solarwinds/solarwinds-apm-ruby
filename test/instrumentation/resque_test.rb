@@ -64,7 +64,7 @@ if RUBY_VERSION >= '1.9.3'
     end
 
     def test_collect_backtraces_default_value
-      assert_equal TV::Config[:resqueclient][:collect_backtraces], false, "default backtrace collection"
+      assert_equal TV::Config[:resqueclient][:collect_backtraces], true, "default backtrace collection"
     end
 
     def test_log_args_default_value
