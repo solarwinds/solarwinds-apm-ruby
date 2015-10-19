@@ -209,7 +209,7 @@ case Java::ComTracelyticsAgent::Agent.getStatus
     $stderr.puts '=============================================================='
     $stderr.puts 'TraceView Java Agent not loaded. Going into no-op mode.'
     $stderr.puts 'To preload the TraceView java agent see:'
-    $stderr.puts 'https://support.appneta.com/cloud/installing-jruby-instrumentation'
+    $stderr.puts 'https://docs.appneta.com/installing-jruby-instrumentation'
     $stderr.puts '=============================================================='
 
   else
