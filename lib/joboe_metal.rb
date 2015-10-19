@@ -159,15 +159,13 @@ module TraceView
         opts[:xtrace]     ||= nil
         opts['X-TV-Meta'] ||= nil
 
-        sr_cfg = Java::ComTracelyticsJoboe::LayerUtil.shouldTraceRequest(
-                                              opts[:layer],
-                                              { 'X-Trace' => opts[:xtrace], 'X-TV-Meta' => opts['X-TV-Meta'] })
+        sr_cfg = Java::ComTracelyticsJoboe::LayerUtil.shouldTraceRequest( opts[:layer], { 'X-Trace' => opts[:xtrace], 'X-TV-Meta' => opts['X-TV-Meta'] })
 
         # Store the returned SampleRateConfig into TraceView::Config
         if sr_cfg
           begin
-            TraceView::Config.sample_rate = cfg.sampleRate
-            TraceView::Config.sample_source = cfg.sampleRateSourceValue
+            TraceView::Config.sample_rate = sr_cfg.sampleRate
+            TraceView::Config.sample_source = sr_cfg.sampleRateSourceValue
             # If we fail here, we do so quietly.  This was we don't spam logs
             # on every request
           end
