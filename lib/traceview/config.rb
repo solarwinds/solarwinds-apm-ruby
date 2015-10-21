@@ -217,7 +217,7 @@ module TraceView
         TraceView.set_sample_rate(value) if TraceView.loaded
 
       elsif key == :action_blacklist
-        TraceView.logger.warn "[traceview/deprecation] :action_blacklist will be deprecated in a future version."
+        TraceView.logger.warn "[traceview/unsupported] :action_blacklist has been deprecated and no longer functions."
 
       elsif key == :resque
         TraceView.logger.warn "[traceview/warn] :resque config is deprecated.  It is now split into :resqueclient and :resqueworker."

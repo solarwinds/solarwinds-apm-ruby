@@ -46,11 +46,6 @@ matrix:
     - rvm: ree
       gemfile: gemfiles/frameworks.gemfile
 
-  allow_failures:
-    # FIXME: Until the joboe test reporter supports cross thread
-    # event collection.
-    - rvm: jruby-19mode
-
 # Attempt Travis/Cassandra fix re: https://github.com/travis-ci/travis-ci/issues/1484
 # Updated Cassandra: https://github.com/travis-ci/travis-ci/issues/1650
 before_install:

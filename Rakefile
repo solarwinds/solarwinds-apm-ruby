@@ -22,9 +22,9 @@ Rake::TestTask.new do |t|
     require 'rails'
     t.test_files = FileList["test/frameworks/rails#{Rails::VERSION::MAJOR}x_test.rb"]
   when /frameworks/
-    t.test_files = FileList['test/frameworks/grape*_test.rb']
-    t.test_files = FileList['test/frameworks/padrino*_test.rb']
-    t.test_files = FileList['test/frameworks/sinatra*_test.rb']
+    t.test_files = FileList['test/frameworks/sinatra*_test.rb'] +
+                   FileList['test/frameworks/padrino*_test.rb'] +
+                   FileList['test/frameworks/grape*_test.rb']
   when /libraries/
     t.test_files = FileList['test/support/*_test.rb'] +
                    FileList['test/reporter/*_test.rb'] +
