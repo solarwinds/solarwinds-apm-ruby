@@ -44,83 +44,96 @@ module Oboe_metal
   end
 
   module Reporter
-    ##
-    # Initialize the TraceView Context, reporter and report the initialization
-    #
-    def self.start
-      return unless TraceView.loaded
+    class << self
+      ##
+      # start
+      #
+      # Start the TraceView Reporter
+      #
+      def start
+        return unless TraceView.loaded
 
-      if ENV.key?('TRACEVIEW_GEM_TEST')
-        TraceView.reporter = Java::ComTracelyticsJoboe::TestReporter.new
-      else
-        TraceView.reporter = Java::ComTracelyticsJoboe::ReporterFactory.getInstance.buildUdpReporter
-      end
-
-
-      begin
-        # Import the tracing mode and sample rate settings
-        # from the Java agent (user configured in
-        # /usr/local/tracelytics/javaagent.json when under JRuby)
-        cfg = LayerUtil.getLocalSampleRate(nil, nil)
-
-        if cfg.hasSampleStartFlag
-          TraceView::Config.tracing_mode = 'always'
-        elsif cfg.hasSampleThroughFlag
-          TraceView::Config.tracing_mode = 'through'
+        if ENV.key?('TRACEVIEW_GEM_TEST')
+          TraceView.reporter = Java::ComTracelyticsJoboe::ReporterFactory.getInstance.buildTestReporter(false)
         else
-          TraceView::Config.tracing_mode = 'never'
+          TraceView.reporter = Java::ComTracelyticsJoboe::ReporterFactory.getInstance.buildUdpReporter
         end
 
-        TraceView.sample_rate = cfg.getSampleRate
-        TraceView::Config.sample_rate = cfg.sampleRate
-        TraceView::Config.sample_source = cfg.sampleRateSourceValue
-      rescue => e
-        TraceView.logger.debug "[traceview/debug] Couldn't retrieve/acces joboe sampleRateCfg"
-        TraceView.logger.debug "[traceview/debug] #{e.message}"
+        begin
+          # Import the tracing mode and sample rate settings
+          # from the Java agent (user configured in
+          # /usr/local/tracelytics/javaagent.json when under JRuby)
+          cfg = LayerUtil.getLocalSampleRate(nil, nil)
+
+          if cfg.hasSampleStartFlag
+            TraceView::Config.tracing_mode = 'always'
+          elsif cfg.hasSampleThroughFlag
+            TraceView::Config.tracing_mode = 'through'
+          else
+            TraceView::Config.tracing_mode = 'never'
+          end
+
+          TraceView.sample_rate = cfg.getSampleRate
+          TraceView::Config.sample_rate = cfg.sampleRate
+          TraceView::Config.sample_source = cfg.sampleRateSourceValue
+        rescue => e
+          TraceView.logger.debug "[traceview/debug] Couldn't retrieve/acces joboe sampleRateCfg"
+          TraceView.logger.debug "[traceview/debug] #{e.message}"
+        end
+
+        # Only report __Init from here if we are not instrumenting a framework.
+        # Otherwise, frameworks will handle reporting __Init after full initialization
+        unless defined?(::Rails) || defined?(::Sinatra) || defined?(::Padrino) || defined?(::Grape)
+          TraceView::API.report_init unless ENV.key?('TRACEVIEW_GEM_TEST')
+        end
       end
 
-      # Only report __Init from here if we are not instrumenting a framework.
-      # Otherwise, frameworks will handle reporting __Init after full initialization
-      unless defined?(::Rails) || defined?(::Sinatra) || defined?(::Padrino) || defined?(::Grape)
-        TraceView::API.report_init unless ENV.key?('TRACEVIEW_GEM_TEST')
+      ##
+      # restart
+      #
+      # This is a nil method for TraceView under Java.  It is maintained only
+      # for compability across interfaces.
+      #
+      def restart
+        TraceView.logger.warn "[traceview/reporter] Reporter.restart isn't supported under JRuby"
       end
-    end
 
-    ##
-    # clear_all_traces
-    #
-    # Truncates the trace output file to zero
-    #
-    def self.clear_all_traces
-      TraceView.reporter.reset if TraceView.loaded
-    end
-
-    ##
-    # get_all_traces
-    #
-    # Retrieves all traces written to the trace file
-    #
-    def self.get_all_traces
-      return [] unless TraceView.loaded
-
-      # Joboe TestReporter returns a Java::ComTracelyticsExtEbson::DefaultDocument
-      # document for traces which doesn't correctly support things like has_key? which
-      # raises an unhandled exception on non-existent key (duh).  Here we convert
-      # the Java::ComTracelyticsExtEbson::DefaultDocument doc to a pure array of Ruby
-      # hashes
-      traces = []
-      TraceView.reporter.getSentEventsAsBsonDocument.to_a.each do |e|
-        t = {}
-        e.each_pair { |k, v|
-          t[k] = v
-        }
-        traces << t
+      ##
+      # clear_all_traces
+      #
+      # Truncates the trace output file to zero
+      #
+      def clear_all_traces
+        TraceView.reporter.reset if TraceView.loaded
       end
-      traces
-    end
 
-    def self.sendReport(evt)
-      evt.report(TraceView.reporter)
+      ##
+      # get_all_traces
+      #
+      # Retrieves all traces written to the trace file
+      #
+      def get_all_traces
+        return [] unless TraceView.loaded
+
+        # Joboe TestReporter returns a Java::ComTracelyticsExtEbson::DefaultDocument
+        # document for traces which doesn't correctly support things like has_key? which
+        # raises an unhandled exception on non-existent key (duh).  Here we convert
+        # the Java::ComTracelyticsExtEbson::DefaultDocument doc to a pure array of Ruby
+        # hashes
+        traces = []
+        TraceView.reporter.getSentEventsAsBsonDocument.to_a.each do |e|
+          t = {}
+          e.each_pair { |k, v|
+            t[k] = v
+          }
+          traces << t
+        end
+        traces
+      end
+
+      def sendReport(evt)
+        evt.report(TraceView.reporter)
+      end
     end
   end
 end
@@ -146,15 +159,13 @@ module TraceView
         opts[:xtrace]     ||= nil
         opts['X-TV-Meta'] ||= nil
 
-        sr_cfg = Java::ComTracelyticsJoboe::LayerUtil.shouldTraceRequest(
-                                              opts[:layer],
-                                              { 'X-Trace' => opts[:xtrace], 'X-TV-Meta' => opts['X-TV-Meta'] })
+        sr_cfg = Java::ComTracelyticsJoboe::LayerUtil.shouldTraceRequest( opts[:layer], { 'X-Trace' => opts[:xtrace], 'X-TV-Meta' => opts['X-TV-Meta'] })
 
         # Store the returned SampleRateConfig into TraceView::Config
         if sr_cfg
           begin
-            TraceView::Config.sample_rate = cfg.sampleRate
-            TraceView::Config.sample_source = cfg.sampleRateSourceValue
+            TraceView::Config.sample_rate = sr_cfg.sampleRate
+            TraceView::Config.sample_source = sr_cfg.sampleRateSourceValue
             # If we fail here, we do so quietly.  This was we don't spam logs
             # on every request
           end
@@ -198,7 +209,7 @@ case Java::ComTracelyticsAgent::Agent.getStatus
     $stderr.puts '=============================================================='
     $stderr.puts 'TraceView Java Agent not loaded. Going into no-op mode.'
     $stderr.puts 'To preload the TraceView java agent see:'
-    $stderr.puts 'https://support.appneta.com/cloud/installing-jruby-instrumentation'
+    $stderr.puts 'https://docs.appneta.com/installing-jruby-instrumentation'
     $stderr.puts '=============================================================='
 
   else

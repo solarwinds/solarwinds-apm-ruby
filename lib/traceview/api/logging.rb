@@ -1,6 +1,13 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
+# Make sure Set is loaded if possible.
+begin
+  require 'set'
+rescue LoadError
+  class Set; end
+end
+
 module TraceView
   module API
     ##
@@ -105,7 +112,7 @@ module TraceView
           # sample rate and sample source
           opts[:SampleRate]        = TraceView.sample_rate
           opts[:SampleSource]      = TraceView.sample_source
-          opts[:TraceOrigin] = :always_sampled
+          opts[:TraceOrigin]       = :always_sampled
 
           log_event(layer, 'entry', TraceView::Context.startTrace, opts)
         end

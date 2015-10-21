@@ -9,6 +9,11 @@ require "minitest/reporters"
 require "minitest/debugger" if ENV['DEBUG']
 require "sinatra"
 
+require "minitest/hell"
+class Minitest::Test
+  # parallelize_me!
+end
+
 ENV["RACK_ENV"] = "test"
 ENV["TRACEVIEW_GEM_TEST"] = "true"
 ENV["TRACEVIEW_GEM_VERBOSE"] = "true"
@@ -56,6 +61,10 @@ when /rails3/
   require "./test/servers/rails3x_8140"
 when /frameworks/
 when /libraries/
+  if RUBY_VERSION >= '2.0'
+    # Background Sidekiq thread
+    require './test/servers/sidekiq.rb'
+  end
 end
 
 ##
@@ -103,8 +112,8 @@ end
 #
 def validate_event_keys(event, kvs)
   kvs.each do |k, v|
-    event.has_key?(k).must_equal true
-    event[k].must_equal v
+    assert_equal true, event.key?(k), "#{k} is missing"
+    assert event[k] == v, "#{k} != #{v}"
   end
 end
 
@@ -137,7 +146,9 @@ end
 def valid_edges?(traces)
   traces.reverse.each do  |t|
     if t.key?("Edge")
-      return false unless has_edge?(t["Edge"], traces)
+      unless has_edge?(t["Edge"], traces)
+        return false
+      end
     end
   end
   true

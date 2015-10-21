@@ -64,10 +64,9 @@ class FerroController < ActionController::Metal
   def world
     render :text => "Hello world!"
   end
-
-  include TraceViewMethodProfiling
-  profile_method :world, 'world'
 end
+
+TraceView::API.profile_method(FerroController, :world)
 
 Rails40MetalStack.initialize!
 

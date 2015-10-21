@@ -89,7 +89,7 @@ module TraceView
 
       def process_with_traceview(*args)
         TraceView::API.log_entry('rails')
-        process_without_traceview *args
+        process_without_traceview(*args)
 
       rescue Exception => e
         TraceView::API.log_exception(nil, e) if log_rails_error?(e)
@@ -105,7 +105,7 @@ module TraceView
         }
         TraceView::API.log(nil, 'info', report_kvs)
 
-        process_action_without_traceview *args
+        process_action_without_traceview(*args)
       rescue Exception
         report_kvs[:Status] = 500
         TraceView::API.log(nil, 'info', report_kvs)
@@ -130,9 +130,6 @@ module TraceView
       end
 
       def process_action_with_traceview(method_name, *args)
-        return process_action_without_traceview(method_name, *args) if TraceView::Config[:action_blacklist].present? &&
-          TraceView::Config[:action_blacklist][[self.controller_name, self.action_name].join('#')]
-
         report_kvs = {
           :Controller   => self.class.name,
           :Action       => self.action_name,

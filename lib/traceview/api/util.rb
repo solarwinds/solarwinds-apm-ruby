@@ -22,15 +22,16 @@ module TraceView
 
       # Internal: Get the current backtrace.
       #
-      # ignore - Number of frames to ignore at the end of the backtrace. Use
-      #          when you know how many layers deep in oboe the call is being
+      # ignore - Number of frames to ignore at the top of the backtrace. Use
+      #          when you know how many layers deep in the key call is being
       #          made.
       #
       # Returns a string with each frame of the backtrace separated by '\r\n'.
       #
-      # FIXME: ignore is not currently used (see BACKTRACE_CUTOFF)
-      def backtrace(_ignore = 1)
-        trim_backtrace(Kernel.caller).join("\r\n")
+      def backtrace(ignore = 0)
+        bt = Kernel.caller
+        bt.slice!(0, ignore)
+        trim_backtrace(bt).join("\r\n")
       end
 
       # Internal: Trim a backtrace to a manageable size

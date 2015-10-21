@@ -1,6 +1,8 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
+require 'thread'
+
 # Disable docs and Camelcase warns since we're implementing
 # an interface here.  See OboeBase for details.
 # rubocop:disable Style/Documentation, Style/MethodName
@@ -9,70 +11,81 @@ module TraceView
   include Oboe_metal
 
   class Reporter
-    ##
-    # Initialize the TraceView Context, reporter and report the initialization
-    #
-    def self.start
-      return unless TraceView.loaded
+    class << self
 
-      begin
-        Oboe_metal::Context.init
+      ##
+      # start
+      #
+      # Start the TraceView Reporter
+      #
+      def start
+        return unless TraceView.loaded
 
-        if ENV.key?('TRACEVIEW_GEM_TEST')
-          TraceView.reporter = TraceView::FileReporter.new('/tmp/trace_output.bson')
-        else
-          TraceView.reporter = TraceView::UdpReporter.new(TraceView::Config[:reporter_host], TraceView::Config[:reporter_port])
-        end
+        begin
+          Oboe_metal::Context.init
 
-        # Only report __Init from here if we are not instrumenting a framework.
-        # Otherwise, frameworks will handle reporting __Init after full initialization
-        unless defined?(::Rails) || defined?(::Sinatra) || defined?(::Padrino) || defined?(::Grape)
-          TraceView::API.report_init unless ENV.key?('TRACEVIEW_GEM_TEST')
-        end
+          if ENV.key?('TRACEVIEW_GEM_TEST')
+            TraceView.reporter = TraceView::FileReporter.new('/tmp/trace_output.bson')
+          else
+            TraceView.reporter = TraceView::UdpReporter.new(TraceView::Config[:reporter_host], TraceView::Config[:reporter_port])
+          end
 
-      rescue => e
-        $stderr.puts e.message
-        raise
-      end
-    end
+          # Only report __Init from here if we are not instrumenting a framework.
+          # Otherwise, frameworks will handle reporting __Init after full initialization
+          unless defined?(::Rails) || defined?(::Sinatra) || defined?(::Padrino) || defined?(::Grape)
+            TraceView::API.report_init
+          end
 
-    def self.sendReport(evt)
-      TraceView.reporter.sendReport(evt)
-    end
-
-    ##
-    # clear_all_traces
-    #
-    # Truncates the trace output file to zero
-    #
-    def self.clear_all_traces
-      File.truncate($trace_file, 0)
-    end
-
-    ##
-    # get_all_traces
-    #
-    # Retrieves all traces written to the trace file
-    #
-    def self.get_all_traces
-      io = File.open($trace_file, 'r')
-      contents = io.readlines(nil)
-
-      return contents if contents.empty?
-
-      s = StringIO.new(contents[0])
-
-      traces = []
-
-      until s.eof?
-        if ::BSON.respond_to? :read_bson_document
-          traces << BSON.read_bson_document(s)
-        else
-          traces << BSON::Document.from_bson(s)
+        rescue => e
+          $stderr.puts e.message
+          raise
         end
       end
+      alias :restart :start
 
-      traces
+      ##
+      # sendReport
+      #
+      # Send the report for the given event
+      #
+      def sendReport(evt)
+        TraceView.reporter.sendReport(evt)
+      end
+
+      ##
+      # clear_all_traces
+      #
+      # Truncates the trace output file to zero
+      #
+      def clear_all_traces
+        File.truncate($trace_file, 0)
+      end
+
+      ##
+      # get_all_traces
+      #
+      # Retrieves all traces written to the trace file
+      #
+      def get_all_traces
+        io = File.open($trace_file, 'r')
+        contents = io.readlines(nil)
+
+        return contents if contents.empty?
+
+        s = StringIO.new(contents[0])
+
+        traces = []
+
+        until s.eof?
+          if ::BSON.respond_to? :read_bson_document
+            traces << BSON.read_bson_document(s)
+          else
+            traces << BSON::Document.from_bson(s)
+          end
+        end
+
+        traces
+      end
     end
   end
 
@@ -88,9 +101,9 @@ module TraceView
         return false unless TraceView.always? && TraceView.loaded
 
         # Assure defaults since SWIG enforces Strings
-        layer   = opts[:layer]      ? opts[:layer].strip      : ''
-        xtrace  = opts[:xtrace]     ? opts[:xtrace].strip     : ''
-        tv_meta = opts['X-TV-Meta'] ? opts['X-TV-Meta'].strip : ''
+        layer   = opts[:layer]      ? opts[:layer].to_s.strip      : ''
+        xtrace  = opts[:xtrace]     ? opts[:xtrace].to_s.strip     : ''
+        tv_meta = opts['X-TV-Meta'] ? opts['X-TV-Meta'].to_s.strip : ''
 
         rv = TraceView::Context.sampleRequest(layer, xtrace, tv_meta)
 
@@ -98,6 +111,8 @@ module TraceView
           if ENV.key?('TRACEVIEW_GEM_TEST')
             # When in test, always trace and don't clear
             # the stored sample rate/source
+            TraceView.sample_rate ||= -1
+            TraceView.sample_source ||= -1
             true
           else
             TraceView.sample_rate = -1
@@ -149,3 +164,4 @@ end
 # rubocop:enable Style/Documentation
 
 TraceView.loaded = true
+TraceView.config_lock = Mutex.new

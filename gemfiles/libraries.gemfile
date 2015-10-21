@@ -43,17 +43,19 @@ else
   gem 'sinatra'
 end
 
-gem 'dalli'
-gem 'memcache-client'
 gem 'cassandra'
-gem 'mongo'
-gem 'resque'
-gem 'redis'
+gem 'curb' unless defined?(JRUBY_VERSION)
+gem 'dalli'
+gem 'excon'
 gem 'faraday'
 gem 'httpclient'
-gem 'excon'
-gem 'typhoeus'
+gem 'memcache-client'
+gem 'mongo'
+gem 'redis'
+gem 'resque'
 gem 'sequel'
+gem "sidekiq" if RUBY_VERSION >= '2.0'
+gem 'typhoeus'
 
 # Database adapter gems needed by sequel
 if defined?(JRUBY_VERSION)

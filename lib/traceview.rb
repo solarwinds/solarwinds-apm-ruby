@@ -40,6 +40,7 @@ begin
 
   require 'traceview/config'
   require 'traceview/loading'
+  require 'traceview/legacy_method_profiling'
   require 'traceview/method_profiling'
 
   if TraceView.loaded
@@ -56,6 +57,8 @@ begin
   # it will load all of the Ruby instrumentation
   require 'traceview/ruby'
   require 'oboe/backward_compatibility'
+
+  require 'traceview/test' if ENV['TRACEVIEW_GEM_TEST']
 rescue => e
   $stderr.puts "[traceview/error] Problem loading: #{e.inspect}"
   $stderr.puts e.backtrace
