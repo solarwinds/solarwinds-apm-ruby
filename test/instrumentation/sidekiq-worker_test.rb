@@ -1,7 +1,7 @@
 # Copyright (c) 2015 AppNeta, Inc.
 # All rights reserved.
 
-if RUBY_VERSION >= '2.0'
+if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
   require 'minitest_helper'
   require 'sidekiq'
   require_relative "../jobs/remote_call_worker_job"
