@@ -54,7 +54,7 @@ module Oboe_metal
         return unless TraceView.loaded
 
         if ENV.key?('TRACEVIEW_GEM_TEST')
-          TraceView.reporter = Java::ComTracelyticsJoboe::TestReporter.new
+          TraceView.reporter = Java::ComTracelyticsJoboe::ReporterFactory.getInstance.buildTestReporter(false)
         else
           TraceView.reporter = Java::ComTracelyticsJoboe::ReporterFactory.getInstance.buildUdpReporter
         end
