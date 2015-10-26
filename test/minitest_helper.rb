@@ -224,4 +224,5 @@ Minitest.after_run {
   TraceView.logger.warn "[traceview/servers] Shutting down Puma."
   TraceView.logger.warn `pumactl -p #{Process.pid} stop`
   sleep 1
+  0 # Zero exit code
 }
