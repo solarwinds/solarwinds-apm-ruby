@@ -124,4 +124,12 @@ task :console do
   Pry.start
 end
 
-
+# Used when testing Resque locally
+task "resque:setup" do
+  require 'resque/tasks'
+  require 'traceview/test'
+  ENV['TRACEVIEW_GEM_VERBOSE'] = 'true'
+  Bundler.require(:default, :development)
+  TraceView::Config[:tracing_mode] = :always
+  TV::Test.load_extras
+end

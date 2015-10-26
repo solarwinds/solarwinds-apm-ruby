@@ -30,7 +30,7 @@ describe "TraceView::Config" do
     instrumentation = TraceView::Config.instrumentation
 
     # Verify the number of individual instrumentations
-    instrumentation.count.must_equal 24
+    instrumentation.count.must_equal 25
 
     TraceView::Config[:action_controller][:enabled].must_equal true
     TraceView::Config[:action_view][:enabled].must_equal true
@@ -50,7 +50,8 @@ describe "TraceView::Config" do
     TraceView::Config[:moped][:enabled].must_equal true
     TraceView::Config[:rack][:enabled].must_equal true
     TraceView::Config[:redis][:enabled].must_equal true
-    TraceView::Config[:resque][:enabled].must_equal true
+    TraceView::Config[:resqueclient][:enabled].must_equal true
+    TraceView::Config[:resqueworker][:enabled].must_equal true
     TraceView::Config[:rest_client][:enabled].must_equal true
     TraceView::Config[:sequel][:enabled].must_equal true
     TraceView::Config[:sidekiqclient][:enabled].must_equal true
@@ -75,14 +76,14 @@ describe "TraceView::Config" do
     TraceView::Config[:moped][:log_args].must_equal true
     TraceView::Config[:rack][:log_args].must_equal true
     TraceView::Config[:redis][:log_args].must_equal true
-    TraceView::Config[:resque][:log_args].must_equal true
+    TraceView::Config[:resqueclient][:log_args].must_equal true
+    TraceView::Config[:resqueworker][:log_args].must_equal true
     TraceView::Config[:rest_client][:log_args].must_equal true
     TraceView::Config[:sequel][:log_args].must_equal true
     TraceView::Config[:sidekiqclient][:log_args].must_equal true
     TraceView::Config[:sidekiqworker][:log_args].must_equal true
     TraceView::Config[:typhoeus][:log_args].must_equal true
 
-    TraceView::Config[:resque][:link_workers].must_equal false
     TraceView::Config[:blacklist].is_a?(Array).must_equal true
 
     TraceView::Config[:dnt_regexp].must_equal "\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|ttf|woff|svg|less)$"

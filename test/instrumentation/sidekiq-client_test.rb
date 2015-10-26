@@ -4,9 +4,9 @@
 if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
   require 'minitest_helper'
   require 'sidekiq'
-  require_relative "../jobs/remote_call_worker_job"
-  require_relative "../jobs/db_worker_job"
-  require_relative "../jobs/error_worker_job"
+  require_relative "../jobs/sidekiq/remote_call_worker_job"
+  require_relative "../jobs/sidekiq/db_worker_job"
+  require_relative "../jobs/sidekiq/error_worker_job"
 
   class SidekiqClientTest < Minitest::Test
     def setup
