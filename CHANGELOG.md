@@ -4,6 +4,19 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# traceview 3.3.1
+
+This patch release includes the following fixes:
+
+* Fix sample rate handling under JRuby: #141
+* Remove `:action_blacklist`: #145
+* Update JRuby Instrumentation tests to use New JOboe Test Reporter #147
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.3.1
+https://rubygems.org/gems/traceview/versions/3.3.1-java
+
 # traceview 3.3.0
 
 This patch release includes the following fixes:
