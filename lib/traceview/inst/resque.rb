@@ -113,7 +113,8 @@ module TraceView
           end
 
           report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:resqueworker][:collect_backtraces]
-        rescue
+        rescue => e
+          TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
         end
 
         TraceView::API.start_trace('resque-worker', nil, report_kvs) do

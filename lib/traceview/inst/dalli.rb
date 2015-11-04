@@ -60,9 +60,8 @@ module TraceView
           if @servers.is_a?(Array) && !@servers.empty?
             info_kvs[:RemoteHost] = @servers.join(", ")
           end
-        rescue
-          TraceView.logger.debug "[traceview/debug] Error collecting info keys: #{e.message}"
-          TraceView.logger.debug e.backtrace
+        rescue => e
+          TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
         end
 
         TraceView::API.trace('memcache', { :KVOp => :get_multi }, :get_multi) do
