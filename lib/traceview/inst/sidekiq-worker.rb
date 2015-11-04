@@ -1,3 +1,6 @@
+# Copyright (c) 2015 AppNeta, Inc.
+# All rights reserved.
+
 module TraceView
   class SidekiqWorker
     def collect_kvs(args)

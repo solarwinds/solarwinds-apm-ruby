@@ -16,7 +16,7 @@ module TraceView
       def execute_with_traceview & block
         kvs = {}
         kvs['Backtrace'] = TraceView::API.backtrace if TraceView::Config[:rest_client][:collect_backtraces]
-        TraceView::API.log_entry("rest-client", kvs)
+        TraceView::API.log_entry('rest-client', kvs)
 
         # The core rest-client call
         execute_without_traceview(&block)
@@ -24,7 +24,7 @@ module TraceView
         TraceView::API.log_exception('rest-client', e)
         raise e
       ensure
-        TraceView::API.log_exit("rest-client")
+        TraceView::API.log_exit('rest-client')
       end
     end
   end
