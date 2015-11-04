@@ -12,10 +12,12 @@ module TraceView
     @@config = {}
 
     @@instrumentation = [:action_controller, :action_view, :active_record,
-                         :cassandra, :curb, :dalli, :em_http_request, :excon, :faraday,
-                         :grape, :httpclient, :nethttp, :memcached, :memcache, :mongo,
-                         :moped, :rack, :redis, :resqueclient, :resqueworker,
-                         :rest_client, :sequel, :sidekiqclient, :sidekiqworker, :typhoeus]
+                         :cassandra, :curb, :dalli, :delayed_jobclient,
+                         :delayed_jobworker, :em_http_request, :excon,
+                         :faraday, :grape, :httpclient, :nethttp, :memcached,
+                         :memcache, :mongo, :moped, :rack, :redis, :resqueclient,
+                         :resqueworker, :rest_client, :sequel, :sidekiqclient,
+                         :sidekiqworker, :typhoeus]
 
     # Subgrouping of instrumentation
     @@http_clients = [:curb, :excon, :em_http_request, :faraday, :httpclient, :nethttp, :rest_client, :typhoeus]
@@ -46,6 +48,8 @@ module TraceView
       TraceView::Config[:cassandra][:collect_backtraces] = true
       TraceView::Config[:curb][:collect_backtraces] = true
       TraceView::Config[:dalli][:collect_backtraces] = false
+      TraceView::Config[:delayed_jobclient][:collect_backtraces] = false
+      TraceView::Config[:delayed_jobworker][:collect_backtraces] = false
       TraceView::Config[:em_http_request][:collect_backtraces] = false
       TraceView::Config[:excon][:collect_backtraces] = true
       TraceView::Config[:faraday][:collect_backtraces] = false
