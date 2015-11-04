@@ -36,11 +36,10 @@ module TraceView
       # Continue the trace from the enqueue side?
       incoming_context = nil
       if args[1].is_a?(Hash) && TraceView::XTrace.valid?(args[1]['SourceTrace'])
-        incoming_context = args[1]['SourceTrace']
-        report_kvs[:Async] = true
+        report_kvs[:SourceTrace] = args[1]['SourceTrace']
       end
 
-      result = TraceView::API.start_trace('sidekiq-worker', incoming_context, report_kvs) do
+      result = TraceView::API.start_trace('sidekiq-worker', nil, report_kvs) do
         yield
       end
 
