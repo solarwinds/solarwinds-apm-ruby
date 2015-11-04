@@ -52,10 +52,11 @@ gem 'httpclient'
 gem 'memcache-client'
 gem 'mongo'
 gem 'redis'
-gem 'resque'
+gem 'resque' unless defined?(JRUBY_VERSION) && RUBY_VERSION > '1.9.3'
 gem 'sequel'
 gem "sidekiq" if RUBY_VERSION >= '2.0'
 gem 'typhoeus'
+
 
 # Database adapter gems needed by sequel
 if defined?(JRUBY_VERSION)
