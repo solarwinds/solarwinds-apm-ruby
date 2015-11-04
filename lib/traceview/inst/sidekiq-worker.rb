@@ -21,7 +21,7 @@ module TraceView
         report_kvs['HTTP-Host'] = Socket.gethostname
         report_kvs[:Controller] = "Sidekiq_#{queue}"
         report_kvs[:Action] = msg['class']
-        report_kvs[:URL] = "/sidekiq/#{queue}/#{msg['class'].to_s}"
+        report_kvs[:URL] = "/sidekiq/#{queue}/#{msg['class']}"
       rescue => e
         TraceView.logger.warn "[traceview/sidekiq] Non-fatal error capturing KVs: #{e.message}"
       end
@@ -30,7 +30,6 @@ module TraceView
 
     def call(*args)
       # args: 0: worker, 1: msg, 2: queue
-      result = nil
       report_kvs = collect_kvs(args)
 
       # Continue the trace from the enqueue side?
