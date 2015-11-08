@@ -4,6 +4,21 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# traceview 3.3.2
+
+This patch release includes the following fixes:
+
+* Sidekiq instrumentation: don't carry context between enqueue and job run: #150
+* Sidekiq instrumentation: Update KV reporting to follow TV specs: #150
+* Resque instrumentation: Update instrumentation to follow TV specs: #146
+* Resque instrumentation: `:link_workers` option deprecated: #146
+* [JRuby 9000](http://jruby.org/) validated: Add JRuby 9000 to test suite: #149
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.3.2
+https://rubygems.org/gems/traceview/versions/3.3.2-java
+
 # traceview 3.3.1
 
 This patch release includes the following fixes:
