@@ -222,4 +222,3 @@ class MiniTest::Spec
     Rack::Lint.new(@app)
   end
 end
-
