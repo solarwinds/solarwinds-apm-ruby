@@ -24,16 +24,14 @@ module TraceView
 
     def call(*args)
       # args: 0: worker_class, 1: msg, 2: queue, 3: redis_pool
-
-      result = nil
       report_kvs = collect_kvs(args)
 
       TraceView::API.log_entry('sidekiq-client', report_kvs)
-      args[1]['X-Trace'] = TraceView::Context.toString if TraceView.tracing?
+      args[1]['SourceTrace'] = TraceView::Context.toString if TraceView.tracing?
 
       result = yield
 
-      report_kvs = { :JobID => result["jid"] }
+      report_kvs = { :JobID => result['jid'] }
       result
     rescue => e
       TraceView::API.log_exception('sidekiq-client', e, report_kvs)

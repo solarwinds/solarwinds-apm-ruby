@@ -1,7 +1,7 @@
 # Copyright (c) 2015 AppNeta, Inc.
 # All rights reserved.
 
-if RUBY_VERSION >= '1.9.3'
+if RUBY_VERSION >= '1.9.3' && !defined?(JRUBY_VERSION)
   require 'minitest_helper'
   require_relative "../jobs/resque/remote_call_worker_job"
   require_relative "../jobs/resque/error_worker_job"
