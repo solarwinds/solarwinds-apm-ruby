@@ -25,11 +25,3 @@ end
 
 # Allow Sidekiq to boot up
 sleep 10
-
-# Add a hook to shutdown sidekiq after Minitest finished running
-Minitest.after_run {
-  TraceView.logger.warn "[traceview/servers] Shutting down Sidekiq."
-  pid = File.read("/tmp/sidekiq_#{Process.pid}.pid").chomp
-  Process.kill(:TERM, pid.to_i)
-  File.unlink "/tmp/sidekiq_#{Process.pid}.pid"
-}
