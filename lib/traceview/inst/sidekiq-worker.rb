@@ -32,6 +32,12 @@ module TraceView
       # args: 0: worker, 1: msg, 2: queue
       report_kvs = collect_kvs(args)
 
+      # Something is happening across Celluloid threads where liboboe settings
+      # are being lost.  So we re-set the tracing mode to assure
+      # we sample as desired.  Setting the tracing mode will re-update
+      # the liboboe settings.
+      TraceView::Config[:tracing_mode] = TraceView::Config[:tracing_mode]
+
       # Continue the trace from the enqueue side?
       if args[1].is_a?(Hash) && TraceView::XTrace.valid?(args[1]['SourceTrace'])
         report_kvs[:SourceTrace] = args[1]['SourceTrace']
