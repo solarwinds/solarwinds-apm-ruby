@@ -4,7 +4,7 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
-# traceview 3.3.2
+# traceview 3.3.3
 
 This patch release includes the following fixes:
 
