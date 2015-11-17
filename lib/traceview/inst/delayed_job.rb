@@ -34,15 +34,18 @@ module TraceView
           lifecycle.around(:enqueue) do |job, &block|
             begin
               report_kvs = {}
+              report_kvs[:Spec] = :pushq
+              report_kvs[:Flavor] = :DelayedJob
+              report_kvs[:JobName] = job.name
+              report_kvs[:MsgID] = job.id
+              report_kvs[:Queue] = job.queue if job.queue
+              report_kvs['Backtrace'] = TV::API.backtrace if TV::Config[:delayed_jobclient][:collect_backtraces]
 
-              TraceView::API.log_entry('delayed_job-client', report_kvs)
+              result = TraceView::API.trace('delayed_job-client', report_kvs) do
+                block.call(job)
+              end
 
-              block.call(job)
-            rescue => e
-              TraceView::API.log_exception('delayed_job-client', e, report_kvs)
-              raise
-            ensure
-              TraceView::API.log_exit('delayed_job-client', report_kvs)
+              result
             end
           end
 
@@ -50,6 +53,18 @@ module TraceView
           lifecycle.around(:perform) do |worker, job, &block|
             begin
               report_kvs = {}
+              report_kvs[:Spec] = :job
+              report_kvs[:Flavor] = :DelayedJob
+              report_kvs[:JobName] = job.name
+              report_kvs[:MsgID] = job.id
+              report_kvs[:Queue] = job.queue if job.queue
+              report_kvs[:WorkerName] = worker.name
+              report_kvs['Backtrace'] = TV::API.backtrace if TV::Config[:delayed_jobworker][:collect_backtraces]
+
+              # DelayedJob Specific KVs
+              report_kvs[:priority] = job.priority
+              report_kvs[:attempts] = job.attempts
+              report_kvs[:locked_by] = job.locked_by
 
               result = TraceView::API.start_trace('delayed_job-worker', nil, report_kvs) do
                 block.call(worker, job)
