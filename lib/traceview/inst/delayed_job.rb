@@ -1,3 +1,6 @@
+# Copyright (c) 2015 AppNeta, Inc.
+# All rights reserved.
+
 module TraceView
   module Inst
     module DelayedJob
@@ -14,7 +17,7 @@ module TraceView
 
         def after_fork_with_traceview
           ::TraceView.logger.info '[traceview/delayed_job] Detected fork.  Restarting TraceView reporter.' if TraceView::Config[:verbose]
-          ::TraceView::Reporter.restart
+          ::TraceView::Reporter.restart unless ENV.key?('TRACEVIEW_GEM_TEST')
 
           after_fork_without_traceview
         end
