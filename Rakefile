@@ -21,6 +21,10 @@ Rake::TestTask.new do |t|
     # Pre-load rails to get the major version number
     require 'rails'
     t.test_files = FileList["test/frameworks/rails#{Rails::VERSION::MAJOR}x_test.rb"]
+
+    # Since the most popular backend for Delayed Job is ActiveRecord, we test it
+    # here along with the rails instrumentation.
+    t.test_files = FileList["test/instrumentation/delayed_job*_test.rb"]
   when /frameworks/
     t.test_files = FileList['test/frameworks/sinatra*_test.rb'] +
                    FileList['test/frameworks/padrino*_test.rb'] +
@@ -114,22 +118,20 @@ end
 desc "Rebuild the gem's c extension"
 task :recompile => [ :distclean, :compile ]
 
-task :console do
+task :environment do
   require 'traceview/test'
   ENV['TRACEVIEW_GEM_VERBOSE'] = 'true'
   Bundler.require(:default, :development)
   TraceView::Config[:tracing_mode] = :always
   TV::Test.load_extras
+end
+
+task :console => :environment do
   ARGV.clear
   Pry.start
 end
 
 # Used when testing Resque locally
-task "resque:setup" do
+task "resque:setup" => :environment do
   require 'resque/tasks'
-  require 'traceview/test'
-  ENV['TRACEVIEW_GEM_VERBOSE'] = 'true'
-  Bundler.require(:default, :development)
-  TraceView::Config[:tracing_mode] = :always
-  TV::Test.load_extras
 end
