@@ -1,6 +1,7 @@
 # Taken from: https://www.amberbit.com/blog/2014/2/14/putting-ruby-on-rails-on-a-diet/
 # Port of https://gist.github.com/josevalim/1942658 to Rails 4
 # Original author: Jose Valim
+# Updated by: Peter Giacomo Lombardo
 #
 # Run this file with:
 #
@@ -21,6 +22,34 @@ require 'rack/handler/puma'
 
 TraceView.logger.info "[traceview/info] Starting background utility rails app on localhost:8140."
 
+if ENV.key?('TRAVIS_PSQL_PASS')
+  ENV['DATABASE_URL'] = "postgresql://postgres:#{ENV['TRAVIS_PSQL_PASS']}@127.0.0.1:5432/travis_ci_test"
+else
+  ENV['DATABASE_URL'] = 'postgresql://postgres@127.0.0.1:5432/travis_ci_test'
+end
+
+class Widget < ActiveRecord::Base
+  def do_work(*args)
+    Widget.first
+  end
+end
+
+class CreateWidgets < ActiveRecord::Migration
+  def change
+    create_table :widgets do |t|
+      t.string :name
+      t.text :description
+      t.timestamps
+    end
+  end
+end
+
+ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
+
+unless ActiveRecord::Base.connection.table_exists? 'widgets'
+  ActiveRecord::Migration.run(CreateWidgets)
+end
+
 class Rails32MetalStack < Rails::Application
   routes.append do
     get "/hello/world" => "hello#world"
@@ -33,6 +62,8 @@ class Rails32MetalStack < Rails::Application
 
   # uncomment below to display errors
   # config.consider_all_requests_local = true
+
+  config.active_support.deprecation = :stderr
 
   # Here you could remove some middlewares, for example
   # Rack::Lock, ActionDispatch::Flash and  ActionDispatch::BestStandardsSupport below.
