@@ -49,7 +49,7 @@ TraceView.logger.level = Logger::DEBUG
 # puts %x{psql -c 'create database travis_ci_test;' -U postgres}
 
 # Our background Rack-app for http client testing
-require "./test/servers/rackapp_8101"
+require './test/servers/rackapp_8101'
 
 # Conditionally load other background servers
 # depending on what we're testing
@@ -57,8 +57,10 @@ require "./test/servers/rackapp_8101"
 case File.basename(ENV['BUNDLE_GEMFILE'])
 when /rails4/
   require "./test/servers/rails4x_8140"
+  require './test/servers/delayed_job'
 when /rails3/
   require "./test/servers/rails3x_8140"
+  require './test/servers/delayed_job'
 when /frameworks/
 when /libraries/
   if RUBY_VERSION >= '2.0'
