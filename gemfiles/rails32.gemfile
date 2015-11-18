@@ -44,6 +44,8 @@ if defined?(JRUBY_VERSION)
   gem 'sinatra', :require => false
 else
   gem 'sinatra'
+  gem 'pg'
+  gem "delayed_job_active_record", '0.4.4'
 end
 
 gem "rails", "~>3.2"
