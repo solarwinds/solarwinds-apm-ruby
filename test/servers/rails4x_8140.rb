@@ -26,24 +26,9 @@ end
 require "rails"
 require "action_controller/railtie" # require more if needed
 require 'rack/handler/puma'
+require_relative '../models/widget'
 
 TraceView.logger.info "[traceview/info] Starting background utility rails app on localhost:8140."
-
-class Widget < ActiveRecord::Base
-  def do_work(*args)
-    Widget.first
-  end
-end
-
-class CreateWidgets < ActiveRecord::Migration
-  def change
-    create_table :widgets do |t|
-      t.string :name
-      t.text :description
-      t.timestamps
-    end
-  end
-end
 
 ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
 
