@@ -1,66 +1,101 @@
 # Copyright (c) 2015 AppNeta, Inc.
 # All rights reserved.
 
-require 'minitest_helper'
-require_relative "../jobs/delayed_job/remote_call_worker_job"
-require_relative "../jobs/delayed_job/db_worker_job"
-require_relative "../jobs/delayed_job/error_worker_job"
+if (File.basename(ENV['BUNDLE_GEMFILE']) =~ /rails/) == 0
+  require 'minitest_helper'
+  require_relative '../jobs/delayed_job/remote_call_worker_job'
+  require_relative '../jobs/delayed_job/db_worker_job'
+  require_relative '../jobs/delayed_job/error_worker_job'
+  require_relative '../models/widget'
 
-class DelayedJobWorkerTest < Minitest::Test
-  def setup
-    clear_all_traces
-    @collect_backtraces = TraceView::Config[:delayed_jobworker][:collect_backtraces]
-    @log_args = TraceView::Config[:delayed_jobworker][:log_args]
-  end
+  class DelayedJobWorkerTest < Minitest::Test
+    def setup
+      # Delete all pre-existing jobs before we start
+      Delayed::Job.delete_all
 
-  def teardown
-    TraceView::Config[:delayed_jobworker][:collect_backtraces] = @collect_backtraces
-    TraceView::Config[:delayed_jobworker][:log_args] = @log_args
-  end
+      clear_all_traces
+      @collect_backtraces = TraceView::Config[:delayed_jobworker][:collect_backtraces]
+      @log_args = TraceView::Config[:delayed_jobworker][:log_args]
+    end
 
-  def test_reports_version_init
-    init_kvs = ::TraceView::Util.build_init_report
-    assert init_kvs.key?('Ruby.DJ.Version')
-    assert_equal "DJ-#{::Delayed::VERSION}", init_kvs['Ruby.DJ.Version']
-  end
+    def teardown
+      TraceView::Config[:delayed_jobworker][:collect_backtraces] = @collect_backtraces
+      TraceView::Config[:delayed_jobworker][:log_args] = @log_args
+    end
 
-  def test_job_run
-  end
+    def test_reports_version_init
+      init_kvs = ::TraceView::Util.build_init_report
+      assert init_kvs.key?('Ruby.DelayedJob.Version')
+      assert_equal "DelayedJob-#{Gem.loaded_specs['delayed_job'].version.to_s}", init_kvs['Ruby.DelayedJob.Version']
+    end
 
-  def test_jobs_with_errors
-  end
+    def test_job_run
+      w = Widget.new(:name => 'blah', :description => 'This is a wonderful wonderful widget.')
+      w.save
 
-  def test_collect_backtraces_default_value
-    assert_equal TV::Config[:delayed_jobworker][:collect_backtraces], false, "default backtrace collection"
-  end
+      w.delay.do_work(1, 2, 3)
 
-  def test_log_args_default_value
-    assert_equal TV::Config[:delayed_jobworker][:log_args], true, "log_args default "
-  end
+      sleep 15
 
-  def test_obey_collect_backtraces_when_false
-    TraceView::Config[:delayed_jobworker][:collect_backtraces] = false
-  end
+      traces = get_all_traces
+      assert_equal 4, traces.count, "Trace count"
+      valid_edges?(traces)
 
-  def test_obey_collect_backtraces_when_true
-    # FIXME: This can't be tested with the current Sidekiq minitest integration (e.g. already booted
-    # sidekiq in a different process)
-    skip
+      assert_equal 'delayed_job-worker',    traces[0]['Layer']
+      assert_equal 'entry',                 traces[0]['Label']
+      assert_equal 'job',                   traces[0]['Spec']
+      assert_equal 'DelayedJob',            traces[0]['Flavor']
+      assert_equal 'Widget#do_work',        traces[0]['JobName']
+      # assert_equal w.id,                    traces[0]['MsgID']
+      assert_equal 0,                       traces[0]['priority']
+      assert_equal 0,                       traces[0]['attempts']
+      #assert       traces[0].key?('WorkerName')
+      assert       traces[0].key?('locked_by')
+      assert       traces[0].key?('SampleRate')
+      assert       traces[0].key?('SampleSource')
+      assert_equal false,                   traces[0].key?('Backtrace')
 
-    TraceView::Config[:delayed_jobworker][:collect_backtraces] = true
+      assert_equal 'activerecord',          traces[1]['Layer']
+      assert_equal 'entry',                 traces[1]['Label']
+      assert_equal 'activerecord',          traces[2]['Layer']
+      assert_equal 'exit',                  traces[2]['Label']
 
-  end
+      assert_equal 'delayed_job-worker',    traces[3]['Layer']
+      assert_equal 'exit',                  traces[3]['Label']
+    end
 
-  def test_obey_log_args_when_false
-    # FIXME: This can't be tested with the current Sidekiq minitest integration (e.g. already booted
-    # sidekiq in a different process)
-    skip
+    def test_jobs_with_errors
+      w = Widget.new(:name => 'blah', :description => 'This is a wonderful wonderful widget.')
+      w.save
 
-  end
+      w.delay.do_error(1, 2, 3)
 
-  def test_obey_log_args_when_true
-    TraceView::Config[:delayed_jobworker][:log_args] = true
+      sleep 10
 
-    # Queue up a job to be run
+      traces = get_all_traces
+      assert_equal 3, traces.count, "Trace count"
+      valid_edges?(traces)
+
+      assert_equal 'delayed_job-worker',          traces[0]['Layer']
+      assert_equal 'entry',                       traces[0]['Label']
+
+      assert_equal 'delayed_job-worker',          traces[1]['Layer']
+      assert_equal 'error',                       traces[1]['Label']
+      assert_equal 'RuntimeError',                traces[1]['ErrorClass']
+      assert_equal 'FakeTestError',               traces[1]['ErrorMsg']
+      assert       traces[1].key?('Backtrace')
+
+      assert_equal 'delayed_job-worker',          traces[2]['Layer']
+      assert_equal 'exit',                        traces[2]['Label']
+
+    end
+
+    def test_collect_backtraces_default_value
+      assert_equal TV::Config[:delayed_jobworker][:collect_backtraces], false, "default backtrace collection"
+    end
+
+    def test_log_args_default_value
+      assert_equal TV::Config[:delayed_jobworker][:log_args], true, "log_args default "
+    end
   end
 end
