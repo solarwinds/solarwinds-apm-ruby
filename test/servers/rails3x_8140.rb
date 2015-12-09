@@ -19,6 +19,7 @@
 require "rails"
 require "action_controller/railtie" # require more if needed
 require 'rack/handler/puma'
+require_relative '../models/widget'
 
 TraceView.logger.info "[traceview/info] Starting background utility rails app on localhost:8140."
 
@@ -28,26 +29,10 @@ else
   ENV['DATABASE_URL'] = 'postgresql://postgres@127.0.0.1:5432/travis_ci_test'
 end
 
-class Widget < ActiveRecord::Base
-  def do_work(*args)
-    Widget.first
-  end
-end
-
-class CreateWidgets < ActiveRecord::Migration
-  def change
-    create_table :widgets do |t|
-      t.string :name
-      t.text :description
-      t.timestamps
-    end
-  end
-end
-
 ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
 
 unless ActiveRecord::Base.connection.table_exists? 'widgets'
-  ActiveRecord::Migration.run(CreateWidgets)
+  CreateWidgets.migrate(:up)
 end
 
 class Rails32MetalStack < Rails::Application
