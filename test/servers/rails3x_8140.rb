@@ -16,7 +16,7 @@
 # config/application.rb, config/environment.rb and config.ru
 # existing in any Rails 4 app. Here they are simply in one
 # file and without the comments.
-require "rails"
+require "rails/all"
 require "action_controller/railtie" # require more if needed
 require 'rack/handler/puma'
 require_relative '../models/widget'

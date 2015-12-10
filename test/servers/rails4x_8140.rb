@@ -23,7 +23,7 @@ else
   ENV['DATABASE_URL'] = 'postgresql://postgres@127.0.0.1:5432/travis_ci_test'
 end
 
-require "rails"
+require "rails/all"
 require "action_controller/railtie" # require more if needed
 require 'rack/handler/puma'
 require_relative '../models/widget'
