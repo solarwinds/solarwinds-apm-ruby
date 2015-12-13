@@ -46,11 +46,9 @@ if (File.basename(ENV['BUNDLE_GEMFILE']) =~ /rails/) == 0
       assert_equal 'job',                   traces[0]['Spec']
       assert_equal 'DelayedJob',            traces[0]['Flavor']
       assert_equal 'Widget#do_work',        traces[0]['JobName']
-      # assert_equal w.id,                    traces[0]['MsgID']
       assert_equal 0,                       traces[0]['priority']
       assert_equal 0,                       traces[0]['attempts']
-      #assert       traces[0].key?('WorkerName')
-      assert       traces[0].key?('locked_by')
+      assert       traces[0].key?('WorkerName')
       assert       traces[0].key?('SampleRate')
       assert       traces[0].key?('SampleSource')
       assert_equal false,                   traces[0].key?('Backtrace')

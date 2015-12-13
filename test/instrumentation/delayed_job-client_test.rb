@@ -34,7 +34,7 @@ if (File.basename(ENV['BUNDLE_GEMFILE']) =~ /rails/) == 0
       sleep 5
 
       traces = get_all_traces
-      assert_equal 12, traces.count, "Trace count"
+      assert_equal 10, traces.count, "Trace count"
       valid_edges?(traces)
 
       assert_equal 'dj_delay',              traces[0]['Layer']
@@ -76,7 +76,7 @@ if (File.basename(ENV['BUNDLE_GEMFILE']) =~ /rails/) == 0
       sleep 5
 
       traces = get_all_traces
-      assert_equal 12, traces.count, "Trace count"
+      assert_equal 10, traces.count, "Trace count"
       valid_edges?(traces)
 
       assert_equal 'delayed_job-client',    traces[1]['Layer']
@@ -97,7 +97,7 @@ if (File.basename(ENV['BUNDLE_GEMFILE']) =~ /rails/) == 0
       sleep 5
 
       traces = get_all_traces
-      assert_equal 12, traces.count, "Trace count"
+      assert_equal 10, traces.count, "Trace count"
       valid_edges?(traces)
 
       assert_equal 'delayed_job-client',    traces[1]['Layer']

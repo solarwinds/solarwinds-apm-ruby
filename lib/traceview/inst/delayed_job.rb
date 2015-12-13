@@ -46,22 +46,10 @@ if defined?(::Delayed) && TraceView::Config[:delayed_jobworker][:enabled]
                 report_kvs[:Queue] = job.queue if job.queue
                 report_kvs['Backtrace'] = TV::API.backtrace if TV::Config[:delayed_jobclient][:collect_backtraces]
 
-                result = TraceView::API.trace('delayed_job-client', report_kvs) do
+                TraceView::API.trace('delayed_job-client', report_kvs) do
                   block.call(job)
                 end
-
-                result
               end
-            end
-
-            # perform
-            # We hook here to collect info on the worker running
-            # the job
-            lifecycle.before(:perform) do |job, worker, &block|
-              # Apparently, we can only retrieve the worker name from
-              # this hook (and not in invote_job)
-              TraceView::API.log_info(nil, :WorkerName => worker.name)
-              block.call(job, worker)
             end
 
             # invoke_job
@@ -78,7 +66,7 @@ if defined?(::Delayed) && TraceView::Config[:delayed_jobworker][:enabled]
               # DelayedJob Specific KVs
               report_kvs[:priority] = job.priority
               report_kvs[:attempts] = job.attempts
-              report_kvs[:locked_by] = job.locked_by
+              report_kvs[:WorkerName] = job.locked_by
 
               result = TraceView::API.start_trace('delayed_job-worker', nil, report_kvs) do
                 block.call(job)
