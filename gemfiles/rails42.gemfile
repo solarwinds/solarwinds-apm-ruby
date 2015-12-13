@@ -25,6 +25,8 @@ end
 
 if defined?(JRUBY_VERSION)
   gem 'sinatra', :require => false
+  gem 'activerecord-jdbc-adapter'
+  gem 'jdbc-postgresql'
 else
   gem 'sinatra'
   gem 'pg'
