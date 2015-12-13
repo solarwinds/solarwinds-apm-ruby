@@ -32,6 +32,7 @@ end
 TraceView.logger.info "[traceview/servers] Starting up background DelayedJob."
 
 Thread.new do
+  Delayed::Job.delete_all
   Delayed::Worker.new(@worker_options).start
 end
 
