@@ -16,6 +16,7 @@ ActiveRecord::Base.establish_connection(DJ_DB_URL)
 
 unless ActiveRecord::Base.connection.table_exists? :delayed_jobs
   TraceView.logger.info "[traceview/servers] Creating DelayedJob DB table."
+  require 'generators/delayed_job/templates/migration'
   ActiveRecord::Migration.run(CreateDelayedJobs)
 end
 
