@@ -20,11 +20,11 @@ Rake::TestTask.new do |t|
   when /rails/
     # Pre-load rails to get the major version number
     require 'rails'
-    t.test_files = FileList["test/frameworks/rails#{Rails::VERSION::MAJOR}x_test.rb"]
 
     # Since the most popular backend for Delayed Job is ActiveRecord, we test it
     # here along with the rails instrumentation.
-    t.test_files = FileList["test/instrumentation/delayed_job*_test.rb"]
+    t.test_files = FileList["test/instrumentation/delayed_job*_test.rb",
+                            "test/frameworks/rails#{Rails::VERSION::MAJOR}x_test.rb"]
   when /frameworks/
     t.test_files = FileList['test/frameworks/sinatra*_test.rb'] +
                    FileList['test/frameworks/padrino*_test.rb'] +
