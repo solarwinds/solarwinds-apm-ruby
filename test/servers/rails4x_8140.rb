@@ -26,7 +26,7 @@ end
 require "rails/all"
 require "action_controller/railtie" # require more if needed
 require 'rack/handler/puma'
-require_relative '../models/widget'
+require File.expand_path(File.dirname(__FILE__) + '/../models/widget')
 
 TraceView.logger.info "[traceview/info] Starting background utility rails app on localhost:8140."
 
