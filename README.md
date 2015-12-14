@@ -16,6 +16,8 @@ _Note: The repository name has been changed to ruby-traceview.  Please update yo
 
 # Installation
 
+_Before installing the gem below, make sure that you have the [base packages](http://docs.appneta.com/installation-overview#1-install-base-packages) installed on your host first._
+
 The traceview gem is [available on Rubygems](https://rubygems.org/gems/traceview) and can be installed with:
 
 ```bash
