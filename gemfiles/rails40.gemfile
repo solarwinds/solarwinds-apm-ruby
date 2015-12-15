@@ -25,11 +25,14 @@ end
 
 if defined?(JRUBY_VERSION)
   gem 'sinatra', :require => false
+  gem 'activerecord-jdbc-adapter'
+  gem 'jdbc-postgresql'
 else
   gem 'sinatra'
+  gem 'pg', '< 0.17'
 end
 
-gem "rails", "~>4.0"
+gem "rails", "~> 4.0.13"
 
 gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')
 # vim:syntax=ruby
