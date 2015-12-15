@@ -14,8 +14,6 @@ rvm:
 gemfile:
   - gemfiles/libraries.gemfile
   - gemfiles/frameworks.gemfile
-  - gemfiles/rails30.gemfile
-  - gemfiles/rails31.gemfile
   - gemfiles/rails32.gemfile
   - gemfiles/rails40.gemfile
   - gemfiles/rails41.gemfile
@@ -30,17 +28,9 @@ matrix:
       gemfile: gemfiles/rails41.gemfile
     - rvm: 1.8.7
       gemfile: gemfiles/rails42.gemfile
-    - rvm: ree
-      gemfile: gemfiles/rails40.gemfile
-    - rvm: ree
-      gemfile: gemfiles/rails41.gemfile
-    - rvm: ree
-      gemfile: gemfiles/rails42.gemfile
 
     # Other frameworks tested on Ruby 1.9.3 or higher
     - rvm: 1.8.7
-      gemfile: gemfiles/frameworks.gemfile
-    - rvm: ree
       gemfile: gemfiles/frameworks.gemfile
 
 # Attempt Travis/Cassandra fix re: https://github.com/travis-ci/travis-ci/issues/1484
