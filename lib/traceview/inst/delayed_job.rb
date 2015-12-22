@@ -60,7 +60,6 @@ if defined?(::Delayed) && TraceView::Config[:delayed_jobworker][:enabled]
               report_kvs[:JobName] = job.name
               report_kvs[:MsgID] = job.id
               report_kvs[:Queue] = job.queue if job.queue
-              #report_kvs[:WorkerName] = worker.name
               report_kvs['Backtrace'] = TV::API.backtrace if TV::Config[:delayed_jobworker][:collect_backtraces]
 
               # DelayedJob Specific KVs
