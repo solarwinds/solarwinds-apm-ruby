@@ -90,8 +90,8 @@ Delayed::Job.delete_all
 TraceView.logger.info "[traceview/servers] Starting up background DelayedJob."
 
 #Delayed::Worker.delay_jobs = false
-Delayed::Worker.max_attempts = 0
-Delayed::Worker.sleep_delay = 30
+Delayed::Worker.max_attempts = 1
+Delayed::Worker.sleep_delay = 10
 
 Thread.new do
   Delayed::Worker.new(@worker_options).start

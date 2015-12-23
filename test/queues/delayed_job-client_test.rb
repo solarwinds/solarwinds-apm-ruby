@@ -33,7 +33,7 @@ class DelayedJobClientTest < Minitest::Test
     sleep 15
 
     traces = get_all_traces
-    assert_equal 10, traces.count, "Trace count"
+    assert_equal 6, traces.count, "Trace count"
     valid_edges?(traces)
 
     assert_equal 'dj_delay',              traces[0]['Layer']
@@ -43,14 +43,10 @@ class DelayedJobClientTest < Minitest::Test
     assert_equal 'pushq',                 traces[1]['Spec']
     assert_equal 'DelayedJob',            traces[1]['Flavor']
     assert_equal 'Widget#do_work',        traces[1]['JobName']
-    assert_equal 'activerecord',          traces[2]['Layer']
-    assert_equal 'entry',                 traces[2]['Label']
-    assert_equal 'activerecord',          traces[3]['Layer']
+    assert_equal 'delayed_job-client',    traces[2]['Layer']
+    assert_equal 'exit',                  traces[2]['Label']
+    assert_equal 'dj_delay',              traces[3]['Layer']
     assert_equal 'exit',                  traces[3]['Label']
-    assert_equal 'delayed_job-client',    traces[4]['Layer']
-    assert_equal 'exit',                  traces[4]['Label']
-    assert_equal 'dj_delay',              traces[5]['Layer']
-    assert_equal 'exit',                  traces[5]['Label']
 
   end
 
@@ -72,10 +68,7 @@ class DelayedJobClientTest < Minitest::Test
       w.delay.do_work(1, 2, 3)
     end
 
-    sleep 5
-
     traces = get_all_traces
-    assert_equal 10, traces.count, "Trace count"
     valid_edges?(traces)
 
     assert_equal 'delayed_job-client',    traces[1]['Layer']
@@ -93,10 +86,7 @@ class DelayedJobClientTest < Minitest::Test
       w.delay.do_work(1, 2, 3)
     end
 
-    sleep 5
-
     traces = get_all_traces
-    assert_equal 10, traces.count, "Trace count"
     valid_edges?(traces)
 
     assert_equal 'delayed_job-client',    traces[1]['Layer']
