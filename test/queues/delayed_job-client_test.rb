@@ -33,7 +33,6 @@ class DelayedJobClientTest < Minitest::Test
     sleep 15
 
     traces = get_all_traces
-    assert_equal 6, traces.count, "Trace count"
     valid_edges?(traces)
 
     assert_equal 'dj_delay',              traces[0]['Layer']
