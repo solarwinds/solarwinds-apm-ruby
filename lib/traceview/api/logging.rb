@@ -58,6 +58,11 @@ module TraceView
       def log_exception(layer, exn, kvs = {})
         return if !TraceView.loaded || exn.instance_variable_get(:@oboe_logged)
 
+        if !exn
+          TV.logger.debug "[traceview/debug] log_exception called with nil exception"
+          return
+        end
+
         kvs.merge!(:ErrorClass => exn.class.name,
                    :ErrorMsg => exn.message,
                    :Backtrace => exn.backtrace.join("\r\n"))

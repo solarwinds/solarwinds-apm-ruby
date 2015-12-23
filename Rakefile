@@ -17,18 +17,13 @@ Rake::TestTask.new do |t|
   # and load the appropriate tests.
   #
   case File.basename(ENV['BUNDLE_GEMFILE'])
+  when /delayed_job/
+    require 'delayed/tasks'
+    t.test_files = FileList["test/queues/delayed_job*_test.rb"]
   when /rails/
     # Pre-load rails to get the major version number
     require 'rails'
-
-    # Since the most popular backend for Delayed Job is ActiveRecord, we test it
-    # here along with the rails instrumentation.
-    if Rails.version < "4.2" || defined?(JRUBY_VERSION)
-      t.test_files = FileList["test/frameworks/rails#{Rails::VERSION::MAJOR}x_test.rb"]
-    else
-      t.test_files = FileList["test/instrumentation/delayed_job*_test.rb",
-                              "test/frameworks/rails#{Rails::VERSION::MAJOR}x_test.rb"]
-    end
+    t.test_files = FileList["test/frameworks/rails#{Rails::VERSION::MAJOR}x_test.rb"]
   when /frameworks/
     t.test_files = FileList['test/frameworks/sinatra*_test.rb'] +
                    FileList['test/frameworks/padrino*_test.rb'] +

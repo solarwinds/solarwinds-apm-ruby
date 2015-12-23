@@ -53,29 +53,29 @@ if defined?(::Delayed) && TraceView::Config[:delayed_jobworker][:enabled]
             end
 
             # invoke_job
-            lifecycle.around(:invoke_job) do |job, &block|
-              report_kvs = {}
-              report_kvs[:Spec] = :job
-              report_kvs[:Flavor] = :DelayedJob
-              report_kvs[:JobName] = job.name
-              report_kvs[:MsgID] = job.id
-              report_kvs[:Queue] = job.queue if job.queue
-              report_kvs['Backtrace'] = TV::API.backtrace if TV::Config[:delayed_jobworker][:collect_backtraces]
+            lifecycle.around(:perform) do |worker, job, &block|
+              begin
+                report_kvs = {}
+                report_kvs[:Spec] = :job
+                report_kvs[:Flavor] = :DelayedJob
+                report_kvs[:JobName] = job.name
+                report_kvs[:MsgID] = job.id
+                report_kvs[:Queue] = job.queue if job.queue
+                report_kvs['Backtrace'] = TV::API.backtrace if TV::Config[:delayed_jobworker][:collect_backtraces]
 
-              # DelayedJob Specific KVs
-              report_kvs[:priority] = job.priority
-              report_kvs[:attempts] = job.attempts
-              report_kvs[:WorkerName] = job.locked_by
+                # DelayedJob Specific KVs
+                report_kvs[:priority] = job.priority
+                report_kvs[:attempts] = job.attempts
+                report_kvs[:WorkerName] = job.locked_by
+              rescue => e
+                TV.logger.warn "[traceview/warning] inst/delayed_job.rb: #{e.message}"
+              end
 
               result = TraceView::API.start_trace('delayed_job-worker', nil, report_kvs) do
-                block.call(job)
+                block.call(worker, job)
+                TV::API.log_exception(nil, job.error) if job.error
               end
               result[0]
-            end
-
-            lifecycle.around(:error) do |worker, job, &block|
-              TV::API.log_exception(nil, job.error)
-              block.call(worker, job)
             end
           end
         end

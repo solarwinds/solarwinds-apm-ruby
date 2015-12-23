@@ -55,14 +55,15 @@ require './test/servers/rackapp_8101'
 # depending on what we're testing
 #
 case File.basename(ENV['BUNDLE_GEMFILE'])
+when /delayed_job/
+  require './test/servers/delayed_job'
+
 when /rails4/
   require './test/servers/rails4x_8140'
 
-  if Rails.version >= '4.2' && !defined?(JRUBY_VERSION)
-    require './test/servers/delayed_job'
-  end
 when /rails3/
   require './test/servers/rails3x_8140'
+
 when /frameworks/
 when /libraries/
   if RUBY_VERSION >= '2.0'
