@@ -132,6 +132,20 @@ module TraceViewBase
   end
 
   ##
+  # entry_layer?
+  #
+  # Determines if the passed layer is an entry only
+  # layer where we would want to use smart tracing.
+  #
+  # Entry only layers are layers that _only_ start traces
+  # and doesn't directly receive incoming context such as
+  # DelayedJob or Sidekiq workers.
+  #
+  def entry_layer?(layer)
+    ['delayed_job-worker'].include?(layer)
+  end
+
+  ##
   # Returns true if the tracing_mode is set to always.
   # False otherwise
   #
