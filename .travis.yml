@@ -37,10 +37,6 @@ matrix:
 
   allowed_failures:
     - rvm: jruby-9.0.0.0
-      gemfile: gemfiles/rails32.gemfile
-
-    - rvm: jruby-9.0.0.0
-      gemfile: gemfiles/rails42.gemfile
 
 
 # Attempt Travis/Cassandra fix re: https://github.com/travis-ci/travis-ci/issues/1484
