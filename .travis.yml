@@ -22,12 +22,12 @@ matrix:
   exclude:
     # Rails 4.0+ requires Ruby 1.9.3 or higher
     - rvm: 1.8.7
-      gemfile: gemfiles/rails40.gemfile
-      gemfile: gemfiles/rails41.gemfile
       gemfile: gemfiles/rails42.gemfile
+
+    # Don't test DelayedJob under MRI 1.8 and JRuby
+    - rvm: 1.8.7
       gemfile: gemfiles/delayed_job.gemfile
 
-    # Don't test DelayedJob under JRuby
     - rvm: jruby-9.0.0.0
       gemfile: gemfiles/delayed_job.gemfile
 
