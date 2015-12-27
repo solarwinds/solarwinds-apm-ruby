@@ -283,7 +283,7 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
       assert_equal 'entry',                   traces[1]['Label']
       assert_equal 1,                         traces[1]['IsService']
       assert_equal 'GET',                     traces[1]['HTTPMethod'], "HTTP Method"
-      assert_equal "http://127.0.0.1:8101/?curb_cross_host=1&",  traces[1]['RemoteURL']
+      assert_equal "http://127.0.0.1:8101/?curb_cross_host=1",  traces[1]['RemoteURL']
       assert       traces[1].key?('Backtrace')
 
       assert_equal 'curb',                    traces[5]['Layer']
@@ -466,7 +466,7 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
       assert_equal 7, traces.count, "Trace count"
-      assert_equal "http://127.0.0.1:8101/?blah=1&", traces[1]['RemoteURL']
+      assert_equal "http://127.0.0.1:8101/?blah=1", traces[1]['RemoteURL']
     end
 
     def test_without_tracing_class_get

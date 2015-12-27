@@ -1,36 +1,28 @@
-# Taken from: https://www.amberbit.com/blog/2014/2/14/putting-ruby-on-rails-on-a-diet/
-# Port of https://gist.github.com/josevalim/1942658 to Rails 4
-# Original author: Jose Valim
-# Updated by: Peter Giacomo Lombardo
-#
-# Run this file with:
-#
-#   bundle exec RAILS_ENV=production rackup -p 3000 -s thin
-#
-# And access:
-#
-#   http://localhost:3000/hello/world
-#
-# The following lines should come as no surprise. Except by
-# ActionController::Metal, it follows the same structure of
-# config/application.rb, config/environment.rb and config.ru
-# existing in any Rails 4 app. Here they are simply in one
-# file and without the comments.
-#
-if ENV.key?('TRAVIS_PSQL_PASS')
-  ENV['DATABASE_URL'] = "postgresql://postgres:#{ENV['TRAVIS_PSQL_PASS']}@127.0.0.1:5432/travis_ci_test"
-else
-  ENV['DATABASE_URL'] = 'postgresql://postgres@127.0.0.1:5432/travis_ci_test'
-end
+# Copyright (c) 2015 AppNeta, Inc.
+# All rights reserved.
 
 require "rails/all"
+require "delayed_job"
 require "action_controller/railtie" # require more if needed
 require 'rack/handler/puma'
 require File.expand_path(File.dirname(__FILE__) + '/../models/widget')
 
+TraceView.logger.level = Logger::DEBUG
 TraceView.logger.info "[traceview/info] Starting background utility rails app on localhost:8140."
 
-ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
+if ENV.key?('TRAVIS_PSQL_PASS')
+  DJ_DB_URL = "postgres://postgres:#{ENV['TRAVIS_PSQL_PASS']}@127.0.0.1:5432/travis_ci_test"
+else
+  DJ_DB_URL = 'postgres://postgres@127.0.0.1:5432/travis_ci_test'
+end
+
+ActiveRecord::Base.establish_connection(DJ_DB_URL)
+
+unless ActiveRecord::Base.connection.table_exists? :delayed_jobs
+  TraceView.logger.info "[traceview/servers] Creating DelayedJob DB table."
+  require 'generators/delayed_job/templates/migration'
+  ActiveRecord::Migration.run(CreateDelayedJobs)
+end
 
 unless ActiveRecord::Base.connection.table_exists? 'widgets'
   ActiveRecord::Migration.run(CreateWidgets)
@@ -83,12 +75,28 @@ class FerroController < ActionController::Metal
   end
 end
 
-TraceView::API.profile_method(FerroController, :world)
+Delayed::Job.delete_all
 
-Rails40MetalStack.initialize!
+@worker_options = {
+  :min_priority => ENV['MIN_PRIORITY'],
+  :max_priority => ENV['MAX_PRIORITY'],
+  :queues => (ENV['QUEUES'] || ENV['QUEUE'] || '').split(','),
+  :quiet => ENV['QUIET']
+}
+
+@worker_options[:sleep_delay] = ENV['SLEEP_DELAY'].to_i if ENV['SLEEP_DELAY']
+@worker_options[:read_ahead] = ENV['READ_AHEAD'].to_i if ENV['READ_AHEAD']
+
+TraceView.logger.info "[traceview/servers] Starting up background DelayedJob."
+
+#Delayed::Worker.delay_jobs = false
+Delayed::Worker.max_attempts = 1
+Delayed::Worker.sleep_delay = 10
 
 Thread.new do
-  Rack::Handler::Puma.run(Rails40MetalStack.to_app, {:Host => '127.0.0.1', :Port => 8140})
+  Delayed::Worker.new(@worker_options).start
 end
 
-sleep(2)
+# Allow it to boot
+TraceView.logger.info "[traceview/servers] Waiting 5 seconds for DJ to boot..."
+sleep 5

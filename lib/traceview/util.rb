@@ -218,6 +218,13 @@ module TraceView
           platform_info['Ruby.Sidekiq.Version']    = "Sidekiq-#{::Sidekiq::VERSION}"       if defined?(::Sidekiq::VERSION)
           platform_info['Ruby.Typhoeus.Version']   = "Typhoeus-#{::Typhoeus::VERSION}"     if defined?(::Typhoeus::VERSION)
 
+          if Gem.loaded_specs.key?('delayed_job')
+            # Oddly, DelayedJob doesn't have an embedded version number so we get it from the loaded
+            # gem specs.
+            version = Gem.loaded_specs['delayed_job'].version.to_s
+            platform_info['Ruby.DelayedJob.Version']       = "DelayedJob-#{version}"
+          end
+
           # Special case since the Mongo 1.x driver doesn't embed the version number in the gem directly
           if ::Gem.loaded_specs.key?('mongo')
             platform_info['Ruby.Mongo.Version']     = "Mongo-#{::Gem.loaded_specs['mongo'].version}"

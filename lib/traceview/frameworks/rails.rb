@@ -115,7 +115,7 @@ if defined?(::Rails)
         end
 
         config.after_initialize do
-          TraceView.logger = ::Rails.logger if ::Rails.logger
+          TraceView.logger = ::Rails.logger if ::Rails.logger && !ENV.key?('TRACEVIEW_GEM_TEST')
 
           TraceView::Loading.load_access_key
           TraceView::Inst.load_instrumentation

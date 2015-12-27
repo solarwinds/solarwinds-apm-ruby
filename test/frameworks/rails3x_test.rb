@@ -18,7 +18,12 @@ if defined?(::Rails)
       traces = get_all_traces
 
       traces.count.must_equal 8
-      valid_edges?(traces).must_equal true
+      unless defined?(JRUBY_VERSION)
+        # We don't test this under JRuby because the Java instrumentation
+        # for the DB drivers doesn't use our test reporter hence we won't
+        # see all trace events. :-(  To be improved.
+        valid_edges?(traces).must_equal true
+      end
       validate_outer_layers(traces, 'rack')
 
       traces[0]['Layer'].must_equal "rack"
@@ -60,7 +65,12 @@ if defined?(::Rails)
       traces = get_all_traces
 
       traces.count.must_equal 5
-      valid_edges?(traces).must_equal true
+      unless defined?(JRUBY_VERSION)
+        # We don't test this under JRuby because the Java instrumentation
+        # for the DB drivers doesn't use our test reporter hence we won't
+        # see all trace events. :-(  To be improved.
+        valid_edges?(traces).must_equal true
+      end
       validate_outer_layers(traces, 'rack')
 
       traces[0]['Layer'].must_equal "rack"

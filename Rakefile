@@ -17,6 +17,9 @@ Rake::TestTask.new do |t|
   # and load the appropriate tests.
   #
   case File.basename(ENV['BUNDLE_GEMFILE'])
+  when /delayed_job/
+    require 'delayed/tasks'
+    t.test_files = FileList["test/queues/delayed_job*_test.rb"]
   when /rails/
     # Pre-load rails to get the major version number
     require 'rails'
@@ -114,22 +117,20 @@ end
 desc "Rebuild the gem's c extension"
 task :recompile => [ :distclean, :compile ]
 
-task :console do
+task :environment do
   require 'traceview/test'
   ENV['TRACEVIEW_GEM_VERBOSE'] = 'true'
   Bundler.require(:default, :development)
   TraceView::Config[:tracing_mode] = :always
   TV::Test.load_extras
+end
+
+task :console => :environment do
   ARGV.clear
   Pry.start
 end
 
 # Used when testing Resque locally
-task "resque:setup" do
+task "resque:setup" => :environment do
   require 'resque/tasks'
-  require 'traceview/test'
-  ENV['TRACEVIEW_GEM_VERBOSE'] = 'true'
-  Bundler.require(:default, :development)
-  TraceView::Config[:tracing_mode] = :always
-  TV::Test.load_extras
 end
