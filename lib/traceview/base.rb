@@ -142,7 +142,7 @@ module TraceViewBase
   # DelayedJob or Sidekiq workers.
   #
   def entry_layer?(layer)
-    ['delayed_job-worker'].include?(layer)
+    %w(delayed_job-worker).include?(layer.to_s)
   end
 
   ##
@@ -174,7 +174,7 @@ module TraceViewBase
   # False otherwise
   #
   def through?
-    TraceView::Config[:tracing_mode] == 'through'
+    TraceView::Config[:tracing_mode].to_s == 'through'
   end
 
   ##
