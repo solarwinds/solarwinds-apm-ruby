@@ -85,7 +85,7 @@ if defined?(::Sinatra)
 
   # When in the gem TEST environment, we load this instrumentation regardless.
   # Otherwise, only when Padrino isn't around.
-  unless defined?(::Padrino) and not (ENV.key?('TRACEVIEW_GEM_TEST'))
+  unless defined?(::Padrino) && !ENV.key?('TRACEVIEW_GEM_TEST')
     # Padrino has 'enhanced' routes and rendering so the Sinatra
     # instrumentation won't work anyways.  Only load for pure Sinatra apps.
     ::TraceView::Util.send_include(::Sinatra::Base,      ::TraceView::Sinatra::Base)

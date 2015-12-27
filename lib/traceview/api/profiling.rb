@@ -69,13 +69,12 @@ module TraceView
       #   TraceView::API.profile_method(Array, :sort, opts)
       #
       def profile_method(klass, method, opts = {}, extra_kvs = {})
-
         # If we're on an unsupported platform (ahem Mac), just act
         # like we did something to nicely play the no-op part.
         return true unless TraceView.loaded
 
         if RUBY_VERSION < '1.9.3'
-          TraceView.logger.warn "[traceview/error] profile_method: Use the legacy method profiling for Ruby versions before 1.9.3"
+          TraceView.logger.warn '[traceview/error] profile_method: Use the legacy method profiling for Ruby versions before 1.9.3'
           return false
 
         elsif !klass.is_a?(Module)
@@ -110,7 +109,7 @@ module TraceView
 
         # Check if already profiled
         if klass.instance_methods.include?(with_traceview.to_sym) ||
-          klass.singleton_methods.include?(with_traceview.to_sym)
+           klass.singleton_methods.include?(with_traceview.to_sym)
           TraceView.logger.warn "[traceview/error] profile_method: #{klass}::#{method} already profiled."
           TraceView.logger.warn "[traceview/error] profile_method: #{__FILE__}:#{__LINE__}"
           return false
@@ -130,17 +129,17 @@ module TraceView
 
         if instance_method
           klass.class_eval do
-            define_method(with_traceview) { | *args, &block |
+            define_method(with_traceview) do |*args, &block|
               profile_wrapper(without_traceview, report_kvs, opts, *args, &block)
-            }
+            end
 
             alias_method without_traceview, "#{method}"
             alias_method "#{method}", with_traceview
           end
         elsif class_method
-          klass.define_singleton_method(with_traceview) { | *args, &block |
+          klass.define_singleton_method(with_traceview) do |*args, &block|
             profile_wrapper(without_traceview, report_kvs, opts, *args, &block)
-          }
+          end
 
           klass.singleton_class.class_eval do
             alias_method without_traceview, "#{method}"
