@@ -1,3 +1,6 @@
+# Copyright (c) 2014 AppNeta, Inc.
+# All rights reserved.
+
 module TraceView
   module Inst
     module FaradayConnection
@@ -9,7 +12,7 @@ module TraceView
         # Only send service KVs if we're not using the Net::HTTP adapter
         # Otherwise, the Net::HTTP instrumentation will send the service KVs
         handle_service = !@builder.handlers.include?(Faraday::Adapter::NetHttp) &&
-                          !@builder.handlers.include?(Faraday::Adapter::Excon)
+                         !@builder.handlers.include?(Faraday::Adapter::Excon)
         TraceView::API.log_entry('faraday')
 
         result = run_request_without_traceview(method, url, body, headers, &block)

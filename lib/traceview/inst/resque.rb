@@ -32,11 +32,10 @@ module TraceView
               report_kvs[:Args] = kv_args
             end
           end
-
           report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:resqueclient][:collect_backtraces]
           report_kvs[:Queue] = klass.instance_variable_get(:@queue)
         rescue => e
-          TraceView.logger.debug "[traceview/resque] Error collecting resqueclient KVs: #{e.message}"
+          TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
         end
 
         report_kvs
@@ -114,7 +113,8 @@ module TraceView
           end
 
           report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:resqueworker][:collect_backtraces]
-        rescue
+        rescue => e
+          TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
         end
 
         TraceView::API.start_trace('resque-worker', nil, report_kvs) do

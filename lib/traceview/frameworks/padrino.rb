@@ -22,7 +22,7 @@ module TraceView
             r = dispatch_without_traceview
 
             # Report Controller/Action as best possible
-            if request.controller and not request.controller.empty?
+            if request.controller && !request.controller.empty?
               report_kvs[:Controller] = request.controller
             else
               report_kvs[:Controller] = self.class
@@ -44,7 +44,7 @@ end
 if defined?(::Padrino)
   # This instrumentation is a superset of the Sinatra instrumentation similar
   # to how Padrino is a superset of Sinatra itself.
-  ::TraceView.logger.info "[traceview/loading] Instrumenting Padrino" if TraceView::Config[:verbose]
+  ::TraceView.logger.info '[traceview/loading] Instrumenting Padrino' if TraceView::Config[:verbose]
 
   require 'traceview/frameworks/padrino/templates'
 

@@ -88,9 +88,7 @@ module TraceView
 
             if KV_COLLECT_MAP[op]
               # Extract KVs from command for this op
-              KV_COLLECT_MAP[op].each { |k, v|
-                kvs[k] = command[v]
-              }
+              KV_COLLECT_MAP[op].each { |k, v| kvs[k] = command[v] }
             else
               # This case statement handle special cases not handled
               # by KV_COLLECT_MAP
@@ -107,10 +105,10 @@ module TraceView
                     options = command[3..-1]
                     until (opts = options.shift(2)).empty?
                       case opts[0]
-                      when "EX"; kvs[:ex] = opts[1]
-                      when "PX"; kvs[:px] = opts[1]
-                      when "NX"; kvs[:nx] = opts[1]
-                      when "XX"; kvs[:xx] = opts[1]
+                      when 'EX' then; kvs[:ex] = opts[1]
+                      when 'PX' then; kvs[:px] = opts[1]
+                      when 'NX' then; kvs[:nx] = opts[1]
+                      when 'XX' then; kvs[:xx] = opts[1]
                       end
                     end
                   end

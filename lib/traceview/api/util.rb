@@ -106,7 +106,7 @@ module TraceView
             # Class
             kv['Class'] = klass.to_s
 
-          elsif (!klass.is_a?(Class) && !klass.is_a?(Module))
+          elsif !klass.is_a?(Class) && !klass.is_a?(Module)
             # Class instance
             kv['Class'] = klass.class.to_s
 
