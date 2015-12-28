@@ -58,7 +58,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
               report_kvs = extract_trace_details(:map_reduce)
               report_kvs[:Map_Function] = command[:map]
               report_kvs[:Reduce_Function] = command[:reduce]
-            rescue StandardError => e
+            rescue => e
               TraceView.logger.debug "[traceview/debug] Moped KV collection error: #{e.inspect}"
             end
 
@@ -117,7 +117,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
         end
 
         def create_with_traceview(key, options = {})
-          return create_without_traceview(key, options = {}) unless TraceView.tracing?
+          return create_without_traceview(key, options) unless TraceView.tracing?
 
           begin
             # We report :create_index here to be consistent
@@ -135,7 +135,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
         end
 
         def drop_with_traceview(key = nil)
-          return drop_without_traceview(key = nil) unless TraceView.tracing?
+          return drop_without_traceview(key) unless TraceView.tracing?
 
           begin
             # We report :drop_indexes here to be consistent
@@ -451,7 +451,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
         end
 
         def aggregate_with_traceview(*pipeline)
-          return aggregate_without_traceview(pipeline) unless TraceView.tracing?
+          return aggregate_without_traceview(*pipeline) unless TraceView.tracing?
 
           report_kvs = extract_trace_details(:aggregate)
           report_kvs[:Query] = pipeline
