@@ -50,7 +50,7 @@ module TraceView
       end
 
       def get_multi_with_traceview(*keys)
-        return get_multi_without_traceview(keys) unless TraceView.tracing?
+        return get_multi_without_traceview(*keys) unless TraceView.tracing?
 
         info_kvs = {}
 
@@ -65,7 +65,7 @@ module TraceView
         end
 
         TraceView::API.trace('memcache', { :KVOp => :get_multi }, :get_multi) do
-          values = get_multi_without_traceview(keys)
+          values = get_multi_without_traceview(*keys)
 
           info_kvs[:KVHitCount] = values.length
           info_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:dalli][:collect_backtraces]
