@@ -33,7 +33,7 @@ else
 end
 
 gem "grape"
-gem "padrino", '< 0.13'
+gem "padrino"
 
 gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')
 # vim:syntax=ruby
