@@ -32,7 +32,7 @@ else
   gem 'sinatra'
 end
 
-gem "grape", "< 0.14"
+gem "grape"
 gem "padrino", '< 0.13'
 
 gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')
