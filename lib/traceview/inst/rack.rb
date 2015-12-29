@@ -27,8 +27,6 @@ module TraceView
           report_kvs['Query-String']     = ::CGI.unescape(req.query_string) unless req.query_string.empty?
         end
 
-        report_kvs['X-TV-Meta']         = env['HTTP_X_TV_META']          if env.key?('HTTP_X_TV_META')
-
         # Report any request queue'ing headers.  Report as 'Request-Start' or the summed Queue-Time
         report_kvs['Request-Start']     = env['HTTP_X_REQUEST_START']    if env.key?('HTTP_X_REQUEST_START')
         report_kvs['Request-Start']     = env['HTTP_X_QUEUE_START']      if env.key?('HTTP_X_QUEUE_START')
@@ -72,6 +70,9 @@ module TraceView
       else
         report_kvs[:URL] = ::CGI.unescape(req.path)
       end
+
+      # Detect and log AVW headers for sampling analysis
+      report_kvs['X-TV-Meta'] = env['HTTP_X_TV_META'] if env.key?('HTTP_X_TV_META')
 
       # Check for and validate X-Trace request header to pick up tracing context
       xtrace = env.is_a?(Hash) ? env['HTTP_X_TRACE'] : nil
