@@ -3,6 +3,7 @@
 require 'rubygems'
 require 'bundler/setup'
 require 'rake/testtask'
+require 'traceview/test'
 
 Rake::TestTask.new do |t|
   t.verbose = true
@@ -16,7 +17,7 @@ Rake::TestTask.new do |t|
   # Here we detect the Gemfile the tests are being run against
   # and load the appropriate tests.
   #
-  case TV::Test.gemfile
+  case TraceView::Test.gemfile
   when /delayed_job/
     require 'delayed/tasks'
     t.test_files = FileList["test/queues/delayed_job*_test.rb"]
@@ -118,8 +119,6 @@ desc "Rebuild the gem's c extension"
 task :recompile => [ :distclean, :compile ]
 
 task :environment do
-  require 'traceview/test'
-
   ENV['TRACEVIEW_GEM_VERBOSE'] = 'true'
 
   Bundler.require(:default, :development)
