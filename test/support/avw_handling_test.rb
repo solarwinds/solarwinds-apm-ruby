@@ -39,7 +39,7 @@ class AutoTraceTest  < Minitest::Test
     traces = get_all_traces
 
     traces.count.must_equal 3
-    traces[0][:TraceOrigin].must_equal "avw_sampled"
+    traces[0]['TraceOrigin'].must_equal "avw_sampled"
     validate_outer_layers(traces, 'rack')
   end
 
@@ -52,7 +52,7 @@ class AutoTraceTest  < Minitest::Test
     traces = get_all_traces
 
     traces.count.must_equal 3
-    traces[0][:TraceOrigin].must_equal "always_sampled"
+    traces[0]['TraceOrigin'].must_equal "always_sampled"
     validate_outer_layers(traces, 'rack')
   end
 
