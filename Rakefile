@@ -16,7 +16,7 @@ Rake::TestTask.new do |t|
   # Here we detect the Gemfile the tests are being run against
   # and load the appropriate tests.
   #
-  case File.basename(ENV['BUNDLE_GEMFILE'])
+  case TV::Test.gemfile
   when /delayed_job/
     require 'delayed/tasks'
     t.test_files = FileList["test/queues/delayed_job*_test.rb"]
@@ -119,14 +119,23 @@ task :recompile => [ :distclean, :compile ]
 
 task :environment do
   require 'traceview/test'
+
   ENV['TRACEVIEW_GEM_VERBOSE'] = 'true'
+
   Bundler.require(:default, :development)
   TraceView::Config[:tracing_mode] = :always
   TV::Test.load_extras
+
+  if TV::Test.gemfile?(:delayed_job)
+    require 'delayed/tasks'
+  end
 end
 
 task :console => :environment do
   ARGV.clear
+  if TV::Test.gemfile?(:delayed_job)
+    require './test/servers/delayed_job'
+  end
   Pry.start
 end
 
