@@ -98,7 +98,11 @@ module TraceView
   class << self
     def sample?(opts = {})
       begin
-        return false unless TraceView.always? && TraceView.loaded
+        # Return false if no-op mode
+        return false if !TraceView.loaded
+
+        # Return false if never or through mode without AVW flag
+        return false if TraceView.never? || (TraceView.through? && !opts.key?('X-TV-Meta'))
 
         # Assure defaults since SWIG enforces Strings
         layer   = opts[:layer]      ? opts[:layer].to_s.strip      : ''
