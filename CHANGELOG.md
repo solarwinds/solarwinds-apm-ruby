@@ -4,6 +4,19 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# traceview 3.4.0
+
+This minor release includes the following features & fixes:
+
+* New [DelayedJob](https://github.com/collectiveidea/delayed_job/) instrumentation: #151
+* Limit BSON gem dependency to < 4.0: #152
+* Code refactoring & improvements: #148
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.4.0
+https://rubygems.org/gems/traceview/versions/3.4.0-java
+
 # traceview 3.3.3
 
 This patch release includes the following fixes:
