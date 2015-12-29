@@ -201,7 +201,7 @@ class Engine
 end
 ```
 
-This example demonstrates method profiling of instance methods.  Class methods are profiled slightly differently.  See the TraceView [documentation portal](https://docs.appneta.com/custom-ruby-instrumentation) for full details.
+This example demonstrates method profiling of instance methods.  Class methods are profiled slightly differently.  See the TraceView [documentation portal](https://docs.appneta.com/ruby#customizing-ruby-instrumentation) for full details.
 
 # Support
 
