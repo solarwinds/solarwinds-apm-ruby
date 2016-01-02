@@ -20,12 +20,17 @@ module TraceView
         ::TraceView::Util.method_alias(klass, :run, ::Grape::Endpoint)
       end
 
-      def run_with_traceview(env)
+      def run_with_traceview(*args)
         if TraceView.tracing?
           report_kvs = {}
 
           report_kvs[:Controller] = self.class
-          report_kvs[:Action] = env['PATH_INFO']
+
+          if args.empty?
+            report_kvs[:Action] = env['PATH_INFO']
+          else
+            report_kvs[:Action] = args[0]['PATH_INFO']
+          end
 
           # Fall back to the raw tracing API so we can pass KVs
           # back on exit (a limitation of the TraceView::API.trace
@@ -34,12 +39,12 @@ module TraceView
           ::TraceView::API.log_entry('grape', {})
 
           begin
-            run_without_traceview(env)
+            run_without_traceview(*args)
           ensure
             ::TraceView::API.log_exit('grape', report_kvs)
           end
         else
-          run_without_traceview(env)
+          run_without_traceview(*args)
         end
       end
     end

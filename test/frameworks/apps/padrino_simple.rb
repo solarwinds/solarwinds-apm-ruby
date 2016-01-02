@@ -9,7 +9,7 @@ PADRINO_ROOT = File.dirname(__FILE__) unless defined? PADRINO_ROOT
 
 class SimpleDemo < Padrino::Application
   set :public_folder, File.dirname(__FILE__)
-  set :reload, true
+  set :reload, false
   before { true }
   after  { true }
   error(404) { "404" }
