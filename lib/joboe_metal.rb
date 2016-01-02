@@ -145,9 +145,13 @@ module TraceView
   class << self
     def sample?(opts = {})
       begin
-        return false unless TraceView.always? && TraceView.loaded
+        # Return false if no-op mode
+        return false if !TraceView.loaded
 
-        return true if ENV.key?('TRACEVIEW_GEM_TEST')
+        # Return false if never or through mode without AVW flag
+        return false if TraceView.never? || (TraceView.through? && !opts.key?('X-TV-Meta'))
+
+        return true if ENV.key?('TRACEVIEW_GEM_TEST') && !opts.key?('X-TV-Meta')
 
         # Validation to make Joboe happy.  Assure that we have the KVs and that they
         # are not empty strings.
