@@ -33,7 +33,14 @@ else
 end
 
 gem "grape"
-gem "padrino"
+
+if defined?(JRUBY_VERSION)
+  # Limit padrino gem under JRuby as version 0.13.0 throws
+  # a bundler load error
+  gem "padrino", '< 0.13.0'
+else
+  gem 'padrino'
+end
 
 gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')
 # vim:syntax=ruby
