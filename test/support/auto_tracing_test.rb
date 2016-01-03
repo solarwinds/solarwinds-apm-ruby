@@ -14,6 +14,7 @@ class AutoTraceTest  < Minitest::Test
 
   def test_entry_layers
     TraceView.entry_layer?('delayed_job-worker').must_equal true
+    TraceView.entry_layer?('sidekiq-worker').must_equal true
     TraceView.entry_layer?('asdf-worker').must_equal false
   end
 
@@ -22,10 +23,18 @@ class AutoTraceTest  < Minitest::Test
     TraceView.entry_layer?(:asdfworker).must_equal false
   end
 
-  def test_trace_when_default_tm
+  def test_trace_when_default_tm_dj
     TraceView::Config[:tracing_mode] = :through
 
     TV::API.start_trace('delayed_job-worker') do
+      TraceView.tracing?.must_equal true
+    end
+  end
+
+  def test_trace_when_default_tm_sidekiq
+    TraceView::Config[:tracing_mode] = :through
+
+    TV::API.start_trace('sidekiq-worker') do
       TraceView.tracing?.must_equal true
     end
   end
@@ -34,6 +43,10 @@ class AutoTraceTest  < Minitest::Test
     TraceView::Config[:tracing_mode] = :never
 
     TV::API.start_trace('delayed_job-worker') do
+      TraceView.tracing?.must_equal false
+    end
+
+    TV::API.start_trace('asdf') do
       TraceView.tracing?.must_equal false
     end
   end
