@@ -40,6 +40,7 @@ class Rails40MetalStack < Rails::Application
   routes.append do
     get "/hello/world" => "hello#world"
     get "/hello/metal" => "ferro#world"
+    get "/hello/db"    => "hello#db"
   end
 
   # Enable cache classes. Production style.
@@ -72,6 +73,13 @@ end
 class HelloController < ActionController::Base
   def world
     render :text => "Hello world!"
+  end
+
+  def db
+    Widget.all.first
+    w = Widget.new(:name => 'blah', :description => 'This is an amazing widget.')
+    w.save
+    render :text => "Hello database!"
   end
 end
 
