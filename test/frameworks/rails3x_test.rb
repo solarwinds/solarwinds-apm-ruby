@@ -99,6 +99,9 @@ if defined?(::Rails)
     end
 
     it "should trace rails db calls" do
+      # Skip for JRuby since the java instrumentation
+      # handles DB instrumentation for JRuby
+      skip if defined?(JRUBY_VERSION)
 
       uri = URI.parse('http://127.0.0.1:8140/hello/db')
       r = Net::HTTP.get_response(uri)
@@ -106,12 +109,7 @@ if defined?(::Rails)
       traces = get_all_traces
 
       traces.count.must_equal 12
-      unless defined?(JRUBY_VERSION)
-        # We don't test this under JRuby because the Java instrumentation
-        # for the DB drivers doesn't use our test reporter hence we won't
-        # see all trace events. :-(  To be improved.
-        valid_edges?(traces).must_equal true
-      end
+      valid_edges?(traces).must_equal true
       validate_outer_layers(traces, 'rack')
 
       traces[4]['Layer'].must_equal "activerecord"
