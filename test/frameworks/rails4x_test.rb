@@ -5,7 +5,7 @@ require "minitest_helper"
 
 if defined?(::Rails)
 
-  describe "Rails" do
+  describe "Rails4x" do
     before do
       clear_all_traces
     end
@@ -53,6 +53,46 @@ if defined?(::Rails)
       # Validate the existence of the response header
       r.header.key?('X-Trace').must_equal true
       r.header['X-Trace'].must_equal traces[6]['X-Trace']
+    end
+
+    it "should trace rails db calls" do
+      # Skip for JRuby since the java instrumentation
+      # handles DB instrumentation for JRuby
+      skip if defined?(JRUBY_VERSION)
+
+      uri = URI.parse('http://127.0.0.1:8140/hello/db')
+      r = Net::HTTP.get_response(uri)
+
+      traces = get_all_traces
+
+      traces.count.must_equal 11
+      valid_edges?(traces).must_equal true
+      validate_outer_layers(traces, 'rack')
+
+      traces[3]['Layer'].must_equal "activerecord"
+      traces[3]['Label'].must_equal "entry"
+      traces[3]['Flavor'].must_equal "postgresql"
+      traces[3]['Query'].must_equal "SELECT  \"widgets\".* FROM \"widgets\"  ORDER BY \"widgets\".\"id\" ASC LIMIT 1"
+      traces[3]['Name'].must_equal "Widget Load"
+      traces[3].key?('Backtrace').must_equal true
+
+      traces[4]['Layer'].must_equal "activerecord"
+      traces[4]['Label'].must_equal "exit"
+
+      traces[5]['Layer'].must_equal "activerecord"
+      traces[5]['Label'].must_equal "entry"
+      traces[5]['Flavor'].must_equal "postgresql"
+      traces[5]['Query'].must_equal "INSERT INTO \"widgets\" (\"name\", \"description\", \"created_at\", \"updated_at\") VALUES ($1, $2, $3, $4) RETURNING \"id\""
+      traces[5]['Name'].must_equal "SQL"
+      traces[5].key?('Backtrace').must_equal true
+      traces[5].key?('QueryArgs').must_equal true
+
+      traces[6]['Layer'].must_equal "activerecord"
+      traces[6]['Label'].must_equal "exit"
+
+      # Validate the existence of the response header
+      r.header.key?('X-Trace').must_equal true
+      r.header['X-Trace'].must_equal traces[10]['X-Trace']
     end
 
     it "should trace a request to a rails metal stack" do

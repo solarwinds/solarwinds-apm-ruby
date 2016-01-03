@@ -25,12 +25,21 @@ module TraceView
             if ::Rails::VERSION::MAJOR == 2
               config = ::Rails.configuration.database_configuration[::Rails.env]
             else
-              config = ::Rails.application.config.database_configuration[::Rails.env]
+              config = ActiveRecord::Base.connection.instance_variable_get(:@config)
             end
 
-            opts[:Database]   = config['database'] if config && config.key?('database')
-            opts[:RemoteHost] = config['host']     if config && config.key?('host')
-            opts[:Flavor]     = config['adapter']  if config && config.key?('adapter')
+            if config
+              opts[:Database]   = config['database'] if config.key?('database')
+              opts[:RemoteHost] = config['host']     if config.key?('host')
+              adapter_name = config[:adapter]
+
+              case adapter_name
+              when /mysql/i
+                opts[:Flavor] = 'mysql'
+              when /postgres/i
+                opts[:Flavor] = 'postgresql'
+              end
+            end
           rescue StandardError => e
             TraceView.logger.debug "Exception raised capturing ActiveRecord KVs: #{e.inspect}"
             TraceView.logger.debug e.backtrace.join('\n')
