@@ -4,6 +4,20 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# traceview 3.4.1
+
+This patch release includes the following fixes:
+
+* Instrumentation updates to support Grape version 0.14: #153
+* Fix Rack layer AVW header handling and analysis: #154
+* Sidekiq workers are now auto instrumented: #155
+* Fix ActiveRecord reporting invalid SQL Flavor: #156
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.4.1
+https://rubygems.org/gems/traceview/versions/3.4.1-java
+
 # traceview 3.4.0
 
 This minor release includes the following features & fixes:
