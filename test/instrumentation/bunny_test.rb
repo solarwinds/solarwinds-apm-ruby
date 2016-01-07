@@ -46,7 +46,7 @@ class BunnyTest < Minitest::Test
     traces[2]['Label'].must_equal "exit"
     traces[2]['ExchangeAction'].must_equal "publish"
     traces[2]['RemoteHost'].must_equal ENV['TV_RABBITMQ_SERVER']
-    traces[2]['RemotePort'].must_equal ENV['TV_RABBITMQ_PORT']
+    traces[2]['RemotePort'].must_equal ENV['TV_RABBITMQ_PORT'].to_i
     traces[2]['VirtualHost'].must_equal ENV['TV_RABBITMQ_VHOST']
 
     @conn.close
@@ -76,7 +76,7 @@ class BunnyTest < Minitest::Test
     traces[2]['Label'].must_equal "exit"
     traces[2]['ExchangeAction'].must_equal "publish"
     traces[2]['RemoteHost'].must_equal ENV['TV_RABBITMQ_SERVER']
-    traces[2]['RemotePort'].must_equal ENV['TV_RABBITMQ_PORT']
+    traces[2]['RemotePort'].must_equal ENV['TV_RABBITMQ_PORT'].to_i
     traces[2]['VirtualHost'].must_equal ENV['TV_RABBITMQ_VHOST']
 
     traces[3]['Layer'].must_equal "rabbitmq"
@@ -85,7 +85,7 @@ class BunnyTest < Minitest::Test
     traces[4]['Label'].must_equal "exit"
     traces[4]['ExchangeAction'].must_equal "publish"
     traces[4]['RemoteHost'].must_equal ENV['TV_RABBITMQ_SERVER']
-    traces[4]['RemotePort'].must_equal ENV['TV_RABBITMQ_PORT']
+    traces[4]['RemotePort'].must_equal ENV['TV_RABBITMQ_PORT'].to_i
     traces[4]['VirtualHost'].must_equal ENV['TV_RABBITMQ_VHOST']
 
     @conn.close
@@ -115,7 +115,7 @@ class BunnyTest < Minitest::Test
     traces[2]['Label'].must_equal "exit"
     traces[2]['ExchangeAction'].must_equal "publish"
     traces[2]['RemoteHost'].must_equal ENV['TV_RABBITMQ_SERVER']
-    traces[2]['RemotePort'].must_equal ENV['TV_RABBITMQ_PORT']
+    traces[2]['RemotePort'].must_equal ENV['TV_RABBITMQ_PORT'].to_i
     traces[2]['VirtualHost'].must_equal ENV['TV_RABBITMQ_VHOST']
 
     traces[3]['Layer'].must_equal "rabbitmq"
@@ -124,7 +124,7 @@ class BunnyTest < Minitest::Test
     traces[4]['Label'].must_equal "exit"
     traces[4]['ExchangeAction'].must_equal "publish"
     traces[4]['RemoteHost'].must_equal ENV['TV_RABBITMQ_SERVER']
-    traces[4]['RemotePort'].must_equal ENV['TV_RABBITMQ_PORT']
+    traces[4]['RemotePort'].must_equal ENV['TV_RABBITMQ_PORT'].to_i
     traces[4]['VirtualHost'].must_equal ENV['TV_RABBITMQ_VHOST']
 
     @conn.close
@@ -191,7 +191,7 @@ class BunnyTest < Minitest::Test
     traces[2002]['Label'].must_equal "exit"
     traces[2002]['ExchangeAction'].must_equal "wait_for_confirms"
     traces[2002]['RemoteHost'].must_equal ENV['TV_RABBITMQ_SERVER']
-    traces[2002]['RemotePort'].must_equal ENV['TV_RABBITMQ_PORT']
+    traces[2002]['RemotePort'].must_equal ENV['TV_RABBITMQ_PORT'].to_i
     traces[2002]['VirtualHost'].must_equal ENV['TV_RABBITMQ_VHOST']
 
     @conn.close
