@@ -1,6 +1,13 @@
 # Copyright (c) 2013 AppNeta, Inc.
 # All rights reserved.
 
+# Make sure Set is loaded if possible.
+begin
+  require 'set'
+rescue LoadError
+  class Set; end
+end
+
 module TraceView
   module API
     ##
@@ -24,9 +31,9 @@ module TraceView
       #
       # Returns nothing.
       def log(layer, label, opts = {})
-        if TraceView.loaded
-          log_event(layer, label, TraceView::Context.createEvent, opts)
-        end
+        return unless TraceView.loaded
+
+        log_event(layer, label, TraceView::Context.createEvent, opts)
       end
 
       ##
@@ -50,6 +57,11 @@ module TraceView
       # Returns nothing.
       def log_exception(layer, exn, kvs = {})
         return if !TraceView.loaded || exn.instance_variable_get(:@oboe_logged)
+
+        unless exn
+          TV.logger.debug '[traceview/debug] log_exception called with nil exception'
+          return
+        end
 
         kvs.merge!(:ErrorClass => exn.class.name,
                    :ErrorMsg => exn.message,
@@ -77,6 +89,14 @@ module TraceView
         return if !TraceView.loaded || TraceView.never? ||
                   (opts.key?(:URL) && ::TraceView::Util.static_asset?(opts[:URL]))
 
+        # For entry only layers (DelayedJob workers, Sidekiq workers), auto-set the tracing mode
+        # Don't do this if tracing mode is already :always or :never
+        if TraceView.through? && TraceView.entry_layer?(layer)
+          TraceView.logger.debug "[traceview/debug] Detected #{layer}: auto-configuring tracing mode"
+          TraceView::Config[:tracing_mode] = :always
+        end
+
+        # Used by JRuby/Java webservers such as Tomcat
         TraceView::Context.fromString(xtrace) if TraceView.pickup_context?(xtrace)
 
         if TraceView.tracing?
@@ -105,7 +125,12 @@ module TraceView
           # sample rate and sample source
           opts[:SampleRate]        = TraceView.sample_rate
           opts[:SampleSource]      = TraceView.sample_source
-          opts[:TraceOrigin] = :always_sampled
+
+          if TraceView.through? && opts.key?('X-TV-Meta')
+            opts[:TraceOrigin]       = :avw_sampled
+          else
+            opts[:TraceOrigin]       = :always_sampled
+          end
 
           log_event(layer, 'entry', TraceView::Context.startTrace, opts)
         end
@@ -125,12 +150,12 @@ module TraceView
       #
       # Returns an xtrace metadata string
       def log_end(layer, opts = {})
-        if TraceView.loaded
-          log_event(layer, 'exit', TraceView::Context.createEvent, opts)
-          xtrace = TraceView::Context.toString
-          TraceView::Context.clear unless TraceView.has_incoming_context?
-          xtrace
-        end
+        return unless TraceView.loaded
+
+        log_event(layer, 'exit', TraceView::Context.createEvent, opts)
+        xtrace = TraceView::Context.toString
+        TraceView::Context.clear unless TraceView.has_incoming_context?
+        xtrace
       end
 
       ##
@@ -150,10 +175,10 @@ module TraceView
       #
       # Returns an xtrace metadata string
       def log_entry(layer, kvs = {}, op = nil)
-        if TraceView.loaded
-          TraceView.layer_op = op if op
-          log_event(layer, 'entry', TraceView::Context.createEvent, kvs)
-        end
+        return unless TraceView.loaded
+
+        TraceView.layer_op = op if op
+        log_event(layer, 'entry', TraceView::Context.createEvent, kvs)
       end
 
       ##
@@ -172,9 +197,9 @@ module TraceView
       #
       # Returns an xtrace metadata string
       def log_info(layer, kvs = {})
-        if TraceView.loaded
-          log_event(layer, 'info', TraceView::Context.createEvent, kvs)
-        end
+        return unless TraceView.loaded
+
+        log_event(layer, 'info', TraceView::Context.createEvent, kvs)
       end
 
       ##
@@ -194,10 +219,10 @@ module TraceView
       #
       # Returns an xtrace metadata string
       def log_exit(layer, kvs = {}, op = nil)
-        if TraceView.loaded
-          TraceView.layer_op = nil if op
-          log_event(layer, 'exit', TraceView::Context.createEvent, kvs)
-        end
+        return unless TraceView.loaded
+
+        TraceView.layer_op = nil if op
+        log_event(layer, 'exit', TraceView::Context.createEvent, kvs)
       end
 
       ##
@@ -220,36 +245,36 @@ module TraceView
       #   TraceView::API.log_event(:layer_name, 'exit',  exit_event, { :id => @user.id })
       #
       def log_event(layer, label, event, opts = {})
-        if TraceView.loaded
-          event.addInfo('Layer', layer.to_s) if layer
-          event.addInfo('Label', label.to_s)
+        return unless TraceView.loaded
 
-          TraceView.layer = layer if label == 'entry'
-          TraceView.layer = nil   if label == 'exit'
+        event.addInfo('Layer', layer.to_s) if layer
+        event.addInfo('Label', label.to_s)
 
-          opts.each do |k, v|
-            value = nil
+        TraceView.layer = layer if label == 'entry'
+        TraceView.layer = nil   if label == 'exit'
 
-            if valid_key? k
-              if [Integer, Float, Fixnum, NilClass, String].include?(v.class)
-                value = v
-              elsif v.class == Set
-                value = v.to_a.to_s
-              else
-                value = v.to_s if v.respond_to?(:to_s)
-              end
+        opts.each do |k, v|
+          value = nil
 
-              begin
-                event.addInfo(k.to_s, value)
-              rescue ArgumentError => e
-                TraceView.logger.debug "[TraceView/debug] Couldn't add event KV: #{k.to_s} => #{v.class}"
-                TraceView.logger.debug "[TraceView/debug] #{e.message}"
-              end
-            end
-          end if !opts.nil? && opts.any?
+          next unless valid_key? k
 
-          TraceView::Reporter.sendReport(event)
-        end
+          if [Integer, Float, Fixnum, NilClass, String].include?(v.class)
+            value = v
+          elsif v.class == Set
+            value = v.to_a.to_s
+          else
+            value = v.to_s if v.respond_to?(:to_s)
+          end
+
+          begin
+            event.addInfo(k.to_s, value)
+          rescue ArgumentError => e
+            TraceView.logger.debug "[TraceView/debug] Couldn't add event KV: #{k} => #{v.class}"
+            TraceView.logger.debug "[TraceView/debug] #{e.message}"
+          end
+        end if !opts.nil? && opts.any?
+
+        TraceView::Reporter.sendReport(event)
       end
     end
   end

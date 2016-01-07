@@ -30,14 +30,17 @@ describe "TraceView::Config" do
     instrumentation = TraceView::Config.instrumentation
 
     # Verify the number of individual instrumentations
-    instrumentation.count.must_equal 22
+    instrumentation.count.must_equal 28
 
     TraceView::Config[:action_controller][:enabled].must_equal true
     TraceView::Config[:action_view][:enabled].must_equal true
     TraceView::Config[:active_record][:enabled].must_equal true
     TraceView::Config[:bunny][:enabled].must_equal true
     TraceView::Config[:cassandra][:enabled].must_equal true
+    TraceView::Config[:curb][:enabled].must_equal true
     TraceView::Config[:dalli][:enabled].must_equal true
+    TraceView::Config[:delayed_jobclient][:enabled].must_equal true
+    TraceView::Config[:delayed_jobworker][:enabled].must_equal true
     TraceView::Config[:em_http_request][:enabled].must_equal false
     TraceView::Config[:excon][:enabled].must_equal true
     TraceView::Config[:faraday][:enabled].must_equal true
@@ -50,9 +53,12 @@ describe "TraceView::Config" do
     TraceView::Config[:moped][:enabled].must_equal true
     TraceView::Config[:rack][:enabled].must_equal true
     TraceView::Config[:redis][:enabled].must_equal true
-    TraceView::Config[:resque][:enabled].must_equal true
+    TraceView::Config[:resqueclient][:enabled].must_equal true
+    TraceView::Config[:resqueworker][:enabled].must_equal true
     TraceView::Config[:rest_client][:enabled].must_equal true
     TraceView::Config[:sequel][:enabled].must_equal true
+    TraceView::Config[:sidekiqclient][:enabled].must_equal true
+    TraceView::Config[:sidekiqworker][:enabled].must_equal true
     TraceView::Config[:typhoeus][:enabled].must_equal true
 
     TraceView::Config[:action_controller][:log_args].must_equal true
@@ -60,7 +66,10 @@ describe "TraceView::Config" do
     TraceView::Config[:active_record][:log_args].must_equal true
     TraceView::Config[:bunny][:log_args].must_equal true
     TraceView::Config[:cassandra][:log_args].must_equal true
+    TraceView::Config[:curb][:log_args].must_equal true
     TraceView::Config[:dalli][:log_args].must_equal true
+    TraceView::Config[:delayed_jobclient][:log_args].must_equal true
+    TraceView::Config[:delayed_jobworker][:log_args].must_equal true
     TraceView::Config[:em_http_request][:log_args].must_equal true
     TraceView::Config[:excon][:log_args].must_equal true
     TraceView::Config[:faraday][:log_args].must_equal true
@@ -73,12 +82,14 @@ describe "TraceView::Config" do
     TraceView::Config[:moped][:log_args].must_equal true
     TraceView::Config[:rack][:log_args].must_equal true
     TraceView::Config[:redis][:log_args].must_equal true
-    TraceView::Config[:resque][:log_args].must_equal true
+    TraceView::Config[:resqueclient][:log_args].must_equal true
+    TraceView::Config[:resqueworker][:log_args].must_equal true
     TraceView::Config[:rest_client][:log_args].must_equal true
     TraceView::Config[:sequel][:log_args].must_equal true
+    TraceView::Config[:sidekiqclient][:log_args].must_equal true
+    TraceView::Config[:sidekiqworker][:log_args].must_equal true
     TraceView::Config[:typhoeus][:log_args].must_equal true
 
-    TraceView::Config[:resque][:link_workers].must_equal false
     TraceView::Config[:blacklist].is_a?(Array).must_equal true
 
     TraceView::Config[:dnt_regexp].must_equal "\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|ttf|woff|svg|less)$"
@@ -99,31 +110,31 @@ describe "TraceView::Config" do
     # equivalents should follow suit.
 
     #
-    # :include_url_query_params
+    # :include_remote_url_params
     #
 
     # Check defaults
-    TraceView::Config[:include_url_query_params].must_equal true
+    TraceView::Config[:include_remote_url_params].must_equal true
     http_clients.each do |i|
       TraceView::Config[i][:log_args].must_equal true
     end
 
     # Check obedience
-    TraceView::Config[:include_url_query_params] = false
+    TraceView::Config[:include_remote_url_params] = false
     http_clients.each do |i|
       TraceView::Config[i][:log_args].must_equal false
     end
 
     #
-    # :include_remote_url_params
+    # :include_url_query_params
     #
 
     # Check default
-    TraceView::Config[:include_remote_url_params].must_equal true
+    TraceView::Config[:include_url_query_params].must_equal true
     TraceView::Config[:rack][:log_args].must_equal true
 
     # Check obedience
-    TraceView::Config[:include_remote_url_params] = false
+    TraceView::Config[:include_url_query_params] = false
     TraceView::Config[:rack][:log_args].must_equal false
 
     # Restore the previous values

@@ -36,7 +36,8 @@ module TraceView
               end
             end
           end
-        rescue
+        rescue => e
+          TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
         end
 
         report_kvs
@@ -178,7 +179,8 @@ module TraceView
           report_kvs[:Keyspace] = keyspace.to_s
           report_kvs[:Column_name] = column_name.to_s
           report_kvs[:Validation_class] = validation_class.to_s
-        rescue
+        rescue => e
+          TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
         end
 
         TraceView::API.trace('cassandra', report_kvs) do
@@ -193,7 +195,8 @@ module TraceView
         begin
           report_kvs[:Keyspace] = keyspace.to_s
           report_kvs[:Column_name] = column_name.to_s
-        rescue
+        rescue => e
+          TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
         end
 
         TraceView::API.trace('cassandra', report_kvs) do
@@ -207,7 +210,8 @@ module TraceView
         report_kvs = extract_trace_details(:add_column_family, nil, nil, nil)
         begin
           report_kvs[:Cf] = cf_def[:name] if cf_def.is_a?(Hash) && cf_def.key?(:name)
-        rescue
+        rescue => e
+          TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
         end
 
         TraceView::API.trace('cassandra', report_kvs) do

@@ -35,6 +35,9 @@ module TraceViewBase
   thread_local :sample_rate
   thread_local :layer
   thread_local :layer_op
+  # Semaphore used during the test suite to test
+  # global config options.
+  thread_local :config_lock
 
   # The following accessors indicate the incoming tracing state received
   # by the rack layer.  These are primarily used to identify state
@@ -72,7 +75,7 @@ module TraceViewBase
 
     # This gives us pretty accessors with questions marks at the end
     # e.g. is_continued_trace --> is_continued_trace?
-    TraceView.methods.select{ |m| m =~ /^is_|^has_/ }.each do |c|
+    TraceView.methods.select { |m| m =~ /^is_|^has_/ }.each do |c|
       unless c =~ /\?$|=$/
         # TraceView.logger.debug "aliasing #{c}? to #{c}"
         alias_method "#{c}?", c
@@ -108,7 +111,7 @@ module TraceViewBase
   # operation tracing or one instrumented operation calling another.
   #
   def tracing_layer?(layer)
-    return TraceView.layer == layer
+    TraceView.layer == layer
   end
 
   ##
@@ -126,6 +129,20 @@ module TraceViewBase
     else
       return TraceView.layer_op == operation
     end
+  end
+
+  ##
+  # entry_layer?
+  #
+  # Determines if the passed layer is an entry only
+  # layer where we would want to use smart tracing.
+  #
+  # Entry only layers are layers that _only_ start traces
+  # and doesn't directly receive incoming context such as
+  # DelayedJob or Sidekiq workers.
+  #
+  def entry_layer?(layer)
+    %w(delayed_job-worker sidekiq-worker).include?(layer.to_s)
   end
 
   ##
@@ -157,7 +174,7 @@ module TraceViewBase
   # False otherwise
   #
   def through?
-    TraceView::Config[:tracing_mode] == 'through'
+    TraceView::Config[:tracing_mode].to_s == 'through'
   end
 
   ##
@@ -165,9 +182,8 @@ module TraceViewBase
   # False otherwise
   #
   def tracing?
-    return false unless TraceView.loaded
-
-    TraceView::Context.isValid && !TraceView.never?
+    return false if !TraceView.loaded || TraceView.never?
+    TraceView::Context.isValid
   end
 
   def log(layer, label, options = {})
@@ -184,10 +200,38 @@ module TraceViewBase
   #
   def forking_webserver?
     if (defined?(::Unicorn) && ($PROGRAM_NAME =~ /unicorn/i)) ||
-       (defined?(::Puma)    && ($PROGRAM_NAME =~ /puma/i))
+       (defined?(::Puma) && ($PROGRAM_NAME =~ /puma/i))
       true
     else
       false
+    end
+  end
+
+  ##
+  # Debugging helper method
+  #
+  def pry!
+    # Only valid for development or test environments
+    env = ENV['RACK_ENV'] || ENV['RAILS_ENV']
+    return unless %w(development, test).include? env
+
+    if RUBY_VERSION > '1.8.7'
+      require 'pry-byebug'
+
+      if defined?(PryByebug)
+        Pry.commands.alias_command 'c', 'continue'
+        Pry.commands.alias_command 's', 'step'
+        Pry.commands.alias_command 'n', 'next'
+        Pry.commands.alias_command 'f', 'finish'
+
+        Pry::Commands.command /^$/, 'repeat last command' do
+          _pry_.run_command Pry.history.to_a.last
+        end
+      end
+
+      binding.pry
+    else
+      require 'ruby-debug'; debugger
     end
   end
 
@@ -196,7 +240,7 @@ module TraceViewBase
   # or not
   #
   def framework?
-    defined?(::Rails) or defined?(::Sinatra) or defined?(::Padrino) or defined?(::Grape)
+    defined?(::Rails) && defined?(::Sinatra) && defined?(::Padrino) && defined?(::Grape)
   end
 
   ##
@@ -227,3 +271,4 @@ end
 # Setup an alias so we don't bug users
 # about single letter capitalization
 Traceview = TraceView
+TV = TraceView

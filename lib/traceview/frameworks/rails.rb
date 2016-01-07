@@ -11,34 +11,30 @@ module TraceView
       @@rum_ftr_tmpl = File.read(File.dirname(__FILE__) + '/rails/helpers/rum/rum_footer.js.erb')
 
       def traceview_rum_header
-        begin
-          return unless TraceView::Config.rum_id
-          if TraceView.tracing?
-            if request.xhr?
-              return raw(ERB.new(@@rum_xhr_tmpl).result)
-            else
-              return raw(ERB.new(@@rum_hdr_tmpl).result)
-            end
+        return unless TraceView::Config.rum_id
+        if TraceView.tracing?
+          if request.xhr?
+            return raw(ERB.new(@@rum_xhr_tmpl).result)
+          else
+            return raw(ERB.new(@@rum_hdr_tmpl).result)
           end
-        rescue StandardError => e
-          TraceView.logger.warn "traceview_rum_header: #{e.message}."
-          return ""
         end
+      rescue StandardError => e
+        TraceView.logger.warn "traceview_rum_header: #{e.message}."
+        return ''
       end
       alias_method :oboe_rum_header, :traceview_rum_header
 
       def traceview_rum_footer
-        begin
-          return unless TraceView::Config.rum_id
-          if TraceView.tracing?
-            # Even though the footer template is named xxxx.erb, there are no ERB tags in it so we'll
-            # skip that step for now
-            return raw(@@rum_ftr_tmpl)
-          end
-        rescue StandardError => e
-          TraceView.logger.warn "traceview_rum_footer: #{e.message}."
-          return ""
+        return unless TraceView::Config.rum_id
+        if TraceView.tracing?
+          # Even though the footer template is named xxxx.erb, there are no ERB tags in it so we'll
+          # skip that step for now
+          return raw(@@rum_ftr_tmpl)
         end
+      rescue StandardError => e
+        TraceView.logger.warn "traceview_rum_footer: #{e.message}."
+        return ''
       end
       alias_method :oboe_rum_footer, :traceview_rum_footer
     end # Helpers
@@ -47,7 +43,7 @@ module TraceView
       # Force load the TraceView Rails initializer if there is one
       # Prefer traceview.rb but give priority to the legacy tracelytics.rb if it exists
       if ::Rails::VERSION::MAJOR > 2
-        rails_root = "#{::Rails.root.to_s}"
+        rails_root = "#{::Rails.root}"
       else
         rails_root = "#{RAILS_ROOT}"
       end
@@ -55,16 +51,16 @@ module TraceView
       #
       # We've been through 3 initializer names.  Try each one.
       #
-      if File.exists?("#{rails_root}/config/initializers/tracelytics.rb")
+      if File.exist?("#{rails_root}/config/initializers/tracelytics.rb")
         tr_initializer = "#{rails_root}/config/initializers/tracelytics.rb"
 
-      elsif File.exists?("#{rails_root}/config/initializers/oboe.rb")
+      elsif File.exist?("#{rails_root}/config/initializers/oboe.rb")
         tr_initializer = "#{rails_root}/config/initializers/oboe.rb"
 
       else
         tr_initializer = "#{rails_root}/config/initializers/traceview.rb"
       end
-      require tr_initializer if File.exists?(tr_initializer)
+      require tr_initializer if File.exist?(tr_initializer)
     end
 
     def self.load_instrumentation
@@ -94,7 +90,6 @@ module TraceView
         ActionView::Base.send :include, TraceView::Rails::Helpers
       end
     end
-
   end # Rails
 end # TraceView
 
@@ -104,18 +99,17 @@ if defined?(::Rails)
   if ::Rails::VERSION::MAJOR > 2
     module TraceView
       class Railtie < ::Rails::Railtie
-
         initializer 'traceview.helpers' do
           TraceView::Rails.include_helpers
         end
 
         initializer 'traceview.rack' do |app|
-          TraceView.logger.info "[traceview/loading] Instrumenting rack" if TraceView::Config[:verbose]
-          app.config.middleware.insert 0, "TraceView::Rack"
+          TraceView.logger.info '[traceview/loading] Instrumenting rack' if TraceView::Config[:verbose]
+          app.config.middleware.insert 0, 'TraceView::Rack'
         end
 
         config.after_initialize do
-          TraceView.logger = ::Rails.logger if ::Rails.logger
+          TraceView.logger = ::Rails.logger if ::Rails.logger && !ENV.key?('TRACEVIEW_GEM_TEST')
 
           TraceView::Loading.load_access_key
           TraceView::Inst.load_instrumentation
@@ -133,8 +127,8 @@ if defined?(::Rails)
     TraceView::Loading.load_access_key
 
     Rails.configuration.after_initialize do
-      TraceView.logger.info "[traceview/loading] Instrumenting rack" if TraceView::Config[:verbose]
-      Rails.configuration.middleware.insert 0, "TraceView::Rack"
+      TraceView.logger.info '[traceview/loading] Instrumenting rack' if TraceView::Config[:verbose]
+      Rails.configuration.middleware.insert 0, 'TraceView::Rack'
 
       TraceView::Inst.load_instrumentation
       TraceView::Rails.load_instrumentation

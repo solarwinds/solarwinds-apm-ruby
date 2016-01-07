@@ -19,12 +19,12 @@ module TraceView
       def has_handler?(exception)
         # Don't log exceptions if they have a rescue handler set
         has_handler = false
-        rescue_handlers.detect { | klass_name, handler |
+        rescue_handlers.detect do |klass_name, _handler|
           # Rescue handlers can be specified as strings or constant names
           klass = self.class.const_get(klass_name) rescue nil
           klass ||= klass_name.constantize rescue nil
           has_handler = exception.is_a?(klass) if klass
-        }
+        end
         has_handler
       rescue => e
         TraceView.logger.debug "[traceview/debug] Error searching Rails handlers: #{e.message}"
@@ -89,7 +89,7 @@ module TraceView
 
       def process_with_traceview(*args)
         TraceView::API.log_entry('rails')
-        process_without_traceview *args
+        process_without_traceview(*args)
 
       rescue Exception => e
         TraceView::API.log_exception(nil, e) if log_rails_error?(e)
@@ -101,11 +101,11 @@ module TraceView
       def process_action_with_traceview(*args)
         report_kvs = {
           :Controller   => self.class.name,
-          :Action       => self.action_name,
+          :Action       => action_name,
         }
         TraceView::API.log(nil, 'info', report_kvs)
 
-        process_action_without_traceview *args
+        process_action_without_traceview(*args)
       rescue Exception
         report_kvs[:Status] = 500
         TraceView::API.log(nil, 'info', report_kvs)
@@ -130,9 +130,6 @@ module TraceView
       end
 
       def process_action_with_traceview(method_name, *args)
-        return process_action_without_traceview(method_name, *args) if TraceView::Config[:action_blacklist].present? &&
-          TraceView::Config[:action_blacklist][[self.controller_name, self.action_name].join('#')]
-
         report_kvs = {
           :Controller   => self.class.name,
           :Action       => self.action_name,

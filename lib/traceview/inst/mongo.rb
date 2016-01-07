@@ -56,7 +56,8 @@ if defined?(::Mongo) && TraceView::Config[:mongo][:enabled]
               report_kvs[:Collection] = args[0]          if m == :drop_collection
 
               report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:mongo][:collect_backtraces]
-            rescue
+            rescue => e
+              TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
             end
 
             TraceView::API.trace('mongo', report_kvs) do
@@ -97,7 +98,8 @@ if defined?(::Mongo) && TraceView::Config[:mongo][:enabled]
                 end
                 report_kvs[:Limit] = @limit if @limit != 0
               end
-            rescue
+            rescue => e
+              TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
             end
 
             TraceView::API.trace('mongo', report_kvs) do
@@ -162,7 +164,8 @@ if defined?(::Mongo) && TraceView::Config[:mongo][:enabled]
                   report_kvs[:Multi] = args[2][:multi] if args[2] && args[2].key?(:multi)
                 end
               end
-            rescue
+            rescue => e
+              TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
             end
 
             TraceView::API.trace('mongo', report_kvs) do
@@ -200,7 +203,8 @@ if defined?(::Mongo) && TraceView::Config[:mongo][:enabled]
                   end
                 end
               end
-            rescue
+            rescue => e
+              TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
             end
 
             TraceView::API.trace('mongo', report_kvs) do
@@ -221,7 +225,8 @@ if defined?(::Mongo) && TraceView::Config[:mongo][:enabled]
               if [:create_index, :ensure_index, :drop_index].include?(m) && !args.empty?
                 report_kvs[:Index] = args[0].to_json
               end
-            rescue
+            rescue => e
+              TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
             end
 
             TraceView::API.trace('mongo', report_kvs) do

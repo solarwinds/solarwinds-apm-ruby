@@ -6,50 +6,34 @@ cache:
   - vendor/bundle
 
 rvm:
-  - 2.2.2
-  - 2.1.6
-  - 2.0.0
+  - 2.2.4
   - 1.9.3
   - 1.8.7
-  - ree
-  - jruby-19mode
+  - jruby-9.0.4.0
 
 gemfile:
   - gemfiles/libraries.gemfile
   - gemfiles/frameworks.gemfile
-  - gemfiles/rails30.gemfile
-  - gemfiles/rails31.gemfile
   - gemfiles/rails32.gemfile
-  - gemfiles/rails40.gemfile
-  - gemfiles/rails41.gemfile
   - gemfiles/rails42.gemfile
+  - gemfiles/delayed_job.gemfile
 
 matrix:
   exclude:
     # Rails 4.0+ requires Ruby 1.9.3 or higher
     - rvm: 1.8.7
-      gemfile: gemfiles/rails40.gemfile
-    - rvm: 1.8.7
-      gemfile: gemfiles/rails41.gemfile
-    - rvm: 1.8.7
       gemfile: gemfiles/rails42.gemfile
-    - rvm: ree
-      gemfile: gemfiles/rails40.gemfile
-    - rvm: ree
-      gemfile: gemfiles/rails41.gemfile
-    - rvm: ree
-      gemfile: gemfiles/rails42.gemfile
+
+    # Don't test DelayedJob under MRI 1.8 and JRuby
+    - rvm: 1.8.7
+      gemfile: gemfiles/delayed_job.gemfile
+
+    - rvm: jruby-9.0.4.0
+      gemfile: gemfiles/delayed_job.gemfile
 
     # Other frameworks tested on Ruby 1.9.3 or higher
     - rvm: 1.8.7
       gemfile: gemfiles/frameworks.gemfile
-    - rvm: ree
-      gemfile: gemfiles/frameworks.gemfile
-
-  allow_failures:
-    # FIXME: Until the joboe test reporter supports cross thread
-    # event collection.
-    - rvm: jruby-19mode
 
 # Attempt Travis/Cassandra fix re: https://github.com/travis-ci/travis-ci/issues/1484
 # Updated Cassandra: https://github.com/travis-ci/travis-ci/issues/1650
@@ -63,8 +47,8 @@ before_install:
   - sudo service cassandra start
 
 install:
-  - wget https://www.tracelytics.com/install_tracelytics.sh
-  - sudo sh ./install_tracelytics.sh f51e2a43-0ee5-4851-8a54-825773b3218e
+  - wget https://files.appneta.com/install_appneta.sh
+  - sudo sh ./install_appneta.sh f51e2a43-0ee5-4851-8a54-825773b3218e
   - sudo apt-get install -y tracelytics-java-agent
 
 before_script:

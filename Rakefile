@@ -3,8 +3,11 @@
 require 'rubygems'
 require 'bundler/setup'
 require 'rake/testtask'
+require 'traceview/test'
 
 Rake::TestTask.new do |t|
+  t.verbose = true
+  t.ruby_opts = []
   t.libs << "test"
 
   # Since we support so many libraries and frameworks, tests
@@ -14,23 +17,25 @@ Rake::TestTask.new do |t|
   # Here we detect the Gemfile the tests are being run against
   # and load the appropriate tests.
   #
-  case File.basename(ENV['BUNDLE_GEMFILE'])
+  case TraceView::Test.gemfile
+  when /delayed_job/
+    require 'delayed/tasks'
+    t.test_files = FileList["test/queues/delayed_job*_test.rb"]
   when /rails/
     # Pre-load rails to get the major version number
     require 'rails'
     t.test_files = FileList["test/frameworks/rails#{Rails::VERSION::MAJOR}x_test.rb"]
   when /frameworks/
-    t.test_files = FileList['test/frameworks/grape*_test.rb']
-    t.test_files = FileList['test/frameworks/padrino*_test.rb']
-    t.test_files = FileList['test/frameworks/sinatra*_test.rb']
+    t.test_files = FileList['test/frameworks/sinatra*_test.rb'] +
+                   FileList['test/frameworks/padrino*_test.rb'] +
+                   FileList['test/frameworks/grape*_test.rb']
   when /libraries/
     t.test_files = FileList['test/support/*_test.rb'] +
+                   FileList['test/reporter/*_test.rb'] +
                    FileList['test/instrumentation/*_test.rb'] +
                    FileList['test/profiling/*_test.rb']
   end
 
-  t.verbose = true
-  t.ruby_opts = []
   # t.ruby_opts << ['-w']
   if defined?(JRUBY_VERSION)
     t.ruby_opts << ["-J-javaagent:/usr/local/tracelytics/tracelyticsagent.jar"]
@@ -97,8 +102,8 @@ task :distclean do
     mkmf_log = File.expand_path('ext/oboe_metal/mkmf.log')
 
     if File.exists? mkmf_log
-      Dir.chdir ext_dir
       File.delete symlink if File.exist? symlink
+      Dir.chdir ext_dir
       sh '/usr/bin/env make distclean'
 
       Dir.chdir pwd
@@ -113,12 +118,27 @@ end
 desc "Rebuild the gem's c extension"
 task :recompile => [ :distclean, :compile ]
 
-task :console do
+task :environment do
   ENV['TRACEVIEW_GEM_VERBOSE'] = 'true'
+
   Bundler.require(:default, :development)
   TraceView::Config[:tracing_mode] = :always
+  TV::Test.load_extras
+
+  if TV::Test.gemfile?(:delayed_job)
+    require 'delayed/tasks'
+  end
+end
+
+task :console => :environment do
   ARGV.clear
+  if TV::Test.gemfile?(:delayed_job)
+    require './test/servers/delayed_job'
+  end
   Pry.start
 end
 
-
+# Used when testing Resque locally
+task "resque:setup" => :environment do
+  require 'resque/tasks'
+end

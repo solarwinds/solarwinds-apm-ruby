@@ -9,10 +9,14 @@ It has the ability to report performance metrics on an array of libraries, datab
 It requires a [TraceView](http://www.appneta.com/products/traceview/) account to view metrics.  Get yours, [it's free](http://www.appneta.com/products/traceview-free-account/).
 
 [![Gem Version](https://badge.fury.io/rb/traceview.png)](http://badge.fury.io/rb/traceview)
-[![Build Status](https://travis-ci.org/appneta/oboe-ruby.png?branch=master)](https://travis-ci.org/appneta/oboe-ruby)
+[![Build Status](https://travis-ci.org/appneta/ruby-traceview.png?branch=master)](https://travis-ci.org/appneta/ruby-traceview)
 [![Code Climate](https://codeclimate.com/github/appneta/oboe-ruby.png)](https://codeclimate.com/github/appneta/oboe-ruby)
 
+_Note: The repository name has been changed to ruby-traceview.  Please update your github remotes with `git remote set-url origin git@github.com:appneta/ruby-traceview.git`._
+
 # Installation
+
+_Before installing the gem below, make sure that you have the [base packages](http://docs.appneta.com/installation-overview#1-install-base-packages) installed on your host first._
 
 The traceview gem is [available on Rubygems](https://rubygems.org/gems/traceview) and can be installed with:
 
@@ -26,15 +30,15 @@ or added to _the end_ of your bundle Gemfile and running `bundle install`:
 gem 'traceview'
 ```
 
-On Heroku?  Use the `oboe-heroku` gem instead.  It wraps some additional functionality specialized for Heroku.
-
 # Running
 
 ## Rails
 
+![Ruby on Rails](http://www.appneta.com/images/logos/frameworks/rails.png)
+
 No special steps are needed to instrument Ruby on Rails.  Once part of the bundle, the traceview gem will automatically detect Rails and instrument on stack initialization.
 
-*Note: Unless you are Heroku, you will still need to decide on your `tracing_mode` depending on whether you are running with an instrumented Apache or nginx in front of your Rails stack.  See below for more details.*
+*Note: You will still need to decide on your `tracing_mode` depending on whether you are running with an instrumented Apache or nginx in front of your Rails stack.  See below for more details.*
 
 ### The Install Generator
 
@@ -49,6 +53,8 @@ bundle exec rails generate traceview:install
 After the prompts, this will create an initializer: `config/initializers/traceview.rb`.
 
 ## Sinatra
+
+![Sinatra](http://www.appneta.com/images/logos/frameworks/sinatra.png)
 
 You can instrument your Sinatra application by adding the following code to your `config.ru` Rackup file:
 
@@ -67,13 +73,13 @@ TraceView::Config[:tracing_mode] = 'through'
 # TraceView.logger = Sinatra.logger
 ```
 
-Note: If you're on Heroku, you don't need to set `tracing_mode` - it will be automatically configured.
-
 Make sure that the traceview gem is loaded _after_ Sinatra either by listing `gem 'traceview'` after Sinatra in your Gemfile or calling the `require 'traceview'` directive after Sinatra is loaded.
 
 With this, the traceview gem will automatically detect Sinatra on boot and instrument key components.
 
 ## Padrino
+
+![Padrino](http://www.appneta.com/images/logos/frameworks/padrino.png)
 
 As long as the traceview gem is in your `Gemfile` (inserted after the `gem 'padrino'` directive) and you are calling `Bundler.require`, the traceview gem will automatically instrument Padrino applications.
 
@@ -90,9 +96,9 @@ Padrino.before_load do
 end
 ```
 
-Note: If you're on Heroku, you don't need to set `tracing_mode` - it will be automatically configured.
-
 ## Grape
+
+![Grape](http://www.appneta.com/images/logos/frameworks/grape.png)
 
 You can instrument your Grape application by adding the following code to your `config.ru` Rackup file:
 
@@ -113,8 +119,6 @@ You can instrument your Grape application by adding the following code to your `
       use TraceView::Rack
     end
 ```
-
-Note: If you're on Heroku, you don't need to set `tracing_mode` - it will be automatically configured.
 
 Make sure that the traceview gem is loaded _after_ Grape either by listing `gem 'traceview'` after Grape in your Gemfile or calling the `require 'traceview'` directive after Grape is loaded.
 
@@ -197,7 +201,7 @@ class Engine
 end
 ```
 
-This example demonstrates method profiling of instance methods.  Class methods are profiled slightly differently.  See the TraceView [documentation portal](https://docs.appneta.com/custom-ruby-instrumentation) for full details.
+This example demonstrates method profiling of instance methods.  Class methods are profiled slightly differently.  See the TraceView [documentation portal](https://docs.appneta.com/ruby#customizing-ruby-instrumentation) for full details.
 
 # Support
 
@@ -350,6 +354,8 @@ To see the code related to the C extension, take a look at `ext/oboe_metal/extco
 You can read more about Ruby gems with C extensions in the [Rubygems Guides](http://guides.rubygems.org/gems-with-extensions/).
 
 ## Running the Tests
+
+![TraceView Ruby Tests](https://s3.amazonaws.com/appneta/tv_ruby_tests.png)
 
 The tests bundled with the gem are implemented using [Minitest](https://github.com/seattlerb/minitest).  The tests are currently used to validate the sanity of the traces generated and basic gem functionality.
 

@@ -4,6 +4,122 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# traceview 3.4.1
+
+This patch release includes the following fixes:
+
+* Instrumentation updates to support Grape version 0.14: #153
+* Fix Rack layer AVW header handling and analysis: #154
+* Sidekiq workers are now auto instrumented: #155
+* Fix ActiveRecord reporting invalid SQL Flavor: #156
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.4.1
+https://rubygems.org/gems/traceview/versions/3.4.1-java
+
+# traceview 3.4.0
+
+This minor release includes the following features & fixes:
+
+* New [DelayedJob](https://github.com/collectiveidea/delayed_job/) instrumentation: #151
+* Limit BSON gem dependency to < 4.0: #152
+* Code refactoring & improvements: #148
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.4.0
+https://rubygems.org/gems/traceview/versions/3.4.0-java
+
+# traceview 3.3.3
+
+This patch release includes the following fixes:
+
+* Sidekiq instrumentation: don't carry context between enqueue and job run: #150
+* Sidekiq instrumentation: Update KV reporting to follow TV specs: #150
+* Resque instrumentation: Update instrumentation to follow TV specs: #146
+* Resque instrumentation: `:link_workers` option deprecated: #146
+* [JRuby 9000](http://jruby.org/) validated: Add JRuby 9000 to test suite: #149
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.3.2
+https://rubygems.org/gems/traceview/versions/3.3.2-java
+
+# traceview 3.3.1
+
+This patch release includes the following fixes:
+
+* Fix sample rate handling under JRuby: #141
+* Remove `:action_blacklist`: #145
+* Update JRuby Instrumentation tests to use New JOboe Test Reporter #147
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.3.1
+https://rubygems.org/gems/traceview/versions/3.3.1-java
+
+# traceview 3.3.0
+
+This patch release includes the following fixes:
+
+* New [Sidekiq](http://sidekiq.org/) instrumentation: #138, #139
+* Require `Set` before referencing it: #143
+* Add `:action_blacklist` deprecation warning: #137
+* Add a way to restart the reporter via `TraceView::Reporter.restart`: #140
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.3.0
+https://rubygems.org/gems/traceview/versions/3.3.0-java
+
+# traceview 3.2.1
+
+This minor release adds the following:
+
+* New and improved method profiling: #135
+* Fix URL Query config: #136
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.2.1
+https://rubygems.org/gems/traceview/versions/3.2.1-java
+
+# traceview 3.2.0
+
+This minor release adds the following:
+
+* New and improved method profiling: #135
+* Fix URL Query config: #136
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.2.0
+https://rubygems.org/gems/traceview/versions/3.2.0-java
+
+# traceview 3.1.0
+
+This minor release adds the following:
+
+* New Curb HTTP client instrumentation: #132
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.1.0
+https://rubygems.org/gems/traceview/versions/3.1.0-java
+
+# traceview 3.0.5
+
+This patch release includes the following fixes:
+
+* Fix "undefined method" in httpclient instrumentation: #134
+* Fix Redis set operation to work with array versus hash: #133
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.0.5
+https://rubygems.org/gems/traceview/versions/3.0.5-java
+
 # traceview 3.0.4
 
 This patch release includes the following fixes:

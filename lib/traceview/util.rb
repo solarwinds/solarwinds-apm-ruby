@@ -205,6 +205,7 @@ module TraceView
 
           # Report the instrumented libraries
           platform_info['Ruby.Cassandra.Version']  = "Cassandra-#{::Cassandra.VERSION}"    if defined?(::Cassandra.VERSION)
+          platform_info['Ruby.Curb.Version']       = "Curb-#{::Curl::VERSION}"             if defined?(::Curl::VERSION)
           platform_info['Ruby.Dalli.Version']      = "Dalli-#{::Dalli::VERSION}"           if defined?(::Dalli::VERSION)
           platform_info['Ruby.Excon.Version']      = "Excon-#{::Excon::VERSION}"           if defined?(::Excon::VERSION)
           platform_info['Ruby.Faraday.Version']    = "Faraday-#{::Faraday::VERSION}"       if defined?(::Faraday::VERSION)
@@ -214,7 +215,15 @@ module TraceView
           platform_info['Ruby.Redis.Version']      = "Redis-#{::Redis::VERSION}"           if defined?(::Redis::VERSION)
           platform_info['Ruby.Resque.Version']     = "Resque-#{::Resque::VERSION}"         if defined?(::Resque::VERSION)
           platform_info['Ruby.RestClient.Version'] = "RestClient-#{::RestClient::VERSION}" if defined?(::RestClient::VERSION)
+          platform_info['Ruby.Sidekiq.Version']    = "Sidekiq-#{::Sidekiq::VERSION}"       if defined?(::Sidekiq::VERSION)
           platform_info['Ruby.Typhoeus.Version']   = "Typhoeus-#{::Typhoeus::VERSION}"     if defined?(::Typhoeus::VERSION)
+
+          if Gem.loaded_specs.key?('delayed_job')
+            # Oddly, DelayedJob doesn't have an embedded version number so we get it from the loaded
+            # gem specs.
+            version = Gem.loaded_specs['delayed_job'].version.to_s
+            platform_info['Ruby.DelayedJob.Version']       = "DelayedJob-#{version}"
+          end
 
           # Special case since the Mongo 1.x driver doesn't embed the version number in the gem directly
           if ::Gem.loaded_specs.key?('mongo')

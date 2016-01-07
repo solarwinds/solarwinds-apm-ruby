@@ -1,3 +1,6 @@
+# Copyright (c) 2013 AppNeta, Inc.
+# All rights reserved.
+
 module TraceView
   module Inst
     module EventMachine

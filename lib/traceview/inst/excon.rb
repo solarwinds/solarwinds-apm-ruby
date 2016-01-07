@@ -64,7 +64,7 @@ module TraceView
           # Avoid cross host tracing for blacklisted domains
           blacklisted = TraceView::API.blacklisted?(@data[:hostname])
 
-          req_context = TraceView::Context.toString()
+          req_context = TraceView::Context.toString
           @data[:headers]['X-Trace'] = req_context unless blacklisted
 
           kvs = traceview_collect(params)
@@ -84,8 +84,8 @@ module TraceView
             kvs['HTTPStatus'] = response.status
 
             # If we get a redirect, report the location header
-            if ((300..308).to_a.include? response.status.to_i) && response.headers.key?("Location")
-              kvs["Location"] = response.headers["Location"]
+            if ((300..308).to_a.include? response.status.to_i) && response.headers.key?('Location')
+              kvs['Location'] = response.headers['Location']
             end
 
             if response_context && !blacklisted

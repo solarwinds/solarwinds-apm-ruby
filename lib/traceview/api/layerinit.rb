@@ -11,11 +11,11 @@ module TraceView
       # layer.
       #
       def report_init(layer = 'rack')
-        # Don't send __Init in development or test
-        return if %w(development test).include? ENV['RACK_ENV']
-
-        # Don't send __Init if the c-extension hasn't loaded
-        return unless TraceView.loaded
+        # Don't send __Init in development, test or if the gem
+        # isn't fully loaded (e.g. missing c-extension)
+        return if %w(development test).include?(ENV['RACK_ENV']) ||
+                  ENV.key?('TRACEVIEW_GEM_TEST') ||
+                  !TraceView.loaded
 
         platform_info = TraceView::Util.build_init_report
 

@@ -12,13 +12,15 @@ module TraceView
     @@config = {}
 
     @@instrumentation = [:action_controller, :action_view, :active_record, :bunny,
-                         :cassandra, :dalli, :em_http_request, :excon, :faraday,
-                         :grape, :httpclient, :nethttp, :memcached, :memcache, :mongo,
-                         :moped, :rack, :redis, :resque, :rest_client, :sequel,
-                         :typhoeus]
+                         :cassandra, :curb, :dalli, :delayed_jobclient,
+                         :delayed_jobworker, :em_http_request, :excon,
+                         :faraday, :grape, :httpclient, :nethttp, :memcached,
+                         :memcache, :mongo, :moped, :rack, :redis, :resqueclient,
+                         :resqueworker, :rest_client, :sequel, :sidekiqclient,
+                         :sidekiqworker, :typhoeus]
 
     # Subgrouping of instrumentation
-    @@http_clients = [:excon, :faraday, :httpclient, :nethttp, :rest_client, :typhoeus]
+    @@http_clients = [:curb, :excon, :em_http_request, :faraday, :httpclient, :nethttp, :rest_client, :typhoeus]
 
     ##
     # Return the raw nested hash.
@@ -45,7 +47,10 @@ module TraceView
       TraceView::Config[:bunny][:collect_backtraces] = true
       TraceView::Config[:action_view][:collect_backtraces] = true
       TraceView::Config[:cassandra][:collect_backtraces] = true
+      TraceView::Config[:curb][:collect_backtraces] = true
       TraceView::Config[:dalli][:collect_backtraces] = false
+      TraceView::Config[:delayed_jobclient][:collect_backtraces] = false
+      TraceView::Config[:delayed_jobworker][:collect_backtraces] = false
       TraceView::Config[:em_http_request][:collect_backtraces] = false
       TraceView::Config[:excon][:collect_backtraces] = true
       TraceView::Config[:faraday][:collect_backtraces] = false
@@ -57,19 +62,16 @@ module TraceView
       TraceView::Config[:moped][:collect_backtraces] = true
       TraceView::Config[:nethttp][:collect_backtraces] = true
       TraceView::Config[:redis][:collect_backtraces] = false
-      TraceView::Config[:resque][:collect_backtraces] = true
+      TraceView::Config[:resqueclient][:collect_backtraces] = true
+      TraceView::Config[:resqueworker][:collect_backtraces] = false
       TraceView::Config[:rest_client][:collect_backtraces] = false
       TraceView::Config[:sequel][:collect_backtraces] = true
+      TraceView::Config[:sidekiqclient][:collect_backtraces] = false
+      TraceView::Config[:sidekiqworker][:collect_backtraces] = false
       TraceView::Config[:typhoeus][:collect_backtraces] = false
 
-      # Special instrument specific flags
-      #
-      # :link_workers - associates enqueue operations with the jobs they queue by piggybacking
-      #                 an additional argument that is stripped prior to job proecessing
-      #                 !!Note: Make sure both the queue side and the Resque workers are instrumented
-      #                 or jobs will fail
-      #                 (Default: false)
-      @@config[:resque][:link_workers] = false
+      # Legacy Resque config support.  To be removed in a future version
+      @@config[:resque] = {}
 
       # Setup an empty host blacklist (see: TraceView::API::Util.blacklisted?)
       @@config[:blacklist] = []
@@ -147,6 +149,22 @@ module TraceView
       # report all raised exception regardless.
       @@config[:report_rescued_errors] = false
 
+      # By default, the curb instrumentation will not link
+      # outgoing requests with remotely instrumented
+      # webservers (aka cross host tracing).  This is because the
+      # instrumentation can't detect if the independent libcurl
+      # instrumentation is in use or not.
+      #
+      # If you're sure that it's not in use/installed, then you can
+      # enable cross host tracing for the curb HTTP client
+      # here.  Set TraceView::Config[:curb][:cross_host] to true
+      # to enable.
+      #
+      # Alternatively, if you would like to install the separate
+      # libcurl instrumentation, see here:
+      # http://docs.appneta.com/installing-libcurl-instrumentation
+      @@config[:curb][:cross_host] = false
+
       # Environment support for OpenShift.
       if ENV.key?('OPENSHIFT_TRACEVIEW_TLYZER_IP')
         # We're running on OpenShift
@@ -174,6 +192,11 @@ module TraceView
     end
 
     def self.[](key)
+      if key == :resque
+        TraceView.logger.warn "[traceview/warn] :resque config is deprecated.  It is now split into :resqueclient and :resqueworker."
+        TraceView.logger.warn "[traceview/warn] Called from #{Kernel.caller[0]}"
+      end
+
       @@config[key.to_sym]
     end
 
@@ -198,17 +221,24 @@ module TraceView
         @@config[key.to_sym] = value.to_i
         TraceView.set_sample_rate(value) if TraceView.loaded
 
+      elsif key == :action_blacklist
+        TraceView.logger.warn "[traceview/unsupported] :action_blacklist has been deprecated and no longer functions."
+
+      elsif key == :resque
+        TraceView.logger.warn "[traceview/warn] :resque config is deprecated.  It is now split into :resqueclient and :resqueworker."
+        TraceView.logger.warn "[traceview/warn] Called from #{Kernel.caller[0]}"
+
       elsif key == :include_url_query_params
+        # Obey the global flag and update all of the per instrumentation
+        # <tt>:log_args</tt> values.
+        @@config[:rack][:log_args] = value
+
+      elsif key == :include_remote_url_params
         # Obey the global flag and update all of the per instrumentation
         # <tt>:log_args</tt> values.
         @@http_clients.each do |i|
           @@config[i][:log_args] = value
         end
-
-      elsif key == :include_remote_url_params
-        # Obey the global flag and update all of the per instrumentation
-        # <tt>:log_args</tt> values.
-        @@config[:rack][:log_args] = value
       end
 
       # Update liboboe if updating :tracing_mode

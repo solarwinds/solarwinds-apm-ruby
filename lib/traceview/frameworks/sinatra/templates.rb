@@ -27,7 +27,7 @@ module TraceView
               report_kvs[:LineNumber]   = __LINE__
             rescue StandardError => e
               ::TraceView.logger.debug e.message
-              ::TraceView.logger.debug e.backtrace.join(", ")
+              ::TraceView.logger.debug e.backtrace.join(', ')
             end
 
             TraceView::API.profile(name, report_kvs, false) do
