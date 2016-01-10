@@ -18,7 +18,6 @@ class BunnyTest < Minitest::Test
     @connection_params[:vhost]  = ENV['TV_RABBITMQ_VHOST']
     @connection_params[:user]   = ENV['TV_RABBITMQ_USERNAME']
     @connection_params[:pass]   = ENV['TV_RABBITMQ_PASSWORD']
-
   end
 
   def test_publish_default_exchange
@@ -44,6 +43,11 @@ class BunnyTest < Minitest::Test
     traces[1]['Label'].must_equal "entry"
     traces[2]['Layer'].must_equal "rabbitmq"
     traces[2]['Label'].must_equal "exit"
+    traces[2]['Spec'].must_equal "pushq"
+    traces[2]['Flavor'].must_equal "rabbitmq"
+    traces[2]['ExchangeName'].must_equal "default"
+    traces[2]['ExchangeType'].must_equal "direct"
+    traces[2]['RoutingKey'].must_equal "tv.ruby.test"
     traces[2]['ExchangeAction'].must_equal "publish"
     traces[2]['RemoteHost'].must_equal ENV['TV_RABBITMQ_SERVER']
     traces[2]['RemotePort'].must_equal ENV['TV_RABBITMQ_PORT'].to_i
@@ -61,7 +65,7 @@ class BunnyTest < Minitest::Test
     clear_all_traces
 
     TraceView::API.start_trace('bunny_tests') do
-      @exchange.publish("The Tortoise and the Hare in the fanout exchange.").publish("And another...")
+      @exchange.publish("The Tortoise and the Hare in the fanout exchange.", :routing_key => 'tv.ruby.test').publish("And another...")
     end
 
     traces = get_all_traces
@@ -74,6 +78,11 @@ class BunnyTest < Minitest::Test
     traces[1]['Label'].must_equal "entry"
     traces[2]['Layer'].must_equal "rabbitmq"
     traces[2]['Label'].must_equal "exit"
+    traces[2]['Spec'].must_equal "pushq"
+    traces[2]['Flavor'].must_equal "rabbitmq"
+    traces[2]['ExchangeName'].must_equal "tv.ruby.fanout.tests"
+    traces[2]['ExchangeType'].must_equal "fanout"
+    traces[2]['RoutingKey'].must_equal "tv.ruby.test"
     traces[2]['ExchangeAction'].must_equal "publish"
     traces[2]['RemoteHost'].must_equal ENV['TV_RABBITMQ_SERVER']
     traces[2]['RemotePort'].must_equal ENV['TV_RABBITMQ_PORT'].to_i
@@ -83,6 +92,11 @@ class BunnyTest < Minitest::Test
     traces[3]['Label'].must_equal "entry"
     traces[4]['Layer'].must_equal "rabbitmq"
     traces[4]['Label'].must_equal "exit"
+    traces[4]['Spec'].must_equal "pushq"
+    traces[4]['Flavor'].must_equal "rabbitmq"
+    traces[4]['ExchangeName'].must_equal "tv.ruby.fanout.tests"
+    traces[4]['ExchangeType'].must_equal "fanout"
+    traces[4].key?('RoutingKey').must_equal false
     traces[4]['ExchangeAction'].must_equal "publish"
     traces[4]['RemoteHost'].must_equal ENV['TV_RABBITMQ_SERVER']
     traces[4]['RemotePort'].must_equal ENV['TV_RABBITMQ_PORT'].to_i
@@ -113,6 +127,11 @@ class BunnyTest < Minitest::Test
     traces[1]['Label'].must_equal "entry"
     traces[2]['Layer'].must_equal "rabbitmq"
     traces[2]['Label'].must_equal "exit"
+    traces[2]['Spec'].must_equal "pushq"
+    traces[2]['Flavor'].must_equal "rabbitmq"
+    traces[2]['ExchangeName'].must_equal "tv.ruby.topic.tests"
+    traces[2]['ExchangeType'].must_equal "topic"
+    traces[2]['RoutingKey'].must_equal "tv.ruby.test.1"
     traces[2]['ExchangeAction'].must_equal "publish"
     traces[2]['RemoteHost'].must_equal ENV['TV_RABBITMQ_SERVER']
     traces[2]['RemotePort'].must_equal ENV['TV_RABBITMQ_PORT'].to_i
@@ -122,6 +141,11 @@ class BunnyTest < Minitest::Test
     traces[3]['Label'].must_equal "entry"
     traces[4]['Layer'].must_equal "rabbitmq"
     traces[4]['Label'].must_equal "exit"
+    traces[4]['Spec'].must_equal "pushq"
+    traces[4]['Flavor'].must_equal "rabbitmq"
+    traces[4]['ExchangeName'].must_equal "tv.ruby.topic.tests"
+    traces[4]['ExchangeType'].must_equal "topic"
+    traces[4]['RoutingKey'].must_equal "tv.ruby.test.2"
     traces[4]['ExchangeAction'].must_equal "publish"
     traces[4]['RemoteHost'].must_equal ENV['TV_RABBITMQ_SERVER']
     traces[4]['RemotePort'].must_equal ENV['TV_RABBITMQ_PORT'].to_i
@@ -155,7 +179,7 @@ class BunnyTest < Minitest::Test
 
     traces[1]['Label'].must_equal "error"
     traces[1]['ErrorClass'].must_equal "Bunny::PreconditionFailed"
-    traces[1]['ErrorMsg'].must_equal "PRECONDITION_FAILED - cannot redeclare exchange 'tv.ruby.error.1' in vhost '/' with different type, durable, internal or autodelete value"
+    traces[1]['ErrorMsg'].must_match(/PRECONDITION_FAILED/)
     traces[1].key?('Backtrace').must_equal true
 
     @conn.close
@@ -174,7 +198,7 @@ class BunnyTest < Minitest::Test
 
     TraceView::API.start_trace('bunny_tests') do
       1000.times do
-        @exchange.publish("")
+        @exchange.publish("", :routing_key => 'tv.ruby.test')
       end
 
       @ch.wait_for_confirms
@@ -185,10 +209,23 @@ class BunnyTest < Minitest::Test
 
     validate_outer_layers(traces, "bunny_tests")
 
+    traces[2000]['Spec'].must_equal "pushq"
+    traces[2000]['Flavor'].must_equal "rabbitmq"
+    traces[2000]['ExchangeName'].must_equal "tv.ruby.wait_for_confirm.tests"
+    traces[2000]['ExchangeType'].must_equal "fanout"
+    traces[2000]['RoutingKey'].must_equal "tv.ruby.test"
+    traces[2000]['ExchangeAction'].must_equal "publish"
+    traces[2000]['RemoteHost'].must_equal ENV['TV_RABBITMQ_SERVER']
+    traces[2000]['RemotePort'].must_equal ENV['TV_RABBITMQ_PORT'].to_i
+    traces[2000]['VirtualHost'].must_equal ENV['TV_RABBITMQ_VHOST']
+
     traces[2001]['Layer'].must_equal "rabbitmq"
     traces[2001]['Label'].must_equal "entry"
     traces[2002]['Layer'].must_equal "rabbitmq"
     traces[2002]['Label'].must_equal "exit"
+    traces[2002]['Spec'].must_equal "pushq"
+    traces[2002]['Flavor'].must_equal "rabbitmq"
+    traces[2002]['ExchangeName'].must_equal "default"
     traces[2002]['ExchangeAction'].must_equal "wait_for_confirms"
     traces[2002]['RemoteHost'].must_equal ENV['TV_RABBITMQ_SERVER']
     traces[2002]['RemotePort'].must_equal ENV['TV_RABBITMQ_PORT'].to_i
