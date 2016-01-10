@@ -233,4 +233,35 @@ class BunnyTest < Minitest::Test
 
     @conn.close
   end
+
+  def test_delete_exchange
+    @conn = Bunny.new(@connection_params)
+    @conn.start
+    @ch = @conn.create_channel
+    @exchange = @ch.fanout("tv.delete_exchange.test")
+    @queue = @ch.queue("", :exclusive => true).bind(@exchange)
+
+    clear_all_traces
+
+    @ch.confirm_select
+    @exchange.publish("", :routing_key => 'tv.ruby.test')
+
+    TraceView::API.start_trace('bunny_tests') do
+      @exchange.delete
+    end
+
+    traces = get_all_traces
+    assert_equal traces.count, 4
+
+    validate_outer_layers(traces, "bunny_tests")
+
+    traces[2]['Spec'].must_equal "pushq"
+    traces[2]['Flavor'].must_equal "rabbitmq"
+    traces[2]['ExchangeName'].must_equal "tv.delete_exchange.test"
+    traces[2]['ExchangeType'].must_equal "fanout"
+    traces[2]['ExchangeAction'].must_equal "delete"
+    traces[2]['RemoteHost'].must_equal ENV['TV_RABBITMQ_SERVER']
+    traces[2]['RemotePort'].must_equal ENV['TV_RABBITMQ_PORT'].to_i
+    traces[2]['VirtualHost'].must_equal ENV['TV_RABBITMQ_VHOST']
+  end
 end
