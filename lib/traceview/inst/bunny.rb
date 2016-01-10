@@ -14,15 +14,23 @@ module TraceView
 
         begin
           kvs = {}
-          kvs[:ExchangeAction] = :publish
-          kvs[:RemoteHost] = channel.connection.host
-          kvs[:RemotePort] = channel.connection.port
-          kvs[:VirtualHost] = channel.connection.vhost
-          if @name.is_a?(String) && !@name.empty?
+          kvs[:Spec] = :pushq
+          kvs[:Flavor] = :rabbitmq # broker name?
+
+          if @name && @name.is_a?(String) && !@name.empty?
             kvs[:ExchangeName] = @name
           else
             kvs[:ExchangeName] = :default
           end
+
+          kvs[:ExchangeType]   = @type
+          kvs[:Queue]          = opts[:queue] if opts.key?(:queue)
+          kvs[:RoutingKey]     = opts[:routing_key] if opts.key?(:routing_key)
+          kvs[:RemoteHost]     = channel.connection.host
+          kvs[:RemotePort]     = channel.connection.port
+
+          kvs[:ExchangeAction] = :publish
+          kvs[:VirtualHost] = channel.connection.vhost
 
           TraceView::API.log_entry('rabbitmq')
 
@@ -47,6 +55,8 @@ module TraceView
 
         begin
           kvs = {}
+          kvs[:Spec] = :pushq
+          kvs[:Flavor] = :rabbitmq
           kvs[:ExchangeAction] = :wait_for_confirms
           kvs[:RemoteHost] = @connection.host
           kvs[:RemotePort] = @connection.port
