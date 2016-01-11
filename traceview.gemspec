@@ -27,17 +27,21 @@ Gem::Specification.new do |s|
   # Development dependencies used in gem development & testing
   s.add_development_dependency('rake', '>= 0.9.0')
 
-  case RUBY_VERSION
-  when /^1\.8/
-    s.add_development_dependency('ruby-debug', '>= 0.10.1')
-    s.add_development_dependency('pry', '>= 0.9.12.4')
-  when /^1\.9/
-    s.add_development_dependency('debugger', '>= 1.6.7')
+  unless defined?(JRUBY_VERSION)
+    case RUBY_VERSION
+    when /^1\.8/
+      s.add_development_dependency('ruby-debug', '>= 0.10.1')
+      s.add_development_dependency('pry', '>= 0.9.12.4')
+    when /^1\.9/
+      s.add_development_dependency('debugger', '>= 1.6.7')
+      s.add_development_dependency('pry', '>= 0.10.0')
+    when /^2\./
+      s.add_development_dependency('byebug', '>= 8.0.0')
+      s.add_development_dependency('pry', '>= 0.10.0')
+      s.add_development_dependency('pry-byebug', '>= 3.0.0')
+    end
+  else
     s.add_development_dependency('pry', '>= 0.10.0')
-  when /^2\./
-    s.add_development_dependency('byebug', '>= 8.0.0')
-    s.add_development_dependency('pry', '>= 0.10.0')
-    s.add_development_dependency('pry-byebug', '>= 3.0.0')
   end
 
   s.required_ruby_version = '>= 1.8.6'
