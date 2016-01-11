@@ -28,7 +28,7 @@ module TraceView
           kvs[:Queue]          = opts[:queue] if opts.key?(:queue)
           kvs[:RoutingKey]     = opts[:routing_key] if opts.key?(:routing_key)
           kvs[:RemoteHost]     = channel.connection.host
-          kvs[:RemotePort]     = channel.connection.port
+          kvs[:RemotePort]     = channel.connection.port.to_i
 
           kvs[:Op] = :publish
           kvs[:VirtualHost] = channel.connection.vhost
@@ -55,7 +55,7 @@ module TraceView
           kvs[:Op] = :delete
           kvs[:ExchangeType]   = @type
           kvs[:RemoteHost]     = channel.connection.host
-          kvs[:RemotePort]     = channel.connection.port
+          kvs[:RemotePort]     = channel.connection.port.to_i
           kvs[:VirtualHost] = channel.connection.vhost
 
           if @name.is_a?(String) && !@name.empty?
@@ -88,7 +88,7 @@ module TraceView
           kvs[:Spec] = :pushq
           kvs[:Flavor] = :rabbitmq
           kvs[:RemoteHost] = @connection.host
-          kvs[:RemotePort] = @connection.port
+          kvs[:RemotePort] = @connection.port.to_i
           kvs[:VirtualHost] = @connection.vhost
 
           #if @name.is_a?(String) && !@name.empty?
