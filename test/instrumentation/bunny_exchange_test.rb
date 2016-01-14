@@ -40,14 +40,13 @@ unless defined?(JRUBY_VERSION)
       validate_outer_layers(traces, "bunny_tests")
       valid_edges?(traces)
 
-      traces[1]['Layer'].must_equal "rabbitmq"
+      traces[1]['Layer'].must_equal "rabbitmq-client"
       traces[1]['Label'].must_equal "entry"
-      traces[2]['Layer'].must_equal "rabbitmq"
+      traces[2]['Layer'].must_equal "rabbitmq-client"
       traces[2]['Label'].must_equal "exit"
       traces[2]['Spec'].must_equal "pushq"
       traces[2]['Flavor'].must_equal "rabbitmq"
       traces[2]['ExchangeName'].must_equal "default"
-      traces[2]['ExchangeType'].must_equal "direct"
       traces[2]['RoutingKey'].must_equal "tv.ruby.test"
       traces[2]['Op'].must_equal "publish"
       traces[2]['RemoteHost'].must_equal ENV['TV_RABBITMQ_SERVER']
@@ -73,28 +72,26 @@ unless defined?(JRUBY_VERSION)
       validate_outer_layers(traces, "bunny_tests")
       valid_edges?(traces)
 
-      traces[1]['Layer'].must_equal "rabbitmq"
+      traces[1]['Layer'].must_equal "rabbitmq-client"
       traces[1]['Label'].must_equal "entry"
-      traces[2]['Layer'].must_equal "rabbitmq"
+      traces[2]['Layer'].must_equal "rabbitmq-client"
       traces[2]['Label'].must_equal "exit"
       traces[2]['Spec'].must_equal "pushq"
       traces[2]['Flavor'].must_equal "rabbitmq"
       traces[2]['ExchangeName'].must_equal "tv.ruby.fanout.tests"
-      traces[2]['ExchangeType'].must_equal "fanout"
       traces[2]['RoutingKey'].must_equal "tv.ruby.test"
       traces[2]['Op'].must_equal "publish"
       traces[2]['RemoteHost'].must_equal ENV['TV_RABBITMQ_SERVER']
       traces[2]['RemotePort'].must_equal ENV['TV_RABBITMQ_PORT'].to_i
       traces[2]['VirtualHost'].must_equal ENV['TV_RABBITMQ_VHOST']
 
-      traces[3]['Layer'].must_equal "rabbitmq"
+      traces[3]['Layer'].must_equal "rabbitmq-client"
       traces[3]['Label'].must_equal "entry"
-      traces[4]['Layer'].must_equal "rabbitmq"
+      traces[4]['Layer'].must_equal "rabbitmq-client"
       traces[4]['Label'].must_equal "exit"
       traces[4]['Spec'].must_equal "pushq"
       traces[4]['Flavor'].must_equal "rabbitmq"
       traces[4]['ExchangeName'].must_equal "tv.ruby.fanout.tests"
-      traces[4]['ExchangeType'].must_equal "fanout"
       traces[4].key?('RoutingKey').must_equal false
       traces[4]['Op'].must_equal "publish"
       traces[4]['RemoteHost'].must_equal ENV['TV_RABBITMQ_SERVER']
@@ -120,28 +117,26 @@ unless defined?(JRUBY_VERSION)
       validate_outer_layers(traces, "bunny_tests")
       valid_edges?(traces)
 
-      traces[1]['Layer'].must_equal "rabbitmq"
+      traces[1]['Layer'].must_equal "rabbitmq-client"
       traces[1]['Label'].must_equal "entry"
-      traces[2]['Layer'].must_equal "rabbitmq"
+      traces[2]['Layer'].must_equal "rabbitmq-client"
       traces[2]['Label'].must_equal "exit"
       traces[2]['Spec'].must_equal "pushq"
       traces[2]['Flavor'].must_equal "rabbitmq"
       traces[2]['ExchangeName'].must_equal "tv.ruby.topic.tests"
-      traces[2]['ExchangeType'].must_equal "topic"
       traces[2]['RoutingKey'].must_equal "tv.ruby.test.1"
       traces[2]['Op'].must_equal "publish"
       traces[2]['RemoteHost'].must_equal ENV['TV_RABBITMQ_SERVER']
       traces[2]['RemotePort'].must_equal ENV['TV_RABBITMQ_PORT'].to_i
       traces[2]['VirtualHost'].must_equal ENV['TV_RABBITMQ_VHOST']
 
-      traces[3]['Layer'].must_equal "rabbitmq"
+      traces[3]['Layer'].must_equal "rabbitmq-client"
       traces[3]['Label'].must_equal "entry"
-      traces[4]['Layer'].must_equal "rabbitmq"
+      traces[4]['Layer'].must_equal "rabbitmq-client"
       traces[4]['Label'].must_equal "exit"
       traces[4]['Spec'].must_equal "pushq"
       traces[4]['Flavor'].must_equal "rabbitmq"
       traces[4]['ExchangeName'].must_equal "tv.ruby.topic.tests"
-      traces[4]['ExchangeType'].must_equal "topic"
       traces[4]['RoutingKey'].must_equal "tv.ruby.test.2"
       traces[4]['Op'].must_equal "publish"
       traces[4]['RemoteHost'].must_equal ENV['TV_RABBITMQ_SERVER']
@@ -234,16 +229,15 @@ unless defined?(JRUBY_VERSION)
       traces[2000]['Spec'].must_equal "pushq"
       traces[2000]['Flavor'].must_equal "rabbitmq"
       traces[2000]['ExchangeName'].must_equal "tv.ruby.wait_for_confirm.tests"
-      traces[2000]['ExchangeType'].must_equal "fanout"
       traces[2000]['RoutingKey'].must_equal "tv.ruby.test"
       traces[2000]['Op'].must_equal "publish"
       traces[2000]['RemoteHost'].must_equal ENV['TV_RABBITMQ_SERVER']
       traces[2000]['RemotePort'].must_equal ENV['TV_RABBITMQ_PORT'].to_i
       traces[2000]['VirtualHost'].must_equal ENV['TV_RABBITMQ_VHOST']
 
-      traces[2001]['Layer'].must_equal "rabbitmq"
+      traces[2001]['Layer'].must_equal "rabbitmq-client"
       traces[2001]['Label'].must_equal "entry"
-      traces[2002]['Layer'].must_equal "rabbitmq"
+      traces[2002]['Layer'].must_equal "rabbitmq-client"
       traces[2002]['Label'].must_equal "exit"
       traces[2002]['Spec'].must_equal "pushq"
       traces[2002]['Flavor'].must_equal "rabbitmq"
