@@ -90,12 +90,6 @@ module TraceView
           kvs[:RemoteHost] = @connection.host
           kvs[:RemotePort] = @connection.port.to_i
           kvs[:VirtualHost] = @connection.vhost
-
-          #if @name.is_a?(String) && !@name.empty?
-          #  kvs[:ExchangeName] = @name
-          #else
-          #  kvs[:ExchangeName] = :default
-          #end
           kvs
         rescue => e
           TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]

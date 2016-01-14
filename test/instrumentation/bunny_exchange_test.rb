@@ -20,8 +20,6 @@ unless defined?(JRUBY_VERSION)
       @connection_params[:user]   = ENV['TV_RABBITMQ_USERNAME']
       @connection_params[:pass]   = ENV['TV_RABBITMQ_PASSWORD']
 
-      TV.logger.debug @connection_params.inspect
-
       clear_all_traces
     end
 
