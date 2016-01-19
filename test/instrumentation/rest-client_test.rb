@@ -191,7 +191,7 @@ if RUBY_VERSION >= '1.9.3'
       response = nil
 
       TraceView::API.start_trace('rest_client_test') do
-        resource = RestClient::Resource.new 'http://localhost:8101/redirectme?redirect_test'
+        resource = RestClient::Resource.new 'http://127.0.0.1:8101/redirectme?redirect_test'
         response = resource.get
       end
 
@@ -211,7 +211,7 @@ if RUBY_VERSION >= '1.9.3'
       traces[6]['Label'].must_equal 'info'
       traces[6]['IsService'].must_equal 1
       traces[6]['RemoteProtocol'].must_equal 'HTTP'
-      traces[6]['RemoteHost'].must_equal 'localhost:8101'
+      traces[6]['RemoteHost'].must_equal '127.0.0.1:8101'
       traces[6]['ServiceArg'].must_equal '/redirectme?redirect_test'
       traces[6]['HTTPMethod'].must_equal 'GET'
       traces[6]['HTTPStatus'].must_equal "301"
@@ -230,7 +230,7 @@ if RUBY_VERSION >= '1.9.3'
       traces[13]['Label'].must_equal 'info'
       traces[13]['IsService'].must_equal 1
       traces[13]['RemoteProtocol'].must_equal 'HTTP'
-      traces[13]['RemoteHost'].must_equal 'localhost:8101'
+      traces[13]['RemoteHost'].must_equal '127.0.0.1:8101'
       traces[13]['ServiceArg'].must_equal '/'
       traces[13]['HTTPMethod'].must_equal 'GET'
       traces[13]['HTTPStatus'].must_equal "200"
