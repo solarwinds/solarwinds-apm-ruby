@@ -191,16 +191,14 @@ if RUBY_VERSION >= '1.9.3'
       response = nil
 
       TraceView::API.start_trace('rest_client_test') do
-        resource = RestClient::Resource.new 'http://www.appneta.com/products/traceview?a=1'
+        resource = RestClient::Resource.new 'http://localhost:8101/redirectme?redirect_test'
         response = resource.get
       end
 
       traces = get_all_traces
-      traces.count.must_equal 12
+      traces.count.must_equal 18
 
-      # FIXME: We need to switch from making external calls to an internal test
-      # stack instead so we can validate cross-app traces.
-      # valid_edges?(traces).must_equal true
+      valid_edges?(traces).must_equal true
       validate_outer_layers(traces, 'rest_client_test')
 
       traces[1]['Layer'].must_equal 'rest-client'
@@ -209,43 +207,43 @@ if RUBY_VERSION >= '1.9.3'
       traces[2]['Layer'].must_equal 'net-http'
       traces[2]['Label'].must_equal 'entry'
 
-      traces[3]['Layer'].must_equal 'net-http'
-      traces[3]['Label'].must_equal 'info'
-      traces[3]['IsService'].must_equal 1
-      traces[3]['RemoteProtocol'].must_equal 'HTTP'
-      traces[3]['RemoteHost'].must_equal 'www.appneta.com'
-      traces[3]['ServiceArg'].must_equal '/products/traceview?a=1'
-      traces[3]['HTTPMethod'].must_equal 'GET'
-      traces[3]['HTTPStatus'].must_equal "301"
-      traces[3].key?('Backtrace').must_equal TraceView::Config[:nethttp][:collect_backtraces]
-
-      traces[4]['Layer'].must_equal 'net-http'
-      traces[4]['Label'].must_equal 'exit'
-
-      traces[5]['Layer'].must_equal 'rest-client'
-      traces[5]['Label'].must_equal 'entry'
-
       traces[6]['Layer'].must_equal 'net-http'
-      traces[6]['Label'].must_equal 'entry'
+      traces[6]['Label'].must_equal 'info'
+      traces[6]['IsService'].must_equal 1
+      traces[6]['RemoteProtocol'].must_equal 'HTTP'
+      traces[6]['RemoteHost'].must_equal 'localhost:8101'
+      traces[6]['ServiceArg'].must_equal '/redirectme?redirect_test'
+      traces[6]['HTTPMethod'].must_equal 'GET'
+      traces[6]['HTTPStatus'].must_equal "301"
+      traces[6].key?('Backtrace').must_equal TraceView::Config[:nethttp][:collect_backtraces]
 
       traces[7]['Layer'].must_equal 'net-http'
-      traces[7]['Label'].must_equal 'info'
-      traces[7]['IsService'].must_equal 1
-      traces[7]['RemoteProtocol'].must_equal 'HTTP'
-      traces[7]['RemoteHost'].must_equal 'www.appneta.com'
-      traces[7]['ServiceArg'].must_equal '/products/traceview/?a=1'
-      traces[7]['HTTPMethod'].must_equal 'GET'
-      traces[7]['HTTPStatus'].must_equal "200"
-      traces[7].key?('Backtrace').must_equal TraceView::Config[:nethttp][:collect_backtraces]
+      traces[7]['Label'].must_equal 'exit'
 
-      traces[8]['Layer'].must_equal 'net-http'
-      traces[8]['Label'].must_equal 'exit'
+      traces[8]['Layer'].must_equal 'rest-client'
+      traces[8]['Label'].must_equal 'entry'
 
-      traces[9]['Layer'].must_equal 'rest-client'
-      traces[9]['Label'].must_equal 'exit'
+      traces[9]['Layer'].must_equal 'net-http'
+      traces[9]['Label'].must_equal 'entry'
 
-      traces[10]['Layer'].must_equal 'rest-client'
-      traces[10]['Label'].must_equal 'exit'
+      traces[13]['Layer'].must_equal 'net-http'
+      traces[13]['Label'].must_equal 'info'
+      traces[13]['IsService'].must_equal 1
+      traces[13]['RemoteProtocol'].must_equal 'HTTP'
+      traces[13]['RemoteHost'].must_equal 'localhost:8101'
+      traces[13]['ServiceArg'].must_equal '/'
+      traces[13]['HTTPMethod'].must_equal 'GET'
+      traces[13]['HTTPStatus'].must_equal "200"
+      traces[13].key?('Backtrace').must_equal TraceView::Config[:nethttp][:collect_backtraces]
+
+      traces[14]['Layer'].must_equal 'net-http'
+      traces[14]['Label'].must_equal 'exit'
+
+      traces[15]['Layer'].must_equal 'rest-client'
+      traces[15]['Label'].must_equal 'exit'
+
+      traces[16]['Layer'].must_equal 'rest-client'
+      traces[16]['Label'].must_equal 'exit'
     end
 
     it 'should trace and capture raised exceptions' do
