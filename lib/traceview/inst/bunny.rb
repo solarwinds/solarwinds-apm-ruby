@@ -10,7 +10,7 @@ module TraceView
 
       def delete_with_traceview(opts = {})
         # If we're not tracing, just do a fast return.
-        return delete_without_traceview if !TraceView.tracing?
+        return delete_without_traceview(opts) if !TraceView.tracing?
 
         begin
           kvs = {}
@@ -30,7 +30,7 @@ module TraceView
 
           TraceView::API.log_entry('rabbitmq-client')
 
-          delete_without_traceview
+          delete_without_traceview(opts)
         rescue => e
           TraceView::API.log_exception(nil, e)
           raise e
