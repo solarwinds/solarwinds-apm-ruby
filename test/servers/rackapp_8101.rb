@@ -9,9 +9,17 @@ TraceView.logger.info "[traceview/info] Starting background utility rack app on 
 Thread.new do
   app = Rack::Builder.new {
     use TraceView::Rack
-    run Proc.new { |env|
-      [200, {"Content-Type" => "text/html"}, ['Hello TraceView!']]
-    }
+    map "/" do
+      run Proc.new { |env|
+        [200, {"Content-Type" => "text/html"}, ['Hello TraceView!']]
+      }
+    end
+
+    map "/redirectme" do
+      run Proc.new { |env|
+        [301, {"Location" => "/", "Content-Type" => "text/html"}, ['']]
+      }
+    end
   }
 
   Rack::Handler::Puma.run(app, {:Host => '127.0.0.1', :Port => 8101})
