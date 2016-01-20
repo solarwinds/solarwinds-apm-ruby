@@ -142,7 +142,7 @@ module TraceViewBase
   # DelayedJob or Sidekiq workers.
   #
   def entry_layer?(layer)
-    %w(delayed_job-worker sidekiq-worker).include?(layer.to_s)
+    %w(delayed_job-worker sidekiq-worker resque-worker).include?(layer.to_s)
   end
 
   ##
