@@ -150,9 +150,11 @@ You can send deploy notifications to TraceView and have the events show up on yo
 
 # Custom Tracing
 
+You can add even more visibility into any part of your application or scripts by adding custom instrumentation.  If you want to see the performance of an existing method see Method Profiling.  To trace blocks of code see the Tracing API.
+
 ## The Tracing API
 
-You can instrument any arbitrary block of code using `TraceView::API.trace`:
+You can instrument any arbitrary block of code using `TraceView::API.trace`.  The code and any supported calls for libraries that we support, will automatically get traced and reported to your dashboard.
 
 ```ruby
 # layer_name will show up in the TraceView app dashboard
@@ -181,27 +183,15 @@ Find more details in the [RubyDoc page](http://rdoc.info/gems/traceview/TraceVie
 
 ## Tracing Methods
 
-By using class level declarations, it's possible to automatically have certain methods on that class instrumented and reported to your TraceView dashboard automatically.
+With TraceView, you can profile any method in your application or even in the Ruby language using `TraceView::API.profile_method`.
 
-The pattern for Method Profiling is as follows:
+If, for example, you wanted to see the performance for the `Array::sort`, you could simply call the following in your startup code:
 
-```ruby
-# 'profile_name' is similar to a layer name.
-# It identifies this custom trace in your dashboard.
-#
-class Engine
-    def processor()
-        # body of method
-    end
-    
-    include TraceViewMethodProfiling
-    
-    # call syntax: profile_method <method>, <profile_name>
-    profile_method :processor, 'processor'
-end
+```
+TraceView::API.profile_method(Array, :sort)
 ```
 
-This example demonstrates method profiling of instance methods.  Class methods are profiled slightly differently.  See the TraceView [documentation portal](https://docs.appneta.com/ruby#customizing-ruby-instrumentation) for full details.
+For full documentation, options and reporting custom KVs, see our documentation on [method profiling](http://docs.appneta.com/ruby#profiling-ruby-methods).
 
 # Support
 
