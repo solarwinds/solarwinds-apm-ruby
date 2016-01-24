@@ -22,7 +22,6 @@ Gem::Specification.new do |s|
   s.extensions = ['ext/oboe_metal/extconf.rb'] unless defined?(JRUBY_VERSION)
 
   s.add_runtime_dependency('json', '>= 0')
-  s.add_runtime_dependency('bson', '< 4.0')
 
   # Development dependencies used in gem development & testing
   s.add_development_dependency('rake', '>= 0.9.0')
