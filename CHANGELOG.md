@@ -4,6 +4,18 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# traceview 3.4.2
+
+This patch release includes the following fixes:
+
+* bson dependency breaks Ruby 1.8.7 install: #158
+* Resque worker automatic tracing: #157
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.4.2
+https://rubygems.org/gems/traceview/versions/3.4.2-java
+
 # traceview 3.4.1
 
 This patch release includes the following fixes:
