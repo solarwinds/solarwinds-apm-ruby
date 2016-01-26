@@ -36,7 +36,12 @@ else
   gem 'pg', '< 0.17'
 end
 
-gem "rails", "~> 3.2.22"
+if RUBY_VERSION < '1.9'
+  # Newer Rails is incompatible with Ruby 1.8.7
+  gem "rails", "3.2.19"
+else
+  gem "rails", "~> 3.2.22"
+end
 
 gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')
 # vim:syntax=ruby
