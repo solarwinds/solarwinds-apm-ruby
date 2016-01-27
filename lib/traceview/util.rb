@@ -171,23 +171,18 @@ module TraceView
       end
 
       ##
-      #  build_init_report
+      # legacy_build_init_report
       #
       # Internal: Build a hash of KVs that reports on the status of the
       # running environment.  This is used on stack boot in __Init reporting
       # and for TraceView.support_report.
       #
-      def build_init_report
-        platform_info = { '__Init' => 1 }
+      # This legacy version of build_init_report is used for apps without Bundler.
+      #
+      def legacy_build_init_report
+        platform_info = {}
 
         begin
-          platform_info['Force']                        = true
-          platform_info['Ruby.Platform.Version']        = RUBY_PLATFORM
-          platform_info['Ruby.Version']                 = RUBY_VERSION
-          platform_info['Ruby.TraceView.Version']       = ::TraceView::Version::STRING
-          platform_info['RubyHeroku.TraceView.Version'] = ::TraceViewHeroku::Version::STRING if defined?(::TraceViewHeroku)
-          platform_info['Ruby.TraceMode.Version']       = ::TraceView::Config[:tracing_mode]
-
           # Report the framework in use
           if defined?(::RailsLts::VERSION)
             platform_info['Ruby.RailsLts.Version']  = "RailsLts-#{::RailsLts::VERSION}"
@@ -235,6 +230,44 @@ module TraceView
           platform_info['Ruby.PG.Version']      = PG::VERSION                  if defined?(PG::VERSION)
           platform_info['Ruby.Mysql2.Version']  = Mysql2::VERSION              if defined?(Mysql2::VERSION)
           platform_info['Ruby.Sequel.Version']  = ::Sequel::VERSION            if defined?(::Sequel::VERSION)
+        rescue StandardError, ScriptError => e
+          # Also rescue ScriptError (aka SyntaxError) in case one of the expected
+          # version defines don't exist
+
+          platform_info['Error'] = "Error in legacy_build_init_report: #{e.message}"
+
+          TraceView.logger.warn "[traceview/warn] Error in legacy_build_init_report: #{e.message}"
+          TraceView.logger.debug e.backtrace
+        end
+        platform_info
+      end
+
+      ##
+      #  build_init_report
+      #
+      # Internal: Build a hash of KVs that reports on the status of the
+      # running environment.  This is used on stack boot in __Init reporting
+      # and for TraceView.support_report.
+      #
+      def build_init_report
+        platform_info = { '__Init' => 1 }
+
+        begin
+          platform_info['Force']                        = true
+          platform_info['Ruby.Platform.Version']        = RUBY_PLATFORM
+          platform_info['Ruby.Version']                 = RUBY_VERSION
+          platform_info['Ruby.TraceView.Version']       = ::TraceView::Version::STRING
+          platform_info['RubyHeroku.TraceView.Version'] = ::TraceViewHeroku::Version::STRING if defined?(::TraceViewHeroku)
+          platform_info['Ruby.TraceMode.Version']       = ::TraceView::Config[:tracing_mode]
+
+          # Collect up the loaded gems
+          if defined?(Gem) && Gem.respond_to?(:loaded_specs)
+            Gem.loaded_specs.each_pair { |k, v|
+              platform_info["Ruby.#{k}.Version"] = v.version.to_s
+            }
+          else
+            platform_info.merge!(legacy_build_init_report)
+          end
 
           # Report the server in use (if possible)
           if defined?(::Unicorn::Const::UNICORN_VERSION)
