@@ -94,8 +94,9 @@ if defined?(TraceView::Config)
   # value to false:
   #
   # TraceView::Config[:action_controller][:enabled] = true
-  # TraceView::Config[:active_record][:enabled] = true
   # TraceView::Config[:action_view][:enabled] = true
+  # TraceView::Config[:active_record][:enabled] = true
+  # TraceView::Config[:bunny][:enabled] = true
   # TraceView::Config[:cassandra][:enabled] = true
   # TraceView::Config[:curb][:enabled] = true
   # TraceView::Config[:dalli][:enabled] = true
@@ -124,8 +125,9 @@ if defined?(TraceView::Config)
   # a certain call or operation.
   #
   # TraceView::Config[:action_controller][:collect_backtraces] = true
-  # TraceView::Config[:active_record][:collect_backtraces] = true
   # TraceView::Config[:action_view][:collect_backtraces] = true
+  # TraceView::Config[:active_record][:collect_backtraces] = true
+  # TraceView::Config[:bunny][:collect_backtraces] = true
   # TraceView::Config[:cassandra][:collect_backtraces] = true
   # TraceView::Config[:curb][:collect_backtraces] = true
   # TraceView::Config[:dalli][:collect_backtraces] = false
