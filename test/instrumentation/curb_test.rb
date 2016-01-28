@@ -35,8 +35,8 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
 
     def test_reports_version_init
       init_kvs = ::TraceView::Util.build_init_report
-      assert init_kvs.key?('Ruby.Curb.Version')
-      assert_equal init_kvs['Ruby.Curb.Version'], "Curb-#{::Curl::VERSION}"
+      assert init_kvs.key?('Ruby.curb.Version')
+      assert_equal ::Curl::CURB_VERSION, init_kvs['Ruby.curb.Version']
     end
 
     def test_class_get_request
