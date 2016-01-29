@@ -24,8 +24,8 @@ class DelayedJobWorkerTest < Minitest::Test
 
   def test_reports_version_init
     init_kvs = ::TraceView::Util.build_init_report
-    assert init_kvs.key?('Ruby.DelayedJob.Version')
-    assert_equal "DelayedJob-#{Gem.loaded_specs['delayed_job'].version.to_s}", init_kvs['Ruby.DelayedJob.Version']
+    assert init_kvs.key?('Ruby.delayedjob.Version')
+    assert_equal Gem.loaded_specs['delayed_job'].version.to_s, init_kvs['Ruby.delayedjob.Version']
   end
 
   def test_job_run
