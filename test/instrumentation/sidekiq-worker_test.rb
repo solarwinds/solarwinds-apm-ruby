@@ -22,8 +22,8 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
 
     def test_reports_version_init
       init_kvs = ::TraceView::Util.build_init_report
-      assert init_kvs.key?('Ruby.Sidekiq.Version')
-      assert_equal "Sidekiq-#{::Sidekiq::VERSION}", init_kvs['Ruby.Sidekiq.Version']
+      assert init_kvs.key?('Ruby.sidekiq.Version')
+      assert_equal ::Sidekiq::VERSION, init_kvs['Ruby.sidekiq.Version']
     end
 
     def test_job_run
