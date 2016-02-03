@@ -15,8 +15,8 @@ unless defined?(JRUBY_VERSION)
 
     def test_reports_version_init
       init_kvs = ::TraceView::Util.build_init_report
-      assert init_kvs.key?('Ruby.HTTPClient.Version')
-      assert_equal init_kvs['Ruby.HTTPClient.Version'], "HTTPClient-#{::HTTPClient::VERSION}"
+      assert init_kvs.key?('Ruby.httpclient.Version')
+      assert_equal ::HTTPClient::VERSION, init_kvs['Ruby.httpclient.Version']
     end
 
     def test_get_request
