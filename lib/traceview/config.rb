@@ -15,9 +15,9 @@ module TraceView
                          :cassandra, :curb, :dalli, :delayed_jobclient,
                          :delayed_jobworker, :em_http_request, :excon,
                          :faraday, :grape, :httpclient, :nethttp, :memcached,
-                         :memcache, :mongo, :moped, :rack, :redis, :resqueclient,
-                         :resqueworker, :rest_client, :sequel, :sidekiqclient,
-                         :sidekiqworker, :typhoeus]
+                         :memcache, :mongo, :moped, :rack, :bunnyclient,
+                         :bunnyconsumer, :redis, :resqueclient, :resqueworker,
+                         :rest_client, :sequel, :sidekiqclient, :sidekiqworker, :typhoeus]
 
     # Subgrouping of instrumentation
     @@http_clients = [:curb, :excon, :em_http_request, :faraday, :httpclient, :nethttp, :rest_client, :typhoeus]
@@ -61,6 +61,9 @@ module TraceView
       TraceView::Config[:mongo][:collect_backtraces] = true
       TraceView::Config[:moped][:collect_backtraces] = true
       TraceView::Config[:nethttp][:collect_backtraces] = true
+      TraceView::Config[:bunnyclient][:collect_backtraces] = false
+      TraceView::Config[:bunnyconsumer][:collect_backtraces] = false
+      TraceView::Config[:rack][:collect_backtraces] = false
       TraceView::Config[:redis][:collect_backtraces] = false
       TraceView::Config[:resqueclient][:collect_backtraces] = true
       TraceView::Config[:resqueworker][:collect_backtraces] = false
