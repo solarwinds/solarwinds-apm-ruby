@@ -8,7 +8,7 @@ module TraceView
         ::TraceView::Util.method_alias(klass, :call, ::Bunny::Consumer)
       end
 
-      def collect_consumer_kvs
+      def collect_consumer_kvs(args)
         begin
           kvs = {}
           kvs[:Spec] = :job
@@ -16,6 +16,10 @@ module TraceView
           kvs[:RemoteHost]  = @channel.connection.host
           kvs[:RemotePort]  = @channel.connection.port.to_i
           kvs[:VirtualHost] = @channel.connection.vhost
+
+          if args[0].respond_to?(:routing_key)
+            kvs[:RoutingKey] = args[0][:routing_key]
+          end
 
           if @queue.respond_to?(:name)
             kvs[:Queue] = @queue.name
@@ -38,7 +42,9 @@ module TraceView
       end
 
       def call_with_traceview(*args)
-        result = TraceView::API.start_trace('rabbitmq-consumer', nil, collect_consumer_kvs) do
+        report_kvs = collect_consumer_kvs(args)
+
+        result = TraceView::API.start_trace('rabbitmq-consumer', nil, report_kvs) do
           call_without_traceview(*args)
         end
         result[0]
