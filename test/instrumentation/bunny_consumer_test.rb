@@ -58,6 +58,7 @@ unless defined?(JRUBY_VERSION)
       traces[0]['RemoteHost'].must_equal @connection_params[:host]
       traces[0]['RemotePort'].must_equal @connection_params[:port].to_i
       traces[0]['VirtualHost'].must_equal @connection_params[:vhost]
+      traces[0]['RoutingKey'].must_equal "tv.ruby.consumer.test"
       traces[0].key?('Backtrace').must_equal false
 
       @conn.close
@@ -67,7 +68,7 @@ unless defined?(JRUBY_VERSION)
       @conn = Bunny.new(@connection_params)
       @conn.start
       @ch = @conn.create_channel
-      @queue = @ch.queue("tv.ruby.consumer.test", :exclusive => true)
+      @queue = @ch.queue("tv.ruby.consumer.error.test", :exclusive => true)
       @exchange  = @ch.default_exchange
 
       @queue.subscribe(:block => false, :manual_ack => true) do |delivery_info, properties, payload|
@@ -86,10 +87,11 @@ unless defined?(JRUBY_VERSION)
 
       traces[0]['Spec'].must_equal "job"
       traces[0]['Flavor'].must_equal "rabbitmq"
-      traces[0]['Queue'].must_equal "tv.ruby.consumer.test"
+      traces[0]['Queue'].must_equal "tv.ruby.consumer.error.test"
       traces[0]['RemoteHost'].must_equal @connection_params[:host]
       traces[0]['RemotePort'].must_equal @connection_params[:port].to_i
       traces[0]['VirtualHost'].must_equal @connection_params[:vhost]
+      traces[0]['RoutingKey'].must_equal "tv.ruby.consumer.error.test"
       traces[0].key?('Backtrace').must_equal false
 
       traces[1]['Layer'].must_equal "rabbitmq-consumer"
