@@ -210,5 +210,22 @@ class ExconTest < Minitest::Test
 
     TraceView::Config[:excon][:log_args] = @log_args
   end
+
+  def test_obey_log_args_when_true_and_using_hash
+    @log_args = TraceView::Config[:excon][:log_args]
+    clear_all_traces
+
+    TraceView::Config[:excon][:log_args] = true
+
+    TraceView::API.start_trace('excon_tests') do
+      Excon.get('http://127.0.0.1:8101/?', :query => { :blah => 1 })
+    end
+
+    traces = get_all_traces
+    assert_equal traces.count, 7
+    assert_equal traces[1]['ServiceArg'], '/?blah=1'
+
+    TraceView::Config[:excon][:log_args] = @log_args
+  end
 end
 
