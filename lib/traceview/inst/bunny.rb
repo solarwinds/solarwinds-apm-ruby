@@ -58,6 +58,8 @@ module TraceView
           kvs
         rescue => e
           TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
+        ensure
+          return kvs
         end
       end
 
