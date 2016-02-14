@@ -27,8 +27,8 @@ if RUBY_VERSION >= '1.9.3'
     it "should report rest-client version in __Init" do
       init_kvs = ::TraceView::Util.build_init_report
 
-      init_kvs.key?('Ruby.RestClient.Version').must_equal true
-      init_kvs['Ruby.RestClient.Version'].must_equal "RestClient-#{::RestClient::VERSION}"
+      init_kvs.key?('Ruby.rest-client.Version').must_equal true
+      init_kvs['Ruby.rest-client.Version'].must_equal ::RestClient::VERSION
     end
 
     it "should trace a request to an instr'd app" do

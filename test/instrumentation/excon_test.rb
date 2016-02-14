@@ -22,8 +22,7 @@ class ExconTest < Minitest::Test
 
   def test_reports_version_init
     init_kvs = ::TraceView::Util.build_init_report
-    assert init_kvs.key?('Ruby.Excon.Version')
-    assert_equal "Excon-#{::Excon::VERSION}", init_kvs['Ruby.Excon.Version']
+    assert_equal ::Excon::VERSION, init_kvs['Ruby.excon.Version']
   end
 
   def test_class_get_request
