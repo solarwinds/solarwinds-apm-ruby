@@ -39,6 +39,8 @@ module TraceView
       rescue => e
         TraceView.logger.debug "[traceview/debug] Error capturing curb KVs: #{e.message}"
         TraceView.logger.debug e.backtrace.join('\n') if ::TraceView::Config[:verbose]
+      ensure
+        return kvs
       end
 
       ##

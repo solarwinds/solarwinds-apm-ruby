@@ -120,23 +120,22 @@ if defined?(::Mongo) && TraceView::Config[:mongo][:enabled]
         include TraceView::Inst::Mongo
 
         def traceview_collect(m, args)
-          begin
-            report_kvs = {}
-            report_kvs[:Flavor] = TraceView::Inst::Mongo::FLAVOR
+          kvs = {}
+          kvs[:Flavor] = TraceView::Inst::Mongo::FLAVOR
 
-            report_kvs[:Database] = @db.name
-            report_kvs[:RemoteHost] = @db.connection.host
-            report_kvs[:RemotePort] = @db.connection.port
-            report_kvs[:Collection] = @name
+          kvs[:Database] = @db.name
+          kvs[:RemoteHost] = @db.connection.host
+          kvs[:RemotePort] = @db.connection.port
+          kvs[:Collection] = @name
 
-            report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:mongo][:collect_backtraces]
+          kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:mongo][:collect_backtraces]
 
-            report_kvs[:QueryOp] = m
-            report_kvs[:Query] = args[0].to_json if args && !args.empty? && args[0].class == Hash
-          rescue StandardError => e
-            TraceView.logger.debug "[traceview/debug] Exception in traceview_collect KV collection: #{e.inspect}"
-          end
-          report_kvs
+          kvs[:QueryOp] = m
+          kvs[:Query] = args[0].to_json if args && !args.empty? && args[0].class == Hash
+        rescue StandardError => e
+          TraceView.logger.debug "[traceview/debug] Exception in traceview_collect KV collection: #{e.inspect}"
+        ensure
+          return kvs
         end
 
         # Instrument Collection write operations
