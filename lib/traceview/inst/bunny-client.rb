@@ -69,9 +69,7 @@ module TraceView
         return basic_publish_without_traceview(payload, exchange, routing_key, opts) if !TraceView.tracing?
 
         begin
-          kvs = {}
-          kvs[:Spec] = :pushq
-          kvs[:Flavor] = :rabbitmq # broker name?
+          kvs = collect_channel_kvs
 
           if exchange.respond_to?(:name)
             kvs[:ExchangeName] = exchange.name
@@ -81,13 +79,9 @@ module TraceView
             kvs[:ExchangeName] = :default
           end
 
-          kvs[:Queue]          = opts[:queue] if opts.key?(:queue)
-          kvs[:RoutingKey]     = routing_key if routing_key
-          kvs[:RemoteHost]     = @connection.host
-          kvs[:RemotePort]     = @connection.port.to_i
-
-          kvs[:Op] = :publish
-          kvs[:VirtualHost] = @connection.vhost
+          kvs[:Queue]       = opts[:queue] if opts.key?(:queue)
+          kvs[:RoutingKey]  = routing_key if routing_key
+          kvs[:Op]          = :publish
 
           TraceView::API.log_entry('rabbitmq-client')
 
