@@ -22,8 +22,7 @@ class ExconTest < Minitest::Test
 
   def test_reports_version_init
     init_kvs = ::TraceView::Util.build_init_report
-    assert init_kvs.key?('Ruby.Excon.Version')
-    assert_equal init_kvs['Ruby.Excon.Version'], "Excon-#{::Excon::VERSION}"
+    assert_equal ::Excon::VERSION, init_kvs['Ruby.excon.Version']
   end
 
   def test_class_get_request
@@ -38,16 +37,16 @@ class ExconTest < Minitest::Test
     validate_outer_layers(traces, "excon_tests")
     valid_edges?(traces)
 
-    assert_equal traces[1]['IsService'], 1
-    assert_equal traces[1]['RemoteHost'], '127.0.0.1'
-    assert_equal traces[1]['RemoteProtocol'], 'HTTP'
-    assert_equal traces[1]['ServiceArg'], '/'
-    assert_equal traces[1]['HTTPMethod'], 'GET'
+    assert_equal 1,           traces[1]['IsService']
+    assert_equal '127.0.0.1', traces[1]['RemoteHost']
+    assert_equal 'HTTP',      traces[1]['RemoteProtocol']
+    assert_equal '/',         traces[1]['ServiceArg']
+    assert_equal 'GET',       traces[1]['HTTPMethod']
     assert traces[1].key?('Backtrace')
 
-    assert_equal traces[5]['Layer'], 'excon'
-    assert_equal traces[5]['Label'], 'exit'
-    assert_equal traces[5]['HTTPStatus'], 200
+    assert_equal 'excon',     traces[5]['Layer']
+    assert_equal 'exit',      traces[5]['Label']
+    assert_equal 200,         traces[5]['HTTPStatus']
   end
 
   def test_cross_app_tracing
@@ -65,17 +64,17 @@ class ExconTest < Minitest::Test
     end
 
     traces = get_all_traces
-    assert_equal traces.count, 7
+    assert_equal 7, traces.count
     validate_outer_layers(traces, "excon_tests")
     valid_edges?(traces)
 
-    assert_equal traces[1]['IsService'], 1
-    assert_equal traces[1]['RemoteHost'], '127.0.0.1'
-    assert_equal traces[1]['RemoteProtocol'], 'HTTP'
-    assert_equal traces[1]['ServiceArg'], '/?blah=1'
-    assert_equal traces[1]['HTTPMethod'], 'GET'
+    assert_equal 1,            traces[1]['IsService']
+    assert_equal '127.0.0.1',  traces[1]['RemoteHost']
+    assert_equal 'HTTP',       traces[1]['RemoteProtocol']
+    assert_equal '/?blah=1',   traces[1]['ServiceArg']
+    assert_equal 'GET',        traces[1]['HTTPMethod']
+    assert_equal 200,          traces[5]['HTTPStatus']
     assert traces[1].key?('Backtrace')
-    assert_equal traces[5]['HTTPStatus'], 200
   end
 
   def test_persistent_requests
@@ -96,29 +95,29 @@ class ExconTest < Minitest::Test
     validate_outer_layers(traces, "excon_tests")
     valid_edges?(traces)
 
-    assert_equal traces[1]['IsService'], 1
-    assert_equal traces[1]['RemoteHost'], '127.0.0.1'
-    assert_equal traces[1]['RemoteProtocol'], 'HTTP'
-    assert_equal traces[1]['ServiceArg'], '/'
-    assert_equal traces[1]['HTTPMethod'], 'GET'
+    assert_equal 1,             traces[1]['IsService']
+    assert_equal '127.0.0.1',   traces[1]['RemoteHost']
+    assert_equal 'HTTP',        traces[1]['RemoteProtocol']
+    assert_equal '/',           traces[1]['ServiceArg']
+    assert_equal 'GET',         traces[1]['HTTPMethod']
+    assert_equal 200,           traces[5]['HTTPStatus']
     assert traces[1].key?('Backtrace')
-    assert_equal traces[5]['HTTPStatus'], 200
 
-    assert_equal traces[6]['IsService'], 1
-    assert_equal traces[6]['RemoteHost'], '127.0.0.1'
-    assert_equal traces[6]['RemoteProtocol'], 'HTTP'
-    assert_equal traces[6]['ServiceArg'], '/'
-    assert_equal traces[6]['HTTPMethod'], 'GET'
+    assert_equal 1,             traces[6]['IsService']
+    assert_equal '127.0.0.1',   traces[6]['RemoteHost']
+    assert_equal 'HTTP',        traces[6]['RemoteProtocol']
+    assert_equal '/',           traces[6]['ServiceArg']
+    assert_equal 'GET',         traces[6]['HTTPMethod']
+    assert_equal 200,           traces[10]['HTTPStatus']
     assert traces[6].key?('Backtrace')
-    assert_equal traces[10]['HTTPStatus'], 200
 
-    assert_equal traces[11]['IsService'], 1
-    assert_equal traces[11]['RemoteHost'], '127.0.0.1'
-    assert_equal traces[11]['RemoteProtocol'], 'HTTP'
-    assert_equal traces[11]['ServiceArg'], '/'
-    assert_equal traces[11]['HTTPMethod'], 'GET'
+    assert_equal 1,             traces[11]['IsService']
+    assert_equal '127.0.0.1',   traces[11]['RemoteHost']
+    assert_equal 'HTTP',        traces[11]['RemoteProtocol']
+    assert_equal '/',           traces[11]['ServiceArg']
+    assert_equal 'GET',         traces[11]['HTTPMethod']
+    assert_equal 200,           traces[15]['HTTPStatus']
     assert traces[11].key?('Backtrace')
-    assert_equal traces[15]['HTTPStatus'], 200
   end
 
   def test_pipelined_requests
@@ -132,16 +131,16 @@ class ExconTest < Minitest::Test
     end
 
     traces = get_all_traces
-    assert_equal traces.count, 10
+    assert_equal 10, traces.count
     validate_outer_layers(traces, "excon_tests")
     valid_edges?(traces)
 
-    assert_equal traces[1]['IsService'], 1
-    assert_equal traces[1]['RemoteHost'], '127.0.0.1'
-    assert_equal traces[1]['RemoteProtocol'], 'HTTP'
-    assert_equal traces[1]['ServiceArg'], '/'
-    assert_equal traces[1]['Pipeline'], 'true'
-    assert_equal traces[1]['HTTPMethods'], 'GET, PUT'
+    assert_equal 1,             traces[1]['IsService']
+    assert_equal '127.0.0.1',   traces[1]['RemoteHost']
+    assert_equal 'HTTP',        traces[1]['RemoteProtocol']
+    assert_equal '/',           traces[1]['ServiceArg']
+    assert_equal 'true',        traces[1]['Pipeline']
+    assert_equal 'GET, PUT',    traces[1]['HTTPMethods']
     assert traces[1].key?('Backtrace')
   end
 
@@ -160,21 +159,21 @@ class ExconTest < Minitest::Test
     validate_outer_layers(traces, "excon_tests")
     valid_edges?(traces)
 
-    assert_equal traces[1]['IsService'], 1
-    assert_equal traces[1]['RemoteHost'], 'asfjalkfjlajfljkaljf'
-    assert_equal traces[1]['RemoteProtocol'], 'HTTP'
-    assert_equal traces[1]['ServiceArg'], '/'
-    assert_equal traces[1]['HTTPMethod'], 'GET'
+    assert_equal 1,                          traces[1]['IsService']
+    assert_equal 'asfjalkfjlajfljkaljf',     traces[1]['RemoteHost']
+    assert_equal 'HTTP',                     traces[1]['RemoteProtocol']
+    assert_equal '/',                        traces[1]['ServiceArg']
+    assert_equal 'GET',                      traces[1]['HTTPMethod']
     assert traces[1].key?('Backtrace')
 
-    assert_equal traces[2]['Layer'], 'excon'
-    assert_equal traces[2]['Label'], 'error'
-    assert_equal traces[2]['ErrorClass'], "Excon::Errors::SocketError"
+    assert_equal 'excon',                      traces[2]['Layer']
+    assert_equal 'error',                      traces[2]['Label']
+    assert_equal "Excon::Errors::SocketError", traces[2]['ErrorClass']
     assert traces[2].key?('ErrorMsg')
     assert traces[2].key?('Backtrace')
 
-    assert_equal traces[3]['Layer'], 'excon'
-    assert_equal traces[3]['Label'], 'exit'
+    assert_equal 'excon',                    traces[3]['Layer']
+    assert_equal 'exit',                     traces[3]['Label']
   end
 
   def test_obey_log_args_when_false
@@ -188,8 +187,8 @@ class ExconTest < Minitest::Test
     end
 
     traces = get_all_traces
-    assert_equal traces.count, 7
-    assert_equal traces[1]['ServiceArg'], '/'
+    assert_equal 7, traces.count
+    assert_equal '/', traces[1]['ServiceArg']
 
     TraceView::Config[:excon][:log_args] = @log_args
   end
@@ -205,8 +204,25 @@ class ExconTest < Minitest::Test
     end
 
     traces = get_all_traces
-    assert_equal traces.count, 7
-    assert_equal traces[1]['ServiceArg'], '/?blah=1'
+    assert_equal 7, traces.count
+    assert_equal '/?blah=1', traces[1]['ServiceArg']
+
+    TraceView::Config[:excon][:log_args] = @log_args
+  end
+
+  def test_obey_log_args_when_true_and_using_hash
+    @log_args = TraceView::Config[:excon][:log_args]
+    clear_all_traces
+
+    TraceView::Config[:excon][:log_args] = true
+
+    TraceView::API.start_trace('excon_tests') do
+      Excon.get('http://127.0.0.1:8101/?', :query => { :blah => 1 })
+    end
+
+    traces = get_all_traces
+    assert_equal 7, traces.count
+    assert_equal '/?blah=1', traces[1]['ServiceArg']
 
     TraceView::Config[:excon][:log_args] = @log_args
   end

@@ -33,6 +33,8 @@ module TraceView
       rescue => e
         TraceView.logger.debug "[traceview/debug] Error capturing httpclient KVs: #{e.message}"
         TraceView.logger.debug e.backtrace.join('\n') if ::TraceView::Config[:verbose]
+      ensure
+        return kvs
       end
 
       def do_request_with_traceview(method, uri, query, body, header, &block)

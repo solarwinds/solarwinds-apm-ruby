@@ -16,8 +16,20 @@ module TraceView
         kvs['RemoteHost'] = @data[:host]
 
         # Conditionally log query args
-        if TraceView::Config[:excon][:log_args] && (@data[:query] && @data[:query].length)
-          kvs['ServiceArg'] = @data[:path] + '?' + @data[:query]
+        if TraceView::Config[:excon][:log_args] && @data[:query]
+          if @data[:query].is_a?(Hash)
+            if RUBY_VERSION >= '1.9.2'
+              kvs['ServiceArg'] = "#{@data[:path]}?#{URI.encode_www_form(@data[:query])}"
+            else
+              # An imperfect solution for the lack of URI.encode_www_form for Ruby versions before
+              # 1.9.2.  We manually create a query string for reporting purposes only.
+              query_arg = ""
+              @data[:query].each_pair { |k,v| query_arg += "#{k}=#{v}?"; }
+              kvs['ServiceArg'] = "#{@data[:path]}?#{query_arg.chop}"
+            end
+          else
+            kvs['ServiceArg'] = "#{@data[:path]}?#{@data[:query]}"
+          end
         else
           kvs['ServiceArg'] = @data[:path]
         end
@@ -39,6 +51,8 @@ module TraceView
       rescue => e
         TraceView.logger.debug "[traceview/debug] Error capturing excon KVs: #{e.message}"
         TraceView.logger.debug e.backtrace.join('\n') if ::TraceView::Config[:verbose]
+      ensure
+        return kvs
       end
 
       def requests_with_traceview(pipeline_params)

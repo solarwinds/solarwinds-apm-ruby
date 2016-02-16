@@ -4,6 +4,19 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# traceview 3.5.1
+
+This patch release includes the following fixes:
+
+* Excon: hash query handling fix (thanks @tlunter!): #161, #163
+* Data collection methods should ensure hash values are always returned: #162
+* Expanded Init reporting: #159
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.5.1
+https://rubygems.org/gems/traceview/versions/3.5.1-java
+
 # traceview 3.5.0
 
 This minor release includes the following new feature:
