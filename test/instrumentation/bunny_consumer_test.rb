@@ -64,6 +64,49 @@ unless defined?(JRUBY_VERSION)
       @conn.close
     end
 
+    def test_blocking_consume
+      @conn = Bunny.new(@connection_params)
+      @conn.start
+      @ch = @conn.create_channel
+      @queue = @ch.queue("tv.ruby.consumer.test", :exclusive => true)
+      @exchange  = @ch.default_exchange
+
+      Thread.new {
+        @queue.subscribe(:block => true, :manual_ack => true) do |delivery_info, properties, payload|
+          # Make an http call to spice things up
+          uri = URI('http://127.0.0.1:8101/')
+          http = Net::HTTP.new(uri.host, uri.port)
+          http.get('/?q=1').read_body
+        end
+      }
+
+      @exchange.publish("The Tortoise and the Hare", :routing_key => @queue.name)
+
+      sleep 1
+
+      traces = get_all_traces
+      traces.count.must_equal 8
+
+      validate_outer_layers(traces, "rabbitmq-consumer")
+      valid_edges?(traces)
+
+      traces[1]['Layer'].must_equal "net-http"
+      traces[1]['Label'].must_equal "entry"
+      traces[6]['Layer'].must_equal "net-http"
+      traces[6]['Label'].must_equal "exit"
+
+      traces[0]['Spec'].must_equal "job"
+      traces[0]['Flavor'].must_equal "rabbitmq"
+      traces[0]['Queue'].must_equal "tv.ruby.consumer.test"
+      traces[0]['RemoteHost'].must_equal @connection_params[:host]
+      traces[0]['RemotePort'].must_equal @connection_params[:port].to_i
+      traces[0]['VirtualHost'].must_equal @connection_params[:vhost]
+      traces[0]['RoutingKey'].must_equal "tv.ruby.consumer.test"
+      traces[0].key?('Backtrace').must_equal false
+
+      @conn.close
+    end
+
     def test_consume_error_handling
       @conn = Bunny.new(@connection_params)
       @conn.start
