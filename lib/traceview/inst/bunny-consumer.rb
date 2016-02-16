@@ -44,6 +44,16 @@ module TraceView
       def call_with_traceview(*args)
         report_kvs = collect_consumer_kvs(args)
 
+        # If SourceTrace was passed, capture and report it
+        headers = args[1][:headers]
+
+        if headers && headers['SourceTrace']
+          report_kvs[:SourceTrace] = headers['SourceTrace']
+
+          # Remove SourceTrace
+          headers.delete('SourceTrace')
+        end
+
         result = TraceView::API.start_trace('rabbitmq-consumer', nil, report_kvs) do
           call_without_traceview(*args)
         end

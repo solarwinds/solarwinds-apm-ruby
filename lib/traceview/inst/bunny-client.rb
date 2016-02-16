@@ -85,6 +85,10 @@ module TraceView
 
           TraceView::API.log_entry('rabbitmq-client')
 
+          # Pass the tracing context as a header
+          opts[:headers] ||= {}
+          opts[:headers][:SourceTrace] = TraceView::Context.toString if TraceView.tracing?
+
           basic_publish_without_traceview(payload, exchange, routing_key, opts)
         rescue => e
           TraceView::API.log_exception(nil, e)
