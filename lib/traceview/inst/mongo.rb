@@ -22,7 +22,8 @@ module TraceView
   end
 end
 
-if defined?(::Mongo) && TraceView::Config[:mongo][:enabled]
+mongo_version = Gem.loaded_specs['mongo'].version.to_s
+if defined?(::Mongo) && (mongo_version < '2.0.0') && TraceView::Config[:mongo][:enabled]
   TraceView.logger.info '[traceview/loading] Instrumenting mongo' if TraceView::Config[:verbose]
 
   if defined?(::Mongo::DB)
