@@ -67,10 +67,11 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_blocking_consume
+      skip if RUBY_VERSION < '1.9'
       @conn = Bunny.new(@connection_params)
       @conn.start
       @ch = @conn.create_channel
-      @queue = @ch.queue("tv.ruby.consumer.test", :exclusive => true)
+      @queue = @ch.queue("tv.ruby.consumer.blocking.test", :exclusive => true)
       @exchange  = @ch.default_exchange
 
       Thread.new {
@@ -99,11 +100,11 @@ unless defined?(JRUBY_VERSION)
 
       traces[0]['Spec'].must_equal "job"
       traces[0]['Flavor'].must_equal "rabbitmq"
-      traces[0]['Queue'].must_equal "tv.ruby.consumer.test"
+      traces[0]['Queue'].must_equal "tv.ruby.consumer.blocking.test"
       traces[0]['RemoteHost'].must_equal @connection_params[:host]
       traces[0]['RemotePort'].must_equal @connection_params[:port].to_i
       traces[0]['VirtualHost'].must_equal @connection_params[:vhost]
-      traces[0]['RoutingKey'].must_equal "tv.ruby.consumer.test"
+      traces[0]['RoutingKey'].must_equal "tv.ruby.consumer.blocking.test"
       traces[0].key?('Backtrace').must_equal false
 
       @conn.close
