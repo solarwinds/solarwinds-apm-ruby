@@ -72,15 +72,22 @@ module TraceView
 
         return contents if contents.empty?
 
-        s = StringIO.new(contents[0])
-
         traces = []
 
-        until s.eof?
-          if ::BSON.respond_to? :read_bson_document
-            traces << BSON.read_bson_document(s)
-          else
-            traces << BSON::Document.from_bson(s)
+        if BSON::VERSION < '4.0'
+          s = StringIO.new(contents[0])
+
+          until s.eof?
+            if ::BSON.respond_to? :read_bson_document
+              traces << BSON.read_bson_document(s)
+            else
+              traces << BSON::Document.from_bson(s)
+            end
+          end
+        else
+          bbb = BSON::ByteBuffer.new(contents[0])
+          until bbb.length == 0
+            traces << Hash.from_bson(bbb)
           end
         end
 
