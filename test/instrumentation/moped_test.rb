@@ -25,8 +25,7 @@ if RUBY_VERSION >= '1.9.3'
         'Label' => 'entry',
         'Flavor' => 'mongodb',
         'Database' => 'moped_test',
-        'RemoteHost' => ENV['TV_MONGO_SERVER'].split(':')[0],
-        'RemotePort' => ENV['TV_MONGO_SERVER'].split(':')[1].to_i }
+        'RemoteHost' => ENV['TV_MONGO_SERVER'] }
 
       @exit_kvs = { 'Layer' => 'mongo', 'Label' => 'exit' }
       @collect_backtraces = TraceView::Config[:moped][:collect_backtraces]
