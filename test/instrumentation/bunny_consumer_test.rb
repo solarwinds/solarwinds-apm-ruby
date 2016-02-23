@@ -67,7 +67,7 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_blocking_consume
-      skip if RUBY_VERSION < '1.9'
+      skip if RUBY_VERSION < '2.0'
       @conn = Bunny.new(@connection_params)
       @conn.start
       @ch = @conn.create_channel
