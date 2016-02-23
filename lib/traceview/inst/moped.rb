@@ -41,7 +41,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
               report_kvs[:RemoteHost], report_kvs[:RemotePort] = session.cluster.seeds.first.split(':')
             else
               report_kvs[:RemoteHost] = session.cluster.seeds.first.address.host
-              report_kvs[:RemotePort] = session.cluster.seeds.first.address.port
+              report_kvs[:RemotePort] = session.cluster.seeds.first.address.port.to_i
             end
             report_kvs[:Database] = name
             report_kvs[:QueryOp] = op.to_s
@@ -105,7 +105,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
               report_kvs[:RemoteHost], report_kvs[:RemotePort] = database.session.cluster.seeds.first.split(':')
             else
               report_kvs[:RemoteHost] = database.session.cluster.seeds.first.address.host
-              report_kvs[:RemotePort] = database.session.cluster.seeds.first.address.port
+              report_kvs[:RemotePort] = database.session.cluster.seeds.first.address.port.to_i
             end
             report_kvs[:Database] = database.name
             report_kvs[:QueryOp] = op.to_s
@@ -176,7 +176,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
               report_kvs[:RemoteHost], report_kvs[:RemotePort] = collection.database.session.cluster.seeds.first.split(':')
             else
               report_kvs[:RemoteHost] = collection.database.session.cluster.seeds.first.address.host
-              report_kvs[:RemotePort] = collection.database.session.cluster.seeds.first.address.port
+              report_kvs[:RemotePort] = collection.database.session.cluster.seeds.first.address.port.to_i
             end
             report_kvs[:Database] = collection.database.name
             report_kvs[:Collection] = collection.name
@@ -389,7 +389,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
               report_kvs[:RemoteHost], report_kvs[:RemotePort] = database.session.cluster.seeds.first.split(':')
             else
               report_kvs[:RemoteHost] = database.session.cluster.seeds.first.address.host
-              report_kvs[:RemotePort] = database.session.cluster.seeds.first.address.port
+              report_kvs[:RemotePort] = database.session.cluster.seeds.first.address.port.to_i
             end
             report_kvs[:Database] = database.name
             report_kvs[:Collection] = name
