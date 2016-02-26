@@ -149,5 +149,45 @@ unless defined?(JRUBY_VERSION)
       traces[2]['Layer'].must_equal "rabbitmq-consumer"
       traces[2]['Label'].must_equal "exit"
     end
+
+    def test_message_id_capture
+      @conn = Bunny.new(@connection_params)
+      @conn.start
+      @ch = @conn.create_channel
+      @queue = @ch.queue("tv.ruby.consumer.msgid.test", :exclusive => true)
+      @exchange  = @ch.default_exchange
+
+      @queue.subscribe(:block => false, :manual_ack => true) do |delivery_info, properties, payload|
+        # Make an http call to spice things up
+        uri = URI('http://127.0.0.1:8101/')
+        http = Net::HTTP.new(uri.host, uri.port)
+        http.get('/?q=1').read_body
+      end
+
+      TraceView::API.start_trace('bunny_consume_test') do
+        @exchange.publish("The Tortoise and the Hare", :message_id => "1234", :routing_key => @queue.name)
+      end
+
+      sleep 1
+
+      traces = get_all_traces
+
+      traces.count.must_equal 12
+      valid_edges?(traces)
+
+      traces[4]['Spec'].must_equal "job"
+      traces[4]['Flavor'].must_equal "rabbitmq"
+      traces[4]['Queue'].must_equal "tv.ruby.consumer.msgid.test"
+      traces[4]['RemoteHost'].must_equal @connection_params[:host]
+      traces[4]['RemotePort'].must_equal @connection_params[:port].to_i
+      traces[4]['VirtualHost'].must_equal @connection_params[:vhost]
+      traces[4]['RoutingKey'].must_equal "tv.ruby.consumer.msgid.test"
+      traces[4]['MsgID'].must_equal "1234"
+      traces[4]['AppID'].must_equal nil
+      traces[4].key?('SourceTrace').must_equal true
+      traces[4].key?('Backtrace').must_equal false
+
+      @conn.close
+    end
   end
 end

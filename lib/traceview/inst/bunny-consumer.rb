@@ -17,9 +17,10 @@ module TraceView
           kvs[:RemotePort]  = @channel.connection.port.to_i
           kvs[:VirtualHost] = @channel.connection.vhost
 
-          if args[0].respond_to?(:routing_key)
-            kvs[:RoutingKey] = args[0][:routing_key]
-          end
+          kvs[:RoutingKey] = args[0].routing_key if args[0].routing_key
+          kvs[:MsgID]      = args[1].message_id  if args[1].message_id
+          kvs[:AppID]      = args[1].app_id      if args[1].app_id
+          kvs[:Priority]   = args[1].priority    if args[1].priority
 
           if @queue.respond_to?(:name)
             kvs[:Queue] = @queue.name
