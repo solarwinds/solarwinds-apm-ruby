@@ -67,6 +67,8 @@ module TraceView
       # Load the Rails specific instrumentation
       require 'traceview/frameworks/rails/inst/action_controller'
       require 'traceview/frameworks/rails/inst/action_view'
+      require 'traceview/frameworks/rails/inst/action_view_2x'
+      require 'traceview/frameworks/rails/inst/action_view_30'
       require 'traceview/frameworks/rails/inst/active_record'
 
       TraceView.logger.info "TraceView gem #{TraceView::Version::STRING} successfully loaded."
