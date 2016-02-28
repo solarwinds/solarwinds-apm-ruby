@@ -16,6 +16,7 @@ gemfile:
   - gemfiles/frameworks.gemfile
   - gemfiles/rails32.gemfile
   - gemfiles/rails42.gemfile
+  - gemfiles/rails50.gemfile
   - gemfiles/delayed_job.gemfile
 
 matrix:
@@ -23,6 +24,12 @@ matrix:
     # Rails 4.0+ requires Ruby 1.9.3 or higher
     - rvm: 1.8.7
       gemfile: gemfiles/rails42.gemfile
+
+    # Rails 5.0+ requires Ruby 2.2.2 or higher
+    - rvm: 1.8.7
+      gemfile: gemfiles/rails50.gemfile
+    - rvm: 1.9.3
+      gemfile: gemfiles/rails50.gemfile
 
     # Don't test DelayedJob under MRI 1.8 and JRuby
     - rvm: 1.8.7
