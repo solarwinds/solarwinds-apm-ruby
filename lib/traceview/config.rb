@@ -150,6 +150,7 @@ module TraceView
       # <tt>rescue_from</tt> are not reported to the TraceView
       # dashboard by default.  Setting this value to true will
       # report all raised exception regardless.
+      #
       @@config[:report_rescued_errors] = false
 
       # By default, the curb instrumentation will not link
@@ -166,7 +167,24 @@ module TraceView
       # Alternatively, if you would like to install the separate
       # libcurl instrumentation, see here:
       # http://docs.appneta.com/installing-libcurl-instrumentation
+      #
       @@config[:curb][:cross_host] = false
+
+      # The bunny (Rabbitmq) instrumentation can optionally report
+      # Controller and Action values to allow filtering of bunny
+      # message handling in # the UI.  Use of Controller and Action
+      # for filters is temporary until the UI is updated with
+      # additional filters.
+      #
+      # These values identify which properties of
+      # Bunny::MessageProperties to report as Controller
+      # and Action.  The defaults are to report :app_id (as
+      # Controller) and :type (as Action).  If these values
+      # are not specified in the publish, then nothing
+      # will be reported here.
+      #
+      @@config[:bunnyconsumer][:controller] = :app_id
+      @@config[:bunnyconsumer][:action] = :type
 
       # Environment support for OpenShift.
       if ENV.key?('OPENSHIFT_TRACEVIEW_TLYZER_IP')
