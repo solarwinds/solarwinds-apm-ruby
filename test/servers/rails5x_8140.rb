@@ -71,14 +71,14 @@ end
 
 class HelloController < ActionController::Base
   def world
-    render :text => "Hello world!"
+    render :plain => "Hello world!"
   end
 
   def db
     Widget.all.first
     w = Widget.new(:name => 'blah', :description => 'This is an amazing widget.')
     w.save
-    render :text => "Hello database!"
+    render :plain => "Hello database!"
   end
 end
 
@@ -86,7 +86,7 @@ class FerroController < ActionController::Metal
   include AbstractController::Rendering
 
   def world
-    render :text => "Hello world!"
+    render :plain => "Hello world!"
   end
 end
 
