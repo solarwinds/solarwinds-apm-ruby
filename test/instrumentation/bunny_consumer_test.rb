@@ -38,7 +38,7 @@ unless defined?(JRUBY_VERSION)
       end
 
       TraceView::API.start_trace('bunny_consume_test') do
-        @exchange.publish("The Tortoise and the Hare", :routing_key => @queue.name)
+        @exchange.publish("The Tortoise and the Hare", :routing_key => @queue.name, :app_id => "msg_app", :type => :generic)
       end
 
       sleep 1
@@ -60,6 +60,9 @@ unless defined?(JRUBY_VERSION)
       traces[4]['RemotePort'].must_equal @connection_params[:port].to_i
       traces[4]['VirtualHost'].must_equal @connection_params[:vhost]
       traces[4]['RoutingKey'].must_equal "tv.ruby.consumer.test"
+      traces[4]['Controller'].must_equal "msg_app"
+      traces[4]['Action'].must_equal "generic"
+      traces[4]['URL'].must_equal "/bunny/tv.ruby.consumer.test"
       traces[4].key?('SourceTrace').must_equal true
       traces[4].key?('Backtrace').must_equal false
 
@@ -83,7 +86,7 @@ unless defined?(JRUBY_VERSION)
         end
       }
 
-      @exchange.publish("The Tortoise and the Hare", :routing_key => @queue.name)
+      @exchange.publish("The Tortoise and the Hare", :routing_key => @queue.name, :app_id => "msg_app", :type => :generic)
 
       sleep 1
 
@@ -105,6 +108,9 @@ unless defined?(JRUBY_VERSION)
       traces[0]['RemotePort'].must_equal @connection_params[:port].to_i
       traces[0]['VirtualHost'].must_equal @connection_params[:vhost]
       traces[0]['RoutingKey'].must_equal "tv.ruby.consumer.blocking.test"
+      traces[0]['Controller'].must_equal "msg_app"
+      traces[0]['Action'].must_equal "generic"
+      traces[0]['URL'].must_equal "/bunny/tv.ruby.consumer.blocking.test"
       traces[0].key?('Backtrace').must_equal false
 
       @conn.close
@@ -121,7 +127,7 @@ unless defined?(JRUBY_VERSION)
         raise "blah"
       end
 
-      @exchange.publish("The Tortoise and the Hare", :routing_key => @queue.name)
+      @exchange.publish("The Tortoise and the Hare", :routing_key => @queue.name, :app_id => "msg_app", :type => :generic)
 
       sleep 1
 
@@ -138,6 +144,9 @@ unless defined?(JRUBY_VERSION)
       traces[0]['RemotePort'].must_equal @connection_params[:port].to_i
       traces[0]['VirtualHost'].must_equal @connection_params[:vhost]
       traces[0]['RoutingKey'].must_equal "tv.ruby.consumer.error.test"
+      traces[0]['Controller'].must_equal "msg_app"
+      traces[0]['Action'].must_equal "generic"
+      traces[0]['URL'].must_equal "/bunny/tv.ruby.consumer.error.test"
       traces[0].key?('Backtrace').must_equal false
 
       traces[1]['Layer'].must_equal "rabbitmq-consumer"
@@ -165,7 +174,7 @@ unless defined?(JRUBY_VERSION)
       end
 
       TraceView::API.start_trace('bunny_consume_test') do
-        @exchange.publish("The Tortoise and the Hare", :message_id => "1234", :routing_key => @queue.name)
+        @exchange.publish("The Tortoise and the Hare", :message_id => "1234", :routing_key => @queue.name, :app_id => "msg_app", :type => :generic)
       end
 
       sleep 1
@@ -182,8 +191,10 @@ unless defined?(JRUBY_VERSION)
       traces[4]['RemotePort'].must_equal @connection_params[:port].to_i
       traces[4]['VirtualHost'].must_equal @connection_params[:vhost]
       traces[4]['RoutingKey'].must_equal "tv.ruby.consumer.msgid.test"
+      traces[4]['Controller'].must_equal "msg_app"
+      traces[4]['Action'].must_equal "generic"
+      traces[4]['URL'].must_equal "/bunny/tv.ruby.consumer.msgid.test"
       traces[4]['MsgID'].must_equal "1234"
-      traces[4]['AppID'].must_equal nil
       traces[4].key?('SourceTrace').must_equal true
       traces[4].key?('Backtrace').must_equal false
 
