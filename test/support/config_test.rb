@@ -30,12 +30,13 @@ describe "TraceView::Config" do
     instrumentation = TraceView::Config.instrumentation
 
     # Verify the number of individual instrumentations
-    instrumentation.count.must_equal 28
+    instrumentation.count.must_equal 29
 
     TraceView::Config[:action_controller][:enabled].must_equal true
     TraceView::Config[:action_view][:enabled].must_equal true
     TraceView::Config[:active_record][:enabled].must_equal true
-    TraceView::Config[:bunny][:enabled].must_equal true
+    TraceView::Config[:bunnyclient][:enabled].must_equal true
+    TraceView::Config[:bunnyconsumer][:enabled].must_equal true
     TraceView::Config[:cassandra][:enabled].must_equal true
     TraceView::Config[:curb][:enabled].must_equal true
     TraceView::Config[:dalli][:enabled].must_equal true
@@ -64,7 +65,8 @@ describe "TraceView::Config" do
     TraceView::Config[:action_controller][:log_args].must_equal true
     TraceView::Config[:action_view][:log_args].must_equal true
     TraceView::Config[:active_record][:log_args].must_equal true
-    TraceView::Config[:bunny][:log_args].must_equal true
+    TraceView::Config[:bunnyclient][:log_args].must_equal true
+    TraceView::Config[:bunnyconsumer][:log_args].must_equal true
     TraceView::Config[:cassandra][:log_args].must_equal true
     TraceView::Config[:curb][:log_args].must_equal true
     TraceView::Config[:dalli][:log_args].must_equal true

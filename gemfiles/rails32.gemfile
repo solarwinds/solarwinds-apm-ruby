@@ -19,11 +19,12 @@ group :development, :test do
   gem 'minitest-reporters', '< 1.0.18'
   gem 'minitest-debugger', :require => false
   gem 'rack-test'
-  gem 'puma'
   if RUBY_VERSION < '1.9.3'
     gem 'bson', '<= 1.12.3'
+    gem 'puma', '< 3.0'
   else
     gem 'bson', '< 4.0'
+    gem 'puma'
   end
 end
 
