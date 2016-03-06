@@ -13,7 +13,7 @@ module TraceView
                                   ::TraceView::Inst::ConnectionAdapters::Utils)
 
           if (::ActiveRecord::VERSION::MAJOR == 3 && ::ActiveRecord::VERSION::MINOR > 0) ||
-                ::ActiveRecord::VERSION::MAJOR == 4
+                ::ActiveRecord::VERSION::MAJOR >= 4
 
             # ActiveRecord 3.1 and up
             TraceView::Util.method_alias(::ActiveRecord::ConnectionAdapters::PostgreSQLAdapter, :exec_query)
