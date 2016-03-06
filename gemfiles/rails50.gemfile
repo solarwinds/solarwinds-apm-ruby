@@ -27,7 +27,7 @@ group :development, :test do
   gem 'minitest-reporters', '< 1.0.18'
   gem 'minitest-debugger', :require => false
   gem 'rack-test'
-  gem 'puma'
+  gem 'puma', '< 3.1.0'
   gem 'bson', '< 4.0'
 end
 
