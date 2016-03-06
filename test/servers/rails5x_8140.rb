@@ -80,7 +80,8 @@ class HelloController < ActionController::Base
     w1.save
 
     # query for that widget
-    Widget.where(:name => 'blah').first
+    w2 = Widget.where(:name => 'blah').first
+    w2.delete
 
     render :plain => "Hello database!"
   end
