@@ -75,9 +75,13 @@ class HelloController < ActionController::Base
   end
 
   def db
-    Widget.all.first
-    w = Widget.new(:name => 'blah', :description => 'This is an amazing widget.')
-    w.save
+    # Create a widget
+    w1 = Widget.new(:name => 'blah', :description => 'This is an amazing widget.')
+    w1.save
+
+    # query for that widget
+    Widget.where(:name => 'blah').first
+
     render :plain => "Hello database!"
   end
 end
