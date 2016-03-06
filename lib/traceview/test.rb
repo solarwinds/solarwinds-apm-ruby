@@ -44,6 +44,45 @@ module TraceView
       def gemfile
         File.basename(ENV['BUNDLE_GEMFILE']).split('.').first
       end
+
+      ##
+      # set_postgres_env
+      #
+      # Used to set the postgres specific DATABASE_URL env based
+      # on various conditions
+      def set_postgres_env
+        if ENV.key?('TRAVIS_PSQL_PASS')
+          ENV['DATABASE_URL'] = "postgresql://postgres:#{ENV['TRAVIS_PSQL_PASS']}@127.0.0.1:5432/travis_ci_test"
+        else
+          ENV['DATABASE_URL'] = 'postgresql://postgres@127.0.0.1:5432/travis_ci_test'
+        end
+      end
+
+      ##
+      # set_mysql_env
+      #
+      # Used to set the mysql specific DATABASE_URL env based
+      # on various conditions
+      def set_mysql_env
+        if ENV.key?('TRAVIS_MYSQL_PASS')
+          ENV['DATABASE_URL'] = "mysql://root:#{ENV['TRAVIS_MYSQL_PASS']}@127.0.0.1:3306/travis_ci_test"
+        else
+          ENV['DATABASE_URL'] = 'mysql://root@127.0.0.1:3306/travis_ci_test'
+        end
+      end
+
+      ##
+      # set_mysql2_env
+      #
+      # Used to set the mysql specific DATABASE_URL env based
+      # on various conditions
+      def set_mysql2_env
+        if ENV.key?('TRAVIS_MYSQL_PASS')
+          ENV['DATABASE_URL'] = "mysql2://root:#{ENV['TRAVIS_MYSQL_PASS']}@127.0.0.1:3306/travis_ci_test"
+        else
+          ENV['DATABASE_URL'] = 'mysql2://root@127.0.0.1:3306/travis_ci_test'
+        end
+      end
     end
   end
 end
