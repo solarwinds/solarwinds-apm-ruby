@@ -16,9 +16,9 @@ module TraceView
             else
               # Report raw SQL and any binds if they exist
               opts[:Query] = sql.to_s
-              #if binds && !binds.empty?
-              #  opts[:QueryArgs] = binds.map { |col, val| type_cast(val, col) }
-              #end
+              if binds && !binds.empty?
+                opts[:QueryArgs] = binds.map { |i| i.value  }
+              end
             end
 
             opts[:Name] = name.to_s if name
@@ -64,11 +64,10 @@ module TraceView
 
             opts = extract_trace_details(sql, name, binds)
             TraceView::API.trace('activerecord', opts || {}) do
-              TV.pry!
-              exec_query_without_traceview(sql, name, binds, prepare)
+              exec_query_without_traceview(sql, name, binds)
             end
           else
-            exec_query_without_traceview(sql, name, binds, prepare)
+            exec_query_without_traceview(sql, name, binds)
           end
         end
 
