@@ -17,11 +17,6 @@
 # existing in any Rails 4 app. Here they are simply in one
 # file and without the comments.
 #
-if ENV.key?('TRAVIS_PSQL_PASS')
-  ENV['DATABASE_URL'] = "postgresql://postgres:#{ENV['TRAVIS_PSQL_PASS']}@127.0.0.1:5432/travis_ci_test"
-else
-  ENV['DATABASE_URL'] = 'postgresql://postgres@127.0.0.1:5432/travis_ci_test'
-end
 
 require "rails/all"
 require "action_controller/railtie" # require more if needed
@@ -30,6 +25,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../models/widget')
 
 TraceView.logger.info "[traceview/info] Starting background utility rails app on localhost:8140."
 
+TraceView::Test.set_postres_env
 ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
 
 unless ActiveRecord::Base.connection.table_exists? 'widgets'
