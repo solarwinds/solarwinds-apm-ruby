@@ -4,7 +4,6 @@
 require 'traceview/frameworks/rails/inst/connection_adapters/mysql'
 require 'traceview/frameworks/rails/inst/connection_adapters/mysql2'
 require 'traceview/frameworks/rails/inst/connection_adapters/postgresql'
-require 'traceview/frameworks/rails/inst/connection_adapters/oracle'
 
 if TraceView::Config[:active_record][:enabled] && !defined?(JRUBY_VERSION)
   begin
@@ -19,7 +18,6 @@ if TraceView::Config[:active_record][:enabled] && !defined?(JRUBY_VERSION)
     TraceView::Inst::ConnectionAdapters::FlavorInitializers.mysql      if adapter == 'mysql'
     TraceView::Inst::ConnectionAdapters::FlavorInitializers.mysql2     if adapter == 'mysql2'
     TraceView::Inst::ConnectionAdapters::FlavorInitializers.postgresql if adapter == 'postgresql'
-    TraceView::Inst::ConnectionAdapters::FlavorInitializers.oracle     if adapter == 'oracleenhanced'
 
   rescue StandardError => e
     TraceView.logger.error "[traceview/error] TraceView/ActiveRecord error: #{e.inspect}"
