@@ -32,12 +32,11 @@ group :development, :test do
 end
 
 if defined?(JRUBY_VERSION)
-  #gem 'sinatra', :require => false
   gem 'activerecord-jdbc-adapter'
   gem 'jdbc-postgresql'
 else
-  #gem 'sinatra'
   gem 'pg'
+  gem 'mysql2'
 end
 
 gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')
