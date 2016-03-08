@@ -71,6 +71,18 @@ module TraceView
           end
         end
 
+        def exec_insert_with_traceview(sql, name = nil, binds = [], *args)
+          if TraceView.tracing? && !ignore_payload?(name)
+
+            opts = extract_trace_details(sql, name, binds)
+            TraceView::API.trace('activerecord', opts || {}) do
+              exec_insert_without_traceview(sql, name, binds, *args)
+            end
+          else
+            exec_insert_without_traceview(sql, name, binds, *args)
+          end
+        end
+
         def exec_delete_with_traceview(sql, name = nil, binds = [])
           if TraceView.tracing? && !ignore_payload?(name)
 

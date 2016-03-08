@@ -8,6 +8,7 @@ if defined?(::Rails)
   describe "Rails5x" do
     before do
       clear_all_traces
+      ENV['DBTYPE'] = "postgresql" unless ENV['DBTYPE']
     end
 
     it "should trace a request to a rails stack" do
@@ -16,6 +17,7 @@ if defined?(::Rails)
       r = Net::HTTP.get_response(uri)
 
       traces = get_all_traces
+
 
       traces.count.must_equal 7
       unless defined?(JRUBY_VERSION)
@@ -55,10 +57,10 @@ if defined?(::Rails)
       r.header['X-Trace'].must_equal traces[6]['X-Trace']
     end
 
-    it "should trace rails db calls" do
+    it "should trace rails postgres db calls" do
       # Skip for JRuby since the java instrumentation
       # handles DB instrumentation for JRuby
-      skip if defined?(JRUBY_VERSION)
+      skip if defined?(JRUBY_VERSION) || ENV['DBTYPE'] != 'postgresql'
 
       uri = URI.parse('http://127.0.0.1:8140/hello/db')
       r = Net::HTTP.get_response(uri)
@@ -94,6 +96,65 @@ if defined?(::Rails)
       traces[7]['Label'].must_equal "entry"
       traces[7]['Flavor'].must_equal "postgresql"
       traces[7]['Query'].must_equal "DELETE FROM \"widgets\" WHERE \"widgets\".\"id\" = $1"
+      traces[7]['Name'].must_equal "SQL"
+      traces[7].key?('Backtrace').must_equal true
+      traces[7].key?('QueryArgs').must_equal true
+
+      traces[8]['Layer'].must_equal "activerecord"
+      traces[8]['Label'].must_equal "exit"
+
+      # Validate the existence of the response header
+      r.header.key?('X-Trace').must_equal true
+      r.header['X-Trace'].must_equal traces[12]['X-Trace']
+    end
+
+    it "should trace rails mysql2 db calls" do
+      # Skip for JRuby since the java instrumentation
+      # handles DB instrumentation for JRuby
+      skip if defined?(JRUBY_VERSION) || ENV['DBTYPE'] != 'mysql2'
+
+      uri = URI.parse('http://127.0.0.1:8140/hello/db')
+      r = Net::HTTP.get_response(uri)
+
+      traces = get_all_traces
+
+      traces.count.must_equal 13
+      valid_edges?(traces).must_equal true
+      validate_outer_layers(traces, 'rack')
+
+      traces[3]['Layer'].must_equal "activerecord"
+      traces[3]['Label'].must_equal "entry"
+      traces[3]['Flavor'].must_equal "mysql"
+
+      # Replace the datestamps with xxx to make testing easier
+      sql = traces[3]['Query'].gsub /\d\d\d\d-\d\d-\d\d\s\d\d:\d\d:\d\d/, 'xxx'
+      sql.must_equal "INSERT INTO `widgets` (`name`, `description`, `created_at`, `updated_at`) VALUES ('blah', 'This is an amazing widget.', 'xxx', 'xxx')"
+
+      traces[3]['Name'].must_equal "SQL"
+      traces[3].key?('Backtrace').must_equal true
+
+      traces[4]['Layer'].must_equal "activerecord"
+      traces[4]['Label'].must_equal "exit"
+
+      traces[5]['Layer'].must_equal "activerecord"
+      traces[5]['Label'].must_equal "entry"
+      traces[5]['Flavor'].must_equal "mysql"
+      traces[5]['Query'].must_equal "SELECT  `widgets`.* FROM `widgets` WHERE `widgets`.`name` = 'blah' ORDER BY `widgets`.`id` ASC LIMIT 1"
+      traces[5]['Name'].must_equal "Widget Load"
+      traces[5].key?('Backtrace').must_equal true
+      traces[5].key?('QueryArgs').must_equal true
+
+      traces[6]['Layer'].must_equal "activerecord"
+      traces[6]['Label'].must_equal "exit"
+
+      traces[7]['Layer'].must_equal "activerecord"
+      traces[7]['Label'].must_equal "entry"
+      traces[7]['Flavor'].must_equal "mysql"
+
+      # Replace the datestamps with xxx to make testing easier
+      sql = traces[7]['Query'].gsub /\d+/, 'xxx'
+      sql.must_equal "DELETE FROM `widgets` WHERE `widgets`.`id` = xxx"
+
       traces[7]['Name'].must_equal "SQL"
       traces[7].key?('Backtrace').must_equal true
       traces[7].key?('QueryArgs').must_equal true
