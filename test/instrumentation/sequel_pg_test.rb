@@ -5,7 +5,7 @@ require 'minitest_helper'
 
 if defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
-  TraceView::Test.set_postgres_env
+  TraceView::Test.set_postgresql_env
   PG_DB = Sequel.connect(ENV['DATABASE_URL'])
 
   unless PG_DB.table_exists?(:items)
