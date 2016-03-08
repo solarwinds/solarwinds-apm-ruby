@@ -18,7 +18,12 @@
 # file and without the comments.
 #
 
-TraceView::Test.set_postgres_env
+# Set the database.  Default is postgresql.
+if ENV['DBTYPE'] == 'mysql2'
+  TraceView::Test.set_mysql2_env
+else
+  TraceView::Test.set_postgresql_env
+end
 
 require "rails/all"
 require "action_controller/railtie" # require more if needed

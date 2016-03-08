@@ -25,7 +25,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../models/widget')
 
 TraceView.logger.info "[traceview/info] Starting background utility rails app on localhost:8140."
 
-TraceView::Test.set_postres_env
+TraceView::Test.set_postresql_env
 ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
 
 unless ActiveRecord::Base.connection.table_exists? 'widgets'

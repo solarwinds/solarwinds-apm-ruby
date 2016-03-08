@@ -10,7 +10,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../models/widget')
 TraceView.logger.level = Logger::DEBUG
 TraceView.logger.info "[traceview/info] Starting background utility rails app on localhost:8140."
 
-TraceView::Test.set_postgres_env
+TraceView::Test.set_postgresql_env
 
 ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
 

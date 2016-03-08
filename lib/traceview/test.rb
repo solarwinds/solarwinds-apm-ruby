@@ -46,11 +46,11 @@ module TraceView
       end
 
       ##
-      # set_postgres_env
+      # set_postgresql_env
       #
-      # Used to set the postgres specific DATABASE_URL env based
+      # Used to set the postgresql specific DATABASE_URL env based
       # on various conditions
-      def set_postgres_env
+      def set_postgresql_env
         if ENV.key?('TRAVIS_PSQL_PASS')
           ENV['DATABASE_URL'] = "postgresql://postgres:#{ENV['TRAVIS_PSQL_PASS']}@127.0.0.1:5432/travis_ci_test"
         else
