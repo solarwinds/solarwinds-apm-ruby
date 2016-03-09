@@ -21,7 +21,11 @@
 # Set the database.  Default is postgresql.
 if ENV['DBTYPE'] == 'mysql2'
   TraceView::Test.set_mysql2_env
+elsif ENV['DBTYPE'] == 'postgresql'
+  TraceView::Test.set_postgresql_env
 else
+  TV.logger.warn "Unidentified DBTYPE: #{ENV['DBTYPE']}" unless ENV['DBTYPE'] == "postgresql"
+  TV.logger.debug "Defaulting to postgres DB for background Rails server."
   TraceView::Test.set_postgresql_env
 end
 

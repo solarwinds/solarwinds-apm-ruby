@@ -127,7 +127,7 @@ if defined?(::Rails)
       traces[3]['Flavor'].must_equal "mysql"
 
       # Replace the datestamps with xxx to make testing easier
-      sql = traces[3]['Query'].gsub /\d\d\d\d-\d\d-\d\d\s\d\d:\d\d:\d\d/, 'xxx'
+      sql = traces[3]['Query'].gsub(/\d\d\d\d-\d\d-\d\d\s\d\d:\d\d:\d\d/, 'xxx')
       sql.must_equal "INSERT INTO `widgets` (`name`, `description`, `created_at`, `updated_at`) VALUES ('blah', 'This is an amazing widget.', 'xxx', 'xxx')"
 
       traces[3]['Name'].must_equal "SQL"
