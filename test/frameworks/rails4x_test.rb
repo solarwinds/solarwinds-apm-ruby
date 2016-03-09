@@ -51,8 +51,7 @@ if defined?(::Rails)
       traces[6]['Label'].must_equal "exit"
 
       # Validate the existence of the response header
-      r.header.key?('X-Trace').must_equal true
-      r.header['X-Trace'].must_equal traces[6]['X-Trace']
+      r['X-Trace'].must_equal traces[6]['X-Trace']
     end
 
     it "should trace rails postgresql db calls" do
@@ -72,7 +71,12 @@ if defined?(::Rails)
       traces[3]['Layer'].must_equal "activerecord"
       traces[3]['Label'].must_equal "entry"
       traces[3]['Flavor'].must_equal "postgresql"
-      traces[3]['Query'].must_equal "SELECT  \"widgets\".* FROM \"widgets\"  ORDER BY \"widgets\".\"id\" ASC LIMIT 1"
+
+      # Some versions of rails adds in another space before the ORDER keyword.
+      # Make 2 or more consecutive spaces just 1
+      sql = traces[3]['Query'].gsub(/\s{2,}/, ' ')
+      sql.must_equal "SELECT \"widgets\".* FROM \"widgets\" ORDER BY \"widgets\".\"id\" ASC LIMIT 1"
+
       traces[3]['Name'].must_equal "Widget Load"
       traces[3].key?('Backtrace').must_equal true
 
@@ -82,7 +86,14 @@ if defined?(::Rails)
       traces[5]['Layer'].must_equal "activerecord"
       traces[5]['Label'].must_equal "entry"
       traces[5]['Flavor'].must_equal "postgresql"
-      traces[5]['Query'].must_equal "INSERT INTO \"widgets\" (\"name\", \"description\", \"created_at\", \"updated_at\") VALUES ($1, $2, $3, $4) RETURNING \"id\""
+
+      # Query field ordering vary from version to version of rails.
+      if Rails.version < '4.2'
+        traces[5]['Query'].must_equal "INSERT INTO \"widgets\" (\"created_at\", \"description\", \"name\", \"updated_at\") VALUES ($1, $2, $3, $4) RETURNING \"id\""
+      else
+        traces[5]['Query'].must_equal "INSERT INTO \"widgets\" (\"name\", \"description\", \"created_at\", \"updated_at\") VALUES ($1, $2, $3, $4) RETURNING \"id\""
+      end
+
       traces[5]['Name'].must_equal "SQL"
       traces[5].key?('Backtrace').must_equal true
       traces[5].key?('QueryArgs').must_equal true
@@ -91,8 +102,7 @@ if defined?(::Rails)
       traces[6]['Label'].must_equal "exit"
 
       # Validate the existence of the response header
-      r.header.key?('X-Trace').must_equal true
-      r.header['X-Trace'].must_equal traces[10]['X-Trace']
+      r['X-Trace'].must_equal traces[10]['X-Trace']
     end
 
     it "should trace rails mysql db calls" do
@@ -112,7 +122,12 @@ if defined?(::Rails)
       traces[3]['Layer'].must_equal "activerecord"
       traces[3]['Label'].must_equal "entry"
       traces[3]['Flavor'].must_equal "mysql"
-      traces[3]['Query'].must_equal "SELECT  `widgets`.* FROM `widgets`  ORDER BY `widgets`.`id` ASC LIMIT 1"
+
+      # Some versions of rails adds in another space before the ORDER keyword.
+      # Make 2 or more consecutive spaces just 1
+      sql = traces[3]['Query'].gsub(/\s{2,}/, ' ')
+      sql.must_equal "SELECT `widgets`.* FROM `widgets` ORDER BY `widgets`.`id` ASC LIMIT 1"
+
       traces[3]['Name'].must_equal "Widget Load"
       traces[3].key?('Backtrace').must_equal true
 
@@ -131,7 +146,14 @@ if defined?(::Rails)
       traces[7]['Layer'].must_equal "activerecord"
       traces[7]['Label'].must_equal "entry"
       traces[7]['Flavor'].must_equal "mysql"
-      traces[7]['Query'].must_equal "INSERT INTO `widgets` (`name`, `description`, `created_at`, `updated_at`) VALUES (?, ?, ?, ?)"
+
+      # Query field ordering vary from version to version of rails.
+      if Rails.version < '4.2'
+        traces[7]['Query'].must_equal "INSERT INTO `widgets` (`created_at`, `description`, `name`, `updated_at`) VALUES (?, ?, ?, ?)"
+      else
+        traces[7]['Query'].must_equal "INSERT INTO `widgets` (`name`, `description`, `created_at`, `updated_at`) VALUES (?, ?, ?, ?)"
+      end
+
       traces[7]['Name'].must_equal "SQL"
       traces[7].key?('Backtrace').must_equal true
       traces[7].key?('QueryArgs').must_equal true
@@ -149,8 +171,7 @@ if defined?(::Rails)
       traces[10]['Label'].must_equal "exit"
 
       # Validate the existence of the response header
-      r.header.key?('X-Trace').must_equal true
-      r.header['X-Trace'].must_equal traces[14]['X-Trace']
+      r['X-Trace'].must_equal traces[14]['X-Trace']
     end
 
     it "should trace rails mysql2 db calls" do
@@ -193,8 +214,7 @@ if defined?(::Rails)
       traces[6]['Label'].must_equal "exit"
 
       # Validate the existence of the response header
-      r.header.key?('X-Trace').must_equal true
-      r.header['X-Trace'].must_equal traces[10]['X-Trace']
+      r['X-Trace'].must_equal traces[10]['X-Trace']
     end
 
     it "should trace a request to a rails metal stack" do
@@ -235,8 +255,7 @@ if defined?(::Rails)
       traces[4]['Label'].must_equal "exit"
 
       # Validate the existence of the response header
-      r.header.key?('X-Trace').must_equal true
-      r.header['X-Trace'].must_equal traces[4]['X-Trace']
+      r['X-Trace'].must_equal traces[4]['X-Trace']
     end
   end
 end
