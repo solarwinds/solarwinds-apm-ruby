@@ -34,6 +34,8 @@ if defined?(JRUBY_VERSION)
 else
   gem 'sinatra'
   gem 'pg', '< 0.17'
+  gem 'mysql'
+  gem 'mysql2', '< 0.4.0'
 end
 
 gem "rails", "~> 3.1.12"
