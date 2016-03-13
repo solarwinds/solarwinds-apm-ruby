@@ -82,9 +82,14 @@ class HelloController < ActionController::Base
   end
 
   def db
-    Widget.all.first
-    w = Widget.new(:name => 'blah', :description => 'This is an amazing widget.')
-    w.save
+    # Create a widget
+    w1 = Widget.new(:name => 'blah', :description => 'This is an amazing widget.')
+    w1.save
+
+    # query for that widget
+    w2 = Widget.where(:name => 'blah').first
+    w2.delete
+
     render :text => "Hello database!"
   end
 end
@@ -102,7 +107,7 @@ TraceView::API.profile_method(FerroController, :world)
 Rails40MetalStack.initialize!
 
 Thread.new do
-  Rack::Handler::Puma.run(Rails40MetalStack.to_app, {:Host => '127.0.0.1', :Port => 8140})
+  Rack::Handler::Puma.run(Rails40MetalStack.to_app, {:Host => '127.0.0.1', :Port => 8140, :Threads => "0:1"})
 end
 
 sleep(2)
