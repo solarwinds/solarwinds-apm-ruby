@@ -72,9 +72,14 @@ if defined?(::Rails)
       traces[3]['Layer'].must_equal "activerecord"
       traces[3]['Label'].must_equal "entry"
       traces[3]['Flavor'].must_equal "postgresql"
-      traces[3]['Query'].must_equal "INSERT INTO \"widgets\" (\"name\", \"description\", \"created_at\", \"updated_at\") VALUES ($1, $2, $3, $4) RETURNING \"id\""
       traces[3]['Name'].must_equal "SQL"
       traces[3].key?('Backtrace').must_equal true
+
+      # Use a regular expression to test the SQL string since field order varies between
+      # Rails versions
+      match_data = traces[3]['Query'].match(/INSERT\sINTO\s\"widgets\"\s\(.*\)\sVALUES\s\(\$1,\s\$2,\s\$3,\s\$4\)\sRETURNING\s\"id\"/)
+      match_data.wont_equal nil
+      match_data.class.must_equal MatchData
 
       traces[4]['Layer'].must_equal "activerecord"
       traces[4]['Label'].must_equal "exit"
