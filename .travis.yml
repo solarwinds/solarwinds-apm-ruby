@@ -38,6 +38,10 @@ matrix:
     - rvm: jruby-9.0.4.0
       gemfile: gemfiles/delayed_job.gemfile
 
+    # Skip testing on JRuby until activerecord-jdbc supports Rails 5.0
+    - rvm: jruby-9.0.4.0
+      gemfile: gemfiles/rails50.gemfile
+
     # Other frameworks tested on Ruby 1.9.3 or higher
     - rvm: 1.8.7
       gemfile: gemfiles/frameworks.gemfile
