@@ -16,6 +16,7 @@ gemfile:
   - gemfiles/frameworks.gemfile
   - gemfiles/rails32.gemfile
   - gemfiles/rails42.gemfile
+  - gemfiles/rails50.gemfile
   - gemfiles/delayed_job.gemfile
 
 matrix:
@@ -24,12 +25,22 @@ matrix:
     - rvm: 1.8.7
       gemfile: gemfiles/rails42.gemfile
 
+    # Rails 5.0+ requires Ruby 2.2.2 or higher
+    - rvm: 1.8.7
+      gemfile: gemfiles/rails50.gemfile
+    - rvm: 1.9.3
+      gemfile: gemfiles/rails50.gemfile
+
     # Don't test DelayedJob under MRI 1.8 and JRuby
     - rvm: 1.8.7
       gemfile: gemfiles/delayed_job.gemfile
 
     - rvm: jruby-9.0.4.0
       gemfile: gemfiles/delayed_job.gemfile
+
+    # Skip testing on JRuby until activerecord-jdbc supports Rails 5.0
+    - rvm: jruby-9.0.4.0
+      gemfile: gemfiles/rails50.gemfile
 
     # Other frameworks tested on Ruby 1.9.3 or higher
     - rvm: 1.8.7
@@ -38,7 +49,7 @@ matrix:
 # Attempt Travis/Cassandra fix re: https://github.com/travis-ci/travis-ci/issues/1484
 # Updated Cassandra: https://github.com/travis-ci/travis-ci/issues/1650
 before_install:
-  - gem update --system
+  - gem update --system '2.6.1'
   - gem update bundler
   - gem --version
   - sudo sh -c "echo 'JVM_OPTS=\"\${JVM_OPTS} -Djava.net.preferIPv4Stack=false\"' >> /usr/local/cassandra/conf/cassandra-env.sh"

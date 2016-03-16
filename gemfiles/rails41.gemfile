@@ -6,8 +6,8 @@ group :development, :test do
   gem 'minitest-reporters', '< 1.0.18'
   gem 'minitest-debugger', :require => false
   gem 'rack-test'
-  gem 'puma'
-  gem 'bson'
+  gem 'puma', '< 3.1.0'
+  gem 'bson', '< 4.0'
 end
 
 if defined?(JRUBY_VERSION)
@@ -16,10 +16,12 @@ if defined?(JRUBY_VERSION)
   gem 'jdbc-postgresql'
 else
   gem 'sinatra'
-  gem 'pg', '< 0.17'
+  gem 'pg'
+  gem 'mysql'
+  gem 'mysql2'
 end
 
-gem "rails", "~> 4.1.14"
+gem "rails", "~> 4.1.15"
 
 gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')
 # vim:syntax=ruby

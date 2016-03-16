@@ -14,16 +14,18 @@ if RUBY_VERSION < '2.0.0'
 end
 
 group :development, :test do
-  gem 'rake'
   gem 'minitest'
   gem 'minitest-reporters', '< 1.0.18'
   gem 'minitest-debugger', :require => false
   gem 'rack-test'
-  gem 'puma'
   if RUBY_VERSION < '1.9.3'
+    gem 'rake', '< 11.0'
     gem 'bson', '<= 1.12.3'
+    gem 'puma', '< 3.0'
   else
+    gem 'rake'
     gem 'bson', '< 4.0'
+    gem 'puma', '< 3.1.0'
   end
 end
 
@@ -34,6 +36,8 @@ if defined?(JRUBY_VERSION)
 else
   gem 'sinatra'
   gem 'pg', '< 0.17'
+  gem 'mysql'
+  gem 'mysql2', '< 0.4.0'
 end
 
 if RUBY_VERSION < '1.9'

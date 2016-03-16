@@ -16,6 +16,19 @@
 # config/application.rb, config/environment.rb and config.ru
 # existing in any Rails 4 app. Here they are simply in one
 # file and without the comments.
+#
+
+# Set the database.  Default is postgresql.
+if ENV['DBTYPE'] == 'mysql2'
+  TraceView::Test.set_mysql2_env
+elsif ENV['DBTYPE'] == 'postgresql'
+  TraceView::Test.set_postgresql_env
+else
+  TV.logger.warn "Unidentified DBTYPE: #{ENV['DBTYPE']}" unless ENV['DBTYPE'] == "postgresql"
+  TV.logger.debug "Defaulting to postgres DB for background Rails server."
+  TraceView::Test.set_postgresql_env
+end
+
 require "rails/all"
 require "action_controller/railtie" # require more if needed
 require 'rack/handler/puma'
@@ -23,24 +36,13 @@ require File.expand_path(File.dirname(__FILE__) + '/../models/widget')
 
 TraceView.logger.info "[traceview/info] Starting background utility rails app on localhost:8140."
 
-# Set the database.  Default is postgresql.
-if ENV['DBTYPE'] == 'mysql2'
-  TraceView::Test.set_mysql2_env
-elsif ENV['DBTYPE'] == 'mysql'
-  TraceView::Test.set_mysql_env
-else
-  TV.logger.warn "Unidentified DBTYPE: #{ENV['DBTYPE']}" unless ENV['DBTYPE'] == "postgresql"
-  TV.logger.debug "Defaulting to postgres DB for background Rails server."
-  TraceView::Test.set_postgresql_env
-end
-
 ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
 
 unless ActiveRecord::Base.connection.table_exists? 'widgets'
-  CreateWidgets.migrate(:up)
+  ActiveRecord::Migration.run(CreateWidgets)
 end
 
-class Rails32MetalStack < Rails::Application
+class Rails50MetalStack < Rails::Application
   routes.append do
     get "/hello/world" => "hello#world"
     get "/hello/metal" => "ferro#world"
@@ -61,9 +63,8 @@ class Rails32MetalStack < Rails::Application
   # The remaining stack is printed on rackup (for fun!).
   # Rails API has config.middleware.api_only! to get
   # rid of browser related middleware.
-  config.middleware.delete "Rack::Lock"
-  config.middleware.delete "ActionDispatch::Flash"
-  config.middleware.delete "ActionDispatch::BestStandardsSupport"
+  config.middleware.delete Rack::Lock
+  config.middleware.delete ActionDispatch::Flash
 
   # We need a secret token for session, cookies, etc.
   config.secret_token = "49837489qkuweoiuoqwehisuakshdjksadhaisdy78o34y138974xyqp9rmye8yrpiokeuioqwzyoiuxftoyqiuxrhm3iou1hrzmjk"
@@ -76,7 +77,7 @@ end
 
 class HelloController < ActionController::Base
   def world
-    render :text => "Hello world!"
+    render :plain => "Hello world!"
   end
 
   def db
@@ -88,7 +89,7 @@ class HelloController < ActionController::Base
     w2 = Widget.where(:name => 'blah').first
     w2.delete
 
-    render :text => "Hello database!"
+    render :plain => "Hello database!"
   end
 end
 
@@ -96,17 +97,16 @@ class FerroController < ActionController::Metal
   include AbstractController::Rendering
 
   def world
-    render :text => "Hello world!"
+    render :plain => "Hello world!"
   end
-
-  include TraceViewMethodProfiling
-  profile_method :world, 'world'
 end
 
-Rails32MetalStack.initialize!
+TraceView::API.profile_method(FerroController, :world)
+
+Rails50MetalStack.initialize!
 
 Thread.new do
-  Rack::Handler::Puma.run(Rails32MetalStack.to_app, {:Host => '127.0.0.1', :Port => 8140})
+  Rack::Handler::Puma.run(Rails50MetalStack.to_app, {:Host => '127.0.0.1', :Port => 8140})
 end
 
 sleep(2)

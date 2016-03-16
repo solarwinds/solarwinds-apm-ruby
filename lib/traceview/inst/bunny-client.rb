@@ -55,6 +55,7 @@ module TraceView
           kvs[:RemoteHost] = @connection.host
           kvs[:RemotePort] = @connection.port.to_i
           kvs[:VirtualHost] = @connection.vhost
+          kvs[:Backtrace] = TV::API.backtrace if TV::Config[:bunnyclient][:collect_backtraces]
           kvs
         rescue => e
           TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
@@ -68,9 +69,7 @@ module TraceView
         return basic_publish_without_traceview(payload, exchange, routing_key, opts) if !TraceView.tracing?
 
         begin
-          kvs = {}
-          kvs[:Spec] = :pushq
-          kvs[:Flavor] = :rabbitmq # broker name?
+          kvs = collect_channel_kvs
 
           if exchange.respond_to?(:name)
             kvs[:ExchangeName] = exchange.name
@@ -80,15 +79,15 @@ module TraceView
             kvs[:ExchangeName] = :default
           end
 
-          kvs[:Queue]          = opts[:queue] if opts.key?(:queue)
-          kvs[:RoutingKey]     = routing_key if routing_key
-          kvs[:RemoteHost]     = @connection.host
-          kvs[:RemotePort]     = @connection.port.to_i
-
-          kvs[:Op] = :publish
-          kvs[:VirtualHost] = @connection.vhost
+          kvs[:Queue]       = opts[:queue] if opts.key?(:queue)
+          kvs[:RoutingKey]  = routing_key if routing_key
+          kvs[:Op]          = :publish
 
           TraceView::API.log_entry('rabbitmq-client')
+
+          # Pass the tracing context as a header
+          opts[:headers] ||= {}
+          opts[:headers][:SourceTrace] = TraceView::Context.toString if TraceView.tracing?
 
           basic_publish_without_traceview(payload, exchange, routing_key, opts)
         rescue => e
@@ -142,8 +141,8 @@ module TraceView
   end
 end
 
-if TraceView::Config[:bunny][:enabled] && defined?(::Bunny)
-  ::TraceView.logger.info '[traceview/loading] Instrumenting bunny' if TraceView::Config[:verbose]
+if TraceView::Config[:bunnyclient][:enabled] && defined?(::Bunny)
+  ::TraceView.logger.info '[traceview/loading] Instrumenting bunny client' if TraceView::Config[:verbose]
   ::TraceView::Util.send_include(::Bunny::Exchange, ::TraceView::Inst::BunnyExchange)
   ::TraceView::Util.send_include(::Bunny::Channel, ::TraceView::Inst::BunnyChannel)
 end

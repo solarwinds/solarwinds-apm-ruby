@@ -65,14 +65,11 @@ module TraceView
 
     def self.load_instrumentation
       # Load the Rails specific instrumentation
-      pattern = File.join(File.dirname(__FILE__), 'rails/inst', '*.rb')
-      Dir.glob(pattern) do |f|
-        begin
-          require f
-        rescue => e
-          TraceView.logger.error "[traceview/loading] Error loading rails insrumentation file '#{f}' : #{e}"
-        end
-      end
+      require 'traceview/frameworks/rails/inst/action_controller'
+      require 'traceview/frameworks/rails/inst/action_view'
+      require 'traceview/frameworks/rails/inst/action_view_2x'
+      require 'traceview/frameworks/rails/inst/action_view_30'
+      require 'traceview/frameworks/rails/inst/active_record'
 
       TraceView.logger.info "TraceView gem #{TraceView::Version::STRING} successfully loaded."
     end
@@ -105,7 +102,7 @@ if defined?(::Rails)
 
         initializer 'traceview.rack' do |app|
           TraceView.logger.info '[traceview/loading] Instrumenting rack' if TraceView::Config[:verbose]
-          app.config.middleware.insert 0, 'TraceView::Rack'
+          app.config.middleware.insert 0, TraceView::Rack
         end
 
         config.after_initialize do

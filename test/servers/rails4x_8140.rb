@@ -17,11 +17,6 @@
 # existing in any Rails 4 app. Here they are simply in one
 # file and without the comments.
 #
-if ENV.key?('TRAVIS_PSQL_PASS')
-  ENV['DATABASE_URL'] = "postgresql://postgres:#{ENV['TRAVIS_PSQL_PASS']}@127.0.0.1:5432/travis_ci_test"
-else
-  ENV['DATABASE_URL'] = 'postgresql://postgres@127.0.0.1:5432/travis_ci_test'
-end
 
 require "rails/all"
 require "action_controller/railtie" # require more if needed
@@ -29,6 +24,17 @@ require 'rack/handler/puma'
 require File.expand_path(File.dirname(__FILE__) + '/../models/widget')
 
 TraceView.logger.info "[traceview/info] Starting background utility rails app on localhost:8140."
+
+# Set the database.  Default is postgresql.
+if ENV['DBTYPE'] == 'mysql2'
+  TraceView::Test.set_mysql2_env
+elsif ENV['DBTYPE'] == 'mysql'
+  TraceView::Test.set_mysql_env
+else
+  TV.logger.warn "Unidentified DBTYPE: #{ENV['DBTYPE']}" unless ENV['DBTYPE'] == "postgresql"
+  TV.logger.debug "Defaulting to postgres DB for background Rails server."
+  TraceView::Test.set_postgresql_env
+end
 
 ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
 
@@ -76,9 +82,14 @@ class HelloController < ActionController::Base
   end
 
   def db
-    Widget.all.first
-    w = Widget.new(:name => 'blah', :description => 'This is an amazing widget.')
-    w.save
+    # Create a widget
+    w1 = Widget.new(:name => 'blah', :description => 'This is an amazing widget.')
+    w1.save
+
+    # query for that widget
+    w2 = Widget.where(:name => 'blah').first
+    w2.delete
+
     render :text => "Hello database!"
   end
 end
@@ -96,7 +107,7 @@ TraceView::API.profile_method(FerroController, :world)
 Rails40MetalStack.initialize!
 
 Thread.new do
-  Rack::Handler::Puma.run(Rails40MetalStack.to_app, {:Host => '127.0.0.1', :Port => 8140})
+  Rack::Handler::Puma.run(Rails40MetalStack.to_app, {:Host => '127.0.0.1', :Port => 8140, :Threads => "0:1"})
 end
 
 sleep(2)

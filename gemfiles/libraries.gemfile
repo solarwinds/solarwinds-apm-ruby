@@ -5,22 +5,24 @@ if RUBY_VERSION >= '1.9.3'
   # ruby 1.9.3 and up
   gem 'rest-client'
   gem 'moped'
-  gem 'eventmachine'
+  gem 'eventmachine', '< 1.2.0'
   gem 'em-synchrony'
   gem 'em-http-request'
 end
 
 group :development, :test do
-  gem 'rake'
   gem 'minitest'
   gem 'minitest-reporters', '< 1.0.18'
   gem 'minitest-debugger', :require => false
   gem 'rack-test'
-  gem 'puma'
   if RUBY_VERSION < '1.9.3'
-    gem 'bson', '~> 1.12'
+    gem 'rake', '< 11.0'
+    gem 'bson', '<= 1.12.3'
+    gem 'puma', '< 3.0'
   else
+    gem 'rake'
     gem 'bson', '~> 4.0'
+    gem 'puma', '< 3.1.0'
   end
 end
 

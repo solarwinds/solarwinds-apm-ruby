@@ -4,7 +4,7 @@
 require 'minitest_helper'
 
 unless defined?(JRUBY_VERSION)
-  class BunnyTest < Minitest::Test
+  class BunnyClientTest < Minitest::Test
     def setup
       # Support specific environment variables to support remote rabbitmq servers
       ENV['TV_RABBITMQ_SERVER'] = "127.0.0.1"      unless ENV['TV_RABBITMQ_SERVER']

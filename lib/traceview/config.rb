@@ -11,13 +11,14 @@ module TraceView
   module Config
     @@config = {}
 
-    @@instrumentation = [:action_controller, :action_view, :active_record, :bunny,
-                         :cassandra, :curb, :dalli, :delayed_jobclient,
-                         :delayed_jobworker, :em_http_request, :excon,
-                         :faraday, :grape, :httpclient, :nethttp, :memcached,
-                         :memcache, :mongo, :moped, :rack, :redis, :resqueclient,
-                         :resqueworker, :rest_client, :sequel, :sidekiqclient,
-                         :sidekiqworker, :typhoeus]
+    @@instrumentation = [:action_controller, :action_view, :active_record,
+                         :bunnyclient, :bunnyconsumer, :cassandra, :curb,
+                         :dalli, :delayed_jobclient, :delayed_jobworker,
+                         :em_http_request, :excon, :faraday, :grape,
+                         :httpclient, :nethttp, :memcached,
+                         :memcache, :mongo, :moped, :rack, :redis,
+                         :resqueclient, :resqueworker, :rest_client,
+                         :sequel, :sidekiqclient, :sidekiqworker, :typhoeus]
 
     # Subgrouping of instrumentation
     @@http_clients = [:curb, :excon, :em_http_request, :faraday, :httpclient, :nethttp, :rest_client, :typhoeus]
@@ -44,7 +45,8 @@ module TraceView
       # Set collect_backtraces defaults
       TraceView::Config[:action_controller][:collect_backtraces] = true
       TraceView::Config[:active_record][:collect_backtraces] = true
-      TraceView::Config[:bunny][:collect_backtraces] = true
+      TraceView::Config[:bunnyclient][:collect_backtraces] = false
+      TraceView::Config[:bunnyconsumer][:collect_backtraces] = false
       TraceView::Config[:action_view][:collect_backtraces] = true
       TraceView::Config[:cassandra][:collect_backtraces] = true
       TraceView::Config[:curb][:collect_backtraces] = true
@@ -61,6 +63,7 @@ module TraceView
       TraceView::Config[:mongo][:collect_backtraces] = true
       TraceView::Config[:moped][:collect_backtraces] = true
       TraceView::Config[:nethttp][:collect_backtraces] = true
+      TraceView::Config[:rack][:collect_backtraces] = false
       TraceView::Config[:redis][:collect_backtraces] = false
       TraceView::Config[:resqueclient][:collect_backtraces] = true
       TraceView::Config[:resqueworker][:collect_backtraces] = false
@@ -147,6 +150,7 @@ module TraceView
       # <tt>rescue_from</tt> are not reported to the TraceView
       # dashboard by default.  Setting this value to true will
       # report all raised exception regardless.
+      #
       @@config[:report_rescued_errors] = false
 
       # By default, the curb instrumentation will not link
@@ -163,7 +167,24 @@ module TraceView
       # Alternatively, if you would like to install the separate
       # libcurl instrumentation, see here:
       # http://docs.appneta.com/installing-libcurl-instrumentation
+      #
       @@config[:curb][:cross_host] = false
+
+      # The bunny (Rabbitmq) instrumentation can optionally report
+      # Controller and Action values to allow filtering of bunny
+      # message handling in # the UI.  Use of Controller and Action
+      # for filters is temporary until the UI is updated with
+      # additional filters.
+      #
+      # These values identify which properties of
+      # Bunny::MessageProperties to report as Controller
+      # and Action.  The defaults are to report :app_id (as
+      # Controller) and :type (as Action).  If these values
+      # are not specified in the publish, then nothing
+      # will be reported here.
+      #
+      @@config[:bunnyconsumer][:controller] = :app_id
+      @@config[:bunnyconsumer][:action] = :type
 
       # Environment support for OpenShift.
       if ENV.key?('OPENSHIFT_TRACEVIEW_TLYZER_IP')

@@ -7,7 +7,6 @@ require "minitest/spec"
 require "minitest/autorun"
 require "minitest/reporters"
 require "minitest/debugger" if ENV['DEBUG']
-require "sinatra"
 
 require "minitest/hell"
 class Minitest::Test
@@ -57,6 +56,9 @@ require './test/servers/rackapp_8101'
 case File.basename(ENV['BUNDLE_GEMFILE'])
 when /delayed_job/
   require './test/servers/delayed_job'
+
+when /rails5/
+  require './test/servers/rails5x_8140'
 
 when /rails4/
   require './test/servers/rails4x_8140'
@@ -201,29 +203,31 @@ def layer_doesnt_have_key(traces, layer, key)
   has_key.must_equal false
 end
 
-##
-# Sinatra and Padrino Related Helpers
-#
-# Taken from padrino-core gem
-#
-
-class Sinatra::Base
-  # Allow assertions in request context
-  include MiniTest::Assertions
-end
-
-
-class MiniTest::Spec
-  include Rack::Test::Methods
-
-  # Sets up a Sinatra::Base subclass defined with the block
-  # given. Used in setup or individual spec methods to establish
-  # the application.
-  def mock_app(base=Padrino::Application, &block)
-    @app = Sinatra.new(base, &block)
+if (File.basename(ENV['BUNDLE_GEMFILE']) =~ /^frameworks/) == 0
+  require "sinatra"
+  ##
+  # Sinatra and Padrino Related Helpers
+  #
+  # Taken from padrino-core gem
+  #
+  class Sinatra::Base
+    # Allow assertions in request context
+    include MiniTest::Assertions
   end
 
-  def app
-    Rack::Lint.new(@app)
+
+  class MiniTest::Spec
+    include Rack::Test::Methods
+
+    # Sets up a Sinatra::Base subclass defined with the block
+    # given. Used in setup or individual spec methods to establish
+    # the application.
+    def mock_app(base=Padrino::Application, &block)
+      @app = Sinatra.new(base, &block)
+    end
+
+    def app
+      Rack::Lint.new(@app)
+    end
   end
 end

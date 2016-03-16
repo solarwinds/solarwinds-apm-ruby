@@ -86,67 +86,6 @@ if defined?(TraceView::Config)
   # TraceView::Config[:report_rescued_errors] = false
   #
 
-  #
-  # Enabling/Disabling Instrumentation
-  #
-  # If you're having trouble with one of the instrumentation libraries, they
-  # can be individually disabled here by setting the :enabled
-  # value to false:
-  #
-  # TraceView::Config[:action_controller][:enabled] = true
-  # TraceView::Config[:action_view][:enabled] = true
-  # TraceView::Config[:active_record][:enabled] = true
-  # TraceView::Config[:bunny][:enabled] = true
-  # TraceView::Config[:cassandra][:enabled] = true
-  # TraceView::Config[:curb][:enabled] = true
-  # TraceView::Config[:dalli][:enabled] = true
-  # TraceView::Config[:excon][:enabled] = true
-  # TraceView::Config[:em_http_request][:enabled] = true
-  # TraceView::Config[:faraday][:enabled] = true
-  # TraceView::Config[:httpclient][:enabled] = true
-  # TraceView::Config[:memcache][:enabled] = true
-  # TraceView::Config[:memcached][:enabled] = true
-  # TraceView::Config[:mongo][:enabled] = true
-  # TraceView::Config[:moped][:enabled] = true
-  # TraceView::Config[:nethttp][:enabled] = true
-  # TraceView::Config[:redis][:enabled] = true
-  # TraceView::Config[:resque][:enabled] = true
-  # TraceView::Config[:rest_client][:enabled] = true
-  # TraceView::Config[:sequel][:enabled] = true
-  # TraceView::Config[:typhoeus][:enabled] = true
-  #
-
-  #
-  # Enabling/Disabling Backtrace Collection
-  #
-  # Instrumentation can optionally collect backtraces as they collect
-  # performance metrics.  Note that this has a negative impact on
-  # performance but can be useful when trying to locate the source of
-  # a certain call or operation.
-  #
-  # TraceView::Config[:action_controller][:collect_backtraces] = true
-  # TraceView::Config[:action_view][:collect_backtraces] = true
-  # TraceView::Config[:active_record][:collect_backtraces] = true
-  # TraceView::Config[:bunny][:collect_backtraces] = true
-  # TraceView::Config[:cassandra][:collect_backtraces] = true
-  # TraceView::Config[:curb][:collect_backtraces] = true
-  # TraceView::Config[:dalli][:collect_backtraces] = false
-  # TraceView::Config[:excon][:collect_backtraces] = false
-  # TraceView::Config[:em_http_request][:collect_backtraces] = true
-  # TraceView::Config[:faraday][:collect_backtraces] = false
-  # TraceView::Config[:httpclient][:collect_backtraces] = false
-  # TraceView::Config[:memcache][:collect_backtraces] = false
-  # TraceView::Config[:memcached][:collect_backtraces] = false
-  # TraceView::Config[:mongo][:collect_backtraces] = true
-  # TraceView::Config[:moped][:collect_backtraces] = true
-  # TraceView::Config[:nethttp][:collect_backtraces] = true
-  # TraceView::Config[:redis][:collect_backtraces] = false
-  # TraceView::Config[:resque][:collect_backtraces] = true
-  # TraceView::Config[:rest_client][:collect_backtraces] = true
-  # TraceView::Config[:sequel][:collect_backtraces] = true
-  # TraceView::Config[:typhoeus][:collect_backtraces] = false
-  #
-
   # By default, the curb instrumentation will not link
   # outgoing requests with remotely instrumented
   # webservers (aka cross host tracing).  This is because the
@@ -161,19 +100,104 @@ if defined?(TraceView::Config)
   # Alternatively, if you would like to install the separate
   # libcurl instrumentation, see here:
   # http://docs.appneta.com/installing-libcurl-instrumentation
+  #
   # TraceView::Config[:curb][:cross_host] = false
+  #
+
+  # The bunny (Rabbitmq) instrumentation can optionally report
+  # Controller and Action values to allow filtering of bunny
+  # message handling in # the UI.  Use of Controller and Action
+  # for filters is temporary until the UI is updated with
+  # additional filters.
+  #
+  # These values identify which properties of
+  # Bunny::MessageProperties to report as Controller
+  # and Action.  The defaults are to report :app_id (as
+  # Controller) and :type (as Action).  If these values
+  # are not specified in the publish, then nothing
+  # will be reported here.
+  #
+  # TraceView::Config[:bunnyconsumer][:controller] = :app_id
+  # TraceView::Config[:bunnyconsumer][:action] = :type
+  #
 
   #
   # Resque Options
   #
-  # :link_workers - associates Resque enqueue operations with the jobs they queue by piggybacking
-  #                 an additional argument on the Redis queue that is stripped prior to job
-  #                 processing
-  #                 !!! Note: Make sure both the enqueue side and the Resque workers are instrumented
-  #                 before enabling this or jobs will fail !!!
-  #                 (Default: false)
-  # TraceView::Config[:resque][:link_workers] = false
-  #
   # Set to true to disable Resque argument logging (Default: false)
   # TraceView::Config[:resque][:log_args] = false
+  #
+
+  #
+  # Enabling/Disabling Instrumentation
+  #
+  # If you're having trouble with one of the instrumentation libraries, they
+  # can be individually disabled here by setting the :enabled
+  # value to false:
+  #
+  # TraceView::Config[:action_controller][:enabled] = true
+  # TraceView::Config[:action_view][:enabled] = true
+  # TraceView::Config[:active_record][:enabled] = true
+  # TraceView::Config[:bunnyclient][:enabled] = true
+  # TraceView::Config[:bunnyconsumer][:enabled] = true
+  # TraceView::Config[:cassandra][:enabled] = true
+  # TraceView::Config[:curb][:enabled] = true
+  # TraceView::Config[:dalli][:enabled] = true
+  # TraceView::Config[:delayed_jobclient][:enabled] = true
+  # TraceView::Config[:delayed_jobworker][:enabled] = true
+  # TraceView::Config[:excon][:enabled] = true
+  # TraceView::Config[:em_http_request][:enabled] = true
+  # TraceView::Config[:faraday][:enabled] = true
+  # TraceView::Config[:grape][:enabled] = true
+  # TraceView::Config[:httpclient][:enabled] = true
+  # TraceView::Config[:memcache][:enabled] = true
+  # TraceView::Config[:memcached][:enabled] = true
+  # TraceView::Config[:mongo][:enabled] = true
+  # TraceView::Config[:moped][:enabled] = true
+  # TraceView::Config[:nethttp][:enabled] = true
+  # TraceView::Config[:redis][:enabled] = true
+  # TraceView::Config[:resque][:enabled] = true
+  # TraceView::Config[:rest_client][:enabled] = true
+  # TraceView::Config[:sequel][:enabled] = true
+  # TraceView::Config[:sidekiqclient][:enabled] = true
+  # TraceView::Config[:sidekiqworker][:enabled] = true
+  # TraceView::Config[:typhoeus][:enabled] = true
+  #
+
+  #
+  # Enabling/Disabling Backtrace Collection
+  #
+  # Instrumentation can optionally collect backtraces as they collect
+  # performance metrics.  Note that this has a negative impact on
+  # performance but can be useful when trying to locate the source of
+  # a certain call or operation.
+  #
+  # TraceView::Config[:action_controller][:collect_backtraces] = true
+  # TraceView::Config[:action_view][:collect_backtraces] = true
+  # TraceView::Config[:active_record][:collect_backtraces] = true
+  # TraceView::Config[:bunnyclient][:collect_backtraces] = true
+  # TraceView::Config[:bunnyconsumer][:collect_backtraces] = true
+  # TraceView::Config[:cassandra][:collect_backtraces] = true
+  # TraceView::Config[:curb][:collect_backtraces] = true
+  # TraceView::Config[:dalli][:collect_backtraces] = false
+  # TraceView::Config[:delayed_jobclient][:collect_backtraces] = false
+  # TraceView::Config[:delayed_jobworker][:collect_backtraces] = false
+  # TraceView::Config[:excon][:collect_backtraces] = false
+  # TraceView::Config[:em_http_request][:collect_backtraces] = true
+  # TraceView::Config[:faraday][:collect_backtraces] = false
+  # TraceView::Config[:grape][:collect_backtraces] = false
+  # TraceView::Config[:httpclient][:collect_backtraces] = false
+  # TraceView::Config[:memcache][:collect_backtraces] = false
+  # TraceView::Config[:memcached][:collect_backtraces] = false
+  # TraceView::Config[:mongo][:collect_backtraces] = true
+  # TraceView::Config[:moped][:collect_backtraces] = true
+  # TraceView::Config[:nethttp][:collect_backtraces] = true
+  # TraceView::Config[:redis][:collect_backtraces] = false
+  # TraceView::Config[:resque][:collect_backtraces] = true
+  # TraceView::Config[:rest_client][:collect_backtraces] = true
+  # TraceView::Config[:sequel][:collect_backtraces] = true
+  # TraceView::Config[:sidekiqclient][:collect_backtraces] = true
+  # TraceView::Config[:sidekiqworker][:collect_backtraces] = true
+  # TraceView::Config[:typhoeus][:collect_backtraces] = false
+  #
 end

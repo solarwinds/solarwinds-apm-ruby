@@ -4,6 +4,28 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# traceview 3.7.0
+
+This minor release includes the following new feature:
+
+* New Ruby on Rails 5 instrumentation: #165
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.7.0
+https://rubygems.org/gems/traceview/versions/3.7.0-java
+
+# traceview 3.6.0
+
+This minor release includes the following new feature:
+
+* New [bunny](https://github.com/ruby-amqp/bunny) (Rabbitmq) consumer instrumentation: #160
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.6.0
+https://rubygems.org/gems/traceview/versions/3.6.0-java
+
 # traceview 3.5.1
 
 This patch release includes the following fixes:
