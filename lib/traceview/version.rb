@@ -7,7 +7,7 @@ module TraceView
   # traceview.gemspec during gem build process
   module Version
     MAJOR = 3
-    MINOR = 6
+    MINOR = 7
     PATCH = 0
     BUILD = nil
 
