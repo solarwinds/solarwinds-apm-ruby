@@ -5,7 +5,7 @@ if RUBY_VERSION >= '1.9.3'
   # ruby 1.9.3 and up
   gem 'rest-client'
   gem 'moped'
-  gem 'eventmachine'
+  gem 'eventmachine', '< 1.2.0'
   gem 'em-synchrony'
   gem 'em-http-request'
 end
