@@ -5,11 +5,8 @@ require 'minitest_helper'
 
 if defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
-  if ENV.key?('TRAVIS_PSQL_PASS')
-    PG_DB = Sequel.connect("postgres://postgres:#{ENV['TRAVIS_PSQL_PASS']}@127.0.0.1:5432/travis_ci_test")
-  else
-    PG_DB = Sequel.connect('postgres://postgres@127.0.0.1:5432/travis_ci_test')
-  end
+  TraceView::Test.set_postgresql_env
+  PG_DB = Sequel.connect(ENV['DATABASE_URL'])
 
   unless PG_DB.table_exists?(:items)
     PG_DB.create_table :items do

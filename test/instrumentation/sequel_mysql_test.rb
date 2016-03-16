@@ -5,11 +5,8 @@ require 'minitest_helper'
 
 if defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
-  if ENV.key?('TRAVIS_MYSQL_PASS')
-    MYSQL_DB = Sequel.connect("mysql://root:#{ENV['TRAVIS_MYSQL_PASS']}@127.0.0.1:3306/travis_ci_test")
-  else
-    MYSQL_DB = Sequel.connect('mysql://root@127.0.0.1:3306/travis_ci_test')
-  end
+  TraceView::Test.set_mysql_env
+  MYSQL_DB = Sequel.connect(ENV['DATABASE_URL'])
 
   unless MYSQL_DB.table_exists?(:items)
     MYSQL_DB.create_table :items do

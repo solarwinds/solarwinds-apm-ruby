@@ -1,0 +1,49 @@
+# Copyright (c) 2016 AppNeta, Inc.
+# All rights reserved.
+
+module TraceView
+  module Inst
+    #
+    # ActionController
+    #
+    # This modules contains the instrumentation code specific
+    # to Rails v3
+    #
+    module ActionController
+      include ::TraceView::Inst::RailsBase
+
+      def self.included(base)
+        base.class_eval do
+          alias_method_chain :process, :traceview
+          alias_method_chain :process_action, :traceview
+          alias_method_chain :render, :traceview
+        end
+      end
+
+      def process_with_traceview(*args)
+        TraceView::API.log_entry('rails')
+        process_without_traceview(*args)
+
+      rescue Exception => e
+        TraceView::API.log_exception(nil, e) if log_rails_error?(e)
+        raise
+      ensure
+        TraceView::API.log_exit('rails')
+      end
+
+      def process_action_with_traceview(*args)
+        report_kvs = {
+          :Controller   => self.class.name,
+          :Action       => action_name,
+        }
+        TraceView::API.log(nil, 'info', report_kvs)
+
+        process_action_without_traceview(*args)
+      rescue Exception
+        report_kvs[:Status] = 500
+        TraceView::API.log(nil, 'info', report_kvs)
+        raise
+      end
+    end
+  end
+end

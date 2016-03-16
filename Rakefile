@@ -6,7 +6,8 @@ require 'rake/testtask'
 require 'traceview/test'
 
 Rake::TestTask.new do |t|
-  t.verbose = true
+  t.verbose = false
+  t.warning = false
   t.ruby_opts = []
   t.libs << "test"
 
@@ -36,7 +37,6 @@ Rake::TestTask.new do |t|
                    FileList['test/profiling/*_test.rb']
   end
 
-  # t.ruby_opts << ['-w']
   if defined?(JRUBY_VERSION)
     t.ruby_opts << ["-J-javaagent:/usr/local/tracelytics/tracelyticsagent.jar"]
   end

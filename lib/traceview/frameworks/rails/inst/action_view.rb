@@ -8,7 +8,7 @@ if defined?(ActionView::Base) && TraceView::Config[:action_view][:enabled]
   # and ActionView 3.0 is a special case.
   # Everything else goes here. (ActionView 3.1 - 4.0 as of this writing)
   #
-  if (Rails::VERSION::MAJOR == 3 && Rails::VERSION::MINOR > 0) || Rails::VERSION::MAJOR == 4
+  if (Rails::VERSION::MAJOR == 3 && Rails::VERSION::MINOR > 0) || Rails::VERSION::MAJOR >= 4
 
     TraceView.logger.info '[traceview/loading] Instrumenting actionview' if TraceView::Config[:verbose]
 
