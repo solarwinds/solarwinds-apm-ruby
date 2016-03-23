@@ -8,6 +8,7 @@ if defined?(::Rails)
   describe "Rails3x" do
     before do
       clear_all_traces
+      ENV['DBTYPE'] = "postgresql" unless ENV['DBTYPE']
     end
 
     it "should trace a request to a rails stack" do
