@@ -74,7 +74,13 @@ module TraceView
 
         traces = []
 
-        if BSON::VERSION < '4.0'
+        #
+        # We use Gem.loaded_spec because older versions of the bson
+        # gem didn't even have a version embedded in the gem.  If the
+        # gem isn't in the bundle, it should rightfully error out
+        # anyways.
+        #
+        if Gem.loaded_specs['bson'].version.to_s < '4.0'
           s = StringIO.new(contents[0])
 
           until s.eof?
