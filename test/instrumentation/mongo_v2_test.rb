@@ -232,7 +232,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       coll.insert_one(doc)
 
       TraceView::API.start_trace('mongo_test', '', {}) do
-        r = coll.find_one_and_update({ :name => 'MyName' }, { "$set" => { name: 'test1' }}, :return_document => :after)
+        r = coll.find_one_and_update({ :name => 'MyName' }, { "$set" => { :name => 'test1' }}, :return_document => :after)
       end
 
       traces = get_all_traces
@@ -260,7 +260,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       coll.insert_one(doc)
 
       TraceView::API.start_trace('mongo_test', '', {}) do
-        r = coll.find_one_and_replace({ :name => 'MyName' }, { "$set" => { name: 'test1' }}, :return_document => :after)
+        r = coll.find_one_and_replace({ :name => 'MyName' }, { "$set" => { :name => 'test1' }}, :return_document => :after)
       end
 
       traces = get_all_traces
@@ -288,7 +288,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       coll.insert_one(doc)
 
       TraceView::API.start_trace('mongo_test', '', {}) do
-        r = coll.update_one({ :name => 'MyName' }, { "$set" => { name: 'test1' }}, :return_document => :after)
+        r = coll.update_one({ :name => 'MyName' }, { "$set" => { :name => 'test1' }}, :return_document => :after)
       end
 
       traces = get_all_traces
@@ -316,7 +316,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       coll.insert_one(doc)
 
       TraceView::API.start_trace('mongo_test', '', {}) do
-        r = coll.update_many({ :name => 'MyName' }, { "$set" => { name: 'test1' }}, :return_document => :after)
+        r = coll.update_many({ :name => 'MyName' }, { "$set" => { :name => 'test1' }}, :return_document => :after)
       end
 
       traces = get_all_traces
