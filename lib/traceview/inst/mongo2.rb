@@ -7,8 +7,12 @@ if RUBY_VERSION >= '1.9' && TraceView::Config[:mongo][:enabled]
   if defined?(::Mongo) && (Gem.loaded_specs['mongo'].version.to_s >= '2.0.0')
     ::TraceView.logger.info '[traceview/loading] Instrumenting mongo' if TraceView::Config[:verbose]
 
-    MONGO_OPS = [:create, :drop, :insert_one, :insert_many, :find, :find_one_and_delete, :find_one_and_update,
-                  :find_one_and_replace]
+    # Mongo operations that use a query
+    MONGO_QUERY_OPS = [:find, :find_one_and_delete, :find_one_and_update, :find_one_and_replace, :update_one, :update_many,
+                       :delete_one, :delete_many, :count, :distinct, :replace_one]
+    # Everything else
+    MONGO_OTHER_OPS = [:create, :drop, :insert_one, :insert_many, :aggregate]
+    MONGO_OPS = MONGO_QUERY_OPS + MONGO_OTHER_OPS
 
     module Mongo
       class Collection
@@ -30,7 +34,7 @@ if RUBY_VERSION >= '1.9' && TraceView::Config[:mongo][:enabled]
           end
 
           if TraceView::Config[:mongo][:log_args]
-            if [:find, :find_one_and_delete, :find_one_and_update, :find_one_and_replace].include?(op)
+            if MONGO_QUERY_OPS.include?(op)
               kvs[:Query] = args.first.to_json
             end
           end

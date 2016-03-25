@@ -40,10 +40,6 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
     end
 
-    it "should log and pass on exceptions" do
-      skip
-    end
-
     it "should trace collection creation" do
       r = nil
       collection = @db[:temp_collection]
@@ -123,7 +119,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       traces[2].has_key?('Backtrace').must_equal true
     end
 
-    it "should trace insert one" do
+    it "should trace insert_one" do
       r = nil
       collection = @db[:tv_collection]
 
@@ -146,7 +142,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
     end
 
-    it "should trace insert many" do
+    it "should trace insert_many" do
       r = nil
       collection = @db[:tv_collection]
 
@@ -178,12 +174,6 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       # Insert a doc to assure we get a result
       doc = {"name" => "MyName", "type" => "MyType", "count" => 1, "info" => {"x" => 203, "y" => '102'}}
       coll.insert_one(doc)
-
-      # If given an optional block +find+ will yield a Cursor to that block,
-      # close the cursor, and then return nil. This guarantees that partially
-      # evaluated cursors will be closed. If given no block +find+ returns a
-      # cursor.
-      # https://github.com/mongodb/mongo-ruby-driver/blob/1.10.1/lib/mongo/collection.rb#L178
 
       TraceView::API.start_trace('mongo_test', '', {}) do
         r = coll.find(:name => "MyName", :limit => 1)
@@ -289,30 +279,16 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       traces[1].has_key?('Query').must_equal true
     end
 
-    it "should trace count" do
-      skip
-      coll = @db.collection("testCollection")
+    it "should trace update_one" do
+      coll = @db[:test_collection]
+      r = nil
+
+      # Insert a doc to assure we get a result
+      doc = {"name" => "MyName", "type" => "MyType", "count" => 1, "info" => {"x" => 203, "y" => '102'}}
+      coll.insert_one(doc)
 
       TraceView::API.start_trace('mongo_test', '', {}) do
-        coll.count(:query => {:name => "MyName"})
-      end
-
-      traces = get_all_traces
-      traces.count.must_equal 6
-
-      validate_outer_layers(traces, 'mongo_test')
-      validate_event_keys(traces[1], @entry_kvs)
-      validate_event_keys(traces[2], @exit_kvs)
-
-      traces[3]['QueryOp'].must_equal "count"
-    end
-
-    it "should trace find_and_modify" do
-      skip
-      coll = @db.collection("testCollection")
-
-      TraceView::API.start_trace('mongo_test', '', {}) do
-        coll.find_and_modify({ :query => { :name => "MyName" }, :update => { :count => 203 }})
+        r = coll.update_one({ :name => 'MyName' }, { "$set" => { name: 'test1' }}, :return_document => :after)
       end
 
       traces = get_all_traces
@@ -322,10 +298,196 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[1]['Collection'].must_equal "testCollection"
+      r.class.ancestors.include?(Mongo::Operation::Result).must_equal true
+
+      traces[1]['Collection'].must_equal "test_collection"
       traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
-      traces[1]['QueryOp'].must_equal "find_and_modify"
-      traces[1]['Update_Document'].must_equal "{:count=>203}"
+      traces[1]['QueryOp'].must_equal "update_one"
+      traces[1]['Query'].must_equal "{\"name\":\"MyName\"}"
+      traces[1].has_key?('Query').must_equal true
+    end
+
+    it "should trace update_many" do
+      coll = @db[:test_collection]
+      r = nil
+
+      # Insert a doc to assure we get a result
+      doc = {"name" => "MyName", "type" => "MyType", "count" => 1, "info" => {"x" => 203, "y" => '102'}}
+      coll.insert_one(doc)
+
+      TraceView::API.start_trace('mongo_test', '', {}) do
+        r = coll.update_many({ :name => 'MyName' }, { "$set" => { name: 'test1' }}, :return_document => :after)
+      end
+
+      traces = get_all_traces
+      traces.count.must_equal 4
+
+      validate_outer_layers(traces, 'mongo_test')
+      validate_event_keys(traces[1], @entry_kvs)
+      validate_event_keys(traces[2], @exit_kvs)
+
+      r.class.ancestors.include?(Mongo::Operation::Result).must_equal true
+
+      traces[1]['Collection'].must_equal "test_collection"
+      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
+      traces[1]['QueryOp'].must_equal "update_many"
+      traces[1]['Query'].must_equal "{\"name\":\"MyName\"}"
+      traces[1].has_key?('Query').must_equal true
+    end
+
+    it "should trace delete_one" do
+      coll = @db[:test_collection]
+      r = nil
+
+      # Insert a doc to assure we get a result
+      doc = {"name" => "MyName", "type" => "MyType", "count" => 1, "info" => {"x" => 203, "y" => '102'}}
+      coll.insert_one(doc)
+
+      TraceView::API.start_trace('mongo_test', '', {}) do
+        r = coll.delete_one({ :name => 'MyName' })
+      end
+
+      traces = get_all_traces
+      traces.count.must_equal 4
+
+      validate_outer_layers(traces, 'mongo_test')
+      validate_event_keys(traces[1], @entry_kvs)
+      validate_event_keys(traces[2], @exit_kvs)
+
+      r.class.ancestors.include?(Mongo::Operation::Result).must_equal true
+
+      traces[1]['Collection'].must_equal "test_collection"
+      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
+      traces[1]['QueryOp'].must_equal "delete_one"
+      traces[1]['Query'].must_equal "{\"name\":\"MyName\"}"
+      traces[1].has_key?('Query').must_equal true
+    end
+
+    it "should trace delete_many" do
+      coll = @db[:test_collection]
+      r = nil
+
+      # Insert a doc to assure we get a result
+      doc = {"name" => "MyName", "type" => "MyType", "count" => 1, "info" => {"x" => 203, "y" => '102'}}
+      coll.insert_one(doc)
+
+      TraceView::API.start_trace('mongo_test', '', {}) do
+        r = coll.delete_many({ :name => 'MyName' })
+      end
+
+      traces = get_all_traces
+      traces.count.must_equal 4
+
+      validate_outer_layers(traces, 'mongo_test')
+      validate_event_keys(traces[1], @entry_kvs)
+      validate_event_keys(traces[2], @exit_kvs)
+
+      r.class.ancestors.include?(Mongo::Operation::Result).must_equal true
+
+      traces[1]['Collection'].must_equal "test_collection"
+      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
+      traces[1]['QueryOp'].must_equal "delete_many"
+      traces[1]['Query'].must_equal "{\"name\":\"MyName\"}"
+      traces[1].has_key?('Query').must_equal true
+    end
+
+    it "should trace replace_one" do
+      coll = @db[:test_collection]
+      r = nil
+
+      # Insert a doc to assure we get a result
+      doc = {"name" => "MyName", "type" => "MyType", "count" => 1, "info" => {"x" => 203, "y" => '102'}}
+      coll.insert_one(doc)
+
+      TraceView::API.start_trace('mongo_test', '', {}) do
+        r = coll.replace_one({ :name => 'test' }, { :name => 'test1' })
+      end
+
+      traces = get_all_traces
+      traces.count.must_equal 4
+
+      validate_outer_layers(traces, 'mongo_test')
+      validate_event_keys(traces[1], @entry_kvs)
+      validate_event_keys(traces[2], @exit_kvs)
+
+      r.class.ancestors.include?(Mongo::Operation::Result).must_equal true
+
+      traces[1]['Collection'].must_equal "test_collection"
+      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
+      traces[1]['QueryOp'].must_equal "replace_one"
+      traces[1]['Query'].must_equal "{\"name\":\"test\"}"
+      traces[1].has_key?('Query').must_equal true
+    end
+
+    it "should trace count" do
+      coll = @db[:test_collection]
+      r = nil
+
+      TraceView::API.start_trace('mongo_test', '', {}) do
+        r = coll.count({ :name => 'MyName' })
+      end
+
+      traces = get_all_traces
+      traces.count.must_equal 4
+
+      validate_outer_layers(traces, 'mongo_test')
+      validate_event_keys(traces[1], @entry_kvs)
+      validate_event_keys(traces[2], @exit_kvs)
+
+      r.is_a?(Numeric).must_equal true
+
+      traces[1]['Collection'].must_equal "test_collection"
+      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
+      traces[1]['QueryOp'].must_equal "count"
+      traces[1]['Query'].must_equal "{\"name\":\"MyName\"}"
+      traces[1].has_key?('Query').must_equal true
+    end
+
+    it "should trace distinct" do
+      coll = @db[:test_collection]
+      r = nil
+
+      TraceView::API.start_trace('mongo_test', '', {}) do
+        r = coll.distinct({ :name => 'MyName' })
+      end
+
+      traces = get_all_traces
+      traces.count.must_equal 4
+
+      validate_outer_layers(traces, 'mongo_test')
+      validate_event_keys(traces[1], @entry_kvs)
+      validate_event_keys(traces[2], @exit_kvs)
+
+      r.is_a?(Array).must_equal true
+
+      traces[1]['Collection'].must_equal "test_collection"
+      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
+      traces[1]['QueryOp'].must_equal "distinct"
+      traces[1]['Query'].must_equal "{\"name\":\"MyName\"}"
+      traces[1].has_key?('Query').must_equal true
+    end
+
+    it "should trace aggregate" do
+      coll = @db[:test_collection]
+      r = nil
+
+      TraceView::API.start_trace('mongo_test', '', {}) do
+        r = coll.aggregate([ { "$group" => { "_id" => "$city", "tpop" => { "$sum" => "$pop" }}} ])
+      end
+
+      traces = get_all_traces
+      traces.count.must_equal 4
+
+      validate_outer_layers(traces, 'mongo_test')
+      validate_event_keys(traces[1], @entry_kvs)
+      validate_event_keys(traces[2], @exit_kvs)
+
+      r.must_be_instance_of Mongo::Collection::View::Aggregation
+
+      traces[1]['Collection'].must_equal "test_collection"
+      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
+      traces[1]['QueryOp'].must_equal "aggregate"
+      traces[1].key?('Query').must_equal false
     end
 
     it "should trace map_reduce" do
@@ -351,163 +513,6 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       traces[1]['Map_Function'].must_equal "function() { emit(this.name, 1); }"
       traces[1]['Reduce_Function'].must_equal "function(k, vals) { var sum = 0; for(var i in vals) sum += vals[i]; return sum; }"
       traces[1]['Limit'].must_equal 100
-    end
-
-    it "should trace remove" do
-      skip
-      coll = @db.collection("testCollection")
-
-      TraceView::API.start_trace('mongo_test', '', {}) do
-        coll.remove(:name => "SaveOp")
-      end
-
-      traces = get_all_traces
-      traces.count.must_equal 4
-
-      validate_outer_layers(traces, 'mongo_test')
-      validate_event_keys(traces[1], @entry_kvs)
-      validate_event_keys(traces[2], @exit_kvs)
-
-      traces[1]['Collection'].must_equal "testCollection"
-      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
-      traces[1]['QueryOp'].must_equal "remove"
-      traces[1]['Query'].must_equal "{\"name\":\"SaveOp\"}"
-    end
-
-    it "should trace rename" do
-      skip
-      coll = @db.collection("testCollection")
-      new_name = (0...10).map{ ('a'..'z').to_a[rand(26)] }.join
-
-      TraceView::API.start_trace('mongo_test', '', {}) do
-        coll.rename(new_name)
-      end
-
-      traces = get_all_traces
-      traces.count.must_equal 4
-
-      validate_outer_layers(traces, 'mongo_test')
-      validate_event_keys(traces[1], @entry_kvs)
-      validate_event_keys(traces[2], @exit_kvs)
-
-      traces[1]['Collection'].must_equal "testCollection"
-      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
-      traces[1]['QueryOp'].must_equal "rename"
-      traces[1]['New_Collection_Name'].must_equal new_name
-
-      # Clean up after test and set collection name back to original
-      coll.rename("testCollection")
-    end
-
-    it "should trace update" do
-      skip
-      coll = @db.collection("testCollection")
-
-      TraceView::API.start_trace('mongo_test', '', {}) do
-        # Two types of update calls
-        coll.update({"_id" => 1}, { "$set" => {"name" => "MongoDB Ruby"}}, :multi => true)
-
-        doc = {"name" => "MyOtherName", "type" => "MyType", "count" => 1, "info" => {"x" => 203, "y" => '102'}}
-        coll.update({"_id" => 1}, doc)
-      end
-
-      traces = get_all_traces
-      traces.count.must_equal 6
-
-      validate_outer_layers(traces, 'mongo_test')
-      validate_event_keys(traces[1], @entry_kvs)
-      validate_event_keys(traces[2], @exit_kvs)
-
-      traces[1]['Collection'].must_equal "testCollection"
-      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
-      traces[1]['QueryOp'].must_equal "update"
-      traces[1]['Query'].must_equal "{\"_id\":1}"
-
-      validate_event_keys(traces[3], @entry_kvs)
-      validate_event_keys(traces[4], @exit_kvs)
-
-      traces[3].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
-      traces[3]['QueryOp'].must_equal "update"
-      traces[3]['Query'].must_equal "{\"_id\":1}"
-    end
-
-    it "should trace distinct" do
-      skip
-      coll = @db.collection("testCollection")
-
-      TraceView::API.start_trace('mongo_test', '', {}) do
-        coll.distinct("count")
-      end
-
-      traces = get_all_traces
-      traces.count.must_equal 4
-
-      validate_outer_layers(traces, 'mongo_test')
-      validate_event_keys(traces[1], @entry_kvs)
-      validate_event_keys(traces[2], @exit_kvs)
-
-      traces[1]['Collection'].must_equal "testCollection"
-      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
-      traces[1]['QueryOp'].must_equal "distinct"
-    end
-
-    it "should trace find (with block)" do
-      skip
-      coll = @db.collection("testCollection")
-      result = []
-
-      # Insert a doc to assure we get a result
-      doc = {"name" => "MyName", "type" => "MyType", "count" => 1, "info" => {"x" => 203, "y" => '102'}}
-      coll.insert_one(doc)
-
-      # If given an optional block +find+ will yield a Cursor to that block,
-      # close the cursor, and then return nil. This guarantees that partially
-      # evaluated cursors will be closed. If given no block +find+ returns a
-      # cursor.
-      # https://github.com/mongodb/mongo-ruby-driver/blob/1.10.1/lib/mongo/collection.rb#L178
-
-      TraceView::API.start_trace('mongo_test', '', {}) do
-        blk = lambda { |x| x }
-        result = coll.find(:name => "MyName", :limit => 10, &blk)
-      end
-
-      traces = get_all_traces
-      traces.count.must_equal 4
-
-      validate_outer_layers(traces, 'mongo_test')
-      validate_event_keys(traces[1], @entry_kvs)
-      validate_event_keys(traces[2], @exit_kvs)
-
-      result.must_equal nil
-      traces[1]['Collection'].must_equal "testCollection"
-      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
-      traces[1]['QueryOp'].must_equal "find"
-      traces[1].has_key?('Query').must_equal true
-    end
-
-    it "should trace group" do
-      skip
-      coll = @db.collection("testCollection")
-
-      TraceView::API.start_trace('mongo_test', '', {}) do
-        coll.group( :key =>  :type,
-                    :cond => { :count => 1 },
-                    :initial =>  { :count => 0 },
-                    :reduce => 'function(obj,prev) { prev.count += obj.c; }')
-      end
-
-      traces = get_all_traces
-      traces.count.must_equal 4
-
-      validate_outer_layers(traces, 'mongo_test')
-      validate_event_keys(traces[1], @entry_kvs)
-      validate_event_keys(traces[2], @exit_kvs)
-
-      traces[1]['Collection'].must_equal "testCollection"
-      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
-      traces[1]['QueryOp'].must_equal "group"
-      # Don't test exact hash value since to_json hash ordering varies between 1.8.7 and 1.9+
-      traces[1].has_key?('Query').must_equal true
     end
 
     it "should trace create, ensure and drop index" do
