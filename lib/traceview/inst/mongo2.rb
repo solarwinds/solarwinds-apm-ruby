@@ -11,7 +11,7 @@ if RUBY_VERSION >= '1.9' && TraceView::Config[:mongo][:enabled]
     MONGO_QUERY_OPS = [:find, :find_one_and_delete, :find_one_and_update, :find_one_and_replace, :update_one, :update_many,
                        :delete_one, :delete_many, :count, :distinct, :replace_one]
     # Everything else
-    MONGO_OTHER_OPS = [:create, :drop, :insert_one, :insert_many, :aggregate]
+    MONGO_OTHER_OPS = [:create, :drop, :insert_one, :insert_many, :aggregate, :bulk_write]
     MONGO_OPS = MONGO_QUERY_OPS + MONGO_OTHER_OPS
 
     module Mongo
