@@ -448,7 +448,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       r = nil
 
       TraceView::API.start_trace('mongo_test', '', {}) do
-        r = coll.distinct({ :name => 'MyName' })
+        r = coll.distinct('name', { :name => 'MyName' })
       end
 
       traces = get_all_traces
@@ -518,12 +518,13 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
 
     it "should trace map_reduce" do
       skip
-      coll = @db.collection("testCollection")
+      coll = @db[:test_collection]
+      view = coll.find(:name => "MyName")
 
       TraceView::API.start_trace('mongo_test', '', {}) do
         map    = "function() { emit(this.name, 1); }"
         reduce = "function(k, vals) { var sum = 0; for(var i in vals) sum += vals[i]; return sum; }"
-        coll.map_reduce(map, reduce, { :out => "mr_results", :limit => 100, :read => :primary })
+        view.map_reduce(map, reduce, { :out => "mr_results", :limit => 100, :read => :primary })
       end
 
       traces = get_all_traces
