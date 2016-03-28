@@ -17,8 +17,8 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       @db = @client.database
 
       @collections = @db.collection_names
-      @testCollection = @client[:testCollection]
-      @testCollection.create unless @collections.include? "testCollection"
+      @testCollection = @client[:test_collection]
+      @testCollection.create unless @collections.include? "test_collection"
 
       # These are standard entry/exit KVs that are passed up with all mongo operations
       @entry_kvs = {
