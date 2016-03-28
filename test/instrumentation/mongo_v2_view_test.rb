@@ -375,7 +375,6 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     end
 
     it "should trace map_reduce" do
-      skip
       coll = @db[:test_collection]
       view = coll.find(:name => "MyName")
 
@@ -392,7 +391,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[1]['Collection'].must_equal "testCollection"
+      traces[1]['Collection'].must_equal "test_collection"
       traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
       traces[1]['QueryOp'].must_equal "map_reduce"
       traces[1]['Map_Function'].must_equal "function() { emit(this.name, 1); }"

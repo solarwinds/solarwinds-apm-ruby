@@ -8,7 +8,7 @@ unless ENV['TV_MONGO_SERVER']
 end
 
 if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
-  describe "Mongo" do
+  describe "MongoCollection" do
     before do
       clear_all_traces
 
@@ -517,7 +517,6 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     end
 
     it "should trace map_reduce" do
-      skip
       coll = @db[:test_collection]
       view = coll.find(:name => "MyName")
 
@@ -534,88 +533,12 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[1]['Collection'].must_equal "testCollection"
+      traces[1]['Collection'].must_equal "test_collection"
       traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
       traces[1]['QueryOp'].must_equal "map_reduce"
       traces[1]['Map_Function'].must_equal "function() { emit(this.name, 1); }"
       traces[1]['Reduce_Function'].must_equal "function(k, vals) { var sum = 0; for(var i in vals) sum += vals[i]; return sum; }"
       traces[1]['Limit'].must_equal 100
-    end
-
-    it "should trace create, ensure and drop index" do
-      skip
-      coll = @db.collection("testCollection")
-
-      TraceView::API.start_trace('mongo_test', '', {}) do
-        coll.create_index("i")
-        coll.ensure_index("i")
-        coll.drop_index("i_1")
-      end
-
-      traces = get_all_traces
-      traces.count.must_equal 8
-
-      validate_outer_layers(traces, 'mongo_test')
-      validate_event_keys(traces[1], @entry_kvs)
-      validate_event_keys(traces[2], @exit_kvs)
-
-      traces[1]['Collection'].must_equal "testCollection"
-      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
-      traces[1]['QueryOp'].must_equal "create_index"
-
-      validate_event_keys(traces[3], @entry_kvs)
-      validate_event_keys(traces[4], @exit_kvs)
-
-      traces[3]['Collection'].must_equal "testCollection"
-      traces[3].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
-      traces[3]['QueryOp'].must_equal "ensure_index"
-
-      validate_event_keys(traces[5], @entry_kvs)
-      validate_event_keys(traces[6], @exit_kvs)
-
-      traces[5]['Collection'].must_equal "testCollection"
-      traces[5].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
-      traces[5]['QueryOp'].must_equal "drop_index"
-    end
-
-    it "should trace drop_indexes" do
-      skip
-      coll = @db.collection("testCollection")
-
-      TraceView::API.start_trace('mongo_test', '', {}) do
-        coll.drop_indexes
-      end
-
-      traces = get_all_traces
-      traces.count.must_equal 4
-
-      validate_outer_layers(traces, 'mongo_test')
-      validate_event_keys(traces[1], @entry_kvs)
-      validate_event_keys(traces[2], @exit_kvs)
-
-      traces[1]['Collection'].must_equal "testCollection"
-      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
-      traces[1]['QueryOp'].must_equal "drop_indexes"
-    end
-
-    it "should trace index_information" do
-      skip
-      coll = @db.collection("testCollection")
-
-      TraceView::API.start_trace('mongo_test', '', {}) do
-        coll.index_information
-      end
-
-      traces = get_all_traces
-      traces.count.must_equal 4
-
-      validate_outer_layers(traces, 'mongo_test')
-      validate_event_keys(traces[1], @entry_kvs)
-      validate_event_keys(traces[2], @exit_kvs)
-
-      traces[1]['Collection'].must_equal "testCollection"
-      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
-      traces[1]['QueryOp'].must_equal "index_information"
     end
 
     it "should obey :collect_backtraces setting when true" do
