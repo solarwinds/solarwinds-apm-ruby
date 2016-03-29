@@ -13,7 +13,12 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       clear_all_traces
 
       @client = Mongo::Client.new([ ENV['TV_MONGO_SERVER'] ], :database => "traceview-#{ENV['RACK_ENV']}")
-      @client.logger.level = Logger::INFO
+      if Mongo::VERSION < '2.2'
+        Mongo::Logger.logger.level = Logger::INFO
+      else
+        @client.logger.level = Logger::INFO
+      end
+
       @db = @client.database
 
       @collections = @db.collection_names
@@ -101,9 +106,10 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       # Insert a doc to assure we get a result
       doc = {"name" => "MyName", "type" => "MyType", "count" => 1, "info" => {"x" => 203, "y" => '102'}}
       coll.insert_one(doc)
+      cv = coll.find({:name => "MyName"})
 
       TraceView::API.start_trace('mongo_test', '', {}) do
-        r = coll.update_one({ :name => 'MyName' }, { "$set" => { :name => 'test1' }}, :return_document => :after)
+        r = cv.update_one({ "$set" => { :name => 'test1' }}, :return_document => :after)
       end
 
       traces = get_all_traces
@@ -129,9 +135,10 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       # Insert a doc to assure we get a result
       doc = {"name" => "MyName", "type" => "MyType", "count" => 1, "info" => {"x" => 203, "y" => '102'}}
       coll.insert_one(doc)
+      cv = coll.find({:name => "MyName"})
 
       TraceView::API.start_trace('mongo_test', '', {}) do
-        r = coll.update_many({ :name => 'MyName' }, { "$set" => { :name => 'test1' }}, :return_document => :after)
+        r = cv.update_many({ "$set" => { :name => 'test1' }}, :return_document => :after)
       end
 
       traces = get_all_traces
@@ -157,9 +164,10 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       # Insert a doc to assure we get a result
       doc = {"name" => "MyName", "type" => "MyType", "count" => 1, "info" => {"x" => 203, "y" => '102'}}
       coll.insert_one(doc)
+      cv = coll.find({:name => "MyName"})
 
       TraceView::API.start_trace('mongo_test', '', {}) do
-        r = coll.delete_one({ :name => 'MyName' })
+        r = cv.delete_one
       end
 
       traces = get_all_traces
@@ -185,9 +193,10 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       # Insert a doc to assure we get a result
       doc = {"name" => "MyName", "type" => "MyType", "count" => 1, "info" => {"x" => 203, "y" => '102'}}
       coll.insert_one(doc)
+      cv = coll.find({ :name => 'MyName' })
 
       TraceView::API.start_trace('mongo_test', '', {}) do
-        r = coll.delete_many({ :name => 'MyName' })
+        r = cv.delete_many
       end
 
       traces = get_all_traces

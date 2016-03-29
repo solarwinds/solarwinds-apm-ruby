@@ -13,8 +13,13 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       clear_all_traces
 
       @client = Mongo::Client.new([ ENV['TV_MONGO_SERVER'] ], :database => "traceview-#{ENV['RACK_ENV']}")
-      @client.logger.level = Logger::INFO
       @db = @client.database
+
+      if Mongo::VERSION < '2.2'
+        Mongo::Logger.logger.level = Logger::INFO
+      else
+        @client.logger.level = Logger::INFO
+      end
 
       @collections = @db.collection_names
       @testCollection = @client[:test_collection]
@@ -51,7 +56,11 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       traces.count.must_equal 4
 
       r.must_be_instance_of ::Mongo::Operation::Result
-      r.ok?.must_equal true
+      if Mongo::VERSION < '2.2'
+        r.successful?.must_equal true
+      else
+        r.ok?.must_equal true
+      end
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
@@ -79,7 +88,11 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       traces.count.must_equal 4
 
       r.must_be_instance_of ::Mongo::Operation::Result
-      r.ok?.must_equal true
+      if Mongo::VERSION < '2.2'
+        r.successful?.must_equal true
+      else
+        r.ok?.must_equal true
+      end
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
@@ -131,7 +144,11 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       traces.count.must_equal 4
 
       r.must_be_instance_of Mongo::Operation::Write::Insert::Result
-      r.ok?.must_equal true
+      if Mongo::VERSION < '2.2'
+        r.successful?.must_equal true
+      else
+        r.ok?.must_equal true
+      end
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
@@ -155,8 +172,12 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       traces = get_all_traces
       traces.count.must_equal 4
 
-      r.must_be_instance_of Mongo::BulkWrite::Result
-      r.inserted_count.must_equal 2
+      if Mongo::VERSION < '2.1'
+        r.must_be_instance_of Mongo::Operation::Write::Insert::Result
+      else
+        r.must_be_instance_of Mongo::BulkWrite::Result
+        r.inserted_count.must_equal 2
+      end
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
@@ -196,6 +217,8 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     end
 
     it "should trace find_one_and_delete" do
+      skip unless Mongo::VERSION >= '2.2'
+
       coll = @db[:test_collection]
       r = nil
 
@@ -224,6 +247,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     end
 
     it "should trace find_one_and_update" do
+      skip unless Mongo::VERSION >= '2.2'
       coll = @db[:test_collection]
       r = nil
 
@@ -252,6 +276,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     end
 
     it "should trace find_one_and_replace" do
+      skip unless Mongo::VERSION >= '2.2'
       coll = @db[:test_collection]
       r = nil
 
@@ -280,6 +305,8 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     end
 
     it "should trace update_one" do
+      skip unless Mongo::VERSION >= '2.2'
+
       coll = @db[:test_collection]
       r = nil
 
@@ -308,6 +335,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     end
 
     it "should trace update_many" do
+      skip unless Mongo::VERSION > '2.2'
       coll = @db[:test_collection]
       r = nil
 
@@ -336,6 +364,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     end
 
     it "should trace delete_one" do
+      skip unless Mongo::VERSION > '2.2'
       coll = @db[:test_collection]
       r = nil
 
@@ -364,6 +393,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     end
 
     it "should trace delete_many" do
+      skip unless Mongo::VERSION > '2.2'
       coll = @db[:test_collection]
       r = nil
 
@@ -392,6 +422,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     end
 
     it "should trace replace_one" do
+      skip unless Mongo::VERSION > '2.2'
       coll = @db[:test_collection]
       r = nil
 
@@ -420,6 +451,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     end
 
     it "should trace count" do
+      skip unless Mongo::VERSION > '2.2'
       coll = @db[:test_collection]
       r = nil
 
@@ -444,6 +476,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     end
 
     it "should trace distinct" do
+      skip unless Mongo::VERSION > '2.2'
       coll = @db[:test_collection]
       r = nil
 
@@ -468,6 +501,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     end
 
     it "should trace aggregate" do
+      skip unless Mongo::VERSION >= '2.2'
       coll = @db[:test_collection]
       r = nil
 
@@ -496,8 +530,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
 
       TraceView::API.start_trace('mongo_test', '', {}) do
         r = coll.bulk_write([ { :insert_one => { :x => 1} },
-                              { :update_one => { :filter => { :x => 1 }, :update => {'$set' => { :x => 2 }} } },
-                              { :replace_one => { :filter => { :x => 2 }, :replacement => { :x => 3 } } } ],
+                              { :insert_one => { :x => 3} } ],
                               :ordered => true)
       end
 
@@ -508,37 +541,17 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      r.must_be_instance_of Mongo::BulkWrite::Result
+      if Mongo::VERSION < '2.1'
+        r.must_be_instance_of Hash
+        r[:n_inserted].must_equal 2
+      else
+        r.must_be_instance_of Mongo::BulkWrite::Result
+      end
 
       traces[1]['Collection'].must_equal "test_collection"
       traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
       traces[1]['QueryOp'].must_equal "bulk_write"
       traces[1].key?('Query').must_equal false
-    end
-
-    it "should trace map_reduce" do
-      coll = @db[:test_collection]
-      view = coll.find(:name => "MyName")
-
-      TraceView::API.start_trace('mongo_test', '', {}) do
-        map    = "function() { emit(this.name, 1); }"
-        reduce = "function(k, vals) { var sum = 0; for(var i in vals) sum += vals[i]; return sum; }"
-        view.map_reduce(map, reduce, { :out => "mr_results", :limit => 100, :read => :primary })
-      end
-
-      traces = get_all_traces
-      traces.count.must_equal 4
-
-      validate_outer_layers(traces, 'mongo_test')
-      validate_event_keys(traces[1], @entry_kvs)
-      validate_event_keys(traces[2], @exit_kvs)
-
-      traces[1]['Collection'].must_equal "test_collection"
-      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
-      traces[1]['QueryOp'].must_equal "map_reduce"
-      traces[1]['Map_Function'].must_equal "function() { emit(this.name, 1); }"
-      traces[1]['Reduce_Function'].must_equal "function(k, vals) { var sum = 0; for(var i in vals) sum += vals[i]; return sum; }"
-      traces[1]['Limit'].must_equal 100
     end
 
     it "should obey :collect_backtraces setting when true" do

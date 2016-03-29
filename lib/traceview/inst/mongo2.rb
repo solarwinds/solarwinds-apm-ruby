@@ -7,10 +7,16 @@ if RUBY_VERSION >= '1.9' && TraceView::Config[:mongo][:enabled]
   if defined?(::Mongo) && (Gem.loaded_specs['mongo'].version.to_s >= '2.0.0')
     ::TraceView.logger.info '[traceview/loading] Instrumenting mongo' if TraceView::Config[:verbose]
 
+
     # Collection Related Operations
-    COLL_QUERY_OPS = [:find, :find_one_and_delete, :find_one_and_update, :find_one_and_replace, :update_one, :update_many,
-                       :replace_one, :delete_one, :delete_many]
+    COLL_QUERY_OPS = [:find, :update_many]
     COLL_OTHER_OPS = [:create, :drop, :insert_one, :insert_many, :bulk_write, :map_reduce]
+
+    # Mongo 2.2 only ops
+    if Mongo::VERSION >= '2.2'
+      COLL_QUERY_OPS += [ :find_one_and_delete, :find_one_and_update, :find_one_and_replace, :update_one, :delete_one, :delete_many, :replace_one ]
+    end
+
     COLL_OPS = COLL_QUERY_OPS + COLL_OTHER_OPS
 
     module Mongo
@@ -86,7 +92,7 @@ if RUBY_VERSION >= '1.9' && TraceView::Config[:mongo][:enabled]
 
     # Collection View Related Operations
     VIEW_QUERY_OPS = [ :delete_one, :delete_many, :count, :distinct, :find_one_and_delete, :find_one_and_update,
-                       :replace_one ]
+                       :replace_one, :update_one, :update_many ]
     VIEW_OTHER_OPS = [ :aggregate, :map_reduce ]
     VIEW_OPS = VIEW_QUERY_OPS + VIEW_OTHER_OPS
 
@@ -113,7 +119,11 @@ if RUBY_VERSION >= '1.9' && TraceView::Config[:mongo][:enabled]
 
             if TraceView::Config[:mongo][:log_args]
               if VIEW_QUERY_OPS.include?(op)
-                kvs[:Query] = filter.to_json
+                if defined?(filter)
+                  kvs[:Query] = filter.to_json
+                elsif defined?(selector)
+                  kvs[:Query] = selector.to_json
+                end
               end
             end
 
