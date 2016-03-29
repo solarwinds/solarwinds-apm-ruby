@@ -217,7 +217,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     end
 
     it "should trace find_one_and_delete" do
-      skip unless Mongo::VERSION >= '2.2'
+      skip unless Mongo::VERSION >= '2.1'
 
       coll = @db[:test_collection]
       r = nil
@@ -247,7 +247,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     end
 
     it "should trace find_one_and_update" do
-      skip unless Mongo::VERSION >= '2.2'
+      skip unless Mongo::VERSION >= '2.1'
       coll = @db[:test_collection]
       r = nil
 
@@ -276,7 +276,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     end
 
     it "should trace find_one_and_replace" do
-      skip unless Mongo::VERSION >= '2.2'
+      skip unless Mongo::VERSION >= '2.1'
       coll = @db[:test_collection]
       r = nil
 
@@ -305,7 +305,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     end
 
     it "should trace update_one" do
-      skip unless Mongo::VERSION >= '2.2'
+      skip unless Mongo::VERSION >= '2.1'
 
       coll = @db[:test_collection]
       r = nil
@@ -335,7 +335,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     end
 
     it "should trace update_many" do
-      skip unless Mongo::VERSION > '2.2'
+      skip unless Mongo::VERSION > '2.1'
       coll = @db[:test_collection]
       r = nil
 
@@ -364,7 +364,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     end
 
     it "should trace delete_one" do
-      skip unless Mongo::VERSION > '2.2'
+      skip unless Mongo::VERSION > '2.1'
       coll = @db[:test_collection]
       r = nil
 
@@ -393,7 +393,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     end
 
     it "should trace delete_many" do
-      skip unless Mongo::VERSION > '2.2'
+      skip unless Mongo::VERSION > '2.1'
       coll = @db[:test_collection]
       r = nil
 
@@ -422,7 +422,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     end
 
     it "should trace replace_one" do
-      skip unless Mongo::VERSION > '2.2'
+      skip unless Mongo::VERSION > '2.1'
       coll = @db[:test_collection]
       r = nil
 
@@ -451,7 +451,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     end
 
     it "should trace count" do
-      skip unless Mongo::VERSION > '2.2'
+      skip unless Mongo::VERSION > '2.1'
       coll = @db[:test_collection]
       r = nil
 
@@ -476,7 +476,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     end
 
     it "should trace distinct" do
-      skip unless Mongo::VERSION > '2.2'
+      skip unless Mongo::VERSION > '2.1'
       coll = @db[:test_collection]
       r = nil
 
@@ -501,7 +501,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     end
 
     it "should trace aggregate" do
-      skip unless Mongo::VERSION >= '2.2'
+      skip unless Mongo::VERSION >= '2.1'
       coll = @db[:test_collection]
       r = nil
 
