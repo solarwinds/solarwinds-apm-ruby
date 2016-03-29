@@ -13,7 +13,11 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       clear_all_traces
 
       @client = Mongo::Client.new([ ENV['TV_MONGO_SERVER'] ], :database => "traceview-#{ENV['RACK_ENV']}")
-      @client.logger.level = Logger::INFO if @client.respond_to?(:logger)
+      if Mongo::VERSION < '2.2'
+        Mongo::Logger.logger.level = Logger::INFO
+      else
+        @client.logger.level = Logger::INFO
+      end
       @db = @client.database
 
       @collections = @db.collection_names
