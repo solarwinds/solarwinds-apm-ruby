@@ -72,15 +72,28 @@ module TraceView
 
         return contents if contents.empty?
 
-        s = StringIO.new(contents[0])
-
         traces = []
 
-        until s.eof?
-          if ::BSON.respond_to? :read_bson_document
-            traces << BSON.read_bson_document(s)
-          else
-            traces << BSON::Document.from_bson(s)
+        #
+        # We use Gem.loaded_spec because older versions of the bson
+        # gem didn't even have a version embedded in the gem.  If the
+        # gem isn't in the bundle, it should rightfully error out
+        # anyways.
+        #
+        if Gem.loaded_specs['bson'].version.to_s < '4.0'
+          s = StringIO.new(contents[0])
+
+          until s.eof?
+            if ::BSON.respond_to? :read_bson_document
+              traces << BSON.read_bson_document(s)
+            else
+              traces << BSON::Document.from_bson(s)
+            end
+          end
+        else
+          bbb = BSON::ByteBuffer.new(contents[0])
+          until bbb.length == 0
+            traces << Hash.from_bson(bbb)
           end
         end
 

@@ -7,7 +7,7 @@ unless ENV['TV_MONGO_SERVER']
   ENV['TV_MONGO_SERVER'] = "127.0.0.1:27017"
 end
 
-if defined?(::BSON::VERSION) and (BSON::VERSION < "2.0")
+if Gem.loaded_specs['mongo'].version.to_s < '2.0.0'
   describe "Mongo" do
     before do
       clear_all_traces
@@ -43,6 +43,12 @@ if defined?(::BSON::VERSION) and (BSON::VERSION < "2.0")
       defined?(::Mongo::DB).wont_match nil
       defined?(::Mongo::Cursor).wont_match nil
       defined?(::Mongo::Collection).wont_match nil
+    end
+
+    it 'reports mongo gem version in init' do
+      init_kvs = ::TraceView::Util.build_init_report
+      assert init_kvs.key?('Ruby.mongo.Version')
+      assert_equal Gem.loaded_specs['mongo'].version.to_s, init_kvs['Ruby.mongo.Version']
     end
 
     it 'Mongo should have traceview methods defined' do
@@ -181,7 +187,7 @@ if defined?(::BSON::VERSION) and (BSON::VERSION < "2.0")
       traces[1]['QueryOp'].must_equal "map_reduce"
       traces[1]['Map_Function'].must_equal "function() { emit(this.name, 1); }"
       traces[1]['Reduce_Function'].must_equal "function(k, vals) { var sum = 0; for(var i in vals) sum += vals[i]; return sum; }"
-      traces[1]['Limit'].must_equal "100"
+      traces[1]['Limit'].must_equal 100
     end
 
     it "should trace remove" do
@@ -309,7 +315,7 @@ if defined?(::BSON::VERSION) and (BSON::VERSION < "2.0")
       traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
       traces[1]['QueryOp'].must_equal "find"
       traces[1].has_key?('Query').must_equal true
-      traces[1]['Limit'].must_equal "1"
+      traces[1]['Limit'].must_equal 1
     end
 
     it "should trace find (with block)" do

@@ -20,7 +20,7 @@ group :development, :test do
   gem 'rack-test'
   if RUBY_VERSION < '1.9.3'
     gem 'rake', '< 11.0'
-    gem 'bson', '<= 1.12.3'
+    gem 'bson', '<= 1.12.5'
     gem 'puma', '< 3.0'
   else
     gem 'rake'

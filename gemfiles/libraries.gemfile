@@ -17,11 +17,11 @@ group :development, :test do
   gem 'rack-test'
   if RUBY_VERSION < '1.9.3'
     gem 'rake', '< 11.0'
-    gem 'bson', '<= 1.12.3'
+    gem 'bson', '<= 1.12.5'
     gem 'puma', '< 3.0'
   else
     gem 'rake'
-    gem 'bson', '< 4.0'
+    gem 'bson', '~> 4.0'
     gem 'puma', '< 3.1.0'
   end
 end
@@ -38,6 +38,12 @@ else
   gem 'bunny'
 end
 
+if RUBY_VERSION < '1.9.3'
+  gem 'mongo', '1.12.5'
+else
+  gem 'mongo'
+end
+
 gem 'cassandra'
 gem 'curb' unless defined?(JRUBY_VERSION)
 gem 'dalli' if RUBY_VERSION > '1.8.7'
@@ -45,13 +51,11 @@ gem 'excon'
 gem 'faraday'
 gem 'httpclient'
 gem 'memcache-client'
-gem 'mongo'
 gem 'redis'
 gem 'resque' unless defined?(JRUBY_VERSION) && RUBY_VERSION > '1.9.3'
 gem 'sequel'
 gem "sidekiq" if RUBY_VERSION >= '2.0'
 gem 'typhoeus'
-
 
 # Database adapter gems needed by sequel
 if defined?(JRUBY_VERSION)
@@ -69,7 +73,6 @@ end
 
 unless defined?(JRUBY_VERSION)
   gem 'memcached', '1.7.2' if RUBY_VERSION < '2.0.0'
-  gem 'bson_ext' # For Mongo, Yours Truly
 end
 
 gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')
