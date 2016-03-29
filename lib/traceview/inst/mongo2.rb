@@ -9,12 +9,13 @@ if RUBY_VERSION >= '1.9' && TraceView::Config[:mongo][:enabled]
 
 
     # Collection Related Operations
-    COLL_QUERY_OPS = [:find, :update_many]
     COLL_OTHER_OPS = [:create, :drop, :insert_one, :insert_many, :bulk_write, :map_reduce]
 
     # Mongo 2.2 only ops
-    if Mongo::VERSION >= '2.2'
-      COLL_QUERY_OPS += [ :find_one_and_delete, :find_one_and_update, :find_one_and_replace, :update_one, :delete_one, :delete_many, :replace_one ]
+    if Mongo::VERSION >= '2.1'
+      COLL_QUERY_OPS = [ :find, :find_one_and_delete, :find_one_and_update, :find_one_and_replace, :update_one, :update_many, :delete_one, :delete_many, :replace_one ]
+    else
+      COLL_QUERY_OPS = [ :find, :update_many, :delete_one ]
     end
 
     COLL_OPS = COLL_QUERY_OPS + COLL_OTHER_OPS
