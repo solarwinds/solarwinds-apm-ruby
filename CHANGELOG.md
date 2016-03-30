@@ -4,6 +4,17 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# traceview 3.7.1
+
+This patch release includes the following fixes:
+
+* Updated Mongo instrumentation to support v2+: #164
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.7.1
+https://rubygems.org/gems/traceview/versions/3.7.1-java
+
 # traceview 3.7.0
 
 This minor release includes the following new feature:
