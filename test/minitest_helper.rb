@@ -59,6 +59,7 @@ when /delayed_job/
 
 when /rails5/
   require './test/servers/rails5x_8140'
+  require './test/servers/rails5x_api_8150'
 
 when /rails4/
   require './test/servers/rails4x_8140'
