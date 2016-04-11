@@ -25,7 +25,14 @@ Rake::TestTask.new do |t|
   when /rails/
     # Pre-load rails to get the major version number
     require 'rails'
-    t.test_files = FileList["test/frameworks/rails#{Rails::VERSION::MAJOR}x_test.rb"]
+
+    if Rails::VERSION::MAJOR == 5
+      t.test_files = FileList["test/frameworks/rails#{Rails::VERSION::MAJOR}x_test.rb"] +
+                     FileList["test/frameworks/rails#{Rails::VERSION::MAJOR}x_api_test.rb"]
+    else
+      t.test_files = FileList["test/frameworks/rails#{Rails::VERSION::MAJOR}x_test.rb"]
+    end
+
   when /frameworks/
     t.test_files = FileList['test/frameworks/sinatra*_test.rb'] +
                    FileList['test/frameworks/padrino*_test.rb'] +
