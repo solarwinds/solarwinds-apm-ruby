@@ -44,7 +44,7 @@ require "rails/test_unit/railtie"
 require 'rack/handler/puma'
 require File.expand_path(File.dirname(__FILE__) + '/../models/widget')
 
-TraceView.logger.info "[traceview/info] Starting background utility rails app on localhost:8140."
+TraceView.logger.info "[traceview/info] Starting background utility rails app on localhost:8150."
 
 ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
 
@@ -55,6 +55,11 @@ end
 module Rails50APIStack
   class Application < Rails::Application
     config.api_only = true
+
+    routes.append do
+      get "/monkey/hello" => "monkey#hello"
+      get "/monkey/error" => "monkey#error"
+    end
 
     # Enable cache classes. Production style.
     config.cache_classes = true
@@ -76,7 +81,6 @@ module Rails50APIStack
     # We need a secret token for session, cookies, etc.
     config.secret_token = "48837489qkuweoiuoqwehisuakshdjksadhaisdy78o34y138974xyqp9rmye8yrpiokeuioqwzyoiuxftoyqiuxrhm3iou1hrzmjk"
     config.secret_key_base = "2049671-96803948"
-
   end
 end
 
@@ -86,7 +90,13 @@ end
 
 class MonkeyController < ActionController::API
   def hello
-    render :json => { :Response => "Hello API!"}
+    #render :json => { :Response => "Hello API!"}.to_json
+    # Work around for Rails beta issue with rendering json
+    render :plain => { :Response => "Hello API!"}.to_json, content_type: 'application/json'
+  end
+
+  def error
+    raise "Rails API fake error from controller"
   end
 end
 
