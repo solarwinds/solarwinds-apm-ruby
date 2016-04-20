@@ -30,9 +30,10 @@ describe "TraceView::Config" do
     instrumentation = TraceView::Config.instrumentation
 
     # Verify the number of individual instrumentations
-    instrumentation.count.must_equal 29
+    instrumentation.count.must_equal 30
 
     TraceView::Config[:action_controller][:enabled].must_equal true
+    TraceView::Config[:action_controller_api][:enabled].must_equal true
     TraceView::Config[:action_view][:enabled].must_equal true
     TraceView::Config[:active_record][:enabled].must_equal true
     TraceView::Config[:bunnyclient][:enabled].must_equal true
@@ -63,6 +64,7 @@ describe "TraceView::Config" do
     TraceView::Config[:typhoeus][:enabled].must_equal true
 
     TraceView::Config[:action_controller][:log_args].must_equal true
+    TraceView::Config[:action_controller_api][:log_args].must_equal true
     TraceView::Config[:action_view][:log_args].must_equal true
     TraceView::Config[:active_record][:log_args].must_equal true
     TraceView::Config[:bunnyclient][:log_args].must_equal true

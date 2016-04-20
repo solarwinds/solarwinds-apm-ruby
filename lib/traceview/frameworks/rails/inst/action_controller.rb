@@ -72,9 +72,18 @@ module TraceView
   end
 end
 
+# ActionController::Base
 if defined?(ActionController::Base) && TraceView::Config[:action_controller][:enabled]
-  TraceView.logger.info '[traceview/loading] Instrumenting actioncontroler' if TraceView::Config[:verbose]
+  TraceView.logger.info '[traceview/loading] Instrumenting actioncontroller' if TraceView::Config[:verbose]
   require "traceview/frameworks/rails/inst/action_controller#{Rails::VERSION::MAJOR}"
   ::TraceView::Util.send_include(::ActionController::Base, TraceView::Inst::ActionController)
 end
+
+# ActionController::API (Rails 5+)
+if defined?(ActionController::API) && TraceView::Config[:action_controller_api][:enabled]
+  TraceView.logger.info '[traceview/loading] Instrumenting actioncontroller api' if TraceView::Config[:verbose]
+  require "traceview/frameworks/rails/inst/action_controller#{Rails::VERSION::MAJOR}_api"
+  ::TraceView::Util.send_include(::ActionController::API, TraceView::Inst::ActionControllerAPI)
+end
+
 # vim:set expandtab:tabstop=2
