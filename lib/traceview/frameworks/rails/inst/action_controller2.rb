@@ -31,11 +31,13 @@ module TraceView
       end
 
       def perform_action_with_traceview(*arguments)
-        report_kvs = {
+        kvs = {
           :Controller  => @_request.path_parameters['controller'],
           :Action      => @_request.path_parameters['action']
         }
-        TraceView::API.log(nil, 'info', report_kvs)
+        kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:action_controller][:collect_backtraces]
+
+        TraceView::API.log(nil, 'info', kvs)
         perform_action_without_traceview(*arguments)
       end
 
