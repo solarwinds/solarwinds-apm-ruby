@@ -43,8 +43,8 @@ module TraceView
       TraceView::Config[:em_http_request][:enabled] = false
 
       # Set collect_backtraces defaults
-      TraceView::Config[:action_controller][:collect_backtraces] = true
-      TraceView::Config[:action_controller_api][:collect_backtraces] = true
+      TraceView::Config[:action_controller][:collect_backtraces] = false
+      TraceView::Config[:action_controller_api][:collect_backtraces] = false
       TraceView::Config[:active_record][:collect_backtraces] = true
       TraceView::Config[:bunnyclient][:collect_backtraces] = false
       TraceView::Config[:bunnyconsumer][:collect_backtraces] = false
