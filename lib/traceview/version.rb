@@ -7,8 +7,8 @@ module TraceView
   # traceview.gemspec during gem build process
   module Version
     MAJOR = 3
-    MINOR = 7
-    PATCH = 1
+    MINOR = 8
+    PATCH = 0
     BUILD = nil
 
     STRING = [MAJOR, MINOR, PATCH, BUILD].compact.join('.')
