@@ -4,6 +4,17 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# traceview 3.8.0
+
+This minor release includes the following new feature:
+
+* New instrumentation for Rails API based controllers: #166
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.8.0
+https://rubygems.org/gems/traceview/versions/3.8.0-java
+
 # traceview 3.7.1
 
 This patch release includes the following fixes:
