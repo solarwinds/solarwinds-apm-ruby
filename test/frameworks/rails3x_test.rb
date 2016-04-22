@@ -8,7 +8,12 @@ if defined?(::Rails)
   describe "Rails3x" do
     before do
       clear_all_traces
+      @collect_backtraces = TraceView::Config[:action_controller][:collect_backtraces]
       ENV['DBTYPE'] = "postgresql" unless ENV['DBTYPE']
+    end
+
+    after do
+      TraceView::Config[:action_controller][:collect_backtraces] = @collect_backtraces
     end
 
     it "should trace a request to a rails stack" do
@@ -293,6 +298,106 @@ if defined?(::Rails)
       # Validate the existence of the response header
       r.header.key?('X-Trace').must_equal true
       r.header['X-Trace'].must_equal traces[13]['X-Trace']
+    end
+
+    it "should collect backtraces when true" do
+
+      TraceView::Config[:action_controller][:collect_backtraces] = true
+
+      uri = URI.parse('http://127.0.0.1:8140/hello/world')
+      r = Net::HTTP.get_response(uri)
+
+      traces = get_all_traces
+
+      traces.count.must_equal 8
+      unless defined?(JRUBY_VERSION)
+        # We don't test this under JRuby because the Java instrumentation
+        # for the DB drivers doesn't use our test reporter hence we won't
+        # see all trace events. :-(  To be improved.
+        valid_edges?(traces).must_equal true
+      end
+      validate_outer_layers(traces, 'rack')
+
+      traces[0]['Layer'].must_equal "rack"
+      traces[0]['Label'].must_equal "entry"
+      traces[0]['URL'].must_equal "/hello/world"
+
+      traces[1]['Layer'].must_equal "rack"
+      traces[1]['Label'].must_equal "info"
+
+      traces[2]['Layer'].must_equal "rails"
+      traces[2]['Label'].must_equal "entry"
+
+      traces[3]['Label'].must_equal "info"
+      traces[3]['Controller'].must_equal "HelloController"
+      traces[3]['Action'].must_equal "world"
+      traces[3].key?('Backtrace').must_equal true
+
+      traces[4]['Layer'].must_equal "actionview"
+      traces[4]['Label'].must_equal "entry"
+
+      traces[5]['Layer'].must_equal "actionview"
+      traces[5]['Label'].must_equal "exit"
+
+      traces[6]['Layer'].must_equal "rails"
+      traces[6]['Label'].must_equal "exit"
+
+      traces[7]['Layer'].must_equal "rack"
+      traces[7]['Label'].must_equal "exit"
+
+      # Validate the existence of the response header
+      r.header.key?('X-Trace').must_equal true
+      r.header['X-Trace'].must_equal traces[7]['X-Trace']
+    end
+
+    it "should NOT collect backtraces when false" do
+
+      TraceView::Config[:action_controller][:collect_backtraces] = false
+
+      uri = URI.parse('http://127.0.0.1:8140/hello/world')
+      r = Net::HTTP.get_response(uri)
+
+      traces = get_all_traces
+
+      traces.count.must_equal 8
+      unless defined?(JRUBY_VERSION)
+        # We don't test this under JRuby because the Java instrumentation
+        # for the DB drivers doesn't use our test reporter hence we won't
+        # see all trace events. :-(  To be improved.
+        valid_edges?(traces).must_equal true
+      end
+      validate_outer_layers(traces, 'rack')
+
+      traces[0]['Layer'].must_equal "rack"
+      traces[0]['Label'].must_equal "entry"
+      traces[0]['URL'].must_equal "/hello/world"
+
+      traces[1]['Layer'].must_equal "rack"
+      traces[1]['Label'].must_equal "info"
+
+      traces[2]['Layer'].must_equal "rails"
+      traces[2]['Label'].must_equal "entry"
+
+      traces[3]['Label'].must_equal "info"
+      traces[3]['Controller'].must_equal "HelloController"
+      traces[3]['Action'].must_equal "world"
+      traces[3].key?('Backtrace').must_equal false
+
+      traces[4]['Layer'].must_equal "actionview"
+      traces[4]['Label'].must_equal "entry"
+
+      traces[5]['Layer'].must_equal "actionview"
+      traces[5]['Label'].must_equal "exit"
+
+      traces[6]['Layer'].must_equal "rails"
+      traces[6]['Label'].must_equal "exit"
+
+      traces[7]['Layer'].must_equal "rack"
+      traces[7]['Label'].must_equal "exit"
+
+      # Validate the existence of the response header
+      r.header.key?('X-Trace').must_equal true
+      r.header['X-Trace'].must_equal traces[7]['X-Trace']
     end
   end
 end
