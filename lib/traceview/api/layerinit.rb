@@ -10,7 +10,7 @@ module TraceView
       # installed, as well as the version of instrumentation and version of
       # layer.
       #
-      def report_init(layer = 'rack')
+      def report_init(layer = :rack)
         # Don't send __Init in development, test or if the gem
         # isn't fully loaded (e.g. missing c-extension)
         return if %w(development test).include?(ENV['RACK_ENV']) ||
@@ -41,7 +41,7 @@ module TraceView
                          'removed in a subsequent version.'
 
         saved_mode = TraceView::Config[:tracing_mode]
-        TraceView::Config[:tracing_mode] = 'always'
+        TraceView::Config[:tracing_mode] = :always
         yield
       ensure
         TraceView::Config[:tracing_mode] = saved_mode

@@ -30,7 +30,7 @@ module TraceView
         report_kvs[:ProfileName] ||= profile_name
         report_kvs[:Backtrace] = TraceView::API.backtrace if with_backtrace
 
-        TraceView::API.log(nil, 'profile_entry', report_kvs)
+        TraceView::API.log(nil, :profile_entry, report_kvs)
 
         begin
           yield
@@ -42,7 +42,7 @@ module TraceView
           exit_kvs[:Language] = :ruby
           exit_kvs[:ProfileName] = report_kvs[:ProfileName]
 
-          TraceView::API.log(nil, 'profile_exit', exit_kvs)
+          TraceView::API.log(nil, :profile_exit, exit_kvs)
         end
       end
 

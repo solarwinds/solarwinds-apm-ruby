@@ -126,7 +126,7 @@ module TraceView
           raise
         ensure
           exit_evt.addEdge(TraceView::Context.get)
-          log_event(layer, 'exit', exit_evt)
+          log_event(layer, :exit, exit_evt)
           TraceView::Context.clear
         end
       end

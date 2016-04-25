@@ -150,7 +150,7 @@ module TraceViewBase
   # False otherwise
   #
   def always?
-    TraceView::Config[:tracing_mode].to_s == 'always'
+    TraceView::Config[:tracing_mode].to_sym == :always
   end
 
   ##
@@ -158,7 +158,7 @@ module TraceViewBase
   # False otherwise
   #
   def never?
-    TraceView::Config[:tracing_mode].to_s == 'never'
+    TraceView::Config[:tracing_mode].to_sym == :never
   end
 
   ##
@@ -174,7 +174,7 @@ module TraceViewBase
   # False otherwise
   #
   def through?
-    TraceView::Config[:tracing_mode].to_s == 'through'
+    TraceView::Config[:tracing_mode].to_sym == :through
   end
 
   ##

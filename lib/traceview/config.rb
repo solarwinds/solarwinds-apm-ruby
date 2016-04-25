@@ -190,12 +190,12 @@ module TraceView
       # Environment support for OpenShift.
       if ENV.key?('OPENSHIFT_TRACEVIEW_TLYZER_IP')
         # We're running on OpenShift
-        @@config[:tracing_mode] = 'always'
+        @@config[:tracing_mode] = :always
         @@config[:reporter_host] = ENV['OPENSHIFT_TRACEVIEW_TLYZER_IP']
         @@config[:reporter_port] = ENV['OPENSHIFT_TRACEVIEW_TLYZER_PORT']
       else
         # The default configuration
-        @@config[:tracing_mode] = 'through'
+        @@config[:tracing_mode] = :through
         @@config[:reporter_host] = '127.0.0.1'
         @@config[:reporter_port] = '7831'
       end
@@ -265,7 +265,7 @@ module TraceView
 
       # Update liboboe if updating :tracing_mode
       if key == :tracing_mode
-        TraceView.set_tracing_mode(value) if TraceView.loaded
+        TraceView.set_tracing_mode(value.to_sym) if TraceView.loaded
       end
     end
 
