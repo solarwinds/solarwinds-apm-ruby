@@ -45,7 +45,7 @@ module TraceView
         if TraceView.tracing?
           report_kvs = extract_trace_details(:enqueue, klass, args)
 
-          TraceView::API.trace('resque-client', report_kvs, :enqueue) do
+          TraceView::API.trace(:'resque-client', report_kvs, :enqueue) do
             enqueue_without_traceview(klass, *args)
           end
         else
@@ -58,7 +58,7 @@ module TraceView
           report_kvs = extract_trace_details(:enqueue_to, klass, args)
           report_kvs[:Queue] = queue.to_s if queue
 
-          TraceView::API.trace('resque-client', report_kvs) do
+          TraceView::API.trace(:'resque-client', report_kvs) do
             enqueue_to_without_traceview(queue, klass, *args)
           end
         else
@@ -70,7 +70,7 @@ module TraceView
         if TraceView.tracing?
           report_kvs = extract_trace_details(:dequeue, klass, args)
 
-          TraceView::API.trace('resque-client', report_kvs) do
+          TraceView::API.trace(:'resque-client', report_kvs) do
             dequeue_without_traceview(klass, *args)
           end
         else
@@ -96,7 +96,7 @@ module TraceView
           # Set these keys for the ability to separate out
           # background tasks into a separate app on the server-side UI
 
-          report_kvs['HTTP-Host'] = Socket.gethostname
+          report_kvs[:'HTTP-Host'] = Socket.gethostname
           report_kvs[:Controller] = "Resque_#{job.queue}"
           report_kvs[:Action] = job.payload['class'].to_s
           report_kvs[:URL] = "/resque/#{job.queue}/#{job.payload['class']}"
@@ -117,7 +117,7 @@ module TraceView
           TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
         end
 
-        TraceView::API.start_trace('resque-worker', nil, report_kvs) do
+        TraceView::API.start_trace(:'resque-worker', nil, report_kvs) do
           perform_without_traceview(job)
         end
       end
@@ -130,7 +130,7 @@ module TraceView
 
       def fail_with_traceview(exception)
         if TraceView.tracing?
-          TraceView::API.log_exception('resque', exception)
+          TraceView::API.log_exception(:resque, exception)
         end
         fail_without_traceview(exception)
       end

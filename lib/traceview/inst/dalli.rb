@@ -33,7 +33,7 @@ module TraceView
         end
 
         if TraceView.tracing? && !TraceView.tracing_layer_op?(:get_multi)
-          TraceView::API.trace('memcache', report_kvs) do
+          TraceView::API.trace(:memcache, report_kvs) do
             result = perform_without_traceview(*all_args, &blk)
 
             # Clear the hash for a potential info event
@@ -41,7 +41,7 @@ module TraceView
             report_kvs[:KVHit] = memcache_hit?(result) if op == :get && key.class == String
             report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:dalli][:collect_backtraces]
 
-            TraceView::API.log('memcache', 'info', report_kvs) unless report_kvs.empty?
+            TraceView::API.log(:memcache, :info, report_kvs) unless report_kvs.empty?
             result
           end
         else
@@ -64,12 +64,12 @@ module TraceView
           TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
         end
 
-        TraceView::API.trace('memcache', { :KVOp => :get_multi }, :get_multi) do
+        TraceView::API.trace(:memcache, { :KVOp => :get_multi }, :get_multi) do
           values = get_multi_without_traceview(*keys)
 
           info_kvs[:KVHitCount] = values.length
           info_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:dalli][:collect_backtraces]
-          TraceView::API.log('memcache', 'info', info_kvs)
+          TraceView::API.log(:memcache, :info, info_kvs)
 
           values
         end

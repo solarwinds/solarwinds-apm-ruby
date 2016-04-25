@@ -16,30 +16,30 @@ module TraceView
       report_kvs = {}
 
       begin
-        report_kvs['HTTP-Host']        = req.host
-        report_kvs['Port']             = req.port
-        report_kvs['Proto']            = req.scheme
+        report_kvs[:'HTTP-Host']        = req.host
+        report_kvs[:Port]             = req.port
+        report_kvs[:Proto]            = req.scheme
         report_kvs[:Method]            = req.request_method
-        report_kvs['AJAX']             = true if req.xhr?
-        report_kvs['ClientIP']         = req.ip
+        report_kvs[:AJAX]             = true if req.xhr?
+        report_kvs[:ClientIP]         = req.ip
 
         if TraceView::Config[:rack][:log_args]
-          report_kvs['Query-String']     = ::CGI.unescape(req.query_string) unless req.query_string.empty?
+          report_kvs[:'Query-String']     = ::CGI.unescape(req.query_string) unless req.query_string.empty?
         end
 
         # Report any request queue'ing headers.  Report as 'Request-Start' or the summed Queue-Time
-        report_kvs['Request-Start']     = env['HTTP_X_REQUEST_START']    if env.key?('HTTP_X_REQUEST_START')
-        report_kvs['Request-Start']     = env['HTTP_X_QUEUE_START']      if env.key?('HTTP_X_QUEUE_START')
-        report_kvs['Queue-Time']        = env['HTTP_X_QUEUE_TIME']       if env.key?('HTTP_X_QUEUE_TIME')
+        report_kvs[:'Request-Start']     = env['HTTP_X_REQUEST_START']    if env.key?('HTTP_X_REQUEST_START')
+        report_kvs[:'Request-Start']     = env['HTTP_X_QUEUE_START']      if env.key?('HTTP_X_QUEUE_START')
+        report_kvs[:'Queue-Time']        = env['HTTP_X_QUEUE_TIME']       if env.key?('HTTP_X_QUEUE_TIME')
 
-        report_kvs['Forwarded-For']     = env['HTTP_X_FORWARDED_FOR']    if env.key?('HTTP_X_FORWARDED_FOR')
-        report_kvs['Forwarded-Host']    = env['HTTP_X_FORWARDED_HOST']   if env.key?('HTTP_X_FORWARDED_HOST')
-        report_kvs['Forwarded-Proto']   = env['HTTP_X_FORWARDED_PROTO']  if env.key?('HTTP_X_FORWARDED_PROTO')
-        report_kvs['Forwarded-Port']    = env['HTTP_X_FORWARDED_PORT']   if env.key?('HTTP_X_FORWARDED_PORT')
+        report_kvs[:'Forwarded-For']     = env['HTTP_X_FORWARDED_FOR']    if env.key?('HTTP_X_FORWARDED_FOR')
+        report_kvs[:'Forwarded-Host']    = env['HTTP_X_FORWARDED_HOST']   if env.key?('HTTP_X_FORWARDED_HOST')
+        report_kvs[:'Forwarded-Proto']   = env['HTTP_X_FORWARDED_PROTO']  if env.key?('HTTP_X_FORWARDED_PROTO')
+        report_kvs[:'Forwarded-Port']    = env['HTTP_X_FORWARDED_PORT']   if env.key?('HTTP_X_FORWARDED_PORT')
 
-        report_kvs['Ruby.TraceView.Version'] = ::TraceView::Version::STRING
-        report_kvs['ProcessID']         = Process.pid
-        report_kvs['ThreadID']          = Thread.current.to_s[/0x\w*/]
+        report_kvs[:'Ruby.TraceView.Version'] = ::TraceView::Version::STRING
+        report_kvs[:ProcessID]         = Process.pid
+        report_kvs[:ThreadID]          = Thread.current.to_s[/0x\w*/]
       rescue StandardError => e
         # Discard any potential exceptions. Debug log and report whatever we can.
         TraceView.logger.debug "[traceview/debug] Rack KV collection error: #{e.inspect}"
@@ -56,7 +56,7 @@ module TraceView
       # instead start instrumenting from the first rack pass.
 
       # If we're already tracing a rack layer, dont't start another one.
-      if TraceView.tracing? && TraceView.layer == 'rack'
+      if TraceView.tracing? && TraceView.layer == :rack
         rack_skipped = true
         TraceView.logger.debug "[traceview/rack] Rack skipped!"
         return @app.call(env)
@@ -72,7 +72,7 @@ module TraceView
       end
 
       # Detect and log AVW headers for sampling analysis
-      report_kvs['X-TV-Meta'] = env['HTTP_X_TV_META'] if env.key?('HTTP_X_TV_META')
+      report_kvs[:'X-TV-Meta'] = env['HTTP_X_TV_META'] if env.key?('HTTP_X_TV_META')
 
       # Check for and validate X-Trace request header to pick up tracing context
       xtrace = env.is_a?(Hash) ? env['HTTP_X_TRACE'] : nil
@@ -84,7 +84,7 @@ module TraceView
       TraceView.has_xtrace_header = xtrace_header
       TraceView.is_continued_trace = TraceView.has_incoming_context or TraceView.has_xtrace_header
 
-      TraceView::API.log_start('rack', xtrace_header, report_kvs)
+      TraceView::API.log_start(:rack, xtrace_header, report_kvs)
 
       # We only trace a subset of requests based off of sample rate so if
       # TraceView::API.log_start really did start a trace, we act accordingly here.
@@ -95,11 +95,11 @@ module TraceView
         # This is done here so in the case of stacks that try/catch/abort
         # (looking at you Grape) we're sure the KVs get reported now as
         # this code may not be returned to later.
-        TraceView::API.log_info('rack', report_kvs)
+        TraceView::API.log_info(:rack, report_kvs)
 
         status, headers, response = @app.call(env)
 
-        xtrace = TraceView::API.log_end('rack', :Status => status)
+        xtrace = TraceView::API.log_end(:rack, :Status => status)
       else
         status, headers, response = @app.call(env)
       end
@@ -107,8 +107,8 @@ module TraceView
       [status, headers, response]
     rescue Exception => e
       unless rack_skipped
-        TraceView::API.log_exception('rack', e)
-        xtrace = TraceView::API.log_end('rack', :Status => 500)
+        TraceView::API.log_exception(:rack, e)
+        xtrace = TraceView::API.log_end(:rack, :Status => 500)
       end
       raise
     ensure

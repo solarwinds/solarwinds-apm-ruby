@@ -66,11 +66,11 @@ module Oboe_metal
           cfg = LayerUtil.getLocalSampleRate(nil, nil)
 
           if cfg.hasSampleStartFlag
-            TraceView::Config.tracing_mode = 'always'
+            TraceView::Config.tracing_mode = :always
           elsif cfg.hasSampleThroughFlag
-            TraceView::Config.tracing_mode = 'through'
+            TraceView::Config.tracing_mode = :through
           else
-            TraceView::Config.tracing_mode = 'never'
+            TraceView::Config.tracing_mode = :never
           end
 
           TraceView.sample_rate = cfg.getSampleRate
@@ -205,7 +205,7 @@ case Java::ComTracelyticsAgent::Agent.getStatus
     $stderr.puts '=============================================================='
     $stderr.puts 'TraceView Java Agent not initialized properly.'
     $stderr.puts 'Possibly misconfigured?  Going into no-op mode.'
-    $stderr.puts 'See: http://bit.ly/1zwS5xj'
+    $stderr.puts 'https://docs.appneta.com/installing-jruby-instrumentation'
     $stderr.puts '=============================================================='
 
   when Java::ComTracelyticsAgent::Agent::AgentStatus::UNINITIALIZED

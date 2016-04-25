@@ -5,7 +5,7 @@ module TraceView
       report_kvs[:Backtrace] = TraceView::API.backtrace(2) if opts[:backtrace]
       report_kvs[:Arguments] = args if opts[:arguments]
 
-      TraceView::API.log(nil, 'profile_entry', report_kvs)
+      TraceView::API.log(nil, :profile_entry, report_kvs)
 
       begin
         rv = self.send(method, *args, &block)
@@ -18,7 +18,7 @@ module TraceView
         report_kvs.delete(:Backtrace)
         report_kvs.delete(:Controller)
         report_kvs.delete(:Action)
-        TraceView::API.log(nil, 'profile_exit', report_kvs)
+        TraceView::API.log(nil, :profile_exit, report_kvs)
       end
     end
   end

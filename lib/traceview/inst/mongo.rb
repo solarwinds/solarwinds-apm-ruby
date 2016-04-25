@@ -60,7 +60,7 @@ if defined?(::Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && Tr
               TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
             end
 
-            TraceView::API.trace('mongo', report_kvs) do
+            TraceView::API.trace(:mongo, report_kvs) do
               send("#{m}_without_traceview", *args)
             end
           end
@@ -94,7 +94,7 @@ if defined?(::Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && Tr
                 unless @selector.empty?
                   report_kvs[:Query] = @selector.to_json
                 else
-                  report_kvs[:Query] = 'all'
+                  report_kvs[:Query] = :all
                 end
                 report_kvs[:Limit] = @limit if @limit != 0
               end
@@ -102,7 +102,7 @@ if defined?(::Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && Tr
               TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
             end
 
-            TraceView::API.trace('mongo', report_kvs) do
+            TraceView::API.trace(:mongo, report_kvs) do
               send("#{m}_without_traceview", *args)
             end
           end
@@ -167,7 +167,7 @@ if defined?(::Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && Tr
               TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
             end
 
-            TraceView::API.trace('mongo', report_kvs) do
+            TraceView::API.trace(:mongo, report_kvs) do
               send("#{m}_without_traceview", *args)
             end
           end
@@ -206,7 +206,7 @@ if defined?(::Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && Tr
               TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
             end
 
-            TraceView::API.trace('mongo', report_kvs) do
+            TraceView::API.trace(:mongo, report_kvs) do
               send("#{m}_without_traceview", *args, &blk)
             end
           end
@@ -228,7 +228,7 @@ if defined?(::Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && Tr
               TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
             end
 
-            TraceView::API.trace('mongo', report_kvs) do
+            TraceView::API.trace(:mongo, report_kvs) do
               send("#{m}_without_traceview", *args)
             end
           end

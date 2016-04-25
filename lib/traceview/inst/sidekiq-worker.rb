@@ -18,10 +18,10 @@ module TraceView
         report_kvs[:JobName]    = worker.class.to_s
         report_kvs[:MsgID]      = msg['jid']
         report_kvs[:Args]       = msg['args'].to_s[0..1024] if TV::Config[:sidekiqworker][:log_args]
-        report_kvs['Backtrace'] = TV::API.backtrace         if TV::Config[:sidekiqworker][:collect_backtraces]
+        report_kvs[:Backtrace]  = TV::API.backtrace         if TV::Config[:sidekiqworker][:collect_backtraces]
 
         # Webserver Spec KVs
-        report_kvs['HTTP-Host'] = Socket.gethostname
+        report_kvs[:'HTTP-Host'] = Socket.gethostname
         report_kvs[:Controller] = "Sidekiq_#{queue}"
         report_kvs[:Action] = msg['class']
         report_kvs[:URL] = "/sidekiq/#{queue}/#{msg['class']}"
@@ -49,7 +49,7 @@ module TraceView
         report_kvs['X-TV-Meta'] = args[1]['SourceTrace']
       end
 
-      result = TraceView::API.start_trace('sidekiq-worker', nil, report_kvs) do
+      result = TraceView::API.start_trace(:'sidekiq-worker', nil, report_kvs) do
         yield
       end
 

@@ -44,9 +44,9 @@ if defined?(::Delayed)
                   report_kvs[:JobName] = job.name
                   report_kvs[:MsgID] = job.id
                   report_kvs[:Queue] = job.queue if job.queue
-                  report_kvs['Backtrace'] = TV::API.backtrace if TV::Config[:delayed_jobclient][:collect_backtraces]
+                  report_kvs[:Backtrace] = TV::API.backtrace if TV::Config[:delayed_jobclient][:collect_backtraces]
 
-                  TraceView::API.trace('delayed_job-client', report_kvs) do
+                  TraceView::API.trace(:'delayed_job-client', report_kvs) do
                     block.call(job)
                   end
                 end
@@ -63,7 +63,7 @@ if defined?(::Delayed)
                   report_kvs[:JobName] = job.name
                   report_kvs[:MsgID] = job.id
                   report_kvs[:Queue] = job.queue if job.queue
-                  report_kvs['Backtrace'] = TV::API.backtrace if TV::Config[:delayed_jobworker][:collect_backtraces]
+                  report_kvs[:Backtrace] = TV::API.backtrace if TV::Config[:delayed_jobworker][:collect_backtraces]
 
                   # DelayedJob Specific KVs
                   report_kvs[:priority] = job.priority
@@ -73,7 +73,7 @@ if defined?(::Delayed)
                   TV.logger.warn "[traceview/warning] inst/delayed_job.rb: #{e.message}"
                 end
 
-                result = TraceView::API.start_trace('delayed_job-worker', nil, report_kvs) do
+                result = TraceView::API.start_trace(:'delayed_job-worker', nil, report_kvs) do
                   block.call(worker, job)
                   TV::API.log_exception(nil, job.error) if job.error
                 end
