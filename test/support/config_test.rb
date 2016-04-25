@@ -19,7 +19,7 @@ describe "TraceView::Config" do
     #
     # TraceView::Config[:verbose].must_equal false
 
-    TraceView::Config[:tracing_mode].must_equal "through"
+    TraceView::Config[:tracing_mode].must_equal :through
     TraceView::Config[:reporter_host].must_equal "127.0.0.1"
   end
 
