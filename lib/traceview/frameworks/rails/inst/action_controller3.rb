@@ -32,16 +32,17 @@ module TraceView
       end
 
       def process_action_with_traceview(*args)
-        report_kvs = {
+        kvs = {
           :Controller   => self.class.name,
           :Action       => action_name,
         }
-        TraceView::API.log(nil, 'info', report_kvs)
+        kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:action_controller][:collect_backtraces]
+        TraceView::API.log(nil, 'info', kvs)
 
         process_action_without_traceview(*args)
       rescue Exception
-        report_kvs[:Status] = 500
-        TraceView::API.log(nil, 'info', report_kvs)
+        kvs[:Status] = 500
+        TraceView::API.log(nil, 'info', kvs)
         raise
       end
     end
