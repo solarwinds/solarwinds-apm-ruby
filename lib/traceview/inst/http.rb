@@ -68,7 +68,7 @@ if TraceView::Config[:nethttp][:enabled]
 
           # If we get a redirect, report the location header
           if ((300..308).to_a.include? resp.code.to_i) && resp.header["Location"]
-            opts["Location"] = resp.header["Location"]
+            opts[:Location] = resp.header["Location"]
           end
 
           next resp

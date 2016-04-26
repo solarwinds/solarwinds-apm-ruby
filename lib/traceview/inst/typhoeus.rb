@@ -84,7 +84,7 @@ module TraceView
         # FIXME: Until we figure out a strategy to deal with libcurl internal
         # threading and Ethon's use of easy handles, here we just do a simple
         # trace of the hydra run.
-        TraceView::API.trace("typhoeus_hydra", kvs) do
+        TraceView::API.trace(:typhoeus_hydra, kvs) do
           run_without_traceview
         end
       end

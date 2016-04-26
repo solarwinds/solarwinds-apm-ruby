@@ -75,7 +75,7 @@ module TraceView
 
             # If we get a redirect, report the location header
             if ((300..308).to_a.include? response_code) && headers.key?("Location")
-              kvs["Location"] = headers["Location"]
+              kvs[:Location] = headers["Location"]
             end
 
             # Curb only provides a single long string of all response headers (yuck!).  So we are forced

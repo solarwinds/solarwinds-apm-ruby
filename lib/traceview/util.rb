@@ -42,8 +42,8 @@ module TraceView
             cls.private_method_defined?(without_traceview.to_sym)
 
             cls.class_eval do
-              alias_method without_traceview, "#{method}"
-              alias_method "#{method}", with_traceview
+              alias_method without_traceview, method.to_s
+              alias_method method.to_s, with_traceview
             end
           end
         else
@@ -71,8 +71,8 @@ module TraceView
 
           # Only alias if we haven't done so already
           unless cls.singleton_methods.include? without_traceview.to_sym
-            cls.singleton_class.send(:alias_method, without_traceview, "#{method}")
-            cls.singleton_class.send(:alias_method, "#{method}", with_traceview)
+            cls.singleton_class.send(:alias_method, without_traceview, method.to_s)
+            cls.singleton_class.send(:alias_method, method.to_s, with_traceview)
           end
         else TraceView.logger.warn "[traceview/loading] Couldn't properly instrument #{name}.  Partial traces may occur."
         end

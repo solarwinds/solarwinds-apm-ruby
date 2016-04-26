@@ -133,8 +133,8 @@ module TraceView
               profile_wrapper(without_traceview, report_kvs, opts, *args, &block)
             end
 
-            alias_method without_traceview, "#{method}"
-            alias_method "#{method}", with_traceview
+            alias_method without_traceview, method.to_s
+            alias_method method.to_s, with_traceview
           end
         elsif class_method
           klass.define_singleton_method(with_traceview) do |*args, &block|
@@ -142,8 +142,8 @@ module TraceView
           end
 
           klass.singleton_class.class_eval do
-            alias_method without_traceview, "#{method}"
-            alias_method "#{method}", with_traceview
+            alias_method without_traceview, method.to_s
+            alias_method method.to_s, with_traceview
           end
         end
         true

@@ -147,7 +147,7 @@ module TraceView
 
           # If we get a redirect, report the location header
           if ((300..308).to_a.include? response.status.to_i) && response.headers.key?("Location")
-            kvs["Location"] = response.headers["Location"]
+            kvs[:Location] = response.headers["Location"]
           end
 
           if response_context && !blacklisted

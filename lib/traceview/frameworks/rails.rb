@@ -43,9 +43,9 @@ module TraceView
       # Force load the TraceView Rails initializer if there is one
       # Prefer traceview.rb but give priority to the legacy tracelytics.rb if it exists
       if ::Rails::VERSION::MAJOR > 2
-        rails_root = "#{::Rails.root}"
+        rails_root = ::Rails.root.to_s
       else
-        rails_root = "#{RAILS_ROOT}"
+        rails_root = RAILS_ROOT.to_s
       end
 
       #
