@@ -12,14 +12,7 @@ module TraceView
     module ActionController
       include ::TraceView::Inst::RailsBase
 
-      def self.included(base)
-        base.class_eval do
-          alias_method_chain :process_action, :traceview
-          alias_method_chain :render, :traceview
-        end
-      end
-
-      def process_action_with_traceview(method_name, *args)
+      def process_action(method_name, *args)
         kvs = {
           :Controller   => self.class.name,
           :Action       => self.action_name,
@@ -27,13 +20,30 @@ module TraceView
         kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:action_controller][:collect_backtraces]
 
         TraceView::API.log_entry('rails', kvs)
-        process_action_without_traceview(method_name, *args)
+        super(method_name, *args)
 
       rescue Exception => e
         TraceView::API.log_exception(nil, e) if log_rails_error?(e)
         raise
       ensure
         TraceView::API.log_exit('rails')
+      end
+
+      #
+      # render_with_traceview
+      #
+      # Our render wrapper that just times and conditionally
+      # reports raised exceptions
+      #
+      def render(*args, &blk)
+        TraceView::API.log_entry('actionview')
+        super(*args, &blk)
+
+      rescue Exception => e
+        TraceView::API.log_exception(nil, e) if log_rails_error?(e)
+        raise
+      ensure
+        TraceView::API.log_exit('actionview')
       end
     end
   end
