@@ -22,6 +22,10 @@ SAMPLE_SOURCE_MASK = 0b1111000000000000000000000000
 ZERO_SAMPLE_RATE_MASK   = 0b1111000000000000000000000000
 ZERO_SAMPLE_SOURCE_MASK = 0b0000111111111111111111111111
 
+TV_STR_BLANK = ''.freeze
+TV_STR_LAYER = 'Layer'.freeze
+TV_STR_LABEL = 'Label'.freeze
+
 ##
 # This module is the base module for the various implementations of TraceView reporting.
 # Current variations as of 2014-09-10 are a c-extension, JRuby (using TraceView Java

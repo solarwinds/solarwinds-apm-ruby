@@ -247,8 +247,8 @@ module TraceView
       def log_event(layer, label, event, opts = {})
         return unless TraceView.loaded
 
-        event.addInfo('Layer', layer.to_s) if layer
-        event.addInfo('Label', label.to_s)
+        event.addInfo(TV_STR_LAYER, layer.to_s.freeze) if layer
+        event.addInfo(TV_STR_LABEL, label.to_s.freeze)
 
         TraceView.layer = layer if label == :entry
         TraceView.layer = nil   if label == :exit
