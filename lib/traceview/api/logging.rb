@@ -177,7 +177,7 @@ module TraceView
       def log_entry(layer, kvs = {}, op = nil)
         return unless TraceView.loaded
 
-        TraceView.layer_op = op if op
+        TraceView.layer_op = op.to_sym if op
         log_event(layer, :entry, TraceView::Context.createEvent, kvs)
       end
 
@@ -250,8 +250,8 @@ module TraceView
         event.addInfo(TV_STR_LAYER, layer.to_s.freeze) if layer
         event.addInfo(TV_STR_LABEL, label.to_s.freeze)
 
-        TraceView.layer = layer if label == :entry
-        TraceView.layer = nil   if label == :exit
+        TraceView.layer = layer.to_sym if label == :entry
+        TraceView.layer = nil          if label == :exit
 
         opts.each do |k, v|
           value = nil
