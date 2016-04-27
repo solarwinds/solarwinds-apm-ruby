@@ -115,7 +115,7 @@ module TraceViewBase
   # operation tracing or one instrumented operation calling another.
   #
   def tracing_layer?(layer)
-    TraceView.layer == layer
+    TraceView.layer == layer.to_sym
   end
 
   ##
@@ -125,13 +125,16 @@ module TraceViewBase
   # operation being traced.  This is used in cases of recursive
   # operation tracing or one instrumented operation calling another.
   #
+  # <operation> can be a single symbol or an array of symbols that
+  # will be checked against.
+  #
   # In such cases, we only want to trace the outermost operation.
   #
   def tracing_layer_op?(operation)
     if operation.is_a?(Array)
       return operation.include?(TraceView.layer_op)
     else
-      return TraceView.layer_op == operation
+      return TraceView.layer_op == operation.to_sym
     end
   end
 
@@ -170,7 +173,7 @@ module TraceViewBase
   # False otherwise
   #
   def passthrough?
-    %w(always through).include?(TraceView::Config[:tracing_mode])
+    [:always, :through].include?(TraceView::Config[:tracing_mode])
   end
 
   ##
@@ -244,7 +247,7 @@ module TraceViewBase
   # or not
   #
   def framework?
-    defined?(::Rails) && defined?(::Sinatra) && defined?(::Padrino) && defined?(::Grape)
+    defined?(::Rails) || defined?(::Sinatra) || defined?(::Padrino) || defined?(::Grape)
   end
 
   ##
