@@ -266,6 +266,9 @@ module TraceView
       # Update liboboe if updating :tracing_mode
       if key == :tracing_mode
         TraceView.set_tracing_mode(value.to_sym) if TraceView.loaded
+
+        # Make sure that the mode is stored as a symbol
+        @@config[key.to_sym] = value.to_sym
       end
     end
 
