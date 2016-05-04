@@ -332,9 +332,9 @@ rake recompile           # Rebuild the gem's c extension
 Note: Make sure you have the development package `liboboe0-dev` installed before attempting to compile the C extension.
 
 ```bash
->$ dpkg -l | grep liboboe
-ii  liboboe-dev    1.1.1-precise1    Tracelytics common library -- development files
-ii  liboboe0       1.1.1-precise1    Tracelytics common library
+>>$ dpkg -l | grep liboboe
+ii  liboboe-dev  1.2.1-trusty1  AppNeta TraceView common library -- development files
+ii  liboboe0     1.2.1-trusty1  AppNeta Traceview common library
 ```
 
 See [Installing Base Packages on Debian and Ubuntu](https://docs.appneta.com/installation-overview) in the Knowledge Base for details.  Our hacker extraordinaire [Rob Salmond](https://github.com/rsalmond) from the support team has even gotten these packages to [run on Gentoo](http://www.appneta.com/blog/unsupported-doesnt-work/)!
