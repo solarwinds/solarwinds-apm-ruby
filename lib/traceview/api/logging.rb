@@ -68,7 +68,7 @@ module TraceView
                    :Backtrace => exn.backtrace.join("\r\n"))
 
         exn.instance_variable_set(:@oboe_logged, true)
-        log(layer, 'error', kvs)
+        log(layer, :error, kvs)
       end
 
       ##
@@ -118,7 +118,7 @@ module TraceView
         elsif opts.key?('Force')
           # Forced tracing: used by __Init reporting
           opts[:TraceOrigin] = :forced
-          log_event(layer, 'entry', TraceView::Context.startTrace, opts)
+          log_event(layer, :entry, TraceView::Context.startTrace, opts)
 
         elsif TraceView.sample?(opts.merge(:layer => layer, :xtrace => xtrace))
           # Probablistic tracing of a subset of requests based off of
@@ -132,7 +132,7 @@ module TraceView
             opts[:TraceOrigin]       = :always_sampled
           end
 
-          log_event(layer, 'entry', TraceView::Context.startTrace, opts)
+          log_event(layer, :entry, TraceView::Context.startTrace, opts)
         end
       end
 
@@ -152,7 +152,7 @@ module TraceView
       def log_end(layer, opts = {})
         return unless TraceView.loaded
 
-        log_event(layer, 'exit', TraceView::Context.createEvent, opts)
+        log_event(layer, :exit, TraceView::Context.createEvent, opts)
         xtrace = TraceView::Context.toString
         TraceView::Context.clear unless TraceView.has_incoming_context?
         xtrace
@@ -177,8 +177,8 @@ module TraceView
       def log_entry(layer, kvs = {}, op = nil)
         return unless TraceView.loaded
 
-        TraceView.layer_op = op if op
-        log_event(layer, 'entry', TraceView::Context.createEvent, kvs)
+        TraceView.layer_op = op.to_sym if op
+        log_event(layer, :entry, TraceView::Context.createEvent, kvs)
       end
 
       ##
@@ -199,7 +199,7 @@ module TraceView
       def log_info(layer, kvs = {})
         return unless TraceView.loaded
 
-        log_event(layer, 'info', TraceView::Context.createEvent, kvs)
+        log_event(layer, :info, TraceView::Context.createEvent, kvs)
       end
 
       ##
@@ -222,7 +222,7 @@ module TraceView
         return unless TraceView.loaded
 
         TraceView.layer_op = nil if op
-        log_event(layer, 'exit', TraceView::Context.createEvent, kvs)
+        log_event(layer, :exit, TraceView::Context.createEvent, kvs)
       end
 
       ##
@@ -247,11 +247,11 @@ module TraceView
       def log_event(layer, label, event, opts = {})
         return unless TraceView.loaded
 
-        event.addInfo('Layer', layer.to_s) if layer
-        event.addInfo('Label', label.to_s)
+        event.addInfo(TV_STR_LAYER, layer.to_s.freeze) if layer
+        event.addInfo(TV_STR_LABEL, label.to_s.freeze)
 
-        TraceView.layer = layer if label == 'entry'
-        TraceView.layer = nil   if label == 'exit'
+        TraceView.layer = layer.to_sym if label == :entry
+        TraceView.layer = nil          if label == :exit
 
         opts.each do |k, v|
           value = nil

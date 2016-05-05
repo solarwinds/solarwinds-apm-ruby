@@ -11,10 +11,10 @@ module TraceView
           blacklisted = TraceView::API.blacklisted?(@uri)
 
           begin
-            report_kvs['IsService'] = 1
-            report_kvs['RemoteURL'] = @uri
-            report_kvs['HTTPMethod'] = args[0]
-            report_kvs['Blacklisted'] = true if blacklisted
+            report_kvs[:IsService] = 1
+            report_kvs[:RemoteURL] = @uri
+            report_kvs[:HTTPMethod] = args[0]
+            report_kvs[:Blacklisted] = true if blacklisted
 
             if TraceView::Config[:em_http_request][:collect_backtraces]
               report_kvs[:Backtrace] = TraceView::API.backtrace
@@ -23,7 +23,7 @@ module TraceView
             TraceView.logger.debug "[traceview/debug] em-http-request KV error: #{e.inspect}"
           end
 
-          ::TraceView::API.log_entry('em-http-request', report_kvs)
+          ::TraceView::API.log_entry(:'em-http-request', report_kvs)
           client = setup_request_without_traceview(*args, &block)
           client.req.headers['X-Trace'] = context unless blacklisted
           client
@@ -66,7 +66,7 @@ module TraceView
 
           end
 
-          ::TraceView::API.log_exit('em-http-request', report_kvs)
+          ::TraceView::API.log_exit(:'em-http-request', report_kvs)
         end
       end
     end

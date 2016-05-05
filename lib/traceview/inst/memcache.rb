@@ -17,7 +17,7 @@ module TraceView
               report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:memcache][:collect_backtraces]
 
               if TraceView.tracing?
-                TraceView::API.trace('memcache', report_kvs) do
+                TraceView::API.trace(:memcache, report_kvs) do
                   send("#{m}_without_traceview", *args)
                 end
               else
@@ -58,11 +58,11 @@ module TraceView
           TraceView.logger.debug e.backtrace
         end
 
-        TraceView::API.trace('memcache', { :KVOp => :get_multi }, :get_multi) do
+        TraceView::API.trace(:memcache, { :KVOp => :get_multi }, :get_multi) do
           values = get_multi_without_traceview(args)
 
           info_kvs[:KVHitCount] = values.length
-          TraceView::API.log('memcache', 'info', info_kvs)
+          TraceView::API.log(:memcache, :info, info_kvs)
 
           values
         end
@@ -74,7 +74,7 @@ module TraceView
 
           info_kvs = { :KVKey => cache_key, :RemoteHost => server.host }
           info_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:memcache][:collect_backtraces]
-          TraceView::API.log('memcache', 'info', info_kvs)
+          TraceView::API.log(:memcache, :info, info_kvs)
 
           [server, cache_key]
         else
@@ -87,7 +87,7 @@ module TraceView
 
         info_kvs = { :KVHit => memcache_hit?(result) }
         info_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:memcache][:collect_backtraces]
-        TraceView::API.log('memcache', 'info', info_kvs)
+        TraceView::API.log(:memcache, :info, info_kvs)
 
         result
       end

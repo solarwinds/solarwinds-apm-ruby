@@ -6,7 +6,7 @@ require 'json'
 module TraceView
   module Inst
     module Moped
-      FLAVOR = 'mongodb'
+      FLAVOR = :mongodb
 
       # Moped::Database
       DB_OPS         = [:command, :drop]
@@ -62,7 +62,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
               TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
             end
 
-            TraceView::API.trace('mongo', report_kvs) do
+            TraceView::API.trace(:mongo, report_kvs) do
               command_without_traceview(command)
             end
           else
@@ -75,7 +75,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
 
           report_kvs = extract_trace_details(:drop_database)
 
-          TraceView::API.trace('mongo', report_kvs) do
+          TraceView::API.trace(:mongo, report_kvs) do
             drop_without_traceview
           end
         end
@@ -130,7 +130,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
             TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
           end
 
-          TraceView::API.trace('mongo', report_kvs, :create_index) do
+          TraceView::API.trace(:mongo, report_kvs, :create_index) do
             create_without_traceview(key, options = {})
           end
         end
@@ -142,12 +142,12 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
             # We report :drop_indexes here to be consistent
             # with other mongo implementations
             report_kvs = extract_trace_details(:drop_indexes)
-            report_kvs[:Key] = key.nil? ? 'all' : key.to_json
+            report_kvs[:Key] = key.nil? ? :all : key.to_json
           rescue StandardError => e
             TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
           end
 
-          TraceView::API.trace('mongo', report_kvs) do
+          TraceView::API.trace(:mongo, report_kvs) do
             drop_without_traceview(key = nil)
           end
         end
@@ -194,12 +194,12 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
 
           begin
             report_kvs = extract_trace_details(:count)
-            report_kvs[:Query] = selector.empty? ? 'all' : selector.to_json
+            report_kvs[:Query] = selector.empty? ? :all : selector.to_json
           rescue StandardError => e
             TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
           end
 
-          TraceView::API.trace('mongo', report_kvs) do
+          TraceView::API.trace(:mongo, report_kvs) do
             count_without_traceview
           end
         end
@@ -209,13 +209,13 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
 
           begin
             report_kvs = extract_trace_details(:sort)
-            report_kvs[:Query] = selector.empty? ? 'all' : selector.to_json
+            report_kvs[:Query] = selector.empty? ? :all : selector.to_json
             report_kvs[:Order] = sort.to_s
           rescue StandardError => e
             TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
           end
 
-          TraceView::API.trace('mongo', report_kvs) do
+          TraceView::API.trace(:mongo, report_kvs) do
             sort_without_traceview(sort)
           end
         end
@@ -224,13 +224,13 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
           if TraceView.tracing? && !TraceView.tracing_layer_op?(:explain)
             begin
               report_kvs = extract_trace_details(:limit)
-              report_kvs[:Query] = selector.empty? ? 'all' : selector.to_json
+              report_kvs[:Query] = selector.empty? ? :all : selector.to_json
               report_kvs[:Limit] = limit.to_s
             rescue StandardError => e
               TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
             end
 
-            TraceView::API.trace('mongo', report_kvs) do
+            TraceView::API.trace(:mongo, report_kvs) do
               limit_without_traceview(limit)
             end
           else
@@ -243,13 +243,13 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
 
           begin
             report_kvs = extract_trace_details(:distinct)
-            report_kvs[:Query] = selector.empty? ? 'all' : selector.to_json
+            report_kvs[:Query] = selector.empty? ? :all : selector.to_json
             report_kvs[:Key] = key.to_s
           rescue StandardError => e
             TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
           end
 
-          TraceView::API.trace('mongo', report_kvs) do
+          TraceView::API.trace(:mongo, report_kvs) do
             distinct_without_traceview(key)
           end
         end
@@ -264,7 +264,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
               TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
             end
 
-            TraceView::API.trace('mongo', report_kvs) do
+            TraceView::API.trace(:mongo, report_kvs) do
               update_without_traceview(change, flags)
             end
           else
@@ -282,7 +282,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
             TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
           end
 
-          TraceView::API.trace('mongo', report_kvs, :update_all) do
+          TraceView::API.trace(:mongo, report_kvs, :update_all) do
             update_all_without_traceview(change)
           end
         end
@@ -298,7 +298,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
             TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
           end
 
-          TraceView::API.trace('mongo', report_kvs, :upsert) do
+          TraceView::API.trace(:mongo, report_kvs, :upsert) do
             upsert_without_traceview(change)
           end
         end
@@ -308,12 +308,12 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
 
           begin
             report_kvs = extract_trace_details(:explain)
-            report_kvs[:Query] = selector.empty? ? 'all' : selector.to_json
+            report_kvs[:Query] = selector.empty? ? :all : selector.to_json
           rescue StandardError => e
             TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
           end
 
-          TraceView::API.trace('mongo', report_kvs, :explain) do
+          TraceView::API.trace(:mongo, report_kvs, :explain) do
             explain_without_traceview
           end
         end
@@ -323,14 +323,14 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
 
           begin
             report_kvs = extract_trace_details(:modify)
-            report_kvs[:Update_Document] = selector.empty? ? 'all' : selector.to_json
+            report_kvs[:Update_Document] = selector.empty? ? :all : selector.to_json
             report_kvs[:Change] = change.to_json
             report_kvs[:Options] = options.to_json
           rescue StandardError => e
             TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
           end
 
-          TraceView::API.trace('mongo', report_kvs) do
+          TraceView::API.trace(:mongo, report_kvs) do
             modify_without_traceview(change, options)
           end
         end
@@ -345,7 +345,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
             TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
           end
 
-          TraceView::API.trace('mongo', report_kvs) do
+          TraceView::API.trace(:mongo, report_kvs) do
             remove_without_traceview
           end
         end
@@ -360,7 +360,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
             TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
           end
 
-          TraceView::API.trace('mongo', report_kvs) do
+          TraceView::API.trace(:mongo, report_kvs) do
             remove_all_without_traceview
           end
         end
@@ -409,7 +409,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
           # with other mongo implementations
           report_kvs = extract_trace_details(:drop_collection)
 
-          TraceView::API.trace('mongo', report_kvs) do
+          TraceView::API.trace(:mongo, report_kvs) do
             drop_without_traceview
           end
         end
@@ -424,7 +424,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
             TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
           end
 
-          TraceView::API.trace('mongo', report_kvs) do
+          TraceView::API.trace(:mongo, report_kvs) do
             find_without_traceview(selector)
           end
         end
@@ -434,7 +434,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
 
           report_kvs = extract_trace_details(:indexes)
 
-          TraceView::API.trace('mongo', report_kvs) do
+          TraceView::API.trace(:mongo, report_kvs) do
             indexes_without_traceview
           end
         end
@@ -443,7 +443,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
           if TraceView.tracing? && !TraceView.tracing_layer_op?(:create_index)
             report_kvs = extract_trace_details(:insert)
 
-            TraceView::API.trace('mongo', report_kvs) do
+            TraceView::API.trace(:mongo, report_kvs) do
               insert_without_traceview(documents, flags)
             end
           else
@@ -457,7 +457,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
           report_kvs = extract_trace_details(:aggregate)
           report_kvs[:Query] = pipeline
 
-          TraceView::API.trace('mongo', report_kvs) do
+          TraceView::API.trace(:mongo, report_kvs) do
             aggregate_without_traceview(pipeline)
           end
         end

@@ -30,7 +30,7 @@ module TraceView
         report_kvs[:ProfileName] ||= profile_name
         report_kvs[:Backtrace] = TraceView::API.backtrace if with_backtrace
 
-        TraceView::API.log(nil, 'profile_entry', report_kvs)
+        TraceView::API.log(nil, :profile_entry, report_kvs)
 
         begin
           yield
@@ -42,7 +42,7 @@ module TraceView
           exit_kvs[:Language] = :ruby
           exit_kvs[:ProfileName] = report_kvs[:ProfileName]
 
-          TraceView::API.log(nil, 'profile_exit', exit_kvs)
+          TraceView::API.log(nil, :profile_exit, exit_kvs)
         end
       end
 
@@ -133,8 +133,8 @@ module TraceView
               profile_wrapper(without_traceview, report_kvs, opts, *args, &block)
             end
 
-            alias_method without_traceview, "#{method}"
-            alias_method "#{method}", with_traceview
+            alias_method without_traceview, method.to_s
+            alias_method method.to_s, with_traceview
           end
         elsif class_method
           klass.define_singleton_method(with_traceview) do |*args, &block|
@@ -142,8 +142,8 @@ module TraceView
           end
 
           klass.singleton_class.class_eval do
-            alias_method without_traceview, "#{method}"
-            alias_method "#{method}", with_traceview
+            alias_method without_traceview, method.to_s
+            alias_method method.to_s, with_traceview
           end
         end
         true

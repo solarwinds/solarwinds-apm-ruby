@@ -19,7 +19,7 @@ module TraceView
         kvs = {}
 
         if TraceView::Config[:curb][:cross_host]
-          kvs['IsService'] = 1
+          kvs[:IsService] = 1
 
           # Conditionally log query args
           if TraceView::Config[:curb][:log_args]
@@ -33,7 +33,7 @@ module TraceView
 
         # Avoid cross host tracing for blacklisted domains
         kvs[:blacklisted] = TraceView::API.blacklisted?(URI(url).hostname)
-        kvs['Backtrace'] = TraceView::API.backtrace if TraceView::Config[:curb][:collect_backtraces]
+        kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:curb][:collect_backtraces]
 
         kvs
       rescue => e
@@ -59,7 +59,7 @@ module TraceView
           handle_cross_host = TraceView::Config[:curb][:cross_host]
           kvs.merge! traceview_collect
 
-          TraceView::API.log_entry('curb', kvs)
+          TraceView::API.log_entry(:curb, kvs)
           kvs.clear
 
           if handle_cross_host && !kvs[:blacklisted]
@@ -71,11 +71,11 @@ module TraceView
           response = self.send(method, *args, &block)
 
           if handle_cross_host
-            kvs['HTTPStatus'] = response_code
+            kvs[:HTTPStatus] = response_code
 
             # If we get a redirect, report the location header
             if ((300..308).to_a.include? response_code) && headers.key?("Location")
-              kvs["Location"] = headers["Location"]
+              kvs[:Location] = headers["Location"]
             end
 
             # Curb only provides a single long string of all response headers (yuck!).  So we are forced
@@ -92,10 +92,10 @@ module TraceView
 
           response
         rescue => e
-          TraceView::API.log_exception('curb', e)
+          TraceView::API.log_exception(:curb, e)
           raise e
         ensure
-          TraceView::API.log_exit('curb', kvs)
+          TraceView::API.log_exit(:curb, kvs)
         end
 
       end
@@ -120,7 +120,7 @@ module TraceView
       #
       def http_post_with_traceview(*args, &block)
         # If we're not tracing, just do a fast return.
-        if !TraceView.tracing? || TraceView.tracing_layer?('curb')
+        if !TraceView.tracing? || TraceView.tracing_layer?(:curb)
           return http_post_without_traceview(*args)
         end
 
@@ -139,7 +139,7 @@ module TraceView
       #
       def http_put_with_traceview(*args, &block)
         # If we're not tracing, just do a fast return.
-        if !TraceView.tracing? || TraceView.tracing_layer?('curb')
+        if !TraceView.tracing? || TraceView.tracing_layer?(:curb)
           return http_put_without_traceview(data)
         end
 
@@ -158,7 +158,7 @@ module TraceView
       #
       def perform_with_traceview(&block)
         # If we're not tracing, just do a fast return.
-        if !TraceView.tracing? || TraceView.tracing_layer?('curb')
+        if !TraceView.tracing? || TraceView.tracing_layer?(:curb)
           return perform_without_traceview(&block)
         end
 
@@ -219,17 +219,17 @@ module TraceView
 
         begin
           kvs = {}
-          kvs['Backtrace'] = TraceView::API.backtrace if TraceView::Config[:curb][:collect_backtraces]
+          kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:curb][:collect_backtraces]
 
-          TraceView::API.log_entry('curb_multi', kvs)
+          TraceView::API.log_entry(:curb_multi, kvs)
 
           # The core curb call
           http_without_traceview(urls_with_config, multi_options, &block)
         rescue => e
-          TraceView::API.log_exception('curb_multi', e)
+          TraceView::API.log_exception(:curb_multi, e)
           raise e
         ensure
-          TraceView::API.log_exit('curb_multi')
+          TraceView::API.log_exit(:curb_multi)
         end
       end
     end
@@ -252,23 +252,23 @@ module TraceView
       #
       def perform_with_traceview(&block)
         # If we're not tracing or we're not already tracing curb, just do a fast return.
-        if !TraceView.tracing? || ['curb', 'curb_multi'].include?(TraceView.layer)
+        if !TraceView.tracing? || [:curb, :curb_multi].include?(TraceView.layer)
           return perform_without_traceview(&block)
         end
 
         begin
           kvs = {}
-          kvs['Backtrace'] = TraceView::API.backtrace if TraceView::Config[:curb][:collect_backtraces]
+          kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:curb][:collect_backtraces]
 
-          TraceView::API.log_entry('curb_multi', kvs)
+          TraceView::API.log_entry(:curb_multi, kvs)
 
           # The core curb call
           perform_without_traceview(&block)
         rescue => e
-          TraceView::API.log_exception('curb_multi', e)
+          TraceView::API.log_exception(:curb_multi, e)
           raise e
         ensure
-          TraceView::API.log_exit('curb_multi')
+          TraceView::API.log_exit(:curb_multi)
         end
       end
     end

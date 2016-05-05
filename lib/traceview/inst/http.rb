@@ -17,7 +17,7 @@ if TraceView::Config[:nethttp][:enabled]
       # Avoid cross host tracing for blacklisted domains
       blacklisted = TraceView::API.blacklisted?(addr_port)
 
-      TraceView::API.trace('net-http') do
+      TraceView::API.trace(:'net-http') do
         opts = {}
         context = TraceView::Context.toString()
         task_id = TraceView::XTrace.task_id(context)
@@ -26,20 +26,20 @@ if TraceView::Config[:nethttp][:enabled]
         if args.length && args[0]
           req = args[0]
 
-          opts['IsService'] = 1
-          opts['RemoteProtocol'] = use_ssl? ? 'HTTPS' : 'HTTP'
-          opts['RemoteHost'] = addr_port
+          opts[:IsService] = 1
+          opts[:RemoteProtocol] = use_ssl? ? :HTTPS : :HTTP
+          opts[:RemoteHost] = addr_port
 
           # Conditionally log query params
           if TraceView::Config[:nethttp][:log_args]
-            opts['ServiceArg'] = req.path
+            opts[:ServiceArg] = req.path
           else
-            opts['ServiceArg'] = req.path.split('?').first
+            opts[:ServiceArg] = req.path.split('?').first
           end
 
-          opts['HTTPMethod'] = req.method
-          opts['Blacklisted'] = true if blacklisted
-          opts['Backtrace'] = TraceView::API.backtrace if TraceView::Config[:nethttp][:collect_backtraces]
+          opts[:HTTPMethod] = req.method
+          opts[:Blacklisted] = true if blacklisted
+          opts[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:nethttp][:collect_backtraces]
 
           req['X-Trace'] = context unless blacklisted
         end
@@ -64,17 +64,17 @@ if TraceView::Config[:nethttp][:enabled]
             end
           end
 
-          opts['HTTPStatus'] = resp.code
+          opts[:HTTPStatus] = resp.code
 
           # If we get a redirect, report the location header
           if ((300..308).to_a.include? resp.code.to_i) && resp.header["Location"]
-            opts["Location"] = resp.header["Location"]
+            opts[:Location] = resp.header["Location"]
           end
 
           next resp
         ensure
           # Log the info event with the KVs in opts
-          TraceView::API.log('net-http', 'info', opts)
+          TraceView::API.log(:'net-http', :info, opts)
         end
       end
     end

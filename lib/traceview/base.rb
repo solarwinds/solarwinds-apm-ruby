@@ -22,6 +22,10 @@ SAMPLE_SOURCE_MASK = 0b1111000000000000000000000000
 ZERO_SAMPLE_RATE_MASK   = 0b1111000000000000000000000000
 ZERO_SAMPLE_SOURCE_MASK = 0b0000111111111111111111111111
 
+TV_STR_BLANK = ''.freeze
+TV_STR_LAYER = 'Layer'.freeze
+TV_STR_LABEL = 'Label'.freeze
+
 ##
 # This module is the base module for the various implementations of TraceView reporting.
 # Current variations as of 2014-09-10 are a c-extension, JRuby (using TraceView Java
@@ -111,7 +115,7 @@ module TraceViewBase
   # operation tracing or one instrumented operation calling another.
   #
   def tracing_layer?(layer)
-    TraceView.layer == layer
+    TraceView.layer == layer.to_sym
   end
 
   ##
@@ -121,13 +125,16 @@ module TraceViewBase
   # operation being traced.  This is used in cases of recursive
   # operation tracing or one instrumented operation calling another.
   #
+  # <operation> can be a single symbol or an array of symbols that
+  # will be checked against.
+  #
   # In such cases, we only want to trace the outermost operation.
   #
   def tracing_layer_op?(operation)
     if operation.is_a?(Array)
       return operation.include?(TraceView.layer_op)
     else
-      return TraceView.layer_op == operation
+      return TraceView.layer_op == operation.to_sym
     end
   end
 
@@ -150,7 +157,7 @@ module TraceViewBase
   # False otherwise
   #
   def always?
-    TraceView::Config[:tracing_mode].to_s == 'always'
+    TraceView::Config[:tracing_mode].to_sym == :always
   end
 
   ##
@@ -158,7 +165,7 @@ module TraceViewBase
   # False otherwise
   #
   def never?
-    TraceView::Config[:tracing_mode].to_s == 'never'
+    TraceView::Config[:tracing_mode].to_sym == :never
   end
 
   ##
@@ -166,7 +173,7 @@ module TraceViewBase
   # False otherwise
   #
   def passthrough?
-    %w(always through).include?(TraceView::Config[:tracing_mode])
+    [:always, :through].include?(TraceView::Config[:tracing_mode])
   end
 
   ##
@@ -174,7 +181,7 @@ module TraceViewBase
   # False otherwise
   #
   def through?
-    TraceView::Config[:tracing_mode].to_s == 'through'
+    TraceView::Config[:tracing_mode].to_sym == :through
   end
 
   ##
@@ -240,7 +247,7 @@ module TraceViewBase
   # or not
   #
   def framework?
-    defined?(::Rails) && defined?(::Sinatra) && defined?(::Padrino) && defined?(::Grape)
+    defined?(::Rails) || defined?(::Sinatra) || defined?(::Padrino) || defined?(::Grape)
   end
 
   ##

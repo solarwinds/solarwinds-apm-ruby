@@ -77,7 +77,7 @@ module TraceView
           headers.delete('SourceTrace')
         end
 
-        result = TraceView::API.start_trace('rabbitmq-consumer', nil, report_kvs) do
+        result = TraceView::API.start_trace(:'rabbitmq-consumer', nil, report_kvs) do
           call_without_traceview(*args)
         end
         result[0]

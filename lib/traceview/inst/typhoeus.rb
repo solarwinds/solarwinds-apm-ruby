@@ -12,7 +12,7 @@ module TraceView
       def run_with_traceview
         return run_without_traceview unless TraceView.tracing?
 
-        TraceView::API.log_entry('typhoeus')
+        TraceView::API.log_entry(:typhoeus)
 
         # Prepare X-Trace header handling
         blacklisted = TraceView::API.blacklisted?(url)
@@ -23,26 +23,26 @@ module TraceView
         response = run_without_traceview
 
         if response.code == 0
-          TraceView::API.log('typhoeus', 'error', { :ErrorClass => response.return_code,
-                                               :ErrorMsg => response.return_message })
+          TraceView::API.log(:typhoeus, :error, { :ErrorClass => response.return_code,
+                                                  :ErrorMsg => response.return_message })
         end
 
         kvs = {}
-        kvs['IsService'] = 1
+        kvs[:IsService] = 1
         kvs[:HTTPStatus] = response.code
-        kvs['Backtrace'] = TraceView::API.backtrace if TraceView::Config[:typhoeus][:collect_backtraces]
+        kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:typhoeus][:collect_backtraces]
 
         uri = URI(response.effective_url)
 
         # Conditionally log query params
         if TraceView::Config[:typhoeus][:log_args]
-          kvs['RemoteURL'] = uri.to_s
+          kvs[:RemoteURL] = uri.to_s
         else
-          kvs['RemoteURL'] = uri.to_s.split('?').first
+          kvs[:RemoteURL] = uri.to_s.split('?').first
         end
 
-        kvs['HTTPMethod'] = ::TraceView::Util.upcase(options[:method])
-        kvs['Blacklisted'] = true if blacklisted
+        kvs[:HTTPMethod] = ::TraceView::Util.upcase(options[:method])
+        kvs[:Blacklisted] = true if blacklisted
 
         # Re-attach net::http edge unless it's blacklisted or if we don't have a
         # valid X-Trace header
@@ -60,13 +60,13 @@ module TraceView
           end
         end
 
-        TraceView::API.log('typhoeus', 'info', kvs)
+        TraceView::API.log(:typhoeus, :info, kvs)
         response
       rescue => e
-        TraceView::API.log_exception('typhoeus', e)
+        TraceView::API.log_exception(:typhoeus, e)
         raise e
       ensure
-        TraceView::API.log_exit('typhoeus')
+        TraceView::API.log_exit(:typhoeus)
       end
     end
 
@@ -84,7 +84,7 @@ module TraceView
         # FIXME: Until we figure out a strategy to deal with libcurl internal
         # threading and Ethon's use of easy handles, here we just do a simple
         # trace of the hydra run.
-        TraceView::API.trace("typhoeus_hydra", kvs) do
+        TraceView::API.trace(:typhoeus_hydra, kvs) do
           run_without_traceview
         end
       end

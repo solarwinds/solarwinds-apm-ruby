@@ -13,13 +13,13 @@ module TraceView
         # Otherwise, the Net::HTTP instrumentation will send the service KVs
         handle_service = !@builder.handlers.include?(Faraday::Adapter::NetHttp) &&
                          !@builder.handlers.include?(Faraday::Adapter::Excon)
-        TraceView::API.log_entry('faraday')
+        TraceView::API.log_entry(:faraday)
 
         result = run_request_without_traceview(method, url, body, headers, &block)
 
         kvs = {}
-        kvs['Middleware'] = @builder.handlers
-        kvs['Backtrace'] = TraceView::API.backtrace if TraceView::Config[:faraday][:collect_backtraces]
+        kvs[:Middleware] = @builder.handlers
+        kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:faraday][:collect_backtraces]
 
         if handle_service
           blacklisted = TraceView::API.blacklisted?(@url_prefix.to_s)
@@ -30,14 +30,14 @@ module TraceView
           # Conditionally add the X-Trace header to the outgoing request
           @headers['X-Trace'] = context unless blacklisted
 
-          kvs['IsService'] = 1
-          kvs['RemoteProtocol'] = (@url_prefix.scheme == 'https') ? 'HTTPS' : 'HTTP'
-          kvs['RemoteHost'] = @url_prefix.host
-          kvs['RemotePort'] = @url_prefix.port
-          kvs['ServiceArg'] = url
-          kvs['HTTPMethod'] = method
+          kvs[:IsService] = 1
+          kvs[:RemoteProtocol] = (@url_prefix.scheme == 'https') ? 'HTTPS' : 'HTTP'
+          kvs[:RemoteHost] = @url_prefix.host
+          kvs[:RemotePort] = @url_prefix.port
+          kvs[:ServiceArg] = url
+          kvs[:HTTPMethod] = method
           kvs[:HTTPStatus] = result.status
-          kvs['Blacklisted'] = true if blacklisted
+          kvs[:Blacklisted] = true if blacklisted
 
           # Re-attach net::http edge unless it's blacklisted or if we don't have a
           # valid X-Trace header
@@ -56,13 +56,13 @@ module TraceView
           end
         end
 
-        TraceView::API.log('faraday', 'info', kvs)
+        TraceView::API.log(:faraday, :info, kvs)
         result
       rescue => e
-        TraceView::API.log_exception('faraday', e)
+        TraceView::API.log_exception(:faraday, e)
         raise e
       ensure
-        TraceView::API.log_exit('faraday')
+        TraceView::API.log_exit(:faraday)
       end
     end
   end

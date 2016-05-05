@@ -28,14 +28,14 @@ module TraceView
             kvs[:ExchangeName] = :default
           end
 
-          TraceView::API.log_entry('rabbitmq-client')
+          TraceView::API.log_entry(:'rabbitmq-client')
 
           delete_without_traceview(opts)
         rescue => e
           TraceView::API.log_exception(nil, e)
           raise e
         ensure
-          TraceView::API.log_exit('rabbitmq-client', kvs)
+          TraceView::API.log_exit(:'rabbitmq-client', kvs)
         end
       end
     end
@@ -83,7 +83,7 @@ module TraceView
           kvs[:RoutingKey]  = routing_key if routing_key
           kvs[:Op]          = :publish
 
-          TraceView::API.log_entry('rabbitmq-client')
+          TraceView::API.log_entry(:'rabbitmq-client')
 
           # Pass the tracing context as a header
           opts[:headers] ||= {}
@@ -94,7 +94,7 @@ module TraceView
           TraceView::API.log_exception(nil, e)
           raise e
         ensure
-          TraceView::API.log_exit('rabbitmq-client', kvs)
+          TraceView::API.log_exit(:'rabbitmq-client', kvs)
         end
       end
 
@@ -106,7 +106,7 @@ module TraceView
           kvs = collect_channel_kvs
           kvs[:Op] = :queue
 
-          TraceView::API.log_entry('rabbitmq-client')
+          TraceView::API.log_entry(:'rabbitmq-client')
 
           result = queue_without_traceview(name, opts)
           kvs[:Queue] = result.name
@@ -115,7 +115,7 @@ module TraceView
           TraceView::API.log_exception(nil, e)
           raise e
         ensure
-          TraceView::API.log_exit('rabbitmq-client', kvs)
+          TraceView::API.log_exit(:'rabbitmq-client', kvs)
         end
       end
 
@@ -127,14 +127,14 @@ module TraceView
           kvs = collect_channel_kvs
           kvs[:Op] = :wait_for_confirms
 
-          TraceView::API.log_entry('rabbitmq-client')
+          TraceView::API.log_entry(:'rabbitmq-client')
 
           wait_for_confirms_without_traceview
         rescue => e
           TraceView::API.log_exception(nil, e)
           raise e
         ensure
-          TraceView::API.log_exit('rabbitmq-client', kvs)
+          TraceView::API.log_exit(:'rabbitmq-client', kvs)
         end
       end
     end

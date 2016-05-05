@@ -20,14 +20,14 @@ module TraceView
                 opts[:RemoteHost] = rhost if rhost
               end
 
-              TraceView::API.trace('memcache', opts) do
+              TraceView::API.trace(:memcache, opts) do
                 result = send("#{m}_without_traceview", *args)
 
                 info_kvs = {}
                 info_kvs[:KVHit] = memcache_hit?(result) if m == :get && args.length && args[0].class == String
                 info_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:memcached][:collect_backtraces]
 
-                TraceView::API.log('memcache', 'info', info_kvs) unless info_kvs.empty?
+                TraceView::API.log(:memcache, :info, info_kvs) unless info_kvs.empty?
                 result
               end
             end
@@ -57,7 +57,7 @@ module TraceView
           layer_kvs = {}
           layer_kvs[:KVOp] = :get_multi
 
-          TraceView::API.trace('memcache', layer_kvs || {}, :get_multi) do
+          TraceView::API.trace(:memcache, layer_kvs || {}, :get_multi) do
             begin
               info_kvs = {}
               info_kvs[:KVKeyCount] = keys.flatten.length
@@ -67,7 +67,7 @@ module TraceView
               info_kvs[:KVHitCount] = values.length
               info_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:memcached][:collect_backtraces]
 
-              TraceView::API.log('memcache', 'info', info_kvs)
+              TraceView::API.log(:memcache, :info, info_kvs)
             rescue
               values = get_multi_without_traceview(keys, raw)
             end

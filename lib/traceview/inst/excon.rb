@@ -11,27 +11,27 @@ module TraceView
 
       def traceview_collect(params)
         kvs = {}
-        kvs['IsService'] = 1
-        kvs['RemoteProtocol'] = ::TraceView::Util.upcase(@data[:scheme])
-        kvs['RemoteHost'] = @data[:host]
+        kvs[:IsService] = 1
+        kvs[:RemoteProtocol] = ::TraceView::Util.upcase(@data[:scheme])
+        kvs[:RemoteHost] = @data[:host]
 
         # Conditionally log query args
         if TraceView::Config[:excon][:log_args] && @data[:query]
           if @data[:query].is_a?(Hash)
             if RUBY_VERSION >= '1.9.2'
-              kvs['ServiceArg'] = "#{@data[:path]}?#{URI.encode_www_form(@data[:query])}"
+              kvs[:ServiceArg] = "#{@data[:path]}?#{URI.encode_www_form(@data[:query])}"
             else
               # An imperfect solution for the lack of URI.encode_www_form for Ruby versions before
               # 1.9.2.  We manually create a query string for reporting purposes only.
               query_arg = ""
               @data[:query].each_pair { |k,v| query_arg += "#{k}=#{v}?"; }
-              kvs['ServiceArg'] = "#{@data[:path]}?#{query_arg.chop}"
+              kvs[:ServiceArg] = "#{@data[:path]}?#{query_arg.chop}"
             end
           else
-            kvs['ServiceArg'] = "#{@data[:path]}?#{@data[:query]}"
+            kvs[:ServiceArg] = "#{@data[:path]}?#{@data[:query]}"
           end
         else
-          kvs['ServiceArg'] = @data[:path]
+          kvs[:ServiceArg] = @data[:path]
         end
 
         # In the case of HTTP pipelining, params could be an array of
@@ -41,12 +41,12 @@ module TraceView
           params.each do |p|
             methods << ::TraceView::Util.upcase(p[:method])
           end
-          kvs['HTTPMethods'] = methods.join(', ')[0..1024]
-          kvs['Pipeline'] = true
+          kvs[:HTTPMethods] = methods.join(', ')[0..1024]
+          kvs[:Pipeline] = true
         else
-          kvs['HTTPMethod'] = ::TraceView::Util.upcase(params[:method])
+          kvs[:HTTPMethod] = ::TraceView::Util.upcase(params[:method])
         end
-        kvs['Backtrace'] = TraceView::API.backtrace if TraceView::Config[:excon][:collect_backtraces]
+        kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:excon][:collect_backtraces]
         kvs
       rescue => e
         TraceView.logger.debug "[traceview/debug] Error capturing excon KVs: #{e.message}"
@@ -57,7 +57,7 @@ module TraceView
 
       def requests_with_traceview(pipeline_params)
         responses = nil
-        TraceView::API.trace('excon', traceview_collect(pipeline_params)) do
+        TraceView::API.trace(:excon, traceview_collect(pipeline_params)) do
           responses = requests_without_traceview(pipeline_params)
         end
         responses
@@ -82,9 +82,9 @@ module TraceView
           @data[:headers]['X-Trace'] = req_context unless blacklisted
 
           kvs = traceview_collect(params)
-          kvs['Blacklisted'] = true if blacklisted
+          kvs[:Blacklisted] = true if blacklisted
 
-          TraceView::API.log_entry('excon', kvs)
+          TraceView::API.log_entry(:excon, kvs)
           kvs.clear
 
           # The core excon call
@@ -95,11 +95,11 @@ module TraceView
           # the datatype before trying to extract pertinent info
           if response.is_a?(Excon::Response)
             response_context = response.headers['X-Trace']
-            kvs['HTTPStatus'] = response.status
+            kvs[:HTTPStatus] = response.status
 
             # If we get a redirect, report the location header
             if ((300..308).to_a.include? response.status.to_i) && response.headers.key?('Location')
-              kvs['Location'] = response.headers['Location']
+              kvs[:Location] = response.headers['Location']
             end
 
             if response_context && !blacklisted
@@ -109,10 +109,10 @@ module TraceView
 
           response
         rescue => e
-          TraceView::API.log_exception('excon', e)
+          TraceView::API.log_exception(:excon, e)
           raise e
         ensure
-          TraceView::API.log_exit('excon', kvs) unless params[:pipeline]
+          TraceView::API.log_exit(:excon, kvs) unless params[:pipeline]
         end
       end
     end

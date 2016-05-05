@@ -12,23 +12,23 @@ module TraceView
 
       def traceview_collect(method, uri, query = nil)
         kvs = {}
-        kvs['IsService'] = 1
+        kvs[:IsService] = 1
 
         # Conditionally log URL query params
         # Because of the hook points, the query arg can come in under <tt>query</tt>
         # or as a part of <tt>uri</tt> (not both).  Here we handle both cases.
         if TraceView::Config[:httpclient][:log_args]
           if query
-            kvs['RemoteURL'] = uri.to_s + '?' + TraceView::Util.to_query(query)
+            kvs[:RemoteURL] = uri.to_s + '?' + TraceView::Util.to_query(query)
           else
-            kvs['RemoteURL'] = uri.to_s
+            kvs[:RemoteURL] = uri.to_s
           end
         else
-          kvs['RemoteURL'] = uri.to_s.split('?').first
+          kvs[:RemoteURL] = uri.to_s.split('?').first
         end
 
-        kvs['HTTPMethod'] = ::TraceView::Util.upcase(method)
-        kvs['Backtrace'] = TraceView::API.backtrace if TraceView::Config[:httpclient][:collect_backtraces]
+        kvs[:HTTPMethod] = ::TraceView::Util.upcase(method)
+        kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:httpclient][:collect_backtraces]
         kvs
       rescue => e
         TraceView.logger.debug "[traceview/debug] Error capturing httpclient KVs: #{e.message}"
@@ -50,9 +50,9 @@ module TraceView
           blacklisted = TraceView::API.blacklisted?(uri.hostname)
 
           kvs = traceview_collect(method, uri, query)
-          kvs['Blacklisted'] = true if blacklisted
+          kvs[:Blacklisted] = true if blacklisted
 
-          TraceView::API.log_entry('httpclient', kvs)
+          TraceView::API.log_entry(:httpclient, kvs)
           kvs.clear
 
           req_context = TraceView::Context.toString()
@@ -68,11 +68,11 @@ module TraceView
           response = do_request_without_traceview(method, uri, query, body, header, &block)
 
           response_context = response.headers['X-Trace']
-          kvs['HTTPStatus'] = response.status_code
+          kvs[:HTTPStatus] = response.status_code
 
           # If we get a redirect, report the location header
           if ((300..308).to_a.include? response.status.to_i) && response.headers.key?("Location")
-            kvs["Location"] = response.headers["Location"]
+            kvs[:Location] = response.headers["Location"]
           end
 
           if response_context && !blacklisted
@@ -81,10 +81,10 @@ module TraceView
 
           response
         rescue => e
-          TraceView::API.log_exception('httpclient', e)
+          TraceView::API.log_exception(:httpclient, e)
           raise e
         ensure
-          TraceView::API.log_exit('httpclient', kvs)
+          TraceView::API.log_exit(:httpclient, kvs)
         end
       end
 
@@ -123,10 +123,10 @@ module TraceView
           blacklisted = TraceView::API.blacklisted?(uri.hostname)
 
           kvs = traceview_collect(method, uri)
-          kvs['Blacklisted'] = true if blacklisted
-          kvs['Async'] = 1
+          kvs[:Blacklisted] = true if blacklisted
+          kvs[:Async] = 1
 
-          TraceView::API.log_entry('httpclient', kvs)
+          TraceView::API.log_entry(:httpclient, kvs)
           kvs.clear
 
           req_context = TraceView::Context.toString()
@@ -143,11 +143,11 @@ module TraceView
           end
 
           response_context = response.headers['X-Trace']
-          kvs['HTTPStatus'] = response.status_code
+          kvs[:HTTPStatus] = response.status_code
 
           # If we get a redirect, report the location header
           if ((300..308).to_a.include? response.status.to_i) && response.headers.key?("Location")
-            kvs["Location"] = response.headers["Location"]
+            kvs[:Location] = response.headers["Location"]
           end
 
           if response_context && !blacklisted
@@ -158,11 +158,11 @@ module TraceView
           conn.push response if result.is_a?(::HTTPClient::Connection)
           result
         rescue => e
-          TraceView::API.log_exception('httpclient', e)
+          TraceView::API.log_exception(:httpclient, e)
           raise e
         ensure
           # TraceView::API.log_exit('httpclient', kvs.merge('Async' => 1))
-          TraceView::API.log_exit('httpclient', kvs)
+          TraceView::API.log_exit(:httpclient, kvs)
         end
       end
     end

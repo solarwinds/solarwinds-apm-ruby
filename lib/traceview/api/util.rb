@@ -17,7 +17,7 @@ module TraceView
       #
       # Return a boolean indicating whether or not key is reserved.
       def valid_key?(key)
-        !%w(Label Layer Edge Timestamp Timestamp_u).include? key.to_s
+        ![:Label, :Layer, :Edge, :Timestamp, :Timestamp_u].include?(key.to_sym)
       end
 
       # Internal: Get the current backtrace.

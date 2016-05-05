@@ -222,17 +222,17 @@ module TraceView
         #
         def call_with_traceview(command, &block)
           if TraceView.tracing?
-            ::TraceView::API.log_entry('redis', {})
+            ::TraceView::API.log_entry(:redis, {})
 
             begin
               r = call_without_traceview(command, &block)
               report_kvs = extract_trace_details(command, r)
               r
             rescue StandardError => e
-              ::TraceView::API.log_exception('redis', e)
+              ::TraceView::API.log_exception(:redis, e)
               raise
             ensure
-              ::TraceView::API.log_exit('redis', report_kvs)
+              ::TraceView::API.log_exit(:redis, report_kvs)
             end
 
           else
@@ -250,17 +250,17 @@ module TraceView
             # back on exit (a limitation of the TraceView::API.trace
             # block method)  This removes the need for an info
             # event to send additonal KVs
-            ::TraceView::API.log_entry('redis', {})
+            ::TraceView::API.log_entry(:redis, {})
 
             report_kvs = extract_pipeline_details(pipeline)
 
             begin
               call_pipeline_without_traceview(pipeline)
             rescue StandardError => e
-              ::TraceView::API.log_exception('redis', e)
+              ::TraceView::API.log_exception(:redis, e)
               raise
             ensure
-              ::TraceView::API.log_exit('redis', report_kvs)
+              ::TraceView::API.log_exit(:redis, report_kvs)
             end
           else
             call_pipeline_without_traceview(pipeline)

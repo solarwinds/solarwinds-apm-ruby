@@ -53,33 +53,33 @@ module TraceView
       def run_with_traceview(sql, opts=::Sequel::OPTS)
         kvs = extract_trace_details(sql, opts)
 
-        TraceView::API.log_entry('sequel', kvs)
+        TraceView::API.log_entry(:sequel, kvs)
 
         run_without_traceview(sql, opts)
       rescue => e
-        TraceView::API.log_exception('sequel', e)
+        TraceView::API.log_exception(:sequel, e)
         raise e
       ensure
-        TraceView::API.log_exit('sequel')
+        TraceView::API.log_exit(:sequel)
       end
 
       def exec_with_traceview(method, sql, opts=::Sequel::OPTS, &block)
         kvs = extract_trace_details(sql, opts)
 
-        TraceView::API.log_entry('sequel', kvs)
+        TraceView::API.log_entry(:sequel, kvs)
 
         send(method, sql, opts, &block)
       rescue => e
-        TraceView::API.log_exception('sequel', e)
+        TraceView::API.log_exception(:sequel, e)
         raise e
       ensure
-        TraceView::API.log_exit('sequel')
+        TraceView::API.log_exit(:sequel)
       end
 
       def execute_ddl_with_traceview(sql, opts=::Sequel::OPTS, &block)
         # If we're already tracing a sequel operation, then this call likely came
         # from Sequel::Dataset.  In this case, just pass it on.
-        return execute_ddl_without_traceview(sql, opts, &block) if TraceView.tracing_layer?('sequel')
+        return execute_ddl_without_traceview(sql, opts, &block) if TraceView.tracing_layer?(:sequel)
 
         exec_with_traceview(:execute_ddl_without_traceview, sql, opts, &block)
       end
@@ -87,7 +87,7 @@ module TraceView
       def execute_dui_with_traceview(sql, opts=::Sequel::OPTS, &block)
         # If we're already tracing a sequel operation, then this call likely came
         # from Sequel::Dataset.  In this case, just pass it on.
-        return execute_dui_without_traceview(sql, opts, &block) if TraceView.tracing_layer?('sequel')
+        return execute_dui_without_traceview(sql, opts, &block) if TraceView.tracing_layer?(:sequel)
 
         exec_with_traceview(:execute_dui_without_traceview, sql, opts, &block)
       end
@@ -95,7 +95,7 @@ module TraceView
       def execute_insert_with_traceview(sql, opts=::Sequel::OPTS, &block)
         # If we're already tracing a sequel operation, then this call likely came
         # from Sequel::Dataset.  In this case, just pass it on.
-        return execute_insert_without_traceview(sql, opts, &block) if TraceView.tracing_layer?('sequel')
+        return execute_insert_without_traceview(sql, opts, &block) if TraceView.tracing_layer?(:sequel)
 
         exec_with_traceview(:execute_insert_without_traceview, sql, opts, &block)
       end
@@ -113,14 +113,14 @@ module TraceView
       def exec_with_traceview(method, sql, opts=::Sequel::OPTS, &block)
         kvs = extract_trace_details(sql, opts)
 
-        TraceView::API.log_entry('sequel', kvs)
+        TraceView::API.log_entry(:sequel, kvs)
 
         send(method, sql, opts, &block)
       rescue => e
-        TraceView::API.log_exception('sequel', e)
+        TraceView::API.log_exception(:sequel, e)
         raise e
       ensure
-        TraceView::API.log_exit('sequel')
+        TraceView::API.log_exit(:sequel)
       end
 
       def execute_with_traceview(sql, opts=::Sequel::OPTS, &block)

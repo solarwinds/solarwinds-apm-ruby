@@ -3,7 +3,7 @@
 
 require 'minitest_helper'
 
-describe "TraceViewMethodProfiling" do
+describe "LegacyTraceViewMethodProfiling" do
   before do
     clear_all_traces
     # Conditionally Undefine TestWorker

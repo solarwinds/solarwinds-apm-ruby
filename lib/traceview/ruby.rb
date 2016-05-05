@@ -31,6 +31,6 @@ module TraceView
   end
 end
 
-if TraceView.loaded and !TraceView.framework?
+if TraceView.loaded && !TraceView.framework?
   ::TraceView::Ruby.load
 end
