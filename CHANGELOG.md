@@ -4,6 +4,18 @@ https://github.com/appneta/oboe-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# traceview 3.8.1
+
+This patch release includes the following fixes:
+
+* Use less string literals and more symbols: #168
+* Fix `alias_method_chain` deprecation under Rails 5: #169
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.8.1
+https://rubygems.org/gems/traceview/versions/3.8.1-java
+
 # traceview 3.8.0
 
 This minor release includes the following new feature:
