@@ -86,8 +86,7 @@ module TraceView
       #   TraceView::API.log_start(:layer_name, nil, { :id => @user.id })
       #
       def log_start(layer, xtrace = nil, opts = {})
-        return if !TraceView.loaded || TraceView.never? ||
-                  (opts.key?(:URL) && ::TraceView::Util.static_asset?(opts[:URL]))
+        return if !TraceView.loaded || (opts.key?(:URL) && ::TraceView::Util.static_asset?(opts[:URL]))
 
         # For entry only layers (DelayedJob workers, Sidekiq workers), auto-set the tracing mode
         # Don't do this if tracing mode is already :always or :never
