@@ -4,6 +4,13 @@
 require 'minitest_helper'
 
 class TracingModeTest  < Minitest::Test
+  def setup
+    @tm = TraceView::Config[:tracing_mode]
+  end
+
+  def teardown
+    TraceView::Config[:tracing_mode] = @tm
+  end
 
   def test_dont_start_trace_when_through
     # The test suite detects that we are in test mode and always
