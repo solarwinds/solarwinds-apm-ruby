@@ -8,6 +8,7 @@ class TracingModeTest  < Minitest::Test
   def test_dont_start_trace_when_through
     # The test suite detects that we are in test mode and always
     # samples regardless of tracing mode
+    skip
     TraceView::Config[:tracing_mode] = :through
 
     TV::API.start_trace(:test_through) do
@@ -16,6 +17,9 @@ class TracingModeTest  < Minitest::Test
   end
 
   def test_dont_start_trace_when_through_with_avw
+    # The test suite detects that we are in test mode and always
+    # samples regardless of tracing mode
+    skip
     TraceView::Config[:tracing_mode] = :through
 
     report_kvs = { 'X-TV-Meta' => :fake_avw_string }
