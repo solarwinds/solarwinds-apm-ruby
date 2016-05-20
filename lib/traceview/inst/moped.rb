@@ -9,17 +9,17 @@ module TraceView
       FLAVOR = :mongodb
 
       # Moped::Database
-      DB_OPS         = [:command, :drop]
+      DB_OPS         = [:command, :drop].freeze
 
       # Moped::Indexes
-      INDEX_OPS      = [:create, :drop]
+      INDEX_OPS      = [:create, :drop].freeze
 
       # Moped::Query
       QUERY_OPS      = [:count, :sort, :limit, :distinct, :update, :update_all, :upsert,
-                        :explain, :modify, :remove, :remove_all]
+                        :explain, :modify, :remove, :remove_all].freeze
 
       # Moped::Collection
-      COLLECTION_OPS = [:drop, :find, :indexes, :insert, :aggregate]
+      COLLECTION_OPS = [:drop, :find, :indexes, :insert, :aggregate].freeze
     end
   end
 end
