@@ -46,7 +46,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
           report_kvs[:QueryOp] = op.to_s
           report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:moped][:collect_backtraces]
         rescue StandardError => e
-          TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
+          TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
         ensure
           return report_kvs
         end
@@ -58,7 +58,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
               report_kvs[:Map_Function] = command[:map]
               report_kvs[:Reduce_Function] = command[:reduce]
             rescue => e
-              TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
+              TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
             end
 
             TraceView::API.trace(:mongo, report_kvs) do
@@ -110,7 +110,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
           report_kvs[:QueryOp] = op.to_s
           report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:moped][:collect_backtraces]
         rescue StandardError => e
-          TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
+          TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
         ensure
           return report_kvs
         end
@@ -125,7 +125,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
             report_kvs[:Key] = key.to_json
             report_kvs[:Options] = options.to_json
           rescue StandardError => e
-            TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
+            TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
           end
 
           TraceView::API.trace(:mongo, report_kvs, :create_index) do
@@ -142,7 +142,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
             report_kvs = extract_trace_details(:drop_indexes)
             report_kvs[:Key] = key.nil? ? :all : key.to_json
           rescue StandardError => e
-            TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
+            TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
           end
 
           TraceView::API.trace(:mongo, report_kvs) do
@@ -181,7 +181,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
           report_kvs[:QueryOp] = op.to_s
           report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:moped][:collect_backtraces]
         rescue StandardError => e
-          TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
+          TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
         ensure
           return report_kvs
         end
@@ -193,7 +193,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
             report_kvs = extract_trace_details(:count)
             report_kvs[:Query] = selector.empty? ? :all : selector.to_json
           rescue StandardError => e
-            TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
+            TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
           end
 
           TraceView::API.trace(:mongo, report_kvs) do
@@ -209,7 +209,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
             report_kvs[:Query] = selector.empty? ? :all : selector.to_json
             report_kvs[:Order] = sort.to_s
           rescue StandardError => e
-            TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
+            TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
           end
 
           TraceView::API.trace(:mongo, report_kvs) do
@@ -224,7 +224,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
               report_kvs[:Query] = selector.empty? ? :all : selector.to_json
               report_kvs[:Limit] = limit.to_s
             rescue StandardError => e
-              TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
+              TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
             end
 
             TraceView::API.trace(:mongo, report_kvs) do
@@ -243,7 +243,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
             report_kvs[:Query] = selector.empty? ? :all : selector.to_json
             report_kvs[:Key] = key.to_s
           rescue StandardError => e
-            TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
+            TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
           end
 
           TraceView::API.trace(:mongo, report_kvs) do
@@ -258,7 +258,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
               report_kvs[:Flags] = flags.to_s if flags
               report_kvs[:Update_Document] = change.to_json
             rescue StandardError => e
-              TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
+              TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
             end
 
             TraceView::API.trace(:mongo, report_kvs) do
@@ -276,7 +276,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
             report_kvs = extract_trace_details(:update_all)
             report_kvs[:Update_Document] = change.to_json
           rescue StandardError => e
-            TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
+            TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
           end
 
           TraceView::API.trace(:mongo, report_kvs, :update_all) do
@@ -292,7 +292,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
             report_kvs[:Query] = selector.to_json
             report_kvs[:Update_Document] = change.to_json
           rescue StandardError => e
-            TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
+            TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
           end
 
           TraceView::API.trace(:mongo, report_kvs, :upsert) do
@@ -307,7 +307,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
             report_kvs = extract_trace_details(:explain)
             report_kvs[:Query] = selector.empty? ? :all : selector.to_json
           rescue StandardError => e
-            TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
+            TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
           end
 
           TraceView::API.trace(:mongo, report_kvs, :explain) do
@@ -324,7 +324,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
             report_kvs[:Change] = change.to_json
             report_kvs[:Options] = options.to_json
           rescue StandardError => e
-            TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
+            TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
           end
 
           TraceView::API.trace(:mongo, report_kvs) do
@@ -339,7 +339,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
             report_kvs = extract_trace_details(:remove)
             report_kvs[:Query] = selector.to_json
           rescue StandardError => e
-            TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
+            TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
           end
 
           TraceView::API.trace(:mongo, report_kvs) do
@@ -354,7 +354,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
             report_kvs = extract_trace_details(:remove_all)
             report_kvs[:Query] = selector.to_json
           rescue StandardError => e
-            TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
+            TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
           end
 
           TraceView::API.trace(:mongo, report_kvs) do
@@ -393,7 +393,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
           report_kvs[:QueryOp] = op.to_s
           report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:moped][:collect_backtraces]
         rescue StandardError => e
-          TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
+          TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
         ensure
           return report_kvs
         end
@@ -417,7 +417,7 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
             report_kvs = extract_trace_details(:find)
             report_kvs[:Query] = selector.empty? ? 'all' : selector.to_json
           rescue StandardError => e
-            TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
+            TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
           end
 
           TraceView::API.trace(:mongo, report_kvs) do
