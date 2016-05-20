@@ -31,8 +31,6 @@ if defined?(JRUBY_VERSION)
   ENV['JAVA_OPTS'] = "-J-javaagent:/usr/local/tracelytics/tracelyticsagent.jar"
 end
 
-TRACE_FILE = '/tmp/traceview_traces.bson'.freeze
-
 Bundler.require(:default, :test)
 
 # Configure TraceView
