@@ -34,22 +34,21 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
 
         def extract_trace_details(op)
           report_kvs = {}
-          begin
-            report_kvs[:Flavor] = TraceView::Inst::Moped::FLAVOR
-            # FIXME: We're only grabbing the first of potentially multiple servers here
-            first = session.cluster.seeds.first
-            if ::Moped::VERSION < '2.0.0'
-              report_kvs[:RemoteHost] = first
-            else
-              report_kvs[:RemoteHost] = "#{first.address.host}:#{first.address.port}"
-            end
-            report_kvs[:Database] = name
-            report_kvs[:QueryOp] = op.to_s
-            report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:moped][:collect_backtraces]
-          rescue StandardError => e
-            TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
+          report_kvs[:Flavor] = TraceView::Inst::Moped::FLAVOR
+          # FIXME: We're only grabbing the first of potentially multiple servers here
+          first = session.cluster.seeds.first
+          if ::Moped::VERSION < '2.0.0'
+            report_kvs[:RemoteHost] = first
+          else
+            report_kvs[:RemoteHost] = "#{first.address.host}:#{first.address.port}"
           end
-          report_kvs
+          report_kvs[:Database] = name
+          report_kvs[:QueryOp] = op.to_s
+          report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:moped][:collect_backtraces]
+        rescue StandardError => e
+          TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
+        ensure
+          return report_kvs
         end
 
         def command_with_traceview(command)
@@ -98,23 +97,22 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
 
         def extract_trace_details(op)
           report_kvs = {}
-          begin
-            report_kvs[:Flavor] = TraceView::Inst::Moped::FLAVOR
+          report_kvs[:Flavor] = TraceView::Inst::Moped::FLAVOR
 
-            # FIXME: We're only grabbing the first of potentially multiple servers here
-            first = database.session.cluster.seeds.first
-            if ::Moped::VERSION < '2.0.0'
-              report_kvs[:RemoteHost] = first
-            else
-              report_kvs[:RemoteHost] = "#{first.address.host}:#{first.address.port}"
-            end
-            report_kvs[:Database] = database.name
-            report_kvs[:QueryOp] = op.to_s
-            report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:moped][:collect_backtraces]
-          rescue StandardError => e
-            TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
+          # FIXME: We're only grabbing the first of potentially multiple servers here
+          first = database.session.cluster.seeds.first
+          if ::Moped::VERSION < '2.0.0'
+            report_kvs[:RemoteHost] = first
+          else
+            report_kvs[:RemoteHost] = "#{first.address.host}:#{first.address.port}"
           end
-          report_kvs
+          report_kvs[:Database] = database.name
+          report_kvs[:QueryOp] = op.to_s
+          report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:moped][:collect_backtraces]
+        rescue StandardError => e
+          TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
+        ensure
+          return report_kvs
         end
 
         def create_with_traceview(key, options = {})
@@ -170,23 +168,22 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
 
         def extract_trace_details(op)
           report_kvs = {}
-          begin
-            report_kvs[:Flavor] = TraceView::Inst::Moped::FLAVOR
-            # FIXME: We're only grabbing the first of potentially multiple servers here
-            first = collection.database.session.cluster.seeds.first
-            if ::Moped::VERSION < '2.0.0'
-              report_kvs[:RemoteHost] = first
-            else
-              report_kvs[:RemoteHost] = "#{first.address.host}:#{first.address.port}"
-            end
-            report_kvs[:Database] = collection.database.name
-            report_kvs[:Collection] = collection.name
-            report_kvs[:QueryOp] = op.to_s
-            report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:moped][:collect_backtraces]
-          rescue StandardError => e
-            TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
+          report_kvs[:Flavor] = TraceView::Inst::Moped::FLAVOR
+          # FIXME: We're only grabbing the first of potentially multiple servers here
+          first = collection.database.session.cluster.seeds.first
+          if ::Moped::VERSION < '2.0.0'
+            report_kvs[:RemoteHost] = first
+          else
+            report_kvs[:RemoteHost] = "#{first.address.host}:#{first.address.port}"
           end
-          report_kvs
+          report_kvs[:Database] = collection.database.name
+          report_kvs[:Collection] = collection.name
+          report_kvs[:QueryOp] = op.to_s
+          report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:moped][:collect_backtraces]
+        rescue StandardError => e
+          TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
+        ensure
+          return report_kvs
         end
 
         def count_with_traceview
@@ -383,23 +380,22 @@ if defined?(::Moped) && TraceView::Config[:moped][:enabled]
 
         def extract_trace_details(op)
           report_kvs = {}
-          begin
-            report_kvs[:Flavor] = TraceView::Inst::Moped::FLAVOR
-            # FIXME: We're only grabbing the first of potentially multiple servers here
-            first = database.session.cluster.seeds.first
-            if ::Moped::VERSION < '2.0.0'
-              report_kvs[:RemoteHost] = first
-            else
-              report_kvs[:RemoteHost] = "#{first.address.host}:#{first.address.port}"
-            end
-            report_kvs[:Database] = database.name
-            report_kvs[:Collection] = name
-            report_kvs[:QueryOp] = op.to_s
-            report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:moped][:collect_backtraces]
-          rescue StandardError => e
-            TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
+          report_kvs[:Flavor] = TraceView::Inst::Moped::FLAVOR
+          # FIXME: We're only grabbing the first of potentially multiple servers here
+          first = database.session.cluster.seeds.first
+          if ::Moped::VERSION < '2.0.0'
+            report_kvs[:RemoteHost] = first
+          else
+            report_kvs[:RemoteHost] = "#{first.address.host}:#{first.address.port}"
           end
-          report_kvs
+          report_kvs[:Database] = database.name
+          report_kvs[:Collection] = name
+          report_kvs[:QueryOp] = op.to_s
+          report_kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:moped][:collect_backtraces]
+        rescue StandardError => e
+          TraceView.logger.debug "[traceview/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if TraceView::Config[:verbose]
+        ensure
+          return report_kvs
         end
 
         def drop_with_traceview
