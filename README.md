@@ -301,7 +301,7 @@ That is a very quick example of a simple instrumentation implementation.  If you
 
 Some other tips and guidelines:
 
-* You can point your Gemfile directly at your cloned traceview gem source by using `gem 'traceview', :path => '/path/to/oboe-ruby'`
+* You can point your Gemfile directly at your cloned traceview gem source by using `gem 'traceview', :path => '/path/to/ruby-traceview'`
 
 * If instrumenting a library, database or service, place your new instrumentation file into the `lib/traceview/inst/` directory.  From there, the traceview gem will detect it and automatically load the instrumentation file.
 
