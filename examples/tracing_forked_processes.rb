@@ -6,16 +6,14 @@
 require 'math'
 require 'oboe'
 
-Oboe::Config[:tracing_mode] = :always
-Oboe::Config[:verbose] = true
+TraceView::Config[:tracing_mode] = :always
+TraceView::Config[:verbose] = true
 
 # The parent process/loop which collects data
-while true do
-
+Kernel.loop do
   # For each loop, we instrument the work retrieval.  These traces
   # will show up as layer 'get_the_work'.
-  Oboe::API.start_trace('get_the_work') do
-
+  TraceView::API.start_trace('get_the_work') do
     work = get_the_work
 
     # Loop through work and pass to `do_the_work` method
@@ -23,11 +21,11 @@ while true do
     work.each do |job|
       fork do
         # Since the context is copied from the parent process, we clear it
-        # and start a new trace via `Oboe::API.start_trace`.
-        Oboe::Context.clear
+        # and start a new trace via `TraceView::API.start_trace`.
+        TraceView::Context.clear
         result = nil
 
-        Oboe::API.start_trace('do_the_work', nil, :job_id => job.id) do
+        TraceView::API.start_trace('do_the_work', nil, :job_id => job.id) do
           result = do_the_work(job)
         end
 
@@ -75,11 +73,11 @@ end
 #
 # To do this:
 #   1. Don't clear the context in the child process
-#   2. Use `Oboe::API.trace` instead
+#   2. Use `TraceView::API.trace` instead
 #   3. Pass the `Async` flag to mark this child as asynchronous
 #
-while true do
-  Oboe::API.start_trace('get_the_work') do
+Kernel.loop do
+  TraceView::API.start_trace('get_the_work') do
 
     work = get_the_work
 
@@ -87,9 +85,9 @@ while true do
       fork do
         result = nil
         # 1 Don't clear context
-        # 2 Use `Oboe::API.trace` instead
+        # 2 Use `TraceView::API.trace` instead
         # 3 Pass the Async flag
-        Oboe::API.trace('do_the_work', { :job_id => job.id, 'Async' => 1 }) do
+        TraceView::API.trace('do_the_work', { :job_id => job.id, :Async => 1 }) do
           result = do_the_work(job)
         end
 
@@ -97,4 +95,5 @@ while true do
       end
     end
   end
+  sleep 5
 end

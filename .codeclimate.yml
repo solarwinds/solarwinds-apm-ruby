@@ -17,6 +17,8 @@ engines:
         enabled: false
       Similar code:
         enabled: false
+      Rubocop/Metrics/LineLength:
+        enabled: false
 ratings:
   paths:
   - "**.inc"
@@ -28,3 +30,5 @@ ratings:
   - "**.rb"
 exclude_paths:
 - test/
+- examples/
+- ext/oboe_metal/tests/

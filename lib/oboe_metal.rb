@@ -84,10 +84,10 @@ module TraceView
 
           until s.eof?
             traces << if ::BSON.respond_to? :read_bson_document
-              BSON.read_bson_document(s)
-            else
-              BSON::Document.from_bson(s)
-            end
+                        BSON.read_bson_document(s)
+                      else
+                        BSON::Document.from_bson(s)
+                      end
           end
         else
           bbb = BSON::ByteBuffer.new(contents[0])

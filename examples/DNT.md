@@ -3,7 +3,7 @@ for common static files.  Examples of such files may be images,
 javascript, pdfs and text files.
 
 This is done by using the regular expression stored in
-`Oboe::Config[:dnt_regexp]`:
+`TraceView::Config[:dnt_regexp]`:
 
     .(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|ttf|woff|svg|less)$
 
@@ -14,7 +14,7 @@ To replace the pattern in use, you can update this regular expression
 string.  Here are some examples.
 
 If you prefer that you want your javascript and CSS files instrumented,
-you can update `Oboe::Config[:dnt_regexp]` with an updated regexp
+you can update `TraceView::Config[:dnt_regexp]` with an updated regexp
 pattern (without the "js" and "css" entries):
 
     .(jpg|jpeg|gif|png|ico|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|flv|swf|ttf|woff|svg|less)$
@@ -26,7 +26,7 @@ regexp [negative
 look-behind](http://www.regular-expressions.info/lookaround.html) that
 isn't supported in Ruby 1.8):
 
-    Oboe::Config[:dnt_regexp] = "(\.js$)(?<!show.js)"
+    TraceView::Config[:dnt_regexp] = "(\.js$)(?<!show.js)"
 
 Since this pattern is used with the standard Ruby Regexp class, you can
 use any Regexp supported pattern.  See the documentation on Ruby Regexp

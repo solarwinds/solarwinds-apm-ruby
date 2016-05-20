@@ -9,23 +9,23 @@
 # in the TraceView dashboard.
 #
 # Tracing context is non-existent until established by calling
-# `Oboe::API.start_trace` or `Oboe::API.log_start`.  Those methods
+# `TraceView::API.start_trace` or `TraceView::API.log_start`.  Those methods
 # are part of the high-level and low-level API respectively.
 #
 # After a tracing context is established, that context can be
-# continued by calling `Oboe::API.trace` or `Oboe::API.log_entry`.
+# continued by calling `TraceView::API.trace` or `TraceView::API.log_entry`.
 # These methods will advance an existing context but not start
 # new one.
 #
 # For example, when a web request comes into a stack, a tracing
-# context is established using `Oboe::API.log_start` as the request
-# enters through the rack middleware via `::Oboe::Rack`.
+# context is established using `TraceView::API.log_start` as the request
+# enters through the rack middleware via `::TraceView::Rack`.
 #
-# That tracing context is then continued using `Oboe::API.trace` or
-# `Oboe::API.log_entry` for each subsequent layer such as Rails,
+# That tracing context is then continued using `TraceView::API.trace` or
+# `TraceView::API.log_entry` for each subsequent layer such as Rails,
 # ActiveRecord, Redis, Memcache, ActionView, Mongo (etc...) until
 # finally request processing is complete and the tracing context
-# is cleared (Oboe::Context.clear)
+# is cleared (TraceView::Context.clear)
 #
 
 ###############################################################
@@ -33,9 +33,9 @@
 ###############################################################
 #
 # The tracing context exists in the form of an X-Trace string and
-# can be retrieved using 'Oboe::Context.toString'
+# can be retrieved using 'TraceView::Context.toString'
 #
-# xtrace = Oboe::Context.toString
+# xtrace = TraceView::Context.toString
 #
 # => "1B4EDAB9E028CA3C81BCD57CC4644B4C4AE239C7B713F0BCB9FAD6D562"
 #
@@ -44,7 +44,7 @@
 #
 # xtrace = "1B4EDAB9E028CA3C81BCD57CC4644B4C4AE239C7B713F0BCB9FAD6D562"
 #
-# Oboe::Context.fromString(xtrace)
+# TraceView::Context.fromString(xtrace)
 #
 # With these two methods, context can be passed across threads,
 # processes (via fork) and in requests (such as external HTTP
@@ -81,25 +81,23 @@
 # Thread - with separated traces
 ###############################################################
 
-Oboe::API.log_start('parent')
+TraceView::API.log_start('parent')
 
 # Get the work to be done
 job = get_work
 
 Thread.new do
   # This is a new thread so there is no pre-existing context so
-  # we'll call `Oboe::API.log_start` to start a new trace context.
-  Oboe::API.log_start('worker_thread', { :job_id => job.id })
+  # we'll call `TraceView::API.log_start` to start a new trace context.
+  TraceView::API.log_start('worker_thread', :job_id => job.id)
 
   # Do the work
   do_the_work(job)
 
-  Oboe::API.log_end('worker_thread')
+  TraceView::API.log_end('worker_thread')
 end
 
-Oboe::API.log_end('parent')
-
-
+TraceView::API.log_end('parent')
 
 ###############################################################
 #
@@ -122,27 +120,27 @@ Oboe::API.log_end('parent')
 # trace generated in that thread to be asynchronous using
 # the `Async` flag.
 
-Oboe::API.log_start('parent')
+TraceView::API.log_start('parent')
 
 # Save the context to be imported in spawned thread
-tracing_context = Oboe::Context.toString
+tracing_context = TraceView::Context.toString
 
 # Get the work to be done
 job = get_work
 
 Thread.new do
   # Restore context
-  Oboe::Context.fromString(tracing_context)
+  TraceView::Context.fromString(tracing_context)
 
-  Oboe::API.log_entry('worker_thread')
+  TraceView::API.log_entry('worker_thread')
 
   # Do the work
   do_the_work(job)
 
-  Oboe::API.log_exit('worker_thread', { 'Async' => 1 })
+  TraceView::API.log_exit('worker_thread', :Async => 1)
 end
 
-Oboe::API.log_end('parent')
+TraceView::API.log_end('parent')
 
 ###############################################################
 #
@@ -161,8 +159,7 @@ Oboe::API.log_end('parent')
 # Process via fork - with separated traces
 ###############################################################
 
-Oboe::API.start_trace('parent_process') do
-
+TraceView::API.start_trace('parent_process') do
   # Get some work to process
   job = get_job
 
@@ -170,9 +167,9 @@ Oboe::API.start_trace('parent_process') do
   fork do
     # Since fork does a complete process copy, the tracing_context still exists
     # so we have to clear it and start again.
-    Oboe::Context.clear
+    TraceView::Context.clear
 
-    Oboe::API.start_trace('worker_process', nil, { :job_id => job.id }) do
+    TraceView::API.start_trace('worker_process', nil, :job_id => job.id) do
       do_work(job)
     end
   end
@@ -193,8 +190,7 @@ end
 # Process via fork - with linked asynchronous traces
 ###############################################################
 
-Oboe::API.start_trace('parent_process') do
-
+TraceView::API.start_trace('parent_process') do
   # Get some work to process
   job = get_job
 
@@ -204,11 +200,10 @@ Oboe::API.start_trace('parent_process') do
     # although we'll have to mark these traces as asynchronous to denote
     # that it has split off from the main program flow
 
-    Oboe::API.trace('worker_process', { 'Async' => 1 }) do
+    TraceView::API.trace('worker_process', :Async => 1) do
       do_work(job)
     end
   end
-
 end
 
 ###############################################################
