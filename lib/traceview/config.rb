@@ -30,6 +30,13 @@ module TraceView
       @@config
     end
 
+    ##
+    # initialize
+    #
+    # Initializer method to set everything up with a
+    # default configuration.
+    #
+    # rubocop:disable Metrics/AbcSize
     def self.initialize(_data = {})
       # Setup default instrumentation values
       @@instrumentation.each do |k|
@@ -144,7 +151,7 @@ module TraceView
       # Requests with positive matches (non nil) will not be traced.
       # See lib/traceview/util.rb: TraceView::Util.static_asset?
       #
-      @@config[:dnt_regexp] = "\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|ttf|woff|svg|less)$"
+      @@config[:dnt_regexp] = '\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|ttf|woff|svg|less)$'
       @@config[:dnt_opts]   = Regexp::IGNORECASE
 
       # In Rails, raised exceptions with rescue handlers via
@@ -202,6 +209,7 @@ module TraceView
 
       @@config[:verbose] = ENV.key?('TRACEVIEW_GEM_VERBOSE') ? true : false
     end
+    # rubocop:enable Metrics/AbcSize
 
     def self.update!(data)
       data.each do |key, value|
@@ -210,18 +218,25 @@ module TraceView
     end
 
     def self.merge!(data)
-      self.update!(data)
+      update!(data)
     end
 
     def self.[](key)
       if key == :resque
-        TraceView.logger.warn "[traceview/warn] :resque config is deprecated.  It is now split into :resqueclient and :resqueworker."
+        TraceView.logger.warn '[traceview/warn] :resque config is deprecated.  It is now split into :resqueclient and :resqueworker.'
         TraceView.logger.warn "[traceview/warn] Called from #{Kernel.caller[0]}"
       end
 
       @@config[key.to_sym]
     end
 
+    ##
+    # []=
+    #
+    # Config variable assignment method.  Here we validate and store the
+    # assigned value(s) and trigger any secondary action needed.
+    #
+    # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
     def self.[]=(key, value)
       @@config[key.to_sym] = value
 
@@ -271,6 +286,7 @@ module TraceView
         @@config[key.to_sym] = value.to_sym
       end
     end
+    # rubocop:enable Metrics/AbcSize, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
 
     def self.method_missing(sym, *args)
       class_var_name = "@@#{sym}"

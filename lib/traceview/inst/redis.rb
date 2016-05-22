@@ -74,108 +74,105 @@ module TraceView
           kvs = {}
           op = command.first
 
-          begin
-            kvs[:KVOp] = command[0]
-            kvs[:RemoteHost] = @options[:host]
+          kvs[:KVOp] = command[0]
+          kvs[:RemoteHost] = @options[:host]
 
-            unless NO_KEY_OPS.include?(op) || (command[1].is_a?(Array) && command[1].count > 1)
-              if command[1].is_a?(Array)
-                kvs[:KVKey] = command[1].first
-              else
-                kvs[:KVKey] = command[1]
-              end
-            end
-
-            if KV_COLLECT_MAP[op]
-              # Extract KVs from command for this op
-              KV_COLLECT_MAP[op].each { |k, v| kvs[k] = command[v] }
+          unless NO_KEY_OPS.include?(op) || (command[1].is_a?(Array) && command[1].count > 1)
+            if command[1].is_a?(Array)
+              kvs[:KVKey] = command[1].first
             else
-              # This case statement handle special cases not handled
-              # by KV_COLLECT_MAP
-              case op
-              when :set
-                if command.count > 3
-                  if command[3].is_a?(Hash)
-                    options = command[3]
-                    kvs[:ex] = options[:ex] if options.key?(:ex)
-                    kvs[:px] = options[:px] if options.key?(:px)
-                    kvs[:nx] = options[:nx] if options.key?(:nx)
-                    kvs[:xx] = options[:xx] if options.key?(:xx)
-                  else
-                    options = command[3..-1]
-                    until (opts = options.shift(2)).empty?
-                      case opts[0]
-                      when 'EX' then; kvs[:ex] = opts[1]
-                      when 'PX' then; kvs[:px] = opts[1]
-                      when 'NX' then; kvs[:nx] = opts[1]
-                      when 'XX' then; kvs[:xx] = opts[1]
-                      end
+              kvs[:KVKey] = command[1]
+            end
+          end
+
+          if KV_COLLECT_MAP[op]
+            # Extract KVs from command for this op
+            KV_COLLECT_MAP[op].each { |k, v| kvs[k] = command[v] }
+          else
+            # This case statement handle special cases not handled
+            # by KV_COLLECT_MAP
+            case op
+            when :set
+              if command.count > 3
+                if command[3].is_a?(Hash)
+                  options = command[3]
+                  kvs[:ex] = options[:ex] if options.key?(:ex)
+                  kvs[:px] = options[:px] if options.key?(:px)
+                  kvs[:nx] = options[:nx] if options.key?(:nx)
+                  kvs[:xx] = options[:xx] if options.key?(:xx)
+                else
+                  options = command[3..-1]
+                  until (opts = options.shift(2)).empty?
+                    case opts[0]
+                    when 'EX' then; kvs[:ex] = opts[1]
+                    when 'PX' then; kvs[:px] = opts[1]
+                    when 'NX' then; kvs[:nx] = opts[1]
+                    when 'XX' then; kvs[:xx] = opts[1]
                     end
                   end
                 end
+              end
 
-              when :get
+            when :get
+              kvs[:KVHit] = r.nil? ? 0 : 1
+
+            when :hdel, :hexists, :hget, :hset, :hsetnx
+              kvs[:field] = command[2] unless command[2].is_a?(Array)
+              if op == :hget
                 kvs[:KVHit] = r.nil? ? 0 : 1
+              end
 
-              when :hdel, :hexists, :hget, :hset, :hsetnx
-                kvs[:field] = command[2] unless command[2].is_a?(Array)
-                if op == :hget
-                  kvs[:KVHit] = r.nil? ? 0 : 1
-                end
+            when :eval
+              if command[1].length > 1024
+                kvs[:Script] = command[1][0..1023] + '(...snip...)'
+              else
+                kvs[:Script] = command[1]
+              end
 
-              when :eval
+            when :script
+              kvs[:subcommand] = command[1]
+              kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:redis][:collect_backtraces]
+              if command[1] == 'load'
                 if command[1].length > 1024
-                  kvs[:Script] = command[1][0..1023] + '(...snip...)'
+                  kvs[:Script] = command[2][0..1023] + '(...snip...)'
                 else
-                  kvs[:Script] = command[1]
+                  kvs[:Script] = command[2]
                 end
-
-              when :script
-                kvs[:subcommand] = command[1]
-                kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:redis][:collect_backtraces]
-                if command[1] == 'load'
-                  if command[1].length > 1024
-                    kvs[:Script] = command[2][0..1023] + '(...snip...)'
-                  else
-                    kvs[:Script] = command[2]
-                  end
-                elsif command[1] == :exists
-                  if command[2].is_a?(Array)
-                    kvs[:KVKey] = command[2].inspect
-                  else
-                    kvs[:KVKey] = command[2]
-                  end
-                end
-
-              when :mget
-                if command[1].is_a?(Array)
-                  kvs[:KVKeyCount] = command[1].count
+              elsif command[1] == :exists
+                if command[2].is_a?(Array)
+                  kvs[:KVKey] = command[2].inspect
                 else
-                  kvs[:KVKeyCount] = command.count - 1
+                  kvs[:KVKey] = command[2]
                 end
-                values = r.select { |i| i }
-                kvs[:KVHitCount] = values.count
+              end
 
-              when :hmget
-                kvs[:KVKeyCount] = command.count - 2
-                values = r.select { |i| i }
-                kvs[:KVHitCount] = values.count
+            when :mget
+              if command[1].is_a?(Array)
+                kvs[:KVKeyCount] = command[1].count
+              else
+                kvs[:KVKeyCount] = command.count - 1
+              end
+              values = r.select { |i| i }
+              kvs[:KVHitCount] = values.count
 
-              when :mset, :msetnx
-                if command[1].is_a?(Array)
-                  kvs[:KVKeyCount] = command[1].count / 2
-                else
-                  kvs[:KVKeyCount] = (command.count - 1) / 2
-                end
-              end # case op
-            end # if KV_COLLECT_MAP[op]
+            when :hmget
+              kvs[:KVKeyCount] = command.count - 2
+              values = r.select { |i| i }
+              kvs[:KVHitCount] = values.count
 
-          rescue StandardError => e
-            TraceView.logger.debug "Error collecting redis KVs: #{e.message}"
-            TraceView.logger.debug e.backtrace.join('\n')
-          end
-
-          kvs
+            when :mset, :msetnx
+              if command[1].is_a?(Array)
+                kvs[:KVKeyCount] = command[1].count / 2
+              else
+                kvs[:KVKeyCount] = (command.count - 1) / 2
+              end
+            end # case op
+          end # if KV_COLLECT_MAP[op]
+        rescue StandardError => e
+          TraceView.logger.debug "Error collecting redis KVs: #{e.message}"
+          TraceView.logger.debug e.backtrace.join('\n')
+        ensure
+          return kvs
         end
 
         # Extracts the Key/Values to report from a pipelined
@@ -186,33 +183,32 @@ module TraceView
         def extract_pipeline_details(pipeline)
           kvs = {}
 
-          begin
-            kvs[:RemoteHost] = @options[:host]
-            kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:redis][:collect_backtraces]
+          kvs[:RemoteHost] = @options[:host]
+          kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:redis][:collect_backtraces]
 
-            command_count = pipeline.commands.count
-            kvs[:KVOpCount] = command_count
+          command_count = pipeline.commands.count
+          kvs[:KVOpCount] = command_count
 
-            if pipeline.commands.first == :multi
-              kvs[:KVOp] = :multi
-            else
-              kvs[:KVOp] = :pipeline
-            end
-
-            # Report pipelined operations  if the number
-            # of ops is reasonable
-            if command_count < 12
-              ops = []
-              pipeline.commands.each do |c|
-                ops << c.first
-              end
-              kvs[:KVOps] = ops.join(', ')
-            end
-          rescue StandardError => e
-            TraceView.logger.debug "[traceview/debug] Error extracting pipelined commands: #{e.message}"
-            TraceView.logger.debug e.backtrace
+          kvs[:KVOp] = if pipeline.commands.first == :multi
+            :multi
+          else
+            :pipeline
           end
-          kvs
+
+          # Report pipelined operations  if the number
+          # of ops is reasonable
+          if command_count < 12
+            ops = []
+            pipeline.commands.each do |c|
+              ops << c.first
+            end
+            kvs[:KVOps] = ops.join(', ')
+          end
+        rescue StandardError => e
+          TraceView.logger.debug "[traceview/debug] Error extracting pipelined commands: #{e.message}"
+          TraceView.logger.debug e.backtrace
+        ensure
+          return kvs
         end
 
         #

@@ -50,7 +50,7 @@ module TraceView
         ::TraceView::Util.method_alias(klass, :execute_insert, ::Sequel::Database)
       end
 
-      def run_with_traceview(sql, opts=::Sequel::OPTS)
+      def run_with_traceview(sql, opts = ::Sequel::OPTS)
         kvs = extract_trace_details(sql, opts)
 
         TraceView::API.log_entry(:sequel, kvs)
@@ -63,7 +63,7 @@ module TraceView
         TraceView::API.log_exit(:sequel)
       end
 
-      def exec_with_traceview(method, sql, opts=::Sequel::OPTS, &block)
+      def exec_with_traceview(method, sql, opts = ::Sequel::OPTS, &block)
         kvs = extract_trace_details(sql, opts)
 
         TraceView::API.log_entry(:sequel, kvs)
@@ -76,7 +76,7 @@ module TraceView
         TraceView::API.log_exit(:sequel)
       end
 
-      def execute_ddl_with_traceview(sql, opts=::Sequel::OPTS, &block)
+      def execute_ddl_with_traceview(sql, opts = ::Sequel::OPTS, &block)
         # If we're already tracing a sequel operation, then this call likely came
         # from Sequel::Dataset.  In this case, just pass it on.
         return execute_ddl_without_traceview(sql, opts, &block) if TraceView.tracing_layer?(:sequel)
@@ -84,7 +84,7 @@ module TraceView
         exec_with_traceview(:execute_ddl_without_traceview, sql, opts, &block)
       end
 
-      def execute_dui_with_traceview(sql, opts=::Sequel::OPTS, &block)
+      def execute_dui_with_traceview(sql, opts = ::Sequel::OPTS, &block)
         # If we're already tracing a sequel operation, then this call likely came
         # from Sequel::Dataset.  In this case, just pass it on.
         return execute_dui_without_traceview(sql, opts, &block) if TraceView.tracing_layer?(:sequel)
@@ -92,7 +92,7 @@ module TraceView
         exec_with_traceview(:execute_dui_without_traceview, sql, opts, &block)
       end
 
-      def execute_insert_with_traceview(sql, opts=::Sequel::OPTS, &block)
+      def execute_insert_with_traceview(sql, opts = ::Sequel::OPTS, &block)
         # If we're already tracing a sequel operation, then this call likely came
         # from Sequel::Dataset.  In this case, just pass it on.
         return execute_insert_without_traceview(sql, opts, &block) if TraceView.tracing_layer?(:sequel)
@@ -110,7 +110,7 @@ module TraceView
         ::TraceView::Util.method_alias(klass, :execute_insert, ::Sequel::Dataset)
       end
 
-      def exec_with_traceview(method, sql, opts=::Sequel::OPTS, &block)
+      def exec_with_traceview(method, sql, opts = ::Sequel::OPTS, &block)
         kvs = extract_trace_details(sql, opts)
 
         TraceView::API.log_entry(:sequel, kvs)
@@ -123,19 +123,19 @@ module TraceView
         TraceView::API.log_exit(:sequel)
       end
 
-      def execute_with_traceview(sql, opts=::Sequel::OPTS, &block)
+      def execute_with_traceview(sql, opts = ::Sequel::OPTS, &block)
         exec_with_traceview(:execute_without_traceview, sql, opts, &block)
       end
 
-      def execute_ddl_with_traceview(sql, opts=::Sequel::OPTS, &block)
+      def execute_ddl_with_traceview(sql, opts = ::Sequel::OPTS, &block)
         exec_with_traceview(:execute_ddl_without_traceview, sql, opts, &block)
       end
 
-      def execute_dui_with_traceview(sql, opts=::Sequel::OPTS, &block)
+      def execute_dui_with_traceview(sql, opts = ::Sequel::OPTS, &block)
         exec_with_traceview(:execute_dui_without_traceview, sql, opts, &block)
       end
 
-      def execute_insert_with_traceview(sql, opts=::Sequel::OPTS, &block)
+      def execute_insert_with_traceview(sql, opts = ::Sequel::OPTS, &block)
         exec_with_traceview(:execute_insert_without_traceview, sql, opts, &block)
       end
 
@@ -144,7 +144,7 @@ module TraceView
 end # module TraceView
 
 if TraceView::Config[:sequel][:enabled]
-  if defined?(::Sequel) && ::Sequel::VERSION < "4.0.0"
+  if defined?(::Sequel) && ::Sequel::VERSION < '4.0.0'
     # For versions before 4.0.0, Sequel::OPTS wasn't defined.
     # Define it as an empty hash for backwards compatibility.
     module ::Sequel
