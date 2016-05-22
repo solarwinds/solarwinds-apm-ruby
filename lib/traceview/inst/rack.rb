@@ -5,6 +5,19 @@ require 'uri'
 require 'cgi'
 
 module TraceView
+  ##
+  # TraceView::Rack
+  #
+  # The TraceView::Rack middleware used to sample a subset of incoming
+  # requests for instrumentation and reporting.  Tracing context can
+  # be received here (via the X-Trace HTTP header) or initiated here
+  # based on configured tracing mode.
+  #
+  # After the rack layer passes on to the following layers (Rails, Sinatra,
+  # Padrino, Grape), then the instrumentation downstream will
+  # automatically detect whether this is a sampled request or not
+  # and act accordingly. (to instrument or not)
+  #
   class Rack
     attr_reader :app
 
@@ -82,7 +95,7 @@ module TraceView
       # if so and don't clear context on log_end (see traceview/api/logging.rb)
       TraceView.has_incoming_context = TraceView.tracing?
       TraceView.has_xtrace_header = xtrace_header
-      TraceView.is_continued_trace = TraceView.has_incoming_context or TraceView.has_xtrace_header
+      TraceView.is_continued_trace = TraceView.has_incoming_context || TraceView.has_xtrace_header
 
       TraceView::API.log_start(:rack, xtrace_header, report_kvs)
 
@@ -120,4 +133,3 @@ module TraceView
     end
   end
 end
-
