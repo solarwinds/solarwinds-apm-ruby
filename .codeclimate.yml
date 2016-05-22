@@ -8,6 +8,9 @@ engines:
       - javascript
       - python
       - php
+    checks:
+      Similar code:
+        enabled: false
   fixme:
     enabled: true
   rubocop:
@@ -15,7 +18,7 @@ engines:
     checks:
       Rubocop/Metrics/MethodLength:
         enabled: false
-      Similar code:
+      Rubocop/Metrics/ModuleLength:
         enabled: false
       Rubocop/Metrics/LineLength:
         enabled: false
