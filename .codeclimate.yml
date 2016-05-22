@@ -16,6 +16,8 @@ engines:
   rubocop:
     enabled: true
     checks:
+      Rubocop/Style/ConditionalAssignment:
+        enabled: false
       Rubocop/Metrics/MethodLength:
         enabled: false
       Rubocop/Metrics/ModuleLength:

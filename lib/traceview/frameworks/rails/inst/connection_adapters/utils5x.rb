@@ -17,7 +17,7 @@ module TraceView
               # Report raw SQL and any binds if they exist
               opts[:Query] = sql.to_s
               if binds && !binds.empty?
-                opts[:QueryArgs] = binds.map { |i| i.value  }
+                opts[:QueryArgs] = binds.map(&:value)
               end
             end
 
@@ -47,7 +47,7 @@ module TraceView
             TraceView.logger.debug e.backtrace.join('\n')
           end
 
-          return opts || {}
+          opts || {}
         end
 
         # We don't want to trace framework caches.  Only instrument SQL that
@@ -55,11 +55,10 @@ module TraceView
         def ignore_payload?(name)
           %w(SCHEMA EXPLAIN CACHE).include?(name.to_s) ||
             (name && name.to_sym == :skip_logging) ||
-              name == 'ActiveRecord::SchemaMigration Load'
+            name == 'ActiveRecord::SchemaMigration Load'
         end
 
         def exec_query_with_traceview(sql, name = nil, binds = [], prepare: false)
-
           if TraceView.tracing? && !ignore_payload?(name)
 
             opts = extract_trace_details(sql, name, binds)

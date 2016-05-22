@@ -8,7 +8,7 @@ module TraceView
         # The operations listed in this constant skip collecting KVKey
         NO_KEY_OPS = [:keys, :randomkey, :scan, :sdiff, :sdiffstore, :sinter,
                       :sinterstore, :smove, :sunion, :sunionstore, :zinterstore,
-                      :zunionstore, :publish, :select, :eval, :evalsha, :script]
+                      :zunionstore, :publish, :select, :eval, :evalsha, :script].freeze
 
         # Instead of a giant switch statement, we use a hash constant to map out what
         # KVs need to be collected for each of the many many Redis operations
@@ -39,7 +39,7 @@ module TraceView
           :bitop           => { :operation => 1, :destkey     => 2 },
           :hincrbyfloat    => { :field     => 2, :increment   => 3 },
           :zremrangebyrank => { :start     => 2, :stop        => 3 }
-        }
+        }.freeze
 
         # The following operations don't require any special handling. For these,
         # we only collect KVKey and KVOp
@@ -266,7 +266,6 @@ module TraceView
             call_pipeline_without_traceview(pipeline)
           end
         end
-
       end
     end
   end
@@ -278,4 +277,3 @@ if TraceView::Config[:redis][:enabled]
     ::TraceView::Util.send_include(::Redis::Client, ::TraceView::Inst::Redis::Client)
   end
 end
-
