@@ -8,7 +8,7 @@ It has the ability to report performance metrics on an array of libraries, datab
 
 It requires a [TraceView](http://www.appneta.com/products/traceview/) account to view metrics.  Get yours, [it's free](http://www.appneta.com/products/traceview-free-account/).
 
-[![Gem Version](https://badge.fury.io/rb/traceview.png)](http://badge.fury.io/rb/traceview)
+[![Gem Version](https://badge.fury.io/rb/traceview.png)](https://badge.fury.io/rb/traceview)
 [![Build Status](https://travis-ci.org/appneta/ruby-traceview.png?branch=master)](https://travis-ci.org/appneta/ruby-traceview)
 [![Code Climate](https://codeclimate.com/github/appneta/ruby-traceview.png)](https://codeclimate.com/github/appneta/ruby-traceview)
 
