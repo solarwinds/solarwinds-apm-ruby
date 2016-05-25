@@ -148,11 +148,6 @@ module TraceView
         # Return false if no-op mode
         return false unless TraceView.loaded
 
-        # Return false if never or through mode without AVW flag
-        return false if TraceView.never? || (TraceView.through? && !opts.key?('X-TV-Meta'))
-
-        return true if ENV.key?('TRACEVIEW_GEM_TEST') && !opts.key?('X-TV-Meta')
-
         # Validation to make Joboe happy.  Assure that we have the KVs and that they
         # are not empty strings.
         opts[:layer]  = nil      if opts[:layer].is_a?(String)      && opts[:layer].empty?
@@ -163,7 +158,7 @@ module TraceView
         opts[:xtrace]     ||= nil
         opts['X-TV-Meta'] ||= nil
 
-        sr_cfg = Java::ComTracelyticsJoboe::LayerUtil.shouldTraceRequest( opts[:layer], { 'X-Trace' => opts[:xtrace], 'X-TV-Meta' => opts['X-TV-Meta'] })
+        sr_cfg = Java::ComTracelyticsJoboe::LayerUtil.shouldTraceRequest(opts[:layer], { 'X-Trace' => opts[:xtrace], 'X-TV-Meta' => opts['X-TV-Meta'] })
 
         # Store the returned SampleRateConfig into TraceView::Config
         if sr_cfg
