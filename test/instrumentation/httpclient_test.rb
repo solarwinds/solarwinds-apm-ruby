@@ -304,14 +304,8 @@ unless defined?(JRUBY_VERSION)
     def test_without_tracing
       clear_all_traces
 
-      TraceView::Config[:tracing_mode] = :never
-
-      response = nil
       clnt = HTTPClient.new
-      response = clnt.get('http://127.0.0.1:8101/', :query => { :keyword => 'ruby', :lang => 'en' })
-
-      xtrace = response.headers['X-Trace']
-      assert xtrace == nil
+      clnt.get('http://127.0.0.1:8101/', :query => { :keyword => 'ruby', :lang => 'en' })
     end
   end
 end
