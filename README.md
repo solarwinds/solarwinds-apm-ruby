@@ -8,9 +8,9 @@ It has the ability to report performance metrics on an array of libraries, datab
 
 It requires a [TraceView](http://www.appneta.com/products/traceview/) account to view metrics.  Get yours, [it's free](http://www.appneta.com/products/traceview-free-account/).
 
-[![Gem Version](https://badge.fury.io/rb/traceview.png)](http://badge.fury.io/rb/traceview)
+[![Gem Version](https://badge.fury.io/rb/traceview.png)](https://badge.fury.io/rb/traceview)
 [![Build Status](https://travis-ci.org/appneta/ruby-traceview.png?branch=master)](https://travis-ci.org/appneta/ruby-traceview)
-[![Code Climate](https://codeclimate.com/github/appneta/oboe-ruby.png)](https://codeclimate.com/github/appneta/oboe-ruby)
+[![Code Climate](https://codeclimate.com/github/appneta/ruby-traceview.png)](https://codeclimate.com/github/appneta/ruby-traceview)
 
 _Note: The repository name has been changed to ruby-traceview.  Please update your github remotes with `git remote set-url origin git@github.com:appneta/ruby-traceview.git`._
 
@@ -301,7 +301,7 @@ That is a very quick example of a simple instrumentation implementation.  If you
 
 Some other tips and guidelines:
 
-* You can point your Gemfile directly at your cloned traceview gem source by using `gem 'traceview', :path => '/path/to/oboe-ruby'`
+* You can point your Gemfile directly at your cloned traceview gem source by using `gem 'traceview', :path => '/path/to/ruby-traceview'`
 
 * If instrumenting a library, database or service, place your new instrumentation file into the `lib/traceview/inst/` directory.  From there, the traceview gem will detect it and automatically load the instrumentation file.
 

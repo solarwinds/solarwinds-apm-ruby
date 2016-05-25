@@ -146,7 +146,7 @@ module TraceView
     def sample?(opts = {})
       begin
         # Return false if no-op mode
-        return false if !TraceView.loaded
+        return false unless TraceView.loaded
 
         # Return false if never or through mode without AVW flag
         return false if TraceView.never? || (TraceView.through? && !opts.key?('X-TV-Meta'))

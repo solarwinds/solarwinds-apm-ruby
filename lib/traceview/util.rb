@@ -134,10 +134,9 @@ module TraceView
           o.to_s.upcase
         else
           TraceView.logger.debug "[traceview/debug] TraceView::Util.upcase: could not convert #{o.class}"
-          "UNKNOWN"
+          'UNKNOWN'
         end
       end
-
 
       ##
       # to_query
@@ -145,12 +144,12 @@ module TraceView
       # Used to convert a hash into a URL # query.
       #
       def to_query(h)
-        return "" unless h.is_a?(Hash)
+        return '' unless h.is_a?(Hash)
 
         result = []
 
         h.each { |k, v| result.push(k.to_s + '=' + v.to_s) }
-        return result.sort.join('&')
+        result.sort.join('&')
       end
 
       ##
@@ -179,6 +178,7 @@ module TraceView
       #
       # This legacy version of build_init_report is used for apps without Bundler.
       #
+      # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
       def legacy_build_init_report
         platform_info = {}
 
@@ -241,6 +241,7 @@ module TraceView
         end
         platform_info
       end
+      # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
 
       ##
       #  build_init_report
@@ -249,6 +250,7 @@ module TraceView
       # running environment.  This is used on stack boot in __Init reporting
       # and for TraceView.support_report.
       #
+      # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
       def build_init_report
         platform_info = { '__Init' => 1 }
 
@@ -301,6 +303,7 @@ module TraceView
         end
         platform_info
       end
+      # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
     end
   end
 end

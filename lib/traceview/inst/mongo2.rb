@@ -7,15 +7,14 @@ if RUBY_VERSION >= '1.9' && TraceView::Config[:mongo][:enabled]
   if defined?(::Mongo) && (Gem.loaded_specs['mongo'].version.to_s >= '2.0.0')
     ::TraceView.logger.info '[traceview/loading] Instrumenting mongo' if TraceView::Config[:verbose]
 
-
     # Collection Related Operations
-    COLL_OTHER_OPS = [:create, :drop, :insert_one, :insert_many, :bulk_write, :map_reduce]
+    COLL_OTHER_OPS = [:create, :drop, :insert_one, :insert_many, :bulk_write, :map_reduce].freeze
 
     # Mongo 2.2 only ops
     if Mongo::VERSION >= '2.1'
-      COLL_QUERY_OPS = [ :find, :find_one_and_delete, :find_one_and_update, :find_one_and_replace, :update_one, :update_many, :delete_one, :delete_many, :replace_one ]
+      COLL_QUERY_OPS = [:find, :find_one_and_delete, :find_one_and_update, :find_one_and_replace, :update_one, :update_many, :delete_one, :delete_many, :replace_one].freeze
     else
-      COLL_QUERY_OPS = [ :find, :update_many, :delete_one ]
+      COLL_QUERY_OPS = [:find, :update_many, :delete_one].freeze
     end
 
     COLL_OPS = COLL_QUERY_OPS + COLL_OTHER_OPS
@@ -92,9 +91,9 @@ if RUBY_VERSION >= '1.9' && TraceView::Config[:mongo][:enabled]
     #
 
     # Collection View Related Operations
-    VIEW_QUERY_OPS = [ :delete_one, :delete_many, :count, :distinct, :find_one_and_delete, :find_one_and_update,
-                       :replace_one, :update_one, :update_many ]
-    VIEW_OTHER_OPS = [ :aggregate, :map_reduce ]
+    VIEW_QUERY_OPS = [:delete_one, :delete_many, :count, :distinct, :find_one_and_delete, :find_one_and_update,
+                      :replace_one, :update_one, :update_many].freeze
+    VIEW_OTHER_OPS = [:aggregate, :map_reduce ].freeze
     VIEW_OPS = VIEW_QUERY_OPS + VIEW_OTHER_OPS
 
     module Mongo
@@ -170,7 +169,7 @@ if RUBY_VERSION >= '1.9' && TraceView::Config[:mongo][:enabled]
     #
 
     # Collection Index View Related Operations
-    INDEX_OPS = [ :create_one, :create_many, :drop_one, :drop_all ]
+    INDEX_OPS = [:create_one, :create_many, :drop_one, :drop_all].freeze
 
     module Mongo
       module Index

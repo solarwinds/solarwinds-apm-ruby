@@ -9,9 +9,9 @@ port        ENV['PORT']     || 3000
 environment ENV['RACK_ENV'] || 'development'
 
 on_worker_boot do
-  ::Oboe.reconnect! if defined?(::Oboe)
+  ::TraceView.reconnect! if defined?(::TraceView)
 end
 
 on_worker_shutdown do
-  ::Oboe.disconnect! if defined?(::Oboe)
+  ::TraceView.disconnect! if defined?(::TraceView)
 end

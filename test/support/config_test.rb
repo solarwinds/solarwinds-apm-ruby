@@ -96,7 +96,7 @@ describe "TraceView::Config" do
 
     TraceView::Config[:blacklist].is_a?(Array).must_equal true
 
-    TraceView::Config[:dnt_regexp].must_equal "\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|ttf|woff|svg|less)$"
+    TraceView::Config[:dnt_regexp].must_equal '\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|ttf|woff|svg|less)$'
     TraceView::Config[:dnt_opts].must_equal Regexp::IGNORECASE
   end
 

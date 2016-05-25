@@ -50,7 +50,7 @@ module TraceView
         def ignore_payload?(name)
           %w(SCHEMA EXPLAIN CACHE).include?(name.to_s) ||
             (name && name.to_sym == :skip_logging) ||
-              name == 'ActiveRecord::SchemaMigration Load'
+            name == 'ActiveRecord::SchemaMigration Load'
         end
 
         # def cfg
@@ -107,7 +107,7 @@ module TraceView
 
         def begin_db_transaction_with_traceview
           if TraceView.tracing?
-            TraceView::API.trace('activerecord', { :Query => 'BEGIN' }) do
+            TraceView::API.trace('activerecord', :Query => 'BEGIN') do
               begin_db_transaction_without_traceview
             end
           else

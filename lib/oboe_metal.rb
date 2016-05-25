@@ -12,7 +12,6 @@ module TraceView
 
   class Reporter
     class << self
-
       ##
       # start
       #
@@ -25,7 +24,7 @@ module TraceView
           Oboe_metal::Context.init
 
           if ENV.key?('TRACEVIEW_GEM_TEST')
-            TraceView.reporter = TraceView::FileReporter.new('/tmp/trace_output.bson')
+            TraceView.reporter = TraceView::FileReporter.new(TRACE_FILE)
           else
             TraceView.reporter = TraceView::UdpReporter.new(TraceView::Config[:reporter_host], TraceView::Config[:reporter_port])
           end
@@ -58,7 +57,7 @@ module TraceView
       # Truncates the trace output file to zero
       #
       def clear_all_traces
-        File.truncate($trace_file, 0)
+        File.truncate(TRACE_FILE, 0)
       end
 
       ##
@@ -67,7 +66,7 @@ module TraceView
       # Retrieves all traces written to the trace file
       #
       def get_all_traces
-        io = File.open($trace_file, 'r')
+        io = File.open(TRACE_FILE, 'r')
         contents = io.readlines(nil)
 
         return contents if contents.empty?
@@ -84,11 +83,11 @@ module TraceView
           s = StringIO.new(contents[0])
 
           until s.eof?
-            if ::BSON.respond_to? :read_bson_document
-              traces << BSON.read_bson_document(s)
-            else
-              traces << BSON::Document.from_bson(s)
-            end
+            traces << if ::BSON.respond_to? :read_bson_document
+                        BSON.read_bson_document(s)
+                      else
+                        BSON::Document.from_bson(s)
+                      end
           end
         else
           bbb = BSON::ByteBuffer.new(contents[0])
@@ -110,40 +109,38 @@ module TraceView
 
   class << self
     def sample?(opts = {})
-      begin
-        # Return false if no-op mode
-        return false if !TraceView.loaded
+      # Return false if no-op mode
+      return false unless TraceView.loaded
 
-        # Assure defaults since SWIG enforces Strings
-        layer   = opts[:layer]      ? opts[:layer].to_s.strip.freeze : TV_STR_BLANK
-        xtrace  = opts[:xtrace]     ? opts[:xtrace].to_s.strip       : TV_STR_BLANK
-        tv_meta = opts['X-TV-Meta'] ? opts['X-TV-Meta'].to_s.strip   : TV_STR_BLANK
+      # Assure defaults since SWIG enforces Strings
+      layer   = opts[:layer]      ? opts[:layer].to_s.strip.freeze : TV_STR_BLANK
+      xtrace  = opts[:xtrace]     ? opts[:xtrace].to_s.strip       : TV_STR_BLANK
+      tv_meta = opts['X-TV-Meta'] ? opts['X-TV-Meta'].to_s.strip   : TV_STR_BLANK
 
-        rv = TraceView::Context.sampleRequest(layer, xtrace, tv_meta)
+      rv = TraceView::Context.sampleRequest(layer, xtrace, tv_meta)
 
-        if rv == 0
-          if ENV.key?('TRACEVIEW_GEM_TEST')
-            # When in test, always trace and don't clear
-            # the stored sample rate/source
-            TraceView.sample_rate ||= -1
-            TraceView.sample_source ||= -1
-            true
-          else
-            TraceView.sample_rate = -1
-            TraceView.sample_source = -1
-            false
-          end
-        else
-          # liboboe version > 1.3.1 returning a bit masked integer with SampleRate and
-          # source embedded
-          TraceView.sample_rate = (rv & SAMPLE_RATE_MASK)
-          TraceView.sample_source = (rv & SAMPLE_SOURCE_MASK) >> 24
+      if rv == 0
+        if ENV.key?('TRACEVIEW_GEM_TEST')
+          # When in test, always trace and don't clear
+          # the stored sample rate/source
+          TraceView.sample_rate ||= -1
+          TraceView.sample_source ||= -1
           true
+        else
+          TraceView.sample_rate = -1
+          TraceView.sample_source = -1
+          false
         end
-      rescue StandardError => e
-        TraceView.logger.debug "[oboe/error] sample? error: #{e.inspect}"
-        false
+      else
+        # liboboe version > 1.3.1 returning a bit masked integer with SampleRate and
+        # source embedded
+        TraceView.sample_rate = (rv & SAMPLE_RATE_MASK)
+        TraceView.sample_source = (rv & SAMPLE_SOURCE_MASK) >> 24
+        true
       end
+    rescue StandardError => e
+      TraceView.logger.debug "[oboe/error] sample? error: #{e.inspect}"
+      false
     end
 
     def set_tracing_mode(mode)

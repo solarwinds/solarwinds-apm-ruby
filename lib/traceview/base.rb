@@ -26,6 +26,9 @@ TV_STR_BLANK = ''.freeze
 TV_STR_LAYER = 'Layer'.freeze
 TV_STR_LABEL = 'Label'.freeze
 
+# Used in tests to store local trace data
+TRACE_FILE = '/tmp/traceview_traces.bson'.freeze
+
 ##
 # This module is the base module for the various implementations of TraceView reporting.
 # Current variations as of 2014-09-10 are a c-extension, JRuby (using TraceView Java

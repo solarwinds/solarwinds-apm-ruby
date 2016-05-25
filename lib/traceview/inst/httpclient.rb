@@ -39,7 +39,7 @@ module TraceView
 
       def do_request_with_traceview(method, uri, query, body, header, &block)
         # If we're not tracing, just do a fast return.
-        if !TraceView.tracing?
+        unless TraceView.tracing?
           return do_request_without_traceview(method, uri, query, body, header, &block)
         end
 
@@ -55,11 +55,11 @@ module TraceView
           TraceView::API.log_entry(:httpclient, kvs)
           kvs.clear
 
-          req_context = TraceView::Context.toString()
+          req_context = TraceView::Context.toString
 
           # Be aware of various ways to call/use httpclient
           if header.is_a?(Array)
-            header.push ["X-Trace", req_context]
+            header.push ['X-Trace', req_context]
           elsif header.is_a?(Hash)
             header['X-Trace'] = req_context unless blacklisted
           end
@@ -71,8 +71,8 @@ module TraceView
           kvs[:HTTPStatus] = response.status_code
 
           # If we get a redirect, report the location header
-          if ((300..308).to_a.include? response.status.to_i) && response.headers.key?("Location")
-            kvs[:Location] = response.headers["Location"]
+          if ((300..308).to_a.include? response.status.to_i) && response.headers.key?('Location')
+            kvs[:Location] = response.headers['Location']
           end
 
           if response_context && !blacklisted
@@ -95,7 +95,7 @@ module TraceView
           # we stowaway the context in the request headers to be picked up
           # (and removed from req headers) in do_get_stream.
           if header.is_a?(Array)
-            header.push ["traceview.context", TraceView::Context.toString]
+            header.push ['traceview.context', TraceView::Context.toString]
           elsif header.is_a?(Hash)
             header['traceview.context'] = TraceView::Context.toString
           end
@@ -105,13 +105,13 @@ module TraceView
       end
 
       def do_get_stream_with_traceview(req, proxy, conn)
-        unless req.headers.key?("traceview.context")
+        unless req.headers.key?('traceview.context')
           return do_get_stream_without_traceview(req, proxy, conn)
         end
 
         # Pickup context and delete the headers stowaway
-        TraceView::Context.fromString req.headers["traceview.context"]
-        req.header.delete "traceview.context"
+        TraceView::Context.fromString req.headers['traceview.context']
+        req.header.delete 'traceview.context'
 
         begin
           response = nil
@@ -129,7 +129,7 @@ module TraceView
           TraceView::API.log_entry(:httpclient, kvs)
           kvs.clear
 
-          req_context = TraceView::Context.toString()
+          req_context = TraceView::Context.toString
           req.header.add('X-Trace', req_context)
 
           # The core httpclient call
@@ -146,8 +146,8 @@ module TraceView
           kvs[:HTTPStatus] = response.status_code
 
           # If we get a redirect, report the location header
-          if ((300..308).to_a.include? response.status.to_i) && response.headers.key?("Location")
-            kvs[:Location] = response.headers["Location"]
+          if ((300..308).to_a.include? response.status.to_i) && response.headers.key?('Location')
+            kvs[:Location] = response.headers['Location']
           end
 
           if response_context && !blacklisted

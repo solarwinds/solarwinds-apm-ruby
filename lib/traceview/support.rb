@@ -15,17 +15,18 @@ module TraceView
   #
   # Utility method to translate value/nil to "yes"/"no" strings
   def self.yesno(x)
-    x ? "yes" : "no"
+    x ? 'yes' : 'no'
   end
 
+  # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
   def self.support_report
     @logger_level = TraceView.logger.level
     TraceView.logger.level = ::Logger::DEBUG
 
-    TraceView.logger.warn "********************************************************"
-    TraceView.logger.warn "* BEGIN TraceView Support Report"
-    TraceView.logger.warn "*   Please email the output of this report to traceviewsupport@appneta.com"
-    TraceView.logger.warn "********************************************************"
+    TraceView.logger.warn '********************************************************'
+    TraceView.logger.warn '* BEGIN TraceView Support Report'
+    TraceView.logger.warn '*   Please email the output of this report to traceviewsupport@appneta.com'
+    TraceView.logger.warn '********************************************************'
     TraceView.logger.warn "Ruby: #{RUBY_DESCRIPTION}"
     TraceView.logger.warn "$0: #{$0}"
     TraceView.logger.warn "$1: #{$1}" unless $1.nil?
@@ -49,9 +50,9 @@ module TraceView
     TraceView.logger.warn "TraceView::Ruby defined?: #{yesno(defined?(TraceView::Ruby))}"
     TraceView.logger.warn "TraceView.reporter: #{TraceView.reporter}"
 
-    TraceView.logger.warn "********************************************************"
-    TraceView.logger.warn "* Frameworks"
-    TraceView.logger.warn "********************************************************"
+    TraceView.logger.warn '********************************************************'
+    TraceView.logger.warn '* Frameworks'
+    TraceView.logger.warn '********************************************************'
 
     using_rails = defined?(::Rails)
     TraceView.logger.warn "Using Rails?: #{yesno(using_rails)}"
@@ -69,43 +70,43 @@ module TraceView
     using_grape = defined?(::Grape)
     TraceView.logger.warn "Using Grape?: #{yesno(using_grape)}"
 
-    TraceView.logger.warn "********************************************************"
-    TraceView.logger.warn "* ActiveRecord Adapter"
-    TraceView.logger.warn "********************************************************"
+    TraceView.logger.warn '********************************************************'
+    TraceView.logger.warn '* ActiveRecord Adapter'
+    TraceView.logger.warn '********************************************************'
     if defined?(::ActiveRecord)
       if defined?(::ActiveRecord::Base.connection.adapter_name)
         TraceView.logger.warn "ActiveRecord adapter: #{::ActiveRecord::Base.connection.adapter_name}"
       end
     else
-      TraceView.logger.warn "No ActiveRecord"
+      TraceView.logger.warn 'No ActiveRecord'
     end
 
-    TraceView.logger.warn "********************************************************"
-    TraceView.logger.warn "* TraceView Libraries"
-    TraceView.logger.warn "********************************************************"
+    TraceView.logger.warn '********************************************************'
+    TraceView.logger.warn '* TraceView Libraries'
+    TraceView.logger.warn '********************************************************'
     files = []
     ['/usr/lib/liboboe*', '/usr/lib64/liboboe*'].each do |d|
       files = Dir.glob(d)
       break if !files.empty?
     end
     if files.empty?
-      TraceView.logger.warn "Error: No liboboe libs!"
+      TraceView.logger.warn 'Error: No liboboe libs!'
     else
       files.each { |f|
         TraceView.logger.warn f
       }
     end
 
-    TraceView.logger.warn "********************************************************"
-    TraceView.logger.warn "* TraceView::Config Values"
-    TraceView.logger.warn "********************************************************"
+    TraceView.logger.warn '********************************************************'
+    TraceView.logger.warn '* TraceView::Config Values'
+    TraceView.logger.warn '********************************************************'
     TraceView::Config.show.each { |k,v|
       TraceView.logger.warn "#{k}: #{v}"
     }
 
-    TraceView.logger.warn "********************************************************"
-    TraceView.logger.warn "* OS, Platform + Env"
-    TraceView.logger.warn "********************************************************"
+    TraceView.logger.warn '********************************************************'
+    TraceView.logger.warn '* OS, Platform + Env'
+    TraceView.logger.warn '********************************************************'
     TraceView.logger.warn "host_os: " + RbConfig::CONFIG['host_os']
     TraceView.logger.warn "sitearch: " + RbConfig::CONFIG['sitearch']
     TraceView.logger.warn "arch: " + RbConfig::CONFIG['arch']
@@ -113,23 +114,24 @@ module TraceView
     TraceView.logger.warn "RACK_ENV: #{ENV['RACK_ENV']}"
     TraceView.logger.warn "RAILS_ENV: #{ENV['RAILS_ENV']}" if using_rails
 
-    TraceView.logger.warn "********************************************************"
-    TraceView.logger.warn "* Raw __Init KVs"
-    TraceView.logger.warn "********************************************************"
+    TraceView.logger.warn '********************************************************'
+    TraceView.logger.warn '* Raw __Init KVs'
+    TraceView.logger.warn '********************************************************'
     platform_info = TraceView::Util.build_init_report
     platform_info.each { |k,v|
       TraceView.logger.warn "#{k}: #{v}"
     }
 
-    TraceView.logger.warn "********************************************************"
-    TraceView.logger.warn "* END TraceView Support Report"
-    TraceView.logger.warn "*   Support Email: traceviewsupport@appneta.com"
-    TraceView.logger.warn "*   Support Portal: https://support.tv.appneta.com"
-    TraceView.logger.warn "*   Freenode IRC: #appneta"
-    TraceView.logger.warn "*   Github: https://github.com/appneta/oboe-ruby"
-    TraceView.logger.warn "********************************************************"
+    TraceView.logger.warn '********************************************************'
+    TraceView.logger.warn '* END TraceView Support Report'
+    TraceView.logger.warn '*   Support Email: traceviewsupport@appneta.com'
+    TraceView.logger.warn '*   Support Portal: https://tickets.appneta.com'
+    TraceView.logger.warn '*   Freenode IRC: #appneta'
+    TraceView.logger.warn '*   Github: https://github.com/appneta/ruby-traceview'
+    TraceView.logger.warn '********************************************************'
 
     TraceView.logger.level = @logger_level
     nil
   end
+  # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
 end
