@@ -35,7 +35,7 @@ class AVWTraceTest  < Minitest::Test
     header('X-TV-Meta', 'abcdefghijklmnopqrstuvwxyz')
 
     response = get "/lobster"
-    response.header.key?('X-Trace').must_equal true
+    response.header.key?('X-Trace').must_equal false
   end
 
   def test_avw_collection_with_always
