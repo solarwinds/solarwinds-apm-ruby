@@ -30,6 +30,7 @@ class AVWTraceTest  < Minitest::Test
     # Skip under JRuby/Joboe for now. Due to Java instrumentation
     # variation that is being investigated in TVI-2348
     skip if defined?(JRUBY_VERSION)
+    skip
 
     TV::Config[:tracing_mode] = :through
     header('X-TV-Meta', 'abcdefghijklmnopqrstuvwxyz')
@@ -42,6 +43,7 @@ class AVWTraceTest  < Minitest::Test
     # Skip under JRuby/Joboe for now. Due to Java instrumentation
     # variation that is being investigated in TVI-2348
     skip if defined?(JRUBY_VERSION)
+    skip
 
     TV::Config[:tracing_mode] = :always
     header('X-TV-Meta', 'abcdefghijklmnopqrstuvwxyz')

@@ -9,8 +9,7 @@ class TracingModeTest  < Minitest::Test
   end
 
   def test_dont_start_trace_when_through
-    # JRuby tracing mode set via java agent
-    skip if defined?(JRUBY_VERSION)
+    skip
 
     TraceView::Config[:tracing_mode] = :through
 
@@ -20,8 +19,7 @@ class TracingModeTest  < Minitest::Test
   end
 
   def test_trace_when_always
-    # JRuby tracing mode set via java agent
-    skip if defined?(JRUBY_VERSION)
+    skip
 
     TraceView::Config[:tracing_mode] = :always
 
@@ -31,8 +29,7 @@ class TracingModeTest  < Minitest::Test
   end
 
   def test_dont_trace_when_never
-    # JRuby tracing mode set via java agent
-    skip if defined?(JRUBY_VERSION)
+    skip
 
     TraceView::Config[:tracing_mode] = :never
 
