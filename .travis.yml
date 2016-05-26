@@ -70,7 +70,7 @@ before_script:
   - mysql -e 'create database travis_ci_test;'
   - sleep 10
 
-script: "TRACEVIEW_DEBUG_LEVEL=6 bundle exec rake test"
+script: "bundle exec rake test"
 
 services:
   - mongodb
