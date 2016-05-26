@@ -122,6 +122,7 @@ module TraceView
       if rv == 0
         TraceView.sample_rate = -1
         TraceView.sample_source = -1
+        TV.logger.warn "LIBOBOE says don't trace! for layer: #{layer}, xtrace: #{xtrace}, tv_meta: #{tv_meta}"
         false
       else
         # liboboe version > 1.3.1 returning a bit masked integer with SampleRate and
