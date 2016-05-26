@@ -120,9 +120,17 @@ module TraceView
       rv = TraceView::Context.sampleRequest(layer, xtrace, tv_meta)
 
       if rv == 0
-        TraceView.sample_rate = -1
-        TraceView.sample_source = -1
-        false
+        if ENV.key?('TRACEVIEW_GEM_TEST')
+          # When in test, always trace and don't clear
+          # the stored sample rate/source
+          TraceView.sample_rate ||= -1
+          TraceView.sample_source ||= -1
+          true
+        else
+          TraceView.sample_rate = -1
+          TraceView.sample_source = -1
+          false
+        end
       else
         # liboboe version > 1.3.1 returning a bit masked integer with SampleRate and
         # source embedded
