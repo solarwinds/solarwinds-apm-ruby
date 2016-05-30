@@ -148,6 +148,8 @@ module TraceView
         # Return false if no-op mode
         return false unless TraceView.loaded
 
+        return true if ENV.key?('TRACEVIEW_GEM_TEST') && !opts.key?('X-TV-Meta')
+
         # Validation to make Joboe happy.  Assure that we have the KVs and that they
         # are not empty strings.
         opts[:layer]  = nil      if opts[:layer].is_a?(String)      && opts[:layer].empty?
