@@ -68,6 +68,38 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
       ::Cassandra.method_defined?("exists_with_traceview?").must_equal true
     end
 
+    it 'shouldn\'t break when NOT tracing' do
+      begin
+        user = {'screen_name' => 'larry', "blah" => "ok"}
+        @client.insert(:Users, '5', user, { :ttl => 600, :consistency => 1})
+        @client.remove(:Users, '5', 'blah')
+        @client.count_columns(:Statuses, '12', :count => 50)
+        @client.get_columns(:Statuses, '12', ['body'])
+        @client.multi_get_columns(:Users, ['12', '5'], ['body'])
+        @client.get(:Statuses, '12', :reversed => true)
+        @client.get_range_keys(:Statuses, :key_count => 4)
+        @client.create_index(@ks_name, 'Statuses', 'x', 'LongType')
+        expressions   =  [
+                           { :column_name => 'x',
+                             :value => [0,20].pack("NN"),
+                             :comparison => "=="},
+                           { :column_name => 'non_indexed',
+                             :value => [5].pack("N*"),
+                             :comparison => ">"} ]
+        @client.get_indexed_slices(:Statuses, expressions).length
+        @client.exists?(:Statuses, '12')
+        @client.exists?(:Statuses, '12', 'body')
+        @client.drop_index(@ks_name, 'Statuses', 'column_name')
+        @client.drop_keyspace(@ks_name)
+      rescue => e
+        # My crappy way to detect and fail if an exception
+        # was raised.  I swear there was a Minitest assertion for
+        # this but can't find it.
+        e.must_equal nil, "broken when NOT tracing"
+        raise
+      end
+    end
+
     it 'should trace insert' do
       TraceView::API.start_trace('cassandra_test', '', {}) do
         user = {'screen_name' => 'larry', "blah" => "ok"}

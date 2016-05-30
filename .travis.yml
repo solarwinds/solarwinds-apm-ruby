@@ -6,10 +6,10 @@ cache:
   - vendor/bundle
 
 rvm:
-  - 2.2.4
+  - 2.3.1
   - 1.9.3
   - 1.8.7
-  - jruby-9.0.4.0
+  - jruby-9.0.5.0
 
 gemfile:
   - gemfiles/libraries.gemfile
@@ -35,11 +35,11 @@ matrix:
     - rvm: 1.8.7
       gemfile: gemfiles/delayed_job.gemfile
 
-    - rvm: jruby-9.0.4.0
+    - rvm: jruby-9.0.5.0
       gemfile: gemfiles/delayed_job.gemfile
 
     # Skip testing on JRuby until activerecord-jdbc supports Rails 5.0
-    - rvm: jruby-9.0.4.0
+    - rvm: jruby-9.0.5.0
       gemfile: gemfiles/rails50.gemfile
 
     # Other frameworks tested on Ruby 1.9.3 or higher
@@ -63,6 +63,7 @@ install:
   - sudo apt-get install -y tracelytics-java-agent
 
 before_script:
+  - sudo cp -f ./test/settings /var/lib/tracelyzer/
   - bundle install --jobs=3 --retry=3 --without development
   - bundle exec rake compile
   - psql -c 'create database travis_ci_test;' -U postgres

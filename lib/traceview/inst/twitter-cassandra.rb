@@ -54,9 +54,10 @@ module TraceView
       end
 
       def remove_with_traceview(column_family, key, *columns_and_options)
+        args = [column_family, key] + columns_and_options
+
         return send :remove_without_traceview, *args unless TraceView.tracing?
 
-        args = [column_family, key] + columns_and_options
         report_kvs = extract_trace_details(:remove, column_family, key, columns_and_options)
 
         TraceView::API.trace(:cassandra, report_kvs) do
@@ -65,9 +66,10 @@ module TraceView
       end
 
       def count_columns_with_traceview(column_family, key, *columns_and_options)
+        args = [column_family, key] + columns_and_options
+
         return send :count_columns_without_traceview, *args unless TraceView.tracing?
 
-        args = [column_family, key] + columns_and_options
         report_kvs = extract_trace_details(:count_columns, column_family, key, columns_and_options)
 
         TraceView::API.trace(:cassandra, report_kvs) do
@@ -90,9 +92,10 @@ module TraceView
       end
 
       def multi_get_columns_with_traceview(column_family, key, *columns_and_options)
+        args = [column_family, key] + columns_and_options
+
         return send :multi_get_columns_without_traceview, *args unless TraceView.tracing?
 
-        args = [column_family, key] + columns_and_options
         report_kvs = extract_trace_details(:multi_get_columns, column_family, key, columns_and_options)
 
         TraceView::API.trace(:cassandra, report_kvs, :multi_get_columns) do
@@ -101,9 +104,10 @@ module TraceView
       end
 
       def get_with_traceview(column_family, key, *columns_and_options)
+        args = [column_family, key] + columns_and_options
+
         return send :get_without_traceview, *args unless TraceView.tracing?
 
-        args = [column_family, key] + columns_and_options
         report_kvs = extract_trace_details(:get, column_family, key, columns_and_options)
 
         TraceView::API.trace(:cassandra, report_kvs, :get) do
@@ -126,9 +130,10 @@ module TraceView
       end
 
       def exists_with_traceview?(column_family, key, *columns_and_options)
+        args = [column_family, key] + columns_and_options
+
         return send :exists_without_traceview?, *args unless TraceView.tracing?
 
-        args = [column_family, key] + columns_and_options
         report_kvs = extract_trace_details(:exists?, column_family, key, columns_and_options)
 
         TraceView::API.trace(:cassandra, report_kvs) do
@@ -159,9 +164,10 @@ module TraceView
       end
 
       def get_indexed_slices_with_traceview(column_family, index_clause, *columns_and_options)
+        args = [column_family, index_clause] + columns_and_options
+
         return send :get_indexed_slices_without_traceview, *args unless TraceView.tracing?
 
-        args = [column_family, index_clause] + columns_and_options
         report_kvs = extract_trace_details(:get_indexed_slices, column_family, nil, columns_and_options)
 
         TraceView::API.trace(:cassandra, report_kvs) do

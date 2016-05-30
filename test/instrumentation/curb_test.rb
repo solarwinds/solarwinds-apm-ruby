@@ -470,41 +470,19 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
     end
 
     def test_without_tracing_class_get
-      TraceView::Config[:tracing_mode] = :never
-
-      response = nil
-
-      TraceView::API.start_trace('httpclient_tests') do
-        response = ::Curl.get('http://127.0.0.1:8101/?blah=1')
-      end
+      response = ::Curl.get('http://127.0.0.1:8101/?blah=1')
 
       assert response.headers['X-Trace'] == nil
       assert response.body_str == "Hello TraceView!"
       assert response.response_code == 200
-
-      traces = get_all_traces
-      assert_equal 0, traces.count, "Trace count"
     end
 
     def test_without_tracing_easy_perform
-      response = nil
-
-      # When testing global config options, use the config_locak
-      # semaphore to lock between other running tests.
-      TraceView.config_lock.synchronize {
-        TraceView::Config[:tracing_mode] = :never
-
-        TraceView::API.start_trace('curb_tests') do
-          response = Curl::Easy.perform("http://127.0.0.1:8101/")
-        end
-      }
+      response = Curl::Easy.perform("http://127.0.0.1:8101/")
 
       assert response.headers['X-Trace'] == nil
       assert response.body_str == "Hello TraceView!"
       assert response.response_code == 200
-
-      traces = get_all_traces
-      assert_equal 0, traces.count, "Trace count"
     end
 
     def test_obey_collect_backtraces_when_true

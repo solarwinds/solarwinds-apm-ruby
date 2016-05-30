@@ -112,9 +112,6 @@ module TraceView
       # Return false if no-op mode
       return false unless TraceView.loaded
 
-      # Return false if never or through mode without AVW flag
-      return false if TraceView.never? || (TraceView.through? && !opts.key?('X-TV-Meta'))
-
       # Assure defaults since SWIG enforces Strings
       layer   = opts[:layer]      ? opts[:layer].to_s.strip.freeze : TV_STR_BLANK
       xtrace  = opts[:xtrace]     ? opts[:xtrace].to_s.strip       : TV_STR_BLANK
