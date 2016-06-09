@@ -14,6 +14,7 @@ This patch release includes the following fixes:
 Pushed to Rubygems:
 
 https://rubygems.org/gems/traceview/versions/3.8.2
+
 https://rubygems.org/gems/traceview/versions/3.8.2-java
 
 # traceview 3.8.1
