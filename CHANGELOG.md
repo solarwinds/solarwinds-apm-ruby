@@ -13,9 +13,8 @@ This patch release includes the following fixes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/traceview/versions/3.8.2
-
-https://rubygems.org/gems/traceview/versions/3.8.2-java
+- https://rubygems.org/gems/traceview/versions/3.8.2
+- https://rubygems.org/gems/traceview/versions/3.8.2-java
 
 # traceview 3.8.1
 
@@ -26,8 +25,8 @@ This patch release includes the following fixes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/traceview/versions/3.8.1
-https://rubygems.org/gems/traceview/versions/3.8.1-java
+- https://rubygems.org/gems/traceview/versions/3.8.1
+- https://rubygems.org/gems/traceview/versions/3.8.1-java
 
 # traceview 3.8.0
 
@@ -37,8 +36,8 @@ This minor release includes the following new feature:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/traceview/versions/3.8.0
-https://rubygems.org/gems/traceview/versions/3.8.0-java
+- https://rubygems.org/gems/traceview/versions/3.8.0
+- https://rubygems.org/gems/traceview/versions/3.8.0-java
 
 # traceview 3.7.1
 
@@ -48,8 +47,8 @@ This patch release includes the following fixes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/traceview/versions/3.7.1
-https://rubygems.org/gems/traceview/versions/3.7.1-java
+- https://rubygems.org/gems/traceview/versions/3.7.1
+- https://rubygems.org/gems/traceview/versions/3.7.1-java
 
 # traceview 3.7.0
 
@@ -59,8 +58,8 @@ This minor release includes the following new feature:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/traceview/versions/3.7.0
-https://rubygems.org/gems/traceview/versions/3.7.0-java
+- https://rubygems.org/gems/traceview/versions/3.7.0
+- https://rubygems.org/gems/traceview/versions/3.7.0-java
 
 # traceview 3.6.0
 
@@ -70,8 +69,8 @@ This minor release includes the following new feature:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/traceview/versions/3.6.0
-https://rubygems.org/gems/traceview/versions/3.6.0-java
+- https://rubygems.org/gems/traceview/versions/3.6.0
+- https://rubygems.org/gems/traceview/versions/3.6.0-java
 
 # traceview 3.5.1
 
@@ -83,8 +82,8 @@ This patch release includes the following fixes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/traceview/versions/3.5.1
-https://rubygems.org/gems/traceview/versions/3.5.1-java
+- https://rubygems.org/gems/traceview/versions/3.5.1
+- https://rubygems.org/gems/traceview/versions/3.5.1-java
 
 # traceview 3.5.0
 
@@ -94,8 +93,8 @@ This minor release includes the following new feature:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/traceview/versions/3.5.0
-https://rubygems.org/gems/traceview/versions/3.5.0-java
+- https://rubygems.org/gems/traceview/versions/3.5.0
+- https://rubygems.org/gems/traceview/versions/3.5.0-java
 
 # traceview 3.4.2
 
@@ -106,8 +105,8 @@ This patch release includes the following fixes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/traceview/versions/3.4.2
-https://rubygems.org/gems/traceview/versions/3.4.2-java
+- https://rubygems.org/gems/traceview/versions/3.4.2
+- https://rubygems.org/gems/traceview/versions/3.4.2-java
 
 # traceview 3.4.1
 
@@ -120,8 +119,8 @@ This patch release includes the following fixes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/traceview/versions/3.4.1
-https://rubygems.org/gems/traceview/versions/3.4.1-java
+- https://rubygems.org/gems/traceview/versions/3.4.1
+- https://rubygems.org/gems/traceview/versions/3.4.1-java
 
 # traceview 3.4.0
 
@@ -133,8 +132,8 @@ This minor release includes the following features & fixes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/traceview/versions/3.4.0
-https://rubygems.org/gems/traceview/versions/3.4.0-java
+- https://rubygems.org/gems/traceview/versions/3.4.0
+- https://rubygems.org/gems/traceview/versions/3.4.0-java
 
 # traceview 3.3.3
 
@@ -148,8 +147,8 @@ This patch release includes the following fixes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/traceview/versions/3.3.2
-https://rubygems.org/gems/traceview/versions/3.3.2-java
+- https://rubygems.org/gems/traceview/versions/3.3.2
+- https://rubygems.org/gems/traceview/versions/3.3.2-java
 
 # traceview 3.3.1
 
@@ -161,8 +160,8 @@ This patch release includes the following fixes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/traceview/versions/3.3.1
-https://rubygems.org/gems/traceview/versions/3.3.1-java
+- https://rubygems.org/gems/traceview/versions/3.3.1
+- https://rubygems.org/gems/traceview/versions/3.3.1-java
 
 # traceview 3.3.0
 
@@ -175,8 +174,8 @@ This patch release includes the following fixes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/traceview/versions/3.3.0
-https://rubygems.org/gems/traceview/versions/3.3.0-java
+- https://rubygems.org/gems/traceview/versions/3.3.0
+- https://rubygems.org/gems/traceview/versions/3.3.0-java
 
 # traceview 3.2.1
 
@@ -187,8 +186,8 @@ This minor release adds the following:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/traceview/versions/3.2.1
-https://rubygems.org/gems/traceview/versions/3.2.1-java
+- https://rubygems.org/gems/traceview/versions/3.2.1
+- https://rubygems.org/gems/traceview/versions/3.2.1-java
 
 # traceview 3.2.0
 
@@ -199,8 +198,8 @@ This minor release adds the following:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/traceview/versions/3.2.0
-https://rubygems.org/gems/traceview/versions/3.2.0-java
+- https://rubygems.org/gems/traceview/versions/3.2.0
+- https://rubygems.org/gems/traceview/versions/3.2.0-java
 
 # traceview 3.1.0
 
@@ -210,8 +209,8 @@ This minor release adds the following:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/traceview/versions/3.1.0
-https://rubygems.org/gems/traceview/versions/3.1.0-java
+- https://rubygems.org/gems/traceview/versions/3.1.0
+- https://rubygems.org/gems/traceview/versions/3.1.0-java
 
 # traceview 3.0.5
 
@@ -222,8 +221,8 @@ This patch release includes the following fixes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/traceview/versions/3.0.5
-https://rubygems.org/gems/traceview/versions/3.0.5-java
+- https://rubygems.org/gems/traceview/versions/3.0.5
+- https://rubygems.org/gems/traceview/versions/3.0.5-java
 
 # traceview 3.0.4
 
@@ -235,8 +234,8 @@ This patch release includes the following fixes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/traceview/versions/3.0.4
-https://rubygems.org/gems/traceview/versions/3.0.4-java
+- https://rubygems.org/gems/traceview/versions/3.0.4
+- https://rubygems.org/gems/traceview/versions/3.0.4-java
 
 # traceview 3.0.3
 
@@ -247,8 +246,8 @@ This patch release includes the following fixes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/traceview/versions/3.0.3
-https://rubygems.org/gems/traceview/versions/3.0.3-java
+- https://rubygems.org/gems/traceview/versions/3.0.3
+- https://rubygems.org/gems/traceview/versions/3.0.3-java
 
 # traceview 3.0.2
 
@@ -260,8 +259,8 @@ This patch release includes the following fixes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/traceview/versions/3.0.2
-https://rubygems.org/gems/traceview/versions/3.0.2-java
+- https://rubygems.org/gems/traceview/versions/3.0.2
+- https://rubygems.org/gems/traceview/versions/3.0.2-java
 
 # traceview 3.0.1
 
@@ -271,8 +270,8 @@ This patch release includes the following fix:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/traceview/versions/3.0.1
-https://rubygems.org/gems/traceview/versions/3.0.1-java
+- https://rubygems.org/gems/traceview/versions/3.0.1
+- https://rubygems.org/gems/traceview/versions/3.0.1-java
 
 # traceview 3.0.0
 
@@ -288,8 +287,8 @@ It contains no bug fixes or new features.
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/traceview/versions/3.0.0
-https://rubygems.org/gems/traceview/versions/3.0.0-java
+- https://rubygems.org/gems/traceview/versions/3.0.0
+- https://rubygems.org/gems/traceview/versions/3.0.0-java
 
 # oboe 2.7.19
 
@@ -308,8 +307,8 @@ This patch release includes the following fix:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/oboe/versions/2.7.19
-https://rubygems.org/gems/oboe/versions/2.7.19-java
+- https://rubygems.org/gems/oboe/versions/2.7.19
+- https://rubygems.org/gems/oboe/versions/2.7.19-java
 
 # oboe 2.7.18
 
@@ -319,8 +318,8 @@ This patch release includes the following fix:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/oboe/versions/2.7.18
-https://rubygems.org/gems/oboe/versions/2.7.18-java
+- https://rubygems.org/gems/oboe/versions/2.7.18
+- https://rubygems.org/gems/oboe/versions/2.7.18-java
 
 # oboe 2.7.17.1
 
@@ -331,8 +330,8 @@ This patch release includes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/oboe/versions/2.7.17.1
-https://rubygems.org/gems/oboe/versions/2.7.17.1-java
+- https://rubygems.org/gems/oboe/versions/2.7.17.1
+- https://rubygems.org/gems/oboe/versions/2.7.17.1-java
 
 # oboe 2.7.16.1
 
@@ -344,8 +343,8 @@ This patch release includes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/oboe/versions/2.7.16.1
-https://rubygems.org/gems/oboe/versions/2.7.16.1-java
+- https://rubygems.org/gems/oboe/versions/2.7.16.1
+- https://rubygems.org/gems/oboe/versions/2.7.16.1-java
 
 # oboe 2.7.15.1
 
@@ -355,8 +354,8 @@ This patch release includes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/oboe/versions/2.7.15.1
-https://rubygems.org/gems/oboe/versions/2.7.15/1-java
+- https://rubygems.org/gems/oboe/versions/2.7.15.1
+- https://rubygems.org/gems/oboe/versions/2.7.15/1-java
 
 # oboe 2.7.14.1
 
@@ -366,8 +365,8 @@ This patch release includes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/oboe/versions/2.7.14.1
-https://rubygems.org/gems/oboe/versions/2.7.14/1-java
+- https://rubygems.org/gems/oboe/versions/2.7.14.1
+- https://rubygems.org/gems/oboe/versions/2.7.14/1-java
 
 # oboe 2.7.13.3
 
@@ -377,8 +376,8 @@ This build release includes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/oboe/versions/2.7.13.3
-https://rubygems.org/gems/oboe/versions/2.7.13.3-java
+- https://rubygems.org/gems/oboe/versions/2.7.13.3
+- https://rubygems.org/gems/oboe/versions/2.7.13.3-java
 
 # oboe 2.7.12.1
 
@@ -389,8 +388,8 @@ This patch release includes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/oboe/versions/2.7.12.1
-https://rubygems.org/gems/oboe/versions/2.7.12.1-java
+- https://rubygems.org/gems/oboe/versions/2.7.12.1
+- https://rubygems.org/gems/oboe/versions/2.7.12.1-java
 
 # oboe 2.7.11.1
 
@@ -401,8 +400,8 @@ This patch release includes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/oboe/versions/2.7.11.1
-https://rubygems.org/gems/oboe/versions/2.7.11.1-java
+- https://rubygems.org/gems/oboe/versions/2.7.11.1
+- https://rubygems.org/gems/oboe/versions/2.7.11.1-java
 
 # oboe 2.7.10.1
 
@@ -412,8 +411,8 @@ This patch release includes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/oboe/versions/2.7.10.1
-https://rubygems.org/gems/oboe/versions/2.7.10.1-java
+- https://rubygems.org/gems/oboe/versions/2.7.10.1
+- https://rubygems.org/gems/oboe/versions/2.7.10.1-java
 
 # oboe 2.7.9.6
 
@@ -424,8 +423,8 @@ This patch release includes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/oboe/versions/2.7.9.6
-https://rubygems.org/gems/oboe/versions/2.7.9.6-java
+- https://rubygems.org/gems/oboe/versions/2.7.9.6
+- https://rubygems.org/gems/oboe/versions/2.7.9.6-java
 
 # oboe 2.7.8.1
 
@@ -435,8 +434,8 @@ This patch release includes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/oboe/versions/2.7.8.1
-https://rubygems.org/gems/oboe/versions/2.7.8.1-java
+- https://rubygems.org/gems/oboe/versions/2.7.8.1
+- https://rubygems.org/gems/oboe/versions/2.7.8.1-java
 
 
 # oboe 2.7.7.1
@@ -447,8 +446,8 @@ This patch release includes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/oboe/versions/2.7.7.1
-https://rubygems.org/gems/oboe/versions/2.7.7.1-java
+- https://rubygems.org/gems/oboe/versions/2.7.7.1
+- https://rubygems.org/gems/oboe/versions/2.7.7.1-java
 
 # oboe 2.7.6.2
 
@@ -459,8 +458,8 @@ This patch release includes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/oboe/versions/2.7.6.2
-https://rubygems.org/gems/oboe/versions/2.7.6.2-java
+- https://rubygems.org/gems/oboe/versions/2.7.6.2
+- https://rubygems.org/gems/oboe/versions/2.7.6.2-java
 
 # oboe 2.7.5.1 (11/20/2014)
 
@@ -474,8 +473,8 @@ This patch release includes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/oboe/versions/2.7.5.1
-https://rubygems.org/gems/oboe/versions/2.7.5.1-java
+- https://rubygems.org/gems/oboe/versions/2.7.5.1
+- https://rubygems.org/gems/oboe/versions/2.7.5.1-java
 
 # oboe 2.7.4.1 (10/26/2014)
 
@@ -486,8 +485,8 @@ This patch release includes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/oboe/versions/2.7.4.1
-https://rubygems.org/gems/oboe/versions/2.7.4.1-java
+- https://rubygems.org/gems/oboe/versions/2.7.4.1
+- https://rubygems.org/gems/oboe/versions/2.7.4.1-java
 
 # oboe 2.7.3.1 (10/15/2014)
 
@@ -499,8 +498,8 @@ This patch release includes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/oboe/versions/2.7.3.1
-https://rubygems.org/gems/oboe/versions/2.7.3.1-java
+- https://rubygems.org/gems/oboe/versions/2.7.3.1
+- https://rubygems.org/gems/oboe/versions/2.7.3.1-java
 
 # oboe 2.7.2.2 (09/26/2014)
 
@@ -525,8 +524,8 @@ This patch release includes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/oboe/versions/2.7.1.7
-https://rubygems.org/gems/oboe/versions/2.7.1.7-java
+- https://rubygems.org/gems/oboe/versions/2.7.1.7
+- https://rubygems.org/gems/oboe/versions/2.7.1.7-java
 
 # oboe 2.7.0.3 (08/19/2014)
 
@@ -540,8 +539,8 @@ This release also includes [our first pure java platform Ruby gem](https://rubyg
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/oboe/versions/2.7.0.3
-https://rubygems.org/gems/oboe/versions/2.7.0.3-java
+- https://rubygems.org/gems/oboe/versions/2.7.0.3
+- https://rubygems.org/gems/oboe/versions/2.7.0.3-java
 
 Related: http://www.appneta.com/blog/jruby-whole-java-world/
 
