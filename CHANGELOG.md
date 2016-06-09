@@ -1,6 +1,6 @@
 
 For the latest release info, see here:
-https://github.com/appneta/oboe-ruby/releases
+https://github.com/appneta/ruby-traceview/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
@@ -16,7 +16,7 @@ Pushed to Rubygems:
 - https://rubygems.org/gems/traceview/versions/3.8.2
 - https://rubygems.org/gems/traceview/versions/3.8.2-java
 
-# traceview 3.8.1
+# traceview 3.8.1 (05/05/2016)
 
 This patch release includes the following fixes:
 
@@ -28,7 +28,7 @@ Pushed to Rubygems:
 - https://rubygems.org/gems/traceview/versions/3.8.1
 - https://rubygems.org/gems/traceview/versions/3.8.1-java
 
-# traceview 3.8.0
+# traceview 3.8.0 04/22/2016
 
 This minor release includes the following new feature:
 
@@ -39,7 +39,7 @@ Pushed to Rubygems:
 - https://rubygems.org/gems/traceview/versions/3.8.0
 - https://rubygems.org/gems/traceview/versions/3.8.0-java
 
-# traceview 3.7.1
+# traceview 3.7.1 (03/30/2016)
 
 This patch release includes the following fixes:
 
@@ -50,7 +50,7 @@ Pushed to Rubygems:
 - https://rubygems.org/gems/traceview/versions/3.7.1
 - https://rubygems.org/gems/traceview/versions/3.7.1-java
 
-# traceview 3.7.0
+# traceview 3.7.0 (03/16/2016)
 
 This minor release includes the following new feature:
 
@@ -61,7 +61,7 @@ Pushed to Rubygems:
 - https://rubygems.org/gems/traceview/versions/3.7.0
 - https://rubygems.org/gems/traceview/versions/3.7.0-java
 
-# traceview 3.6.0
+# traceview 3.6.0 (03/02/2016)
 
 This minor release includes the following new feature:
 
@@ -72,7 +72,7 @@ Pushed to Rubygems:
 - https://rubygems.org/gems/traceview/versions/3.6.0
 - https://rubygems.org/gems/traceview/versions/3.6.0-java
 
-# traceview 3.5.1
+# traceview 3.5.1 (02/15/2016)
 
 This patch release includes the following fixes:
 
@@ -85,7 +85,7 @@ Pushed to Rubygems:
 - https://rubygems.org/gems/traceview/versions/3.5.1
 - https://rubygems.org/gems/traceview/versions/3.5.1-java
 
-# traceview 3.5.0
+# traceview 3.5.0 (01/31/2016)
 
 This minor release includes the following new feature:
 
@@ -96,7 +96,7 @@ Pushed to Rubygems:
 - https://rubygems.org/gems/traceview/versions/3.5.0
 - https://rubygems.org/gems/traceview/versions/3.5.0-java
 
-# traceview 3.4.2
+# traceview 3.4.2 (01/25/2016)
 
 This patch release includes the following fixes:
 
@@ -108,7 +108,7 @@ Pushed to Rubygems:
 - https://rubygems.org/gems/traceview/versions/3.4.2
 - https://rubygems.org/gems/traceview/versions/3.4.2-java
 
-# traceview 3.4.1
+# traceview 3.4.1 (01/05/2016)
 
 This patch release includes the following fixes:
 
@@ -122,7 +122,7 @@ Pushed to Rubygems:
 - https://rubygems.org/gems/traceview/versions/3.4.1
 - https://rubygems.org/gems/traceview/versions/3.4.1-java
 
-# traceview 3.4.0
+# traceview 3.4.0 (12/29/2015)
 
 This minor release includes the following features & fixes:
 
@@ -135,7 +135,7 @@ Pushed to Rubygems:
 - https://rubygems.org/gems/traceview/versions/3.4.0
 - https://rubygems.org/gems/traceview/versions/3.4.0-java
 
-# traceview 3.3.3
+# traceview 3.3.3 (11/11/2015)
 
 This patch release includes the following fixes:
 
@@ -150,7 +150,7 @@ Pushed to Rubygems:
 - https://rubygems.org/gems/traceview/versions/3.3.2
 - https://rubygems.org/gems/traceview/versions/3.3.2-java
 
-# traceview 3.3.1
+# traceview 3.3.1 (10/21/2015)
 
 This patch release includes the following fixes:
 
@@ -163,7 +163,7 @@ Pushed to Rubygems:
 - https://rubygems.org/gems/traceview/versions/3.3.1
 - https://rubygems.org/gems/traceview/versions/3.3.1-java
 
-# traceview 3.3.0
+# traceview 3.3.0 (10/07/2015)
 
 This patch release includes the following fixes:
 
@@ -177,7 +177,7 @@ Pushed to Rubygems:
 - https://rubygems.org/gems/traceview/versions/3.3.0
 - https://rubygems.org/gems/traceview/versions/3.3.0-java
 
-# traceview 3.2.1
+# traceview 3.2.1 (08/20/2015)
 
 This minor release adds the following:
 
@@ -189,19 +189,7 @@ Pushed to Rubygems:
 - https://rubygems.org/gems/traceview/versions/3.2.1
 - https://rubygems.org/gems/traceview/versions/3.2.1-java
 
-# traceview 3.2.0
-
-This minor release adds the following:
-
-* New and improved method profiling: #135
-* Fix URL Query config: #136
-
-Pushed to Rubygems:
-
-- https://rubygems.org/gems/traceview/versions/3.2.0
-- https://rubygems.org/gems/traceview/versions/3.2.0-java
-
-# traceview 3.1.0
+# traceview 3.1.0 (08/03/2015)
 
 This minor release adds the following:
 
@@ -212,7 +200,7 @@ Pushed to Rubygems:
 - https://rubygems.org/gems/traceview/versions/3.1.0
 - https://rubygems.org/gems/traceview/versions/3.1.0-java
 
-# traceview 3.0.5
+# traceview 3.0.5 (07/20/2015)
 
 This patch release includes the following fixes:
 
@@ -224,7 +212,7 @@ Pushed to Rubygems:
 - https://rubygems.org/gems/traceview/versions/3.0.5
 - https://rubygems.org/gems/traceview/versions/3.0.5-java
 
-# traceview 3.0.4
+# traceview 3.0.4 (07/08/2015)
 
 This patch release includes the following fixes:
 
@@ -237,7 +225,7 @@ Pushed to Rubygems:
 - https://rubygems.org/gems/traceview/versions/3.0.4
 - https://rubygems.org/gems/traceview/versions/3.0.4-java
 
-# traceview 3.0.3
+# traceview 3.0.3 (06/26/2015)
 
 This patch release includes the following fixes:
 
@@ -249,7 +237,7 @@ Pushed to Rubygems:
 - https://rubygems.org/gems/traceview/versions/3.0.3
 - https://rubygems.org/gems/traceview/versions/3.0.3-java
 
-# traceview 3.0.2
+# traceview 3.0.2 (06/24/2015)
 
 This patch release includes the following fixes:
 
@@ -262,7 +250,7 @@ Pushed to Rubygems:
 - https://rubygems.org/gems/traceview/versions/3.0.2
 - https://rubygems.org/gems/traceview/versions/3.0.2-java
 
-# traceview 3.0.1
+# traceview 3.0.1 (06/04/2015)
 
 This patch release includes the following fix:
 
@@ -273,7 +261,7 @@ Pushed to Rubygems:
 - https://rubygems.org/gems/traceview/versions/3.0.1
 - https://rubygems.org/gems/traceview/versions/3.0.1-java
 
-# traceview 3.0.0
+# traceview 3.0.0 (05/28/2015)
 
 The oboe gem has been renamed to traceview.  The final oboe
 gem (2.7.19) has a post-install deprecation warning and will
