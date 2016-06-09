@@ -83,10 +83,10 @@ if defined?(ActionController::Base) && TraceView::Config[:action_controller][:en
   end
 end
 
-# ActionController::API (Rails 5+)
+# ActionController::API - Rails 5+ or via the rails-api gem
 if defined?(ActionController::API) && TraceView::Config[:action_controller_api][:enabled]
   TraceView.logger.info '[traceview/loading] Instrumenting actioncontroller api' if TraceView::Config[:verbose]
-  require "traceview/frameworks/rails/inst/action_controller#{Rails::VERSION::MAJOR}_api"
+  require "traceview/frameworks/rails/inst/action_controller_api"
   ::ActionController::API.send(:prepend, ::TraceView::Inst::ActionControllerAPI)
 end
 
