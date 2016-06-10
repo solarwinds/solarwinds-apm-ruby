@@ -4,7 +4,7 @@ https://github.com/appneta/ruby-traceview/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
-# traceview 3.8.2
+# traceview 3.8.2 (06/09/2016)
 
 This patch release includes the following fixes:
 
