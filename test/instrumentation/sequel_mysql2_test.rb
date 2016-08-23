@@ -269,10 +269,17 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      traces[1]['Query'].must_equal "SELECT * FROM `items` WHERE (`name` = 'abc')"
-      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:sequel][:collect_backtraces]
-      traces[3]['Query'].must_equal "DELETE FROM `items` WHERE (`name` = 'cba')"
-      traces[3].has_key?('Backtrace').must_equal TraceView::Config[:sequel][:collect_backtraces]
+      if ::Sequel::VERSION > '4.36.0'
+        traces[1]['Query'].must_equal "SELECT * FROM `items` WHERE (`name` = ?)"
+        traces[1].has_key?('Backtrace').must_equal TraceView::Config[:sequel][:collect_backtraces]
+        traces[3]['Query'].must_equal "DELETE FROM `items` WHERE (`name` = ?)"
+        traces[3].has_key?('Backtrace').must_equal TraceView::Config[:sequel][:collect_backtraces]
+      else
+        traces[1]['Query'].must_equal "SELECT * FROM `items` WHERE (`name` = 'abc')"
+        traces[1].has_key?('Backtrace').must_equal TraceView::Config[:sequel][:collect_backtraces]
+        traces[3]['Query'].must_equal "DELETE FROM `items` WHERE (`name` = 'cba')"
+        traces[3].has_key?('Backtrace').must_equal TraceView::Config[:sequel][:collect_backtraces]
+      end
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -290,7 +297,13 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      traces[1]['Query'].must_equal "select_by_name"
+
+      if ::Sequel::VERSION > '4.36.0'
+        traces[1]['Query'].must_equal "SELECT * FROM `items` WHERE (`name` = ?)"
+      else
+        traces[1]['Query'].must_equal "select_by_name"
+      end
+
       if RUBY_VERSION < "1.9"
         traces[1]['QueryArgs'].must_equal "abc"
       else
@@ -316,7 +329,13 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      traces[1]['Query'].must_equal "select_by_name"
+
+      if ::Sequel::VERSION > '4.36.0'
+        traces[1]['Query'].must_equal "SELECT * FROM `items` WHERE (`name` = ?)"
+      else
+        traces[1]['Query'].must_equal "select_by_name"
+      end
+
       traces[1]['QueryArgs'].must_equal nil
       traces[1]['IsPreparedStatement'].must_equal "true"
       traces[1].has_key?('Backtrace').must_equal TraceView::Config[:sequel][:collect_backtraces]

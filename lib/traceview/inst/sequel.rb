@@ -19,6 +19,15 @@ module TraceView
       def extract_trace_details(sql, opts)
         kvs = {}
 
+        if !sql.is_a?(String)
+          kvs[:IsPreparedStatement] = true
+        end
+
+        if ::Sequel::VERSION > '4.36.0' && !sql.is_a?(String)
+          # In 4.37.0, sql was converted to a prepared statement object
+          sql = sql.prepared_sql
+        end
+
         if TraceView::Config[:sanitize_sql]
           # Sanitize SQL and don't report binds
           if sql.is_a?(Symbol)
@@ -31,7 +40,6 @@ module TraceView
           kvs[:Query] = sql.to_s
           kvs[:QueryArgs] = opts[:arguments] if opts.is_a?(Hash) && opts.key?(:arguments)
         end
-        kvs[:IsPreparedStatement] = true if sql.is_a?(Symbol)
 
         kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:sequel][:collect_backtraces]
 
