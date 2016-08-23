@@ -3,7 +3,7 @@
 
 require 'minitest_helper'
 
-if RUBY_VERSION >= '1.9.3'
+if RUBY_VERSION >= '2.0.0'
   describe "RestClient" do
     before do
       clear_all_traces
