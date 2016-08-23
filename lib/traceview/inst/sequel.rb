@@ -25,7 +25,7 @@ module TraceView
 
         if ::Sequel::VERSION > '4.36.0' && !sql.is_a?(String)
           # In 4.37.0, sql was converted to a prepared statement object
-          sql = sql.prepared_sql
+          sql = sql.prepared_sql unless sql.is_a?(Symbol)
         end
 
         if TraceView::Config[:sanitize_sql]
