@@ -169,9 +169,9 @@ class ExconTest < Minitest::Test
     assert_equal 'GET',                      traces[1]['HTTPMethod']
     assert traces[1].key?('Backtrace')
 
-    assert_equal 'excon',                      traces[2]['Layer']
-    assert_equal 'error',                      traces[2]['Label']
-    assert_equal "Excon::Errors::SocketError", traces[2]['ErrorClass']
+    assert_equal 'excon',                    traces[2]['Layer']
+    assert_equal 'error',                    traces[2]['Label']
+    assert_equal "Excon::Error::Socket",     traces[2]['ErrorClass']
     assert traces[2].key?('ErrorMsg')
     assert traces[2].key?('Backtrace')
 
