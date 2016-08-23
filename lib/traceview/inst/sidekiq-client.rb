@@ -11,7 +11,7 @@ module TraceView
         report_kvs = {}
         worker_class, msg, queue, _ = args
 
-        report_kvs[:Spec]      = :msgclient
+        report_kvs[:Spec]      = :pushq
         report_kvs[:Flavor]    = :sidekiq
         report_kvs[:Queue]     = queue
         report_kvs[:Retry]     = msg['retry']

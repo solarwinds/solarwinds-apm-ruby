@@ -36,7 +36,7 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
       assert_equal 'sidekiq-client',       traces[1]['Layer']
       assert_equal 'entry',                traces[1]['Label']
 
-      assert_equal 'msgclient',            traces[1]['Spec']
+      assert_equal 'pushq',                traces[1]['Spec']
       assert_equal 'sidekiq',              traces[1]['Flavor']
       assert_equal 'critical',             traces[1]['Queue']
       assert_equal jid,                    traces[1]['MsgID']
