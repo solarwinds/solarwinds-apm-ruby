@@ -1,27 +1,28 @@
-# Copyright (c) 2015 AppNeta, Inc.
+##
+# Copyright (c) 2016 AppNeta, Inc.
 # All rights reserved.
 
-# This is a Rails app that launches a DelayedJob worker
-# in a background thread.
+#  This is a Rails stack that launches on a background
+#  thread and listens on port 8140.
 #
 require "rails/all"
-require "delayed_job"
 require "action_controller/railtie"
 require 'rack/handler/puma'
 require File.expand_path(File.dirname(__FILE__) + '/../models/widget')
 
-TraceView.logger.level = Logger::DEBUG
 TraceView.logger.info "[traceview/info] Starting background utility rails app on localhost:8140."
 
-TraceView::Test.set_postgresql_env
+if ENV['DBTYPE'] == 'mysql2'
+  TraceView::Test.set_mysql2_env
+elsif ENV['DBTYPE'] == 'mysql'
+  TraceView::Test.set_mysql_env
+else
+  TV.logger.warn "Unidentified DBTYPE: #{ENV['DBTYPE']}" unless ENV['DBTYPE'] == "postgresql"
+  TV.logger.debug "Defaulting to postgres DB for background Rails server."
+  TraceView::Test.set_postgresql_env
+end
 
 ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
-
-unless ActiveRecord::Base.connection.table_exists? :delayed_jobs
-  TraceView.logger.info "[traceview/servers] Creating DelayedJob DB table."
-  require 'generators/delayed_job/templates/migration'
-  ActiveRecord::Migration.run(CreateDelayedJobs)
-end
 
 unless ActiveRecord::Base.connection.table_exists? 'widgets'
   ActiveRecord::Migration.run(CreateWidgets)
@@ -31,6 +32,7 @@ class Rails40MetalStack < Rails::Application
   routes.append do
     get "/hello/world" => "hello#world"
     get "/hello/metal" => "ferro#world"
+    get "/hello/db"    => "hello#db"
   end
 
   config.cache_classes = true
@@ -39,7 +41,7 @@ class Rails40MetalStack < Rails::Application
   config.middleware.delete "Rack::Lock"
   config.middleware.delete "ActionDispatch::Flash"
   config.middleware.delete "ActionDispatch::BestStandardsSupport"
-  config.secret_token = "49837489qkuweoiuoqwehisuakshdjksadhaisdy78o34y138974xyqp9rmye8yrpiokeuioqwzyoiuxftoyqiuxrhm3iou1hrzmjk"
+  config.secret_token = "49830489qkuweoiuoqwehisuakshdjksadhaisdy78o34y138974xyqp9rmye8yypiokeuioqwzyoiuxftoyqiuxrhm3iou1hrzmjk"
   config.secret_key_base = "2048671-96803948"
 end
 
@@ -51,6 +53,18 @@ class HelloController < ActionController::Base
   def world
     render :text => "Hello world!"
   end
+
+  def db
+    # Create a widget
+    w1 = Widget.new(:name => 'blah', :description => 'This is an amazing widget.')
+    w1.save
+
+    # query for that widget
+    w2 = Widget.where(:name => 'blah').first
+    w2.delete
+
+    render :text => "Hello database!"
+  end
 end
 
 class FerroController < ActionController::Metal
@@ -61,28 +75,12 @@ class FerroController < ActionController::Metal
   end
 end
 
-Delayed::Job.delete_all
+TraceView::API.profile_method(FerroController, :world)
 
-@worker_options = {
-  :min_priority => ENV['MIN_PRIORITY'],
-  :max_priority => ENV['MAX_PRIORITY'],
-  :queues => (ENV['QUEUES'] || ENV['QUEUE'] || '').split(','),
-  :quiet => ENV['QUIET']
-}
-
-@worker_options[:sleep_delay] = ENV['SLEEP_DELAY'].to_i if ENV['SLEEP_DELAY']
-@worker_options[:read_ahead] = ENV['READ_AHEAD'].to_i if ENV['READ_AHEAD']
-
-TraceView.logger.info "[traceview/servers] Starting up background DelayedJob."
-
-#Delayed::Worker.delay_jobs = false
-Delayed::Worker.max_attempts = 1
-Delayed::Worker.sleep_delay = 10
+Rails40MetalStack.initialize!
 
 Thread.new do
-  Delayed::Worker.new(@worker_options).start
+  Rack::Handler::Puma.run(Rails40MetalStack.to_app, {:Host => '127.0.0.1', :Port => 8140, :Threads => "0:1"})
 end
 
-# Allow it to boot
-TraceView.logger.info "[traceview/servers] Waiting 5 seconds for DJ to boot..."
-sleep 5
+sleep(2)

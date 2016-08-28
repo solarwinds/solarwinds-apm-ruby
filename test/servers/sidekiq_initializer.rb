@@ -1,6 +1,9 @@
 # Copyright (c) 2015 AppNeta, Inc.
 # All rights reserved.
 
+# This file is used to initialize the background Sidekiq
+# process launched in our test suite.
+#
 ENV['BUNDLE_GEMFILE'] = Dir.pwd + "/gemfiles/libraries.gemfile"
 
 require 'rubygems'

@@ -1,6 +1,9 @@
 # Copyright (c) 2015 AppNeta, Inc.
 # All rights reserved.
 
+# We configure and launch Sidekiq in a background
+# thread here.
+#
 require 'sidekiq/cli'
 
 TraceView.logger.info "[traceview/servers] Starting up background Sidekiq."
@@ -18,7 +21,6 @@ end
 
 TraceView.logger.debug "[traceview/servers] sidekiq #{arguments}"
 
-# Boot Sidekiq in a new thread
 Thread.new do
   system("OBOE_GEM_TEST=true sidekiq #{arguments}")
 end

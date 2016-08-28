@@ -1,6 +1,9 @@
 # Copyright (c) 2015 AppNeta, Inc.
 # All rights reserved.
 
+# This is a Rack application that is booted in a background
+# thread and listens on port 8101.
+#
 require 'rack/handler/puma'
 require 'traceview/inst/rack'
 
