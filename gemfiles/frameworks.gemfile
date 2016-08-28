@@ -16,7 +16,8 @@ end
 
 # New mime-types/mime-types-data requires ruby 2.0
 if RUBY_VERSION < '2.0'
-  gem 'mime-types', '< 3.0'
+  # these gems dropped suport for < ruby version 2.0
+  gem 'json', '< 2.0.0'
 end
 
 if defined?(JRUBY_VERSION)
@@ -25,15 +26,18 @@ else
   gem 'sinatra'
 end
 
-gem "grape"
+if RUBY_VERSION > '1.9.3'
+  gem "grape"
 
-if defined?(JRUBY_VERSION)
-  # Limit padrino gem under JRuby as version 0.13.0 throws
-  # a bundler load error
-  gem "padrino", '< 0.13.0'
-else
-  gem 'padrino'
+  if defined?(JRUBY_VERSION)
+    # Limit padrino gem under JRuby as version 0.13.0 throws
+    # a bundler load error
+    gem "padrino", '< 0.13.0'
+  else
+    gem 'padrino'
+  end
 end
+
 
 gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')
 # vim:syntax=ruby
