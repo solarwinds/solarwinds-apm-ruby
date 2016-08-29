@@ -4,6 +4,19 @@ https://github.com/appneta/ruby-traceview/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# traceview 3.8.3 (08/29/2016)
+
+This patch release includes the following fixes:
+
+* Updates to test suite: Rails servers and Curb instrumentation
+* Updated Sequel instrumentation to follow latest gem changes: bc2b715b6fd6575de2969e25705ec1fd8e51c236
+* Updated Excon instrumentation to follow latest gem changes: c35ac53d6fd614e86d388e3f6c0f050341cc4f37
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.8.3
+https://rubygems.org/gems/traceview/versions/3.8.3-java
+
 # traceview 3.8.2 (06/09/2016)
 
 This patch release includes the following fixes:
