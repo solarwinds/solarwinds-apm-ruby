@@ -1,5 +1,5 @@
 ##
-# Copyright (c) 2016 AppNeta, Inc.
+# Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
 #  This is a Rails stack that launches on a background

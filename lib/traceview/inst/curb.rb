@@ -1,4 +1,4 @@
-# Copyright (c) 2016 AppNeta, Inc.
+# Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
 module TraceView

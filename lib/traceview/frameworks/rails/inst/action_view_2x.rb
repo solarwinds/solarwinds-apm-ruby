@@ -1,4 +1,4 @@
-# Copyright (c) 2013 AppNeta, Inc.
+# Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
 if defined?(ActionView::Base) && TraceView::Config[:action_view][:enabled]
