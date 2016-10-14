@@ -6,12 +6,12 @@ Gem::Specification.new do |s|
   s.version = TraceView::Version::STRING
   s.date = Time.now.strftime('%Y-%m-%d')
 
-  s.license = "AppNeta Open License, Version 1.0"
+  s.license = "Librato Open License, Version 1.0"
 
   s.authors = ["Peter Giacomo Lombardo", "Spiros Eliopoulos"]
-  s.email = %q{traceviewsupport@appneta.com}
-  s.homepage = %q{http://www.appneta.com/products/traceview/}
-  s.summary = %q{AppNeta TraceView performance instrumentation gem for Ruby}
+  s.email = %q{traceviewsupport@solarwinds.com}
+  s.homepage = %q{https://traceview.solarwinds.com/}
+  s.summary = %q{TraceView performance instrumentation gem for Ruby}
   s.description = %q{The TraceView gem provides performance instrumentation for MRI Ruby, JRuby and related frameworks.}
 
   s.extra_rdoc_files = ["LICENSE"]
@@ -45,4 +45,3 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 1.8.6'
 end
-

@@ -32,4 +32,4 @@ Since this pattern is used with the standard Ruby Regexp class, you can
 use any Regexp supported pattern.  See the documentation on Ruby Regexp
 [here](https://www.omniref.com/ruby/2.2.0/symbols/Regexp?d=380181456&n=0#doc_uncollapsed=true&d=380181456&n=0)
 or you can also view the oboe gem [source code documentation for this
-feature](https://github.com/appneta/oboe-ruby/blob/master/lib/oboe/config.rb#L74).
+feature](https://github.com/tracelytics/ruby-traceview/blob/master/lib/traceview/config.rb#L129).

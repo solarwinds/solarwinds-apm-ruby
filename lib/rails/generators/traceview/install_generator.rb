@@ -48,10 +48,10 @@ module TraceView
         say "-------------------"
         say ""
         say "TraceView Installation Overview:"
-        say "https://docs.appneta.com/installation-overview"
+        say "http://docs.traceview.solarwinds.com/TraceView/install-instrumentation.html"
         say ""
         say "More information on instrumenting Ruby applications can be found here:"
-        say "https://docs.appneta.com/installing-ruby-instrumentation"
+        say "http://docs.traceview.solarwinds.com/Instrumentation/ruby.html#installing-ruby-instrumentation"
       end
 
       def print_body

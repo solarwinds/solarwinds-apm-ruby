@@ -25,7 +25,7 @@ module TraceView
 
     TraceView.logger.warn '********************************************************'
     TraceView.logger.warn '* BEGIN TraceView Support Report'
-    TraceView.logger.warn '*   Please email the output of this report to traceviewsupport@appneta.com'
+    TraceView.logger.warn '*   Please email the output of this report to traceviewsupport@solarwinds.com'
     TraceView.logger.warn '********************************************************'
     TraceView.logger.warn "Ruby: #{RUBY_DESCRIPTION}"
     TraceView.logger.warn "$0: #{$0}"
@@ -124,10 +124,9 @@ module TraceView
 
     TraceView.logger.warn '********************************************************'
     TraceView.logger.warn '* END TraceView Support Report'
-    TraceView.logger.warn '*   Support Email: traceviewsupport@appneta.com'
-    TraceView.logger.warn '*   Support Portal: https://tickets.appneta.com'
-    TraceView.logger.warn '*   Freenode IRC: #appneta'
-    TraceView.logger.warn '*   Github: https://github.com/appneta/ruby-traceview'
+    TraceView.logger.warn '*   Support Email: traceviewsupport@solarwinds.com'
+    TraceView.logger.warn '*   Support Portal: https://tracelytics.freshdesk.com'
+    TraceView.logger.warn '*   Github: https://github.com/tracelytics/ruby-traceview'
     TraceView.logger.warn '********************************************************'
 
     TraceView.logger.level = @logger_level

@@ -120,6 +120,5 @@ end
 #      end
 #    end
 #
-# If anything isn't clear, please don't hesitate to reach us at support (traceviewsupport@appneta.com)
-# or on IRC #appneta @ freenode.
+# If anything isn't clear, please don't hesitate to reach us at support (traceviewsupport@solarwinds.com).
 #
