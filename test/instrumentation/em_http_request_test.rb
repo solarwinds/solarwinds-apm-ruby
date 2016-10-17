@@ -1,11 +1,11 @@
-# Copyright (c) 2015 AppNeta, Inc.
+# Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
 require 'minitest_helper'
 
 # Disable this test on JRuby until we can investigate
 # "SOCKET: SET COMM INACTIVITY UNIMPLEMENTED 10"
-# https://travis-ci.org/appneta/traceview-ruby/jobs/33745752
+# https://travis-ci.org/tracelytics/ruby-traceview/jobs/33745752
 if RUBY_VERSION >= '1.9' and TraceView::Config[:em_http_request][:enabled] and not defined?(JRUBY_VERSION)
 
   describe "EventMachine" do

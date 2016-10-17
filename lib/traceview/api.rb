@@ -1,10 +1,10 @@
-# Copyright (c) 2013 AppNeta, Inc.
+# Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
 module TraceView
   ##
   # This module implements the TraceView tracing API.
-  # See: https://github.com/appneta/oboe-ruby#the-tracing-api
+  # See: https://github.com/tracelytics/ruby-traceview#the-tracing-api
   # and/or: http://rdoc.info/gems/traceview/TraceView/API/Tracing
   module API
     def self.extend_with_tracing

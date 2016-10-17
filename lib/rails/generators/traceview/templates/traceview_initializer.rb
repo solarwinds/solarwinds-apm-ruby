@@ -1,8 +1,8 @@
-# AppNeta TraceView Initializer (for the traceview gem)
-# http://www.appneta.com/products/traceview/
+# TraceView Initializer (for the traceview gem)
+# https://traceview.solarwinds.com/
 #
 # More information on instrumenting Ruby applications can be found here:
-# https://support.appneta.com/cloud/installing-ruby-instrumentation
+# http://docs.traceview.solarwinds.com/Instrumentation/ruby.html#installing-ruby-instrumentation
 
 if defined?(TraceView::Config)
   # Tracing Mode determines when traces should be initiated for incoming requests.  Valid
@@ -99,7 +99,7 @@ if defined?(TraceView::Config)
   #
   # Alternatively, if you would like to install the separate
   # libcurl instrumentation, see here:
-  # http://docs.appneta.com/installing-libcurl-instrumentation
+  # http://docs.traceview.solarwinds.com/Instrumentation/other-instrumentation-modules.html#libcurl
   #
   # TraceView::Config[:curb][:cross_host] = false
   #

@@ -80,6 +80,8 @@ else
   gem 'mysql2'
   if RUBY_VERSION < '1.9.3'
     gem 'pg', '0.17.1'
+  elsif RUBY_VERSION < '2.0'
+    gem 'pg', '0.18.4'
   else
     gem 'pg'
   end

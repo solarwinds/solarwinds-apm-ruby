@@ -1,22 +1,22 @@
 # Welcome to the TraceView Ruby Gem
 
-The traceview gem provides AppNeta [TraceView](http://www.appneta.com/application-performance-management/) performance instrumentation for Ruby.
+The traceview gem provides [TraceView](https://traceview.solarwinds.com/) performance instrumentation for Ruby.
 
-![Ruby TraceView](https://s3.amazonaws.com/pglombardo/oboe-ruby-header.png)
+![Ruby TraceView](http://docs.traceview.solarwinds.com/images/ruby_readme/oboe-ruby-header.png)
 
-It has the ability to report performance metrics on an array of libraries, databases and frameworks such as Rails, Mongo, Memcache, ActiveRecord, Cassandra, Rack, Resque [and more](https://docs.appneta.com/ruby-instrumentation-supported-components)
+It has the ability to report performance metrics on an array of libraries, databases and frameworks such as Rails, Mongo, Memcache, ActiveRecord, Cassandra, Rack, Resque [and more](http://docs.traceview.solarwinds.com/Instrumentation/ruby.html#ruby-support-matrix).
 
-It requires a [TraceView](http://www.appneta.com/products/traceview/) account to view metrics.  Get yours, [it's free](http://www.appneta.com/products/traceview-free-account/).
+It requires a [TraceView](https://traceview.solarwinds.com/) account to view metrics.  Get yours, [it's free](https://traceview.solarwinds.com/TraceView/Signup).
 
 [![Gem Version](https://badge.fury.io/rb/traceview.png)](https://badge.fury.io/rb/traceview)
-[![Build Status](https://travis-ci.org/appneta/ruby-traceview.png?branch=master)](https://travis-ci.org/appneta/ruby-traceview)
-[![Code Climate](https://codeclimate.com/github/appneta/ruby-traceview.png)](https://codeclimate.com/github/appneta/ruby-traceview)
+[![Build Status](https://travis-ci.org/tracelytics/ruby-traceview.png?branch=master)](https://travis-ci.org/tracelytics/ruby-traceview)
+[![Code Climate](https://codeclimate.com/github/tracelytics/ruby-traceview.png)](https://codeclimate.com/github/tracelytics/ruby-traceview)
 
-_Note: The repository name has been changed to ruby-traceview.  Please update your github remotes with `git remote set-url origin git@github.com:appneta/ruby-traceview.git`._
+_Note: The repository name has been changed to ruby-traceview.  Please update your github remotes with `git remote set-url origin git@github.com:tracelytics/ruby-traceview.git`._
 
 # Installation
 
-_Before installing the gem below, make sure that you have the [base packages](http://docs.appneta.com/installation-overview#1-install-base-packages) installed on your host first._
+_Before installing the gem below, make sure that you have the [base packages](http://docs.traceview.solarwinds.com/TraceView/install-instrumentation.html#install-base-packages) installed on your host first._
 
 The traceview gem is [available on Rubygems](https://rubygems.org/gems/traceview) and can be installed with:
 
@@ -34,7 +34,7 @@ gem 'traceview'
 
 ## Rails
 
-![Ruby on Rails](http://www.appneta.com/images/logos/frameworks/rails.png)
+![Ruby on Rails](http://docs.traceview.solarwinds.com/images/ruby_readme/rails.png)
 
 No special steps are needed to instrument Ruby on Rails.  Once part of the bundle, the traceview gem will automatically detect Rails and instrument on stack initialization.
 
@@ -42,7 +42,7 @@ No special steps are needed to instrument Ruby on Rails.  Once part of the bundl
 
 ### The Install Generator
 
-The traceview gem provides a Rails generator used to seed an initializer where you can configure and control `tracing_mode` and [other options](https://docs.appneta.com/configuring-ruby-instrumentation)
+The traceview gem provides a Rails generator used to seed an initializer where you can configure and control `tracing_mode` and [other options](http://docs.traceview.solarwinds.com/Instrumentation/ruby.html#configuring-instrumentation).
 
 To run the install generator run:
 
@@ -54,7 +54,7 @@ After the prompts, this will create an initializer: `config/initializers/tracevi
 
 ## Sinatra
 
-![Sinatra](http://www.appneta.com/images/logos/frameworks/sinatra.png)
+![Sinatra](http://docs.traceview.solarwinds.com/images/ruby_readme/sinatra.png)
 
 You can instrument your Sinatra application by adding the following code to your `config.ru` Rackup file:
 
@@ -79,7 +79,7 @@ With this, the traceview gem will automatically detect Sinatra on boot and instr
 
 ## Padrino
 
-![Padrino](http://www.appneta.com/images/logos/frameworks/padrino.png)
+![Padrino](http://docs.traceview.solarwinds.com/images/ruby_readme/padrino.png)
 
 As long as the traceview gem is in your `Gemfile` (inserted after the `gem 'padrino'` directive) and you are calling `Bundler.require`, the traceview gem will automatically instrument Padrino applications.
 
@@ -98,7 +98,7 @@ end
 
 ## Grape
 
-![Grape](http://www.appneta.com/images/logos/frameworks/grape.png)
+![Grape](http://docs.traceview.solarwinds.com/images/ruby_readme/grape.png)
 
 You can instrument your Grape application by adding the following code to your `config.ru` Rackup file:
 
@@ -106,13 +106,13 @@ You can instrument your Grape application by adding the following code to your `
     # If you're not using Bundler.require.  Make sure this is done
     # after the Grape require directive.
     require 'traceview'
-    
+
     # When traces should be initiated for incoming requests. Valid options are
     # "always", "through" (when the request is initiated with a tracing header
     # from upstream) and "never". You must set this directive to "always" in
     # order to initiate tracing.
     TraceView::Config[:tracing_mode] = 'through'
-    
+
     ...
 
     class App < Grape::API
@@ -146,7 +146,7 @@ Once inside of the `TraceView::API.start_trace` block, performance metrics will 
 
 ## Other
 
-You can send deploy notifications to TraceView and have the events show up on your dashboard.  See: [Capistrano Deploy Notifications with tlog](https://docs.appneta.com/capistrano-deploy-notifications-tlog)
+You can send deploy notifications to TraceView and have the events show up on your dashboard.  See: [Capistrano Deploy Notifications with tlog](http://docs.traceview.solarwinds.com/Instrumentation/ruby.html#report-deploy-notifications)
 
 # Custom Tracing
 
@@ -191,11 +191,11 @@ If, for example, you wanted to see the performance for the `Array::sort`, you co
 TraceView::API.profile_method(Array, :sort)
 ```
 
-For full documentation, options and reporting custom KVs, see our documentation on [method profiling](http://docs.appneta.com/ruby#profiling-ruby-methods).
+For full documentation, options and reporting custom KVs, see our documentation on [method profiling](http://docs.traceview.solarwinds.com/Instrumentation/ruby.html#ruby-function-profiling).
 
 # Support
 
-If you find a bug or would like to request an enhancement, feel free to file an issue.  For all other support requests, see our [support portal](https://tickets.appneta.com) or on IRC @ #appneta on [Freenode](http://freenode.net/).
+If you find a bug or would like to request an enhancement, feel free to file an issue.  For all other support requests, see our [support portal](https://tracelytics.freshdesk.com).
 
 # Contributing
 
@@ -205,13 +205,9 @@ We welcome you to send us PRs.  We also humbly request that any new instrumentat
 
 ## Developer Resources
 
-We at AppNeta have made a large effort to expose as much technical information as possible to assist developers wishing to contribute to the traceview gem.  Below are the three major sources for information and help for developers:
+We have made a large effort to expose as much technical information as possible to assist developers wishing to contribute to the traceview gem.  Below is a good source for information and help for developers:
 
-* The [TraceView blog](http://www.appneta.com/blog) has a constant stream of great technical articles.  (See [A Gentle X-Trace Introduction](http://www.appneta.com/blog/x-trace-introduction/) for details on the basic methodology that TraceView uses to gather structured performance data across hosts and stacks.)
-
-* The [TraceView Documentation Portal](https://docs.appneta.com/ruby) has a large collection of technical articles or, if needed, you can [submit a support request](https://tickets.appneta.com) directly to the team.
-
-* You can also reach the TraceView team on our IRC channel #appneta on freenode.
+* The [TraceView Knowledge Base](http://docs.traceview.solarwinds.com/) has a large collection of technical articles or, if needed, you can submit a support request directly to the team.
 
 If you have any questions or ideas, don't hesitate to contact us anytime.
 
@@ -297,8 +293,6 @@ Third, in our wrapper method, we capture the arguments passed in, collect the op
 
 The `TraceView::API.trace` method calls Dalli's native operation and reports the timing metrics and your custom `report_kvs` up to TraceView servers to be shown on the user's dashboard.
 
-That is a very quick example of a simple instrumentation implementation.  If you have any questions, visit us on IRC in #appneta on Freenode.
-
 Some other tips and guidelines:
 
 * You can point your Gemfile directly at your cloned traceview gem source by using `gem 'traceview', :path => '/path/to/ruby-traceview'`
@@ -317,7 +311,7 @@ Some other tips and guidelines:
 
 ## Compiling the C extension
 
-The traceview gem utilizes a C extension to interface with the system `liboboe.so` library.  This system library is installed with the TraceView host packages (tracelyzer, liboboe0, liboboe-dev) and is used to report [host](http://www.appneta.com/blog/app-host-metrics/) and performance metrics from multiple sources (Ruby, Apache, Python etc.) back to TraceView servers.
+The traceview gem utilizes a C extension to interface with the system `liboboe.so` library.  This system library is installed with the TraceView host packages (tracelyzer, liboboe0, liboboe-dev) and is used to report host and performance metrics from multiple sources (Ruby, Apache, Python etc.) back to TraceView servers.
 
 C extensions are usually built on `gem install` but when working out of a local git repository, it's required that you manually build this C extension for the gem to function.
 
@@ -333,11 +327,11 @@ Note: Make sure you have the development package `liboboe0-dev` installed before
 
 ```bash
 >>$ dpkg -l | grep liboboe
-ii  liboboe-dev  1.2.1-trusty1  AppNeta TraceView common library -- development files
-ii  liboboe0     1.2.1-trusty1  AppNeta Traceview common library
+ii  liboboe-dev  1.2.1-trusty1  TraceView common library -- development files
+ii  liboboe0     1.2.1-trusty1  Traceview common library
 ```
 
-See [Installing Base Packages on Debian and Ubuntu](https://docs.appneta.com/installation-overview) in the Knowledge Base for details.  Our hacker extraordinaire [Rob Salmond](https://github.com/rsalmond) from the support team has even gotten these packages to [run on Gentoo](http://www.appneta.com/blog/unsupported-doesnt-work/)!
+See [Installing Base Packages on Debian and Ubuntu](http://docs.traceview.solarwinds.com/TraceView/install-instrumentation.html#debian-and-ubuntu) in the Knowledge Base for details.
 
 To see the code related to the C extension, take a look at `ext/oboe_metal/extconf.rb` for details.
 
@@ -345,7 +339,7 @@ You can read more about Ruby gems with C extensions in the [Rubygems Guides](htt
 
 ## Running the Tests
 
-![TraceView Ruby Tests](https://s3.amazonaws.com/appneta/tv_ruby_tests.png)
+![TraceView Ruby Tests](http://docs.traceview.solarwinds.com/images/ruby_readme/tv_ruby_tests.png)
 
 The tests bundled with the gem are implemented using [Minitest](https://github.com/seattlerb/minitest).  The tests are currently used to validate the sanity of the traces generated and basic gem functionality.
 
@@ -369,7 +363,6 @@ We humbly request that any submitted instrumentation is delivered with correspon
 
 # License
 
-Copyright (c) 2014 Appneta
+Copyright (c) 2016 SolarWinds, LLC
 
-Released under the [AppNeta Open License](http://www.appneta.com/appneta-license), Version 1.0
-
+Released under the [Librato Open License](http://docs.traceview.solarwinds.com/Instrumentation/librato-open-license.html)

@@ -29,5 +29,4 @@ Name | Description | Default
 
 `TraceView::Config` is a nested hash used by the traceview gem to store preferences and switches.
 
-See [this Rails generator template file](https://github.com/appneta/oboe-ruby/blob/master/lib/rails/generators/traceview/templates/traceview_initializer.rb) for documentation on all of the supported values.
-
+See [this Rails generator template file](https://github.com/tracelytics/oboe-ruby/blob/master/lib/rails/generators/traceview/templates/traceview_initializer.rb) for documentation on all of the supported values.

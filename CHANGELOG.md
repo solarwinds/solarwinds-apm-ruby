@@ -1,6 +1,6 @@
 
 For the latest release info, see here:
-https://github.com/appneta/ruby-traceview/releases
+https://github.com/tracelytics/ruby-traceview/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 

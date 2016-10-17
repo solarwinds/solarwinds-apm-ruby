@@ -73,7 +73,7 @@ task :compile do
     else
       Dir.chdir pwd
       puts '!! Extension failed to build (see above).  Are the base TraceView packages installed?'
-      puts '!! See https://docs.appneta.com/install-instrumentation'
+      puts '!! See http://docs.traceview.solarwinds.com/TraceView/install-instrumentation.html'
     end
   else
     puts '== Nothing to do under JRuby.'

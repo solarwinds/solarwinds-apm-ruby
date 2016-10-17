@@ -16,7 +16,7 @@ if defined?(JRUBY_VERSION)
   gem 'jdbc-postgresql'
 else
   gem 'sinatra'
-  gem 'pg'
+  gem 'pg', '< 0.19'
   gem 'mysql'
   gem 'mysql2', '< 0.4.0'
 end

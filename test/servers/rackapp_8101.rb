@@ -1,4 +1,4 @@
-# Copyright (c) 2015 AppNeta, Inc.
+# Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
 # This is a Rack application that is booted in a background

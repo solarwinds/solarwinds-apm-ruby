@@ -1,4 +1,4 @@
-# Copyright (c) 2013 AppNeta, Inc.
+# Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
 module Oboe_metal
@@ -202,7 +202,7 @@ case Java::ComTracelyticsAgent::Agent.getStatus
     $stderr.puts '=============================================================='
     $stderr.puts 'TraceView Java Agent not initialized properly.'
     $stderr.puts 'Possibly misconfigured?  Going into no-op mode.'
-    $stderr.puts 'https://docs.appneta.com/installing-jruby-instrumentation'
+    $stderr.puts 'http://docs.traceview.solarwinds.com/Instrumentation/other-instrumentation-modules.html#jruby'
     $stderr.puts '=============================================================='
 
   when Java::ComTracelyticsAgent::Agent::AgentStatus::UNINITIALIZED
@@ -210,7 +210,7 @@ case Java::ComTracelyticsAgent::Agent.getStatus
     $stderr.puts '=============================================================='
     $stderr.puts 'TraceView Java Agent not loaded. Going into no-op mode.'
     $stderr.puts 'To preload the TraceView java agent see:'
-    $stderr.puts 'https://docs.appneta.com/installing-jruby-instrumentation'
+    $stderr.puts 'http://docs.traceview.solarwinds.com/Instrumentation/other-instrumentation-modules.html#jruby'
     $stderr.puts '=============================================================='
 
   else

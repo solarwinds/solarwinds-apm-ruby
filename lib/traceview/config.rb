@@ -1,4 +1,4 @@
-# Copyright (c) 2013 AppNeta, Inc.
+# Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
 module TraceView
@@ -174,7 +174,7 @@ module TraceView
       #
       # Alternatively, if you would like to install the separate
       # libcurl instrumentation, see here:
-      # http://docs.appneta.com/installing-libcurl-instrumentation
+      # http://docs.traceview.solarwinds.com/Instrumentation/other-instrumentation-modules.html#libcurl
       #
       @@config[:curb][:cross_host] = false
 

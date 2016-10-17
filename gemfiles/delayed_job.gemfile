@@ -21,7 +21,12 @@ if defined?(JRUBY_VERSION)
   gem 'jdbc-postgresql'
 else
   gem 'sinatra'
-  gem 'pg'
+  # pg 0.19 and above require ruby 2.0
+  if RUBY_VERSION < '2.0'
+    gem 'pg', '< 0.19'
+  else
+    gem 'pg'
+  end
   gem "delayed_job_active_record"
 end
 
