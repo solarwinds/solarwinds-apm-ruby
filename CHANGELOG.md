@@ -4,6 +4,17 @@ https://github.com/tracelytics/ruby-traceview/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# traceview 3.8.4 (10/17/2016)
+
+This patch release includes the following fixes:
+
+* License, copyright, support email and links updates
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/traceview/versions/3.8.4
+https://rubygems.org/gems/traceview/versions/3.8.4-java
+
 # traceview 3.8.3 (08/29/2016)
 
 This patch release includes the following fixes:
@@ -610,7 +621,7 @@ This is a patch release to address "Unsupported digest algorithm (SHA256)" occur
 # oboe 2.4.0.1 (01/12/2013)
 
 * Report SampleRate & SampleSource per updated SWIG API
-* Change OboeHeroku __Init Key 
+* Change OboeHeroku __Init Key
 * Remove oboe_fu artifacts
 * CodeClimate Initiated improvements
 * Remove SSL connection requirement from Net::HTTP tests
@@ -621,7 +632,7 @@ This is a patch release to address "Unsupported digest algorithm (SHA256)" occur
 
 # oboe 2.3.4.1 (11/21/2013)
 
-* Stacks that use a caching system like Varnish could see corrupted traces; fixed. 
+* Stacks that use a caching system like Varnish could see corrupted traces; fixed.
 
 # oboe 2.3.3.7 (11/06/2013)
 
@@ -690,9 +701,9 @@ This is a patch release to address "Unsupported digest algorithm (SHA256)" occur
 
 * Resque support
 * Fix Rails 2 bug where SET and SHOW could result in recursive calls
-* Memcache - multi-get calls now report a total for number of keys and number 
+* Memcache - multi-get calls now report a total for number of keys and number
 of hits
-* Configuration - added ability to identify components to skip from 
+* Configuration - added ability to identify components to skip from
 instrumentation
 * Configuration - sending Resque parameters can be skipped if privacy an issue.
 
@@ -729,24 +740,24 @@ instrumentation
 
 # oboe 1.3.2
 
-* Fix a case when the RUM instrumentation header/footer methods would not 
+* Fix a case when the RUM instrumentation header/footer methods would not
 return JS output, depending on how the way they were called from HAML.
 
 # oboe 1.3.1
 
 * Support for RUM instrumentation.
-Fix for certain cases where exceptions were not properly propagated up to Rails 
+Fix for certain cases where exceptions were not properly propagated up to Rails
 error handlers.
 
 # oboe 1.3.0
 
-* The oboe and oboe_fu gems have been merged to simplify installation. The 
-final oboe_fu gem (1.3.0) simply calls "require 'oboe'" now for backwards 
+* The oboe and oboe_fu gems have been merged to simplify installation. The
+final oboe_fu gem (1.3.0) simply calls "require 'oboe'" now for backwards
 compatibility.
-* Please note our updated installation instructions for the new location of 
+* Please note our updated installation instructions for the new location of
 Ruby oboe API methods.
-* Our gem now successfully installs even if your platform does not have our 
-base packages (liboboe) installed, so you can deploy to environments with or 
+* Our gem now successfully installs even if your platform does not have our
+base packages (liboboe) installed, so you can deploy to environments with or
 without TraceView support.
 
 # oboe_fu 1.2.1
@@ -756,5 +767,3 @@ without TraceView support.
 # oboe_fu 1.2.0
 
 * Support for Rails 2.3, 3.0, 3.1, and 3.2.
-
-
