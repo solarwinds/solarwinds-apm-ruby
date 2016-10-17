@@ -8,7 +8,7 @@ module TraceView
   module Version
     MAJOR = 3
     MINOR = 8
-    PATCH = 3
+    PATCH = 4
     BUILD = nil
 
     STRING = [MAJOR, MINOR, PATCH, BUILD].compact.join('.')
