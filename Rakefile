@@ -21,7 +21,7 @@ Rake::TestTask.new do |t|
   case TraceView::Test.gemfile
   when /delayed_job/
     require 'delayed/tasks'
-    t.test_files = FileList["test/queues/delayed_job*_test.rb"]
+    t.test_files = FileList['test/queues/delayed_job*_test.rb']
   when /rails/
     # Pre-load rails to get the major version number
     require 'rails'
@@ -56,12 +56,11 @@ task :compile do
 
     pwd     = Dir.pwd
     ext_dir = File.expand_path('ext/oboe_metal')
-    lib_dir = File.expand_path('lib')
     symlink = File.expand_path('lib/oboe_metal.so')
     so_file = File.expand_path('ext/oboe_metal/oboe_metal.so')
 
     Dir.chdir ext_dir
-    cmd = [ Gem.ruby, 'extconf.rb']
+    cmd = [Gem.ruby, 'extconf.rb']
     sh cmd.join(' ')
     sh '/usr/bin/env make'
     File.delete symlink if File.exist? symlink
@@ -85,9 +84,15 @@ task :clean do
   if !defined?(JRUBY_VERSION)
     pwd     = Dir.pwd
     ext_dir = File.expand_path('ext/oboe_metal')
-    symlink = File.expand_path('lib/oboe_metal.so')
+    symlinks = [
+      File.expand_path('lib/oboe_metal.so'),
+      File.expand_path('ext/oboe_metal/lib/liboboe.so'),
+      File.expand_path('ext/oboe_metal/lib/liboboe-1.0.so.1')
+    ]
 
-    File.delete symlink if File.exist? symlink
+    symlinks.each do |symlink|
+      File.delete symlink if File.exist? symlink
+    end
     Dir.chdir ext_dir
     sh '/usr/bin/env make clean'
 
@@ -102,11 +107,17 @@ task :distclean do
   if !defined?(JRUBY_VERSION)
     pwd     = Dir.pwd
     ext_dir = File.expand_path('ext/oboe_metal')
-    symlink = File.expand_path('lib/oboe_metal.so')
     mkmf_log = File.expand_path('ext/oboe_metal/mkmf.log')
+    symlinks = [
+      File.expand_path('lib/oboe_metal.so'),
+      File.expand_path('ext/oboe_metal/lib/liboboe.so'),
+      File.expand_path('ext/oboe_metal/lib/liboboe-1.0.so.1')
+    ]
 
     if File.exist? mkmf_log
-      File.delete symlink if File.exist? symlink
+      symlinks.each do |symlink|
+        File.delete symlink if File.exist? symlink
+      end
       Dir.chdir ext_dir
       sh '/usr/bin/env make distclean'
 
