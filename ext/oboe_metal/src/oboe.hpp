@@ -497,6 +497,7 @@ public:
  */
 class DebugLogger {
 public:
+    virtual ~DebugLogger() {}
     virtual void log(int module, int level, const char *source_name, int source_lineno, const char *msg) = 0;
 };
 

@@ -1998,7 +1998,7 @@ SWIG_ruby_failed(void)
 } 
 
 
-/*@SWIG:/usr/share/swig3.0/ruby/rubyprimtypes.swg,19,%ruby_aux_method@*/
+/*@SWIG:/usr/local/share/swig/3.0.8/ruby/rubyprimtypes.swg,19,%ruby_aux_method@*/
 SWIGINTERN VALUE SWIG_AUX_NUM2LONG(VALUE *args)
 {
   VALUE obj = args[0];
@@ -2046,7 +2046,7 @@ SWIG_AsVal_int (VALUE obj, int *val)
 
 
 
-/*@SWIG:/usr/share/swig3.0/ruby/rubyprimtypes.swg,19,%ruby_aux_method@*/
+/*@SWIG:/usr/local/share/swig/3.0.8/ruby/rubyprimtypes.swg,19,%ruby_aux_method@*/
 SWIGINTERN VALUE SWIG_AUX_NUM2DBL(VALUE *args)
 {
   VALUE obj = args[0];
@@ -3901,6 +3901,12 @@ fail:
 
 static swig_class SwigClassDebugLogger;
 
+SWIGINTERN void
+free_DebugLogger(void *self) {
+    DebugLogger *arg1 = (DebugLogger *)self;
+    delete arg1;
+}
+
 SWIGINTERN VALUE
 _wrap_DebugLogger_log(int argc, VALUE *argv, VALUE self) {
   DebugLogger *arg1 = (DebugLogger *) 0 ;
@@ -3967,12 +3973,6 @@ fail:
   return Qnil;
 }
 
-
-SWIGINTERN void
-free_DebugLogger(void *self) {
-    DebugLogger *arg1 = (DebugLogger *)self;
-    delete arg1;
-}
 
 SWIGINTERN VALUE
 _wrap_oboe_debug_log_handler(int argc, VALUE *argv, VALUE self) {
