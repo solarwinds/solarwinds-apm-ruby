@@ -21,11 +21,7 @@ module TraceView
         return unless TraceView.loaded
 
         begin
-          client_id = ENV['TRACEVIEW_CUUID'].to_s
-          # TODO: get c-lib to obey TRACEVIEW_REPORTER_SSL_CFG
-          # for now set config like collector host:port via init_reporter()
-          Oboe_metal::Context.init_reporter('ssl', "host=#{ENV['TRACEVIEW_COLLECTOR']},cid=#{client_id}")
-          Oboe_metal::Context.init(client_id)
+          Oboe_metal::Context.init(ENV['TRACEVIEW_CUUID'].to_s)
 
           if ENV.key?('TRACEVIEW_GEM_TEST')
             TraceView.reporter = TraceView::FileReporter.new(TRACE_FILE)
