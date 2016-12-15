@@ -85,6 +85,10 @@ extern "C" {
 #define SETTINGS_RUM_ENABLE_MASK 0x00000001
 #endif
 
+#ifndef HOST_NAME_MAX
+#define HOST_NAME_MAX 256
+#endif
+
 // structs
 
 typedef struct oboe_ids {
@@ -362,7 +366,7 @@ void oboe_shutdown();
 #define TOKEN_BUCKET_RATE_PER_SECOND_DEFAULT 8         // rate per second (number of tokens per second)
 
 #define OBOE_SEND_EVENT 0
-#define OBOE_SEND_INIT 1
+#define OBOE_SEND_STATUS 1
 
 typedef struct {
     uint32_t magic;
