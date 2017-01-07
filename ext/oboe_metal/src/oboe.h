@@ -184,10 +184,12 @@ struct oboe_reporter;
 
 /* TODO: Move struct oboe_reporter to private header. */
 typedef ssize_t (*reporter_send)(void *, int, const char *, size_t);
+typedef int (*reporter_send_span)(void *, const char *, int64_t, const char *);
 typedef int (*reporter_destroy)(void *);
 typedef struct oboe_reporter {
     void *              descriptor;     /*!< Reporter's context. */
     reporter_send       send;           /*!< Send a trace event message. */
+    reporter_send_span  sendSpan;
     reporter_destroy    destroy;        /*!< Destroy the reporter - release all resources. */
 } oboe_reporter_t;
 
@@ -791,6 +793,33 @@ const char* oboe_config_get_version_string();
  * @param dlen Number of bytes of data stored
  */
 void oboe_rum_create_digest(const char* access_key, unsigned int uuid_length, unsigned char* digest, unsigned int *dlen);
+
+// Span reporting
+
+/*
+ * generate a new span
+ *
+ * @param duration  the duration of the span in micro seconds (usec)
+ * @param name      the name of the span
+ * @param tags      a list of tags associated with the span (format: key1=value1&key2=value2&key3=value3)
+ */
+void oboe_span(const int64_t duration, const char *name, const char *tags);
+
+/*
+ * helper function to mark the start of a span
+ *
+ * @return monotonic time in micro seconds (usec) since some unspecified starting point
+ */
+int64_t oboe_span_start();
+
+/*
+ * mark the end of a span and generate a new span
+ *
+ * @param start     the span start time in micro seconds (usec) as returned by oboe_span_start()
+ * @param name      the name of the span
+ * @param tags      a list of tags associated with the span (format: key1=value1&key2=value2&key3=value3)
+ */
+void oboe_span_stop(const int64_t start, const char *name, const char *tags);
 
 #ifdef __cplusplus
 } // extern "C"
