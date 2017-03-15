@@ -184,7 +184,7 @@ struct oboe_reporter;
 
 /* TODO: Move struct oboe_reporter to private header. */
 typedef ssize_t (*reporter_send)(void *, int, const char *, size_t);
-typedef int (*reporter_send_span)(void *, const char *, int64_t, const char *);
+typedef int (*reporter_send_span)(void *, const char *, const char *, const int64_t, const int, const char *, const int, const char *);
 typedef int (*reporter_destroy)(void *);
 typedef struct oboe_reporter {
     void *              descriptor;     /*!< Reporter's context. */
@@ -342,7 +342,6 @@ void oboe_shutdown();
 #define OBOE_SETTINGS_MAX_STRLEN 256
 
 #define OBOE_SETTINGS_UNSET -1
-#define OBOE_SETTINGS_MIN_REFRESH_INTERVAL 30
 
 // Value for "SampleSource" info key
 // where was the sample rate specified? (oboe settings, config file, hard-coded default, etc)
@@ -797,29 +796,26 @@ void oboe_rum_create_digest(const char* access_key, unsigned int uuid_length, un
 // Span reporting
 
 /*
- * generate a new span
+ * generate a new HTTP span
  *
- * @param duration  the duration of the span in micro seconds (usec)
- * @param name      the name of the span
- * @param tags      a list of tags associated with the span (format: key1=value1&key2=value2&key3=value3)
+ * @param transaction   transaction name (will be NULL or empty if url given)
+ * @param url           the raw url which will be processed and used as transaction name (if transaction is NULL or empty)
+ * @param duration      the duration of the span in micro seconds (usec)
+ * @param status        HTTP status code (e.g. 200, 500, ...)
+ * @param method        HTTP method (e.g. GET, POST, ...)
+ * @param error         boolean flag whether this transaction contains an error (1) or not (0)
+ * @param tags          a list of custom tags (format: key1=value1&key2=value2&key3=value3)
  */
-void oboe_span(const int64_t duration, const char *name, const char *tags);
+void oboe_http_span(const char *transaction, const char *url, const int64_t duration,
+        const int status, const char *method, const int has_error, const char *tags);
 
 /*
- * helper function to mark the start of a span
+ * helper functions to mark the start/end of a span
  *
  * @return monotonic time in micro seconds (usec) since some unspecified starting point
  */
 int64_t oboe_span_start();
-
-/*
- * mark the end of a span and generate a new span
- *
- * @param start     the span start time in micro seconds (usec) as returned by oboe_span_start()
- * @param name      the name of the span
- * @param tags      a list of tags associated with the span (format: key1=value1&key2=value2&key3=value3)
- */
-void oboe_span_stop(const int64_t start, const char *name, const char *tags);
+int64_t oboe_span_stop();
 
 #ifdef __cplusplus
 } // extern "C"

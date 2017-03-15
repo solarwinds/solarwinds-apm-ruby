@@ -104,8 +104,8 @@ public:
     /**
      * Set the default sample rate.
      *
-     * This rate is used until overridden by the TraceView servers.  If not set then the
-     * value comes from settings records downloaded from TraceView.
+     * This rate is used until overridden by the Tracelytics servers.  If not set then the
+     * value comes from settings records downloaded from Tracelytics.
      *
      * The rate is interpreted as a ratio out of OBOE_SAMPLE_RESOLUTION (currently 1,000,000).
      *
@@ -360,6 +360,17 @@ public:
     static Event* startTrace(const oboe_metadata_t *md);
 
 };
+
+class Span {
+public:
+    void createHttpSpan(const char *transaction, const char *url, const int64_t duration,
+            const int status, const char *method, const int has_error, const char *tags);
+};
+
+void Span::createHttpSpan(const char *transaction, const char *url, const int64_t duration,
+        const int status, const char *method, const int has_error, const char *tags) {
+    oboe_http_span(transaction, url, duration, status, method, has_error, tags);
+}
 
 /**
  * Create a new event object using the thread's context.

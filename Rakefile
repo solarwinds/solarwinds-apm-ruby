@@ -2,6 +2,7 @@
 
 require 'rubygems'
 require 'fileutils'
+require 'open-uri'
 require 'bundler/setup'
 require 'rake/testtask'
 require 'traceview/test'
@@ -56,24 +57,32 @@ task :updatesource do
   if swig_version.scan(/swig version 3.0.8/i).empty?
     raise "!! Did not find required swig version: #{swig_version.inspect}"
   end
-  oboe_src_dir = File.expand_path('liboboe', ENV['OBOE_REPO'].to_s)
-  if not File.directory? oboe_src_dir
-    raise "!! Cannot find liboboe under OBOE_REPO: #{ENV['OBOE_REPO'].inspect}"
-  end
+  oboe_version = ENV['OBOE_VERSION'] || 'latest'
+  oboe_arch = ENV['OBOE_ARCH'] || 'x86_64'
+  oboe_src_dir = "https://s3-us-west-2.amazonaws.com/rc-files-t2/c-lib/#{oboe_version}"
+  ext_lib_dir = File.expand_path('ext/oboe_metal/lib')
   ext_src_dir = File.expand_path('ext/oboe_metal/src')
-  %w(oboe.h oboe.hpp oboe_debug.h).each do |filename|
-    if filename.eql? 'oboe.hpp'
-      # need to modify the include directive for oboe.h
-      content = File.read(File.join(oboe_src_dir, filename))
-      content.sub!(/#include <oboe\/oboe\.h>/, '#include <oboe.h>')
-      File.open(File.join(ext_src_dir, filename), 'w') {|f| f.puts content}
+
+  %w(oboe.i oboe.h oboe.hpp oboe_debug.h liboboe-1.0.so.0.0.0).each do |filename|
+    if filename =~ /^liboboe-.+so.+/
+      remote_file = File.join(oboe_src_dir,
+                              filename.sub('.so',"-#{oboe_arch}.so"))
+      local_file = File.join(ext_lib_dir, filename)
     else
-      FileUtils.copy_file(File.join(oboe_src_dir, filename),
-                          File.join(ext_src_dir, filename))
+      remote_file = File.join(oboe_src_dir, filename)
+      local_file = File.join(ext_src_dir, filename)
+    end
+    puts "fetching #{remote_file} to #{local_file}"
+    open(remote_file) do |rf|
+      content = rf.read
+      if filename.eql? 'oboe.hpp'
+        # need to modify the include directive for oboe.h
+        content.sub!(/#include <oboe\/oboe\.h>/, '#include <oboe.h>')
+      end
+      File.open(local_file, 'w') {|f| f.puts content}
     end
   end
   FileUtils.cd(ext_src_dir) do
-    FileUtils.copy_file(File.join(oboe_src_dir, 'swig', 'oboe.i'), 'oboe.i')
     system('swig -c++ -ruby -module oboe_metal oboe.i')
     FileUtils.rm('oboe.i')
   end
@@ -117,7 +126,7 @@ task :clean do
     symlinks = [
       File.expand_path('lib/oboe_metal.so'),
       File.expand_path('ext/oboe_metal/lib/liboboe.so'),
-      File.expand_path('ext/oboe_metal/lib/liboboe-1.0.so.1')
+      File.expand_path('ext/oboe_metal/lib/liboboe-1.0.so.0')
     ]
 
     symlinks.each do |symlink|
@@ -141,7 +150,7 @@ task :distclean do
     symlinks = [
       File.expand_path('lib/oboe_metal.so'),
       File.expand_path('ext/oboe_metal/lib/liboboe.so'),
-      File.expand_path('ext/oboe_metal/lib/liboboe-1.0.so.1')
+      File.expand_path('ext/oboe_metal/lib/liboboe-1.0.so.0')
     ]
 
     if File.exist? mkmf_log

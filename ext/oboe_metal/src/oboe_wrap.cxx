@@ -1825,12 +1825,14 @@ int SWIG_Ruby_arity( VALUE proc, int minimal )
 #define SWIGTYPE_p_FileReporter swig_types[6]
 #define SWIGTYPE_p_Metadata swig_types[7]
 #define SWIGTYPE_p_Reporter swig_types[8]
-#define SWIGTYPE_p_SslReporter swig_types[9]
-#define SWIGTYPE_p_UdpReporter swig_types[10]
-#define SWIGTYPE_p_char swig_types[11]
-#define SWIGTYPE_p_oboe_metadata_t swig_types[12]
-static swig_type_info *swig_types[14];
-static swig_module_info swig_module = {swig_types, 13, 0, 0, 0, 0};
+#define SWIGTYPE_p_Span swig_types[9]
+#define SWIGTYPE_p_SslReporter swig_types[10]
+#define SWIGTYPE_p_UdpReporter swig_types[11]
+#define SWIGTYPE_p_char swig_types[12]
+#define SWIGTYPE_p_int64_t swig_types[13]
+#define SWIGTYPE_p_oboe_metadata_t swig_types[14]
+static swig_type_info *swig_types[16];
+static swig_module_info swig_module = {swig_types, 15, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -3102,6 +3104,141 @@ fail:
   return Qnil;
 }
 
+
+static swig_class SwigClassSpan;
+
+SWIGINTERN VALUE
+_wrap_Span_createHttpSpan(int argc, VALUE *argv, VALUE self) {
+  Span *arg1 = (Span *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  int64_t arg4 ;
+  int arg5 ;
+  char *arg6 = (char *) 0 ;
+  int arg7 ;
+  char *arg8 = (char *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int res3 ;
+  char *buf3 = 0 ;
+  int alloc3 = 0 ;
+  void *argp4 ;
+  int res4 = 0 ;
+  int val5 ;
+  int ecode5 = 0 ;
+  int res6 ;
+  char *buf6 = 0 ;
+  int alloc6 = 0 ;
+  int val7 ;
+  int ecode7 = 0 ;
+  int res8 ;
+  char *buf8 = 0 ;
+  int alloc8 = 0 ;
+  
+  if ((argc < 7) || (argc > 7)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_Span, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "Span *","createHttpSpan", 1, self )); 
+  }
+  arg1 = reinterpret_cast< Span * >(argp1);
+  res2 = SWIG_AsCharPtrAndSize(argv[0], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "char const *","createHttpSpan", 2, argv[0] ));
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  res3 = SWIG_AsCharPtrAndSize(argv[1], &buf3, NULL, &alloc3);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "char const *","createHttpSpan", 3, argv[1] ));
+  }
+  arg3 = reinterpret_cast< char * >(buf3);
+  {
+    res4 = SWIG_ConvertPtr(argv[2], &argp4, SWIGTYPE_p_int64_t,  0 );
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), Ruby_Format_TypeError( "", "int64_t const","createHttpSpan", 4, argv[2] )); 
+    }  
+    if (!argp4) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "int64_t const","createHttpSpan", 4, argv[2]));
+    } else {
+      arg4 = *(reinterpret_cast< int64_t * >(argp4));
+    }
+  }
+  ecode5 = SWIG_AsVal_int(argv[3], &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), Ruby_Format_TypeError( "", "int","createHttpSpan", 5, argv[3] ));
+  } 
+  arg5 = static_cast< int >(val5);
+  res6 = SWIG_AsCharPtrAndSize(argv[4], &buf6, NULL, &alloc6);
+  if (!SWIG_IsOK(res6)) {
+    SWIG_exception_fail(SWIG_ArgError(res6), Ruby_Format_TypeError( "", "char const *","createHttpSpan", 6, argv[4] ));
+  }
+  arg6 = reinterpret_cast< char * >(buf6);
+  ecode7 = SWIG_AsVal_int(argv[5], &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), Ruby_Format_TypeError( "", "int","createHttpSpan", 7, argv[5] ));
+  } 
+  arg7 = static_cast< int >(val7);
+  res8 = SWIG_AsCharPtrAndSize(argv[6], &buf8, NULL, &alloc8);
+  if (!SWIG_IsOK(res8)) {
+    SWIG_exception_fail(SWIG_ArgError(res8), Ruby_Format_TypeError( "", "char const *","createHttpSpan", 8, argv[6] ));
+  }
+  arg8 = reinterpret_cast< char * >(buf8);
+  (arg1)->createHttpSpan((char const *)arg2,(char const *)arg3,arg4,arg5,(char const *)arg6,arg7,(char const *)arg8);
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  if (alloc6 == SWIG_NEWOBJ) delete[] buf6;
+  if (alloc8 == SWIG_NEWOBJ) delete[] buf8;
+  return Qnil;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  if (alloc6 == SWIG_NEWOBJ) delete[] buf6;
+  if (alloc8 == SWIG_NEWOBJ) delete[] buf8;
+  return Qnil;
+}
+
+
+#ifdef HAVE_RB_DEFINE_ALLOC_FUNC
+SWIGINTERN VALUE
+_wrap_Span_allocate(VALUE self) {
+#else
+  SWIGINTERN VALUE
+  _wrap_Span_allocate(int argc, VALUE *argv, VALUE self) {
+#endif
+    
+    
+    VALUE vresult = SWIG_NewClassInstance(self, SWIGTYPE_p_Span);
+#ifndef HAVE_RB_DEFINE_ALLOC_FUNC
+    rb_obj_call_init(vresult, argc, argv);
+#endif
+    return vresult;
+  }
+  
+
+SWIGINTERN VALUE
+_wrap_new_Span(int argc, VALUE *argv, VALUE self) {
+  Span *result = 0 ;
+  
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  }
+  result = (Span *)new Span();
+  DATA_PTR(self) = result;
+  return self;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN void
+free_Span(void *self) {
+    Span *arg1 = (Span *)self;
+    delete arg1;
+}
 
 static swig_class SwigClassReporter;
 
@@ -4465,9 +4602,11 @@ static swig_type_info _swigt__p_FILE = {"_p_FILE", "FILE *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_FileReporter = {"_p_FileReporter", "FileReporter *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Metadata = {"_p_Metadata", "Metadata *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Reporter = {"_p_Reporter", "Reporter *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_Span = {"_p_Span", "Span *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_SslReporter = {"_p_SslReporter", "SslReporter *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_UdpReporter = {"_p_UdpReporter", "UdpReporter *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_int64_t = {"_p_int64_t", "int64_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_oboe_metadata_t = {"_p_oboe_metadata_t", "oboe_metadata_t *", 0, 0, (void*)0, 0};
 
 static swig_type_info *swig_type_initial[] = {
@@ -4480,9 +4619,11 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_FileReporter,
   &_swigt__p_Metadata,
   &_swigt__p_Reporter,
+  &_swigt__p_Span,
   &_swigt__p_SslReporter,
   &_swigt__p_UdpReporter,
   &_swigt__p_char,
+  &_swigt__p_int64_t,
   &_swigt__p_oboe_metadata_t,
 };
 
@@ -4495,9 +4636,11 @@ static swig_cast_info _swigc__p_FILE[] = {  {&_swigt__p_FILE, 0, 0, 0},{0, 0, 0,
 static swig_cast_info _swigc__p_FileReporter[] = {  {&_swigt__p_FileReporter, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Metadata[] = {  {&_swigt__p_Metadata, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Reporter[] = {  {&_swigt__p_Reporter, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Span[] = {  {&_swigt__p_Span, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_SslReporter[] = {  {&_swigt__p_SslReporter, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_UdpReporter[] = {  {&_swigt__p_UdpReporter, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_int64_t[] = {  {&_swigt__p_int64_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_oboe_metadata_t[] = {  {&_swigt__p_Metadata, _p_MetadataTo_p_oboe_metadata_t, 0, 0},  {&_swigt__p_oboe_metadata_t, 0, 0, 0},{0, 0, 0, 0}};
 
 static swig_cast_info *swig_cast_initial[] = {
@@ -4510,9 +4653,11 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_FileReporter,
   _swigc__p_Metadata,
   _swigc__p_Reporter,
+  _swigc__p_Span,
   _swigc__p_SslReporter,
   _swigc__p_UdpReporter,
   _swigc__p_char,
+  _swigc__p_int64_t,
   _swigc__p_oboe_metadata_t,
 };
 
@@ -4838,6 +4983,15 @@ SWIGEXPORT void Init_oboe_metal(void) {
   SwigClassEvent.mark = 0;
   SwigClassEvent.destroy = (void (*)(void *)) free_Event;
   SwigClassEvent.trackObjects = 0;
+  
+  SwigClassSpan.klass = rb_define_class_under(mOboe_metal, "Span", rb_cObject);
+  SWIG_TypeClientData(SWIGTYPE_p_Span, (void *) &SwigClassSpan);
+  rb_define_alloc_func(SwigClassSpan.klass, _wrap_Span_allocate);
+  rb_define_method(SwigClassSpan.klass, "initialize", VALUEFUNC(_wrap_new_Span), -1);
+  rb_define_method(SwigClassSpan.klass, "createHttpSpan", VALUEFUNC(_wrap_Span_createHttpSpan), -1);
+  SwigClassSpan.mark = 0;
+  SwigClassSpan.destroy = (void (*)(void *)) free_Span;
+  SwigClassSpan.trackObjects = 0;
   
   SwigClassReporter.klass = rb_define_class_under(mOboe_metal, "Reporter", rb_cObject);
   SWIG_TypeClientData(SWIGTYPE_p_Reporter, (void *) &SwigClassReporter);

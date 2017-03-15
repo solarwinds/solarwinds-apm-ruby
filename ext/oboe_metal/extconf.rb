@@ -15,9 +15,9 @@ tv_lib = File.join(ext_dir, 'lib')
 tv_include = File.join(ext_dir, 'src')
 
 # Create symlinks for the TraceView library
-target = File.join(tv_lib, 'liboboe-1.0.so.1.6.0')
+target = File.join(tv_lib, 'liboboe-1.0.so.0.0.0')
 File.symlink(target, File.join(tv_lib, 'liboboe.so'))
-File.symlink(target, File.join(tv_lib, 'liboboe-1.0.so.1'))
+File.symlink(target, File.join(tv_lib, 'liboboe-1.0.so.0'))
 
 dir_config('oboe', tv_include, tv_lib)
 
