@@ -10,7 +10,11 @@ ext/oboe_metal/mkmf.log
 ext/oboe_metal/oboe_metal.so
 ext/oboe_metal/oboe_noop.so
 ext/oboe_metal/*.o
-ext/oboe_metal/lib/liboboe.so
-ext/oboe_metal/lib/liboboe-1.0.so.1
+ext/oboe_metal/lib/liboboe*so*
+ext/oboe_metal/src/oboe.h
+ext/oboe_metal/src/oboe.hpp
+ext/oboe_metal/src/oboe_debug.h
+ext/oboe_metal/src/oboe_wrap.cxx
+ext/oboe_metal/src/VERSION
 log/
 .vagrant

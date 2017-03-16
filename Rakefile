@@ -51,8 +51,8 @@ Rake::TestTask.new do |t|
   end
 end
 
-desc "Update extension source files"
-task :updatesource do
+desc "Fetch extension source files"
+task :fetchsource do
   swig_version = %x{swig -version} rescue ''
   if swig_version.scan(/swig version 3.0.8/i).empty?
     raise "!! Did not find required swig version: #{swig_version.inspect}"
@@ -63,7 +63,7 @@ task :updatesource do
   ext_lib_dir = File.expand_path('ext/oboe_metal/lib')
   ext_src_dir = File.expand_path('ext/oboe_metal/src')
 
-  %w(oboe.i oboe.h oboe.hpp oboe_debug.h liboboe-1.0.so.0.0.0).each do |filename|
+  %w(oboe.i oboe.h oboe.hpp oboe_debug.h liboboe-1.0.so.0.0.0 VERSION).each do |filename|
     if filename =~ /^liboboe-.+so.+/
       remote_file = File.join(oboe_src_dir,
                               filename.sub('.so',"-#{oboe_arch}.so"))

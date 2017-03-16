@@ -16,6 +16,12 @@ Gem::Specification.new do |s|
 
   s.extra_rdoc_files = ["LICENSE"]
   s.files = `git ls-files`.split("\n")
+  s.files += ['ext/oboe_metal/lib/liboboe-1.0.so.0.0.0',
+              'ext/oboe_metal/src/oboe.h',
+              'ext/oboe_metal/src/oboe.hpp',
+              'ext/oboe_metal/src/oboe_debug.h',
+              'ext/oboe_metal/src/oboe_wrap.cxx',
+              'ext/oboe_metal/src/VERSION']
   s.test_files  = Dir.glob("{test}/**/*.rb")
 
   s.platform   = defined?(JRUBY_VERSION) ? 'java' : Gem::Platform::CURRENT
