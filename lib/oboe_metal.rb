@@ -21,7 +21,7 @@ module TraceView
         return unless TraceView.loaded
 
         begin
-          Oboe_metal::Context.init(ENV['TRACEVIEW_CUUID'].to_s)
+          Oboe_metal::Context.init(ENV['TRACELYTICS_SERVICE_KEY'].to_s)
 
           if ENV.key?('TRACEVIEW_GEM_TEST')
             TraceView.reporter = TraceView::FileReporter.new(TRACE_FILE)
@@ -117,7 +117,10 @@ module TraceView
       xtrace  = opts[:xtrace]     ? opts[:xtrace].to_s.strip       : TV_STR_BLANK
       tv_meta = opts['X-TV-Meta'] ? opts['X-TV-Meta'].to_s.strip   : TV_STR_BLANK
 
-      rv = TraceView::Context.sampleRequest(layer, xtrace, tv_meta)
+      ## TODO: remove X-TV-META (AVW) extraction / propagation
+      ## https://github.com/orgs/librato/projects/4#card-2154514
+      ## rv = TraceView::Context.sampleRequest(layer, xtrace, tv_meta)
+      rv = TraceView::Context.sampleRequest(layer, xtrace)
 
       if rv == 0
         if ENV.key?('TRACEVIEW_GEM_TEST')
