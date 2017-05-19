@@ -98,6 +98,7 @@ task :compile do
     cmd = [Gem.ruby, 'extconf.rb']
     sh cmd.join(' ')
     sh '/usr/bin/env make'
+
     File.delete symlink if File.exist? symlink
 
     if File.exist? so_file
@@ -106,8 +107,8 @@ task :compile do
       puts "== Extension built and symlink'd to #{symlink}"
     else
       Dir.chdir pwd
-      puts '!! Extension failed to build (see above).  Are the base TraceView packages installed?'
-      puts '!! See http://docs.traceview.solarwinds.com/TraceView/install-instrumentation.html'
+      puts '!! Extension failed to build (see above). Have the required binary and header files been fetched?'
+      puts '!! Try the tasks in this order: clean > fetchsource > compile.'
     end
   else
     puts '== Nothing to do under JRuby.'
@@ -126,10 +127,10 @@ task :clean do
     ]
 
     symlinks.each do |symlink|
-      File.delete symlink if File.exist? symlink
+      FileUtils.rm_f symlink
     end
     Dir.chdir ext_dir
-    sh '/usr/bin/env make clean'
+    sh '/usr/bin/env make clean' if File.exist? 'Makefile'
 
     Dir.chdir pwd
   else
@@ -151,10 +152,10 @@ task :distclean do
 
     if File.exist? mkmf_log
       symlinks.each do |symlink|
-        File.delete symlink if File.exist? symlink
+        FileUtils.rm_f symlink
       end
       Dir.chdir ext_dir
-      sh '/usr/bin/env make distclean'
+      sh '/usr/bin/env make distclean' if File.exist? 'Makefile'
 
       Dir.chdir pwd
     else
