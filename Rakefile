@@ -75,10 +75,6 @@ task :fetchsource do
     puts "fetching #{remote_file} to #{local_file}"
     open(remote_file) do |rf|
       content = rf.read
-      if filename.eql? 'oboe.hpp'
-        # need to modify the include directive for oboe.h
-        content.sub!(/#include <oboe\/oboe\.h>/, '#include <oboe.h>')
-      end
       File.open(local_file, 'w') {|f| f.puts content}
     end
   end
