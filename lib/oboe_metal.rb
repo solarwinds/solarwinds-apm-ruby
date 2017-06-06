@@ -21,13 +21,21 @@ module TraceView
         return unless TraceView.loaded
 
         begin
-          Oboe_metal::Context.init(ENV['TRACELYTICS_SERVICE_KEY'].to_s)
+          protocol = ENV.key?('TRACEVIEW_GEM_TEST') ? 'file' :
+                       ENV['TRACELYTICS_REPORTER'] || 'ssl'
+          options = "cid=#{TraceView::Config[:access_key]}"
 
-          if ENV.key?('TRACEVIEW_GEM_TEST')
-            TraceView.reporter = TraceView::FileReporter.new(TRACE_FILE)
+          case protocol
+          when 'file'
+            options += ",file=#{TRACE_FILE}"
+          when 'udp'
+            options += ",addr=#{TraceView::Config[:reporter_host]},port=#{TraceView::Config[:reporter_port]}"
           else
-            TraceView.reporter = TraceView::UdpReporter.new(TraceView::Config[:reporter_host], TraceView::Config[:reporter_port])
+            # default is ssl
+            # TODO: only allow collector host/port override via environment var?
+            options += ",host=#{TraceView::Config[:reporter_host]},port=#{TraceView::Config[:reporter_port]}"
           end
+          TraceView.reporter = Oboe_metal::Reporter.new(protocol, options)
 
           # Only report __Init from here if we are not instrumenting a framework.
           # Otherwise, frameworks will handle reporting __Init after full initialization
