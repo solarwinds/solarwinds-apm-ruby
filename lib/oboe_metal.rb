@@ -23,7 +23,7 @@ module TraceView
         begin
           protocol = ENV.key?('TRACEVIEW_GEM_TEST') ? 'file' :
                        ENV['TRACELYTICS_REPORTER'] || 'ssl'
-          options = "cid=#{TraceView::Config[:access_key]}"
+          options = "cid=#{TraceView::Config[:service_key]}"
 
           case protocol
           when 'file'
