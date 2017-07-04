@@ -51,8 +51,8 @@ Rake::TestTask.new do |t|
   end
 end
 
-desc "Fetch extension source files"
-task :fetchsource do
+desc "Fetch extension dependency files"
+task :fetch_ext_deps do
   swig_version = %x{swig -version} rescue ''
   if swig_version.scan(/swig version 3.0.8/i).empty?
     raise "!! Did not find required swig version: #{swig_version.inspect}"

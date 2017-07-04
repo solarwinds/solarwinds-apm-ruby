@@ -1,0 +1,5 @@
+# exclude everything by default
+*
+
+# add whitelist of includes via:
+# !somefile.txt
