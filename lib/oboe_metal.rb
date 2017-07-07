@@ -20,6 +20,11 @@ module TraceView
       def start
         return unless TraceView.loaded
 
+        if TraceView::Config[:service_key].to_s == ""
+          TraceView.logger.warn "[traceview/warn] TRACELYTICS_SERVICE_KEY not set. Cannot submit data."
+          return
+        end
+
         begin
           protocol = ENV.key?('TRACEVIEW_GEM_TEST') ? 'file' :
                        ENV['TRACELYTICS_REPORTER'] || 'ssl'
