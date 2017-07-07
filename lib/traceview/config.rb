@@ -90,6 +90,8 @@ module TraceView
       # Access Key is empty until loaded from config file or env var
       @@config[:access_key] = ''
 
+      @@config[:service_key] = ENV['TRACELYTICS_SERVICE_KEY']
+
       # Logging of outgoing HTTP query args
       #
       # This optionally disables the logging of query args of outgoing
