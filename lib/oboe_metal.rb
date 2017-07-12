@@ -22,6 +22,7 @@ module TraceView
 
         if TraceView::Config[:service_key].to_s == ""
           TraceView.logger.warn "[traceview/warn] TRACELYTICS_SERVICE_KEY not set. Cannot submit data."
+          TraceView.loaded = false
           return
         end
 
