@@ -65,6 +65,15 @@ module TraceView
       end
 
       ##
+      # sendStatus
+      #
+      # Send the report for the given event
+      #
+      def sendStatus(evt, context = nil)
+        TraceView.reporter.sendStatus(evt, context)
+      end
+
+      ##
       # clear_all_traces
       #
       # Truncates the trace output file to zero

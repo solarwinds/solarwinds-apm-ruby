@@ -275,6 +275,29 @@ module TraceView
 
         TraceView::Reporter.sendReport(event)
       end
+
+      ##
+      # Internal: Reports agent init to the collector
+      #
+      # ==== Attributes
+      #
+      # * +layer+ - The layer the reported event belongs to
+      # * +opts+ - A hash containing key/value pairs that will be reported along with this event
+      def log_init(layer = :rack, opts = {})
+        context = TraceView::Metadata.makeRandom
+        if !context.isValid
+          return
+        end
+
+        event = context.createEvent
+        event.addInfo(TV_STR_LAYER, layer.to_s)
+        event.addInfo(TV_STR_LABEL, 'single')
+        opts.each do |k, v|
+          event.addInfo(k, v.to_s)
+        end
+
+        TraceView::Reporter.sendStatus(event, context)
+      end
     end
   end
 end
