@@ -138,11 +138,7 @@ module TraceView
       # Assure defaults since SWIG enforces Strings
       layer   = opts[:layer]      ? opts[:layer].to_s.strip.freeze : TV_STR_BLANK
       xtrace  = opts[:xtrace]     ? opts[:xtrace].to_s.strip       : TV_STR_BLANK
-      tv_meta = opts['X-TV-Meta'] ? opts['X-TV-Meta'].to_s.strip   : TV_STR_BLANK
 
-      ## TODO: remove X-TV-META (AVW) extraction / propagation
-      ## https://github.com/orgs/librato/projects/4#card-2154514
-      ## rv = TraceView::Context.sampleRequest(layer, xtrace, tv_meta)
       rv = TraceView::Context.sampleRequest(layer, xtrace)
 
       if rv == 0

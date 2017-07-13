@@ -124,12 +124,7 @@ module TraceView
           # sample rate and sample source
           opts[:SampleRate]        = TraceView.sample_rate
           opts[:SampleSource]      = TraceView.sample_source
-
-          if TraceView.through? && opts.key?('X-TV-Meta')
-            opts[:TraceOrigin]       = :avw_sampled
-          else
-            opts[:TraceOrigin]       = :always_sampled
-          end
+          opts[:TraceOrigin]       = :always_sampled
 
           log_event(layer, :entry, TraceView::Context.startTrace, opts)
         end
