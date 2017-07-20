@@ -23,7 +23,6 @@ module TraceView
         # that the gem is fully loaded and not in no-op
         # mode (e.g. on unsupported platforms etc.)
         if TraceView.loaded
-          TraceView::Loading.load_access_key
           TraceView::Inst.load_instrumentation
         end
       end

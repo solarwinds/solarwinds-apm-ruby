@@ -44,9 +44,6 @@ module TraceView
       # Continue the trace from the enqueue side?
       if args[1].is_a?(Hash) && TraceView::XTrace.valid?(args[1]['SourceTrace'])
         report_kvs[:SourceTrace] = args[1]['SourceTrace']
-
-        # Pass the source trace in the TV-Meta flag field to indicate tracing
-        report_kvs['X-TV-Meta'] = args[1]['SourceTrace']
       end
 
       result = TraceView::API.start_trace(:'sidekiq-worker', nil, report_kvs) do

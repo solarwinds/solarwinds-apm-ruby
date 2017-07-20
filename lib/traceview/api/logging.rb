@@ -124,12 +124,7 @@ module TraceView
           # sample rate and sample source
           opts[:SampleRate]        = TraceView.sample_rate
           opts[:SampleSource]      = TraceView.sample_source
-
-          if TraceView.through? && opts.key?('X-TV-Meta')
-            opts[:TraceOrigin]       = :avw_sampled
-          else
-            opts[:TraceOrigin]       = :always_sampled
-          end
+          opts[:TraceOrigin]       = :always_sampled
 
           log_event(layer, :entry, TraceView::Context.startTrace, opts)
         end
@@ -274,6 +269,29 @@ module TraceView
         end if !opts.nil? && opts.any?
 
         TraceView::Reporter.sendReport(event)
+      end
+
+      ##
+      # Internal: Reports agent init to the collector
+      #
+      # ==== Attributes
+      #
+      # * +layer+ - The layer the reported event belongs to
+      # * +opts+ - A hash containing key/value pairs that will be reported along with this event
+      def log_init(layer = :rack, opts = {})
+        context = TraceView::Metadata.makeRandom
+        if !context.isValid
+          return
+        end
+
+        event = context.createEvent
+        event.addInfo(TV_STR_LAYER, layer.to_s)
+        event.addInfo(TV_STR_LABEL, 'single')
+        opts.each do |k, v|
+          event.addInfo(k, v.to_s)
+        end
+
+        TraceView::Reporter.sendStatus(event, context)
       end
     end
   end

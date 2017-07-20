@@ -16,19 +16,7 @@ module TraceView
         return if ENV.key?('TRACEVIEW_GEM_TEST') || !TraceView.loaded
 
         platform_info = TraceView::Util.build_init_report
-
-        # If already tracing, save and clear the context.  Restore it after
-        # the __Init is sent
-        context = nil
-
-        if TraceView.tracing?
-          context = TraceView::Context.toString
-          TraceView::Context.clear
-        end
-
-        start_trace(layer, nil, platform_info.merge('Force' => true)) {}
-
-        TraceView::Context.fromString(context) if context
+        log_init(layer, platform_info)
       end
 
       ##

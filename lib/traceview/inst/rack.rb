@@ -84,9 +84,6 @@ module TraceView
         report_kvs[:URL] = ::CGI.unescape(req.path)
       end
 
-      # Detect and log AVW headers for sampling analysis
-      report_kvs['X-TV-Meta'] = env['HTTP_X_TV_META'] if env.key?('HTTP_X_TV_META')
-
       # Check for and validate X-Trace request header to pick up tracing context
       xtrace = env.is_a?(Hash) ? env['HTTP_X_TRACE'] : nil
       xtrace_header = xtrace if xtrace && TraceView::XTrace.valid?(xtrace)

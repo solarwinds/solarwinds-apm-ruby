@@ -30,12 +30,11 @@ describe Sinatra do
     r.headers['X-Trace'].must_equal traces[8]['X-Trace']
   end
 
-  it "should have RUM code in the response" do
+  it "should not have RUM code in the response" do
     @app = SinatraSimple
 
     r = get "/render"
 
-    (r.body =~ /tly.js/).wont_equal nil
+    (r.body =~ /tly.js/).must_be_nil
   end
 end
-

@@ -6,34 +6,14 @@ module TraceView
     module Helpers
       extend ActiveSupport::Concern if defined?(::Rails) and ::Rails::VERSION::MAJOR > 2
 
-      @@rum_xhr_tmpl = File.read(File.dirname(__FILE__) + '/rails/helpers/rum/rum_ajax_header.js.erb')
-      @@rum_hdr_tmpl = File.read(File.dirname(__FILE__) + '/rails/helpers/rum/rum_header.js.erb')
-      @@rum_ftr_tmpl = File.read(File.dirname(__FILE__) + '/rails/helpers/rum/rum_footer.js.erb')
-
       def traceview_rum_header
-        return unless TraceView::Config.rum_id
-        if TraceView.tracing?
-          if request.xhr?
-            return raw(ERB.new(@@rum_xhr_tmpl).result)
-          else
-            return raw(ERB.new(@@rum_hdr_tmpl).result)
-          end
-        end
-      rescue StandardError => e
-        TraceView.logger.warn "traceview_rum_header: #{e.message}."
+        TraceView.logger.warn '[traceview/warn] Note that traceview_rum_header is deprecated.  It is now a no-op and should be removed from your application code.'
         return ''
       end
       alias_method :oboe_rum_header, :traceview_rum_header
 
       def traceview_rum_footer
-        return unless TraceView::Config.rum_id
-        if TraceView.tracing?
-          # Even though the footer template is named xxxx.erb, there are no ERB tags in it so we'll
-          # skip that step for now
-          return raw(@@rum_ftr_tmpl)
-        end
-      rescue StandardError => e
-        TraceView.logger.warn "traceview_rum_footer: #{e.message}."
+        TraceView.logger.warn '[traceview/warn] Note that traceview_rum_footer is deprecated.  It is now a no-op and should be removed from your application code.'
         return ''
       end
       alias_method :oboe_rum_footer, :traceview_rum_footer
@@ -108,7 +88,6 @@ if defined?(::Rails)
         config.after_initialize do
           TraceView.logger = ::Rails.logger if ::Rails.logger && !ENV.key?('TRACEVIEW_GEM_TEST')
 
-          TraceView::Loading.load_access_key
           TraceView::Inst.load_instrumentation
           TraceView::Rails.load_instrumentation
 
@@ -121,7 +100,6 @@ if defined?(::Rails)
     TraceView.logger = ::Rails.logger if ::Rails.logger
 
     TraceView::Rails.load_initializer
-    TraceView::Loading.load_access_key
 
     Rails.configuration.after_initialize do
       TraceView.logger.info '[traceview/loading] Instrumenting rack' if TraceView::Config[:verbose]

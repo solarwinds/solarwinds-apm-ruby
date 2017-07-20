@@ -87,8 +87,8 @@ module TraceView
       # Setup an empty host blacklist (see: TraceView::API::Util.blacklisted?)
       @@config[:blacklist] = []
 
-      # Access Key is empty until loaded from config file or env var
-      @@config[:access_key] = ''
+      # Service key is required, take default from env var
+      @@config[:service_key] = ENV['TRACELYTICS_SERVICE_KEY']
 
       # Logging of outgoing HTTP query args
       #

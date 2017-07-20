@@ -21,13 +21,25 @@ module TraceView
         return unless TraceView.loaded
 
         begin
-          Oboe_metal::Context.init
+          protocol = ENV.key?('TRACEVIEW_GEM_TEST') ? 'file' :
+                       ENV['TRACELYTICS_REPORTER'] || 'ssl'
 
-          if ENV.key?('TRACEVIEW_GEM_TEST')
-            TraceView.reporter = TraceView::FileReporter.new(TRACE_FILE)
+          case protocol
+          when 'file'
+            options = "file=#{TRACE_FILE}"
+          when 'udp'
+            options = "addr=#{TraceView::Config[:reporter_host]},port=#{TraceView::Config[:reporter_port]}"
           else
-            TraceView.reporter = TraceView::UdpReporter.new(TraceView::Config[:reporter_host], TraceView::Config[:reporter_port])
+            # ssl reporter requires the service key passed in as arg "cid"
+            if TraceView::Config[:service_key].to_s == ''
+              TraceView.logger.warn "[traceview/warn] TRACELYTICS_SERVICE_KEY not set. Cannot submit data."
+              TraceView.loaded = false
+              return
+            end
+            options = "cid=#{TraceView::Config[:service_key]}"
           end
+
+          TraceView.reporter = Oboe_metal::Reporter.new(protocol, options)
 
           # Only report __Init from here if we are not instrumenting a framework.
           # Otherwise, frameworks will handle reporting __Init after full initialization
@@ -49,6 +61,15 @@ module TraceView
       #
       def sendReport(evt)
         TraceView.reporter.sendReport(evt)
+      end
+
+      ##
+      # sendStatus
+      #
+      # Send the report for the given event
+      #
+      def sendStatus(evt, context = nil)
+        TraceView.reporter.sendStatus(evt, context)
       end
 
       ##
@@ -115,9 +136,8 @@ module TraceView
       # Assure defaults since SWIG enforces Strings
       layer   = opts[:layer]      ? opts[:layer].to_s.strip.freeze : TV_STR_BLANK
       xtrace  = opts[:xtrace]     ? opts[:xtrace].to_s.strip       : TV_STR_BLANK
-      tv_meta = opts['X-TV-Meta'] ? opts['X-TV-Meta'].to_s.strip   : TV_STR_BLANK
 
-      rv = TraceView::Context.sampleRequest(layer, xtrace, tv_meta)
+      rv = TraceView::Context.sampleRequest(layer, xtrace)
 
       if rv == 0
         if ENV.key?('TRACEVIEW_GEM_TEST')

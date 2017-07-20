@@ -12,6 +12,7 @@ begin
   require 'traceview/util'
   require 'traceview/xtrace'
   require 'traceview/support'
+  require 'traceview/config'
 
   # If OboeHeroku is already defined then we are in a PaaS environment
   # with an alternate metal (see the oboe-heroku gem)
@@ -38,7 +39,6 @@ begin
     end
   end
 
-  require 'traceview/config'
   require 'traceview/loading'
   require 'traceview/legacy_method_profiling'
   require 'traceview/method_profiling'

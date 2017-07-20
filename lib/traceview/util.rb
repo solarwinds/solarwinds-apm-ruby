@@ -259,6 +259,8 @@ module TraceView
           platform_info['Ruby.Platform.Version']        = RUBY_PLATFORM
           platform_info['Ruby.Version']                 = RUBY_VERSION
           platform_info['Ruby.TraceView.Version']       = ::TraceView::Version::STRING
+          # Should this be the oboe version, separate from the Ruby library's version?
+          platform_info['Ruby.Oboe.Version']            = ::TraceView::Version::STRING
           platform_info['RubyHeroku.TraceView.Version'] = ::TraceViewHeroku::Version::STRING if defined?(::TraceViewHeroku)
           platform_info['Ruby.TraceMode.Version']       = ::TraceView::Config[:tracing_mode]
 
