@@ -6,7 +6,8 @@ require 'digest/sha1'
 module TraceView
   module Util
     ##
-    # This module is used solely for RUM ID calculation
+    # This module was used solely for the deprecated RUM ID calculation
+    # but may be useful in the future.
     #
     module Base64URL
       module_function
@@ -37,35 +38,6 @@ module TraceView
   # instrumented libraries are already loaded...
   #
   module Loading
-    ##
-    # Load the TraceView access key (either from system configuration file
-    # or environment variable) and calculate internal RUM ID
-    #
-    def self.load_access_key
-      if ENV.key?('TRACEVIEW_CUUID')
-        # Preferably get access key from environment (e.g. Heroku)
-        TraceView::Config[:access_key] = ENV['TRACEVIEW_CUUID']
-        TraceView::Config[:rum_id] = TraceView::Util::Base64URL.encode(Digest::SHA1.digest('RUM' + TraceView::Config[:access_key]))
-      else
-        # ..else read from system-wide configuration file
-        if TraceView::Config.access_key.empty?
-          config_file = '/etc/tracelytics.conf'
-          return unless File.exist?(config_file)
-
-          File.open(config_file).each do |line|
-            if line =~ /^tracelyzer.access_key=/ || line =~ /^access_key/
-              bits = line.split(/=/)
-              TraceView::Config[:access_key] = bits[1].strip
-              TraceView::Config[:rum_id] = TraceView::Util::Base64URL.encode(Digest::SHA1.digest('RUM' + TraceView::Config[:access_key]))
-              break
-            end
-          end
-        end
-      end
-    rescue StandardError => e
-      TraceView.logger.error "Trouble obtaining access_key and rum_id: #{e.inspect}"
-    end
-
     ##
     # Load the traceview tracing API
     #

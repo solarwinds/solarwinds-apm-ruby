@@ -20,27 +20,25 @@ module TraceView
       def start
         return unless TraceView.loaded
 
-        if TraceView::Config[:service_key].to_s == ""
-          TraceView.logger.warn "[traceview/warn] TRACELYTICS_SERVICE_KEY not set. Cannot submit data."
-          TraceView.loaded = false
-          return
-        end
-
         begin
           protocol = ENV.key?('TRACEVIEW_GEM_TEST') ? 'file' :
                        ENV['TRACELYTICS_REPORTER'] || 'ssl'
-          options = "cid=#{TraceView::Config[:service_key]}"
 
           case protocol
           when 'file'
-            options += ",file=#{TRACE_FILE}"
+            options = "file=#{TRACE_FILE}"
           when 'udp'
-            options += ",addr=#{TraceView::Config[:reporter_host]},port=#{TraceView::Config[:reporter_port]}"
+            options = "addr=#{TraceView::Config[:reporter_host]},port=#{TraceView::Config[:reporter_port]}"
           else
-            # default is ssl
-            # TODO: only allow collector host/port override via environment var?
-            options += ",host=#{TraceView::Config[:reporter_host]},port=#{TraceView::Config[:reporter_port]}"
+            # ssl reporter requires the service key passed in as arg "cid"
+            if TraceView::Config[:service_key].to_s == ''
+              TraceView.logger.warn "[traceview/warn] TRACELYTICS_SERVICE_KEY not set. Cannot submit data."
+              TraceView.loaded = false
+              return
+            end
+            options = "cid=#{TraceView::Config[:service_key]}"
           end
+
           TraceView.reporter = Oboe_metal::Reporter.new(protocol, options)
 
           # Only report __Init from here if we are not instrumenting a framework.

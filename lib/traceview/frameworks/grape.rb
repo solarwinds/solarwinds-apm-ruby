@@ -92,11 +92,9 @@ if defined?(::Grape)
 
   TraceView.logger.info "[traceview/loading] Instrumenting Grape" if TraceView::Config[:verbose]
 
-  TraceView::Loading.load_access_key
   TraceView::Inst.load_instrumentation
 
   ::TraceView::Util.send_extend(::Grape::API,               ::TraceView::Grape::API)
   ::TraceView::Util.send_include(::Grape::Endpoint,          ::TraceView::Grape::Endpoint)
   ::TraceView::Util.send_include(::Grape::Middleware::Error, ::TraceView::Grape::Middleware::Error)
 end
-
