@@ -19,8 +19,8 @@ module TraceView
         # The X-Trace ID shouldn't be an initialized empty ID
         return false if (xtrace =~ /^1b0000000/i) == 0
 
-        # Valid X-Trace IDs have a length of 58 bytes and start with '1b'
-        return false unless xtrace.length == 58 && (xtrace =~ /^1b/i) == 0
+        # Valid X-Trace IDs have a length of 60 bytes and start with '2b'
+        return false unless xtrace.length == 60 && (xtrace =~ /^2b/i) == 0
 
         true
       rescue StandardError => e
