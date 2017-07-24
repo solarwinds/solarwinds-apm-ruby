@@ -5,13 +5,6 @@
 # http://docs.traceview.solarwinds.com/Instrumentation/ruby.html#installing-ruby-instrumentation
 
 if defined?(TraceView::Config)
-  # Tracing Mode determines when traces should be initiated for incoming requests.  Valid
-  # options are always, through (when using an instrumented Apache or Nginx) and never.
-  #
-  # If you're not using an instrumented Apache or Nginx, set this directive to always in
-  # order to initiate tracing from Ruby.
-  TraceView::Config[:tracing_mode] = '<%= @tracing_mode %>'
-
   # Verbose output of instrumentation initialization
   # TraceView::Config[:verbose] = <%= @verbose %>
 
