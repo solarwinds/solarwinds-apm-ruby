@@ -30,13 +30,13 @@ module TraceView
           when 'udp'
             options = "addr=#{TraceView::Config[:reporter_host]},port=#{TraceView::Config[:reporter_port]}"
           else
-            # ssl reporter requires the service key passed in as arg "cid"
-            if TraceView::Config[:service_key].to_s == ''
+            if ENV['TRACELYTICS_SERVICE_KEY'].to_s == ''
               TraceView.logger.warn "[traceview/warn] TRACELYTICS_SERVICE_KEY not set. Cannot submit data."
               TraceView.loaded = false
               return
             end
-            options = "cid=#{TraceView::Config[:service_key]}"
+            # ssl reporter requires the service key passed in as arg "cid"
+            options = "cid=#{ENV['TRACELYTICS_SERVICE_KEY']}"
           end
 
           TraceView.reporter = Oboe_metal::Reporter.new(protocol, options)
