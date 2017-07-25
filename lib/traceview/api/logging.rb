@@ -88,13 +88,6 @@ module TraceView
       def log_start(layer, xtrace = nil, opts = {})
         return if !TraceView.loaded || (opts.key?(:URL) && ::TraceView::Util.static_asset?(opts[:URL]))
 
-        # For entry only layers (DelayedJob workers, Sidekiq workers), auto-set the tracing mode
-        # Don't do this if tracing mode is already :always or :never
-        if TraceView.through? && TraceView.entry_layer?(layer)
-          TraceView.logger.debug "[traceview/debug] Detected #{layer}: auto-configuring tracing mode"
-          TraceView::Config[:tracing_mode] = :always
-        end
-
         # Used by JRuby/Java webservers such as Tomcat
         TraceView::Context.fromString(xtrace) if TraceView.pickup_context?(xtrace)
 

@@ -67,8 +67,6 @@ module Oboe_metal
 
           if cfg.hasSampleStartFlag
             TraceView::Config.tracing_mode = :always
-          elsif cfg.hasSampleThroughFlag
-            TraceView::Config.tracing_mode = :through
           else
             TraceView::Config.tracing_mode = :never
           end

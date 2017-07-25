@@ -194,19 +194,6 @@ module TraceView
       @@config[:bunnyconsumer][:controller] = :app_id
       @@config[:bunnyconsumer][:action] = :type
 
-      # Environment support for OpenShift.
-      if ENV.key?('OPENSHIFT_TRACEVIEW_TLYZER_IP')
-        # We're running on OpenShift
-        @@config[:tracing_mode] = :always
-        @@config[:reporter_host] = ENV['OPENSHIFT_TRACEVIEW_TLYZER_IP']
-        @@config[:reporter_port] = ENV['OPENSHIFT_TRACEVIEW_TLYZER_PORT']
-      else
-        # The default configuration
-        @@config[:tracing_mode] = :through
-        @@config[:reporter_host] = '127.0.0.1'
-        @@config[:reporter_port] = '7831'
-      end
-
       @@config[:verbose] = ENV.key?('TRACEVIEW_GEM_VERBOSE') ? true : false
     end
     # rubocop:enable Metrics/AbcSize

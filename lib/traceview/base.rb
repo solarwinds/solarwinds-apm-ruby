@@ -172,22 +172,6 @@ module TraceViewBase
   end
 
   ##
-  # Returns true if the tracing_mode is set to always or through.
-  # False otherwise
-  #
-  def passthrough?
-    [:always, :through].include?(TraceView::Config[:tracing_mode])
-  end
-
-  ##
-  # Returns true if the tracing_mode is set to through.
-  # False otherwise
-  #
-  def through?
-    TraceView::Config[:tracing_mode].to_sym == :through
-  end
-
-  ##
   # Returns true if we are currently tracing a request
   # False otherwise
   #

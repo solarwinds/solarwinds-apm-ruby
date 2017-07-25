@@ -7,7 +7,7 @@ Bundler.require
 # This is likely redundant but just in case.
 require 'oboe'
 
-# Tracing mode can be 'never', 'through' (to follow upstream) or 'always'
+# Tracing mode can be 'never' or 'always'
 TraceView::Config[:tracing_mode] = 'always'
 
 #
