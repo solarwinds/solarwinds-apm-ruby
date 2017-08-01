@@ -117,6 +117,10 @@ module TraceView
         end
         kv
       end
+
+      def xtr_v2?(xtr)
+        return xtr && xtr.start_with?('2B')
+      end
     end
   end
 end

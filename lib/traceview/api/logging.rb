@@ -105,21 +105,41 @@ module TraceView
             opts[:TraceOrigin] = :continued
           end
 
-          log_entry(layer, opts)
+          return log_entry(layer, opts)
+        end
 
-        elsif opts.key?('Force')
-          # Forced tracing: used by __Init reporting
-          opts[:TraceOrigin] = :forced
-          log_event(layer, :entry, TraceView::Context.startTrace, opts)
-
-        elsif TraceView.sample?(opts.merge(:layer => layer, :xtrace => xtrace))
+        if TraceView.sample?(opts.merge(:layer => layer, :xtrace => xtrace))
           # Probablistic tracing of a subset of requests based off of
           # sample rate and sample source
           opts[:SampleRate]        = TraceView.sample_rate
           opts[:SampleSource]      = TraceView.sample_source
           opts[:TraceOrigin]       = :always_sampled
 
-          log_event(layer, :entry, TraceView::Context.startTrace, opts)
+          if xtrace_v2?(xtrace)
+            flag = '01'
+            prefix = xtrace[0..-3]
+            xtrace = "#{prefix}#{flag}"
+
+            md = TraceView::Metadata.fromString(xtrace)
+            TraceView::Context.fromString(xtrace)
+            log_event(layer, :entry, md.createEvent, opts)
+          else
+            md = TraceView::Metadata.makeRandom(true)
+            # Do I also need to set the context?
+            log_event(layer, :entry, md.createEvent, opts)
+          end
+        else
+          # set the context but don't log the event (?)
+          if xtrace_v2?(xtrace)
+            flag = '00'
+            # Everything but the flag
+            prefix = xtrace[0..-3]
+            xtrace = "#{prefix}#{flag}"
+            TraceView::Context.fromString(xtrace)
+          else
+            md = TraceView::Metadata.makeRandom(false)
+            TraceView::Context.fromString(md.toString)
+          end
         end
       end
 
