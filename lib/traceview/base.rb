@@ -146,7 +146,8 @@ module TraceViewBase
   # False otherwise
   #
   def always?
-    TraceView::Config[:tracing_mode].to_sym == :always
+    TraceView::Config[:tracing_mode] &&
+      TraceView::Config[:tracing_mode].to_sym == :always
   end
 
   ##
@@ -154,7 +155,8 @@ module TraceViewBase
   # False otherwise
   #
   def never?
-    TraceView::Config[:tracing_mode].to_sym == :never
+    TraceView::Config[:tracing_mode] &&
+      TraceView::Config[:tracing_mode].to_sym == :never
   end
 
   ##
@@ -163,7 +165,7 @@ module TraceViewBase
   #
   def tracing?
     return false if !TraceView.loaded || TraceView.never?
-    TraceView::Context.isValid
+    TraceView::Context.isValid && TraceView::Context.isSampled
   end
 
   def log(layer, label, options = {})
