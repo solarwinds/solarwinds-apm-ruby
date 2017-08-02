@@ -119,7 +119,7 @@ module TraceView
         log_start(layer, xtrace, opts)
         exit_evt = TraceView::Context.createEvent
         begin
-          target['X-Trace'] = TraceView::Event.metadataString(exit_evt) if TraceView.tracing?
+          target['X-Trace'] = TraceView::EventUtil.metadataString(exit_evt) if TraceView.tracing?
           yield
         rescue Exception => e
           log_exception(layer, e)

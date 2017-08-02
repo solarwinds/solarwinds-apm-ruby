@@ -29,7 +29,7 @@ module Oboe_metal
     end
   end
 
-  class Event
+  module EventUtil
     def self.metadataString(evt)
       evt.getMetadata.toHexString
     end

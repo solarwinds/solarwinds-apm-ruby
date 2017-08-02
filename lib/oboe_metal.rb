@@ -122,7 +122,7 @@ module TraceView
     end
   end
 
-  class Event
+  module EventUtil
     def self.metadataString(evt)
       evt.metadataString
     end
