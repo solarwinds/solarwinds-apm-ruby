@@ -88,25 +88,29 @@ module TraceView
       def log_start(layer, xtrace = nil, opts = {})
         return if !TraceView.loaded || (opts.key?(:URL) && ::TraceView::Util.static_asset?(opts[:URL]))
 
+        # Is the below necessary? Only on JRuby? Could there be an existing context but not x-trace header?
+        # See discussion at:
+        # https://github.com/librato/ruby-tracelytics/pull/6/files?diff=split#r131029135
+        #
         # Used by JRuby/Java webservers such as Tomcat
-        TraceView::Context.fromString(xtrace) if TraceView.pickup_context?(xtrace)
+        # TraceView::Context.fromString(xtrace) if TraceView.pickup_context?(xtrace)
 
-        if TraceView.tracing?
-          # Pre-existing context.  Either we inherited context from an
-          # incoming X-Trace request header or under JRuby, Joboe started
-          # tracing before the JRuby code was called (e.g. Tomcat)
-          TraceView.is_continued_trace = true
+        # if TraceView.tracing?
+        #   # Pre-existing context.  Either we inherited context from an
+        #   # incoming X-Trace request header or under JRuby, Joboe started
+        #   # tracing before the JRuby code was called (e.g. Tomcat)
+        #   TraceView.is_continued_trace = true
 
-          if TraceView.has_xtrace_header
-            opts[:TraceOrigin] = :continued_header
-          elsif TraceView.has_incoming_context
-            opts[:TraceOrigin] = :continued_context
-          else
-            opts[:TraceOrigin] = :continued
-          end
+        #   if TraceView.has_xtrace_header
+        #     opts[:TraceOrigin] = :continued_header
+        #   elsif TraceView.has_incoming_context
+        #     opts[:TraceOrigin] = :continued_context
+        #   else
+        #     opts[:TraceOrigin] = :continued
+        #   end
 
-          return log_entry(layer, opts)
-        end
+        # return log_entry(layer, opts)
+        # end
 
         if TraceView.sample?(opts.merge(:layer => layer, :xtrace => xtrace))
           # Probablistic tracing of a subset of requests based off of
