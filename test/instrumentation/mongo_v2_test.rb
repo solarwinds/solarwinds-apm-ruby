@@ -128,7 +128,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       traces[2]['Layer'].must_equal "mongo"
       traces[2]['Label'].must_equal "error"
       traces[2]['ErrorClass'].must_equal "Mongo::Error::OperationFailure"
-      traces[2]['ErrorMsg'].must_equal "collection already exists ()"
+      traces[2]['ErrorMsg'].must_equal "collection already exists (48)"
       traces[2].has_key?('Backtrace').must_equal true
     end
 

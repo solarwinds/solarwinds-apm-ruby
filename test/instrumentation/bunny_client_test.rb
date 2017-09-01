@@ -162,7 +162,7 @@ unless defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
-      assert_equal traces.count, 3
+      assert_equal 3, traces.count
 
       validate_outer_layers(traces, "bunny_tests")
       valid_edges?(traces)
@@ -222,7 +222,7 @@ unless defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
-      assert_equal traces.count, 2004
+      assert_equal 2004,traces.count
 
       validate_outer_layers(traces, "bunny_tests")
 

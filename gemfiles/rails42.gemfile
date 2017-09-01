@@ -22,7 +22,9 @@ if defined?(JRUBY_VERSION)
 else
   gem 'sinatra'
   gem 'pg', '< 0.19'
-  gem 'mysql'
+  if RUBY_VERSION < '2.4'
+    gem 'mysql'
+  end
   gem 'mysql2'
 end
 

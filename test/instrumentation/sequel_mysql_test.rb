@@ -3,7 +3,7 @@
 
 require 'minitest_helper'
 
-if defined?(::Sequel) && !defined?(JRUBY_VERSION)
+if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < "2.4")
 
   TraceView::Test.set_mysql_env
   MYSQL_DB = Sequel.connect(ENV['DATABASE_URL'])

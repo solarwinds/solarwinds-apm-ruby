@@ -8,10 +8,7 @@ require "minitest/autorun"
 require "minitest/reporters"
 require "minitest/debugger" if ENV['DEBUG']
 
-require "minitest/hell"
-class Minitest::Test
-  # parallelize_me!
-end
+# require "minitest/hell"
 
 ENV["RACK_ENV"] = "test"
 ENV["TRACEVIEW_GEM_TEST"] = "true"
