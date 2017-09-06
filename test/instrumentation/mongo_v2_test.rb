@@ -3,9 +3,8 @@
 
 require 'minitest_helper'
 
-unless ENV['TV_MONGO_SERVER']
-  ENV['TV_MONGO_SERVER'] = "127.0.0.1:27017"
-end
+ENV['TV_MONGO_SERVER'] = "127.0.0.1:27017" unless ENV['TV_MONGO_SERVER']
+ENV['TV_MONGO_SERVER'] += ":27017" unless ENV['TV_MONGO_SERVER'] =~ /\:27017$/
 
 if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
   describe "MongoCollection" do
@@ -128,7 +127,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       traces[2]['Layer'].must_equal "mongo"
       traces[2]['Label'].must_equal "error"
       traces[2]['ErrorClass'].must_equal "Mongo::Error::OperationFailure"
-      traces[2]['ErrorMsg'].must_equal "collection already exists (48)"
+      traces[2]['ErrorMsg'].must_match /collection.*already exists/
       traces[2].has_key?('Backtrace').must_equal true
     end
 
