@@ -12,6 +12,8 @@ group :development, :test do
   else
     gem 'bson', '< 4.0'
   end
+  gem 'pry'
+  gem 'pry-byebug'
 end
 
 # New mime-types/mime-types-data requires ruby 2.0
