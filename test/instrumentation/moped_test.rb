@@ -8,7 +8,7 @@ unless ENV['TV_MONGO_SERVER']
 end
 
 if RUBY_VERSION >= '1.9.3'
-  # Moped is tested against MRI 1.9.3, 2.0.0, and JRuby (1.9).
+  # Moped is tested against MRI 2.3.1 and 2.4.1
 
   describe "Moped" do
     before do

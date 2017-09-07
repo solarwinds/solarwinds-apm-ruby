@@ -225,7 +225,8 @@ module TraceViewBase
     env = ENV['RACK_ENV'] || ENV['RAILS_ENV']
     return unless %w(development, test).include? env
 
-    if RUBY_VERSION > '1.8.7'
+    if RUBY_VERSION > '1.9.3'
+      require 'pry'
       require 'pry-byebug'
 
       if defined?(PryByebug)
@@ -239,7 +240,7 @@ module TraceViewBase
         end
       end
 
-      binding.pry
+      byebug
     else
       require 'ruby-debug'; debugger
     end
