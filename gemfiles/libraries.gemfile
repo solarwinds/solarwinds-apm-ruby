@@ -31,7 +31,7 @@ group :development, :test do
     gem 'puma', '< 3.1.0'
   end
   gem 'pry'
-  gem 'pry-byebug'
+  gem 'pry-byebug' if RUBY_VERSION >= '2.0.0'
 end
 
 if defined?(JRUBY_VERSION)
