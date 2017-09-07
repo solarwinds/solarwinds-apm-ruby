@@ -66,7 +66,7 @@ describe "Faraday" do
     traces = get_all_traces
     traces.count.must_equal 11
 
-    valid_edges?(traces)
+    assert valid_edges?(traces)
     validate_outer_layers(traces, 'faraday_test')
 
     traces[1]['Layer'].must_equal 'faraday'
@@ -99,7 +99,7 @@ describe "Faraday" do
     traces = get_all_traces
     traces.count.must_equal 11
 
-    valid_edges?(traces)
+    assert valid_edges?(traces)
     validate_outer_layers(traces, 'faraday_test')
 
     traces[1]['Layer'].must_equal 'faraday'
@@ -135,7 +135,7 @@ describe "Faraday" do
     traces = get_all_traces
     traces.count.must_equal 10
 
-    valid_edges?(traces)
+    assert valid_edges?(traces)
     validate_outer_layers(traces, 'faraday_test')
 
     traces[1]['Layer'].must_equal 'faraday'
@@ -178,7 +178,7 @@ describe "Faraday" do
     traces = get_all_traces
     traces.count.must_equal 10
 
-    valid_edges?(traces)
+    assert valid_edges?(traces)
     validate_outer_layers(traces, 'faraday_test')
 
     traces[1]['Layer'].must_equal 'faraday'

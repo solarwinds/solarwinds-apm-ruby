@@ -38,7 +38,7 @@ class ExconTest < Minitest::Test
     traces = get_all_traces
     assert_equal traces.count, 7
     validate_outer_layers(traces, "excon_tests")
-    valid_edges?(traces)
+    assert valid_edges?(traces)
 
     assert_equal 1,           traces[1]['IsService']
     assert_equal '127.0.0.1', traces[1]['RemoteHost']
@@ -69,7 +69,7 @@ class ExconTest < Minitest::Test
     traces = get_all_traces
     assert_equal 7, traces.count
     validate_outer_layers(traces, "excon_tests")
-    valid_edges?(traces)
+    assert valid_edges?(traces)
 
     assert_equal 1,            traces[1]['IsService']
     assert_equal '127.0.0.1',  traces[1]['RemoteHost']
@@ -96,7 +96,7 @@ class ExconTest < Minitest::Test
     traces = get_all_traces
     assert_equal traces.count, 17
     validate_outer_layers(traces, "excon_tests")
-    valid_edges?(traces)
+    assert valid_edges?(traces)
 
     assert_equal 1,             traces[1]['IsService']
     assert_equal '127.0.0.1',   traces[1]['RemoteHost']
@@ -136,7 +136,7 @@ class ExconTest < Minitest::Test
     traces = get_all_traces
     assert_equal 10, traces.count
     validate_outer_layers(traces, "excon_tests")
-    valid_edges?(traces)
+    assert valid_edges?(traces)
 
     assert_equal 1,             traces[1]['IsService']
     assert_equal '127.0.0.1',   traces[1]['RemoteHost']
@@ -160,7 +160,7 @@ class ExconTest < Minitest::Test
     traces = get_all_traces
     assert_equal traces.count, 5
     validate_outer_layers(traces, "excon_tests")
-    valid_edges?(traces)
+    assert valid_edges?(traces)
 
     assert_equal 1,                          traces[1]['IsService']
     assert_equal 'asfjalkfjlajfljkaljf',     traces[1]['RemoteHost']

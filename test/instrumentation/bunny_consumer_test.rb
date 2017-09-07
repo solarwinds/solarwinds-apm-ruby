@@ -46,7 +46,7 @@ unless defined?(JRUBY_VERSION)
       traces = get_all_traces
 
       traces.count.must_equal 12
-      valid_edges?(traces)
+      assert valid_edges?(traces)
 
       traces[5]['Layer'].must_equal "net-http"
       traces[5]['Label'].must_equal "entry"
@@ -94,7 +94,7 @@ unless defined?(JRUBY_VERSION)
       traces.count.must_equal 8
 
       validate_outer_layers(traces, "rabbitmq-consumer")
-      valid_edges?(traces)
+      assert valid_edges?(traces)
 
       traces[1]['Layer'].must_equal "net-http"
       traces[1]['Label'].must_equal "entry"
@@ -135,7 +135,7 @@ unless defined?(JRUBY_VERSION)
       traces.count.must_equal 3
 
       validate_outer_layers(traces, "rabbitmq-consumer")
-      valid_edges?(traces)
+      assert valid_edges?(traces)
 
       traces[0]['Spec'].must_equal "job"
       traces[0]['Flavor'].must_equal "rabbitmq"
@@ -182,7 +182,7 @@ unless defined?(JRUBY_VERSION)
       traces = get_all_traces
 
       traces.count.must_equal 12
-      valid_edges?(traces)
+      assert valid_edges?(traces)
 
       traces[4]['Spec'].must_equal "job"
       traces[4]['Flavor'].must_equal "rabbitmq"

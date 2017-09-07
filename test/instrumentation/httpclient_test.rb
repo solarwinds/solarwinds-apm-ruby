@@ -41,7 +41,7 @@ unless defined?(JRUBY_VERSION)
       assert TraceView::XTrace.valid?(response.headers["X-Trace"])
 
       assert_equal traces.count, 7
-      valid_edges?(traces)
+      assert valid_edges?(traces)
       validate_outer_layers(traces, "httpclient_tests")
 
       assert_equal traces[1]['IsService'], 1
@@ -71,7 +71,7 @@ unless defined?(JRUBY_VERSION)
       assert TraceView::XTrace.valid?(xtrace)
 
       assert_equal traces.count, 7
-      valid_edges?(traces)
+      assert valid_edges?(traces)
       validate_outer_layers(traces, "httpclient_tests")
 
       assert_equal traces[1]['IsService'], 1
@@ -101,7 +101,7 @@ unless defined?(JRUBY_VERSION)
       assert TraceView::XTrace.valid?(xtrace)
 
       assert_equal traces.count, 7
-      valid_edges?(traces)
+      assert valid_edges?(traces)
       validate_outer_layers(traces, "httpclient_tests")
 
       assert_equal traces[1]['IsService'], 1
@@ -131,7 +131,7 @@ unless defined?(JRUBY_VERSION)
       assert TraceView::XTrace.valid?(xtrace)
 
       assert_equal traces.count, 7
-      valid_edges?(traces)
+      assert valid_edges?(traces)
       validate_outer_layers(traces, "httpclient_tests")
 
       assert_equal traces[1]['IsService'], 1
@@ -161,7 +161,7 @@ unless defined?(JRUBY_VERSION)
 
       traces = get_all_traces
       assert_equal traces.count, 7
-      valid_edges?(traces)
+      assert valid_edges?(traces)
 
       # FIXME: validate_outer_layers assumes that the traces
       # are ordered which in the case of async, they aren't
@@ -195,7 +195,7 @@ unless defined?(JRUBY_VERSION)
       traces = get_all_traces
 
       assert_equal traces.count, 7
-      valid_edges?(traces)
+      assert valid_edges?(traces)
       validate_outer_layers(traces, "httpclient_tests")
 
       assert_equal traces[1]['IsService'], 1
@@ -229,7 +229,7 @@ unless defined?(JRUBY_VERSION)
 
       traces = get_all_traces
       assert_equal traces.count, 5
-      valid_edges?(traces)
+      assert valid_edges?(traces)
       validate_outer_layers(traces, "httpclient_tests")
 
       assert_equal traces[1]['IsService'], 1
@@ -267,7 +267,7 @@ unless defined?(JRUBY_VERSION)
       assert TraceView::XTrace.valid?(xtrace)
 
       assert_equal traces.count, 7
-      valid_edges?(traces)
+      assert valid_edges?(traces)
 
       assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/?keyword=ruby&lang=en'
 
@@ -294,7 +294,7 @@ unless defined?(JRUBY_VERSION)
       assert TraceView::XTrace.valid?(xtrace)
 
       assert_equal traces.count, 7
-      valid_edges?(traces)
+      assert valid_edges?(traces)
 
       assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/'
 

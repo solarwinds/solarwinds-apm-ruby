@@ -33,7 +33,7 @@ class DelayedJobClientTest < Minitest::Test
     sleep 15
 
     traces = get_all_traces
-    valid_edges?(traces)
+    assert valid_edges?(traces)
 
     assert_equal 'dj_delay',              traces[0]['Layer']
     assert_equal 'entry',                 traces[0]['Label']
@@ -68,7 +68,7 @@ class DelayedJobClientTest < Minitest::Test
     end
 
     traces = get_all_traces
-    valid_edges?(traces)
+    assert valid_edges?(traces)
 
     assert_equal 'delayed_job-client',    traces[1]['Layer']
     assert_equal 'entry',                 traces[1]['Label']
@@ -86,7 +86,7 @@ class DelayedJobClientTest < Minitest::Test
     end
 
     traces = get_all_traces
-    valid_edges?(traces)
+    assert valid_edges?(traces)
 
     assert_equal 'delayed_job-client',    traces[1]['Layer']
     assert_equal 'entry',                 traces[1]['Label']
