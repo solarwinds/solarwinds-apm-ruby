@@ -19,7 +19,7 @@ group :development do
   gem 'debugger',     :platform  =>  :mri_19
   gem 'byebug',       :platforms => [:mri_20, :mri_21, :mri_22, :mri_23, :mri_24]
   #  gem 'perftools.rb', :platforms => [ :mri_20, :mri_21 ], :require => 'perftools'
-  if RUBY_VERSION > '1.8.7'
+  if RUBY_VERSION >= '2.0.0'
     gem 'pry'
     gem 'pry-byebug', :platforms => [:mri_20, :mri_21, :mri_22, :mri_23, :mri_24]
   else

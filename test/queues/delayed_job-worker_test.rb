@@ -38,7 +38,7 @@ class DelayedJobWorkerTest < Minitest::Test
 
     traces = get_all_traces
     assert_equal 2, traces.count, "Trace count"
-    assert valid_edges?(traces)
+    assert valid_edges?(traces), "Invalid edge in traces"
 
     assert_equal 'delayed_job-worker',    traces[0]['Layer']
     assert_equal 'entry',                 traces[0]['Label']
@@ -66,7 +66,7 @@ class DelayedJobWorkerTest < Minitest::Test
 
     traces = get_all_traces
     assert_equal 3, traces.count, "Trace count"
-    assert valid_edges?(traces)
+    assert valid_edges?(traces), "Invalid edge in traces"
 
     assert_equal 'delayed_job-worker',          traces[0]['Layer']
     assert_equal 'entry',                       traces[0]['Label']
