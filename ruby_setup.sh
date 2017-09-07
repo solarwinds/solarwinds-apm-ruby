@@ -30,6 +30,8 @@ bundle install --gemfile $2
 export RVM_TEST=$1
 export BUNDLE_GEMFILE=$2
 
-bundle exec rake test
+#bundle exec rake test
+bundle exec rake test TEST=test/queues/delayed_job-client_test.rb
+/bin/bash
 
-mysql -e 'drop database travis_ci_test;' -h$MYSQL_HOST -p$MYSQL_ROOT_PASSWORD
+#mysql -e 'drop database travis_ci_test;' -h$MYSQL_HOST -p$MYSQL_ROOT_PASSWORD
