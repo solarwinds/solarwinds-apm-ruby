@@ -38,7 +38,7 @@ unless defined?(JRUBY_VERSION)
       traces.count.must_equal 4
 
       validate_outer_layers(traces, "bunny_tests")
-      valid_edges?(traces)
+      assert valid_edges?(traces), "Invalid edge in traces"
 
       traces[1]['Layer'].must_equal "rabbitmq-client"
       traces[1]['Label'].must_equal "entry"
@@ -70,7 +70,7 @@ unless defined?(JRUBY_VERSION)
       traces.count.must_equal 6
 
       validate_outer_layers(traces, "bunny_tests")
-      valid_edges?(traces)
+      assert valid_edges?(traces), "Invalid edge in traces"
 
       traces[1]['Layer'].must_equal "rabbitmq-client"
       traces[1]['Label'].must_equal "entry"
@@ -115,7 +115,7 @@ unless defined?(JRUBY_VERSION)
       traces.count.must_equal 6
 
       validate_outer_layers(traces, "bunny_tests")
-      valid_edges?(traces)
+      assert valid_edges?(traces), "Invalid edge in traces"
 
       traces[1]['Layer'].must_equal "rabbitmq-client"
       traces[1]['Label'].must_equal "entry"
@@ -165,7 +165,7 @@ unless defined?(JRUBY_VERSION)
       assert_equal 3, traces.count
 
       validate_outer_layers(traces, "bunny_tests")
-      valid_edges?(traces)
+      assert valid_edges?(traces), "Invalid edge in traces"
 
       traces[1]['Label'].must_equal "error"
       traces[1]['ErrorClass'].must_equal "Bunny::PreconditionFailed"

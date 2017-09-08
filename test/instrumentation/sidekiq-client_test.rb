@@ -44,7 +44,7 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
       refined_trace_count_check(traces)
-      valid_edges?(traces)
+      assert valid_edges?(traces), "Invalid edge in traces"
 
       assert_equal 'sidekiq-client',       traces[1]['Layer']
       assert_equal 'entry',                traces[1]['Label']
@@ -83,7 +83,7 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
       refined_trace_count_check(traces)
-      valid_edges?(traces)
+      assert valid_edges?(traces), "Invalid edge in traces"
       assert_equal 'sidekiq-client',   traces[1]['Layer']
       assert_equal false,              traces[1].key?('Backtrace')
     end
@@ -101,7 +101,7 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
       refined_trace_count_check(traces)
-      valid_edges?(traces)
+      assert valid_edges?(traces), "Invalid edge in traces"
       assert_equal 'sidekiq-client',   traces[1]['Layer']
       assert_equal true,               traces[1].key?('Backtrace')
     end
@@ -119,7 +119,7 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
       refined_trace_count_check(traces)
-      valid_edges?(traces)
+      assert valid_edges?(traces), "Invalid edge in traces"
       assert_equal false, traces[1].key?('Args')
     end
 
@@ -136,7 +136,7 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
       refined_trace_count_check(traces)
-      valid_edges?(traces)
+      assert valid_edges?(traces), "Invalid edge in traces"
       assert_equal true,         traces[1].key?('Args')
       assert_equal '[1, 2, 3]',  traces[1]['Args']
     end
