@@ -19,7 +19,26 @@ ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
 
 unless ActiveRecord::Base.connection.table_exists? :delayed_jobs
   TraceView.logger.info "[traceview/servers] Creating DelayedJob DB table."
-  require 'generators/delayed_job/templates/migration'
+
+  dj_dir = Gem::Specification.find_by_name('delayed_job_active_record').gem_dir
+  template = File.open(File.join(dj_dir, "lib/generators/delayed_job/templates/migration.rb"))
+
+  migration_context = Class.new do
+    def get_binding
+      binding
+    end
+
+    private
+
+    def migration_version
+      if ActiveRecord::VERSION::MAJOR >= 5
+        "[#{ActiveRecord::VERSION::MAJOR}.#{ActiveRecord::VERSION::MINOR}]"
+      end
+    end
+  end
+  migration_ruby = ERB.new(template.read).result(migration_context.new.get_binding)
+  eval migration_ruby
+
   ActiveRecord::Migration.run(CreateDelayedJobs)
 end
 

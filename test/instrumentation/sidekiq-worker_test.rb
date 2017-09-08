@@ -36,7 +36,7 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
       traces = get_all_traces
       assert_equal 17, traces.count, "Trace count"
       validate_outer_layers(traces, "sidekiq-worker")
-      valid_edges?(traces)
+      assert valid_edges?(traces), "Invalid edge in traces"
 
       # Validate entry layer KVs
       assert_equal 'always_sampled', traces[0]['TraceOrigin'],       "is always_sampled"
@@ -74,7 +74,7 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
       traces = get_all_traces
       assert_equal 3, traces.count, "Trace count"
       validate_outer_layers(traces, "sidekiq-worker")
-      valid_edges?(traces)
+      assert valid_edges?(traces), "Invalid edge in traces"
 
       # Validate Webserver Spec KVs
       assert_equal Socket.gethostname,                  traces[0]['HTTP-Host']
@@ -117,7 +117,7 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
       assert_equal 17, traces.count, "Trace count"
-      valid_edges?(traces)
+      assert valid_edges?(traces), "Invalid edge in traces"
       assert_equal 'sidekiq-worker',   traces[0]['Layer']
       assert_equal false,              traces[0].key?('Backtrace')
     end
@@ -137,7 +137,7 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
       assert_equal 17, traces.count, "Trace count"
-      valid_edges?(traces)
+      assert valid_edges?(traces), "Invalid edge in traces"
       assert_equal 'sidekiq-worker',   traces[0]['Layer']
       assert_equal true,               traces[0].key?('Backtrace')
     end
@@ -157,7 +157,7 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
       assert_equal 17, traces.count, "Trace count"
-      valid_edges?(traces)
+      assert valid_edges?(traces), "Invalid edge in traces"
       assert_equal false, traces[0].key?('Args')
     end
 
@@ -172,7 +172,7 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
       assert_equal 17, traces.count, "Trace count"
-      valid_edges?(traces)
+      assert valid_edges?(traces), "Invalid edge in traces"
       assert_equal true,         traces[0].key?('Args')
       assert_equal '[1, 2, 3]',  traces[0]['Args']
     end

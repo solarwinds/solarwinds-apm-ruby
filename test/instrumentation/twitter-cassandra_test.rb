@@ -9,6 +9,11 @@ end
 
 # The cassandra-rb client doesn't support JRuby
 # https://github.com/cassandra-rb/cassandra
+
+# exclude cassandra tests for now
+# TODO: they need refactoring to use the 'cassandra-driver' gem
+# instead of the 'cassandra' gem, which hasn't had a commit since 09/2014
+
 if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
   describe "Cassandra" do
     before do
@@ -20,9 +25,9 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
       @ks_name = "AppNetaCassandraTest"
 
       ks_def = CassandraThrift::KsDef.new(:name => @ks_name,
-                :strategy_class => "SimpleStrategy",
-                :strategy_options => { 'replication_factor' => '2' },
-                :cf_defs => [])
+                                          :strategy_class => "SimpleStrategy",
+                                          :strategy_options => { 'replication_factor' => '2' },
+                                          :cf_defs => [])
 
       @client.add_keyspace(ks_def) unless @client.keyspaces.include? @ks_name
       @client.keyspace = @ks_name
@@ -39,10 +44,10 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
 
       # These are standard entry/exit KVs that are passed up with all mongo operations
       @entry_kvs = {
-        'Layer' => 'cassandra',
-        'Label' => 'entry',
-        'RemoteHost' => ENV['TV_CASSANDRA_SERVER'].split(':')[0],
-        'RemotePort' => ENV['TV_CASSANDRA_SERVER'].split(':')[1] }
+          'Layer' => 'cassandra',
+          'Label' => 'entry',
+          'RemoteHost' => ENV['TV_CASSANDRA_SERVER'].split(':')[0],
+          'RemotePort' => ENV['TV_CASSANDRA_SERVER'].split(':')[1] }
 
       @exit_kvs = { 'Layer' => 'cassandra', 'Label' => 'exit' }
       @collect_backtraces = TraceView::Config[:cassandra][:collect_backtraces]
@@ -80,12 +85,12 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
         @client.get_range_keys(:Statuses, :key_count => 4)
         @client.create_index(@ks_name, 'Statuses', 'x', 'LongType')
         expressions   =  [
-                           { :column_name => 'x',
-                             :value => [0,20].pack("NN"),
-                             :comparison => "=="},
-                           { :column_name => 'non_indexed',
-                             :value => [5].pack("N*"),
-                             :comparison => ">"} ]
+            { :column_name => 'x',
+              :value => [0,20].pack("NN"),
+              :comparison => "=="},
+            { :column_name => 'non_indexed',
+              :value => [5].pack("N*"),
+              :comparison => ">"} ]
         @client.get_indexed_slices(:Statuses, expressions).length
         @client.exists?(:Statuses, '12')
         @client.exists?(:Statuses, '12', 'body')
@@ -305,12 +310,12 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
       @client.create_index(@ks_name, 'Statuses', 'x', 'LongType')
       TraceView::API.start_trace('cassandra_test', '', {}) do
         expressions   =  [
-                           { :column_name => 'x',
-                             :value => [0,20].pack("NN"),
-                             :comparison => "=="},
-                           { :column_name => 'non_indexed',
-                             :value => [5].pack("N*"),
-                             :comparison => ">"} ]
+            { :column_name => 'x',
+              :value => [0,20].pack("NN"),
+              :comparison => "=="},
+            { :column_name => 'non_indexed',
+              :value => [5].pack("N*"),
+              :comparison => ">"} ]
         @client.get_indexed_slices(:Statuses, expressions).length
       end
 
@@ -353,9 +358,9 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
     it 'should trace adding a keyspace' do
       ks_name = (0...10).map{ ('a'..'z').to_a[rand(26)] }.join
       ks_def = CassandraThrift::KsDef.new(:name => ks_name,
-                :strategy_class => "org.apache.cassandra.locator.SimpleStrategy",
-                :strategy_options => { 'replication_factor' => '2' },
-                :cf_defs => [])
+                                          :strategy_class => "org.apache.cassandra.locator.SimpleStrategy",
+                                          :strategy_options => { 'replication_factor' => '2' },
+                                          :cf_defs => [])
 
       TraceView::API.start_trace('cassandra_test', '', {}) do
         @client.add_keyspace(ks_def)

@@ -3,23 +3,30 @@
 
 require 'rubygems'
 require 'bundler/setup'
-require "minitest/spec"
-require "minitest/autorun"
-require "minitest/reporters"
-require "minitest/debugger" if ENV['DEBUG']
+require 'minitest/spec'
+require 'minitest/autorun'
+require 'minitest/reporters'
+require 'minitest/debugger' if ENV['DEBUG']
 
-require "minitest/hell"
-class Minitest::Test
-  # parallelize_me!
+# write to STDOUT as well as file (comes in handy with docker runs)
+FileUtils.mkdir_p('log')  # create if it doesn't exist
+$out_file = File.new('log/test_runs.log', 'a')
+$out_file.sync = true
+$stdout.sync = true
+def $stdout.write string
+  $out_file.write string
+  super
 end
 
-ENV["RACK_ENV"] = "test"
-ENV["TRACEVIEW_GEM_TEST"] = "true"
-ENV["TRACEVIEW_GEM_VERBOSE"] = "true"
+puts "\n\033[1m===== TEST RUN: #{ENV['RVM_TEST']} #{ENV['BUNDLE_GEMFILE']} #{Time.now.strftime("%Y-%m-%d %H:%M")} =====\033[0m\n"
+
+ENV['RACK_ENV'] = 'test'
+ENV['TRACEVIEW_GEM_TEST'] = 'true'
+ENV['TRACEVIEW_GEM_VERBOSE'] = 'true'
 
 # FIXME: Temp hack to fix padrino-core calling RUBY_ENGINE when it's
 # not defined under Ruby 1.8.7 and 1.9.3
-RUBY_ENGINE = "ruby" unless defined?(RUBY_ENGINE)
+RUBY_ENGINE = 'ruby' unless defined?(RUBY_ENGINE)
 
 Minitest::Spec.new 'pry'
 

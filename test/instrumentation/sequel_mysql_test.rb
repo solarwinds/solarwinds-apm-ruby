@@ -3,7 +3,7 @@
 
 require 'minitest_helper'
 
-if defined?(::Sequel) && !defined?(JRUBY_VERSION)
+if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < "2.4")
 
   TraceView::Test.set_mysql_env
   MYSQL_DB = Sequel.connect(ENV['DATABASE_URL'])
@@ -25,7 +25,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
         'Layer' => 'sequel',
         'Label' => 'entry',
         'Database' => 'travis_ci_test',
-        'RemoteHost' => '127.0.0.1',
+        'RemoteHost' => ENV.key?('DOCKER_MYSQL_PASS') ? 'mysql' : '127.0.0.1',
         'RemotePort' => 3306 }
 
       @exit_kvs = { 'Layer' => 'sequel', 'Label' => 'exit' }

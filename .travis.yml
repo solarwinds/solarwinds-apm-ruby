@@ -6,10 +6,11 @@ cache:
   - vendor/bundle
 
 rvm:
+  - 2.4.1
   - 2.3.1
   - 1.9.3
-  - 1.8.7
-  - jruby-9.0.5.0
+#  - 1.8.7
+#  - jruby-9.0.5.0
 
 gemfile:
   - gemfiles/libraries.gemfile
@@ -21,30 +22,34 @@ gemfile:
 
 matrix:
   exclude:
+    # Rails 3.2 is not compatible with Ruby >= '2.4'
+    - rvm: 2.4.1
+      gemfile: gemfiles/rails32.gemfile
+
     # Rails 4.0+ requires Ruby 1.9.3 or higher
-    - rvm: 1.8.7
-      gemfile: gemfiles/rails42.gemfile
+#    - rvm: 1.8.7
+#      gemfile: gemfiles/rails42.gemfile
 
     # Rails 5.0+ requires Ruby 2.2.2 or higher
-    - rvm: 1.8.7
-      gemfile: gemfiles/rails50.gemfile
+#    - rvm: 1.8.7
+#      gemfile: gemfiles/rails50.gemfile
     - rvm: 1.9.3
       gemfile: gemfiles/rails50.gemfile
 
     # Don't test DelayedJob under MRI 1.8 and JRuby
-    - rvm: 1.8.7
-      gemfile: gemfiles/delayed_job.gemfile
+#    - rvm: 1.8.7
+#      gemfile: gemfiles/delayed_job.gemfile
 
-    - rvm: jruby-9.0.5.0
-      gemfile: gemfiles/delayed_job.gemfile
+#    - rvm: jruby-9.0.5.0
+#      gemfile: gemfiles/delayed_job.gemfile
 
     # Skip testing on JRuby until activerecord-jdbc supports Rails 5.0
-    - rvm: jruby-9.0.5.0
-      gemfile: gemfiles/rails50.gemfile
+#    - rvm: jruby-9.0.5.0
+#      gemfile: gemfiles/rails50.gemfile
 
     # Other frameworks tested on Ruby 1.9.3 or higher
-    - rvm: 1.8.7
-      gemfile: gemfiles/frameworks.gemfile
+#    - rvm: 1.8.7
+#      gemfile: gemfiles/frameworks.gemfile
 
 # Attempt Travis/Cassandra fix re: https://github.com/travis-ci/travis-ci/issues/1484
 # Updated Cassandra: https://github.com/travis-ci/travis-ci/issues/1650
@@ -52,25 +57,29 @@ before_install:
   - gem update --system '2.6.1'
   - gem update bundler
   - gem --version
-  - sudo sh -c "echo 'JVM_OPTS=\"\${JVM_OPTS} -Djava.net.preferIPv4Stack=false\"' >> /usr/local/cassandra/conf/cassandra-env.sh"
+  - sudo service cassandra stop
+  - sudo sh -c "echo 'JVM_OPTS=\"\${JVM_OPTS} -Djava.net.preferIPv4Stack=false\"' >> /etc/cassandra/cassandra-env.sh"
   - echo "127.0.0.1 localhost"  | sudo tee /etc/hosts
-  - echo "127.0.0.1 " `hostname` | sudo tee /etc/hosts
+  - echo "127.0.0.1 " `hostname` | sudo tee -a /etc/hosts
   - sudo service cassandra start
 
 install:
-  - wget https://files.appneta.com/install_appneta.sh
-  - sudo sh ./install_appneta.sh f51e2a43-0ee5-4851-8a54-825773b3218e
-  - sudo apt-get install -y tracelytics-java-agent
+  - curl -LO http://kent.dl.sourceforge.net/project/swig/swig/swig-3.0.8/swig-3.0.8.tar.gz
+  - tar xzf swig-3.0.8.tar.gz
+  - pushd swig-3.0.8
+  - ./configure && make && sudo make install
+  - popd
 
 before_script:
-  - sudo cp -f ./test/settings /var/lib/tracelyzer/
   - bundle install --jobs=3 --retry=3 --without development
+  - bundle exec rake fetch_ext_deps
+  - bundle exec rake clean
   - bundle exec rake compile
   - psql -c 'create database travis_ci_test;' -U postgres
   - mysql -e 'create database travis_ci_test;'
   - sleep 10
 
-script: "bundle exec rake test"
+script: "N=1 bundle exec rake test"
 
 services:
   - mongodb

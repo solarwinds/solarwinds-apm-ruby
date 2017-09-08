@@ -8,7 +8,7 @@ unless ENV['TV_MONGO_SERVER']
 end
 
 if RUBY_VERSION >= '1.9.3'
-  # Moped is tested against MRI 1.9.3, 2.0.0, and JRuby (1.9).
+  # Moped is tested against MRI 2.3.1 and 2.4.1
 
   describe "Moped" do
     before do
@@ -378,7 +378,7 @@ if RUBY_VERSION >= '1.9.3'
     it 'should trace 3 types of find and modify calls' do
       TraceView::API.start_trace('moped_test', '', {}) do
         @users.find(:likes => 1).modify({ "$set" => { :name => "Tool" }}, :upsert => true)
-        @users.find.modify({:query => { "$inc" => { :likes => 1 }}}, :new => true)
+        @users.find.modify({ "$inc" => { :likes => 1 }}, :new => true)
         @users.find.modify({:query => {}}, :remove => true)
       end
 
@@ -407,7 +407,7 @@ if RUBY_VERSION >= '1.9.3'
       traces[7]['Update_Document'].must_equal "all"
       traces[7]['Collection'].must_equal "users"
       traces[7]['Options'].must_equal "{\"new\":true}"
-      traces[7]['Change'].must_equal "{\"query\":{\"$inc\":{\"likes\":1}}}"
+      traces[7]['Change'].must_equal "{\"$inc\":{\"likes\":1}}"
       traces[7].has_key?('Backtrace').must_equal TraceView::Config[:moped][:collect_backtraces]
       validate_event_keys(traces[8], @exit_kvs)
 

@@ -3,9 +3,9 @@
 
 require 'minitest_helper'
 
-unless ENV['TV_MONGO_SERVER']
-  ENV['TV_MONGO_SERVER'] = "127.0.0.1:27017"
-end
+
+ENV['TV_MONGO_SERVER'] = "127.0.0.1:27017" unless ENV['TV_MONGO_SERVER']
+ENV['TV_MONGO_SERVER'] += ':27017' unless ENV['TV_MONGO_SERVER'] =~ /\:27017$/
 
 if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
   describe "MongoCollectionView" do

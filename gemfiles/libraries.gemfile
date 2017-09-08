@@ -30,6 +30,8 @@ group :development, :test do
     gem 'bson', '~> 4.0'
     gem 'puma', '< 3.1.0'
   end
+  gem 'pry'
+  gem 'pry-byebug' if RUBY_VERSION >= '2.0.0'
 end
 
 if defined?(JRUBY_VERSION)
@@ -49,7 +51,7 @@ if RUBY_VERSION < '2.0.0'
   # these gems dropped suport for < ruby version 2.0
   gem 'json', '< 2.0.0'
 else
-  gem 'bunny'
+  gem 'bunny', '< 2.6.5'
 end
 
 if RUBY_VERSION < '1.9.3'
@@ -59,7 +61,7 @@ else
 end
 
 gem 'cassandra'
-gem 'curb' unless defined?(JRUBY_VERSION)
+gem 'curb', '<= 0.9.3' unless defined?(JRUBY_VERSION)
 gem 'dalli' if RUBY_VERSION > '1.8.7'
 gem 'excon'
 gem 'faraday'
@@ -76,7 +78,9 @@ if defined?(JRUBY_VERSION)
   gem 'jdbc-postgresql'
   gem 'jdbc-mysql'
 else
-  gem 'mysql'
+  if RUBY_VERSION < '2.4'
+    gem 'mysql'
+  end
   gem 'mysql2'
   if RUBY_VERSION < '1.9.3'
     gem 'pg', '0.17.1'

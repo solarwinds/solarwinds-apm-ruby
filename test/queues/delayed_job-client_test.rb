@@ -13,6 +13,7 @@ Delayed::Job.delete_all
 class DelayedJobClientTest < Minitest::Test
   def setup
     clear_all_traces
+    sleep(0.3)
     @collect_backtraces = TraceView::Config[:delayed_jobclient][:collect_backtraces]
     @log_args = TraceView::Config[:delayed_jobclient][:log_args]
   end
@@ -33,7 +34,7 @@ class DelayedJobClientTest < Minitest::Test
     sleep 15
 
     traces = get_all_traces
-    valid_edges?(traces)
+    assert valid_edges?(traces), "Invalid edge in traces"
 
     assert_equal 'dj_delay',              traces[0]['Layer']
     assert_equal 'entry',                 traces[0]['Label']
@@ -68,7 +69,7 @@ class DelayedJobClientTest < Minitest::Test
     end
 
     traces = get_all_traces
-    valid_edges?(traces)
+    assert valid_edges?(traces), "Invalid edge in traces"
 
     assert_equal 'delayed_job-client',    traces[1]['Layer']
     assert_equal 'entry',                 traces[1]['Label']
@@ -86,7 +87,7 @@ class DelayedJobClientTest < Minitest::Test
     end
 
     traces = get_all_traces
-    valid_edges?(traces)
+    assert valid_edges?(traces), "Invalid edge in traces"
 
     assert_equal 'delayed_job-client',    traces[1]['Layer']
     assert_equal 'entry',                 traces[1]['Label']

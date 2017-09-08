@@ -10,6 +10,7 @@ if defined?(::Rails)
       clear_all_traces
       @collect_backtraces = TraceView::Config[:action_controller][:collect_backtraces]
       ENV['DBTYPE'] = "postgresql" unless ENV['DBTYPE']
+      ENV['TEST_DB_URI'] ||= 'http://127.0.0.1:8140'
     end
 
     after do
@@ -18,7 +19,7 @@ if defined?(::Rails)
 
     it "should trace a request to a rails stack" do
 
-      uri = URI.parse('http://127.0.0.1:8140/hello/world')
+      uri = URI.parse("#{ENV['TEST_DB_URI']}/hello/world")
       r = Net::HTTP.get_response(uri)
 
       traces = get_all_traces
@@ -65,7 +66,7 @@ if defined?(::Rails)
 
     it "should trace a request to a rails metal stack" do
 
-      uri = URI.parse('http://127.0.0.1:8140/hello/metal')
+      uri = URI.parse("#{ENV['TEST_DB_URI']}/hello/metal")
       r = Net::HTTP.get_response(uri)
 
       traces = get_all_traces
@@ -168,7 +169,7 @@ if defined?(::Rails)
       # handles DB instrumentation for JRuby
       skip if defined?(JRUBY_VERSION) || ENV['DBTYPE'] != "mysql"
 
-      uri = URI.parse('http://127.0.0.1:8140/hello/db')
+      uri = URI.parse("#{ENV['TEST_DB_URI']}/hello/db")
       r = Net::HTTP.get_response(uri)
 
       traces = get_all_traces
@@ -246,7 +247,7 @@ if defined?(::Rails)
       # handles DB instrumentation for JRuby
       skip if defined?(JRUBY_VERSION) || ENV['DBTYPE'] != 'mysql2'
 
-      uri = URI.parse('http://127.0.0.1:8140/hello/db')
+      uri = URI.parse("#{ENV['TEST_DB_URI']}/hello/db")
       r = Net::HTTP.get_response(uri)
 
       traces = get_all_traces
@@ -304,7 +305,7 @@ if defined?(::Rails)
 
       TraceView::Config[:action_controller][:collect_backtraces] = true
 
-      uri = URI.parse('http://127.0.0.1:8140/hello/world')
+      uri = URI.join(ENV['TEST_DB_URI'], '/hello/world')
       r = Net::HTTP.get_response(uri)
 
       traces = get_all_traces
@@ -354,7 +355,7 @@ if defined?(::Rails)
 
       TraceView::Config[:action_controller][:collect_backtraces] = false
 
-      uri = URI.parse('http://127.0.0.1:8140/hello/world')
+      uri = URI.parse("#{ENV['TEST_DB_URI']}/hello/world")
       r = Net::HTTP.get_response(uri)
 
       traces = get_all_traces

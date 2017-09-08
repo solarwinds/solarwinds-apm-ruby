@@ -1,0 +1,71 @@
+version: '3'
+
+#########################################################################################################
+#
+# to start the services:
+# > docker-compose up -d
+# ('ruby_appoptics' and 'wait' will exit)
+#
+# to run some ruby tests:
+# > docker-compose run --service-ports ruby_appoptics /code/ruby-appoptics/ruby_setup.sh 2.3.1 libraries
+#
+########################################################################################################
+
+services:
+  ruby_appoptics:
+     container_name: ruby_appoptics
+     image: ruby_appoptics
+     build:
+        context: .
+        dockerfile: ./Dockerfile_test
+     volumes:
+       - .:/code/ruby-appoptics
+     depends_on:
+       - wait
+     links:
+       - wait
+     environment:
+       - TV_RABBITMQ_SERVER=rabbitmq
+       - DOCKER_MYSQL_PASS=admin
+       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+       - MYSQL_ROOT_PASSWORD=admin
+       - MYSQL_HOST=mysql
+       - TV_MONGO_SERVER=mongo
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3-management
+    ports:
+      - "8080:15672"
+      - "5672:5672"
+      - "5671:5671"
+
+  mysql:
+    container_name: mysql
+    image: mysql:5.7.13
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_ROOT_PASSWORD=admin
+    ports:
+      - "3306:3306"
+
+  mongo:
+    container_name: mongo
+    image: mongo
+    ports:
+      - "27017:27017"
+
+  wait:
+    container_name: wait
+    image: waisbrot/wait
+    depends_on:
+      - rabbitmq
+      - mysql
+      - mongo
+    links:
+      - rabbitmq
+      - mysql
+      - mongo
+    environment:
+      - TARGETS=mysql:3306;rabbitmq:5672;mongo:27017
+
