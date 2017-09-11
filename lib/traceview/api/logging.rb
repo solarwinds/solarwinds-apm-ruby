@@ -129,7 +129,7 @@ module TraceView
             log_event(layer, :entry, md.createEvent, opts)
           else
             md = TraceView::Metadata.makeRandom(true)
-            # Do I also need to set the context?
+            TraceView::Context.set(md)
             log_event(layer, :entry, TraceView::Event.startTrace(md), opts)
           end
         else
