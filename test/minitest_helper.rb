@@ -91,6 +91,7 @@ end
 def clear_all_traces
   if TraceView.loaded
     TraceView::Reporter.clear_all_traces
+    sleep 0.2 # it seems like the docker file system needs a bit of time to clear the file
   end
 end
 
@@ -206,6 +207,14 @@ def layer_doesnt_have_key(traces, layer, key)
   end
 
   has_key.must_equal false
+end
+
+def sampled?(xtrace)
+  !(xtrace =~ /01$/).nil?
+end
+
+def not_sampled?(xtrace)
+  !(xtrace =~ /00$/).nil?
 end
 
 if (File.basename(ENV['BUNDLE_GEMFILE']) =~ /^frameworks/) == 0
