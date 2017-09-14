@@ -94,7 +94,7 @@ module TraceView
       TraceView.has_xtrace_header = xtrace_header
       TraceView.is_continued_trace = TraceView.has_incoming_context || TraceView.has_xtrace_header
 
-      TraceView::API.log_start(:rack, xtrace_header, report_kvs)
+      xtrace = TraceView::API.log_start(:rack, xtrace_header, report_kvs)
 
       # We only trace a subset of requests based off of sample rate so if
       # TraceView::API.log_start really did start a trace, we act accordingly here.
