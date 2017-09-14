@@ -85,6 +85,7 @@ module TraceView
       #
       #   TraceView::API.log_start(:layer_name, nil, { :id => @user.id })
       #
+      # Returns an xtrace metadata string
       def log_start(layer, xtrace = nil, opts = {})
         return if !TraceView.loaded || (opts.key?(:URL) && ::TraceView::Util.static_asset?(opts[:URL]))
 
@@ -145,6 +146,7 @@ module TraceView
             TraceView::Context.fromString(md.toString)
           end
         end
+        TraceView::Context.toString
       end
 
       ##
@@ -228,7 +230,7 @@ module TraceView
       #
       #   TraceView::API.log_exit(:layer_name, { :id => @user.id })
       #
-      # Returns an xtrace metadata string
+      # Returns an xtrace metadata string (TODO: does it?)
       def log_exit(layer, kvs = {}, op = nil)
         return unless TraceView.loaded
 
