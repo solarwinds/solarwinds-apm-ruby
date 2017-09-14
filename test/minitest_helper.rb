@@ -22,7 +22,9 @@ puts "\n\033[1m===== TEST RUN: #{ENV['RVM_TEST']} #{ENV['BUNDLE_GEMFILE']} #{Tim
 
 ENV['RACK_ENV'] = 'test'
 ENV['TRACEVIEW_GEM_TEST'] = 'true'
-ENV['TRACEVIEW_GEM_VERBOSE'] = 'true'
+
+#
+# ENV['TRACEVIEW_GEM_VERBOSE'] = 'true'
 
 # FIXME: Temp hack to fix padrino-core calling RUBY_ENGINE when it's
 # not defined under Ruby 1.8.7 and 1.9.3
@@ -209,12 +211,8 @@ def layer_doesnt_have_key(traces, layer, key)
   has_key.must_equal false
 end
 
-def sampled?(xtrace)
-  !(xtrace =~ /01$/).nil?
-end
-
 def not_sampled?(xtrace)
-  !(xtrace =~ /00$/).nil?
+  xtrace[58,59] == '00'
 end
 
 if (File.basename(ENV['BUNDLE_GEMFILE']) =~ /^frameworks/) == 0

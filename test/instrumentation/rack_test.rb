@@ -22,11 +22,12 @@ class RackTestApp < Minitest::Test
   end
 
   def setup
+    @tm = TraceView::Config[:tracing_mode]
     TraceView::Config[:tracing_mode] = :always
   end
 
   def teardown
-    TraceView::Config[:tracing_mode] = :always
+    TraceView::Config[:tracing_mode] = @tm
   end
 
   def test_get_the_lobster
@@ -137,7 +138,7 @@ class RackTestApp < Minitest::Test
     assert_equal(0, traces.size)
 
     assert last_response['X-Trace'], "X-Trace header is missing"
-    assert not_sampled?(last_response['X-Trace'])
+    assert not_sampled?(last_response['X-Trace']), "X-Trace sampling flag is not '00'"
   end
 end
 
