@@ -59,7 +59,7 @@ if TraceView::Config[:nethttp][:enabled]
               if task_id == TraceView::XTrace.task_id(xtrace)
                 TraceView::Context.fromString(xtrace)
               else
-                TraceView.logger.debug "Mismatched returned X-Trace ID : #{xtrace}"
+                TraceView.logger.debug "Mismatched returned X-Trace ID : #{xtrace} in http.rb"
               end
             end
           end

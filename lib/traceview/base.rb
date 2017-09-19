@@ -168,11 +168,6 @@ module TraceViewBase
     TraceView::Context.isValid && TraceView::Context.isSampled
   end
 
-  def log(layer, label, options = {})
-    # WARN: TraceView.log will be deprecated in a future release.  Please use TraceView::API.log instead.
-    TraceView::API.log(layer, label, options)
-  end
-
   def heroku?
     ENV.key?('TRACEVIEW_URL')
   end

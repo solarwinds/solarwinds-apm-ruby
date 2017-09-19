@@ -81,7 +81,7 @@ module TraceView
           if TraceView::XTrace.task_id(start) == TraceView::XTrace.task_id(finish)
             TraceView::Context.fromString(finish)
           else
-            TraceView.logger.debug "Mismatched returned X-Trace ID: #{finish}"
+            TraceView.logger.debug "Mismatched returned X-Trace ID: #{finish} in xtrace.rb"
           end
         end
       end

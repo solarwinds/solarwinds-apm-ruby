@@ -49,5 +49,5 @@ Gem::Specification.new do |s|
     s.add_development_dependency('pry', '>= 0.10.0')
   end
 
-  s.required_ruby_version = '>= 1.8.6'
+  s.required_ruby_version = '>= 1.9.3'
 end

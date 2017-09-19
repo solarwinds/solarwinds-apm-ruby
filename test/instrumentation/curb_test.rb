@@ -259,7 +259,7 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
     def test_cross_app_tracing
       response = nil
 
-      # When testing global config options, use the config_locak
+      # When testing global config options, use the config_lock
       # semaphore to lock between other running tests.
       TraceView.config_lock.synchronize {
         TraceView::Config[:curb][:cross_host] = true
@@ -432,7 +432,7 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
     end
 
     def test_obey_log_args_when_false
-      # When testing global config options, use the config_locak
+      # When testing global config options, use the config_lock
       # semaphore to lock between other running tests.
       TraceView.config_lock.synchronize {
         TraceView::Config[:curb][:log_args] = false
@@ -451,7 +451,7 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
     end
 
     def test_obey_log_args_when_true
-      # When testing global config options, use the config_locak
+      # When testing global config options, use the config_lock
       # semaphore to lock between other running tests.
       TraceView.config_lock.synchronize {
         TraceView::Config[:curb][:log_args] = true
@@ -486,7 +486,7 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
     end
 
     def test_obey_collect_backtraces_when_true
-      # When testing global config options, use the config_locak
+      # When testing global config options, use the config_lock
       # semaphore to lock between other running tests.
       TraceView.config_lock.synchronize {
         TraceView::Config[:curb][:collect_backtraces] = true
@@ -502,7 +502,7 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
     end
 
     def test_obey_collect_backtraces_when_false
-      # When testing global config options, use the config_locak
+      # When testing global config options, use the config_lock
       # semaphore to lock between other running tests.
       TraceView.config_lock.synchronize {
         TraceView::Config[:curb][:collect_backtraces] = false
@@ -515,6 +515,7 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
       traces = get_all_traces
       layer_doesnt_have_key(traces, 'curb', 'Backtrace')
     end
+
   end
 end
 
