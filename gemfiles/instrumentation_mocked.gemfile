@@ -17,6 +17,7 @@ group :development, :test do
   gem 'bson', '~> 4.0'
   gem 'puma', '< 3.1.0'
   gem 'webmock'
+  gem 'mocha'
 end
 
 if defined?(JRUBY_VERSION)
