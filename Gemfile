@@ -12,6 +12,7 @@ group :development, :test do
   else
     gem 'bson'
   end
+  gem 'webmock' if RUBY_VERSION >= '2.0.0'
 end
 
 group :development do
@@ -23,7 +24,7 @@ group :development do
     gem 'pry'
     gem 'pry-byebug', :platforms => [:mri_20, :mri_21, :mri_22, :mri_23, :mri_24]
   else
-    gem 'pry', '0.9.12.4'
+    gem 'pry', '~> 0.10.0'
   end
 end
 
