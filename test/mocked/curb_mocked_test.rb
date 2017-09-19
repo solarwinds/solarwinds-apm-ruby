@@ -1,6 +1,14 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
+# This test suite focuses on the per-request-xtrace feature
+# It tests that we add an x-trace to each outbound request,
+# unless TraceView::Config[:curb][:cross_host] is false or the url is blacklisted
+
+# missing tests:
+# test the xtrace tracing flag when tracing is true set by an incoming tracing context
+# test the correctness of the edges for various scenarios
+
 if !defined?(JRUBY_VERSION)
 
   require 'minitest_helper'
