@@ -48,6 +48,9 @@ Rake::TestTask.new do |t|
       # exclude cassandra tests for now
       # TODO: they need refactoring to use the 'cassandra-driver' gem
       # instead of the 'cassandra' gem, which hasn't had a commit since 09/2014
+  when /instrumentation_mocked/
+    # WebMock is interfering with other tests, so these have to run seperately
+    t.test_files = FileList['test/mocked/*_test.rb']
   end
 
   if defined?(JRUBY_VERSION)

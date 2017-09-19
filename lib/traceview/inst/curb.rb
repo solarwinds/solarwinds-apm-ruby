@@ -9,6 +9,7 @@ module TraceView
     # to be shared among both modules.
     module CurlUtility
 
+      private
       ##
       # traceview_collect
       #
@@ -45,7 +46,7 @@ module TraceView
       ensure
         return kvs
       end
-
+      
       ##
       # profile_curb_method
       #
@@ -54,26 +55,23 @@ module TraceView
       #
       def profile_curb_method(kvs, method, args, &block)
         # If we're not tracing, just do a fast return.
-        return self.send(method, args, &block) if !TraceView.tracing?
+        if !TraceView.tracing?
+          self.headers['X-Trace'] = get_x_trace(url)
+          return self.send(method, args, &block)
+        end
 
         begin
           response_context = nil
-          req_context = nil
-          handle_cross_host = TraceView::Config[:curb][:cross_host]
           kvs.merge! traceview_collect
 
           TraceView::API.log_entry(:curb, kvs)
           kvs.clear
 
-          if handle_cross_host && !kvs[:blacklisted]
-            req_context = TraceView::Context.toString()
-            self.headers['X-Trace'] = req_context
-          end
-
           # The core curb call
+          self.headers['X-Trace'] = get_x_trace(url)
           response = self.send(method, *args, &block)
 
-          if handle_cross_host
+          if TraceView::Config[:curb][:cross_host]
             kvs[:HTTPStatus] = response_code
 
             # If we get a redirect, report the location header
@@ -86,7 +84,7 @@ module TraceView
 
             response_context = response_headers['X-Trace']
             if response_context && !kvs[:blacklisted]
-              TraceView::XTrace.continue_service_context(req_context, response_context)
+              TraceView::XTrace.continue_service_context(self.headers['X-Trace'], response_context)
             end
           end
 
@@ -98,6 +96,17 @@ module TraceView
           TraceView::API.log_exit(:curb, kvs)
         end
       end
+      
+      def get_x_trace(url)
+        if TraceView::Config[:curb][:cross_host] && !TraceView::API.blacklisted?(URI(url).hostname)
+          if TraceView::Context.isValid
+            TraceView::Context.toString()
+          else
+            TraceView::Metadata.makeRandom(false).toString
+          end
+        end
+      end
+      
     end # CurlUtility
 
     # Instrumentation specific to ::Curl::Easy
@@ -120,6 +129,7 @@ module TraceView
       def http_post_with_traceview(*args, &block)
         # If we're not tracing, just do a fast return.
         if !TraceView.tracing? || TraceView.tracing_layer?(:curb)
+          self.headers['X-Trace'] = get_x_trace(url)
           return http_post_without_traceview(*args)
         end
 
@@ -139,6 +149,7 @@ module TraceView
       def http_put_with_traceview(*args, &block)
         # If we're not tracing, just do a fast return.
         if !TraceView.tracing? || TraceView.tracing_layer?(:curb)
+          self.headers['X-Trace'] = get_x_trace(url)
           return http_put_without_traceview(data)
         end
 
@@ -157,7 +168,10 @@ module TraceView
       #
       def perform_with_traceview(&block)
         # If we're not tracing, just do a fast return.
+        # excluding curb layer: because the curb C code for easy.http calls perform,
+        # we have to make sure we don't log again
         if !TraceView.tracing? || TraceView.tracing_layer?(:curb)
+          self.headers['X-Trace'] = get_x_trace(url)
           return perform_without_traceview(&block)
         end
 
@@ -173,7 +187,7 @@ module TraceView
           end
         end
 
-        return profile_curb_method(kvs, :perform_without_traceview, nil, &block)
+        profile_curb_method(kvs, :perform_without_traceview, nil, &block)
       end
 
       ##
@@ -183,7 +197,10 @@ module TraceView
       #
       def http_with_traceview(verb, &block)
         # If we're not tracing, just do a fast return.
-        return http_without_traceview(verb) if !TraceView.tracing?
+        if !TraceView.tracing?
+          self.headers['X-Trace'] = get_x_trace(url)
+          return http_without_traceview(verb)
+        end
 
         kvs = {}
         if TraceView::Config[:curb][:cross_host]
@@ -201,6 +218,8 @@ module TraceView
     # This module should be _extended_ by CurlMulti.
     #
     module CurlMultiCM
+      include TraceView::Inst::CurlUtility
+
       def self.extended(klass)
         ::TraceView::Util.class_method_alias(klass, :http, ::Curl::Multi)
       end
@@ -213,6 +232,10 @@ module TraceView
       def http_with_traceview(urls_with_config, multi_options={}, &block)
         # If we're not tracing, just do a fast return.
         if !TraceView.tracing?
+          urls_with_config.each do |conf|
+            conf[:headers] ||= {}
+            conf[:headers]['X-Trace'] = get_x_trace(conf[:url])
+          end
           return http_without_traceview(urls_with_config, multi_options, &block)
         end
 
@@ -221,6 +244,10 @@ module TraceView
           kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:curb][:collect_backtraces]
 
           TraceView::API.log_entry(:curb_multi, kvs)
+          urls_with_config.each do |conf|
+            conf[:headers] ||= {}
+            conf[:headers]['X-Trace'] = get_x_trace(conf[:url])
+          end
 
           # The core curb call
           http_without_traceview(urls_with_config, multi_options, &block)
@@ -240,6 +267,8 @@ module TraceView
     # This module should be _included_ into CurlMulti.
     #
     module CurlMultiIM
+      include TraceView::Inst::CurlUtility
+
       def self.included(klass)
         ::TraceView::Util.method_alias(klass, :perform, ::Curl::Multi)
       end
@@ -251,7 +280,14 @@ module TraceView
       #
       def perform_with_traceview(&block)
         # If we're not tracing or we're not already tracing curb, just do a fast return.
+        # excluding layers: because the curb C code for easy.http calls #perform
+        # (which is aliased to #perform_with_traceview),
+        # we have to make sure we don't log again
         if !TraceView.tracing? || [:curb, :curb_multi].include?(TraceView.layer)
+          self.requests.each do |request|
+            request.headers ||= {}
+            request.headers['X-Trace'] = get_x_trace(request.url)
+          end
           return perform_without_traceview(&block)
         end
 
@@ -262,6 +298,10 @@ module TraceView
           TraceView::API.log_entry(:curb_multi, kvs)
 
           # The core curb call
+          self.requests.each do |request|
+            request.headers ||= {}
+            request.headers['X-Trace'] = get_x_trace(request.url)
+          end
           perform_without_traceview(&block)
         rescue => e
           TraceView::API.log_exception(:curb_multi, e)
