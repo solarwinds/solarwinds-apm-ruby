@@ -13,6 +13,7 @@ group :development, :test do
     gem 'bson'
   end
   gem 'webmock' if RUBY_VERSION >= '2.0.0'
+  gem 'mocha'
 end
 
 group :development do
