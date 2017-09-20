@@ -99,11 +99,7 @@ module TraceView
       
       def get_x_trace(url)
         if TraceView::Config[:curb][:cross_host] && !TraceView::API.blacklisted?(URI(url).hostname)
-          if TraceView::Context.isValid
-            TraceView::Context.toString()
-          else
-            TraceView::Metadata.makeRandom(false).toString
-          end
+          TraceView::Context.toString() if TraceView::Context.isValid
         end
       end
       

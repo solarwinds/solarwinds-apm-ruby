@@ -18,7 +18,7 @@ def $stdout.write string
   super
 end
 
-puts "\n\033[1m===== TEST RUN: #{ENV['RVM_TEST']} #{ENV['BUNDLE_GEMFILE']} #{Time.now.strftime("%Y-%m-%d %H:%M")} =====\033[0m\n"
+puts "\n\033[1m=== TEST RUN: #{ENV['RVM_TEST']} #{ENV['BUNDLE_GEMFILE']} #{Time.now.strftime("%Y-%m-%d %H:%M")} ===\033[0m\n"
 
 ENV['RACK_ENV'] = 'test'
 ENV['TRACEVIEW_GEM_TEST'] = 'true'
@@ -213,6 +213,10 @@ end
 
 def not_sampled?(xtrace)
   xtrace[58,59] == '00'
+end
+
+def sampled?(xtrace)
+  xtrace[58,59] == '01'
 end
 
 if (File.basename(ENV['BUNDLE_GEMFILE']) =~ /^frameworks/) == 0
