@@ -10,6 +10,8 @@ module TraceView
     # many Rails versions.
     #
     module RailsBase
+      include ::TraceViewBase
+
       #
       # has_handler?
       #
@@ -55,18 +57,12 @@ module TraceView
       #
       # render_with_traceview
       #
-      # Our render wrapper that just times and conditionally
-      # reports raised exceptions
+      # Our render wrapper that calls 'add_logging', which will log if we are tracing
       #
       def render_with_traceview(*args, &blk)
-        TraceView::API.log_entry('actionview')
-        render_without_traceview(*args, &blk)
-
-      rescue Exception => e
-        TraceView::API.log_exception(nil, e) if log_rails_error?(e)
-        raise
-      ensure
-        TraceView::API.log_exit('actionview')
+        add_logging('actionview') do
+          render_without_traceview(*args, &blk)
+        end
       end
     end
   end

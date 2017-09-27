@@ -8,12 +8,20 @@ if defined?(::Rails)
   describe "Rails5x" do
     before do
       clear_all_traces
-      @collect_backtraces = TraceView::Config[:action_controller][:collect_backtraces]
+      TraceView.config_lock.synchronize {
+        @tm = TraceView::Config[:tracing_mode]
+        @collect_backtraces = TraceView::Config[:action_controller][:collect_backtraces]
+        @sample_rate = TraceView::Config[:sample_rate]
+      }
       ENV['DBTYPE'] = "postgresql" unless ENV['DBTYPE']
     end
 
     after do
-      TraceView::Config[:action_controller][:collect_backtraces] = @collect_backtraces
+      TraceView.config_lock.synchronize {
+        TraceView::Config[:action_controller][:collect_backtraces] = @collect_backtraces
+        TraceView::Config[:tracing_mode] = @tm
+        TraceView::Config[:sample_rate] = @sample_rate
+      }
     end
 
     it "should trace a request to a rails stack" do
@@ -305,6 +313,42 @@ if defined?(::Rails)
       # Validate the existence of the response header
       r.header.key?('X-Trace').must_equal true
       r.header['X-Trace'].must_equal traces[6]['X-Trace']
+    end
+
+    it "should NOT trace when tracing is set to :never" do
+      TraceView.config_lock.synchronize do
+        TraceView::Config[:tracing_mode] = :never
+        uri = URI.parse('http://127.0.0.1:8140/hello/world')
+        r = Net::HTTP.get_response(uri)
+
+        traces = get_all_traces
+        traces.count.must_equal 0
+      end
+    end
+
+    # in this case the incoming xtrace has the sampling flag set to '0'
+    it "should NOT trace when incoming trace when sample_rate is 0" do
+      TraceView.config_lock.synchronize do
+        TraceView::Config[:sample_rate] = 0
+        uri = URI.parse('http://127.0.0.1:8140/hello/world')
+        r = Net::HTTP.get_response(uri)
+
+        traces = get_all_traces
+        traces.count.must_equal 0
+      end
+    end
+
+    # I think this test works because oboe won't log if there isn't a valid context
+    it "should NOT trace when there is no incoming xtrace" do
+      response_headers = HelloController.action("world").call(
+          "REQUEST_METHOD" => "GET",
+          "rack.input" => -> {}
+      )[1]
+
+      response_headers['X-Trace'].must_be_nil
+
+      traces = get_all_traces
+      traces.count.must_equal 0
     end
   end
 end

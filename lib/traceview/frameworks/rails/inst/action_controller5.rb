@@ -13,37 +13,34 @@ module TraceView
       include ::TraceView::Inst::RailsBase
 
       def process_action(method_name, *args)
-        kvs = {
-          :Controller   => self.class.name,
-          :Action       => self.action_name,
-        }
-        kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:action_controller][:collect_backtraces]
+        return super(method_name, *args) unless tracing?
+        begin
+          kvs = {
+              :Controller   => self.class.name,
+              :Action       => self.action_name,
+          }
+          kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:action_controller][:collect_backtraces]
 
-        TraceView::API.log_entry('rails', kvs)
-        super(method_name, *args)
+          TraceView::API.log_entry('rails', kvs)
+          super(method_name, *args)
 
-      rescue Exception => e
-        TraceView::API.log_exception(nil, e) if log_rails_error?(e)
-        raise
-      ensure
-        TraceView::API.log_exit('rails')
+        rescue Exception => e
+          TraceView::API.log_exception(nil, e) if log_rails_error?(e)
+          raise
+        ensure
+          TraceView::API.log_exit('rails')
+        end
       end
 
       #
-      # render_with_traceview
+      # render
       #
-      # Our render wrapper that just times and conditionally
-      # reports raised exceptions
+      # Our render wrapper that calls 'add_logging', which will log if we are tracing
       #
       def render(*args, &blk)
-        TraceView::API.log_entry('actionview')
-        super(*args, &blk)
-
-      rescue Exception => e
-        TraceView::API.log_exception(nil, e) if log_rails_error?(e)
-        raise
-      ensure
-        TraceView::API.log_exit('actionview')
+        add_logging('actionview') do
+          super(*args, &blk)
+        end
       end
     end
   end
