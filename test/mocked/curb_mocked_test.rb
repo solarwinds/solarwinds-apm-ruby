@@ -18,7 +18,6 @@ if !defined?(JRUBY_VERSION)
       TraceView.config_lock.synchronize {
         @tm = TraceView::Config[:tracing_mode]
         @cross_host = TraceView::Config[:curb][:cross_host]
-        @blacklist = TraceView::Config[:blacklist]
         @sample_rate = TraceView::Config[:sample_rate]
       }
     end
@@ -27,7 +26,7 @@ if !defined?(JRUBY_VERSION)
       TraceView.config_lock.synchronize {
         TraceView::Config[:tracing_mode] = @tm
         TraceView::Config[:curb][:cross_host] = @cross_host
-        TraceView::Config[:blacklist] = @blacklist
+        TraceView::Config[:blacklist] = []
         TraceView::Config[:sample_rate] = @sample_rate
       }
       WebMock.reset!

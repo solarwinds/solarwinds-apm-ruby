@@ -1,0 +1,159 @@
+# Copyright (c) 2016 SolarWinds, LLC.
+# All rights reserved.
+
+if !defined?(JRUBY_VERSION)
+
+  require 'minitest_helper'
+  require 'webmock/minitest'
+  require 'mocha/mini_test'
+  require 'traceview/inst/rack'
+  require 'traceview/inst/excon'
+
+  class ExconTest < Minitest::Test
+    include Rack::Test::Methods
+
+    def setup
+      WebMock.enable!
+      WebMock.disable_net_connect!
+      clear_all_traces
+      TraceView.config_lock.synchronize {
+        @sample_rate = TraceView::Config[:sample_rate]
+        @tracing_mode= TraceView::Config[:tracing_mode]
+      }
+    end
+
+    def teardown
+      TraceView.config_lock.synchronize {
+        TraceView::Config[:sample_rate] = @sample_rate
+        TraceView::Config[:tracing_mode] = @tracing_mode
+        TraceView::Config[:blacklist] = []
+      }
+      WebMock.reset!
+      WebMock.allow_net_connect!
+      WebMock.disable!
+    end
+
+    # ========== excon get =================================
+
+    def test_xtrace_no_trace
+      stub_request(:get, "http://127.0.0.6:8101/")
+
+      TraceView.config_lock.synchronize do
+        ::Excon.get("http://127.0.0.6:8101/")
+      end
+
+      assert_requested :get, "http://127.0.0.6:8101/", times: 1
+      assert_not_requested :get, "http://127.0.0.6:8101/", headers: {'X-Trace'=>/^.*$/}
+    end
+
+    def test_xtrace_tracing
+      stub_request(:get, "http://127.0.0.7:8101/").to_return(status: 200, body: "", headers: {})
+
+      TraceView::API.start_trace('excon_tests') do
+        ::Excon.get("http://127.0.0.7:8101/")
+      end
+
+      assert_requested :get, "http://127.0.0.7:8101/", times: 1
+      assert_requested :get, "http://127.0.0.7:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]{56}01/}, times: 1
+    end
+
+    def test_xtrace_tracing_not_sampling
+      stub_request(:get, "http://127.0.0.4:8101/").to_return(status: 200, body: "", headers: {})
+
+      TraceView.config_lock.synchronize do
+        TraceView::Config[:sample_rate] = 0
+        TraceView::API.start_trace('excon_test') do
+          ::Excon.get("http://127.0.0.4:8101/")
+        end
+      end
+
+      assert_requested :get, "http://127.0.0.4:8101/", times: 1
+      assert_requested :get, "http://127.0.0.4:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*00$/}, times: 1
+      assert_not_requested :get, "http://127.0.0.4:8101/", headers: {'X-Trace'=>/^2B0*$/}
+    end
+
+    def test_xtrace_tracing_blacklisted
+      stub_request(:get, "http://127.0.0.3:8101/").to_return(status: 200, body: "", headers: {})
+
+      TraceView.config_lock.synchronize do
+        TraceView::Config.blacklist << '127.0.0.3'
+        TraceView::API.start_trace('excon_tests') do
+          ::Excon.get("http://127.0.0.3:8101/")
+        end
+      end
+
+      assert_requested :get, "http://127.0.0.3:8101/", times: 1
+      assert_not_requested :get, "http://127.0.0.3:8101/", headers: {'X-Trace'=>/.*/}
+    end
+
+    # ========== excon pipelined =================================
+
+    def test_xtrace_pipelined_tracing
+      stub_request(:get, "http://127.0.0.5:8101/").to_return(status: 200, body: "", headers: {})
+      stub_request(:put, "http://127.0.0.5:8101/").to_return(status: 200, body: "", headers: {})
+
+      TraceView::API.start_trace('excon_tests') do
+        connection = ::Excon.new('http://127.0.0.5:8101/')
+        connection.requests([{:method => :get}, {:method => :put}])
+      end
+
+      assert_requested :get, "http://127.0.0.5:8101/", times: 1
+      assert_requested :put, "http://127.0.0.5:8101/", times: 1
+      assert_requested :get, "http://127.0.0.5:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*01$/}, times: 1
+      assert_requested :put, "http://127.0.0.5:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*01$/}, times: 1
+    end
+
+    def test_xtrace_pipelined_tracing_not_sampling
+      stub_request(:get, "http://127.0.0.2:8101/").to_return(status: 200, body: "", headers: {})
+      stub_request(:put, "http://127.0.0.2:8101/").to_return(status: 200, body: "", headers: {})
+
+      TraceView.config_lock.synchronize do
+        TraceView::Config[:sample_rate] = 0
+        TraceView::API.start_trace('excon_tests') do
+          connection = ::Excon.new('http://127.0.0.2:8101/')
+          connection.requests([{:method => :get}, {:method => :put}])
+        end
+      end
+
+      assert_requested :get, "http://127.0.0.2:8101/", times: 1
+      assert_requested :put, "http://127.0.0.2:8101/", times: 1
+      assert_requested :get, "http://127.0.0.2:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*00$/}, times: 1
+      assert_requested :put, "http://127.0.0.2:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*00$/}, times: 1
+      assert_not_requested :get, "http://127.0.0.2:8101/", headers: {'X-Trace'=>/^2B0*$/}
+      assert_not_requested :put, "http://127.0.0.2:8101/", headers: {'X-Trace'=>/^2B0*$/}
+    end
+
+    def test_xtrace_pipelined_no_trace
+      stub_request(:get, "http://127.0.0.8:8101/").to_return(status: 200, body: "", headers: {})
+      stub_request(:put, "http://127.0.0.8:8101/").to_return(status: 200, body: "", headers: {})
+
+      connection = ::Excon.new('http://127.0.0.8:8101/')
+      connection.requests([{:method => :get}, {:method => :put}])
+
+      assert_requested :get, "http://127.0.0.8:8101/", times: 1
+      assert_requested :put, "http://127.0.0.8:8101/", times: 1
+      assert_not_requested :get, "http://127.0.0.8:8101/", headers: {'X-Trace'=>/^.*$/}
+      assert_not_requested :put, "http://127.0.0.8:8101/", headers: {'X-Trace'=>/^.*$/}
+    end
+
+    def test_xtrace_pipelined_tracing_blacklisted
+      stub_request(:get, "http://127.0.0.9:8101/").to_return(status: 200, body: "", headers: {})
+      stub_request(:put, "http://127.0.0.9:8101/").to_return(status: 200, body: "", headers: {})
+
+      TraceView.config_lock.synchronize do
+        TraceView::Config.blacklist << '127.0.0.9'
+        TraceView::API.start_trace('excon_tests') do
+          connection = ::Excon.new('http://127.0.0.9:8101/')
+          connection.requests([{:method => :get}, {:method => :put}])
+        end
+      end
+
+      assert_requested :get, "http://127.0.0.9:8101/", times: 1
+      assert_requested :put, "http://127.0.0.9:8101/", times: 1
+      assert_not_requested :get, "http://127.9.0.8:8101/", headers: {'X-Trace'=>/^.*$/}
+      assert_not_requested :put, "http://127.9.0.8:8101/", headers: {'X-Trace'=>/^.*$/}
+    end
+
+  end
+end
+
