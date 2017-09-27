@@ -230,12 +230,12 @@ module TraceView
 
       elsif key == :sample_rate
         unless value.is_a?(Integer) || value.is_a?(Float)
-          fail 'traceview :sample_rate must be a number between 1 and 1000000 (1m)'
+          fail 'traceview :sample_rate must be a number between 0 and 1000000 (1m)'
         end
 
         # Validate :sample_rate value
-        unless value.between?(1, 1e6)
-          fail 'traceview :sample_rate must be between 1 and 1000000 (1m)'
+        unless value.between?(0, 1e6)
+          fail 'traceview :sample_rate must be between 0 and 1000000 (1m)'
         end
 
         # Assure value is an integer
