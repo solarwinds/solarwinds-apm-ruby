@@ -35,21 +35,37 @@ if !defined?(JRUBY_VERSION)
       WebMock.disable!
     end
 
-    def test_xtrace_when_tracing
+    def test_xtrace_tracing
+      stub_request(:get, "http://127.0.0.9:8101/").to_return(status: 200, body: "", headers: {})
+
+      TraceView.config_lock.synchronize do
+        TraceView::Config[:curb][:cross_host] = true
+        TraceView::API.start_trace('curb_tests') do
+          ::Curl.get("http://127.0.0.9:8101/")
+        end
+      end
+
+      assert_requested :get, "http://127.0.0.9:8101/", times: 1
+      assert_requested :get, "http://127.0.0.9:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*01$/}, times: 1
+    end
+
+    def test_xtrace_sample_rate_0
       stub_request(:get, "http://127.0.0.4:8101/").to_return(status: 200, body: "", headers: {})
 
       TraceView.config_lock.synchronize do
         TraceView::Config[:curb][:cross_host] = true
+        TraceView::Config[:sample_rate] = 0
         TraceView::API.start_trace('curb_tests') do
           ::Curl.get("http://127.0.0.4:8101/")
         end
       end
 
       assert_requested :get, "http://127.0.0.4:8101/", times: 1
-      assert_requested :get, "http://127.0.0.4:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*01$/}, times: 1
+      assert_requested :get, "http://127.0.0.4:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*00$/}, times: 1
+      assert_not_requested :get, "http://127.0.0.4:8101/", headers: {'X-Trace'=>/^2B0*$/}
     end
 
-    def test_xtrace_when_not_tracing
+    def test_xtrace_no_trace
       stub_request(:get, "http://127.0.0.6:8101/").to_return(status: 200, body: "", headers: {})
 
       TraceView.config_lock.synchronize do
@@ -58,42 +74,7 @@ if !defined?(JRUBY_VERSION)
       end
 
       assert_requested :get, "http://127.0.0.6:8101/", times: 1
-      assert_not_requested :get, "http://127.0.0.6:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*00$/}, times: 1
-      assert_not_requested :get, "http://127.0.0.6:8101/", headers: {'X-Trace'=>/^2B0*00$/}
-
-    end
-
-    def test_xtrace_when_sample_rate_1
-      # almost 0, how can I guarantee no sampling?
-      stub_request(:get, "http://127.0.0.4:8101/").to_return(status: 200, body: "", headers: {})
-
-      TraceView.config_lock.synchronize do
-        TraceView::Config[:curb][:cross_host] = true
-        TraceView::Config[:sample_rate] = 1
-        TraceView::API.start_trace('curb_tests') do
-          ::Curl.get("http://127.0.0.4:8101/")
-        end
-      end
-
-      assert_requested :get, "http://127.0.0.4:8101/", times: 1
-      assert_requested :get, "http://127.0.0.4:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*00$/}, times: 1
-      assert_not_requested :get, "http://127.0.0.4:8101/", headers: {'X-Trace'=>/^2B0*00$/}
-
-    end
-
-    def test_xtrace_tracing_not_sampling
-      stub_request(:get, "http://127.0.0.5:8101/").to_return(status: 200, body: "", headers: {})
-
-      TraceView.config_lock.synchronize do
-        TraceView::Config[:curb][:cross_host] = true
-        TraceView::API.start_trace('curb_test') do
-          ::Curl.get("http://127.0.0.5:8101/")
-        end
-      end
-
-      assert_requested :get, "http://127.0.0.5:8101/", times: 1
-      assert_not_requested :get, "http://127.0.0.5:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*00$/}, times: 1
-      assert_not_requested :get, "http://127.0.0.5:8101/", headers: {'X-Trace'=>/^2B0*00$/}
+      assert_not_requested :get, "http://127.0.0.6:8101/", headers: {'X-Trace'=>/^.*$/}
     end
 
     def test_blacklisted
@@ -108,7 +89,7 @@ if !defined?(JRUBY_VERSION)
       end
 
       assert_requested :get, "http://127.0.0.2:8101/", times: 1
-      assert_not_requested :get, "http://127.0.0.2:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*/}, times: 1
+      assert_not_requested :get, "http://127.0.0.2:8101/", headers: {'X-Trace'=>/^.*/}
     end
 
     def test_cross_host_false
@@ -122,10 +103,10 @@ if !defined?(JRUBY_VERSION)
       end
 
       assert_requested :get, "http://127.0.0.3:8101/", times: 1
-      assert_not_requested :get, "http://127.0.0.3:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*/}, times: 1
+      assert_not_requested :get, "http://127.0.0.3:8101/", headers: {'X-Trace'=>/^.*$/}
     end
 
-    def test_multi_get_not_tracing
+    def test_multi_get_no_trace
       WebMock.disable!
 
       Curl::Multi.expects(:http_without_traceview).with do |url_confs, _multi_options|
@@ -202,14 +183,14 @@ if !defined?(JRUBY_VERSION)
 
       TraceView.config_lock.synchronize do
         TraceView::Config[:curb][:cross_host] = true
-        TraceView::Config[:sample_rate] = 1 # I wish I could set it to 0
+        TraceView::Config[:sample_rate] = 0
         TraceView::API.start_trace('curb_tests') do
           Curl::Multi.get(urls, easy_options, multi_options)
         end
       end
     end
 
-    def test_multi_perform_not_tracing
+    def test_multi_perform_no_trace
       WebMock.disable!
 
       urls = []
@@ -274,7 +255,7 @@ if !defined?(JRUBY_VERSION)
 
       TraceView.config_lock.synchronize do
         TraceView::Config[:curb][:cross_host] = true
-        TraceView::Config[:sample_rate] = 1 # 0 would be better
+        TraceView::Config[:sample_rate] = 0
         TraceView::API.start_trace('curb_tests') do
           m = Curl::Multi.new
           urls.each do |url|
@@ -288,7 +269,7 @@ if !defined?(JRUBY_VERSION)
             m.requests.each do |request|
               assert request.headers['X-Trace']
               assert not_sampled?(request.headers['X-Trace'])
-              refute_match /^2B0*00$/, request.headers['X-Trace']
+              refute_match /^2B0*$/, request.headers['X-Trace']
             end
           end
         end
