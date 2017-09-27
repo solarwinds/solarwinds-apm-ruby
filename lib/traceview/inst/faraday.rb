@@ -9,10 +9,8 @@ module TraceView
       end
 
       def run_request_with_traceview(method, url, body, headers, &block)
-        # Only send service KVs if we're not using the Net::HTTP adapter
-        # Otherwise, the Net::HTTP instrumentation will send the service KVs
-        handle_service = !@builder.handlers.include?(Faraday::Adapter::NetHttp) &&
-                         !@builder.handlers.include?(Faraday::Adapter::Excon)
+        # return run_request_without_traceview(method, url, body, headers, &block) unless tracing?
+        # begin
         TraceView::API.log_entry(:faraday)
 
         result = run_request_without_traceview(method, url, body, headers, &block)
@@ -21,6 +19,10 @@ module TraceView
         kvs[:Middleware] = @builder.handlers
         kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:faraday][:collect_backtraces]
 
+        # Only send service KVs if we're not using the Net::HTTP adapter
+        # Otherwise, the Net::HTTP instrumentation will send the service KVs
+        handle_service = !@builder.handlers.include?(Faraday::Adapter::NetHttp) &&
+                         !@builder.handlers.include?(Faraday::Adapter::Excon)
         if handle_service
           blacklisted = TraceView::API.blacklisted?(@url_prefix.to_s)
           context = TraceView::Context.toString
@@ -64,6 +66,7 @@ module TraceView
       ensure
         TraceView::API.log_exit(:faraday)
       end
+      # end
     end
   end
 end

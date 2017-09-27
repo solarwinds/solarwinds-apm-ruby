@@ -176,6 +176,7 @@ module TraceViewBase
   # This method does the logging if we are tracing
   # it `wraps` around the call to the original method
   #
+  # TODO: move to more rails specific code
   def add_logging(layer)
     return yield unless tracing?
     begin

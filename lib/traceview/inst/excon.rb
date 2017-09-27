@@ -76,7 +76,7 @@ module TraceView
         # then just return as we're tracing from parent
         # <tt>requests</tt>
         if !TraceView.tracing? || params[:pipeline]
-          @data[:headers]['X-Trace'] = TraceView::Context.toString() if TraceView::Context.isValid && !blacklisted
+          @data[:headers]['X-Trace'] = TraceView::Context.toString if TraceView::Context.isValid && !blacklisted
           return request_without_traceview(params, &block)
         end
 

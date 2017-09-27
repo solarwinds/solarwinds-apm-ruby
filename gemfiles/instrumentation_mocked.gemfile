@@ -45,7 +45,7 @@ end
 gem 'curb', '<= 0.9.3' unless defined?(JRUBY_VERSION)
 # gem 'dalli' if RUBY_VERSION > '1.8.7'
 gem 'excon'
-# gem 'faraday'
+gem 'faraday'
 # gem 'httpclient'
 # gem 'memcache-client'
 # gem 'redis'

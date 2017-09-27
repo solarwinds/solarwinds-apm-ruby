@@ -155,11 +155,7 @@ describe "Faraday" do
 
     traces[7]['Layer'].must_equal 'faraday'
     traces[7]['Label'].must_equal 'info'
-    unless RUBY_VERSION < '1.9.3'
-      # FIXME: Ruby 1.8 is reporting an object instance instead of
-      # an array
-      traces[7]['Middleware'].must_equal '[Faraday::Adapter::Excon]'
-    end
+    traces[7]['Middleware'].must_equal '[Faraday::Adapter::Excon]'
 
     traces[8]['Layer'].must_equal 'faraday'
     traces[8]['Label'].must_equal 'exit'
@@ -184,7 +180,7 @@ describe "Faraday" do
     traces[1]['Layer'].must_equal 'faraday'
     traces[1].key?('Backtrace').must_equal TraceView::Config[:faraday][:collect_backtraces]
 
-    traces[2]['Layer'].must_equal 'excon'
+    traces[2]['Layer'].must_equal 'httpclient'
     traces[2]['Label'].must_equal 'entry'
     traces[2]['IsService'].must_equal 1
     traces[2]['RemoteProtocol'].must_equal 'HTTP'
@@ -192,17 +188,13 @@ describe "Faraday" do
     traces[2]['ServiceArg'].must_equal '/?q=1'
     traces[2]['HTTPMethod'].must_equal 'GET'
 
-    traces[6]['Layer'].must_equal 'excon'
+    traces[6]['Layer'].must_equal 'httpclient'
     traces[6]['Label'].must_equal 'exit'
     traces[6]['HTTPStatus'].must_equal 200
 
     traces[7]['Layer'].must_equal 'faraday'
     traces[7]['Label'].must_equal 'info'
-    unless RUBY_VERSION < '1.9.3'
-      # FIXME: Ruby 1.8 is reporting an object instance instead of
-      # an array
-      traces[7]['Middleware'].must_equal '[Faraday::Adapter::Excon]'
-    end
+    traces[7]['Middleware'].must_equal '[Faraday::Adapter::Excon]'
 
     traces[8]['Layer'].must_equal 'faraday'
     traces[8]['Label'].must_equal 'exit'
