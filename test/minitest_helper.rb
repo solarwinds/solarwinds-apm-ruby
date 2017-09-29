@@ -10,7 +10,7 @@ require 'minitest/debugger' if ENV['DEBUG']
 
 # write to STDOUT as well as file (comes in handy with docker runs)
 FileUtils.mkdir_p('log')  # create if it doesn't exist
-$out_file = File.new('log/test_runs.log', 'a')
+$out_file = File.new("log/test_runs_#{Time.now.strftime("%Y_%m_%d")}.log", 'a')
 $out_file.sync = true
 $stdout.sync = true
 def $stdout.write string
@@ -217,6 +217,20 @@ end
 
 def sampled?(xtrace)
   xtrace[58,59] == '01'
+end
+
+def print_traces(traces)
+  indent = ''
+  traces.each do |trace|
+    indent += '  ' if trace["Label"] == "entry"
+
+    puts "#{indent}X-Trace: #{trace["X-Trace"]}"
+    puts "#{indent}Label:   #{trace["Label"]}"
+    puts "#{indent}Layer:   #{trace["Layer"]}"
+
+    indent = indent[0...-2] if trace["Label"] == "exit"
+  end
+  nil
 end
 
 if (File.basename(ENV['BUNDLE_GEMFILE']) =~ /^frameworks/) == 0
