@@ -6,16 +6,12 @@ if !defined?(JRUBY_VERSION)
   require 'minitest_helper'
   require 'webmock/minitest'
   require 'mocha/mini_test'
-  require 'traceview/inst/rack'
-  require 'traceview/inst/excon'
 
   class ExconTest < Minitest::Test
-    include Rack::Test::Methods
 
     def setup
       WebMock.enable!
       WebMock.disable_net_connect!
-      clear_all_traces
       TraceView.config_lock.synchronize {
         @sample_rate = TraceView::Config[:sample_rate]
         @tracing_mode= TraceView::Config[:tracing_mode]

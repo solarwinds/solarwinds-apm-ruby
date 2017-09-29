@@ -6,15 +6,12 @@ if !defined?(JRUBY_VERSION)
   require 'minitest_helper'
   require 'webmock/minitest'
   require 'mocha/mini_test'
-  require 'traceview/inst/rack'
 
   class CurbMockedTest < Minitest::Test
-    include Rack::Test::Methods
 
     def setup
       WebMock.enable!
       WebMock.disable_net_connect!
-      clear_all_traces
       TraceView.config_lock.synchronize {
         @tm = TraceView::Config[:tracing_mode]
         @cross_host = TraceView::Config[:curb][:cross_host]
