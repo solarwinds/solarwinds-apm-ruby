@@ -38,16 +38,18 @@ module TraceView
       end
 
       def do_request_with_traceview(method, uri, query, body, header, &block)
+        # Avoid cross host tracing for blacklisted domains
+        blacklisted = TraceView::API.blacklisted?(uri.hostname)
+
         # If we're not tracing, just do a fast return.
         unless TraceView.tracing?
+          add_xtrace_header(header) unless blacklisted
           return do_request_without_traceview(method, uri, query, body, header, &block)
         end
 
         begin
+          req_context = nil
           response_context = nil
-
-          # Avoid cross host tracing for blacklisted domains
-          blacklisted = TraceView::API.blacklisted?(uri.hostname)
 
           kvs = traceview_collect(method, uri, query)
           kvs[:Blacklisted] = true if blacklisted
@@ -55,14 +57,7 @@ module TraceView
           TraceView::API.log_entry(:httpclient, kvs)
           kvs.clear
 
-          req_context = TraceView::Context.toString
-
-          # Be aware of various ways to call/use httpclient
-          if header.is_a?(Array)
-            header.push ['X-Trace', req_context]
-          elsif header.is_a?(Hash)
-            header['X-Trace'] = req_context unless blacklisted
-          end
+          req_context = add_xtrace_header(header) unless blacklisted
 
           # The core httpclient call
           response = do_request_without_traceview(method, uri, query, body, header, &block)
@@ -89,38 +84,25 @@ module TraceView
       end
 
       def do_request_async_with_traceview(method, uri, query, body, header)
-        if TraceView.tracing?
-          # Since async is done by calling Thread.new { .. }, we somehow
-          # have to pass the tracing context into that new thread.  Here
-          # we stowaway the context in the request headers to be picked up
-          # (and removed from req headers) in do_get_stream.
-          if header.is_a?(Array)
-            header.push ['traceview.context', TraceView::Context.toString]
-          elsif header.is_a?(Hash)
-            header['traceview.context'] = TraceView::Context.toString
-          end
-        end
-
+        add_xtrace_header(header)
         do_request_async_without_traceview(method, uri, query, body, header)
       end
 
       def do_get_stream_with_traceview(req, proxy, conn)
-        unless req.headers.key?('traceview.context')
+        TraceView::Context.fromString(req.header['X-Trace'].first) unless req.header['X-Trace'].empty?
+        # Avoid cross host tracing for blacklisted domains
+        uri = req.http_header.request_uri
+        blacklisted = TraceView::API.blacklisted?(uri.hostname)
+
+        unless TraceView.tracing?
+          req.header.delete('X-Trace') if blacklisted
           return do_get_stream_without_traceview(req, proxy, conn)
         end
 
-        # Pickup context and delete the headers stowaway
-        TraceView::Context.fromString req.headers['traceview.context']
-        req.header.delete 'traceview.context'
-
         begin
           response = nil
-          response_context = nil
-          uri = req.http_header.request_uri
+          req_context = nil
           method = req.http_header.request_method
-
-          # Avoid cross host tracing for blacklisted domains
-          blacklisted = TraceView::API.blacklisted?(uri.hostname)
 
           kvs = traceview_collect(method, uri)
           kvs[:Blacklisted] = true if blacklisted
@@ -129,8 +111,7 @@ module TraceView
           TraceView::API.log_entry(:httpclient, kvs)
           kvs.clear
 
-          req_context = TraceView::Context.toString
-          req.header.add('X-Trace', req_context)
+          blacklisted ? req.header.delete('X-Trace') : req_context = add_xtrace_header(req.header)
 
           # The core httpclient call
           result = do_get_stream_without_traceview(req, proxy, conn)
@@ -165,6 +146,23 @@ module TraceView
           TraceView::API.log_exit(:httpclient, kvs)
         end
       end
+
+      private
+
+      def add_xtrace_header(headers)
+        req_context = TraceView::Context.toString
+        return nil unless TraceView::XTrace.valid?(req_context)
+        # Be aware of various ways to call/use httpclient
+        if headers.is_a?(Array)
+          headers.delete_if { |kv| kv[0] == 'X-Trace' }
+          headers.push ['X-Trace', req_context]
+        elsif headers.is_a?(Hash)
+          headers['X-Trace'] = req_context
+        elsif headers.is_a? HTTP::Message::Headers
+          headers.set('X-Trace', req_context)
+        end
+      end
+
     end
   end
 end

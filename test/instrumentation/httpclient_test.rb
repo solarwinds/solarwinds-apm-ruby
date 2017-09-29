@@ -306,6 +306,14 @@ unless defined?(JRUBY_VERSION)
 
       clnt = HTTPClient.new
       clnt.get('http://127.0.0.1:8101/', :query => { :keyword => 'ruby', :lang => 'en' })
+
+      traces = get_all_traces
+      # we only get traces from rack
+      assert_equal 3, traces.count
+      traces.each do |trace|
+        assert_equal 'rack', trace["Layer"]
+      end
+
     end
   end
 end
