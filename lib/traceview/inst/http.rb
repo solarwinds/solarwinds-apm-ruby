@@ -7,19 +7,23 @@ if TraceView::Config[:nethttp][:enabled]
 
   Net::HTTP.class_eval do
     def request_with_traceview(*args, &block)
+      # Avoid cross host tracing for blacklisted domains
+      blacklisted = TraceView::API.blacklisted?(addr_port)
+
       # If we're not tracing, just do a fast return. Since
       # net/http.request calls itself, only trace
       # once the http session has been started.
       if !TraceView.tracing? || !started?
+        unless blacklisted
+          xtrace = TraceView::Context.toString
+          args[0]['X-Trace'] = xtrace if TraceView::XTrace.valid?(xtrace)
+        end
         return request_without_traceview(*args, &block)
       end
 
-      # Avoid cross host tracing for blacklisted domains
-      blacklisted = TraceView::API.blacklisted?(addr_port)
-
       TraceView::API.trace(:'net-http') do
         opts = {}
-        context = TraceView::Context.toString()
+        context = TraceView::Context.toString
         task_id = TraceView::XTrace.task_id(context)
 
         # Collect KVs to report in the info event
