@@ -41,7 +41,7 @@ unless defined?(JRUBY_VERSION)
 
       TraceView.config_lock.synchronize do
         TraceView::Config[:sample_rate] = 0
-        TraceView::API.start_trace('curb_tests') do
+        TraceView::API.start_trace('rest_client_tests') do
           RestClient::Resource.new('http://127.0.0.2:8101').get
         end
       end
@@ -56,7 +56,7 @@ unless defined?(JRUBY_VERSION)
       RestClient::Resource.new('http://127.0.0.3:8101').get
 
       assert_requested :get, "http://127.0.0.3:8101/", times: 1
-      assert_not_requested :get, "http://127.0.0.3:8101/", headers: {'X-Trace'=>/^*$/}
+      assert_not_requested :get, "http://127.0.0.3:8101/", headers: {'X-Trace'=>/^.*$/}
     end
 
     def test_blacklisted
@@ -64,13 +64,13 @@ unless defined?(JRUBY_VERSION)
 
       TraceView.config_lock.synchronize do
         TraceView::Config.blacklist << '127.0.0.4'
-        TraceView::API.start_trace('RestClient::execute_tests') do
+        TraceView::API.start_trace('rest_client_tests') do
           RestClient::Resource.new('http://127.0.0.4:8101').get
         end
       end
 
       assert_requested :get, "http://127.0.0.4:8101/", times: 1
-      assert_not_requested :get, "http://127.0.0.4:8101/", headers: {'X-Trace'=>/^*$/}
+      assert_not_requested :get, "http://127.0.0.4:8101/", headers: {'X-Trace'=>/^.*$/}
     end
 
     def test_not_sampling_blacklisted
@@ -79,13 +79,13 @@ unless defined?(JRUBY_VERSION)
       TraceView.config_lock.synchronize do
         TraceView::Config[:sample_rate] = 0
         TraceView::Config.blacklist << '127.0.0.5'
-        TraceView::API.start_trace('RestClient::execute_tests') do
+        TraceView::API.start_trace('rest_client_tests') do
           RestClient::Resource.new('http://127.0.0.5:8101').get
         end
       end
 
       assert_requested :get, "http://127.0.0.5:8101/", times: 1
-      assert_not_requested :get, "http://127.0.0.5:8101/", headers: {'X-Trace'=>/^*$/}
+      assert_not_requested :get, "http://127.0.0.5:8101/", headers: {'X-Trace'=>/^.*$/}
     end
 
   end

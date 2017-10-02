@@ -8,7 +8,7 @@ unless defined?(JRUBY_VERSION)
 
   class HTTPMockedTest < Minitest::Test
 
-    class Response
+    class MockResponse
       def get_fields(x); nil; end
       def code; 200; end
     end
@@ -32,7 +32,7 @@ unless defined?(JRUBY_VERSION)
       Net::HTTP.any_instance.expects(:request_without_traceview).with do |req, _|
         !req.to_hash['x-trace'].nil? &&
             req.to_hash['x-trace'].first =~ /^2B[0-9,A-F]*01$/
-      end.returns(Response.new)
+      end.returns(MockResponse.new)
 
       TraceView::API.start_trace('net_http_test') do
         uri = URI('http://127.0.0.1:8101/?q=1')
@@ -48,7 +48,7 @@ unless defined?(JRUBY_VERSION)
         !req.to_hash['x-trace'].nil? &&
             req.to_hash['x-trace'].first =~ /^2B[0-9,A-F]*00$/ &&
             req.to_hash['x-trace'].first !~ /^2B0*$/
-      end.returns(Response.new)
+      end.returns(MockResponse.new)
 
       TraceView.config_lock.synchronize do
         TraceView::Config[:sample_rate] = 0
@@ -65,7 +65,7 @@ unless defined?(JRUBY_VERSION)
     def test_no_xtrace
       Net::HTTP.any_instance.expects(:request_without_traceview).with do |req, _, _|
         req.to_hash['x-trace'].nil?
-      end.returns(Response.new)
+      end.returns(MockResponse.new)
 
       uri = URI('http://127.0.0.1:8101/?q=1')
       Net::HTTP.start(uri.host, uri.port) do |http|
@@ -77,7 +77,7 @@ unless defined?(JRUBY_VERSION)
     def test_blacklisted
       Net::HTTP.any_instance.expects(:request_without_traceview).with do |req, _, _|
         req.to_hash['x-trace'].nil?
-      end.returns(Response.new)
+      end.returns(MockResponse.new)
 
       TraceView.config_lock.synchronize do
         TraceView::Config.blacklist << '127.0.0.1'
@@ -94,7 +94,7 @@ unless defined?(JRUBY_VERSION)
     def test_not_sampling_blacklisted
       Net::HTTP.any_instance.expects(:request_without_traceview).with do |req, _, _|
         req.to_hash['x-trace'].nil?
-      end.returns(Response.new)
+      end.returns(MockResponse.new)
 
       TraceView.config_lock.synchronize do
         TraceView::Config[:sample_rate] = 0
