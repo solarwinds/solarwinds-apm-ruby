@@ -10,12 +10,16 @@ module TraceView
       end
 
       def run_with_traceview
-        return run_without_traceview unless TraceView.tracing?
+        blacklisted = TraceView::API.blacklisted?(url)
+        unless TraceView.tracing?
+          context = TraceView::Context.toString
+          options[:headers]['X-Trace'] = context if TraceView::XTrace.valid?(context) && !blacklisted
+          return run_without_traceview
+        end
 
         TraceView::API.log_entry(:typhoeus)
 
         # Prepare X-Trace header handling
-        blacklisted = TraceView::API.blacklisted?(url)
         context = TraceView::Context.toString
         task_id = TraceView::XTrace.task_id(context)
         options[:headers]['X-Trace'] = context unless blacklisted
@@ -76,6 +80,15 @@ module TraceView
       end
 
       def run_with_traceview
+        unless TraceView.tracing?
+          context = TraceView::Context.toString
+          queued_requests.map do |request|
+            blacklisted = TraceView::API.blacklisted?(request.base_url)
+            request.options[:headers]['X-Trace'] = context if TraceView::XTrace.valid?(context) && !blacklisted
+          end
+          run_without_traceview
+        end
+
         kvs = {}
 
         kvs[:queued_requests] = queued_requests.count
@@ -85,6 +98,11 @@ module TraceView
         # threading and Ethon's use of easy handles, here we just do a simple
         # trace of the hydra run.
         TraceView::API.trace(:typhoeus_hydra, kvs) do
+          queued_requests.map do |request|
+            blacklisted = TraceView::API.blacklisted?(request.base_url)
+            request.options[:headers]['X-Trace'] = TraceView::Context.toString unless blacklisted
+          end
+
           run_without_traceview
         end
       end
