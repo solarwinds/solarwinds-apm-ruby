@@ -13,7 +13,7 @@ module TraceView
       include ::TraceView::Inst::RailsBase
 
       def process_action(method_name, *args)
-        return super(method_name, *args) unless tracing?
+        return super(method_name, *args) unless TraceView.tracing?
         begin
           kvs = {
               :Controller   => self.class.name,

@@ -20,7 +20,7 @@ module TraceView
       end
 
       def process_action_with_traceview(method_name, *args)
-        return process_action_without_traceview(method_name, *args) unless tracing?
+        return process_action_without_traceview(method_name, *args) unless TraceView.tracing?
         begin
           kvs = {
               :Controller   => self.class.name,
