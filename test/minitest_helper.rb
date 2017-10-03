@@ -8,14 +8,16 @@ require 'minitest/autorun'
 require 'minitest/reporters'
 require 'minitest/debugger' if ENV['DEBUG']
 
+if ENV['TEST_RUNS_TO_FILE']
 # write to STDOUT as well as file (comes in handy with docker runs)
-FileUtils.mkdir_p('log')  # create if it doesn't exist
-$out_file = File.new("log/test_runs_#{Time.now.strftime("%Y_%m_%d")}.log", 'a')
-$out_file.sync = true
-$stdout.sync = true
-def $stdout.write string
-  $out_file.write string
-  super
+  FileUtils.mkdir_p('log')  # create if it doesn't exist
+  $out_file = File.new("log/test_runs_#{Time.now.strftime("%Y_%m_%d")}.log", 'a')
+  $out_file.sync = true
+  $stdout.sync = true
+  def $stdout.write string
+    $out_file.write string
+    super
+  end
 end
 
 puts "\n\033[1m=== TEST RUN: #{ENV['RVM_TEST']} #{ENV['BUNDLE_GEMFILE']} #{Time.now.strftime("%Y-%m-%d %H:%M")} ===\033[0m\n"

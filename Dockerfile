@@ -1,5 +1,9 @@
 FROM ubuntu:16.04
 
+# Use this Dockerfile to create the gem
+# > docker build -f Dockerfile -t buildgem .
+# > docker run --rm  -v `pwd`:/code/ruby-appoptics buildgem bash -l -c 'cd /code/ruby-appoptics && ./build_gems.sh'
+
 # install OS packages
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
