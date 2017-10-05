@@ -17,60 +17,62 @@ module TraceView
           return run_without_traceview
         end
 
-        TraceView::API.log_entry(:typhoeus)
+        begin
+          TraceView::API.log_entry(:typhoeus)
 
-        # Prepare X-Trace header handling
-        context = TraceView::Context.toString
-        task_id = TraceView::XTrace.task_id(context)
-        options[:headers]['X-Trace'] = context unless blacklisted
+          # Prepare X-Trace header handling
+          context = TraceView::Context.toString
+          task_id = TraceView::XTrace.task_id(context)
+          options[:headers]['X-Trace'] = context unless blacklisted
 
-        response = run_without_traceview
+          response = run_without_traceview
 
-        if response.code == 0
-          TraceView::API.log(:typhoeus, :error, { :ErrorClass => response.return_code,
-                                                  :ErrorMsg => response.return_message })
-        end
+          if response.code == 0
+            TraceView::API.log(:typhoeus, :error, { :ErrorClass => response.return_code,
+                                                    :ErrorMsg => response.return_message })
+          end
 
-        kvs = {}
-        kvs[:IsService] = 1
-        kvs[:HTTPStatus] = response.code
-        kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:typhoeus][:collect_backtraces]
+          kvs = {}
+          kvs[:IsService] = 1
+          kvs[:HTTPStatus] = response.code
+          kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:typhoeus][:collect_backtraces]
 
-        uri = URI(response.effective_url)
+          uri = URI(response.effective_url)
 
-        # Conditionally log query params
-        if TraceView::Config[:typhoeus][:log_args]
-          kvs[:RemoteURL] = uri.to_s
-        else
-          kvs[:RemoteURL] = uri.to_s.split('?').first
-        end
+          # Conditionally log query params
+          if TraceView::Config[:typhoeus][:log_args]
+            kvs[:RemoteURL] = uri.to_s
+          else
+            kvs[:RemoteURL] = uri.to_s.split('?').first
+          end
 
-        kvs[:HTTPMethod] = ::TraceView::Util.upcase(options[:method])
-        kvs[:Blacklisted] = true if blacklisted
+          kvs[:HTTPMethod] = ::TraceView::Util.upcase(options[:method])
+          kvs[:Blacklisted] = true if blacklisted
 
-        # Re-attach net::http edge unless it's blacklisted or if we don't have a
-        # valid X-Trace header
-        unless blacklisted
-          xtrace = response.headers['X-Trace']
+          # Re-attach net::http edge unless it's blacklisted or if we don't have a
+          # valid X-Trace header
+          unless blacklisted
+            xtrace = response.headers['X-Trace']
 
-          if xtrace && TraceView::XTrace.valid?(xtrace) && TraceView.tracing?
+            if xtrace && TraceView::XTrace.valid?(xtrace) && TraceView.tracing?
 
-            # Assure that we received back a valid X-Trace with the same task_id
-            if task_id == TraceView::XTrace.task_id(xtrace)
-              TraceView::Context.fromString(xtrace)
-            else
-              TraceView.logger.debug "Mismatched returned X-Trace ID: #{xtrace}"
+              # Assure that we received back a valid X-Trace with the same task_id
+              if task_id == TraceView::XTrace.task_id(xtrace)
+                TraceView::Context.fromString(xtrace)
+              else
+                TraceView.logger.debug "Mismatched returned X-Trace ID: #{xtrace}"
+              end
             end
           end
-        end
 
-        TraceView::API.log(:typhoeus, :info, kvs)
-        response
-      rescue => e
-        TraceView::API.log_exception(:typhoeus, e)
-        raise e
-      ensure
-        TraceView::API.log_exit(:typhoeus)
+          TraceView::API.log(:typhoeus, :info, kvs)
+          response
+        rescue => e
+          TraceView::API.log_exception(:typhoeus, e)
+          raise e
+        ensure
+          TraceView::API.log_exit(:typhoeus)
+        end
       end
     end
 
@@ -86,7 +88,7 @@ module TraceView
             blacklisted = TraceView::API.blacklisted?(request.base_url)
             request.options[:headers]['X-Trace'] = context if TraceView::XTrace.valid?(context) && !blacklisted
           end
-          run_without_traceview
+          return run_without_traceview
         end
 
         kvs = {}

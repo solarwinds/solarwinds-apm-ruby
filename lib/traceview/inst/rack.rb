@@ -116,7 +116,7 @@ module TraceView
 
       [status, headers, response]
     rescue Exception => e
-      unless rack_skipped
+      if !rack_skipped && TraceView.tracing?
         TraceView::API.log_exception(:rack, e)
         xtrace = TraceView::API.log_end(:rack, :Status => 500)
       end

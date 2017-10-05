@@ -22,19 +22,21 @@ module TraceView
           return execute_without_traceview(&block)
         end
 
-        kvs = {}
-        kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:rest_client][:collect_backtraces]
-        TraceView::API.log_entry('rest-client', kvs)
+        begin
+          kvs = {}
+          kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:rest_client][:collect_backtraces]
+          TraceView::API.log_entry('rest-client', kvs)
 
-        @processed_headers = make_headers('X-Trace' => TraceView::Context.toString) unless blacklisted
+          @processed_headers = make_headers('X-Trace' => TraceView::Context.toString) unless blacklisted
 
-        # The core rest-client call
-        execute_without_traceview(&block)
-      rescue => e
-        TraceView::API.log_exception('rest-client', e)
-        raise e
-      ensure
-        TraceView::API.log_exit('rest-client')
+          # The core rest-client call
+          execute_without_traceview(&block)
+        rescue => e
+          TraceView::API.log_exception('rest-client', e)
+          raise e
+        ensure
+          TraceView::API.log_exit('rest-client')
+        end
       end
     end
   end
