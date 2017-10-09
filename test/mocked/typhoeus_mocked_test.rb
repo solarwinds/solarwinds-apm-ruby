@@ -118,7 +118,7 @@ unless defined?(JRUBY_VERSION)
       end
     end
 
-    def test_no_xtrace
+    def test_hydra_no_xtrace
       hydra = Typhoeus::Hydra.hydra
       request_1 = Typhoeus::Request.new("http://127.0.0.2:8101/", {:method=>:get})
       request_2 = Typhoeus::Request.new("http://127.0.0.2:8101/counting_sheep", {:method=>:get})
@@ -130,7 +130,7 @@ unless defined?(JRUBY_VERSION)
       refute request_2.options[:headers]['X-Trace'], "There should not be an X-Trace header"
     end
 
-    def test_blacklisted
+    def test_hydra_blacklisted
       TraceView.config_lock.synchronize do
         TraceView::Config.blacklist << '127.0.0.2'
         TraceView::API.start_trace('typhoeus_tests') do
@@ -147,7 +147,7 @@ unless defined?(JRUBY_VERSION)
       end
     end
 
-    def test_not_sampling_blacklisted
+    def test_hydra_not_sampling_blacklisted
       TraceView.config_lock.synchronize do
         TraceView::Config[:sample_rate] = 0
         TraceView::Config.blacklist << '127.0.0.2'
