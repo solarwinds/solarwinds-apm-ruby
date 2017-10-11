@@ -16,7 +16,6 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
         @cb = TraceView::Config[:curb][:collect_backtraces]
         @log_args = TraceView::Config[:curb][:log_args]
         @tm = TraceView::Config[:tracing_mode]
-        @cross_host = TraceView::Config[:curb][:cross_host]
       }
     end
 
@@ -25,12 +24,27 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
         TraceView::Config[:curb][:collect_backtraces] = @cb
         TraceView::Config[:curb][:log_args] = @log_args
         TraceView::Config[:tracing_mode] = @tm
-        TraceView::Config[:curb][:cross_host] = @cross_host
       }
     end
 
     def app
       SinatraSimple
+    end
+
+    def assert_correct_traces(url, method)
+      traces = get_all_traces
+      assert_equal 7, traces.count, "Trace count"
+      validate_outer_layers(traces, "curb_tests")
+
+      assert_equal 'curb',                    traces[1]['Layer']
+      assert_equal 'entry',                   traces[1]['Label']
+      assert_equal 1,                         traces[1]['IsService']
+      assert_equal url,                      traces[1]['RemoteURL']
+      assert_equal method,                    traces[1]['HTTPMethod']
+      assert                                  traces[1]['Backtrace']
+
+      assert_equal 'curb',                    traces[5]['Layer']
+      assert_equal 'exit',                    traces[5]['Label']
     end
 
     def test_reports_version_init
@@ -50,19 +64,7 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
       assert response.response_code == 200
       assert response.header_str =~ /X-Trace/, "X-Trace response header"
 
-      traces = get_all_traces
-      assert_equal 7, traces.count, "Trace count"
-      validate_outer_layers(traces, "curb_tests")
-
-      assert_equal 'curb',                    traces[1]['Layer']
-      assert_equal 'entry',                   traces[1]['Label']
-      assert_equal false,                     traces[1].key?('IsService')
-      assert_equal false,                     traces[1].key?('RemoteURL')
-      assert_equal false,                     traces[1].key?('HTTPMethod')
-      assert traces[1].key?('Backtrace')
-
-      assert_equal 'curb',                    traces[5]['Layer']
-      assert_equal 'exit',                    traces[5]['Label']
+      assert_correct_traces('http://127.0.0.1:8101/', 'GET')
     end
 
     def test_class_delete_request
@@ -76,19 +78,7 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
       assert response.response_code == 200
       assert response.header_str =~ /X-Trace/, "X-Trace response header"
 
-      traces = get_all_traces
-      assert_equal 7, traces.count, "Trace count"
-      validate_outer_layers(traces, "curb_tests")
-
-      assert_equal 'curb',                    traces[1]['Layer']
-      assert_equal 'entry',                   traces[1]['Label']
-      assert_equal false,                     traces[1].key?('IsService')
-      assert_equal false,                     traces[1].key?('RemoteURL')
-      assert_equal false,                     traces[1].key?('HTTPMethod')
-      assert traces[1].key?('Backtrace')
-
-      assert_equal 'curb',                    traces[5]['Layer']
-      assert_equal 'exit',                    traces[5]['Label']
+      assert_correct_traces('http://127.0.0.1:8101/?curb_delete_test', 'DELETE')
     end
 
     def test_class_post_request
@@ -102,19 +92,7 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
       assert response.response_code == 200
       assert response.header_str =~ /X-Trace/, "X-Trace response header"
 
-      traces = get_all_traces
-      assert_equal 7, traces.count, "Trace count"
-      validate_outer_layers(traces, "curb_tests")
-
-      assert_equal 'curb',                    traces[1]['Layer']
-      assert_equal 'entry',                   traces[1]['Label']
-      assert_equal false,                     traces[1].key?('IsService')
-      assert_equal false,                     traces[1].key?('RemoteURL')
-      assert_equal false,                     traces[1].key?('HTTPMethod')
-      assert traces[1].key?('Backtrace')
-
-      assert_equal 'curb',                    traces[5]['Layer']
-      assert_equal 'exit',                    traces[5]['Label']
+      assert_correct_traces('http://127.0.0.1:8101/', 'POST')
     end
 
     def test_easy_class_perform
@@ -129,19 +107,7 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
       assert response.response_code == 200
       assert response.header_str =~ /X-Trace/, "X-Trace response header"
 
-      traces = get_all_traces
-      assert_equal 7,                         traces.count, "Trace count"
-      validate_outer_layers(traces, "curb_tests")
-
-      assert_equal 'curb',                    traces[1]['Layer']
-      assert_equal 'entry',                   traces[1]['Label']
-      assert_equal false,                     traces[1].key?('IsService')
-      assert_equal false,                     traces[1].key?('RemoteURL')
-      assert_equal false,                     traces[1].key?('HTTPMethod')
-      assert traces[1].key?('Backtrace')
-
-      assert_equal 'curb',                    traces[5]['Layer']
-      assert_equal 'exit',                    traces[5]['Label']
+      assert_correct_traces('http://127.0.0.1:8101/', 'GET')
     end
 
     def test_easy_http_head
@@ -156,19 +122,7 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
       assert c.response_code == 200
       assert c.header_str =~ /X-Trace/, "X-Trace response header"
 
-      traces = get_all_traces
-      assert_equal 7, traces.count, "Trace count"
-      validate_outer_layers(traces, "curb_tests")
-
-      assert_equal 'curb',                    traces[1]['Layer']
-      assert_equal 'entry',                   traces[1]['Label']
-      assert_equal false,                     traces[1].key?('IsService')
-      assert_equal false,                     traces[1].key?('RemoteURL')
-      assert_equal false,                     traces[1].key?('HTTPMethod')
-      assert traces[1].key?('Backtrace')
-
-      assert_equal 'curb',                    traces[5]['Layer']
-      assert_equal 'exit',                    traces[5]['Label']
+      assert_correct_traces('http://127.0.0.1:8101/', 'GET')
     end
 
     def test_easy_http_put
@@ -183,19 +137,7 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
       assert c.response_code == 200
       assert c.header_str =~ /X-Trace/, "X-Trace response header"
 
-      traces = get_all_traces
-      assert_equal 7, traces.count, "Trace count"
-      validate_outer_layers(traces, "curb_tests")
-
-      assert_equal 'curb',                    traces[1]['Layer']
-      assert_equal 'entry',                   traces[1]['Label']
-      assert_equal false,                     traces[1].key?('IsService')
-      assert_equal false,                     traces[1].key?('RemoteURL')
-      assert_equal false,                     traces[1].key?('HTTPMethod')
-      assert traces[1].key?('Backtrace')
-
-      assert_equal 'curb',                    traces[5]['Layer']
-      assert_equal 'exit',                    traces[5]['Label']
+      assert_correct_traces('http://127.0.0.1:8101/', 'PUT')
     end
 
     def test_easy_http_post
@@ -211,19 +153,7 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
       assert c.response_code == 200
       assert c.header_str =~ /X-Trace/, "X-Trace response header"
 
-      traces = get_all_traces
-      assert_equal 7, traces.count, "Trace count"
-      validate_outer_layers(traces, "curb_tests")
-
-      assert_equal 'curb',                    traces[1]['Layer']
-      assert_equal 'entry',                   traces[1]['Label']
-      assert_equal false,                     traces[1].key?('IsService')
-      assert_equal false,                     traces[1].key?('RemoteURL')
-      assert_equal false,                     traces[1].key?('HTTPMethod')
-      assert traces[1].key?('Backtrace')
-
-      assert_equal 'curb',                    traces[5]['Layer']
-      assert_equal 'exit',                    traces[5]['Label']
+      assert_correct_traces('http://127.0.0.1:8101/', 'POST')
     end
 
     def test_class_fetch_with_block
@@ -243,53 +173,7 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
       assert_equal 7, traces.count, "Trace count"
       validate_outer_layers(traces, "curb_tests")
 
-      assert_equal 'curb',                    traces[1]['Layer']
-      assert_equal 'entry',                   traces[1]['Label']
-      assert_equal traces[5]['Label'], 'exit'
-      assert_equal false,                     traces[1].key?('IsService')
-      assert_equal false,                     traces[1].key?('RemoteURL')
-      assert_equal false,                     traces[1].key?('HTTPMethod')
-      assert traces[1].key?('Backtrace')
-
-      assert_equal 'curb',                    traces[5]['Layer']
-      assert_equal 'exit',                    traces[5]['Label']
-      assert_equal false,                     traces[5].key?('HTTPStatus')
-    end
-
-    def test_cross_app_tracing
-      response = nil
-
-      # When testing global config options, use the config_lock
-      # semaphore to lock between other running tests.
-      TraceView.config_lock.synchronize {
-        TraceView::Config[:curb][:cross_host] = true
-
-        TraceView::API.start_trace('curb_tests') do
-          response = ::Curl.get('http://127.0.0.1:8101/?curb_cross_host=1')
-        end
-      }
-
-      xtrace = response.headers['X-Trace']
-      assert xtrace, "X-Trace response header"
-      assert TraceView::XTrace.valid?(xtrace)
-      assert response.header_str =~ /X-Trace/, "X-Trace response header"
-
-      traces = get_all_traces
-      assert_equal 7, traces.count, "Trace count"
-      validate_outer_layers(traces, "curb_tests")
-      assert valid_edges?(traces), "Trace edge validation"
-
-      assert_equal 'curb',                    traces[1]['Layer']
-      assert_equal 'entry',                   traces[1]['Label']
-      assert_equal 1,                         traces[1]['IsService']
-      assert_equal 'GET',                     traces[1]['HTTPMethod'], "HTTP Method"
-      assert_equal "http://127.0.0.1:8101/?curb_cross_host=1",  traces[1]['RemoteURL']
-      assert       traces[1].key?('Backtrace')
-
-      assert_equal 'curb',                    traces[5]['Layer']
-      assert_equal 'exit',                    traces[5]['Label']
-      assert_equal 200,                       traces[5]['HTTPStatus']
-
+      assert_correct_traces('http://127.0.0.1:8101/', 'GET')
     end
 
     def test_multi_basic_get
@@ -319,7 +203,6 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
     end
 
     def test_multi_basic_post
-      responses = nil
       easy_options = {:follow_location => true, :multipart_form_post => true}
       multi_options = {:pipeline => true}
 
@@ -329,7 +212,7 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
       urls << { :url => "http://127.0.0.1:8101/3", :post_fields => { :id => 3 } }
 
       TraceView::API.start_trace('curb_tests') do
-        responses = Curl::Multi.post(urls, easy_options, multi_options) do |easy|
+        Curl::Multi.post(urls, easy_options, multi_options) do |easy|
           nil
         end
       end
@@ -345,7 +228,6 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
     end
 
     def test_multi_basic_get_pipeline
-      responses = nil
       easy_options = {:follow_location => true}
       multi_options = {:pipeline => true}
 
@@ -355,7 +237,7 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
       urls << "http://127.0.0.1:8101/?three=3"
 
       TraceView::API.start_trace('curb_tests') do
-        responses = Curl::Multi.get(urls, easy_options, multi_options) do |easy|
+        Curl::Multi.get(urls, easy_options, multi_options) do |easy|
           nil
         end
       end
@@ -409,6 +291,7 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
           Curl.get('http://asfjalkfjlajfljkaljf/')
         end
       rescue
+        # ignore exception, only check traces
       end
 
       traces = get_all_traces
@@ -416,16 +299,16 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
       validate_outer_layers(traces, "curb_tests")
       assert valid_edges?(traces), "Trace edge validation"
 
-      assert_equal false,                     traces[1].key?('IsService')
-      assert_equal false,                     traces[1].key?('RemoteURL')
-      assert_equal false,                     traces[1].key?('HTTPMethod')
-      assert traces[1].key?('Backtrace')
+      assert_equal 1,                                traces[1]['IsService']
+      assert_equal 'http://asfjalkfjlajfljkaljf/',   traces[1]['RemoteURL']
+      assert_equal 'GET',                            traces[1]['HTTPMethod']
+      assert                                         traces[1]['Backtrace']
 
       assert_equal 'curb',                           traces[2]['Layer']
       assert_equal 'error',                          traces[2]['Label']
       assert_equal "Curl::Err::HostResolutionError", traces[2]['ErrorClass']
-      assert traces[2].key?('ErrorMsg')
-      assert traces[2].key?('Backtrace')
+      assert                                         traces[2].key?('ErrorMsg')
+      assert                                         traces[2].key?('Backtrace')
 
       assert_equal 'curb',                           traces[3]['Layer']
       assert_equal 'exit',                           traces[3]['Label']
@@ -436,12 +319,9 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
       # semaphore to lock between other running tests.
       TraceView.config_lock.synchronize {
         TraceView::Config[:curb][:log_args] = false
-        TraceView::Config[:curb][:cross_host] = true
-
-        http = nil
 
         TraceView::API.start_trace('curb_tests') do
-          http = Curl.get('http://127.0.0.1:8101/?blah=1')
+          Curl.get('http://127.0.0.1:8101/?blah=1')
         end
       }
 
@@ -455,12 +335,9 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
       # semaphore to lock between other running tests.
       TraceView.config_lock.synchronize {
         TraceView::Config[:curb][:log_args] = true
-        TraceView::Config[:curb][:cross_host] = true
-
-        http = nil
 
         TraceView::API.start_trace('curb_tests') do
-          http = ::Curl.get('http://127.0.0.1:8101/?blah=1')
+          Curl.get('http://127.0.0.1:8101/?blah=1')
         end
       }
 

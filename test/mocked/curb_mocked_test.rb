@@ -14,7 +14,6 @@ if !defined?(JRUBY_VERSION)
       WebMock.disable_net_connect!
       TraceView.config_lock.synchronize {
         @tm = TraceView::Config[:tracing_mode]
-        @cross_host = TraceView::Config[:curb][:cross_host]
         @sample_rate = TraceView::Config[:sample_rate]
       }
     end
@@ -22,7 +21,6 @@ if !defined?(JRUBY_VERSION)
     def teardown
       TraceView.config_lock.synchronize {
         TraceView::Config[:tracing_mode] = @tm
-        TraceView::Config[:curb][:cross_host] = @cross_host
         TraceView::Config[:blacklist] = []
         TraceView::Config[:sample_rate] = @sample_rate
       }
@@ -34,11 +32,8 @@ if !defined?(JRUBY_VERSION)
     def test_xtrace_tracing
       stub_request(:get, "http://127.0.0.9:8101/").to_return(status: 200, body: "", headers: {})
 
-      TraceView.config_lock.synchronize do
-        TraceView::Config[:curb][:cross_host] = true
-        TraceView::API.start_trace('curb_tests') do
-          ::Curl.get("http://127.0.0.9:8101/")
-        end
+      TraceView::API.start_trace('curb_tests') do
+        ::Curl.get("http://127.0.0.9:8101/")
       end
 
       assert_requested :get, "http://127.0.0.9:8101/", times: 1
@@ -49,7 +44,6 @@ if !defined?(JRUBY_VERSION)
       stub_request(:get, "http://127.0.0.4:8101/").to_return(status: 200, body: "", headers: {})
 
       TraceView.config_lock.synchronize do
-        TraceView::Config[:curb][:cross_host] = true
         TraceView::Config[:sample_rate] = 0
         TraceView::API.start_trace('curb_tests') do
           ::Curl.get("http://127.0.0.4:8101/")
@@ -64,10 +58,7 @@ if !defined?(JRUBY_VERSION)
     def test_xtrace_no_trace
       stub_request(:get, "http://127.0.0.6:8101/").to_return(status: 200, body: "", headers: {})
 
-      TraceView.config_lock.synchronize do
-        TraceView::Config[:curb][:cross_host] = true
-        ::Curl.get("http://127.0.0.6:8101/")
-      end
+      ::Curl.get("http://127.0.0.6:8101/")
 
       assert_requested :get, "http://127.0.0.6:8101/", times: 1
       assert_not_requested :get, "http://127.0.0.6:8101/", headers: {'X-Trace'=>/^.*$/}
@@ -77,7 +68,6 @@ if !defined?(JRUBY_VERSION)
       stub_request(:get, "http://127.0.0.2:8101/").to_return(status: 200, body: "", headers: {})
 
       TraceView.config_lock.synchronize do
-        TraceView::Config[:curb][:cross_host] = true
         TraceView::Config.blacklist << '127.0.0.2'
         TraceView::API.start_trace('curb_test') do
           ::Curl.get("http://127.0.0.2:8101/")
@@ -86,20 +76,6 @@ if !defined?(JRUBY_VERSION)
 
       assert_requested :get, "http://127.0.0.2:8101/", times: 1
       assert_not_requested :get, "http://127.0.0.2:8101/", headers: {'X-Trace'=>/^.*/}
-    end
-
-    def test_cross_host_false
-      stub_request(:get, "http://127.0.0.3:8101/").to_return(status: 200, body: "", headers: {})
-
-      TraceView.config_lock.synchronize do
-        TraceView::Config[:curb][:cross_host] = false
-        TraceView::API.start_trace('curb_test') do
-          ::Curl.get("http://127.0.0.3:8101/")
-        end
-      end
-
-      assert_requested :get, "http://127.0.0.3:8101/", times: 1
-      assert_not_requested :get, "http://127.0.0.3:8101/", headers: {'X-Trace'=>/^.*$/}
     end
 
     def test_multi_get_no_trace
@@ -121,10 +97,7 @@ if !defined?(JRUBY_VERSION)
       urls << "http://127.0.0.7:8101/?two=2"
       urls << "http://127.0.0.7:8101/?three=3"
 
-      TraceView.config_lock.synchronize do
-        TraceView::Config[:curb][:cross_host] = true
-        Curl::Multi.get(urls, easy_options, multi_options)
-      end
+      Curl::Multi.get(urls, easy_options, multi_options)
     end
 
     def test_multi_get_tracing
@@ -148,11 +121,8 @@ if !defined?(JRUBY_VERSION)
       urls << "http://127.0.0.7:8101/?two=2"
       urls << "http://127.0.0.7:8101/?three=3"
 
-      TraceView.config_lock.synchronize do
-        TraceView::Config[:curb][:cross_host] = true
-        TraceView::API.start_trace('curb_tests') do
-          Curl::Multi.get(urls, easy_options, multi_options)
-        end
+      TraceView::API.start_trace('curb_tests') do
+        Curl::Multi.get(urls, easy_options, multi_options)
       end
     end
 
@@ -178,7 +148,6 @@ if !defined?(JRUBY_VERSION)
       urls << "http://127.0.0.7:8101/?three=3"
 
       TraceView.config_lock.synchronize do
-        TraceView::Config[:curb][:cross_host] = true
         TraceView::Config[:sample_rate] = 0
         TraceView::API.start_trace('curb_tests') do
           Curl::Multi.get(urls, easy_options, multi_options)
@@ -194,20 +163,17 @@ if !defined?(JRUBY_VERSION)
       urls << "http://127.0.0.1:8101/?two=2"
       urls << "http://127.0.0.1:8101/?three=3"
 
-      TraceView.config_lock.synchronize do
-        TraceView::Config[:curb][:cross_host] = true
-        m = Curl::Multi.new
-        urls.each do |url|
-          cu = Curl::Easy.new(url) do |curl|
-            curl.follow_location = true
-          end
-          m.add cu
+      m = Curl::Multi.new
+      urls.each do |url|
+        cu = Curl::Easy.new(url) do |curl|
+          curl.follow_location = true
         end
+        m.add cu
+      end
 
-        m.perform do
-          m.requests.each do |request|
-            refute request.headers && request.headers['X-Trace']
-          end
+      m.perform do
+        m.requests.each do |request|
+          refute request.headers && request.headers['X-Trace']
         end
       end
     end
@@ -220,22 +186,19 @@ if !defined?(JRUBY_VERSION)
       urls << "http://127.0.0.1:8101/?two=2"
       urls << "http://127.0.0.1:8101/?three=3"
 
-      TraceView.config_lock.synchronize do
-        TraceView::Config[:curb][:cross_host] = true
-        TraceView::API.start_trace('curb_tests') do
-          m = Curl::Multi.new
-          urls.each do |url|
-            cu = Curl::Easy.new(url) do |curl|
-              curl.follow_location = true
-            end
-            m.add cu
+      TraceView::API.start_trace('curb_tests') do
+        m = Curl::Multi.new
+        urls.each do |url|
+          cu = Curl::Easy.new(url) do |curl|
+            curl.follow_location = true
           end
+          m.add cu
+        end
 
-          m.perform do
-            m.requests.each do |request|
-              assert request.headers['X-Trace']
-              assert sampled?(request.headers['X-Trace'])
-            end
+        m.perform do
+          m.requests.each do |request|
+            assert request.headers['X-Trace']
+            assert sampled?(request.headers['X-Trace'])
           end
         end
       end
@@ -250,7 +213,6 @@ if !defined?(JRUBY_VERSION)
       urls << "http://127.0.0.1:8101/?three=3"
 
       TraceView.config_lock.synchronize do
-        TraceView::Config[:curb][:cross_host] = true
         TraceView::Config[:sample_rate] = 0
         TraceView::API.start_trace('curb_tests') do
           m = Curl::Multi.new

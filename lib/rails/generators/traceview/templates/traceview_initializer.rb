@@ -79,24 +79,6 @@ if defined?(TraceView::Config)
   # TraceView::Config[:report_rescued_errors] = false
   #
 
-  # By default, the curb instrumentation will not link
-  # outgoing requests with remotely instrumented
-  # webservers (aka cross host tracing).  This is because the
-  # instrumentation can't detect if the independent libcurl
-  # instrumentation is in use or not.
-  #
-  # If you're sure that it's not in use/installed, then you can
-  # enable cross host tracing for the curb HTTP client
-  # here.  Set TraceView::Config[:curb][:cross_host] to true
-  # to enable.
-  #
-  # Alternatively, if you would like to install the separate
-  # libcurl instrumentation, see here:
-  # http://docs.traceview.solarwinds.com/Instrumentation/other-instrumentation-modules.html#libcurl
-  #
-  # TraceView::Config[:curb][:cross_host] = false
-  #
-
   # The bunny (Rabbitmq) instrumentation can optionally report
   # Controller and Action values to allow filtering of bunny
   # message handling in # the UI.  Use of Controller and Action

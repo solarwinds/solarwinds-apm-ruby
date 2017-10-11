@@ -19,18 +19,16 @@ module TraceView
       def traceview_collect(verb = nil)
         kvs = {}
 
-        if TraceView::Config[:curb][:cross_host]
-          kvs[:IsService] = 1
+        kvs[:IsService] = 1
 
-          # Conditionally log query args
-          if TraceView::Config[:curb][:log_args]
-            kvs[:RemoteURL] = url
-          else
-            kvs[:RemoteURL] = url.split('?').first
-          end
-
-          kvs[:HTTPMethod] = verb if verb
+        # Conditionally log query args
+        if TraceView::Config[:curb][:log_args]
+          kvs[:RemoteURL] = url
+        else
+          kvs[:RemoteURL] = url.split('?').first
         end
+
+        kvs[:HTTPMethod] = verb if verb
 
         # Avoid cross host tracing for blacklisted domains
         kvs[:blacklisted] = TraceView::API.blacklisted?(URI(url).hostname)
@@ -55,8 +53,8 @@ module TraceView
       #
       def profile_curb_method(kvs, method, args, &block)
         # If we're not tracing, just do a fast return.
-        if !TraceView.tracing?
-          if TraceView::Config[:curb][:cross_host] && !TraceView::API.blacklisted?(URI(url).hostname)
+        unless TraceView.tracing?
+          unless TraceView::API.blacklisted?(URI(url).hostname)
             self.headers['X-Trace'] = TraceView::Context.toString if TraceView::Context.isValid
           end
           return self.send(method, args, &block)
@@ -70,12 +68,11 @@ module TraceView
           kvs.clear
 
           # The core curb call
-          if TraceView::Config[:curb][:cross_host] && !TraceView::API.blacklisted?(URI(url).hostname)
+          unless TraceView::API.blacklisted?(URI(url).hostname)
             self.headers['X-Trace'] = TraceView::Context.toString if TraceView::Context.isValid
           end
           response = self.send(method, *args, &block)
 
-          if TraceView::Config[:curb][:cross_host]
             kvs[:HTTPStatus] = response_code
 
             # If we get a redirect, report the location header
@@ -90,7 +87,6 @@ module TraceView
             if response_context && !kvs[:blacklisted]
               TraceView::XTrace.continue_service_context(self.headers['X-Trace'], response_context)
             end
-          end
 
           response
         rescue => e
@@ -102,7 +98,7 @@ module TraceView
       end
       
       def get_x_trace(url)
-        if TraceView::Config[:curb][:cross_host] && !TraceView::API.blacklisted?(URI(url).hostname)
+        unless TraceView::API.blacklisted?(URI(url).hostname)
           TraceView::Context.toString() if TraceView::Context.isValid
         end
       end
@@ -129,16 +125,14 @@ module TraceView
       def http_post_with_traceview(*args, &block)
         # If we're not tracing, just do a fast return.
         if !TraceView.tracing? || TraceView.tracing_layer?(:curb)
-          if TraceView::Config[:curb][:cross_host] && !TraceView::API.blacklisted?(URI(url).hostname)
+          unless TraceView::API.blacklisted?(URI(url).hostname)
             self.headers['X-Trace'] = TraceView::Context.toString() if TraceView::Context.isValid
           end
           return http_post_without_traceview(*args)
         end
 
         kvs = {}
-        if TraceView::Config[:curb][:cross_host]
-          kvs[:HTTPMethod] = :POST
-        end
+        kvs[:HTTPMethod] = :POST
 
         profile_curb_method(kvs, :http_post_without_traceview, args, &block)
       end
@@ -151,16 +145,14 @@ module TraceView
       def http_put_with_traceview(*args, &block)
         # If we're not tracing, just do a fast return.
         if !TraceView.tracing? || TraceView.tracing_layer?(:curb)
-          if TraceView::Config[:curb][:cross_host] && !TraceView::API.blacklisted?(URI(url).hostname)
+          unless TraceView::API.blacklisted?(URI(url).hostname)
             self.headers['X-Trace'] = TraceView::Context.toString() if TraceView::Context.isValid
           end
           return http_put_without_traceview(data)
         end
 
         kvs = {}
-        if TraceView::Config[:curb][:cross_host]
-          kvs[:HTTPMethod] = :PUT
-        end
+        kvs[:HTTPMethod] = :PUT
 
         profile_curb_method(kvs, :http_post_without_traceview, args, &block)
       end
@@ -175,7 +167,7 @@ module TraceView
         # excluding curb layer: because the curb C code for easy.http calls perform,
         # we have to make sure we don't log again
         if !TraceView.tracing? || TraceView.tracing_layer?(:curb)
-          if TraceView::Config[:curb][:cross_host] && !TraceView::API.blacklisted?(URI(url).hostname)
+          unless TraceView::API.blacklisted?(URI(url).hostname)
             self.headers['X-Trace'] = TraceView::Context.toString() if TraceView::Context.isValid
           end
           return perform_without_traceview(&block)
@@ -185,12 +177,10 @@ module TraceView
         # This perform gets called from two places, ::Curl::Easy.new.perform
         # and Curl::Easy.new.http_head. In the case of http_head we detect the
         # HTTP verb via get info.
-        if TraceView::Config[:curb][:cross_host]
-          if self.getinfo(self.sym2curl(:nobody))
-            kvs[:HTTPMethod] = :HEAD
-          else
-            kvs[:HTTPMethod] = :GET
-          end
+        if self.getinfo(self.sym2curl(:nobody))
+          kvs[:HTTPMethod] = :HEAD
+        else
+          kvs[:HTTPMethod] = :GET
         end
 
         profile_curb_method(kvs, :perform_without_traceview, nil, &block)
@@ -204,16 +194,14 @@ module TraceView
       def http_with_traceview(verb, &block)
         # If we're not tracing, just do a fast return.
         unless TraceView.tracing?
-          if TraceView::Config[:curb][:cross_host] && !TraceView::API.blacklisted?(URI(url).hostname)
+          unless TraceView::API.blacklisted?(URI(url).hostname)
             self.headers['X-Trace'] = TraceView::Context.toString() if TraceView::Context.isValid
           end
           return http_without_traceview(verb)
         end
 
         kvs = {}
-        if TraceView::Config[:curb][:cross_host]
-          kvs[:HTTPMethod] = verb
-        end
+        kvs[:HTTPMethod] = verb
 
         profile_curb_method(kvs, :http_without_traceview, [verb], &block)
       end
@@ -241,7 +229,7 @@ module TraceView
         # If we're not tracing, just do a fast return.
         unless TraceView.tracing?
           urls_with_config.each do |conf|
-            if TraceView::Config[:curb][:cross_host] && !TraceView::API.blacklisted?(URI(conf[:url]).hostname)
+            unless TraceView::API.blacklisted?(URI(conf[:url]).hostname)
               conf[:headers] ||= {}
               conf[:headers]['X-Trace'] = TraceView::Context.toString() if TraceView::Context.isValid
             end
@@ -255,7 +243,7 @@ module TraceView
 
           TraceView::API.log_entry(:curb_multi, kvs)
           urls_with_config.each do |conf|
-            if TraceView::Config[:curb][:cross_host] && !TraceView::API.blacklisted?(URI(conf[:url]).hostname)
+            unless TraceView::API.blacklisted?(URI(conf[:url]).hostname)
               conf[:headers] ||= {}
               conf[:headers]['X-Trace'] = TraceView::Context.toString() if TraceView::Context.isValid
             end
@@ -297,7 +285,7 @@ module TraceView
         # we have to make sure we don't log again
         if !TraceView.tracing? || [:curb, :curb_multi].include?(TraceView.layer)
           self.requests.each do |request|
-            if TraceView::Config[:curb][:cross_host] && !TraceView::API.blacklisted?(URI(request.url).hostname)
+            unless TraceView::API.blacklisted?(URI(request.url).hostname)
               request.headers['X-Trace'] = TraceView::Context.toString() if TraceView::Context.isValid
             end
           end
@@ -312,7 +300,7 @@ module TraceView
 
           # The core curb call
           self.requests.each do |request|
-            if TraceView::Config[:curb][:cross_host] && !TraceView::API.blacklisted?(URI(request.url).hostname)
+            unless TraceView::API.blacklisted?(URI(request.url).hostname)
               request.headers['X-Trace'] = TraceView::Context.toString() if TraceView::Context.isValid
             end
           end
