@@ -6,6 +6,7 @@ if !defined?(JRUBY_VERSION)
   require 'minitest_helper'
   require 'webmock/minitest'
   require 'mocha/mini_test'
+  WebMock.allow_net_connect!
 
   class ExconTest < Minitest::Test
 
