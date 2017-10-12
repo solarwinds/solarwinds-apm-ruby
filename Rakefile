@@ -62,7 +62,7 @@ desc "Fetch extension dependency files"
 task :fetch_ext_deps do
   swig_version = %x{swig -version} rescue ''
   if swig_version.scan(/swig version 3.0.8/i).empty?
-    raise "!! Did not find required swig version: #{swig_version.inspect}"
+    raise "!! Did not find required swig version 3.0.8, found #{swig_version.inspect}"
   end
   oboe_version = ENV['OBOE_VERSION'] || 'latest'
   oboe_arch = ENV['OBOE_ARCH'] || 'x86_64'
