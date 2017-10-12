@@ -86,6 +86,7 @@ module TraceView
             response_context = response_headers['X-Trace']
             if response_context && !kvs[:blacklisted]
               TraceView::XTrace.continue_service_context(self.headers['X-Trace'], response_context)
+              TraceView::Context.setSampledFlag
             end
 
           response
@@ -94,12 +95,6 @@ module TraceView
           raise e
         ensure
           TraceView::API.log_exit(:curb, kvs)
-        end
-      end
-      
-      def get_x_trace(url)
-        unless TraceView::API.blacklisted?(URI(url).hostname)
-          TraceView::Context.toString() if TraceView::Context.isValid
         end
       end
       

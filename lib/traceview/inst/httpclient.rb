@@ -72,6 +72,7 @@ module TraceView
 
           if response_context && !blacklisted
             TraceView::XTrace.continue_service_context(req_context, response_context)
+            TraceView::Context.setSampledFlag
           end
 
           response
@@ -133,6 +134,7 @@ module TraceView
 
           if response_context && !blacklisted
             TraceView::XTrace.continue_service_context(req_context, response_context)
+            TraceView::Context.setSampledFlag
           end
 
           # Older HTTPClient < 2.6.0 returns HTTPClient::Connection

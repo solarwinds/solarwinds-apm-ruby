@@ -109,6 +109,7 @@ module TraceView
 
             if response_context && !blacklisted
               TraceView::XTrace.continue_service_context(req_context, response_context)
+              TraceView::Context.setSampledFlag
             end
           end
 

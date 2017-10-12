@@ -58,6 +58,7 @@ module TraceView
                 # Assure that we received back a valid X-Trace with the same task_id
                 if task_id == TraceView::XTrace.task_id(xtrace)
                   TraceView::Context.fromString(xtrace)
+                  TraceView::Context.setSampledFlag
                 else
                   TraceView.logger.debug "Mismatched returned X-Trace ID: #{xtrace}"
                 end
