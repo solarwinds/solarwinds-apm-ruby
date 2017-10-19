@@ -214,11 +214,11 @@ def layer_doesnt_have_key(traces, layer, key)
 end
 
 def not_sampled?(xtrace)
-  xtrace[58,59] == '00'
+  xtrace[59].to_i & 1 == 0
 end
 
 def sampled?(xtrace)
-  xtrace[58,59] == '01'
+  xtrace[59].to_i & 1 == 1
 end
 
 def print_traces(traces)
