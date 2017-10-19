@@ -239,6 +239,28 @@ module TraceView
       end
 
       ##
+      # Public: Log an exit event from multiple requests
+      #
+      # A helper method to create and log an info event
+      # If we return from a request that faned out multiple requests
+      # we can add the collected X-Traces to the exit event
+      #
+      # ==== Attributes
+      #
+      # * +layer+ - The layer the reported event belongs to
+      # * +traces+ - An array with X-Trace strings returned from the requests
+      #
+      def log_multi_exit(layer, traces)
+        return unless TraceView.loaded
+
+        event = TraceView::Context.createEvent
+        traces.each do |trace|
+          event.addEdgeStr(trace)
+        end
+        log_event(layer, :exit, event)
+      end
+
+      ##
       # Internal: Report an event.
       #
       # ==== Attributes
