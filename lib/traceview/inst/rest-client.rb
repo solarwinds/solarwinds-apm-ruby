@@ -32,11 +32,9 @@ module TraceView
           # The core rest-client call
           execute_without_traceview(&block)
         rescue => e
-          TraceView::Context.setSampledFlag
           TraceView::API.log_exception('rest-client', e)
           raise e
         ensure
-          TraceView::Context.setSampledFlag
           TraceView::API.log_exit('rest-client')
         end
       end

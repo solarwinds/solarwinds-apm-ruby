@@ -86,7 +86,6 @@ module TraceView
             response_context = response_headers['X-Trace']
             if response_context && !kvs[:blacklisted]
               TraceView::XTrace.continue_service_context(self.headers['X-Trace'], response_context)
-              TraceView::Context.setSampledFlag
             end
 
           response

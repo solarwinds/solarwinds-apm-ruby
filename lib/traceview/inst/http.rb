@@ -57,16 +57,7 @@ if TraceView::Config[:nethttp][:enabled]
             xtrace = resp.get_fields('X-Trace')
             xtrace = xtrace[0] if xtrace && xtrace.is_a?(Array)
 
-            if TraceView::XTrace.valid?(xtrace)
-
-              # Assure that we received back a valid X-Trace with the same task_id
-              if task_id == TraceView::XTrace.task_id(xtrace)
-                TraceView::Context.fromString(xtrace)
-                TraceView::Context.setSampledFlag
-              else
-                TraceView.logger.debug "Mismatched returned X-Trace ID : #{xtrace} in http.rb"
-              end
-            end
+            TraceView::XTrace.continue_service_context(context, xtrace)
           end
 
           opts[:HTTPStatus] = resp.code

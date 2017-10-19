@@ -52,17 +52,7 @@ module TraceView
             # valid X-Trace header
             unless blacklisted
               xtrace = result.headers['X-Trace']
-
-              if TraceView::XTrace.valid?(xtrace) && TraceView.tracing?
-
-                # Assure that we received back a valid X-Trace with the same task_id
-                if task_id == TraceView::XTrace.task_id(xtrace)
-                  TraceView::Context.fromString(xtrace)
-                  TraceView::Context.setSampledFlag
-                else
-                  TraceView.logger.debug "Mismatched returned X-Trace ID: #{xtrace}"
-                end
-              end
+              TraceView::XTrace.continue_service_context(context, xtrace) if xtrace
             end
           end
 
