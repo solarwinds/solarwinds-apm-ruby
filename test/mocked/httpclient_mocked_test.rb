@@ -107,7 +107,7 @@ unless defined?(JRUBY_VERSION)
     end
 
     #====== ASYNC REQUEST ================================================
-    # using expections in these tests because stubbing doesn't work with threads
+    # using expectations in these tests because stubbing doesn't work with threads
 
     def test_async_tracing_sampling_array_headers
       WebMock.disable!

@@ -28,7 +28,7 @@ module TraceView
       #
       # TODO: ideally this would only be called when we know we are tracing
       # but that is currently only partially the case
-      # we are definitely checking tracing? a few too many times ;)
+      # we are definitely checking TraceView.tracing? a few too many times ;)
 
       def profile(profile_name, report_kvs = {}, with_backtrace = false)
 
