@@ -57,7 +57,7 @@ module TraceView
       # This method does the logging if we are tracing
       # it `wraps` around the call to the original method
       #
-      def add_logging(layer)
+      def trace(layer)
         return yield unless TraceView.tracing?
         begin
           TraceView::API.log_entry(layer)
@@ -77,7 +77,7 @@ module TraceView
       # Our render wrapper that calls 'add_logging', which will log if we are tracing
       #
       def render_with_traceview(*args, &blk)
-        add_logging('actionview') do
+        trace('actionview') do
           render_without_traceview(*args, &blk)
         end
       end

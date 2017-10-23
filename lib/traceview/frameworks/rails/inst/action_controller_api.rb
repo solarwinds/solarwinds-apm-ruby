@@ -38,7 +38,7 @@ module TraceView
       # Our render wrapper that calls 'add_logging', which will log if we are tracing
       #
       def render(*args, &blk)
-        add_logging('actionview') do
+        trace('actionview') do
           super(*args, &blk)
         end
       end

@@ -52,7 +52,7 @@ module TraceView
             # valid X-Trace header
             unless blacklisted
               xtrace = result.headers['X-Trace']
-              TraceView::XTrace.continue_service_context(context, xtrace) if xtrace
+              TraceView::XTrace.continue_service_context(context, xtrace)
             end
           end
 

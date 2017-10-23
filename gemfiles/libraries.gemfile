@@ -1,12 +1,10 @@
 source "https://rubygems.org"
 
 
-if RUBY_VERSION >= '1.9.3'
   gem 'moped'
   gem 'eventmachine', '< 1.2.0'
   gem 'em-synchrony'
   gem 'em-http-request'
-end
 
 if RUBY_VERSION >= '2.0.0'
   # rest-client depends on mime-types gem which only supports
@@ -21,15 +19,9 @@ group :development, :test do
   gem 'minitest-reporters', '< 1.0.18'
   gem 'minitest-debugger', :require => false
   gem 'rack-test'
-  if RUBY_VERSION < '1.9.3'
-    gem 'rake', '< 11.0'
-    gem 'bson', '<= 1.12.5'
-    gem 'puma', '< 3.0'
-  else
-    gem 'rake'
-    gem 'bson', '~> 4.0'
-    gem 'puma', '< 3.1.0'
-  end
+  gem 'rake'
+  gem 'bson', '~> 4.0'
+  gem 'puma', '< 3.1.0'
   if RUBY_VERSION >= '2.0.0'
     gem 'webmock'
   end
@@ -41,9 +33,7 @@ else
   gem 'sinatra'
 end
 
-if RUBY_VERSION.between?('1.8.7', '1.9.3')
-  # Nothing
-elsif RUBY_VERSION == '1.9.3'
+if RUBY_VERSION == '1.9.3'
   gem 'mime-types', '< 3.0'
 end
 
@@ -55,15 +45,11 @@ else
   gem 'bunny', '< 2.6.5'
 end
 
-if RUBY_VERSION < '1.9.3'
-  gem 'mongo', '1.12.5'
-else
   gem 'mongo'
-end
 
 gem 'cassandra'
 gem 'curb', '<= 0.9.3' unless defined?(JRUBY_VERSION)
-gem 'dalli' if RUBY_VERSION > '1.8.7'
+gem 'dalli'
 gem 'excon'
 gem 'faraday'
 gem 'httpclient'
@@ -83,9 +69,7 @@ else
     gem 'mysql'
   end
   gem 'mysql2'
-  if RUBY_VERSION < '1.9.3'
-    gem 'pg', '0.17.1'
-  elsif RUBY_VERSION < '2.0'
+  if RUBY_VERSION < '2.0'
     gem 'pg', '0.18.4'
   else
     gem 'pg'

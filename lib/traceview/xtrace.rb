@@ -33,6 +33,14 @@ module TraceView
         xtrace[59].to_i & 1 == 1
       end
 
+      def set_sampled(xtrace)
+        xtrace[59] = (xtrace[59].hex | 1).to_s(16).upcase
+      end
+
+      def unset_sampled(xtrace)
+        xtrace[59] = (~(~xtrace[59].hex | 1)).to_s(16).upcase
+      end
+
       ##
       # TraceView::XTrace.task_id
       #

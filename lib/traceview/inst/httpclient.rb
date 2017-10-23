@@ -27,6 +27,9 @@ module TraceView
           kvs[:RemoteURL] = uri.to_s.split('?').first
         end
 
+        kvs[:RemoteProtocol] = uri.scheme.upcase
+        kvs[:RemoteHost] = "#{uri.host}:#{uri.port}"
+        kvs[:ServiceArg] = "/?#{uri.query}"
         kvs[:HTTPMethod] = ::TraceView::Util.upcase(method)
         kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:httpclient][:collect_backtraces]
         kvs

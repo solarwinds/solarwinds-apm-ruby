@@ -21,13 +21,8 @@ class RackTestApp < Minitest::Test
     }
   end
 
-  def setup
-    @tm = TraceView::Config[:tracing_mode]
-    TraceView::Config[:tracing_mode] = :always
-  end
-
   def teardown
-    TraceView::Config[:tracing_mode] = @tm
+    TraceView::Config[:tracing_mode] = :always
   end
 
   def test_get_the_lobster

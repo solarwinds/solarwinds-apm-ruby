@@ -53,7 +53,7 @@ module TraceView
           # valid X-Trace header
           unless blacklisted
             xtrace = response.headers['X-Trace']
-            TraceView::XTrace.continue_service_context(context, xtrace) if xtrace
+            TraceView::XTrace.continue_service_context(context, xtrace)
           end
 
           TraceView::API.log(:typhoeus, :info, kvs)

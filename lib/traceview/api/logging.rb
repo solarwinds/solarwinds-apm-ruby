@@ -121,9 +121,7 @@ module TraceView
           opts[:TraceOrigin]       = :always_sampled
 
           if xtrace_v2?(xtrace)
-            flag = '01'
-            prefix = xtrace[0..-3]
-            xtrace = "#{prefix}#{flag}"
+            TraceView::XTrace.set_sampled(xtrace)
 
             md = TraceView::Metadata.fromString(xtrace)
             TraceView::Context.fromString(xtrace)
@@ -136,10 +134,7 @@ module TraceView
         else
           # set the context but don't log the event (?)
           if xtrace_v2?(xtrace)
-            flag = '00'
-            # Everything but the flag
-            prefix = xtrace[0..-3]
-            xtrace = "#{prefix}#{flag}"
+            TraceView::XTrace.unset_sampled(xtrace)
             TraceView::Context.fromString(xtrace)
           else
             md = TraceView::Metadata.makeRandom(false)
@@ -253,9 +248,12 @@ module TraceView
       def log_multi_exit(layer, traces)
         return unless TraceView.loaded
 
+        #TODO check traces against context
+
+        task_id = TraceView::XTrace.task_id(TraceView::Context.toString)
         event = TraceView::Context.createEvent
         traces.each do |trace|
-          event.addEdgeStr(trace)
+          event.addEdgeStr(trace) if TraceView::XTrace.task_id(trace) == task_id
         end
         log_event(layer, :exit, event)
       end

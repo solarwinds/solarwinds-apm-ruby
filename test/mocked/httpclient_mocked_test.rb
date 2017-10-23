@@ -112,7 +112,7 @@ unless defined?(JRUBY_VERSION)
     def test_async_tracing_sampling_array_headers
       WebMock.disable!
 
-      Thread.expects(:new).yields
+      Thread.expects(:new).yields   # continue without forking off a thread
 
       HTTPClient.any_instance.expects(:do_get_stream_without_traceview).with do |req, _, _|
         'http://127.0.0.11:8101/' == req.header.request_uri.to_s &&
@@ -128,7 +128,7 @@ unless defined?(JRUBY_VERSION)
     def test_async_tracing_sampling_hash_headers
       WebMock.disable!
 
-      Thread.expects(:new).yields
+      Thread.expects(:new).yields   # continue without forking off a thread
 
       HTTPClient.any_instance.expects(:do_get_stream_without_traceview).with do |req, _, _|
         'http://127.0.0.16:8101/' == req.header.request_uri.to_s &&
@@ -144,7 +144,7 @@ unless defined?(JRUBY_VERSION)
     def test_async_tracing_not_sampling
       WebMock.disable!
 
-      Thread.expects(:new).yields
+      Thread.expects(:new).yields   # continue without forking off a thread
 
       HTTPClient.any_instance.expects(:do_get_stream_without_traceview).with do |req, _, _|
         'http://127.0.0.12:8101/' == req.header.request_uri.to_s &&
@@ -164,7 +164,7 @@ unless defined?(JRUBY_VERSION)
     def test_async_no_xtrace
       WebMock.disable!
 
-      Thread.expects(:new).yields
+      Thread.expects(:new).yields   # continue without forking off a thread
 
       HTTPClient.any_instance.expects(:do_get_stream_without_traceview).with do |req, _, _|
         'http://127.0.0.13:8101/' == req.header.request_uri.to_s &&
@@ -178,7 +178,7 @@ unless defined?(JRUBY_VERSION)
     def test_async_blacklisted
       WebMock.disable!
 
-      Thread.expects(:new).yields
+      Thread.expects(:new).yields   # continue without forking off a thread
 
       HTTPClient.any_instance.expects(:do_get_stream_without_traceview).with do |req, _, _|
         'http://127.0.0.14:8101/' == req.header.request_uri.to_s &&
@@ -197,7 +197,7 @@ unless defined?(JRUBY_VERSION)
     def test_async_not_sampling_blacklisted
       WebMock.disable!
 
-      Thread.expects(:new).yields
+      Thread.expects(:new).yields   # continue without forking off a thread
 
       HTTPClient.any_instance.expects(:do_get_stream_without_traceview).with do |req, _, _|
         'http://127.0.0.15:8101/' == req.header.request_uri.to_s &&

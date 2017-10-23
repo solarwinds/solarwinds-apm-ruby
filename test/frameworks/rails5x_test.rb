@@ -326,8 +326,7 @@ if defined?(::Rails)
       end
     end
 
-    # in this case the incoming xtrace has the sampling flag set to '0'
-    it "should NOT trace when incoming trace when sample_rate is 0" do
+    it "should NOT trace when sample_rate is 0" do
       TraceView.config_lock.synchronize do
         TraceView::Config[:sample_rate] = 0
         uri = URI.parse('http://127.0.0.1:8140/hello/world')
@@ -338,8 +337,7 @@ if defined?(::Rails)
       end
     end
 
-    # I think this test works because oboe won't log if there isn't a valid context
-    it "should NOT trace when there is no incoming xtrace" do
+    it "should NOT trace when there is no context" do
       response_headers = HelloController.action("world").call(
           "REQUEST_METHOD" => "GET",
           "rack.input" => -> {}

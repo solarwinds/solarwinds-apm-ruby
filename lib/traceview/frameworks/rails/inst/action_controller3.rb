@@ -21,7 +21,7 @@ module TraceView
       end
 
       def process_with_traceview(*args)
-        add_logging('rails') do
+        trace('rails') do
           process_without_traceview(*args)
         end
       end

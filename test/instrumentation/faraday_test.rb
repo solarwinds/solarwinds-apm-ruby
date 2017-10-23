@@ -162,8 +162,6 @@ describe "Faraday" do
   end
 
   it 'should trace a Faraday with the httpclient adapter' do
-    skip "FIXME: once HTTPClient instrumentation is done"
-
     TraceView::API.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
         faraday.adapter :httpclient
@@ -184,7 +182,7 @@ describe "Faraday" do
     traces[2]['Label'].must_equal 'entry'
     traces[2]['IsService'].must_equal 1
     traces[2]['RemoteProtocol'].must_equal 'HTTP'
-    traces[2]['RemoteHost'].must_equal '127.0.0.1'
+    traces[2]['RemoteHost'].must_equal '127.0.0.1:8101'
     traces[2]['ServiceArg'].must_equal '/?q=1'
     traces[2]['HTTPMethod'].must_equal 'GET'
 
@@ -194,7 +192,7 @@ describe "Faraday" do
 
     traces[7]['Layer'].must_equal 'faraday'
     traces[7]['Label'].must_equal 'info'
-    traces[7]['Middleware'].must_equal '[Faraday::Adapter::Excon]'
+    traces[7]['Middleware'].must_equal '[Faraday::Adapter::HTTPClient]'
 
     traces[8]['Layer'].must_equal 'faraday'
     traces[8]['Label'].must_equal 'exit'
