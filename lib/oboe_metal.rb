@@ -30,13 +30,13 @@ module TraceView
           when 'udp'
             options = "addr=#{TraceView::Config[:reporter_host]},port=#{TraceView::Config[:reporter_port]}"
           else
-            if ENV['TRACELYTICS_SERVICE_KEY'].to_s == ''
-              TraceView.logger.warn "[traceview/warn] TRACELYTICS_SERVICE_KEY not set. Cannot submit data."
+            if ENV['APPOPTICS_SERVICE_KEY'].to_s == ''
+              TraceView.logger.warn "[traceview/warn] APPOPTICS_SERVICE_KEY not set. Cannot submit data."
               TraceView.loaded = false
               return
             end
             # ssl reporter requires the service key passed in as arg "cid"
-            options = "cid=#{ENV['TRACELYTICS_SERVICE_KEY']}"
+            options = "cid=#{ENV['APPOPTICS_SERVICE_KEY']}"
           end
 
           TraceView.reporter = Oboe_metal::Reporter.new(protocol, options)
@@ -122,7 +122,7 @@ module TraceView
     end
   end
 
-  class Event
+  module EventUtil
     def self.metadataString(evt)
       evt.metadataString
     end
@@ -140,17 +140,9 @@ module TraceView
       rv = TraceView::Context.sampleRequest(layer, xtrace)
 
       if rv == 0
-        if ENV.key?('TRACEVIEW_GEM_TEST')
-          # When in test, always trace and don't clear
-          # the stored sample rate/source
-          TraceView.sample_rate ||= -1
-          TraceView.sample_source ||= -1
-          true
-        else
-          TraceView.sample_rate = -1
-          TraceView.sample_source = -1
-          false
-        end
+        TraceView.sample_rate = -1
+        TraceView.sample_source = -1
+        false
       else
         # liboboe version > 1.3.1 returning a bit masked integer with SampleRate and
         # source embedded
@@ -175,12 +167,9 @@ module TraceView
       when :always
         TraceView::Context.setTracingMode(OBOE_TRACE_ALWAYS)
 
-      when :through
-        TraceView::Context.setTracingMode(OBOE_TRACE_THROUGH)
-
       else
         TraceView.logger.fatal "[oboe/error] Invalid tracing mode set: #{mode}"
-        TraceView::Context.setTracingMode(OBOE_TRACE_THROUGH)
+        TraceView::Context.setTracingMode(OBOE_TRACE_NEVER)
       end
     end
 

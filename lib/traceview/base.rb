@@ -142,25 +142,12 @@ module TraceViewBase
   end
 
   ##
-  # entry_layer?
-  #
-  # Determines if the passed layer is an entry only
-  # layer where we would want to use smart tracing.
-  #
-  # Entry only layers are layers that _only_ start traces
-  # and doesn't directly receive incoming context such as
-  # DelayedJob or Sidekiq workers.
-  #
-  def entry_layer?(layer)
-    %w(delayed_job-worker sidekiq-worker resque-worker rabbitmq-consumer).include?(layer.to_s)
-  end
-
-  ##
   # Returns true if the tracing_mode is set to always.
   # False otherwise
   #
   def always?
-    TraceView::Config[:tracing_mode].to_sym == :always
+    TraceView::Config[:tracing_mode] &&
+      TraceView::Config[:tracing_mode].to_sym == :always
   end
 
   ##
@@ -168,23 +155,8 @@ module TraceViewBase
   # False otherwise
   #
   def never?
-    TraceView::Config[:tracing_mode].to_sym == :never
-  end
-
-  ##
-  # Returns true if the tracing_mode is set to always or through.
-  # False otherwise
-  #
-  def passthrough?
-    [:always, :through].include?(TraceView::Config[:tracing_mode])
-  end
-
-  ##
-  # Returns true if the tracing_mode is set to through.
-  # False otherwise
-  #
-  def through?
-    TraceView::Config[:tracing_mode].to_sym == :through
+    TraceView::Config[:tracing_mode] &&
+      TraceView::Config[:tracing_mode].to_sym == :never
   end
 
   ##
@@ -193,12 +165,7 @@ module TraceViewBase
   #
   def tracing?
     return false if !TraceView.loaded || TraceView.never?
-    TraceView::Context.isValid
-  end
-
-  def log(layer, label, options = {})
-    # WARN: TraceView.log will be deprecated in a future release.  Please use TraceView::API.log instead.
-    TraceView::API.log(layer, label, options)
+    TraceView::Context.isValid && TraceView::Context.isSampled
   end
 
   def heroku?

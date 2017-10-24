@@ -21,6 +21,10 @@ class RackTestApp < Minitest::Test
     }
   end
 
+  def teardown
+    TraceView::Config[:tracing_mode] = :always
+  end
+
   def test_get_the_lobster
     skip("FIXME: broken on travis only") if ENV['TRAVIS'] == "true"
 
@@ -116,6 +120,20 @@ class RackTestApp < Minitest::Test
     traces[0]['URL'].must_equal "/lobster?blah=1"
 
     TraceView::Config[:rack][:log_args] = @log_args
+  end
+
+  def test_has_header_when_not_tracing
+    clear_all_traces
+
+    TraceView::Config[:tracing_mode] = :never
+
+    get "/lobster?blah=1"
+
+    traces = get_all_traces
+    assert_equal(0, traces.size)
+
+    assert last_response['X-Trace'], "X-Trace header is missing"
+    assert not_sampled?(last_response['X-Trace']), "X-Trace sampling flag is not '00'"
   end
 end
 

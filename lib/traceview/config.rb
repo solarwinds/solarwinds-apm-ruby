@@ -158,23 +158,6 @@ module TraceView
       #
       @@config[:report_rescued_errors] = false
 
-      # By default, the curb instrumentation will not link
-      # outgoing requests with remotely instrumented
-      # webservers (aka cross host tracing).  This is because the
-      # instrumentation can't detect if the independent libcurl
-      # instrumentation is in use or not.
-      #
-      # If you're sure that it's not in use/installed, then you can
-      # enable cross host tracing for the curb HTTP client
-      # here.  Set TraceView::Config[:curb][:cross_host] to true
-      # to enable.
-      #
-      # Alternatively, if you would like to install the separate
-      # libcurl instrumentation, see here:
-      # http://docs.traceview.solarwinds.com/Instrumentation/other-instrumentation-modules.html#libcurl
-      #
-      @@config[:curb][:cross_host] = false
-
       # The bunny (Rabbitmq) instrumentation can optionally report
       # Controller and Action values to allow filtering of bunny
       # message handling in # the UI.  Use of Controller and Action
@@ -190,19 +173,6 @@ module TraceView
       #
       @@config[:bunnyconsumer][:controller] = :app_id
       @@config[:bunnyconsumer][:action] = :type
-
-      # Environment support for OpenShift.
-      if ENV.key?('OPENSHIFT_TRACEVIEW_TLYZER_IP')
-        # We're running on OpenShift
-        @@config[:tracing_mode] = :always
-        @@config[:reporter_host] = ENV['OPENSHIFT_TRACEVIEW_TLYZER_IP']
-        @@config[:reporter_port] = ENV['OPENSHIFT_TRACEVIEW_TLYZER_PORT']
-      else
-        # The default configuration
-        @@config[:tracing_mode] = :through
-        @@config[:reporter_host] = '127.0.0.1'
-        @@config[:reporter_port] = '7831'
-      end
 
       @@config[:verbose] = ENV.key?('TRACEVIEW_GEM_VERBOSE') ? true : false
     end
@@ -243,12 +213,12 @@ module TraceView
 
       elsif key == :sample_rate
         unless value.is_a?(Integer) || value.is_a?(Float)
-          fail 'traceview :sample_rate must be a number between 1 and 1000000 (1m)'
+          fail 'traceview :sample_rate must be a number between 0 and 1000000 (1m)'
         end
 
         # Validate :sample_rate value
-        unless value.between?(1, 1e6)
-          fail 'traceview :sample_rate must be between 1 and 1000000 (1m)'
+        unless value.between?(0, 1e6)
+          fail 'traceview :sample_rate must be between 0 and 1000000 (1m)'
         end
 
         # Assure value is an integer

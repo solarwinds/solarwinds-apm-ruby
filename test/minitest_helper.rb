@@ -8,21 +8,25 @@ require 'minitest/autorun'
 require 'minitest/reporters'
 require 'minitest/debugger' if ENV['DEBUG']
 
+if ENV['TEST_RUNS_TO_FILE']
 # write to STDOUT as well as file (comes in handy with docker runs)
-FileUtils.mkdir_p('log')  # create if it doesn't exist
-$out_file = File.new('log/test_runs.log', 'a')
-$out_file.sync = true
-$stdout.sync = true
-def $stdout.write string
-  $out_file.write string
-  super
+  FileUtils.mkdir_p('log')  # create if it doesn't exist
+  $out_file = File.new("log/test_runs_#{Time.now.strftime("%Y_%m_%d")}.log", 'a')
+  $out_file.sync = true
+  $stdout.sync = true
+  def $stdout.write string
+    $out_file.write string
+    super
+  end
 end
 
-puts "\n\033[1m===== TEST RUN: #{ENV['RVM_TEST']} #{ENV['BUNDLE_GEMFILE']} #{Time.now.strftime("%Y-%m-%d %H:%M")} =====\033[0m\n"
+puts "\n\033[1m=== TEST RUN: #{ENV['RVM_TEST']} #{ENV['BUNDLE_GEMFILE']} #{Time.now.strftime("%Y-%m-%d %H:%M")} ===\033[0m\n"
 
 ENV['RACK_ENV'] = 'test'
 ENV['TRACEVIEW_GEM_TEST'] = 'true'
-ENV['TRACEVIEW_GEM_VERBOSE'] = 'true'
+
+#
+# ENV['TRACEVIEW_GEM_VERBOSE'] = 'true'
 
 # FIXME: Temp hack to fix padrino-core calling RUBY_ENGINE when it's
 # not defined under Ruby 1.8.7 and 1.9.3
@@ -91,6 +95,7 @@ end
 def clear_all_traces
   if TraceView.loaded
     TraceView::Reporter.clear_all_traces
+    sleep 0.2 # it seems like the docker file system needs a bit of time to clear the file
   end
 end
 
@@ -206,6 +211,28 @@ def layer_doesnt_have_key(traces, layer, key)
   end
 
   has_key.must_equal false
+end
+
+def not_sampled?(xtrace)
+  xtrace[59].to_i & 1 == 0
+end
+
+def sampled?(xtrace)
+  xtrace[59].to_i & 1 == 1
+end
+
+def print_traces(traces)
+  indent = ''
+  traces.each do |trace|
+    indent += '  ' if trace["Label"] == "entry"
+
+    puts "#{indent}X-Trace: #{trace["X-Trace"]}"
+    puts "#{indent}Label:   #{trace["Label"]}"
+    puts "#{indent}Layer:   #{trace["Layer"]}"
+
+    indent = indent[0...-2] if trace["Label"] == "exit"
+  end
+  nil
 end
 
 if (File.basename(ENV['BUNDLE_GEMFILE']) =~ /^frameworks/) == 0

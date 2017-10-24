@@ -31,6 +31,7 @@ Gem::Specification.new do |s|
 
   # Development dependencies used in gem development & testing
   s.add_development_dependency('rake', '>= 0.9.0')
+  s.add_development_dependency('mocha')
 
   unless defined?(JRUBY_VERSION)
     case RUBY_VERSION
@@ -49,5 +50,5 @@ Gem::Specification.new do |s|
     s.add_development_dependency('pry', '>= 0.10.0')
   end
 
-  s.required_ruby_version = '>= 1.8.6'
+  s.required_ruby_version = '>= 1.9.3'
 end

@@ -25,24 +25,32 @@ module TraceView
       #   end
       #
       # Returns the result of the block.
+      #
+      # TODO: ideally this would only be called when we know we are tracing
+      # but that is currently only partially the case
+      # we are definitely checking TraceView.tracing? a few too many times ;)
+
       def profile(profile_name, report_kvs = {}, with_backtrace = false)
+
         report_kvs[:Language] ||= :ruby
         report_kvs[:ProfileName] ||= profile_name
         report_kvs[:Backtrace] = TraceView::API.backtrace if with_backtrace
 
-        TraceView::API.log(nil, :profile_entry, report_kvs)
+        TraceView::API.log(nil, :profile_entry, report_kvs) if TraceView.tracing?
 
         begin
           yield
         rescue => e
-          log_exception(nil, e)
+          log_exception(nil, e) if TraceView.tracing?
           raise
         ensure
-          exit_kvs = {}
-          exit_kvs[:Language] = :ruby
-          exit_kvs[:ProfileName] = report_kvs[:ProfileName]
+          if TraceView.tracing?
+            exit_kvs = {}
+            exit_kvs[:Language] = :ruby
+            exit_kvs[:ProfileName] = report_kvs[:ProfileName]
 
-          TraceView::API.log(nil, :profile_exit, exit_kvs)
+            TraceView::API.log(nil, :profile_exit, exit_kvs)
+          end
         end
       end
 

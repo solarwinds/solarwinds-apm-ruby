@@ -10,63 +10,60 @@ module TraceView
       end
 
       def run_with_traceview
-        return run_without_traceview unless TraceView.tracing?
-
-        TraceView::API.log_entry(:typhoeus)
-
-        # Prepare X-Trace header handling
         blacklisted = TraceView::API.blacklisted?(url)
-        context = TraceView::Context.toString
-        task_id = TraceView::XTrace.task_id(context)
-        options[:headers]['X-Trace'] = context unless blacklisted
-
-        response = run_without_traceview
-
-        if response.code == 0
-          TraceView::API.log(:typhoeus, :error, { :ErrorClass => response.return_code,
-                                                  :ErrorMsg => response.return_message })
+        unless TraceView.tracing?
+          context = TraceView::Context.toString
+          options[:headers]['X-Trace'] = context if TraceView::XTrace.valid?(context) && !blacklisted
+          return run_without_traceview
         end
 
-        kvs = {}
-        kvs[:IsService] = 1
-        kvs[:HTTPStatus] = response.code
-        kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:typhoeus][:collect_backtraces]
+        begin
+          TraceView::API.log_entry(:typhoeus)
 
-        uri = URI(response.effective_url)
+          # Prepare X-Trace header handling
+          context = TraceView::Context.toString
+          task_id = TraceView::XTrace.task_id(context)
+          options[:headers]['X-Trace'] = context unless blacklisted
 
-        # Conditionally log query params
-        if TraceView::Config[:typhoeus][:log_args]
-          kvs[:RemoteURL] = uri.to_s
-        else
-          kvs[:RemoteURL] = uri.to_s.split('?').first
-        end
+          response = run_without_traceview
 
-        kvs[:HTTPMethod] = ::TraceView::Util.upcase(options[:method])
-        kvs[:Blacklisted] = true if blacklisted
-
-        # Re-attach net::http edge unless it's blacklisted or if we don't have a
-        # valid X-Trace header
-        unless blacklisted
-          xtrace = response.headers['X-Trace']
-
-          if xtrace && TraceView::XTrace.valid?(xtrace) && TraceView.tracing?
-
-            # Assure that we received back a valid X-Trace with the same task_id
-            if task_id == TraceView::XTrace.task_id(xtrace)
-              TraceView::Context.fromString(xtrace)
-            else
-              TraceView.logger.debug "Mismatched returned X-Trace ID: #{xtrace}"
-            end
+          if response.code == 0
+            TraceView::API.log(:typhoeus, :error, { :ErrorClass => response.return_code,
+                                                    :ErrorMsg => response.return_message })
           end
-        end
 
-        TraceView::API.log(:typhoeus, :info, kvs)
-        response
-      rescue => e
-        TraceView::API.log_exception(:typhoeus, e)
-        raise e
-      ensure
-        TraceView::API.log_exit(:typhoeus)
+          kvs = {}
+          kvs[:IsService] = 1
+          kvs[:HTTPStatus] = response.code
+          kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:typhoeus][:collect_backtraces]
+
+          uri = URI(response.effective_url)
+
+          # Conditionally log query params
+          if TraceView::Config[:typhoeus][:log_args]
+            kvs[:RemoteURL] = uri.to_s
+          else
+            kvs[:RemoteURL] = uri.to_s.split('?').first
+          end
+
+          kvs[:HTTPMethod] = ::TraceView::Util.upcase(options[:method])
+          kvs[:Blacklisted] = true if blacklisted
+
+          # Re-attach net::http edge unless it's blacklisted or if we don't have a
+          # valid X-Trace header
+          unless blacklisted
+            xtrace = response.headers['X-Trace']
+            TraceView::XTrace.continue_service_context(context, xtrace)
+          end
+
+          TraceView::API.log(:typhoeus, :info, kvs)
+          response
+        rescue => e
+          TraceView::API.log_exception(:typhoeus, e)
+          raise e
+        ensure
+          TraceView::API.log_exit(:typhoeus)
+        end
       end
     end
 
@@ -76,6 +73,15 @@ module TraceView
       end
 
       def run_with_traceview
+        unless TraceView.tracing?
+          context = TraceView::Context.toString
+          queued_requests.map do |request|
+            blacklisted = TraceView::API.blacklisted?(request.base_url)
+            request.options[:headers]['X-Trace'] = context if TraceView::XTrace.valid?(context) && !blacklisted
+          end
+          return run_without_traceview
+        end
+
         kvs = {}
 
         kvs[:queued_requests] = queued_requests.count
@@ -85,6 +91,11 @@ module TraceView
         # threading and Ethon's use of easy handles, here we just do a simple
         # trace of the hydra run.
         TraceView::API.trace(:typhoeus_hydra, kvs) do
+          queued_requests.map do |request|
+            blacklisted = TraceView::API.blacklisted?(request.base_url)
+            request.options[:headers]['X-Trace'] = TraceView::Context.toString unless blacklisted
+          end
+
           run_without_traceview
         end
       end

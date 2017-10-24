@@ -19,3 +19,4 @@ ext/oboe_metal/src/VERSION
 log/
 .vagrant
 gemfiles/.bundle
+swig*

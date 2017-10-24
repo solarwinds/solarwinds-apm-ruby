@@ -13,7 +13,6 @@ Delayed::Job.delete_all
 class DelayedJobClientTest < Minitest::Test
   def setup
     clear_all_traces
-    sleep(0.3)
     @collect_backtraces = TraceView::Config[:delayed_jobclient][:collect_backtraces]
     @log_args = TraceView::Config[:delayed_jobclient][:log_args]
   end

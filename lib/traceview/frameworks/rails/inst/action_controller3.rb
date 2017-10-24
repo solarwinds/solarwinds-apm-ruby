@@ -21,29 +21,27 @@ module TraceView
       end
 
       def process_with_traceview(*args)
-        TraceView::API.log_entry('rails')
-        process_without_traceview(*args)
-
-      rescue Exception => e
-        TraceView::API.log_exception(nil, e) if log_rails_error?(e)
-        raise
-      ensure
-        TraceView::API.log_exit('rails')
+        trace('rails') do
+          process_without_traceview(*args)
+        end
       end
 
       def process_action_with_traceview(*args)
-        kvs = {
-          :Controller   => self.class.name,
-          :Action       => action_name,
-        }
-        kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:action_controller][:collect_backtraces]
-        TraceView::API.log(nil, 'info', kvs)
+        return process_action_without_traceview(*args) unless TraceView.tracing?
+        begin
+          kvs = {
+              :Controller   => self.class.name,
+              :Action       => action_name,
+          }
+          kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:action_controller][:collect_backtraces]
+          TraceView::API.log(nil, 'info', kvs)
 
-        process_action_without_traceview(*args)
-      rescue Exception
-        kvs[:Status] = 500
-        TraceView::API.log(nil, 'info', kvs)
-        raise
+          process_action_without_traceview(*args)
+        rescue Exception
+          kvs[:Status] = 500
+          TraceView::API.log(nil, 'info', kvs)
+          raise
+        end
       end
     end
   end

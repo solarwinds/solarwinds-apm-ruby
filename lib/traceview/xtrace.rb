@@ -29,6 +29,18 @@ module TraceView
         false
       end
 
+      def sampled?(xtrace)
+        xtrace[59].to_i & 1 == 1
+      end
+
+      def set_sampled(xtrace)
+        xtrace[59] = (xtrace[59].hex | 1).to_s(16).upcase
+      end
+
+      def unset_sampled(xtrace)
+        xtrace[59] = (~(~xtrace[59].hex | 1)).to_s(16).upcase
+      end
+
       ##
       # TraceView::XTrace.task_id
       #
@@ -78,10 +90,11 @@ module TraceView
         if TraceView::XTrace.valid?(finish) && TraceView.tracing?
 
           # Assure that we received back a valid X-Trace with the same task_id
-          if TraceView::XTrace.task_id(start) == TraceView::XTrace.task_id(finish)
+          # and the sampling bit is set, otherwise it is a response from a non-sampling service
+          if TraceView::XTrace.task_id(start) == TraceView::XTrace.task_id(finish) && TraceView::XTrace.sampled?(finish)
             TraceView::Context.fromString(finish)
           else
-            TraceView.logger.debug "Mismatched returned X-Trace ID: #{finish}"
+            TraceView.logger.debug "Sampling flag unset or mismatched start and finish ids:\n#{start}\n#{finish}"
           end
         end
       end

@@ -5,13 +5,6 @@
 # http://docs.traceview.solarwinds.com/Instrumentation/ruby.html#installing-ruby-instrumentation
 
 if defined?(TraceView::Config)
-  # Tracing Mode determines when traces should be initiated for incoming requests.  Valid
-  # options are always, through (when using an instrumented Apache or Nginx) and never.
-  #
-  # If you're not using an instrumented Apache or Nginx, set this directive to always in
-  # order to initiate tracing from Ruby.
-  TraceView::Config[:tracing_mode] = '<%= @tracing_mode %>'
-
   # Verbose output of instrumentation initialization
   # TraceView::Config[:verbose] = <%= @verbose %>
 
@@ -84,24 +77,6 @@ if defined?(TraceView::Config)
   # report all raised exception regardless.
   #
   # TraceView::Config[:report_rescued_errors] = false
-  #
-
-  # By default, the curb instrumentation will not link
-  # outgoing requests with remotely instrumented
-  # webservers (aka cross host tracing).  This is because the
-  # instrumentation can't detect if the independent libcurl
-  # instrumentation is in use or not.
-  #
-  # If you're sure that it's not in use/installed, then you can
-  # enable cross host tracing for the curb HTTP client
-  # here.  Set TraceView::Config[:curb][:cross_host] to true
-  # to enable.
-  #
-  # Alternatively, if you would like to install the separate
-  # libcurl instrumentation, see here:
-  # http://docs.traceview.solarwinds.com/Instrumentation/other-instrumentation-modules.html#libcurl
-  #
-  # TraceView::Config[:curb][:cross_host] = false
   #
 
   # The bunny (Rabbitmq) instrumentation can optionally report

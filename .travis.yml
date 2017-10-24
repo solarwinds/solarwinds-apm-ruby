@@ -14,6 +14,7 @@ rvm:
 
 gemfile:
   - gemfiles/libraries.gemfile
+  - gemfiles/instrumentation_mocked.gemfile
   - gemfiles/frameworks.gemfile
   - gemfiles/rails32.gemfile
   - gemfiles/rails42.gemfile
@@ -33,8 +34,13 @@ matrix:
     # Rails 5.0+ requires Ruby 2.2.2 or higher
 #    - rvm: 1.8.7
 #      gemfile: gemfiles/rails50.gemfile
+
     - rvm: 1.9.3
       gemfile: gemfiles/rails50.gemfile
+
+    # WebMock requires Ruby 2.0 or higher
+    - rvm: 1.9.3
+      gemfile: gemfiles/instrumentation_mocked.gemfile
 
     # Don't test DelayedJob under MRI 1.8 and JRuby
 #    - rvm: 1.8.7

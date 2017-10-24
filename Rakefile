@@ -48,6 +48,9 @@ Rake::TestTask.new do |t|
       # exclude cassandra tests for now
       # TODO: they need refactoring to use the 'cassandra-driver' gem
       # instead of the 'cassandra' gem, which hasn't had a commit since 09/2014
+  when /instrumentation_mocked/
+    # WebMock is interfering with other tests, so these have to run seperately
+    t.test_files = FileList['test/mocked/*_test.rb']
   end
 
   if defined?(JRUBY_VERSION)
@@ -59,7 +62,7 @@ desc "Fetch extension dependency files"
 task :fetch_ext_deps do
   swig_version = %x{swig -version} rescue ''
   if swig_version.scan(/swig version 3.0.8/i).empty?
-    raise "!! Did not find required swig version: #{swig_version.inspect}"
+    raise "!! Did not find required swig version 3.0.8, found #{swig_version.inspect}"
   end
   oboe_version = ENV['OBOE_VERSION'] || 'latest'
   oboe_arch = ENV['OBOE_ARCH'] || 'x86_64'

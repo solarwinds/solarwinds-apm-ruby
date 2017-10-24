@@ -13,18 +13,30 @@ module TraceView
       #
       # The wrapper method for RestClient::Request.execute
       #
-      def execute_with_traceview & block
-        kvs = {}
-        kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:rest_client][:collect_backtraces]
-        TraceView::API.log_entry(:'rest-client', kvs)
+      def execute_with_traceview(&block)
+        blacklisted = TraceView::API.blacklisted?(uri)
 
-        # The core rest-client call
-        execute_without_traceview(&block)
-      rescue => e
-        TraceView::API.log_exception(:'rest-client', e)
-        raise e
-      ensure
-        TraceView::API.log_exit(:'rest-client')
+        unless TraceView.tracing?
+          xtrace = TraceView::Context.toString
+          @processed_headers = make_headers('X-Trace' => xtrace) if TraceView::XTrace.valid?(xtrace) && !blacklisted
+          return execute_without_traceview(&block)
+        end
+
+        begin
+          kvs = {}
+          kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:rest_client][:collect_backtraces]
+          TraceView::API.log_entry('rest-client', kvs)
+
+          @processed_headers = make_headers('X-Trace' => TraceView::Context.toString) unless blacklisted
+
+          # The core rest-client call
+          execute_without_traceview(&block)
+        rescue => e
+          TraceView::API.log_exception('rest-client', e)
+          raise e
+        ensure
+          TraceView::API.log_exit('rest-client')
+        end
       end
     end
   end

@@ -9,6 +9,8 @@ module TraceView
         ::TraceView::Util.method_alias(klass, :requests, ::Excon::Connection)
       end
 
+      private
+
       def traceview_collect(params)
         kvs = {}
         kvs[:IsService] = 1
@@ -55,6 +57,8 @@ module TraceView
         return kvs
       end
 
+      public
+
       def requests_with_traceview(pipeline_params)
         responses = nil
         TraceView::API.trace(:excon, traceview_collect(pipeline_params)) do
@@ -64,28 +68,29 @@ module TraceView
       end
 
       def request_with_traceview(params={}, &block)
+        # Avoid cross host tracing for blacklisted domains
+        blacklisted = TraceView::API.blacklisted?(@data[:hostname])
+
         # If we're not tracing, just do a fast return.
         # If making HTTP pipeline requests (ordered batched)
         # then just return as we're tracing from parent
         # <tt>requests</tt>
         if !TraceView.tracing? || params[:pipeline]
+          @data[:headers]['X-Trace'] = TraceView::Context.toString if TraceView::Context.isValid && !blacklisted
           return request_without_traceview(params, &block)
         end
 
         begin
           response_context = nil
-
-          # Avoid cross host tracing for blacklisted domains
-          blacklisted = TraceView::API.blacklisted?(@data[:hostname])
-
           req_context = TraceView::Context.toString
-          @data[:headers]['X-Trace'] = req_context unless blacklisted
 
           kvs = traceview_collect(params)
           kvs[:Blacklisted] = true if blacklisted
 
           TraceView::API.log_entry(:excon, kvs)
           kvs.clear
+
+          @data[:headers]['X-Trace'] = req_context unless blacklisted
 
           # The core excon call
           response = request_without_traceview(params, &block)

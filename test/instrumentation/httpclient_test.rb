@@ -167,15 +167,15 @@ unless defined?(JRUBY_VERSION)
       # are ordered which in the case of async, they aren't
       # validate_outer_layers(traces, "httpclient_tests")
 
-      assert_equal traces[2]['Async'], 1
-      assert_equal traces[2]['IsService'], 1
-      assert_equal traces[2]['RemoteURL'], 'http://127.0.0.1:8101/?blah=1'
-      assert_equal traces[2]['HTTPMethod'], 'GET'
+      assert_equal 1, traces[2]['Async']
+      assert_equal 1, traces[2]['IsService']
+      assert_equal 'http://127.0.0.1:8101/?blah=1', traces[2]['RemoteURL']
+      assert_equal 'GET', traces[2]['HTTPMethod']
       assert traces[2].key?('Backtrace')
 
-      assert_equal traces[6]['Layer'], 'httpclient'
-      assert_equal traces[6]['Label'], 'exit'
-      assert_equal traces[6]['HTTPStatus'], 200
+      assert_equal 'httpclient', traces[6]['Layer']
+      assert_equal 'exit', traces[6]['Label']
+      assert_equal 200, traces[6]['HTTPStatus']
     end
 
     def test_cross_app_tracing
@@ -198,21 +198,21 @@ unless defined?(JRUBY_VERSION)
       assert valid_edges?(traces), "Invalid edge in traces"
       validate_outer_layers(traces, "httpclient_tests")
 
-      assert_equal traces[1]['IsService'], 1
-      assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/?keyword=ruby&lang=en'
-      assert_equal traces[1]['HTTPMethod'], 'GET'
+      assert_equal 1, traces[1]['IsService']
+      assert_equal 'http://127.0.0.1:8101/?keyword=ruby&lang=en', traces[1]['RemoteURL']
+      assert_equal 'GET', traces[1]['HTTPMethod']
       assert traces[1].key?('Backtrace')
 
-      assert_equal traces[2]['Layer'], 'rack'
-      assert_equal traces[2]['Label'], 'entry'
-      assert_equal traces[3]['Layer'], 'rack'
-      assert_equal traces[3]['Label'], 'info'
-      assert_equal traces[4]['Layer'], 'rack'
-      assert_equal traces[4]['Label'], 'exit'
+      assert_equal 'rack', traces[2]['Layer']
+      assert_equal 'entry', traces[2]['Label']
+      assert_equal 'rack', traces[3]['Layer']
+      assert_equal 'info', traces[3]['Label']
+      assert_equal 'rack', traces[4]['Layer']
+      assert_equal 'exit', traces[4]['Label']
 
-      assert_equal traces[5]['Layer'], 'httpclient'
-      assert_equal traces[5]['Label'], 'exit'
-      assert_equal traces[5]['HTTPStatus'], 200
+      assert_equal 'httpclient', traces[5]['Layer']
+      assert_equal 'exit', traces[5]['Label']
+      assert_equal 200, traces[5]['HTTPStatus']
     end
 
     def test_requests_with_errors
@@ -228,23 +228,23 @@ unless defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
-      assert_equal traces.count, 5
+      assert_equal 5, traces.count
       assert valid_edges?(traces), "Invalid edge in traces"
       validate_outer_layers(traces, "httpclient_tests")
 
-      assert_equal traces[1]['IsService'], 1
-      assert_equal traces[1]['RemoteURL'], 'http://asfjalkfjlajfljkaljf/'
-      assert_equal traces[1]['HTTPMethod'], 'GET'
+      assert_equal 1, traces[1]['IsService']
+      assert_equal 'http://asfjalkfjlajfljkaljf/', traces[1]['RemoteURL']
+      assert_equal 'GET', traces[1]['HTTPMethod']
       assert traces[1].key?('Backtrace')
 
-      assert_equal traces[2]['Layer'], 'httpclient'
-      assert_equal traces[2]['Label'], 'error'
-      assert_equal traces[2]['ErrorClass'], "SocketError"
+      assert_equal 'httpclient', traces[2]['Layer']
+      assert_equal 'error', traces[2]['Label']
+      assert_equal "SocketError", traces[2]['ErrorClass']
       assert traces[2].key?('ErrorMsg')
       assert traces[2].key?('Backtrace')
 
-      assert_equal traces[3]['Layer'], 'httpclient'
-      assert_equal traces[3]['Label'], 'exit'
+      assert_equal 'httpclient', traces[3]['Layer']
+      assert_equal 'exit', traces[3]['Label']
     end
 
     def test_log_args_when_true
@@ -266,10 +266,10 @@ unless defined?(JRUBY_VERSION)
       assert xtrace
       assert TraceView::XTrace.valid?(xtrace)
 
-      assert_equal traces.count, 7
+      assert_equal 7, traces.count
       assert valid_edges?(traces), "Invalid edge in traces"
 
-      assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/?keyword=ruby&lang=en'
+      assert_equal 'http://127.0.0.1:8101/?keyword=ruby&lang=en', traces[1]['RemoteURL']
 
       TraceView::Config[:httpclient][:log_args] = @log_args
     end
@@ -293,10 +293,10 @@ unless defined?(JRUBY_VERSION)
       assert xtrace
       assert TraceView::XTrace.valid?(xtrace)
 
-      assert_equal traces.count, 7
+      assert_equal 7, traces.count
       assert valid_edges?(traces), "Invalid edge in traces"
 
-      assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/'
+      assert_equal 'http://127.0.0.1:8101/', traces[1]['RemoteURL']
 
       TraceView::Config[:httpclient][:log_args] = @log_args
     end
@@ -306,6 +306,14 @@ unless defined?(JRUBY_VERSION)
 
       clnt = HTTPClient.new
       clnt.get('http://127.0.0.1:8101/', :query => { :keyword => 'ruby', :lang => 'en' })
+
+      traces = get_all_traces
+      # we only get traces from rack
+      assert_equal 3, traces.count
+      traces.each do |trace|
+        assert_equal 'rack', trace["Layer"]
+      end
+
     end
   end
 end

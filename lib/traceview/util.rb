@@ -74,7 +74,8 @@ module TraceView
             cls.singleton_class.send(:alias_method, without_traceview, method.to_s)
             cls.singleton_class.send(:alias_method, method.to_s, with_traceview)
           end
-        else TraceView.logger.warn "[traceview/loading] Couldn't properly instrument #{name}.  Partial traces may occur."
+        else
+          TraceView.logger.warn "[traceview/loading] Couldn't properly instrument #{name}.  Partial traces may occur."
         end
       end
 

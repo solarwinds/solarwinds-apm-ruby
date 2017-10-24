@@ -29,7 +29,7 @@ module Oboe_metal
     end
   end
 
-  class Event
+  module EventUtil
     def self.metadataString(evt)
       evt.getMetadata.toHexString
     end
@@ -67,8 +67,6 @@ module Oboe_metal
 
           if cfg.hasSampleStartFlag
             TraceView::Config.tracing_mode = :always
-          elsif cfg.hasSampleThroughFlag
-            TraceView::Config.tracing_mode = :through
           else
             TraceView::Config.tracing_mode = :never
           end

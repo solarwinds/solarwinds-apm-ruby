@@ -63,12 +63,6 @@ You can instrument your Sinatra application by adding the following code to your
 # after the Sinatra require directive.
 require 'traceview'
 
-# When traces should be initiated for incoming requests. Valid options are
-# "always", "through" (when the request is initiated with a tracing header
-# from upstream) and "never". You must set this directive to "always" in
-# order to initiate tracing.
-TraceView::Config[:tracing_mode] = 'through'
-
 # You may want to replace the TraceView.logger with whichever logger you are using
 # TraceView.logger = Sinatra.logger
 ```
@@ -88,11 +82,8 @@ to your `config/boot.rb` file:
 
 ```ruby
 Padrino.before_load do
-  # When traces should be initiated for incoming requests. Valid options are
-  # "always", "through" (when the request is initiated with a tracing header
-  # from upstream) and "never". You must set this directive to "always" in
-  # order to initiate tracing.
-  TraceView::Config[:tracing_mode] = 'always'
+  # Verbose output of instrumentation initialization
+  # TraceView::Config[:verbose] = true
 end
 ```
 
@@ -107,12 +98,6 @@ You can instrument your Grape application by adding the following code to your `
     # after the Grape require directive.
     require 'traceview'
 
-    # When traces should be initiated for incoming requests. Valid options are
-    # "always", "through" (when the request is initiated with a tracing header
-    # from upstream) and "never". You must set this directive to "always" in
-    # order to initiate tracing.
-    TraceView::Config[:tracing_mode] = 'through'
-
     ...
 
     class App < Grape::API
@@ -126,7 +111,7 @@ You must explicitly tell your Grape application to use TraceView::Rack for traci
 
 ## Custom Ruby Scripts & Applications
 
-The traceview gem has the ability to instrument any arbitrary Ruby application or script.  Only the `tracing_mode` needs to be set to tell the traceview gem to initiate performance metric collection.
+The traceview gem has the ability to instrument any arbitrary Ruby application or script.
 
 ```ruby
 require 'rubygems'
@@ -135,9 +120,6 @@ require 'bundler'
 Bundler.require
 
 require 'traceview'
-
-# Tracing mode can be 'never', 'through' (to follow upstream) or 'always'
-TraceView::Config[:tracing_mode] = 'always'
 ```
 
 From here, you can use the Tracing API to instrument areas of code using `TraceView::API.start_trace` (see below).  If you prefer to instead dive directly into code, take a look at [this example](https://gist.github.com/pglombardo/8550713) of an instrumented Ruby script.

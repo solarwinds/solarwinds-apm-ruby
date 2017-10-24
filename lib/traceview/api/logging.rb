@@ -85,49 +85,63 @@ module TraceView
       #
       #   TraceView::API.log_start(:layer_name, nil, { :id => @user.id })
       #
+      # Returns an xtrace metadata string
       def log_start(layer, xtrace = nil, opts = {})
         return if !TraceView.loaded || (opts.key?(:URL) && ::TraceView::Util.static_asset?(opts[:URL]))
 
-        # For entry only layers (DelayedJob workers, Sidekiq workers), auto-set the tracing mode
-        # Don't do this if tracing mode is already :always or :never
-        if TraceView.through? && TraceView.entry_layer?(layer)
-          TraceView.logger.debug "[traceview/debug] Detected #{layer}: auto-configuring tracing mode"
-          TraceView::Config[:tracing_mode] = :always
-        end
-
+        # Is the below necessary? Only on JRuby? Could there be an existing context but not x-trace header?
+        # See discussion at:
+        # https://github.com/librato/ruby-tracelytics/pull/6/files?diff=split#r131029135
+        #
         # Used by JRuby/Java webservers such as Tomcat
-        TraceView::Context.fromString(xtrace) if TraceView.pickup_context?(xtrace)
+        # TraceView::Context.fromString(xtrace) if TraceView.pickup_context?(xtrace)
 
-        if TraceView.tracing?
-          # Pre-existing context.  Either we inherited context from an
-          # incoming X-Trace request header or under JRuby, Joboe started
-          # tracing before the JRuby code was called (e.g. Tomcat)
-          TraceView.is_continued_trace = true
+        # if TraceView.tracing?
+        #   # Pre-existing context.  Either we inherited context from an
+        #   # incoming X-Trace request header or under JRuby, Joboe started
+        #   # tracing before the JRuby code was called (e.g. Tomcat)
+        #   TraceView.is_continued_trace = true
 
-          if TraceView.has_xtrace_header
-            opts[:TraceOrigin] = :continued_header
-          elsif TraceView.has_incoming_context
-            opts[:TraceOrigin] = :continued_context
-          else
-            opts[:TraceOrigin] = :continued
-          end
+        #   if TraceView.has_xtrace_header
+        #     opts[:TraceOrigin] = :continued_header
+        #   elsif TraceView.has_incoming_context
+        #     opts[:TraceOrigin] = :continued_context
+        #   else
+        #     opts[:TraceOrigin] = :continued
+        #   end
 
-          log_entry(layer, opts)
+        # return log_entry(layer, opts)
+        # end
 
-        elsif opts.key?('Force')
-          # Forced tracing: used by __Init reporting
-          opts[:TraceOrigin] = :forced
-          log_event(layer, :entry, TraceView::Context.startTrace, opts)
-
-        elsif TraceView.sample?(opts.merge(:layer => layer, :xtrace => xtrace))
+        if TraceView.sample?(opts.merge(:layer => layer, :xtrace => xtrace))
           # Probablistic tracing of a subset of requests based off of
           # sample rate and sample source
           opts[:SampleRate]        = TraceView.sample_rate
           opts[:SampleSource]      = TraceView.sample_source
           opts[:TraceOrigin]       = :always_sampled
 
-          log_event(layer, :entry, TraceView::Context.startTrace, opts)
+          if xtrace_v2?(xtrace)
+            TraceView::XTrace.set_sampled(xtrace)
+
+            md = TraceView::Metadata.fromString(xtrace)
+            TraceView::Context.fromString(xtrace)
+            log_event(layer, :entry, md.createEvent, opts)
+          else
+            md = TraceView::Metadata.makeRandom(true)
+            TraceView::Context.set(md)
+            log_event(layer, :entry, TraceView::Event.startTrace(md), opts)
+          end
+        else
+          # set the context but don't log the event (?)
+          if xtrace_v2?(xtrace)
+            TraceView::XTrace.unset_sampled(xtrace)
+            TraceView::Context.fromString(xtrace)
+          else
+            md = TraceView::Metadata.makeRandom(false)
+            TraceView::Context.fromString(md.toString)
+          end
         end
+        TraceView::Context.toString
       end
 
       ##
@@ -211,12 +225,37 @@ module TraceView
       #
       #   TraceView::API.log_exit(:layer_name, { :id => @user.id })
       #
-      # Returns an xtrace metadata string
+      # Returns an xtrace metadata string (TODO: does it?)
       def log_exit(layer, kvs = {}, op = nil)
         return unless TraceView.loaded
 
         TraceView.layer_op = nil if op
         log_event(layer, :exit, TraceView::Context.createEvent, kvs)
+      end
+
+      ##
+      # Public: Log an exit event from multiple requests
+      #
+      # A helper method to create and log an info event
+      # If we return from a request that faned out multiple requests
+      # we can add the collected X-Traces to the exit event
+      #
+      # ==== Attributes
+      #
+      # * +layer+ - The layer the reported event belongs to
+      # * +traces+ - An array with X-Trace strings returned from the requests
+      #
+      def log_multi_exit(layer, traces)
+        return unless TraceView.loaded
+
+        #TODO check traces against context
+
+        task_id = TraceView::XTrace.task_id(TraceView::Context.toString)
+        event = TraceView::Context.createEvent
+        traces.each do |trace|
+          event.addEdgeStr(trace) if TraceView::XTrace.task_id(trace) == task_id
+        end
+        log_event(layer, :exit, event)
       end
 
       ##
