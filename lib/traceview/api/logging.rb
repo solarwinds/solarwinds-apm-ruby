@@ -120,7 +120,7 @@ module TraceView
           opts[:SampleRate]        = TraceView.sample_rate
           opts[:SampleSource]      = TraceView.sample_source
           opts[:TraceOrigin]       = :always_sampled
-          
+
           if xtrace_v2?(xtrace)
             # continue valid incoming xtrace
             # use it for current context, ensuring sample bit is set
