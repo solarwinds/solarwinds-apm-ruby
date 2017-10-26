@@ -114,29 +114,39 @@ module TraceView
         # end
 
         if TraceView.sample?(opts.merge(:layer => layer, :xtrace => xtrace))
+          # Yes, we're sampling this request
           # Probablistic tracing of a subset of requests based off of
           # sample rate and sample source
           opts[:SampleRate]        = TraceView.sample_rate
           opts[:SampleSource]      = TraceView.sample_source
           opts[:TraceOrigin]       = :always_sampled
-
+          
           if xtrace_v2?(xtrace)
+            # continue valid incoming xtrace
+            # use it for current context, ensuring sample bit is set
             TraceView::XTrace.set_sampled(xtrace)
 
             md = TraceView::Metadata.fromString(xtrace)
             TraceView::Context.fromString(xtrace)
             log_event(layer, :entry, md.createEvent, opts)
           else
+            # discard invalid incoming xtrace
+            # create a new context, ensuring sample bit set
             md = TraceView::Metadata.makeRandom(true)
             TraceView::Context.set(md)
             log_event(layer, :entry, TraceView::Event.startTrace(md), opts)
           end
         else
-          # set the context but don't log the event (?)
+          # No, we're not sampling this request
+          # set the context but don't log the event
           if xtrace_v2?(xtrace)
+            # continue valid incoming xtrace
+            # use it for current context, ensuring sample bit is not set
             TraceView::XTrace.unset_sampled(xtrace)
             TraceView::Context.fromString(xtrace)
           else
+            # discard invalid incoming xtrace
+            # create a new context, ensuring sample bit not set
             md = TraceView::Metadata.makeRandom(false)
             TraceView::Context.fromString(md.toString)
           end
