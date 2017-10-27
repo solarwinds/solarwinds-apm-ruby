@@ -1,0 +1,43 @@
+source "https://rubygems.org"
+
+gem 'rails', '>= 5.1.0.rc1', '< 5.2'
+gem 'sass-rails'
+gem 'uglifier'
+gem 'coffee-rails'
+gem 'therubyracer', platforms: :ruby
+gem 'jquery-rails'
+gem 'turbolinks'
+gem 'jbuilder'
+
+group :development do
+  # Access an IRB console on exception pages or by using <%= console %> in views
+  gem 'web-console'
+  gem 'listen'
+  # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
+  gem 'spring'
+  gem 'spring-watcher-listen'
+end
+
+# Windows does not include zoneinfo files, so bundle the tzinfo-data gem
+gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+
+group :development, :test do
+  gem 'rake'
+  gem 'minitest'
+  gem 'minitest-reporters'
+  gem 'minitest-debugger', :require => false
+  gem 'rack-test'
+  gem 'puma'
+  gem 'bson'
+end
+
+if defined?(JRUBY_VERSION)
+  gem 'activerecord-jdbc-adapter'
+  gem 'jdbc-postgresql'
+else
+  gem 'pg'
+  gem 'mysql2'
+end
+
+gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')
+# vim:syntax=ruby

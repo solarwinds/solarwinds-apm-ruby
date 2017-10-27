@@ -9,7 +9,6 @@ rvm:
   - 2.4.1
   - 2.3.1
   - 1.9.3
-#  - 1.8.7
 #  - jruby-9.0.5.0
 
 gemfile:
@@ -19,6 +18,7 @@ gemfile:
   - gemfiles/rails32.gemfile
   - gemfiles/rails42.gemfile
   - gemfiles/rails50.gemfile
+  - gemfiles/rails51.gemfile
   - gemfiles/delayed_job.gemfile
 
 matrix:
@@ -27,24 +27,15 @@ matrix:
     - rvm: 2.4.1
       gemfile: gemfiles/rails32.gemfile
 
-    # Rails 4.0+ requires Ruby 1.9.3 or higher
-#    - rvm: 1.8.7
-#      gemfile: gemfiles/rails42.gemfile
-
-    # Rails 5.0+ requires Ruby 2.2.2 or higher
-#    - rvm: 1.8.7
-#      gemfile: gemfiles/rails50.gemfile
-
     - rvm: 1.9.3
       gemfile: gemfiles/rails50.gemfile
 
-    # WebMock requires Ruby 2.0 or higher
+    - rvm: 1.9.3
+      gemfile: gemfiles/rails51.gemfile
+
+     # WebMock requires Ruby 2.0 or higher
     - rvm: 1.9.3
       gemfile: gemfiles/instrumentation_mocked.gemfile
-
-    # Don't test DelayedJob under MRI 1.8 and JRuby
-#    - rvm: 1.8.7
-#      gemfile: gemfiles/delayed_job.gemfile
 
 #    - rvm: jruby-9.0.5.0
 #      gemfile: gemfiles/delayed_job.gemfile
@@ -52,10 +43,6 @@ matrix:
     # Skip testing on JRuby until activerecord-jdbc supports Rails 5.0
 #    - rvm: jruby-9.0.5.0
 #      gemfile: gemfiles/rails50.gemfile
-
-    # Other frameworks tested on Ruby 1.9.3 or higher
-#    - rvm: 1.8.7
-#      gemfile: gemfiles/frameworks.gemfile
 
 # Attempt Travis/Cassandra fix re: https://github.com/travis-ci/travis-ci/issues/1484
 # Updated Cassandra: https://github.com/travis-ci/travis-ci/issues/1650
