@@ -5,8 +5,6 @@
 # test output is logged to log/test_runs.log
 # make sure log/ and log/test_runs.log is writeable by docker
 
-# TODO add cli-options for build, up, and down
-
 # `docker build -f Dockerfile -t ruby_appoptics .`
 # (docker-compose will build it too if missing)
 #
