@@ -160,13 +160,19 @@ unless defined?(JRUBY_VERSION)
       Thread.pass until conn.finished?
 
       traces = get_all_traces
+
+      # TODO: remove once this test passes consistently
+      TraceView.logger.debug "#{print_traces traces, ['Async']}"
+
       assert_equal traces.count, 7
       assert valid_edges?(traces), "Invalid edge in traces"
 
-      # FIXME: validate_outer_layers assumes that the traces
-      # are ordered which in the case of async, they aren't
-      # validate_outer_layers(traces, "httpclient_tests")
+      # In the case of async the layers are not always ordered the same
+      # validate_outer_layers is not applicable, so we make sure we get the pair for 'httpclient_tests'
 
+      assert_equal 2, traces.select { |trace| trace['Layer'] == 'httpclient_tests' }.size
+
+      # FIXME: fails randomly, another ordering problem?
       assert_equal 1, traces[2]['Async']
       assert_equal 1, traces[2]['IsService']
       assert_equal 'http://127.0.0.1:8101/?blah=1', traces[2]['RemoteURL']

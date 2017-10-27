@@ -11,8 +11,8 @@ end
 # https://github.com/cassandra-rb/cassandra
 
 # exclude cassandra tests for now
-# TODO: they need refactoring to use the 'cassandra-driver' gem
-# instead of the 'cassandra' gem, which hasn't had a commit since 09/2014
+# TODO: they need refactoring to use the 'cassandra-driver' gem instead of the 'cassandra' gem,
+# ____  which hasn't had a commit since 09/2014
 
 if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
   describe "Cassandra" do

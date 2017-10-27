@@ -227,9 +227,7 @@ describe "Typhoeus" do
     traces = get_all_traces
     traces.count.must_equal 13
 
-    # FIXME: Until we support async tracing for Typhoeus, this won't
-    # work.
-    # valid_edges?(traces).must_equal true
+    valid_edges?(traces).must_equal true
     validate_outer_layers(traces, 'typhoeus_test')
 
     traces[1]['Layer'].must_equal 'typhoeus_hydra'

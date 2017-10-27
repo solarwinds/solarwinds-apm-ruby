@@ -74,14 +74,13 @@ if RUBY_VERSION >= '1.9.3'
     end
 
     it 'should trace command' do
-      # TODO: This randomly fails for a yet unknown reason.
-      skip
+      # TODO: This randomly fails for a yet unknown reason. Does it?
+      # skip
       TraceView::API.start_trace('moped_test', '', {}) do
         command = {}
         command[:mapreduce] = "users"
         command[:map] = "function() { emit(this.name, 1); }"
-        command[:reduce] = "function(k, vals) { var sum = 0;" +
-          " for(var i in vals) sum += vals[i]; return sum; }"
+        command[:reduce] = "function(k, vals) { var sum = 0; for(var i in vals) sum += vals[i]; return sum; }"
         command[:out] = "inline: 1"
         @session.command(command)
       end

@@ -69,26 +69,18 @@ if RUBY_VERSION >= '2.0.0'
       response.headers.key?(:x_trace).wont_equal nil
       xtrace = response.headers[:x_trace]
 
-      # FIXME: Under JRuby works in live stacks but broken in tests.
-      # Need to investigate
-      unless defined?(JRUBY_VERSION)
-        TraceView::XTrace.valid?(xtrace).must_equal true
-      end
+      TraceView::XTrace.valid?(xtrace).must_equal true
     end
 
     it 'should trace a raw GET request' do
-      response = nil
-
       TraceView::API.start_trace('rest_client_test') do
-        response = RestClient.get 'http://127.0.0.1:8101/?a=1'
+        RestClient.get 'http://127.0.0.1:8101/?a=1'
       end
 
       traces = get_all_traces
       traces.count.must_equal 10
 
-      # FIXME: We need to switch from making external calls to an internal test
-      # stack instead so we can validate cross-app traces.
-      # valid_edges?(traces).must_equal true
+      valid_edges?(traces).must_equal true
       validate_outer_layers(traces, 'rest_client_test')
 
       traces[1]['Layer'].must_equal 'rest-client'
@@ -115,10 +107,8 @@ if RUBY_VERSION >= '2.0.0'
     end
 
     it 'should trace a raw POST request' do
-      response = nil
-
       TraceView::API.start_trace('rest_client_test') do
-        response = RestClient.post 'http://127.0.0.1:8101/', :param1 => 'one', :nested => { :param2 => 'two' }
+        RestClient.post 'http://127.0.0.1:8101/', :param1 => 'one', :nested => { :param2 => 'two' }
       end
 
       traces = get_all_traces
@@ -151,11 +141,9 @@ if RUBY_VERSION >= '2.0.0'
     end
 
     it 'should trace a ActiveResource style GET request' do
-      response = nil
-
       TraceView::API.start_trace('rest_client_test') do
         resource = RestClient::Resource.new 'http://127.0.0.1:8101/?a=1'
-        response = resource.get
+        resource.get
       end
 
       traces = get_all_traces

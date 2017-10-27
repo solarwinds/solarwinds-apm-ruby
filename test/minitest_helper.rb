@@ -28,15 +28,12 @@ ENV['TRACEVIEW_GEM_TEST'] = 'true'
 #
 # ENV['TRACEVIEW_GEM_VERBOSE'] = 'true'
 
-# FIXME: Temp hack to fix padrino-core calling RUBY_ENGINE when it's
-# not defined under Ruby 1.8.7 and 1.9.3
+# FIXME: Temp hack to fix padrino-core calling RUBY_ENGINE when it's not defined under Ruby 1.9.3
 RUBY_ENGINE = 'ruby' unless defined?(RUBY_ENGINE)
 
 Minitest::Spec.new 'pry'
 
-unless RUBY_VERSION =~ /^1.8/
-  MiniTest::Reporters.use! MiniTest::Reporters::SpecReporter.new
-end
+MiniTest::Reporters.use! MiniTest::Reporters::SpecReporter.new
 
 if defined?(JRUBY_VERSION)
   ENV['JAVA_OPTS'] = "-J-javaagent:/usr/local/tracelytics/tracelyticsagent.jar"
@@ -221,7 +218,7 @@ def sampled?(xtrace)
   xtrace[59].to_i & 1 == 1
 end
 
-def print_traces(traces)
+def print_traces(traces, more_keys = [])
   indent = ''
   traces.each do |trace|
     indent += '  ' if trace["Label"] == "entry"
@@ -229,6 +226,8 @@ def print_traces(traces)
     puts "#{indent}X-Trace: #{trace["X-Trace"]}"
     puts "#{indent}Label:   #{trace["Label"]}"
     puts "#{indent}Layer:   #{trace["Layer"]}"
+
+    more_keys.each { |key| puts "#{indent}#{key}:   #{trace[key]}"}
 
     indent = indent[0...-2] if trace["Label"] == "exit"
   end
