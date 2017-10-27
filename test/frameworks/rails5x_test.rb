@@ -315,38 +315,6 @@ if defined?(::Rails)
       r.header['X-Trace'].must_equal traces[6]['X-Trace']
     end
 
-    it "should NOT trace when tracing is set to :never" do
-      TraceView.config_lock.synchronize do
-        TraceView::Config[:tracing_mode] = :never
-        uri = URI.parse('http://127.0.0.1:8140/hello/world')
-        r = Net::HTTP.get_response(uri)
-
-        traces = get_all_traces
-        traces.count.must_equal 0
-      end
-    end
-
-    it "should NOT trace when sample_rate is 0" do
-      TraceView.config_lock.synchronize do
-        TraceView::Config[:sample_rate] = 0
-        uri = URI.parse('http://127.0.0.1:8140/hello/world')
-        r = Net::HTTP.get_response(uri)
-
-        traces = get_all_traces
-        traces.count.must_equal 0
-      end
-    end
-
-    it "should NOT trace when there is no context" do
-      response_headers = HelloController.action("world").call(
-          "REQUEST_METHOD" => "GET",
-          "rack.input" => -> {}
-      )[1]
-
-      response_headers['X-Trace'].must_be_nil
-
-      traces = get_all_traces
-      traces.count.must_equal 0
-    end
+    require_relative "rails_shared_tests"
   end
 end
