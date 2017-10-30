@@ -111,12 +111,7 @@ module TraceView
 
           status, headers, response = @app.call(env)
 
-          # Let's make sure we don't send nil as TransactionName, not sure what would show on the frontend
-          if env['traceview.transaction']
-            xtrace = TraceView::API.log_end(:rack, :Status => status, 'TransactionName' => env['traceview.transaction'])
-          else
-            xtrace = TraceView::API.log_end(:rack, :Status => status)
-          end
+          xtrace = TraceView::API.log_end(:rack, :Status => status, 'TransactionName' => env['traceview.transaction'])
         else
           status, headers, response = @app.call(env)
         end
