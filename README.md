@@ -30,6 +30,21 @@ or added to _the end_ of your bundle Gemfile and running `bundle install`:
 gem 'traceview'
 ```
 
+## if you're dogfooding:
+Get the gem
+```
+source 'https://73bf9c35xxxxxxxxxxb4d26c3:@packagecloud.io/librato/apm-instrumentation/' do
+  gem 'traceview', '>= 4.0.0'
+end
+```
+Set the env to report to staging (your_app_name can be any string, it is only used as name in the services list):
+```
+unset APPOPTICS_TRUSTEDPATH
+export APPOPTICS_COLLECTOR=collector-stg.appoptics.com
+export APPOPTICS_SERVICE_KEY=795fb4947d15275d208c49cfd2412d4a5bf38742045b47236c94c4fe5f5b17c7:<your_app_name>
+```
+If you're reporting to production, only set `APPOPTICS_SERVICE_KEY`
+
 # Running
 
 ## Rails
