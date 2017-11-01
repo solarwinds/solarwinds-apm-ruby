@@ -64,7 +64,8 @@ module TraceView
       start = Time.now
       status = 500
       req = ::Rack::Request.new(env)
-      env['traceview.transaction'] = req.path
+
+      env['traceview.transaction'] = req.url
 
       # In the case of nested Ruby apps such as Grape inside of Rails
       # or Grape inside of Grape, each app has it's own instance

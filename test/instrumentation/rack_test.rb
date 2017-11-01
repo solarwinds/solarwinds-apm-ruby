@@ -5,6 +5,7 @@ require 'minitest_helper'
 require 'rack/test'
 require 'rack/lobster'
 require 'traceview/inst/rack'
+require 'mocha/mini_test'
 
 class RackTestApp < Minitest::Test
   include Rack::Test::Methods
@@ -134,6 +135,26 @@ class RackTestApp < Minitest::Test
 
     assert last_response['X-Trace'], "X-Trace header is missing"
     assert not_sampled?(last_response['X-Trace']), "X-Trace sampling flag is not '00'"
+  end
+
+  def test_sends_url_when_no_controller
+    test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
+
+    TraceView::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+      test_action = action
+      test_url = url
+      test_status = status
+      test_method = method
+      test_error = error
+    end.once
+
+    get "/no/controller/here"
+
+    assert_equal "http://example.org/no/controller/here", test_action
+    assert_equal "http://example.org", test_url
+    assert_equal 404, test_status
+    assert_equal "GET", test_method
+    assert_equal 0, test_error
   end
 end
 
