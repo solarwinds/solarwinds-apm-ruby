@@ -65,7 +65,7 @@ module TraceView
       status = 500
       req = ::Rack::Request.new(env)
 
-      env['traceview.transaction'] = req.url
+      env['traceview.transaction'] = req.path
 
       # In the case of nested Ruby apps such as Grape inside of Rails
       # or Grape inside of Grape, each app has it's own instance
@@ -89,7 +89,7 @@ module TraceView
 
         # Check for and validate X-Trace request header to pick up tracing context
         xtrace = env.is_a?(Hash) ? env['HTTP_X_TRACE'] : nil
-        xtrace_header = xtrace if xtrace && TraceView::XTrace.valid?(xtrace)
+        xtrace_header = xtrace && TraceView::XTrace.valid?(xtrace) ? xtrace : nil
 
         # Under JRuby, JTraceView may have already started a trace.  Make note of this
         # if so and don't clear context on log_end (see traceview/api/logging.rb)

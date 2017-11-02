@@ -32,6 +32,22 @@ class SinatraSimple < Sinatra::Base
     render :erb, "This is an erb render"
   end
 
+  get "/render/:id" do
+    render :erb, "The id is #{ params['id'] }"
+  end
+
+  get "/render/:id/what" do |id|
+    render :erb, "WOOT! The id is #{id} }"
+  end
+
+  get '/say/*/to/*' do
+    render :erb, "#{params['splat'][0]} #{params['splat'][1]}"
+  end
+
+  get /\/hello\/([\w]+)/ do
+    render :erb, "Hello, #{params['captures'].first}!"
+  end
+
   get "/break" do
     raise "This is a controller exception!"
   end

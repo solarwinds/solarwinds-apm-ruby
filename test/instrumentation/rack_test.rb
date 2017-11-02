@@ -137,7 +137,7 @@ class RackTestApp < Minitest::Test
     assert not_sampled?(last_response['X-Trace']), "X-Trace sampling flag is not '00'"
   end
 
-  def test_sends_url_when_no_controller
+  def test_sends_path_in_http_span_when_no_controller
     test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
 
     TraceView::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
@@ -150,7 +150,7 @@ class RackTestApp < Minitest::Test
 
     get "/no/controller/here"
 
-    assert_equal "http://example.org/no/controller/here", test_action
+    assert_equal "/no/controller/here", test_action
     assert_equal "http://example.org", test_url
     assert_equal 404, test_status
     assert_equal "GET", test_method
