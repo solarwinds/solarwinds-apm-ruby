@@ -133,7 +133,10 @@ module TraceView
     ensure
       error = status.between?(500,599) ? 1 : 0
       duration =(1000 * 1000 * (Time.now - start)).round(0)
-      TraceView::Span.createHttpSpan(env['traceview.transaction'], req.base_url, duration, status, req.request_method, error)
+
+      unless ::TraceView::Util.static_asset?(env['PATH_INFO'])
+        TraceView::Span.createHttpSpan(env['traceview.transaction'], req.base_url, duration, status, req.request_method, error)
+      end
     end
   end
 end

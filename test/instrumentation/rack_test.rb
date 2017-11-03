@@ -156,5 +156,11 @@ class RackTestApp < Minitest::Test
     assert_equal "GET", test_method
     assert_equal 0, test_error
   end
+
+  def test_does_not_send_http_span_for_static_assets
+    TraceView::Span.expects(:createHttpSpan).never
+
+    get "/assets/static_asset.png"
+  end
 end
 
