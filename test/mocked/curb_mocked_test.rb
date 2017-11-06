@@ -13,17 +13,17 @@ if !defined?(JRUBY_VERSION)
     def setup
       WebMock.enable!
       WebMock.disable_net_connect!
-      TraceView.config_lock.synchronize {
-        @tm = TraceView::Config[:tracing_mode]
-        @sample_rate = TraceView::Config[:sample_rate]
+      AppOptics.config_lock.synchronize {
+        @tm = AppOptics::Config[:tracing_mode]
+        @sample_rate = AppOptics::Config[:sample_rate]
       }
     end
 
     def teardown
-      TraceView.config_lock.synchronize {
-        TraceView::Config[:tracing_mode] = @tm
-        TraceView::Config[:blacklist] = []
-        TraceView::Config[:sample_rate] = @sample_rate
+      AppOptics.config_lock.synchronize {
+        AppOptics::Config[:tracing_mode] = @tm
+        AppOptics::Config[:blacklist] = []
+        AppOptics::Config[:sample_rate] = @sample_rate
       }
       WebMock.reset!
       WebMock.allow_net_connect!
@@ -33,7 +33,7 @@ if !defined?(JRUBY_VERSION)
     def test_xtrace_tracing
       stub_request(:get, "http://127.0.0.9:8101/").to_return(status: 200, body: "", headers: {})
 
-      TraceView::API.start_trace('curb_tests') do
+      AppOptics::API.start_trace('curb_tests') do
         ::Curl.get("http://127.0.0.9:8101/")
       end
 
@@ -44,9 +44,9 @@ if !defined?(JRUBY_VERSION)
     def test_xtrace_sample_rate_0
       stub_request(:get, "http://127.0.0.4:8101/").to_return(status: 200, body: "", headers: {})
 
-      TraceView.config_lock.synchronize do
-        TraceView::Config[:sample_rate] = 0
-        TraceView::API.start_trace('curb_tests') do
+      AppOptics.config_lock.synchronize do
+        AppOptics::Config[:sample_rate] = 0
+        AppOptics::API.start_trace('curb_tests') do
           ::Curl.get("http://127.0.0.4:8101/")
         end
       end
@@ -68,9 +68,9 @@ if !defined?(JRUBY_VERSION)
     def test_blacklisted
       stub_request(:get, "http://127.0.0.2:8101/").to_return(status: 200, body: "", headers: {})
 
-      TraceView.config_lock.synchronize do
-        TraceView::Config.blacklist << '127.0.0.2'
-        TraceView::API.start_trace('curb_test') do
+      AppOptics.config_lock.synchronize do
+        AppOptics::Config.blacklist << '127.0.0.2'
+        AppOptics::API.start_trace('curb_test') do
           ::Curl.get("http://127.0.0.2:8101/")
         end
       end
@@ -82,7 +82,7 @@ if !defined?(JRUBY_VERSION)
     def test_multi_get_no_trace
       WebMock.disable!
 
-      Curl::Multi.expects(:http_without_traceview).with do |url_confs, _multi_options|
+      Curl::Multi.expects(:http_without_appoptics).with do |url_confs, _multi_options|
         assert_equal 3, url_confs.size
         url_confs.each do |conf|
           refute conf[:headers] && conf[:headers]['X-Trace']
@@ -104,7 +104,7 @@ if !defined?(JRUBY_VERSION)
     def test_multi_get_tracing
       WebMock.disable!
 
-      Curl::Multi.expects(:http_without_traceview).with do |url_confs, _multi_options|
+      Curl::Multi.expects(:http_without_appoptics).with do |url_confs, _multi_options|
         assert_equal 3, url_confs.size
         url_confs.each do |conf|
           headers = conf[:headers] || {}
@@ -122,7 +122,7 @@ if !defined?(JRUBY_VERSION)
       urls << "http://127.0.0.7:8101/?two=2"
       urls << "http://127.0.0.7:8101/?three=3"
 
-      TraceView::API.start_trace('curb_tests') do
+      AppOptics::API.start_trace('curb_tests') do
         Curl::Multi.get(urls, easy_options, multi_options)
       end
     end
@@ -130,7 +130,7 @@ if !defined?(JRUBY_VERSION)
     def test_multi_get_tracing_not_sampling
       WebMock.disable!
 
-      Curl::Multi.expects(:http_without_traceview).with do |url_confs, _multi_options|
+      Curl::Multi.expects(:http_without_appoptics).with do |url_confs, _multi_options|
         assert_equal 3, url_confs.size
         url_confs.each do |conf|
           headers = conf[:headers] || {}
@@ -148,9 +148,9 @@ if !defined?(JRUBY_VERSION)
       urls << "http://127.0.0.7:8101/?two=2"
       urls << "http://127.0.0.7:8101/?three=3"
 
-      TraceView.config_lock.synchronize do
-        TraceView::Config[:sample_rate] = 0
-        TraceView::API.start_trace('curb_tests') do
+      AppOptics.config_lock.synchronize do
+        AppOptics::Config[:sample_rate] = 0
+        AppOptics::API.start_trace('curb_tests') do
           Curl::Multi.get(urls, easy_options, multi_options)
         end
       end
@@ -187,7 +187,7 @@ if !defined?(JRUBY_VERSION)
       urls << "http://127.0.0.1:8101/?two=2"
       urls << "http://127.0.0.1:8101/?three=3"
 
-      TraceView::API.start_trace('curb_tests') do
+      AppOptics::API.start_trace('curb_tests') do
         m = Curl::Multi.new
         urls.each do |url|
           cu = Curl::Easy.new(url) do |curl|
@@ -213,9 +213,9 @@ if !defined?(JRUBY_VERSION)
       urls << "http://127.0.0.1:8101/?two=2"
       urls << "http://127.0.0.1:8101/?three=3"
 
-      TraceView.config_lock.synchronize do
-        TraceView::Config[:sample_rate] = 0
-        TraceView::API.start_trace('curb_tests') do
+      AppOptics.config_lock.synchronize do
+        AppOptics::Config[:sample_rate] = 0
+        AppOptics::API.start_trace('curb_tests') do
           m = Curl::Multi.new
           urls.each do |url|
             cu = Curl::Easy.new(url) do |curl|

@@ -7,27 +7,27 @@ require 'rack'
 describe "Typhoeus" do
   before do
     clear_all_traces
-    @collect_backtraces = TraceView::Config[:typhoeus][:collect_backtraces]
-    @log_args = TraceView::Config[:typhoeus][:log_args]
+    @collect_backtraces = AppOptics::Config[:typhoeus][:collect_backtraces]
+    @log_args = AppOptics::Config[:typhoeus][:log_args]
   end
 
   after do
-    TraceView::Config[:typhoeus][:collect_backtraces] = @collect_backtraces
-    TraceView::Config[:typhoeus][:log_args] = @log_args
+    AppOptics::Config[:typhoeus][:collect_backtraces] = @collect_backtraces
+    AppOptics::Config[:typhoeus][:log_args] = @log_args
   end
 
   it 'Typhoeus should be defined and ready' do
     defined?(::Typhoeus::Request::Operations).wont_match nil
   end
 
-  it 'Typhoeus should have traceview methods defined' do
-    [ :run_with_traceview ].each do |m|
+  it 'Typhoeus should have appoptics methods defined' do
+    [ :run_with_appoptics ].each do |m|
       ::Typhoeus::Request::Operations.method_defined?(m).must_equal true
     end
   end
 
   it 'should trace a typhoeus request' do
-    TraceView::API.start_trace('typhoeus_test') do
+    AppOptics::API.start_trace('typhoeus_test') do
       Typhoeus.get("http://127.0.0.1:8101/")
     end
 
@@ -38,7 +38,7 @@ describe "Typhoeus" do
     validate_outer_layers(traces, 'typhoeus_test')
 
     traces[1]['Layer'].must_equal 'typhoeus'
-    traces[1].key?('Backtrace').must_equal TraceView::Config[:typhoeus][:collect_backtraces]
+    traces[1].key?('Backtrace').must_equal AppOptics::Config[:typhoeus][:collect_backtraces]
 
     traces[5]['Layer'].must_equal 'typhoeus'
     traces[5]['Label'].must_equal 'info'
@@ -52,9 +52,9 @@ describe "Typhoeus" do
   end
 
   it 'should trace a typhoeus POST request' do
-    TraceView::API.start_trace('typhoeus_test') do
+    AppOptics::API.start_trace('typhoeus_test') do
       Typhoeus.post("127.0.0.1:8101/",
-                    :body => { :key => "traceview-ruby-fake", :content => "traceview-ruby repo test suite"})
+                    :body => { :key => "appoptics-ruby-fake", :content => "appoptics-ruby repo test suite"})
     end
 
     traces = get_all_traces
@@ -64,7 +64,7 @@ describe "Typhoeus" do
     validate_outer_layers(traces, 'typhoeus_test')
 
     traces[1]['Layer'].must_equal 'typhoeus'
-    traces[1].key?('Backtrace').must_equal TraceView::Config[:typhoeus][:collect_backtraces]
+    traces[1].key?('Backtrace').must_equal AppOptics::Config[:typhoeus][:collect_backtraces]
 
     traces[5]['Layer'].must_equal 'typhoeus'
     traces[5]['Label'].must_equal 'info'
@@ -78,9 +78,9 @@ describe "Typhoeus" do
   end
 
   it 'should trace a typhoeus PUT request' do
-    TraceView::API.start_trace('typhoeus_test') do
+    AppOptics::API.start_trace('typhoeus_test') do
       Typhoeus.put("http://127.0.0.1:8101/",
-                    :body => { :key => "traceview-ruby-fake", :content => "traceview-ruby repo test suite"})
+                    :body => { :key => "appoptics-ruby-fake", :content => "appoptics-ruby repo test suite"})
     end
 
     traces = get_all_traces
@@ -90,7 +90,7 @@ describe "Typhoeus" do
     validate_outer_layers(traces, 'typhoeus_test')
 
     traces[1]['Layer'].must_equal 'typhoeus'
-    traces[1].key?('Backtrace').must_equal TraceView::Config[:typhoeus][:collect_backtraces]
+    traces[1].key?('Backtrace').must_equal AppOptics::Config[:typhoeus][:collect_backtraces]
 
     traces[5]['Layer'].must_equal 'typhoeus'
     traces[5]['Label'].must_equal 'info'
@@ -104,7 +104,7 @@ describe "Typhoeus" do
   end
 
   it 'should trace a typhoeus DELETE request' do
-    TraceView::API.start_trace('typhoeus_test') do
+    AppOptics::API.start_trace('typhoeus_test') do
       Typhoeus.delete("http://127.0.0.1:8101/")
     end
 
@@ -115,7 +115,7 @@ describe "Typhoeus" do
     validate_outer_layers(traces, 'typhoeus_test')
 
     traces[1]['Layer'].must_equal 'typhoeus'
-    traces[1].key?('Backtrace').must_equal TraceView::Config[:typhoeus][:collect_backtraces]
+    traces[1].key?('Backtrace').must_equal AppOptics::Config[:typhoeus][:collect_backtraces]
 
     traces[5]['Layer'].must_equal 'typhoeus'
     traces[5]['Label'].must_equal 'info'
@@ -129,7 +129,7 @@ describe "Typhoeus" do
   end
 
   it 'should trace a typhoeus HEAD request' do
-    TraceView::API.start_trace('typhoeus_test') do
+    AppOptics::API.start_trace('typhoeus_test') do
       Typhoeus.head("http://127.0.0.1:8101/")
     end
 
@@ -140,7 +140,7 @@ describe "Typhoeus" do
     validate_outer_layers(traces, 'typhoeus_test')
 
     traces[1]['Layer'].must_equal 'typhoeus'
-    traces[1].key?('Backtrace').must_equal TraceView::Config[:typhoeus][:collect_backtraces]
+    traces[1].key?('Backtrace').must_equal AppOptics::Config[:typhoeus][:collect_backtraces]
 
     traces[5]['Layer'].must_equal 'typhoeus'
     traces[5]['Label'].must_equal 'info'
@@ -154,7 +154,7 @@ describe "Typhoeus" do
   end
 
   it 'should trace a typhoeus GET request to an instr\'d app' do
-    TraceView::API.start_trace('typhoeus_test') do
+    AppOptics::API.start_trace('typhoeus_test') do
       Typhoeus.get("127.0.0.1:8101/")
     end
 
@@ -165,7 +165,7 @@ describe "Typhoeus" do
     validate_outer_layers(traces, 'typhoeus_test')
 
     traces[1]['Layer'].must_equal 'typhoeus'
-    traces[1].key?('Backtrace').must_equal TraceView::Config[:typhoeus][:collect_backtraces]
+    traces[1].key?('Backtrace').must_equal AppOptics::Config[:typhoeus][:collect_backtraces]
 
     traces[5]['Layer'].must_equal 'typhoeus'
     traces[5]['Label'].must_equal 'info'
@@ -179,8 +179,8 @@ describe "Typhoeus" do
   end
 
   it 'should trace a typhoeus GET request with DNS error' do
-    TraceView::API.start_trace('typhoeus_test') do
-      Typhoeus.get("thisdomaindoesntexisthopefully.asdf/products/traceview/")
+    AppOptics::API.start_trace('typhoeus_test') do
+      Typhoeus.get("thisdomaindoesntexisthopefully.asdf/products/appoptics/")
     end
 
     traces = get_all_traces
@@ -190,7 +190,7 @@ describe "Typhoeus" do
     validate_outer_layers(traces, 'typhoeus_test')
 
     traces[1]['Layer'].must_equal 'typhoeus'
-    traces[1].key?('Backtrace').must_equal TraceView::Config[:typhoeus][:collect_backtraces]
+    traces[1].key?('Backtrace').must_equal AppOptics::Config[:typhoeus][:collect_backtraces]
 
     traces[2]['Layer'].must_equal 'typhoeus'
     traces[2]['Label'].must_equal 'error'
@@ -198,7 +198,7 @@ describe "Typhoeus" do
     traces[3]['Layer'].must_equal 'typhoeus'
     traces[3]['Label'].must_equal 'info'
     traces[3]['IsService'].must_equal 1
-    traces[3]['RemoteURL'].casecmp('http://thisdomaindoesntexisthopefully.asdf/products/traceview/').must_equal 0
+    traces[3]['RemoteURL'].casecmp('http://thisdomaindoesntexisthopefully.asdf/products/appoptics/').must_equal 0
     traces[3]['HTTPMethod'].must_equal 'GET'
     traces[3]['HTTPStatus'].must_equal 0
 
@@ -210,10 +210,10 @@ describe "Typhoeus" do
   end
 
   it 'should trace parallel typhoeus requests' do
-    TraceView::API.start_trace('typhoeus_test') do
+    AppOptics::API.start_trace('typhoeus_test') do
       hydra = Typhoeus::Hydra.hydra
 
-      first_request  = Typhoeus::Request.new("127.0.0.1:8101/products/traceview/")
+      first_request  = Typhoeus::Request.new("127.0.0.1:8101/products/appoptics/")
       second_request = Typhoeus::Request.new("127.0.0.1:8101/products/")
       third_request  = Typhoeus::Request.new("127.0.0.1:8101/")
 
@@ -238,9 +238,9 @@ describe "Typhoeus" do
   end
 
   it 'should obey :log_args setting when true' do
-    TraceView::Config[:typhoeus][:log_args] = true
+    AppOptics::Config[:typhoeus][:log_args] = true
 
-    TraceView::API.start_trace('typhoeus_test') do
+    AppOptics::API.start_trace('typhoeus_test') do
       Typhoeus.get("127.0.0.1:8101/?blah=1")
     end
 
@@ -249,9 +249,9 @@ describe "Typhoeus" do
   end
 
   it 'should obey :log_args setting when false' do
-    TraceView::Config[:typhoeus][:log_args] = false
+    AppOptics::Config[:typhoeus][:log_args] = false
 
-    TraceView::API.start_trace('typhoeus_test') do
+    AppOptics::API.start_trace('typhoeus_test') do
       Typhoeus.get("127.0.0.1:8101/?blah=1")
     end
 
@@ -260,9 +260,9 @@ describe "Typhoeus" do
   end
 
   it 'should obey :collect_backtraces setting when true' do
-    TraceView::Config[:typhoeus][:collect_backtraces] = true
+    AppOptics::Config[:typhoeus][:collect_backtraces] = true
 
-    TraceView::API.start_trace('typhoeus_test') do
+    AppOptics::API.start_trace('typhoeus_test') do
       Typhoeus.get("127.0.0.1:8101/?blah=1")
     end
 
@@ -271,9 +271,9 @@ describe "Typhoeus" do
   end
 
   it 'should obey :collect_backtraces setting when false' do
-    TraceView::Config[:typhoeus][:collect_backtraces] = false
+    AppOptics::Config[:typhoeus][:collect_backtraces] = false
 
-    TraceView::API.start_trace('typhoeus_test') do
+    AppOptics::API.start_trace('typhoeus_test') do
       Typhoeus.get("127.0.0.1:8101/")
     end
 

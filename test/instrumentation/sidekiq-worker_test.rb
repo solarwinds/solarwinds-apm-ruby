@@ -11,17 +11,17 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
   class SidekiqWorkerTest < Minitest::Test
     def setup
       clear_all_traces
-      @collect_backtraces = TraceView::Config[:sidekiqworker][:collect_backtraces]
-      @log_args = TraceView::Config[:sidekiqworker][:log_args]
+      @collect_backtraces = AppOptics::Config[:sidekiqworker][:collect_backtraces]
+      @log_args = AppOptics::Config[:sidekiqworker][:log_args]
     end
 
     def teardown
-      TraceView::Config[:sidekiqworker][:collect_backtraces] = @collect_backtraces
-      TraceView::Config[:sidekiqworker][:log_args] = @log_args
+      AppOptics::Config[:sidekiqworker][:collect_backtraces] = @collect_backtraces
+      AppOptics::Config[:sidekiqworker][:log_args] = @log_args
     end
 
     def test_reports_version_init
-      init_kvs = ::TraceView::Util.build_init_report
+      init_kvs = ::AppOptics::Util.build_init_report
       assert init_kvs.key?('Ruby.sidekiq.Version')
       assert_equal ::Sidekiq::VERSION, init_kvs['Ruby.sidekiq.Version']
     end
@@ -99,15 +99,15 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
     end
 
     def test_collect_backtraces_default_value
-      assert_equal TV::Config[:sidekiqworker][:collect_backtraces], false, "default backtrace collection"
+      assert_equal AppOptics::Config[:sidekiqworker][:collect_backtraces], false, "default backtrace collection"
     end
 
     def test_log_args_default_value
-      assert_equal TV::Config[:sidekiqworker][:log_args], true, "log_args default "
+      assert_equal AppOptics::Config[:sidekiqworker][:log_args], true, "log_args default "
     end
 
     def test_obey_collect_backtraces_when_false
-      TraceView::Config[:sidekiqworker][:collect_backtraces] = false
+      AppOptics::Config[:sidekiqworker][:collect_backtraces] = false
 
       # Queue up a job to be run
       Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
@@ -127,7 +127,7 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
       # sidekiq in a different process)
       skip
 
-      TraceView::Config[:sidekiqworker][:collect_backtraces] = true
+      AppOptics::Config[:sidekiqworker][:collect_backtraces] = true
 
       # Queue up a job to be run
       Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
@@ -147,7 +147,7 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
       # sidekiq in a different process)
       skip
 
-      TraceView::Config[:sidekiqworker][:log_args] = false
+      AppOptics::Config[:sidekiqworker][:log_args] = false
 
       # Queue up a job to be run
       Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
@@ -162,7 +162,7 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
     end
 
     def test_obey_log_args_when_true
-      TraceView::Config[:sidekiqworker][:log_args] = true
+      AppOptics::Config[:sidekiqworker][:log_args] = true
 
       # Queue up a job to be run
       Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)

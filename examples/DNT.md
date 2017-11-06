@@ -1,9 +1,9 @@
-By default, the TraceView oboe gem will not trace routes with extensions
+By default, the AppOptics oboe gem will not trace routes with extensions
 for common static files.  Examples of such files may be images,
 javascript, pdfs and text files.
 
 This is done by using the regular expression stored in
-`TraceView::Config[:dnt_regexp]`:
+`AppOptics::Config[:dnt_regexp]`:
 
     .(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|ttf|woff|svg|less)$
 
@@ -14,7 +14,7 @@ To replace the pattern in use, you can update this regular expression
 string.  Here are some examples.
 
 If you prefer that you want your javascript and CSS files instrumented,
-you can update `TraceView::Config[:dnt_regexp]` with an updated regexp
+you can update `AppOptics::Config[:dnt_regexp]` with an updated regexp
 pattern (without the "js" and "css" entries):
 
     .(jpg|jpeg|gif|png|ico|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|flv|swf|ttf|woff|svg|less)$
@@ -26,10 +26,10 @@ regexp [negative
 look-behind](http://www.regular-expressions.info/lookaround.html) that
 isn't supported in Ruby 1.8):
 
-    TraceView::Config[:dnt_regexp] = "(\.js$)(?<!show.js)"
+    AppOptics::Config[:dnt_regexp] = "(\.js$)(?<!show.js)"
 
 Since this pattern is used with the standard Ruby Regexp class, you can
 use any Regexp supported pattern.  See the documentation on Ruby Regexp
 [here](https://www.omniref.com/ruby/2.2.0/symbols/Regexp?d=380181456&n=0#doc_uncollapsed=true&d=380181456&n=0)
 or you can also view the oboe gem [source code documentation for this
-feature](https://github.com/tracelytics/ruby-traceview/blob/master/lib/traceview/config.rb#L129).
+feature](https://github.com/tracelytics/ruby-appoptics/blob/master/lib/appoptics/config.rb#L129).

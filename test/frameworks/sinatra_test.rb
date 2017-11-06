@@ -42,7 +42,7 @@ describe Sinatra do
   it "should report the route with :id" do
     @app = SinatraSimple
     test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-    TraceView::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+    AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
       test_action = action
       test_url = url
       test_status = status
@@ -64,7 +64,7 @@ describe Sinatra do
   it "should report the route with :id and more" do
     @app = SinatraSimple
     test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-    TraceView::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+    AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
       test_action = action
       test_url = url
       test_status = status
@@ -87,7 +87,7 @@ describe Sinatra do
   it "should report the route with splats" do
     @app = SinatraSimple
     test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-    TraceView::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+    AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
       test_action = action
       test_url = url
       test_status = status
@@ -109,7 +109,7 @@ describe Sinatra do
   it "should report the route with regex" do
     @app = SinatraSimple
     test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-    TraceView::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+    AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
       test_action = action
       test_url = url
       test_status = status

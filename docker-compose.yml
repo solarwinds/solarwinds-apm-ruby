@@ -25,12 +25,12 @@ services:
      links:
        - wait
      environment:
-       - TV_RABBITMQ_SERVER=rabbitmq
+       - APPOPTICS_RABBITMQ_SERVER=rabbitmq
        - DOCKER_MYSQL_PASS=admin
        - MYSQL_ALLOW_EMPTY_PASSWORD=yes
        - MYSQL_ROOT_PASSWORD=admin
        - MYSQL_HOST=mysql
-       - TV_MONGO_SERVER=mongo
+       - APPOPTICS_MONGO_SERVER=mongo
 
   rabbitmq:
     container_name: rabbitmq

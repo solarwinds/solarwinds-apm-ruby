@@ -4,7 +4,7 @@
 if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
 
   require 'minitest_helper'
-  require 'traceview/inst/rack'
+  require 'appoptics/inst/rack'
   require File.expand_path(File.dirname(__FILE__) + '../../frameworks/apps/sinatra_simple')
 
   class CurbTest < Minitest::Test
@@ -12,18 +12,18 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
 
     def setup
       clear_all_traces
-      TraceView.config_lock.synchronize {
-        @cb = TraceView::Config[:curb][:collect_backtraces]
-        @log_args = TraceView::Config[:curb][:log_args]
-        @tm = TraceView::Config[:tracing_mode]
+      AppOptics.config_lock.synchronize {
+        @cb = AppOptics::Config[:curb][:collect_backtraces]
+        @log_args = AppOptics::Config[:curb][:log_args]
+        @tm = AppOptics::Config[:tracing_mode]
       }
     end
 
     def teardown
-      TraceView.config_lock.synchronize {
-        TraceView::Config[:curb][:collect_backtraces] = @cb
-        TraceView::Config[:curb][:log_args] = @log_args
-        TraceView::Config[:tracing_mode] = @tm
+      AppOptics.config_lock.synchronize {
+        AppOptics::Config[:curb][:collect_backtraces] = @cb
+        AppOptics::Config[:curb][:log_args] = @log_args
+        AppOptics::Config[:tracing_mode] = @tm
       }
     end
 
@@ -48,7 +48,7 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
     end
 
     def test_reports_version_init
-      init_kvs = ::TraceView::Util.build_init_report
+      init_kvs = ::AppOptics::Util.build_init_report
       assert init_kvs.key?('Ruby.curb.Version')
       assert_equal ::Curl::CURB_VERSION, init_kvs['Ruby.curb.Version']
     end
@@ -56,11 +56,11 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
     def test_class_get_request
       response = nil
 
-      TraceView::API.start_trace('curb_tests') do
+      AppOptics::API.start_trace('curb_tests') do
         response = Curl.get('http://127.0.0.1:8101/')
       end
 
-      assert response.body_str == "Hello TraceView!"
+      assert response.body_str == "Hello AppOptics!"
       assert response.response_code == 200
       assert response.header_str =~ /X-Trace/, "X-Trace response header"
 
@@ -70,11 +70,11 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
     def test_class_delete_request
       response = nil
 
-      TraceView::API.start_trace('curb_tests') do
+      AppOptics::API.start_trace('curb_tests') do
         response = Curl.delete('http://127.0.0.1:8101/?curb_delete_test', :id => 1)
       end
 
-      assert response.body_str == "Hello TraceView!"
+      assert response.body_str == "Hello AppOptics!"
       assert response.response_code == 200
       assert response.header_str =~ /X-Trace/, "X-Trace response header"
 
@@ -84,11 +84,11 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
     def test_class_post_request
       response = nil
 
-      TraceView::API.start_trace('curb_tests') do
+      AppOptics::API.start_trace('curb_tests') do
         response = Curl.post('http://127.0.0.1:8101/')
       end
 
-      assert response.body_str == "Hello TraceView!"
+      assert response.body_str == "Hello AppOptics!"
       assert response.response_code == 200
       assert response.header_str =~ /X-Trace/, "X-Trace response header"
 
@@ -98,12 +98,12 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
     def test_easy_class_perform
       response = nil
 
-      TraceView::API.start_trace('curb_tests') do
+      AppOptics::API.start_trace('curb_tests') do
         response = Curl::Easy.perform("http://127.0.0.1:8101/")
       end
 
       assert response.is_a?(::Curl::Easy)
-      assert response.body_str == "Hello TraceView!"
+      assert response.body_str == "Hello AppOptics!"
       assert response.response_code == 200
       assert response.header_str =~ /X-Trace/, "X-Trace response header"
 
@@ -113,7 +113,7 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
     def test_easy_http_head
       c = nil
 
-      TraceView::API.start_trace('curb_tests') do
+      AppOptics::API.start_trace('curb_tests') do
         c = Curl::Easy.new("http://127.0.0.1:8101/")
         c.http_head
       end
@@ -128,7 +128,7 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
     def test_easy_http_put
       c = nil
 
-      TraceView::API.start_trace('curb_tests') do
+      AppOptics::API.start_trace('curb_tests') do
         c = Curl::Easy.new("http://127.0.0.1:8101/")
         c.http_put(:id => 1)
       end
@@ -143,7 +143,7 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
     def test_easy_http_post
       c = nil
 
-      TraceView::API.start_trace('curb_tests') do
+      AppOptics::API.start_trace('curb_tests') do
         url = "http://127.0.0.1:8101/"
         c = Curl::Easy.new(url)
         c.http_post(url, :id => 1)
@@ -159,9 +159,9 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
     def test_class_fetch_with_block
       response = nil
 
-      TraceView::API.start_trace('curb_tests') do
+      AppOptics::API.start_trace('curb_tests') do
         response = Curl::Easy.perform("http://127.0.0.1:8101/") do |curl|
-          curl.headers["User-Agent"] = "TraceView 2000"
+          curl.headers["User-Agent"] = "AppOptics 2000"
         end
       end
 
@@ -186,7 +186,7 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
       urls << "http://127.0.0.1:8101/?two=2"
       urls << "http://127.0.0.1:8101/?three=3"
 
-      TraceView::API.start_trace('curb_tests') do
+      AppOptics::API.start_trace('curb_tests') do
         responses = Curl::Multi.get(urls, easy_options, multi_options) do |easy|
           nil
         end
@@ -211,7 +211,7 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
       urls << { :url => "http://127.0.0.1:8101/2", :post_fields => { :id => 2 } }
       urls << { :url => "http://127.0.0.1:8101/3", :post_fields => { :id => 3 } }
 
-      TraceView::API.start_trace('curb_tests') do
+      AppOptics::API.start_trace('curb_tests') do
         Curl::Multi.post(urls, easy_options, multi_options) do |easy|
           nil
         end
@@ -236,7 +236,7 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
       urls << "http://127.0.0.1:8101/?two=2"
       urls << "http://127.0.0.1:8101/?three=3"
 
-      TraceView::API.start_trace('curb_tests') do
+      AppOptics::API.start_trace('curb_tests') do
         Curl::Multi.get(urls, easy_options, multi_options) do |easy|
           nil
         end
@@ -260,7 +260,7 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
       urls << "http://127.0.0.1:8101/?two=2"
       urls << "http://127.0.0.1:8101/?three=3"
 
-      TraceView::API.start_trace('curb_tests') do
+      AppOptics::API.start_trace('curb_tests') do
         m = Curl::Multi.new
         urls.each do |url|
           responses[url] = ""
@@ -287,7 +287,7 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
 
     def test_requests_with_errors
       begin
-        TraceView::API.start_trace('curb_tests') do
+        AppOptics::API.start_trace('curb_tests') do
           Curl.get('http://asfjalkfjlajfljkaljf/')
         end
       rescue
@@ -317,10 +317,10 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
     def test_obey_log_args_when_false
       # When testing global config options, use the config_lock
       # semaphore to lock between other running tests.
-      TraceView.config_lock.synchronize {
-        TraceView::Config[:curb][:log_args] = false
+      AppOptics.config_lock.synchronize {
+        AppOptics::Config[:curb][:log_args] = false
 
-        TraceView::API.start_trace('curb_tests') do
+        AppOptics::API.start_trace('curb_tests') do
           Curl.get('http://127.0.0.1:8101/?blah=1')
         end
       }
@@ -333,10 +333,10 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
     def test_obey_log_args_when_true
       # When testing global config options, use the config_lock
       # semaphore to lock between other running tests.
-      TraceView.config_lock.synchronize {
-        TraceView::Config[:curb][:log_args] = true
+      AppOptics.config_lock.synchronize {
+        AppOptics::Config[:curb][:log_args] = true
 
-        TraceView::API.start_trace('curb_tests') do
+        AppOptics::API.start_trace('curb_tests') do
           Curl.get('http://127.0.0.1:8101/?blah=1')
         end
       }
@@ -350,7 +350,7 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
       response = ::Curl.get('http://127.0.0.1:8101/?blah=1')
 
       assert response.headers['X-Trace'] == nil
-      assert response.body_str == "Hello TraceView!"
+      assert response.body_str == "Hello AppOptics!"
       assert response.response_code == 200
     end
 
@@ -358,18 +358,18 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
       response = Curl::Easy.perform("http://127.0.0.1:8101/")
 
       assert response.headers['X-Trace'] == nil
-      assert response.body_str == "Hello TraceView!"
+      assert response.body_str == "Hello AppOptics!"
       assert response.response_code == 200
     end
 
     def test_obey_collect_backtraces_when_true
       # When testing global config options, use the config_lock
       # semaphore to lock between other running tests.
-      TraceView.config_lock.synchronize {
-        TraceView::Config[:curb][:collect_backtraces] = true
+      AppOptics.config_lock.synchronize {
+        AppOptics::Config[:curb][:collect_backtraces] = true
         sleep 1
 
-        TraceView::API.start_trace('curb_test') do
+        AppOptics::API.start_trace('curb_test') do
           Curl.get("http://127.0.0.1:8101/")
         end
       }
@@ -381,10 +381,10 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
     def test_obey_collect_backtraces_when_false
       # When testing global config options, use the config_lock
       # semaphore to lock between other running tests.
-      TraceView.config_lock.synchronize {
-        TraceView::Config[:curb][:collect_backtraces] = false
+      AppOptics.config_lock.synchronize {
+        AppOptics::Config[:curb][:collect_backtraces] = false
 
-        TraceView::API.start_trace('curb_test') do
+        AppOptics::API.start_trace('curb_test') do
           Curl.get("http://127.0.0.1:8101/")
         end
       }

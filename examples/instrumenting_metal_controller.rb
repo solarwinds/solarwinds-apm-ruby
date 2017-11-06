@@ -3,6 +3,6 @@ class MetalController < ActionController::Metal
     self.response_body = 'Hello Metal!'
   end
 
-  include TraceViewMethodProfiling
+  include AppOpticsMethodProfiling
   profile_method :index, 'metal-index'
 end

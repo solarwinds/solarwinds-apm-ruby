@@ -5,7 +5,7 @@ require 'fileutils'
 require 'open-uri'
 require 'bundler/setup'
 require 'rake/testtask'
-require 'traceview/test'
+require 'appoptics/test'
 
 Rake::TestTask.new do |t|
   t.verbose = false
@@ -20,7 +20,7 @@ Rake::TestTask.new do |t|
   # Here we detect the Gemfile the tests are being run against
   # and load the appropriate tests.
   #
-  case TraceView::Test.gemfile
+  case AppOptics::Test.gemfile
   when /delayed_job/
     require 'delayed/tasks'
     t.test_files = FileList['test/queues/delayed_job*_test.rb']
@@ -177,20 +177,20 @@ desc "Rebuild the gem's c extension"
 task :recompile => [:distclean, :compile]
 
 task :environment do
-  ENV['TRACEVIEW_GEM_VERBOSE'] = 'true'
+  ENV['APPOPTICS_GEM_VERBOSE'] = 'true'
 
   Bundler.require(:default, :development)
-  TraceView::Config[:tracing_mode] = :always
-  TV::Test.load_extras
+  AppOptics::Config[:tracing_mode] = :always
+  AppOptics::Test.load_extras
 
-  if TV::Test.gemfile?(:delayed_job)
+  if AppOptics::Test.gemfile?(:delayed_job)
     require 'delayed/tasks'
   end
 end
 
 task :console => :environment do
   ARGV.clear
-  if TV::Test.gemfile?(:delayed_job)
+  if AppOptics::Test.gemfile?(:delayed_job)
     require './test/servers/delayed_job'
   end
   Pry.start

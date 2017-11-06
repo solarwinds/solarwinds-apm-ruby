@@ -5,11 +5,11 @@ require 'set'
 require 'minitest_helper'
 require 'rack/test'
 require 'rack/lobster'
-require 'traceview/inst/rack'
+require 'appoptics/inst/rack'
 
 unless defined?(JRUBY_VERSION)
-  TraceView::Config[:tracing_mode] = 'always'
-  TraceView::Config[:sample_rate] = 1e6
+  AppOptics::Config[:tracing_mode] = 'always'
+  AppOptics::Config[:sample_rate] = 1e6
 
   class RackTestApp < Minitest::Test
     include Rack::Test::Methods
@@ -18,7 +18,7 @@ unless defined?(JRUBY_VERSION)
       @app = Rack::Builder.new {
         use Rack::CommonLogger
         use Rack::ShowExceptions
-        use TraceView::Rack
+        use AppOptics::Rack
         map "/lobster" do
           use Rack::Lint
           run Rack::Lobster.new
@@ -29,7 +29,7 @@ unless defined?(JRUBY_VERSION)
     def test_localset_sample_source
       skip("FIXME: broken on travis only") if ENV['TRAVIS'] == "true"
 
-      # We make an initial call here which will force the traceview gem to retrieve
+      # We make an initial call here which will force the appoptics gem to retrieve
       # the sample_rate and sample_source from liboboe (via sample? method)
       get "/lobster"
 
@@ -51,60 +51,60 @@ unless defined?(JRUBY_VERSION)
     # Test logging of all Ruby datatypes against the SWIG wrapper
     # of addInfo which only has four overloads.
     def test_swig_datatypes_conversion
-      event = TraceView::Context.createEvent
+      event = AppOptics::Context.createEvent
       report_kvs = {}
 
       # Array
       report_kvs[:TestData] = [0, 1, 2, 5, 7.0]
-      result = TraceView::API.log_event('test_layer', 'entry', event, report_kvs)
+      result = AppOptics::API.log_event('test_layer', 'entry', event, report_kvs)
 
       # Class
-      report_kvs[:TestData] = TraceView::Reporter
-      result = TraceView::API.log_event('test_layer', 'entry', event, report_kvs)
+      report_kvs[:TestData] = AppOptics::Reporter
+      result = AppOptics::API.log_event('test_layer', 'entry', event, report_kvs)
 
       # FalseClass
       report_kvs[:TestData] = false
-      result = TraceView::API.log_event('test_layer', 'entry', event, report_kvs)
+      result = AppOptics::API.log_event('test_layer', 'entry', event, report_kvs)
 
       # Fixnum
       report_kvs[:TestData] = 1_873_293_293
-      result = TraceView::API.log_event('test_layer', 'entry', event, report_kvs)
+      result = AppOptics::API.log_event('test_layer', 'entry', event, report_kvs)
 
       # Float
       report_kvs[:TestData] = 1.0001
-      result = TraceView::API.log_event('test_layer', 'entry', event, report_kvs)
+      result = AppOptics::API.log_event('test_layer', 'entry', event, report_kvs)
 
       # Hash
       report_kvs[:TestData] = Hash.new
-      result = TraceView::API.log_event('test_layer', 'entry', event, report_kvs)
+      result = AppOptics::API.log_event('test_layer', 'entry', event, report_kvs)
 
       # Integer
       report_kvs[:TestData] = 1
-      result = TraceView::API.log_event('test_layer', 'entry', event, report_kvs)
+      result = AppOptics::API.log_event('test_layer', 'entry', event, report_kvs)
 
       # Module
-      report_kvs[:TestData] = TraceView
-      result = TraceView::API.log_event('test_layer', 'entry', event, report_kvs)
+      report_kvs[:TestData] = AppOptics
+      result = AppOptics::API.log_event('test_layer', 'entry', event, report_kvs)
 
       # NilClass
       report_kvs[:TestData] = nil
-      result = TraceView::API.log_event('test_layer', 'entry', event, report_kvs)
+      result = AppOptics::API.log_event('test_layer', 'entry', event, report_kvs)
 
       # Set
       report_kvs[:TestData] = Set.new(1..10)
-      result = TraceView::API.log_event('test_layer', 'entry', event, report_kvs)
+      result = AppOptics::API.log_event('test_layer', 'entry', event, report_kvs)
 
       # String
       report_kvs[:TestData] = 'test value'
-      result = TraceView::API.log_event('test_layer', 'entry', event, report_kvs)
+      result = AppOptics::API.log_event('test_layer', 'entry', event, report_kvs)
 
       # Symbol
       report_kvs[:TestData] = :TestValue
-      result = TraceView::API.log_event('test_layer', 'entry', event, report_kvs)
+      result = AppOptics::API.log_event('test_layer', 'entry', event, report_kvs)
 
       # TrueClass
       report_kvs[:TestData] = true
-      result = TraceView::API.log_event('test_layer', 'entry', event, report_kvs)
+      result = AppOptics::API.log_event('test_layer', 'entry', event, report_kvs)
     end
   end
 end

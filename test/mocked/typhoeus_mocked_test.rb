@@ -8,22 +8,22 @@ unless defined?(JRUBY_VERSION)
   class TyphoeusMockedTest < Minitest::Test
 
     def setup
-      TraceView.config_lock.synchronize do
-        @sample_rate = TraceView::Config[:sample_rate]
+      AppOptics.config_lock.synchronize do
+        @sample_rate = AppOptics::Config[:sample_rate]
       end
     end
 
     def teardown
-      TraceView.config_lock.synchronize do
-        TraceView::Config[:sample_rate] = @sample_rate
-        TraceView::Config[:blacklist] = []
+      AppOptics.config_lock.synchronize do
+        AppOptics::Config[:sample_rate] = @sample_rate
+        AppOptics::Config[:blacklist] = []
       end
     end
 
     ############# Typhoeus::Request ##############################################
 
     def test_tracing_sampling
-      TraceView::API.start_trace('typhoeus_tests') do
+      AppOptics::API.start_trace('typhoeus_tests') do
         request = Typhoeus::Request.new("http://127.0.0.2:8101/", {:method=>:get})
         request.run
 
@@ -33,9 +33,9 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_tracing_not_sampling
-      TraceView.config_lock.synchronize do
-        TraceView::Config[:sample_rate] = 0
-        TraceView::API.start_trace('typhoeus_tests') do
+      AppOptics.config_lock.synchronize do
+        AppOptics::Config[:sample_rate] = 0
+        AppOptics::API.start_trace('typhoeus_tests') do
           request = Typhoeus::Request.new("http://127.0.0.1:8101/", {:method=>:get})
           request.run
 
@@ -54,9 +54,9 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_blacklisted
-      TraceView.config_lock.synchronize do
-        TraceView::Config.blacklist << '127.0.0.1'
-        TraceView::API.start_trace('typhoeus_tests') do
+      AppOptics.config_lock.synchronize do
+        AppOptics::Config.blacklist << '127.0.0.1'
+        AppOptics::API.start_trace('typhoeus_tests') do
           request = Typhoeus::Request.new("http://127.0.0.1:8101/", {:method=>:get})
           request.run
 
@@ -66,10 +66,10 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_not_sampling_blacklisted
-      TraceView.config_lock.synchronize do
-        TraceView::Config[:sample_rate] = 0
-        TraceView::Config.blacklist << '127.0.0.1'
-        TraceView::API.start_trace('typhoeus_tests') do
+      AppOptics.config_lock.synchronize do
+        AppOptics::Config[:sample_rate] = 0
+        AppOptics::Config.blacklist << '127.0.0.1'
+        AppOptics::API.start_trace('typhoeus_tests') do
           request = Typhoeus::Request.new("http://127.0.0.1:8101/", {:method=>:get})
           request.run
 
@@ -82,7 +82,7 @@ unless defined?(JRUBY_VERSION)
     ############# Typhoeus::Hydra ##############################################
 
     def test_hydra_tracing_sampling
-      TraceView::API.start_trace('typhoeus_tests') do
+      AppOptics::API.start_trace('typhoeus_tests') do
         hydra = Typhoeus::Hydra.hydra
         request_1 = Typhoeus::Request.new("http://127.0.0.2:8101/", {:method=>:get})
         request_2 = Typhoeus::Request.new("http://127.0.0.2:8101/counting_sheep", {:method=>:get})
@@ -98,9 +98,9 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_hydra_tracing_not_sampling
-      TraceView.config_lock.synchronize do
-        TraceView::Config[:sample_rate] = 0
-        TraceView::API.start_trace('typhoeus_tests') do
+      AppOptics.config_lock.synchronize do
+        AppOptics::Config[:sample_rate] = 0
+        AppOptics::API.start_trace('typhoeus_tests') do
           hydra = Typhoeus::Hydra.hydra
           request_1 = Typhoeus::Request.new("http://127.0.0.2:8101/", {:method=>:get})
           request_2 = Typhoeus::Request.new("http://127.0.0.2:8101/counting_sheep", {:method=>:get})
@@ -131,9 +131,9 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_hydra_blacklisted
-      TraceView.config_lock.synchronize do
-        TraceView::Config.blacklist << '127.0.0.2'
-        TraceView::API.start_trace('typhoeus_tests') do
+      AppOptics.config_lock.synchronize do
+        AppOptics::Config.blacklist << '127.0.0.2'
+        AppOptics::API.start_trace('typhoeus_tests') do
           hydra = Typhoeus::Hydra.hydra
           request_1 = Typhoeus::Request.new("http://127.0.0.2:8101/", {:method=>:get})
           request_2 = Typhoeus::Request.new("http://127.0.0.2:8101/counting_sheep", {:method=>:get})
@@ -148,10 +148,10 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_hydra_not_sampling_blacklisted
-      TraceView.config_lock.synchronize do
-        TraceView::Config[:sample_rate] = 0
-        TraceView::Config.blacklist << '127.0.0.2'
-        TraceView::API.start_trace('typhoeus_tests') do
+      AppOptics.config_lock.synchronize do
+        AppOptics::Config[:sample_rate] = 0
+        AppOptics::Config.blacklist << '127.0.0.2'
+        AppOptics::API.start_trace('typhoeus_tests') do
           hydra = Typhoeus::Hydra.hydra
           request_1 = Typhoeus::Request.new("http://127.0.0.2:8101/", {:method=>:get})
           request_2 = Typhoeus::Request.new("http://127.0.0.2:8101/counting_sheep", {:method=>:get})

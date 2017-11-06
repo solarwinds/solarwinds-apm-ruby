@@ -11,13 +11,13 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
   class SidekiqClientTest < Minitest::Test
     def setup
       clear_all_traces
-      @collect_backtraces = TraceView::Config[:sidekiqclient][:collect_backtraces]
-      @log_args = TraceView::Config[:sidekiqclient][:log_args]
+      @collect_backtraces = AppOptics::Config[:sidekiqclient][:collect_backtraces]
+      @log_args = AppOptics::Config[:sidekiqclient][:log_args]
     end
 
     def teardown
-      TraceView::Config[:sidekiqclient][:collect_backtraces] = @collect_backtraces
-      TraceView::Config[:sidekiqclient][:log_args] = @log_args
+      AppOptics::Config[:sidekiqclient][:collect_backtraces] = @collect_backtraces
+      AppOptics::Config[:sidekiqclient][:log_args] = @log_args
     end
 
     def refined_trace_count_check(traces)
@@ -26,7 +26,7 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
       
       redis_traces = traces.select { |h| h['Layer'] == 'redis' }
       if redis_traces.count == 4
-        TV.logger.debug("4 redis traces found: #{redis_traces}")
+        AppOptics.logger.debug("4 redis traces found: #{redis_traces}")
       else
         assert_equal 2, redis_traces.count
       end
@@ -35,7 +35,7 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
 
     def test_enqueue
       # Queue up a job to be run
-      jid, _ = ::TraceView::API.start_trace(:enqueue_test) do
+      jid, _ = ::AppOptics::API.start_trace(:enqueue_test) do
         Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
       end
 
@@ -63,18 +63,18 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
     end
 
     def test_collect_backtraces_default_value
-      assert_equal TV::Config[:sidekiqclient][:collect_backtraces], false, "default backtrace collection"
+      assert_equal AppOptics::Config[:sidekiqclient][:collect_backtraces], false, "default backtrace collection"
     end
 
     def test_log_args_default_value
-      assert_equal TV::Config[:sidekiqclient][:log_args], true, "log_args default "
+      assert_equal AppOptics::Config[:sidekiqclient][:log_args], true, "log_args default "
     end
 
     def test_obey_collect_backtraces_when_false
-      TraceView::Config[:sidekiqclient][:collect_backtraces] = false
+      AppOptics::Config[:sidekiqclient][:collect_backtraces] = false
 
       # Queue up a job to be run
-      ::TraceView::API.start_trace(:enqueue_test) do
+      ::AppOptics::API.start_trace(:enqueue_test) do
         Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
       end
 
@@ -89,10 +89,10 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
     end
 
     def test_obey_collect_backtraces_when_true
-      TraceView::Config[:sidekiqclient][:collect_backtraces] = true
+      AppOptics::Config[:sidekiqclient][:collect_backtraces] = true
 
       # Queue up a job to be run
-      ::TraceView::API.start_trace(:enqueue_test) do
+      ::AppOptics::API.start_trace(:enqueue_test) do
         Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
       end
 
@@ -107,10 +107,10 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
     end
 
     def test_obey_log_args_when_false
-      TraceView::Config[:sidekiqclient][:log_args] = false
+      AppOptics::Config[:sidekiqclient][:log_args] = false
 
       # Queue up a job to be run
-      ::TraceView::API.start_trace(:enqueue_test) do
+      ::AppOptics::API.start_trace(:enqueue_test) do
         Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
       end
 
@@ -124,10 +124,10 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
     end
 
     def test_obey_log_args_when_true
-      TraceView::Config[:sidekiqclient][:log_args] = true
+      AppOptics::Config[:sidekiqclient][:log_args] = true
 
       # Queue up a job to be run
-      ::TraceView::API.start_trace(:enqueue_test) do
+      ::AppOptics::API.start_trace(:enqueue_test) do
         Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
       end
 

@@ -13,15 +13,15 @@ if !defined?(JRUBY_VERSION)
     def setup
       WebMock.enable!
       WebMock.disable_net_connect!
-      TraceView.config_lock.synchronize {
-        @sample_rate = TraceView::Config[:sample_rate]
+      AppOptics.config_lock.synchronize {
+        @sample_rate = AppOptics::Config[:sample_rate]
       }
     end
 
     def teardown
-      TraceView.config_lock.synchronize {
-        TraceView::Config[:blacklist] = []
-        TraceView::Config[:sample_rate] = @sample_rate
+      AppOptics.config_lock.synchronize {
+        AppOptics::Config[:blacklist] = []
+        AppOptics::Config[:sample_rate] = @sample_rate
       }
       WebMock.reset!
       WebMock.allow_net_connect!
@@ -31,7 +31,7 @@ if !defined?(JRUBY_VERSION)
     def test_tracing_sampling
       stub_request(:get, "http://127.0.0.1:8101/")
 
-      TraceView::API.start_trace('faraday_test') do
+      AppOptics::API.start_trace('faraday_test') do
         conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
           faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
         end
@@ -45,9 +45,9 @@ if !defined?(JRUBY_VERSION)
     def test_tracing_not_sampling
       stub_request(:get, "http://127.0.0.12:8101/")
 
-      TraceView.config_lock.synchronize do
-        TraceView::Config[:sample_rate] = 0
-        TraceView::API.start_trace('faraday_test') do
+      AppOptics.config_lock.synchronize do
+        AppOptics::Config[:sample_rate] = 0
+        AppOptics::API.start_trace('faraday_test') do
           conn = Faraday.new(:url => 'http://127.0.0.12:8101') do |faraday|
             faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
           end
@@ -75,9 +75,9 @@ if !defined?(JRUBY_VERSION)
     def test_blacklisted
       stub_request(:get, "http://127.0.0.4:8101/")
 
-      TraceView.config_lock.synchronize do
-        TraceView::Config.blacklist << '127.0.0.4'
-        TraceView::API.start_trace('faraday_test') do
+      AppOptics.config_lock.synchronize do
+        AppOptics::Config.blacklist << '127.0.0.4'
+        AppOptics::API.start_trace('faraday_test') do
           conn = Faraday.new(:url => 'http://127.0.0.4:8101') do |faraday|
             faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
           end
