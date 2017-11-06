@@ -6,8 +6,8 @@ require 'thread'
 # Disable docs and Camelcase warns since we're implementing
 # an interface here.  See OboeBase for details.
 # rubocop:disable Style/Documentation, Style/MethodName
-module TraceView
-  extend TraceViewBase
+module AppOptics
+  extend AppOpticsBase
   include Oboe_metal
 
   class Reporter
@@ -15,36 +15,36 @@ module TraceView
       ##
       # start
       #
-      # Start the TraceView Reporter
+      # Start the AppOptics Reporter
       #
       def start
-        return unless TraceView.loaded
+        return unless AppOptics.loaded
 
         begin
-          protocol = ENV.key?('TRACEVIEW_GEM_TEST') ? 'file' :
+          protocol = ENV.key?('APPOPTICS_GEM_TEST') ? 'file' :
                        ENV['TRACELYTICS_REPORTER'] || 'ssl'
 
           case protocol
           when 'file'
             options = "file=#{TRACE_FILE}"
           when 'udp'
-            options = "addr=#{TraceView::Config[:reporter_host]},port=#{TraceView::Config[:reporter_port]}"
+            options = "addr=#{AppOptics::Config[:reporter_host]},port=#{AppOptics::Config[:reporter_port]}"
           else
             if ENV['APPOPTICS_SERVICE_KEY'].to_s == ''
-              TraceView.logger.warn "[traceview/warn] APPOPTICS_SERVICE_KEY not set. Cannot submit data."
-              TraceView.loaded = false
+              AppOptics.logger.warn "[appoptics/warn] APPOPTICS_SERVICE_KEY not set. Cannot submit data."
+              AppOptics.loaded = false
               return
             end
             # ssl reporter requires the service key passed in as arg "cid"
             options = "cid=#{ENV['APPOPTICS_SERVICE_KEY']}"
           end
 
-          TraceView.reporter = Oboe_metal::Reporter.new(protocol, options)
+          AppOptics.reporter = Oboe_metal::Reporter.new(protocol, options)
 
           # Only report __Init from here if we are not instrumenting a framework.
           # Otherwise, frameworks will handle reporting __Init after full initialization
           unless defined?(::Rails) || defined?(::Sinatra) || defined?(::Padrino) || defined?(::Grape)
-            TraceView::API.report_init
+            AppOptics::API.report_init
           end
 
         rescue => e
@@ -60,7 +60,7 @@ module TraceView
       # Send the report for the given event
       #
       def sendReport(evt)
-        TraceView.reporter.sendReport(evt)
+        AppOptics.reporter.sendReport(evt)
       end
 
       ##
@@ -69,7 +69,7 @@ module TraceView
       # Send the report for the given event
       #
       def sendStatus(evt, context = nil)
-        TraceView.reporter.sendStatus(evt, context)
+        AppOptics.reporter.sendStatus(evt, context)
       end
 
       ##
@@ -131,57 +131,57 @@ module TraceView
   class << self
     def sample?(opts = {})
       # Return false if no-op mode
-      return false unless TraceView.loaded
+      return false unless AppOptics.loaded
 
       # Assure defaults since SWIG enforces Strings
-      layer   = opts[:layer]      ? opts[:layer].to_s.strip.freeze : TV_STR_BLANK
-      xtrace  = opts[:xtrace]     ? opts[:xtrace].to_s.strip       : TV_STR_BLANK
+      layer   = opts[:layer]      ? opts[:layer].to_s.strip.freeze : APPOPTICS_STR_BLANK
+      xtrace  = opts[:xtrace]     ? opts[:xtrace].to_s.strip       : APPOPTICS_STR_BLANK
 
-      rv = TraceView::Context.sampleRequest(layer, xtrace)
+      rv = AppOptics::Context.sampleRequest(layer, xtrace)
 
       if rv == 0
-        TraceView.sample_rate = -1
-        TraceView.sample_source = -1
+        AppOptics.sample_rate = -1
+        AppOptics.sample_source = -1
         false
       else
         # liboboe version > 1.3.1 returning a bit masked integer with SampleRate and
         # source embedded
-        TraceView.sample_rate = (rv & SAMPLE_RATE_MASK)
-        TraceView.sample_source = (rv & SAMPLE_SOURCE_MASK) >> 24
+        AppOptics.sample_rate = (rv & SAMPLE_RATE_MASK)
+        AppOptics.sample_source = (rv & SAMPLE_SOURCE_MASK) >> 24
         true
       end
     rescue StandardError => e
-      TraceView.logger.debug "[oboe/error] sample? error: #{e.inspect}"
+      AppOptics.logger.debug "[oboe/error] sample? error: #{e.inspect}"
       false
     end
 
     def set_tracing_mode(mode)
-      return unless TraceView.loaded
+      return unless AppOptics.loaded
 
       value = mode.to_sym
 
       case value
       when :never
-        TraceView::Context.setTracingMode(OBOE_TRACE_NEVER)
+        AppOptics::Context.setTracingMode(OBOE_TRACE_NEVER)
 
       when :always
-        TraceView::Context.setTracingMode(OBOE_TRACE_ALWAYS)
+        AppOptics::Context.setTracingMode(OBOE_TRACE_ALWAYS)
 
       else
-        TraceView.logger.fatal "[oboe/error] Invalid tracing mode set: #{mode}"
-        TraceView::Context.setTracingMode(OBOE_TRACE_NEVER)
+        AppOptics.logger.fatal "[oboe/error] Invalid tracing mode set: #{mode}"
+        AppOptics::Context.setTracingMode(OBOE_TRACE_NEVER)
       end
     end
 
     def set_sample_rate(rate)
-      return unless TraceView.loaded
+      return unless AppOptics.loaded
 
       # Update liboboe with the new SampleRate value
-      TraceView::Context.setDefaultSampleRate(rate.to_i)
+      AppOptics::Context.setDefaultSampleRate(rate.to_i)
     end
   end
 end
 # rubocop:enable Style/Documentation
 
-TraceView.loaded = true
-TraceView.config_lock = Mutex.new
+AppOptics.loaded = true
+AppOptics.config_lock = Mutex.new

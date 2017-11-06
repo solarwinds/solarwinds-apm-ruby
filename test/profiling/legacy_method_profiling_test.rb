@@ -3,7 +3,7 @@
 
 require 'minitest_helper'
 
-describe "LegacyTraceViewMethodProfiling" do
+describe "LegacyAppOpticsMethodProfiling" do
   before do
     clear_all_traces
     # Conditionally Undefine TestWorker
@@ -12,7 +12,7 @@ describe "LegacyTraceViewMethodProfiling" do
   end
 
   it 'should be loaded, defined and ready' do
-    defined?(::TraceViewMethodProfiling).wont_match nil
+    defined?(::AppOpticsMethodProfiling).wont_match nil
   end
 
   it 'should trace Class methods' do
@@ -22,12 +22,12 @@ describe "LegacyTraceViewMethodProfiling" do
       end
 
       class << self
-        include TraceViewMethodProfiling
+        include AppOpticsMethodProfiling
         profile_method :do_work, 'do_work'
       end
     end
 
-    ::TraceView::API.start_trace('method_profiling', '', {}) do
+    ::AppOptics::API.start_trace('method_profiling', '', {}) do
       # Call the profiled class method
       TestWorker.do_work
     end
@@ -65,11 +65,11 @@ describe "LegacyTraceViewMethodProfiling" do
         sleep 1
       end
 
-      include TraceViewMethodProfiling
+      include AppOpticsMethodProfiling
       profile_method :do_work, 'do_work'
     end
 
-    ::TraceView::API.start_trace('method_profiling', '', {}) do
+    ::AppOptics::API.start_trace('method_profiling', '', {}) do
       # Call the profiled class method
       tw = TestWorker.new
       tw.do_work
@@ -109,12 +109,12 @@ describe "LegacyTraceViewMethodProfiling" do
       end
 
       class << self
-        include TraceViewMethodProfiling
+        include AppOpticsMethodProfiling
         profile_method :do_work, 'do_work'
       end
     end
 
-    ::TraceView::API.start_trace('method_profiling', '', {}) do
+    ::AppOptics::API.start_trace('method_profiling', '', {}) do
       # Call the profiled class method
       TestWorker.do_work
     end
@@ -153,13 +153,13 @@ describe "LegacyTraceViewMethodProfiling" do
       end
 
       class << self
-        include TraceViewMethodProfiling
+        include AppOpticsMethodProfiling
         # Default call method
         profile_method :do_work, 'do_work'
       end
     end
 
-    ::TraceView::API.start_trace('method_profiling', '', {}) do
+    ::AppOptics::API.start_trace('method_profiling', '', {}) do
       # Call the profiled class method
       TestWorker.do_work('String Argument', 203984, ["1", "2", 3], { :color => :black })
     end
@@ -179,12 +179,12 @@ describe "LegacyTraceViewMethodProfiling" do
       end
 
       class << self
-        include TraceViewMethodProfiling
+        include AppOpticsMethodProfiling
         profile_method :do_work, 'do_work', true, true
       end
     end
 
-    ::TraceView::API.start_trace('method_profiling', '', {}) do
+    ::AppOptics::API.start_trace('method_profiling', '', {}) do
       # Call the profiled class method
       TestWorker.do_work('String Argument', 203984, ["1", "2", 3], { :color => :black })
     end

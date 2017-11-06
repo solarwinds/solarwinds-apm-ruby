@@ -10,15 +10,15 @@ require "action_controller/railtie"
 require 'rack/handler/puma'
 require File.expand_path(File.dirname(__FILE__) + '/../models/widget')
 
-TraceView.logger.level = Logger::DEBUG
-TraceView.logger.info "[traceview/info] Starting background utility rails app on localhost:8140."
+AppOptics.logger.level = Logger::DEBUG
+AppOptics.logger.info "[appoptics/info] Starting background utility rails app on localhost:8140."
 
-TraceView::Test.set_postgresql_env
+AppOptics::Test.set_postgresql_env
 
 ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
 
 unless ActiveRecord::Base.connection.table_exists? :delayed_jobs
-  TraceView.logger.info "[traceview/servers] Creating DelayedJob DB table."
+  AppOptics.logger.info "[appoptics/servers] Creating DelayedJob DB table."
 
   dj_dir = Gem::Specification.find_by_name('delayed_job_active_record').gem_dir
   template = File.open(File.join(dj_dir, "lib/generators/delayed_job/templates/migration.rb"))
@@ -92,7 +92,7 @@ Delayed::Job.delete_all
 @worker_options[:sleep_delay] = ENV['SLEEP_DELAY'].to_i if ENV['SLEEP_DELAY']
 @worker_options[:read_ahead] = ENV['READ_AHEAD'].to_i if ENV['READ_AHEAD']
 
-TraceView.logger.info "[traceview/servers] Starting up background DelayedJob."
+AppOptics.logger.info "[appoptics/servers] Starting up background DelayedJob."
 
 #Delayed::Worker.delay_jobs = false
 Delayed::Worker.max_attempts = 1
@@ -103,5 +103,5 @@ Thread.new do
 end
 
 # Allow it to boot
-TraceView.logger.info "[traceview/servers] Waiting 5 seconds for DJ to boot..."
+AppOptics.logger.info "[appoptics/servers] Waiting 5 seconds for DJ to boot..."
 sleep 5

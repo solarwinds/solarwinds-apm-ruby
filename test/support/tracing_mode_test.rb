@@ -5,29 +5,29 @@ require 'minitest_helper'
 
 class TracingModeTest  < Minitest::Test
   def setup
-    @tm = TraceView::Config[:tracing_mode]
-    TraceView::Config[:tracing_mode] = :always
+    @tm = AppOptics::Config[:tracing_mode]
+    AppOptics::Config[:tracing_mode] = :always
   end
 
   def teardown
-    TraceView::Config[:tracing_mode] = @tm
+    AppOptics::Config[:tracing_mode] = @tm
   end
 
   def test_trace_when_always
-    TV::API.start_trace(:test_always) do
-      TraceView.tracing?.must_equal true
+    AppOptics::API.start_trace(:test_always) do
+      AppOptics.tracing?.must_equal true
     end
   end
 
   def test_dont_trace_when_never
-    TraceView::Config[:tracing_mode] = :never
+    AppOptics::Config[:tracing_mode] = :never
 
-    TV::API.start_trace(:test_never) do
-      TraceView.tracing?.must_equal false
+    AppOptics::API.start_trace(:test_never) do
+      AppOptics.tracing?.must_equal false
     end
 
-    TV::API.start_trace('asdf') do
-      TraceView.tracing?.must_equal false
+    AppOptics::API.start_trace('asdf') do
+      AppOptics.tracing?.must_equal false
     end
   end
 end

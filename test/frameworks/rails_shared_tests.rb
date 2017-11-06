@@ -7,22 +7,22 @@ require 'mocha/mini_test'
 
   describe "RailsSharedTests" do
     before do
-      TraceView.config_lock.synchronize {
-        @tm = TraceView::Config[:tracing_mode]
-        @sample_rate = TraceView::Config[:sample_rate]
+      AppOptics.config_lock.synchronize {
+        @tm = AppOptics::Config[:tracing_mode]
+        @sample_rate = AppOptics::Config[:sample_rate]
       }
     end
 
     after do
-      TraceView.config_lock.synchronize {
-        TraceView::Config[:tracing_mode] = @tm
-        TraceView::Config[:sample_rate] = @sample_rate
+      AppOptics.config_lock.synchronize {
+        AppOptics::Config[:tracing_mode] = @tm
+        AppOptics::Config[:sample_rate] = @sample_rate
       }
     end
 
     it "should NOT trace when tracing is set to :never" do
-      TraceView.config_lock.synchronize do
-        TraceView::Config[:tracing_mode] = :never
+      AppOptics.config_lock.synchronize do
+        AppOptics::Config[:tracing_mode] = :never
         uri = URI.parse('http://127.0.0.1:8140/hello/world')
         r = Net::HTTP.get_response(uri)
 
@@ -32,8 +32,8 @@ require 'mocha/mini_test'
     end
 
     it "should NOT trace when sample_rate is 0" do
-      TraceView.config_lock.synchronize do
-        TraceView::Config[:sample_rate] = 0
+      AppOptics.config_lock.synchronize do
+        AppOptics::Config[:sample_rate] = 0
         uri = URI.parse('http://127.0.0.1:8140/hello/world')
         r = Net::HTTP.get_response(uri)
 
@@ -57,7 +57,7 @@ require 'mocha/mini_test'
     it "should send inbound metrics" do
       test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
 
-      TraceView::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+      AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
         test_action = action
         test_url = url
         test_status = status
@@ -77,9 +77,9 @@ require 'mocha/mini_test'
 
     it "should send inbound metrics when not tracing" do
       test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-      TraceView.config_lock.synchronize do
-        TraceView::Config[:tracing_mode] = :never
-        TraceView::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+      AppOptics.config_lock.synchronize do
+        AppOptics::Config[:tracing_mode] = :never
+        AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
           test_action = action
           test_url = url
           test_status = status
@@ -101,7 +101,7 @@ require 'mocha/mini_test'
     it "should send metrics for 500 errors" do
       test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
 
-      TraceView::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+      AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
         test_action = action
         test_url = url
         test_status = status

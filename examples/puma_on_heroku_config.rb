@@ -9,9 +9,9 @@ port        ENV['PORT']     || 3000
 environment ENV['RACK_ENV'] || 'development'
 
 on_worker_boot do
-  ::TraceView.reconnect! if defined?(::TraceView)
+  ::AppOptics.reconnect! if defined?(::AppOptics)
 end
 
 on_worker_shutdown do
-  ::TraceView.disconnect! if defined?(::TraceView)
+  ::AppOptics.disconnect! if defined?(::AppOptics)
 end

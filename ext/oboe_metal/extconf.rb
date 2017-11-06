@@ -10,18 +10,18 @@ ext_dir = File.expand_path(File.dirname(__FILE__))
 jruby = defined?(JRUBY_VERSION) ? true : false
 
 # Set the mkmf lib paths so we have no issues linking to
-# the TraceView libs.
+# the AppOptics libs.
 tv_lib = File.join(ext_dir, 'lib')
 tv_include = File.join(ext_dir, 'src')
 
-# Create symlinks for the TraceView library
+# Create symlinks for the AppOptics library
 target = File.join(tv_lib, 'liboboe-1.0.so.0.0.0')
 File.symlink(target, File.join(tv_lib, 'liboboe.so'))
 File.symlink(target, File.join(tv_lib, 'liboboe-1.0.so.0'))
 
 dir_config('oboe', tv_include, tv_lib)
 
-if jruby || ENV.key?('TRACEVIEW_URL')
+if jruby || ENV.key?('APPOPTICS_URL')
   # Build the noop extension under JRuby and Heroku.
   # The oboe-heroku gem builds it's own c extension which links to
   # libs specific to a Heroku dyno

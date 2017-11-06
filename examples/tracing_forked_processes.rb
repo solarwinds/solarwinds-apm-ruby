@@ -6,14 +6,14 @@
 require 'math'
 require 'oboe'
 
-TraceView::Config[:tracing_mode] = :always
-TraceView::Config[:verbose] = true
+AppOptics::Config[:tracing_mode] = :always
+AppOptics::Config[:verbose] = true
 
 # The parent process/loop which collects data
 Kernel.loop do
   # For each loop, we instrument the work retrieval.  These traces
   # will show up as layer 'get_the_work'.
-  TraceView::API.start_trace('get_the_work') do
+  AppOptics::API.start_trace('get_the_work') do
     work = get_the_work
 
     # Loop through work and pass to `do_the_work` method
@@ -21,11 +21,11 @@ Kernel.loop do
     work.each do |job|
       fork do
         # Since the context is copied from the parent process, we clear it
-        # and start a new trace via `TraceView::API.start_trace`.
-        TraceView::Context.clear
+        # and start a new trace via `AppOptics::API.start_trace`.
+        AppOptics::Context.clear
         result = nil
 
-        TraceView::API.start_trace('do_the_work', nil, :job_id => job.id) do
+        AppOptics::API.start_trace('do_the_work', nil, :job_id => job.id) do
           result = do_the_work(job)
         end
 
@@ -69,15 +69,15 @@ end
 #
 # The benefit of this is that instead of having two independent traces (parent
 # and child), you will have a single view of the parent trace showing the
-# spawned child process and it's performance in the TraceView dashboard.
+# spawned child process and it's performance in the AppOptics dashboard.
 #
 # To do this:
 #   1. Don't clear the context in the child process
-#   2. Use `TraceView::API.trace` instead
+#   2. Use `AppOptics::API.trace` instead
 #   3. Pass the `Async` flag to mark this child as asynchronous
 #
 Kernel.loop do
-  TraceView::API.start_trace('get_the_work') do
+  AppOptics::API.start_trace('get_the_work') do
 
     work = get_the_work
 
@@ -85,9 +85,9 @@ Kernel.loop do
       fork do
         result = nil
         # 1 Don't clear context
-        # 2 Use `TraceView::API.trace` instead
+        # 2 Use `AppOptics::API.trace` instead
         # 3 Pass the Async flag
-        TraceView::API.trace('do_the_work', { :job_id => job.id, :Async => 1 }) do
+        AppOptics::API.trace('do_the_work', { :job_id => job.id, :Async => 1 }) do
           result = do_the_work(job)
         end
 

@@ -10,16 +10,16 @@ require "action_controller/railtie"
 require 'rack/handler/puma'
 require File.expand_path(File.dirname(__FILE__) + '/../models/widget')
 
-TraceView.logger.info "[traceview/info] Starting background utility rails app on localhost:8140."
+AppOptics.logger.info "[appoptics/info] Starting background utility rails app on localhost:8140."
 
 if ENV['DBTYPE'] == 'mysql2'
-  TraceView::Test.set_mysql2_env
+  AppOptics::Test.set_mysql2_env
 elsif ENV['DBTYPE'] == 'mysql'
-  TraceView::Test.set_mysql_env
+  AppOptics::Test.set_mysql_env
 else
-  TV.logger.warn "Unidentified DBTYPE: #{ENV['DBTYPE']}" unless ENV['DBTYPE'] == "postgresql"
-  TV.logger.debug "Defaulting to postgres DB for background Rails server."
-  TraceView::Test.set_postgresql_env
+  AppOptics.logger.warn "Unidentified DBTYPE: #{ENV['DBTYPE']}" unless ENV['DBTYPE'] == "postgresql"
+  AppOptics.logger.debug "Defaulting to postgres DB for background Rails server."
+  AppOptics::Test.set_postgresql_env
 end
 
 ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
@@ -79,7 +79,7 @@ class FerroController < ActionController::Metal
     render :text => "Hello world!"
   end
 
-  include TraceViewMethodProfiling
+  include AppOpticsMethodProfiling
   profile_method :world, 'world'
 end
 

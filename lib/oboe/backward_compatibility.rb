@@ -1,8 +1,8 @@
-require 'traceview/thread_local'
+require 'appoptics/thread_local'
 
 module Oboe
-  extend TraceViewBase
-  if TraceView.loaded
+  extend AppOpticsBase
+  if AppOptics.loaded
     include Oboe_metal
   end
 
@@ -10,19 +10,19 @@ module Oboe
   # Support for Oboe::API calls
   #
   module API
-    include TraceView::API
-    extend ::TraceView::ThreadLocal
+    include AppOptics::API
+    extend ::AppOptics::ThreadLocal
     thread_local :deprecation_notified
 
     def self.method_missing(sym, *args, &blk)
       # Notify of deprecation only once
       unless @deprecated_notified
-        TraceView.logger.warn "[traceview/warn] Note that Oboe::API has been renamed to TraceView::API. (#{sym}:#{args})"
-        TraceView.logger.warn '[traceview/warn] Oboe::API will be deprecated in a future version.'
-        TraceView.logger.warn "[traceview/warn] Caller: #{Kernel.caller[0]}"
+        AppOptics.logger.warn "[appoptics/warn] Note that Oboe::API has been renamed to AppOptics::API. (#{sym}:#{args})"
+        AppOptics.logger.warn '[appoptics/warn] Oboe::API will be deprecated in a future version.'
+        AppOptics.logger.warn "[appoptics/warn] Caller: #{Kernel.caller[0]}"
         @deprecated_notified = true
       end
-      TraceView::API.send(sym, *args, &blk)
+      AppOptics::API.send(sym, *args, &blk)
     end
   end
 
@@ -31,18 +31,18 @@ module Oboe
   # Support for Oboe::Config calls
   #
   module Config
-    extend ::TraceView::ThreadLocal
+    extend ::AppOptics::ThreadLocal
     thread_local :deprecation_notified
 
     def self.method_missing(sym, *args)
       # Notify of deprecation only once
       unless @deprecated_notified
-        TraceView.logger.warn "[traceview/warn] Note that Oboe::Config has been renamed to TraceView::Config. (#{sym}:#{args})"
-        TraceView.logger.warn '[traceview/warn] Oboe::Config will be deprecated in a future version.'
-        TraceView.logger.warn "[traceview/warn] Caller: #{Kernel.caller[0]}"
+        AppOptics.logger.warn "[appoptics/warn] Note that Oboe::Config has been renamed to AppOptics::Config. (#{sym}:#{args})"
+        AppOptics.logger.warn '[appoptics/warn] Oboe::Config will be deprecated in a future version.'
+        AppOptics.logger.warn "[appoptics/warn] Caller: #{Kernel.caller[0]}"
         @deprecated_notified = true
       end
-      TraceView::Config.send(sym, *args)
+      AppOptics::Config.send(sym, *args)
     end
   end
 
@@ -50,18 +50,18 @@ module Oboe
   # Support for legacy Oboe::Ruby.load calls
   #
   module Ruby
-    extend ::TraceView::ThreadLocal
+    extend ::AppOptics::ThreadLocal
     thread_local :deprecation_notified
 
     def self.method_missing(sym, *args)
       # Notify of deprecation only once
       unless @deprecated_notified
-        TraceView.logger.warn "[traceview/warn] Note that Oboe::Ruby has been renamed to TraceView::Ruby. (#{sym}:#{args})"
-        TraceView.logger.warn '[traceview/warn] Oboe::Ruby will be deprecated in a future version.'
-        TraceView.logger.warn "[traceview/warn] Caller: #{Kernel.caller[0]}"
+        AppOptics.logger.warn "[appoptics/warn] Note that Oboe::Ruby has been renamed to AppOptics::Ruby. (#{sym}:#{args})"
+        AppOptics.logger.warn '[appoptics/warn] Oboe::Ruby will be deprecated in a future version.'
+        AppOptics.logger.warn "[appoptics/warn] Caller: #{Kernel.caller[0]}"
         @deprecated_notified = true
       end
-      TraceView::Ruby.send(sym, *args)
+      AppOptics::Ruby.send(sym, *args)
     end
   end
 end
@@ -75,6 +75,6 @@ module OboeMethodProfiling
   end
 
   module ClassMethods
-    include TraceViewMethodProfiling::ClassMethods
+    include AppOpticsMethodProfiling::ClassMethods
   end
 end

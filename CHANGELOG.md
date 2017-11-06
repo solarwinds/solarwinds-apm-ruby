@@ -1,10 +1,10 @@
 
 For the latest release info, see here:
-https://github.com/tracelytics/ruby-traceview/releases
+https://github.com/tracelytics/ruby-appoptics/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
-# traceview 3.8.4 (10/17/2016)
+# appoptics 3.8.4 (10/17/2016)
 
 This patch release includes the following fixes:
 
@@ -12,10 +12,10 @@ This patch release includes the following fixes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/traceview/versions/3.8.4
-https://rubygems.org/gems/traceview/versions/3.8.4-java
+https://rubygems.org/gems/appoptics/versions/3.8.4
+https://rubygems.org/gems/appoptics/versions/3.8.4-java
 
-# traceview 3.8.3 (08/29/2016)
+# appoptics 3.8.3 (08/29/2016)
 
 This patch release includes the following fixes:
 
@@ -25,10 +25,10 @@ This patch release includes the following fixes:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/traceview/versions/3.8.3
-https://rubygems.org/gems/traceview/versions/3.8.3-java
+https://rubygems.org/gems/appoptics/versions/3.8.3
+https://rubygems.org/gems/appoptics/versions/3.8.3-java
 
-# traceview 3.8.2 (06/09/2016)
+# appoptics 3.8.2 (06/09/2016)
 
 This patch release includes the following fixes:
 
@@ -37,10 +37,10 @@ This patch release includes the following fixes:
 
 Pushed to Rubygems:
 
-- https://rubygems.org/gems/traceview/versions/3.8.2
-- https://rubygems.org/gems/traceview/versions/3.8.2-java
+- https://rubygems.org/gems/appoptics/versions/3.8.2
+- https://rubygems.org/gems/appoptics/versions/3.8.2-java
 
-# traceview 3.8.1 (05/05/2016)
+# appoptics 3.8.1 (05/05/2016)
 
 This patch release includes the following fixes:
 
@@ -49,10 +49,10 @@ This patch release includes the following fixes:
 
 Pushed to Rubygems:
 
-- https://rubygems.org/gems/traceview/versions/3.8.1
-- https://rubygems.org/gems/traceview/versions/3.8.1-java
+- https://rubygems.org/gems/appoptics/versions/3.8.1
+- https://rubygems.org/gems/appoptics/versions/3.8.1-java
 
-# traceview 3.8.0 04/22/2016
+# appoptics 3.8.0 04/22/2016
 
 This minor release includes the following new feature:
 
@@ -60,10 +60,10 @@ This minor release includes the following new feature:
 
 Pushed to Rubygems:
 
-- https://rubygems.org/gems/traceview/versions/3.8.0
-- https://rubygems.org/gems/traceview/versions/3.8.0-java
+- https://rubygems.org/gems/appoptics/versions/3.8.0
+- https://rubygems.org/gems/appoptics/versions/3.8.0-java
 
-# traceview 3.7.1 (03/30/2016)
+# appoptics 3.7.1 (03/30/2016)
 
 This patch release includes the following fixes:
 
@@ -71,10 +71,10 @@ This patch release includes the following fixes:
 
 Pushed to Rubygems:
 
-- https://rubygems.org/gems/traceview/versions/3.7.1
-- https://rubygems.org/gems/traceview/versions/3.7.1-java
+- https://rubygems.org/gems/appoptics/versions/3.7.1
+- https://rubygems.org/gems/appoptics/versions/3.7.1-java
 
-# traceview 3.7.0 (03/16/2016)
+# appoptics 3.7.0 (03/16/2016)
 
 This minor release includes the following new feature:
 
@@ -82,10 +82,10 @@ This minor release includes the following new feature:
 
 Pushed to Rubygems:
 
-- https://rubygems.org/gems/traceview/versions/3.7.0
-- https://rubygems.org/gems/traceview/versions/3.7.0-java
+- https://rubygems.org/gems/appoptics/versions/3.7.0
+- https://rubygems.org/gems/appoptics/versions/3.7.0-java
 
-# traceview 3.6.0 (03/02/2016)
+# appoptics 3.6.0 (03/02/2016)
 
 This minor release includes the following new feature:
 
@@ -93,10 +93,10 @@ This minor release includes the following new feature:
 
 Pushed to Rubygems:
 
-- https://rubygems.org/gems/traceview/versions/3.6.0
-- https://rubygems.org/gems/traceview/versions/3.6.0-java
+- https://rubygems.org/gems/appoptics/versions/3.6.0
+- https://rubygems.org/gems/appoptics/versions/3.6.0-java
 
-# traceview 3.5.1 (02/15/2016)
+# appoptics 3.5.1 (02/15/2016)
 
 This patch release includes the following fixes:
 
@@ -106,10 +106,10 @@ This patch release includes the following fixes:
 
 Pushed to Rubygems:
 
-- https://rubygems.org/gems/traceview/versions/3.5.1
-- https://rubygems.org/gems/traceview/versions/3.5.1-java
+- https://rubygems.org/gems/appoptics/versions/3.5.1
+- https://rubygems.org/gems/appoptics/versions/3.5.1-java
 
-# traceview 3.5.0 (01/31/2016)
+# appoptics 3.5.0 (01/31/2016)
 
 This minor release includes the following new feature:
 
@@ -117,10 +117,10 @@ This minor release includes the following new feature:
 
 Pushed to Rubygems:
 
-- https://rubygems.org/gems/traceview/versions/3.5.0
-- https://rubygems.org/gems/traceview/versions/3.5.0-java
+- https://rubygems.org/gems/appoptics/versions/3.5.0
+- https://rubygems.org/gems/appoptics/versions/3.5.0-java
 
-# traceview 3.4.2 (01/25/2016)
+# appoptics 3.4.2 (01/25/2016)
 
 This patch release includes the following fixes:
 
@@ -129,10 +129,10 @@ This patch release includes the following fixes:
 
 Pushed to Rubygems:
 
-- https://rubygems.org/gems/traceview/versions/3.4.2
-- https://rubygems.org/gems/traceview/versions/3.4.2-java
+- https://rubygems.org/gems/appoptics/versions/3.4.2
+- https://rubygems.org/gems/appoptics/versions/3.4.2-java
 
-# traceview 3.4.1 (01/05/2016)
+# appoptics 3.4.1 (01/05/2016)
 
 This patch release includes the following fixes:
 
@@ -143,10 +143,10 @@ This patch release includes the following fixes:
 
 Pushed to Rubygems:
 
-- https://rubygems.org/gems/traceview/versions/3.4.1
-- https://rubygems.org/gems/traceview/versions/3.4.1-java
+- https://rubygems.org/gems/appoptics/versions/3.4.1
+- https://rubygems.org/gems/appoptics/versions/3.4.1-java
 
-# traceview 3.4.0 (12/29/2015)
+# appoptics 3.4.0 (12/29/2015)
 
 This minor release includes the following features & fixes:
 
@@ -156,25 +156,25 @@ This minor release includes the following features & fixes:
 
 Pushed to Rubygems:
 
-- https://rubygems.org/gems/traceview/versions/3.4.0
-- https://rubygems.org/gems/traceview/versions/3.4.0-java
+- https://rubygems.org/gems/appoptics/versions/3.4.0
+- https://rubygems.org/gems/appoptics/versions/3.4.0-java
 
-# traceview 3.3.3 (11/11/2015)
+# appoptics 3.3.3 (11/11/2015)
 
 This patch release includes the following fixes:
 
 * Sidekiq instrumentation: don't carry context between enqueue and job run: #150
-* Sidekiq instrumentation: Update KV reporting to follow TV specs: #150
-* Resque instrumentation: Update instrumentation to follow TV specs: #146
+* Sidekiq instrumentation: Update KV reporting to follow APPOPTICS specs: #150
+* Resque instrumentation: Update instrumentation to follow APPOPTICS specs: #146
 * Resque instrumentation: `:link_workers` option deprecated: #146
 * [JRuby 9000](http://jruby.org/) validated: Add JRuby 9000 to test suite: #149
 
 Pushed to Rubygems:
 
-- https://rubygems.org/gems/traceview/versions/3.3.2
-- https://rubygems.org/gems/traceview/versions/3.3.2-java
+- https://rubygems.org/gems/appoptics/versions/3.3.2
+- https://rubygems.org/gems/appoptics/versions/3.3.2-java
 
-# traceview 3.3.1 (10/21/2015)
+# appoptics 3.3.1 (10/21/2015)
 
 This patch release includes the following fixes:
 
@@ -184,24 +184,24 @@ This patch release includes the following fixes:
 
 Pushed to Rubygems:
 
-- https://rubygems.org/gems/traceview/versions/3.3.1
-- https://rubygems.org/gems/traceview/versions/3.3.1-java
+- https://rubygems.org/gems/appoptics/versions/3.3.1
+- https://rubygems.org/gems/appoptics/versions/3.3.1-java
 
-# traceview 3.3.0 (10/07/2015)
+# appoptics 3.3.0 (10/07/2015)
 
 This patch release includes the following fixes:
 
 * New [Sidekiq](http://sidekiq.org/) instrumentation: #138, #139
 * Require `Set` before referencing it: #143
 * Add `:action_blacklist` deprecation warning: #137
-* Add a way to restart the reporter via `TraceView::Reporter.restart`: #140
+* Add a way to restart the reporter via `AppOptics::Reporter.restart`: #140
 
 Pushed to Rubygems:
 
-- https://rubygems.org/gems/traceview/versions/3.3.0
-- https://rubygems.org/gems/traceview/versions/3.3.0-java
+- https://rubygems.org/gems/appoptics/versions/3.3.0
+- https://rubygems.org/gems/appoptics/versions/3.3.0-java
 
-# traceview 3.2.1 (08/20/2015)
+# appoptics 3.2.1 (08/20/2015)
 
 This minor release adds the following:
 
@@ -210,10 +210,10 @@ This minor release adds the following:
 
 Pushed to Rubygems:
 
-- https://rubygems.org/gems/traceview/versions/3.2.1
-- https://rubygems.org/gems/traceview/versions/3.2.1-java
+- https://rubygems.org/gems/appoptics/versions/3.2.1
+- https://rubygems.org/gems/appoptics/versions/3.2.1-java
 
-# traceview 3.1.0 (08/03/2015)
+# appoptics 3.1.0 (08/03/2015)
 
 This minor release adds the following:
 
@@ -221,10 +221,10 @@ This minor release adds the following:
 
 Pushed to Rubygems:
 
-- https://rubygems.org/gems/traceview/versions/3.1.0
-- https://rubygems.org/gems/traceview/versions/3.1.0-java
+- https://rubygems.org/gems/appoptics/versions/3.1.0
+- https://rubygems.org/gems/appoptics/versions/3.1.0-java
 
-# traceview 3.0.5 (07/20/2015)
+# appoptics 3.0.5 (07/20/2015)
 
 This patch release includes the following fixes:
 
@@ -233,10 +233,10 @@ This patch release includes the following fixes:
 
 Pushed to Rubygems:
 
-- https://rubygems.org/gems/traceview/versions/3.0.5
-- https://rubygems.org/gems/traceview/versions/3.0.5-java
+- https://rubygems.org/gems/appoptics/versions/3.0.5
+- https://rubygems.org/gems/appoptics/versions/3.0.5-java
 
-# traceview 3.0.4 (07/08/2015)
+# appoptics 3.0.4 (07/08/2015)
 
 This patch release includes the following fixes:
 
@@ -246,10 +246,10 @@ This patch release includes the following fixes:
 
 Pushed to Rubygems:
 
-- https://rubygems.org/gems/traceview/versions/3.0.4
-- https://rubygems.org/gems/traceview/versions/3.0.4-java
+- https://rubygems.org/gems/appoptics/versions/3.0.4
+- https://rubygems.org/gems/appoptics/versions/3.0.4-java
 
-# traceview 3.0.3 (06/26/2015)
+# appoptics 3.0.3 (06/26/2015)
 
 This patch release includes the following fixes:
 
@@ -258,10 +258,10 @@ This patch release includes the following fixes:
 
 Pushed to Rubygems:
 
-- https://rubygems.org/gems/traceview/versions/3.0.3
-- https://rubygems.org/gems/traceview/versions/3.0.3-java
+- https://rubygems.org/gems/appoptics/versions/3.0.3
+- https://rubygems.org/gems/appoptics/versions/3.0.3-java
 
-# traceview 3.0.2 (06/24/2015)
+# appoptics 3.0.2 (06/24/2015)
 
 This patch release includes the following fixes:
 
@@ -271,10 +271,10 @@ This patch release includes the following fixes:
 
 Pushed to Rubygems:
 
-- https://rubygems.org/gems/traceview/versions/3.0.2
-- https://rubygems.org/gems/traceview/versions/3.0.2-java
+- https://rubygems.org/gems/appoptics/versions/3.0.2
+- https://rubygems.org/gems/appoptics/versions/3.0.2-java
 
-# traceview 3.0.1 (06/04/2015)
+# appoptics 3.0.1 (06/04/2015)
 
 This patch release includes the following fix:
 
@@ -282,16 +282,16 @@ This patch release includes the following fix:
 
 Pushed to Rubygems:
 
-- https://rubygems.org/gems/traceview/versions/3.0.1
-- https://rubygems.org/gems/traceview/versions/3.0.1-java
+- https://rubygems.org/gems/appoptics/versions/3.0.1
+- https://rubygems.org/gems/appoptics/versions/3.0.1-java
 
-# traceview 3.0.0 (05/28/2015)
+# appoptics 3.0.0 (05/28/2015)
 
-The oboe gem has been renamed to traceview.  The final oboe
+The oboe gem has been renamed to appoptics.  The final oboe
 gem (2.7.19) has a post-install deprecation warning and will
 not have anymore updates.
 
-All development going forward will be done on this traceview gem.
+All development going forward will be done on this appoptics gem.
 
 As a first release, this is simply a renamed version of oboe gem 2.7.19.
 
@@ -299,13 +299,13 @@ It contains no bug fixes or new features.
 
 Pushed to Rubygems:
 
-- https://rubygems.org/gems/traceview/versions/3.0.0
-- https://rubygems.org/gems/traceview/versions/3.0.0-java
+- https://rubygems.org/gems/appoptics/versions/3.0.0
+- https://rubygems.org/gems/appoptics/versions/3.0.0-java
 
 # oboe 2.7.19
 
 __Note that this will be the last release for the oboe gem.   The gem
-will be renamed to _traceview_ and all future updates will be to that
+will be renamed to _appoptics_ and all future updates will be to that
 other gem.__
 
 This version will show a post-install warning message stating this.  A
@@ -519,7 +519,7 @@ This patch release includes:
 
 * New [Faraday](https://github.com/lostisland/faraday) instrumentation: https://github.com/appneta/oboe-ruby/pull/68
 * Auto-initialize instrumentation when no framework detected: https://github.com/appneta/oboe-ruby/pull/76
-* Willingly ignore traceview missing libraries warning: https://github.com/appneta/oboe-ruby/pull/75 (thanks @theist!)
+* Willingly ignore appoptics missing libraries warning: https://github.com/appneta/oboe-ruby/pull/75 (thanks @theist!)
 
 Pushed to Rubygems:
 
@@ -530,7 +530,7 @@ https://rubygems.org/gems/oboe/versions/2.7.2.2-java
 
 This patch release includes:
 
-* Fixed load stack trace when missing TraceView base libraries: [#72](https://github.com/appneta/oboe-ruby/pull/72) - thanks @theist!
+* Fixed load stack trace when missing AppOptics base libraries: [#72](https://github.com/appneta/oboe-ruby/pull/72) - thanks @theist!
 * Beta `em-http-request` instrumentation: [#60](https://github.com/appneta/oboe-ruby/pull/60)/[#73](https://github.com/appneta/oboe-ruby/pull/73) - Thanks @diogobenica!
 * Improved loading when on Heroku with oboe-heroku gem
 
@@ -583,11 +583,11 @@ This patch release adds new instrumentation and a couple fixes:
 
 # oboe 2.6.5.5 (06/02/2014)
 
-This patch release improves [instrumentation for Mongo](https://github.com/appneta/oboe-ruby/pull/48) version >= 1.10 and fixes TraceView [sample rate reporting](https://github.com/appneta/oboe-ruby/pull/50).
+This patch release improves [instrumentation for Mongo](https://github.com/appneta/oboe-ruby/pull/48) version >= 1.10 and fixes AppOptics [sample rate reporting](https://github.com/appneta/oboe-ruby/pull/50).
 
 # oboe 2.6.4.1 (04/30/2014)
 
-This patch release adds detection and support for Redhat [OpenShift](https://www.openshift.com/).  See our OpenShift [TraceView cartridge](https://github.com/appneta/openshift-cartridge-traceview) for base libraries before using this gem on OpenShift.
+This patch release adds detection and support for Redhat [OpenShift](https://www.openshift.com/).  See our OpenShift [AppOptics cartridge](https://github.com/appneta/openshift-cartridge-appoptics) for base libraries before using this gem on OpenShift.
 
 # oboe 2.6.3.0 (04/07/2014)
 
@@ -673,7 +673,7 @@ This is a patch release to address "Unsupported digest algorithm (SHA256)" occur
 
 # oboe 2.1.3 (07/16/2013)
 
-* Allow _Access Key_ assignment via Environment variable: TRACEVIEW_CUUID
+* Allow _Access Key_ assignment via Environment variable: APPOPTICS_CUUID
 
 # oboe 2.1.1
 
@@ -758,7 +758,7 @@ compatibility.
 Ruby oboe API methods.
 * Our gem now successfully installs even if your platform does not have our
 base packages (liboboe) installed, so you can deploy to environments with or
-without TraceView support.
+without AppOptics support.
 
 # oboe_fu 1.2.1
 

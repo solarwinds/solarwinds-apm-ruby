@@ -7,27 +7,27 @@ require 'net/http'
 describe "Net::HTTP"  do
   before do
     clear_all_traces
-    @collect_backtraces = TraceView::Config[:nethttp][:collect_backtraces]
-    @log_args = TraceView::Config[:nethttp][:log_args]
+    @collect_backtraces = AppOptics::Config[:nethttp][:collect_backtraces]
+    @log_args = AppOptics::Config[:nethttp][:log_args]
   end
 
   after do
-    TraceView::Config[:nethttp][:collect_backtraces] = @collect_backtraces
-    TraceView::Config[:nethttp][:log_args] = @log_args
+    AppOptics::Config[:nethttp][:collect_backtraces] = @collect_backtraces
+    AppOptics::Config[:nethttp][:log_args] = @log_args
   end
 
   it 'Net::HTTP should be defined and ready' do
     defined?(::Net::HTTP).wont_match nil
   end
 
-  it 'Net::HTTP should have traceview methods defined' do
-    [ :request_with_traceview ].each do |m|
+  it 'Net::HTTP should have appoptics methods defined' do
+    [ :request_with_appoptics ].each do |m|
       ::Net::HTTP.method_defined?(m).must_equal true
     end
   end
 
   it "should trace a Net::HTTP request to an instr'd app" do
-    TraceView::API.start_trace('net-http_test', '', {}) do
+    AppOptics::API.start_trace('net-http_test', '', {}) do
       uri = URI('http://127.0.0.1:8101/?q=1')
       http = Net::HTTP.new(uri.host, uri.port)
       request = Net::HTTP::Get.new(uri.request_uri)
@@ -59,11 +59,11 @@ describe "Net::HTTP"  do
     traces[5]['ServiceArg'].must_equal "/?q=1"
     traces[5]['HTTPMethod'].must_equal "GET"
     traces[5]['HTTPStatus'].must_equal "200"
-    traces[5].has_key?('Backtrace').must_equal TraceView::Config[:nethttp][:collect_backtraces]
+    traces[5].has_key?('Backtrace').must_equal AppOptics::Config[:nethttp][:collect_backtraces]
   end
 
   it "should trace a GET request" do
-    TraceView::API.start_trace('net-http_test', '', {}) do
+    AppOptics::API.start_trace('net-http_test', '', {}) do
       uri = URI('http://127.0.0.1:8101/')
       http = Net::HTTP.new(uri.host, uri.port)
       http.get('/?q=1').read_body
@@ -82,13 +82,13 @@ describe "Net::HTTP"  do
     traces[5]['ServiceArg'].must_equal "/?q=1"
     traces[5]['HTTPMethod'].must_equal "GET"
     traces[5]['HTTPStatus'].must_equal "200"
-    traces[5].has_key?('Backtrace').must_equal TraceView::Config[:nethttp][:collect_backtraces]
+    traces[5].has_key?('Backtrace').must_equal AppOptics::Config[:nethttp][:collect_backtraces]
   end
 
   it "should obey :log_args setting when true" do
-    TraceView::Config[:nethttp][:log_args] = true
+    AppOptics::Config[:nethttp][:log_args] = true
 
-    TraceView::API.start_trace('nethttp_test', '', {}) do
+    AppOptics::API.start_trace('nethttp_test', '', {}) do
       uri = URI('http://127.0.0.1:8101/')
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = false
@@ -100,9 +100,9 @@ describe "Net::HTTP"  do
   end
 
   it "should obey :log_args setting when false" do
-    TraceView::Config[:nethttp][:log_args] = false
+    AppOptics::Config[:nethttp][:log_args] = false
 
-    TraceView::API.start_trace('nethttp_test', '', {}) do
+    AppOptics::API.start_trace('nethttp_test', '', {}) do
       uri = URI('http://127.0.0.1:8101/')
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = false
@@ -114,9 +114,9 @@ describe "Net::HTTP"  do
   end
 
   it "should obey :collect_backtraces setting when true" do
-    TraceView::Config[:nethttp][:collect_backtraces] = true
+    AppOptics::Config[:nethttp][:collect_backtraces] = true
 
-    TraceView::API.start_trace('nethttp_test', '', {}) do
+    AppOptics::API.start_trace('nethttp_test', '', {}) do
       uri = URI('http://127.0.0.1:8101/')
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = false
@@ -128,9 +128,9 @@ describe "Net::HTTP"  do
   end
 
   it "should obey :collect_backtraces setting when false" do
-    TraceView::Config[:nethttp][:collect_backtraces] = false
+    AppOptics::Config[:nethttp][:collect_backtraces] = false
 
-    TraceView::API.start_trace('nethttp_test', '', {}) do
+    AppOptics::API.start_trace('nethttp_test', '', {}) do
       uri = URI('http://127.0.0.1:8101/')
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = false

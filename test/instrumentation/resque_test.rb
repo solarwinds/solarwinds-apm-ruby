@@ -9,22 +9,22 @@ if RUBY_VERSION >= '1.9.3' && !defined?(JRUBY_VERSION)
   class ResqueClientTest < Minitest::Test
     def setup
       clear_all_traces
-      @collect_backtraces = TraceView::Config[:resqueclient][:collect_backtraces]
-      @log_args = TraceView::Config[:resqueclient][:log_args]
+      @collect_backtraces = AppOptics::Config[:resqueclient][:collect_backtraces]
+      @log_args = AppOptics::Config[:resqueclient][:log_args]
     end
 
     def teardown
-      TraceView::Config[:resqueclient][:collect_backtraces] = @collect_backtraces
-      TraceView::Config[:resqueclient][:log_args] = @log_args
+      AppOptics::Config[:resqueclient][:collect_backtraces] = @collect_backtraces
+      AppOptics::Config[:resqueclient][:log_args] = @log_args
     end
 
-    def test_tv_methods_defined
+    def test_appoptics_methods_defined
       [ :enqueue, :enqueue_to, :dequeue ].each do |m|
-        assert_equal true, ::Resque.method_defined?("#{m}_with_traceview")
+        assert_equal true, ::Resque.method_defined?("#{m}_with_appoptics")
       end
 
-      assert_equal true, ::Resque::Worker.method_defined?("perform_with_traceview")
-      assert_equal true, ::Resque::Job.method_defined?("fail_with_traceview")
+      assert_equal true, ::Resque::Worker.method_defined?("perform_with_appoptics")
+      assert_equal true, ::Resque::Job.method_defined?("fail_with_appoptics")
     end
 
     def not_tracing_validation
@@ -33,7 +33,7 @@ if RUBY_VERSION >= '1.9.3' && !defined?(JRUBY_VERSION)
     end
 
     def test_enqueue
-      TraceView::API.start_trace('resque-client_test', '', {}) do
+      AppOptics::API.start_trace('resque-client_test', '', {}) do
         Resque.enqueue(ResqueRemoteCallWorkerJob)
       end
 
@@ -53,7 +53,7 @@ if RUBY_VERSION >= '1.9.3' && !defined?(JRUBY_VERSION)
     end
 
     def test_dequeue
-      TraceView::API.start_trace('resque-client_test', '', {}) do
+      AppOptics::API.start_trace('resque-client_test', '', {}) do
         Resque.dequeue(ResqueRemoteCallWorkerJob, { :generate => :moped })
       end
 
@@ -73,23 +73,23 @@ if RUBY_VERSION >= '1.9.3' && !defined?(JRUBY_VERSION)
     end
 
     def test_legacy_resque_config
-      assert_equal true, (TraceView::Config[:resque][:enabled] = true), "set legacy resque config options don't die"
-      assert_equal true, (TraceView::Config[:resque][:link_workers] = true), "set legacy resque config options don't die"
+      assert_equal true, (AppOptics::Config[:resque][:enabled] = true), "set legacy resque config options don't die"
+      assert_equal true, (AppOptics::Config[:resque][:link_workers] = true), "set legacy resque config options don't die"
     end
 
     def test_collect_backtraces_default_value
-      assert_equal TV::Config[:resqueclient][:collect_backtraces], true, "default backtrace collection"
+      assert_equal AppOptics::Config[:resqueclient][:collect_backtraces], true, "default backtrace collection"
     end
 
     def test_log_args_default_value
-      assert_equal TV::Config[:resqueclient][:log_args], true, "log_args default "
+      assert_equal AppOptics::Config[:resqueclient][:log_args], true, "log_args default "
     end
 
     def test_obey_collect_backtraces_when_false
-      TraceView::Config[:resqueclient][:collect_backtraces] = false
+      AppOptics::Config[:resqueclient][:collect_backtraces] = false
 
       # Queue up a job to be run
-      ::TraceView::API.start_trace('resque-client_test') do
+      ::AppOptics::API.start_trace('resque-client_test') do
         Resque.enqueue(ResqueRemoteCallWorkerJob, [1, 2, 3])
       end
 
@@ -110,10 +110,10 @@ if RUBY_VERSION >= '1.9.3' && !defined?(JRUBY_VERSION)
     end
 
     def test_obey_collect_backtraces_when_true
-      TraceView::Config[:resqueclient][:collect_backtraces] = true
+      AppOptics::Config[:resqueclient][:collect_backtraces] = true
 
       # Queue up a job to be run
-      ::TraceView::API.start_trace('resque-client_test') do
+      ::AppOptics::API.start_trace('resque-client_test') do
         Resque.enqueue(ResqueRemoteCallWorkerJob, [1, 2, 3])
       end
 
@@ -134,10 +134,10 @@ if RUBY_VERSION >= '1.9.3' && !defined?(JRUBY_VERSION)
     end
 
     def test_obey_log_args_when_false
-      TraceView::Config[:resqueclient][:log_args] = false
+      AppOptics::Config[:resqueclient][:log_args] = false
 
       # Queue up a job to be run
-      ::TraceView::API.start_trace('resque-client_test') do
+      ::AppOptics::API.start_trace('resque-client_test') do
         Resque.enqueue(ResqueRemoteCallWorkerJob, [1, 2, 3])
       end
 
@@ -158,10 +158,10 @@ if RUBY_VERSION >= '1.9.3' && !defined?(JRUBY_VERSION)
     end
 
     def test_obey_log_args_when_true
-      TraceView::Config[:resqueclient][:log_args] = true
+      AppOptics::Config[:resqueclient][:log_args] = true
 
       # Queue up a job to be run
-      ::TraceView::API.start_trace('resque-client_test') do
+      ::AppOptics::API.start_trace('resque-client_test') do
         Resque.enqueue(ResqueRemoteCallWorkerJob, 1, 2, 3)
       end
 
