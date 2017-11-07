@@ -147,7 +147,7 @@ describe "LegacyAppOpticsMethodProfiling" do
 
   it 'should not store arguments and return value by default' do
     class TestWorker
-      def self.do_work(s, i, a, h)
+      def self.do_work(_s, _i, _a, _h)
         sleep 1
         return "the zebra is loose"
       end
@@ -173,7 +173,7 @@ describe "LegacyAppOpticsMethodProfiling" do
 
   it 'should store arguments and return value when asked' do
     class TestWorker
-      def self.do_work(s, i, a, h)
+      def self.do_work(_s, _i, _a, _h)
         sleep 1
         return "the zebra is loose"
       end

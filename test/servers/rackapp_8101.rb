@@ -13,15 +13,11 @@ Thread.new do
   app = Rack::Builder.new {
     use AppOptics::Rack
     map "/" do
-      run Proc.new { |env|
-        [200, {"Content-Type" => "text/html"}, ['Hello AppOptics!']]
-      }
+      run Proc.new { [200, {"Content-Type" => "text/html"}, ['Hello AppOptics!']] }
     end
 
     map "/redirectme" do
-      run Proc.new { |env|
-        [301, {"Location" => "/", "Content-Type" => "text/html"}, ['']]
-      }
+      run Proc.new { [301, {"Location" => "/", "Content-Type" => "text/html"}, ['']] }
     end
   }
 

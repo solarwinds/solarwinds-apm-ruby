@@ -69,7 +69,7 @@ describe "BackwardCompatibility" do
       Oboe::API.profile('profile_test', {}, false) do
         sleep 1
       end
-   end
+    end
 
     traces = get_all_traces
     traces.count.must_equal 4
@@ -221,7 +221,7 @@ describe "BackwardCompatibility" do
 
     it 'should not store arguments and return value by default' do
       class TestWorker
-        def self.do_work(s, i, a, h)
+        def self.do_work(_s, _i, _a, _h)
           sleep 1
           return "the zebra is loose"
         end
@@ -247,7 +247,7 @@ describe "BackwardCompatibility" do
 
     it 'should store arguments and return value when asked' do
       class TestWorker
-        def self.do_work(s, i, a, h)
+        def self.do_work(_s, _i, _a, _h)
           sleep 1
           return "the zebra is loose"
         end

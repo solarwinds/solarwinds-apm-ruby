@@ -358,7 +358,7 @@ if RUBY_VERSION >= '1.9.3'
 
     it 'should profile methods that use blocks' do
       class TestKlass
-        def self.do_work(&block)
+        def self.do_work(*)
           yield
         end
       end
@@ -405,7 +405,7 @@ if RUBY_VERSION >= '1.9.3'
 
     it 'should not store arguments and return value by default' do
       class TestKlass
-        def do_work(blah = {})
+        def do_work(*)
           return 687
         end
       end
@@ -456,7 +456,7 @@ if RUBY_VERSION >= '1.9.3'
 
     it 'should store arguments and return value when asked' do
       class TestKlass
-        def do_work(blah = {})
+        def do_work(*)
           return 687
         end
       end
@@ -514,7 +514,7 @@ if RUBY_VERSION >= '1.9.3'
 
     it 'should not report backtraces by default' do
       class TestKlass
-        def do_work(blah = {})
+        def do_work(*)
           return 687
         end
       end
@@ -553,7 +553,7 @@ if RUBY_VERSION >= '1.9.3'
 
     it 'should report backtraces when requested' do
       class TestKlass
-        def do_work(blah = {})
+        def do_work(*)
           return 687
         end
       end
@@ -591,7 +591,7 @@ if RUBY_VERSION >= '1.9.3'
 
     it 'should report extra KVs when requested' do
       class TestKlass
-        def do_work(blah = {})
+        def do_work(*)
           return 687
         end
       end
