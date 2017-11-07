@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
 
   s.license = "Librato Open License, Version 1.0"
 
-  s.authors = ["Peter Giacomo Lombardo", "Spiros Eliopoulos"]
+  s.authors = ["Maia Engeli", "Peter Giacomo Lombardo", "Spiros Eliopoulos"]
   s.email = %q{traceviewsupport@solarwinds.com}
   s.homepage = %q{https://traceview.solarwinds.com/}
   s.summary = %q{TraceView performance instrumentation gem for Ruby}
@@ -31,13 +31,9 @@ Gem::Specification.new do |s|
 
   # Development dependencies used in gem development & testing
   s.add_development_dependency('rake', '>= 0.9.0')
-  s.add_development_dependency('mocha')
 
   unless defined?(JRUBY_VERSION)
     case RUBY_VERSION
-    when /^1\.8/
-      s.add_development_dependency('ruby-debug', '>= 0.10.1')
-      s.add_development_dependency('pry', '>= 0.9.12.4')
     when /^1\.9/
       s.add_development_dependency('debugger', '>= 1.6.7')
       s.add_development_dependency('pry', '>= 0.10.0')

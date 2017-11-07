@@ -13,12 +13,14 @@ module TraceView
       include ::TraceView::Inst::RailsBase
 
       def process_action(method_name, *args)
+        kvs = {
+            :Controller   => self.class.name,
+            :Action       => self.action_name,
+        }
+        request.env['traceview.transaction'] = "#{kvs[:Controller]}.#{kvs[:Action]}"
+
         return super(method_name, *args) unless TraceView.tracing?
         begin
-          kvs = {
-              :Controller   => self.class.name,
-              :Action       => self.action_name,
-          }
           kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:action_controller_api][:collect_backtraces]
 
           TraceView::API.log_entry('rails-api', kvs)

@@ -13,12 +13,13 @@ class ExconTest < Minitest::Test
   end
 
   def test_must_return_xtrace_header
+    skip if defined?(JRUBY_VERSION)
+
     clear_all_traces
     get "/"
     xtrace = last_response['X-Trace']
-    # FIXME: This test passes inconsistently.  Investigate
+
     # Rack response header management under JRUBY.
-    skip if defined?(JRUBY_VERSION)
     assert xtrace
     assert TraceView::XTrace.valid?(xtrace)
   end
@@ -59,11 +60,8 @@ class ExconTest < Minitest::Test
       response = Excon.get('http://127.0.0.1:8101/?blah=1')
       xtrace = response.headers['X-Trace']
 
-      unless defined?(JRUBY_VERSION)
-        # FIXME: Works on live stacks; fails in tests
-        assert xtrace
-        assert TraceView::XTrace.valid?(xtrace)
-      end
+      assert xtrace
+      assert TraceView::XTrace.valid?(xtrace)
     end
 
     traces = get_all_traces

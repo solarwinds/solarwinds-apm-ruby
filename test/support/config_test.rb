@@ -15,9 +15,11 @@ describe "TraceView::Config" do
     TraceView::Config.initialize
 
     # FIXME: We set the TRACEVIEW_GEM_VERBOSE env for the
-    # test suite so this assertion is not going to fly
+    # ____   test suite so this assertion is not going to fly
     #
     # TraceView::Config[:verbose].must_equal false
+
+    # TODO: Is there anything we should test here?
   end
 
   it 'should have the correct instrumentation defaults' do

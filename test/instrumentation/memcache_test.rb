@@ -3,7 +3,7 @@
 
 require 'minitest_helper'
 
-# FIXME: Since memcache is loaded late, the instrumentation
+# Since memcache is loaded late, the instrumentation
 # loaded out of order.  Here we force inject instrumentation
 require 'memcache'
 ::MemCache.class_eval do

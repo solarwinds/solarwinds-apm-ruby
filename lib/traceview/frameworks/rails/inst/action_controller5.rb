@@ -13,12 +13,14 @@ module TraceView
       include ::TraceView::Inst::RailsBase
 
       def process_action(method_name, *args)
+        kvs = {
+            :Controller   => self.class.name,
+            :Action       => self.action_name,
+        }
+        request.env['traceview.transaction'] = "#{kvs[:Controller]}.#{kvs[:Action]}"
+
         return super(method_name, *args) unless TraceView.tracing?
         begin
-          kvs = {
-              :Controller   => self.class.name,
-              :Action       => self.action_name,
-          }
           kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:action_controller][:collect_backtraces]
 
           TraceView::API.log_entry('rails', kvs)
@@ -35,7 +37,7 @@ module TraceView
       #
       # render
       #
-      # Our render wrapper that calls 'add_logging', which will log if we are tracing
+      # Our render wrapper that calls 'trace', which will log if we are tracing
       #
       def render(*args, &blk)
         trace('actionview') do

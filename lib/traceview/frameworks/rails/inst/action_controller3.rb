@@ -21,18 +21,26 @@ module TraceView
       end
 
       def process_with_traceview(*args)
+        kvs = {
+            :Controller   => self.class.name,
+            :Action       => self.action_name,
+        }
+        request.env['traceview.transaction'] = "#{kvs[:Controller]}.#{kvs[:Action]}"
+
         trace('rails') do
           process_without_traceview(*args)
         end
       end
 
       def process_action_with_traceview(*args)
+        kvs = {
+            :Controller   => self.class.name,
+            :Action       => action_name,
+        }
+        request.env['traceview.transaction'] = "#{kvs[:Controller]}.#{kvs[:Action]}"
+
         return process_action_without_traceview(*args) unless TraceView.tracing?
         begin
-          kvs = {
-              :Controller   => self.class.name,
-              :Action       => action_name,
-          }
           kvs[:Backtrace] = TraceView::API.backtrace if TraceView::Config[:action_controller][:collect_backtraces]
           TraceView::API.log(nil, 'info', kvs)
 

@@ -12,12 +12,24 @@ unless defined?(Padrino)
     end
   end
 
-  class CreateWidgets < ActiveRecord::Migration
-    def change
-      create_table :widgets do |t|
-        t.string :name
-        t.text :description
-        t.timestamps
+  if Rails.version >= '5.1'
+    class CreateWidgets < ActiveRecord::Migration[5.1]
+      def change
+        create_table :widgets do |t|
+          t.string :name
+          t.text :description
+          t.timestamps
+        end
+      end
+    end
+  else
+    class CreateWidgets < ActiveRecord::Migration
+      def change
+        create_table :widgets do |t|
+          t.string :name
+          t.text :description
+          t.timestamps
+        end
       end
     end
   end

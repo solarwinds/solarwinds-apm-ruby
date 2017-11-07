@@ -2,7 +2,7 @@
 
 # used by run_tests_docker.sh
 # call with:
-# docker-compose run --service-ports ruby_appoptics /code/ruby-appoptics/ruby_setup.sh <ruby-version> <gemfile>
+# docker-compose run --service-ports ruby_appoptics /code/ruby-appoptics/ruby_setup.sh <ruby-version> <gemfile> <true|false>
 # docker-compose run --service-ports ruby_appoptics /code/ruby-appoptics/ruby_setup.sh 1.9.3 gemfiles/libraries.gemfile
 
 

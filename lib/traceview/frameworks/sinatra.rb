@@ -30,6 +30,8 @@ module TraceView
         else
           dispatch_without_traceview
         end
+      ensure
+        env['traceview.transaction'] = env['sinatra.route'].gsub(/#{env['REQUEST_METHOD']} /, '').gsub(/[^-.:_\/\w ]/, '_')
       end
 
       def handle_exception_with_traceview(boom)

@@ -33,6 +33,7 @@ class Rails40MetalStack < Rails::Application
     get "/hello/world" => "hello#world"
     get "/hello/metal" => "ferro#world"
     get "/hello/db"    => "hello#db"
+    get "/hello/servererror" => "hello#servererror"
   end
 
   config.cache_classes = true
@@ -64,6 +65,10 @@ class HelloController < ActionController::Base
     w2.delete
 
     render :text => "Hello database!"
+  end
+
+  def servererror
+    render :plain => "broken", :status => 500
   end
 end
 

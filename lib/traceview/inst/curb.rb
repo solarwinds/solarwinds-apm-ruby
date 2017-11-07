@@ -254,7 +254,6 @@ module TraceView
             end
             block.call(easy, response_code, method) if block
           end
-          TraceView.logger.debug "Curb::Multi.http returned traces: #{traces}"
           TraceView::XTrace.continue_service_context(context, traces.pop) unless traces.empty?
         rescue => e
           TraceView::API.log_exception(:curb_multi, e)

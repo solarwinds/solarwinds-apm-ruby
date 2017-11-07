@@ -5,6 +5,7 @@ require 'minitest_helper'
 require 'rack/test'
 require 'rack/lobster'
 require 'traceview/inst/rack'
+require 'mocha/mini_test'
 
 class RackTestApp < Minitest::Test
   include Rack::Test::Methods
@@ -65,17 +66,6 @@ class RackTestApp < Minitest::Test
     assert last_response['X-Trace']
   end
 
-  def test_dont_trace_static_assets
-    clear_all_traces
-
-    get "/assets/static_asset.png"
-
-    traces = get_all_traces
-    assert traces.empty?
-
-    assert last_response.status == 404
-  end
-
   def test_must_return_xtrace_header
     clear_all_traces
     get "/lobster"
@@ -134,6 +124,32 @@ class RackTestApp < Minitest::Test
 
     assert last_response['X-Trace'], "X-Trace header is missing"
     assert not_sampled?(last_response['X-Trace']), "X-Trace sampling flag is not '00'"
+  end
+
+  def test_sends_path_in_http_span_when_no_controller
+    test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
+
+    TraceView::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+      test_action = action
+      test_url = url
+      test_status = status
+      test_method = method
+      test_error = error
+    end.once
+
+    get "/no/controller/here"
+
+    assert_equal "/no/controller/here", test_action
+    assert_equal "http://example.org", test_url
+    assert_equal 404, test_status
+    assert_equal "GET", test_method
+    assert_equal 0, test_error
+  end
+
+  def test_does_not_send_http_span_for_static_assets
+    TraceView::Span.expects(:createHttpSpan).never
+
+    get "/assets/static_asset.png"
   end
 end
 

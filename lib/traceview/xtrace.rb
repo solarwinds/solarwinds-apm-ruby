@@ -94,7 +94,7 @@ module TraceView
           if TraceView::XTrace.task_id(start) == TraceView::XTrace.task_id(finish) && TraceView::XTrace.sampled?(finish)
             TraceView::Context.fromString(finish)
           else
-            TraceView.logger.debug "Sampling flag unset or mismatched start and finish ids:\n#{start}\n#{finish}"
+            TraceView.logger.debug "[XTrace] Sampling flag unset or mismatched start and finish ids:\n#{start}\n#{finish}"
           end
         end
       end

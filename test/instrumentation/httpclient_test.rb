@@ -145,8 +145,6 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_async_get
-      skip if RUBY_VERSION < '1.9.2'
-
       clear_all_traces
 
       conn = nil
@@ -160,18 +158,21 @@ unless defined?(JRUBY_VERSION)
       Thread.pass until conn.finished?
 
       traces = get_all_traces
+
       assert_equal traces.count, 7
       assert valid_edges?(traces), "Invalid edge in traces"
 
-      # FIXME: validate_outer_layers assumes that the traces
-      # are ordered which in the case of async, they aren't
-      # validate_outer_layers(traces, "httpclient_tests")
+      # In the case of async the layers are not always ordered the same
+      # validate_outer_layers is not applicable, so we make sure we get the pair for 'httpclient_tests'
+      assert_equal 2, traces.select { |trace| trace['Layer'] == 'httpclient_tests' }.size
 
-      assert_equal 1, traces[2]['Async']
-      assert_equal 1, traces[2]['IsService']
-      assert_equal 'http://127.0.0.1:8101/?blah=1', traces[2]['RemoteURL']
-      assert_equal 'GET', traces[2]['HTTPMethod']
-      assert traces[2].key?('Backtrace')
+      # because of possible different ordering of traces we can't rely on an index and need to use find
+      async_entry = traces.find { |trace| trace['Layer'] == 'httpclient' && trace['Label'] == 'entry' }
+      assert_equal 1, async_entry['Async']
+      assert_equal 1, async_entry['IsService']
+      assert_equal 'http://127.0.0.1:8101/?blah=1', async_entry['RemoteURL']
+      assert_equal 'GET', async_entry['HTTPMethod']
+      assert async_entry.key?('Backtrace')
 
       assert_equal 'httpclient', traces[6]['Layer']
       assert_equal 'exit', traces[6]['Label']

@@ -425,5 +425,7 @@ if defined?(::Rails)
       traces = get_all_traces
       traces.count.must_equal 0
     end
+
+    require_relative "rails_shared_tests"
   end
 end

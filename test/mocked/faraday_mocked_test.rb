@@ -43,21 +43,21 @@ if !defined?(JRUBY_VERSION)
     end
 
     def test_tracing_not_sampling
-      stub_request(:get, "http://127.0.0.2:8101/")
+      stub_request(:get, "http://127.0.0.12:8101/")
 
       TraceView.config_lock.synchronize do
         TraceView::Config[:sample_rate] = 0
         TraceView::API.start_trace('faraday_test') do
-          conn = Faraday.new(:url => 'http://127.0.0.2:8101') do |faraday|
+          conn = Faraday.new(:url => 'http://127.0.0.12:8101') do |faraday|
             faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
           end
           conn.get
         end
       end
 
-      assert_requested :get, "http://127.0.0.2:8101/", times: 1
-      assert_requested :get, "http://127.0.0.2:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*00$/}, times: 1
-      assert_not_requested :get, "http://127.0.0.2:8101/", headers: {'X-Trace'=>/^2B0*$/}
+      assert_requested :get, "http://127.0.0.12:8101/", times: 1
+      assert_requested :get, "http://127.0.0.12:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*00$/}, times: 1
+      assert_not_requested :get, "http://127.0.0.12:8101/", headers: {'X-Trace'=>/^2B0*$/}
     end
 
     def test_no_xtrace

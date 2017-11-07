@@ -257,9 +257,6 @@ module TraceView
       #
       def log_multi_exit(layer, traces)
         return unless TraceView.loaded
-
-        #TODO check traces against context
-
         task_id = TraceView::XTrace.task_id(TraceView::Context.toString)
         event = TraceView::Context.createEvent
         traces.each do |trace|
