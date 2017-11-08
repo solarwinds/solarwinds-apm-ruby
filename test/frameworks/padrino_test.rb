@@ -2,6 +2,7 @@
 # All rights reserved.
 
 require "minitest_helper"
+require "mocha/mini_test"
 
 if RUBY_VERSION >= '1.9.3' and defined?(::Padrino)
   require File.expand_path(File.dirname(__FILE__) + '/apps/padrino_simple')
@@ -29,6 +30,154 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Padrino)
       # Validate the existence of the response header
       r.headers.key?('X-Trace').must_equal true
       r.headers['X-Trace'].must_equal traces[8]['X-Trace']
+    end
+
+    it "should report controller.action" do
+      @app = SimpleDemo
+      test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
+      AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+        test_action = action
+        test_url = url
+        test_status = status
+        test_method = method
+        test_error = error
+      end.once
+
+      get "/render"
+
+      assert_equal "render", test_action
+      assert_equal "http://example.org", test_url
+      assert_equal 200, test_status
+      assert_equal "GET", test_method
+      assert_equal 0, test_error
+    end
+
+    it "should report controller.action for a symbol route" do
+      @app = SimpleDemo
+      test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
+      AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+        test_action = action
+        test_url = url
+        test_status = status
+        test_method = method
+        test_error = error
+      end.once
+
+      get "/symbol_route"
+
+      assert_equal "symbol_route", test_action
+      assert_equal "http://example.org", test_url
+      assert_equal 200, test_status
+      assert_equal "GET", test_method
+      assert_equal 0, test_error
+    end
+
+    it "should report controller.action with :id" do
+      @app = SimpleDemo
+      test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
+      AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+        test_action = action
+        test_url = url
+        test_status = status
+        test_method = method
+        test_error = error
+      end.once
+
+      r = get "/render/1234567890"
+
+      r.body.must_match /1234567890/
+
+      assert_equal "render/:id", test_action
+      assert_equal "http://example.org", test_url
+      assert_equal 200, test_status
+      assert_equal "GET", test_method
+      assert_equal 0, test_error
+    end
+
+    it "should report controller.action for a symbol route with :id" do
+      @app = SimpleDemo
+      test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
+      AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+        test_action = action
+        test_url = url
+        test_status = status
+        test_method = method
+        test_error = error
+      end.once
+
+      r = get "/symbol_route/1234567890"
+
+      r.body.must_match /1234567890/
+
+      assert_equal "symbol_route", test_action
+      assert_equal "http://example.org", test_url
+      assert_equal 200, test_status
+      assert_equal "GET", test_method
+      assert_equal 0, test_error
+    end
+
+    it "should report controller.action with :id and more" do
+      @app = SimpleDemo
+      test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
+      AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+        test_action = action
+        test_url = url
+        test_status = status
+        test_method = method
+        test_error = error
+      end.once
+
+      r = get "/render/1234567890/what"
+
+      r.body.must_match /WOOT is 1234567890/
+
+      assert_equal "render/:id/what", test_action
+      assert_equal "http://example.org", test_url
+      assert_equal 200, test_status
+      assert_equal "GET", test_method
+      assert_equal 0, test_error
+    end
+
+    it "should report an error" do
+      @app = SimpleDemo
+      test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
+      AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+        test_action = action
+        test_url = url
+        test_status = status
+        test_method = method
+        test_error = error
+      end.once
+
+      get "/error"
+
+      assert_equal "error", test_action
+      assert_equal "http://example.org", test_url
+      assert_equal 500, test_status
+      assert_equal "GET", test_method
+      assert_equal 1, test_error
+    end
+
+    it "should correctly report nested routes" do
+      @app = SimpleDemo
+      test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
+      AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+        test_action = action
+        test_url = url
+        test_status = status
+        test_method = method
+        test_error = error
+      end.once
+
+      r = get "/user/12345/product"
+
+      r.body.must_match /12345/
+
+      assert_equal "product.index", test_action
+      assert_equal "http://example.org", test_url
+      assert_equal 200, test_status
+      assert_equal "GET", test_method
+      assert_equal 0, test_error
     end
   end
 end
