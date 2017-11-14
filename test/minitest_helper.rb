@@ -23,10 +23,10 @@ end
 puts "\n\033[1m=== TEST RUN: #{ENV['RVM_TEST']} #{ENV['BUNDLE_GEMFILE']} #{Time.now.strftime("%Y-%m-%d %H:%M")} ===\033[0m\n"
 
 ENV['RACK_ENV'] = 'test'
-ENV['TRACEVIEW_GEM_TEST'] = 'true'
+ENV['APPOPTICS_GEM_TEST'] = 'true'
 
 #
-# ENV['TRACEVIEW_GEM_VERBOSE'] = 'true'
+# ENV['APPOPTICS_GEM_VERBOSE'] = 'true'
 
 # FIXME: Temp hack to fix padrino-core calling RUBY_ENGINE when it's not defined under Ruby 1.9.3
 RUBY_ENGINE = 'ruby' unless defined?(RUBY_ENGINE)
@@ -41,11 +41,11 @@ end
 
 Bundler.require(:default, :test)
 
-# Configure TraceView
-TraceView::Config[:verbose] = true
-TraceView::Config[:tracing_mode] = "always"
-TraceView::Config[:sample_rate] = 1000000
-TraceView.logger.level = Logger::DEBUG
+# Configure AppOptics
+AppOptics::Config[:verbose] = true
+AppOptics::Config[:tracing_mode] = "always"
+AppOptics::Config[:sample_rate] = 1000000
+AppOptics.logger.level = Logger::DEBUG
 
 # Pre-create test databases (see also .travis.yml)
 # puts "Pre-creating test databases"
@@ -90,8 +90,8 @@ end
 # Truncates the trace output file to zero
 #
 def clear_all_traces
-  if TraceView.loaded
-    TraceView::Reporter.clear_all_traces
+  if AppOptics.loaded
+    AppOptics::Reporter.clear_all_traces
     sleep 0.2 # it seems like the docker file system needs a bit of time to clear the file
   end
 end
@@ -102,8 +102,8 @@ end
 # Retrieves all traces written to the trace file
 #
 def get_all_traces
-  if TraceView.loaded
-    TraceView::Reporter.get_all_traces
+  if AppOptics.loaded
+    AppOptics::Reporter.get_all_traces
   else
     []
   end
@@ -143,11 +143,11 @@ end
 #
 def has_edge?(edge, traces)
   traces.each do |t|
-    if TraceView::XTrace.edge_id(t["X-Trace"]) == edge
+    if AppOptics::XTrace.edge_id(t["X-Trace"]) == edge
       return true
     end
   end
-  TraceView.logger.debug "[oboe/debug] edge #{edge} not found in traces."
+  AppOptics.logger.debug "[oboe/debug] edge #{edge} not found in traces."
   false
 end
 

@@ -3,13 +3,13 @@
 
 require 'minitest_helper'
 
-class TVAliasTest < Minitest::Test
+class APPOPTICSAliasTest < Minitest::Test
 
   def test_responds_various_capitalization
-    defined?(::TraceView).must_equal "constant"
-    defined?(::Traceview).must_equal "constant"
+    defined?(::AppOptics).must_equal "constant"
+    defined?(::AppOptics).must_equal "constant"
 
-    TraceView.methods.count.must_equal Traceview.methods.count
+    AppOptics.methods.count.must_equal AppOptics.methods.count
   end
 end
 

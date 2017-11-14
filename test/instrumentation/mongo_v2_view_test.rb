@@ -4,15 +4,15 @@
 require 'minitest_helper'
 
 
-ENV['TV_MONGO_SERVER'] = "127.0.0.1:27017" unless ENV['TV_MONGO_SERVER']
-ENV['TV_MONGO_SERVER'] += ':27017' unless ENV['TV_MONGO_SERVER'] =~ /\:27017$/
+ENV['APPOPTICS_MONGO_SERVER'] = "127.0.0.1:27017" unless ENV['APPOPTICS_MONGO_SERVER']
+ENV['APPOPTICS_MONGO_SERVER'] += ':27017' unless ENV['APPOPTICS_MONGO_SERVER'] =~ /\:27017$/
 
 if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
   describe "MongoCollectionView" do
     before do
       clear_all_traces
 
-      @client = Mongo::Client.new([ ENV['TV_MONGO_SERVER'] ], :database => "traceview-#{ENV['RACK_ENV']}")
+      @client = Mongo::Client.new([ ENV['APPOPTICS_MONGO_SERVER'] ], :database => "appoptics-#{ENV['RACK_ENV']}")
       if Mongo::VERSION < '2.2'
         Mongo::Logger.logger.level = Logger::INFO
       else
@@ -30,15 +30,15 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
         'Layer' => 'mongo',
         'Label' => 'entry',
         'Flavor' => 'mongodb',
-        'Database' => 'traceview-test',
-        'RemoteHost' => ENV['TV_MONGO_SERVER'] }
+        'Database' => 'appoptics-test',
+        'RemoteHost' => ENV['APPOPTICS_MONGO_SERVER'] }
 
       @exit_kvs = { 'Layer' => 'mongo', 'Label' => 'exit' }
-      @collect_backtraces = TraceView::Config[:mongo][:collect_backtraces]
+      @collect_backtraces = AppOptics::Config[:mongo][:collect_backtraces]
     end
 
     after do
-      TraceView::Config[:mongo][:collect_backtraces] = @collect_backtraces
+      AppOptics::Config[:mongo][:collect_backtraces] = @collect_backtraces
     end
 
     it "should trace find_one_and_delete" do
@@ -50,7 +50,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       coll.insert_one(doc)
       cv = coll.find({:name => "MyName"})
 
-      TraceView::API.start_trace('mongo_test', '', {}) do
+      AppOptics::API.start_trace('mongo_test', '', {}) do
         r = cv.find_one_and_delete
       end
 
@@ -64,7 +64,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       r.must_be_instance_of BSON::Document
 
       traces[1]['Collection'].must_equal "test_collection"
-      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal AppOptics::Config[:mongo][:collect_backtraces]
       traces[1]['QueryOp'].must_equal "find_one_and_delete"
       traces[1]['Query'].must_equal "{\"name\":\"MyName\"}"
       traces[1].has_key?('Query').must_equal true
@@ -79,7 +79,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       coll.insert_one(doc)
       cv = coll.find({:name => "MyName"})
 
-      TraceView::API.start_trace('mongo_test', '', {}) do
+      AppOptics::API.start_trace('mongo_test', '', {}) do
         r = cv.find_one_and_update({ "$set" => { :name => 'test1' }}, :return_document => :after)
       end
 
@@ -93,7 +93,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       r.must_be_instance_of BSON::Document
 
       traces[1]['Collection'].must_equal "test_collection"
-      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal AppOptics::Config[:mongo][:collect_backtraces]
       traces[1]['QueryOp'].must_equal "find_one_and_update"
       traces[1]['Query'].must_equal "{\"name\":\"MyName\"}"
       traces[1].has_key?('Query').must_equal true
@@ -108,7 +108,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       coll.insert_one(doc)
       cv = coll.find({:name => "MyName"})
 
-      TraceView::API.start_trace('mongo_test', '', {}) do
+      AppOptics::API.start_trace('mongo_test', '', {}) do
         r = cv.update_one({ "$set" => { :name => 'test1' }}, :return_document => :after)
       end
 
@@ -122,7 +122,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       r.class.ancestors.include?(Mongo::Operation::Result).must_equal true
 
       traces[1]['Collection'].must_equal "test_collection"
-      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal AppOptics::Config[:mongo][:collect_backtraces]
       traces[1]['QueryOp'].must_equal "update_one"
       traces[1]['Query'].must_equal "{\"name\":\"MyName\"}"
       traces[1].has_key?('Query').must_equal true
@@ -137,7 +137,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       coll.insert_one(doc)
       cv = coll.find({:name => "MyName"})
 
-      TraceView::API.start_trace('mongo_test', '', {}) do
+      AppOptics::API.start_trace('mongo_test', '', {}) do
         r = cv.update_many({ "$set" => { :name => 'test1' }}, :return_document => :after)
       end
 
@@ -151,7 +151,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       r.class.ancestors.include?(Mongo::Operation::Result).must_equal true
 
       traces[1]['Collection'].must_equal "test_collection"
-      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal AppOptics::Config[:mongo][:collect_backtraces]
       traces[1]['QueryOp'].must_equal "update_many"
       traces[1]['Query'].must_equal "{\"name\":\"MyName\"}"
       traces[1].has_key?('Query').must_equal true
@@ -166,7 +166,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       coll.insert_one(doc)
       cv = coll.find({:name => "MyName"})
 
-      TraceView::API.start_trace('mongo_test', '', {}) do
+      AppOptics::API.start_trace('mongo_test', '', {}) do
         r = cv.delete_one
       end
 
@@ -180,7 +180,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       r.class.ancestors.include?(Mongo::Operation::Result).must_equal true
 
       traces[1]['Collection'].must_equal "test_collection"
-      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal AppOptics::Config[:mongo][:collect_backtraces]
       traces[1]['QueryOp'].must_equal "delete_one"
       traces[1]['Query'].must_equal "{\"name\":\"MyName\"}"
       traces[1].has_key?('Query').must_equal true
@@ -195,7 +195,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       coll.insert_one(doc)
       cv = coll.find({ :name => 'MyName' })
 
-      TraceView::API.start_trace('mongo_test', '', {}) do
+      AppOptics::API.start_trace('mongo_test', '', {}) do
         r = cv.delete_many
       end
 
@@ -209,7 +209,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       r.class.ancestors.include?(Mongo::Operation::Result).must_equal true
 
       traces[1]['Collection'].must_equal "test_collection"
-      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal AppOptics::Config[:mongo][:collect_backtraces]
       traces[1]['QueryOp'].must_equal "delete_many"
       traces[1]['Query'].must_equal "{\"name\":\"MyName\"}"
       traces[1].has_key?('Query').must_equal true
@@ -224,7 +224,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       coll.insert_one(doc)
       cv = coll.find({ :name => 'MyName' })
 
-      TraceView::API.start_trace('mongo_test', '', {}) do
+      AppOptics::API.start_trace('mongo_test', '', {}) do
         r = cv.delete_one
       end
 
@@ -238,7 +238,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       r.class.ancestors.include?(Mongo::Operation::Result).must_equal true
 
       traces[1]['Collection'].must_equal "test_collection"
-      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal AppOptics::Config[:mongo][:collect_backtraces]
       traces[1]['QueryOp'].must_equal "delete_one"
       traces[1]['Query'].must_equal "{\"name\":\"MyName\"}"
       traces[1].has_key?('Query').must_equal true
@@ -253,7 +253,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       coll.insert_one(doc)
       cv = coll.find({ :name => 'MyName' })
 
-      TraceView::API.start_trace('mongo_test', '', {}) do
+      AppOptics::API.start_trace('mongo_test', '', {}) do
         r = cv.delete_many
       end
 
@@ -267,7 +267,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       r.class.ancestors.include?(Mongo::Operation::Result).must_equal true
 
       traces[1]['Collection'].must_equal "test_collection"
-      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal AppOptics::Config[:mongo][:collect_backtraces]
       traces[1]['QueryOp'].must_equal "delete_many"
       traces[1]['Query'].must_equal "{\"name\":\"MyName\"}"
       traces[1].has_key?('Query').must_equal true
@@ -282,7 +282,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       coll.insert_one(doc)
       cv = coll.find({ :name => 'MyName' })
 
-      TraceView::API.start_trace('mongo_test', '', {}) do
+      AppOptics::API.start_trace('mongo_test', '', {}) do
         r = cv.replace_one({ :name => 'test1' })
       end
 
@@ -296,7 +296,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       r.class.ancestors.include?(Mongo::Operation::Result).must_equal true
 
       traces[1]['Collection'].must_equal "test_collection"
-      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal AppOptics::Config[:mongo][:collect_backtraces]
       traces[1]['QueryOp'].must_equal "replace_one"
       traces[1]['Query'].must_equal "{\"name\":\"MyName\"}"
       traces[1].has_key?('Query').must_equal true
@@ -308,7 +308,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
 
       cv = coll.find({ :name => 'MyName' })
 
-      TraceView::API.start_trace('mongo_test', '', {}) do
+      AppOptics::API.start_trace('mongo_test', '', {}) do
         r = cv.count({ :name => 'MyName' })
       end
 
@@ -322,7 +322,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       r.is_a?(Numeric).must_equal true
 
       traces[1]['Collection'].must_equal "test_collection"
-      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal AppOptics::Config[:mongo][:collect_backtraces]
       traces[1]['QueryOp'].must_equal "count"
       traces[1]['Query'].must_equal "{\"name\":\"MyName\"}"
       traces[1].has_key?('Query').must_equal true
@@ -334,7 +334,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
 
       cv = coll.find({ :name => 'MyName' })
 
-      TraceView::API.start_trace('mongo_test', '', {}) do
+      AppOptics::API.start_trace('mongo_test', '', {}) do
         r = cv.distinct('name', { :name => 'MyName' })
       end
 
@@ -348,7 +348,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       r.is_a?(Array).must_equal true
 
       traces[1]['Collection'].must_equal "test_collection"
-      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal AppOptics::Config[:mongo][:collect_backtraces]
       traces[1]['QueryOp'].must_equal "distinct"
       traces[1]['Query'].must_equal "{\"name\":\"MyName\"}"
       traces[1].has_key?('Query').must_equal true
@@ -360,7 +360,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
 
       cv = coll.find({ :name => 'MyName' })
 
-      TraceView::API.start_trace('mongo_test', '', {}) do
+      AppOptics::API.start_trace('mongo_test', '', {}) do
         r = cv.aggregate([ { "$group" => { "_id" => "$city", "tpop" => { "$sum" => "$pop" }}} ])
       end
 
@@ -374,7 +374,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       r.must_be_instance_of Mongo::Collection::View::Aggregation
 
       traces[1]['Collection'].must_equal "test_collection"
-      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal AppOptics::Config[:mongo][:collect_backtraces]
       traces[1]['QueryOp'].must_equal "aggregate"
       traces[1].key?('Query').must_equal false
     end
@@ -383,7 +383,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       coll = @db[:test_collection]
       view = coll.find(:name => "MyName")
 
-      TraceView::API.start_trace('mongo_test', '', {}) do
+      AppOptics::API.start_trace('mongo_test', '', {}) do
         map    = "function() { emit(this.name, 1); }"
         reduce = "function(k, vals) { var sum = 0; for(var i in vals) sum += vals[i]; return sum; }"
         view.map_reduce(map, reduce, { :out => "mr_results", :limit => 100, :read => :primary })
@@ -397,7 +397,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       validate_event_keys(traces[2], @exit_kvs)
 
       traces[1]['Collection'].must_equal "test_collection"
-      traces[1].has_key?('Backtrace').must_equal TraceView::Config[:mongo][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal AppOptics::Config[:mongo][:collect_backtraces]
       traces[1]['QueryOp'].must_equal "map_reduce"
       traces[1]['Map_Function'].must_equal "function() { emit(this.name, 1); }"
       traces[1]['Reduce_Function'].must_equal "function(k, vals) { var sum = 0; for(var i in vals) sum += vals[i]; return sum; }"
@@ -405,11 +405,11 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     end
 
     it "should obey :collect_backtraces setting when true" do
-      TraceView::Config[:mongo][:collect_backtraces] = true
+      AppOptics::Config[:mongo][:collect_backtraces] = true
 
       coll = @db[:test_collection]
 
-      TraceView::API.start_trace('mongo_test', '', {}) do
+      AppOptics::API.start_trace('mongo_test', '', {}) do
         doc = {"name" => "MyName", "type" => "MyType", "count" => 1, "info" => {"x" => 203, "y" => '102'}}
         coll.insert_one(doc)
       end
@@ -419,11 +419,11 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     end
 
     it "should obey :collect_backtraces setting when false" do
-      TraceView::Config[:mongo][:collect_backtraces] = false
+      AppOptics::Config[:mongo][:collect_backtraces] = false
 
       coll = @db[:test_collection]
 
-      TraceView::API.start_trace('mongo_test', '', {}) do
+      AppOptics::API.start_trace('mongo_test', '', {}) do
         doc = {"name" => "MyName", "type" => "MyType", "count" => 1, "info" => {"x" => 203, "y" => '102'}}
         coll.insert_one(doc)
       end

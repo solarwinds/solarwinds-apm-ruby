@@ -6,13 +6,13 @@
 #  thread and listens on port 8150.
 #
 if ENV['DBTYPE'] == 'mysql2'
-  TraceView::Test.set_mysql2_env
+  AppOptics::Test.set_mysql2_env
 elsif ENV['DBTYPE'] == 'postgresql'
-  TraceView::Test.set_postgresql_env
+  AppOptics::Test.set_postgresql_env
 else
-  TV.logger.warn "Unidentified DBTYPE: #{ENV['DBTYPE']}" unless ENV['DBTYPE'] == "postgresql"
-  TV.logger.debug "Defaulting to postgres DB for background Rails server."
-  TraceView::Test.set_postgresql_env
+  AppOptics.logger.warn "Unidentified DBTYPE: #{ENV['DBTYPE']}" unless ENV['DBTYPE'] == "postgresql"
+  AppOptics.logger.debug "Defaulting to postgres DB for background Rails server."
+  AppOptics::Test.set_postgresql_env
 end
 
 require "rails"
@@ -28,7 +28,7 @@ require "rails/test_unit/railtie"
 require 'rack/handler/puma'
 require File.expand_path(File.dirname(__FILE__) + '/../models/widget')
 
-TraceView.logger.info "[traceview/info] Starting background utility rails app on localhost:8150."
+AppOptics.logger.info "[appoptics/info] Starting background utility rails app on localhost:8150."
 
 ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
 

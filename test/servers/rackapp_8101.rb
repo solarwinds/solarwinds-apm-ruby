@@ -5,23 +5,19 @@
 # thread and listens on port 8101.
 #
 require 'rack/handler/puma'
-require 'traceview/inst/rack'
+require 'appoptics/inst/rack'
 
-TraceView.logger.info "[traceview/info] Starting background utility rack app on localhost:8101."
+AppOptics.logger.info "[appoptics/info] Starting background utility rack app on localhost:8101."
 
 Thread.new do
   app = Rack::Builder.new {
-    use TraceView::Rack
+    use AppOptics::Rack
     map "/" do
-      run Proc.new { |env|
-        [200, {"Content-Type" => "text/html"}, ['Hello TraceView!']]
-      }
+      run Proc.new { [200, {"Content-Type" => "text/html"}, ['Hello AppOptics!']] }
     end
 
     map "/redirectme" do
-      run Proc.new { |env|
-        [301, {"Location" => "/", "Content-Type" => "text/html"}, ['']]
-      }
+      run Proc.new { [301, {"Location" => "/", "Content-Type" => "text/html"}, ['']] }
     end
   }
 

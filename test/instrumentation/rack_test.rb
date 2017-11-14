@@ -4,7 +4,7 @@
 require 'minitest_helper'
 require 'rack/test'
 require 'rack/lobster'
-require 'traceview/inst/rack'
+require 'appoptics/inst/rack'
 require 'mocha/mini_test'
 
 class RackTestApp < Minitest::Test
@@ -14,7 +14,7 @@ class RackTestApp < Minitest::Test
     @app = Rack::Builder.new {
       use Rack::CommonLogger
       use Rack::ShowExceptions
-      use TraceView::Rack
+      use AppOptics::Rack
       map "/lobster" do
         use Rack::Lint
         run Rack::Lobster.new
@@ -23,7 +23,7 @@ class RackTestApp < Minitest::Test
   end
 
   def teardown
-    TraceView::Config[:tracing_mode] = :always
+    AppOptics::Config[:tracing_mode] = :always
   end
 
   def test_get_the_lobster
@@ -71,14 +71,14 @@ class RackTestApp < Minitest::Test
     get "/lobster"
     xtrace = last_response['X-Trace']
     assert xtrace
-    assert TraceView::XTrace.valid?(xtrace)
+    assert AppOptics::XTrace.valid?(xtrace)
   end
 
   def test_log_args_when_false
     clear_all_traces
 
-    @log_args = TraceView::Config[:rack][:log_args]
-    TraceView::Config[:rack][:log_args] = false
+    @log_args = AppOptics::Config[:rack][:log_args]
+    AppOptics::Config[:rack][:log_args] = false
 
     get "/lobster?blah=1"
 
@@ -86,18 +86,18 @@ class RackTestApp < Minitest::Test
 
     xtrace = last_response['X-Trace']
     assert xtrace
-    assert TraceView::XTrace.valid?(xtrace)
+    assert AppOptics::XTrace.valid?(xtrace)
 
     traces[0]['URL'].must_equal "/lobster"
 
-    TraceView::Config[:rack][:log_args] = @log_args
+    AppOptics::Config[:rack][:log_args] = @log_args
   end
 
   def test_log_args_when_true
     clear_all_traces
 
-    @log_args = TraceView::Config[:rack][:log_args]
-    TraceView::Config[:rack][:log_args] = true
+    @log_args = AppOptics::Config[:rack][:log_args]
+    AppOptics::Config[:rack][:log_args] = true
 
     get "/lobster?blah=1"
 
@@ -105,17 +105,17 @@ class RackTestApp < Minitest::Test
 
     xtrace = last_response['X-Trace']
     assert xtrace
-    assert TraceView::XTrace.valid?(xtrace)
+    assert AppOptics::XTrace.valid?(xtrace)
 
     traces[0]['URL'].must_equal "/lobster?blah=1"
 
-    TraceView::Config[:rack][:log_args] = @log_args
+    AppOptics::Config[:rack][:log_args] = @log_args
   end
 
   def test_has_header_when_not_tracing
     clear_all_traces
 
-    TraceView::Config[:tracing_mode] = :never
+    AppOptics::Config[:tracing_mode] = :never
 
     get "/lobster?blah=1"
 
@@ -129,7 +129,7 @@ class RackTestApp < Minitest::Test
   def test_sends_path_in_http_span_when_no_controller
     test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
 
-    TraceView::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+    AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
       test_action = action
       test_url = url
       test_status = status
@@ -147,7 +147,7 @@ class RackTestApp < Minitest::Test
   end
 
   def test_does_not_send_http_span_for_static_assets
-    TraceView::Span.expects(:createHttpSpan).never
+    AppOptics::Span.expects(:createHttpSpan).never
 
     get "/assets/static_asset.png"
   end

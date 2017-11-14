@@ -8,19 +8,19 @@ if defined?(::Rails)
   describe "Rails5x" do
     before do
       clear_all_traces
-      TraceView.config_lock.synchronize {
-        @tm = TraceView::Config[:tracing_mode]
-        @collect_backtraces = TraceView::Config[:action_controller][:collect_backtraces]
-        @sample_rate = TraceView::Config[:sample_rate]
+      AppOptics.config_lock.synchronize {
+        @tm = AppOptics::Config[:tracing_mode]
+        @collect_backtraces = AppOptics::Config[:action_controller][:collect_backtraces]
+        @sample_rate = AppOptics::Config[:sample_rate]
       }
       ENV['DBTYPE'] = "postgresql" unless ENV['DBTYPE']
     end
 
     after do
-      TraceView.config_lock.synchronize {
-        TraceView::Config[:action_controller][:collect_backtraces] = @collect_backtraces
-        TraceView::Config[:tracing_mode] = @tm
-        TraceView::Config[:sample_rate] = @sample_rate
+      AppOptics.config_lock.synchronize {
+        AppOptics::Config[:action_controller][:collect_backtraces] = @collect_backtraces
+        AppOptics::Config[:tracing_mode] = @tm
+        AppOptics::Config[:sample_rate] = @sample_rate
       }
     end
 
@@ -222,7 +222,7 @@ if defined?(::Rails)
     end
 
     it "should collect backtraces when true" do
-      TraceView::Config[:action_controller][:collect_backtraces] = true
+      AppOptics::Config[:action_controller][:collect_backtraces] = true
 
       uri = URI.parse('http://127.0.0.1:8140/hello/world')
       r = Net::HTTP.get_response(uri)
@@ -269,7 +269,7 @@ if defined?(::Rails)
     end
 
     it "should NOT collect backtraces when false" do
-      TraceView::Config[:action_controller][:collect_backtraces] = false
+      AppOptics::Config[:action_controller][:collect_backtraces] = false
 
       uri = URI.parse('http://127.0.0.1:8140/hello/world')
       r = Net::HTTP.get_response(uri)

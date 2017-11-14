@@ -14,6 +14,7 @@ group :development, :test do
   end
   gem 'webmock' if RUBY_VERSION >= '2.0.0'
   gem 'mocha'
+  gem 'rubocop', require: false
 end
 
 group :development do

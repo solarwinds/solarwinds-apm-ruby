@@ -1,7 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-# This Vagrantfile creates a build machine for our traceview gem.
+# This Vagrantfile creates a build machine for our appoptics gem.
 # Usage:
 # $ vagrant up
 # $ vagrant ssh
@@ -52,12 +52,12 @@ Vagrant.configure("2") do |config|
 #!/usr/bin/env bash
 cd /vagrant
 export RBENV_VERSION=jruby-9.0.5.0
-jruby -S gem build traceview.gemspec
+jruby -S gem build appoptics.gemspec
 
 export RBENV_VERSION=2.3.1
-gem build traceview.gemspec
+gem build appoptics.gemspec
 
-ls -la traceview*.gem
+ls -la appoptics*.gem
 
 echo "publish to rubygems via: gem push <gem>"
 BUILDSCRIPT

@@ -48,15 +48,15 @@ module Oboe_metal
       ##
       # start
       #
-      # Start the TraceView Reporter
+      # Start the AppOptics Reporter
       #
       def start
-        return unless TraceView.loaded
+        return unless AppOptics.loaded
 
-        if ENV.key?('TRACEVIEW_GEM_TEST')
-          TraceView.reporter = Java::ComTracelyticsJoboe::ReporterFactory.getInstance.buildTestReporter(false)
+        if ENV.key?('APPOPTICS_GEM_TEST')
+          AppOptics.reporter = Java::ComTracelyticsJoboe::ReporterFactory.getInstance.buildTestReporter(false)
         else
-          TraceView.reporter = Java::ComTracelyticsJoboe::ReporterFactory.getInstance.buildUdpReporter
+          AppOptics.reporter = Java::ComTracelyticsJoboe::ReporterFactory.getInstance.buildUdpReporter
         end
 
         begin
@@ -66,34 +66,34 @@ module Oboe_metal
           cfg = LayerUtil.getLocalSampleRate(nil, nil)
 
           if cfg.hasSampleStartFlag
-            TraceView::Config.tracing_mode = :always
+            AppOptics::Config.tracing_mode = :always
           else
-            TraceView::Config.tracing_mode = :never
+            AppOptics::Config.tracing_mode = :never
           end
 
-          TraceView.sample_rate = cfg.getSampleRate
-          TraceView::Config.sample_rate = cfg.sampleRate
-          TraceView::Config.sample_source = cfg.sampleRateSourceValue
+          AppOptics.sample_rate = cfg.getSampleRate
+          AppOptics::Config.sample_rate = cfg.sampleRate
+          AppOptics::Config.sample_source = cfg.sampleRateSourceValue
         rescue => e
-          TraceView.logger.debug "[traceview/debug] Couldn't retrieve/acces joboe sampleRateCfg"
-          TraceView.logger.debug "[traceview/debug] #{e.message}"
+          AppOptics.logger.debug "[appoptics/debug] Couldn't retrieve/acces joboe sampleRateCfg"
+          AppOptics.logger.debug "[appoptics/debug] #{e.message}"
         end
 
         # Only report __Init from here if we are not instrumenting a framework.
         # Otherwise, frameworks will handle reporting __Init after full initialization
         unless defined?(::Rails) || defined?(::Sinatra) || defined?(::Padrino) || defined?(::Grape)
-          TraceView::API.report_init unless ENV.key?('TRACEVIEW_GEM_TEST')
+          AppOptics::API.report_init unless ENV.key?('APPOPTICS_GEM_TEST')
         end
       end
 
       ##
       # restart
       #
-      # This is a nil method for TraceView under Java.  It is maintained only
+      # This is a nil method for AppOptics under Java.  It is maintained only
       # for compability across interfaces.
       #
       def restart
-        TraceView.logger.warn "[traceview/reporter] Reporter.restart isn't supported under JRuby"
+        AppOptics.logger.warn "[appoptics/reporter] Reporter.restart isn't supported under JRuby"
       end
 
       ##
@@ -102,7 +102,7 @@ module Oboe_metal
       # Truncates the trace output file to zero
       #
       def clear_all_traces
-        TraceView.reporter.reset if TraceView.loaded
+        AppOptics.reporter.reset if AppOptics.loaded
       end
 
       ##
@@ -111,7 +111,7 @@ module Oboe_metal
       # Retrieves all traces written to the trace file
       #
       def get_all_traces
-        return [] unless TraceView.loaded
+        return [] unless AppOptics.loaded
 
         # Joboe TestReporter returns a Java::ComTracelyticsExtEbson::DefaultDocument
         # document for traces which doesn't correctly support things like has_key? which
@@ -119,7 +119,7 @@ module Oboe_metal
         # the Java::ComTracelyticsExtEbson::DefaultDocument doc to a pure array of Ruby
         # hashes
         traces = []
-        TraceView.reporter.getSentEventsAsBsonDocument.to_a.each do |e|
+        AppOptics.reporter.getSentEventsAsBsonDocument.to_a.each do |e|
           t = {}
           e.each_pair { |k, v|
             t[k] = v
@@ -130,23 +130,23 @@ module Oboe_metal
       end
 
       def sendReport(evt)
-        evt.report(TraceView.reporter)
+        evt.report(AppOptics.reporter)
       end
     end
   end
 end
 
-module TraceView
-  extend TraceViewBase
+module AppOptics
+  extend AppOpticsBase
   include Oboe_metal
 
   class << self
     def sample?(opts = {})
       begin
         # Return false if no-op mode
-        return false unless TraceView.loaded
+        return false unless AppOptics.loaded
 
-        return true if ENV.key?('TRACEVIEW_GEM_TEST')
+        return true if ENV.key?('APPOPTICS_GEM_TEST')
 
         # Validation to make Joboe happy.  Assure that we have the KVs and that they
         # are not empty strings.
@@ -158,28 +158,28 @@ module TraceView
 
         sr_cfg = Java::ComTracelyticsJoboe::LayerUtil.shouldTraceRequest(opts[:layer], { 'X-Trace' => opts[:xtrace] })
 
-        # Store the returned SampleRateConfig into TraceView::Config
+        # Store the returned SampleRateConfig into AppOptics::Config
         if sr_cfg
           begin
-            TraceView::Config.sample_rate = sr_cfg.sampleRate
-            TraceView::Config.sample_source = sr_cfg.sampleRateSourceValue
+            AppOptics::Config.sample_rate = sr_cfg.sampleRate
+            AppOptics::Config.sample_source = sr_cfg.sampleRateSourceValue
             # If we fail here, we do so quietly.  This was we don't spam logs
             # on every request
           end
         else
-          TraceView.sample_rate = -1
-          TraceView.sample_source = -1
+          AppOptics.sample_rate = -1
+          AppOptics.sample_source = -1
         end
 
         sr_cfg ? true : false
       rescue => e
-        TraceView.logger.debug "[traceview/debug] #{e.message}"
+        AppOptics.logger.debug "[appoptics/debug] #{e.message}"
         false
       end
     end
 
     def set_tracing_mode(_mode)
-      TraceView.logger.warn 'When using JRuby set the tracing mode in /usr/local/tracelytics/javaagent.json instead'
+      AppOptics.logger.warn 'When using JRuby set the tracing mode in /usr/local/tracelytics/javaagent.json instead'
     end
 
     def set_sample_rate(_rate)
@@ -191,24 +191,24 @@ end
 # Assure that the Joboe Java Agent was loaded via premain
 case Java::ComTracelyticsAgent::Agent.getStatus
   when Java::ComTracelyticsAgent::Agent::AgentStatus::INITIALIZED_SUCCESSFUL
-    TraceView.loaded = true
+    AppOptics.loaded = true
 
   when Java::ComTracelyticsAgent::Agent::AgentStatus::INITIALIZED_FAILED
-    TraceView.loaded = false
+    AppOptics.loaded = false
     $stderr.puts '=============================================================='
-    $stderr.puts 'TraceView Java Agent not initialized properly.'
+    $stderr.puts 'AppOptics Java Agent not initialized properly.'
     $stderr.puts 'Possibly misconfigured?  Going into no-op mode.'
-    $stderr.puts 'http://docs.traceview.solarwinds.com/Instrumentation/other-instrumentation-modules.html#jruby'
+    $stderr.puts 'http://docs.appoptics.solarwinds.com/Instrumentation/other-instrumentation-modules.html#jruby'
     $stderr.puts '=============================================================='
 
   when Java::ComTracelyticsAgent::Agent::AgentStatus::UNINITIALIZED
-    TraceView.loaded = false
+    AppOptics.loaded = false
     $stderr.puts '=============================================================='
-    $stderr.puts 'TraceView Java Agent not loaded. Going into no-op mode.'
-    $stderr.puts 'To preload the TraceView java agent see:'
-    $stderr.puts 'http://docs.traceview.solarwinds.com/Instrumentation/other-instrumentation-modules.html#jruby'
+    $stderr.puts 'AppOptics Java Agent not loaded. Going into no-op mode.'
+    $stderr.puts 'To preload the AppOptics java agent see:'
+    $stderr.puts 'http://docs.appoptics.solarwinds.com/Instrumentation/other-instrumentation-modules.html#jruby'
     $stderr.puts '=============================================================='
 
   else
-    TraceView.loaded = false
+    AppOptics.loaded = false
 end

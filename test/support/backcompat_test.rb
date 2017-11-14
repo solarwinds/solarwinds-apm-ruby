@@ -18,20 +18,20 @@ describe "BackwardCompatibility" do
     Oboe::Config[:verbose] = true
     Oboe::Config[:verbose].must_equal true
     Oboe::Config.verbose.must_equal true
-    TraceView::Config[:verbose].must_equal true
-    TraceView::Config.verbose.must_equal true
+    AppOptics::Config[:verbose].must_equal true
+    AppOptics::Config.verbose.must_equal true
 
     Oboe::Config[:dalli][:enabled] = false
     Oboe::Config[:dalli][:enabled].must_equal false
-    TraceView::Config[:dalli][:enabled].must_equal false
+    AppOptics::Config[:dalli][:enabled].must_equal false
 
     Oboe::Config[:sample_rate] = 8e5
     Oboe::Config.sample_rate.must_equal 8e5
-    TraceView::Config.sample_rate.must_equal 8e5
+    AppOptics::Config.sample_rate.must_equal 8e5
 
     Oboe::Config[:tracing_mode] = 'always'
     Oboe::Config.tracing_mode.must_equal :always
-    TraceView::Config.tracing_mode.must_equal :always
+    AppOptics::Config.tracing_mode.must_equal :always
 
     Oboe::Config[:sample_rate] = @sr
     Oboe::Config[:tracing_mode] = @tm
@@ -69,7 +69,7 @@ describe "BackwardCompatibility" do
       Oboe::API.profile('profile_test', {}, false) do
         sleep 1
       end
-   end
+    end
 
     traces = get_all_traces
     traces.count.must_equal 4
@@ -221,7 +221,7 @@ describe "BackwardCompatibility" do
 
     it 'should not store arguments and return value by default' do
       class TestWorker
-        def self.do_work(s, i, a, h)
+        def self.do_work(_s, _i, _a, _h)
           sleep 1
           return "the zebra is loose"
         end
@@ -247,7 +247,7 @@ describe "BackwardCompatibility" do
 
     it 'should store arguments and return value when asked' do
       class TestWorker
-        def self.do_work(s, i, a, h)
+        def self.do_work(_s, _i, _a, _h)
           sleep 1
           return "the zebra is loose"
         end

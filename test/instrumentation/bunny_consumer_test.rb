@@ -7,18 +7,18 @@ unless defined?(JRUBY_VERSION)
   class BunnyConsumerTest < Minitest::Test
     def setup
       # Support specific environment variables to support remote rabbitmq servers
-      ENV['TV_RABBITMQ_SERVER'] = "127.0.0.1"      unless ENV['TV_RABBITMQ_SERVER']
-      ENV['TV_RABBITMQ_PORT'] = "5672"             unless ENV['TV_RABBITMQ_PORT']
-      ENV['TV_RABBITMQ_USERNAME'] = "guest"        unless ENV['TV_RABBITMQ_USERNAME']
-      ENV['TV_RABBITMQ_PASSWORD'] = "guest"        unless ENV['TV_RABBITMQ_PASSWORD']
-      ENV['TV_RABBITMQ_VHOST'] = "/"               unless ENV['TV_RABBITMQ_VHOST']
+      ENV['APPOPTICS_RABBITMQ_SERVER'] = "127.0.0.1"      unless ENV['APPOPTICS_RABBITMQ_SERVER']
+      ENV['APPOPTICS_RABBITMQ_PORT'] = "5672"             unless ENV['APPOPTICS_RABBITMQ_PORT']
+      ENV['APPOPTICS_RABBITMQ_USERNAME'] = "guest"        unless ENV['APPOPTICS_RABBITMQ_USERNAME']
+      ENV['APPOPTICS_RABBITMQ_PASSWORD'] = "guest"        unless ENV['APPOPTICS_RABBITMQ_PASSWORD']
+      ENV['APPOPTICS_RABBITMQ_VHOST'] = "/"               unless ENV['APPOPTICS_RABBITMQ_VHOST']
 
       @connection_params = {}
-      @connection_params[:host]   = ENV['TV_RABBITMQ_SERVER']
-      @connection_params[:port]   = ENV['TV_RABBITMQ_PORT']
-      @connection_params[:vhost]  = ENV['TV_RABBITMQ_VHOST']
-      @connection_params[:user]   = ENV['TV_RABBITMQ_USERNAME']
-      @connection_params[:pass]   = ENV['TV_RABBITMQ_PASSWORD']
+      @connection_params[:host]   = ENV['APPOPTICS_RABBITMQ_SERVER']
+      @connection_params[:port]   = ENV['APPOPTICS_RABBITMQ_PORT']
+      @connection_params[:vhost]  = ENV['APPOPTICS_RABBITMQ_VHOST']
+      @connection_params[:user]   = ENV['APPOPTICS_RABBITMQ_USERNAME']
+      @connection_params[:pass]   = ENV['APPOPTICS_RABBITMQ_PASSWORD']
 
       clear_all_traces
     end
@@ -37,7 +37,7 @@ unless defined?(JRUBY_VERSION)
         http.get('/?q=1').read_body
       end
 
-      TraceView::API.start_trace('bunny_consume_test') do
+      AppOptics::API.start_trace('bunny_consume_test') do
         @exchange.publish("The Tortoise and the Hare", :routing_key => @queue.name, :app_id => "msg_app", :type => :generic)
       end
 
@@ -173,7 +173,7 @@ unless defined?(JRUBY_VERSION)
         http.get('/?q=1').read_body
       end
 
-      TraceView::API.start_trace('bunny_consume_test') do
+      AppOptics::API.start_trace('bunny_consume_test') do
         @exchange.publish("The Tortoise and the Hare", :message_id => "1234", :routing_key => @queue.name, :app_id => "msg_app", :type => :generic)
       end
 

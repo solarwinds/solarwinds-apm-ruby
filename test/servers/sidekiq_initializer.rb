@@ -13,13 +13,13 @@ require_relative '../jobs/sidekiq/remote_call_worker_job'
 require_relative '../jobs/sidekiq/error_worker_job'
 
 ENV["RACK_ENV"] = "test"
-ENV["TRACEVIEW_GEM_TEST"] = "true"
-ENV["TRACEVIEW_GEM_VERBOSE"] = "true"
+ENV["APPOPTICS_GEM_TEST"] = "true"
+ENV["APPOPTICS_GEM_VERBOSE"] = "true"
 
 Bundler.require(:default, :test)
 
-# Configure TraceView
-TraceView::Config[:tracing_mode] = "always"
-TraceView::Config[:sample_rate] = 1000000
-TraceView.logger.level = Logger::DEBUG
+# Configure AppOptics
+AppOptics::Config[:tracing_mode] = "always"
+AppOptics::Config[:sample_rate] = 1000000
+AppOptics.logger.level = Logger::DEBUG
 

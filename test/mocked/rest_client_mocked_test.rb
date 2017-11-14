@@ -12,15 +12,15 @@ unless defined?(JRUBY_VERSION)
     def setup
       WebMock.enable!
       WebMock.disable_net_connect!
-      TraceView.config_lock.synchronize do
-        @sample_rate = TraceView::Config[:sample_rate]
+      AppOptics.config_lock.synchronize do
+        @sample_rate = AppOptics::Config[:sample_rate]
       end
     end
 
     def teardown
-      TraceView.config_lock.synchronize do
-        TraceView::Config[:sample_rate] = @sample_rate
-        TraceView::Config[:blacklist] = []
+      AppOptics.config_lock.synchronize do
+        AppOptics::Config[:sample_rate] = @sample_rate
+        AppOptics::Config[:blacklist] = []
       end
       WebMock.reset!
       WebMock.allow_net_connect!
@@ -30,7 +30,7 @@ unless defined?(JRUBY_VERSION)
     def test_tracing_sampling
       stub_request(:get, "http://127.0.0.1:8101/").to_return(status: 200, body: "", headers: {})
 
-      TraceView::API.start_trace('rest_client_tests') do
+      AppOptics::API.start_trace('rest_client_tests') do
         RestClient::Resource.new('http://127.0.0.1:8101').get
       end
 
@@ -40,9 +40,9 @@ unless defined?(JRUBY_VERSION)
     def test_tracing_not_sampling
       stub_request(:get, "http://127.0.0.2:8101/").to_return(status: 200, body: "", headers: {})
 
-      TraceView.config_lock.synchronize do
-        TraceView::Config[:sample_rate] = 0
-        TraceView::API.start_trace('rest_client_tests') do
+      AppOptics.config_lock.synchronize do
+        AppOptics::Config[:sample_rate] = 0
+        AppOptics::API.start_trace('rest_client_tests') do
           RestClient::Resource.new('http://127.0.0.2:8101').get
         end
       end
@@ -63,9 +63,9 @@ unless defined?(JRUBY_VERSION)
     def test_blacklisted
       stub_request(:get, "http://127.0.0.4:8101/").to_return(status: 200, body: "", headers: {})
 
-      TraceView.config_lock.synchronize do
-        TraceView::Config.blacklist << '127.0.0.4'
-        TraceView::API.start_trace('rest_client_tests') do
+      AppOptics.config_lock.synchronize do
+        AppOptics::Config.blacklist << '127.0.0.4'
+        AppOptics::API.start_trace('rest_client_tests') do
           RestClient::Resource.new('http://127.0.0.4:8101').get
         end
       end
@@ -77,10 +77,10 @@ unless defined?(JRUBY_VERSION)
     def test_not_sampling_blacklisted
       stub_request(:get, "http://127.0.0.5:8101/").to_return(status: 200, body: "", headers: {})
 
-      TraceView.config_lock.synchronize do
-        TraceView::Config[:sample_rate] = 0
-        TraceView::Config.blacklist << '127.0.0.5'
-        TraceView::API.start_trace('rest_client_tests') do
+      AppOptics.config_lock.synchronize do
+        AppOptics::Config[:sample_rate] = 0
+        AppOptics::Config.blacklist << '127.0.0.5'
+        AppOptics::API.start_trace('rest_client_tests') do
           RestClient::Resource.new('http://127.0.0.5:8101').get
         end
       end

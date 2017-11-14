@@ -13,17 +13,17 @@ class DelayedJobWorkerTest < Minitest::Test
     Delayed::Job.delete_all
 
     clear_all_traces
-    @collect_backtraces = TraceView::Config[:delayed_jobworker][:collect_backtraces]
-    @log_args = TraceView::Config[:delayed_jobworker][:log_args]
+    @collect_backtraces = AppOptics::Config[:delayed_jobworker][:collect_backtraces]
+    @log_args = AppOptics::Config[:delayed_jobworker][:log_args]
   end
 
   def teardown
-    TraceView::Config[:delayed_jobworker][:collect_backtraces] = @collect_backtraces
-    TraceView::Config[:delayed_jobworker][:log_args] = @log_args
+    AppOptics::Config[:delayed_jobworker][:collect_backtraces] = @collect_backtraces
+    AppOptics::Config[:delayed_jobworker][:log_args] = @log_args
   end
 
   def test_reports_version_init
-    init_kvs = ::TraceView::Util.build_init_report
+    init_kvs = ::AppOptics::Util.build_init_report
     assert init_kvs.key?('Ruby.delayed_job.Version')
     assert_equal Gem.loaded_specs['delayed_job'].version.to_s, init_kvs['Ruby.delayed_job.Version']
   end
@@ -82,10 +82,10 @@ class DelayedJobWorkerTest < Minitest::Test
   end
 
   def test_collect_backtraces_default_value
-    assert_equal TV::Config[:delayed_jobworker][:collect_backtraces], false, "default backtrace collection"
+    assert_equal AppOptics::Config[:delayed_jobworker][:collect_backtraces], false, "default backtrace collection"
   end
 
   def test_log_args_default_value
-    assert_equal TV::Config[:delayed_jobworker][:log_args], true, "log_args default "
+    assert_equal AppOptics::Config[:delayed_jobworker][:log_args], true, "log_args default "
   end
 end

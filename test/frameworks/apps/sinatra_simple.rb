@@ -8,14 +8,14 @@ class SinatraSimple < Sinatra::Base
 
   template :layout do
     # Use both the legacy and new RUM helper
-    # oboe_rum_header + traceview_rum_footer
+    # oboe_rum_header + appoptics_rum_footer
     # These should be no-op methods now.
     %q{
 <html>
   <head><%= oboe_rum_header %></head>
   <body>
     <%= yield %>
-    <%= traceview_rum_footer %>
+    <%= appoptics_rum_footer %>
   </body>
 </html>}
   end
