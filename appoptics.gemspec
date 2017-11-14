@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.license = "Librato Open License, Version 1.0"
 
   s.authors = ["Maia Engeli", "Peter Giacomo Lombardo", "Spiros Eliopoulos"]
-  s.email = %q{appopticssupport@solarwinds.com}
+  s.email = %q{support@appoptics.com}
   s.homepage = %q{https://appoptics.solarwinds.com/}
   s.summary = %q{AppOptics performance instrumentation gem for Ruby}
   s.description = %q{The AppOptics gem provides performance instrumentation for MRI Ruby, JRuby and related frameworks.}
