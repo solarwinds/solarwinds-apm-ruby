@@ -46,6 +46,28 @@ class RackTestApp < Minitest::Test
     assert last_response.status == 404
   end
 
+  def test_do_not_trace_static_assets_with_param
+    clear_all_traces
+
+    get "/assets/static_asset.png?body=1"
+
+    traces = get_all_traces
+    assert traces.empty?
+
+    assert last_response.status == 404
+  end
+
+  def test_do_not_trace_static_assets_with_multiple_params
+    clear_all_traces
+
+    get "/assets/static_asset.png?body=1&head=0"
+
+    traces = get_all_traces
+    assert traces.empty?
+
+    assert last_response.status == 404
+  end
+
   def test_complex_do_not_trace
     skip "not supported" if RUBY_VERSION < '1.9'
 
