@@ -21,6 +21,13 @@ module AppOptics
       end
 
       def run_with_appoptics(*args)
+        if env["api.endpoint"] && env["api.endpoint"].route && env["api.endpoint"].route.pattern
+          transaction = env["api.endpoint"].route.pattern.origin
+          version = env["api.endpoint"].route.pattern.capture[:version]
+          transaction.gsub!(/:version/, version.first) if version
+          env['appoptics.transaction'] = transaction
+        end
+
         if AppOptics.tracing?
           report_kvs = {}
 
