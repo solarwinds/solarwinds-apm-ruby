@@ -22,7 +22,9 @@ module AppOptics
             end
 
             opts[:Name] = name.to_s if name
-            opts[:Backtrace] = AppOptics::API.backtrace if AppOptics::Config[:active_record][:collect_backtraces]
+            if AppOptics::Config[:active_record] && AppOptics::Config[:active_record][:collect_backtraces]
+              opts[:Backtrace] = AppOptics::API.backtrace
+            end
 
             if ::Rails::VERSION::MAJOR == 2
               config = ::Rails.configuration.database_configuration[::Rails.env]
