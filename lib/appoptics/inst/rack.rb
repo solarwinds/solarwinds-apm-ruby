@@ -120,7 +120,7 @@ module AppOptics
       rescue Exception => e
         if AppOptics.tracing?
           AppOptics::API.log_exception(:rack, e)
-          xtrace = AppOptics::API.log_end(:rack, :Status => 500)
+          xtrace = AppOptics::API.log_end(:rack, :Status => 500, 'TransactionName' => env['appoptics.transaction'])
         end
         raise
       ensure
@@ -131,7 +131,7 @@ module AppOptics
         end
       end
     ensure
-      error = status.between?(500,599) ? 1 : 0
+      error = status.to_i.between?(500,599) ? 1 : 0
       duration =(1000 * 1000 * (Time.now - start)).round(0)
 
       unless ::AppOptics::Util.static_asset?(env['PATH_INFO'])
