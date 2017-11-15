@@ -131,7 +131,8 @@ module AppOptics
         end
       end
     ensure
-      error = status.to_i.between?(500,599) ? 1 : 0
+      status = status.to_i
+      error = status.between?(500,599) ? 1 : 0
       duration =(1000 * 1000 * (Time.now - start)).round(0)
 
       unless ::AppOptics::Util.static_asset?(env['PATH_INFO'])

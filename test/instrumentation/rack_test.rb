@@ -151,5 +151,15 @@ class RackTestApp < Minitest::Test
 
     get "/assets/static_asset.png"
   end
+
+  # the status returned by @app.call(env) is usually an integer, but there are cases where it is a string
+  # encountered by this app: https://github.com/librato/api which proxies requests "through to a java service by rack"
+  def test_status_can_be_a_string
+    Rack::URLMap.any_instance.stubs(:call).returns(["200", {"Content-Length"=>"592"}, "the body"])
+
+    result = get '/lobster'
+
+    assert_equal 200, result.status
+  end
 end
 
