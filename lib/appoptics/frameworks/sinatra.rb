@@ -31,7 +31,7 @@ module AppOptics
           dispatch_without_appoptics
         end
       ensure
-        env['appoptics.transaction'] = env['sinatra.route'].gsub(/#{env['REQUEST_METHOD']} /, '').gsub(/[^-.:_\/\w ]/, '_')
+        env['appoptics.transaction'] = env['sinatra.route'].gsub(/#{env['REQUEST_METHOD']} /, '') if env['sinatra.route']
       end
 
       def handle_exception_with_appoptics(boom)

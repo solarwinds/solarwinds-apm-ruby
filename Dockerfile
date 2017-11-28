@@ -15,6 +15,7 @@ RUN apt-get update \
        libssl-dev \
        openjdk-8-jdk \
        zlib1g-dev \
+       less \
     && rm -rf /var/lib/apt/lists/*
 
 # rbenv setup

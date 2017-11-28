@@ -9,33 +9,25 @@ module AppOptics
       end
 
       def dispatch_with_appoptics
-        if AppOptics.tracing?
-          report_kvs = {}
+        report_kvs = {}
 
-          # Fall back to the raw tracing API so we can pass KVs
-          # back on exit (a limitation of the AppOptics::API.trace
-          # block method) This removes the need for an info
-          # event to send additonal KVs
-          ::AppOptics::API.log_entry('padrino', {})
+        # Fall back to the raw tracing API so we can pass KVs
+        # back on exit (a limitation of the AppOptics::API.trace
+        # block method) This removes the need for an info
+        # event to send additonal KVs
+        ::AppOptics::API.log_entry('padrino', {}) if AppOptics.tracing?
 
-          begin
-            r = dispatch_without_appoptics
+        result = dispatch_without_appoptics
 
-            # Report Controller/Action as best possible
-            if request.controller && !request.controller.empty?
-              report_kvs[:Controller] = request.controller
-            else
-              report_kvs[:Controller] = self.class
-            end
+        # Report Controller/Action and Transaction as best possible
+        controller = (request.controller && !request.controller.empty?) ? request.controller : nil
+        report_kvs[:Controller] = controller || self.class
+        report_kvs[:Action] = request.action ? request.action.to_s.gsub(/^\//, '') : nil
+        env['appoptics.transaction'] = [controller, report_kvs[:Action]].compact.join('.')
 
-            report_kvs[:Action] = request.action
-            r
-          ensure
-            ::AppOptics::API.log_exit('padrino', report_kvs)
-          end
-        else
-          dispatch_without_appoptics
-        end
+        result
+      ensure
+        ::AppOptics::API.log_exit('padrino', report_kvs) if AppOptics.tracing?
       end
     end
   end

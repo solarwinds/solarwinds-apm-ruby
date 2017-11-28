@@ -2,6 +2,7 @@
 # All rights reserved.
 
 require 'minitest_helper'
+require 'mocha/mini_test'
 
 if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
   require File.expand_path(File.dirname(__FILE__) + '/apps/grape_simple')
@@ -137,10 +138,137 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
       traces[3].has_key?('Action').must_equal true
       traces[4]['Label'].must_equal "error"
       traces[4]['ErrorClass'].must_equal "GrapeError"
-      traces[4]['ErrorMsg'].must_equal "This is a error with 'error'!"
+      traces[4]['ErrorMsg'].must_equal "This is an error with 'error'!"
       traces[5]['Layer'].must_equal "rack"
       traces[5]['Label'].must_equal "exit"
       traces[5]['Status'].must_equal 500
     end
+
+    it "should report a simple GET path" do
+      @app = GrapeSimple
+      test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
+      AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+        test_action = action
+        test_url = url
+        test_status = status
+        test_method = method
+        test_error = error
+      end.once
+
+      get "/employee_data"
+
+      assert_equal "/employee_data", test_action
+      assert_equal "http://example.org", test_url
+      assert_equal 200, test_status
+      assert_equal "GET", test_method
+      assert_equal 0, test_error
+    end
+
+    it "should report a GET path with parameter" do
+      @app = GrapeSimple
+      test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
+      AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+        test_action = action
+        test_url = url
+        test_status = status
+        test_method = method
+        test_error = error
+      end.once
+
+      get "/employee_data/12"
+
+      assert_equal "/employee_data/:id", test_action
+      assert_equal "http://example.org", test_url
+      assert_equal 200, test_status
+      assert_equal "GET", test_method
+      assert_equal 0, test_error
+    end
+
+    it "should report a POST path" do
+      @app = GrapeSimple
+      test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
+      AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+        test_action = action
+        test_url = url
+        test_status = status
+        test_method = method
+        test_error = error
+      end.once
+
+      data = {
+          :name => 'Tom',
+          :address => 'Street',
+          :age => 66
+      }
+
+      post '/employee_data', data
+
+      assert_equal "/employee_data", test_action
+      assert_equal "http://example.org", test_url
+      assert_equal 201, test_status
+      assert_equal "POST", test_method
+      assert_equal 0, test_error
+    end
+
+    it "should report a PUT path" do
+      @app = GrapeSimple
+      test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
+      AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+        test_action = action
+        test_url = url
+        test_status = status
+        test_method = method
+        test_error = error
+      end.once
+
+      put "/employee_data/12", { :address => 'Other Street' }
+
+      assert_equal "/employee_data/:id", test_action
+      assert_equal "http://example.org", test_url
+      assert_equal 200, test_status
+      assert_equal "PUT", test_method
+      assert_equal 0, test_error
+    end
+
+    it "should report a DELETE path" do
+      @app = GrapeSimple
+      test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
+      AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+        test_action = action
+        test_url = url
+        test_status = status
+        test_method = method
+        test_error = error
+      end.once
+
+      delete "/employee_data/12"
+
+      assert_equal "/employee_data/:id", test_action
+      assert_equal "http://example.org", test_url
+      assert_equal 200, test_status
+      assert_equal "DELETE", test_method
+      assert_equal 0, test_error
+    end
+
+    it "should report a nested GET path with parameters" do
+      @app = GrapeSimple
+      test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
+      AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+        test_action = action
+        test_url = url
+        test_status = status
+        test_method = method
+        test_error = error
+      end.once
+
+      result = get "/employee_data/12/nested/34"
+
+      assert_equal "/employee_data/:id/nested/:child", test_action
+      assert_equal "http://example.org", test_url
+      assert_equal 200, test_status
+      assert_equal "GET", test_method
+      assert_equal 0, test_error
+    end
+
   end
 end

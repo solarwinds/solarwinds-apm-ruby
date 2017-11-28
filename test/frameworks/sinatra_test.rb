@@ -99,7 +99,7 @@ describe Sinatra do
 
     r.body.must_match /hello world/
 
-    assert_equal "/say/_/to/_", test_action
+    assert_equal "/say/*/to/*", test_action
     assert_equal "http://example.org", test_url
     assert_equal 200, test_status
     assert_equal "GET", test_method
@@ -121,7 +121,7 @@ describe Sinatra do
 
     r.body.must_match /Hello, friend/
 
-    test_action.must_match /_\/hello_\/___w___/, test_action
+    test_action.must_match  "\\/hello\\/([\\w]+)", test_action
     assert_equal "http://example.org", test_url
     assert_equal 200, test_status
     assert_equal "GET", test_method
