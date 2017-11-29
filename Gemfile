@@ -15,6 +15,8 @@ group :development, :test do
   gem 'webmock' if RUBY_VERSION >= '2.0.0'
   gem 'mocha'
   gem 'rubocop', require: false
+  gem 'ruby-prof'
+  gem 'benchmark-ips'
 end
 
 group :development do

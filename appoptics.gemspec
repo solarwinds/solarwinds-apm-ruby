@@ -46,5 +46,8 @@ Gem::Specification.new do |s|
     s.add_development_dependency('pry', '>= 0.10.0')
   end
 
+  s.add_development_dependency('benchmark-ips')
+  s.add_development_dependency('ruby-prof')
+
   s.required_ruby_version = '>= 1.9.3'
 end
