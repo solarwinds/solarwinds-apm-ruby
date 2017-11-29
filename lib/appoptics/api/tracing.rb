@@ -126,7 +126,7 @@ module AppOptics
           raise
         ensure
           exit_evt.addEdge(AppOptics::Context.get)
-          log_event(layer, :exit, exit_evt)
+          log(layer, :exit, {}, exit_evt)
           AppOptics::Context.clear
         end
       end

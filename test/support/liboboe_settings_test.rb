@@ -56,55 +56,55 @@ unless defined?(JRUBY_VERSION)
 
       # Array
       report_kvs[:TestData] = [0, 1, 2, 5, 7.0]
-      AppOptics::API.log_event('test_layer', 'entry', event, report_kvs)
+      AppOptics::API.log('test_layer', 'entry', report_kvs, event)
 
       # Class
       report_kvs[:TestData] = AppOptics::Reporter
-      AppOptics::API.log_event('test_layer', 'entry', event, report_kvs)
+      AppOptics::API.log('test_layer', 'entry', report_kvs, event)
 
       # FalseClass
       report_kvs[:TestData] = false
-      AppOptics::API.log_event('test_layer', 'entry', event, report_kvs)
+      AppOptics::API.log('test_layer', 'entry', report_kvs, event)
 
       # Fixnum
       report_kvs[:TestData] = 1_873_293_293
-      AppOptics::API.log_event('test_layer', 'entry', event, report_kvs)
+      AppOptics::API.log('test_layer', 'entry', report_kvs, event)
 
       # Float
       report_kvs[:TestData] = 1.0001
-      AppOptics::API.log_event('test_layer', 'entry', event, report_kvs)
+      AppOptics::API.log('test_layer', 'entry', report_kvs, event)
 
       # Hash
       report_kvs[:TestData] = Hash.new
-      AppOptics::API.log_event('test_layer', 'entry', event, report_kvs)
+      AppOptics::API.log('test_layer', 'entry', report_kvs, event)
 
       # Integer
       report_kvs[:TestData] = 1
-      AppOptics::API.log_event('test_layer', 'entry', event, report_kvs)
+      AppOptics::API.log('test_layer', 'entry', report_kvs, event)
 
       # Module
       report_kvs[:TestData] = AppOptics
-      AppOptics::API.log_event('test_layer', 'entry', event, report_kvs)
+      AppOptics::API.log('test_layer', 'entry', report_kvs, event)
 
       # NilClass
       report_kvs[:TestData] = nil
-      AppOptics::API.log_event('test_layer', 'entry', event, report_kvs)
+      AppOptics::API.log('test_layer', 'entry', report_kvs, event)
 
       # Set
       report_kvs[:TestData] = Set.new(1..10)
-      AppOptics::API.log_event('test_layer', 'entry', event, report_kvs)
+      AppOptics::API.log('test_layer', 'entry', report_kvs, event)
 
       # String
       report_kvs[:TestData] = 'test value'
-      AppOptics::API.log_event('test_layer', 'entry', event, report_kvs)
+      AppOptics::API.log('test_layer', 'entry', report_kvs, event)
 
       # Symbol
       report_kvs[:TestData] = :TestValue
-      AppOptics::API.log_event('test_layer', 'entry', event, report_kvs)
+      AppOptics::API.log('test_layer', 'entry', report_kvs, event)
 
       # TrueClass
       report_kvs[:TestData] = true
-      AppOptics::API.log_event('test_layer', 'entry', event, report_kvs)
+      AppOptics::API.log('test_layer', 'entry', report_kvs, event)
     end
   end
 end
