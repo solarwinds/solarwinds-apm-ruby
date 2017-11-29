@@ -9,7 +9,7 @@ module AppOptics
     MAJOR = 4
     MINOR = 0
     PATCH = 0
-    BUILD = 'pre2'
+    BUILD = 'pre7'
 
     STRING = [MAJOR, MINOR, PATCH, BUILD].compact.join('.')
   end
