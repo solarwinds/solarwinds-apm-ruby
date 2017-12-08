@@ -8,12 +8,16 @@ rescue LoadError
   class Set; end
 end
 
+
 module AppOptics
   module API
     ##
     # This modules provides the X-Trace logging facilities.
     #
     module Logging
+      @@ints_or_nil = [Integer, Float, NilClass, String]
+      @@ints_or_nil << Fixnum unless RUBY_VERSION >= '2.4'
+
       ##
       # Public: Report an event in an active trace.
       #
@@ -323,7 +327,7 @@ module AppOptics
 
           next unless valid_key? k
 
-          if [Integer, Float, Fixnum, NilClass, String].include?(v.class)
+          if @@ints_or_nil.include?(v.class)
             value = v
           elsif v.class == Set
             value = v.to_a.to_s
