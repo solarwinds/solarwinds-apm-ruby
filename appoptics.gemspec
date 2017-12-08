@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
 
   s.authors = ["Maia Engeli", "Peter Giacomo Lombardo", "Spiros Eliopoulos"]
   s.email = %q{support@appoptics.com}
-  s.homepage = %q{https://appoptics.solarwinds.com/}
+  s.homepage = %q{https://www.appoptics.com/}
   s.summary = %q{AppOptics performance instrumentation gem for Ruby}
   s.description = %q{The AppOptics gem provides performance instrumentation for MRI Ruby, JRuby and related frameworks.}
 
@@ -47,6 +47,7 @@ Gem::Specification.new do |s|
   end
 
   s.add_development_dependency('benchmark-ips')
+  s.add_development_dependency('benchmark-memory')
   s.add_development_dependency('ruby-prof')
 
   s.required_ruby_version = '>= 1.9.3'
