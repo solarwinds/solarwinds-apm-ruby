@@ -91,6 +91,7 @@ end
 #
 def clear_all_traces
   if AppOptics.loaded
+    AppOptics::Context.clear
     AppOptics::Reporter.clear_all_traces
     sleep 0.2 # it seems like the docker file system needs a bit of time to clear the file
   end

@@ -68,9 +68,10 @@ module AppOptics
       # original method call
       #
       def exec_with_appoptics(method, sql, opts = ::Sequel::OPTS, &block)
-        kvs = extract_trace_details(sql, opts)
-
-        AppOptics::API.log_entry(:sequel, kvs)
+        if AppOptics.tracing?
+          kvs = extract_trace_details(sql, opts)
+          AppOptics::API.log_entry(:sequel, kvs)
+        end
 
         send(method, sql, opts, &block)
       rescue => e
@@ -92,9 +93,10 @@ module AppOptics
       end
 
       def run_with_appoptics(sql, opts = ::Sequel::OPTS)
-        kvs = extract_trace_details(sql, opts)
-
-        AppOptics::API.log_entry(:sequel, kvs)
+        if AppOptics.tracing?
+          kvs = extract_trace_details(sql, opts)
+          AppOptics::API.log_entry(:sequel, kvs)
+        end
 
         run_without_appoptics(sql, opts)
       rescue => e

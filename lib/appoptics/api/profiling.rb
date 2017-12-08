@@ -26,31 +26,27 @@ module AppOptics
       #
       # Returns the result of the block.
       #
-      # TODO: ideally this would only be called when we know we are tracing
-      # but that is currently only partially the case
-      # we are definitely checking AppOptics.tracing? a few too many times ;)
 
       def profile(profile_name, report_kvs = {}, with_backtrace = false)
+        return yield unless AppOptics.tracing?
 
         report_kvs[:Language] ||= :ruby
         report_kvs[:ProfileName] ||= profile_name
         report_kvs[:Backtrace] = AppOptics::API.backtrace if with_backtrace
 
-        AppOptics::API.log(nil, :profile_entry, report_kvs) if AppOptics.tracing?
+        AppOptics::API.log(nil, :profile_entry, report_kvs)
 
         begin
           yield
         rescue => e
-          log_exception(nil, e) if AppOptics.tracing?
+          log_exception(nil, e)
           raise
         ensure
-          if AppOptics.tracing?
-            exit_kvs = {}
-            exit_kvs[:Language] = :ruby
-            exit_kvs[:ProfileName] = report_kvs[:ProfileName]
+          exit_kvs = {}
+          exit_kvs[:Language] = :ruby
+          exit_kvs[:ProfileName] = report_kvs[:ProfileName]
 
-            AppOptics::API.log(nil, :profile_exit, exit_kvs)
-          end
+          AppOptics::API.log(nil, :profile_exit, exit_kvs)
         end
       end
 

@@ -6,24 +6,27 @@ module AppOptics
     module EventMachine
       module HttpConnection
         def setup_request_with_appoptics(*args, &block)
-          report_kvs = {}
           context = AppOptics::Context.toString
           blacklisted = AppOptics::API.blacklisted?(@uri)
 
-          begin
-            report_kvs[:IsService] = 1
-            report_kvs[:RemoteURL] = @uri
-            report_kvs[:HTTPMethod] = args[0]
-            report_kvs[:Blacklisted] = true if blacklisted
+          if AppOptics.tracing?
+            report_kvs = {}
 
-            if AppOptics::Config[:em_http_request][:collect_backtraces]
-              report_kvs[:Backtrace] = AppOptics::API.backtrace
+            begin
+              report_kvs[:IsService] = 1
+              report_kvs[:RemoteURL] = @uri
+              report_kvs[:HTTPMethod] = args[0]
+              report_kvs[:Blacklisted] = true if blacklisted
+
+              if AppOptics::Config[:em_http_request][:collect_backtraces]
+                report_kvs[:Backtrace] = AppOptics::API.backtrace
+              end
+            rescue => e
+              AppOptics.logger.debug "[appoptics/debug] em-http-request KV error: #{e.inspect}"
             end
-          rescue => e
-            AppOptics.logger.debug "[appoptics/debug] em-http-request KV error: #{e.inspect}"
-          end
 
-          ::AppOptics::API.log_entry(:'em-http-request', report_kvs)
+            ::AppOptics::API.log_entry('em-http-request', report_kvs)
+          end
           client = setup_request_without_appoptics(*args, &block)
           client.req.headers['X-Trace'] = context unless blacklisted
           client
@@ -65,7 +68,7 @@ module AppOptics
             end
 
           end
-
+        ensure
           ::AppOptics::API.log_exit(:'em-http-request', report_kvs)
         end
       end
