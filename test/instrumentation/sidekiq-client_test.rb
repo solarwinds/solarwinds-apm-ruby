@@ -80,7 +80,7 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
       sleep 5
 
       traces = get_all_traces
-      refined_trace_count(traces)
+      assert_equal 21, refined_trace_count(traces)
       assert valid_edges?(traces), "Invalid edge in traces"
       assert_equal 'sidekiq-client',   traces[1]['Layer']
       assert_equal false,              traces[1].key?('Backtrace')
