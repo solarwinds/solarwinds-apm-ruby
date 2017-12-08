@@ -118,6 +118,7 @@ module AppOptics
         end
         [status, headers, response]
       rescue Exception => e
+        # it is ok to rescue Exception here because we are reraising it (we just need a chance to log_end)
         if AppOptics.tracing?
           AppOptics::API.log_exception(:rack, e)
           xtrace = AppOptics::API.log_end(:rack, :Status => 500, 'TransactionName' => env['appoptics.transaction'])
