@@ -165,7 +165,7 @@ module AppOpticsBase
   #
   def tracing?
     return false if !AppOptics.loaded || AppOptics.never?
-    AppOptics::Context.isValid && AppOptics::Context.isSampled
+    AppOptics::Context.isSampled
   end
 
   def heroku?

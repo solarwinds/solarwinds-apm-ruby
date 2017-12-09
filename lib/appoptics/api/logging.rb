@@ -62,7 +62,7 @@ module AppOptics
       #
       # Returns nothing.
       def log_exception(layer, exn, kvs = {})
-        return if !AppOptics.loaded || exn.instance_variable_get(:@oboe_logged)
+        return if !AppOptics.tracing? || exn.instance_variable_get(:@oboe_logged)
 
         unless exn
           AppOptics.logger.debug '[appoptics/debug] log_exception called with nil exception'
