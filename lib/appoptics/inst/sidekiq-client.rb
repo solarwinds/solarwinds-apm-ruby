@@ -27,20 +27,18 @@ module AppOptics
 
     def call(*args)
       # args: 0: worker_class, 1: msg, 2: queue, 3: redis_pool
-      report_kvs = collect_kvs(args)
-
-      AppOptics::API.log_entry(:'sidekiq-client', report_kvs)
-      args[1]['SourceTrace'] = AppOptics::Context.toString if AppOptics.tracing?
+      if AppOptics.tracing?
+        report_kvs = collect_kvs(args)
+        AppOptics::API.log_entry(:'sidekiq-client', report_kvs)
+        args[1]['SourceTrace'] = AppOptics::Context.toString
+      end
 
       result = yield
-
-      report_kvs = { :JobID => result['jid'] }
-      result
     rescue => e
-      AppOptics::API.log_exception(:'sidekiq-client', e, report_kvs)
+      AppOptics::API.log_exception(:'sidekiq-client', e, { :JobID => result['jid'] })
       raise
     ensure
-      AppOptics::API.log_exit(:'sidekiq-client', report_kvs)
+      AppOptics::API.log_exit(:'sidekiq-client', { :JobID => result['jid'] })
     end
   end
 end

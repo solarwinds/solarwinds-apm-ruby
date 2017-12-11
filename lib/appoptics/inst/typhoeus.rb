@@ -22,7 +22,6 @@ module AppOptics
 
           # Prepare X-Trace header handling
           context = AppOptics::Context.toString
-          task_id = AppOptics::XTrace.task_id(context)
           options[:headers]['X-Trace'] = context unless blacklisted
 
           response = run_without_appoptics
@@ -56,7 +55,7 @@ module AppOptics
             AppOptics::XTrace.continue_service_context(context, xtrace)
           end
 
-          AppOptics::API.log(:typhoeus, :info, kvs)
+          AppOptics::API.log_info(:typhoeus, kvs)
           response
         rescue => e
           AppOptics::API.log_exception(:typhoeus, e)

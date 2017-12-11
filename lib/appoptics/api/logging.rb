@@ -8,12 +8,16 @@ rescue LoadError
   class Set; end
 end
 
+
 module AppOptics
   module API
     ##
     # This modules provides the X-Trace logging facilities.
     #
     module Logging
+      @@ints_or_nil = [Integer, Float, NilClass, String]
+      @@ints_or_nil << Fixnum unless RUBY_VERSION >= '2.4'
+
       ##
       # Public: Report an event in an active trace.
       #
@@ -21,7 +25,8 @@ module AppOptics
       #
       # * +layer+ - The layer the reported event belongs to
       # * +label+ - The label for the reported event. See API documentation for reserved labels and usage.
-      # * +opts+ - A hash containing key/value pairs that will be reported along with this event (optional).
+      # * +opts+  - A hash containing key/value pairs that will be reported along with this event (optional).
+      # * +event+ - An event to be used instead of generating a new one (see start_trace_with_target)
       #
       # ==== Example
       #
@@ -30,10 +35,11 @@ module AppOptics
       #   AppOptics::API.log('logical_layer', 'exit')
       #
       # Returns nothing.
-      def log(layer, label, opts = {})
-        return unless AppOptics.loaded
+      def log(layer, label, opts = {}, event=nil)
+        return if !AppOptics.tracing?
 
-        log_event(layer, label, AppOptics::Context.createEvent, opts)
+        event ||= AppOptics::Context.createEvent
+        log_event(layer, label, event, opts)
       end
 
       ##
@@ -56,7 +62,7 @@ module AppOptics
       #
       # Returns nothing.
       def log_exception(layer, exn, kvs = {})
-        return if !AppOptics.loaded || exn.instance_variable_get(:@oboe_logged)
+        return if !AppOptics.tracing? || exn.instance_variable_get(:@oboe_logged)
 
         unless exn
           AppOptics.logger.debug '[appoptics/debug] log_exception called with nil exception'
@@ -65,14 +71,14 @@ module AppOptics
 
         kvs.merge!(:ErrorClass => exn.class.name,
                    :ErrorMsg => exn.message,
-                   :Backtrace => exn.backtrace.join("\r\n"))
+                   :Backtrace => exn.backtrace.join("\r\n")) if exn.backtrace
 
         exn.instance_variable_set(:@oboe_logged, true)
         log(layer, :error, kvs)
       end
 
       ##
-      # Public: Decide whether or not to start a trace, and report an event
+      # Public: Decide whether or not to start a trace, and report an entry event
       # appropriately.
       #
       # ==== Attributes
@@ -168,12 +174,12 @@ module AppOptics
       #
       # Returns an xtrace metadata string
       def log_end(layer, opts = {})
-        return unless AppOptics.loaded
+        return unless AppOptics.tracing?
 
         log_event(layer, :exit, AppOptics::Context.createEvent, opts)
-        xtrace = AppOptics::Context.toString
+        AppOptics::Context.toString
+      ensure
         AppOptics::Context.clear unless AppOptics.has_incoming_context?
-        xtrace
       end
 
       ##
@@ -193,7 +199,7 @@ module AppOptics
       #
       # Returns an xtrace metadata string
       def log_entry(layer, kvs = {}, op = nil)
-        return unless AppOptics.loaded
+        return unless AppOptics.tracing?
 
         AppOptics.layer_op = op.to_sym if op
         log_event(layer, :entry, AppOptics::Context.createEvent, kvs)
@@ -215,7 +221,7 @@ module AppOptics
       #
       # Returns an xtrace metadata string
       def log_info(layer, kvs = {})
-        return unless AppOptics.loaded
+        return unless AppOptics.tracing?
 
         log_event(layer, :info, AppOptics::Context.createEvent, kvs)
       end
@@ -237,7 +243,7 @@ module AppOptics
       #
       # Returns an xtrace metadata string (TODO: does it?)
       def log_exit(layer, kvs = {}, op = nil)
-        return unless AppOptics.loaded
+        return unless AppOptics.tracing?
 
         AppOptics.layer_op = nil if op
         log_event(layer, :exit, AppOptics::Context.createEvent, kvs)
@@ -256,65 +262,13 @@ module AppOptics
       # * +traces+ - An array with X-Trace strings returned from the requests
       #
       def log_multi_exit(layer, traces)
-        return unless AppOptics.loaded
+        return unless AppOptics.tracing?
         task_id = AppOptics::XTrace.task_id(AppOptics::Context.toString)
         event = AppOptics::Context.createEvent
         traces.each do |trace|
           event.addEdgeStr(trace) if AppOptics::XTrace.task_id(trace) == task_id
         end
         log_event(layer, :exit, event)
-      end
-
-      ##
-      # Internal: Report an event.
-      #
-      # ==== Attributes
-      #
-      # * +layer+ - The layer the reported event belongs to
-      # * +label+ - The label for the reported event.  See API documentation for reserved labels and usage.
-      # * +event+ - The pre-existing AppOptics context event.  See AppOptics::Context.createEvent
-      # * +opts+ - A hash containing key/value pairs that will be reported along with this event (optional).
-      #
-      # ==== Example
-      #
-      #   entry = AppOptics::Context.createEvent
-      #   AppOptics::API.log_event(:layer_name, 'entry',  entry_event, { :id => @user.id })
-      #
-      #   exit_event = AppOptics::Context.createEvent
-      #   exit_event.addEdge(entry.getMetadata)
-      #   AppOptics::API.log_event(:layer_name, 'exit',  exit_event, { :id => @user.id })
-      #
-      def log_event(layer, label, event, opts = {})
-        return unless AppOptics.loaded
-
-        event.addInfo(APPOPTICS_STR_LAYER, layer.to_s.freeze) if layer
-        event.addInfo(APPOPTICS_STR_LABEL, label.to_s.freeze)
-
-        AppOptics.layer = layer.to_sym if label == :entry
-        AppOptics.layer = nil          if label == :exit
-
-        opts.each do |k, v|
-          value = nil
-
-          next unless valid_key? k
-
-          if [Integer, Float, Fixnum, NilClass, String].include?(v.class)
-            value = v
-          elsif v.class == Set
-            value = v.to_a.to_s
-          else
-            value = v.to_s if v.respond_to?(:to_s)
-          end
-
-          begin
-            event.addInfo(k.to_s, value)
-          rescue ArgumentError => e
-            AppOptics.logger.debug "[AppOptics/debug] Couldn't add event KV: #{k} => #{v.class}"
-            AppOptics.logger.debug "[AppOptics/debug] #{e.message}"
-          end
-        end if !opts.nil? && opts.any?
-
-        AppOptics::Reporter.sendReport(event)
       end
 
       ##
@@ -339,6 +293,59 @@ module AppOptics
 
         AppOptics::Reporter.sendStatus(event, context)
       end
+
+      private
+
+      ##
+      # Internal: Report an event.
+      #
+      # ==== Attributes
+      #
+      # * +layer+ - The layer the reported event belongs to
+      # * +label+ - The label for the reported event.  See API documentation for reserved labels and usage.
+      # * +event+ - The pre-existing AppOptics context event.  See AppOptics::Context.createEvent
+      # * +opts+ - A hash containing key/value pairs that will be reported along with this event (optional).
+      #
+      # ==== Example
+      #
+      #   entry = AppOptics::Context.createEvent
+      #   AppOptics::API.log_event(:layer_name, 'entry',  entry_event, { :id => @user.id })
+      #
+      #   exit_event = AppOptics::Context.createEvent
+      #   exit_event.addEdge(entry.getMetadata)
+      #   AppOptics::API.log_event(:layer_name, 'exit',  exit_event, { :id => @user.id })
+      #
+      def log_event(layer, label, event, opts = {})
+        event.addInfo(APPOPTICS_STR_LAYER, layer.to_s.freeze) if layer
+        event.addInfo(APPOPTICS_STR_LABEL, label.to_s.freeze)
+
+        AppOptics.layer = layer.to_sym if label == :entry
+        AppOptics.layer = nil          if label == :exit
+
+        opts.each do |k, v|
+          value = nil
+
+          next unless valid_key? k
+
+          if @@ints_or_nil.include?(v.class)
+            value = v
+          elsif v.class == Set
+            value = v.to_a.to_s
+          else
+            value = v.to_s if v.respond_to?(:to_s)
+          end
+
+          begin
+            event.addInfo(k.to_s, value)
+          rescue ArgumentError => e
+            AppOptics.logger.debug "[AppOptics/debug] Couldn't add event KV: #{k} => #{v.class}"
+            AppOptics.logger.debug "[AppOptics/debug] #{e.message}"
+          end
+        end if !opts.nil? && opts.any?
+
+        AppOptics::Reporter.sendReport(event)
+      end
+
     end
   end
 end
