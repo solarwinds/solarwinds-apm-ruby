@@ -12,10 +12,9 @@ class SinatraSimple < Sinatra::Base
     # These should be no-op methods now.
     %q{
 <html>
-  <head><%= oboe_rum_header %></head>
+  <head></head>
   <body>
     <%= yield %>
-    <%= appoptics_rum_footer %>
   </body>
 </html>}
   end
