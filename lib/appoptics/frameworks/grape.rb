@@ -21,38 +21,27 @@ module AppOptics
       end
 
       def run_with_appoptics(*args)
-        if env["api.endpoint"] && env["api.endpoint"].route && env["api.endpoint"].route.pattern
-          transaction = env["api.endpoint"].route.pattern.origin
-          version = env["api.endpoint"].route.pattern.capture[:version]
-          transaction.gsub!(/:version/, version.first) if version
-          env['appoptics.transaction'] = transaction
-        end
+        # Report Controller/Action and Transaction as best possible
+        report_kvs = {}
 
-        if AppOptics.tracing?
-          report_kvs = {}
-
-          report_kvs[:Controller] = self.class
-
-          if args.empty?
-            report_kvs[:Action] = env['PATH_INFO']
-          else
-            report_kvs[:Action] = args[0]['PATH_INFO']
-          end
-
-          # Fall back to the raw tracing API so we can pass KVs
-          # back on exit (a limitation of the AppOptics::API.trace
-          # block method) This removes the need for an info
-          # event to send additonal KVs
-          ::AppOptics::API.log_entry('grape', {})
-
-          begin
-            run_without_appoptics(*args)
-          ensure
-            ::AppOptics::API.log_exit('grape', report_kvs)
-          end
+        if route && route.pattern
+          action = route.pattern.origin
+          version = route.pattern.capture[:version]
+          action.gsub!(/:version/, version.first) if version
         else
-          run_without_appoptics(*args)
+          action = args.empty? ? env['PATH_INFO'] : args[0]['PATH_INFO']
         end
+
+        report_kvs[:Controller] = options[:for]
+        report_kvs[:Action] = "#{env['REQUEST_METHOD']}#{action}"
+
+        env['appoptics.transaction'] = [report_kvs[:Controller], report_kvs[:Action]].join('.')
+
+        ::AppOptics::API.log_entry('grape', report_kvs)
+
+        run_without_appoptics(*args)
+      ensure
+        ::AppOptics::API.log_exit('grape')
       end
     end
 

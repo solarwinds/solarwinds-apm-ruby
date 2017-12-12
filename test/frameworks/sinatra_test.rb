@@ -54,7 +54,7 @@ describe Sinatra do
 
     r.body.must_match /123304952309747203947/
 
-    assert_equal "/render/:id", test_action
+    assert_equal "SinatraSimple.GET/render/:id", test_action
     assert_equal "http://example.org", test_url
     assert_equal 200, test_status
     assert_equal "GET", test_method
@@ -76,8 +76,7 @@ describe Sinatra do
 
     r.body.must_match /WOOT.*123304952309747203947/
 
-
-    assert_equal "/render/:id/what", test_action
+    assert_equal "SinatraSimple.GET/render/:id/what", test_action
     assert_equal "http://example.org", test_url
     assert_equal 200, test_status
     assert_equal "GET", test_method
@@ -99,7 +98,7 @@ describe Sinatra do
 
     r.body.must_match /hello world/
 
-    assert_equal "/say/*/to/*", test_action
+    assert_equal "SinatraSimple.GET/say/*/to/*", test_action
     assert_equal "http://example.org", test_url
     assert_equal 200, test_status
     assert_equal "GET", test_method
@@ -121,7 +120,7 @@ describe Sinatra do
 
     r.body.must_match /Hello, friend/
 
-    test_action.must_match  "\\/hello\\/([\\w]+)", test_action
+    test_action.must_match  "SinatraSimple.GET\\/hello\\/([\\w]+)", test_action
     assert_equal "http://example.org", test_url
     assert_equal 200, test_status
     assert_equal "GET", test_method

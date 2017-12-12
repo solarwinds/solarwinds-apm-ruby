@@ -28,8 +28,8 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
 
       traces[2]['Layer'].must_equal "grape"
       traces[3]['Layer'].must_equal "grape"
-      traces[3].has_key?('Controller').must_equal true
-      traces[3].has_key?('Action').must_equal true
+      traces[2].has_key?('Controller').must_equal true
+      traces[2].has_key?('Action').must_equal true
       traces[4]['Label'].must_equal "exit"
 
       # Validate the existence of the response header
@@ -52,8 +52,8 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
 
       traces[2]['Layer'].must_equal "grape"
       traces[3]['Layer'].must_equal "grape"
-      traces[3].has_key?('Controller').must_equal true
-      traces[3].has_key?('Action').must_equal true
+      traces[2].has_key?('Controller').must_equal true
+      traces[2].has_key?('Action').must_equal true
       traces[4]['Label'].must_equal "exit"
 
       # Validate the existence of the response header
@@ -78,8 +78,8 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
       traces[2]['Label'].must_equal "entry"
       traces[3]['Layer'].must_equal "grape"
       traces[3]['Label'].must_equal "exit"
-      traces[3].has_key?('Controller').must_equal true
-      traces[3].has_key?('Action').must_equal true
+      traces[2].has_key?('Controller').must_equal true
+      traces[2].has_key?('Action').must_equal true
       traces[4]['Label'].must_equal "error"
       traces[4]['ErrorClass'].must_equal "GrapeError"
       traces[4]['ErrorMsg'].must_equal "This is a error with 'error'!"
@@ -110,8 +110,8 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
 
       traces[2]['Layer'].must_equal "grape"
       traces[3]['Layer'].must_equal "grape"
-      traces[3].has_key?('Controller').must_equal true
-      traces[3].has_key?('Action').must_equal true
+      traces[2].has_key?('Controller').must_equal true
+      traces[2].has_key?('Action').must_equal true
       traces[4]['Label'].must_equal "error"
       traces[4]['ErrorClass'].must_equal "Exception"
       traces[4]['ErrorMsg'].must_equal "This should have http status code 500!"
@@ -134,8 +134,8 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
       traces[0]['Layer'].must_equal "rack"
       traces[2]['Layer'].must_equal "grape"
       traces[3]['Layer'].must_equal "grape"
-      traces[3].has_key?('Controller').must_equal true
-      traces[3].has_key?('Action').must_equal true
+      traces[2].has_key?('Controller').must_equal true
+      traces[2].has_key?('Action').must_equal true
       traces[4]['Label'].must_equal "error"
       traces[4]['ErrorClass'].must_equal "GrapeError"
       traces[4]['ErrorMsg'].must_equal "This is an error with 'error'!"
@@ -157,7 +157,7 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
 
       get "/employee_data"
 
-      assert_equal "/employee_data", test_action
+      assert_equal "GrapeSimple.GET/employee_data", test_action
       assert_equal "http://example.org", test_url
       assert_equal 200, test_status
       assert_equal "GET", test_method
@@ -177,7 +177,7 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
 
       get "/employee_data/12"
 
-      assert_equal "/employee_data/:id", test_action
+      assert_equal "GrapeSimple.GET/employee_data/:id", test_action
       assert_equal "http://example.org", test_url
       assert_equal 200, test_status
       assert_equal "GET", test_method
@@ -203,7 +203,7 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
 
       post '/employee_data', data
 
-      assert_equal "/employee_data", test_action
+      assert_equal "GrapeSimple.POST/employee_data", test_action
       assert_equal "http://example.org", test_url
       assert_equal 201, test_status
       assert_equal "POST", test_method
@@ -223,7 +223,7 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
 
       put "/employee_data/12", { :address => 'Other Street' }
 
-      assert_equal "/employee_data/:id", test_action
+      assert_equal "GrapeSimple.PUT/employee_data/:id", test_action
       assert_equal "http://example.org", test_url
       assert_equal 200, test_status
       assert_equal "PUT", test_method
@@ -243,7 +243,7 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
 
       delete "/employee_data/12"
 
-      assert_equal "/employee_data/:id", test_action
+      assert_equal "GrapeSimple.DELETE/employee_data/:id", test_action
       assert_equal "http://example.org", test_url
       assert_equal 200, test_status
       assert_equal "DELETE", test_method
@@ -263,7 +263,7 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
 
       result = get "/employee_data/12/nested/34"
 
-      assert_equal "/employee_data/:id/nested/:child", test_action
+      assert_equal "GrapeSimple.GET/employee_data/:id/nested/:child", test_action
       assert_equal "http://example.org", test_url
       assert_equal 200, test_status
       assert_equal "GET", test_method
