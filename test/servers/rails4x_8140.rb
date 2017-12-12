@@ -31,6 +31,7 @@ end
 class Rails40MetalStack < Rails::Application
   routes.append do
     get "/hello/world" => "hello#world"
+    get "/hello/:id/show" => "hello#show"
     get "/hello/metal" => "ferro#world"
     get "/hello/db"    => "hello#db"
     get "/hello/servererror" => "hello#servererror"
@@ -53,6 +54,10 @@ end
 class HelloController < ActionController::Base
   def world
     render :text => "Hello world!"
+  end
+
+  def show
+    render :text => "Hello Number #{params[:id]}"
   end
 
   def db
