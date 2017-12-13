@@ -56,7 +56,7 @@ class HelloController < ActionController::Base
   end
 
   def show
-    render :text => "Hello Number #{params[:id]}"
+    render :plain => "Hello Number #{params[:id]}"
   end
 
   def db
