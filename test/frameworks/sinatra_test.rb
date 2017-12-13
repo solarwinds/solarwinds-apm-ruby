@@ -105,25 +105,27 @@ describe Sinatra do
     assert_equal 0, test_error
   end
 
-  it "should report the route with regex" do
-    @app = SinatraSimple
-    test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-    AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
-      test_action = action
-      test_url = url
-      test_status = status
-      test_method = method
-      test_error = error
-    end.once
+  if RUBY_VERSION > '2.2'
+    it "should report the route with regex" do
+      @app = SinatraSimple
+      test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
+      AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+        test_action = action
+        test_url = url
+        test_status = status
+        test_method = method
+        test_error = error
+      end.once
 
-    r = get "/hello/friend"
+      r = get "/hello/friend"
 
-    r.body.must_match /Hello, friend/
+      r.body.must_match /Hello, friend/
 
-    test_action.must_match  "SinatraSimple.GET\\/hello\\/([\\w]+)", test_action
-    assert_equal "http://example.org", test_url
-    assert_equal 200, test_status
-    assert_equal "GET", test_method
-    assert_equal 0, test_error
+      test_action.must_match  "SinatraSimple.GET\\/hello\\/([\\w]+)", test_action
+      assert_equal "http://example.org", test_url
+      assert_equal 200, test_status
+      assert_equal "GET", test_method
+      assert_equal 0, test_error
+    end
   end
 end
