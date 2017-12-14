@@ -65,14 +65,10 @@ module AppOptics
       status = 500
       req = ::Rack::Request.new(env)
 
-      env['appoptics.transaction'] = req.path
-
       # In the case of nested Ruby apps such as Grape inside of Rails
       # or Grape inside of Grape, each app has it's own instance
       # of rack middleware.  We avoid tracing rack more than once and
       # instead start instrumenting from the first rack pass.
-
-      # If we're already tracing a rack layer, dont't start another one.
       if AppOptics.tracing? && AppOptics.layer == :rack
         AppOptics.logger.debug "[appoptics/rack] Rack skipped!"
         return @app.call(env)
@@ -81,15 +77,11 @@ module AppOptics
       begin
         report_kvs = {}
 
-        if AppOptics::Config[:rack][:log_args]
-          report_kvs[:URL] = ::CGI.unescape(req.fullpath)
-        else
-          report_kvs[:URL] = ::CGI.unescape(req.path)
-        end
+        report_kvs[:URL] = AppOptics::Config[:rack][:log_args] ? ::CGI.unescape(req.fullpath) : ::CGI.unescape(req.path)
 
         # Check for and validate X-Trace request header to pick up tracing context
         xtrace = env.is_a?(Hash) ? env['HTTP_X_TRACE'] : nil
-        xtrace_header = xtrace && AppOptics::XTrace.valid?(xtrace) ? xtrace : nil
+        xtrace_header = AppOptics::XTrace.valid?(xtrace) ? xtrace : nil
 
         # Under JRuby, JAppOptics may have already started a trace.  Make note of this
         # if so and don't clear context on log_end (see appoptics/api/logging.rb)
@@ -112,16 +104,18 @@ module AppOptics
 
           status, headers, response = @app.call(env)
 
-          xtrace = AppOptics::API.log_end(:rack, :Status => status, 'TransactionName' => env['appoptics.transaction'])
+          xtrace = AppOptics::API.log_end(:rack, :Status => status)
+
         else
           status, headers, response = @app.call(env)
         end
+
         [status, headers, response]
       rescue Exception => e
         # it is ok to rescue Exception here because we are reraising it (we just need a chance to log_end)
         if AppOptics.tracing?
           AppOptics::API.log_exception(:rack, e)
-          xtrace = AppOptics::API.log_end(:rack, :Status => 500, 'TransactionName' => env['appoptics.transaction'])
+          xtrace = AppOptics::API.log_end(:rack, :Status => 500, 'TransactionName' => transaction_name(env))
         end
         raise
       ensure
@@ -132,12 +126,19 @@ module AppOptics
         end
       end
     ensure
-      status = status.to_i
-      error = status.between?(500,599) ? 1 : 0
-      duration =(1000 * 1000 * (Time.now - start)).round(0)
-
       unless ::AppOptics::Util.static_asset?(env['PATH_INFO'])
-        AppOptics::Span.createHttpSpan(env['appoptics.transaction'], req.base_url, duration, status, req.request_method, error)
+        status = status.to_i
+        error = status.between?(500,599) ? 1 : 0
+        duration =(1000 * 1000 * (Time.now - start)).round(0)
+        AppOptics::Span.createHttpSpan(transaction_name(env), req.path, duration, status, req.request_method, error)
+      end
+    end
+
+    private
+
+    def transaction_name(env)
+      if env['appoptics.controller'] || env['appoptics.action']
+        [env['appoptics.controller'], env['appoptics.action']].join('.')
       end
     end
   end

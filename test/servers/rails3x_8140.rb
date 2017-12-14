@@ -81,12 +81,11 @@ class FerroController < ActionController::Metal
   include AbstractController::Rendering
 
   def world
-    render :text => "Hello world!"
+    self.response_body = "Hello world!"
   end
-
-  include AppOpticsMethodProfiling
-  profile_method :world, 'world'
 end
+
+AppOptics::API.profile_method(FerroController, :world)
 
 Rails32MetalStack.initialize!
 

@@ -81,7 +81,7 @@ class FerroController < ActionController::Metal
   include AbstractController::Rendering
 
   def world
-    render :text => "Hello world!"
+    self.response_body = "Hello world!"
   end
 end
 

@@ -24,18 +24,15 @@ module AppOptics
         # Report Controller/Action and Transaction as best possible
         report_kvs = {}
 
+        report_kvs[:Controller] = options[:for]
         if route && route.pattern
-          action = route.pattern.origin
-          version = route.pattern.capture[:version]
-          action.gsub!(/:version/, version.first) if version
+          report_kvs[:Action] = route.pattern.origin
         else
-          action = args.empty? ? env['PATH_INFO'] : args[0]['PATH_INFO']
+          report_kvs[:Action] = args.empty? ? env['PATH_INFO'] : args[0]['PATH_INFO']
         end
 
-        report_kvs[:Controller] = options[:for]
-        report_kvs[:Action] = "#{env['REQUEST_METHOD']}#{action}"
-
-        env['appoptics.transaction'] = [report_kvs[:Controller], report_kvs[:Action]].join('.')
+        env['appoptics.controller'] = report_kvs[:Controller]
+        env['appoptics.action']     = report_kvs[:Action]
 
         ::AppOptics::API.log_entry('grape', report_kvs)
 

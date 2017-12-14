@@ -157,12 +157,14 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
 
       get "/employee_data"
 
-      assert_equal "GrapeSimple.GET/employee_data", test_action
+      assert_equal "GrapeSimple./employee_data", test_action
       assert_equal "http://example.org", test_url
       assert_equal 200, test_status
       assert_equal "GET", test_method
       assert_equal 0, test_error
-    end
+
+      assert_controller_action(test_action)
+      end
 
     it "should report a GET path with parameter" do
       @app = GrapeSimple
@@ -177,11 +179,13 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
 
       get "/employee_data/12"
 
-      assert_equal "GrapeSimple.GET/employee_data/:id", test_action
+      assert_equal "GrapeSimple./employee_data/:id", test_action
       assert_equal "http://example.org", test_url
       assert_equal 200, test_status
       assert_equal "GET", test_method
       assert_equal 0, test_error
+
+      assert_controller_action(test_action)
     end
 
     it "should report a POST path" do
@@ -203,11 +207,13 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
 
       post '/employee_data', data
 
-      assert_equal "GrapeSimple.POST/employee_data", test_action
+      assert_equal "GrapeSimple./employee_data", test_action
       assert_equal "http://example.org", test_url
       assert_equal 201, test_status
       assert_equal "POST", test_method
       assert_equal 0, test_error
+
+      assert_controller_action(test_action)
     end
 
     it "should report a PUT path" do
@@ -223,11 +229,13 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
 
       put "/employee_data/12", { :address => 'Other Street' }
 
-      assert_equal "GrapeSimple.PUT/employee_data/:id", test_action
+      assert_equal "GrapeSimple./employee_data/:id", test_action
       assert_equal "http://example.org", test_url
       assert_equal 200, test_status
       assert_equal "PUT", test_method
       assert_equal 0, test_error
+
+      assert_controller_action(test_action)
     end
 
     it "should report a DELETE path" do
@@ -243,11 +251,13 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
 
       delete "/employee_data/12"
 
-      assert_equal "GrapeSimple.DELETE/employee_data/:id", test_action
+      assert_equal "GrapeSimple./employee_data/:id", test_action
       assert_equal "http://example.org", test_url
       assert_equal 200, test_status
       assert_equal "DELETE", test_method
       assert_equal 0, test_error
+
+      assert_controller_action(test_action)
     end
 
     it "should report a nested GET path with parameters" do
@@ -261,13 +271,15 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
         test_error = error
       end.once
 
-      result = get "/employee_data/12/nested/34"
+      get "/employee_data/12/nested/34"
 
-      assert_equal "GrapeSimple.GET/employee_data/:id/nested/:child", test_action
+      assert_equal "GrapeSimple./employee_data/:id/nested/:child", test_action
       assert_equal "http://example.org", test_url
       assert_equal 200, test_status
       assert_equal "GET", test_method
       assert_equal 0, test_error
+
+      assert_controller_action(test_action)
     end
 
   end

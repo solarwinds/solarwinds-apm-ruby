@@ -211,6 +211,16 @@ def layer_doesnt_have_key(traces, layer, key)
   has_key.must_equal false
 end
 
+##
+# Checks if the transaction name corresponds to Controller.Action
+#
+def assert_controller_action(test_action)
+  traces = get_all_traces
+  controller = traces.find { |tr| tr['Controller'] }['Controller']
+  action = traces.find { |tr| tr['Action'] }['Action']
+  assert_equal(test_action, [controller, action].join('.'))
+end
+
 def not_sampled?(xtrace)
   xtrace[59].to_i & 1 == 0
 end

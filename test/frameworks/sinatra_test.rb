@@ -59,6 +59,8 @@ describe Sinatra do
     assert_equal 200, test_status
     assert_equal "GET", test_method
     assert_equal 0, test_error
+
+    assert_controller_action(test_action)
   end
 
   it "should report the route with :id and more" do
@@ -81,6 +83,8 @@ describe Sinatra do
     assert_equal 200, test_status
     assert_equal "GET", test_method
     assert_equal 0, test_error
+
+    assert_controller_action(test_action)
   end
 
   it "should report the route with splats" do
@@ -103,6 +107,8 @@ describe Sinatra do
     assert_equal 200, test_status
     assert_equal "GET", test_method
     assert_equal 0, test_error
+
+    assert_controller_action(test_action)
   end
 
   if RUBY_VERSION > '2.2'
@@ -126,6 +132,8 @@ describe Sinatra do
       assert_equal 200, test_status
       assert_equal "GET", test_method
       assert_equal 0, test_error
+
+      assert_controller_action(test_action)
     end
   end
 end

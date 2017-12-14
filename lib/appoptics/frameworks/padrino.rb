@@ -19,8 +19,8 @@ module AppOptics
         controller = (request.controller && !request.controller.empty?) ? request.controller : nil
         report_kvs[:Controller] = controller || self.class
         report_kvs[:Action] = request.route_obj ? request.route_obj.path : request.action
-        report_kvs[:Action] && report_kvs[:Action].gsub!(/^\//, '')
-        env['appoptics.transaction'] = [report_kvs[:Controller], report_kvs[:Action]].compact.join('.')
+        env['appoptics.controller'] = report_kvs[:Controller]
+        env['appoptics.action']     = report_kvs[:Action]
 
         result
       ensure
