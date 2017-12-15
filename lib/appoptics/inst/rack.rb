@@ -64,6 +64,7 @@ module AppOptics
       start = Time.now
       status = 500
       req = ::Rack::Request.new(env)
+      req_url = req.url   # saving it here because rails3.2 overrides it when there is a 500 error
 
       # In the case of nested Ruby apps such as Grape inside of Rails
       # or Grape inside of Grape, each app has it's own instance
@@ -130,7 +131,7 @@ module AppOptics
         status = status.to_i
         error = status.between?(500,599) ? 1 : 0
         duration =(1000 * 1000 * (Time.now - start)).round(0)
-        AppOptics::Span.createHttpSpan(transaction_name(env), req.url, duration, status, req.request_method, error)
+        AppOptics::Span.createHttpSpan(transaction_name(env), req_url, duration, status, req.request_method, error)
       end
     end
 
