@@ -98,7 +98,6 @@ if defined?(::Rails)
       traces[2]['Label'].must_equal "profile_entry"
       traces[2]['Language'].must_equal "ruby"
       traces[2]['ProfileName'].must_equal "world"
-      traces[2]['FunctionName'].must_equal "world"
       traces[2]['Class'].must_equal "FerroController"
 
       traces[3]['Label'].must_equal "profile_exit"
@@ -114,6 +113,7 @@ if defined?(::Rails)
     end
 
     # TODO: should we have this test for other rails versions as well?
+    # TODO: review this test and why it fails (sometimes?)
     it "should trace rails postgresql db calls" do
       # Skip for JRuby since the java instrumentation
       # handles DB instrumentation for JRuby
@@ -124,7 +124,6 @@ if defined?(::Rails)
 
       traces = get_all_traces
 
-      # TODO: review this test and why it fails (sometimes?)
       traces.count.must_equal 14
       valid_edges?(traces).must_equal true
       validate_outer_layers(traces, 'rack')

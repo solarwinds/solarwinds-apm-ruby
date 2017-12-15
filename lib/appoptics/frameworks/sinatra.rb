@@ -10,32 +10,25 @@ module AppOptics
       end
 
       def dispatch_with_appoptics
-        if AppOptics.tracing?
-          report_kvs = {}
 
-          report_kvs[:Controller] = self.class
-          report_kvs[:Action] = env['PATH_INFO']
+        ::AppOptics::API.log_entry('sinatra', {})
 
-          # Fall back to the raw tracing API so we can pass KVs
-          # back on exit (a limitation of the AppOptics::API.trace
-          # block method) This removes the need for an info
-          # event to send additonal KVs
-          ::AppOptics::API.log_entry('sinatra', {})
+        response = dispatch_without_appoptics
 
-          begin
-            dispatch_without_appoptics
-          ensure
-            ::AppOptics::API.log_exit('sinatra', report_kvs)
-          end
-        else
-          dispatch_without_appoptics
-        end
+        # Report Controller/Action and transaction as best possible
+        report_kvs = {}
+        report_kvs[:Controller] = self.class
+        report_kvs[:Action] = env['sinatra.route'].gsub(/ /, '') if env['sinatra.route']
+        env['appoptics.controller'] = report_kvs[:Controller]
+        env['appoptics.action']     = report_kvs[:Action]
+
+        response
       ensure
-        env['appoptics.transaction'] = env['sinatra.route'].gsub(/#{env['REQUEST_METHOD']} /, '') if env['sinatra.route']
+        ::AppOptics::API.log_exit('sinatra', report_kvs)
       end
 
       def handle_exception_with_appoptics(boom)
-        AppOptics::API.log_exception(nil, boom) if AppOptics.tracing?
+        AppOptics::API.log_exception(nil, boom)
         handle_exception_without_appoptics(boom)
       end
 

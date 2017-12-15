@@ -31,6 +31,7 @@ end
 class Rails32MetalStack < Rails::Application
   routes.append do
     get "/hello/world" => "hello#world"
+    get "/hello/:id/show" => "hello#show"
     get "/hello/metal" => "ferro#world"
     get "/hello/db"    => "hello#db"
     get "/hello/servererror" => "hello#servererror"
@@ -55,6 +56,10 @@ class HelloController < ActionController::Base
     render :text => "Hello world!"
   end
 
+  def show
+    render :text => "Hello Number #{params[:id]}"
+  end
+
   def db
     # Create a widget
     w1 = Widget.new(:name => 'blah', :description => 'This is an amazing widget.')
@@ -76,12 +81,11 @@ class FerroController < ActionController::Metal
   include AbstractController::Rendering
 
   def world
-    render :text => "Hello world!"
+    self.response_body = "Hello world!"
   end
-
-  include AppOpticsMethodProfiling
-  profile_method :world, 'world'
 end
+
+AppOptics::API.profile_method(FerroController, :world)
 
 Rails32MetalStack.initialize!
 

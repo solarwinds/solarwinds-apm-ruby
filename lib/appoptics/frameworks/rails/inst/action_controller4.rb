@@ -24,7 +24,8 @@ module AppOptics
             :Controller   => self.class.name,
             :Action       => self.action_name,
         }
-        request.env['appoptics.transaction'] = "#{kvs[:Controller]}.#{kvs[:Action]}"
+        request.env['appoptics.controller'] = kvs[:Controller]
+        request.env['appoptics.action'] = kvs[:Action]
 
         return process_action_without_appoptics(method_name, *args) unless AppOptics.tracing?
         begin

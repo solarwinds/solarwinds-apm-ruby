@@ -28,8 +28,8 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
 
       traces[2]['Layer'].must_equal "grape"
       traces[3]['Layer'].must_equal "grape"
-      traces[3].has_key?('Controller').must_equal true
-      traces[3].has_key?('Action').must_equal true
+      traces[2].has_key?('Controller').must_equal true
+      traces[2].has_key?('Action').must_equal true
       traces[4]['Label'].must_equal "exit"
 
       # Validate the existence of the response header
@@ -52,8 +52,8 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
 
       traces[2]['Layer'].must_equal "grape"
       traces[3]['Layer'].must_equal "grape"
-      traces[3].has_key?('Controller').must_equal true
-      traces[3].has_key?('Action').must_equal true
+      traces[2].has_key?('Controller').must_equal true
+      traces[2].has_key?('Action').must_equal true
       traces[4]['Label'].must_equal "exit"
 
       # Validate the existence of the response header
@@ -78,8 +78,8 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
       traces[2]['Label'].must_equal "entry"
       traces[3]['Layer'].must_equal "grape"
       traces[3]['Label'].must_equal "exit"
-      traces[3].has_key?('Controller').must_equal true
-      traces[3].has_key?('Action').must_equal true
+      traces[2].has_key?('Controller').must_equal true
+      traces[2].has_key?('Action').must_equal true
       traces[4]['Label'].must_equal "error"
       traces[4]['ErrorClass'].must_equal "GrapeError"
       traces[4]['ErrorMsg'].must_equal "This is a error with 'error'!"
@@ -110,8 +110,8 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
 
       traces[2]['Layer'].must_equal "grape"
       traces[3]['Layer'].must_equal "grape"
-      traces[3].has_key?('Controller').must_equal true
-      traces[3].has_key?('Action').must_equal true
+      traces[2].has_key?('Controller').must_equal true
+      traces[2].has_key?('Action').must_equal true
       traces[4]['Label'].must_equal "error"
       traces[4]['ErrorClass'].must_equal "Exception"
       traces[4]['ErrorMsg'].must_equal "This should have http status code 500!"
@@ -134,8 +134,8 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
       traces[0]['Layer'].must_equal "rack"
       traces[2]['Layer'].must_equal "grape"
       traces[3]['Layer'].must_equal "grape"
-      traces[3].has_key?('Controller').must_equal true
-      traces[3].has_key?('Action').must_equal true
+      traces[2].has_key?('Controller').must_equal true
+      traces[2].has_key?('Action').must_equal true
       traces[4]['Label'].must_equal "error"
       traces[4]['ErrorClass'].must_equal "GrapeError"
       traces[4]['ErrorMsg'].must_equal "This is an error with 'error'!"
@@ -157,12 +157,14 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
 
       get "/employee_data"
 
-      assert_equal "/employee_data", test_action
-      assert_equal "http://example.org", test_url
+      assert_equal "GrapeSimple./employee_data", test_action
+      assert_equal "http://example.org/employee_data", test_url
       assert_equal 200, test_status
       assert_equal "GET", test_method
       assert_equal 0, test_error
-    end
+
+      assert_controller_action(test_action)
+      end
 
     it "should report a GET path with parameter" do
       @app = GrapeSimple
@@ -177,11 +179,13 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
 
       get "/employee_data/12"
 
-      assert_equal "/employee_data/:id", test_action
-      assert_equal "http://example.org", test_url
+      assert_equal "GrapeSimple./employee_data/:id", test_action
+      assert_equal "http://example.org/employee_data/12", test_url
       assert_equal 200, test_status
       assert_equal "GET", test_method
       assert_equal 0, test_error
+
+      assert_controller_action(test_action)
     end
 
     it "should report a POST path" do
@@ -203,11 +207,13 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
 
       post '/employee_data', data
 
-      assert_equal "/employee_data", test_action
-      assert_equal "http://example.org", test_url
+      assert_equal "GrapeSimple./employee_data", test_action
+      assert_equal "http://example.org/employee_data", test_url
       assert_equal 201, test_status
       assert_equal "POST", test_method
       assert_equal 0, test_error
+
+      assert_controller_action(test_action)
     end
 
     it "should report a PUT path" do
@@ -223,11 +229,13 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
 
       put "/employee_data/12", { :address => 'Other Street' }
 
-      assert_equal "/employee_data/:id", test_action
-      assert_equal "http://example.org", test_url
+      assert_equal "GrapeSimple./employee_data/:id", test_action
+      assert_equal "http://example.org/employee_data/12", test_url
       assert_equal 200, test_status
       assert_equal "PUT", test_method
       assert_equal 0, test_error
+
+      assert_controller_action(test_action)
     end
 
     it "should report a DELETE path" do
@@ -243,11 +251,13 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
 
       delete "/employee_data/12"
 
-      assert_equal "/employee_data/:id", test_action
-      assert_equal "http://example.org", test_url
+      assert_equal "GrapeSimple./employee_data/:id", test_action
+      assert_equal "http://example.org/employee_data/12", test_url
       assert_equal 200, test_status
       assert_equal "DELETE", test_method
       assert_equal 0, test_error
+
+      assert_controller_action(test_action)
     end
 
     it "should report a nested GET path with parameters" do
@@ -261,13 +271,15 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
         test_error = error
       end.once
 
-      result = get "/employee_data/12/nested/34"
+      get "/employee_data/12/nested/34"
 
-      assert_equal "/employee_data/:id/nested/:child", test_action
-      assert_equal "http://example.org", test_url
+      assert_equal "GrapeSimple./employee_data/:id/nested/:child", test_action
+      assert_equal "http://example.org/employee_data/12/nested/34", test_url
       assert_equal 200, test_status
       assert_equal "GET", test_method
       assert_equal 0, test_error
+
+      assert_controller_action(test_action)
     end
 
   end

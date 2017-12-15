@@ -9,25 +9,22 @@ module AppOptics
       end
 
       def dispatch_with_appoptics
-        report_kvs = {}
 
-        # Fall back to the raw tracing API so we can pass KVs
-        # back on exit (a limitation of the AppOptics::API.trace
-        # block method) This removes the need for an info
-        # event to send additonal KVs
-        ::AppOptics::API.log_entry('padrino', {}) if AppOptics.tracing?
+        ::AppOptics::API.log_entry('padrino', {})
 
         result = dispatch_without_appoptics
 
         # Report Controller/Action and Transaction as best possible
+        report_kvs = {}
         controller = (request.controller && !request.controller.empty?) ? request.controller : nil
         report_kvs[:Controller] = controller || self.class
-        report_kvs[:Action] = request.action ? request.action.to_s.gsub(/^\//, '') : nil
-        env['appoptics.transaction'] = [controller, report_kvs[:Action]].compact.join('.')
+        report_kvs[:Action] = request.route_obj ? request.route_obj.path : request.action
+        env['appoptics.controller'] = report_kvs[:Controller]
+        env['appoptics.action']     = report_kvs[:Action]
 
         result
       ensure
-        ::AppOptics::API.log_exit('padrino', report_kvs) if AppOptics.tracing?
+        ::AppOptics::API.log_exit('padrino', report_kvs)
       end
     end
   end

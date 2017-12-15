@@ -54,11 +54,13 @@ describe Sinatra do
 
     r.body.must_match /123304952309747203947/
 
-    assert_equal "/render/:id", test_action
-    assert_equal "http://example.org", test_url
+    assert_equal "SinatraSimple.GET/render/:id", test_action
+    assert_equal "http://example.org/render/123304952309747203947", test_url
     assert_equal 200, test_status
     assert_equal "GET", test_method
     assert_equal 0, test_error
+
+    assert_controller_action(test_action)
   end
 
   it "should report the route with :id and more" do
@@ -76,12 +78,13 @@ describe Sinatra do
 
     r.body.must_match /WOOT.*123304952309747203947/
 
-
-    assert_equal "/render/:id/what", test_action
-    assert_equal "http://example.org", test_url
+    assert_equal "SinatraSimple.GET/render/:id/what", test_action
+    assert_equal "http://example.org/render/123304952309747203947/what", test_url
     assert_equal 200, test_status
     assert_equal "GET", test_method
     assert_equal 0, test_error
+
+    assert_controller_action(test_action)
   end
 
   it "should report the route with splats" do
@@ -99,32 +102,38 @@ describe Sinatra do
 
     r.body.must_match /hello world/
 
-    assert_equal "/say/*/to/*", test_action
-    assert_equal "http://example.org", test_url
+    assert_equal "SinatraSimple.GET/say/*/to/*", test_action
+    assert_equal "http://example.org/say/hello/to/world", test_url
     assert_equal 200, test_status
     assert_equal "GET", test_method
     assert_equal 0, test_error
+
+    assert_controller_action(test_action)
   end
 
-  it "should report the route with regex" do
-    @app = SinatraSimple
-    test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-    AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
-      test_action = action
-      test_url = url
-      test_status = status
-      test_method = method
-      test_error = error
-    end.once
+  if RUBY_VERSION > '2.2'
+    it "should report the route with regex" do
+      @app = SinatraSimple
+      test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
+      AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+        test_action = action
+        test_url = url
+        test_status = status
+        test_method = method
+        test_error = error
+      end.once
 
-    r = get "/hello/friend"
+      r = get "/hello/friend"
 
-    r.body.must_match /Hello, friend/
+      r.body.must_match /Hello, friend/
 
-    test_action.must_match  "\\/hello\\/([\\w]+)", test_action
-    assert_equal "http://example.org", test_url
-    assert_equal 200, test_status
-    assert_equal "GET", test_method
-    assert_equal 0, test_error
+      test_action.must_match  "SinatraSimple.GET\\/hello\\/([\\w]+)", test_action
+      assert_equal "http://example.org/hello/friend", test_url
+      assert_equal 200, test_status
+      assert_equal "GET", test_method
+      assert_equal 0, test_error
+
+      assert_controller_action(test_action)
+    end
   end
 end
