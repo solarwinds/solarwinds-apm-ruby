@@ -46,7 +46,7 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Padrino)
       get "/render"
 
       assert_equal "SimpleDemo./render", test_action
-      assert_equal "http://example.org", test_url
+      assert_equal "http://example.org/render", test_url
       assert_equal 200, test_status
       assert_equal "GET", test_method
       assert_equal 0, test_error
@@ -68,7 +68,7 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Padrino)
       get "/symbol_route"
 
       assert_equal "SimpleDemo./symbol_route", test_action
-      assert_equal "http://example.org", test_url
+      assert_equal "http://example.org/symbol_route", test_url
       assert_equal 200, test_status
       assert_equal "GET", test_method
       assert_equal 0, test_error
@@ -92,7 +92,7 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Padrino)
       r.body.must_match /1234567890/
 
       assert_equal "SimpleDemo./render/:id", test_action
-      assert_equal "http://example.org", test_url
+      assert_equal "http://example.org/render/1234567890", test_url
       assert_equal 200, test_status
       assert_equal "GET", test_method
       assert_equal 0, test_error
@@ -116,7 +116,7 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Padrino)
       r.body.must_match /1234567890/
 
       assert_equal "SimpleDemo./symbol_route/:id", test_action
-      assert_equal "http://example.org", test_url
+      assert_equal "http://example.org/symbol_route/1234567890", test_url
       assert_equal 200, test_status
       assert_equal "GET", test_method
       assert_equal 0, test_error
@@ -140,7 +140,7 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Padrino)
       r.body.must_match /WOOT is 1234567890/
 
       assert_equal "SimpleDemo./render/:id/what", test_action
-      assert_equal "http://example.org", test_url
+      assert_equal "http://example.org/render/1234567890/what", test_url
       assert_equal 200, test_status
       assert_equal "GET", test_method
       assert_equal 0, test_error
@@ -162,7 +162,7 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Padrino)
       get "/error"
 
       assert_equal "SimpleDemo./error", test_action
-      assert_equal "http://example.org", test_url
+      assert_equal "http://example.org/error", test_url
       assert_equal 500, test_status
       assert_equal "GET", test_method
       assert_equal 1, test_error
@@ -186,7 +186,7 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Padrino)
       r.body.must_match /12345/
 
       assert_equal "product./user/:user_id/product", test_action
-      assert_equal "http://example.org", test_url
+      assert_equal "http://example.org/user/12345/product", test_url
       assert_equal 200, test_status
       assert_equal "GET", test_method
       assert_equal 0, test_error
@@ -211,7 +211,7 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Padrino)
       r.body.must_match /101010/
 
       assert_equal "product./user/:user_id/product/show/:id", test_action
-      assert_equal "http://example.org", test_url
+      assert_equal "http://example.org/user/12345/product/show/101010", test_url
       assert_equal 200, test_status
       assert_equal "GET", test_method
       assert_equal 0, test_error

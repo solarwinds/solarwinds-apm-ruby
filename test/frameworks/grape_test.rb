@@ -158,7 +158,7 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
       get "/employee_data"
 
       assert_equal "GrapeSimple./employee_data", test_action
-      assert_equal "http://example.org", test_url
+      assert_equal "http://example.org/employee_data", test_url
       assert_equal 200, test_status
       assert_equal "GET", test_method
       assert_equal 0, test_error
@@ -180,7 +180,7 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
       get "/employee_data/12"
 
       assert_equal "GrapeSimple./employee_data/:id", test_action
-      assert_equal "http://example.org", test_url
+      assert_equal "http://example.org/employee_data/12", test_url
       assert_equal 200, test_status
       assert_equal "GET", test_method
       assert_equal 0, test_error
@@ -208,7 +208,7 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
       post '/employee_data', data
 
       assert_equal "GrapeSimple./employee_data", test_action
-      assert_equal "http://example.org", test_url
+      assert_equal "http://example.org/employee_data", test_url
       assert_equal 201, test_status
       assert_equal "POST", test_method
       assert_equal 0, test_error
@@ -230,7 +230,7 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
       put "/employee_data/12", { :address => 'Other Street' }
 
       assert_equal "GrapeSimple./employee_data/:id", test_action
-      assert_equal "http://example.org", test_url
+      assert_equal "http://example.org/employee_data/12", test_url
       assert_equal 200, test_status
       assert_equal "PUT", test_method
       assert_equal 0, test_error
@@ -252,7 +252,7 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
       delete "/employee_data/12"
 
       assert_equal "GrapeSimple./employee_data/:id", test_action
-      assert_equal "http://example.org", test_url
+      assert_equal "http://example.org/employee_data/12", test_url
       assert_equal 200, test_status
       assert_equal "DELETE", test_method
       assert_equal 0, test_error
@@ -274,7 +274,7 @@ if RUBY_VERSION >= '1.9.3' and defined?(::Grape)
       get "/employee_data/12/nested/34"
 
       assert_equal "GrapeSimple./employee_data/:id/nested/:child", test_action
-      assert_equal "http://example.org", test_url
+      assert_equal "http://example.org/employee_data/12/nested/34", test_url
       assert_equal 200, test_status
       assert_equal "GET", test_method
       assert_equal 0, test_error

@@ -130,7 +130,7 @@ module AppOptics
         status = status.to_i
         error = status.between?(500,599) ? 1 : 0
         duration =(1000 * 1000 * (Time.now - start)).round(0)
-        AppOptics::Span.createHttpSpan(transaction_name(env), req.path, duration, status, req.request_method, error)
+        AppOptics::Span.createHttpSpan(transaction_name(env), req.url, duration, status, req.request_method, error)
       end
     end
 

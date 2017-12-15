@@ -70,7 +70,7 @@ require 'mocha/mini_test'
       Net::HTTP.get_response(uri)
 
       assert_equal "HelloController.world", test_action
-      assert_equal "http://127.0.0.1:8140", test_url
+      assert_equal "http://127.0.0.1:8140/hello/world", test_url
       assert_equal 200, test_status
       assert_equal "GET", test_method
       assert_equal 0, test_error
@@ -95,7 +95,7 @@ require 'mocha/mini_test'
       end
 
       assert_equal "HelloController.world", test_action
-      assert_equal "http://127.0.0.1:8140", test_url
+      assert_equal "http://127.0.0.1:8140/hello/world", test_url
       assert_equal 200, test_status
       assert_equal "GET", test_method
       assert_equal 0, test_error
@@ -116,7 +116,7 @@ require 'mocha/mini_test'
       Net::HTTP.get_response(uri)
 
       assert_equal "HelloController.servererror", test_action
-      assert_equal "http://127.0.0.1:8140", test_url
+      assert_equal "http://127.0.0.1:8140/hello/servererror", test_url
       assert_equal 500, test_status
       assert_equal "GET", test_method
       assert_equal 1, test_error
@@ -139,7 +139,7 @@ require 'mocha/mini_test'
       Net::HTTP.get_response(uri)
 
       assert_equal "HelloController.show", test_action
-      assert_equal "http://127.0.0.1:8140", test_url
+      assert_equal "http://127.0.0.1:8140/hello/15/show", test_url
       assert_equal 200, test_status
       assert_equal "GET", test_method
       assert_equal 0, test_error
@@ -163,7 +163,7 @@ require 'mocha/mini_test'
 
       assert_equal 200, test_status
       assert_equal "FerroController.world", test_action
-      assert_equal "http://127.0.0.1:8140", test_url
+      assert_equal "http://127.0.0.1:8140/hello/metal", test_url
       assert_equal "GET", test_method
       assert_equal 0, test_error
 
