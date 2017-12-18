@@ -95,7 +95,7 @@ describe "AppOptics::Config" do
 
     AppOptics::Config[:blacklist].is_a?(Array).must_equal true
 
-    AppOptics::Config[:dnt_regexp].must_equal '\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|ttf|woff|svg|less)(\?.+){0,1}$'
+    AppOptics::Config[:dnt_regexp].must_equal '\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|otf|eot|ttf|woff|woff2|svg|less)(\?.+){0,1}$'
     AppOptics::Config[:dnt_opts].must_equal Regexp::IGNORECASE
   end
 
