@@ -213,12 +213,13 @@ end
 
 ##
 # Checks if the transaction name corresponds to Controller.Action
+# if there are multiple events with Controller and/or Action, then they all have to match
 #
 def assert_controller_action(test_action)
   traces = get_all_traces
-  controller = traces.find { |tr| tr['Controller'] }['Controller']
-  action = traces.find { |tr| tr['Action'] }['Action']
-  assert_equal(test_action, [controller, action].join('.'))
+  traces.select { |tr| tr['Controller'] || tr['Action'] }.map do |tr|
+    assert_equal(test_action, [tr['Controller'], tr['Action']].join('.'))
+  end
 end
 
 def not_sampled?(xtrace)
