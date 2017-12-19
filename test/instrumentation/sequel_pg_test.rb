@@ -76,6 +76,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
     end
 
     it 'should trace PG_DB.run insert' do
+      AppOptics::Config[:sanitize_sql] = false
       AppOptics::API.start_trace('sequel_test', '', {}) do
         PG_DB.run("insert into items (name, price) values ('blah', '12')")
       end
@@ -92,6 +93,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
     end
 
     it 'should trace PG_DB.run select' do
+      AppOptics::Config[:sanitize_sql] = false
       AppOptics::API.start_trace('sequel_test', '', {}) do
         PG_DB.run("select 1")
       end
@@ -108,6 +110,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
     end
 
     it 'should trace a dataset insert and count' do
+      AppOptics::Config[:sanitize_sql] = false
       items = PG_DB[:items]
       # Preload the primary key to avoid breaking tests with the seemingly
       # random lookup (random due to random test order)
@@ -169,6 +172,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
     end
 
     it 'should trace a dataset filter' do
+      AppOptics::Config[:sanitize_sql] = false
       items = PG_DB[:items]
       items.count
 
@@ -258,6 +262,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
     end
 
     it 'should trace placeholder queries with bound vars' do
+      AppOptics::Config[:sanitize_sql] = false
       items = PG_DB[:items]
       items.count
 
@@ -281,6 +286,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
     end
 
     it 'should trace prepared statements' do
+      AppOptics::Config[:sanitize_sql] = false
       ds = PG_DB[:items].filter(:name=>:$n)
       ps = ds.prepare(:select, :select_by_name)
 

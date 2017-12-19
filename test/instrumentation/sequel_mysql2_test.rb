@@ -76,6 +76,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
     end
 
     it 'should trace MYSQL2_DB.run insert' do
+      AppOptics::Config[:sanitize_sql] = false
       AppOptics::API.start_trace('sequel_test', '', {}) do
         MYSQL2_DB.run("insert into items (name, price) values ('blah', '12')")
       end
@@ -108,6 +109,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
     end
 
     it 'should trace a dataset insert and count' do
+      AppOptics::Config[:sanitize_sql] = false
       items = MYSQL2_DB[:items]
       items.count
 
@@ -165,6 +167,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
     end
 
     it 'should trace a dataset filter' do
+      AppOptics::Config[:sanitize_sql] = false
       items = MYSQL2_DB[:items]
       items.count
 
@@ -184,6 +187,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
     end
 
     it 'should trace create table' do
+      AppOptics::Config[:sanitize_sql] = false
       # Drop the table if it already exists
       MYSQL2_DB.drop_table(:fake) if MYSQL2_DB.table_exists?(:fake)
 
@@ -207,6 +211,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
     end
 
     it 'should trace add index' do
+      AppOptics::Config[:sanitize_sql] = false
       # Drop the table if it already exists
       MYSQL2_DB.drop_table(:fake) if MYSQL2_DB.table_exists?(:fake)
 
@@ -254,6 +259,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
     end
 
     it 'should trace placeholder queries with bound vars' do
+      AppOptics::Config[:sanitize_sql] = false
       items = MYSQL2_DB[:items]
       items.count
 

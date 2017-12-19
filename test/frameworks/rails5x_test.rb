@@ -85,7 +85,7 @@ if defined?(::Rails)
       traces[3]['Layer'].must_equal "activerecord"
       traces[3]['Label'].must_equal "entry"
       traces[3]['Flavor'].must_equal "postgresql"
-      traces[3]['Query'].must_equal "INSERT INTO \"widgets\" (\"name\", \"description\", \"created_at\", \"updated_at\") VALUES ($1, $2, $3, $4) RETURNING \"id\""
+      traces[3]['Query'].must_equal "INSERT INTO \"widgets\" (\"name\", \"description\", \"created_at\", \"updated_at\") VALUES ($?, $?, $?, $?) RETURNING \"id\""
       traces[3]['Name'].must_equal "SQL"
       traces[3].key?('Backtrace').must_equal true
 
@@ -95,10 +95,10 @@ if defined?(::Rails)
       traces[5]['Layer'].must_equal "activerecord"
       traces[5]['Label'].must_equal "entry"
       traces[5]['Flavor'].must_equal "postgresql"
-      traces[5]['Query'].must_equal "SELECT  \"widgets\".* FROM \"widgets\" WHERE \"widgets\".\"name\" = $1 ORDER BY \"widgets\".\"id\" ASC LIMIT $2"
+      traces[5]['Query'].must_equal "SELECT  \"widgets\".* FROM \"widgets\" WHERE \"widgets\".\"name\" = $? ORDER BY \"widgets\".\"id\" ASC LIMIT $?"
       traces[5]['Name'].must_equal "Widget Load"
       traces[5].key?('Backtrace').must_equal true
-      traces[5].key?('QueryArgs').must_equal true
+      traces[5].key?('QueryArgs').must_equal false
 
       traces[6]['Layer'].must_equal "activerecord"
       traces[6]['Label'].must_equal "exit"
@@ -106,10 +106,10 @@ if defined?(::Rails)
       traces[7]['Layer'].must_equal "activerecord"
       traces[7]['Label'].must_equal "entry"
       traces[7]['Flavor'].must_equal "postgresql"
-      traces[7]['Query'].must_equal "DELETE FROM \"widgets\" WHERE \"widgets\".\"id\" = $1"
+      traces[7]['Query'].must_equal "DELETE FROM \"widgets\" WHERE \"widgets\".\"id\" = $?"
       traces[7]['Name'].must_equal "SQL"
       traces[7].key?('Backtrace').must_equal true
-      traces[7].key?('QueryArgs').must_equal true
+      traces[7].key?('QueryArgs').must_equal false
 
       traces[8]['Layer'].must_equal "activerecord"
       traces[8]['Label'].must_equal "exit"
@@ -137,9 +137,7 @@ if defined?(::Rails)
       traces[3]['Label'].must_equal "entry"
       traces[3]['Flavor'].must_equal "mysql"
 
-      # Replace the datestamps with xxx to make testing easier
-      sql = traces[3]['Query'].gsub(/\d\d\d\d-\d\d-\d\d\s\d\d:\d\d:\d\d/, 'xxx')
-      sql.must_equal "INSERT INTO `widgets` (`name`, `description`, `created_at`, `updated_at`) VALUES ('blah', 'This is an amazing widget.', 'xxx', 'xxx')"
+      traces[3]['Query'].must_equal "INSERT INTO `widgets` (`name`, `description`, `created_at`, `updated_at`) VALUES ('?', '?', '?', '?')"
 
       traces[3]['Name'].must_equal "SQL"
       traces[3].key?('Backtrace').must_equal true
@@ -150,10 +148,10 @@ if defined?(::Rails)
       traces[5]['Layer'].must_equal "activerecord"
       traces[5]['Label'].must_equal "entry"
       traces[5]['Flavor'].must_equal "mysql"
-      traces[5]['Query'].must_equal "SELECT  `widgets`.* FROM `widgets` WHERE `widgets`.`name` = 'blah' ORDER BY `widgets`.`id` ASC LIMIT 1"
+      traces[5]['Query'].must_equal "SELECT  `widgets`.* FROM `widgets` WHERE `widgets`.`name` = '?' ORDER BY `widgets`.`id` ASC LIMIT ?"
       traces[5]['Name'].must_equal "Widget Load"
       traces[5].key?('Backtrace').must_equal true
-      traces[5].key?('QueryArgs').must_equal true
+      traces[5].key?('QueryArgs').must_equal false
 
       traces[6]['Layer'].must_equal "activerecord"
       traces[6]['Label'].must_equal "exit"
@@ -162,13 +160,11 @@ if defined?(::Rails)
       traces[7]['Label'].must_equal "entry"
       traces[7]['Flavor'].must_equal "mysql"
 
-      # Replace the datestamps with xxx to make testing easier
-      sql = traces[7]['Query'].gsub /\d+/, 'xxx'
-      sql.must_equal "DELETE FROM `widgets` WHERE `widgets`.`id` = xxx"
+      traces[7]['Query'].must_equal "DELETE FROM `widgets` WHERE `widgets`.`id` = ?"
 
       traces[7]['Name'].must_equal "SQL"
       traces[7].key?('Backtrace').must_equal true
-      traces[7].key?('QueryArgs').must_equal true
+      traces[7].key?('QueryArgs').must_equal false
 
       traces[8]['Layer'].must_equal "activerecord"
       traces[8]['Label'].must_equal "exit"

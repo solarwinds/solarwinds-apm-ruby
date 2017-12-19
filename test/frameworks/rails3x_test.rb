@@ -135,7 +135,7 @@ if defined?(::Rails)
       # Some versions of rails adds in another space before the ORDER keyword.
       # Make 2 or more consecutive spaces just 1
       sql = traces[4]['Query'].gsub(/\s{2,}/, ' ')
-      sql.must_equal "INSERT INTO \"widgets\" (\"created_at\", \"description\", \"name\", \"updated_at\") VALUES ($1, $2, $3, $4) RETURNING \"id\""
+      sql.must_equal "INSERT INTO \"widgets\" (\"created_at\", \"description\", \"name\", \"updated_at\") VALUES ($?, $?, $?, $?) RETURNING \"id\""
 
       traces[4]['Name'].must_equal "SQL"
       traces[4].key?('Backtrace').must_equal true
@@ -146,7 +146,7 @@ if defined?(::Rails)
       traces[6]['Layer'].must_equal "activerecord"
       traces[6]['Label'].must_equal "entry"
       traces[6]['Flavor'].must_equal "postgresql"
-      traces[6]['Query'].must_equal "SELECT  \"widgets\".* FROM \"widgets\"  WHERE \"widgets\".\"name\" = 'blah' LIMIT 1"
+      traces[6]['Query'].must_equal "SELECT  \"widgets\".* FROM \"widgets\"  WHERE \"widgets\".\"name\" = '?' LIMIT ?"
       traces[6]['Name'].must_equal "Widget Load"
       traces[6].key?('Backtrace').must_equal true
       traces[6].key?('QueryArgs').must_equal false
@@ -160,7 +160,7 @@ if defined?(::Rails)
 
       # Remove the widget id so we can test everything else
       sql = traces[8]['Query'].gsub(/\d+/, 'xxx')
-      sql.must_equal "DELETE FROM \"widgets\" WHERE \"widgets\".\"id\" = xxx"
+      sql.must_equal "DELETE FROM \"widgets\" WHERE \"widgets\".\"id\" = ?"
 
       traces[8]['Name'].must_equal "SQL"
       traces[8].key?('Backtrace').must_equal true
@@ -202,7 +202,7 @@ if defined?(::Rails)
       traces[6]['Query'].must_equal "INSERT INTO `widgets` (`created_at`, `description`, `name`, `updated_at`) VALUES (?, ?, ?, ?)"
       traces[6]['Name'].must_equal "SQL"
       traces[6].key?('Backtrace').must_equal true
-      traces[6].key?('QueryArgs').must_equal true
+      traces[6].key?('QueryArgs').must_equal false
 
       traces[7]['Layer'].must_equal "activerecord"
       traces[7]['Label'].must_equal "exit"
@@ -225,7 +225,7 @@ if defined?(::Rails)
       # Some versions of rails adds in another space before the ORDER keyword.
       # Make 2 or more consecutive spaces just 1
       sql = traces[10]['Query'].gsub(/\s{2,}/, ' ')
-      sql.must_equal "SELECT `widgets`.* FROM `widgets` WHERE `widgets`.`name` = 'blah' LIMIT 1"
+      sql.must_equal "SELECT `widgets`.* FROM `widgets` WHERE `widgets`.`name` = '?' LIMIT ?"
 
       traces[11]['Layer'].must_equal "activerecord"
       traces[11]['Label'].must_equal "exit"
@@ -269,9 +269,7 @@ if defined?(::Rails)
       traces[4]['Label'].must_equal "entry"
       traces[4]['Flavor'].must_equal "mysql"
 
-      # Replace the datestamps with xxx to make testing easier
-      sql = traces[4]['Query'].gsub(/\d\d\d\d-\d\d-\d\d\s\d\d:\d\d:\d\d/, 'xxx')
-      sql.must_equal "INSERT INTO `widgets` (`created_at`, `description`, `name`, `updated_at`) VALUES ('xxx', 'This is an amazing widget.', 'blah', 'xxx')"
+      traces[4]['Query'].must_equal "INSERT INTO `widgets` (`created_at`, `description`, `name`, `updated_at`) VALUES ('?', '?', '?', '?')"
 
       traces[4]['Name'].must_equal "SQL"
       traces[4].key?('Backtrace').must_equal true
@@ -282,7 +280,7 @@ if defined?(::Rails)
       traces[6]['Layer'].must_equal "activerecord"
       traces[6]['Label'].must_equal "entry"
       traces[6]['Flavor'].must_equal "mysql"
-      traces[6]['Query'].must_equal "SELECT  `widgets`.* FROM `widgets`  WHERE `widgets`.`name` = 'blah' LIMIT 1"
+      traces[6]['Query'].must_equal "SELECT  `widgets`.* FROM `widgets`  WHERE `widgets`.`name` = '?' LIMIT ?"
       traces[6]['Name'].must_equal "Widget Load"
       traces[6].key?('Backtrace').must_equal true
       traces[6].key?('QueryArgs').must_equal false
