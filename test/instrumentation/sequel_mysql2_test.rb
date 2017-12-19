@@ -93,6 +93,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
     end
 
     it 'should trace MYSQL2_DB.run select' do
+      AppOptics::Config[:sanitize_sql] = false
       AppOptics::API.start_trace('sequel_test', '', {}) do
         MYSQL2_DB.run("select 1")
       end
@@ -290,6 +291,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
     end
 
     it 'should trace prepared statements' do
+      AppOptics::Config[:sanitize_sql] = false
       ds = MYSQL2_DB[:items].filter(:name=>:$n)
       ps = ds.prepare(:select, :select_by_name)
 
