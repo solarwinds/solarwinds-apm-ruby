@@ -168,6 +168,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < "2.4")
     end
 
     it 'should trace a dataset filter' do
+      AppOptics::Config[:sanitize_sql] = false
       items = MYSQL_DB[:items]
       items.count
 
