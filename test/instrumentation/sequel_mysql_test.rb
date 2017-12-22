@@ -76,6 +76,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < "2.4")
     end
 
     it 'should trace MYSQL_DB.run insert' do
+      AppOptics::Config[:sanitize_sql] = false
       AppOptics::API.start_trace('sequel_test', '', {}) do
         MYSQL_DB.run("insert into items (name, price) values ('blah', '12')")
       end
@@ -92,6 +93,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < "2.4")
     end
 
     it 'should trace MYSQL_DB.run select' do
+      AppOptics::Config[:sanitize_sql] = false
       AppOptics::API.start_trace('sequel_test', '', {}) do
         MYSQL_DB.run("select 1")
       end
@@ -108,6 +110,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < "2.4")
     end
 
     it 'should trace a dataset insert and count' do
+      AppOptics::Config[:sanitize_sql] = false
       items = MYSQL_DB[:items]
       items.count
 
@@ -165,6 +168,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < "2.4")
     end
 
     it 'should trace a dataset filter' do
+      AppOptics::Config[:sanitize_sql] = false
       items = MYSQL_DB[:items]
       items.count
 
@@ -184,6 +188,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < "2.4")
     end
 
     it 'should trace create table' do
+      AppOptics::Config[:sanitize_sql] = false
       # Drop the table if it already exists
       MYSQL_DB.drop_table(:fake) if MYSQL_DB.table_exists?(:fake)
 
@@ -207,6 +212,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < "2.4")
     end
 
     it 'should trace add index' do
+      AppOptics::Config[:sanitize_sql] = false
       # Drop the table if it already exists
       MYSQL_DB.drop_table(:fake) if MYSQL_DB.table_exists?(:fake)
 
@@ -254,6 +260,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < "2.4")
     end
 
     it 'should trace placeholder queries with bound vars' do
+      AppOptics::Config[:sanitize_sql] = false
       items = MYSQL_DB[:items]
       items.count
 
@@ -277,6 +284,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < "2.4")
     end
 
     it 'should trace prepared statements' do
+      AppOptics::Config[:sanitize_sql] = false
       ds = MYSQL_DB[:items].filter(:name=>:$n)
       ps = ds.prepare(:select, :select_by_name)
 

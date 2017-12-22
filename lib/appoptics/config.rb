@@ -115,9 +115,9 @@ module AppOptics
       @@config[:include_remote_url_params] = true
 
       # The AppOptics Ruby gem has the ability to sanitize query literals
-      # from SQL statements.  By default this is disabled.  Enable to
+      # from SQL statements.  By default this is enabled to
       # avoid collecting and reporting query literals to AppOptics.
-      @@config[:sanitize_sql] = false
+      @@config[:sanitize_sql] = true
 
       # The regular expression used to sanitize SQL.
       @@config[:sanitize_sql_regexp] = '(\'[\s\S][^\']*\'|\d*\.\d+|\d+|NULL)'

@@ -90,9 +90,8 @@ if defined?(::Rails)
 
       # Use a regular expression to test the SQL string since field order varies between
       # Rails versions
-      match_data = traces[3]['Query'].match(/INSERT\sINTO\s\"widgets\"\s\(.*\)\sVALUES\s\(\$1,\s\$2,\s\$3,\s\$4\)\sRETURNING\s\"id\"/)
-      match_data.wont_equal nil
-      match_data.class.must_equal MatchData
+      match_data = traces[3]['Query']
+      match_data.must_equal("INSERT INTO \"widgets\" (\"name\", \"description\", \"created_at\", \"updated_at\") VALUES ($?, $?, $?, $?) RETURNING \"id\"")
 
       traces[4]['Layer'].must_equal "activerecord"
       traces[4]['Label'].must_equal "exit"
@@ -104,11 +103,11 @@ if defined?(::Rails)
       # Some versions of rails adds in another space before the ORDER keyword.
       # Make 2 or more consecutive spaces just 1
       sql = traces[5]['Query'].gsub(/\s{2,}/, ' ')
-      sql.must_equal "SELECT \"widgets\".* FROM \"widgets\" WHERE \"widgets\".\"name\" = $1 ORDER BY \"widgets\".\"id\" ASC LIMIT 1"
+      sql.must_equal "SELECT \"widgets\".* FROM \"widgets\" WHERE \"widgets\".\"name\" = $? ORDER BY \"widgets\".\"id\" ASC LIMIT ?"
 
       traces[5]['Name'].must_equal "Widget Load"
       traces[5].key?('Backtrace').must_equal true
-      traces[5].key?('QueryArgs').must_equal true
+      traces[5].key?('QueryArgs').must_equal false
 
       traces[6]['Layer'].must_equal "activerecord"
       traces[6]['Label'].must_equal "exit"
@@ -116,10 +115,10 @@ if defined?(::Rails)
       traces[7]['Layer'].must_equal "activerecord"
       traces[7]['Label'].must_equal "entry"
       traces[7]['Flavor'].must_equal "postgresql"
-      traces[7]['Query'].must_equal "DELETE FROM \"widgets\" WHERE \"widgets\".\"id\" = $1"
+      traces[7]['Query'].must_equal "DELETE FROM \"widgets\" WHERE \"widgets\".\"id\" = $?"
       traces[7]['Name'].must_equal "SQL"
       traces[7].key?('Backtrace').must_equal true
-      traces[7].key?('QueryArgs').must_equal true
+      traces[7].key?('QueryArgs').must_equal false
 
       traces[8]['Layer'].must_equal "activerecord"
       traces[8]['Label'].must_equal "exit"

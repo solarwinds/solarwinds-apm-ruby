@@ -97,6 +97,8 @@ describe "AppOptics::Config" do
 
     AppOptics::Config[:dnt_regexp].must_equal '\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|otf|eot|ttf|woff|woff2|svg|less)(\?.+){0,1}$'
     AppOptics::Config[:dnt_opts].must_equal Regexp::IGNORECASE
+
+    AppOptics::Config[:sanitize_sql].must_equal true
   end
 
   def test_should_obey_globals
