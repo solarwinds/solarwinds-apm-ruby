@@ -10,6 +10,7 @@ cd /code/ruby-appoptics/
 
 rbenv local $1
 bundle install
+bundle update
 bundle exec rake fetch_ext_deps
 bundle exec rake clean
 bundle exec rake compile

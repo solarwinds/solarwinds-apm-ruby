@@ -14,7 +14,7 @@ rbenv local 2.4.1
 
 gem=`ls -dt1 appoptics*.gem | head -1`
 
-package_cloud push librato/apm-instrumentation $gem
+package_cloud push AppOptics/apm-instrumentation $gem
 
 # restore ruby version
 rbenv local $current_ruby
