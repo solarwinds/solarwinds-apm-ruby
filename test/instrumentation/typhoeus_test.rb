@@ -232,6 +232,7 @@ describe "Typhoeus" do
 
     traces[1]['Layer'].must_equal 'typhoeus_hydra'
     traces[1]['Label'].must_equal 'entry'
+    traces[1]['Async'].must_equal 1
 
     traces[11]['Layer'].must_equal 'typhoeus_hydra'
     traces[11]['Label'].must_equal 'exit'
