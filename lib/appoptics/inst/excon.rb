@@ -82,7 +82,6 @@ module AppOptics
 
         begin
           response_context = nil
-          req_context = AppOptics::Context.toString
 
           kvs = appoptics_collect(params)
           kvs[:Blacklisted] = true if blacklisted
@@ -90,6 +89,7 @@ module AppOptics
           AppOptics::API.log_entry(:excon, kvs)
           kvs.clear
 
+          req_context = AppOptics::Context.toString
           @data[:headers]['X-Trace'] = req_context unless blacklisted
 
           # The core excon call
