@@ -18,7 +18,7 @@ module AppOptics
         # Report Controller/Action and transaction as best possible
         report_kvs = {}
         report_kvs[:Controller] = self.class
-        report_kvs[:Action] = env['sinatra.route'].gsub(/ /, '') if env['sinatra.route']
+        report_kvs[:Action] = env['sinatra.route']
         env['appoptics.controller'] = report_kvs[:Controller]
         env['appoptics.action']     = report_kvs[:Action]
 
