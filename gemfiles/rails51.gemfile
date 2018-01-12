@@ -36,7 +36,7 @@ if defined?(JRUBY_VERSION)
   gem 'activerecord-jdbc-adapter'
   gem 'jdbc-postgresql'
 else
-  gem 'pg'
+  gem 'pg', '< 1.0.0' # rails is not ready for pg 1.0
   gem 'mysql2'
 end
 
