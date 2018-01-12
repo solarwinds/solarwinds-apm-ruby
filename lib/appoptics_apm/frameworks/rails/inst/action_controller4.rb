@@ -14,8 +14,8 @@ module AppOpticsAPM
 
       def self.included(base)
         base.class_eval do
-          alias_method_chain :process_action, :appoptics_apm
-          alias_method_chain :render, :appoptics_apm
+          alias_method_chain :process_action, :appoptics
+          alias_method_chain :render, :appoptics
         end
       end
 
