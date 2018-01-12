@@ -41,11 +41,11 @@ end
 
 Bundler.require(:default, :test)
 
-# Configure AppOptics
-AppOptics::Config[:verbose] = true
-AppOptics::Config[:tracing_mode] = "always"
-AppOptics::Config[:sample_rate] = 1000000
-AppOptics.logger.level = Logger::DEBUG
+# Configure AppOpticsAPM
+AppOpticsAPM::Config[:verbose] = true
+AppOpticsAPM::Config[:tracing_mode] = "always"
+AppOpticsAPM::Config[:sample_rate] = 1000000
+AppOpticsAPM.logger.level = Logger::DEBUG
 
 # Pre-create test databases (see also .travis.yml)
 # puts "Pre-creating test databases"
@@ -90,9 +90,9 @@ end
 # Truncates the trace output file to zero
 #
 def clear_all_traces
-  if AppOptics.loaded
-    AppOptics::Context.clear
-    AppOptics::Reporter.clear_all_traces
+  if AppOpticsAPM.loaded
+    AppOpticsAPM::Context.clear
+    AppOpticsAPM::Reporter.clear_all_traces
     sleep 0.2 # it seems like the docker file system needs a bit of time to clear the file
   end
 end
@@ -103,8 +103,8 @@ end
 # Retrieves all traces written to the trace file
 #
 def get_all_traces
-  if AppOptics.loaded
-    AppOptics::Reporter.get_all_traces
+  if AppOpticsAPM.loaded
+    AppOpticsAPM::Reporter.get_all_traces
   else
     []
   end
@@ -144,11 +144,11 @@ end
 #
 def has_edge?(edge, traces)
   traces.each do |t|
-    if AppOptics::XTrace.edge_id(t["X-Trace"]) == edge
+    if AppOpticsAPM::XTrace.edge_id(t["X-Trace"]) == edge
       return true
     end
   end
-  AppOptics.logger.debug "[oboe/debug] edge #{edge} not found in traces."
+  AppOpticsAPM.logger.debug "[oboe/debug] edge #{edge} not found in traces."
   false
 end
 

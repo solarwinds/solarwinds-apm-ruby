@@ -37,7 +37,7 @@ unless defined?(JRUBY_VERSION)
         http.get('/?q=1').read_body
       end
 
-      AppOptics::API.start_trace('bunny_consume_test') do
+      AppOpticsAPM::API.start_trace('bunny_consume_test') do
         @exchange.publish("The Tortoise and the Hare", :routing_key => @queue.name, :app_id => "msg_app", :type => :generic)
       end
 
@@ -173,7 +173,7 @@ unless defined?(JRUBY_VERSION)
         http.get('/?q=1').read_body
       end
 
-      AppOptics::API.start_trace('bunny_consume_test') do
+      AppOpticsAPM::API.start_trace('bunny_consume_test') do
         @exchange.publish("The Tortoise and the Hare", :message_id => "1234", :routing_key => @queue.name, :app_id => "msg_app", :type => :generic)
       end
 

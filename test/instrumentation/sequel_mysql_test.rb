@@ -5,7 +5,7 @@ require 'minitest_helper'
 
 if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < "2.4")
 
-  AppOptics::Test.set_mysql_env
+  AppOpticsAPM::Test.set_mysql_env
   MYSQL_DB = Sequel.connect(ENV['DATABASE_URL'])
 
   unless MYSQL_DB.table_exists?(:items)
@@ -29,20 +29,20 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < "2.4")
         'RemotePort' => 3306 }
 
       @exit_kvs = { 'Layer' => 'sequel', 'Label' => 'exit' }
-      @collect_backtraces = AppOptics::Config[:sequel][:collect_backtraces]
-      @sanitize_sql = AppOptics::Config[:sanitize_sql]
+      @collect_backtraces = AppOpticsAPM::Config[:sequel][:collect_backtraces]
+      @sanitize_sql = AppOpticsAPM::Config[:sanitize_sql]
     end
 
     after do
-      AppOptics::Config[:sequel][:collect_backtraces] = @collect_backtraces
-      AppOptics::Config[:sanitize_sql] = @sanitize_sql
+      AppOpticsAPM::Config[:sequel][:collect_backtraces] = @collect_backtraces
+      AppOpticsAPM::Config[:sanitize_sql] = @sanitize_sql
     end
 
     it 'Stock sequel should be loaded, defined and ready' do
       defined?(::Sequel).wont_match nil
     end
 
-    it 'sequel should have appoptics methods defined' do
+    it 'sequel should have appoptics_apm methods defined' do
       # Sequel::Database
       ::Sequel::Database.method_defined?(:run_with_appoptics).must_equal true
 
@@ -54,9 +54,9 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < "2.4")
     end
 
     it "should obey :collect_backtraces setting when true" do
-      AppOptics::Config[:sequel][:collect_backtraces] = true
+      AppOpticsAPM::Config[:sequel][:collect_backtraces] = true
 
-      AppOptics::API.start_trace('sequel_test', '', {}) do
+      AppOpticsAPM::API.start_trace('sequel_test', '', {}) do
         MYSQL_DB.run('select 1')
       end
 
@@ -65,9 +65,9 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < "2.4")
     end
 
     it "should obey :collect_backtraces setting when false" do
-      AppOptics::Config[:sequel][:collect_backtraces] = false
+      AppOpticsAPM::Config[:sequel][:collect_backtraces] = false
 
-      AppOptics::API.start_trace('sequel_test', '', {}) do
+      AppOpticsAPM::API.start_trace('sequel_test', '', {}) do
         MYSQL_DB.run('select 1')
       end
 
@@ -76,8 +76,8 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < "2.4")
     end
 
     it 'should trace MYSQL_DB.run insert' do
-      AppOptics::Config[:sanitize_sql] = false
-      AppOptics::API.start_trace('sequel_test', '', {}) do
+      AppOpticsAPM::Config[:sanitize_sql] = false
+      AppOpticsAPM::API.start_trace('sequel_test', '', {}) do
         MYSQL_DB.run("insert into items (name, price) values ('blah', '12')")
       end
 
@@ -88,13 +88,13 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < "2.4")
 
       validate_event_keys(traces[1], @entry_kvs)
       traces[1]['Query'].must_equal "insert into items (name, price) values ('blah', '12')"
-      traces[1].has_key?('Backtrace').must_equal AppOptics::Config[:sequel][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
     it 'should trace MYSQL_DB.run select' do
-      AppOptics::Config[:sanitize_sql] = false
-      AppOptics::API.start_trace('sequel_test', '', {}) do
+      AppOpticsAPM::Config[:sanitize_sql] = false
+      AppOpticsAPM::API.start_trace('sequel_test', '', {}) do
         MYSQL_DB.run("select 1")
       end
 
@@ -105,16 +105,16 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < "2.4")
 
       validate_event_keys(traces[1], @entry_kvs)
       traces[1]['Query'].must_equal "select 1"
-      traces[1].has_key?('Backtrace').must_equal AppOptics::Config[:sequel][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
     it 'should trace a dataset insert and count' do
-      AppOptics::Config[:sanitize_sql] = false
+      AppOpticsAPM::Config[:sanitize_sql] = false
       items = MYSQL_DB[:items]
       items.count
 
-      AppOptics::API.start_trace('sequel_test', '', {}) do
+      AppOpticsAPM::API.start_trace('sequel_test', '', {}) do
         items.insert(:name => 'abc', :price => 2.514)
         items.count
       end
@@ -133,7 +133,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < "2.4")
        "INSERT INTO `items` (`name`, `price`) VALUES ('abc', 2.514)"
       ].must_include traces[1]['Query']
 
-      traces[1].has_key?('Backtrace').must_equal AppOptics::Config[:sequel][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       traces[2]['Layer'].must_equal "sequel"
       traces[2]['Label'].must_equal "exit"
       traces[3]['Query'].downcase.must_equal "select count(*) as `count` from `items` limit 1"
@@ -141,11 +141,11 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < "2.4")
     end
 
     it 'should trace a dataset insert and obey query privacy' do
-      AppOptics::Config[:sanitize_sql] = true
+      AppOpticsAPM::Config[:sanitize_sql] = true
       items = MYSQL_DB[:items]
       items.count
 
-      AppOptics::API.start_trace('sequel_test', '', {}) do
+      AppOpticsAPM::API.start_trace('sequel_test', '', {}) do
         items.insert(:name => 'abc', :price => 2.514461383352462)
       end
 
@@ -163,16 +163,16 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < "2.4")
        "INSERT INTO `items` (`name`, `price`) VALUES (?, ?)"
       ].must_include traces[1]['Query']
 
-      traces[1].has_key?('Backtrace').must_equal AppOptics::Config[:sequel][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
     it 'should trace a dataset filter' do
-      AppOptics::Config[:sanitize_sql] = false
+      AppOpticsAPM::Config[:sanitize_sql] = false
       items = MYSQL_DB[:items]
       items.count
 
-      AppOptics::API.start_trace('sequel_test', '', {}) do
+      AppOpticsAPM::API.start_trace('sequel_test', '', {}) do
         items.filter(:name => 'abc').all
       end
 
@@ -183,16 +183,16 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < "2.4")
 
       validate_event_keys(traces[1], @entry_kvs)
       traces[1]['Query'].must_equal "SELECT * FROM `items` WHERE (`name` = 'abc')"
-      traces[1].has_key?('Backtrace').must_equal AppOptics::Config[:sequel][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
     it 'should trace create table' do
-      AppOptics::Config[:sanitize_sql] = false
+      AppOpticsAPM::Config[:sanitize_sql] = false
       # Drop the table if it already exists
       MYSQL_DB.drop_table(:fake) if MYSQL_DB.table_exists?(:fake)
 
-      AppOptics::API.start_trace('sequel_test', '', {}) do
+      AppOpticsAPM::API.start_trace('sequel_test', '', {}) do
         MYSQL_DB.create_table :fake do
           primary_key :id
           String :name
@@ -207,16 +207,16 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < "2.4")
 
       validate_event_keys(traces[1], @entry_kvs)
       traces[1]['Query'].must_equal "CREATE TABLE `fake` (`id` integer PRIMARY KEY AUTO_INCREMENT, `name` varchar(255), `price` double precision)"
-      traces[1].has_key?('Backtrace').must_equal AppOptics::Config[:sequel][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
     it 'should trace add index' do
-      AppOptics::Config[:sanitize_sql] = false
+      AppOpticsAPM::Config[:sanitize_sql] = false
       # Drop the table if it already exists
       MYSQL_DB.drop_table(:fake) if MYSQL_DB.table_exists?(:fake)
 
-      AppOptics::API.start_trace('sequel_test', '', {}) do
+      AppOpticsAPM::API.start_trace('sequel_test', '', {}) do
         MYSQL_DB.create_table :fake do
           primary_key :id
           String :name
@@ -231,13 +231,13 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < "2.4")
 
       validate_event_keys(traces[1], @entry_kvs)
       traces[1]['Query'].must_equal "CREATE TABLE `fake` (`id` integer PRIMARY KEY AUTO_INCREMENT, `name` varchar(255), `price` double precision)"
-      traces[1].has_key?('Backtrace').must_equal AppOptics::Config[:sequel][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
     it 'should capture and report exceptions' do
       begin
-        AppOptics::API.start_trace('sequel_test', '', {}) do
+        AppOpticsAPM::API.start_trace('sequel_test', '', {}) do
           MYSQL_DB.run("this is bad sql")
         end
       rescue
@@ -251,7 +251,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < "2.4")
 
       validate_event_keys(traces[1], @entry_kvs)
       traces[1]['Query'].must_equal "this is bad sql"
-      traces[1].has_key?('Backtrace').must_equal AppOptics::Config[:sequel][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       traces[2]['Layer'].must_equal "sequel"
       traces[2]['Label'].must_equal "error"
       traces[2].has_key?('Backtrace').must_equal true
@@ -260,11 +260,11 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < "2.4")
     end
 
     it 'should trace placeholder queries with bound vars' do
-      AppOptics::Config[:sanitize_sql] = false
+      AppOpticsAPM::Config[:sanitize_sql] = false
       items = MYSQL_DB[:items]
       items.count
 
-      AppOptics::API.start_trace('sequel_test', '', {}) do
+      AppOpticsAPM::API.start_trace('sequel_test', '', {}) do
         ds = items.where(:name=>:$n)
         ds.call(:select, :n=>'abc')
         ds.call(:delete, :n=>'cba')
@@ -277,18 +277,18 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < "2.4")
 
       validate_event_keys(traces[1], @entry_kvs)
       traces[1]['Query'].must_equal "SELECT * FROM `items` WHERE (`name` = 'abc')"
-      traces[1].has_key?('Backtrace').must_equal AppOptics::Config[:sequel][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       traces[3]['Query'].must_equal "DELETE FROM `items` WHERE (`name` = 'cba')"
-      traces[3].has_key?('Backtrace').must_equal AppOptics::Config[:sequel][:collect_backtraces]
+      traces[3].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
     it 'should trace prepared statements' do
-      AppOptics::Config[:sanitize_sql] = false
+      AppOpticsAPM::Config[:sanitize_sql] = false
       ds = MYSQL_DB[:items].filter(:name=>:$n)
       ps = ds.prepare(:select, :select_by_name)
 
-      AppOptics::API.start_trace('sequel_test', '', {}) do
+      AppOpticsAPM::API.start_trace('sequel_test', '', {}) do
         ps.call(:n=>'abc')
       end
 
@@ -305,16 +305,16 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < "2.4")
         traces[1]['QueryArgs'].must_equal "[\"abc\"]"
       end
       traces[1]['IsPreparedStatement'].must_equal "true"
-      traces[1].has_key?('Backtrace').must_equal AppOptics::Config[:sequel][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
     it 'should trace prep\'d stmnts and obey query privacy' do
-      AppOptics::Config[:sanitize_sql] = true
+      AppOpticsAPM::Config[:sanitize_sql] = true
       ds = MYSQL_DB[:items].filter(:name=>:$n)
       ps = ds.prepare(:select, :select_by_name)
 
-      AppOptics::API.start_trace('sequel_test', '', {}) do
+      AppOpticsAPM::API.start_trace('sequel_test', '', {}) do
         ps.call(:n=>'abc')
       end
 
@@ -327,7 +327,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < "2.4")
       traces[1]['Query'].must_equal "select_by_name"
       traces[1]['QueryArgs'].must_equal nil
       traces[1]['IsPreparedStatement'].must_equal "true"
-      traces[1].has_key?('Backtrace').must_equal AppOptics::Config[:sequel][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
   end

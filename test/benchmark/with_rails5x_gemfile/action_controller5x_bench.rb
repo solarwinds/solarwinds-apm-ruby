@@ -18,23 +18,23 @@ end
 
 
 Benchmark.memory do |x|
-  AppOptics::Config[:action_controller][:collect_backtraces] = false
+  AppOpticsAPM::Config[:action_controller][:collect_backtraces] = false
   # x.config(:time => 20, :warmup => 20, :iterations => 3)
   uri = URI.parse('http://127.0.0.1:8140/hello/world')
 
   x.report('controller_A') do
     ENV['TEST_AB'] = 'A'
-    AppOptics.loaded = true
-    AppOptics::Config[:tracing_mode] = 'always'
-    AppOptics::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
+    AppOpticsAPM.loaded = true
+    AppOpticsAPM::Config[:tracing_mode] = 'always'
+    AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
 
     dostuff(uri)
   end
   x.report('controller_B') do
     ENV['TEST_AB'] = 'B'
-    AppOptics.loaded = true
-    AppOptics::Config[:tracing_mode] = 'always'
-    AppOptics::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
+    AppOpticsAPM.loaded = true
+    AppOpticsAPM::Config[:tracing_mode] = 'always'
+    AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
 
     dostuff(uri)
   end

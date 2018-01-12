@@ -9,9 +9,9 @@ port        ENV['PORT']     || 3000
 environment ENV['RACK_ENV'] || 'development'
 
 on_worker_boot do
-  ::AppOptics.reconnect! if defined?(::AppOptics)
+  ::AppOpticsAPM.reconnect! if defined?(::AppOpticsAPM)
 end
 
 on_worker_shutdown do
-  ::AppOptics.disconnect! if defined?(::AppOptics)
+  ::AppOpticsAPM.disconnect! if defined?(::AppOpticsAPM)
 end

@@ -28,7 +28,7 @@ if defined?(::Redis)
     it "should trace publish" do
       min_server_version(2.0)
 
-      AppOptics::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @redis.publish("channel1", "Broadcasting live from silicon circuits.")
       end
 
@@ -42,7 +42,7 @@ if defined?(::Redis)
     it "should trace select" do
       min_server_version(2.0)
 
-      AppOptics::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @redis.select(2)
       end
 
@@ -55,7 +55,7 @@ if defined?(::Redis)
     it "should trace pipelined operations" do
       min_server_version(1.2)
 
-      AppOptics::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @redis.pipelined do
           @redis.zadd("staff", 0, "waiter")
           @redis.zadd("staff", 1, "busser")
@@ -76,7 +76,7 @@ if defined?(::Redis)
     it "should trace multi with block" do
       min_server_version(1.2)
 
-      AppOptics::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @redis.multi do
           @redis.zadd("presidents", 0, "Lincoln")
           @redis.zadd("presidents", 1, "Adams")
@@ -97,7 +97,7 @@ if defined?(::Redis)
     it "should trace eval" do
       min_server_version(2.6)
 
-      AppOptics::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @redis.eval("return 1")
         @redis.eval("return { KEYS, ARGV }", ["k1", "k2"], ["a1", "a2"])
         @redis.eval("return { KEYS, ARGV }", :keys => ["k1", "k2"], :argv => ["a1", "a2"])
@@ -118,7 +118,7 @@ if defined?(::Redis)
 
       sha = @redis.script(:load, "return 1")
 
-      AppOptics::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @redis.evalsha(sha)
       end
 
@@ -131,7 +131,7 @@ if defined?(::Redis)
     it "should trace script" do
       min_server_version(2.6)
 
-      AppOptics::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @sha = @redis.script(:load, "return 1")
         @it_exists1 = @redis.script(:exists, @sha)
         @it_exists2 = @redis.script(:exists, [@sha, "other_sha"])

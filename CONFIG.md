@@ -1,15 +1,16 @@
-# AppOptics Gem Configuration
+# AppOpticsAPM Gem Configuration
 
 ## Environment Variables
 
-The following environment variables are detected by the appoptics gem and affect how the gem functions.
+The following environment variables are detected by the appoptics_apm gem and affect how the gem functions.
 
 ### General
 
 Name | Description | Default
 ---- | ----------- | -------
-`IGNORE_APPOPTICS_WARNING` | tells the appoptics gem to __not__ output the _missing AppOptics libraries_ message on stack initialization | `false`
-`APPOPTICS_GEM_VERBOSE` | sets the verbose flag (`AppOptics::Config[:verbose]`) early in the gem loading process which may output valuable information | `false`
+`APPOPTICS_SERVICE_KEY` | API token + service name combination, mandatory for metrics and traces to show in my.appoptics.com | 
+`IGNORE_APPOPTICS_WARNING` | tells the appoptics_apm gem to __not__ output the _missing AppOpticsAPM libraries_ message on stack initialization | `false`
+`APPOPTICS_GEM_VERBOSE` | sets the verbose flag (`AppOpticsAPM::Config[:verbose]`) early in the gem loading process which may output valuable information | `false`
 `APPOPTICS_CUUID` | Allows specifying the customer ID via environment variable to override/bypass the value in `/etc/tracelytics.conf` | `nil`
 
 # Related to Tests
@@ -25,8 +26,8 @@ Name | Description | Default
 `APPOPTICS_RABBITMQ_USERNAME` | username for the RabbitMQ connection | `guest`
 `APPOPTICS_RABBITMQ_PASSWORD` | password for the RabbitMQ connection | `guest`
 
-## AppOptics::Config
+## AppOpticsAPM::Config
 
-`AppOptics::Config` is a nested hash used by the appoptics gem to store preferences and switches.
+`AppOpticsAPM::Config` is a nested hash used by the appoptics_apm gem to store preferences and switches.
 
-See [this Rails generator template file](https://github.com/tracelytics/oboe-ruby/blob/master/lib/rails/generators/appoptics/templates/appoptics_initializer.rb) for documentation on all of the supported values.
+See [this Rails generator template file](https://github.com/librato/ruby-appoptics/blob/master/lib/rails/generators/appoptics_apm/templates/appoptics_initializer.rb) for documentation on all of the supported values.

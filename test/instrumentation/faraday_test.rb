@@ -6,25 +6,25 @@ require 'minitest_helper'
 describe "Faraday" do
   before do
     clear_all_traces
-    @collect_backtraces = AppOptics::Config[:faraday][:collect_backtraces]
+    @collect_backtraces = AppOpticsAPM::Config[:faraday][:collect_backtraces]
   end
 
   after do
-    AppOptics::Config[:faraday][:collect_backtraces] = @collect_backtraces
+    AppOpticsAPM::Config[:faraday][:collect_backtraces] = @collect_backtraces
   end
 
   it 'Faraday should be defined and ready' do
     defined?(::Faraday).wont_match nil
   end
 
-  it 'Faraday should have appoptics methods defined' do
+  it 'Faraday should have appoptics_apm methods defined' do
     [ :run_request_with_appoptics ].each do |m|
       ::Faraday::Connection.method_defined?(m).must_equal true
     end
   end
 
   it "should trace cross-app request" do
-    AppOptics::API.start_trace('faraday_test') do
+    AppOpticsAPM::API.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
         faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
       end
@@ -38,7 +38,7 @@ describe "Faraday" do
     validate_outer_layers(traces, 'faraday_test')
 
     traces[1]['Layer'].must_equal 'faraday'
-    traces[1].key?('Backtrace').must_equal AppOptics::Config[:faraday][:collect_backtraces]
+    traces[1].key?('Backtrace').must_equal AppOpticsAPM::Config[:faraday][:collect_backtraces]
 
     traces[6]['Layer'].must_equal 'net-http'
     traces[6]['IsService'].must_equal 1
@@ -56,7 +56,7 @@ describe "Faraday" do
   end
 
   it 'should trace a Faraday request' do
-    AppOptics::API.start_trace('faraday_test') do
+    AppOpticsAPM::API.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
         faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
       end
@@ -70,7 +70,7 @@ describe "Faraday" do
     validate_outer_layers(traces, 'faraday_test')
 
     traces[1]['Layer'].must_equal 'faraday'
-    traces[1].key?('Backtrace').must_equal AppOptics::Config[:faraday][:collect_backtraces]
+    traces[1].key?('Backtrace').must_equal AppOpticsAPM::Config[:faraday][:collect_backtraces]
 
     traces[6]['Layer'].must_equal 'net-http'
     traces[6]['Label'].must_equal 'info'
@@ -92,7 +92,7 @@ describe "Faraday" do
   end
 
   it 'should trace a Faraday class style request' do
-    AppOptics::API.start_trace('faraday_test') do
+    AppOpticsAPM::API.start_trace('faraday_test') do
       Faraday.get('http://127.0.0.1:8101/', {:a => 1})
     end
 
@@ -103,7 +103,7 @@ describe "Faraday" do
     validate_outer_layers(traces, 'faraday_test')
 
     traces[1]['Layer'].must_equal 'faraday'
-    traces[1].key?('Backtrace').must_equal AppOptics::Config[:faraday][:collect_backtraces]
+    traces[1].key?('Backtrace').must_equal AppOpticsAPM::Config[:faraday][:collect_backtraces]
 
     traces[6]['Layer'].must_equal 'net-http'
     traces[6]['Label'].must_equal 'info'
@@ -125,7 +125,7 @@ describe "Faraday" do
   end
 
   it 'should trace a Faraday with the excon adapter' do
-    AppOptics::API.start_trace('faraday_test') do
+    AppOpticsAPM::API.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
         faraday.adapter :excon
       end
@@ -139,7 +139,7 @@ describe "Faraday" do
     validate_outer_layers(traces, 'faraday_test')
 
     traces[1]['Layer'].must_equal 'faraday'
-    traces[1].key?('Backtrace').must_equal AppOptics::Config[:faraday][:collect_backtraces]
+    traces[1].key?('Backtrace').must_equal AppOpticsAPM::Config[:faraday][:collect_backtraces]
 
     traces[2]['Layer'].must_equal 'excon'
     traces[2]['Label'].must_equal 'entry'
@@ -162,7 +162,7 @@ describe "Faraday" do
   end
 
   it 'should trace a Faraday with the httpclient adapter' do
-    AppOptics::API.start_trace('faraday_test') do
+    AppOpticsAPM::API.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
         faraday.adapter :httpclient
       end
@@ -176,7 +176,7 @@ describe "Faraday" do
     validate_outer_layers(traces, 'faraday_test')
 
     traces[1]['Layer'].must_equal 'faraday'
-    traces[1].key?('Backtrace').must_equal AppOptics::Config[:faraday][:collect_backtraces]
+    traces[1].key?('Backtrace').must_equal AppOpticsAPM::Config[:faraday][:collect_backtraces]
 
     traces[2]['Layer'].must_equal 'httpclient'
     traces[2]['Label'].must_equal 'entry'
@@ -199,9 +199,9 @@ describe "Faraday" do
   end
 
   it 'should obey :collect_backtraces setting when true' do
-    AppOptics::Config[:faraday][:collect_backtraces] = true
+    AppOpticsAPM::Config[:faraday][:collect_backtraces] = true
 
-    AppOptics::API.start_trace('faraday_test') do
+    AppOpticsAPM::API.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
         faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
       end
@@ -213,9 +213,9 @@ describe "Faraday" do
   end
 
   it 'should obey :collect_backtraces setting when false' do
-    AppOptics::Config[:faraday][:collect_backtraces] = false
+    AppOpticsAPM::Config[:faraday][:collect_backtraces] = false
 
-    AppOptics::API.start_trace('faraday_test') do
+    AppOpticsAPM::API.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
         faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
       end

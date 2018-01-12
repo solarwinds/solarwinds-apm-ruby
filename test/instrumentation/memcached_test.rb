@@ -22,11 +22,11 @@ if RUBY_VERSION < '2.0' and not defined?(JRUBY_VERSION)
         'Label' => 'info' }
 
       @exit_kvs = { 'Layer' => 'memcache', 'Label' => 'exit' }
-      @collect_backtraces = AppOptics::Config[:memcached][:collect_backtraces]
+      @collect_backtraces = AppOpticsAPM::Config[:memcached][:collect_backtraces]
     end
 
     after do
-      AppOptics::Config[:memcached][:collect_backtraces] = @collect_backtraces
+      AppOpticsAPM::Config[:memcached][:collect_backtraces] = @collect_backtraces
     end
 
     it 'Stock Memcached should be loaded, defined and ready' do
@@ -34,8 +34,8 @@ if RUBY_VERSION < '2.0' and not defined?(JRUBY_VERSION)
       defined?(::Memcached::Rails).wont_match nil
     end
 
-    it 'Memcached should have appoptics methods defined' do
-      AppOptics::API::Memcache::MEMCACHE_OPS.each do |m|
+    it 'Memcached should have appoptics_apm methods defined' do
+      AppOpticsAPM::API::Memcache::MEMCACHE_OPS.each do |m|
         if ::Memcached.method_defined?(m)
           ::Memcached.method_defined?("#{m}_with_appoptics").must_equal true
         end
@@ -44,7 +44,7 @@ if RUBY_VERSION < '2.0' and not defined?(JRUBY_VERSION)
     end
 
     it "should trace set" do
-      AppOptics::API.start_trace('memcached_test', '', {}) do
+      AppOpticsAPM::API.start_trace('memcached_test', '', {}) do
         @mc.set('testKey', 'blah')
       end
 
@@ -62,7 +62,7 @@ if RUBY_VERSION < '2.0' and not defined?(JRUBY_VERSION)
     it "should trace get" do
       @mc.set('testKey', 'blah')
 
-      AppOptics::API.start_trace('memcached_test', '', {}) do
+      AppOpticsAPM::API.start_trace('memcached_test', '', {}) do
         @mc.get('testKey')
       end
 
@@ -78,7 +78,7 @@ if RUBY_VERSION < '2.0' and not defined?(JRUBY_VERSION)
     end
 
     it "should trace get_multi" do
-      AppOptics::API.start_trace('memcached_test', '', {}) do
+      AppOpticsAPM::API.start_trace('memcached_test', '', {}) do
         @mc.get_multi(['one', 'two', 'three', 'four', 'five', 'six'])
       end
 
@@ -99,7 +99,7 @@ if RUBY_VERSION < '2.0' and not defined?(JRUBY_VERSION)
     it "should trace add for existing key" do
       @mc.set('testKey', 'x', 1200)
 
-      AppOptics::API.start_trace('memcached_test', '', {}) do
+      AppOpticsAPM::API.start_trace('memcached_test', '', {}) do
         @mc.add('testKey', 'x', 1200)
       end
 
@@ -119,7 +119,7 @@ if RUBY_VERSION < '2.0' and not defined?(JRUBY_VERSION)
 
     it "should trace append" do
       @mc.set('rawKey', "Peanut Butter ", 600, :raw => true)
-      AppOptics::API.start_trace('memcached_test', '', {}) do
+      AppOpticsAPM::API.start_trace('memcached_test', '', {}) do
         @mc.append('rawKey', "Jelly")
       end
 
@@ -137,7 +137,7 @@ if RUBY_VERSION < '2.0' and not defined?(JRUBY_VERSION)
     it "should trace decr" do
       @mc.set('some_key_counter', "100", 0, false)
 
-      AppOptics::API.start_trace('memcached_test', '', {}) do
+      AppOpticsAPM::API.start_trace('memcached_test', '', {}) do
         @mc.decr('some_key_counter', 1)
       end
 
@@ -155,7 +155,7 @@ if RUBY_VERSION < '2.0' and not defined?(JRUBY_VERSION)
     it "should trace increment" do
       @mc.set('some_key_counter', "100", 0, false)
 
-      AppOptics::API.start_trace('memcached_test', '', {}) do
+      AppOpticsAPM::API.start_trace('memcached_test', '', {}) do
         @mc.incr("some_key_counter", 1)
       end
 
@@ -172,7 +172,7 @@ if RUBY_VERSION < '2.0' and not defined?(JRUBY_VERSION)
 
     it "should trace replace" do
       @mc.set('some_key', 'blah')
-      AppOptics::API.start_trace('memcached_test', '', {}) do
+      AppOpticsAPM::API.start_trace('memcached_test', '', {}) do
         @mc.replace("some_key", "woop")
       end
 
@@ -189,7 +189,7 @@ if RUBY_VERSION < '2.0' and not defined?(JRUBY_VERSION)
 
     it "should trace delete" do
       @mc.set('some_key', 'blah')
-      AppOptics::API.start_trace('memcached_test', '', {}) do
+      AppOpticsAPM::API.start_trace('memcached_test', '', {}) do
         @mc.delete("some_key")
       end
 
@@ -205,9 +205,9 @@ if RUBY_VERSION < '2.0' and not defined?(JRUBY_VERSION)
     end
 
     it "should obey :collect_backtraces setting when true" do
-      AppOptics::Config[:memcached][:collect_backtraces] = true
+      AppOpticsAPM::Config[:memcached][:collect_backtraces] = true
 
-      AppOptics::API.start_trace('memcached_test', '', {}) do
+      AppOpticsAPM::API.start_trace('memcached_test', '', {}) do
         @mc.set('some_key', 1)
       end
 
@@ -216,9 +216,9 @@ if RUBY_VERSION < '2.0' and not defined?(JRUBY_VERSION)
     end
 
     it "should obey :collect_backtraces setting when false" do
-      AppOptics::Config[:memcached][:collect_backtraces] = false
+      AppOpticsAPM::Config[:memcached][:collect_backtraces] = false
 
-      AppOptics::API.start_trace('memcached_test', '', {}) do
+      AppOpticsAPM::API.start_trace('memcached_test', '', {}) do
         @mc.set('some_key', 1)
       end
 

@@ -13,20 +13,20 @@ Delayed::Job.delete_all
 class DelayedJobClientTest < Minitest::Test
   def setup
     clear_all_traces
-    @collect_backtraces = AppOptics::Config[:delayed_jobclient][:collect_backtraces]
-    @log_args = AppOptics::Config[:delayed_jobclient][:log_args]
+    @collect_backtraces = AppOpticsAPM::Config[:delayed_jobclient][:collect_backtraces]
+    @log_args = AppOpticsAPM::Config[:delayed_jobclient][:log_args]
   end
 
   def teardown
-    AppOptics::Config[:delayed_jobclient][:collect_backtraces] = @collect_backtraces
-    AppOptics::Config[:delayed_jobclient][:log_args] = @log_args
+    AppOpticsAPM::Config[:delayed_jobclient][:collect_backtraces] = @collect_backtraces
+    AppOpticsAPM::Config[:delayed_jobclient][:log_args] = @log_args
   end
 
   def test_delay
     w = Widget.new(:name => 'blah', :description => 'This is a wonderful widget.')
     w.save
 
-    AppOptics::API.start_trace('dj_delay') do
+    AppOpticsAPM::API.start_trace('dj_delay') do
       w.delay.do_work(1, 2, 3)
     end
 
@@ -50,20 +50,20 @@ class DelayedJobClientTest < Minitest::Test
   end
 
   def test_collect_backtraces_default_value
-    assert_equal AppOptics::Config[:delayed_jobclient][:collect_backtraces], false, "default backtrace collection"
+    assert_equal AppOpticsAPM::Config[:delayed_jobclient][:collect_backtraces], false, "default backtrace collection"
   end
 
   def test_log_args_default_value
-    assert_equal AppOptics::Config[:delayed_jobclient][:log_args], true, "log_args default "
+    assert_equal AppOpticsAPM::Config[:delayed_jobclient][:log_args], true, "log_args default "
   end
 
   def test_obey_collect_backtraces_when_false
-    AppOptics::Config[:delayed_jobclient][:collect_backtraces] = false
+    AppOpticsAPM::Config[:delayed_jobclient][:collect_backtraces] = false
 
     w = Widget.new(:name => 'blah', :description => 'This is a wonderful widget.')
     w.save
 
-    AppOptics::API.start_trace('dj_delay') do
+    AppOpticsAPM::API.start_trace('dj_delay') do
       w.delay.do_work(1, 2, 3)
     end
 
@@ -76,12 +76,12 @@ class DelayedJobClientTest < Minitest::Test
   end
 
   def test_obey_collect_backtraces_when_true
-    AppOptics::Config[:delayed_jobclient][:collect_backtraces] = true
+    AppOpticsAPM::Config[:delayed_jobclient][:collect_backtraces] = true
 
     w = Widget.new(:name => 'blah', :description => 'This is a wonderful widget.')
     w.save
 
-    AppOptics::API.start_trace('dj_delay') do
+    AppOpticsAPM::API.start_trace('dj_delay') do
       w.delay.do_work(1, 2, 3)
     end
 

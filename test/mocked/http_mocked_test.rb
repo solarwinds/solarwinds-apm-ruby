@@ -14,15 +14,15 @@ unless defined?(JRUBY_VERSION)
     end
 
     def setup
-      AppOptics.config_lock.synchronize do
-        @sample_rate = AppOptics::Config[:sample_rate]
+      AppOpticsAPM.config_lock.synchronize do
+        @sample_rate = AppOpticsAPM::Config[:sample_rate]
       end
     end
 
     def teardown
-      AppOptics.config_lock.synchronize do
-        AppOptics::Config[:sample_rate] = @sample_rate
-        AppOptics::Config[:blacklist] = []
+      AppOpticsAPM.config_lock.synchronize do
+        AppOpticsAPM::Config[:sample_rate] = @sample_rate
+        AppOpticsAPM::Config[:blacklist] = []
       end
     end
 
@@ -34,7 +34,7 @@ unless defined?(JRUBY_VERSION)
             req.to_hash['x-trace'].first =~ /^2B[0-9,A-F]*01$/
       end.returns(MockResponse.new)
 
-      AppOptics::API.start_trace('net_http_test') do
+      AppOpticsAPM::API.start_trace('net_http_test') do
         uri = URI('http://127.0.0.1:8101/?q=1')
         Net::HTTP.start(uri.host, uri.port) do |http|
           request = Net::HTTP::Get.new(uri)
@@ -50,9 +50,9 @@ unless defined?(JRUBY_VERSION)
             req.to_hash['x-trace'].first !~ /^2B0*$/
       end.returns(MockResponse.new)
 
-      AppOptics.config_lock.synchronize do
-        AppOptics::Config[:sample_rate] = 0
-        AppOptics::API.start_trace('Net::HTTP_test') do
+      AppOpticsAPM.config_lock.synchronize do
+        AppOpticsAPM::Config[:sample_rate] = 0
+        AppOpticsAPM::API.start_trace('Net::HTTP_test') do
           uri = URI('http://127.0.0.1:8101/?q=1')
           Net::HTTP.start(uri.host, uri.port) do |http|
             request = Net::HTTP::Get.new(uri)
@@ -79,9 +79,9 @@ unless defined?(JRUBY_VERSION)
         req.to_hash['x-trace'].nil?
       end.returns(MockResponse.new)
 
-      AppOptics.config_lock.synchronize do
-        AppOptics::Config.blacklist << '127.0.0.1'
-        AppOptics::API.start_trace('Net::HTTP_tests') do
+      AppOpticsAPM.config_lock.synchronize do
+        AppOpticsAPM::Config.blacklist << '127.0.0.1'
+        AppOpticsAPM::API.start_trace('Net::HTTP_tests') do
           uri = URI('http://127.0.0.1:8101/?q=1')
           Net::HTTP.start(uri.host, uri.port) do |http|
             request = Net::HTTP::Get.new(uri)
@@ -96,10 +96,10 @@ unless defined?(JRUBY_VERSION)
         req.to_hash['x-trace'].nil?
       end.returns(MockResponse.new)
 
-      AppOptics.config_lock.synchronize do
-        AppOptics::Config[:sample_rate] = 0
-        AppOptics::Config.blacklist << '127.0.0.1'
-        AppOptics::API.start_trace('Net::HTTP_tests') do
+      AppOpticsAPM.config_lock.synchronize do
+        AppOpticsAPM::Config[:sample_rate] = 0
+        AppOpticsAPM::Config.blacklist << '127.0.0.1'
+        AppOpticsAPM::API.start_trace('Net::HTTP_tests') do
           uri = URI('http://127.0.0.1:8101/?q=1')
           Net::HTTP.start(uri.host, uri.port) do |http|
             request = Net::HTTP::Get.new(uri)

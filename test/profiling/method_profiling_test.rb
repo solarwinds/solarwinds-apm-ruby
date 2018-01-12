@@ -3,9 +3,9 @@
 require 'minitest_helper'
 
 # APPOPTICS Method profiling only supports Ruby 1.9.3 or greater.  For earlier Ruby versions
-# see the legacy method profiling in lib/appoptics/legacy_method_profiling.rb.
+# see the legacy method profiling in lib/appoptics_apm/legacy_method_profiling.rb.
 if RUBY_VERSION >= '1.9.3'
-  describe "AppOpticsMethodProfiling" do
+  describe "AppOpticsAPMMethodProfiling" do
     before do
       clear_all_traces
       # Conditionally Undefine TestWorker
@@ -15,8 +15,8 @@ if RUBY_VERSION >= '1.9.3'
     end
 
     it 'should be loaded, defined and ready' do
-      defined?(::AppOptics::MethodProfiling).wont_match nil
-      assert_equal true, AppOptics::API.respond_to?(:profile_method), "has profile_method method"
+      defined?(::AppOpticsAPM::MethodProfiling).wont_match nil
+      assert_equal true, AppOpticsAPM::API.respond_to?(:profile_method), "has profile_method method"
     end
 
     it 'should return false for bad arguments' do
@@ -27,11 +27,11 @@ if RUBY_VERSION >= '1.9.3'
       end
 
       # Bad first param
-      rv = AppOptics::API.profile_method('blah', :do_work)
+      rv = AppOpticsAPM::API.profile_method('blah', :do_work)
       assert_equal false, rv, "Return value must be false for bad args"
 
       # Bad first param
-      rv = AppOptics::API.profile_method(TestKlass, 52)
+      rv = AppOpticsAPM::API.profile_method(TestKlass, 52)
       assert_equal false, rv, "Return value must be false for bad args"
     end
 
@@ -42,12 +42,12 @@ if RUBY_VERSION >= '1.9.3'
         end
       end
 
-      result = AppOptics::API.profile_method(TestKlass, :do_work)
+      result = AppOpticsAPM::API.profile_method(TestKlass, :do_work)
       assert_equal true, result, "profile_method return value must be true"
 
       result = nil
 
-      ::AppOptics::API.start_trace('method_profiling', '', {}) do
+      ::AppOpticsAPM::API.start_trace('method_profiling', '', {}) do
         # Call the profiled class method
         result = TestKlass.new.do_work
       end
@@ -91,10 +91,10 @@ if RUBY_VERSION >= '1.9.3'
       end
 
       # Attempt to double profile
-      rv = AppOptics::API.profile_method(TestKlass, :do_work)
+      rv = AppOpticsAPM::API.profile_method(TestKlass, :do_work)
       assert_equal true, rv, "Return value must be true"
 
-      rv = AppOptics::API.profile_method(TestKlass, :do_work)
+      rv = AppOpticsAPM::API.profile_method(TestKlass, :do_work)
       assert_equal false, rv, "Return value must be false"
 
       with_tv = TestKlass.instance_methods.select{ |m| m == :do_work_with_appoptics }
@@ -111,7 +111,7 @@ if RUBY_VERSION >= '1.9.3'
         end
       end
 
-      rv = AppOptics::API.profile_method(TestKlass, :does_not_exist)
+      rv = AppOpticsAPM::API.profile_method(TestKlass, :does_not_exist)
       assert_equal false, rv, "Return value must be false"
 
       with_tv = TestKlass.instance_methods.select{ |m| m == :does_not_exit_with_appoptics }
@@ -128,10 +128,10 @@ if RUBY_VERSION >= '1.9.3'
         end
       end
 
-      result = AppOptics::API.profile_method(TestKlass, :do_work)
+      result = AppOpticsAPM::API.profile_method(TestKlass, :do_work)
       assert_equal true, result, "profile_method return value must be true"
 
-      ::AppOptics::API.start_trace('method_profiling', '', {}) do
+      ::AppOpticsAPM::API.start_trace('method_profiling', '', {}) do
         result = TestKlass.do_work
       end
 
@@ -174,12 +174,12 @@ if RUBY_VERSION >= '1.9.3'
         end
       end
 
-      result = AppOptics::API.profile_method(TestKlass, :do_work_privately)
+      result = AppOpticsAPM::API.profile_method(TestKlass, :do_work_privately)
       assert_equal true, result, "profile_method return value must be true"
 
       result = nil
 
-      ::AppOptics::API.start_trace('method_profiling', '', {}) do
+      ::AppOpticsAPM::API.start_trace('method_profiling', '', {}) do
         # Call the profiled class method
         result = TestKlass.new.do_work_privately
       end
@@ -223,10 +223,10 @@ if RUBY_VERSION >= '1.9.3'
         end
       end
 
-      result = AppOptics::API.profile_method(TestKlass, :do_work_privately)
+      result = AppOpticsAPM::API.profile_method(TestKlass, :do_work_privately)
       assert_equal true, result, "profile_method return value must be true"
 
-      ::AppOptics::API.start_trace('method_profiling', '', {}) do
+      ::AppOpticsAPM::API.start_trace('method_profiling', '', {}) do
         result = TestKlass.do_work_privately
       end
 
@@ -268,10 +268,10 @@ if RUBY_VERSION >= '1.9.3'
         end
       end
 
-      result = AppOptics::API.profile_method(TestModule, :do_work)
+      result = AppOpticsAPM::API.profile_method(TestModule, :do_work)
       assert_equal true, result, "profile_method return value must be true"
 
-      ::AppOptics::API.start_trace('method_profiling', '', {}) do
+      ::AppOpticsAPM::API.start_trace('method_profiling', '', {}) do
         result = TestModule.do_work
       end
 
@@ -314,14 +314,14 @@ if RUBY_VERSION >= '1.9.3'
       end
 
       # Profile the module before including in a class
-      result = AppOptics::API.profile_method(TestModule, :do_work)
+      result = AppOpticsAPM::API.profile_method(TestModule, :do_work)
       assert_equal true, result, "profile_method return value must be true"
 
       class TestKlass
         include TestModule
       end
 
-      ::AppOptics::API.start_trace('method_profiling', '', {}) do
+      ::AppOpticsAPM::API.start_trace('method_profiling', '', {}) do
         result = TestKlass.new.do_work
       end
 
@@ -363,10 +363,10 @@ if RUBY_VERSION >= '1.9.3'
         end
       end
 
-      result = AppOptics::API.profile_method(TestKlass, :do_work)
+      result = AppOpticsAPM::API.profile_method(TestKlass, :do_work)
       assert_equal true, result, "profile_method return value must be true"
 
-      ::AppOptics::API.start_trace('method_profiling', '', {}) do
+      ::AppOpticsAPM::API.start_trace('method_profiling', '', {}) do
         result = TestKlass.do_work do
           787
         end
@@ -410,12 +410,12 @@ if RUBY_VERSION >= '1.9.3'
         end
       end
 
-      result = AppOptics::API.profile_method(TestKlass, :do_work)
+      result = AppOpticsAPM::API.profile_method(TestKlass, :do_work)
       assert_equal true, result, "profile_method return value must be true"
 
       result = nil
 
-      ::AppOptics::API.start_trace('method_profiling', '', {}) do
+      ::AppOpticsAPM::API.start_trace('method_profiling', '', {}) do
         # Call the profiled class method
         result = TestKlass.new.do_work(:ok => :blue)
       end
@@ -465,12 +465,12 @@ if RUBY_VERSION >= '1.9.3'
       opts[:arguments] = true
       opts[:result] = true
 
-      result = AppOptics::API.profile_method(TestKlass, :do_work, opts)
+      result = AppOpticsAPM::API.profile_method(TestKlass, :do_work, opts)
       assert_equal true, result, "profile_method return value must be true"
 
       result = nil
 
-      ::AppOptics::API.start_trace('method_profiling', '', {}) do
+      ::AppOpticsAPM::API.start_trace('method_profiling', '', {}) do
         # Call the profiled class method
         result = TestKlass.new.do_work(:ok => :blue)
       end
@@ -519,12 +519,12 @@ if RUBY_VERSION >= '1.9.3'
         end
       end
 
-      result = AppOptics::API.profile_method(TestKlass, :do_work)
+      result = AppOpticsAPM::API.profile_method(TestKlass, :do_work)
       assert_equal true, result, "profile_method return value must be true"
 
       result = nil
 
-      ::AppOptics::API.start_trace('method_profiling', '', {}) do
+      ::AppOpticsAPM::API.start_trace('method_profiling', '', {}) do
         # Call the profiled class method
         result = TestKlass.new.do_work(:ok => :blue)
       end
@@ -559,12 +559,12 @@ if RUBY_VERSION >= '1.9.3'
       end
 
       opts = { :backtrace => true }
-      result = AppOptics::API.profile_method(TestKlass, :do_work, opts)
+      result = AppOpticsAPM::API.profile_method(TestKlass, :do_work, opts)
       assert_equal true, result, "profile_method return value must be true"
 
       result = nil
 
-      ::AppOptics::API.start_trace('method_profiling', '', {}) do
+      ::AppOpticsAPM::API.start_trace('method_profiling', '', {}) do
         # Call the profiled class method
         result = TestKlass.new.do_work(:ok => :blue)
       end
@@ -597,12 +597,12 @@ if RUBY_VERSION >= '1.9.3'
       end
 
       opts = { :backtrace => true }
-      result = AppOptics::API.profile_method(TestKlass, :do_work, opts, :another => "value")
+      result = AppOpticsAPM::API.profile_method(TestKlass, :do_work, opts, :another => "value")
       assert_equal true, result, "profile_method return value must be true"
 
       result = nil
 
-      ::AppOptics::API.start_trace('method_profiling', '', {}) do
+      ::AppOpticsAPM::API.start_trace('method_profiling', '', {}) do
         # Call the profiled class method
         result = TestKlass.new.do_work(:ok => :blue)
       end

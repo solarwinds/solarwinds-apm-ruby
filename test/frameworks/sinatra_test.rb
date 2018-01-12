@@ -1,6 +1,7 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
+
 require "minitest_helper"
 require "mocha/mini_test"
 require File.expand_path(File.dirname(__FILE__) + '/apps/sinatra_simple')
@@ -42,7 +43,7 @@ describe Sinatra do
   it "should report the route with :id" do
     @app = SinatraSimple
     test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-    AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+    AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
       test_action = action
       test_url = url
       test_status = status
@@ -66,7 +67,7 @@ describe Sinatra do
   it "should report the route with :id and more" do
     @app = SinatraSimple
     test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-    AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+    AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
       test_action = action
       test_url = url
       test_status = status
@@ -90,7 +91,7 @@ describe Sinatra do
   it "should report the route with splats" do
     @app = SinatraSimple
     test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-    AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+    AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
       test_action = action
       test_url = url
       test_status = status
@@ -115,7 +116,7 @@ describe Sinatra do
     it "should report the route with regex" do
       @app = SinatraSimple
       test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-      AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
         test_action = action
         test_url = url
         test_status = status

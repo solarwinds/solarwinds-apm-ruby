@@ -11,8 +11,8 @@ before_fork do |server, worker|
   defined?(ActiveRecord::Base) and
     ActiveRecord::Base.connection.disconnect!
 
-  defined?(::AppOptics) and
-    ::AppOptics.disconnect!
+  defined?(::AppOpticsAPM) and
+    ::AppOpticsAPM.disconnect!
 end
 
 after_fork do |server, worker|
@@ -23,6 +23,6 @@ after_fork do |server, worker|
   defined?(ActiveRecord::Base) and
     ActiveRecord::Base.establish_connection
 
-  defined?(::AppOptics) and
-    ::AppOptics.reconnect!
+  defined?(::AppOpticsAPM) and
+    ::AppOpticsAPM.reconnect!
 end

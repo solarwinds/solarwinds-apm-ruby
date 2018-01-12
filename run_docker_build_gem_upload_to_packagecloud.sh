@@ -12,7 +12,7 @@ rbenv local 2.4.1
 
 # prerequisite: package_cloud tocken needs to be in ~/.packagecloud
 
-gem=`ls -dt1 appoptics*.gem | head -1`
+gem=`ls -dt1 appoptics_apm*.gem | head -1`
 
 package_cloud push AppOptics/apm-instrumentation $gem
 

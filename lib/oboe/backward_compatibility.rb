@@ -1,8 +1,8 @@
-require 'appoptics/thread_local'
+require 'appoptics_apm/thread_local'
 
 module Oboe
-  extend AppOpticsBase
-  if AppOptics.loaded
+  extend AppOpticsAPMBase
+  if AppOpticsAPM.loaded
     include Oboe_metal
   end
 
@@ -10,19 +10,19 @@ module Oboe
   # Support for Oboe::API calls
   #
   module API
-    include AppOptics::API
-    extend ::AppOptics::ThreadLocal
+    include AppOpticsAPM::API
+    extend ::AppOpticsAPM::ThreadLocal
     thread_local :deprecation_notified
 
     def self.method_missing(sym, *args, &blk)
       # Notify of deprecation only once
       unless @deprecated_notified
-        AppOptics.logger.warn "[appoptics/warn] Note that Oboe::API has been renamed to AppOptics::API. (#{sym}:#{args})"
-        AppOptics.logger.warn '[appoptics/warn] Oboe::API will be deprecated in a future version.'
-        AppOptics.logger.warn "[appoptics/warn] Caller: #{Kernel.caller[0]}"
+        AppOpticsAPM.logger.warn "[appoptics_apm/warn] Note that Oboe::API has been renamed to AppOpticsAPM::API. (#{sym}:#{args})"
+        AppOpticsAPM.logger.warn '[appoptics_apm/warn] Oboe::API will be deprecated in a future version.'
+        AppOpticsAPM.logger.warn "[appoptics_apm/warn] Caller: #{Kernel.caller[0]}"
         @deprecated_notified = true
       end
-      AppOptics::API.send(sym, *args, &blk)
+      AppOpticsAPM::API.send(sym, *args, &blk)
     end
   end
 
@@ -31,18 +31,18 @@ module Oboe
   # Support for Oboe::Config calls
   #
   module Config
-    extend ::AppOptics::ThreadLocal
+    extend ::AppOpticsAPM::ThreadLocal
     thread_local :deprecation_notified
 
     def self.method_missing(sym, *args)
       # Notify of deprecation only once
       unless @deprecated_notified
-        AppOptics.logger.warn "[appoptics/warn] Note that Oboe::Config has been renamed to AppOptics::Config. (#{sym}:#{args})"
-        AppOptics.logger.warn '[appoptics/warn] Oboe::Config will be deprecated in a future version.'
-        AppOptics.logger.warn "[appoptics/warn] Caller: #{Kernel.caller[0]}"
+        AppOpticsAPM.logger.warn "[appoptics_apm/warn] Note that Oboe::Config has been renamed to AppOpticsAPM::Config. (#{sym}:#{args})"
+        AppOpticsAPM.logger.warn '[appoptics_apm/warn] Oboe::Config will be deprecated in a future version.'
+        AppOpticsAPM.logger.warn "[appoptics_apm/warn] Caller: #{Kernel.caller[0]}"
         @deprecated_notified = true
       end
-      AppOptics::Config.send(sym, *args)
+      AppOpticsAPM::Config.send(sym, *args)
     end
   end
 
@@ -50,18 +50,18 @@ module Oboe
   # Support for legacy Oboe::Ruby.load calls
   #
   module Ruby
-    extend ::AppOptics::ThreadLocal
+    extend ::AppOpticsAPM::ThreadLocal
     thread_local :deprecation_notified
 
     def self.method_missing(sym, *args)
       # Notify of deprecation only once
       unless @deprecated_notified
-        AppOptics.logger.warn "[appoptics/warn] Note that Oboe::Ruby has been renamed to AppOptics::Ruby. (#{sym}:#{args})"
-        AppOptics.logger.warn '[appoptics/warn] Oboe::Ruby will be deprecated in a future version.'
-        AppOptics.logger.warn "[appoptics/warn] Caller: #{Kernel.caller[0]}"
+        AppOpticsAPM.logger.warn "[appoptics_apm/warn] Note that Oboe::Ruby has been renamed to AppOpticsAPM::Ruby. (#{sym}:#{args})"
+        AppOpticsAPM.logger.warn '[appoptics_apm/warn] Oboe::Ruby will be deprecated in a future version.'
+        AppOpticsAPM.logger.warn "[appoptics_apm/warn] Caller: #{Kernel.caller[0]}"
         @deprecated_notified = true
       end
-      AppOptics::Ruby.send(sym, *args)
+      AppOpticsAPM::Ruby.send(sym, *args)
     end
   end
 end
@@ -75,6 +75,6 @@ module OboeMethodProfiling
   end
 
   module ClassMethods
-    include AppOpticsMethodProfiling::ClassMethods
+    include AppOpticsAPMMethodProfiling::ClassMethods
   end
 end

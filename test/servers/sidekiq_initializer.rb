@@ -18,8 +18,8 @@ ENV["APPOPTICS_GEM_VERBOSE"] = "true"
 
 Bundler.require(:default, :test)
 
-# Configure AppOptics
-AppOptics::Config[:tracing_mode] = "always"
-AppOptics::Config[:sample_rate] = 1000000
-AppOptics.logger.level = Logger::DEBUG
+# Configure AppOpticsAPM
+AppOpticsAPM::Config[:tracing_mode] = "always"
+AppOpticsAPM::Config[:sample_rate] = 1000000
+AppOpticsAPM.logger.level = Logger::DEBUG
 

@@ -6,34 +6,34 @@
 require 'math'
 require 'oboe'
 
-AppOptics::Config[:tracing_mode] = :always
-AppOptics::Config[:verbose] = true
+AppOpticsAPM::Config[:tracing_mode] = :always
+AppOpticsAPM::Config[:verbose] = true
 
 # The parent process/loop which collects data
 Kernel.loop do
 
   # For each loop, we instrument the work retrieval.  These traces
   # will show up as layer 'get_the_work'.
-  AppOptics::API.start_trace('get_the_work') do
+  AppOpticsAPM::API.start_trace('get_the_work') do
     work = get_the_work
 
     # Loop through work and pass to `do_the_work` method
     # that spawns a thread each time
     work.each do |j|
 
-      # In the new Thread block, the AppOptics tracing context isn't there
+      # In the new Thread block, the AppOpticsAPM tracing context isn't there
       # so we carry it over manually and pass it to the `start_trace`
       # method.
 
-      # In the AppOptics dashboard, this will show up as parent traces
+      # In the AppOpticsAPM dashboard, this will show up as parent traces
       # (layer 'get_the_work') with child traces (layer 'do_the_work').
 
-      tracing_context = AppOptics::Context.toString
+      tracing_context = AppOpticsAPM::Context.toString
 
       Thread.new do
         result = nil
 
-        AppOptics::API.start_trace('do_the_work', tracing_context, :Async => 1) do
+        AppOpticsAPM::API.start_trace('do_the_work', tracing_context, :Async => 1) do
           result = do_the_work(j)
         end
 
@@ -74,14 +74,14 @@ end
 ####################################################
 
 # The above code generates a trace for each loop of the parent data collection process.
-# Those traces have the layer name of `get_the_work` and will show up in the AppOptics
+# Those traces have the layer name of `get_the_work` and will show up in the AppOpticsAPM
 # dashboard as such.
 #
 # Then as threads are spawned to process individual bits of work, we carry over the
 # `tracing_context` and start a new asynchronous trace using `start_trace`.  (An
 # asynchronous trace is noted by passing the `Async` Hash key with a value of `1`).
 #
-# In the AppOptics dashboard, the two traces (parent and child; or one to many) will
+# In the AppOpticsAPM dashboard, the two traces (parent and child; or one to many) will
 # be linked and displayed together as a single trace.
 
 ####################################################
@@ -90,7 +90,7 @@ end
 
 # If the main loop is retrieving many jobs (work) to process on each loop then
 # linking the traces may not be the best strategy as such large relationships
-# are difficult to display correctly in the AppOptics dashboard and provide little
+# are difficult to display correctly in the AppOpticsAPM dashboard and provide little
 # added value.
 #
 # If there are more than 8 - 12 threads spawned from each loop, then you may want to consider
@@ -102,7 +102,7 @@ end
 # This will produce two sets of traces with two the layer names 'get_the_work' +
 # 'do_the_work'.
 #
-# In the AppOptics dashboard, you can then separate or unify these traces into
+# In the AppOpticsAPM dashboard, you can then separate or unify these traces into
 # independent applications.  e.g. job processor, data retrieval, thread worker etc...
 #
 # An implementation of the work loop without carrying over tracing context would look
@@ -112,7 +112,7 @@ end
 #      Thread.new do
 #        result = nil
 #
-#        AppOptics::API.start_trace('do_the_work') do
+#        AppOpticsAPM::API.start_trace('do_the_work') do
 #          result = do_the_work(j)
 #        end
 #

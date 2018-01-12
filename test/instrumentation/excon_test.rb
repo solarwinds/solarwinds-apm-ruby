@@ -2,7 +2,7 @@
 # All rights reserved.
 
 require 'minitest_helper'
-require 'appoptics/inst/rack'
+require 'appoptics_apm/inst/rack'
 require File.expand_path(File.dirname(__FILE__) + '../../frameworks/apps/sinatra_simple')
 
 class ExconTest < Minitest::Test
@@ -21,18 +21,18 @@ class ExconTest < Minitest::Test
 
     # Rack response header management under JRUBY.
     assert xtrace
-    assert AppOptics::XTrace.valid?(xtrace)
+    assert AppOpticsAPM::XTrace.valid?(xtrace)
   end
 
   def test_reports_version_init
-    init_kvs = ::AppOptics::Util.build_init_report
+    init_kvs = ::AppOpticsAPM::Util.build_init_report
     assert_equal ::Excon::VERSION, init_kvs['Ruby.excon.Version']
   end
 
   def test_class_get_request
     clear_all_traces
 
-    AppOptics::API.start_trace('excon_tests') do
+    AppOpticsAPM::API.start_trace('excon_tests') do
       Excon.get('http://127.0.0.1:8101/')
     end
 
@@ -56,12 +56,12 @@ class ExconTest < Minitest::Test
   def test_cross_app_tracing
     clear_all_traces
 
-    AppOptics::API.start_trace('excon_tests') do
+    AppOpticsAPM::API.start_trace('excon_tests') do
       response = Excon.get('http://127.0.0.1:8101/?blah=1')
       xtrace = response.headers['X-Trace']
 
       assert xtrace
-      assert AppOptics::XTrace.valid?(xtrace)
+      assert AppOpticsAPM::XTrace.valid?(xtrace)
     end
 
     traces = get_all_traces
@@ -84,7 +84,7 @@ class ExconTest < Minitest::Test
 
     clear_all_traces
 
-    AppOptics::API.start_trace('excon_tests') do
+    AppOpticsAPM::API.start_trace('excon_tests') do
       connection = Excon.new('http://127.0.0.1:8101/') # non-persistent by default
       connection.get # socket established, then closed
       connection.get(:persistent => true) # socket established, left open
@@ -126,7 +126,7 @@ class ExconTest < Minitest::Test
 
     clear_all_traces
 
-    AppOptics::API.start_trace('excon_tests') do
+    AppOpticsAPM::API.start_trace('excon_tests') do
       connection = Excon.new('http://127.0.0.1:8101/')
       connection.requests([{:method => :get}, {:method => :put}])
     end
@@ -149,7 +149,7 @@ class ExconTest < Minitest::Test
     clear_all_traces
 
     begin
-      AppOptics::API.start_trace('excon_tests') do
+      AppOpticsAPM::API.start_trace('excon_tests') do
         Excon.get('http://asfjalkfjlajfljkaljf/')
       end
     rescue
@@ -178,12 +178,12 @@ class ExconTest < Minitest::Test
   end
 
   def test_obey_log_args_when_false
-    @log_args = AppOptics::Config[:excon][:log_args]
+    @log_args = AppOpticsAPM::Config[:excon][:log_args]
     clear_all_traces
 
-    AppOptics::Config[:excon][:log_args] = false
+    AppOpticsAPM::Config[:excon][:log_args] = false
 
-    AppOptics::API.start_trace('excon_tests') do
+    AppOpticsAPM::API.start_trace('excon_tests') do
       Excon.get('http://127.0.0.1:8101/?blah=1')
     end
 
@@ -191,16 +191,16 @@ class ExconTest < Minitest::Test
     assert_equal 7, traces.count
     assert_equal '/', traces[1]['ServiceArg']
 
-    AppOptics::Config[:excon][:log_args] = @log_args
+    AppOpticsAPM::Config[:excon][:log_args] = @log_args
   end
 
   def test_obey_log_args_when_true
-    @log_args = AppOptics::Config[:excon][:log_args]
+    @log_args = AppOpticsAPM::Config[:excon][:log_args]
     clear_all_traces
 
-    AppOptics::Config[:excon][:log_args] = true
+    AppOpticsAPM::Config[:excon][:log_args] = true
 
-    AppOptics::API.start_trace('excon_tests') do
+    AppOpticsAPM::API.start_trace('excon_tests') do
       Excon.get('http://127.0.0.1:8101/?blah=1')
     end
 
@@ -208,16 +208,16 @@ class ExconTest < Minitest::Test
     assert_equal 7, traces.count
     assert_equal '/?blah=1', traces[1]['ServiceArg']
 
-    AppOptics::Config[:excon][:log_args] = @log_args
+    AppOpticsAPM::Config[:excon][:log_args] = @log_args
   end
 
   def test_obey_log_args_when_true_and_using_hash
-    @log_args = AppOptics::Config[:excon][:log_args]
+    @log_args = AppOpticsAPM::Config[:excon][:log_args]
     clear_all_traces
 
-    AppOptics::Config[:excon][:log_args] = true
+    AppOpticsAPM::Config[:excon][:log_args] = true
 
-    AppOptics::API.start_trace('excon_tests') do
+    AppOpticsAPM::API.start_trace('excon_tests') do
       Excon.get('http://127.0.0.1:8101/?', :query => { :blah => 1 })
     end
 
@@ -225,7 +225,7 @@ class ExconTest < Minitest::Test
     assert_equal 7, traces.count
     assert_equal '/?blah=1', traces[1]['ServiceArg']
 
-    AppOptics::Config[:excon][:log_args] = @log_args
+    AppOpticsAPM::Config[:excon][:log_args] = @log_args
   end
 end
 

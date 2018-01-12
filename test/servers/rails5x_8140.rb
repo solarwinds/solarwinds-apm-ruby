@@ -6,13 +6,13 @@
 #  thread and listens on port 8140.
 #
 if ENV['DBTYPE'] == 'mysql2'
-  AppOptics::Test.set_mysql2_env
+  AppOpticsAPM::Test.set_mysql2_env
 elsif ENV['DBTYPE'] == 'postgresql'
-  AppOptics::Test.set_postgresql_env
+  AppOpticsAPM::Test.set_postgresql_env
 else
-  AppOptics.logger.warn "Unidentified DBTYPE: #{ENV['DBTYPE']}" unless ENV['DBTYPE'] == "postgresql"
-  AppOptics.logger.debug "Defaulting to postgres DB for background Rails server."
-  AppOptics::Test.set_postgresql_env
+  AppOpticsAPM.logger.warn "Unidentified DBTYPE: #{ENV['DBTYPE']}" unless ENV['DBTYPE'] == "postgresql"
+  AppOpticsAPM.logger.debug "Defaulting to postgres DB for background Rails server."
+  AppOpticsAPM::Test.set_postgresql_env
 end
 
 require "rails/all"
@@ -20,7 +20,7 @@ require "action_controller/railtie" # require more if needed
 require 'rack/handler/puma'
 require File.expand_path(File.dirname(__FILE__) + '/../models/widget')
 
-AppOptics.logger.info "[appoptics/info] Starting background utility rails app on localhost:8140."
+AppOpticsAPM.logger.info "[appoptics_apm/info] Starting background utility rails app on localhost:8140."
 
 ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
 
@@ -84,7 +84,7 @@ class FerroController < ActionController::Metal
   end
 end
 
-AppOptics::API.profile_method(FerroController, :world)
+AppOpticsAPM::API.profile_method(FerroController, :world)
 
 Rails50MetalStack.initialize!
 

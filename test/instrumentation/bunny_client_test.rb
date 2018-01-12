@@ -30,7 +30,7 @@ unless defined?(JRUBY_VERSION)
       @queue = @ch.queue("tv.ruby.test")
       @exchange  = @ch.default_exchange
 
-      AppOptics::API.start_trace('bunny_tests') do
+      AppOpticsAPM::API.start_trace('bunny_tests') do
         @exchange.publish("The Tortoise and the Hare", :routing_key => @queue.name)
       end
 
@@ -62,7 +62,7 @@ unless defined?(JRUBY_VERSION)
       @ch = @conn.create_channel
       @exchange = @ch.fanout("tv.ruby.fanout.tests")
 
-      AppOptics::API.start_trace('bunny_tests') do
+      AppOpticsAPM::API.start_trace('bunny_tests') do
         @exchange.publish("The Tortoise and the Hare in the fanout exchange.", :routing_key => 'tv.ruby.test').publish("And another...")
       end
 
@@ -107,7 +107,7 @@ unless defined?(JRUBY_VERSION)
       @ch = @conn.create_channel
       @exchange = @ch.topic("tv.ruby.topic.tests", :auto_delete => true)
 
-      AppOptics::API.start_trace('bunny_tests') do
+      AppOpticsAPM::API.start_trace('bunny_tests') do
         @exchange.publish("The Tortoise and the Hare in the topic exchange.", :routing_key => 'tv.ruby.test.1').publish("And another...", :routing_key => 'tv.ruby.test.2' )
       end
 
@@ -152,7 +152,7 @@ unless defined?(JRUBY_VERSION)
       @ch = @conn.create_channel
 
       begin
-        AppOptics::API.start_trace('bunny_tests') do
+        AppOpticsAPM::API.start_trace('bunny_tests') do
           @exchange = @ch.topic("tv.ruby.error.1", :auto_delete => true)
           @exchange = @ch.fanout("tv.ruby.error.1", :auto_delete => true)
           @exchange.publish("The Tortoise and the Hare in the topic exchange.", :routing_key => 'tv.ruby.test.1').publish("And another...", :routing_key => 'tv.ruby.test.2' )
@@ -185,7 +185,7 @@ unless defined?(JRUBY_VERSION)
       @ch.confirm_select
       @exchange.publish("", :routing_key => 'tv.ruby.test')
 
-      AppOptics::API.start_trace('bunny_tests') do
+      AppOpticsAPM::API.start_trace('bunny_tests') do
         @exchange.delete
       end
 
@@ -213,7 +213,7 @@ unless defined?(JRUBY_VERSION)
 
       @ch.confirm_select
 
-      AppOptics::API.start_trace('bunny_tests') do
+      AppOpticsAPM::API.start_trace('bunny_tests') do
         1000.times do
           @exchange.publish("", :routing_key => 'tv.ruby.test')
         end
@@ -255,7 +255,7 @@ unless defined?(JRUBY_VERSION)
       @ch = @conn.create_channel
       @exchange = @ch.fanout("tv.queue.test")
 
-      AppOptics::API.start_trace('bunny_tests') do
+      AppOpticsAPM::API.start_trace('bunny_tests') do
         @queue = @ch.queue("blah", :exclusive => true).bind(@exchange)
       end
 
