@@ -69,7 +69,7 @@ end
 #
 # The benefit of this is that instead of having two independent traces (parent
 # and child), you will have a single view of the parent trace showing the
-# spawned child process and it's performance in the AppOpticsAPM dashboard.
+# spawned child process and it's performance in the AppOptics dashboard.
 #
 # To do this:
 #   1. Don't clear the context in the child process

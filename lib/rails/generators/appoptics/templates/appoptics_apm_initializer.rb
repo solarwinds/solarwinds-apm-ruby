@@ -106,7 +106,7 @@ if defined?(AppOpticsAPM::Config)
   # Rails Exception Logging
   #
   # In Rails, raised exceptions with rescue handlers via
-  # <tt>rescue_from</tt> are not reported to the AppOpticsAPM
+  # <tt>rescue_from</tt> are not reported to the AppOptics
   # dashboard by default.  Setting this value to true will
   # report all raised exception regardless.
   #

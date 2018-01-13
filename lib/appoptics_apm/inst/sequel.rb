@@ -14,7 +14,7 @@ module AppOpticsAPM
       # extract_trace_details
       #
       # Given SQL and the options hash, this method extracts the interesting
-      # bits for reporting to the AppOpticsAPM dashboard.
+      # bits for reporting to the AppOptics dashboard.
       #
       def extract_trace_details(sql, opts)
         kvs = {}

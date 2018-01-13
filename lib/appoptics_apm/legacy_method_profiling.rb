@@ -3,7 +3,7 @@
 
 ##
 # Provides the methods necessary for method profiling.  Profiling
-# results are sent to the AppOpticsAPM dashboard.
+# results are sent to the AppOptics dashboard.
 #
 # Example usage:
 # class MyApp

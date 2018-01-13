@@ -6,7 +6,7 @@
 # transaction, block, request etc..  This context is advanced as
 # new blocks are instrumented and this chain of context is used
 # by AppOpticsAPM to later reassemble performance data to be displayed
-# in the AppOpticsAPM dashboard.
+# in the AppOptics dashboard.
 #
 # Tracing context is non-existent until established by calling
 # `AppOpticsAPM::API.start_trace` or `AppOpticsAPM::API.log_start`.  Those methods
@@ -62,7 +62,7 @@
 # trace them as individuals (but with identifying information).
 #
 # Linking parent and child has it's benefits as in the
-# AppOpticsAPM dashboard, you will see how a process may spawn
+# AppOptics dashboard, you will see how a process may spawn
 # a task in parallel and in a single view see the performance
 # of both.
 #

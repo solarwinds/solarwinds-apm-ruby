@@ -36,7 +36,7 @@ module AppOpticsAPM
       # log_rails_error?
       #
       # Determins whether we should log a raised exception to the
-      # AppOpticsAPM dashboard.  This is determined by whether the exception
+      # AppOptics dashboard.  This is determined by whether the exception
       # has a rescue handler setup and the value of
       # AppOpticsAPM::Config[:report_rescued_errors]
       #

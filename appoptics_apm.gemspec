@@ -9,9 +9,9 @@ Gem::Specification.new do |s|
   s.license = "Librato Open License, Version 1.0"
 
   s.authors = ["Maia Engeli", "Peter Giacomo Lombardo", "Spiros Eliopoulos"]
-  s.email = %q{support@appoptics_apm.com}
-  s.homepage = %q{https://www.appoptics_apm.com/}
-  s.summary = %q{AppOpticsAPM performance instrumentation gem for Ruby}
+  s.email = %q{support@appoptics.com}
+  s.homepage = %q{https://www.appoptics.com/}
+  s.summary = %q{AppOptics APM performance instrumentation gem for Ruby}
   s.description = %q{The AppOpticsAPM gem provides performance instrumentation for MRI Ruby, JRuby and related frameworks.}
 
   s.extra_rdoc_files = ["LICENSE"]

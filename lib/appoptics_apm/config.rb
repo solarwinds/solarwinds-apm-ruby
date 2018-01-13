@@ -152,7 +152,7 @@ module AppOpticsAPM
       @@config[:dnt_opts]   = Regexp::IGNORECASE
 
       # In Rails, raised exceptions with rescue handlers via
-      # <tt>rescue_from</tt> are not reported to the AppOpticsAPM
+      # <tt>rescue_from</tt> are not reported to the AppOptics
       # dashboard by default.  Setting this value to true will
       # report all raised exception regardless.
       #

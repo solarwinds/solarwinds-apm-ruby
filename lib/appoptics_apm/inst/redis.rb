@@ -64,7 +64,7 @@ module AppOpticsAPM
         end
 
         # Given any Redis operation command array, this method
-        # extracts the Key/Values to report to the AppOpticsAPM
+        # extracts the Key/Values to report to the AppOptics
         # dashboard.
         #
         # @param command [Array] the Redis operation array
@@ -176,7 +176,7 @@ module AppOpticsAPM
         end
 
         # Extracts the Key/Values to report from a pipelined
-        # call to the AppOpticsAPM dashboard.
+        # call to the AppOptics dashboard.
         #
         # @param pipeline [Redis::Pipeline] the Redis pipeline instance
         # @return [Hash] the Key/Values to report

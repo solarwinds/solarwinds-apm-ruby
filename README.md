@@ -1,12 +1,12 @@
 # Welcome to the AppOpticsAPM Ruby Gem
 
-The appoptics_apm gem provides [AppOpticsAPM](https://www.appoptics.com/) performance instrumentation for Ruby.
+The appoptics_apm gem provides [AppOptics APM](https://www.appoptics.com/) performance instrumentation for Ruby.
 
 ![Ruby AppOpticsAPM](http://www.appoptics.com/images/ruby_readme/oboe-ruby-header.png)
 
 It has the ability to report performance metrics on an array of libraries, databases and frameworks such as Rails, Mongo, Memcache, ActiveRecord, Cassandra, Rack, Resque [and more](http://docs.appoptics.solarwinds.com/Instrumentation/ruby.html#ruby-support-matrix).
 
-It requires a [AppOpticsAPM](https://www.appoptics.com/) account to view metrics.  Get yours, [it's free](https://https://my.appoptics.com/sign_up).
+It requires an [AppOptics](https://www.appoptics.com/) account to view metrics.  Get yours, [it's free](https://https://my.appoptics.com/sign_up).
 
 [![Gem Version](https://badge.fury.io/rb/appoptics.png)](https://badge.fury.io/rb/appoptics)
 [![Build Status](https://travis-ci.org/tracelytics/ruby-appoptics.png?branch=master)](https://travis-ci.org/tracelytics/ruby-appoptics)
@@ -16,12 +16,12 @@ _Note: The repository name has been changed to ruby-appoptics.  Please update yo
 
 # Installation
 
-_Before installing the gem below, make sure that you have the [base packages](http://docs.appoptics.com/AppOpticsAPM/install-instrumentation.html#install-base-packages) installed on your host first._
+_Before installing the gem below, make sure that you have the [dependencies](http://docs.appoptics.com/kb/apm_tracing/ruby/install#dependencies) installed on your host first._
 
-The appoptics gem is [available on Rubygems](https://rubygems.org/gems/appoptics) and can be installed with:
+The appoptics_apm gem is [available on Rubygems](https://rubygems.org/gems/appoptics_apm) and can be installed with:
 
 ```bash
-gem install appoptics
+gem install appoptics_apm
 ```
 
 or added to _the end_ of your bundle Gemfile and running `bundle install`:
@@ -33,8 +33,8 @@ gem 'appoptics_apm'
 ## if you're dogfooding:
 Get the gem
 ```
-source 'https://73bf9c35xxxxxxxxxxb4d26c3:@packagecloud.io/librato/apm-instrumentation/' do
-  gem 'appoptics', '>= 4.0.0'
+source 'https://73bf9c35xxxxxxxxxxb4d26c3:@packagecloud.io/AppOptics/apm-instrumentation/' do
+  gem 'appoptics_apm', '>= 4.0.0'
 end
 ```
 Set the env to report to staging (your_app_name can be any string, it is only used as name in the services list):
@@ -57,7 +57,7 @@ No special steps are needed to instrument Ruby on Rails.  Once part of the bundl
 
 ### The Install Generator
 
-The appoptics gem provides a Rails generator used to seed an initializer where you can configure and control `tracing_mode` and [other options](http://docs.appoptics.solarwinds.com/Instrumentation/ruby.html#configuring-instrumentation).
+The appoptics_apm gem provides a Rails generator used to seed an initializer where you can configure and control `tracing_mode` and [other options](http://docs.appoptics.com/kb/apm_tracing/ruby/configure).
 
 To run the install generator run:
 
@@ -82,15 +82,15 @@ AppOpticsAPM
 AppOpticsAPM
 ```
 
-Make sure that the appoptics gem is loaded _after_ Sinatra either by listing `gem 'appoptics'` after Sinatra in your Gemfile or calling the `require 'appoptics'` directive after Sinatra is loaded.
+Make sure that the appoptics_apm gem is loaded _after_ Sinatra either by listing `gem 'appoptics_apm'` after Sinatra in your Gemfile or calling the `require 'appoptics_gem'` directive after Sinatra is loaded.
 
-With this, the appoptics gem will automatically detect Sinatra on boot and instrument key components.
+With this, the appoptics_apm gem will automatically detect Sinatra on boot and instrument key components.
 
 ## Padrino
 
 ![Padrino](http://docs.appoptics.solarwinds.com/images/ruby_readme/padrino.png)
 
-As long as the appoptics gem is in your `Gemfile` (inserted after the `gem 'padrino'` directive) and you are calling `Bundler.require`, the appoptics gem will automatically instrument Padrino applications.
+As long as the appoptics_apm gem is in your `Gemfile` (inserted after the `gem 'padrino'` directive) and you are calling `Bundler.require`, the appoptics_apm gem will automatically instrument Padrino applications.
 
 If you need to set `AppOpticsAPM::Config` values on stack boot, you can do so by adding the following
 to your `config/boot.rb` file:
@@ -111,7 +111,7 @@ You can instrument your Grape application by adding the following code to your `
 ```ruby
     # If you're not using Bundler.require.  Make sure this is done
     # after the Grape require directive.
-    require 'appoptics'
+    require 'appoptics_apm'
 
     ...
 
@@ -120,13 +120,13 @@ You can instrument your Grape application by adding the following code to your `
     end
 ```
 
-Make sure that the appoptics gem is loaded _after_ Grape either by listing `gem 'appoptics'` after Grape in your Gemfile or calling the `require 'appoptics'` directive after Grape is loaded.
+Make sure that the appoptics gem is loaded _after_ Grape either by listing `gem 'appoptics_apm'` after Grape in your Gemfile or calling the `require 'appoptics_apm'` directive after Grape is loaded.
 
 You must explicitly tell your Grape application to use AppOpticsAPM::Rack for tracing to occur.
 
 ## Custom Ruby Scripts & Applications
 
-The appoptics gem has the ability to instrument any arbitrary Ruby application or script.
+The appoptics_apm gem has the ability to instrument any arbitrary Ruby application or script.
 
 ```ruby
 require 'rubygems'
@@ -134,16 +134,12 @@ require 'bundler'
 
 Bundler.require
 
-require 'appoptics'
+require 'appoptics_apm'
 ```
 
 From here, you can use the Tracing API to instrument areas of code using `AppOpticsAPM::API.start_trace` (see below).  If you prefer to instead dive directly into code, take a look at [this example](https://gist.github.com/pglombardo/8550713) of an instrumented Ruby script.
 
 Once inside of the `AppOpticsAPM::API.start_trace` block, performance metrics will be automatically collected for all supported libraries and gems (Redis, Mongo, ActiveRecord etc..).
-
-## Other
-
-You can send deploy notifications to AppOpticsAPM and have the events show up on your dashboard.  See: [Capistrano Deploy Notifications with tlog](http://docs.appoptics.solarwinds.com/Instrumentation/ruby.html#report-deploy-notifications)
 
 # Custom Tracing
 
@@ -154,11 +150,11 @@ You can add even more visibility into any part of your application or scripts by
 You can instrument any arbitrary block of code using `AppOpticsAPM::API.trace`.  The code and any supported calls for libraries that we support, will automatically get traced and reported to your dashboard.
 
 ```ruby
-AppOpticsAPM
+# layer_name will show up in the AppOptics app dashboard
 layer_name = 'subsystemX'
 
 # report_kvs are a set of information Key/Value pairs that are sent to
-AppOpticsAPM
+# AppOptics dashboard along with the performance metrics. These KV
 # pairs are used to report request, environment and/or client specific
 # information.
 
@@ -180,7 +176,7 @@ Find more details in the [RubyDoc page](http://rdoc.info/gems/appoptics/AppOptic
 
 ## Tracing Methods
 
-With AppOpticsAPM, you can profile any method in your application or even in the Ruby language using `AppOpticsAPM::API.profile_method`.
+With AppOptics, you can profile any method in your application or even in the Ruby language using `AppOpticsAPM::API.profile_method`.
 
 If, for example, you wanted to see the performance for the `Array::sort`, you could simply call the following in your startup code:
 
@@ -204,7 +200,7 @@ We welcome you to send us PRs.  We also humbly request that any new instrumentat
 
 We have made a large effort to expose as much technical information as possible to assist developers wishing to contribute to the appoptics gem.  Below is a good source for information and help for developers:
 
-* The [AppOpticsAPM Knowledge Base](http://docs.appoptics.solarwinds.com/) has a large collection of technical articles or, if needed, you can submit a support request directly to the team.
+* The [AppOptics Knowledge Base](https://docs.appoptics.com/kb/apm_tracing) has a large collection of technical articles or, if needed, you can submit a support request directly to the team.
 
 If you have any questions or ideas, don't hesitate to contact us anytime.
 
@@ -224,12 +220,12 @@ The appoptics gem uses a standard gem layout.  Here are the notable directories.
 The appoptics gem is built with the standard `gem build` command passing in the gemspec:
 
 ```bash
-gem build appoptics.gemspec
+gem build appoptics_apm.gemspec
 ```
 
 ## Writing Custom Instrumentation
 
-Custom instrumentation for a library, database or other service can be authored fairly easily.  Generally, instrumentation of a library is done by wrapping select operations of that library and timing their execution using the AppOpticsAPM Tracing API which then reports the metrics to the users' AppOpticsAPM dashboard.
+Custom instrumentation for a library, database or other service can be authored fairly easily.  Generally, instrumentation of a library is done by wrapping select operations of that library and timing their execution using the AppOpticsAPM Tracing API which then reports the metrics to the users' AppOptics dashboard.
 
 Here, I'll use a stripped down version of the Dalli instrumentation (`lib/appoptics/inst/dalli.rb`) as a quick example of how to instrument a client library (the dalli gem).
 
@@ -288,7 +284,7 @@ end
 
 Third, in our wrapper method, we capture the arguments passed in, collect the operation and key information into a local hash and then invoke the `AppOpticsAPM::API.trace` method to time the execution of the original operation.
 
-The `AppOpticsAPM::API.trace` method calls Dalli's native operation and reports the timing metrics and your custom `report_kvs` up to AppOpticsAPM servers to be shown on the user's dashboard.
+The `AppOpticsAPM::API.trace` method calls Dalli's native operation and reports the timing metrics and your custom `report_kvs` up to AppOptics servers to be shown on the user's dashboard.
 
 Some other tips and guidelines:
 
@@ -308,7 +304,7 @@ Some other tips and guidelines:
 
 ## Compiling the C extension
 
-The appoptics gem utilizes a C extension to interface with the system `liboboe.so` library.  This system library is installed with the AppOpticsAPM host packages (tracelyzer, liboboe0, liboboe-dev) and is used to report host and performance metrics from multiple sources (Ruby, Apache, Python etc.) back to AppOpticsAPM servers.
+The appoptics gem utilizes a C extension to interface with a core library bundled in with the gem which handles reporting the trace and performance data back to AppOptics servers.
 
 C extensions are usually built on `gem install` but when working out of a local git repository, it's required that you manually build this C extension for the gem to function.
 
@@ -319,16 +315,6 @@ rake compile             # Build the gem's c extension
 rake distclean           # Remove all built files and extensions
 rake recompile           # Rebuild the gem's c extension
 ```
-
-Note: Make sure you have the development package `liboboe0-dev` installed before attempting to compile the C extension.
-
-```bash
->>$ dpkg -l | grep liboboe
-ii  liboboe-dev  1.2.1-trusty1  AppOpticsAPM common library -- development files
-ii  liboboe0     1.2.1-trusty1  AppOpticsAPM common library
-```
-
-See [Installing Base Packages on Debian and Ubuntu](http://docs.appoptics.solarwinds.com/AppOpticsAPM/install-instrumentation.html#debian-and-ubuntu) in the Knowledge Base for details.
 
 To see the code related to the C extension, take a look at `ext/oboe_metal/extconf.rb` for details.
 
@@ -360,6 +346,6 @@ We humbly request that any submitted instrumentation is delivered with correspon
 
 # License
 
-Copyright (c) 2016 SolarWinds, LLC
+Copyright (c) 2018 SolarWinds, LLC
 
 Released under the [Librato Open License](http://docs.appoptics.solarwinds.com/Instrumentation/librato-open-license.html)

@@ -1,4 +1,4 @@
-By default, the AppOpticsAPM oboe gem will not trace routes with extensions
+By default, the AppOpticsAPM gem will not trace routes with extensions
 for common static files.  Examples of such files may be images,
 javascript, pdfs and text files.
 
