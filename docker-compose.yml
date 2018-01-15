@@ -7,7 +7,7 @@ version: "2"
 # ('ruby_appoptics' and 'wait' will exit)
 #
 # to run some ruby tests:
-# > docker-compose run --service-ports ruby_appoptics /code/ruby-appoptics/ruby_setup.sh 2.3.1 gemfiles/rails42.gemfile
+# > docker-compose run --service-ports ruby_appoptics /code/ruby-appoptics_apm/ruby_setup.sh 2.3.1 gemfiles/rails42.gemfile
 #
 ########################################################################################################
 

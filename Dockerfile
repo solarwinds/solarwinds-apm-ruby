@@ -29,8 +29,8 @@ RUN  git clone https://github.com/rbenv/rbenv.git ~/.rbenv \
 
 # install rubies to build our gem against
 RUN .  ~/.profile \
-    && rbenv install 2.3.1 \
-    && rbenv install jruby-9.0.5.0
+    && rbenv install 2.3.1
+#    && rbenv install jruby-9.0.5.0
 
 # install swig 3.0.8
 RUN curl -SL http://kent.dl.sourceforge.net/project/swig/swig/swig-3.0.8/swig-3.0.8.tar.gz \
