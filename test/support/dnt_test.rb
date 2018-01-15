@@ -4,7 +4,7 @@
 require 'minitest_helper'
 require 'rack/test'
 require 'rack/lobster'
-require 'appoptics/inst/rack'
+require 'appoptics_apm/inst/rack'
 
 class RackTestApp < Minitest::Test
   include Rack::Test::Methods
@@ -13,7 +13,7 @@ class RackTestApp < Minitest::Test
     @app = Rack::Builder.new {
       use Rack::CommonLogger
       use Rack::ShowExceptions
-      use AppOptics::Rack
+      use AppOpticsAPM::Rack
       map "/lobster" do
         use Rack::Lint
         run Rack::Lobster.new
@@ -24,15 +24,15 @@ class RackTestApp < Minitest::Test
   def test_custom_do_not_trace
     clear_all_traces
 
-    dnt_original = AppOptics::Config[:dnt_regexp]
-    AppOptics::Config[:dnt_regexp] = "lobster$"
+    dnt_original = AppOpticsAPM::Config[:dnt_regexp]
+    AppOpticsAPM::Config[:dnt_regexp] = "lobster$"
 
     get "/lobster"
 
     traces = get_all_traces
     assert traces.empty?
 
-    AppOptics::Config[:dnt_regexp] = dnt_original
+    AppOpticsAPM::Config[:dnt_regexp] = dnt_original
   end
 
   def test_do_not_trace_static_assets
@@ -73,10 +73,10 @@ class RackTestApp < Minitest::Test
 
     clear_all_traces
 
-    dnt_original = AppOptics::Config[:dnt_regexp]
+    dnt_original = AppOpticsAPM::Config[:dnt_regexp]
 
     # Do not trace .js files _except for_ show.js
-    AppOptics::Config[:dnt_regexp] = "(\.js$)(?<!show.js)"
+    AppOpticsAPM::Config[:dnt_regexp] = "(\.js$)(?<!show.js)"
 
     # First: We shouldn't trace general .js files
     get "/javascripts/application.js"
@@ -92,7 +92,7 @@ class RackTestApp < Minitest::Test
     traces = get_all_traces
     assert !traces.empty?
 
-    AppOptics::Config[:dnt_regexp] = dnt_original
+    AppOpticsAPM::Config[:dnt_regexp] = dnt_original
   end
 end
 

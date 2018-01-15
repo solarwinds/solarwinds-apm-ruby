@@ -13,17 +13,17 @@ if !defined?(JRUBY_VERSION)
     def setup
       WebMock.enable!
       WebMock.disable_net_connect!
-      AppOptics.config_lock.synchronize {
-        @tm = AppOptics::Config[:tracing_mode]
-        @sample_rate = AppOptics::Config[:sample_rate]
+      AppOpticsAPM.config_lock.synchronize {
+        @tm = AppOpticsAPM::Config[:tracing_mode]
+        @sample_rate = AppOpticsAPM::Config[:sample_rate]
       }
     end
 
     def teardown
-      AppOptics.config_lock.synchronize {
-        AppOptics::Config[:tracing_mode] = @tm
-        AppOptics::Config[:blacklist] = []
-        AppOptics::Config[:sample_rate] = @sample_rate
+      AppOpticsAPM.config_lock.synchronize {
+        AppOpticsAPM::Config[:tracing_mode] = @tm
+        AppOpticsAPM::Config[:blacklist] = []
+        AppOpticsAPM::Config[:sample_rate] = @sample_rate
       }
       WebMock.reset!
       WebMock.allow_net_connect!
@@ -33,7 +33,7 @@ if !defined?(JRUBY_VERSION)
     def test_xtrace_tracing
       stub_request(:get, "http://127.0.0.9:8101/").to_return(status: 200, body: "", headers: {})
 
-      AppOptics::API.start_trace('curb_tests') do
+      AppOpticsAPM::API.start_trace('curb_tests') do
         ::Curl.get("http://127.0.0.9:8101/")
       end
 
@@ -44,9 +44,9 @@ if !defined?(JRUBY_VERSION)
     def test_xtrace_sample_rate_0
       stub_request(:get, "http://127.0.0.4:8101/").to_return(status: 200, body: "", headers: {})
 
-      AppOptics.config_lock.synchronize do
-        AppOptics::Config[:sample_rate] = 0
-        AppOptics::API.start_trace('curb_tests') do
+      AppOpticsAPM.config_lock.synchronize do
+        AppOpticsAPM::Config[:sample_rate] = 0
+        AppOpticsAPM::API.start_trace('curb_tests') do
           ::Curl.get("http://127.0.0.4:8101/")
         end
       end
@@ -68,9 +68,9 @@ if !defined?(JRUBY_VERSION)
     def test_blacklisted
       stub_request(:get, "http://127.0.0.2:8101/").to_return(status: 200, body: "", headers: {})
 
-      AppOptics.config_lock.synchronize do
-        AppOptics::Config.blacklist << '127.0.0.2'
-        AppOptics::API.start_trace('curb_test') do
+      AppOpticsAPM.config_lock.synchronize do
+        AppOpticsAPM::Config.blacklist << '127.0.0.2'
+        AppOpticsAPM::API.start_trace('curb_test') do
           ::Curl.get("http://127.0.0.2:8101/")
         end
       end
@@ -122,7 +122,7 @@ if !defined?(JRUBY_VERSION)
       urls << "http://127.0.0.7:8101/?two=2"
       urls << "http://127.0.0.7:8101/?three=3"
 
-      AppOptics::API.start_trace('curb_tests') do
+      AppOpticsAPM::API.start_trace('curb_tests') do
         Curl::Multi.get(urls, easy_options, multi_options)
       end
     end
@@ -148,9 +148,9 @@ if !defined?(JRUBY_VERSION)
       urls << "http://127.0.0.7:8101/?two=2"
       urls << "http://127.0.0.7:8101/?three=3"
 
-      AppOptics.config_lock.synchronize do
-        AppOptics::Config[:sample_rate] = 0
-        AppOptics::API.start_trace('curb_tests') do
+      AppOpticsAPM.config_lock.synchronize do
+        AppOpticsAPM::Config[:sample_rate] = 0
+        AppOpticsAPM::API.start_trace('curb_tests') do
           Curl::Multi.get(urls, easy_options, multi_options)
         end
       end
@@ -187,7 +187,7 @@ if !defined?(JRUBY_VERSION)
       urls << "http://127.0.0.1:8101/?two=2"
       urls << "http://127.0.0.1:8101/?three=3"
 
-      AppOptics::API.start_trace('curb_tests') do
+      AppOpticsAPM::API.start_trace('curb_tests') do
         m = Curl::Multi.new
         urls.each do |url|
           cu = Curl::Easy.new(url) do |curl|
@@ -213,9 +213,9 @@ if !defined?(JRUBY_VERSION)
       urls << "http://127.0.0.1:8101/?two=2"
       urls << "http://127.0.0.1:8101/?three=3"
 
-      AppOptics.config_lock.synchronize do
-        AppOptics::Config[:sample_rate] = 0
-        AppOptics::API.start_trace('curb_tests') do
+      AppOpticsAPM.config_lock.synchronize do
+        AppOpticsAPM::Config[:sample_rate] = 0
+        AppOpticsAPM::API.start_trace('curb_tests') do
           m = Curl::Multi.new
           urls.each do |url|
             cu = Curl::Easy.new(url) do |curl|

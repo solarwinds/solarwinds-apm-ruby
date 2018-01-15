@@ -5,15 +5,15 @@
 # thread and listens on port 8101.
 #
 require 'rack/handler/puma'
-require 'appoptics/inst/rack'
+require 'appoptics_apm/inst/rack'
 
-AppOptics.logger.info "[appoptics/info] Starting background utility rack app on localhost:8101."
+AppOpticsAPM.logger.info "[appoptics_apm/info] Starting background utility rack app on localhost:8101."
 
 Thread.new do
   app = Rack::Builder.new {
-    use AppOptics::Rack
+    use AppOpticsAPM::Rack
     map "/" do
-      run Proc.new { [200, {"Content-Type" => "text/html"}, ['Hello AppOptics!']] }
+      run Proc.new { [200, {"Content-Type" => "text/html"}, ['Hello AppOpticsAPM!']] }
     end
 
     map "/redirectme" do

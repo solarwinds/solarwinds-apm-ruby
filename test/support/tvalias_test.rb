@@ -6,10 +6,10 @@ require 'minitest_helper'
 class APPOPTICSAliasTest < Minitest::Test
 
   def test_responds_various_capitalization
-    defined?(::AppOptics).must_equal "constant"
-    defined?(::AppOptics).must_equal "constant"
+    defined?(::AppOpticsAPM).must_equal "constant"
+    defined?(::AppOpticsAPM).must_equal "constant"
 
-    AppOptics.methods.count.must_equal AppOptics.methods.count
+    AppOpticsAPM.methods.count.must_equal AppOpticsAPM.methods.count
   end
 end
 

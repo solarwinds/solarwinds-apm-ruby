@@ -1,7 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-# This Vagrantfile creates a build machine for our appoptics gem.
+# This Vagrantfile creates a build machine for our appoptics_apm gem.
 # Usage:
 # $ vagrant up
 # $ vagrant ssh
@@ -52,12 +52,12 @@ Vagrant.configure("2") do |config|
 #!/usr/bin/env bash
 cd /vagrant
 export RBENV_VERSION=jruby-9.0.5.0
-jruby -S gem build appoptics.gemspec
+jruby -S gem build appoptics_apm.gemspec
 
 export RBENV_VERSION=2.3.1
-gem build appoptics.gemspec
+gem build appoptics_apm.gemspec
 
-ls -la appoptics*.gem
+ls -la appoptics_apm*.gem
 
 echo "publish to rubygems via: gem push <gem>"
 BUILDSCRIPT

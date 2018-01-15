@@ -8,7 +8,7 @@ cache:
 rvm:
   - 2.4.1
   - 2.3.1
-  - 1.9.3   # once we don't support 1.9.3 anymore we can use "&." (safe navigation) and prepend (instead of alias)
+  - 1.9.3
 #  - jruby-9.0.5.0
 
 gemfile:

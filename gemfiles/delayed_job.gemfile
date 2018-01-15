@@ -25,7 +25,7 @@ else
   if RUBY_VERSION < '2.0'
     gem 'pg', '< 0.19'
   else
-    gem 'pg'
+    gem 'pg', '< 1.0.0' # rails is not ready for pg 1.0
   end
   gem "delayed_job_active_record"
 end

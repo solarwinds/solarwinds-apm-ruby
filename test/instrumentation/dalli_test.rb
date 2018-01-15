@@ -9,11 +9,11 @@ if RUBY_VERSION > '1.8.7'
     before do
       clear_all_traces
       @dc = Dalli::Client.new
-      @collect_backtraces = AppOptics::Config[:dalli][:collect_backtraces]
+      @collect_backtraces = AppOpticsAPM::Config[:dalli][:collect_backtraces]
     end
 
     after do
-      AppOptics::Config[:dalli][:collect_backtraces] = @collect_backtraces
+      AppOpticsAPM::Config[:dalli][:collect_backtraces] = @collect_backtraces
     end
 
     it 'Stock Dalli should be loaded, defined and ready' do
@@ -21,14 +21,14 @@ if RUBY_VERSION > '1.8.7'
       defined?(::Dalli::Client).wont_match nil
     end
 
-    it 'should have appoptics methods defined' do
+    it 'should have appoptics_apm methods defined' do
       [ :perform_with_appoptics, :get_multi_with_appoptics].each do |m|
         ::Dalli::Client.method_defined?(m).must_equal true
       end
     end
 
     it 'should trace set' do
-      AppOptics::API.start_trace('dalli_test', '', {}) do
+      AppOpticsAPM::API.start_trace('dalli_test', '', {}) do
         @dc.set('some_key', 1234)
       end
 
@@ -45,7 +45,7 @@ if RUBY_VERSION > '1.8.7'
     end
 
     it 'should trace get' do
-      AppOptics::API.start_trace('dalli_test', '', {}) do
+      AppOpticsAPM::API.start_trace('dalli_test', '', {}) do
         @dc.get('some_key')
       end
 
@@ -63,7 +63,7 @@ if RUBY_VERSION > '1.8.7'
     end
 
     it 'should trace get_multi' do
-      AppOptics::API.start_trace('dalli_test', '', {}) do
+      AppOpticsAPM::API.start_trace('dalli_test', '', {}) do
         @dc.get_multi([:one, :two, :three, :four, :five, :six])
       end
 
@@ -83,7 +83,7 @@ if RUBY_VERSION > '1.8.7'
     it "should trace increment" do
       @dc.incr("dalli_key_counter", 1, nil, 0)
 
-      AppOptics::API.start_trace('dalli_test', '', {}) do
+      AppOpticsAPM::API.start_trace('dalli_test', '', {}) do
         @dc.incr("dalli_key_counter")
       end
 
@@ -101,7 +101,7 @@ if RUBY_VERSION > '1.8.7'
     it "should trace decrement" do
       @dc.incr("dalli_key_counter", 1, nil, 0)
 
-      AppOptics::API.start_trace('dalli_test', '', {}) do
+      AppOpticsAPM::API.start_trace('dalli_test', '', {}) do
         @dc.decr("dalli_key_counter")
       end
 
@@ -119,7 +119,7 @@ if RUBY_VERSION > '1.8.7'
     it "should trace replace" do
       @dc.set('some_key', 1)
 
-      AppOptics::API.start_trace('dalli_test', '', {}) do
+      AppOpticsAPM::API.start_trace('dalli_test', '', {}) do
         @dc.replace("some_key", "woop")
       end
 
@@ -137,7 +137,7 @@ if RUBY_VERSION > '1.8.7'
     it "should trace delete" do
       @dc.set('some_key', 1)
 
-      AppOptics::API.start_trace('dalli_test', '', {}) do
+      AppOpticsAPM::API.start_trace('dalli_test', '', {}) do
         @dc.delete("some_key")
       end
 
@@ -153,9 +153,9 @@ if RUBY_VERSION > '1.8.7'
 
     it "should obey :collect_backtraces setting when true" do
       @dc.set('some_key', 1)
-      AppOptics::Config[:dalli][:collect_backtraces] = true
+      AppOpticsAPM::Config[:dalli][:collect_backtraces] = true
 
-      AppOptics::API.start_trace('dalli_test', '', {}) do
+      AppOpticsAPM::API.start_trace('dalli_test', '', {}) do
         @dc.get('some_key')
       end
 
@@ -164,9 +164,9 @@ if RUBY_VERSION > '1.8.7'
     end
 
     it "should obey :collect_backtraces setting when false" do
-      AppOptics::Config[:dalli][:collect_backtraces] = false
+      AppOpticsAPM::Config[:dalli][:collect_backtraces] = false
 
-      AppOptics::API.start_trace('dalli_test', '', {}) do
+      AppOpticsAPM::API.start_trace('dalli_test', '', {}) do
         @dc.get('some_key')
       end
 

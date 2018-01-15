@@ -28,7 +28,7 @@ if defined?(::Redis)
     it "should trace append" do
       @redis.set("yourkey", "test")
 
-      AppOptics::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @redis.append("yourkey", "blah")
       end
 
@@ -42,7 +42,7 @@ if defined?(::Redis)
 
       min_server_version("2.6")
 
-      AppOptics::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @redis.bitcount("yourkey")
       end
 
@@ -57,7 +57,7 @@ if defined?(::Redis)
 
       min_server_version("2.6")
 
-      AppOptics::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @redis.bitop("not", "bitopkey", "yourkey")
       end
 
@@ -71,7 +71,7 @@ if defined?(::Redis)
     it "should trace decr" do
       @redis.setex("decr", 60, 0)
 
-      AppOptics::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @redis.decr("decr")
       end
 
@@ -84,7 +84,7 @@ if defined?(::Redis)
     it "should trace decrby" do
       @redis.setex("decr", 60, 0)
 
-      AppOptics::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @redis.decrby("decr", 1)
       end
 
@@ -98,7 +98,7 @@ if defined?(::Redis)
     it "should trace get" do
       @redis.setex("diwore", 60, "okokok")
 
-      AppOptics::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @rv = @redis.get("diwore")
       end
 
@@ -115,7 +115,7 @@ if defined?(::Redis)
 
       @redis.setex("diwore", 60, "okokok")
 
-      AppOptics::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @redis.getbit("diwore", 3)
       end
 
@@ -129,7 +129,7 @@ if defined?(::Redis)
     it "should trace getrange" do
       min_server_version(2.2)
 
-      AppOptics::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @redis.getrange("yourkey", 0, 3)
       end
 
@@ -144,7 +144,7 @@ if defined?(::Redis)
     it "should trace getset" do
       min_server_version(2.2)
 
-      AppOptics::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @redis.getset("dollar", 0)
       end
 
@@ -158,7 +158,7 @@ if defined?(::Redis)
     it "should trace incr" do
       @redis.setex("dotcom", 60, 0)
 
-      AppOptics::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @redis.incr("dotcom")
       end
 
@@ -171,7 +171,7 @@ if defined?(::Redis)
     it "should trace incrby" do
       @redis.setex("incr", 60, 0)
 
-      AppOptics::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @redis.incrby("incr", 1)
       end
 
@@ -187,7 +187,7 @@ if defined?(::Redis)
 
       @redis.setex("incrfloat", 60, 0.0)
 
-      AppOptics::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @redis.incrbyfloat("incrfloat", 1.01)
       end
 
@@ -203,7 +203,7 @@ if defined?(::Redis)
       @redis.setex("denmark", 60, "ok")
       @redis.setex("germany", 60, "ok")
 
-      AppOptics::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @redis.mget(["france", "nothing", "denmark"])
         @redis.mget("germany")
       end
@@ -219,7 +219,7 @@ if defined?(::Redis)
     end
 
     it "should trace mset" do
-      AppOptics::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @redis.mset(["one", 1, "two", 2, "three", 3])
         @redis.mset("one", 1)
       end
@@ -233,7 +233,7 @@ if defined?(::Redis)
     end
 
     it "should trace msetnx" do
-      AppOptics::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @redis.msetnx(["one", 1, "two", 2, "three", 3])
       end
 
@@ -244,7 +244,7 @@ if defined?(::Redis)
 
     it "should trace psetex (>= v2.6)" do
 
-      AppOptics::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @redis.psetex("one", 60, "hello")
       end
 
@@ -256,7 +256,7 @@ if defined?(::Redis)
     end
 
     it "should trace basic set" do
-      AppOptics::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @redis.set("one",   "hello")
       end
 
@@ -267,7 +267,7 @@ if defined?(::Redis)
     end
 
     it "should trace set + expiration" do
-      AppOptics::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @redis.set("one", "hello", :ex => 12)
       end
 
@@ -281,7 +281,7 @@ if defined?(::Redis)
     it "should trace setbit" do
       min_server_version(2.2)
 
-      AppOptics::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @redis.setbit("yourkey", 3, 0)
       end
 
@@ -293,7 +293,7 @@ if defined?(::Redis)
     end
 
     it "should trace setex" do
-      AppOptics::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @redis.setex("one", 60, "hello")
       end
 
@@ -305,7 +305,7 @@ if defined?(::Redis)
     end
 
     it "should trace setnx" do
-      AppOptics::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @redis.setnx("one", "hello")
       end
 
@@ -320,7 +320,7 @@ if defined?(::Redis)
 
       @redis.setex("spandau_ballet", 60, "XXXXXXXXXXXXXXX")
 
-      AppOptics::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @redis.setrange("yourkey", 2, "ok")
       end
 
@@ -336,7 +336,7 @@ if defined?(::Redis)
 
       @redis.setex("talking_heads", 60, "burning down the house")
 
-      AppOptics::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @redis.strlen("talking_heads")
       end
 

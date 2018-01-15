@@ -14,37 +14,37 @@ Benchmark.ips do |x|
   x.config(:time => 10, :warmup => 2)
 
   # x.report('tracing_f') do
-  #   AppOptics.loaded = false
-  #   AppOptics::Config[:tracing_mode] = 'never'
-  #   AppOptics::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
+  #   AppOpticsAPM.loaded = false
+  #   AppOpticsAPM::Config[:tracing_mode] = 'never'
+  #   AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
   #   n.times do
-  #     AppOptics.tracing?
+  #     AppOpticsAPM.tracing?
   #   end
   # end
   # x.report('tracing_n') do
-  #   AppOptics.loaded = true
-  #   AppOptics::Config[:tracing_mode] = 'never'
-  #   AppOptics::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
+  #   AppOpticsAPM.loaded = true
+  #   AppOpticsAPM::Config[:tracing_mode] = 'never'
+  #   AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
   #   n.times do
-  #     AppOptics.tracing?
+  #     AppOpticsAPM.tracing?
   #   end
   # end
 
   x.report('tracing_tf') do
-    AppOptics.loaded = true
-    AppOptics::Config[:tracing_mode] = 'always'
-    AppOptics::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
+    AppOpticsAPM.loaded = true
+    AppOpticsAPM::Config[:tracing_mode] = 'always'
+    AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
     n.times do
-      AppOptics.tracing?
+      AppOpticsAPM.tracing?
     end
   end
   x.report('tracing_tt') do
-    AppOptics.loaded = true
-    AppOptics::Config[:tracing_mode] = 'always'
-    AppOptics::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F01')
+    AppOpticsAPM.loaded = true
+    AppOpticsAPM::Config[:tracing_mode] = 'always'
+    AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F01')
     n.times do
-      AppOptics.tracing?
-      AppOptics.tracing?
+      AppOpticsAPM.tracing?
+      AppOpticsAPM.tracing?
     end
   end
 

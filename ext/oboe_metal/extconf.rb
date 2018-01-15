@@ -10,16 +10,16 @@ ext_dir = File.expand_path(File.dirname(__FILE__))
 jruby = defined?(JRUBY_VERSION) ? true : false
 
 # Set the mkmf lib paths so we have no issues linking to
-# the AppOptics libs.
-tv_lib = File.join(ext_dir, 'lib')
-tv_include = File.join(ext_dir, 'src')
+# the AppOpticsAPM libs.
+ao_lib = File.join(ext_dir, 'lib')
+ao_include = File.join(ext_dir, 'src')
 
-# Create symlinks for the AppOptics library
-target = File.join(tv_lib, 'liboboe-1.0.so.0.0.0')
-File.symlink(target, File.join(tv_lib, 'liboboe.so'))
-File.symlink(target, File.join(tv_lib, 'liboboe-1.0.so.0'))
+# Create symlinks for the AppOpticsAPM library
+target = File.join(ao_lib, 'liboboe-1.0.so.0.0.0')
+File.symlink(target, File.join(ao_lib, 'liboboe.so'))
+File.symlink(target, File.join(ao_lib, 'liboboe-1.0.so.0'))
 
-dir_config('oboe', tv_include, tv_lib)
+dir_config('oboe', ao_include, ao_lib)
 
 if jruby || ENV.key?('APPOPTICS_URL')
   # Build the noop extension under JRuby and Heroku.
@@ -36,7 +36,7 @@ elsif have_library('oboe', 'oboe_config_get_revision', 'oboe.h')
   $CFLAGS << " #{ENV['CFLAGS']}"
   $CPPFLAGS << " #{ENV['CPPFLAGS']}"
   $LIBS << " #{ENV['LIBS']}"
-  $LDFLAGS << " #{ENV['LDFLAGS']} -Wl,-rpath=#{tv_lib}"
+  $LDFLAGS << " #{ENV['LDFLAGS']} -Wl,-rpath=#{ao_lib}"
 
   if RUBY_VERSION < '1.9'
     cpp_command('g++')

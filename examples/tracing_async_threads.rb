@@ -6,34 +6,34 @@
 require 'math'
 require 'oboe'
 
-AppOptics::Config[:tracing_mode] = :always
-AppOptics::Config[:verbose] = true
+AppOpticsAPM::Config[:tracing_mode] = :always
+AppOpticsAPM::Config[:verbose] = true
 
 # The parent process/loop which collects data
 Kernel.loop do
 
   # For each loop, we instrument the work retrieval.  These traces
   # will show up as layer 'get_the_work'.
-  AppOptics::API.start_trace('get_the_work') do
+  AppOpticsAPM::API.start_trace('get_the_work') do
     work = get_the_work
 
     # Loop through work and pass to `do_the_work` method
     # that spawns a thread each time
     work.each do |j|
 
-      # In the new Thread block, the AppOptics tracing context isn't there
+      # In the new Thread block, the AppOpticsAPM tracing context isn't there
       # so we carry it over manually and pass it to the `start_trace`
       # method.
 
       # In the AppOptics dashboard, this will show up as parent traces
       # (layer 'get_the_work') with child traces (layer 'do_the_work').
 
-      tracing_context = AppOptics::Context.toString
+      tracing_context = AppOpticsAPM::Context.toString
 
       Thread.new do
         result = nil
 
-        AppOptics::API.start_trace('do_the_work', tracing_context, :Async => 1) do
+        AppOpticsAPM::API.start_trace('do_the_work', tracing_context, :Async => 1) do
           result = do_the_work(j)
         end
 
@@ -112,7 +112,7 @@ end
 #      Thread.new do
 #        result = nil
 #
-#        AppOptics::API.start_trace('do_the_work') do
+#        AppOpticsAPM::API.start_trace('do_the_work') do
 #          result = do_the_work(j)
 #        end
 #

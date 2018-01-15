@@ -3,7 +3,7 @@
 
 unless defined?(JRUBY_VERSION)
   require 'minitest_helper'
-  require 'appoptics/inst/rack'
+  require 'appoptics_apm/inst/rack'
   require File.expand_path(File.dirname(__FILE__) + '../../frameworks/apps/sinatra_simple')
 
   class HTTPClientTest < Minitest::Test
@@ -15,11 +15,11 @@ unless defined?(JRUBY_VERSION)
 
     def setup
       clear_all_traces
-      AppOptics::Config[:tracing_mode] = :always
+      AppOpticsAPM::Config[:tracing_mode] = :always
     end
 
     def test_reports_version_init
-      init_kvs = ::AppOptics::Util.build_init_report
+      init_kvs = ::AppOpticsAPM::Util.build_init_report
       assert init_kvs.key?('Ruby.httpclient.Version')
       assert_equal ::HTTPClient::VERSION, init_kvs['Ruby.httpclient.Version']
     end
@@ -29,7 +29,7 @@ unless defined?(JRUBY_VERSION)
 
       response = nil
 
-      AppOptics::API.start_trace('httpclient_tests') do
+      AppOpticsAPM::API.start_trace('httpclient_tests') do
         clnt = HTTPClient.new
         response = clnt.get('http://127.0.0.1:8101/', :query => { :keyword => 'ruby', :lang => 'en' })
       end
@@ -38,7 +38,7 @@ unless defined?(JRUBY_VERSION)
 
       # Validate returned xtrace
       assert response.headers.key?("X-Trace")
-      assert AppOptics::XTrace.valid?(response.headers["X-Trace"])
+      assert AppOpticsAPM::XTrace.valid?(response.headers["X-Trace"])
 
       assert_equal traces.count, 7
       assert valid_edges?(traces), "Invalid edge in traces"
@@ -59,7 +59,7 @@ unless defined?(JRUBY_VERSION)
 
       response = nil
 
-      AppOptics::API.start_trace('httpclient_tests') do
+      AppOpticsAPM::API.start_trace('httpclient_tests') do
         clnt = HTTPClient.new
         response = clnt.get('http://127.0.0.1:8101/', nil, { "SOAPAction" => "HelloWorld" })
       end
@@ -68,7 +68,7 @@ unless defined?(JRUBY_VERSION)
 
       xtrace = response.headers['X-Trace']
       assert xtrace
-      assert AppOptics::XTrace.valid?(xtrace)
+      assert AppOpticsAPM::XTrace.valid?(xtrace)
 
       assert_equal traces.count, 7
       assert valid_edges?(traces), "Invalid edge in traces"
@@ -89,7 +89,7 @@ unless defined?(JRUBY_VERSION)
 
       response = nil
 
-      AppOptics::API.start_trace('httpclient_tests') do
+      AppOpticsAPM::API.start_trace('httpclient_tests') do
         clnt = HTTPClient.new
         response = clnt.get('http://127.0.0.1:8101/', nil, [["Accept", "text/plain"], ["Accept", "text/html"]])
       end
@@ -98,7 +98,7 @@ unless defined?(JRUBY_VERSION)
 
       xtrace = response.headers['X-Trace']
       assert xtrace
-      assert AppOptics::XTrace.valid?(xtrace)
+      assert AppOpticsAPM::XTrace.valid?(xtrace)
 
       assert_equal traces.count, 7
       assert valid_edges?(traces), "Invalid edge in traces"
@@ -119,7 +119,7 @@ unless defined?(JRUBY_VERSION)
 
       response = nil
 
-      AppOptics::API.start_trace('httpclient_tests') do
+      AppOpticsAPM::API.start_trace('httpclient_tests') do
         clnt = HTTPClient.new
         response = clnt.post('http://127.0.0.1:8101/')
       end
@@ -128,7 +128,7 @@ unless defined?(JRUBY_VERSION)
 
       xtrace = response.headers['X-Trace']
       assert xtrace
-      assert AppOptics::XTrace.valid?(xtrace)
+      assert AppOpticsAPM::XTrace.valid?(xtrace)
 
       assert_equal traces.count, 7
       assert valid_edges?(traces), "Invalid edge in traces"
@@ -149,7 +149,7 @@ unless defined?(JRUBY_VERSION)
 
       conn = nil
 
-      AppOptics::API.start_trace('httpclient_tests') do
+      AppOpticsAPM::API.start_trace('httpclient_tests') do
         clnt = HTTPClient.new
         conn = clnt.get_async('http://127.0.0.1:8101/?blah=1')
       end
@@ -184,14 +184,14 @@ unless defined?(JRUBY_VERSION)
 
       response = nil
 
-      AppOptics::API.start_trace('httpclient_tests') do
+      AppOpticsAPM::API.start_trace('httpclient_tests') do
         clnt = HTTPClient.new
         response = clnt.get('http://127.0.0.1:8101/', :query => { :keyword => 'ruby', :lang => 'en' })
       end
 
       xtrace = response.headers['X-Trace']
       assert xtrace
-      assert AppOptics::XTrace.valid?(xtrace)
+      assert AppOpticsAPM::XTrace.valid?(xtrace)
 
       traces = get_all_traces
 
@@ -221,7 +221,7 @@ unless defined?(JRUBY_VERSION)
 
       result = nil
       begin
-        AppOptics::API.start_trace('httpclient_tests') do
+        AppOpticsAPM::API.start_trace('httpclient_tests') do
           clnt = HTTPClient.new
           result = clnt.get('http://asfjalkfjlajfljkaljf/')
         end
@@ -251,12 +251,12 @@ unless defined?(JRUBY_VERSION)
     def test_log_args_when_true
       clear_all_traces
 
-      @log_args = AppOptics::Config[:httpclient][:log_args]
-      AppOptics::Config[:httpclient][:log_args] = true
+      @log_args = AppOpticsAPM::Config[:httpclient][:log_args]
+      AppOpticsAPM::Config[:httpclient][:log_args] = true
 
       response = nil
 
-      AppOptics::API.start_trace('httpclient_tests') do
+      AppOpticsAPM::API.start_trace('httpclient_tests') do
         clnt = HTTPClient.new
         response = clnt.get('http://127.0.0.1:8101/', :query => { :keyword => 'ruby', :lang => 'en' })
       end
@@ -265,25 +265,25 @@ unless defined?(JRUBY_VERSION)
 
       xtrace = response.headers['X-Trace']
       assert xtrace
-      assert AppOptics::XTrace.valid?(xtrace)
+      assert AppOpticsAPM::XTrace.valid?(xtrace)
 
       assert_equal 7, traces.count
       assert valid_edges?(traces), "Invalid edge in traces"
 
       assert_equal 'http://127.0.0.1:8101/?keyword=ruby&lang=en', traces[1]['RemoteURL']
 
-      AppOptics::Config[:httpclient][:log_args] = @log_args
+      AppOpticsAPM::Config[:httpclient][:log_args] = @log_args
     end
 
     def test_log_args_when_false
       clear_all_traces
 
-      @log_args = AppOptics::Config[:httpclient][:log_args]
-      AppOptics::Config[:httpclient][:log_args] = false
+      @log_args = AppOpticsAPM::Config[:httpclient][:log_args]
+      AppOpticsAPM::Config[:httpclient][:log_args] = false
 
       response = nil
 
-      AppOptics::API.start_trace('httpclient_tests') do
+      AppOpticsAPM::API.start_trace('httpclient_tests') do
         clnt = HTTPClient.new
         response = clnt.get('http://127.0.0.1:8101/', :query => { :keyword => 'ruby', :lang => 'en' })
       end
@@ -292,14 +292,14 @@ unless defined?(JRUBY_VERSION)
 
       xtrace = response.headers['X-Trace']
       assert xtrace
-      assert AppOptics::XTrace.valid?(xtrace)
+      assert AppOpticsAPM::XTrace.valid?(xtrace)
 
       assert_equal 7, traces.count
       assert valid_edges?(traces), "Invalid edge in traces"
 
       assert_equal 'http://127.0.0.1:8101/', traces[1]['RemoteURL']
 
-      AppOptics::Config[:httpclient][:log_args] = @log_args
+      AppOpticsAPM::Config[:httpclient][:log_args] = @log_args
     end
 
     def test_without_tracing

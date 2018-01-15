@@ -18,20 +18,20 @@ describe "BackwardCompatibility" do
     Oboe::Config[:verbose] = true
     Oboe::Config[:verbose].must_equal true
     Oboe::Config.verbose.must_equal true
-    AppOptics::Config[:verbose].must_equal true
-    AppOptics::Config.verbose.must_equal true
+    AppOpticsAPM::Config[:verbose].must_equal true
+    AppOpticsAPM::Config.verbose.must_equal true
 
     Oboe::Config[:dalli][:enabled] = false
     Oboe::Config[:dalli][:enabled].must_equal false
-    AppOptics::Config[:dalli][:enabled].must_equal false
+    AppOpticsAPM::Config[:dalli][:enabled].must_equal false
 
     Oboe::Config[:sample_rate] = 8e5
     Oboe::Config.sample_rate.must_equal 8e5
-    AppOptics::Config.sample_rate.must_equal 8e5
+    AppOpticsAPM::Config.sample_rate.must_equal 8e5
 
     Oboe::Config[:tracing_mode] = 'always'
     Oboe::Config.tracing_mode.must_equal :always
-    AppOptics::Config.tracing_mode.must_equal :always
+    AppOpticsAPM::Config.tracing_mode.must_equal :always
 
     Oboe::Config[:sample_rate] = @sr
     Oboe::Config[:tracing_mode] = @tm

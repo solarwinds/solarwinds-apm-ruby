@@ -25,7 +25,8 @@ end
 matrix = matrix - travis['matrix']['exclude']
 
 matrix.each do |args|
-  `docker-compose run --rm --service-ports ruby_appoptics /code/ruby-appoptics/ruby_setup.sh #{args['rvm']} #{args['gemfile']}`
+  args['rvm'] = '1.9.3-p551' if args['rvm'] =~ /1.9.3/
+  `docker-compose run --rm --service-ports ruby_appoptics /code/ruby-appoptics_apm/ruby_setup.sh #{args['rvm']} #{args['gemfile']}`
 end
 
 # `docker-compose down --rmi all`

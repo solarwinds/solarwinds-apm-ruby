@@ -1,31 +1,31 @@
 ###############################################################
-# A brief overview of AppOptics tracing context
+# A brief overview of AppOpticsAPM tracing context
 ###############################################################
 #
-# Tracing context is the state held when AppOptics is instrumenting a
+# Tracing context is the state held when AppOpticsAPM is instrumenting a
 # transaction, block, request etc..  This context is advanced as
 # new blocks are instrumented and this chain of context is used
-# by AppOptics to later reassemble performance data to be displayed
+# by AppOpticsAPM to later reassemble performance data to be displayed
 # in the AppOptics dashboard.
 #
 # Tracing context is non-existent until established by calling
-# `AppOptics::API.start_trace` or `AppOptics::API.log_start`.  Those methods
+# `AppOpticsAPM::API.start_trace` or `AppOpticsAPM::API.log_start`.  Those methods
 # are part of the high-level and low-level API respectively.
 #
 # After a tracing context is established, that context can be
-# continued by calling `AppOptics::API.trace` or `AppOptics::API.log_entry`.
+# continued by calling `AppOpticsAPM::API.trace` or `AppOpticsAPM::API.log_entry`.
 # These methods will advance an existing context but not start
 # new one.
 #
 # For example, when a web request comes into a stack, a tracing
-# context is established using `AppOptics::API.log_start` as the request
-# enters through the rack middleware via `::AppOptics::Rack`.
+# context is established using `AppOpticsAPM::API.log_start` as the request
+# enters through the rack middleware via `::AppOpticsAPM::Rack`.
 #
-# That tracing context is then continued using `AppOptics::API.trace` or
-# `AppOptics::API.log_entry` for each subsequent layer such as Rails,
+# That tracing context is then continued using `AppOpticsAPM::API.trace` or
+# `AppOpticsAPM::API.log_entry` for each subsequent layer such as Rails,
 # ActiveRecord, Redis, Memcache, ActionView, Mongo (etc...) until
 # finally request processing is complete and the tracing context
-# is cleared (AppOptics::Context.clear)
+# is cleared (AppOpticsAPM::Context.clear)
 #
 
 ###############################################################
@@ -33,9 +33,9 @@
 ###############################################################
 #
 # The tracing context exists in the form of an X-Trace string and
-# can be retrieved using 'AppOptics::Context.toString'
+# can be retrieved using 'AppOpticsAPM::Context.toString'
 #
-# xtrace = AppOptics::Context.toString
+# xtrace = AppOpticsAPM::Context.toString
 #
 # => "1B4EDAB9E028CA3C81BCD57CC4644B4C4AE239C7B713F0BCB9FAD6D562"
 #
@@ -44,7 +44,7 @@
 #
 # xtrace = "1B4EDAB9E028CA3C81BCD57CC4644B4C4AE239C7B713F0BCB9FAD6D562"
 #
-# AppOptics::Context.fromString(xtrace)
+# AppOpticsAPM::Context.fromString(xtrace)
 #
 # With these two methods, context can be passed across threads,
 # processes (via fork) and in requests (such as external HTTP
@@ -81,23 +81,23 @@
 # Thread - with separated traces
 ###############################################################
 
-AppOptics::API.log_start('parent')
+AppOpticsAPM::API.log_start('parent')
 
 # Get the work to be done
 job = get_work
 
 Thread.new do
   # This is a new thread so there is no pre-existing context so
-  # we'll call `AppOptics::API.log_start` to start a new trace context.
-  AppOptics::API.log_start('worker_thread', :job_id => job.id)
+  # we'll call `AppOpticsAPM::API.log_start` to start a new trace context.
+  AppOpticsAPM::API.log_start('worker_thread', :job_id => job.id)
 
   # Do the work
   do_the_work(job)
 
-  AppOptics::API.log_end('worker_thread')
+  AppOpticsAPM::API.log_end('worker_thread')
 end
 
-AppOptics::API.log_end('parent')
+AppOpticsAPM::API.log_end('parent')
 
 ###############################################################
 #
@@ -120,27 +120,27 @@ AppOptics::API.log_end('parent')
 # trace generated in that thread to be asynchronous using
 # the `Async` flag.
 
-AppOptics::API.log_start('parent')
+AppOpticsAPM::API.log_start('parent')
 
 # Save the context to be imported in spawned thread
-tracing_context = AppOptics::Context.toString
+tracing_context = AppOpticsAPM::Context.toString
 
 # Get the work to be done
 job = get_work
 
 Thread.new do
   # Restore context
-  AppOptics::Context.fromString(tracing_context)
+  AppOpticsAPM::Context.fromString(tracing_context)
 
-  AppOptics::API.log_entry('worker_thread')
+  AppOpticsAPM::API.log_entry('worker_thread')
 
   # Do the work
   do_the_work(job)
 
-  AppOptics::API.log_exit('worker_thread', :Async => 1)
+  AppOpticsAPM::API.log_exit('worker_thread', :Async => 1)
 end
 
-AppOptics::API.log_end('parent')
+AppOpticsAPM::API.log_end('parent')
 
 ###############################################################
 #
@@ -159,7 +159,7 @@ AppOptics::API.log_end('parent')
 # Process via fork - with separated traces
 ###############################################################
 
-AppOptics::API.start_trace('parent_process') do
+AppOpticsAPM::API.start_trace('parent_process') do
   # Get some work to process
   job = get_job
 
@@ -167,9 +167,9 @@ AppOptics::API.start_trace('parent_process') do
   fork do
     # Since fork does a complete process copy, the tracing_context still exists
     # so we have to clear it and start again.
-    AppOptics::Context.clear
+    AppOpticsAPM::Context.clear
 
-    AppOptics::API.start_trace('worker_process', nil, :job_id => job.id) do
+    AppOpticsAPM::API.start_trace('worker_process', nil, :job_id => job.id) do
       do_work(job)
     end
   end
@@ -190,7 +190,7 @@ end
 # Process via fork - with linked asynchronous traces
 ###############################################################
 
-AppOptics::API.start_trace('parent_process') do
+AppOpticsAPM::API.start_trace('parent_process') do
   # Get some work to process
   job = get_job
 
@@ -200,7 +200,7 @@ AppOptics::API.start_trace('parent_process') do
     # although we'll have to mark these traces as asynchronous to denote
     # that it has split off from the main program flow
 
-    AppOptics::API.trace('worker_process', :Async => 1) do
+    AppOpticsAPM::API.trace('worker_process', :Async => 1) do
       do_work(job)
     end
   end

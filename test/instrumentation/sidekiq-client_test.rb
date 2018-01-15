@@ -11,16 +11,16 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
   class SidekiqClientTest < Minitest::Test
     def setup
       clear_all_traces
-      AppOptics::Context.clear
-      @collect_backtraces = AppOptics::Config[:sidekiqclient][:collect_backtraces]
-      @log_args = AppOptics::Config[:sidekiqclient][:log_args]
-      @tracing_mode = AppOptics::Config[:tracing_mode]
+      AppOpticsAPM::Context.clear
+      @collect_backtraces = AppOpticsAPM::Config[:sidekiqclient][:collect_backtraces]
+      @log_args = AppOpticsAPM::Config[:sidekiqclient][:log_args]
+      @tracing_mode = AppOpticsAPM::Config[:tracing_mode]
     end
 
     def teardown
-      AppOptics::Config[:sidekiqclient][:collect_backtraces] = @collect_backtraces
-      AppOptics::Config[:sidekiqclient][:log_args] = @log_args
-      AppOptics::Config[:tracing_mode] = @tracing_mode
+      AppOpticsAPM::Config[:sidekiqclient][:collect_backtraces] = @collect_backtraces
+      AppOpticsAPM::Config[:sidekiqclient][:log_args] = @log_args
+      AppOpticsAPM::Config[:tracing_mode] = @tracing_mode
     end
 
     def refined_trace_count(traces)
@@ -33,7 +33,7 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
 
     def test_enqueue
       # Queue up a job to be run
-      jid, _ = ::AppOptics::API.start_trace(:enqueue_test) do
+      jid, _ = ::AppOpticsAPM::API.start_trace(:enqueue_test) do
         Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
       end
 
@@ -61,18 +61,18 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
     end
 
     def test_collect_backtraces_default_value
-      assert_equal AppOptics::Config[:sidekiqclient][:collect_backtraces], false, "default backtrace collection"
+      assert_equal AppOpticsAPM::Config[:sidekiqclient][:collect_backtraces], false, "default backtrace collection"
     end
 
     def test_log_args_default_value
-      assert_equal AppOptics::Config[:sidekiqclient][:log_args], true, "log_args default "
+      assert_equal AppOpticsAPM::Config[:sidekiqclient][:log_args], true, "log_args default "
     end
 
     def test_obey_collect_backtraces_when_false
-      AppOptics::Config[:sidekiqclient][:collect_backtraces] = false
+      AppOpticsAPM::Config[:sidekiqclient][:collect_backtraces] = false
 
       # Queue up a job to be run
-      ::AppOptics::API.start_trace(:enqueue_test) do
+      ::AppOpticsAPM::API.start_trace(:enqueue_test) do
         Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
       end
 
@@ -87,10 +87,10 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
     end
 
     def test_obey_collect_backtraces_when_true
-      AppOptics::Config[:sidekiqclient][:collect_backtraces] = true
+      AppOpticsAPM::Config[:sidekiqclient][:collect_backtraces] = true
 
       # Queue up a job to be run
-      ::AppOptics::API.start_trace(:enqueue_test) do
+      ::AppOpticsAPM::API.start_trace(:enqueue_test) do
         Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
       end
 
@@ -105,10 +105,10 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
     end
 
     def test_obey_log_args_when_false
-      AppOptics::Config[:sidekiqclient][:log_args] = false
+      AppOpticsAPM::Config[:sidekiqclient][:log_args] = false
 
       # Queue up a job to be run
-      ::AppOptics::API.start_trace(:enqueue_test) do
+      ::AppOpticsAPM::API.start_trace(:enqueue_test) do
         Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
       end
 
@@ -122,10 +122,10 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
     end
 
     def test_obey_log_args_when_true
-      AppOptics::Config[:sidekiqclient][:log_args] = true
+      AppOpticsAPM::Config[:sidekiqclient][:log_args] = true
 
       # Queue up a job to be run
-      ::AppOptics::API.start_trace(:enqueue_test) do
+      ::AppOpticsAPM::API.start_trace(:enqueue_test) do
         Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
       end
 
@@ -140,17 +140,17 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
     end
 
     def test_dont_log_when_not_sampling
-      AppOptics::Config[:sidekiqclient][:log_args] = true
-      AppOptics::Config[:tracing_mode] = 'never'
+      AppOpticsAPM::Config[:sidekiqclient][:log_args] = true
+      AppOpticsAPM::Config[:tracing_mode] = 'never'
 
-      ::AppOptics::API.start_trace(:enqueue_test) do
+      ::AppOpticsAPM::API.start_trace(:enqueue_test) do
         Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
       end
 
       sleep 3
       traces = get_all_traces
 
-      # FIXME: the sidekiq worker is not respecting the AppOptics::Config[:tracing_mode] = 'never' setting
+      # FIXME: the sidekiq worker is not respecting the AppOpticsAPM::Config[:tracing_mode] = 'never' setting
       # ____ instead of no traces we are getting 17, that is 4 less than we would get with tracing
       # assert_equal 0, traces.count
       assert_equal 17, refined_trace_count(traces)

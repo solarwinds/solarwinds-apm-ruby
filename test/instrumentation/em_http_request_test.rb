@@ -5,29 +5,29 @@ require 'minitest_helper'
 
 # Disable this test on JRuby until we can investigate
 # "SOCKET: SET COMM INACTIVITY UNIMPLEMENTED 10"
-# https://travis-ci.org/tracelytics/ruby-appoptics/jobs/33745752
-if RUBY_VERSION >= '1.9' and AppOptics::Config[:em_http_request][:enabled] and not defined?(JRUBY_VERSION)
+# https://travis-ci.org/tracelytics/ruby-appoptics_apm/jobs/33745752
+if RUBY_VERSION >= '1.9' and AppOpticsAPM::Config[:em_http_request][:enabled] and not defined?(JRUBY_VERSION)
 
   describe "EventMachine" do
     before do
       clear_all_traces
-      @collect_backtraces = AppOptics::Config[:em_http_request][:collect_backtraces]
+      @collect_backtraces = AppOpticsAPM::Config[:em_http_request][:collect_backtraces]
     end
 
     after do
-      AppOptics::Config[:em_http_request][:collect_backtraces] = @collect_backtraces
+      AppOpticsAPM::Config[:em_http_request][:collect_backtraces] = @collect_backtraces
     end
 
     it 'EventMachine::HttpConnection should be loaded, defined and ready' do
       defined?(::EventMachine::HttpConnection).wont_match nil
     end
 
-    it 'should have appoptics methods defined' do
+    it 'should have appoptics_apm methods defined' do
       ::EventMachine::HttpConnection.method_defined?("setup_request_with_appoptics").must_equal true
     end
 
     it 'should trace request' do
-      AppOptics::API.start_trace('em-http-request_test', '', {}) do
+      AppOpticsAPM::API.start_trace('em-http-request_test', '', {}) do
         EventMachine.run do
           http = EventMachine::HttpRequest.new('http://appneta.com/').get
           http.callback do
@@ -45,18 +45,18 @@ if RUBY_VERSION >= '1.9' and AppOptics::Config[:em_http_request][:enabled] and n
       traces[1]["Label"].must_equal "entry"
       traces[1]["IsService"].must_equal "1"
       traces[1]["RemoteURL"].must_equal "http://appneta.com/"
-      traces[1].has_key?('Backtrace').must_equal AppOptics::Config[:em_http_request][:collect_backtraces]
+      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:em_http_request][:collect_backtraces]
 
       traces[2]["Layer"].must_equal "em-http-request"
       traces[2]["Label"].must_equal "exit"
       traces[2]["Async"].must_equal "1"
-      traces[2].has_key?('Backtrace').must_equal AppOptics::Config[:em_http_request][:collect_backtraces]
+      traces[2].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:em_http_request][:collect_backtraces]
     end
 
     it "should obey :collect_backtraces setting when true" do
-      AppOptics::Config[:em_http_request][:collect_backtraces] = true
+      AppOpticsAPM::Config[:em_http_request][:collect_backtraces] = true
 
-      AppOptics::API.start_trace('em-http-request_test', '', {}) do
+      AppOpticsAPM::API.start_trace('em-http-request_test', '', {}) do
         EventMachine.run do
           http = EventMachine::HttpRequest.new('http://appneta.com/').get
           http.callback do
@@ -70,9 +70,9 @@ if RUBY_VERSION >= '1.9' and AppOptics::Config[:em_http_request][:enabled] and n
     end
 
     it "should obey :collect_backtraces setting when false" do
-      AppOptics::Config[:em_http_request][:collect_backtraces] = false
+      AppOpticsAPM::Config[:em_http_request][:collect_backtraces] = false
 
-      AppOptics::API.start_trace('em-http-request_test', '', {}) do
+      AppOpticsAPM::API.start_trace('em-http-request_test', '', {}) do
         EventMachine.run do
           http = EventMachine::HttpRequest.new('http://appneta.com/').get
           http.callback do

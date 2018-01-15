@@ -6,7 +6,7 @@
 #
 require 'sidekiq/cli'
 
-AppOptics.logger.info "[appoptics/servers] Starting up background Sidekiq."
+AppOpticsAPM.logger.info "[appoptics_apm/servers] Starting up background Sidekiq."
 
 options = []
 arguments = ""
@@ -19,7 +19,7 @@ options.flatten.each do |x|
   arguments += " #{x}"
 end
 
-AppOptics.logger.debug "[appoptics/servers] sidekiq #{arguments}"
+AppOpticsAPM.logger.debug "[appoptics_apm/servers] sidekiq #{arguments}"
 
 Thread.new do
   system("OBOE_GEM_TEST=true sidekiq #{arguments}")

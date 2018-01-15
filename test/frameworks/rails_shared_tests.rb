@@ -8,22 +8,22 @@ require 'mocha/mini_test'
   describe "RailsSharedTests" do
     before do
       clear_all_traces
-      AppOptics.config_lock.synchronize {
-        @tm = AppOptics::Config[:tracing_mode]
-        @sample_rate = AppOptics::Config[:sample_rate]
+      AppOpticsAPM.config_lock.synchronize {
+        @tm = AppOpticsAPM::Config[:tracing_mode]
+        @sample_rate = AppOpticsAPM::Config[:sample_rate]
       }
     end
 
     after do
-      AppOptics.config_lock.synchronize {
-        AppOptics::Config[:tracing_mode] = @tm
-        AppOptics::Config[:sample_rate] = @sample_rate
+      AppOpticsAPM.config_lock.synchronize {
+        AppOpticsAPM::Config[:tracing_mode] = @tm
+        AppOpticsAPM::Config[:sample_rate] = @sample_rate
       }
     end
 
     it "should NOT trace when tracing is set to :never" do
-      AppOptics.config_lock.synchronize do
-        AppOptics::Config[:tracing_mode] = :never
+      AppOpticsAPM.config_lock.synchronize do
+        AppOpticsAPM::Config[:tracing_mode] = :never
         uri = URI.parse('http://127.0.0.1:8140/hello/world')
         r = Net::HTTP.get_response(uri)
 
@@ -33,8 +33,8 @@ require 'mocha/mini_test'
     end
 
     it "should NOT trace when sample_rate is 0" do
-      AppOptics.config_lock.synchronize do
-        AppOptics::Config[:sample_rate] = 0
+      AppOpticsAPM.config_lock.synchronize do
+        AppOpticsAPM::Config[:sample_rate] = 0
         uri = URI.parse('http://127.0.0.1:8140/hello/world')
         r = Net::HTTP.get_response(uri)
 
@@ -58,7 +58,7 @@ require 'mocha/mini_test'
     it "should send inbound metrics" do
       test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
 
-      AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
         test_action = action
         test_url = url
         test_status = status
@@ -80,9 +80,9 @@ require 'mocha/mini_test'
 
     it "should send inbound metrics when not tracing" do
       test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-      AppOptics.config_lock.synchronize do
-        AppOptics::Config[:tracing_mode] = :never
-        AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+      AppOpticsAPM.config_lock.synchronize do
+        AppOpticsAPM::Config[:tracing_mode] = :never
+        AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
           test_action = action
           test_url = url
           test_status = status
@@ -104,7 +104,7 @@ require 'mocha/mini_test'
     it "should send metrics for 500 errors" do
       test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
 
-      AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
         test_action = action
         test_url = url
         test_status = status
@@ -127,7 +127,7 @@ require 'mocha/mini_test'
     it "should find the controller action for a route with a parameter" do
       test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
 
-      AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
         test_action = action
         test_url = url
         test_status = status
@@ -150,7 +150,7 @@ require 'mocha/mini_test'
     it "should find controller action in the metal stack" do
       test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
 
-      AppOptics::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
         test_action = action
         test_url = url
         test_status = status
