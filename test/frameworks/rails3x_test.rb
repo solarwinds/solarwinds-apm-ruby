@@ -12,6 +12,7 @@ if defined?(::Rails)
         @tm = AppOpticsAPM::Config[:tracing_mode]
         @collect_backtraces = AppOpticsAPM::Config[:action_controller][:collect_backtraces]
         @sample_rate = AppOpticsAPM::Config[:sample_rate]
+        @sanitize_sql = AppOpticsAPM::Config[:sanitize_sql]
       }
       ENV['DBTYPE'] = "postgresql" unless ENV['DBTYPE']
       ENV['TEST_DB_URI'] ||= 'http://127.0.0.1:8140'
@@ -22,6 +23,7 @@ if defined?(::Rails)
         AppOpticsAPM::Config[:action_controller][:collect_backtraces] = @collect_backtraces
         AppOpticsAPM::Config[:tracing_mode] = @tm
         AppOpticsAPM::Config[:sample_rate] = @sample_rate
+        AppOpticsAPM::Config[:sanitize_sql] = @sanitize_sql
       }
     end
 
@@ -178,11 +180,91 @@ if defined?(::Rails)
       # handles DB instrumentation for JRuby
       skip if defined?(JRUBY_VERSION) || ENV['DBTYPE'] != "mysql"
 
+      AppOpticsAPM::Config[:sanitize_sql] = false
+
       uri = URI.parse("#{ENV['TEST_DB_URI']}/hello/db")
       r = Net::HTTP.get_response(uri)
 
       traces = get_all_traces
+      traces.count.must_equal 18
+      valid_edges?(traces).must_equal true
+      validate_outer_layers(traces, 'rack')
 
+      traces[4]['Layer'].must_equal "activerecord"
+      traces[4]['Label'].must_equal "entry"
+      traces[4]['Flavor'].must_equal "mysql"
+      traces[4]['Query'].must_equal "BEGIN"
+      traces[4].key?('Backtrace').must_equal true
+
+      traces[5]['Layer'].must_equal "activerecord"
+      traces[5]['Label'].must_equal "exit"
+
+      traces[6]['Layer'].must_equal "activerecord"
+      traces[6]['Label'].must_equal "entry"
+      traces[6]['Flavor'].must_equal "mysql"
+      traces[6]['Query'].must_equal "INSERT INTO `widgets` (`created_at`, `description`, `name`, `updated_at`) VALUES (?, ?, ?, ?)"
+      traces[6]['Name'].must_equal "SQL"
+      traces[6].key?('Backtrace').must_equal true
+      traces[6].key?('QueryArgs').must_equal true
+
+      traces[7]['Layer'].must_equal "activerecord"
+      traces[7]['Label'].must_equal "exit"
+
+      traces[8]['Layer'].must_equal "activerecord"
+      traces[8]['Label'].must_equal "entry"
+      traces[8]['Flavor'].must_equal "mysql"
+      traces[8]['Query'].must_equal "COMMIT"
+      traces[8].key?('Backtrace').must_equal true
+
+      traces[9]['Layer'].must_equal "activerecord"
+      traces[9]['Label'].must_equal "exit"
+
+      traces[10]['Layer'].must_equal "activerecord"
+      traces[10]['Label'].must_equal "entry"
+      traces[10]['Flavor'].must_equal "mysql"
+      traces[10]['Name'].must_equal "Widget Load"
+      traces[10].key?('Backtrace').must_equal true
+
+      # Some versions of rails adds in another space before the ORDER keyword.
+      # Make 2 or more consecutive spaces just 1
+      sql = traces[10]['Query'].gsub(/\s{2,}/, ' ')
+      sql.must_equal "SELECT `widgets`.* FROM `widgets` WHERE `widgets`.`name` = 'blah' LIMIT 1"
+
+      traces[11]['Layer'].must_equal "activerecord"
+      traces[11]['Label'].must_equal "exit"
+
+      traces[12]['Layer'].must_equal "activerecord"
+      traces[12]['Label'].must_equal "entry"
+      traces[12]['Flavor'].must_equal "mysql"
+      traces[12]['Name'].must_equal "SQL"
+      traces[12].key?('Backtrace').must_equal true
+      traces[12].key?('QueryArgs').must_equal false
+
+      # Replace the datestamps with xxx to make testing easier
+      sql = traces[12]['Query'].gsub(/\d+/, 'xxx')
+      sql.must_equal "DELETE FROM `widgets` WHERE `widgets`.`id` = xxx"
+
+      traces[13]['Layer'].must_equal "activerecord"
+      traces[13]['Label'].must_equal "exit"
+
+      traces[14]['Layer'].must_equal "actionview"
+      traces[14]['Label'].must_equal "entry"
+
+      # Validate the existence of the response header
+      r['X-Trace'].must_equal traces[17]['X-Trace']
+    end
+
+    it "should trace rails mysql db calls with sanitize sql" do
+      # Skip for JRuby since the java instrumentation
+      # handles DB instrumentation for JRuby
+      skip if defined?(JRUBY_VERSION) || ENV['DBTYPE'] != "mysql"
+
+      AppOpticsAPM::Config[:sanitize_sql] = true
+
+      uri = URI.parse("#{ENV['TEST_DB_URI']}/hello/db")
+      r = Net::HTTP.get_response(uri)
+
+      traces = get_all_traces
       traces.count.must_equal 18
       valid_edges?(traces).must_equal true
       validate_outer_layers(traces, 'rack')
@@ -221,11 +303,8 @@ if defined?(::Rails)
       traces[10]['Flavor'].must_equal "mysql"
       traces[10]['Name'].must_equal "Widget Load"
       traces[10].key?('Backtrace').must_equal true
-
-      # Some versions of rails adds in another space before the ORDER keyword.
-      # Make 2 or more consecutive spaces just 1
-      sql = traces[10]['Query'].gsub(/\s{2,}/, ' ')
-      sql.must_equal "SELECT `widgets`.* FROM `widgets` WHERE `widgets`.`name` = '?' LIMIT ?"
+      traces[10]['Query'].gsub!(/  /, ' ')
+      traces[10]['Query'].must_equal "SELECT `widgets`.* FROM `widgets` WHERE `widgets`.`name` = ? LIMIT ?"
 
       traces[11]['Layer'].must_equal "activerecord"
       traces[11]['Label'].must_equal "exit"
@@ -239,7 +318,7 @@ if defined?(::Rails)
 
       # Replace the datestamps with xxx to make testing easier
       sql = traces[12]['Query'].gsub(/\d+/, 'xxx')
-      sql.must_equal "DELETE FROM `widgets` WHERE `widgets`.`id` = xxx"
+      sql.must_equal "DELETE FROM `widgets` WHERE `widgets`.`id` = ?"
 
       traces[13]['Layer'].must_equal "activerecord"
       traces[13]['Label'].must_equal "exit"
@@ -256,6 +335,8 @@ if defined?(::Rails)
       # handles DB instrumentation for JRuby
       skip if defined?(JRUBY_VERSION) || ENV['DBTYPE'] != 'mysql2'
 
+      AppOpticsAPM::Config[:sanitize_sql] = false
+
       uri = URI.parse("#{ENV['TEST_DB_URI']}/hello/db")
       r = Net::HTTP.get_response(uri)
 
@@ -269,7 +350,9 @@ if defined?(::Rails)
       traces[4]['Label'].must_equal "entry"
       traces[4]['Flavor'].must_equal "mysql"
 
-      traces[4]['Query'].must_equal "INSERT INTO `widgets` (`created_at`, `description`, `name`, `updated_at`) VALUES ('?', '?', '?', '?')"
+      # Replace the datestamps with xxx to make testing easier
+      traces[4]['Query'].gsub!(/\d\d\d\d-\d\d-\d\d\s\d\d:\d\d:\d\d/, 'xxx')
+      traces[4]['Query'].must_equal "INSERT INTO `widgets` (`created_at`, `description`, `name`, `updated_at`) VALUES ('xxx', 'This is an amazing widget.', 'blah', 'xxx')"
 
       traces[4]['Name'].must_equal "SQL"
       traces[4].key?('Backtrace').must_equal true
@@ -280,7 +363,65 @@ if defined?(::Rails)
       traces[6]['Layer'].must_equal "activerecord"
       traces[6]['Label'].must_equal "entry"
       traces[6]['Flavor'].must_equal "mysql"
-      traces[6]['Query'].must_equal "SELECT  `widgets`.* FROM `widgets`  WHERE `widgets`.`name` = '?' LIMIT ?"
+      traces[6]['Query'].must_equal "SELECT  `widgets`.* FROM `widgets`  WHERE `widgets`.`name` = 'blah' LIMIT 1"
+      traces[6]['Name'].must_equal "Widget Load"
+      traces[6].key?('Backtrace').must_equal true
+
+      traces[7]['Layer'].must_equal "activerecord"
+      traces[7]['Label'].must_equal "exit"
+
+      traces[8]['Layer'].must_equal "activerecord"
+      traces[8]['Label'].must_equal "entry"
+      traces[8]['Flavor'].must_equal "mysql"
+
+      # Replace the datestamps with xxx to make testing easier
+      sql = traces[8]['Query'].gsub(/\d+/, 'xxx')
+      sql.must_equal "DELETE FROM `widgets` WHERE `widgets`.`id` = xxx"
+
+      traces[8]['Name'].must_equal "SQL"
+      traces[8].key?('Backtrace').must_equal true
+      traces[8].key?('QueryArgs').must_equal false
+
+      traces[9]['Layer'].must_equal "activerecord"
+      traces[9]['Label'].must_equal "exit"
+
+      # Validate the existence of the response header
+      r.header.key?('X-Trace').must_equal true
+      r.header['X-Trace'].must_equal traces[13]['X-Trace']
+    end
+
+    it "should trace rails mysql2 db calls with sanitize sql" do
+      # Skip for JRuby since the java instrumentation
+      # handles DB instrumentation for JRuby
+      skip if defined?(JRUBY_VERSION) || ENV['DBTYPE'] != 'mysql2'
+
+      AppOpticsAPM::Config[:sanitize_sql] = true
+
+      uri = URI.parse("#{ENV['TEST_DB_URI']}/hello/db")
+      r = Net::HTTP.get_response(uri)
+
+      traces = get_all_traces
+
+      traces.count.must_equal 14
+      valid_edges?(traces).must_equal true
+      validate_outer_layers(traces, 'rack')
+
+      traces[4]['Layer'].must_equal "activerecord"
+      traces[4]['Label'].must_equal "entry"
+      traces[4]['Flavor'].must_equal "mysql"
+
+      traces[4]['Query'].must_equal "INSERT INTO `widgets` (`created_at`, `description`, `name`, `updated_at`) VALUES (?, ?, ?, ?)"
+
+      traces[4]['Name'].must_equal "SQL"
+      traces[4].key?('Backtrace').must_equal true
+
+      traces[5]['Layer'].must_equal "activerecord"
+      traces[5]['Label'].must_equal "exit"
+
+      traces[6]['Layer'].must_equal "activerecord"
+      traces[6]['Label'].must_equal "entry"
+      traces[6]['Flavor'].must_equal "mysql"
+      traces[6]['Query'].must_equal "SELECT  `widgets`.* FROM `widgets`  WHERE `widgets`.`name` = ? LIMIT ?"
       traces[6]['Name'].must_equal "Widget Load"
       traces[6].key?('Backtrace').must_equal true
       traces[6].key?('QueryArgs').must_equal false
@@ -294,7 +435,7 @@ if defined?(::Rails)
 
       # Replace the datestamps with xxx to make testing easier
       sql = traces[8]['Query'].gsub(/\d+/, 'xxx')
-      sql.must_equal "DELETE FROM `widgets` WHERE `widgets`.`id` = xxx"
+      sql.must_equal "DELETE FROM `widgets` WHERE `widgets`.`id` = ?"
 
       traces[8]['Name'].must_equal "SQL"
       traces[8].key?('Backtrace').must_equal true
