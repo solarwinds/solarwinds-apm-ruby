@@ -12,6 +12,7 @@ if defined?(::Rails)
         @tm = AppOpticsAPM::Config[:tracing_mode]
         @collect_backtraces = AppOpticsAPM::Config[:action_controller][:collect_backtraces]
         @sample_rate = AppOpticsAPM::Config[:sample_rate]
+        @sanitize_sql = AppOpticsAPM::Config[:sanitize_sql]
       }
       ENV['DBTYPE'] = "postgresql" unless ENV['DBTYPE']
     end
@@ -21,6 +22,7 @@ if defined?(::Rails)
         AppOpticsAPM::Config[:action_controller][:collect_backtraces] = @collect_backtraces
         AppOpticsAPM::Config[:tracing_mode] = @tm
         AppOpticsAPM::Config[:sample_rate] = @sample_rate
+        AppOpticsAPM::Config[:sanitize_sql] = @sanitize_sql
       }
     end
 
@@ -124,54 +126,112 @@ if defined?(::Rails)
       # handles DB instrumentation for JRuby
       skip if defined?(JRUBY_VERSION) || ENV['DBTYPE'] != 'mysql2'
 
+      AppOpticsAPM::Config[:sanitize_sql] = false
+
       uri = URI.parse('http://127.0.0.1:8140/hello/db')
       r = Net::HTTP.get_response(uri)
 
       traces = get_all_traces
 
-      traces.count.must_equal 13
+      traces.count.must_equal 15
       valid_edges?(traces).must_equal true
       validate_outer_layers(traces, 'rack')
 
-      traces[3]['Layer'].must_equal "activerecord"
-      traces[3]['Label'].must_equal "entry"
-      traces[3]['Flavor'].must_equal "mysql"
+      entry_traces = traces.select { |tr| tr['Label'] == 'entry' }
+      entry_traces.count.must_equal 7
 
-      traces[3]['Query'].must_equal "INSERT INTO `widgets` (`name`, `description`, `created_at`, `updated_at`) VALUES ('?', '?', '?', '?')"
+      exit_traces = traces.select { |tr| tr['Label'] == 'exit' }
+      exit_traces.count.must_equal 7
 
-      traces[3]['Name'].must_equal "SQL"
-      traces[3].key?('Backtrace').must_equal true
+      entry_traces[2]['Layer'].must_equal "activerecord"
+      entry_traces[2]['Flavor'].must_equal "mysql"
+      entry_traces[2]['Query'].gsub!(/\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d/, 'the_date')
+      entry_traces[2]['Query'].must_equal "INSERT INTO `widgets` (`name`, `description`, `created_at`, `updated_at`) VALUES ('blah', 'This is an amazing widget.', 'the_date', 'the_date')"
+      entry_traces[2]['Name'].must_equal "SQL"
+      entry_traces[2].key?('Backtrace').must_equal true
+      entry_traces[2].key?('QueryArgs').must_equal true
 
-      traces[4]['Layer'].must_equal "activerecord"
-      traces[4]['Label'].must_equal "exit"
+      entry_traces[3]['Layer'].must_equal "activerecord"
+      entry_traces[3]['Flavor'].must_equal "mysql"
+      entry_traces[3]['Query'].gsub!(/\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d/, 'the_date')
+      entry_traces[3]['Query'].must_equal "INSERT INTO `widgets` (`name`, `description`, `created_at`, `updated_at`) VALUES ('blah', 'This is an amazing widget.', 'the_date', 'the_date')"
+      entry_traces[3]['Name'].must_equal "SQL"
+      entry_traces[3].key?('Backtrace').must_equal true
+      entry_traces[3].key?('QueryArgs').must_equal true
 
-      traces[5]['Layer'].must_equal "activerecord"
-      traces[5]['Label'].must_equal "entry"
-      traces[5]['Flavor'].must_equal "mysql"
-      traces[5]['Query'].must_equal "SELECT  `widgets`.* FROM `widgets` WHERE `widgets`.`name` = '?' ORDER BY `widgets`.`id` ASC LIMIT ?"
-      traces[5]['Name'].must_equal "Widget Load"
-      traces[5].key?('Backtrace').must_equal true
-      traces[5].key?('QueryArgs').must_equal false
+      entry_traces[4]['Layer'].must_equal "activerecord"
+      entry_traces[4]['Flavor'].must_equal "mysql"
+      entry_traces[4]['Query'].must_equal "SELECT  `widgets`.* FROM `widgets` WHERE `widgets`.`name` = 'blah' ORDER BY `widgets`.`id` ASC LIMIT 1"
+      entry_traces[4]['Name'].must_equal "Widget Load"
+      entry_traces[4].key?('Backtrace').must_equal true
+      entry_traces[4].key?('QueryArgs').must_equal true
 
-      traces[6]['Layer'].must_equal "activerecord"
-      traces[6]['Label'].must_equal "exit"
-
-      traces[7]['Layer'].must_equal "activerecord"
-      traces[7]['Label'].must_equal "entry"
-      traces[7]['Flavor'].must_equal "mysql"
-
-      traces[7]['Query'].must_equal "DELETE FROM `widgets` WHERE `widgets`.`id` = ?"
-
-      traces[7]['Name'].must_equal "SQL"
-      traces[7].key?('Backtrace').must_equal true
-      traces[7].key?('QueryArgs').must_equal false
-
-      traces[8]['Layer'].must_equal "activerecord"
-      traces[8]['Label'].must_equal "exit"
+      entry_traces[5]['Layer'].must_equal "activerecord"
+      entry_traces[5]['Flavor'].must_equal "mysql"
+      entry_traces[5]['Query'].gsub!(/\d+/, 'ID')
+      entry_traces[5]['Query'].must_equal "DELETE FROM `widgets` WHERE `widgets`.`id` = ID"
+      entry_traces[5]['Name'].must_equal "SQL"
+      entry_traces[5].key?('Backtrace').must_equal true
+      entry_traces[5].key?('QueryArgs').must_equal true
 
       # Validate the existence of the response header
       r.header.key?('X-Trace').must_equal true
-      r.header['X-Trace'].must_equal traces[12]['X-Trace']
+      r.header['X-Trace'].must_equal traces[14]['X-Trace']
+    end
+
+    it "should trace rails mysql2 db calls with sanitize sql" do
+      # Skip for JRuby since the java instrumentation
+      # handles DB instrumentation for JRuby
+      skip if defined?(JRUBY_VERSION) || ENV['DBTYPE'] != 'mysql2'
+
+      AppOpticsAPM::Config[:sanitize_sql] = true
+
+      uri = URI.parse('http://127.0.0.1:8140/hello/db')
+      r = Net::HTTP.get_response(uri)
+
+      traces = get_all_traces
+
+      traces.count.must_equal 15
+      valid_edges?(traces).must_equal true
+      validate_outer_layers(traces, 'rack')
+
+      entry_traces = traces.select { |tr| tr['Label'] == 'entry' }
+      entry_traces.count.must_equal 7
+
+      exit_traces = traces.select { |tr| tr['Label'] == 'exit' }
+      exit_traces.count.must_equal 7
+
+      entry_traces[2]['Layer'].must_equal "activerecord"
+      entry_traces[2]['Flavor'].must_equal "mysql"
+      entry_traces[2]['Query'].must_equal "INSERT INTO `widgets` (`name`, `description`, `created_at`, `updated_at`) VALUES (?, ?, ?, ?)"
+      entry_traces[2]['Name'].must_equal "SQL"
+      entry_traces[2].key?('Backtrace').must_equal true
+      entry_traces[2].key?('QueryArgs').must_equal false
+
+      entry_traces[3]['Layer'].must_equal "activerecord"
+      entry_traces[3]['Flavor'].must_equal "mysql"
+      entry_traces[3]['Query'].must_equal "INSERT INTO `widgets` (`name`, `description`, `created_at`, `updated_at`) VALUES (?, ?, ?, ?)"
+      entry_traces[3]['Name'].must_equal "SQL"
+      entry_traces[3].key?('Backtrace').must_equal true
+      entry_traces[3].key?('QueryArgs').must_equal false
+
+      entry_traces[4]['Layer'].must_equal "activerecord"
+      entry_traces[4]['Flavor'].must_equal "mysql"
+      entry_traces[4]['Query'].must_equal "SELECT  `widgets`.* FROM `widgets` WHERE `widgets`.`name` = ? ORDER BY `widgets`.`id` ASC LIMIT ?"
+      entry_traces[4]['Name'].must_equal "Widget Load"
+      entry_traces[4].key?('Backtrace').must_equal true
+      entry_traces[4].key?('QueryArgs').must_equal false
+
+      entry_traces[5]['Layer'].must_equal "activerecord"
+      entry_traces[5]['Flavor'].must_equal "mysql"
+      entry_traces[5]['Query'].must_equal "DELETE FROM `widgets` WHERE `widgets`.`id` = ?"
+      entry_traces[5]['Name'].must_equal "SQL"
+      entry_traces[5].key?('Backtrace').must_equal true
+      entry_traces[5].key?('QueryArgs').must_equal false
+
+      # Validate the existence of the response header
+      r.header.key?('X-Trace').must_equal true
+      r.header['X-Trace'].must_equal traces[14]['X-Trace']
     end
 
     it "should trace a request to a rails metal stack" do

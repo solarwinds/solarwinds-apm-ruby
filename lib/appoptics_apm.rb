@@ -6,6 +6,7 @@ ENV['APPOPTICS_GEM_VERBOSE'] = ENV['OBOE_GEM_VERBOSE'] if ENV.key?('OBOE_GEM_VER
 ENV['APPOPTICS_GEM_TEST']    = ENV['OBOE_GEM_TEST']    if ENV.key?('OBOE_GEM_TEST')
 
 begin
+  require 'openssl'
   require 'appoptics_apm/version'
   require 'appoptics_apm/thread_local'
   require 'appoptics_apm/logger'
