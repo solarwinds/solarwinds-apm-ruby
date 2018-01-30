@@ -20,3 +20,4 @@ log/
 .vagrant
 gemfiles/.bundle
 swig*
+*.gem
