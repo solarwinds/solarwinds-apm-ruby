@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.email = %q{support@appoptics.com}
   s.homepage = %q{https://www.appoptics.com/}
   s.summary = %q{AppOptics APM performance instrumentation gem for Ruby}
-  s.description = %q{The AppOpticsAPM gem provides performance instrumentation for MRI Ruby, JRuby and related frameworks.}
+  s.description = %q{The AppOpticsAPM gem provides performance instrumentation for MRI Ruby and related frameworks.}
 
   s.extra_rdoc_files = ["LICENSE"]
   s.files = `git ls-files`.split("\n")
@@ -24,7 +24,8 @@ Gem::Specification.new do |s|
               'ext/oboe_metal/src/VERSION']
   s.test_files  = Dir.glob("{test}/**/*.rb")
 
-  s.platform   = defined?(JRUBY_VERSION) ? 'java' : Gem::Platform::CURRENT
+  # TODO this is commented out util we can actually provide gems for different platforms
+  # s.platform   = defined?(JRUBY_VERSION) ? 'java' : Gem::Platform::CURRENT
   s.extensions = ['ext/oboe_metal/extconf.rb'] unless defined?(JRUBY_VERSION)
 
   s.add_runtime_dependency('json', '>= 0')
