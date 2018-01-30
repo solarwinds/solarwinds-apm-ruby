@@ -12,9 +12,9 @@ version: "2"
 ########################################################################################################
 
 services:
-  ruby_appoptics:
-     container_name: ruby_appoptics
-     image: ruby_appoptics
+  ruby_appoptics_apm:
+     container_name: ruby_appoptics_apm
+     image: ruby_appoptics_apm
      build:
         context: .
         dockerfile: ./Dockerfile_test
