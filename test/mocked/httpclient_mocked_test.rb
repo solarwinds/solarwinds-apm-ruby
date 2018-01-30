@@ -213,5 +213,33 @@ unless defined?(JRUBY_VERSION)
         end
       end
     end
+
+    # ========== make sure headers are preserved =============================
+    def test_preserves_custom_headers
+      stub_request(:get, "http://127.0.0.6:8101/").to_return(status: 200, body: "", headers: {})
+
+      AppOpticsAPM::API.start_trace('httpclient_tests') do
+        clnt = HTTPClient.new
+        clnt.get('http://127.0.0.6:8101/', nil, [['Custom', 'specialvalue'], ['some_header2', 'some_value2']])
+      end
+
+      assert_requested :get, "http://127.0.0.6:8101/", headers: {'Custom'=>'specialvalue'}, times: 1
+    end
+
+    def test_async_preserves_custom_headers
+      WebMock.disable!
+
+      Thread.expects(:new).yields   # continue without forking off a thread
+
+      HTTPClient.any_instance.expects(:do_get_stream_without_appoptics).with do |req, _, _|
+        assert req.headers['Custom'], "Custom header missing"
+        assert_match(/^specialvalue$/, req.headers['Custom'] )
+      end
+
+      AppOpticsAPM::API.start_trace('httpclient_tests') do
+        clnt = HTTPClient.new
+        clnt.get_async('http://127.0.0.6:8101/', nil, [['Custom', 'specialvalue'], ['some_header2', 'some_value2']])
+      end
+    end
   end
 end

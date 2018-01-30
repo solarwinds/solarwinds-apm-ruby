@@ -18,7 +18,7 @@ module AppOpticsAPM
 
         unless AppOpticsAPM.tracing?
           xtrace = AppOpticsAPM::Context.toString
-          @processed_headers = make_headers('X-Trace' => xtrace) if AppOpticsAPM::XTrace.valid?(xtrace) && !blacklisted
+          @processed_headers['X-Trace'] = AppOpticsAPM::Context.toString if AppOpticsAPM::XTrace.valid?(xtrace) && !blacklisted
           return execute_without_appoptics(&block)
         end
 
@@ -27,7 +27,7 @@ module AppOpticsAPM
           kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:rest_client][:collect_backtraces]
           AppOpticsAPM::API.log_entry('rest-client', kvs)
 
-          @processed_headers = make_headers('X-Trace' => AppOpticsAPM::Context.toString) unless blacklisted
+          @processed_headers['X-Trace'] = AppOpticsAPM::Context.toString unless blacklisted
 
           # The core rest-client call
           execute_without_appoptics(&block)

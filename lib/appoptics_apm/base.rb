@@ -135,9 +135,9 @@ module AppOpticsAPMBase
   #
   def tracing_layer_op?(operation)
     if operation.is_a?(Array)
-      return operation.include?(AppOpticsAPM.layer_op)
+      operation.include?(AppOpticsAPM.layer_op)
     else
-      return AppOpticsAPM.layer_op == operation.to_sym
+      AppOpticsAPM.layer_op == operation.to_sym
     end
   end
 

@@ -151,6 +151,16 @@ if !defined?(JRUBY_VERSION)
       assert_not_requested :put, "http://127.9.0.8:8101/", headers: {'X-Trace'=>/^.*$/}
     end
 
+    # ========== excon make sure headers are preserved =============================
+    def test_preserves_custom_headers
+      stub_request(:get, "http://127.0.0.6:8101/").to_return(status: 200, body: "", headers: {})
+
+      AppOpticsAPM::API.start_trace('excon_tests') do
+        Excon.get('http://127.0.0.6:8101', headers: { 'Custom' => 'specialvalue' })
+      end
+
+      assert_requested :get, "http://127.0.0.6:8101/", headers: {'Custom'=>'specialvalue'}, times: 1
+    end
   end
 end
 

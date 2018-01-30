@@ -89,5 +89,15 @@ unless defined?(JRUBY_VERSION)
       assert_not_requested :get, "http://127.0.0.5:8101/", headers: {'X-Trace'=>/^.*$/}
     end
 
+    def test_preserves_custom_headers
+      stub_request(:get, "http://127.0.0.6:8101/").to_return(status: 200, body: "", headers: {})
+
+      AppOpticsAPM::API.start_trace('rest_client_tests') do
+        RestClient::Resource.new('http://127.0.0.6:8101', headers: { 'Custom' => 'specialvalue' }).get
+      end
+
+      assert_requested :get, "http://127.0.0.6:8101/", headers: {'Custom'=>'specialvalue'}, times: 1
+    end
+
   end
 end

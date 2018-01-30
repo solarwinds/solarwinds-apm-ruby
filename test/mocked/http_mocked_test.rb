@@ -108,5 +108,22 @@ unless defined?(JRUBY_VERSION)
         end
       end
     end
+
+    # ========== make sure headers are preserved =============================
+    def test_preserves_custom_headers
+      Net::HTTP.any_instance.expects(:request_without_appoptics).with do |req, _|
+        assert req.to_hash['custom'], "Custom header missing"
+        assert_match /specialvalue/, req.to_hash['custom'].first
+      end.returns(MockResponse.new)
+
+      AppOpticsAPM::API.start_trace('Net::HTTP_tests') do
+        uri = URI('http://127.0.0.1:8101/?q=1')
+        Net::HTTP.start(uri.host, uri.port) do |http|
+          request = Net::HTTP::Get.new(uri)
+          request['Custom'] = 'specialvalue'
+          http.request(request) # Net::HTTPResponse object
+        end
+      end
+    end
   end
 end

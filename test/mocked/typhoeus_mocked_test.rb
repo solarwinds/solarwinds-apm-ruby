@@ -78,6 +78,16 @@ unless defined?(JRUBY_VERSION)
       end
     end
 
+    def test_preserves_custom_headers
+      AppOpticsAPM::API.start_trace('typhoeus_tests') do
+        request = Typhoeus::Request.new('http://127.0.0.6:8101', headers: { 'Custom' => 'specialvalue' }, :method => :get)
+        request.run
+
+        assert request.options[:headers]['Custom']
+        assert_match /specialvalue/, request.options[:headers]['Custom']
+      end
+    end
+
 
     ############# Typhoeus::Hydra ##############################################
 
@@ -162,6 +172,19 @@ unless defined?(JRUBY_VERSION)
           refute request_1.options[:headers]['X-Trace'], "There should not be an X-Trace header"
           refute request_2.options[:headers]['X-Trace'], "There should not be an X-Trace header"
         end
+      end
+    end
+
+
+    def test_hydra_preserves_custom_headers
+      AppOpticsAPM::API.start_trace('typhoeus_tests') do
+        hydra = Typhoeus::Hydra.hydra
+        request = Typhoeus::Request.new('http://127.0.0.6:8101', headers: { 'Custom' => 'specialvalue' }, :method => :get)
+        hydra.queue(request)
+        hydra.run
+
+        assert request.options[:headers]['Custom']
+        assert_match /specialvalue/, request.options[:headers]['Custom']
       end
     end
 

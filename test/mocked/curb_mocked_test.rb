@@ -109,12 +109,14 @@ if !defined?(JRUBY_VERSION)
         url_confs.each do |conf|
           headers = conf[:headers] || {}
           assert headers['X-Trace']
+          assert headers['Custom']
+          assert_match /specialvalue/, headers['Custom']
           assert sampled?(headers['X-Trace'])
         end
         true
       end
 
-      easy_options = {:follow_location => true}
+      easy_options = {:follow_location => true, :headers => { 'Custom' => 'specialvalue' }}
       multi_options = {:pipeline => false}
 
       urls = []
@@ -192,6 +194,7 @@ if !defined?(JRUBY_VERSION)
         urls.each do |url|
           cu = Curl::Easy.new(url) do |curl|
             curl.follow_location = true
+            curl.headers = { 'Custom' => 'specialvalue' }
           end
           m.add cu
         end
@@ -199,6 +202,7 @@ if !defined?(JRUBY_VERSION)
         m.perform do
           m.requests.each do |request|
             assert request.headers['X-Trace']
+            assert request.headers['Custom']
             assert sampled?(request.headers['X-Trace'])
           end
         end
@@ -234,6 +238,74 @@ if !defined?(JRUBY_VERSION)
         end
       end
     end
+
+    # preserve custom headers
+    #
+    # this calls Curl::Easy.http
+    def test_preserves_custom_headers_on_get
+      stub_request(:get, "http://127.0.0.6:8101/").to_return(status: 200, body: "", headers: {})
+
+      AppOpticsAPM::API.start_trace('curb_tests') do
+        Curl.get("http://127.0.0.6:8101/") do |curl|
+          curl.headers = { 'Custom' => 'specialvalue' }
+        end
+      end
+
+      assert_requested :get, "http://127.0.0.6:8101/", headers: {'Custom'=>'specialvalue'}, times: 1
+    end
+
+    # The following test can't use WebMock because it interferes with our instrumentation
+    def test_preserves_custom_headers_on_http_put
+      WebMock.disable!
+
+      curl = Curl::Easy.new("http://127.0.0.1:8101/")
+      curl.headers = { 'Custom' => 'specialvalue4' }
+
+      AppOpticsAPM::API.start_trace('curb_tests') do
+        curl.http_put nil
+      end
+
+      assert curl.headers
+      assert curl.headers['X-Trace']
+      assert curl.headers['Custom']
+      assert_match /^2B[0-9,A-F]*01$/, curl.headers['X-Trace']
+      assert_match /specialvalue4/, curl.headers['Custom']
+    end
+
+    def test_preserves_custom_headers_on_http_post
+      WebMock.disable!
+
+      curl = Curl::Easy.new("http://127.0.0.1:8101/")
+      curl.headers = { 'Custom' => 'specialvalue4' }
+
+      AppOpticsAPM::API.start_trace('curb_tests') do
+        curl.http_post
+      end
+
+      assert curl.headers
+      assert curl.headers['X-Trace']
+      assert curl.headers['Custom']
+      assert_match /^2B[0-9,A-F]*01$/, curl.headers['X-Trace']
+      assert_match /specialvalue4/, curl.headers['Custom']
+    end
+
+    def test_preserves_custom_headers_on_perform
+      WebMock.disable!
+
+      curl = Curl::Easy.new("http://127.0.0.1:8101/")
+      curl.headers = { 'Custom' => 'specialvalue4' }
+
+      AppOpticsAPM::API.start_trace('curb_tests') do
+        curl.perform
+      end
+
+      assert curl.headers
+      assert curl.headers['X-Trace']
+      assert curl.headers['Custom']
+      assert_match /^2B[0-9,A-F]*01$/, curl.headers['X-Trace']
+      assert_match /specialvalue4/, curl.headers['Custom']
+    end
+
   end
 end
 
