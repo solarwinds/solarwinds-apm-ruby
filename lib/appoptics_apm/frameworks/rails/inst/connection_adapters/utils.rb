@@ -107,7 +107,7 @@ module AppOpticsAPM
 
         def begin_db_transaction_with_appoptics
           if AppOpticsAPM.tracing?
-            AppOpticsAPM::API.trace('activerecord', :Query => 'BEGIN') do
+            AppOpticsAPM::API.trace('activerecord', { :Query => 'BEGIN', :Flavor => :mysql }) do
               begin_db_transaction_without_appoptics
             end
           else
