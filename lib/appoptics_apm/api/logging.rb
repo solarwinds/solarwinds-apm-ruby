@@ -1,11 +1,13 @@
+#--
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
+#++
 
 # Make sure Set is loaded if possible.
 begin
   require 'set'
 rescue LoadError
-  class Set; end
+  class Set; end # :nodoc:
 end
 
 
@@ -14,6 +16,8 @@ module AppOpticsAPM
     ##
     # This modules provides the X-Trace logging facilities.
     #
+    # These are the lower level methods, please see AppOpticsAPM::API::Tracing
+    # for the higher level methods
     module Logging
       @@ints_or_nil = [Integer, Float, NilClass, String]
       @@ints_or_nil << Fixnum unless RUBY_VERSION >= '2.4'
@@ -24,9 +28,9 @@ module AppOpticsAPM
       # ==== Arguments
       #
       # * +layer+ - The layer the reported event belongs to
-      # * +label+ - The label for the reported event. See API documentation for reserved labels and usage.
+      # * +label+ - The label for the reported event. See SDK documentation for reserved labels and usage.
       # * +opts+  - A hash containing key/value pairs that will be reported along with this event (optional).
-      # * +event+ - An event to be used instead of generating a new one (see start_trace_with_target)
+      # * +event+ - An event to be used instead of generating a new one (see also start_trace_with_target)
       #
       # ==== Example
       #
@@ -49,7 +53,7 @@ module AppOpticsAPM
       #
       # * +layer+ - The layer the reported event belongs to
       # * +exn+ - The exception to report
-      # * +kvs+ - Custom params if you want to log extra information
+      # * +opts+ - Custom params if you want to log extra information
       #
       # ==== Example
       #
@@ -61,7 +65,7 @@ module AppOpticsAPM
       #   end
       #
       # Returns nothing.
-      def log_exception(layer, exn, kvs = {})
+      def log_exception(layer, exn, opts = {})
         return if !AppOpticsAPM.tracing? || exn.instance_variable_get(:@oboe_logged)
 
         unless exn
@@ -69,19 +73,19 @@ module AppOpticsAPM
           return
         end
 
-        kvs.merge!(:ErrorClass => exn.class.name,
-                   :ErrorMsg => exn.message,
-                   :Backtrace => exn.backtrace.join("\r\n")) if exn.backtrace
+        opts.merge!(:ErrorClass => exn.class.name,
+                    :ErrorMsg => exn.message,
+                    :Backtrace => exn.backtrace.join("\r\n")) if exn.backtrace
 
         exn.instance_variable_set(:@oboe_logged, true)
-        log(layer, :error, kvs)
+        log(layer, :error, opts)
       end
 
       ##
       # Public: Decide whether or not to start a trace, and report an entry event
       # appropriately.
       #
-      # ==== Attributes
+      # ==== Arguments
       #
       # * +layer+ - The layer the reported event belongs to
       # * +xtrace+ - An xtrace metadata string, or nil.  Used for cross-application tracing.
@@ -95,6 +99,7 @@ module AppOpticsAPM
       def log_start(layer, xtrace = nil, opts = {})
         return if !AppOpticsAPM.loaded || (opts.key?(:URL) && ::AppOpticsAPM::Util.static_asset?(opts[:URL]))
 
+        #--
         # Is the below necessary? Only on JRuby? Could there be an existing context but not x-trace header?
         # See discussion at:
         # https://github.com/librato/ruby-tracelytics/pull/6/files?diff=split#r131029135
@@ -118,6 +123,7 @@ module AppOpticsAPM
 
         # return log_entry(layer, opts)
         # end
+        #++
 
         if AppOpticsAPM.sample?(opts.merge(:layer => layer, :xtrace => xtrace))
           # Yes, we're sampling this request
@@ -163,7 +169,7 @@ module AppOpticsAPM
       ##
       # Public: Report an exit event and potentially clear the tracing context.
       #
-      # ==== Attributes
+      # ==== Arguments
       #
       # * +layer+ - The layer the reported event belongs to
       # * +opts+ - A hash containing key/value pairs that will be reported along with this event (optional).
@@ -176,10 +182,12 @@ module AppOpticsAPM
       def log_end(layer, opts = {})
         return unless AppOpticsAPM.tracing?
 
-        log_event(layer, :exit, AppOpticsAPM::Context.createEvent, opts)
-        AppOpticsAPM::Context.toString
-      ensure
-        AppOpticsAPM::Context.clear unless AppOpticsAPM.has_incoming_context?
+        begin
+          log_event(layer, :exit, AppOpticsAPM::Context.createEvent, opts)
+          AppOpticsAPM::Context.toString
+        ensure
+          AppOpticsAPM::Context.clear unless AppOpticsAPM.has_incoming_context?
+        end
       end
 
       ##
@@ -187,10 +195,10 @@ module AppOpticsAPM
       #
       # A helper method to create and log an entry event
       #
-      # ==== Attributes
+      # ==== Arguments
       #
       # * +layer+ - The layer the reported event belongs to
-      # * +kvs+ - A hash containing key/value pairs that will be reported along with this event (optional).
+      # * +opts+ - A hash containing key/value pairs that will be reported along with this event (optional).
       # * +op+ - To identify the current operation being traced.  Used to avoid double tracing recursive calls.
       #
       # ==== Example
@@ -198,11 +206,11 @@ module AppOpticsAPM
       #   AppOpticsAPM::API.log_entry(:layer_name, { :id => @user.id })
       #
       # Returns an xtrace metadata string
-      def log_entry(layer, kvs = {}, op = nil)
+      def log_entry(layer, opts = {}, op = nil)
         return unless AppOpticsAPM.tracing?
 
         AppOpticsAPM.layer_op = op.to_sym if op
-        log_event(layer, :entry, AppOpticsAPM::Context.createEvent, kvs)
+        log_event(layer, :entry, AppOpticsAPM::Context.createEvent, opts)
       end
 
       ##
@@ -210,20 +218,20 @@ module AppOpticsAPM
       #
       # A helper method to create and log an info event
       #
-      # ==== Attributes
+      # ==== Arguments
       #
       # * +layer+ - The layer the reported event belongs to
-      # * +kvs+ - A hash containing key/value pairs that will be reported along with this event (optional).
+      # * +opts+ - A hash containing key/value pairs that will be reported along with this event (optional).
       #
       # ==== Example
       #
       #   AppOpticsAPM::API.log_info(:layer_name, { :id => @user.id })
       #
       # Returns an xtrace metadata string
-      def log_info(layer, kvs = {})
+      def log_info(layer, opts = {})
         return unless AppOpticsAPM.tracing?
 
-        log_event(layer, :info, AppOpticsAPM::Context.createEvent, kvs)
+        log_event(layer, :info, AppOpticsAPM::Context.createEvent, opts)
       end
 
       ##
@@ -231,22 +239,22 @@ module AppOpticsAPM
       #
       # A helper method to create and log an exit event
       #
-      # ==== Attributes
+      # ==== Arguments
       #
       # * +layer+ - The layer the reported event belongs to
-      # * +kvs+ - A hash containing key/value pairs that will be reported along with this event (optional).
-      # * +op+ - To identify the current operation being traced.  Used to avoid double tracing recursive calls.
+      # * +opts+ - A hash containing key/value pairs that will be reported along with this event (optional).
+      # * +_op+ - deprecated, has been used to avoid double tracing recursive calls, but is irrelevant in +log_exit+
       #
       # ==== Example
       #
       #   AppOpticsAPM::API.log_exit(:layer_name, { :id => @user.id })
       #
       # Returns an xtrace metadata string (TODO: does it?)
-      def log_exit(layer, kvs = {}, op = nil)
+      def log_exit(layer, opts = {}, _op = nil)
         return unless AppOpticsAPM.tracing?
 
-        AppOpticsAPM.layer_op = nil if op
-        log_event(layer, :exit, AppOpticsAPM::Context.createEvent, kvs)
+        AppOpticsAPM.layer_op = nil
+        log_event(layer, :exit, AppOpticsAPM::Context.createEvent, opts)
       end
 
       ##
@@ -256,7 +264,7 @@ module AppOpticsAPM
       # If we return from a request that faned out multiple requests
       # we can add the collected X-Traces to the exit event
       #
-      # ==== Attributes
+      # ==== Arguments
       #
       # * +layer+ - The layer the reported event belongs to
       # * +traces+ - An array with X-Trace strings returned from the requests
@@ -272,9 +280,10 @@ module AppOpticsAPM
       end
 
       ##
+      #:nodoc:
       # Internal: Reports agent init to the collector
       #
-      # ==== Attributes
+      # ==== Arguments
       #
       # * +layer+ - The layer the reported event belongs to
       # * +opts+ - A hash containing key/value pairs that will be reported along with this event
@@ -297,9 +306,10 @@ module AppOpticsAPM
       private
 
       ##
+      #:nodoc:
       # Internal: Report an event.
       #
-      # ==== Attributes
+      # ==== Arguments
       #
       # * +layer+ - The layer the reported event belongs to
       # * +label+ - The label for the reported event.  See API documentation for reserved labels and usage.

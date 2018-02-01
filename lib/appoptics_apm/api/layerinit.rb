@@ -1,17 +1,19 @@
+#--
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
+#++
 
 module AppOpticsAPM
   module API
     ##
     # Provides methods related to layer initialization and reporting
-    module LayerInit
+    module LayerInit #:nodoc:
       # Internal: Report that instrumentation for the given layer has been
       # installed, as well as the version of instrumentation and version of
       # layer.
       #
-      def report_init(layer = :rack)
-        # Don't send __Init in test or if we're
+      def report_init(layer = :rack) #:nodoc:
+        # Don't send __Init in test or if AppOpticsAPM
         # isn't fully loaded (e.g. missing c-extension)
         return if ENV.key?('APPOPTICS_GEM_TEST') || !AppOpticsAPM.loaded
 
@@ -20,6 +22,8 @@ module AppOpticsAPM
       end
 
       ##
+      # :nodoc:
+      # Deprecated:
       # force_trace has been deprecated and will be removed in a subsequent version.
       #
       def force_trace
