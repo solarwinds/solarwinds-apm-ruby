@@ -61,6 +61,7 @@ module AppOpticsAPMBase
 
   # Occurs only on Jruby.  Indicates that Joboe (the java instrumentation)
   # has already started tracing before it hit the JRuby instrumentation.
+  # It is used in Rack#call if there is a context when entering rack
   thread_local :has_incoming_context
 
   # Indicates the existence of a valid X-Trace request header
