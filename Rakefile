@@ -51,6 +51,8 @@ Rake::TestTask.new do |t|
   when /instrumentation_mocked/
     # WebMock is interfering with other tests, so these have to run seperately
     t.test_files = FileList['test/mocked/*_test.rb']
+  when /noop/
+    t.test_files = FileList['test/noop/*_test.rb']
   end
 
   if defined?(JRUBY_VERSION)
@@ -179,7 +181,7 @@ task :recompile => [:distclean, :compile]
 task :environment do
   ENV['APPOPTICS_GEM_VERBOSE'] = 'true'
 
-  Bundler.require(:default, :development)
+  # Bundler.require(:default, :development)
   AppOpticsAPM::Config[:tracing_mode] = :always
   AppOpticsAPM::Test.load_extras
 
