@@ -344,7 +344,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
         traces[1]['Query'].must_equal "select_by_name"
       end
 
-      traces[1]['QueryArgs'].must_equal nil
+      traces[1]['QueryArgs'].must_be_nil
       traces[1]['IsPreparedStatement'].must_equal "true"
       traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)

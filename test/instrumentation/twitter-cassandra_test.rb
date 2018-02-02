@@ -100,7 +100,7 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
         # My crappy way to detect and fail if an exception
         # was raised.  I swear there was a Minitest assertion for
         # this but can't find it.
-        e.must_equal nil, "broken when NOT tracing"
+        e.must_be_nil 'broken when NOT tracing'
         raise
       end
     end
