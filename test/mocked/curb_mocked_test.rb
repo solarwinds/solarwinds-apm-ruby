@@ -11,6 +11,7 @@ if !defined?(JRUBY_VERSION)
   class CurbMockedTest < Minitest::Test
 
     def setup
+      AppOpticsAPM::Context.clear
       WebMock.enable!
       WebMock.disable_net_connect!
       AppOpticsAPM.config_lock.synchronize {
@@ -39,6 +40,7 @@ if !defined?(JRUBY_VERSION)
 
       assert_requested :get, "http://127.0.0.9:8101/", times: 1
       assert_requested :get, "http://127.0.0.9:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*01$/}, times: 1
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_xtrace_sample_rate_0
@@ -54,6 +56,7 @@ if !defined?(JRUBY_VERSION)
       assert_requested :get, "http://127.0.0.4:8101/", times: 1
       assert_requested :get, "http://127.0.0.4:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*00$/}, times: 1
       assert_not_requested :get, "http://127.0.0.4:8101/", headers: {'X-Trace'=>/^2B0*$/}
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_xtrace_no_trace
@@ -77,6 +80,7 @@ if !defined?(JRUBY_VERSION)
 
       assert_requested :get, "http://127.0.0.2:8101/", times: 1
       assert_not_requested :get, "http://127.0.0.2:8101/", headers: {'X-Trace'=>/^.*/}
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_multi_get_no_trace
@@ -99,6 +103,7 @@ if !defined?(JRUBY_VERSION)
       urls << "http://127.0.0.7:8101/?three=3"
 
       Curl::Multi.get(urls, easy_options, multi_options)
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_multi_get_tracing
@@ -127,6 +132,7 @@ if !defined?(JRUBY_VERSION)
       AppOpticsAPM::API.start_trace('curb_tests') do
         Curl::Multi.get(urls, easy_options, multi_options)
       end
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_multi_get_tracing_not_sampling
@@ -156,6 +162,7 @@ if !defined?(JRUBY_VERSION)
           Curl::Multi.get(urls, easy_options, multi_options)
         end
       end
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_multi_perform_no_trace
@@ -207,6 +214,7 @@ if !defined?(JRUBY_VERSION)
           end
         end
       end
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_multi_perform_tracing_not_sampling
@@ -237,6 +245,7 @@ if !defined?(JRUBY_VERSION)
           end
         end
       end
+      refute AppOpticsAPM::Context.isValid
     end
 
     # preserve custom headers
@@ -252,6 +261,7 @@ if !defined?(JRUBY_VERSION)
       end
 
       assert_requested :get, "http://127.0.0.6:8101/", headers: {'Custom'=>'specialvalue'}, times: 1
+      refute AppOpticsAPM::Context.isValid
     end
 
     # The following test can't use WebMock because it interferes with our instrumentation
@@ -270,6 +280,7 @@ if !defined?(JRUBY_VERSION)
       assert curl.headers['Custom']
       assert_match /^2B[0-9,A-F]*01$/, curl.headers['X-Trace']
       assert_match /specialvalue4/, curl.headers['Custom']
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_preserves_custom_headers_on_http_post
@@ -287,6 +298,7 @@ if !defined?(JRUBY_VERSION)
       assert curl.headers['Custom']
       assert_match /^2B[0-9,A-F]*01$/, curl.headers['X-Trace']
       assert_match /specialvalue4/, curl.headers['Custom']
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_preserves_custom_headers_on_perform
@@ -304,6 +316,7 @@ if !defined?(JRUBY_VERSION)
       assert curl.headers['Custom']
       assert_match /^2B[0-9,A-F]*01$/, curl.headers['X-Trace']
       assert_match /specialvalue4/, curl.headers['Custom']
+      refute AppOpticsAPM::Context.isValid
     end
 
   end

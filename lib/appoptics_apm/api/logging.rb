@@ -182,12 +182,12 @@ module AppOpticsAPM
       def log_end(layer, opts = {})
         return unless AppOpticsAPM.tracing?
 
-        begin
-          log_event(layer, :exit, AppOpticsAPM::Context.createEvent, opts)
-          AppOpticsAPM::Context.toString
-        ensure
-          AppOpticsAPM::Context.clear unless AppOpticsAPM.has_incoming_context?
-        end
+        log_event(layer, :exit, AppOpticsAPM::Context.createEvent, opts)
+        AppOpticsAPM::Context.toString
+      ensure
+        # FIXME has_incoming_context commented out, it has importance for JRuby only
+        # ____  and breaks ruby tests
+        AppOpticsAPM::Context.clear if AppOpticsAPM.loaded # unless AppOpticsAPM.has_incoming_context?
       end
 
       ##

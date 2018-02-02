@@ -8,6 +8,7 @@ unless defined?(JRUBY_VERSION)
   class TyphoeusMockedTest < Minitest::Test
 
     def setup
+      AppOpticsAPM::Context.clear
       AppOpticsAPM.config_lock.synchronize do
         @sample_rate = AppOpticsAPM::Config[:sample_rate]
       end
@@ -30,6 +31,8 @@ unless defined?(JRUBY_VERSION)
         assert request.options[:headers]['X-Trace']
         assert_match /^2B[0-9,A-F]*01$/,request.options[:headers]['X-Trace']
       end
+
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_tracing_not_sampling
@@ -44,6 +47,7 @@ unless defined?(JRUBY_VERSION)
           refute_match /^2B0*$/, request.options[:headers]['X-Trace']
         end
       end
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_no_xtrace
@@ -63,6 +67,7 @@ unless defined?(JRUBY_VERSION)
           refute request.options[:headers]['X-Trace']
         end
       end
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_not_sampling_blacklisted
@@ -76,6 +81,7 @@ unless defined?(JRUBY_VERSION)
           refute request.options[:headers]['X-Trace']
         end
       end
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_preserves_custom_headers
@@ -86,6 +92,7 @@ unless defined?(JRUBY_VERSION)
         assert request.options[:headers]['Custom']
         assert_match /specialvalue/, request.options[:headers]['Custom']
       end
+      refute AppOpticsAPM::Context.isValid
     end
 
 
@@ -105,6 +112,7 @@ unless defined?(JRUBY_VERSION)
         assert request_2.options[:headers]['X-Trace'], "There is an X-Trace header"
         assert_match /^2B[0-9,A-F]*01$/, request_2.options[:headers]['X-Trace']
       end
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_hydra_tracing_not_sampling
@@ -126,6 +134,7 @@ unless defined?(JRUBY_VERSION)
           refute_match /^2B0*$/, request_2.options[:headers]['X-Trace']
         end
       end
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_hydra_no_xtrace
@@ -155,6 +164,7 @@ unless defined?(JRUBY_VERSION)
           refute request_2.options[:headers]['X-Trace'], "There should not be an X-Trace header"
         end
       end
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_hydra_not_sampling_blacklisted
@@ -173,6 +183,7 @@ unless defined?(JRUBY_VERSION)
           refute request_2.options[:headers]['X-Trace'], "There should not be an X-Trace header"
         end
       end
+      refute AppOpticsAPM::Context.isValid
     end
 
 
@@ -186,6 +197,7 @@ unless defined?(JRUBY_VERSION)
         assert request.options[:headers]['Custom']
         assert_match /specialvalue/, request.options[:headers]['Custom']
       end
+      refute AppOpticsAPM::Context.isValid
     end
 
   end

@@ -141,20 +141,18 @@ module AppOpticsAPM
       def start_trace_with_target(layer, xtrace, target, opts = {})
         return yield unless AppOpticsAPM.loaded?
 
+        log_start(layer, xtrace, opts)
+        exit_evt = AppOpticsAPM::Context.createEvent
         begin
-          log_start(layer, xtrace, opts)
-          exit_evt = AppOpticsAPM::Context.createEvent
-          begin
-            target['X-Trace'] = AppOpticsAPM::EventUtil.metadataString(exit_evt) if AppOpticsAPM.tracing?
-            yield
-          rescue Exception => e
-            log_exception(layer, e)
-            raise
-          ensure
-            exit_evt.addEdge(AppOpticsAPM::Context.get)
-            log(layer, :exit, {}, exit_evt)
-            AppOpticsAPM::Context.clear
-          end
+          target['X-Trace'] = AppOpticsAPM::EventUtil.metadataString(exit_evt) if AppOpticsAPM.tracing?
+          yield
+        rescue Exception => e
+          log_exception(layer, e)
+          raise
+        ensure
+          exit_evt.addEdge(AppOpticsAPM::Context.get)
+          log(layer, :exit, {}, exit_evt)
+          AppOpticsAPM::Context.clear
         end
       end
     end
