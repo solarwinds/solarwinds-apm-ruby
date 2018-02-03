@@ -95,7 +95,7 @@ module AppOpticsAPM
       #
       #   AppOpticsAPM::API.log_start(:layer_name, nil, { :id => @user.id })
       #
-      # Returns an xtrace metadata string
+      # Returns an xtrace metadata string if we are tracing
       def log_start(layer, xtrace = nil, opts = {})
         return if !AppOpticsAPM.loaded || (opts.key?(:URL) && ::AppOpticsAPM::Util.static_asset?(opts[:URL]))
 
@@ -178,16 +178,15 @@ module AppOpticsAPM
       #
       #   AppOpticsAPM::API.log_end(:layer_name, { :id => @user.id })
       #
-      # Returns an xtrace metadata string
+      # Returns an xtrace metadata string if we are tracing
       def log_end(layer, opts = {})
         return unless AppOpticsAPM.tracing?
 
-        log_event(layer, :exit, AppOpticsAPM::Context.createEvent, opts)
+        log_event(layer, :exit, AppOpticsAPM::Context.createEvent, opts) if AppOpticsAPM.tracing?
         AppOpticsAPM::Context.toString
       ensure
-        # FIXME has_incoming_context commented out, it has importance for JRuby only
-        # ____  and breaks ruby tests
-        AppOpticsAPM::Context.clear if AppOpticsAPM.loaded # unless AppOpticsAPM.has_incoming_context?
+        # FIXME has_incoming_context commented out, it has importance for JRuby only and breaks ruby tests
+        AppOpticsAPM::Context.clear # unless AppOpticsAPM.has_incoming_context?
       end
 
       ##
@@ -205,7 +204,7 @@ module AppOpticsAPM
       #
       #   AppOpticsAPM::API.log_entry(:layer_name, { :id => @user.id })
       #
-      # Returns an xtrace metadata string
+      # Returns an xtrace metadata string if we are tracing
       def log_entry(layer, opts = {}, op = nil)
         return unless AppOpticsAPM.tracing?
 
@@ -227,7 +226,7 @@ module AppOpticsAPM
       #
       #   AppOpticsAPM::API.log_info(:layer_name, { :id => @user.id })
       #
-      # Returns an xtrace metadata string
+      # Returns an xtrace metadata string if we are tracing
       def log_info(layer, opts = {})
         return unless AppOpticsAPM.tracing?
 
@@ -249,7 +248,7 @@ module AppOpticsAPM
       #
       #   AppOpticsAPM::API.log_exit(:layer_name, { :id => @user.id })
       #
-      # Returns an xtrace metadata string (TODO: does it?)
+      # Returns an xtrace metadata string  if we are tracing
       def log_exit(layer, opts = {}, _op = nil)
         return unless AppOpticsAPM.tracing?
 
@@ -289,9 +288,7 @@ module AppOpticsAPM
       # * +opts+ - A hash containing key/value pairs that will be reported along with this event
       def log_init(layer = :rack, opts = {})
         context = AppOpticsAPM::Metadata.makeRandom
-        if !context.isValid
-          return
-        end
+        return unless context.isValid
 
         event = context.createEvent
         event.addInfo(APPOPTICS_STR_LAYER, layer.to_s)

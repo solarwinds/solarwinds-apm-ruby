@@ -97,6 +97,8 @@ module AppOpticsAPM
       # of the block, and the second element of which is the oboe context that
       # was set when the block completed execution.
       def start_trace(layer, xtrace = nil, opts = {})
+        return [yield, nil] unless AppOpticsAPM.loaded
+
         log_start(layer, xtrace, opts)
         begin
           result = yield
@@ -139,7 +141,7 @@ module AppOpticsAPM
       #
       # Returns the result of the block.
       def start_trace_with_target(layer, xtrace, target, opts = {})
-        return yield unless AppOpticsAPM.loaded?
+        return yield unless AppOpticsAPM.loaded
 
         log_start(layer, xtrace, opts)
         exit_evt = AppOpticsAPM::Context.createEvent
