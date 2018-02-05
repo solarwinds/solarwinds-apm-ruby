@@ -15,6 +15,7 @@ unless defined?(JRUBY_VERSION)
     end
 
     def teardown
+      AppOpticsAPM::Context.clear
       AppOpticsAPM.config_lock.synchronize do
         AppOpticsAPM::Config[:sample_rate] = @sample_rate
         AppOpticsAPM::Config[:blacklist] = []
@@ -55,6 +56,7 @@ unless defined?(JRUBY_VERSION)
       request.run
 
       refute request.options[:headers]['X-Trace']
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_blacklisted
@@ -147,6 +149,7 @@ unless defined?(JRUBY_VERSION)
 
       refute request_1.options[:headers]['X-Trace'], "There should not be an X-Trace header"
       refute request_2.options[:headers]['X-Trace'], "There should not be an X-Trace header"
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_hydra_blacklisted
