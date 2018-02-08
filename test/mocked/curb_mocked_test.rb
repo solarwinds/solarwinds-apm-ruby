@@ -7,6 +7,7 @@ if !defined?(JRUBY_VERSION)
   require 'webmock/minitest'
   require 'mocha/mini_test'
   WebMock.allow_net_connect!
+  WebMock.reset!
 
   class CurbMockedTest < Minitest::Test
 

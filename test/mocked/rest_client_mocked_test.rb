@@ -6,6 +6,7 @@ unless defined?(JRUBY_VERSION)
   require 'webmock/minitest'
   require 'mocha/mini_test'
   WebMock.allow_net_connect!
+  WebMock.reset!
 
   class RestClientMockedTest < Minitest::Test
 
