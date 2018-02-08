@@ -181,7 +181,7 @@ task :recompile => [:distclean, :compile]
 task :environment do
   ENV['APPOPTICS_GEM_VERBOSE'] = 'true'
 
-  # Bundler.require(:default, :development)
+  Bundler.require(:default, :development)
   AppOpticsAPM::Config[:tracing_mode] = :always
   AppOpticsAPM::Test.load_extras
 
