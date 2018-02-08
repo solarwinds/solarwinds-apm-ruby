@@ -5,6 +5,10 @@
 # Force noop by setting the platform to something we don't support
 RUBY_PLATFORM = 'noop'
 
+# These tests assert:
+# - that there is no instrumentation nor tracing in noop mode
+# - that the 'official' SDK methods don't create
+
 require 'minitest_helper'
 require 'rack/lobster'
 require 'net/http'
@@ -22,7 +26,8 @@ class NoopTest < Minitest::Test
     @app = Rack::Builder.new {
       use Rack::CommonLogger
       use Rack::ShowExceptions
-      map "/lobster" do
+      use AppOpticsAPM::Rack
+      map '/lobster' do
         use Rack::Lint
         run Rack::Lobster.new
       end
@@ -30,9 +35,10 @@ class NoopTest < Minitest::Test
   end
 
   def test_requests_still_work
-    get "/lobster"
+    get '/lobster'
     traces = get_all_traces
-    assert_equal 0, traces.count, "generate no traces"
+    assert_equal 0, traces.count, 'generate no traces'
+    assert AppOpticsAPM::Rack.noop?, 'This is not running in noop mode.'
   end
 
   def test_appoptics_config_doesnt_barf
@@ -55,7 +61,30 @@ class NoopTest < Minitest::Test
     AppOpticsAPM::Config[:rack][:log_args] = la
   end
 
-  # ===== Make sure the methods we document as SDK don't barf in noop mode ================
+  # ===== Make sure the AppOpticsAPM::Inst module does not exist ============================
+  # this is the module in which all the instrumented methods are defined
+  def test_not_instrumented
+    refute ::AppOpticsAPM.const_defined?('Inst'), 'This should be noop mode, but instrumentation was found.'
+  end
+
+  # ===== Make sure the frameworks are not instrumented =====================================
+  def test_rails_not_instrumented
+    refute ::AppOpticsAPM.const_defined?('Rails'), 'This should be noop mode, but Rails is instrumented.'
+  end
+
+  def test_sinatra_not_instrumented
+    refute ::AppOpticsAPM.const_defined?('Sinatra'), 'This should be noop mode, but Sinatra is instrumented.'
+  end
+
+  def test_grape_not_instrumented
+    refute ::AppOpticsAPM.const_defined?('Grape'), 'This should be noop mode, but Grape is instrumented.'
+  end
+
+  def test_padrino_not_instrumented
+    refute ::AppOpticsAPM.const_defined?('Padrino'), 'This should be noop mode, but Padrino is instrumented.'
+  end
+
+  # ===== Make sure the methods we document as SDK don't barf in noop mode ==================
 
   def test_start_trace_doesnt_barf
     AppOpticsAPM::API.start_trace('noop_test')  do
