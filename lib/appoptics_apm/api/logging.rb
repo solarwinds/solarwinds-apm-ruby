@@ -241,18 +241,19 @@ module AppOpticsAPM
       # ==== Arguments
       #
       # * +layer+ - The layer the reported event belongs to
-      # * +opts+ - A hash containing key/value pairs that will be reported along with this event (optional).
-      # * +_op+ - deprecated, has been used to avoid double tracing recursive calls, but is irrelevant in +log_exit+
+      # * +opts+  - A hash containing key/value pairs that will be reported along with this event (optional).
+      # * +op+    - Used to avoid double tracing recursive calls, needs to be true in +log_exit+ that corresponds to a
+      #   +log_entry+
       #
       # ==== Example
       #
       #   AppOpticsAPM::API.log_exit(:layer_name, { :id => @user.id })
       #
       # Returns an xtrace metadata string  if we are tracing
-      def log_exit(layer, opts = {}, _op = nil)
+      def log_exit(layer, opts = {}, op = nil)
         return unless AppOpticsAPM.tracing?
 
-        AppOpticsAPM.layer_op = nil
+        AppOpticsAPM.layer_op = nil if op
         log_event(layer, :exit, AppOpticsAPM::Context.createEvent, opts)
       end
 

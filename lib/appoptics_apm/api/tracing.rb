@@ -58,7 +58,7 @@ module AppOpticsAPM
           log_exception(layer, e)
           raise
         ensure
-          log_exit(layer)
+          log_exit(layer, opts, protect_op)
         end
       end
 
@@ -82,7 +82,7 @@ module AppOpticsAPM
       #     # ... code that modifies request and response ...
       #   end
       #
-      #   def handle_request_with_oboe(request, response)
+      #   def handle_request_with_appoptics(request, response)
       #     result, xtrace = start_trace('rails', request['X-Trace']) do
       #       handle_request(request, response)
       #     end
@@ -133,7 +133,7 @@ module AppOpticsAPM
       #     # ... code that does something with request and response ...
       #   end
       #
-      #   def handle_request_with_oboe(request, response)
+      #   def handle_request_with_appoptics(request, response)
       #     start_trace_with_target('rails', request['X-Trace'], response) do
       #       handle_request(request, response)
       #     end

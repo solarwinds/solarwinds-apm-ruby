@@ -44,7 +44,7 @@ module AppOpticsAPM
             begin
               render_without_appoptics(engine, data, options, locals, &block)
             ensure
-              ::AppOpticsAPM::API.log_exit(:render, report_kvs)
+              ::AppOpticsAPM::API.log_exit(:render, report_kvs, :render)
             end
           end
         else
