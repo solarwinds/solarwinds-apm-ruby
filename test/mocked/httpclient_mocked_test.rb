@@ -5,14 +5,13 @@ unless defined?(JRUBY_VERSION)
   require 'minitest_helper'
   require 'webmock/minitest'
   require 'mocha/mini_test'
-  WebMock.allow_net_connect!
-  WebMock.reset!
 
   class HTTPClientMockedTest < Minitest::Test
 
     def setup
       AppOpticsAPM::Context.clear
       WebMock.enable!
+      WebMock.reset!
       WebMock.disable_net_connect!
       AppOpticsAPM.config_lock.synchronize do
         @sample_rate = AppOpticsAPM::Config[:sample_rate]
