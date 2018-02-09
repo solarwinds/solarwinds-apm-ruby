@@ -1,11 +1,15 @@
+#--
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
+#++
 
+# TODO remove Memcache from API and into some Util module to be included in Modules that need
+# ____ these methods
 module AppOpticsAPM
   module API
     ##
     # Utility methods for the Memcache instrumentation
-    module Memcache
+    module Memcache #:nodoc:
       MEMCACHE_OPS = %w(add append cas decr decrement delete fetch get incr increment prepend replace set)
 
       def memcache_hit?(result)

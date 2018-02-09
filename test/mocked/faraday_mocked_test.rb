@@ -7,10 +7,12 @@ if !defined?(JRUBY_VERSION)
   require 'webmock/minitest'
   require 'mocha/mini_test'
   WebMock.allow_net_connect!
+  WebMock.reset!
 
   class FaradayMockedTest < Minitest::Test
 
     def setup
+      AppOpticsAPM::Context.clear
       WebMock.enable!
       WebMock.disable_net_connect!
       AppOpticsAPM.config_lock.synchronize {
@@ -40,6 +42,7 @@ if !defined?(JRUBY_VERSION)
 
       assert_requested :get, "http://127.0.0.1:8101/", times: 1
       assert_requested :get, "http://127.0.0.1:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*01$/}, times: 1
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_tracing_not_sampling
@@ -58,6 +61,7 @@ if !defined?(JRUBY_VERSION)
       assert_requested :get, "http://127.0.0.12:8101/", times: 1
       assert_requested :get, "http://127.0.0.12:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*00$/}, times: 1
       assert_not_requested :get, "http://127.0.0.12:8101/", headers: {'X-Trace'=>/^2B0*$/}
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_no_xtrace
@@ -87,6 +91,7 @@ if !defined?(JRUBY_VERSION)
 
       assert_requested :get, "http://127.0.0.4:8101/", times: 1
       assert_not_requested :get, "http://127.0.0.4:8101/", headers: {'X-Trace'=>/^.*$/}
+      refute AppOpticsAPM::Context.isValid
     end
 
   end

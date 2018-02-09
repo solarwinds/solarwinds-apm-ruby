@@ -18,6 +18,10 @@ unless defined?(JRUBY_VERSION)
       AppOpticsAPM::Config[:tracing_mode] = :always
     end
 
+    def teardown
+      clear_all_traces
+    end
+
     def test_reports_version_init
       init_kvs = ::AppOpticsAPM::Util.build_init_report
       assert init_kvs.key?('Ruby.httpclient.Version')
@@ -25,8 +29,6 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_get_request
-      clear_all_traces
-
       response = nil
 
       AppOpticsAPM::API.start_trace('httpclient_tests') do
@@ -55,8 +57,6 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_get_with_header_hash
-      clear_all_traces
-
       response = nil
 
       AppOpticsAPM::API.start_trace('httpclient_tests') do
@@ -85,8 +85,6 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_get_with_header_array
-      clear_all_traces
-
       response = nil
 
       AppOpticsAPM::API.start_trace('httpclient_tests') do
@@ -115,8 +113,6 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_post_request
-      clear_all_traces
-
       response = nil
 
       AppOpticsAPM::API.start_trace('httpclient_tests') do
@@ -145,8 +141,6 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_async_get
-      clear_all_traces
-
       conn = nil
 
       AppOpticsAPM::API.start_trace('httpclient_tests') do
@@ -180,8 +174,6 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_cross_app_tracing
-      clear_all_traces
-
       response = nil
 
       AppOpticsAPM::API.start_trace('httpclient_tests') do
@@ -217,8 +209,6 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_requests_with_errors
-      clear_all_traces
-
       result = nil
       begin
         AppOpticsAPM::API.start_trace('httpclient_tests') do
@@ -249,8 +239,6 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_log_args_when_true
-      clear_all_traces
-
       @log_args = AppOpticsAPM::Config[:httpclient][:log_args]
       AppOpticsAPM::Config[:httpclient][:log_args] = true
 
@@ -276,8 +264,6 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_log_args_when_false
-      clear_all_traces
-
       @log_args = AppOpticsAPM::Config[:httpclient][:log_args]
       AppOpticsAPM::Config[:httpclient][:log_args] = false
 
@@ -303,8 +289,6 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_without_tracing
-      clear_all_traces
-
       clnt = HTTPClient.new
       clnt.get('http://127.0.0.1:8101/', :query => { :keyword => 'ruby', :lang => 'en' })
 

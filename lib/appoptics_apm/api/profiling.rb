@@ -1,22 +1,26 @@
+#--
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
+#++
 
 module AppOpticsAPM
   module API
     ##
-    # Module that provides profiling of arbitrary blocks of code
+    # Module to create profiling traces for blocks of code or methods
     module Profiling
       ##
       # Public: Profile a given block of code. Detect any exceptions thrown by
       # the block and report errors.
       #
-      # profile_name - A name used to identify the block being profiled.
-      # report_kvs - A hash containing key/value pairs that will be reported along
-      #              with the event of this profile (optional).
-      # with_backtrace - Boolean to indicate whether a backtrace should
-      #                  be collected with this trace event.
+      # ==== Arguments
       #
-      # Example
+      # * +profile_name+ - A name used to identify the block being profiled.
+      # * +report_kvs+ - A hash containing key/value pairs that will be reported along
+      #   with the event of this profile (optional).
+      # * +with_backtrace+ - Boolean to indicate whether a backtrace should
+      #   be collected with this trace event.
+      #
+      # ==== Example
       #
       #   def computation(n)
       #     AppOpticsAPM::API.profile('fib', { :n => n }) do
@@ -30,40 +34,44 @@ module AppOpticsAPM
       def profile(profile_name, report_kvs = {}, with_backtrace = false)
         return yield unless AppOpticsAPM.tracing?
 
-        report_kvs[:Language] ||= :ruby
-        report_kvs[:ProfileName] ||= profile_name
-        report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if with_backtrace
-
-        AppOpticsAPM::API.log(nil, :profile_entry, report_kvs)
-
         begin
-          yield
-        rescue => e
-          log_exception(nil, e)
-          raise
-        ensure
-          exit_kvs = {}
-          exit_kvs[:Language] = :ruby
-          exit_kvs[:ProfileName] = report_kvs[:ProfileName]
+          report_kvs[:Language] ||= :ruby
+          report_kvs[:ProfileName] ||= profile_name
+          report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if with_backtrace
 
-          AppOpticsAPM::API.log(nil, :profile_exit, exit_kvs)
+          AppOpticsAPM::API.log(nil, :profile_entry, report_kvs)
+
+          begin
+            yield
+          rescue => e
+            log_exception(nil, e)
+            raise
+          ensure
+            exit_kvs = {}
+            exit_kvs[:Language] = :ruby
+            exit_kvs[:ProfileName] = report_kvs[:ProfileName]
+
+            AppOpticsAPM::API.log(nil, :profile_exit, exit_kvs)
+          end
         end
       end
 
       ##
-      # Public: Profile a method on a class or module.  That method can be of any (accessible)
+      # Public: Add profiling to a method on a class or module.  That method can be of any (accessible)
       # type (instance, singleton, private, protected etc.).
       #
-      # klass  - the class or module that has the method to profile
-      # method - the method to profile.  Can be singleton, instance, private etc...
-      # opts   - a hash specifying the one or more of the following options:
-      #   * :arguments  - report the arguments passed to <tt>method</tt> on each profile (default: false)
-      #   * :result     - report the return value of <tt>method</tt> on each profile (default: false)
-      #   * :backtrace  - report the return value of <tt>method</tt> on each profile (default: false)
-      #   * :name       - alternate name for the profile reported in the dashboard (default: method name)
-      # extra_kvs - a hash containing any additional KVs you would like reported with the profile
+      # ==== Arguments
       #
-      # Example
+      # * +klass+  - the class or module that has the method to profile
+      # * +method+ - the method to profile.  Can be singleton, instance, private etc...
+      # * +opts+   - a hash specifying the one or more of the following options:
+      #   * +:arguments+  - report the arguments passed to <tt>method</tt> on each profile (default: false)
+      #   * +:result+     - report the return value of <tt>method</tt> on each profile (default: false)
+      #   * +:backtrace+  - report the return value of <tt>method</tt> on each profile (default: false)
+      #   * +:name+       - alternate name for the profile reported in the dashboard (default: method name)
+      # * +extra_kvs+ - a hash containing any additional key/value pairs you would like reported with the profile
+      #
+      # ==== Example
       #
       #   opts = {}
       #   opts[:backtrace] = true

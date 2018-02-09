@@ -6,10 +6,12 @@ unless defined?(JRUBY_VERSION)
   require 'webmock/minitest'
   require 'mocha/mini_test'
   WebMock.allow_net_connect!
+  WebMock.reset!
 
   class HTTPClientMockedTest < Minitest::Test
 
     def setup
+      AppOpticsAPM::Context.clear
       WebMock.enable!
       WebMock.disable_net_connect!
       AppOpticsAPM.config_lock.synchronize do
@@ -38,6 +40,7 @@ unless defined?(JRUBY_VERSION)
 
       assert_requested :get, "http://127.0.0.1:8101/", times: 1
       assert_requested :get, "http://127.0.0.1:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*01$/}, times: 1
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_do_request_tracing_sampling_hash_headers
@@ -49,6 +52,7 @@ unless defined?(JRUBY_VERSION)
 
       assert_requested :get, "http://127.0.0.6:8101/", times: 1
       assert_requested :get, "http://127.0.0.6:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*01$/}, times: 1
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_do_request_tracing_not_sampling
@@ -64,6 +68,7 @@ unless defined?(JRUBY_VERSION)
       assert_requested :get, "http://127.0.0.2:8101/", times: 1
       assert_requested :get, "http://127.0.0.2:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*00$/}, times: 1
       assert_not_requested :get, "http://127.0.0.2:8101/", headers: {'X-Trace'=>/^2B0*$/}
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_do_request_no_xtrace
@@ -88,6 +93,7 @@ unless defined?(JRUBY_VERSION)
 
       assert_requested :get, "http://127.0.0.4:8101/"
       assert_not_requested :get, "http://127.0.0.4:8101/", headers: {'X-Trace'=>/^.*$/}
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_do_request_not_sampling_blacklisted
@@ -104,6 +110,7 @@ unless defined?(JRUBY_VERSION)
 
       assert_requested :get, "http://127.0.0.5:8101/"
       assert_not_requested :get, "http://127.0.0.5:8101/", headers: {'X-Trace'=>/^.*$/}
+      refute AppOpticsAPM::Context.isValid
     end
 
     #====== ASYNC REQUEST ================================================
@@ -123,6 +130,7 @@ unless defined?(JRUBY_VERSION)
         clnt = HTTPClient.new
         clnt.get_async('http://127.0.0.11:8101/', nil, [['some_header', 'some_value'], ['some_header2', 'some_value2']])
       end
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_async_tracing_sampling_hash_headers
@@ -139,6 +147,7 @@ unless defined?(JRUBY_VERSION)
         clnt = HTTPClient.new
         clnt.get_async('http://127.0.0.16:8101/', nil, { 'some_header' => 'some_value', 'some_header2' => 'some_value2' })
       end
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_async_tracing_not_sampling
@@ -159,6 +168,7 @@ unless defined?(JRUBY_VERSION)
           clnt.get_async('http://127.0.0.12:8101/')
         end
       end
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_async_no_xtrace
@@ -192,6 +202,7 @@ unless defined?(JRUBY_VERSION)
           clnt.get_async('http://127.0.0.14:8101/')
         end
       end
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_async_not_sampling_blacklisted
@@ -212,6 +223,7 @@ unless defined?(JRUBY_VERSION)
           clnt.get_async('http://127.0.0.15:8101/')
         end
       end
+      refute AppOpticsAPM::Context.isValid
     end
 
     # ========== make sure headers are preserved =============================
@@ -224,6 +236,7 @@ unless defined?(JRUBY_VERSION)
       end
 
       assert_requested :get, "http://127.0.0.6:8101/", headers: {'Custom'=>'specialvalue'}, times: 1
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_async_preserves_custom_headers
@@ -240,6 +253,7 @@ unless defined?(JRUBY_VERSION)
         clnt = HTTPClient.new
         clnt.get_async('http://127.0.0.6:8101/', nil, [['Custom', 'specialvalue'], ['some_header2', 'some_value2']])
       end
+      refute AppOpticsAPM::Context.isValid
     end
   end
 end

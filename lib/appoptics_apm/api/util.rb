@@ -1,5 +1,7 @@
+#--
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
+#++
 
 require 'pp'
 
@@ -7,7 +9,7 @@ module AppOpticsAPM
   module API
     ##
     # General utility methods for the gem
-    module Util
+    module Util #:nodoc:
       BACKTRACE_CUTOFF = 200
 
       # Internal: Check whether the provided key is reserved or not. Reserved

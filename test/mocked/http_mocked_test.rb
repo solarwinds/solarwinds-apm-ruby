@@ -14,6 +14,7 @@ unless defined?(JRUBY_VERSION)
     end
 
     def setup
+      AppOpticsAPM::Context.clear
       AppOpticsAPM.config_lock.synchronize do
         @sample_rate = AppOpticsAPM::Config[:sample_rate]
       end
@@ -41,6 +42,7 @@ unless defined?(JRUBY_VERSION)
           http.request(request)
         end
       end
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_tracing_not_sampling
@@ -60,6 +62,7 @@ unless defined?(JRUBY_VERSION)
           end
         end
       end
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_no_xtrace
@@ -89,6 +92,7 @@ unless defined?(JRUBY_VERSION)
           end
         end
       end
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_not_sampling_blacklisted
@@ -107,6 +111,7 @@ unless defined?(JRUBY_VERSION)
           end
         end
       end
+      refute AppOpticsAPM::Context.isValid
     end
 
     # ========== make sure headers are preserved =============================
@@ -124,6 +129,7 @@ unless defined?(JRUBY_VERSION)
           http.request(request) # Net::HTTPResponse object
         end
       end
+      refute AppOpticsAPM::Context.isValid
     end
   end
 end

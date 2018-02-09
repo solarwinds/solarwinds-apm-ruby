@@ -139,7 +139,7 @@ class RackTestApp < Minitest::Test
 
     get "/no/controller/here"
 
-    assert_equal nil, test_action
+    assert_nil test_action
     assert_equal "http://example.org/no/controller/here", test_url
     assert_equal 404, test_status
     assert_equal "GET", test_method

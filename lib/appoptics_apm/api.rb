@@ -4,8 +4,7 @@
 module AppOpticsAPM
   ##
   # This module implements the AppOpticsAPM tracing API.
-  # See: https://github.com/librato/ruby-appoptics#the-tracing-api
-  # and/or: http://rdoc.info/gems/appoptics_apm/AppOpticsAPM/API/Tracing
+  # See: https://docs.appoptics.com/kb/apm_tracing/ruby/sdk/
   module API
     def self.extend_with_tracing
       extend AppOpticsAPM::API::Logging

@@ -344,7 +344,7 @@ if Gem.loaded_specs['mongo'].version.to_s < '2.0.0'
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      result.must_equal nil
+      result.must_be_nil
       traces[1]['Collection'].must_equal "testCollection"
       traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
       traces[1]['QueryOp'].must_equal "find"

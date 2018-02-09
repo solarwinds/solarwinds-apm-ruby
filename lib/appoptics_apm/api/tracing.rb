@@ -1,19 +1,38 @@
+#--
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
+#++
 
 module AppOpticsAPM
   module API
     ##
     # Provides the higher-level tracing interface for the API.
+    #
+    # Traces are best created with a <tt>AppOpticsAPM:API.start_trace</tt> block and
+    # <tt>AppOpticsAPM:API.trace</tt> blocks around calls to be traced.
+    # These two methods guarantee proper nesting of tracing and handling of the tracing context.
+    #
+    # Some optional keys that can be used in the +opts+ hash:
+    # * +:TransactionName+ - this will show up in the transactions column in the traces dashboard
+    # * +:Controller+ - if present will be combined with +Action+ and show up as transaction in the traces dashboard
+    # * +:Action+ - if present will be combined with +Controller+ and show up as transaction in the traces dashboard
+    # * +:HTTP-Host+ - domain portion of URL
+    # * +:URL+ - request URI
+    # * +:Method+
+    #
+    # TODO complete the above
+    #
+    # Invalid keys: +:Label+, +:Layer+, +:Edge+, +:Timestamp+, +:Timestamp_u+
+    #
     module Tracing
       # Public: Trace a given block of code. Detect any exceptions thrown by
       # the block and report errors.
       #
-      # layer - The layer the block of code belongs to.
-      # opts - A hash containing key/value pairs that will be reported along
-      # with the first event of this layer (optional).
-      # protect_op - specify the operation being traced.  Used to avoid
-      # double tracing between operations that call each other
+      # * +:layer+ - The layer the block of code belongs to.
+      # * +:opts+ - A hash containing key/value pairs that will be reported along
+      #   with the first event of this layer (optional).
+      # * +:protect_op+ - The operation being traced.  Used to avoid
+      #   double tracing operations that call each other
       #
       # Example
       #
@@ -23,7 +42,7 @@ module AppOpticsAPM
       #   end
       #
       #   def computation_with_oboe(n)
-      #     trace('fib', { :number => n }) do
+      #     trace('fib', { :number => n }, :fib) do
       #       computation(n)
       #     end
       #   end
@@ -39,7 +58,7 @@ module AppOpticsAPM
           log_exception(layer, e)
           raise
         ensure
-          log_exit(layer, {}, protect_op)
+          log_exit(layer, opts, protect_op)
         end
       end
 
@@ -50,17 +69,20 @@ module AppOpticsAPM
       # When start_trace returns control to the calling context, the oboe
       # context will be cleared.
       #
-      # layer - The layer the block of code belongs to.
-      # opts - A hash containing key/value pairs that will be reported along
-      # with the first event of this layer (optional).
+      # ==== Arguments
       #
-      # Example
+      # * +layer+  - name for the layer to be used as label in the trace view
+      # * +xtrace+ - (optional) incoming X-Trace identifier to be continued
+      # * +opts+   - (optional) hash containing key/value pairs that will be reported along
+      #   with the first event of this layer (optional)
+      #
+      # ==== Example
       #
       #   def handle_request(request, response)
       #     # ... code that modifies request and response ...
       #   end
       #
-      #   def handle_request_with_oboe(request, response)
+      #   def handle_request_with_appoptics(request, response)
       #     result, xtrace = start_trace('rails', request['X-Trace']) do
       #       handle_request(request, response)
       #     end
@@ -75,6 +97,8 @@ module AppOpticsAPM
       # of the block, and the second element of which is the oboe context that
       # was set when the block completed execution.
       def start_trace(layer, xtrace = nil, opts = {})
+        return [yield, nil] unless AppOpticsAPM.loaded
+
         log_start(layer, xtrace, opts)
         begin
           result = yield
@@ -90,25 +114,26 @@ module AppOpticsAPM
 
       # Public: Trace a given block of code which can start a trace depending
       # on configuration and probability. Detect any exceptions thrown by the
-      # block and report errors. Insert the oboe metadata into the provided for
-      # later user.
+      # block and report errors. Assign an X-Trace to the target.
       #
       # The motivating use case for this is HTTP streaming in rails3. We need
       # access to the exit event's trace id so we can set the header before any
       # work is done, and before any headers are sent back to the client.
       #
-      # layer - The layer the block of code belongs to.
-      # target - The target object in which to place the oboe metadata.
-      # opts - A hash containing key/value pairs that will be reported along
-      # with the first event of this layer (optional).
+      # ===== Arguments
+      # * +layer+ - The layer the block of code belongs to.
+      # * +xtrace+ - string - The X-Trace to continue by the target
+      # * +target+ - has to respond to #[]=, The target object in which to place the trace information
+      # * +opts+ - A hash containing key/value pairs that will be reported along
+      #   with the first event of this layer (optional).
       #
-      # Example:
+      # ==== Example
       #
       #   def handle_request(request, response)
       #     # ... code that does something with request and response ...
       #   end
       #
-      #   def handle_request_with_oboe(request, response)
+      #   def handle_request_with_appoptics(request, response)
       #     start_trace_with_target('rails', request['X-Trace'], response) do
       #       handle_request(request, response)
       #     end
@@ -116,6 +141,8 @@ module AppOpticsAPM
       #
       # Returns the result of the block.
       def start_trace_with_target(layer, xtrace, target, opts = {})
+        return yield unless AppOpticsAPM.loaded
+
         log_start(layer, xtrace, opts)
         exit_evt = AppOpticsAPM::Context.createEvent
         begin

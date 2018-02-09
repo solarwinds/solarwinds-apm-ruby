@@ -7,10 +7,12 @@ if !defined?(JRUBY_VERSION)
   require 'webmock/minitest'
   require 'mocha/mini_test'
   WebMock.allow_net_connect!
+  WebMock.reset!
 
   class ExconTest < Minitest::Test
 
     def setup
+      AppOpticsAPM::Context.clear
       WebMock.enable!
       WebMock.disable_net_connect!
       AppOpticsAPM.config_lock.synchronize {
@@ -52,6 +54,7 @@ if !defined?(JRUBY_VERSION)
 
       assert_requested :get, "http://127.0.0.7:8101/", times: 1
       assert_requested :get, "http://127.0.0.7:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]{56}01/}, times: 1
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_xtrace_tracing_not_sampling
@@ -67,6 +70,7 @@ if !defined?(JRUBY_VERSION)
       assert_requested :get, "http://127.0.0.4:8101/", times: 1
       assert_requested :get, "http://127.0.0.4:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*00$/}, times: 1
       assert_not_requested :get, "http://127.0.0.4:8101/", headers: {'X-Trace'=>/^2B0*$/}
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_xtrace_tracing_blacklisted
@@ -81,6 +85,7 @@ if !defined?(JRUBY_VERSION)
 
       assert_requested :get, "http://127.0.0.3:8101/", times: 1
       assert_not_requested :get, "http://127.0.0.3:8101/", headers: {'X-Trace'=>/.*/}
+      refute AppOpticsAPM::Context.isValid
     end
 
     # ========== excon pipelined =================================
@@ -98,6 +103,7 @@ if !defined?(JRUBY_VERSION)
       assert_requested :put, "http://127.0.0.5:8101/", times: 1
       assert_requested :get, "http://127.0.0.5:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*01$/}, times: 1
       assert_requested :put, "http://127.0.0.5:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*01$/}, times: 1
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_xtrace_pipelined_tracing_not_sampling
@@ -118,6 +124,7 @@ if !defined?(JRUBY_VERSION)
       assert_requested :put, "http://127.0.0.2:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*00$/}, times: 1
       assert_not_requested :get, "http://127.0.0.2:8101/", headers: {'X-Trace'=>/^2B0*$/}
       assert_not_requested :put, "http://127.0.0.2:8101/", headers: {'X-Trace'=>/^2B0*$/}
+      refute AppOpticsAPM::Context.isValid
     end
 
     def test_xtrace_pipelined_no_trace
@@ -149,17 +156,19 @@ if !defined?(JRUBY_VERSION)
       assert_requested :put, "http://127.0.0.9:8101/", times: 1
       assert_not_requested :get, "http://127.9.0.8:8101/", headers: {'X-Trace'=>/^.*$/}
       assert_not_requested :put, "http://127.9.0.8:8101/", headers: {'X-Trace'=>/^.*$/}
+      refute AppOpticsAPM::Context.isValid
     end
 
     # ========== excon make sure headers are preserved =============================
     def test_preserves_custom_headers
-      stub_request(:get, "http://127.0.0.6:8101/").to_return(status: 200, body: "", headers: {})
+      stub_request(:get, "http://127.0.0.10:8101/").to_return(status: 200, body: "", headers: {})
 
       AppOpticsAPM::API.start_trace('excon_tests') do
-        Excon.get('http://127.0.0.6:8101', headers: { 'Custom' => 'specialvalue' })
+        Excon.get('http://127.0.0.10:8101', headers: { 'Custom' => 'specialvalue' })
       end
 
-      assert_requested :get, "http://127.0.0.6:8101/", headers: {'Custom'=>'specialvalue'}, times: 1
+      assert_requested :get, "http://127.0.0.10:8101/", headers: {'Custom'=>'specialvalue'}, times: 1
+      refute AppOpticsAPM::Context.isValid
     end
   end
 end

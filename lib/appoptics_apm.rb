@@ -25,8 +25,8 @@ begin
         require '/usr/local/tracelytics/tracelyticsagent.jar'
         require 'joboe_metal'
       elsif RUBY_PLATFORM =~ /linux/
-        require "oboe_metal.so"
-        require "oboe_metal.rb"  # sets AppOpticsAPM.loaded = true  if successful
+        require 'oboe_metal.so'
+        require 'oboe_metal.rb'  # sets AppOpticsAPM.loaded = true  if successful
       else
         $stderr.puts '==================================================================='
         $stderr.puts "AppOptics warning: Platform #{RUBY_PLATFORM} not yet supported."
