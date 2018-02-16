@@ -146,4 +146,28 @@ describe "AppOpticsAPM::Config" do
     AppOpticsAPM::Config[:include_url_query_params] = @url_query_params
     AppOpticsAPM::Config[:include_remote_url_params] = @remote_url_params
   end
+
+  def test_should_correct_negative_sample_rate
+    AppOpticsAPM::Config[:sample_rate] = -3
+    AppOpticsAPM::Config.initialize
+
+    AppOpticsAPM::Config[:sample_rate].must_equal 0
+    AppOpticsAPM::Config.sample_rate.must_equal 0
+  end
+
+  def test_should_correct_large_sample_rate
+    AppOpticsAPM::Config[:sample_rate] = 1_000_000_000
+    AppOpticsAPM::Config.initialize
+
+    AppOpticsAPM::Config[:sample_rate].must_equal 1_000_000
+    AppOpticsAPM::Config.sample_rate.must_equal 1_000_0000
+  end
+
+  def test_should_correct_non_numeric_sample_rate
+    AppOpticsAPM::Config[:sample_rate] = "summertime"
+    AppOpticsAPM::Config.initialize
+
+    AppOpticsAPM::Config[:sample_rate].must_equal 0
+    AppOpticsAPM::Config.sample_rate.must_equal 0
+  end
 end
