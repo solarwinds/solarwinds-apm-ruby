@@ -160,7 +160,7 @@ describe "AppOpticsAPM::Config" do
     AppOpticsAPM::Config.initialize
 
     AppOpticsAPM::Config[:sample_rate].must_equal 1_000_000
-    AppOpticsAPM::Config.sample_rate.must_equal 1_000_0000
+    AppOpticsAPM::Config.sample_rate.must_equal 1_000_000
   end
 
   def test_should_correct_non_numeric_sample_rate
