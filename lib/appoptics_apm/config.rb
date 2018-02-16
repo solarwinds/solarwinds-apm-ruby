@@ -208,17 +208,22 @@ module AppOpticsAPM
       @@config[key.to_sym] = value
 
       if key == :sampling_rate
-        AppOpticsAPM.logger.warn 'sampling_rate is not a supported setting for AppOpticsAPM::Config.  ' \
+        AppOpticsAPM.logger.warn '[appoptics_apm/config] sampling_rate is not a supported setting for AppOpticsAPM::Config.  ' \
                          'Please use :sample_rate.'
 
       elsif key == :sample_rate
         unless value.is_a?(Integer) || value.is_a?(Float)
-          fail 'appoptics_apm :sample_rate must be a number between 0 and 1000000 (1m)'
+          AppOpticsAPM.logger.warn "[appoptics_apm/config] :sample_rate must be a number between 0 and 1000000 (1m) " \
+                                   "(provided: #{value}), corrected to 0"
+          value = 0
         end
 
         # Validate :sample_rate value
         unless value.between?(0, 1e6)
-          fail 'appoptics_apm :sample_rate must be between 0 and 1000000 (1m)'
+          value_1 = value
+          value = value_1 < 0 ? 0 : 1_000_000
+          AppOpticsAPM.logger.warn "[appoptics_apm/config] :sample_rate must be between 0 and 1000000 (1m) " \
+                                   "(provided: #{value_1}), corrected to #{value}"
         end
 
         # Assure value is an integer
@@ -226,11 +231,11 @@ module AppOpticsAPM
         AppOpticsAPM.set_sample_rate(value) if AppOpticsAPM.loaded
 
       elsif key == :action_blacklist
-        AppOpticsAPM.logger.warn "[appoptics_apm/unsupported] :action_blacklist has been deprecated and no longer functions."
+        AppOpticsAPM.logger.warn "[appoptics_apm/config] :action_blacklist has been deprecated and no longer functions."
 
       elsif key == :resque
-        AppOpticsAPM.logger.warn "[appoptics_apm/warn] :resque config is deprecated.  It is now split into :resqueclient and :resqueworker."
-        AppOpticsAPM.logger.warn "[appoptics_apm/warn] Called from #{Kernel.caller[0]}"
+        AppOpticsAPM.logger.warn "[appoptics_apm/config] :resque config is deprecated.  It is now split into :resqueclient and :resqueworker."
+        AppOpticsAPM.logger.warn "[appoptics_apm/config] Called from #{Kernel.caller[0]}"
 
       elsif key == :include_url_query_params
         # Obey the global flag and update all of the per instrumentation
