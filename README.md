@@ -8,9 +8,9 @@ It has the ability to report performance metrics on an array of libraries, datab
 
 It requires an [AppOptics](https://www.appoptics.com/) account to view metrics.  Get yours, [it's free](https://https://my.appoptics.com/sign_up).
 
-[![Gem Version](https://badge.fury.io/rb/appoptics.png)](https://badge.fury.io/rb/appoptics)
-[![Build Status](https://travis-ci.org/tracelytics/ruby-appoptics.png?branch=master)](https://travis-ci.org/tracelytics/ruby-appoptics)
-[![Code Climate](https://codeclimate.com/github/tracelytics/ruby-appoptics.png)](https://codeclimate.com/github/tracelytics/ruby-appoptics)
+[![Gem Version](https://badge.fury.io/rb/appoptics_apm.png)](https://badge.fury.io/rb/appoptics_apm)
+[![Build Status](https://travis-ci.org/librato/ruby-appoptics.png?branch=master)](https://travis-ci.org/librato/ruby-appoptics)
+[![Code Climate](https://codeclimate.com/github/librato/ruby-appoptics.png)](https://codeclimate.com/github/librato/ruby-appoptics)
 
 _Note: The repository name has been changed to ruby-appoptics.  Please update your github remotes with `git remote set-url origin git@github.com:tracelytics/ruby-appoptics.git`._
 
