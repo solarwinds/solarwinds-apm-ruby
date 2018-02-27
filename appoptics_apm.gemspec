@@ -15,17 +15,17 @@ Gem::Specification.new do |s|
   s.description = %q{The AppOpticsAPM gem provides performance instrumentation for MRI Ruby and related frameworks.}
 
   s.extra_rdoc_files = ["LICENSE"]
-  s.files = `git ls-files`.split("\n")
-  s.files += ['ext/oboe_metal/lib/liboboe-1.0.so.0.0.0',
-              'ext/oboe_metal/src/oboe.h',
+  s.files = `git ls-files`.split("\n").reject { |f| f.match(%r{^(test|gemfiles)/}) }
+  s.files += ['ext/oboe_metal/src/oboe.h',
               'ext/oboe_metal/src/oboe.hpp',
               'ext/oboe_metal/src/oboe_debug.h',
               'ext/oboe_metal/src/oboe_wrap.cxx',
               'ext/oboe_metal/src/VERSION']
-  s.test_files  = Dir.glob("{test}/**/*.rb")
 
   # TODO this is commented out util we can actually provide gems for different platforms
+  # it will create a gem that goes into noop on Darwin and other unsupported platforms
   # s.platform   = defined?(JRUBY_VERSION) ? 'java' : Gem::Platform::CURRENT
+
   s.extensions = ['ext/oboe_metal/extconf.rb'] unless defined?(JRUBY_VERSION)
 
   s.add_runtime_dependency('json', '>= 0')
@@ -46,10 +46,6 @@ Gem::Specification.new do |s|
   else
     s.add_development_dependency('pry', '>= 0.10.0')
   end
-
-  s.add_development_dependency('benchmark-ips')
-  s.add_development_dependency('benchmark-memory')
-  s.add_development_dependency('ruby-prof')
 
   s.required_ruby_version = '>= 1.9.3'
 end
