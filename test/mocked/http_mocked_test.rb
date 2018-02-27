@@ -18,6 +18,9 @@ unless defined?(JRUBY_VERSION)
       AppOpticsAPM.config_lock.synchronize do
         @sample_rate = AppOpticsAPM::Config[:sample_rate]
       end
+      WebMock.enable!
+      WebMock.reset!
+      WebMock.disable_net_connect!
     end
 
     def teardown
