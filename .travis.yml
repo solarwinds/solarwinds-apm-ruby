@@ -49,9 +49,8 @@ matrix:
 # Attempt Travis/Cassandra fix re: https://github.com/travis-ci/travis-ci/issues/1484
 # Updated Cassandra: https://github.com/travis-ci/travis-ci/issues/1650
 before_install:
-  - gem update --system '2.6.1'
-  - gem update bundler
-  - gem --version
+#  - gem update --system '2.6.1'
+#  - gem update bundler # since ruby > 2.2 comes with bundler we don't need this
   - sudo service cassandra stop
   - sudo sh -c "echo 'JVM_OPTS=\"\${JVM_OPTS} -Djava.net.preferIPv4Stack=false\"' >> /etc/cassandra/cassandra-env.sh"
   - echo "127.0.0.1 localhost"  | sudo tee /etc/hosts
