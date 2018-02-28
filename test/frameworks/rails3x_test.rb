@@ -126,9 +126,6 @@ if defined?(::Rails)
 
       traces = get_all_traces
 
-      # FIXME the count can be 10 or 14, why?
-      print_traces traces
-      # this count is not consistently 14, in travis it is sometimes 10
       traces.count.must_equal 14
       valid_edges?(traces).must_equal true
       validate_outer_layers(traces, 'rack')
