@@ -14,7 +14,7 @@ module AppOpticsAPM
       # The wrapper method for RestClient::Request.execute
       #
       def execute_with_appoptics(&block)
-        blacklisted = AppOpticsAPM::API.blacklisted?(uri)
+        blacklisted = AppOpticsAPM::API.blacklisted?(url)
 
         unless AppOpticsAPM.tracing?
           xtrace = AppOpticsAPM::Context.toString
