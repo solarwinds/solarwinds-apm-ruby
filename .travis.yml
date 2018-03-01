@@ -6,8 +6,9 @@ cache:
   - vendor/bundle
 
 rvm:
-  - 2.4.1
-  - 2.3.1
+  - 2.5.0
+  - 2.4.3
+  - 2.3.6
   - 1.9.3
 #  - jruby-9.0.5.0
 
@@ -25,7 +26,9 @@ gemfile:
 matrix:
   exclude:
     # Rails 3.2 is not compatible with Ruby >= '2.4'
-    - rvm: 2.4.1
+    - rvm: 2.5.0
+      gemfile: gemfiles/rails32.gemfile
+    - rvm: 2.4.3
       gemfile: gemfiles/rails32.gemfile
 
     - rvm: 1.9.3
@@ -45,12 +48,11 @@ matrix:
 #    - rvm: jruby-9.0.5.0
 #      gemfile: gemfiles/rails50.gemfile
 
+# FIXME: Figure out if this is still an issue when reviewing cassandra test setup
 # Attempt Travis/Cassandra fix re: https://github.com/travis-ci/travis-ci/issues/1484
 # Updated Cassandra: https://github.com/travis-ci/travis-ci/issues/1650
+
 before_install:
-  - gem update --system '2.6.1'
-  - gem update bundler
-  - gem --version
   - sudo service cassandra stop
   - sudo sh -c "echo 'JVM_OPTS=\"\${JVM_OPTS} -Djava.net.preferIPv4Stack=false\"' >> /etc/cassandra/cassandra-env.sh"
   - echo "127.0.0.1 localhost"  | sudo tee /etc/hosts

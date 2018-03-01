@@ -63,24 +63,25 @@ end
 desc "Fetch extension dependency files"
 task :fetch_ext_deps do
   swig_version = %x{swig -version} rescue ''
-  if swig_version.scan(/swig version 3.0.8/i).empty?
-    raise "!! Did not find required swig version 3.0.8, found #{swig_version.inspect}"
+  swig_version = swig_version.scan(/swig version 3.0.\d*/i)
+  if swig_version.empty?
+    $stderr.puts '== ERROR ================================================================='
+    $stderr.puts "Could not find required swig version 3.0.*, found #{swig_version.inspect}"
+    $stderr.puts 'Please install swig "~ 3.0.8" and try again.'
+    $stderr.puts '=========================================================================='
+    raise
   end
+
+  # The c-lib version is different from the gem version
   oboe_version = ENV['OBOE_VERSION'] || 'latest'
-  oboe_arch = ENV['OBOE_ARCH'] || 'x86_64'
   oboe_src_dir = "https://s3-us-west-2.amazonaws.com/rc-files-t2/c-lib/#{oboe_version}"
-  ext_lib_dir = File.expand_path('ext/oboe_metal/lib')
   ext_src_dir = File.expand_path('ext/oboe_metal/src')
 
-  %w(oboe.i oboe.h oboe.hpp oboe_debug.h liboboe-1.0.so.0.0.0 VERSION).each do |filename|
-    if filename =~ /^liboboe-.+so.+/
-      remote_file = File.join(oboe_src_dir,
-                              filename.sub('.so',"-#{oboe_arch}.so"))
-      local_file = File.join(ext_lib_dir, filename)
-    else
-      remote_file = File.join(oboe_src_dir, filename)
-      local_file = File.join(ext_src_dir, filename)
-    end
+  # VERSION is used by extconf.rb to download the correct liboboe when installing the gem
+  %w(oboe.i oboe.h oboe.hpp oboe_debug.h VERSION).each do |filename|
+    remote_file = File.join(oboe_src_dir, filename)
+    local_file = File.join(ext_src_dir, filename)
+
     puts "fetching #{remote_file} to #{local_file}"
     open(remote_file, 'rb') do |rf|
       content = rf.read
