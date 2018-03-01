@@ -9,9 +9,10 @@ module AppOpticsAPM
       end
 
       def run_request_with_appoptics(method, url, body, headers, &block)
+        blacklisted = url_blacklisted?
         unless AppOpticsAPM.tracing?
           xtrace = AppOpticsAPM::Context.toString
-          @headers['X-Trace'] = xtrace if AppOpticsAPM::XTrace.valid?(xtrace) && !AppOpticsAPM::API.blacklisted?(@url_prefix.to_s)
+          @headers['X-Trace'] = xtrace if AppOpticsAPM::XTrace.valid?(xtrace) && !blacklisted
           return run_request_without_appoptics(method, url, body, headers, &block)
         end
 
@@ -19,7 +20,7 @@ module AppOpticsAPM
           AppOpticsAPM::API.log_entry(:faraday)
 
           xtrace = AppOpticsAPM::Context.toString
-          @headers['X-Trace'] = xtrace if AppOpticsAPM::XTrace.valid?(xtrace) && !AppOpticsAPM::API.blacklisted?(@url_prefix.to_s)
+          @headers['X-Trace'] = xtrace if AppOpticsAPM::XTrace.valid?(xtrace) && !blacklisted
           result = run_request_without_appoptics(method, url, body, headers, &block)
 
           kvs = {}
@@ -31,7 +32,6 @@ module AppOpticsAPM
           handle_service = !@builder.handlers.include?(Faraday::Adapter::NetHttp) &&
               !@builder.handlers.include?(Faraday::Adapter::Excon)
           if handle_service
-            blacklisted = AppOpticsAPM::API.blacklisted?(@url_prefix.to_s)
             context = AppOpticsAPM::Context.toString
             task_id = AppOpticsAPM::XTrace.task_id(context)
 
@@ -64,6 +64,13 @@ module AppOpticsAPM
         ensure
           AppOpticsAPM::API.log_exit(:faraday)
         end
+      end
+
+      private
+
+      def url_blacklisted?
+        url = @url_prefix ? @url_prefix.to_s : @host
+        AppOpticsAPM::API.blacklisted?(url)
       end
     end
   end

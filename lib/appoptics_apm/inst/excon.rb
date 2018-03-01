@@ -69,7 +69,7 @@ module AppOpticsAPM
 
       def request_with_appoptics(params={}, &block)
         # Avoid cross host tracing for blacklisted domains
-        blacklisted = AppOpticsAPM::API.blacklisted?(@data[:hostname])
+        blacklisted = AppOpticsAPM::API.blacklisted?(@data[:hostname] || @data[:host])
 
         # If we're not tracing, just do a fast return.
         # If making HTTP pipeline requests (ordered batched)

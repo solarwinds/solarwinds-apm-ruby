@@ -1,0 +1,31 @@
+source "https://rubygems.org"
+
+# This gemfile uses the oldest versions we claim to support of the gems
+
+if RUBY_VERSION >= '2.0.0'
+  # rest-client depends on mime-types gem which only supports
+  # ruby 1.9.3 and up.  Latest rest-client only
+  # supports Ruby 2.0+
+  gem 'rest-client', '= 1.6.0'
+end
+
+group :development, :test do
+  gem 'minitest'
+  gem 'minitest-reporters', '< 1.0.18'
+  gem 'minitest-debugger', :require => false
+  gem 'rack-test'
+
+  gem 'rake'
+  gem 'puma', '< 3.1.0'
+  gem 'webmock'
+  gem 'mocha'
+end
+
+gem 'curb', '= 0.8.6' unless defined?(JRUBY_VERSION)
+gem 'excon', '0.28.0'
+gem 'faraday', '0.7.6'
+gem 'httpclient', '2.3.0'
+gem 'typhoeus', '0.6.2'
+
+gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')
+# vim:syntax=ruby
