@@ -16,6 +16,7 @@ gemfile:
   - gemfiles/noop.gemfile
   - gemfiles/libraries.gemfile
   - gemfiles/instrumentation_mocked.gemfile
+  - gemfiles/instrumentation_mocked_oldgems.gemfile
   - gemfiles/frameworks.gemfile
   - gemfiles/rails32.gemfile
   - gemfiles/rails42.gemfile
@@ -37,9 +38,11 @@ matrix:
     - rvm: 1.9.3
       gemfile: gemfiles/rails51.gemfile
 
-     # WebMock requires Ruby 2.0 or higher
+    # WebMock requires Ruby 2.0 or higher
     - rvm: 1.9.3
       gemfile: gemfiles/instrumentation_mocked.gemfile
+    - rvm: 1.9.3
+      gemfile: gemfiles/instrumentation_mocked_oldgems.gemfile
 
 #    - rvm: jruby-9.0.5.0
 #      gemfile: gemfiles/delayed_job.gemfile
