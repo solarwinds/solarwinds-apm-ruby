@@ -1,0 +1,4 @@
+--no-private
+lib/appoptics_apm/api/logging.rb
+lib/appoptics_apm/api/profiling.rb
+lib/appoptics_apm/api/tracing.rb
