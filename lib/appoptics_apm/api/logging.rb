@@ -305,6 +305,7 @@ module AppOpticsAPM
 
       ##
       #:nodoc:
+      # @private
       # Internal: Report an event.
       #
       # ==== Arguments
