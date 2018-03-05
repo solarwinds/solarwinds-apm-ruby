@@ -20,12 +20,44 @@ gemfile:
   - gemfiles/frameworks.gemfile
   - gemfiles/rails32.gemfile
   - gemfiles/rails42.gemfile
-  - gemfiles/rails50.gemfile
   - gemfiles/rails51.gemfile
   - gemfiles/delayed_job.gemfile
 
+env:
+  - DBTYPE=mysql
+  - DBTYPE=mysql2
+  - DBTYPE=postgresql
+
 matrix:
   exclude:
+    - gemfile: gemfiles/noop.gemfile
+      env: DBTYPE=mysql
+    - gemfile: gemfiles/libraries.gemfile
+      env: DBTYPE=mysql
+    - gemfile: gemfiles/instrumentation_mocked.gemfile
+      env: DBTYPE=mysql
+    - gemfile: gemfiles/instrumentation_mocked_oldgems.gemfile
+      env: DBTYPE=mysql
+    - gemfile: gemfiles/frameworks.gemfile
+      env: DBTYPE=mysql
+    - gemfile: gemfiles/rails51.gemfile
+      env: DBTYPE=mysql
+    - gemfile: gemfiles/delayed_job.gemfile
+      env: DBTYPE=mysql
+
+    - gemfile: gemfiles/noop.gemfile
+      env: DBTYPE=mysql2
+    - gemfile: gemfiles/libraries.gemfile
+      env: DBTYPE=mysql2
+    - gemfile: gemfiles/instrumentation_mocked.gemfile
+      env: DBTYPE=mysql2
+    - gemfile: gemfiles/instrumentation_mocked_oldgems.gemfile
+      env: DBTYPE=mysql2
+    - gemfile: gemfiles/frameworks.gemfile
+      env: DBTYPE=mysql2
+    - gemfile: gemfiles/delayed_job.gemfile
+      env: DBTYPE=mysql2
+
     # Rails 3.2 is not compatible with Ruby >= '2.4'
     - rvm: 2.5.0
       gemfile: gemfiles/rails32.gemfile
