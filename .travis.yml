@@ -30,6 +30,11 @@ env:
 
 matrix:
   exclude:
+    - rvm: 2.5.0
+      env: DBTYPE=mysql
+    - rvm: 2.4.3
+      env: DBTYPE=mysql
+
     - gemfile: gemfiles/noop.gemfile
       env: DBTYPE=mysql
     - gemfile: gemfiles/libraries.gemfile
