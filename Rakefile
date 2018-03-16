@@ -105,6 +105,7 @@ task :compile do
     so_file = File.expand_path('ext/oboe_metal/oboe_metal.so')
 
     Dir.chdir ext_dir
+    ENV['FROM_S3'] = 'TRUE'
     cmd = [Gem.ruby, 'extconf.rb']
     sh cmd.join(' ')
     sh '/usr/bin/env make'
@@ -112,9 +113,11 @@ task :compile do
     File.delete symlink if File.exist? symlink
 
     if File.exist? so_file
-      File.symlink so_file, symlink
+      # File.symlink so_file, symlink
+      FileUtils.mv so_file, symlink
       Dir.chdir pwd
-      puts "== Extension built and symlink'd to #{symlink}"
+      # puts "== Extension built and symlink'd to #{symlink}"
+      puts "== Extension built and moved to #{symlink}"
     else
       Dir.chdir pwd
       puts '!! Extension failed to build (see above). Have the required binary and header files been fetched?'
