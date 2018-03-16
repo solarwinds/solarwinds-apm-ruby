@@ -25,7 +25,11 @@ begin
         require '/usr/local/tracelytics/tracelyticsagent.jar'
         require 'joboe_metal'
       elsif RUBY_PLATFORM =~ /linux/
-        require 'oboe_metal.so'
+        # We need to change into the ext/oboe_metal/lib directory, to be sure we can find the linked liboboe
+        # In extconf.rb we set `-rpath=.`
+        # o that we are indepent of global load paths which may change between comile and run time
+        ao_ext_lib_dir = File.join(File.dirname(File.dirname(File.absolute_path(__FILE__))),  "ext/oboe_metal/lib")
+        Dir.chdir(ao_ext_lib_dir) { require 'oboe_metal.so' }
         require 'oboe_metal.rb'  # sets AppOpticsAPM.loaded = true  if successful
       else
         $stderr.puts '==================================================================='
