@@ -113,10 +113,8 @@ task :compile do
     File.delete symlink if File.exist? symlink
 
     if File.exist? so_file
-      # File.symlink so_file, symlink
       FileUtils.mv so_file, symlink
       Dir.chdir pwd
-      # puts "== Extension built and symlink'd to #{symlink}"
       puts "== Extension built and moved to #{symlink}"
     else
       Dir.chdir pwd
