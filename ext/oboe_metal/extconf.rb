@@ -93,7 +93,7 @@ if success
     $CFLAGS << " #{ENV['CFLAGS']}"
     $CPPFLAGS << " #{ENV['CPPFLAGS']}"
     $LIBS << " #{ENV['LIBS']}"
-    $LDFLAGS << " #{ENV['LDFLAGS']} -Wl,-rpath=."
+    $LDFLAGS << " #{ENV['LDFLAGS']} '-Wl,-rpath=$$ORIGIN/../ext/oboe_metal/lib'"
 
     create_makefile('oboe_metal', 'src')
 
