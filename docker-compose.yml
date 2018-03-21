@@ -34,6 +34,28 @@ services:
        - MYSQL_HOST=mysql
        - APPOPTICS_MONGO_SERVER=mongo
 
+  ruby_appoptics_apm_alpine:
+     container_name: ruby_appoptics_apm_alpine
+     image: ruby_alpine
+     build:
+        context: .
+        dockerfile: ./Dockerfile_alpine
+     cpu_quota: 100000 # 1 cpu, assumes cpu_period of 1 second
+     mem_limit: 1G
+     volumes:
+       - .:/code/ruby-appoptics_apm
+     depends_on:
+       - wait
+     links:
+       - wait
+     environment:
+       - APPOPTICS_RABBITMQ_SERVER=rabbitmq
+       - DOCKER_MYSQL_PASS=admin
+       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+       - MYSQL_ROOT_PASSWORD=admin
+       - MYSQL_HOST=mysql
+       - APPOPTICS_MONGO_SERVER=mongo
+
   rabbitmq:
     container_name: rabbitmq
     image: rabbitmq:3-management
@@ -53,7 +75,7 @@ services:
 
   mongo:
     container_name: mongo
-    image: mongo
+    image: mongo:3.4
     ports:
       - "27017:27017"
 

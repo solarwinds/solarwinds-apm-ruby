@@ -2,8 +2,8 @@
 
 # used by run_tests_docker.sh
 # call with:
-# docker-compose run --service-ports ruby_appoptics /code/ruby-appoptics_apm/ruby_setup.sh <ruby-version> <gemfile> <true|false>
-# docker-compose run --service-ports ruby_appoptics /code/ruby-appoptics_apm/ruby_setup.sh 2.4.1 gemfiles/libraries.gemfile
+# docker-compose run --service-ports ruby_appoptics_apm /code/ruby-appoptics_apm/ruby_setup.sh <ruby-version> <gemfile> <DBNAME=mysql2> <true|false>
+# docker-compose run --service-ports ruby_appoptics_apm /code/ruby-appoptics_apm/ruby_setup.sh 2.4.1 gemfiles/libraries.gemfile
 
 cd /code/ruby-appoptics_apm/
 
