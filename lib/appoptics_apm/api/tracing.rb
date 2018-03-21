@@ -51,6 +51,7 @@ module AppOpticsAPM
       #
       # Returns the result of the block.
       def trace(layer, opts = {}, protect_op = nil)
+        return if protect_op && AppOpticsAPM.layer_op == protect_op.to_sym
         log_entry(layer, opts, protect_op)
         begin
           yield

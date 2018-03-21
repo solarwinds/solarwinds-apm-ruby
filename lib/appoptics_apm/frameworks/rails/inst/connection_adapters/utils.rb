@@ -61,7 +61,7 @@ module AppOpticsAPM
           if AppOpticsAPM.tracing? && !ignore_payload?(name)
 
             opts = extract_trace_details(sql, name)
-            AppOpticsAPM::API.trace('activerecord', opts || {}) do
+            AppOpticsAPM::API.trace('activerecord', opts, :ar_started) do
               execute_without_appoptics(sql, name)
             end
           else
@@ -73,7 +73,7 @@ module AppOpticsAPM
           if AppOpticsAPM.tracing? && !ignore_payload?(name)
 
             opts = extract_trace_details(sql, name, binds)
-            AppOpticsAPM::API.trace('activerecord', opts || {}) do
+            AppOpticsAPM::API.trace('activerecord', opts, :ar_started) do
               exec_query_without_appoptics(sql, name, binds)
             end
           else
@@ -85,7 +85,7 @@ module AppOpticsAPM
           if AppOpticsAPM.tracing? && !ignore_payload?(name)
 
             opts = extract_trace_details(sql, name, binds)
-            AppOpticsAPM::API.trace('activerecord', opts || {}) do
+            AppOpticsAPM::API.trace('activerecord', opts, :ar_started) do
               exec_delete_without_appoptics(sql, name, binds)
             end
           else
@@ -97,7 +97,7 @@ module AppOpticsAPM
           if AppOpticsAPM.tracing? && !ignore_payload?(name)
 
             opts = extract_trace_details(sql, name, binds)
-            AppOpticsAPM::API.trace('activerecord', opts || {}) do
+            AppOpticsAPM::API.trace('activerecord', opts, :ar_started) do
               exec_insert_without_appoptics(sql, name, binds, *args)
             end
           else
@@ -107,7 +107,7 @@ module AppOpticsAPM
 
         def begin_db_transaction_with_appoptics
           if AppOpticsAPM.tracing?
-            AppOpticsAPM::API.trace('activerecord', { :Query => 'BEGIN', :Flavor => :mysql }) do
+            AppOpticsAPM::API.trace('activerecord', { :Query => 'BEGIN', :Flavor => :mysql }, :ar_started) do
               begin_db_transaction_without_appoptics
             end
           else
