@@ -46,8 +46,6 @@ matrix:
       env: DBTYPE=mysql
     - gemfile: gemfiles/frameworks.gemfile
       env: DBTYPE=mysql
-    - gemfile: gemfiles/rails51.gemfile
-      env: DBTYPE=mysql
     - gemfile: gemfiles/delayed_job.gemfile
       env: DBTYPE=mysql
 
