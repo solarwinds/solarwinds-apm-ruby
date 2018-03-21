@@ -18,7 +18,7 @@ gemfile:
   - gemfiles/instrumentation_mocked.gemfile
   - gemfiles/instrumentation_mocked_oldgems.gemfile
   - gemfiles/frameworks.gemfile
-  - gemfiles/rails32.gemfile
+#  - gemfiles/rails32.gemfile
   - gemfiles/rails42.gemfile
   - gemfiles/rails51.gemfile
   - gemfiles/delayed_job.gemfile
