@@ -363,7 +363,7 @@ if defined?(::Rails)
       traces[6]['Layer'].must_equal "activerecord"
       traces[6]['Label'].must_equal "entry"
       traces[6]['Flavor'].must_equal "mysql"
-      traces[6]['Query'].must_equal "SELECT  `widgets`.* FROM `widgets`  WHERE `widgets`.`name` = 'blah' LIMIT 1"
+      traces[6]['Query'].must_equal "SELECT `widgets`.* FROM `widgets`  WHERE `widgets`.`name` = 'blah'"
       traces[6]['Name'].must_equal "Widget Load"
       traces[6].key?('Backtrace').must_equal true
 
@@ -421,7 +421,7 @@ if defined?(::Rails)
       traces[6]['Layer'].must_equal "activerecord"
       traces[6]['Label'].must_equal "entry"
       traces[6]['Flavor'].must_equal "mysql"
-      traces[6]['Query'].must_equal "SELECT  `widgets`.* FROM `widgets`  WHERE `widgets`.`name` = ? LIMIT ?"
+      traces[6]['Query'].must_equal "SELECT `widgets`.* FROM `widgets`  WHERE `widgets`.`name` = ?"
       traces[6]['Name'].must_equal "Widget Load"
       traces[6].key?('Backtrace').must_equal true
       traces[6].key?('QueryArgs').must_equal false
