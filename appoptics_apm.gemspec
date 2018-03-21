@@ -36,8 +36,7 @@ Gem::Specification.new do |s|
   unless defined?(JRUBY_VERSION)
     case RUBY_VERSION
     when /^1\.9/
-      s.add_development_dependency('debugger', '>= 1.6.7')
-      s.add_development_dependency('pry', '>= 0.10.0')
+      s.add_development_dependency('pry-debugger', '>= 0.2.3')
     when /^2\./
       s.add_development_dependency('byebug', '>= 8.0.0')
       s.add_development_dependency('pry', '>= 0.10.0')
