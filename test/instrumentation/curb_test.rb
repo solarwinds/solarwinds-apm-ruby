@@ -39,7 +39,7 @@ if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
       assert_equal 'curb',                    traces[1]['Layer']
       assert_equal 'entry',                   traces[1]['Label']
       assert_equal 1,                         traces[1]['IsService']
-      assert_equal url,                      traces[1]['RemoteURL']
+      assert_equal url,                       traces[1]['RemoteURL']
       assert_equal method,                    traces[1]['HTTPMethod']
       assert                                  traces[1]['Backtrace']
 
