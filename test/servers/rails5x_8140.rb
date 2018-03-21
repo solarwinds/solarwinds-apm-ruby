@@ -5,6 +5,12 @@
 #  This is a Rails stack that launches on a background
 #  thread and listens on port 8140.
 #
+require "rails/all"
+require "action_controller/railtie" # require more if needed
+require 'rack/handler/puma'
+require File.expand_path(File.dirname(__FILE__) + '/../models/widget')
+
+AppOpticsAPM.logger.info "[appoptics_apm/info] Starting background utility rails app on localhost:8140."
 if ENV['DBTYPE'] == 'mysql2'
   AppOpticsAPM::Test.set_mysql2_env
 elsif ENV['DBTYPE'] == 'postgresql'
@@ -15,13 +21,6 @@ else
   AppOpticsAPM::Test.set_postgresql_env
 end
 
-require "rails/all"
-require "action_controller/railtie" # require more if needed
-require 'rack/handler/puma'
-require File.expand_path(File.dirname(__FILE__) + '/../models/widget')
-
-AppOpticsAPM.logger.info "[appoptics_apm/info] Starting background utility rails app on localhost:8140."
-
 ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
 
 unless ActiveRecord::Base.connection.table_exists? 'widgets'
@@ -30,11 +29,16 @@ end
 
 class Rails50MetalStack < Rails::Application
   routes.append do
-    get "/hello/world" => "hello#world"
-    get "/hello/:id/show" => "hello#show"
-    get "/hello/metal" => "ferro#world"
-    get "/hello/db"    => "hello#db"
+    get "/hello/world"       => "hello#world"
+    get "/hello/:id/show"    => "hello#show"
+    get "/hello/metal"       => "ferro#world"
+    get "/hello/db"          => "hello#db"
     get "/hello/servererror" => "hello#servererror"
+
+    post "/widgets"          => "widgets#create"
+    get "/widgets/:id"       => "widgets#show"
+    put "/widgets/:id"       => "widgets#update"
+    delete "/widgets/:id"    => "widgets#destroy"
   end
 
   config.cache_classes = true
@@ -76,11 +80,55 @@ class HelloController < ActionController::Base
   end
 end
 
+class WidgetsController < ActionController::Base
+  protect_from_forgery with: :null_session
+
+  def show
+    if widget = Widget.find(params[:id].to_i)
+      render :json => widget
+    else
+      render :json => { :error => 'Widget NOT found' }, :status => 500
+    end
+  end
+
+  def update
+    if widget = Widget.update(params[:id].to_i, widget_params.to_h.symbolize_keys)
+      render :json => widget
+    else
+      render :json => { :error => 'Widget NOT updated' }, :status => 500
+    end
+  end
+
+  def create
+    widget = Widget.new(widget_params.to_h.symbolize_keys)
+    if widget.save
+      render :json => widget
+    else
+      render :json => { :error => 'Widget NOT created' }, :status => 500
+    end
+  end
+
+  def destroy
+    if Widget.delete(params[:id].to_i) != 0
+      render :plain => 'Widget destroyed'
+    else
+      render :plain => 'Widget NOT destroyed', :status => 500
+    end
+  end
+
+  private
+
+  def widget_params
+    params.require(:widget).permit(:name, :description)
+  end
+
+end
+
 class FerroController < ActionController::Metal
   include AbstractController::Rendering
 
   def world
-    render :plain => "Hello world!"
+    render :plain => 'Hello world!'
   end
 end
 
