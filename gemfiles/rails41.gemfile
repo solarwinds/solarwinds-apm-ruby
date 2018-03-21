@@ -18,7 +18,7 @@ else
   gem 'sinatra'
   gem 'pg', '< 0.19'
   gem 'mysql'
-  gem 'mysql2'
+  gem 'mysql2', '~> 0.4.10' # 0.5.0 published March 20, not working (yet)
 end
 
 gem "rails", "~> 4.1.15"

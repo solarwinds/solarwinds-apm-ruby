@@ -37,7 +37,7 @@ if defined?(JRUBY_VERSION)
   gem 'jdbc-postgresql'
 else
   gem 'pg', '< 1.0.0' # rails is not ready for pg 1.0
-  gem 'mysql2'
+  gem 'mysql2', '~> 0.4.10' # 0.5.0 published March 20, not working (yet)
 end
 
 gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')
