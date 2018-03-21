@@ -16,26 +16,33 @@ jruby = defined?(JRUBY_VERSION) ? true : false
 ao_lib_dir = File.join(ext_dir, 'lib')
 ao_include = File.join(ext_dir, 'src')
 
-# Download the appropriate liboboe from files.appoptics.com
-ao_path = File.join('https://files.appoptics.com/c-lib', File.read(File.join(ao_include, 'VERSION')).chomp)
+# Download the appropriate liboboe from S3(via rake for testing) or files.appoptics.com (production)
+version = File.read(File.join(ao_include, 'VERSION')).chomp
+if ENV['FROM_S3']
+  ao_path = File.join('https://s3-us-west-2.amazonaws.com/rc-files-t2/c-lib/', version)
+  puts "Fetching c-lib from S3"
+else
+  ao_path = File.join('https://files.appoptics.com/c-lib', version)
+end
 ao_arch = `ldd --version 2>&1` =~ /musl/ ? 'alpine-x86_64' : 'x86_64'
 ao_clib = "liboboe-1.0-#{ao_arch}.so.0.0.0"
 ao_item = File.join(ao_path, ao_clib)
 ao_checksum_item = "#{ao_item}.sha256"
-target = File.join(ao_lib_dir, ao_clib)
+clib = File.join(ao_lib_dir, ao_clib)
 
 retries = 3
+success = false
 while retries > 0
   begin
     # download
     download = open(ao_item, 'rb')
-    IO.copy_stream(download, target)
+    IO.copy_stream(download, clib)
 
     checksum = open(ao_checksum_item, 'r').read.chomp
-    target_checksum = Digest::SHA256.file(target).hexdigest
+    clib_checksum = Digest::SHA256.file(clib).hexdigest
 
     # verify_checksum
-    if target_checksum != checksum
+    if clib_checksum != checksum
       $stderr.puts '== ERROR ================================================================='
       $stderr.puts 'Checksum Verification failed for the c-extension of the appoptics_apm gem.'
       $stderr.puts 'appoptics_apm will not instrument the code. No tracing will occur.'
@@ -48,7 +55,7 @@ while retries > 0
       retries = 0
     end
   rescue => e
-    File.write(target, '')
+    File.write(clib, '')
     retries -= 1
     if retries == 0
       $stderr.puts '== ERROR =========================================================='
@@ -63,11 +70,13 @@ while retries > 0
 end
 
 if success
-  # Create symlinks for the AppOpticsAPM library
-  File.symlink(target, File.join(ao_lib_dir, 'liboboe.so'))
-  File.symlink(target, File.join(ao_lib_dir, 'liboboe-1.0.so.0'))
+  # Create relative symlinks for the AppOpticsAPM library
+  Dir.chdir(ao_lib_dir) do
+    File.symlink(ao_clib, 'liboboe.so')
+    File.symlink(ao_clib, 'liboboe-1.0.so.0')
+  end
 
-  dir_config('oboe', ao_include, ao_lib_dir)
+  dir_config('oboe', 'src', 'lib')
 
   if jruby || ENV.key?('APPOPTICS_URL')
     # Build the noop extension under JRuby and Heroku.
@@ -84,12 +93,8 @@ if success
     $CFLAGS << " #{ENV['CFLAGS']}"
     $CPPFLAGS << " #{ENV['CPPFLAGS']}"
     $LIBS << " #{ENV['LIBS']}"
-    $LDFLAGS << " #{ENV['LDFLAGS']} -Wl,-rpath=#{ao_lib_dir}"
+    $LDFLAGS << " #{ENV['LDFLAGS']} '-Wl,-rpath=$$ORIGIN/../ext/oboe_metal/lib'"
 
-    if RUBY_VERSION < '1.9'
-      cpp_command('g++')
-      $CPPFLAGS << '-I./src/'
-    end
     create_makefile('oboe_metal', 'src')
 
   else
