@@ -249,5 +249,6 @@ end
 
 # Setup an alias so we don't bug users
 # about single letter capitalization
-Appoptics = AppOpticsAPM
-AO = AppOpticsAPM
+AppopticsAPM = AppOpticsAPM
+AppOpticsApm = AppOpticsAPM
+AppopticsApm = AppOpticsAPM
