@@ -19,6 +19,7 @@ module AppOpticsAPM
             # ActiveRecord 3.1 and above
             AppOpticsAPM::Util.method_alias(::ActiveRecord::ConnectionAdapters::Mysql2Adapter, :exec_insert)
             AppOpticsAPM::Util.method_alias(::ActiveRecord::ConnectionAdapters::Mysql2Adapter, :exec_query)
+            AppOpticsAPM::Util.method_alias(::ActiveRecord::ConnectionAdapters::Mysql2Adapter, :exec_update)
             AppOpticsAPM::Util.method_alias(::ActiveRecord::ConnectionAdapters::Mysql2Adapter, :exec_delete)
           end
         end

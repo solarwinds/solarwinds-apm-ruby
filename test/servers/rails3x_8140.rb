@@ -35,6 +35,8 @@ class Rails32MetalStack < Rails::Application
     get "/hello/metal" => "ferro#world"
     get "/hello/db"    => "hello#db"
     get "/hello/servererror" => "hello#servererror"
+
+    resources :widgets
   end
 
   config.cache_classes = true
@@ -66,7 +68,7 @@ class HelloController < ActionController::Base
     w1.save
 
     # query for that widget
-    w2 = Widget.where(:name => 'blah').first
+    w2 = Widget.where(:name => 'blah')[0]
     w2.delete
 
     render :text => "Hello database!"
@@ -75,6 +77,50 @@ class HelloController < ActionController::Base
   def servererror
     render :plain => "broken", :status => 500
   end
+end
+
+class WidgetsController < ActionController::Base
+  protect_from_forgery with: :null_session
+
+  def show
+    if widget = Widget.find(params[:id].to_i)
+      render :json => widget
+    else
+      render :json => { :error => 'Widget NOT found' }, :status => 500
+    end
+  end
+
+  def update
+    if widget = Widget.update(params[:id].to_i, widget_params.to_h.symbolize_keys)
+      render :json => widget
+    else
+      render :json => { :error => 'Widget NOT updated' }, :status => 500
+    end
+  end
+
+  def create
+    widget = Widget.new(widget_params.to_h.symbolize_keys)
+    if widget.save
+      render :json => widget
+    else
+      render :json => { :error => 'Widget NOT created' }, :status => 500
+    end
+  end
+
+  def destroy
+    if Widget.delete(params[:id].to_i) != 0
+      render :plain => 'Widget destroyed'
+    else
+      render :plain => 'Widget NOT destroyed', :status => 500
+    end
+  end
+
+  private
+
+  def widget_params
+    params.require(:widget).permit(:name, :description)
+  end
+
 end
 
 class FerroController < ActionController::Metal
