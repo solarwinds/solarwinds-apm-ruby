@@ -99,10 +99,10 @@ task :compile do
   if !defined?(JRUBY_VERSION)
     puts "== Building the c extension against Ruby #{RUBY_VERSION}"
 
-    pwd     = Dir.pwd
-    ext_dir = File.expand_path('ext/oboe_metal')
-    symlink = File.expand_path('lib/oboe_metal.so')
-    so_file = File.expand_path('ext/oboe_metal/oboe_metal.so')
+    pwd      = Dir.pwd
+    ext_dir  = File.expand_path('ext/oboe_metal')
+    final_so = File.expand_path('lib/oboe_metal.so')
+    so_file  = File.expand_path('ext/oboe_metal/oboe_metal.so')
 
     Dir.chdir ext_dir
     ENV['FROM_S3'] = 'TRUE'
@@ -110,14 +110,14 @@ task :compile do
     sh cmd.join(' ')
     sh '/usr/bin/env make'
 
-    File.delete symlink if File.exist? symlink
+    File.delete(final_so) if File.exist?(final_so)
 
-    if File.exist? so_file
-      FileUtils.mv so_file, symlink
-      Dir.chdir pwd
-      puts "== Extension built and moved to #{symlink}"
+    if File.exist?(so_file)
+      FileUtils.mv(so_file, final_so)
+      Dir.chdir(pwd)
+      puts "== Extension built and moved to #{final_so}"
     else
-      Dir.chdir pwd
+      Dir.chdir(pwd)
       puts '!! Extension failed to build (see above). Have the required binary and header files been fetched?'
       puts '!! Try the tasks in this order: clean > fetchsource > compile.'
     end
