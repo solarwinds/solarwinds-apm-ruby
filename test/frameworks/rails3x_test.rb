@@ -550,6 +550,5 @@ if defined?(::Rails)
     end
 
     require_relative "rails_shared_tests"
-    require_relative "rails_crud_test"
   end
 end
