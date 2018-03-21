@@ -15,7 +15,6 @@ RUN apt-get update \
        libcurl4-gnutls-dev \
        libmysqlclient-dev \
        libpq-dev \
-       libffi-dev \
        vim \
        less \
        tree \
