@@ -1,0 +1,67 @@
+FROM ruby:2.4-alpine3.7
+
+# Use this Dockerfile to create the gem
+# > docker build -f Dockerfile_alpine -t ruby_alpine .
+# > docker run --rm  -v `pwd`:/code/ruby-appoptics ruby_alpine /bin/bash -l -c 'cd /code/ruby-appoptics'
+
+# install OS packages
+RUN apk update
+RUN apk add --upgrade \
+      bash \
+      build-base \
+      curl \
+      curl-dev \
+      linux-headers \
+      git \
+      pcre \
+      pcre-dev \
+      readline-dev \
+      openjdk8 \
+      zlib-dev \
+      less \
+      swig \
+   && rm -rf /var/lib/apt/lists/*
+
+# rbenv setup
+# use rbenv-default-gems to automatically install bundler for each ruby version
+RUN  git clone https://github.com/rbenv/rbenv.git ~/.rbenv \
+   && git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build \
+   && git clone https://github.com/rbenv/rbenv-default-gems.git ~/.rbenv/plugins/rbenv-default-gems \
+   && echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.profile \
+   && echo 'eval "$(rbenv init -)"' >> ~/.profile \
+   && echo 'bundler' > ~/.rbenv/default-gems
+
+# install rubies to build our gem against
+RUN source  ~/.profile
+   && rbenv install 1.9.3-p551 \
+   && rbenv install 2.3.1 \
+   && rbenv install 2.4.1
+   && rbenv install jruby-9.0.5.0
+
+# install swig 3.0.8
+RUN curl -SL http://kent.dl.sourceforge.net/project/swig/swig/swig-3.0.8/swig-3.0.8.tar.gz \
+   | tar xzC /tmp \
+   && cd /tmp/swig-3.0.8 \
+   && ./configure && make && make install \
+   && cd \
+   && rm -rf /tmp/swig-3.0.8
+
+RUN apk add --upgrade \
+      redis \
+      memcached \
+      postgresql \
+      openrc
+   && rc-service postgresql start \
+   && echo "psql --command \"CREATE USER docker WITH SUPERUSER PASSWORD 'docker';\"" >> /tmp/config \
+   && echo "createdb -O docker travis_ci_test" >> /tmp/config \
+   && su postgres -c "bash /tmp/config" \
+   && rm -f /tmp/config
+
+RUN apk add --update mysql-client mysql mariadb
+
+ENV PATH="/root/.rbenv/bin:/root/.rbenv/shims:$PATH"
+ENV RUBY_ENV=test
+ENV DOCKER_PSQL_PASS=docker
+ENV APPOPTICS_OS_ARCH=alpine-x86_64
+
+CMD bash
