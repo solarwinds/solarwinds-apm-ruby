@@ -25,7 +25,7 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
 
     def refined_trace_count(traces)
       # we expect 23 traces, but it looks like there are cases where an extra 2 or 4 redis traces slip in
-      # This method will allow the tests to pass despite the inconsistency in counts and also log some information
+      # This method will allow the tests to pass despite the inconsistency in counts
 
       redis_traces = traces.select { |h| h['Layer'] == 'redis' }
       traces.count - redis_traces.count
@@ -38,7 +38,7 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
       end
 
       # Allow the job to be run
-      sleep 5
+      sleep 3
 
       traces = get_all_traces
       assert_equal 21, refined_trace_count(traces)
@@ -77,7 +77,7 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
       end
 
       # Allow the job to be run
-      sleep 5
+      sleep 3
 
       traces = get_all_traces
       assert_equal 21, refined_trace_count(traces)
@@ -95,7 +95,7 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
       end
 
       # Allow the job to be run
-      sleep 5
+      sleep 3
 
       traces = get_all_traces
       assert_equal 21, refined_trace_count(traces)
@@ -113,7 +113,7 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
       end
 
       # Allow the job to be run
-      sleep 5
+      sleep 3
 
       traces = get_all_traces
       assert_equal 21, refined_trace_count(traces)
@@ -130,7 +130,7 @@ if RUBY_VERSION >= '2.0' && !defined?(JRUBY_VERSION)
       end
 
       # Allow the job to be run
-      sleep 5
+      sleep 3
 
       traces = get_all_traces
       assert_equal 21, refined_trace_count(traces)

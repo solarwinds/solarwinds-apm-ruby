@@ -18,15 +18,22 @@ travis = YAML.load_file('.travis.yml')
 matrix = []
 travis['rvm'].each do |rvm|
   travis['gemfile'].each do |gemfile|
-    matrix << { "rvm" => rvm, "gemfile" => gemfile }
+    travis['env'].each do |env|
+      matrix << { "rvm" => rvm, "gemfile" => gemfile, 'env' => env}
+    end
   end
 end
 
-matrix = matrix - travis['matrix']['exclude']
+travis['matrix']['exclude'].each do |h|
+  matrix.delete_if do |m|
+    m == m.merge(h)
+  end
+end
 
 matrix.each do |args|
   args['rvm'] = '1.9.3-p551' if args['rvm'] =~ /1.9.3/
-  `docker-compose run --rm --service-ports ruby_appoptics_apm /code/ruby-appoptics_apm/ruby_setup.sh #{args['rvm']} #{args['gemfile']}`
+  `docker-compose run --rm --service-ports ruby_appoptics_apm /code/ruby-appoptics_apm/ruby_setup.sh #{args['rvm']} #{args['gemfile']} #{args['env']}`
+  puts "docker-compose run --rm --service-ports ruby_appoptics_apm /code/ruby-appoptics_apm/ruby_setup.sh #{args['rvm']} #{args['gemfile']} #{args['env']}"
 end
 
 # `docker-compose down --rmi all`
