@@ -17,6 +17,7 @@ module AppOpticsAPM
 
             # ActiveRecord 3.1 and up
             AppOpticsAPM::Util.method_alias(::ActiveRecord::ConnectionAdapters::PostgreSQLAdapter, :exec_query)
+            AppOpticsAPM::Util.method_alias(::ActiveRecord::ConnectionAdapters::PostgreSQLAdapter, :exec_update)
             AppOpticsAPM::Util.method_alias(::ActiveRecord::ConnectionAdapters::PostgreSQLAdapter, :exec_delete)
 
           else

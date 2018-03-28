@@ -20,7 +20,7 @@ if ENV['TEST_RUNS_TO_FILE']
   end
 end
 
-puts "\n\033[1m=== TEST RUN: #{ENV['RVM_TEST']} #{ENV['BUNDLE_GEMFILE']} #{Time.now.strftime("%Y-%m-%d %H:%M")} ===\033[0m\n"
+puts "\n\033[1m=== TEST RUN: #{ENV['RVM_TEST']} #{File.basename(ENV['BUNDLE_GEMFILE'])} #{ENV['DBTYPE']} #{Time.now.strftime("%Y-%m-%d %H:%M")} ===\033[0m\n"
 
 ENV['RACK_ENV'] = 'test'
 ENV['APPOPTICS_GEM_TEST'] = 'true'

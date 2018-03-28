@@ -61,10 +61,10 @@ module AppOpticsAPM
         end
 
         def exec_query_with_appoptics(sql, name = nil, binds = [], prepare: false)
-          if AppOpticsAPM.tracing? && !ignore_payload?(name)
+          if AppOpticsAPM.tracing? && AppOpticsAPM.layer_op != :ar_started && !ignore_payload?(name)
 
             opts = extract_trace_details(sql, name, binds)
-            AppOpticsAPM::API.trace('activerecord', opts || {}) do
+            AppOpticsAPM::API.trace('activerecord', opts) do
               exec_query_without_appoptics(sql, name, binds)
             end
           else
@@ -76,7 +76,7 @@ module AppOpticsAPM
           if AppOpticsAPM.tracing? && !ignore_payload?(name)
 
             opts = extract_trace_details(sql, name, binds)
-            AppOpticsAPM::API.trace('activerecord', opts || {}) do
+            AppOpticsAPM::API.trace('activerecord', opts, :ar_started) do
               exec_insert_without_appoptics(sql, name, binds, *args)
             end
           else
@@ -88,11 +88,23 @@ module AppOpticsAPM
           if AppOpticsAPM.tracing? && !ignore_payload?(name)
 
             opts = extract_trace_details(sql, name, binds)
-            AppOpticsAPM::API.trace('activerecord', opts || {}) do
+            AppOpticsAPM::API.trace('activerecord', opts, :ar_started) do
               exec_delete_without_appoptics(sql, name, binds)
             end
           else
             exec_delete_without_appoptics(sql, name, binds)
+          end
+        end
+
+        def exec_update_with_appoptics(sql, name = nil, binds = [])
+          if AppOpticsAPM.tracing? && !ignore_payload?(name)
+
+            opts = extract_trace_details(sql, name, binds)
+            AppOpticsAPM::API.trace('activerecord', opts, :ar_started) do
+              exec_update_without_appoptics(sql, name, binds)
+            end
+          else
+            exec_update_without_appoptics(sql, name, binds)
           end
         end
       end # Utils
