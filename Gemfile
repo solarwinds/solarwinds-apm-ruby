@@ -7,11 +7,7 @@ group :development, :test do
   gem 'minitest-debugger', :require => false
   gem 'rack-test'
   gem 'puma'
-  if RUBY_VERSION < '1.9.3'
-    gem 'bson', '<= 1.12.3'
-  else
-    gem 'bson'
-  end
+  gem 'bson'
   gem 'webmock' if RUBY_VERSION >= '2.0.0'
   gem 'mocha'
   gem 'rubocop', require: false
@@ -24,12 +20,8 @@ group :development do
   gem 'debugger',     :platform  =>  :mri_19
   gem 'byebug',       :platforms => [:mri_20, :mri_21, :mri_22, :mri_23, :mri_24]
   #  gem 'perftools.rb', :platforms => [ :mri_20, :mri_21 ], :require => 'perftools'
-  if RUBY_VERSION >= '2.0.0'
-    gem 'pry'
-    gem 'pry-byebug', :platforms => [:mri_20, :mri_21, :mri_22, :mri_23, :mri_24]
-  else
-    gem 'pry', '~> 0.10.0'
-  end
+  gem 'pry'
+  gem 'pry-byebug', :platforms => [:mri_20, :mri_21, :mri_22, :mri_23, :mri_24]
 end
 
 if defined?(JRUBY_VERSION)

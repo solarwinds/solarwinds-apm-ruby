@@ -28,9 +28,6 @@ ENV['APPOPTICS_GEM_TEST'] = 'true'
 #
 # ENV['APPOPTICS_GEM_VERBOSE'] = 'true'
 
-# FIXME: Temp hack to fix padrino-core calling RUBY_ENGINE when it's not defined under Ruby 1.9.3
-RUBY_ENGINE = 'ruby' unless defined?(RUBY_ENGINE)
-
 Minitest::Spec.new 'pry'
 
 MiniTest::Reporters.use! MiniTest::Reporters::SpecReporter.new
@@ -75,13 +72,11 @@ when /rails3/
 when /frameworks/
 when /libraries/
   require 'rack/test'
-  if RUBY_VERSION >= '2.0'
-    # Load Sidekiq if TEST isn't defined or if it is, it calls
-    # out the sidekiq tests
-    if !ENV.key?('TEST') || ENV['TEST'] =~ /sidekiq/
-      # Background Sidekiq thread
-      require './test/servers/sidekiq.rb'
-    end
+  # Load Sidekiq if TEST isn't defined or if it is, it calls
+  # out the sidekiq tests
+  if !ENV.key?('TEST') || ENV['TEST'] =~ /sidekiq/
+    # Background Sidekiq thread
+    require './test/servers/sidekiq.rb'
   end
 end
 

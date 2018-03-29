@@ -1,18 +1,10 @@
 source "https://rubygems.org"
 
-
-  gem 'moped'
-  gem 'eventmachine', '< 1.2.0'
-  gem 'em-synchrony'
-  gem 'em-http-request'
-
-if RUBY_VERSION >= '2.0.0'
-  # rest-client depends on mime-types gem which only supports
-  # ruby 1.9.3 and up.  Latest rest-client only
-  # supports Ruby 2.0+
-  gem 'rest-client'
-end
-
+gem 'moped'
+gem 'eventmachine', '< 1.2.0'
+gem 'em-synchrony'
+gem 'em-http-request'
+gem 'rest-client'
 
 group :development, :test do
   gem 'minitest'
@@ -23,9 +15,7 @@ group :development, :test do
   gem 'rake'
   gem 'bson', '~> 4.0'
   gem 'puma', '< 3.1.0'
-  if RUBY_VERSION >= '2.0.0'
-    gem 'webmock'
-  end
+  gem 'webmock'
 end
 
 if defined?(JRUBY_VERSION)
@@ -34,20 +24,8 @@ else
   gem 'sinatra'
 end
 
-if RUBY_VERSION == '1.9.3'
-  gem 'mime-types', '< 3.0'
-end
-
-if RUBY_VERSION < '2.0.0'
-  gem 'bunny', '< 2.0.0'
-  # these gems dropped suport for < ruby version 2.0
-  gem 'json', '< 2.0.0'
-else
-  gem 'bunny', '< 2.6.5'
-end
-
-  gem 'mongo'
-
+gem 'bunny', '< 2.6.5'
+gem 'mongo'
 gem 'cassandra'
 gem 'curb', '<= 0.9.3' unless defined?(JRUBY_VERSION)
 gem 'dalli'
@@ -56,9 +34,9 @@ gem 'faraday'
 gem 'httpclient'
 gem 'memcache-client'
 gem 'redis'
-gem 'resque' unless defined?(JRUBY_VERSION) && RUBY_VERSION > '1.9.3'
+gem 'resque' unless defined?(JRUBY_VERSION)
 gem 'sequel'
-gem "sidekiq" if RUBY_VERSION >= '2.0'
+gem 'sidekiq'
 gem 'typhoeus'
 
 # Database adapter gems needed by sequel
@@ -70,15 +48,7 @@ else
     gem 'mysql'
   end
   gem 'mysql2'
-  if RUBY_VERSION < '2.0'
-    gem 'pg', '0.18.4'
-  else
-    gem 'pg'
-  end
-end
-
-unless defined?(JRUBY_VERSION)
-  gem 'memcached', '1.7.2' if RUBY_VERSION < '2.0.0'
+  gem 'pg'
 end
 
 gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')

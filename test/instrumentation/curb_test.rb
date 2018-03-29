@@ -1,7 +1,7 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
-if RUBY_VERSION > '1.8.7' && !defined?(JRUBY_VERSION)
+unless defined?(JRUBY_VERSION)
 
   require 'minitest_helper'
   require 'appoptics_apm/inst/rack'

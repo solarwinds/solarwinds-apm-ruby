@@ -193,25 +193,21 @@ module AppOpticsAPMBase
     env = ENV['RACK_ENV'] || ENV['RAILS_ENV']
     return unless %w(development, test).include? env
 
-    if RUBY_VERSION > '1.9.3'
-      require 'pry'
-      require 'pry-byebug'
+    require 'pry'
+    require 'pry-byebug'
 
-      if defined?(PryByebug)
-        Pry.commands.alias_command 'c', 'continue'
-        Pry.commands.alias_command 's', 'step'
-        Pry.commands.alias_command 'n', 'next'
-        Pry.commands.alias_command 'f', 'finish'
+    if defined?(PryByebug)
+      Pry.commands.alias_command 'c', 'continue'
+      Pry.commands.alias_command 's', 'step'
+      Pry.commands.alias_command 'n', 'next'
+      Pry.commands.alias_command 'f', 'finish'
 
-        Pry::Commands.command(/^$/, 'repeat last command') do
-          _pry_.run_command Pry.history.to_a.last
-        end
+      Pry::Commands.command(/^$/, 'repeat last command') do
+        _pry_.run_command Pry.history.to_a.last
       end
-
-      byebug
-    else
-      require 'ruby-debug'; debugger
     end
+
+    byebug
   end
 
   ##

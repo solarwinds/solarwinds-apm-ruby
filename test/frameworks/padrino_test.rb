@@ -4,7 +4,7 @@
 require "minitest_helper"
 require "mocha/mini_test"
 
-if RUBY_VERSION >= '1.9.3' and defined?(::Padrino)
+if defined?(::Padrino)
   require File.expand_path(File.dirname(__FILE__) + '/apps/padrino_simple')
 
   describe Padrino do

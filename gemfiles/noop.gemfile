@@ -9,9 +9,7 @@ group :development, :test do
   gem 'rake'
   gem 'bson', '~> 4.0'
   gem 'puma', '< 3.1.0'
-  if RUBY_VERSION >= '2.0.0'
-    gem 'webmock'
-  end
+  gem 'webmock'
 end
 
 gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')

@@ -34,17 +34,12 @@ Gem::Specification.new do |s|
   s.add_development_dependency('rake', '>= 0.9.0')
 
   unless defined?(JRUBY_VERSION)
-    case RUBY_VERSION
-    when /^1\.9/
-      s.add_development_dependency('pry-debugger', '>= 0.2.3')
-    when /^2\./
-      s.add_development_dependency('byebug', '>= 8.0.0')
-      s.add_development_dependency('pry', '>= 0.10.0')
-      s.add_development_dependency('pry-byebug', '>= 3.0.0')
-    end
+    s.add_development_dependency('byebug', '>= 8.0.0')
+    s.add_development_dependency('pry', '>= 0.10.0')
+    s.add_development_dependency('pry-byebug', '>= 3.0.0')
   else
     s.add_development_dependency('pry', '>= 0.10.0')
   end
 
-  s.required_ruby_version = '>= 1.9.3'
+  s.required_ruby_version = '>= 2.0.0'
 end

@@ -8,17 +8,7 @@ group :development, :test do
   gem 'mocha'
   gem 'rack-test'
   gem 'puma' #, '< 3.1.0'
-  if RUBY_VERSION < '1.9.3'
-    gem 'bson', '<= 1.12.3'
-  else
-    gem 'bson', '< 4.0'
-  end
-end
-
-# New mime-types/mime-types-data requires ruby 2.0
-if RUBY_VERSION < '2.0'
-  # these gems dropped suport for < ruby version 2.0
-  gem 'json', '< 2.0.0'
+  gem 'bson', '< 4.0'
 end
 
 if defined?(JRUBY_VERSION)
@@ -27,18 +17,15 @@ else
   gem 'sinatra'
 end
 
-if RUBY_VERSION > '1.9.3'
-  gem "grape"
+gem "grape"
 
-  if defined?(JRUBY_VERSION)
-    # Limit padrino gem under JRuby as version 0.13.0 throws
-    # a bundler load error
-    gem "padrino", '< 0.13.0'
-  else
-    gem 'padrino'
-  end
+if defined?(JRUBY_VERSION)
+  # Limit padrino gem under JRuby as version 0.13.0 throws
+  # a bundler load error
+  gem "padrino", '< 0.13.0'
+else
+  gem 'padrino'
 end
-
 
 gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')
 # vim:syntax=ruby

@@ -76,30 +76,28 @@ module AppOpticsAPM
   end
 end
 
-if RUBY_VERSION >= '1.9'
-  if defined?(::EventMachine::HttpConnection) && defined?(::EventMachine::HttpClient) && AppOpticsAPM::Config[:em_http_request][:enabled]
-    AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting em-http-request' if AppOpticsAPM::Config[:verbose]
+if defined?(::EventMachine::HttpConnection) && defined?(::EventMachine::HttpClient) && AppOpticsAPM::Config[:em_http_request][:enabled]
+  AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting em-http-request' if AppOpticsAPM::Config[:verbose]
 
-    class ::EventMachine::HttpConnection
-      include AppOpticsAPM::Inst::EventMachine::HttpConnection
+  class ::EventMachine::HttpConnection
+    include AppOpticsAPM::Inst::EventMachine::HttpConnection
 
-      if method_defined?(:setup_request)
-        class_eval 'alias :setup_request_without_appoptics :setup_request'
-        class_eval 'alias :setup_request :setup_request_with_appoptics'
-      else
-        AppOpticsAPM.logger.warn '[appoptics_apm/loading] Couldn\'t properly instrument em-http-request (:setup_request).  Partial traces may occur.'
-      end
+    if method_defined?(:setup_request)
+      class_eval 'alias :setup_request_without_appoptics :setup_request'
+      class_eval 'alias :setup_request :setup_request_with_appoptics'
+    else
+      AppOpticsAPM.logger.warn '[appoptics_apm/loading] Couldn\'t properly instrument em-http-request (:setup_request).  Partial traces may occur.'
     end
+  end
 
-    class ::EventMachine::HttpClient
-      include AppOpticsAPM::Inst::EventMachine::HttpClient
+  class ::EventMachine::HttpClient
+    include AppOpticsAPM::Inst::EventMachine::HttpClient
 
-      if method_defined?(:parse_response_header)
-        class_eval 'alias :parse_response_header_without_appoptics :parse_response_header'
-        class_eval 'alias :parse_response_header :parse_response_header_with_appoptics'
-      else
-        AppOpticsAPM.logger.warn '[appoptics_apm/loading] Couldn\'t properly instrument em-http-request (:parse_response_header).  Partial traces may occur.'
-      end
+    if method_defined?(:parse_response_header)
+      class_eval 'alias :parse_response_header_without_appoptics :parse_response_header'
+      class_eval 'alias :parse_response_header :parse_response_header_with_appoptics'
+    else
+      AppOpticsAPM.logger.warn '[appoptics_apm/loading] Couldn\'t properly instrument em-http-request (:parse_response_header).  Partial traces may occur.'
     end
   end
 end

@@ -1,11 +1,6 @@
 source "https://rubygems.org"
 
-if RUBY_VERSION >= '2.0.0'
-  # rest-client depends on mime-types gem which only supports
-  # ruby 1.9.3 and up.  Latest rest-client only
-  # supports Ruby 2.0+
-  gem 'rest-client'
-end
+gem 'rest-client'
 
 group :development, :test do
   gem 'minitest'
