@@ -10,11 +10,6 @@ group :development, :test do
   gem 'bson', '< 4.0'
 end
 
-# New mime-types/mime-types-data requires ruby 2.0
-if RUBY_VERSION < '2.0'
-  gem 'mime-types', '< 3.0'
-end
-
 if defined?(JRUBY_VERSION)
   gem 'sinatra', :require => false
   gem 'activerecord-jdbc-adapter'
@@ -22,11 +17,7 @@ if defined?(JRUBY_VERSION)
 else
   gem 'sinatra'
   # pg 0.19 and above require ruby 2.0
-  if RUBY_VERSION < '2.0'
-    gem 'pg', '< 0.19'
-  else
-    gem 'pg', '< 1.0.0' # rails is not ready for pg 1.0
-  end
+  gem 'pg', '< 1.0.0' # rails is not ready for pg 1.0
   gem "delayed_job_active_record"
 end
 
