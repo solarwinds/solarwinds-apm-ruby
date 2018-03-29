@@ -165,7 +165,6 @@ if defined?(AppOpticsAPM::Config)
   # AppOpticsAPM::Config[:faraday][:enabled] = true
   # AppOpticsAPM::Config[:grape][:enabled] = true
   # AppOpticsAPM::Config[:httpclient][:enabled] = true
-  # AppOpticsAPM::Config[:memcache][:enabled] = true
   # AppOpticsAPM::Config[:memcached][:enabled] = true
   # AppOpticsAPM::Config[:mongo][:enabled] = true
   # AppOpticsAPM::Config[:moped][:enabled] = true
@@ -204,7 +203,6 @@ if defined?(AppOpticsAPM::Config)
   # AppOpticsAPM::Config[:faraday][:collect_backtraces] = false
   # AppOpticsAPM::Config[:grape][:collect_backtraces] = false
   # AppOpticsAPM::Config[:httpclient][:collect_backtraces] = false
-  # AppOpticsAPM::Config[:memcache][:collect_backtraces] = false
   # AppOpticsAPM::Config[:memcached][:collect_backtraces] = false
   # AppOpticsAPM::Config[:mongo][:collect_backtraces] = true
   # AppOpticsAPM::Config[:moped][:collect_backtraces] = true
