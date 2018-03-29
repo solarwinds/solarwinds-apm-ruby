@@ -3,7 +3,7 @@
 
 require 'minitest_helper'
 
-unless defined?(JRUBY_VERSION)
+if RUBY_VERSION < '2.0' && !defined?(JRUBY_VERSION)
   describe "Memcached" do
     require 'memcached'
     require 'memcached/rails'
