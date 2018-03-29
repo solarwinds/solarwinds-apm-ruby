@@ -9,7 +9,6 @@ rvm:
   - 2.5.0
   - 2.4.3
   - 2.3.6
-  - 1.9.3 # soon not supported anymore
 #  - jruby-9.0.5.0
 
 gemfile:
@@ -70,18 +69,6 @@ matrix:
       gemfile: gemfiles/rails32.gemfile
     - rvm: 2.4.3
       gemfile: gemfiles/rails32.gemfile
-
-    # Rails 5 requires Ruby >= 2.2
-    - rvm: 1.9.3
-      gemfile: gemfiles/rails50.gemfile
-    - rvm: 1.9.3
-      gemfile: gemfiles/rails51.gemfile
-
-    # WebMock requires Ruby 2.0 or higher
-    - rvm: 1.9.3
-      gemfile: gemfiles/instrumentation_mocked.gemfile
-    - rvm: 1.9.3
-      gemfile: gemfiles/instrumentation_mocked_oldgems.gemfile
 
 #    - rvm: jruby-9.0.5.0
 #      gemfile: gemfiles/delayed_job.gemfile

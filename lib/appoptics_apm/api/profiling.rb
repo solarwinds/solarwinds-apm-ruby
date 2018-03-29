@@ -85,11 +85,7 @@ module AppOpticsAPM
         # like we did something to nicely play the no-op part.
         return true unless AppOpticsAPM.loaded
 
-        if RUBY_VERSION < '1.9.3'
-          AppOpticsAPM.logger.warn '[appoptics_apm/error] profile_method: Use the legacy method profiling for Ruby versions before 1.9.3'
-          return false
-
-        elsif !klass.is_a?(Module)
+        if !klass.is_a?(Module)
           AppOpticsAPM.logger.warn "[appoptics_apm/error] profile_method: Not sure what to do with #{klass}.  Send a class or module."
           return false
 

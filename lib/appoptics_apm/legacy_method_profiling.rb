@@ -29,20 +29,13 @@ module AppOpticsAPMMethodProfiling
     def profile_method_real(method_name, profile_name, store_args = false, store_return = false, *_)
       begin
         # this only gets file and line where profiling is turned on, presumably
-        # right after the function definition. ruby 1.9 and 2.0 has nice introspection (Method.source_location)
-        # but its appears no such luck for ruby 1.8
+        # right after the function definition.
         file = ''
         line = ''
-        if RUBY_VERSION >= '1.9'
-          info = instance_method(method_name).source_location
-          unless info.nil?
-            file = info[0].to_s
-            line = info[1].to_s
-          end
-        else
-          info = Kernel.caller[0].split(':')
-          file = info.first.to_s
-          line = info.last.to_s
+        info = instance_method(method_name).source_location
+        unless info.nil?
+          file = info[0].to_s
+          line = info[1].to_s
         end
 
         # Safety:  Make sure there are no quotes or double quotes to break the class_eval

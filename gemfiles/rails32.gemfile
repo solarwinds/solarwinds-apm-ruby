@@ -1,33 +1,14 @@
 source "https://rubygems.org"
 
-if RUBY_VERSION < '1.9.3'
-  # i18n 0.7.0 dropped support for Ruby 1.9.2 and older.  ActiveSupport
-  # depends on i18n 0.7.0 since v 4.0.5.  For < 1.9.2 Ruby support, lock
-  # down to these versions to maintain functionality.
-  gem 'i18n', '< 0.7.0'
-  gem 'activesupport', '< 4.0'
-end
-
-if RUBY_VERSION < '2.0.0'
-  # rack-cache dropped support for Ruby 1.9
-  gem 'rack-cache', '1.2'
-end
-
 group :development, :test do
   gem 'minitest'
   gem 'minitest-reporters', '< 1.0.18'
   gem 'minitest-debugger', :require => false
   gem 'mocha'
   gem 'rack-test'
-  if RUBY_VERSION < '1.9.3'
-    gem 'rake', '< 11.0'
-    gem 'bson', '<= 1.12.5'
-    gem 'puma', '< 3.0'
-  else
-    gem 'rake'
-    gem 'bson', '< 4.0'
-    gem 'puma', '< 3.1.0'
-  end
+  gem 'rake'
+  gem 'bson', '< 4.0'
+  gem 'puma', '< 3.1.0'
 end
 
 if defined?(JRUBY_VERSION)
@@ -43,12 +24,7 @@ else
   gem 'mysql2', '~> 0.3.10'
 end
 
-if RUBY_VERSION < '1.9'
-  # Newer Rails is incompatible with Ruby 1.8.7
-  gem "rails", "3.2.19"
-else
-  gem "rails", "~> 3.2.22"
-end
+gem "rails", "~> 3.2.22"
 
 gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')
 # vim:syntax=ruby
