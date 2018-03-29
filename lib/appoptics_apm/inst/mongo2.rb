@@ -3,7 +3,7 @@
 
 require 'json'
 
-if RUBY_VERSION >= '1.9' && AppOpticsAPM::Config[:mongo][:enabled]
+if AppOpticsAPM::Config[:mongo][:enabled]
   if defined?(::Mongo) && (Gem.loaded_specs['mongo'].version.to_s >= '2.0.0')
     ::AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting mongo' if AppOpticsAPM::Config[:verbose]
 

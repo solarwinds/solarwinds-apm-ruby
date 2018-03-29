@@ -43,7 +43,7 @@ module AppOpticsAPM
   end
 end
 
-if defined?(::Sidekiq) && RUBY_VERSION >= '2.0' && AppOpticsAPM::Config[:sidekiqclient][:enabled]
+if defined?(::Sidekiq) && AppOpticsAPM::Config[:sidekiqclient][:enabled]
   ::Sidekiq.configure_client do |config|
     config.client_middleware do |chain|
       ::AppOpticsAPM.logger.info '[appoptics_apm/loading] Adding Sidekiq client middleware' if AppOpticsAPM::Config[:verbose]

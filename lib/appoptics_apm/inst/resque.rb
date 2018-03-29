@@ -138,7 +138,7 @@ module AppOpticsAPM
   end
 end
 
-if defined?(::Resque) && RUBY_VERSION >= '1.9.3'
+if defined?(::Resque)
   AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting resque' if AppOpticsAPM::Config[:verbose]
 
   ::AppOpticsAPM::Util.send_include(::Resque,         ::AppOpticsAPM::Inst::ResqueClient) if AppOpticsAPM::Config[:resqueclient][:enabled]

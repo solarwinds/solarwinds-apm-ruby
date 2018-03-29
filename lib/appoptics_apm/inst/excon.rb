@@ -20,15 +20,7 @@ module AppOpticsAPM
         # Conditionally log query args
         if AppOpticsAPM::Config[:excon][:log_args] && @data[:query]
           if @data[:query].is_a?(Hash)
-            if RUBY_VERSION >= '1.9.2'
-              kvs[:ServiceArg] = "#{@data[:path]}?#{URI.encode_www_form(@data[:query])}"
-            else
-              # An imperfect solution for the lack of URI.encode_www_form for Ruby versions before
-              # 1.9.2.  We manually create a query string for reporting purposes only.
-              query_arg = ""
-              @data[:query].each_pair { |k,v| query_arg += "#{k}=#{v}?"; }
-              kvs[:ServiceArg] = "#{@data[:path]}?#{query_arg.chop}"
-            end
+            kvs[:ServiceArg] = "#{@data[:path]}?#{URI.encode_www_form(@data[:query])}"
           else
             kvs[:ServiceArg] = "#{@data[:path]}?#{@data[:query]}"
           end

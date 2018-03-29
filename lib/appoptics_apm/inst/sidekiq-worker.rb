@@ -55,7 +55,7 @@ module AppOpticsAPM
   end
 end
 
-if defined?(::Sidekiq) && RUBY_VERSION >= '2.0' && AppOpticsAPM::Config[:sidekiqworker][:enabled]
+if defined?(::Sidekiq) && AppOpticsAPM::Config[:sidekiqworker][:enabled]
   ::AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting sidekiq' if AppOpticsAPM::Config[:verbose]
 
   ::Sidekiq.configure_server do |config|

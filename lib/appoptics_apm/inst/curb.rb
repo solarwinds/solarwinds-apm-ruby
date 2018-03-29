@@ -321,7 +321,7 @@ module AppOpticsAPM
   end
 end
 
-if AppOpticsAPM::Config[:curb][:enabled] && defined?(::Curl) && RUBY_VERSION > '1.8.7'
+if AppOpticsAPM::Config[:curb][:enabled] && defined?(::Curl)
   ::AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting curb' if AppOpticsAPM::Config[:verbose]
   ::AppOpticsAPM::Util.send_include(::Curl::Easy, ::AppOpticsAPM::Inst::CurlEasy)
   ::AppOpticsAPM::Util.send_extend(::Curl::Multi, ::AppOpticsAPM::Inst::CurlMultiCM)
