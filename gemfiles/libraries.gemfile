@@ -32,7 +32,7 @@ gem 'dalli'
 gem 'excon'
 gem 'faraday'
 gem 'httpclient'
-gem 'memcache-client'
+gem 'memcached'
 gem 'redis'
 gem 'resque' unless defined?(JRUBY_VERSION)
 gem 'sequel'

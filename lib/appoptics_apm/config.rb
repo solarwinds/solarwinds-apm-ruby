@@ -15,8 +15,7 @@ module AppOpticsAPM
                          :active_record, :bunnyclient, :bunnyconsumer, :cassandra, :curb,
                          :dalli, :delayed_jobclient, :delayed_jobworker,
                          :em_http_request, :excon, :faraday, :grape,
-                         :httpclient, :nethttp, :memcached,
-                         :memcache, :mongo, :moped, :rack, :redis,
+                         :httpclient, :nethttp, :memcached, :mongo, :moped, :rack, :redis,
                          :resqueclient, :resqueworker, :rest_client,
                          :sequel, :sidekiqclient, :sidekiqworker, :typhoeus]
 
@@ -66,7 +65,6 @@ module AppOpticsAPM
       AppOpticsAPM::Config[:faraday][:collect_backtraces] = false
       AppOpticsAPM::Config[:grape][:collect_backtraces] = true
       AppOpticsAPM::Config[:httpclient][:collect_backtraces] = true
-      AppOpticsAPM::Config[:memcache][:collect_backtraces] = false
       AppOpticsAPM::Config[:memcached][:collect_backtraces] = false
       AppOpticsAPM::Config[:mongo][:collect_backtraces] = true
       AppOpticsAPM::Config[:moped][:collect_backtraces] = true

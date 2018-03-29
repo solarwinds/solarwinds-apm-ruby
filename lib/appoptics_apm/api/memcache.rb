@@ -9,6 +9,7 @@ module AppOpticsAPM
   module API
     ##
     # Utility methods for the Memcache instrumentation
+    # currently used by dalli and memcached
     module Memcache #:nodoc:
       MEMCACHE_OPS = %w(add append cas decr decrement delete fetch get incr increment prepend replace set)
 

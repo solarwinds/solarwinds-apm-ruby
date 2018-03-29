@@ -29,7 +29,7 @@ describe "AppOpticsAPM::Config" do
     instrumentation = AppOpticsAPM::Config.instrumentation
 
     # Verify the number of individual instrumentations
-    instrumentation.count.must_equal 30
+    instrumentation.count.must_equal 29
 
     AppOpticsAPM::Config[:action_controller][:enabled].must_equal true
     AppOpticsAPM::Config[:action_controller_api][:enabled].must_equal true
@@ -49,7 +49,6 @@ describe "AppOpticsAPM::Config" do
     AppOpticsAPM::Config[:httpclient][:enabled].must_equal true
     AppOpticsAPM::Config[:nethttp][:enabled].must_equal true
     AppOpticsAPM::Config[:memcached][:enabled].must_equal true
-    AppOpticsAPM::Config[:memcache][:enabled].must_equal true
     AppOpticsAPM::Config[:mongo][:enabled].must_equal true
     AppOpticsAPM::Config[:moped][:enabled].must_equal true
     AppOpticsAPM::Config[:rack][:enabled].must_equal true
@@ -80,7 +79,6 @@ describe "AppOpticsAPM::Config" do
     AppOpticsAPM::Config[:httpclient][:log_args].must_equal true
     AppOpticsAPM::Config[:nethttp][:log_args].must_equal true
     AppOpticsAPM::Config[:memcached][:log_args].must_equal true
-    AppOpticsAPM::Config[:memcache][:log_args].must_equal true
     AppOpticsAPM::Config[:mongo][:log_args].must_equal true
     AppOpticsAPM::Config[:moped][:log_args].must_equal true
     AppOpticsAPM::Config[:rack][:log_args].must_equal true

@@ -12,7 +12,8 @@ module AppOpticsAPM
           if ::Dalli::Client.private_method_defined? :perform
             alias perform_without_appoptics perform
             alias perform perform_with_appoptics
-          else AppOpticsAPM.logger.warn '[appoptics_apm/loading] Couldn\'t properly instrument Memcache (Dalli).  Partial traces may occur.'
+          else
+            AppOpticsAPM.logger.warn '[appoptics_apm/loading] Couldn\'t properly instrument Memcache (Dalli).  Partial traces may occur.'
           end
 
           if ::Dalli::Client.method_defined? :get_multi
