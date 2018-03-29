@@ -162,7 +162,7 @@ if Gem.loaded_specs['mongo'].version.to_s < '2.0.0'
       traces[1]['Collection'].must_equal "testCollection"
       traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
       traces[1]['QueryOp'].must_equal "insert"
-      # Don't test exact hash value since to_json hash ordering varies between 1.8.7 and 1.9+
+      # Don't test exact hash value since to_json hash ordering varies
       traces[1].has_key?('Query').must_equal true
     end
 
@@ -371,7 +371,7 @@ if Gem.loaded_specs['mongo'].version.to_s < '2.0.0'
       traces[1]['Collection'].must_equal "testCollection"
       traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
       traces[1]['QueryOp'].must_equal "group"
-      # Don't test exact hash value since to_json hash ordering varies between 1.8.7 and 1.9+
+      # Don't test exact hash value since to_json hash ordering varies
       traces[1].has_key?('Query').must_equal true
     end
 
