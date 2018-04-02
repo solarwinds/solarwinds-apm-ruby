@@ -206,7 +206,7 @@ module AppOpticsAPM
           platform_info['Ruby.Excon.Version']      = "Excon-#{::Excon::VERSION}"           if defined?(::Excon::VERSION)
           platform_info['Ruby.Faraday.Version']    = "Faraday-#{::Faraday::VERSION}"       if defined?(::Faraday::VERSION)
           platform_info['Ruby.HTTPClient.Version'] = "HTTPClient-#{::HTTPClient::VERSION}" if defined?(::HTTPClient::VERSION)
-          platform_info['Ruby.MemCache.Version']   = "MemCache-#{::MemCache::VERSION}"     if defined?(::MemCache::VERSION)
+          platform_info['Ruby.Memcached.Version']  = "Memcached-#{::Memcached::VERSION}"   if defined?(::Memcached::VERSION)
           platform_info['Ruby.Moped.Version']      = "Moped-#{::Moped::VERSION}"           if defined?(::Moped::VERSION)
           platform_info['Ruby.Redis.Version']      = "Redis-#{::Redis::VERSION}"           if defined?(::Redis::VERSION)
           platform_info['Ruby.Resque.Version']     = "Resque-#{::Resque::VERSION}"         if defined?(::Resque::VERSION)

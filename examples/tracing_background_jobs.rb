@@ -15,7 +15,7 @@ AppOpticsAPM::Config[:tracing_mode] = 'always'
 # and doesn't have to be called manually
 #
 # Load library instrumentation to auto-capture stuff we know about...
-# e.g. ActiveRecord, Cassandra, Dalli, Redis, memcache, mongo
+# e.g. ActiveRecord, Cassandra, Dalli, Redis, Memcache, Mongo
 # AppOpticsAPM::Ruby.load
 
 # Some KVs to report to the dashboard
