@@ -15,7 +15,6 @@ ext/oboe_metal/src/oboe.h
 ext/oboe_metal/src/oboe.hpp
 ext/oboe_metal/src/oboe_debug.h
 ext/oboe_metal/src/oboe_wrap.cxx
-ext/oboe_metal/src/VERSION
 log/
 .vagrant
 gemfiles/.bundle

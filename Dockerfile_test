@@ -9,6 +9,7 @@ RUN apt-get update \
        git-core \
        libpcre3-dev \
        libreadline-dev \
+       libsasl2-dev \
        libssl-dev \
        openjdk-8-jdk \
        zlib1g-dev \
