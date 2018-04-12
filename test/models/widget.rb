@@ -18,7 +18,7 @@ unless defined?(Padrino)
         create_table :widgets do |t|
           t.string :name
           t.text :description
-          t.timestamps
+          t.timestamps null: false
         end
       end
     end
@@ -28,7 +28,7 @@ unless defined?(Padrino)
         create_table :widgets do |t|
           t.string :name
           t.text :description
-          t.timestamps
+          t.timestamps null: false
         end
       end
     end
