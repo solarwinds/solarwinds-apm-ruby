@@ -2,7 +2,7 @@
 # All rights reserved.
 
 require 'minitest_helper'
-require 'mocha/mini_test'
+require 'mocha/minitest'
 
 describe AppOpticsAPM::API::Logging do
   describe "when we trace with a context" do

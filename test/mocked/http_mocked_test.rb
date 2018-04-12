@@ -3,7 +3,7 @@
 
 unless defined?(JRUBY_VERSION)
   require 'minitest_helper'
-  require 'mocha/mini_test'
+  require 'mocha/minitest'
   require 'net/http'
 
   class HTTPMockedTest < Minitest::Test

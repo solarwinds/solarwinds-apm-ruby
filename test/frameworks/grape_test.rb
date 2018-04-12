@@ -2,7 +2,7 @@
 # All rights reserved.
 
 require 'minitest_helper'
-require 'mocha/mini_test'
+require 'mocha/minitest'
 
 if defined?(::Grape)
   require File.expand_path(File.dirname(__FILE__) + '/apps/grape_simple')

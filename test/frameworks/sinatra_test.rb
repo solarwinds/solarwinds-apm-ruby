@@ -3,7 +3,7 @@
 
 
 require "minitest_helper"
-require "mocha/mini_test"
+require "mocha/minitest"
 require File.expand_path(File.dirname(__FILE__) + '/apps/sinatra_simple')
 
 describe Sinatra do
