@@ -105,7 +105,7 @@ task :compile do
     so_file  = File.expand_path('ext/oboe_metal/oboe_metal.so')
 
     Dir.chdir ext_dir
-    ENV['FROM_S3'] = 'TRUE'
+    ENV['APPOPTICS_FROM_S3'] = 'true'
     cmd = [Gem.ruby, 'extconf.rb']
     sh cmd.join(' ')
     sh '/usr/bin/env make'
