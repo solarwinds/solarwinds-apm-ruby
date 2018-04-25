@@ -6,8 +6,6 @@ require 'rbconfig'
 require 'open-uri'
 require 'no_proxy_fix'
 
-# require 'digest'
-
 ext_dir = File.expand_path(File.dirname(__FILE__))
 
 # Check if we're running in JRuby
