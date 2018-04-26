@@ -73,7 +73,7 @@ task :fetch_ext_deps do
   end
 
   # The c-lib version is different from the gem version
-  oboe_version = ENV['OBOE_VERSION'] || 'latest'
+  oboe_version = ENV['OBOE_VERSION'] || '2.0.9'
   oboe_src_dir = "https://s3-us-west-2.amazonaws.com/rc-files-t2/c-lib/#{oboe_version}"
   ext_src_dir = File.expand_path('ext/oboe_metal/src')
 
@@ -85,7 +85,7 @@ task :fetch_ext_deps do
     puts "fetching #{remote_file} to #{local_file}"
     open(remote_file, 'rb') do |rf|
       content = rf.read
-      File.open(local_file, 'wb') {|f| f.puts content}
+      File.open(local_file, 'wb') { |f| f.puts content }
     end
   end
   FileUtils.cd(ext_src_dir) do
@@ -105,7 +105,7 @@ task :compile do
     so_file  = File.expand_path('ext/oboe_metal/oboe_metal.so')
 
     Dir.chdir ext_dir
-    ENV['FROM_S3'] = 'TRUE'
+    ENV['APPOPTICS_FROM_S3'] = 'true'
     cmd = [Gem.ruby, 'extconf.rb']
     sh cmd.join(' ')
     sh '/usr/bin/env make'
