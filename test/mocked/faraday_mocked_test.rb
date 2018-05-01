@@ -5,7 +5,7 @@ if !defined?(JRUBY_VERSION)
 
   require 'minitest_helper'
   require 'webmock/minitest'
-  require 'mocha/mini_test'
+  require 'mocha/minitest'
 
   class FaradayMockedTest < Minitest::Test
 

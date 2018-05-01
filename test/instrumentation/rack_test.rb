@@ -5,7 +5,7 @@ require 'minitest_helper'
 require 'rack/test'
 require 'rack/lobster'
 require 'appoptics_apm/inst/rack'
-require 'mocha/mini_test'
+require 'mocha/minitest'
 
 class RackTestApp < Minitest::Test
   include Rack::Test::Methods
