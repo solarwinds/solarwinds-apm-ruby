@@ -100,7 +100,7 @@ module AppOpticsAPM
     AppOpticsAPM.logger.warn '********************************************************'
     AppOpticsAPM.logger.warn '* AppOpticsAPM::Config Values'
     AppOpticsAPM.logger.warn '********************************************************'
-    AppOpticsAPM::Config.show.each { |k,v|
+    AppOpticsAPM::Config.config.each { |k,v|
       AppOpticsAPM.logger.warn "#{k}: #{v}"
     }
 

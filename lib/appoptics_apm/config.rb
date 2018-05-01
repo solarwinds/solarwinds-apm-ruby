@@ -23,10 +23,82 @@ module AppOpticsAPM
     @@http_clients = [:curb, :excon, :em_http_request, :faraday, :httpclient, :nethttp, :rest_client, :typhoeus]
 
     ##
-    # Return the raw nested hash.
+    # load_config_file
     #
-    def self.show
-      @@config
+    # There are 3 possible locations for the config file:
+    # Rails default, ENV['APPOPTICS_APM_CONFIG_RUBY'], or the gem's default
+    #
+    # Hierarchie:
+    # 1 - Rails default: config/initializers/appoptics_apm.rb
+    #     (also loaded  by Rails, but we can't reliably determine if Rails is running)
+    # 2 - ENV['APPOPTICS_APM_CONFIG_RUBY']
+    # 3 - Gem default: <startup_dir>/appoptics_apm_config.rb
+    #
+    def self.load_config_file
+      config_files = []
+
+      # Check for the rails config file
+      config_file = File.join(Dir.pwd, 'config/initializers/appoptics_apm.rb')
+      config_files << config_file if File.exist?(config_file)
+
+      # Check for file set by env variable
+      if ENV.key?('APPOPTICS_APM_CONFIG_RUBY')
+        if File.exist?(ENV['APPOPTICS_APM_CONFIG_RUBY']) && !File.directory?(ENV['APPOPTICS_APM_CONFIG_RUBY'])
+          config_files << ENV['APPOPTICS_APM_CONFIG_RUBY']
+        elsif File.exist?(File.join(ENV['APPOPTICS_APM_CONFIG_RUBY'], 'appoptics_apm_config.rb'))
+          config_files << File.join(ENV['APPOPTICS_APM_CONFIG_RUBY'], 'appoptics_apm_config.rb')
+        else
+          $stderr.puts 'Could not find the configuration file set by the APPOPTICS_APM_CONFIG_RUBY environment variable:'
+          $stderr.puts "#{ENV['APPOPTICS_APM_CONFIG_RUBY']}"
+        end
+      end
+
+      # Check for default config file
+      config_file = File.join(Dir.pwd, 'appoptics_apm_config.rb')
+      config_files << config_file if File.exist?(config_file)
+
+      return if config_files.empty?
+
+      if config_files.size > 1
+        $stderr.puts 'Found multiple configuration files, using the first one listed:'
+        config_files.each { |path| $stderr.puts "  #{path}" }
+      end
+      load(config_files[0])
+    end
+
+    ##
+    # print_config
+    #
+    # print configurations one per line
+    # to create an output similar to the content of the config file
+    #
+    def self.print_config
+      puts "# General configurations"
+      non_instrumentation = @@config.keys - @@instrumentation
+      non_instrumentation.each do |config|
+        puts "AppOpticsAPM::Config[:#{config}] = #{@@config[config]}"
+      end
+
+      puts "\n# Instrumentation specific configurations"
+      puts "# Enabled/Disabled Instrumentation"
+      @@instrumentation.each do |config|
+        puts "AppOpticsAPM::Config[:#{config}][:enabled] = #{@@config[config][:enabled]}"
+      end
+
+      puts "\n# Enabled/Disabled Backtrace Collection"
+      @@instrumentation.each do |config|
+        puts "AppOpticsAPM::Config[:#{config}][:collect_backtraces] = #{@@config[config][:collect_backtraces]}"
+      end
+
+      puts "\n# Logging of outgoing HTTP query args"
+      @@instrumentation.each do |config|
+        puts "AppOpticsAPM::Config[:#{config}][:log_args] = #{@@config[config][:log_args]}"
+      end
+
+      puts "\n# Bunny Controller and Action"
+      puts "AppOpticsAPM::Config[:bunnyconsumer][:controller] = #{@@config[:bunnyconsumer][:controller].inspect}"
+      puts "AppOpticsAPM::Config[:bunnyconsumer][:action] = #{@@config[:bunnyconsumer][:action].inspect}"
+      nil
     end
 
     ##
@@ -246,10 +318,9 @@ module AppOpticsAPM
         @@http_clients.each do |i|
           @@config[i][:log_args] = value
         end
-      end
 
       # Update liboboe if updating :tracing_mode
-      if key == :tracing_mode
+      elsif key == :tracing_mode
         AppOpticsAPM.set_tracing_mode(value.to_sym) if AppOpticsAPM.loaded
 
         # Make sure that the mode is stored as a symbol
