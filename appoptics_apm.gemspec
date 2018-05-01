@@ -43,4 +43,5 @@ Gem::Specification.new do |s|
   end
 
   s.required_ruby_version = '>= 2.0.0'
+  s.executables   = s.files.grep(%r{^bin/}) { |f| File.basename(f) }
 end
