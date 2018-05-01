@@ -7,7 +7,7 @@ version: "2"
 # ('ruby_appoptics' and 'wait' will exit)
 #
 # to run some ruby tests:
-# > docker-compose run --service-ports ruby_appoptics /code/ruby-appoptics_apm/ruby_setup.sh 2.3.1 gemfiles/rails42.gemfile
+# > docker-compose run --service-ports ruby_appoptics_apm /code/ruby-appoptics_apm/ruby_setup.sh 2.3.6 gemfiles/rails42.gemfile
 #
 ########################################################################################################
 
@@ -34,27 +34,27 @@ services:
        - MYSQL_HOST=mysql
        - APPOPTICS_MONGO_SERVER=mongo
 
-  ruby_appoptics_apm_alpine:
-     container_name: ruby_appoptics_apm_alpine
-     image: ruby_alpine
-     build:
-        context: .
-        dockerfile: ./Dockerfile_alpine
-     cpu_quota: 100000 # 1 cpu, assumes cpu_period of 1 second
-     mem_limit: 1G
-     volumes:
-       - .:/code/ruby-appoptics_apm
-     depends_on:
-       - wait
-     links:
-       - wait
-     environment:
-       - APPOPTICS_RABBITMQ_SERVER=rabbitmq
-       - DOCKER_MYSQL_PASS=admin
-       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
-       - MYSQL_ROOT_PASSWORD=admin
-       - MYSQL_HOST=mysql
-       - APPOPTICS_MONGO_SERVER=mongo
+#  ruby_appoptics_apm_alpine:
+#     container_name: ruby_appoptics_apm_alpine
+#     image: ruby_alpine
+#     build:
+#        context: .
+#        dockerfile: ./Dockerfile_alpine
+#     cpu_quota: 100000 # 1 cpu, assumes cpu_period of 1 second
+#     mem_limit: 1G
+#     volumes:
+#       - .:/code/ruby-appoptics_apm
+#     depends_on:
+#       - wait
+#     links:
+#       - wait
+#     environment:
+#       - APPOPTICS_RABBITMQ_SERVER=rabbitmq
+#       - DOCKER_MYSQL_PASS=admin
+#       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+#       - MYSQL_ROOT_PASSWORD=admin
+#       - MYSQL_HOST=mysql
+#       - APPOPTICS_MONGO_SERVER=mongo
 
   rabbitmq:
     container_name: rabbitmq
