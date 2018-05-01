@@ -104,147 +104,16 @@ module AppOpticsAPM
     ##
     # initialize
     #
-    # Initializer method to set everything up with a
-    # default configuration.
+    # Initializer method to set everything up with a default configuration.
+    # The defaults are read from the template configuration file.
     #
     # rubocop:disable Metrics/AbcSize
     def self.initialize(_data = {})
-      # Setup default instrumentation values
       @@instrumentation.each do |k|
         @@config[k] = {}
-        @@config[k][:enabled] = true
-        @@config[k][:collect_backtraces] = false
-        @@config[k][:log_args] = true
       end
-
-      # Beta instrumentation disabled by default
-      AppOpticsAPM::Config[:em_http_request][:enabled] = false
-
-      # Set collect_backtraces defaults
-      AppOpticsAPM::Config[:action_controller][:collect_backtraces] = false
-      AppOpticsAPM::Config[:action_controller_api][:collect_backtraces] = false
-      AppOpticsAPM::Config[:active_record][:collect_backtraces] = true
-      AppOpticsAPM::Config[:bunnyclient][:collect_backtraces] = false
-      AppOpticsAPM::Config[:bunnyconsumer][:collect_backtraces] = false
-      AppOpticsAPM::Config[:action_view][:collect_backtraces] = true
-      AppOpticsAPM::Config[:cassandra][:collect_backtraces] = true
-      AppOpticsAPM::Config[:curb][:collect_backtraces] = true
-      AppOpticsAPM::Config[:dalli][:collect_backtraces] = false
-      AppOpticsAPM::Config[:delayed_jobclient][:collect_backtraces] = false
-      AppOpticsAPM::Config[:delayed_jobworker][:collect_backtraces] = false
-      AppOpticsAPM::Config[:em_http_request][:collect_backtraces] = false
-      AppOpticsAPM::Config[:excon][:collect_backtraces] = true
-      AppOpticsAPM::Config[:faraday][:collect_backtraces] = false
-      AppOpticsAPM::Config[:grape][:collect_backtraces] = true
-      AppOpticsAPM::Config[:httpclient][:collect_backtraces] = true
-      AppOpticsAPM::Config[:memcached][:collect_backtraces] = false
-      AppOpticsAPM::Config[:mongo][:collect_backtraces] = true
-      AppOpticsAPM::Config[:moped][:collect_backtraces] = true
-      AppOpticsAPM::Config[:nethttp][:collect_backtraces] = true
-      AppOpticsAPM::Config[:rack][:collect_backtraces] = false
-      AppOpticsAPM::Config[:redis][:collect_backtraces] = false
-      AppOpticsAPM::Config[:resqueclient][:collect_backtraces] = true
-      AppOpticsAPM::Config[:resqueworker][:collect_backtraces] = false
-      AppOpticsAPM::Config[:rest_client][:collect_backtraces] = false
-      AppOpticsAPM::Config[:sequel][:collect_backtraces] = true
-      AppOpticsAPM::Config[:sidekiqclient][:collect_backtraces] = false
-      AppOpticsAPM::Config[:sidekiqworker][:collect_backtraces] = false
-      AppOpticsAPM::Config[:typhoeus][:collect_backtraces] = false
-
-      # Legacy Resque config support.  To be removed in a future version
-      @@config[:resque] = {}
-
-      # Setup an empty host blacklist (see: AppOpticsAPM::API::Util.blacklisted?)
-      @@config[:blacklist] = []
-
-      # Logging of outgoing HTTP query args
-      #
-      # This optionally disables the logging of query args of outgoing
-      # HTTP clients such as Net::HTTP, excon, typhoeus and others.
-      #
-      # This flag is global to all HTTP client instrumentation.
-      #
-      # To configure this on a per instrumentation basis, set this
-      # option to true and instead disable the instrumenstation specific
-      # option <tt>log_args</tt>:
-      #
-      #   AppOpticsAPM::Config[:nethttp][:log_args] = false
-      #   AppOpticsAPM::Config[:excon][:log_args] = false
-      #   AppOpticsAPM::Config[:typhoeus][:log_args] = true
-      #
-      @@config[:include_url_query_params] = true
-
-      # Logging of incoming HTTP query args
-      #
-      # This optionally disables the logging of incoming URL request
-      # query args.
-      #
-      # This flag is global and currently only affects the Rack
-      # instrumentation which reports incoming request URLs and
-      # query args by default.
-      @@config[:include_remote_url_params] = true
-
-      # The AppOpticsAPM Ruby gem has the ability to sanitize query literals
-      # from SQL statements.  By default this is enabled to
-      # avoid collecting and reporting query literals to AppOpticsAPM.
-      @@config[:sanitize_sql] = true
-
-      # The regular expression used to sanitize SQL.
-      @@config[:sanitize_sql_regexp] = '(\'[\s\S][^\']*\'|\d*\.\d+|\d+|NULL)'
-      @@config[:sanitize_sql_opts]   = Regexp::IGNORECASE
-
-      # Do Not Trace
-      # These two values allow you to configure specific URL patterns to
-      # never be traced.  By default, this is set to common static file
-      # extensions but you may want to customize this list for your needs.
-      #
-      # dnt_regexp and dnt_opts is passed to Regexp.new to create
-      # a regular expression object.  That is then used to match against
-      # the incoming request path.
-      #
-      # The path string originates from the rack layer and is retrieved
-      # as follows:
-      #
-      #   req = ::Rack::Request.new(env)
-      #   path = URI.unescape(req.path)
-      #
-      # Usage:
-      #   AppOpticsAPM::Config[:dnt_regexp] = "lobster$"
-      #   AppOpticsAPM::Config[:dnt_opts]   = Regexp::IGNORECASE
-      #
-      # This will ignore all requests that end with the string lobster
-      # regardless of case
-      #
-      # Requests with positive matches (non nil) will not be traced.
-      # See lib/appoptics_apm/util.rb: AppOpticsAPM::Util.static_asset?
-      #
-      @@config[:dnt_regexp] = '\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|otf|eot|ttf|woff|woff2|svg|less)(\?.+){0,1}$'
-      @@config[:dnt_opts]   = Regexp::IGNORECASE
-
-      # In Rails, raised exceptions with rescue handlers via
-      # <tt>rescue_from</tt> are not reported to the AppOptics
-      # dashboard by default.  Setting this value to true will
-      # report all raised exception regardless.
-      #
-      @@config[:report_rescued_errors] = false
-
-      # The bunny (Rabbitmq) instrumentation can optionally report
-      # Controller and Action values to allow filtering of bunny
-      # message handling in # the UI.  Use of Controller and Action
-      # for filters is temporary until the UI is updated with
-      # additional filters.
-      #
-      # These values identify which properties of
-      # Bunny::MessageProperties to report as Controller
-      # and Action.  The defaults are to report :app_id (as
-      # Controller) and :type (as Action).  If these values
-      # are not specified in the publish, then nothing
-      # will be reported here.
-      #
-      @@config[:bunnyconsumer][:controller] = :app_id
-      @@config[:bunnyconsumer][:action] = :type
-
-      @@config[:verbose] = ENV.key?('APPOPTICS_GEM_VERBOSE') && ENV['APPOPTICS_GEM_VERBOSE'] == 'true' ? true : false
+     load(File.join(File.dirname(File.dirname(__FILE__)),
+                    'rails/generators/appoptics_apm/templates/appoptics_apm_initializer.rb'))
     end
     # rubocop:enable Metrics/AbcSize
 
@@ -307,12 +176,12 @@ module AppOpticsAPM
         AppOpticsAPM.logger.warn "[appoptics_apm/config] :resque config is deprecated.  It is now split into :resqueclient and :resqueworker."
         AppOpticsAPM.logger.warn "[appoptics_apm/config] Called from #{Kernel.caller[0]}"
 
-      elsif key == :include_url_query_params
+      elsif key == :include_url_query_params # DEPRECATED
         # Obey the global flag and update all of the per instrumentation
         # <tt>:log_args</tt> values.
         @@config[:rack][:log_args] = value
 
-      elsif key == :include_remote_url_params
+      elsif key == :include_remote_url_params # DEPRECATED
         # Obey the global flag and update all of the per instrumentation
         # <tt>:log_args</tt> values.
         @@http_clients.each do |i|

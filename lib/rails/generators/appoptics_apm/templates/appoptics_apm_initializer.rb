@@ -3,6 +3,8 @@
 #
 # More information on instrumenting Ruby applications can be found here:
 # https://docs.appoptics.com/kb/apm_tracing/ruby/
+#
+# The settings in this template file represent the defaults
 
 if defined?(AppOpticsAPM::Config)
 
@@ -18,37 +20,8 @@ if defined?(AppOpticsAPM::Config)
   #
   # Verbose output of instrumentation initialization
   #
-  # AppOpticsAPM::Config[:verbose] = <%= @verbose %>
+  AppOpticsAPM::Config[:verbose] = ENV.key?('APPOPTICS_GEM_VERBOSE') && ENV['APPOPTICS_GEM_VERBOSE'] == 'true' ? true : false
   #
-
-  #
-  # Logging of incoming HTTP query args
-  #
-  # This optionally disables the logging of incoming URL request
-  # query args.
-  #
-  # This flag is global and currently only affects the Rack
-  # instrumentation which reports incoming request URLs and
-  # query args by default.
-  AppOpticsAPM::Config[:include_remote_url_params] = true
-
-  #
-  # Logging of outgoing HTTP query args
-  #
-  # This optionally disables the logging of query args of outgoing
-  # HTTP clients such as Net::HTTP, excon, typhoeus and others.
-  #
-  # This flag is global to all HTTP client instrumentation.
-  #
-  # To configure this on a per instrumentation basis, set this
-  # option to true and instead disable the instrumentation specific
-  # option <tt>log_args</tt>:
-  #
-  #   AppOpticsAPM::Config[:nethttp][:log_args] = false
-  #   AppOpticsAPM::Config[:excon][:log_args] = false
-  #   AppOpticsAPM::Config[:typhoeus][:log_args] = true
-  #
-  AppOpticsAPM::Config[:include_url_query_params] = true
 
   #
   # Sanitize SQL Statements
@@ -57,9 +30,11 @@ if defined?(AppOpticsAPM::Config)
   # from SQL statements.  By default this is enabled.  Disable to
   # collect and report query literals to AppOpticsAPM.
   #
-  # AppOpticsAPM::Config[:sanitize_sql] = true
-  #
+  AppOpticsAPM::Config[:sanitize_sql] = true
+  AppOpticsAPM::Config[:sanitize_sql_regexp] = '(\'[\s\S][^\']*\'|\d*\.\d+|\d+|NULL)'
+  AppOpticsAPM::Config[:sanitize_sql_opts]   = Regexp::IGNORECASE
 
+  #
   # Do Not Trace
   # These two values allow you to configure specific URL patterns to
   # never be traced.  By default, this is set to common static file
@@ -85,8 +60,8 @@ if defined?(AppOpticsAPM::Config)
   # Requests with positive matches (non nil) will not be traced.
   # See lib/appoptics_apm/util.rb: AppOpticsAPM::Util.static_asset?
   #
-  # AppOpticsAPM::Config[:dnt_regexp] = "\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|ttf|woff|svg|less)$"
-  # AppOpticsAPM::Config[:dnt_opts]   = Regexp::IGNORECASE
+  AppOpticsAPM::Config[:dnt_regexp] = '\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|otf|eot|ttf|woff|woff2|svg|less)(\?.+){0,1}$'
+  AppOpticsAPM::Config[:dnt_opts]   = Regexp::IGNORECASE
 
   #
   # Blacklist urls
@@ -99,7 +74,7 @@ if defined?(AppOpticsAPM::Config)
   #
   # Example: AppOpticsAPM::Config[:blacklist] = ['google.com']
   #
-  # AppOpticsAPM::Config[:blacklist]
+  AppOpticsAPM::Config[:blacklist] = []
   #
 
   #
@@ -110,7 +85,7 @@ if defined?(AppOpticsAPM::Config)
   # dashboard by default.  Setting this value to true will
   # report all raised exception regardless.
   #
-  # AppOpticsAPM::Config[:report_rescued_errors] = false
+  AppOpticsAPM::Config[:report_rescued_errors] = false
   #
 
   #
@@ -129,17 +104,8 @@ if defined?(AppOpticsAPM::Config)
   # are not specified in the publish, then nothing
   # will be reported here.
   #
-  # AppOpticsAPM::Config[:bunnyconsumer][:controller] = :app_id
-  # AppOpticsAPM::Config[:bunnyconsumer][:action] = :type
-  #
-
-  #
-  # Resque Argument logging
-  #
-  # Set to true to enable Resque argument logging (Default: false)
-  #
-  # AppOpticsAPM::Config[:resqueworker][:log_args] = false
-  # AppOpticsAPM::Config[:resqueclient[:log_args] = false
+  AppOpticsAPM::Config[:bunnyconsumer][:controller] = :app_id
+  AppOpticsAPM::Config[:bunnyconsumer][:action] = :type
   #
 
   #
@@ -149,34 +115,55 @@ if defined?(AppOpticsAPM::Config)
   # can be individually disabled here by setting the :enabled
   # value to false:
   #
-  # AppOpticsAPM::Config[:action_controller][:enabled] = true
-  # AppOpticsAPM::Config[:action_controller_api][:enabled] = true
-  # AppOpticsAPM::Config[:action_view][:enabled] = true
-  # AppOpticsAPM::Config[:active_record][:enabled] = true
-  # AppOpticsAPM::Config[:bunnyclient][:enabled] = true
-  # AppOpticsAPM::Config[:bunnyconsumer][:enabled] = true
-  # AppOpticsAPM::Config[:cassandra][:enabled] = true
-  # AppOpticsAPM::Config[:curb][:enabled] = true
-  # AppOpticsAPM::Config[:dalli][:enabled] = true
-  # AppOpticsAPM::Config[:delayed_jobclient][:enabled] = true
-  # AppOpticsAPM::Config[:delayed_jobworker][:enabled] = true
-  # AppOpticsAPM::Config[:em_http_request][:enabled] = true
-  # AppOpticsAPM::Config[:excon][:enabled] = true
-  # AppOpticsAPM::Config[:faraday][:enabled] = true
-  # AppOpticsAPM::Config[:grape][:enabled] = true
-  # AppOpticsAPM::Config[:httpclient][:enabled] = true
-  # AppOpticsAPM::Config[:memcached][:enabled] = true
-  # AppOpticsAPM::Config[:mongo][:enabled] = true
-  # AppOpticsAPM::Config[:moped][:enabled] = true
-  # AppOpticsAPM::Config[:nethttp][:enabled] = true
-  # AppOpticsAPM::Config[:redis][:enabled] = true
-  # AppOpticsAPM::Config[:resqueclient][:enabled] = true
-  # AppOpticsAPM::Config[:resqueworker][:enabled] = true
-  # AppOpticsAPM::Config[:rest_client][:enabled] = true
-  # AppOpticsAPM::Config[:sequel][:enabled] = true
-  # AppOpticsAPM::Config[:sidekiqclient][:enabled] = true
-  # AppOpticsAPM::Config[:sidekiqworker][:enabled] = true
-  # AppOpticsAPM::Config[:typhoeus][:enabled] = true
+  AppOpticsAPM::Config[:action_controller][:enabled] = true
+  AppOpticsAPM::Config[:action_controller_api][:enabled] = true
+  AppOpticsAPM::Config[:action_view][:enabled] = true
+  AppOpticsAPM::Config[:active_record][:enabled] = true
+  AppOpticsAPM::Config[:bunnyclient][:enabled] = true
+  AppOpticsAPM::Config[:bunnyconsumer][:enabled] = true
+  AppOpticsAPM::Config[:cassandra][:enabled] = true
+  AppOpticsAPM::Config[:curb][:enabled] = true
+  AppOpticsAPM::Config[:dalli][:enabled] = true
+  AppOpticsAPM::Config[:delayed_jobclient][:enabled] = true
+  AppOpticsAPM::Config[:delayed_jobworker][:enabled] = true
+  AppOpticsAPM::Config[:em_http_request][:enabled] = false
+  AppOpticsAPM::Config[:excon][:enabled] = true
+  AppOpticsAPM::Config[:faraday][:enabled] = true
+  AppOpticsAPM::Config[:grape][:enabled] = true
+  AppOpticsAPM::Config[:httpclient][:enabled] = true
+  AppOpticsAPM::Config[:memcached][:enabled] = true
+  AppOpticsAPM::Config[:mongo][:enabled] = true
+  AppOpticsAPM::Config[:moped][:enabled] = true
+  AppOpticsAPM::Config[:nethttp][:enabled] = true
+  AppOpticsAPM::Config[:rack][:enabled] = true
+  AppOpticsAPM::Config[:redis][:enabled] = true
+  AppOpticsAPM::Config[:resqueclient][:enabled] = true
+  AppOpticsAPM::Config[:resqueworker][:enabled] = true
+  AppOpticsAPM::Config[:rest_client][:enabled] = true
+  AppOpticsAPM::Config[:sequel][:enabled] = true
+  AppOpticsAPM::Config[:sidekiqclient][:enabled] = true
+  AppOpticsAPM::Config[:sidekiqworker][:enabled] = true
+  AppOpticsAPM::Config[:typhoeus][:enabled] = true
+  #
+
+  #
+  # Argument logging
+  #
+  # for http requests
+  # Set to true to enable argument logging
+  #
+  AppOpticsAPM::Config[:bunnyconsumer][:log_args] = true
+  AppOpticsAPM::Config[:curb][:log_args] = true
+  AppOpticsAPM::Config[:excon][:log_args] = true
+  AppOpticsAPM::Config[:httpclient][:log_args] = true
+  AppOpticsAPM::Config[:mongo][:log_args] = true
+  AppOpticsAPM::Config[:nethttp][:log_args] = true
+  AppOpticsAPM::Config[:rack][:log_args] = true
+  AppOpticsAPM::Config[:resqueclient][:log_args] = true
+  AppOpticsAPM::Config[:resqueworker][:log_args] = true
+  AppOpticsAPM::Config[:sidekiqclient][:log_args] = true
+  AppOpticsAPM::Config[:sidekiqworker][:log_args] = true
+  AppOpticsAPM::Config[:typhoeus][:log_args] = true
   #
 
   #
@@ -187,34 +174,34 @@ if defined?(AppOpticsAPM::Config)
   # performance but can be useful when trying to locate the source of
   # a certain call or operation.
   #
-  # AppOpticsAPM::Config[:action_controller][:collect_backtraces] = true
-  # AppOpticsAPM::Config[:action_controller_api][:collect_backtraces] = true
-  # AppOpticsAPM::Config[:action_view][:collect_backtraces] = true
-  # AppOpticsAPM::Config[:active_record][:collect_backtraces] = true
-  # AppOpticsAPM::Config[:bunnyclient][:collect_backtraces] = true
-  # AppOpticsAPM::Config[:bunnyconsumer][:collect_backtraces] = true
-  # AppOpticsAPM::Config[:cassandra][:collect_backtraces] = true
-  # AppOpticsAPM::Config[:curb][:collect_backtraces] = true
-  # AppOpticsAPM::Config[:dalli][:collect_backtraces] = false
-  # AppOpticsAPM::Config[:delayed_jobclient][:collect_backtraces] = false
-  # AppOpticsAPM::Config[:delayed_jobworker][:collect_backtraces] = false
-  # AppOpticsAPM::Config[:em_http_request][:collect_backtraces] = true
-  # AppOpticsAPM::Config[:excon][:collect_backtraces] = false
-  # AppOpticsAPM::Config[:faraday][:collect_backtraces] = false
-  # AppOpticsAPM::Config[:grape][:collect_backtraces] = false
-  # AppOpticsAPM::Config[:httpclient][:collect_backtraces] = false
-  # AppOpticsAPM::Config[:memcached][:collect_backtraces] = false
-  # AppOpticsAPM::Config[:mongo][:collect_backtraces] = true
-  # AppOpticsAPM::Config[:moped][:collect_backtraces] = true
-  # AppOpticsAPM::Config[:nethttp][:collect_backtraces] = true
-  # AppOpticsAPM::Config[:rack][:collect_backtraces] = true
-  # AppOpticsAPM::Config[:redis][:collect_backtraces] = false
-  # AppOpticsAPM::Config[:resqueclient][:collect_backtraces] = true
-  # AppOpticsAPM::Config[:resqueworker][:collect_backtraces] = true
-  # AppOpticsAPM::Config[:rest_client][:collect_backtraces] = true
-  # AppOpticsAPM::Config[:sequel][:collect_backtraces] = true
-  # AppOpticsAPM::Config[:sidekiqclient][:collect_backtraces] = true
-  # AppOpticsAPM::Config[:sidekiqworker][:collect_backtraces] = true
-  # AppOpticsAPM::Config[:typhoeus][:collect_backtraces] = false
-  #
+  AppOpticsAPM::Config[:action_controller][:collect_backtraces] = true
+  AppOpticsAPM::Config[:action_controller_api][:collect_backtraces] = true
+  AppOpticsAPM::Config[:action_view][:collect_backtraces] = true
+  AppOpticsAPM::Config[:active_record][:collect_backtraces] = true
+  AppOpticsAPM::Config[:bunnyclient][:collect_backtraces] = true
+  AppOpticsAPM::Config[:bunnyconsumer][:collect_backtraces] = true
+  AppOpticsAPM::Config[:cassandra][:collect_backtraces] = true
+  AppOpticsAPM::Config[:curb][:collect_backtraces] = true
+  AppOpticsAPM::Config[:dalli][:collect_backtraces] = false
+  AppOpticsAPM::Config[:delayed_jobclient][:collect_backtraces] = false
+  AppOpticsAPM::Config[:delayed_jobworker][:collect_backtraces] = false
+  AppOpticsAPM::Config[:em_http_request][:collect_backtraces] = true
+  AppOpticsAPM::Config[:excon][:collect_backtraces] = false
+  AppOpticsAPM::Config[:faraday][:collect_backtraces] = false
+  AppOpticsAPM::Config[:grape][:collect_backtraces] = false
+  AppOpticsAPM::Config[:httpclient][:collect_backtraces] = false
+  AppOpticsAPM::Config[:memcached][:collect_backtraces] = false
+  AppOpticsAPM::Config[:mongo][:collect_backtraces] = true
+  AppOpticsAPM::Config[:moped][:collect_backtraces] = true
+  AppOpticsAPM::Config[:nethttp][:collect_backtraces] = true
+  AppOpticsAPM::Config[:rack][:collect_backtraces] = true
+  AppOpticsAPM::Config[:redis][:collect_backtraces] = false
+  AppOpticsAPM::Config[:resqueclient][:collect_backtraces] = true
+  AppOpticsAPM::Config[:resqueworker][:collect_backtraces] = true
+  AppOpticsAPM::Config[:rest_client][:collect_backtraces] = true
+  AppOpticsAPM::Config[:sequel][:collect_backtraces] = true
+  AppOpticsAPM::Config[:sidekiqclient][:collect_backtraces] = true
+  AppOpticsAPM::Config[:sidekiqworker][:collect_backtraces] = true
+  AppOpticsAPM::Config[:typhoeus][:collect_backtraces] = false
+
 end
