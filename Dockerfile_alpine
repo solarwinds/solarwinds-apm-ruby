@@ -32,11 +32,10 @@ RUN  git clone https://github.com/rbenv/rbenv.git ~/.rbenv \
    && echo 'bundler' > ~/.rbenv/default-gems
 
 # install rubies to build our gem against
-RUN source  ~/.profile
-   && rbenv install 1.9.3-p551 \
+RUN source  ~/.profile \
    && rbenv install 2.3.1 \
-   && rbenv install 2.4.1
-   && rbenv install jruby-9.0.5.0
+   && rbenv install 2.4.1 \
+   # && rbenv install jruby-9.0.5.0
 
 # install swig 3.0.8
 RUN curl -SL http://kent.dl.sourceforge.net/project/swig/swig/swig-3.0.8/swig-3.0.8.tar.gz \
@@ -50,7 +49,7 @@ RUN apk add --upgrade \
       redis \
       memcached \
       postgresql \
-      openrc
+      openrc \
    && rc-service postgresql start \
    && echo "psql --command \"CREATE USER docker WITH SUPERUSER PASSWORD 'docker';\"" >> /tmp/config \
    && echo "createdb -O docker travis_ci_test" >> /tmp/config \

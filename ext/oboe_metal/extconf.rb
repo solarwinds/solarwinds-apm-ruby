@@ -4,7 +4,7 @@
 require 'mkmf'
 require 'rbconfig'
 require 'open-uri'
-require 'digest'
+require 'no_proxy_fix'
 
 ext_dir = File.expand_path(File.dirname(__FILE__))
 
@@ -18,7 +18,7 @@ ao_include = File.join(ext_dir, 'src')
 
 # Download the appropriate liboboe from S3(via rake for testing) or files.appoptics.com (production)
 version = File.read(File.join(ao_include, 'VERSION')).chomp
-if ENV['FROM_S3']
+if ENV['APPOPTICS_FROM_S3'].to_s.downcase == 'true'
   ao_path = File.join('https://s3-us-west-2.amazonaws.com/rc-files-t2/c-lib/', version)
   puts "Fetching c-lib from S3"
 else
@@ -78,6 +78,7 @@ if success
 
   dir_config('oboe', 'src', 'lib')
 
+  # create Makefile
   if jruby || ENV.key?('APPOPTICS_URL')
     # Build the noop extension under JRuby and Heroku.
     # The oboe-heroku gem builds it's own c extension which links to

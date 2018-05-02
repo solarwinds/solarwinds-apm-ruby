@@ -6,9 +6,9 @@ docker build -f Dockerfile -t buildgem .
 # build the gems in the image
 docker run --rm  -v `pwd`:/code/ruby-appoptics_apm buildgem bash -l -c 'cd /code/ruby-appoptics_apm && ./build_gems.sh'
 
-# save current rbenv setting and switch to 2.4.1 for the package_cloud commands
+# save current rbenv setting and switch to 2.4.3 for the package_cloud commands
 current_ruby=`rbenv local`
-rbenv local 2.4.1
+rbenv local 2.4.3
 
 # prerequisite: package_cloud tocken needs to be in ~/.packagecloud
 
