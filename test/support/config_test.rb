@@ -107,18 +107,18 @@ class ConfigTest
       AppOpticsAPM::Config[:action_controller_api][:collect_backtraces].must_equal true
       AppOpticsAPM::Config[:action_view][:collect_backtraces].must_equal true
       AppOpticsAPM::Config[:active_record][:collect_backtraces].must_equal true
-      AppOpticsAPM::Config[:bunnyclient][:collect_backtraces].must_equal true
-      AppOpticsAPM::Config[:bunnyconsumer][:collect_backtraces].must_equal true
+      AppOpticsAPM::Config[:bunnyclient][:collect_backtraces].must_equal false
+      AppOpticsAPM::Config[:bunnyconsumer][:collect_backtraces].must_equal false
       AppOpticsAPM::Config[:cassandra][:collect_backtraces].must_equal true
       AppOpticsAPM::Config[:curb][:collect_backtraces].must_equal true
       AppOpticsAPM::Config[:dalli][:collect_backtraces].must_equal false
       AppOpticsAPM::Config[:delayed_jobclient][:collect_backtraces].must_equal false
       AppOpticsAPM::Config[:delayed_jobworker][:collect_backtraces].must_equal false
       AppOpticsAPM::Config[:em_http_request][:collect_backtraces].must_equal true
-      AppOpticsAPM::Config[:excon][:collect_backtraces].must_equal false
+      AppOpticsAPM::Config[:excon][:collect_backtraces].must_equal true
       AppOpticsAPM::Config[:faraday][:collect_backtraces].must_equal false
-      AppOpticsAPM::Config[:grape][:collect_backtraces].must_equal false
-      AppOpticsAPM::Config[:httpclient][:collect_backtraces].must_equal false
+      AppOpticsAPM::Config[:grape][:collect_backtraces].must_equal true
+      AppOpticsAPM::Config[:httpclient][:collect_backtraces].must_equal true
       AppOpticsAPM::Config[:memcached][:collect_backtraces].must_equal false
       AppOpticsAPM::Config[:mongo][:collect_backtraces].must_equal true
       AppOpticsAPM::Config[:moped][:collect_backtraces].must_equal true
@@ -129,8 +129,8 @@ class ConfigTest
       AppOpticsAPM::Config[:resqueworker][:collect_backtraces].must_equal true
       AppOpticsAPM::Config[:rest_client][:collect_backtraces].must_equal true
       AppOpticsAPM::Config[:sequel][:collect_backtraces].must_equal true
-      AppOpticsAPM::Config[:sidekiqclient][:collect_backtraces].must_equal true
-      AppOpticsAPM::Config[:sidekiqworker][:collect_backtraces].must_equal true
+      AppOpticsAPM::Config[:sidekiqclient][:collect_backtraces].must_equal false
+      AppOpticsAPM::Config[:sidekiqworker][:collect_backtraces].must_equal false
       AppOpticsAPM::Config[:typhoeus][:collect_backtraces].must_equal false
     end
 

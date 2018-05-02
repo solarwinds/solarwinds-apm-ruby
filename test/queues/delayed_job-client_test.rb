@@ -14,12 +14,12 @@ class DelayedJobClientTest < Minitest::Test
   def setup
     clear_all_traces
     @collect_backtraces = AppOpticsAPM::Config[:delayed_jobclient][:collect_backtraces]
-    @log_args = AppOpticsAPM::Config[:delayed_jobclient][:log_args]
+    # @log_args = AppOpticsAPM::Config[:delayed_jobclient][:log_args] # there is no code using AppOpticsAPM::Config[:delayed_jobclient][:log_args]
   end
 
   def teardown
     AppOpticsAPM::Config[:delayed_jobclient][:collect_backtraces] = @collect_backtraces
-    AppOpticsAPM::Config[:delayed_jobclient][:log_args] = @log_args
+    # AppOpticsAPM::Config[:delayed_jobclient][:log_args] = @log_args # there is no code using AppOpticsAPM::Config[:delayed_jobclient][:log_args]
   end
 
   def test_delay
@@ -54,7 +54,8 @@ class DelayedJobClientTest < Minitest::Test
   end
 
   def test_log_args_default_value
-    assert_equal AppOpticsAPM::Config[:delayed_jobclient][:log_args], true, "log_args default "
+    skip # there is no code using AppOpticsAPM::Config[:delayed_jobclient][:log_args]
+    assert_equal true, AppOpticsAPM::Config[:delayed_jobclient][:log_args], "log_args default "
   end
 
   def test_obey_collect_backtraces_when_false
