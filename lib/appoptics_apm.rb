@@ -46,6 +46,8 @@ begin
   end
 
   require 'appoptics_apm/config'
+  AppOpticsAPM::Config.load_config_file
+
   require 'appoptics_apm/loading'
   require 'appoptics_apm/legacy_method_profiling'
   require 'appoptics_apm/method_profiling'

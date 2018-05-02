@@ -20,7 +20,7 @@ gemfile:
 #  - gemfiles/rails32.gemfile # We currently are not supporting Rails 3.2
   - gemfiles/rails42.gemfile
 #  - gemfiles/rails50.gemfile
-  - gemfiles/rails51.gemfile
+#  - gemfiles/rails51.gemfile
   - gemfiles/delayed_job.gemfile
 
 env:
