@@ -178,18 +178,18 @@ if defined?(AppOpticsAPM::Config)
   AppOpticsAPM::Config[:action_controller_api][:collect_backtraces] = true
   AppOpticsAPM::Config[:action_view][:collect_backtraces] = true
   AppOpticsAPM::Config[:active_record][:collect_backtraces] = true
-  AppOpticsAPM::Config[:bunnyclient][:collect_backtraces] = true
-  AppOpticsAPM::Config[:bunnyconsumer][:collect_backtraces] = true
+  AppOpticsAPM::Config[:bunnyclient][:collect_backtraces] = false
+  AppOpticsAPM::Config[:bunnyconsumer][:collect_backtraces] = false
   AppOpticsAPM::Config[:cassandra][:collect_backtraces] = true
   AppOpticsAPM::Config[:curb][:collect_backtraces] = true
   AppOpticsAPM::Config[:dalli][:collect_backtraces] = false
   AppOpticsAPM::Config[:delayed_jobclient][:collect_backtraces] = false
   AppOpticsAPM::Config[:delayed_jobworker][:collect_backtraces] = false
   AppOpticsAPM::Config[:em_http_request][:collect_backtraces] = true
-  AppOpticsAPM::Config[:excon][:collect_backtraces] = false
+  AppOpticsAPM::Config[:excon][:collect_backtraces] = true
   AppOpticsAPM::Config[:faraday][:collect_backtraces] = false
-  AppOpticsAPM::Config[:grape][:collect_backtraces] = false
-  AppOpticsAPM::Config[:httpclient][:collect_backtraces] = false
+  AppOpticsAPM::Config[:grape][:collect_backtraces] = true
+  AppOpticsAPM::Config[:httpclient][:collect_backtraces] = true
   AppOpticsAPM::Config[:memcached][:collect_backtraces] = false
   AppOpticsAPM::Config[:mongo][:collect_backtraces] = true
   AppOpticsAPM::Config[:moped][:collect_backtraces] = true
@@ -200,8 +200,8 @@ if defined?(AppOpticsAPM::Config)
   AppOpticsAPM::Config[:resqueworker][:collect_backtraces] = true
   AppOpticsAPM::Config[:rest_client][:collect_backtraces] = true
   AppOpticsAPM::Config[:sequel][:collect_backtraces] = true
-  AppOpticsAPM::Config[:sidekiqclient][:collect_backtraces] = true
-  AppOpticsAPM::Config[:sidekiqworker][:collect_backtraces] = true
+  AppOpticsAPM::Config[:sidekiqclient][:collect_backtraces] = false
+  AppOpticsAPM::Config[:sidekiqworker][:collect_backtraces] = false
   AppOpticsAPM::Config[:typhoeus][:collect_backtraces] = false
 
 end
