@@ -27,6 +27,8 @@ class ConfigTest
     end
 
     after(:all) do
+      AppOpticsAPM::Config[:tracing_mode] = "always"
+      AppOpticsAPM::Config[:sample_rate] = 1000000
       ENV.delete('APPOPTICS_APM_CONFIG_RUBY')
       FileUtils.rm(@@default_config_path, :force => true)
       FileUtils.rm(@@rails_config_path, :force => true)
