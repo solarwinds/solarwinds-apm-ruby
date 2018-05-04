@@ -142,7 +142,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       traces = get_all_traces
       traces.count.must_equal 4
 
-      r.must_be_instance_of Mongo::Operation::Write::Insert::Result
+      r.must_be_instance_of Mongo::Operation::Insert::Result
       if Mongo::VERSION < '2.2'
         r.successful?.must_equal true
       else
@@ -172,7 +172,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       traces.count.must_equal 4
 
       if Mongo::VERSION < '2.1'
-        r.must_be_instance_of Mongo::Operation::Write::Insert::Result
+        r.must_be_instance_of Mongo::Operation::Insert::Result
       else
         r.must_be_instance_of Mongo::BulkWrite::Result
         r.inserted_count.must_equal 2
