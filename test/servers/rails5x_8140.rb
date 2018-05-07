@@ -13,10 +13,10 @@ require File.expand_path(File.dirname(__FILE__) + '/../models/widget')
 AppOpticsAPM.logger.info "[appoptics_apm/info] Starting background utility rails app on localhost:8140."
 if ENV['DBTYPE'] == 'mysql2'
   AppOpticsAPM::Test.set_mysql2_env
-elsif ENV['DBTYPE'] == 'postgresql'
+elsif ENV['DBTYPE'] =~ /postgres/
   AppOpticsAPM::Test.set_postgresql_env
 else
-  AppOpticsAPM.logger.warn "Unidentified DBTYPE: #{ENV['DBTYPE']}" unless ENV['DBTYPE'] == "postgresql"
+  AppOpticsAPM.logger.warn "Unidentified DBTYPE: #{ENV['DBTYPE']}"
   AppOpticsAPM.logger.debug "Defaulting to postgres DB for background Rails server."
   AppOpticsAPM::Test.set_postgresql_env
 end

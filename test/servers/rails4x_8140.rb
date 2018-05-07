@@ -16,8 +16,10 @@ if ENV['DBTYPE'] == 'mysql2'
   AppOpticsAPM::Test.set_mysql2_env
 elsif ENV['DBTYPE'] == 'mysql'
   AppOpticsAPM::Test.set_mysql_env
+elsif ENV['DBTYPE'] =~ /postgres/
+  AppOpticsAPM::Test.set_postgresql_env
 else
-  AppOpticsAPM.logger.warn "Unidentified DBTYPE: #{ENV['DBTYPE']}" unless ENV['DBTYPE'] == "postgresql"
+  AppOpticsAPM.logger.warn "Unidentified DBTYPE: #{ENV['DBTYPE']}"
   AppOpticsAPM.logger.debug "Defaulting to postgres DB for background Rails server."
   AppOpticsAPM::Test.set_postgresql_env
 end
