@@ -20,7 +20,9 @@ Gem::Specification.new do |s|
               'ext/oboe_metal/src/oboe.hpp',
               'ext/oboe_metal/src/oboe_debug.h',
               'ext/oboe_metal/src/oboe_wrap.cxx',
-              'ext/oboe_metal/src/VERSION']
+              'ext/oboe_metal/src/bson/bson.h',
+              'ext/oboe_metal/src/bson/platform_hacks.h',
+              'ext/oboe_metal/srcVERSION']
 
   # TODO this is commented out util we can actually provide gems for different platforms
   # it will create a gem that goes into noop on Darwin and other unsupported platforms
