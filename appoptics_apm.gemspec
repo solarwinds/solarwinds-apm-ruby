@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.description = %q{The AppOpticsAPM gem provides performance instrumentation for MRI Ruby and related frameworks.}
 
   s.extra_rdoc_files = ["LICENSE"]
-  s.files = `git ls-files`.split("\n").reject { |f| f.match(%r{^(test|gemfiles)/}) }
+  s.files = `git ls-files`.split("\n").reject { |f| f.match(%r{^(test|gemfiles|examples)/}) }
   s.files += ['ext/oboe_metal/src/oboe.h',
               'ext/oboe_metal/src/oboe.hpp',
               'ext/oboe_metal/src/oboe_debug.h',
