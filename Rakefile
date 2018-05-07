@@ -87,7 +87,7 @@ task :fetch_ext_deps do
   end
 
   # oboe and bson header files
-  FileUtils.mkdir(File.join(ext_src_dir, 'bson'))
+  FileUtils.mkdir_p(File.join(ext_src_dir, 'bson'))
   %w(oboe.h oboe.hpp oboe_debug.h oboe.i bson/bson.h bson/platform_hacks.h).each do |filename|
     remote_file = File.join(oboe_s3_dir, 'include', filename)
     local_file = File.join(ext_src_dir, filename)
