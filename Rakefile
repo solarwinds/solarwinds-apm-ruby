@@ -73,13 +73,23 @@ task :fetch_ext_deps do
   end
 
   # The c-lib version is different from the gem version
-  oboe_version = ENV['OBOE_VERSION'] || '2.0.10' # 'latest'
-  oboe_src_dir = "https://s3-us-west-2.amazonaws.com/rc-files-t2/c-lib/#{oboe_version}"
+  oboe_version = ENV['OBOE_VERSION'] || 'latest'
+  oboe_s3_dir = "https://s3-us-west-2.amazonaws.com/rc-files-t2/c-lib/#{oboe_version}"
   ext_src_dir = File.expand_path('ext/oboe_metal/src')
 
   # VERSION is used by extconf.rb to download the correct liboboe when installing the gem
-  %w(oboe.i oboe.h oboe.hpp oboe_debug.h VERSION).each do |filename|
-    remote_file = File.join(oboe_src_dir, filename)
+  remote_file = File.join(oboe_s3_dir, 'VERSION')
+  local_file = File.join(ext_src_dir, 'VERSION')
+  puts "fetching #{remote_file} to #{local_file}"
+  open(remote_file, 'rb') do |rf|
+    content = rf.read
+    File.open(local_file, 'wb') { |f| f.puts content }
+  end
+
+  # oboe and bson header files
+  FileUtils.mkdir_p(File.join(ext_src_dir, 'bson'))
+  %w(oboe.h oboe.hpp oboe_debug.h oboe.i bson/bson.h bson/platform_hacks.h).each do |filename|
+    remote_file = File.join(oboe_s3_dir, 'include', filename)
     local_file = File.join(ext_src_dir, filename)
 
     puts "fetching #{remote_file} to #{local_file}"
@@ -88,6 +98,7 @@ task :fetch_ext_deps do
       File.open(local_file, 'wb') { |f| f.puts content }
     end
   end
+
   FileUtils.cd(ext_src_dir) do
     system('swig -c++ -ruby -module oboe_metal oboe.i')
     FileUtils.rm('oboe.i')
