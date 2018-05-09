@@ -18,7 +18,7 @@ module AppOpticsAPM
             :Action       => self.action_name
         }
         request.env['appoptics_apm.controller'] = kvs[:Controller]
-        request.env['appoptics_apm.action'] = kvs[:Controller]
+        request.env['appoptics_apm.action'] = kvs[:Action]
 
         return super(method_name, *args) unless AppOpticsAPM.tracing?
         begin
