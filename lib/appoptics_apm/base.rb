@@ -54,7 +54,7 @@ module AppOpticsAPMBase
   # X-Trace request header, tracing may have already been started
   # by Joboe.  Such a scenario occurs when the application is being
   # hosted by a Java container (such as Tomcat or Glassfish) and
-  # AppOpticsAPM has already initiated tracing.  In this case, we shouldn't
+  # JAppOpticsAPM has already initiated tracing.  In this case, we shouldn't
   # pickup the X-Trace context in the X-Trace header and we shouldn't
   # set the outgoing response X-Trace header or clear context.
   # Yeah I know.  Yuck.
