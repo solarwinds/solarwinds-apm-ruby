@@ -5,6 +5,11 @@ cache:
   directories:
   - vendor/bundle
 
+env:
+  - DBTYPE=mysql
+  - DBTYPE=mysql2
+  - DBTYPE=postgresql
+
 rvm:
   - 2.5.0
   - 2.4.3
@@ -22,11 +27,6 @@ gemfile:
 #  - gemfiles/rails50.gemfile
   - gemfiles/rails51.gemfile
   - gemfiles/delayed_job.gemfile
-
-env:
-  - DBTYPE=mysql
-  - DBTYPE=mysql2
-  - DBTYPE=postgresql
 
 matrix:
   exclude:
