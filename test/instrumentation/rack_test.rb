@@ -129,7 +129,7 @@ class RackTestApp < Minitest::Test
   def test_sends_path_in_http_span_when_no_controller
     test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
 
-    AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+    AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
       test_action = action
       test_url = url
       test_status = status

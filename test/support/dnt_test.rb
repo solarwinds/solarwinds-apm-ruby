@@ -43,7 +43,7 @@ class RackTestApp < Minitest::Test
     traces = get_all_traces
     assert traces.empty?
 
-    assert last_response.status == 404
+    assert_equal 404, last_response.status
   end
 
   def test_do_not_trace_static_assets_with_param
@@ -54,7 +54,7 @@ class RackTestApp < Minitest::Test
     traces = get_all_traces
     assert traces.empty?
 
-    assert last_response.status == 404
+    assert_equal 404, last_response.status
   end
 
   def test_do_not_trace_static_assets_with_multiple_params
@@ -65,7 +65,7 @@ class RackTestApp < Minitest::Test
     traces = get_all_traces
     assert traces.empty?
 
-    assert last_response.status == 404
+    assert_equal 404, last_response.status
   end
 
   def test_complex_do_not_trace

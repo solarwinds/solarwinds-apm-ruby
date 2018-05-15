@@ -62,6 +62,8 @@ if AppOpticsAPM.loaded
       end
 
       def call(env)
+        AppOpticsAPM.transaction_name = nil
+        confirmed_transaction_name = nil
         start = Time.now
         status = 500
         req = ::Rack::Request.new(env)
@@ -71,6 +73,7 @@ if AppOpticsAPM.loaded
         # or Grape inside of Grape, each app has it's own instance
         # of rack middleware.  We avoid tracing rack more than once and
         # instead start instrumenting from the first rack pass.
+        # TODO extend this for metrics
         if AppOpticsAPM.tracing? && AppOpticsAPM.layer == :rack
           AppOpticsAPM.logger.debug "[appoptics_apm/rack] Rack skipped!"
           return @app.call(env)
@@ -91,48 +94,38 @@ if AppOpticsAPM.loaded
           AppOpticsAPM.has_xtrace_header = xtrace_header
           AppOpticsAPM.is_continued_trace = AppOpticsAPM.has_incoming_context || AppOpticsAPM.has_xtrace_header
 
-          xtrace = AppOpticsAPM::API.log_start(:rack, xtrace_header, report_kvs)
-
+          xtrace = AppOpticsAPM::API.log_start(:rack, xtrace_header, report_kvs) unless ::AppOpticsAPM::Util.static_asset?(env['PATH_INFO'])
           # We only trace a subset of requests based off of sample rate so if
           # AppOpticsAPM::API.log_start really did start a trace, we act accordingly here.
           if AppOpticsAPM.tracing?
-            report_kvs = collect(req, env)
+            begin
+              report_kvs = collect(req, env)
 
-            # We log an info event with the HTTP KVs found in AppOpticsAPM::Rack.collect
-            # This is done here so in the case of stacks that try/catch/abort
-            # (looking at you Grape) we're sure the KVs get reported now as
-            # this code may not be returned to later.
-            AppOpticsAPM::API.log_info(:rack, report_kvs)
-
-            status, headers, response = @app.call(env)
-
-            xtrace = AppOpticsAPM::API.log_end(:rack, :Status => status)
-
+              # We log an info event with the HTTP KVs found in AppOpticsAPM::Rack.collect
+              # This is done here so in the case of stacks that try/catch/abort
+              # (looking at you Grape) we're sure the KVs get reported now as
+              # this code may not be returned to later.
+              AppOpticsAPM::API.log_info(:rack, report_kvs)
+              status, headers, response = @app.call(env)
+              confirmed_transaction_name = send_metrics(env, req, req_url, start, status)
+              xtrace = AppOpticsAPM::API.log_end(:rack, :Status => status, :TransactionName => confirmed_transaction_name)
+            rescue => e
+              # it is ok to rescue Exception here because we are reraising it (we just need a chance to log_end)
+              AppOpticsAPM::API.log_exception(:rack, e)
+              confirmed_transaction_name ||= send_metrics(env, req, req_url, start, status)
+              xtrace = AppOpticsAPM::API.log_end(:rack, :Status => status, :TransactionName => confirmed_transaction_name)
+              raise
+            end
           else
             status, headers, response = @app.call(env)
           end
 
           [status, headers, response]
-        rescue Exception => e
-          # it is ok to rescue Exception here because we are reraising it (we just need a chance to log_end)
-          if AppOpticsAPM.tracing?
-            AppOpticsAPM::API.log_exception(:rack, e)
-            xtrace = AppOpticsAPM::API.log_end(:rack, :Status => 500, 'TransactionName' => transaction_name(env))
-          end
-          raise
-        ensure
+        ensure # this ensure block is dangerous because it messes with recursion
           if headers && AppOpticsAPM::XTrace.valid?(xtrace)
-            unless defined?(JRUBY_VERSION) && AppOpticsAPM.is_continued_trace?
-              headers['X-Trace'] = xtrace if headers.is_a?(Hash)
-            end
+            headers['X-Trace'] = xtrace if headers.is_a?(Hash) unless defined?(JRUBY_VERSION) && AppOpticsAPM.is_continued_trace?
           end
-        end
-      ensure
-        unless ::AppOpticsAPM::Util.static_asset?(env['PATH_INFO'])
-          status = status.to_i
-          error = status.between?(500,599) ? 1 : 0
-          duration =(1000 * 1000 * (Time.now - start)).round(0)
-          AppOpticsAPM::Span.createHttpSpan(transaction_name(env), req_url, duration, status, req.request_method, error)
+          send_metrics(env, req, req_url, start, status) unless confirmed_transaction_name
         end
       end
 
@@ -142,8 +135,23 @@ if AppOpticsAPM.loaded
 
       private
 
+      def send_metrics(env, req, req_url, start, status)
+        unless ::AppOpticsAPM::Util.static_asset?(env['PATH_INFO'])
+          domain = nil
+          if AppOpticsAPM::Config['transaction_name']['prepend_domain']
+            domain = [80, 443].include?(req.port) ? req.host : "#{req.host}:#{req.port}"
+          end
+          status = status.to_i
+          error = status.between?(500,599) ? 1 : 0
+          duration =(1000 * 1000 * (Time.now - start)).round(0)
+          AppOpticsAPM::Span.createHttpSpan(transaction_name(env), req_url, domain, duration, status, req.request_method, error) || ''
+        end
+      end
+
       def transaction_name(env)
-        if env['appoptics_apm.controller'] || env['appoptics_apm.action']
+        if AppOpticsAPM::transaction_name
+          AppOpticsAPM::transaction_name
+        elsif env['appoptics_apm.controller'] || env['appoptics_apm.action']
           [env['appoptics_apm.controller'], env['appoptics_apm.action']].join('.')
         end
       end

@@ -64,24 +64,24 @@ class NoopTest < Minitest::Test
   # ===== Make sure the AppOpticsAPM::Inst module does not exist ============================
   # this is the module in which all the instrumented methods are defined
   def test_not_instrumented
-    refute ::AppOpticsAPM.const_defined?('Inst'), 'This should be noop mode, but instrumentation was found.'
+    refute ::AppOpticsAPM.const_defined?('Inst', false), 'This should be noop mode, but instrumentation was found.'
   end
 
   # ===== Make sure the frameworks are not instrumented =====================================
   def test_rails_not_instrumented
-    refute ::AppOpticsAPM.const_defined?('Rails'), 'This should be noop mode, but Rails is instrumented.'
+    refute ::AppOpticsAPM.const_defined?('Rails', false), 'This should be noop mode, but Rails is instrumented.'
   end
 
   def test_sinatra_not_instrumented
-    refute ::AppOpticsAPM.const_defined?('Sinatra'), 'This should be noop mode, but Sinatra is instrumented.'
+    refute ::AppOpticsAPM.const_defined?('Sinatra', false), 'This should be noop mode, but Sinatra is instrumented.'
   end
 
   def test_grape_not_instrumented
-    refute ::AppOpticsAPM.const_defined?('Grape'), 'This should be noop mode, but Grape is instrumented.'
+    refute ::AppOpticsAPM.const_defined?('Grape', false), 'This should be noop mode, but Grape is instrumented.'
   end
 
   def test_padrino_not_instrumented
-    refute ::AppOpticsAPM.const_defined?('Padrino'), 'This should be noop mode, but Padrino is instrumented.'
+    refute ::AppOpticsAPM.const_defined?('Padrino', false), 'This should be noop mode, but Padrino is instrumented.'
   end
 
   # ===== Make sure the methods we document as SDK don't barf in noop mode ==================
@@ -140,6 +140,10 @@ class NoopTest < Minitest::Test
 
     traces = get_all_traces
     assert_equal 0, traces.count, "generate no traces"
+  end
+
+  def test_set_transaction_name_doesnt_barf
+    AppOpticsAPM::API.set_transaction_name("should not throw an exception")
   end
 end
 
