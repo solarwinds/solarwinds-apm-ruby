@@ -109,7 +109,7 @@ if AppOpticsAPM.loaded
               status, headers, response = @app.call(env)
               confirmed_transaction_name = send_metrics(env, req, req_url, start, status)
               xtrace = AppOpticsAPM::API.log_end(:rack, :Status => status, :TransactionName => confirmed_transaction_name)
-            rescue => e
+            rescue Exception => e
               # it is ok to rescue Exception here because we are reraising it (we just need a chance to log_end)
               AppOpticsAPM::API.log_exception(:rack, e)
               confirmed_transaction_name ||= send_metrics(env, req, req_url, start, status)
