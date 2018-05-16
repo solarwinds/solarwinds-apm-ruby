@@ -51,6 +51,8 @@ module AppOpticsAPM
         def error_response_with_appoptics(error = {})
           status, headers, body = error_response_without_appoptics(error)
 
+          xtrace = AppOpticsAPM::Context.toString
+
           if AppOpticsAPM.tracing?
             # Since Grape uses throw/catch and not Exceptions, we manually log
             # the error here.
@@ -58,18 +60,17 @@ module AppOpticsAPM
             kvs[:ErrorClass] = 'GrapeError'
             kvs[:ErrorMsg] = error[:message] ? error[:message] : "No message given."
             kvs[:Backtrace] = ::AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:grape][:collect_backtraces]
-
-            ::AppOpticsAPM::API.log(nil, 'error', kvs)
+            ::AppOpticsAPM::API.log('rack', 'error', kvs)
 
             # Since calls to error() are handled similar to abort in Grape.  We
             # manually log the rack exit here since the original code won't
             # be returned to
             xtrace = AppOpticsAPM::API.log_end('rack', :Status => status)
+          end
 
-            if headers && AppOpticsAPM::XTrace.valid?(xtrace)
-              unless defined?(JRUBY_VERSION) && AppOpticsAPM.is_continued_trace?
-                headers['X-Trace'] = xtrace if headers.is_a?(Hash)
-              end
+          if headers && AppOpticsAPM::XTrace.valid?(xtrace)
+            unless defined?(JRUBY_VERSION) && AppOpticsAPM.is_continued_trace?
+              headers['X-Trace'] = xtrace if headers.is_a?(Hash)
             end
           end
 

@@ -118,7 +118,7 @@ describe AppOpticsAPM::API::Tracing do
     
     Time.stub(:now, Time.at(0)) do
       AppOpticsAPM::Span.expects(:createHttpSpan).with(name, url, nil, 0, 200, 'GET', 0)
-      AppOpticsAPM::API.expects(:log_end).never
+      AppOpticsAPM::API.expects(:log_event).never
 
       get "/#{name}"
     end
@@ -177,7 +177,7 @@ describe AppOpticsAPM::API::Tracing do
     url = "#{@url}#{name}"
 
     Time.stub(:now, Time.at(0)) do
-      AppOpticsAPM::Span.expects(:createHttpSpan).with(name, url, "example.org", 0, 200, 'GET', 0)
+      AppOpticsAPM::Span.expects(:createHttpSpan).with(name, url, "example.org", 0, 200, 'GET', 0).returns(name)
 
       get "/#{name}"
     end
@@ -214,7 +214,7 @@ describe AppOpticsAPM::API::Tracing do
     assert_equal "example.org:80/lobster", AppOpticsAPM::Span.createHttpSpan(nil, "/lobster", "example.org:80", 0, 200, 'GET', 0)
     assert_equal "example.org:80/lobster", AppOpticsAPM::Span.createHttpSpan(nil, "example.org/lobster", "example.org:80", 0, 200, 'GET', 0)
     assert_equal "example.org:80/lobster", AppOpticsAPM::Span.createHttpSpan(nil, "example.org:80/lobster", "example.org:80", 0, 200, 'GET', 0)
-    assert_equal "example.org:80/", AppOpticsAPM::Span.createHttpSpan(nil, nil, "example.org:80", 0, 200, 'GET', 0)
+    assert_equal "example.org:80", AppOpticsAPM::Span.createHttpSpan(nil, nil, "example.org:80", 0, 200, 'GET', 0)
     assert_equal "unknown", AppOpticsAPM::Span.createHttpSpan(nil, nil, nil, 0, 200, 'GET', 0)
   end
 end
