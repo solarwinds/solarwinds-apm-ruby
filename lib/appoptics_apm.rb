@@ -60,6 +60,8 @@ begin
     require 'appoptics_apm/frameworks/sinatra'
     require 'appoptics_apm/frameworks/padrino'
     require 'appoptics_apm/frameworks/grape'
+  else
+    require 'appoptics_apm/noop/context'
   end
 
   # Load Ruby module last.  If there is no framework detected,

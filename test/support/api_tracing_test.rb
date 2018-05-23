@@ -61,9 +61,11 @@ describe AppOpticsAPM::API::Tracing do
       AppOpticsAPM::Config[:sample_rate] = @sample_rate
       AppOpticsAPM::Config['transaction_name']['prepend_domain'] = @prepend_domain
     }
-    AppOpticsAPM.layer = nil # need to do this, because we are stubbing log_end
-  end
 
+    # need to do this, because we are stubbing log_end
+    AppOpticsAPM.layer = nil
+    AppOpticsAPM::Context.clear
+  end
 
   it 'should set a custom transaction name from the controller' do
     name = "lobster"
@@ -214,7 +216,7 @@ describe AppOpticsAPM::API::Tracing do
     assert_equal "example.org:80/lobster", AppOpticsAPM::Span.createHttpSpan(nil, "/lobster", "example.org:80", 0, 200, 'GET', 0)
     assert_equal "example.org:80/lobster", AppOpticsAPM::Span.createHttpSpan(nil, "example.org/lobster", "example.org:80", 0, 200, 'GET', 0)
     assert_equal "example.org:80/lobster", AppOpticsAPM::Span.createHttpSpan(nil, "example.org:80/lobster", "example.org:80", 0, 200, 'GET', 0)
-    assert_equal "example.org:80", AppOpticsAPM::Span.createHttpSpan(nil, nil, "example.org:80", 0, 200, 'GET', 0)
+    assert_equal "example.org:80/", AppOpticsAPM::Span.createHttpSpan(nil, nil, "example.org:80", 0, 200, 'GET', 0)
     assert_equal "unknown", AppOpticsAPM::Span.createHttpSpan(nil, nil, nil, 0, 200, 'GET', 0)
   end
 end
