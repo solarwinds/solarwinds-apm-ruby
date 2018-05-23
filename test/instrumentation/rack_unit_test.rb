@@ -62,7 +62,7 @@ describe "Rack: " do
       refute AppOpticsAPM::Context.isValid
     end
 
-    it "should call the app's call method" do
+    it "should call the app's call method but not createHttpSpan" do
       @app.expects(:call)
       AppOpticsAPM::Span.expects(:createHttpSpan).never
 
@@ -85,7 +85,6 @@ describe "Rack: " do
         @rack.call({})
         assert AppOpticsAPM::Context.isValid
       end
-      refute AppOpticsAPM::Context.isValid
     end
 
     it " should log exit even when there is an exception" do
@@ -98,7 +97,6 @@ describe "Rack: " do
           assert AppOpticsAPM::Context.isValid
         end
       end
-      refute AppOpticsAPM::Context.isValid
     end
 
     it "should call the app's call method" do
@@ -108,7 +106,6 @@ describe "Rack: " do
         @rack.call({})
         assert AppOpticsAPM::Context.isValid
       end
-      refute AppOpticsAPM::Context.isValid
     end
 
   end
