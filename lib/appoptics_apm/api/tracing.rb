@@ -171,7 +171,7 @@ module AppOpticsAPM
       # * +name+ - A non-empty string with the custom transaction name
       #
       def set_transaction_name(name)
-        if name.is_a?(String) && name != ''
+        if name.is_a?(String) && name.strip != ''
           AppOpticsAPM.transaction_name = name
         else
           AppOpticsAPM.logger.debug "[appoptics_apm/api] Could not set transaction name, provided name is empty or not a String."
@@ -182,7 +182,7 @@ module AppOpticsAPM
 
       # this is provided for testing
       # returns the current transaction name
-      def transaction_name
+      def get_transaction_name
         AppOpticsAPM.transaction_name
       end
     end
