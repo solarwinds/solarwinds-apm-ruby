@@ -11,24 +11,14 @@ if !defined?(JRUBY_VERSION)
 
     def setup
       AppOpticsAPM::Context.clear
+
       WebMock.enable!
       WebMock.reset!
       WebMock.disable_net_connect!
-      AppOpticsAPM.config_lock.synchronize {
-        @sample_rate = AppOpticsAPM::Config[:sample_rate]
-        @tracing_mode= AppOpticsAPM::Config[:tracing_mode]
-      }
-    end
 
-    def teardown
-      AppOpticsAPM.config_lock.synchronize {
-        AppOpticsAPM::Config[:sample_rate] = @sample_rate
-        AppOpticsAPM::Config[:tracing_mode] = @tracing_mode
-        AppOpticsAPM::Config[:blacklist] = []
-      }
-      WebMock.reset!
-      WebMock.allow_net_connect!
-      WebMock.disable!
+      AppOpticsAPM::Config[:sample_rate] = 1000000
+      AppOpticsAPM::Config[:tracing_mode] = :always
+      AppOpticsAPM::Config[:blacklist] = []
     end
 
     # ========== excon get =================================

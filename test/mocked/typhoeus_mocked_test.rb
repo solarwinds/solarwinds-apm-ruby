@@ -9,26 +9,21 @@ unless defined?(JRUBY_VERSION)
 
     def setup
       AppOpticsAPM::Context.clear
-      AppOpticsAPM.config_lock.synchronize do
-        @sample_rate = AppOpticsAPM::Config[:sample_rate]
-      end
+
+      WebMock.reset!
       WebMock.allow_net_connect!
       WebMock.disable!
-    end
 
-    def teardown
-      AppOpticsAPM::Context.clear
-      AppOpticsAPM.config_lock.synchronize do
-        AppOpticsAPM::Config[:sample_rate] = @sample_rate
-        AppOpticsAPM::Config[:blacklist] = []
-      end
+      AppOpticsAPM::Config[:sample_rate] = 1000000
+      AppOpticsAPM::Config[:tracing_mode] = :always
+      AppOpticsAPM::Config[:blacklist] = []
     end
 
     ############# Typhoeus::Request ##############################################
 
     def test_tracing_sampling
       AppOpticsAPM::API.start_trace('typhoeus_tests') do
-        request = Typhoeus::Request.new("http://127.0.0.2:8101/", {:method=>:get})
+        request = Typhoeus::Request.new("http://127.0.0.2:8101/", { :method=>:get })
         request.run
 
         assert request.options[:headers]['X-Trace']

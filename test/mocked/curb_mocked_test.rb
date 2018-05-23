@@ -11,24 +11,14 @@ if !defined?(JRUBY_VERSION)
 
     def setup
       AppOpticsAPM::Context.clear
+
       WebMock.enable!
       WebMock.reset!
       WebMock.disable_net_connect!
-      AppOpticsAPM.config_lock.synchronize {
-        @tm = AppOpticsAPM::Config[:tracing_mode]
-        @sample_rate = AppOpticsAPM::Config[:sample_rate]
-      }
-    end
 
-    def teardown
-      AppOpticsAPM.config_lock.synchronize {
-        AppOpticsAPM::Config[:tracing_mode] = @tm
-        AppOpticsAPM::Config[:blacklist] = []
-        AppOpticsAPM::Config[:sample_rate] = @sample_rate
-      }
-      WebMock.reset!
-      WebMock.allow_net_connect!
-      WebMock.disable!
+      AppOpticsAPM::Config[:sample_rate] = 1000000
+      AppOpticsAPM::Config[:tracing_mode] = :always
+      AppOpticsAPM::Config[:blacklist] = []
     end
 
     def test_xtrace_tracing

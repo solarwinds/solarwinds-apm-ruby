@@ -15,22 +15,17 @@ unless defined?(JRUBY_VERSION)
 
     def setup
       AppOpticsAPM::Context.clear
-      AppOpticsAPM.config_lock.synchronize do
-        @sample_rate = AppOpticsAPM::Config[:sample_rate]
-      end
+
+      WebMock.reset!
       WebMock.allow_net_connect!
       WebMock.disable!
-    end
 
-    def teardown
-      AppOpticsAPM.config_lock.synchronize do
-        AppOpticsAPM::Config[:sample_rate] = @sample_rate
-        AppOpticsAPM::Config[:blacklist] = []
-      end
+      AppOpticsAPM::Config[:sample_rate] = 1000000
+      AppOpticsAPM::Config[:tracing_mode] = :always
+      AppOpticsAPM::Config[:blacklist] = []
     end
 
     # webmock not working, interferes with instrumentation
-
     def test_tracing_sampling
       Net::HTTP.any_instance.expects(:request_without_appoptics).with do |req, _|
         !req.to_hash['x-trace'].nil? &&
