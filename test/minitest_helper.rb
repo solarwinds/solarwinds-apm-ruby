@@ -24,8 +24,6 @@ puts "\n\033[1m=== TEST RUN: #{ENV['RVM_TEST']} #{File.basename(ENV['BUNDLE_GEMF
 
 ENV['RACK_ENV'] = 'test'
 ENV['APPOPTICS_GEM_TEST'] = 'true'
-
-#
 # ENV['APPOPTICS_GEM_VERBOSE'] = 'true'
 
 Minitest::Spec.new 'pry'

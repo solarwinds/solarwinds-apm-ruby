@@ -89,6 +89,7 @@ if AppOpticsAPM.loaded
       # in this case we have an existing context
       def sampling_call(env)
         req = ::Rack::Request.new(env)
+        report_kvs = {}
         report_kvs[:URL] = AppOpticsAPM::Config[:rack][:log_args] ? ::CGI.unescape(req.fullpath) : ::CGI.unescape(req.path)
 
         AppOpticsAPM::API.trace(:rack, report_kvs) do
@@ -105,48 +106,35 @@ if AppOpticsAPM.loaded
 
       def metrics_sampling_call(env)
         start = Time.now
-        status = 500
         AppOpticsAPM.transaction_name = nil
-        confirmed_transaction_name = nil
         req = ::Rack::Request.new(env)
         req_url = req.url   # saving it here because rails3.2 overrides it when there is a 500 error
 
-        begin
-          report_kvs = {}
-          report_kvs[:URL] = AppOpticsAPM::Config[:rack][:log_args] ? ::CGI.unescape(req.fullpath) : ::CGI.unescape(req.path)
+        report_kvs = {}
+        report_kvs[:URL] = AppOpticsAPM::Config[:rack][:log_args] ? ::CGI.unescape(req.fullpath) : ::CGI.unescape(req.path)
 
-          # Check for and validate X-Trace request header to pick up tracing context
-          xtrace = env.is_a?(Hash) ? env['HTTP_X_TRACE'] : nil
-          xtrace = AppOpticsAPM::XTrace.valid?(xtrace) ? xtrace : nil
+        # Check for and validate X-Trace request header to pick up tracing context
+        xtrace = env.is_a?(Hash) ? env['HTTP_X_TRACE'] : nil
+        xtrace = AppOpticsAPM::XTrace.valid?(xtrace) ? xtrace : nil
 
-          # TODO JRUBY
-          # Under JRuby, JAppOpticsAPM may have already started a trace.  Make note of this
-          # if so and don't clear context on log_end (see appoptics_apm/api/logging.rb)
-          # AppOpticsAPM.has_incoming_context = AppOpticsAPM.tracing?
-          # AppOpticsAPM.has_xtrace_header = xtrace
-          # AppOpticsAPM.is_continued_trace = AppOpticsAPM.has_incoming_context || AppOpticsAPM.has_xtrace_header
-          xtrace = AppOpticsAPM::API.log_start(:rack, xtrace, report_kvs) unless ::AppOpticsAPM::Util.static_asset?(env['PATH_INFO'])
+        # TODO JRUBY
+        # Under JRuby, JAppOpticsAPM may have already started a trace.  Make note of this
+        # if so and don't clear context on log_end (see appoptics_apm/api/logging.rb)
+        # AppOpticsAPM.has_incoming_context = AppOpticsAPM.tracing?
+        # AppOpticsAPM.has_xtrace_header = xtrace
+        # AppOpticsAPM.is_continued_trace = AppOpticsAPM.has_incoming_context || AppOpticsAPM.has_xtrace_header
 
-          # We log an info event with the HTTP KVs found in AppOpticsAPM::Rack.collect
-          # This is done here so in the case of stacks that try/catch/abort
-          # (looking at you Grape) we're sure the KVs get reported now as
-          # this code may not be returned to later.
-          AppOpticsAPM::API.log_info(:rack, collect(req, env))
+        AppOpticsAPM::API.log_start(:rack, xtrace, report_kvs) unless ::AppOpticsAPM::Util.static_asset?(env['PATH_INFO'])
 
-          status, headers, response = @app.call(env)
-          confirmed_transaction_name = send_metrics(env, req, req_url, start, status)
-          if AppOpticsAPM::tracing?
-            xtrace = AppOpticsAPM::API.log_end(:rack, :Status => status, :TransactionName => confirmed_transaction_name)
-          end
-        rescue Exception => e
-          # it is ok to rescue Exception here because we are reraising it (we just need a chance to log_end)
-          AppOpticsAPM::API.log_exception(:rack, e)
-          confirmed_transaction_name ||= send_metrics(env, req, req_url, start, status)
-          if AppOpticsAPM::tracing?
-            xtrace = AppOpticsAPM::API.log_end(:rack, :Status => status, :TransactionName => confirmed_transaction_name)
-          end
-          raise
-        end
+        # We log an info event with the HTTP KVs found in AppOpticsAPM::Rack.collect
+        # This is done here so in the case of stacks that try/catch/abort
+        # (looking at you Grape) we're sure the KVs get reported now as
+        # this code may not be returned to later.
+        AppOpticsAPM::API.log_info(:rack, collect(req, env))
+
+        status, headers, response = @app.call(env)
+        confirmed_transaction_name = send_metrics(env, req, req_url, start, status)
+        xtrace = AppOpticsAPM::API.log_end(:rack, :Status => status, :TransactionName => confirmed_transaction_name)
 
         if headers && AppOpticsAPM::XTrace.valid?(xtrace)
           # TODO revisit this JRUBY condition
@@ -154,22 +142,34 @@ if AppOpticsAPM.loaded
           headers['X-Trace'] = xtrace if headers.is_a?(Hash) unless defined?(JRUBY_VERSION) && AppOpticsAPM.is_continued_trace?
         end
 
-        AppopticsAPM::Context.clear
         [status, headers, response]
+      rescue Exception => e
+        # it is ok to rescue Exception here because we are reraising it (we just need a chance to log_end)
+        AppOpticsAPM::API.log_exception(:rack, e)
+        confirmed_transaction_name ||= send_metrics(env, req, req_url, start, status)
+        xtrace = AppOpticsAPM::API.log_end(:rack, :Status => status, :TransactionName => confirmed_transaction_name)
+
+        if headers && AppOpticsAPM::XTrace.valid?(xtrace)
+          # TODO revisit this JRUBY condition
+          # headers['X-Trace'] = xtrace if headers.is_a?(Hash) unless defined?(JRUBY_VERSION) && AppOpticsAPM.is_continued_trace?
+          headers['X-Trace'] = xtrace if headers.is_a?(Hash) unless defined?(JRUBY_VERSION) && AppOpticsAPM.is_continued_trace?
+        end
+
+        raise
       end
 
 
       def send_metrics(env, req, req_url, start, status)
-        unless ::AppOpticsAPM::Util.static_asset?(env['PATH_INFO'])
-          domain = nil
-          if AppOpticsAPM::Config['transaction_name']['prepend_domain']
-            domain = [80, 443].include?(req.port) ? req.host : "#{req.host}:#{req.port}"
-          end
-          status = status.to_i
-          error = status.between?(500,599) ? 1 : 0
-          duration =(1000 * 1000 * (Time.now - start)).round(0)
-          AppOpticsAPM::Span.createHttpSpan(transaction_name(env), req_url, domain, duration, status, req.request_method, error) || ''
+        return if ::AppOpticsAPM::Util.static_asset?(env['PATH_INFO'])
+
+        domain = nil
+        if AppOpticsAPM::Config['transaction_name']['prepend_domain']
+          domain = [80, 443].include?(req.port) ? req.host : "#{req.host}:#{req.port}"
         end
+        status = status.to_i
+        error = status.between?(500,599) ? 1 : 0
+        duration =(1000 * 1000 * (Time.now - start)).round(0)
+        AppOpticsAPM::Span.createHttpSpan(transaction_name(env), req_url, domain, duration, status, req.request_method, error) || ''
       end
 
       def transaction_name(env)
@@ -179,6 +179,7 @@ if AppOpticsAPM.loaded
           [env['appoptics_apm.controller'], env['appoptics_apm.action']].join('.')
         end
       end
+
     end
   end
 else
