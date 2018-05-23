@@ -103,6 +103,8 @@ before_script:
   - psql -c 'create database travis_ci_test;' -U postgres
   - mysql -e 'create database travis_ci_test;'
   - sleep 10
+  - export APPOPTICS_TOKEN_BUCKET_CAPACITY=1000
+  - export APPOPTICS_TOKEN_BUCKET_RATE=1000
 
 script: "N=1 bundle exec rake test"
 
