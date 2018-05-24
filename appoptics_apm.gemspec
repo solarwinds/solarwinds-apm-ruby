@@ -15,11 +15,13 @@ Gem::Specification.new do |s|
   s.description = %q{The AppOpticsAPM gem provides performance instrumentation for MRI Ruby and related frameworks.}
 
   s.extra_rdoc_files = ["LICENSE"]
-  s.files = `git ls-files`.split("\n").reject { |f| f.match(%r{^(test|gemfiles|examples)/}) }
+  s.files = `git ls-files`.split("\n").reject { |f| f.match(%r{^(test|gemfiles)/}) }
   s.files += ['ext/oboe_metal/src/oboe.h',
               'ext/oboe_metal/src/oboe.hpp',
               'ext/oboe_metal/src/oboe_debug.h',
               'ext/oboe_metal/src/oboe_wrap.cxx',
+              'ext/oboe_metal/src/bson/bson.h',
+              'ext/oboe_metal/src/bson/platform_hacks.h',
               'ext/oboe_metal/src/VERSION']
 
   # TODO this is commented out util we can actually provide gems for different platforms

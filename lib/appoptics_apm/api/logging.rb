@@ -40,7 +40,7 @@ module AppOpticsAPM
       #
       # Returns nothing.
       def log(layer, label, opts = {}, event=nil)
-        return if !AppOpticsAPM.tracing?
+        return AppOpticsAPM::Context.toString unless AppOpticsAPM.tracing?
 
         event ||= AppOpticsAPM::Context.createEvent
         log_event(layer, label, event, opts)
@@ -66,11 +66,11 @@ module AppOpticsAPM
       #
       # Returns nothing.
       def log_exception(layer, exn, opts = {})
-        return if !AppOpticsAPM.tracing? || exn.instance_variable_get(:@oboe_logged)
+        return AppOpticsAPM::Context.toString if !AppOpticsAPM.tracing? || exn.instance_variable_get(:@oboe_logged)
 
         unless exn
           AppOpticsAPM.logger.debug '[appoptics_apm/debug] log_exception called with nil exception'
-          return
+          return AppOpticsAPM::Context.toString
         end
 
         opts.merge!(:ErrorClass => exn.class.name,
@@ -180,12 +180,11 @@ module AppOpticsAPM
       #
       # Returns an xtrace metadata string if we are tracing
       def log_end(layer, opts = {})
-        return unless AppOpticsAPM.tracing?
+        return AppOpticsAPM::Context.toString unless AppOpticsAPM.tracing?
 
-        log_event(layer, :exit, AppOpticsAPM::Context.createEvent, opts) if AppOpticsAPM.tracing?
-        AppOpticsAPM::Context.toString
+        log_event(layer, :exit, AppOpticsAPM::Context.createEvent, opts)
       ensure
-        # FIXME has_incoming_context commented out, it has importance for JRuby only and breaks ruby tests
+        # FIXME has_incoming_context commented out, it has importance for JRuby only but breaks Ruby tests
         AppOpticsAPM::Context.clear # unless AppOpticsAPM.has_incoming_context?
       end
 
@@ -206,7 +205,7 @@ module AppOpticsAPM
       #
       # Returns an xtrace metadata string if we are tracing
       def log_entry(layer, opts = {}, op = nil)
-        return unless AppOpticsAPM.tracing?
+        return AppOpticsAPM::Context.toString unless AppOpticsAPM.tracing?
 
         AppOpticsAPM.layer_op = op.to_sym if op
         log_event(layer, :entry, AppOpticsAPM::Context.createEvent, opts)
@@ -228,7 +227,7 @@ module AppOpticsAPM
       #
       # Returns an xtrace metadata string if we are tracing
       def log_info(layer, opts = {})
-        return unless AppOpticsAPM.tracing?
+        return AppOpticsAPM::Context.toString unless AppOpticsAPM.tracing?
 
         log_event(layer, :info, AppOpticsAPM::Context.createEvent, opts)
       end
@@ -251,7 +250,7 @@ module AppOpticsAPM
       #
       # Returns an xtrace metadata string  if we are tracing
       def log_exit(layer, opts = {}, op = nil)
-        return unless AppOpticsAPM.tracing?
+        return AppOpticsAPM::Context.toString unless AppOpticsAPM.tracing?
 
         AppOpticsAPM.layer_op = nil if op
         log_event(layer, :exit, AppOpticsAPM::Context.createEvent, opts)
@@ -270,7 +269,7 @@ module AppOpticsAPM
       # * +traces+ - An array with X-Trace strings returned from the requests
       #
       def log_multi_exit(layer, traces)
-        return unless AppOpticsAPM.tracing?
+        return AppOpticsAPM::Context.toString unless AppOpticsAPM.tracing?
         task_id = AppOpticsAPM::XTrace.task_id(AppOpticsAPM::Context.toString)
         event = AppOpticsAPM::Context.createEvent
         traces.each do |trace|
@@ -289,7 +288,7 @@ module AppOpticsAPM
       # * +opts+ - A hash containing key/value pairs that will be reported along with this event
       def log_init(layer = :rack, opts = {})
         context = AppOpticsAPM::Metadata.makeRandom
-        return unless context.isValid
+        return AppOpticsAPM::Context.toString unless context.isValid
 
         event = context.createEvent
         event.addInfo(APPOPTICS_STR_LAYER, layer.to_s)
@@ -299,6 +298,7 @@ module AppOpticsAPM
         end
 
         AppOpticsAPM::Reporter.sendStatus(event, context)
+        AppOpticsAPM::Context.toString
       end
 
       private
@@ -353,6 +353,7 @@ module AppOpticsAPM
         end if !opts.nil? && opts.any?
 
         AppOpticsAPM::Reporter.sendReport(event)
+        AppOpticsAPM::Context.toString
       end
 
     end

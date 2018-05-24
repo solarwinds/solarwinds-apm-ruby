@@ -58,7 +58,7 @@ describe "RailsSharedTests" do
   it "should send inbound metrics" do
     test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
 
-    AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+    AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
       test_action = action
       test_url = url
       test_status = status
@@ -82,7 +82,7 @@ describe "RailsSharedTests" do
     test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
     AppOpticsAPM.config_lock.synchronize do
       AppOpticsAPM::Config[:tracing_mode] = :never
-      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
         test_action = action
         test_url = url
         test_status = status
@@ -104,7 +104,7 @@ describe "RailsSharedTests" do
   it "should send metrics for 500 errors" do
     test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
 
-    AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+    AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
       test_action = action
       test_url = url
       test_status = status
@@ -127,7 +127,7 @@ describe "RailsSharedTests" do
   it "should find the controller action for a route with a parameter" do
     test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
 
-    AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+    AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
       test_action = action
       test_url = url
       test_status = status
@@ -150,7 +150,7 @@ describe "RailsSharedTests" do
   it "should find controller action in the metal stack" do
     test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
 
-    AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+    AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
       test_action = action
       test_url = url
       test_status = status

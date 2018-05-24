@@ -112,7 +112,8 @@ module AppOpticsAPM
       @@instrumentation.each do |k|
         @@config[k] = {}
       end
-     load(File.join(File.dirname(File.dirname(__FILE__)),
+      @@config[:transaction_name] = {}
+      load(File.join(File.dirname(File.dirname(__FILE__)),
                     'rails/generators/appoptics_apm/templates/appoptics_apm_initializer.rb'))
     end
     # rubocop:enable Metrics/AbcSize

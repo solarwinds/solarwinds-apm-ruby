@@ -5,6 +5,11 @@ cache:
   directories:
   - vendor/bundle
 
+env:
+  - DBTYPE=mysql
+  - DBTYPE=mysql2
+  - DBTYPE=postgresql
+
 rvm:
   - 2.5.0
   - 2.4.3
@@ -22,11 +27,6 @@ gemfile:
 #  - gemfiles/rails50.gemfile
   - gemfiles/rails51.gemfile
   - gemfiles/delayed_job.gemfile
-
-env:
-  - DBTYPE=mysql
-  - DBTYPE=mysql2
-  - DBTYPE=postgresql
 
 matrix:
   exclude:
@@ -103,6 +103,8 @@ before_script:
   - psql -c 'create database travis_ci_test;' -U postgres
   - mysql -e 'create database travis_ci_test;'
   - sleep 10
+  - export APPOPTICS_TOKEN_BUCKET_CAPACITY=1000
+  - export APPOPTICS_TOKEN_BUCKET_RATE=1000
 
 script: "N=1 bundle exec rake test"
 

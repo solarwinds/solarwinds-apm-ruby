@@ -2,6 +2,9 @@
 # All rights reserved.
 
 require 'minitest_helper'
+require 'rack/test'
+require 'rack/handler/puma'
+require 'appoptics_apm/inst/rack'
 require 'mocha/minitest'
 
 describe AppOpticsAPM::API::Logging do
@@ -28,5 +31,4 @@ describe AppOpticsAPM::API::Logging do
       end
     end
   end
-
 end

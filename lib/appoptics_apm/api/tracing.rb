@@ -51,7 +51,8 @@ module AppOpticsAPM
       #
       # Returns the result of the block.
       def trace(layer, opts = {}, protect_op = nil)
-        return if protect_op && AppOpticsAPM.layer_op == protect_op.to_sym
+        return if !AppOpticsAPM.loaded || (protect_op && AppOpticsAPM.layer_op == protect_op.to_sym)
+
         log_entry(layer, opts, protect_op)
         begin
           yield
@@ -157,6 +158,32 @@ module AppOpticsAPM
           log(layer, :exit, {}, exit_evt)
           AppOpticsAPM::Context.clear
         end
+      end
+
+      # Public: Set a ThreadLocal custom transaction name to be used when sending a trace or metrics for the
+      # current transaction
+      #
+      # In addition to setting a transaction name here there is also a configuration
+      # AppOpticsAPM::Config['transaction_name']['prepend_domain'] which allows to have the domain prepended
+      # to the transaction name
+      #
+      # ===== Arguments
+      # * +name+ - A non-empty string with the custom transaction name
+      #
+      def set_transaction_name(name)
+        if name.is_a?(String) && name.strip != ''
+          AppOpticsAPM.transaction_name = name
+        else
+          AppOpticsAPM.logger.debug "[appoptics_apm/api] Could not set transaction name, provided name is empty or not a String."
+        end
+        AppOpticsAPM.transaction_name
+      end
+
+
+      # this is provided for testing
+      # returns the current transaction name
+      def get_transaction_name
+        AppOpticsAPM.transaction_name
       end
     end
   end

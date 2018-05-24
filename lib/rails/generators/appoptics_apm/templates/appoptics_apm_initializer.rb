@@ -21,7 +21,15 @@ if defined?(AppOpticsAPM::Config)
   # Verbose output of instrumentation initialization
   #
   AppOpticsAPM::Config[:verbose] = ENV.key?('APPOPTICS_GEM_VERBOSE') && ENV['APPOPTICS_GEM_VERBOSE'] == 'true' ? true : false
+
   #
+  # Prepend domain to transaction name
+  #
+  # If this is set to `true` transaction names will be composed as `my.host.com/controller.action` instead of
+  # `controller.action`. This configuration applies to all transaction names, whether decducted by the instrumentation
+  # or implicitly set.
+  #
+  AppOpticsAPM::Config[:transaction_name][:prepend_domain] = false
 
   #
   # Sanitize SQL Statements

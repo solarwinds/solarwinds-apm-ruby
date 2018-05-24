@@ -206,28 +206,5 @@ if defined?(::Rails)
     end
 
     require_relative "rails_shared_tests"
-
-    it "should send inbound metrics" do
-      test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-
-      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
-        test_action = action
-        test_url = url
-        test_status = status
-        test_method = method
-        test_error = error
-      end.once
-
-      uri = URI.parse('http://127.0.0.1:8150/monkey/hello')
-      Net::HTTP.get_response(uri)
-
-      assert_equal "MonkeyController.hello", test_action
-      assert_equal "http://127.0.0.1:8150/monkey/hello", test_url
-      assert_equal 200, test_status
-      assert_equal "GET", test_method
-      assert_equal 0, test_error
-
-      assert_controller_action(test_action)
-    end
   end
 end

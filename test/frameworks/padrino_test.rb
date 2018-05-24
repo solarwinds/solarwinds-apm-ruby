@@ -35,7 +35,7 @@ if defined?(::Padrino)
     it "should report controller.action" do
       @app = SimpleDemo
       test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
         test_action = action
         test_url = url
         test_status = status
@@ -57,7 +57,7 @@ if defined?(::Padrino)
     it "should report controller.action for a symbol route" do
       @app = SimpleDemo
       test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
         test_action = action
         test_url = url
         test_status = status
@@ -79,7 +79,7 @@ if defined?(::Padrino)
     it "should report controller.action with :id" do
       @app = SimpleDemo
       test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
         test_action = action
         test_url = url
         test_status = status
@@ -103,7 +103,7 @@ if defined?(::Padrino)
     it "should report controller.action for a symbol route with :id" do
       @app = SimpleDemo
       test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
         test_action = action
         test_url = url
         test_status = status
@@ -127,7 +127,7 @@ if defined?(::Padrino)
     it "should report controller.action with :id and more" do
       @app = SimpleDemo
       test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
         test_action = action
         test_url = url
         test_status = status
@@ -151,7 +151,7 @@ if defined?(::Padrino)
     it "should report an error" do
       @app = SimpleDemo
       test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
         test_action = action
         test_url = url
         test_status = status
@@ -173,7 +173,7 @@ if defined?(::Padrino)
     it "should correctly report nested routes" do
       @app = SimpleDemo
       test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
         test_action = action
         test_url = url
         test_status = status
@@ -197,7 +197,7 @@ if defined?(::Padrino)
     it "should correctly report nested routes with param" do
       @app = SimpleDemo
       test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _duration, status, method, error|
+      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
         test_action = action
         test_url = url
         test_status = status
