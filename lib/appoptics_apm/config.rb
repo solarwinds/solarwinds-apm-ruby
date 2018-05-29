@@ -73,31 +73,31 @@ module AppOpticsAPM
     # to create an output similar to the content of the config file
     #
     def self.print_config
-      puts "# General configurations"
+      AppOpticsAPM.logger.warn "# General configurations"
       non_instrumentation = @@config.keys - @@instrumentation
       non_instrumentation.each do |config|
-        puts "AppOpticsAPM::Config[:#{config}] = #{@@config[config]}"
+        AppOpticsAPM.logger.warn "AppOpticsAPM::Config[:#{config}] = #{@@config[config]}"
       end
 
-      puts "\n# Instrumentation specific configurations"
-      puts "# Enabled/Disabled Instrumentation"
+      AppOpticsAPM.logger.warn "\n# Instrumentation specific configurations"
+      AppOpticsAPM.logger.warn "# Enabled/Disabled Instrumentation"
       @@instrumentation.each do |config|
-        puts "AppOpticsAPM::Config[:#{config}][:enabled] = #{@@config[config][:enabled]}"
+        AppOpticsAPM.logger.warn "AppOpticsAPM::Config[:#{config}][:enabled] = #{@@config[config][:enabled]}"
       end
 
-      puts "\n# Enabled/Disabled Backtrace Collection"
+      AppOpticsAPM.logger.warn "\n# Enabled/Disabled Backtrace Collection"
       @@instrumentation.each do |config|
-        puts "AppOpticsAPM::Config[:#{config}][:collect_backtraces] = #{@@config[config][:collect_backtraces]}"
+        AppOpticsAPM.logger.warn "AppOpticsAPM::Config[:#{config}][:collect_backtraces] = #{@@config[config][:collect_backtraces]}"
       end
 
-      puts "\n# Logging of outgoing HTTP query args"
+      AppOpticsAPM.logger.warn "\n# Logging of outgoing HTTP query args"
       @@instrumentation.each do |config|
-        puts "AppOpticsAPM::Config[:#{config}][:log_args] = #{@@config[config][:log_args]}"
+        AppOpticsAPM.logger.warn "AppOpticsAPM::Config[:#{config}][:log_args] = #{@@config[config][:log_args]}"
       end
 
-      puts "\n# Bunny Controller and Action"
-      puts "AppOpticsAPM::Config[:bunnyconsumer][:controller] = #{@@config[:bunnyconsumer][:controller].inspect}"
-      puts "AppOpticsAPM::Config[:bunnyconsumer][:action] = #{@@config[:bunnyconsumer][:action].inspect}"
+      AppOpticsAPM.logger.warn "\n# Bunny Controller and Action"
+      AppOpticsAPM.logger.warn "AppOpticsAPM::Config[:bunnyconsumer][:controller] = #{@@config[:bunnyconsumer][:controller].inspect}"
+      AppOpticsAPM.logger.warn "AppOpticsAPM::Config[:bunnyconsumer][:action] = #{@@config[:bunnyconsumer][:action].inspect}"
       nil
     end
 
