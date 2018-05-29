@@ -16,7 +16,7 @@ if defined?(::Redis)
     before do
       clear_all_traces
 
-      @redis ||= Redis.new
+      @redis ||= Redis.new(:host => ENV['APPOPTICS_REDIS_SERVER'] || '127.0.0.1', :password => 'secret_pass')
 
       @redis_version ||= @redis.info["redis_version"]
 

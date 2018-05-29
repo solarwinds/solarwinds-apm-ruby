@@ -6,6 +6,10 @@
 #
 ENV['BUNDLE_GEMFILE'] = Dir.pwd + "/gemfiles/libraries.gemfile"
 
+Sidekiq.configure_server do |config|
+  config.redis = { :password => 'secret_pass' }
+end
+
 require 'rubygems'
 require 'bundler/setup'
 require_relative '../jobs/sidekiq/db_worker_job'

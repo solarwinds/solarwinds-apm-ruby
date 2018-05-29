@@ -3,7 +3,7 @@
 # used by run_tests_docker.sh
 # call with:
 # docker-compose run --service-ports ruby_appoptics_apm /code/ruby-appoptics_apm/ruby_setup.sh <ruby-version> <gemfile> <DBNAME=mysql2> <true|false>
-# docker-compose run --service-ports ruby_appoptics_apm /code/ruby-appoptics_apm/ruby_setup.sh 2.4.1 gemfiles/libraries.gemfile
+# docker-compose run --service-ports ruby_appoptics_apm /code/ruby-appoptics_apm/ruby_setup.sh 2.4.3 gemfiles/libraries.gemfile
 
 cd /code/ruby-appoptics_apm/
 
@@ -23,8 +23,8 @@ bundle exec rake compile
 # start postgres
 service postgresql start
 
-# start redis
-service redis-server start
+# start redis with password
+redis-server --requirepass secret_pass &
 
 # start memcached
 service memcached start

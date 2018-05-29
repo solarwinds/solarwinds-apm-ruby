@@ -4,6 +4,11 @@
 unless defined?(JRUBY_VERSION)
   require 'minitest_helper'
   require 'sidekiq'
+
+  Sidekiq.configure_server do |config|
+    config.redis = { :password => 'secret_pass' }
+  end
+
   require_relative "../jobs/sidekiq/remote_call_worker_job"
   require_relative "../jobs/sidekiq/db_worker_job"
   require_relative "../jobs/sidekiq/error_worker_job"
