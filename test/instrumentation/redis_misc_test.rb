@@ -25,6 +25,18 @@ if defined?(::Redis)
       @exit_kvs  ||= { 'Layer' => 'redis_test', 'Label' => 'exit' }
     end
 
+    it "should trace auth and not include password" do
+
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+        @redis.auth("secret_pass")
+      end
+
+      traces = get_all_traces
+      traces.count.must_equal 4
+      traces[2]['KVOp'].must_equal "auth"
+      traces[2].has_key?('KVKey').must_equal false
+    end
+
     it "should trace publish" do
       min_server_version(2.0)
 

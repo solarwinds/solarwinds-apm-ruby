@@ -6,7 +6,7 @@ module AppOpticsAPM
     module Redis
       module Client
         # The operations listed in this constant skip collecting KVKey
-        NO_KEY_OPS = [:keys, :randomkey, :scan, :sdiff, :sdiffstore, :sinter,
+        NO_KEY_OPS = [:auth, :keys, :randomkey, :scan, :sdiff, :sdiffstore, :sinter,
                       :sinterstore, :smove, :sunion, :sunionstore, :zinterstore,
                       :zunionstore, :publish, :select, :eval, :evalsha, :script].freeze
 
