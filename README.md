@@ -35,7 +35,7 @@ or added to _the end_ of your bundle Gemfile and running `bundle install`:
 gem 'appoptics_apm'
 ```
 
-## if you're dogfooding:
+## if you need a pre-release version: 
 Get the gem
 ```
 source 'https://73bf9c35xxxxxxxxxxb4d26c3:@packagecloud.io/AppOptics/apm-instrumentation/' do
