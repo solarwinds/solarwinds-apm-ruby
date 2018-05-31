@@ -6,6 +6,9 @@ unless defined?(JRUBY_VERSION)
   require_relative "../jobs/resque/remote_call_worker_job"
   require_relative "../jobs/resque/error_worker_job"
 
+  Resque.redis = Redis.new(:url => 'redis://:secret_pass@localhost:6379')
+  Resque.enqueue(ResqueRemoteCallWorkerJob)  # calling this here once to avoid other calls having an auth span
+
   class ResqueClientTest < Minitest::Test
     def setup
       clear_all_traces
@@ -95,6 +98,7 @@ unless defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
+
       assert_equal 6, traces.count, "trace count"
       validate_outer_layers(traces, 'resque-client_test')
 
@@ -119,6 +123,7 @@ unless defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
+
       assert_equal 6, traces.count, "trace count"
       validate_outer_layers(traces, 'resque-client_test')
 
@@ -143,6 +148,7 @@ unless defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
+
       assert_equal 6, traces.count, "trace count"
       validate_outer_layers(traces, 'resque-client_test')
 
@@ -167,6 +173,7 @@ unless defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
+
       assert_equal 6, traces.count, "trace count"
       validate_outer_layers(traces, 'resque-client_test')
 

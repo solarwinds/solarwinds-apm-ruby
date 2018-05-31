@@ -58,7 +58,9 @@ module AppOpticsAPM
     AppOpticsAPM.logger.warn "Using Rails?: #{yesno(using_rails)}"
     if using_rails
       AppOpticsAPM.logger.warn "AppOpticsAPM::Rails loaded?: #{yesno(defined?(::AppOpticsAPM::Rails))}"
-      AppOpticsAPM.logger.warn "AppOpticsAPM::Rack middleware loaded?: #{yesno(::Rails.configuration.middleware.include? AppOpticsAPM::Rack)}"
+      if defined?(::AppOpticsAPM::Rack)
+        AppOpticsAPM.logger.warn "AppOpticsAPM::Rack middleware loaded?: #{yesno(::Rails.configuration.middleware.include? AppOpticsAPM::Rack)}"
+      end
     end
 
     using_sinatra = defined?(::Sinatra)
@@ -81,28 +83,27 @@ module AppOpticsAPM
       AppOpticsAPM.logger.warn 'No ActiveRecord'
     end
 
-    AppOpticsAPM.logger.warn '********************************************************'
-    AppOpticsAPM.logger.warn '* AppOpticsAPM Libraries'
-    AppOpticsAPM.logger.warn '********************************************************'
-    files = []
-    ['/usr/lib/liboboe*', '/usr/lib64/liboboe*'].each do |d|
-      files = Dir.glob(d)
-      break if !files.empty?
-    end
-    if files.empty?
-      AppOpticsAPM.logger.warn 'Error: No liboboe libs!'
-    else
-      files.each { |f|
-        AppOpticsAPM.logger.warn f
-      }
-    end
+    # TODO we don't have libs in /usr/lib anymore, is this still needed???
+    # AppOpticsAPM.logger.warn '********************************************************'
+    # AppOpticsAPM.logger.warn '* AppOpticsAPM Libraries'
+    # AppOpticsAPM.logger.warn '********************************************************'
+    # files = []
+    # ['/usr/lib/liboboe*', '/usr/lib64/liboboe*'].each do |d|
+    #   files = Dir.glob(d)
+    #   break if !files.empty?
+    # end
+    # if files.empty?
+    #   AppOpticsAPM.logger.warn 'Error: No liboboe libs!'
+    # else
+    #   files.each { |f|
+    #     AppOpticsAPM.logger.warn f
+    #   }
+    # end
 
     AppOpticsAPM.logger.warn '********************************************************'
     AppOpticsAPM.logger.warn '* AppOpticsAPM::Config Values'
     AppOpticsAPM.logger.warn '********************************************************'
-    AppOpticsAPM::Config.config.each { |k,v|
-      AppOpticsAPM.logger.warn "#{k}: #{v}"
-    }
+    AppOpticsAPM::Config.print_config
 
     AppOpticsAPM.logger.warn '********************************************************'
     AppOpticsAPM.logger.warn '* OS, Platform + Env'

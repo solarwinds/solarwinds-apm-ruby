@@ -11,7 +11,7 @@ env:
   - DBTYPE=postgresql
 
 rvm:
-  - 2.5.0
+  - 2.5.1
   - 2.4.3
   - 2.3.6
 #  - jruby-9.0.5.0
@@ -30,7 +30,7 @@ gemfile:
 
 matrix:
   exclude:
-    - rvm: 2.5.0
+    - rvm: 2.5.1
       env: DBTYPE=mysql
     - rvm: 2.4.3
       env: DBTYPE=mysql
@@ -65,7 +65,7 @@ matrix:
 
     # Rails 3.2 is not compatible with Ruby >= 2.4
     # We currently are not supporting Rails 3.2
-    - rvm: 2.5.0
+    - rvm: 2.5.1
       gemfile: gemfiles/rails32.gemfile
     - rvm: 2.4.3
       gemfile: gemfiles/rails32.gemfile
@@ -102,6 +102,7 @@ before_script:
   - bundle exec rake compile
   - psql -c 'create database travis_ci_test;' -U postgres
   - mysql -e 'create database travis_ci_test;'
+  - redis-server --requirepass secret_pass &
   - sleep 10
   - export APPOPTICS_TOKEN_BUCKET_CAPACITY=1000
   - export APPOPTICS_TOKEN_BUCKET_RATE=1000
@@ -112,5 +113,5 @@ services:
   - mongodb
   - memcached
   - cassandra
-  - redis
+#  - redis
   - rabbitmq

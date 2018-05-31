@@ -26,7 +26,7 @@ if defined?(AppOpticsAPM::Config)
   # Prepend domain to transaction name
   #
   # If this is set to `true` transaction names will be composed as `my.host.com/controller.action` instead of
-  # `controller.action`. This configuration applies to all transaction names, whether decducted by the instrumentation
+  # `controller.action`. This configuration applies to all transaction names, whether deducted by the instrumentation
   # or implicitly set.
   #
   AppOpticsAPM::Config[:transaction_name][:prepend_domain] = false

@@ -16,13 +16,25 @@ if defined?(::Redis)
     before do
       clear_all_traces
 
-      @redis ||= Redis.new(:host => ENV['APPOPTICS_REDIS_SERVER'] || '127.0.0.1')
+      @redis ||= Redis.new(:host => ENV['APPOPTICS_REDIS_SERVER'] || '127.0.0.1', :password => 'secret_pass')
 
       @redis_version ||= @redis.info["redis_version"]
 
       # These are standard entry/exit KVs that are passed up with all moped operations
       @entry_kvs ||= { 'Layer' => 'redis_test', 'Label' => 'entry' }
       @exit_kvs  ||= { 'Layer' => 'redis_test', 'Label' => 'exit' }
+    end
+
+    it "should trace auth and not include password" do
+
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+        @redis.auth("secret_pass")
+      end
+
+      traces = get_all_traces
+      traces.count.must_equal 4
+      traces[2]['KVOp'].must_equal "auth"
+      traces[2].has_key?('KVKey').must_equal false
     end
 
     it "should trace publish" do
