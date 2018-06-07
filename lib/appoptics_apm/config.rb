@@ -92,7 +92,7 @@ module AppOpticsAPM
 
       AppOpticsAPM.logger.warn "\n# Logging of outgoing HTTP query args"
       @@instrumentation.each do |config|
-        AppOpticsAPM.logger.warn "AppOpticsAPM::Config[:#{config}][:log_args] = #{@@config[config][:log_args]}"
+        AppOpticsAPM.logger.warn "AppOpticsAPM::Config[:#{config}][:log_args] = #{@@config[config][:log_args] || false}"
       end
 
       AppOpticsAPM.logger.warn "\n# Bunny Controller and Action"
