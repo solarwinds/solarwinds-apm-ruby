@@ -25,6 +25,7 @@ else
 end
 
 gem "rails", "~> 4.2.5"
+gem 'sidekiq'
 
 gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')
 # vim:syntax=ruby

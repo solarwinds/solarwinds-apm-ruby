@@ -8,6 +8,7 @@ gem 'therubyracer', platforms: :ruby
 gem 'jquery-rails'
 gem 'turbolinks', '~> 5.x'
 gem 'jbuilder', '~> 2.0'
+gem 'sidekiq'
 
 group :development do
   # Access an IRB console on exception pages or by using <%= console %> in views
