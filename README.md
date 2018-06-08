@@ -2,7 +2,7 @@
 
 The appoptics_apm gem provides [AppOptics APM](https://www.appoptics.com/) performance instrumentation for Ruby.
 
-![Ruby AppOpticsAPM](http://www.appoptics.com/images/ruby_readme/oboe-ruby-header.png)
+![Ruby AppOpticsAPM](https://docs.appoptics.com/_images/ruby_trace.png)
 
 It has the ability to report performance metrics on an array of libraries, databases and frameworks such as Rails, 
 Mongo, Memcache, ActiveRecord, Cassandra, Rack, Resque 
@@ -34,36 +34,24 @@ or added to _the end_ of your bundle Gemfile and running `bundle install`:
 gem 'appoptics_apm'
 ```
 
-## if you need a pre-release version: 
-Get the gem
-```
-source 'https://73bf9c35xxxxxxxxxxb4d26c3:@packagecloud.io/AppOptics/apm-instrumentation/' do
-  gem 'appoptics_apm', '>= 4.0.0'
-end
-```
-Set the env to report to staging (your_app_name can be any string, it is only used as name in the services list):
-```
-unset APPOPTICS_TRUSTEDPATH
-export APPOPTICS_COLLECTOR=collector-stg.appoptics.com
-export APPOPTICS_SERVICE_KEY=795fb4947d15275d208c49cfd2412d4a5bf38742045b47236c94c4fe5f5b17c7:<your_app_name>
-```
-If you're reporting to production, only set `APPOPTICS_SERVICE_KEY`
-
 # Running
+
+##Configuration
+The environment variable `APPOPTICS_SERVICE_KEY` is the only required configuration, everything else is optional.
+It takes the form: <API token>:<service name> and can be set with `export` if the service is started from a shell or as 
+an `env` directive when the service is started through nginx. See: [Configuration](http://docs.appoptics.com/kb/apm_tracing/ruby/configure).
+
 
 ## Rails
 
-![Ruby on Rails](http://docs.appoptics.com/kb/apm_tracing/ruby)
+![Ruby on Rails](https://docs.appoptics.com/_images/rails.png)
 
-No special steps are needed to instrument Ruby on Rails.  Once part of the bundle, the appoptics gem will automatically 
+No special steps are needed to instrument Ruby on Rails. Once part of the bundle, the appoptics gem will automatically 
 detect Rails and instrument on stack initialization.
-
-*Note: You will still need to decide on your `tracing_mode` depending on whether you are running with an instrumented 
-Apache or nginx in front of your Rails stack.  See below for more details.*
 
 ### The Install Generator
 
-The appoptics_apm gem provides a Rails generator used to seed an initializer where you can configure and control 
+The appoptics_apm gem provides a Rails generator used to seed a configuration file where you can set 
 `tracing_mode` and [other options](http://docs.appoptics.com/kb/apm_tracing/ruby/configure).
 
 To run the install generator run:
@@ -76,7 +64,7 @@ After the prompts, this will create an initializer: `config/initializers/appopti
 
 ## Sinatra
 
-![Sinatra](http://docs.appoptics.solarwinds.com/images/ruby_readme/sinatra.png)
+![Sinatra](https://docs.appoptics.com/_images/sinatra.png)
 
 You can instrument your Sinatra application by adding the following code to your `config.ru` Rackup file:
 
@@ -85,8 +73,8 @@ You can instrument your Sinatra application by adding the following code to your
 # after the Sinatra require directive.
 require 'appoptics_apm'
 
-AppOpticsAPM
-AppOpticsAPM
+# You may want to replace the AppOptics.logger with whichever logger you are using
+# AppOptics.logger = Sinatra.logger
 ```
 
 Make sure that the appoptics_apm gem is loaded _after_ Sinatra either by listing `gem 'appoptics_apm'` after Sinatra in 
@@ -96,7 +84,7 @@ With this, the appoptics_apm gem will automatically detect Sinatra on boot and i
 
 ## Padrino
 
-![Padrino](http://docs.appoptics.solarwinds.com/images/ruby_readme/padrino.png)
+![Padrino](https://docs.appoptics.com/_images/padrino.svg)
 
 As long as the appoptics_apm gem is in your `Gemfile` (inserted after the `gem 'padrino'` directive) and you are calling 
 `Bundler.require`, the appoptics_apm gem will automatically instrument Padrino applications.
@@ -113,7 +101,7 @@ end
 
 ## Grape
 
-![Grape](http://docs.appoptics.solarwinds.com/images/ruby_readme/grape.png)
+![Grape](https://docs.appoptics.com/_images/grape.png)
 
 You can instrument your Grape application by adding the following code to your `config.ru` Rackup file:
 
