@@ -34,6 +34,8 @@ matrix:
       env: DBTYPE=mysql
     - rvm: 2.4.3
       env: DBTYPE=mysql
+    - rvm: 2.4.4
+      env: DBTYPE=mysql
 
     - gemfile: gemfiles/noop.gemfile
       env: DBTYPE=mysql
