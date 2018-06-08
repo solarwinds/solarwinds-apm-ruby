@@ -27,6 +27,6 @@ travis['matrix']['exclude'].each do |h|
 end
 
 matrix.each do |args|
-  `docker-compose run --rm --service-ports ruby_appoptics_apm /code/ruby-appoptics_apm/ruby_setup.sh #{args['rvm']} #{args['gemfile']} #{args['env']}`
   puts "docker-compose run --rm --service-ports ruby_appoptics_apm /code/ruby-appoptics_apm/ruby_setup.sh #{args['rvm']} #{args['gemfile']} #{args['env']}"
+  `docker-compose run --rm --service-ports ruby_appoptics_apm /code/ruby-appoptics_apm/ruby_setup.sh #{args['rvm']} #{args['gemfile']} #{args['env']}`
 end
