@@ -6,15 +6,14 @@ The appoptics_apm gem provides [AppOptics APM](https://www.appoptics.com/) perfo
 
 It has the ability to report performance metrics on an array of libraries, databases and frameworks such as Rails, 
 Mongo, Memcache, ActiveRecord, Cassandra, Rack, Resque 
-[and more](http://docs.appoptics.solarwinds.com/Instrumentation/ruby.html#ruby-support-matrix).
+[and more](https://docs.appoptics.com/kb/apm_tracing/ruby/support-matrix/).
 
 It requires an [AppOptics](https://www.appoptics.com/) account to view metrics.  Get yours, 
-[it's free](https://https://my.appoptics.com/sign_up).
+[it's free](https://my.appoptics.com/sign_up).
 
 [![Gem Version](https://badge.fury.io/rb/appoptics_apm.png)](https://badge.fury.io/rb/appoptics_apm)
-[![Build Status](https://travis-ci.com/librato/ruby-appoptics.png?branch=master)](https://travis-ci.com/librato/ruby-appoptics)
-[![Code Climate](https://codeclimate.com/github/librato/ruby-appoptics.png)](https://codeclimate.com/github/librato/ruby-appoptics)
-
+[![Build Status](https://travis-ci.com/librato/ruby-appoptics.svg?token=LzbfDs1THXsu4JyNWXGC&branch=master)](https://travis-ci.com/librato/ruby-appoptics)
+[![Code Climate](https://api.codeclimate.com/v1/badges/57b0675e5d01fbdf1deb/maintainability)](https://codeclimate.com/repos/5b1af8172824ff0271000002/maintainability)
 _Note: The repository name has been changed to ruby-appoptics.  Please update your github remotes with 
 `git remote set-url origin git@github.com:librato/ruby-appoptics.git`._
 
@@ -395,6 +394,4 @@ We humbly request that any submitted instrumentation is delivered with correspon
 
 # License
 
-Copyright (c) 2018 SolarWinds, LLC
-
-Released under the [Librato Open License](http://docs.appoptics.solarwinds.com/Instrumentation/librato-open-license.html)
+Released under the [Librato Open License](http://docs.appoptics.traceview.com/Instrumentation/librato-open-license.html)
