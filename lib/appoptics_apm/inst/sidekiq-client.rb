@@ -15,10 +15,10 @@ module AppOpticsAPM
         report_kvs[:Flavor]    = :sidekiq
         report_kvs[:Queue]     = queue
         report_kvs[:Retry]     = msg['retry']
-        report_kvs[:JobName]   = worker_class
+        report_kvs[:JobName]   = msg['wrapped'] || worker_class
         report_kvs[:MsgID]     = msg['jid']
         report_kvs[:Args]      = msg['args'].to_s[0..1024] if AppOpticsAPM::Config[:sidekiqclient][:log_args]
-        report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace         if AppOpticsAPM::Config[:sidekiqclient][:collect_backtraces]
+        report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:sidekiqclient][:collect_backtraces]
       rescue => e
         AppOpticsAPM.logger.warn "[appoptics_apm/sidekiq] Non-fatal error capturing KVs: #{e.message}"
       end
@@ -44,6 +44,8 @@ module AppOpticsAPM
 end
 
 if defined?(::Sidekiq) && AppOpticsAPM::Config[:sidekiqclient][:enabled]
+  ::AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting sidekiq client' if AppOpticsAPM::Config[:verbose]
+
   ::Sidekiq.configure_client do |config|
     config.client_middleware do |chain|
       ::AppOpticsAPM.logger.info '[appoptics_apm/loading] Adding Sidekiq client middleware' if AppOpticsAPM::Config[:verbose]

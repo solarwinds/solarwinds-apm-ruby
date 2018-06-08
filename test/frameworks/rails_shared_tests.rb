@@ -4,6 +4,12 @@
 require "minitest_helper"
 require 'mocha/minitest'
 
+require_relative '../jobs/sidekiq/activejob_worker_job'
+require_relative '../servers/sidekiq_activejob.rb'
+
+Sidekiq.configure_server do |config|
+  config.redis = { :password => 'secret_pass' }
+end
 
 describe "RailsSharedTests" do
   before do
@@ -169,4 +175,24 @@ describe "RailsSharedTests" do
 
     assert_controller_action(test_action)
   end
+
+  it "should use wrapped class for ActiveJobs" do
+    skip unless defined?(ActiveJob)
+    AppOpticsAPM::API.start_trace('test_trace') do
+      ActiveJobWorkerJob.perform_later
+    end
+
+    # Allow the job to be run
+    sleep 5
+
+    traces = get_all_traces
+
+    sidekiq_traces = traces.select { |tr| tr['Layer'] =~ /sidekiq/ }
+    assert_equal 4, sidekiq_traces.count, "count sidekiq traces"
+    assert sidekiq_traces.find { |tr| tr['Layer'] == 'sidekiq-client' && tr['JobName'] == 'ActiveJobWorkerJob' }
+    assert sidekiq_traces.find { |tr| tr['Layer'] == 'sidekiq-worker' && tr['JobName'] == 'ActiveJobWorkerJob' }
+    assert sidekiq_traces.find { |tr| tr['Layer'] == 'sidekiq-worker' && tr['Action'] == 'ActiveJobWorkerJob' }
+
+  end
+
 end

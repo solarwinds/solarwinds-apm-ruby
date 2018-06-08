@@ -15,16 +15,16 @@ module AppOpticsAPM
         report_kvs[:Flavor]     = :sidekiq
         report_kvs[:Queue]      = queue
         report_kvs[:Retry]      = msg['retry']
-        report_kvs[:JobName]    = worker.class.to_s
+        report_kvs[:JobName]    = msg['wrapped'] || msg['class']
         report_kvs[:MsgID]      = msg['jid']
         report_kvs[:Args]       = msg['args'].to_s[0..1024] if AppOpticsAPM::Config[:sidekiqworker][:log_args]
-        report_kvs[:Backtrace]  = AppOpticsAPM::API.backtrace         if AppOpticsAPM::Config[:sidekiqworker][:collect_backtraces]
+        report_kvs[:Backtrace]  = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:sidekiqworker][:collect_backtraces]
 
         # Webserver Spec KVs
         report_kvs[:'HTTP-Host'] = Socket.gethostname
         report_kvs[:Controller] = "Sidekiq_#{queue}"
-        report_kvs[:Action] = msg['class']
-        report_kvs[:URL] = "/sidekiq/#{queue}/#{msg['class']}"
+        report_kvs[:Action] = msg['wrapped'] || msg['class']
+        report_kvs[:URL] = "/sidekiq/#{queue}/#{msg['wrapped'] || msg['class']}"
       rescue => e
         AppOpticsAPM.logger.warn "[appoptics_apm/sidekiq] Non-fatal error capturing KVs: #{e.message}"
       end
@@ -56,7 +56,7 @@ module AppOpticsAPM
 end
 
 if defined?(::Sidekiq) && AppOpticsAPM::Config[:sidekiqworker][:enabled]
-  ::AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting sidekiq' if AppOpticsAPM::Config[:verbose]
+  ::AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting sidekiq worker' if AppOpticsAPM::Config[:verbose]
 
   ::Sidekiq.configure_server do |config|
     config.server_middleware do |chain|
