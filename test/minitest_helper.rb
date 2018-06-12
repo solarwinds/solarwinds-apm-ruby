@@ -1,6 +1,19 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
+require 'simplecov'
+require 'simplecov-console'
+
+SimpleCov.start do
+# SimpleCov.formatter = SimpleCov.formatter = SimpleCov::Formatter::Console
+  merge_timeout 36000
+  command_name "#{ENV['RVM_TEST']}_#{File.basename(ENV['BUNDLE_GEMFILE'])}_#{ENV['DBTYPE']}"
+# SimpleCov.use_merging true
+  add_filter '/test/'
+  add_filter '../test/'
+  use_merging true
+end
+
 require 'rubygems'
 require 'bundler/setup'
 require 'minitest/spec'

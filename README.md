@@ -14,6 +14,8 @@ It requires an [AppOptics](https://www.appoptics.com/) account to view metrics. 
 [![Gem Version](https://badge.fury.io/rb/appoptics_apm.png)](https://badge.fury.io/rb/appoptics_apm)
 [![Build Status](https://travis-ci.com/librato/ruby-appoptics.svg?token=LzbfDs1THXsu4JyNWXGC&branch=master)](https://travis-ci.com/librato/ruby-appoptics)
 [![Code Climate](https://api.codeclimate.com/v1/badges/57b0675e5d01fbdf1deb/maintainability)](https://codeclimate.com/repos/5b1af8172824ff0271000002/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/57b0675e5d01fbdf1deb/test_coverage)](https://codeclimate.com/repos/5b1af8172824ff0271000002/test_coverage)
+
 _Note: The repository name has been changed to ruby-appoptics.  Please update your github remotes with 
 `git remote set-url origin git@github.com:librato/ruby-appoptics.git`._
 

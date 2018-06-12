@@ -100,6 +100,7 @@ module AppOpticsAPMBase
   ##
   # pickup_context
   #
+  # for JRUBY
   # Determines whether we should pickup context
   # from an incoming X-Trace request header.  The answer
   # is generally yes but there are cases in JRuby under
@@ -194,6 +195,7 @@ module AppOpticsAPMBase
   ##
   # Debugging helper method
   #
+  # FIXME does this belong here? Is it still needed?
   def pry!
     # Only valid for development or test environments
     env = ENV['RACK_ENV'] || ENV['RAILS_ENV']

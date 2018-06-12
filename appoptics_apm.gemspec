@@ -35,6 +35,8 @@ Gem::Specification.new do |s|
 
   # Development dependencies used in gem development & testing
   s.add_development_dependency('rake', '>= 0.9.0')
+  s.add_development_dependency('simplecov', '>= 0.16.0')
+  s.add_development_dependency('simplecov-console', '>= 0.4.0')
 
   unless defined?(JRUBY_VERSION)
     s.add_development_dependency('byebug', '>= 8.0.0')

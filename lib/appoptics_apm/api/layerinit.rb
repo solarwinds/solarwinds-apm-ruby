@@ -21,21 +21,6 @@ module AppOpticsAPM
         log_init(layer, platform_info)
       end
 
-      ##
-      # :nodoc:
-      # Deprecated:
-      # force_trace has been deprecated and will be removed in a subsequent version.
-      #
-      def force_trace
-        AppOpticsAPM.logger.warn 'AppOpticsAPM::API::LayerInit.force_trace has been deprecated and will be ' \
-                         'removed in a subsequent version.'
-
-        saved_mode = AppOpticsAPM::Config[:tracing_mode]
-        AppOpticsAPM::Config[:tracing_mode] = :always
-        yield
-      ensure
-        AppOpticsAPM::Config[:tracing_mode] = saved_mode
-      end
     end
   end
 end
