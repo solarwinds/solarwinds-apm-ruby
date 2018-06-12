@@ -1,8 +1,8 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
-require 'simplecov'
-require 'simplecov-console'
+require 'simplecov' if ENV["SIMPLECOV_COVERAGE"]
+require 'simplecov-console' if ENV["SIMPLECOV_COVERAGE"]
 
 SimpleCov.start do
 # SimpleCov.formatter = SimpleCov.formatter = SimpleCov::Formatter::Console
@@ -12,7 +12,7 @@ SimpleCov.start do
   add_filter '/test/'
   add_filter '../test/'
   use_merging true
-end
+end  if ENV["SIMPLECOV_COVERAGE"]
 
 require 'rubygems'
 require 'bundler/setup'
