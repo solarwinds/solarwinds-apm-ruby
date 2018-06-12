@@ -12,9 +12,8 @@ It requires an [AppOptics](https://www.appoptics.com/) account to view metrics. 
 [it's free](https://my.appoptics.com/sign_up).
 
 [![Gem Version](https://badge.fury.io/rb/appoptics_apm.png)](https://badge.fury.io/rb/appoptics_apm)
-[![Build Status](https://travis-ci.com/librato/ruby-appoptics.svg?token=LzbfDs1THXsu4JyNWXGC&branch=master)](https://travis-ci.com/librato/ruby-appoptics)
-[![Code Climate](https://api.codeclimate.com/v1/badges/57b0675e5d01fbdf1deb/maintainability)](https://codeclimate.com/repos/5b1af8172824ff0271000002/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/57b0675e5d01fbdf1deb/test_coverage)](https://codeclimate.com/repos/5b1af8172824ff0271000002/test_coverage)
+[![Build Status](https://travis-ci.com/librato/ruby-appoptics.png?branch=master)](https://travis-ci.com/librato/ruby-appoptics)
+[![Code Climate](https://codeclimate.com/github/librato/ruby-appoptics.png)](https://codeclimate.com/github/librato/ruby-appoptics)
 
 _Note: The repository name has been changed to ruby-appoptics.  Please update your github remotes with 
 `git remote set-url origin git@github.com:librato/ruby-appoptics.git`._
@@ -47,22 +46,16 @@ Make sure to set `APPOPTICS_SERVICE_KEY` in the environment from where the app o
 export APPOPTICS_SERVICE_KEY=795fb4947d15275d208c49cfd2412d4a5bf38742045b47236c94c4fe5f5b17c7:<your_app_name>
 ```
 
-##Configuration
-The environment variable `APPOPTICS_SERVICE_KEY` is the only required configuration, everything else is optional.
-It takes the form: <API token>:<service name> and can be set with `export` if the service is started from a shell or as 
-an `env` directive when the service is started through nginx. See: [Configuration](http://docs.appoptics.com/kb/apm_tracing/ruby/configure).
-
-
 ## Rails
 
 ![Ruby on Rails](https://docs.appoptics.com/_images/rails.png)
 
-No special steps are needed to instrument Ruby on Rails. Once part of the bundle, the appoptics gem will automatically 
+No special steps are needed to instrument Ruby on Rails.  Once part of the bundle, the appoptics gem will automatically 
 detect Rails and instrument on stack initialization.
 
 ### The Install Generator
 
-The appoptics_apm gem provides a Rails generator used to seed a configuration file where you can set 
+The appoptics_apm gem provides a Rails generator used to seed an initializer where you can configure and control 
 `tracing_mode` and [other options](http://docs.appoptics.com/kb/apm_tracing/ruby/configure).
 
 To run the install generator run:
