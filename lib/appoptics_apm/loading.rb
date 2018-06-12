@@ -58,7 +58,7 @@ end
 
 AppOpticsAPM::Loading.require_api
 
-# Auto-start the Reporter unless we running Unicorn on Heroku
+# Auto-start the Reporter unless we are running Unicorn on Heroku
 # In that case, we start the reporters after fork
 unless AppOpticsAPM.heroku? && AppOpticsAPM.forking_webserver?
   AppOpticsAPM::Reporter.start if AppOpticsAPM.loaded
