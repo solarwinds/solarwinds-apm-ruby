@@ -1,4 +1,4 @@
-# Welcome to the AppOpticsAPM Ruby Gem````
+# Welcome to the AppOpticsAPM Ruby Gem
 
 The appoptics_apm gem provides [AppOptics APM](https://www.appoptics.com/) performance instrumentation for Ruby.
 
@@ -40,8 +40,10 @@ gem 'appoptics_apm'
 
 ##Configuration
 The environment variable `APPOPTICS_SERVICE_KEY` is the only required configuration, everything else is optional.
-It takes the form: <API token>:<service name> and can be set with `export` if the service is started from a shell or as 
-an `env` directive when the service is started through nginx. See: [Configuration](http://docs.appoptics.com/kb/apm_tracing/ruby/configure).
+It takes the form `<API token>:<service name>` and can be set with `export` if the service is started from a shell or as 
+an `env` directive when the service is started through a webserver like nginx or apache.
+
+See [Configuration](http://docs.appoptics.com/kb/apm_tracing/ruby/configure) for further configuration options.
 
 
 ## Rails
@@ -62,7 +64,7 @@ To run the install generator run:
 bundle exec rails generate appoptics:install
 ```
 
-After the prompts, this will create an initializer: `config/initializers/appoptics.rb`.
+This will create a configuration file at `config/initializers/appoptics.rb`.
 
 ## Sinatra
 
@@ -97,7 +99,10 @@ to your `config/boot.rb` file:
 ```ruby
 Padrino.before_load do
   # Verbose output of instrumentation initialization
-  AppOpticsAPM
+  AppOpticsAPM::Config[:verbose] = true
+  # Don't collect backtraces for ActiveRecord
+  AppOpticsAPM::Config[:active_record][:collect_backtraces] = false
+  # ...
 end
 ```
 
@@ -137,26 +142,28 @@ Bundler.require
 require 'appoptics_apm'
 ```
 
-From here, you can use the Tracing API to instrument areas of code using `AppOpticsAPM::API.start_trace` (see below).  
-If you prefer to instead dive directly into code, take a look at 
-[this example](https://gist.github.com/pglombardo/8550713) of an instrumented Ruby script.
+See [Custom Tracing](#custom-tracing) below on how to add custom instrumentation
 
-Once inside of the `AppOpticsAPM::API.start_trace` block, performance metrics will be automatically collected for all 
+
+# Custom Tracing SDK
+
+You can add visibility into any part of your application or scripts by using the AppOpticsAPM::API methods.
+
+
+### `start_trace`
+To instrument code outside the context of an instrumented request (such as rack or workers running instrumented gems), 
+for example in a cron job, background job or an arbitrary ruby script), use `AppOpticsAPM::API.start_trace` to initiate 
+new traces.  Sampling of a request is then based configuration and sampling decision by the collector.
+
+Inside the `AppOpticsAPM::API.start_trace` block, spans will be automatically created for 
 supported libraries and gems (Redis, Mongo, ActiveRecord etc..).
 
-# Custom Tracing
 
-You can add even more visibility into any part of your application or scripts by adding custom instrumentation.  If you 
-want to see the performance of an existing method see Method Profiling.  To trace blocks of code see the Tracing API.
-
-## The Tracing API
-
-You can instrument any arbitrary block of code using `AppOpticsAPM::API.trace`.  The code and any supported calls for 
-libraries that we support, will automatically get traced and reported to your dashboard.
+### `trace`
 
 ```ruby
-# layer_name will show up in the AppOptics app dashboard
-layer_name = 'subsystemX'
+# span_name will show up in the AppOptics app dashboard
+span_name = 'subsystemX'
 
 # report_kvs are a set of information Key/Value pairs that are sent to
 # AppOptics dashboard along with the performance metrics. These KV
@@ -166,23 +173,20 @@ layer_name = 'subsystemX'
 report_kvs = {}
 report_kvs[:mykey] = @client.id
 
-AppOpticsAPM::API.trace(layer_name, report_kvs) do
+AppOpticsAPM::API.trace(span_name, report_kvs) do
   # the block of code to be traced
 end
 ```
 
 `AppOpticsAPM::API.trace` is used within the context of a request.  It will follow the upstream state of the request 
-being traced.  i.e. the block of code will only be traced when the parent request is being traced.
+being traced, i.e. the block of code will only be traced when the parent request is being traced.
 
 This tracing state of a request can also be queried by using `AppOpticsAPM.tracing?`.
 
-If you need to instrument code outside the context of a request (such as a cron job, background job or an arbitrary 
-ruby script), use `AppOpticsAPM::API.start_trace` instead which will initiate new traces based on configuration and probability (based on the sample rate).
+Inside of the `AppOpticsAPM::API.trace` block, spans will be automatically created for
+supported gems (Redis, Mongo, ActiveRecord etc.).
 
-Find more details in the [RubyDoc page](http://rdoc.info/gems/appoptics/AppOpticsAPM/API/Tracing) or in 
-[this example](https://gist.github.com/pglombardo/8550713) on how to use the Tracing API in an independent Ruby script.
-
-## Tracing Methods
+### `profile_method`
 
 With AppOptics, you can profile any method in your application or even in the Ruby language using 
 `AppOpticsAPM::API.profile_method`.
@@ -197,9 +201,18 @@ AppOpticsAPM::API.profile_method(Array, :sort)
 For full documentation, options and reporting custom KVs, see our documentation on 
 [method profiling](http://docs.appoptics.solarwinds.com/Instrumentation/ruby.html#ruby-function-profiling).
 
+### Documentation and Further Examples
+- [RubyDoc page](https://www.rubydoc.info/gems/appoptics_apm/AppOpticsAPM/API)
+- [Examples folder](/examples)
+
+<!--- 
+TODO: this is old needs to be replaced [this example](https://gist.github.com/pglombardo/8550713) on how 
+to use the Tracing API in an independent Ruby script.
+-->
+
 # Support
 
-If you find a bug or would like to request an enhancement, feel free to file an issue.  For all other support requests, 
+If you find a bug or would like to request an enhancement, feel free to file an issue.  For support requests 
 see our [support portal](https://tracelytics.freshdesk.com).
 
 # Contributing
