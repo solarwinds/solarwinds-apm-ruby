@@ -467,4 +467,14 @@ describe AppOpticsAPM::SDK::Tracing do
       end
     end
   end
+
+  describe 'createSpan' do
+    # Let's test createSpan a bit too
+    it 'should return a transaction name' do
+      assert_equal 'my_name', AppOpticsAPM::Span.createSpan('my_name', nil, 0)
+      assert_equal 'unknown', AppOpticsAPM::Span.createSpan(nil, nil, 0)
+      assert_equal 'unknown', AppOpticsAPM::Span.createSpan('', nil, 0)
+      assert_equal 'domain/my_name', AppOpticsAPM::Span.createSpan('my_name', 'domain', 0)
+    end
+  end
 end
