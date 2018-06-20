@@ -4,13 +4,14 @@
 #++
 
 module AppOpticsAPM
-  module API
+  module SDK
     ##
     # Provides the higher-level tracing interface for the API.
     #
-    # Traces are best created with a <tt>AppOpticsAPM:API.start_trace</tt> block and
-    # <tt>AppOpticsAPM:API.trace</tt> blocks around calls to be traced.
-    # These two methods guarantee proper nesting of tracing and handling of the tracing context.
+    # Custom Traces are best created with an <tt>AppOpticsAPM::SDK.start_trace</tt> block and
+    # <tt>AppOpticsAPM::SDK.trace</tt> blocks around calls to be traced.
+    # These two methods guarantee proper nesting of tracing and handling of the tracing context as well as avoiding
+    # broken traces in case of exceptions
     #
     # Some optional keys that can be used in the +opts+ hash:
     # * +:TransactionName+ - this will show up in the transactions column in the traces dashboard
@@ -25,14 +26,15 @@ module AppOpticsAPM
     # Invalid keys: +:Label+, +:Layer+, +:Edge+, +:Timestamp+, +:Timestamp_u+
     #
     module Tracing
+
       # Public: Trace a given block of code. Detect any exceptions thrown by
       # the block and report errors.
       #
-      # * +:layer+ - The layer the block of code belongs to.
-      # * +:opts+ - A hash containing key/value pairs that will be reported along
-      #   with the first event of this layer (optional).
-      # * +:protect_op+ - The operation being traced.  Used to avoid
-      #   double tracing operations that call each other
+      # * +:span+       - The span the block of code belongs to.
+      # * +:opts+       - (optional) A hash containing key/value pairs that will be reported along
+      #                   with the first event of this span.
+      # * +:protect_op+ - (optional) The operation being traced.  Used to avoid double tracing
+      #                   operations that call each other.
       #
       # Example
       #
@@ -50,33 +52,65 @@ module AppOpticsAPM
       #   result = computation_with_oboe(1000)
       #
       # Returns the result of the block.
-      def trace(layer, opts = {}, protect_op = nil)
-        return if !AppOpticsAPM.loaded || (protect_op && AppOpticsAPM.layer_op == protect_op.to_sym)
+      def trace(span, opts = {}, protect_op = nil)
+        return yield if !AppOpticsAPM.loaded || !AppOpticsAPM.tracing? || (protect_op && AppOpticsAPM.layer_op == protect_op.to_sym)
 
-        log_entry(layer, opts, protect_op)
+        log_entry(span, opts, protect_op)
         begin
           yield
         rescue Exception => e
-          log_exception(layer, e)
+          log_exception(span, e)
           raise
         ensure
-          log_exit(layer, opts, protect_op)
+          log_exit(span, opts, protect_op)
+          AppOpticsAPM.layer_op = nil
         end
       end
 
-      # Public: Trace a given block of code which can start a trace depending
-      # on configuration and probability. Detect any exceptions thrown by the
-      # block and report errors.
+      # Public: Trace and assign the exit xtrace to `target['X-Trace']` before yielding
+      # see: start_trace_with_target
       #
-      # When start_trace returns control to the calling context, the oboe
-      # context will be cleared.
+      # Not sure about a use case for this.
+      #
+      # Returns the result of the block
+      def trace_with_target(span, target, opts = {}, protect_op = nil)
+        return yield if !AppOpticsAPM.loaded || !AppOpticsAPM.tracing? || (protect_op && AppOpticsAPM.layer_op == protect_op.to_sym)
+
+        log_entry(span, opts, protect_op)
+        exit_evt = AppOpticsAPM::Context.createEvent
+
+        begin
+          target['X-Trace'] = AppOpticsAPM::EventUtil.metadataString(exit_evt)
+          result = yield
+        rescue Exception => e
+          log_exception(span, e)
+          exit_evt.addEdge(AppOpticsAPM::Context.get)
+          xtrace = log(span, :exit, { :TransactionName => AppOpticsAPM.transaction_name || "custom-#{span}" }, exit_evt)
+          AppOpticsAPM.layer_op = nil
+          e.instance_variable_set(:@xtrace, xtrace)
+          raise
+        end
+
+        exit_evt.addEdge(AppOpticsAPM::Context.get)
+        log(span, :exit, { :TransactionName => AppOpticsAPM.transaction_name }, exit_evt)
+        AppOpticsAPM.layer_op = nil
+
+        result
+      end
+
+      # Public: Collect metrics and start tracing a given block of code. A
+      # trace will be started depending on configuration and probability.
+      # Detect any exceptions thrown by the block and report errors.
+      #
+      # When start_trace returns control to the calling context, the trace will be
+      # completed and the tracing context will be cleared.
       #
       # ==== Arguments
       #
-      # * +layer+  - name for the layer to be used as label in the trace view
+      # * +span+   - name for the span to be used as label in the trace view
       # * +xtrace+ - (optional) incoming X-Trace identifier to be continued
       # * +opts+   - (optional) hash containing key/value pairs that will be reported along
-      #   with the first event of this layer (optional)
+      #              with the first event of this span
       #
       # ==== Example
       #
@@ -95,23 +129,27 @@ module AppOpticsAPM
       #     response['X-trace'] = xtrace
       #   end
       #
-      # Returns a list of length two, the first element of which is the result
-      # of the block, and the second element of which is the oboe context that
-      # was set when the block completed execution.
-      def start_trace(layer, xtrace = nil, opts = {})
-        return [yield, nil] unless AppOpticsAPM.loaded
+      # Returns the result of the block.
+      def start_trace(span, xtrace = nil, opts = {})
+        return yield unless AppOpticsAPM.loaded
+        return trace(span, opts) { yield } if AppOpticsAPM::Context.isValid # not an entry span!
 
-        log_start(layer, xtrace, opts)
-        begin
-          result = yield
-        rescue Exception => e
-          log_exception(layer, e)
-          e.instance_variable_set(:@xtrace, log_end(layer))
-          raise
+        log_start(span, xtrace, opts)
+
+        # send_metrics deals with the logic for setting AppOpticsAPM.transaction_name
+        # and ensures that metrics are sent
+        result = send_metrics(span, opts) do
+          begin
+            yield
+          rescue Exception => e # rescue everything ok, since we are raising
+            log_exception(span, e)
+            e.instance_variable_set(:@xtrace, log_end(span, :TransactionName => AppOpticsAPM.transaction_name || "custom-#{span}"))
+            raise
+          end
         end
-        xtrace = log_end(layer)
+        log_end(span, :TransactionName => AppOpticsAPM.transaction_name)
 
-        [result, xtrace]
+        result
       end
 
       # Public: Trace a given block of code which can start a trace depending
@@ -123,11 +161,11 @@ module AppOpticsAPM
       # work is done, and before any headers are sent back to the client.
       #
       # ===== Arguments
-      # * +layer+ - The layer the block of code belongs to.
+      # * +span+   - The span the block of code belongs to.
       # * +xtrace+ - string - The X-Trace to continue by the target
       # * +target+ - has to respond to #[]=, The target object in which to place the trace information
-      # * +opts+ - A hash containing key/value pairs that will be reported along
-      #   with the first event of this layer (optional).
+      # * +opts+   - A hash containing key/value pairs that will be reported along
+      #              with the first event of this span (optional).
       #
       # ==== Example
       #
@@ -142,22 +180,31 @@ module AppOpticsAPM
       #   end
       #
       # Returns the result of the block.
-      def start_trace_with_target(layer, xtrace, target, opts = {})
+      def start_trace_with_target(span, xtrace, target, opts = {})
         return yield unless AppOpticsAPM.loaded
 
-        log_start(layer, xtrace, opts)
+        return trace_with_target(span, target, opts) { yield } if AppOpticsAPM::Context.isValid # not an entry span!
+
+        log_start(span, xtrace, opts)
         exit_evt = AppOpticsAPM::Context.createEvent
-        begin
-          target['X-Trace'] = AppOpticsAPM::EventUtil.metadataString(exit_evt) if AppOpticsAPM.tracing?
-          yield
-        rescue Exception => e
-          log_exception(layer, e)
-          raise
-        ensure
-          exit_evt.addEdge(AppOpticsAPM::Context.get)
-          log(layer, :exit, {}, exit_evt)
-          AppOpticsAPM::Context.clear
+        result = send_metrics(span, opts) do
+          begin
+            target['X-Trace'] = AppOpticsAPM::EventUtil.metadataString(exit_evt) if AppOpticsAPM.tracing?
+            yield
+          rescue Exception => e
+            log_exception(span, e)
+            exit_evt.addEdge(AppOpticsAPM::Context.get)
+            xtrace = log(span, :exit, { :TransactionName => AppOpticsAPM.transaction_name || "custom-#{span}" }, exit_evt)
+            e.instance_variable_set(:@xtrace, xtrace)
+            AppOpticsAPM::Context.clear
+            raise
+          end
         end
+        exit_evt.addEdge(AppOpticsAPM::Context.get)
+        log(span, :exit, { :TransactionName => AppOpticsAPM.transaction_name }, exit_evt)
+        AppOpticsAPM::Context.clear
+
+        result
       end
 
       # Public: Set a ThreadLocal custom transaction name to be used when sending a trace or metrics for the
@@ -184,6 +231,24 @@ module AppOpticsAPM
       # returns the current transaction name
       def get_transaction_name
         AppOpticsAPM.transaction_name
+      end
+
+      private
+
+      def send_metrics(span, kvs)
+        # This is a new span, we do not know the transaction name yet
+        AppOpticsAPM.transaction_name = nil
+
+        # if a transaction name is provided it will take precedence over transaction names defined
+        # later or in lower spans
+        transaction_name = set_transaction_name(kvs[:TransactionName])
+        start = Time.now
+
+        yield
+      ensure
+        duration =(1000 * 1000 * (Time.now - start)).round(0)
+        transaction_name ||= AppOpticsAPM.transaction_name || "custom-#{span}"
+        set_transaction_name(AppOpticsAPM::Span.createSpan(transaction_name, nil, duration))
       end
     end
   end

@@ -160,7 +160,7 @@ supported libraries and gems (Redis, Mongo, ActiveRecord etc..).
 You can add even more visibility into any part of your application or scripts by adding custom instrumentation.  If you 
 want to see the performance of an existing method see Method Profiling.  To trace blocks of code see the Tracing API.
 
-## The Tracing API
+## The Tracing SDK
 
 You can instrument any arbitrary block of code using `AppOpticsAPM::API.trace`.  The code and any supported calls for 
 libraries that we support, will automatically get traced and reported to your dashboard.

@@ -77,7 +77,7 @@ if defined?(::Delayed)
                   block.call(worker, job)
                   AppOpticsAPM::API.log_exception(nil, job.error) if job.error
                 end
-                result[0]
+                result
               end
             end
           end

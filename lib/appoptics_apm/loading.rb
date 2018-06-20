@@ -49,6 +49,7 @@ module AppOpticsAPM
       require 'appoptics_apm/api'
 
       begin
+        AppOpticsAPM::SDK.extend_with_tracing
         AppOpticsAPM::API.extend_with_tracing
       rescue LoadError => e
         AppOpticsAPM.logger.fatal "[appoptics_apm/error] Couldn't load api: #{e.message}"

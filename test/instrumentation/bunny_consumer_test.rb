@@ -115,7 +115,7 @@ unless defined?(JRUBY_VERSION)
       @conn.close
     end
 
-    def test_consume_error_handling
+    def test_consumer_error_handling
       @conn = Bunny.new(@connection_params)
       @conn.start
       @ch = @conn.create_channel

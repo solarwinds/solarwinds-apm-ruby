@@ -46,11 +46,9 @@ module AppOpticsAPM
         report_kvs[:SourceTrace] = args[1]['SourceTrace']
       end
 
-      result = AppOpticsAPM::API.start_trace(:'sidekiq-worker', nil, report_kvs) do
+      AppOpticsAPM::API.start_trace(:'sidekiq-worker', nil, report_kvs) do
         yield
       end
-
-      result[0]
     end
   end
 end
