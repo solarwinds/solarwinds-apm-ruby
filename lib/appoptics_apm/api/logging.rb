@@ -125,7 +125,7 @@ module AppOpticsAPM
         # end
         #++
 
-        if AppOpticsAPM.sample?(opts.merge(:layer => layer, :xtrace => xtrace))
+        if AppOpticsAPM.sample?(opts.merge(:xtrace => xtrace))
           # Yes, we're sampling this request
           # Probablistic tracing of a subset of requests based off of
           # sample rate and sample source
