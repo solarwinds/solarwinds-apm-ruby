@@ -7,7 +7,7 @@ require 'rack/handler/puma'
 require 'appoptics_apm/inst/rack'
 require 'mocha/minitest'
 
-describe AppOpticsAPM::SDK::Tracing do
+describe AppOpticsAPM::SDK do
 
   # TODO: add this paragraph to docs and transaction name method comment
   # Transaction names are stored as a tag value on trace metrics
