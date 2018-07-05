@@ -109,6 +109,7 @@ if AppOpticsAPM.loaded
         AppOpticsAPM.transaction_name = nil
         req = ::Rack::Request.new(env)
         req_url = req.url   # saving it here because rails3.2 overrides it when there is a 500 error
+        status = 500        # initialize with 500
 
         report_kvs = {}
         report_kvs[:URL] = AppOpticsAPM::Config[:rack][:log_args] ? ::CGI.unescape(req.fullpath) : ::CGI.unescape(req.path)
