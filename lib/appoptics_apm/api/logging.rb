@@ -16,7 +16,7 @@ module AppOpticsAPM
     ##
     # This modules provides the X-Trace logging facilities.
     #
-    # These are the lower level methods, please see AppOpticsAPM::API::Tracing
+    # These are the lower level methods, please see AppOpticsAPM::SDK
     # for the higher level methods
     module Logging
       @@ints_or_nil = [Integer, Float, NilClass, String]
@@ -52,7 +52,7 @@ module AppOpticsAPM
       # ==== Arguments
       #
       # * +layer+ - The layer the reported event belongs to
-      # * +exn+ - The exception to report
+      # * +exception+ - The exception to report
       # * +opts+ - Custom params if you want to log extra information
       #
       # ==== Example
@@ -65,19 +65,19 @@ module AppOpticsAPM
       #   end
       #
       # Returns nothing.
-      def log_exception(layer, exn, opts = {})
-        return AppOpticsAPM::Context.toString if !AppOpticsAPM.tracing? || exn.instance_variable_get(:@oboe_logged)
+      def log_exception(layer, exception, opts = {})
+        return AppOpticsAPM::Context.toString if !AppOpticsAPM.tracing? || exception.instance_variable_get(:@exn_logged)
 
-        unless exn
+        unless exception
           AppOpticsAPM.logger.debug '[appoptics_apm/debug] log_exception called with nil exception'
           return AppOpticsAPM::Context.toString
         end
 
-        opts.merge!(:ErrorClass => exn.class.name,
-                    :ErrorMsg => exn.message,
-                    :Backtrace => exn.backtrace.join("\r\n")) if exn.backtrace
+        opts.merge!(:ErrorClass => exception.class.name,
+                    :ErrorMsg => exception.message,
+                    :Backtrace => exception.backtrace.join("\r\n")) if exception.backtrace
 
-        exn.instance_variable_set(:@oboe_logged, true)
+        exception.instance_variable_set(:@exn_logged, true)
         log(layer, :error, opts)
       end
 
@@ -182,10 +182,16 @@ module AppOpticsAPM
       def log_end(layer, opts = {})
         return AppOpticsAPM::Context.toString unless AppOpticsAPM.tracing?
 
+        # Deal with the transaction name
+        opts[:TransactionName] ||= opts.delete('TransactionName')
+        AppOpticsAPM::API.set_transaction_name(opts[:TransactionName])
+        opts[:TransactionName] = AppOpticsAPM.transaction_name || "custom-#{layer}"
+
         log_event(layer, :exit, AppOpticsAPM::Context.createEvent, opts)
       ensure
         # FIXME has_incoming_context commented out, it has importance for JRuby only but breaks Ruby tests
         AppOpticsAPM::Context.clear # unless AppOpticsAPM.has_incoming_context?
+        AppOpticsAPM.transaction_name = nil
       end
 
       ##
@@ -347,8 +353,8 @@ module AppOpticsAPM
           begin
             event.addInfo(k.to_s, value)
           rescue ArgumentError => e
-            AppOpticsAPM.logger.debug "[AppOpticsAPM/debug] Couldn't add event KV: #{k} => #{v.class}"
-            AppOpticsAPM.logger.debug "[AppOpticsAPM/debug] #{e.message}"
+            AppOpticsAPM.logger.debug "[appoptics_apm/debug] Couldn't add event KV: #{k} => #{v.class}"
+            AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{e.message}"
           end
         end if !opts.nil? && opts.any?
 
