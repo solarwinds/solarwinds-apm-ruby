@@ -117,7 +117,7 @@ module AppOpticsAPM
           AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
         end
 
-        AppOpticsAPM::API.start_trace(:'resque-worker', nil, report_kvs) do
+        AppOpticsAPM::SDK.start_trace(:'resque-worker', nil, report_kvs) do
           perform_without_appoptics(job)
         end
       end

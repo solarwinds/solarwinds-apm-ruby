@@ -77,7 +77,7 @@ module AppOpticsAPM
           headers.delete('SourceTrace')
         end
 
-        AppOpticsAPM::API.start_trace(:'rabbitmq-consumer', nil, report_kvs) do
+        AppOpticsAPM::SDK.start_trace(:'rabbitmq-consumer', nil, report_kvs) do
           call_without_appoptics(*args)
         end
       end
