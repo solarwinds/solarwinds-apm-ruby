@@ -45,7 +45,7 @@ module AppOpticsAPM
               end
             end
           rescue StandardError => e
-            AppOpticsAPM.logger.debug "Exception raised capturing ActiveRecord KVs: #{e.inspect}"
+            AppOpticsAPM.logger.debug "[appoptics_apm/rails] Exception raised capturing ActiveRecord KVs: #{e.inspect}"
             AppOpticsAPM.logger.debug e.backtrace.join('\n')
           end
 

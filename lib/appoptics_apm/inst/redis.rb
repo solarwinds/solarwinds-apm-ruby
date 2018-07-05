@@ -169,7 +169,7 @@ module AppOpticsAPM
             end # case op
           end # if KV_COLLECT_MAP[op]
         rescue StandardError => e
-          AppOpticsAPM.logger.debug "Error collecting redis KVs: #{e.message}"
+          AppOpticsAPM.logger.debug "[appoptics_apm/redis] Error collecting redis KVs: #{e.message}"
           AppOpticsAPM.logger.debug e.backtrace.join('\n')
         ensure
           return kvs

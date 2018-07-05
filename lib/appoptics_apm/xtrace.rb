@@ -24,7 +24,7 @@ module AppOpticsAPM
 
         true
       rescue StandardError => e
-        AppOpticsAPM.logger.debug e.message
+        AppOpticsAPM.logger.debug "[appoptics_apm/xtrace] #{e.message}"
         AppOpticsAPM.logger.debug e.backtrace
         false
       end
@@ -51,7 +51,7 @@ module AppOpticsAPM
 
         xtrace[2..41]
       rescue StandardError => e
-        AppOpticsAPM.logger.debug e.message
+        AppOpticsAPM.logger.debug "[appoptics_apm/xtrace] #{e.message}"
         AppOpticsAPM.logger.debug e.backtrace
         return nil
       end
@@ -66,7 +66,7 @@ module AppOpticsAPM
 
         xtrace[42..57]
       rescue StandardError => e
-        AppOpticsAPM.logger.debug e.message
+        AppOpticsAPM.logger.debug "[appoptics_apm/xtrace] #{e.message}"
         AppOpticsAPM.logger.debug e.backtrace
         return nil
       end

@@ -177,7 +177,7 @@ module AppOpticsAPM
     end
 
     def set_tracing_mode(_mode)
-      AppOpticsAPM.logger.warn 'When using JRuby set the tracing mode in /usr/local/tracelytics/javaagent.json instead'
+      AppOpticsAPM.logger.warn '[appoptics_apm/joboe] When using JRuby set the tracing mode in /usr/local/tracelytics/javaagent.json instead'
     end
 
     def set_sample_rate(_rate)

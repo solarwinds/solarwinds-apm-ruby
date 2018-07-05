@@ -29,7 +29,7 @@ module AppOpticsAPM
               report_kvs[:File]         = __FILE__
               report_kvs[:LineNumber]   = __LINE__
             rescue StandardError => e
-              ::AppOpticsAPM.logger.debug e.message
+              ::AppOpticsAPM.logger.debug "[appoptics_apm/padrino] #{e.message}"
               ::AppOpticsAPM.logger.debug e.backtrace.join(', ')
             end
 
