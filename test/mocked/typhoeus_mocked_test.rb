@@ -27,7 +27,7 @@ unless defined?(JRUBY_VERSION)
         request.run
 
         assert request.options[:headers]['X-Trace']
-        assert_match /^2B[0-9,A-F]*01$/,request.options[:headers]['X-Trace']
+        assert_match /^2B[0-9A-F]*01$/,request.options[:headers]['X-Trace']
       end
 
       refute AppOpticsAPM::Context.isValid
@@ -41,7 +41,7 @@ unless defined?(JRUBY_VERSION)
           request.run
 
           assert request.options[:headers]['X-Trace']
-          assert_match /^2B[0-9,A-F]*00$/, request.options[:headers]['X-Trace']
+          assert_match /^2B[0-9A-F]*00$/, request.options[:headers]['X-Trace']
           refute_match /^2B0*$/, request.options[:headers]['X-Trace']
         end
       end
@@ -107,9 +107,9 @@ unless defined?(JRUBY_VERSION)
         hydra.run
 
         assert request_1.options[:headers]['X-Trace'], "There is an X-Trace header"
-        assert_match /^2B[0-9,A-F]*01$/, request_1.options[:headers]['X-Trace']
+        assert_match /^2B[0-9A-F]*01$/, request_1.options[:headers]['X-Trace']
         assert request_2.options[:headers]['X-Trace'], "There is an X-Trace header"
-        assert_match /^2B[0-9,A-F]*01$/, request_2.options[:headers]['X-Trace']
+        assert_match /^2B[0-9A-F]*01$/, request_2.options[:headers]['X-Trace']
       end
       refute AppOpticsAPM::Context.isValid
     end
@@ -126,10 +126,10 @@ unless defined?(JRUBY_VERSION)
           hydra.run
 
           assert request_1.options[:headers]['X-Trace'], "There is an X-Trace header"
-          assert_match /^2B[0-9,A-F]*00$/, request_1.options[:headers]['X-Trace']
+          assert_match /^2B[0-9A-F]*00$/, request_1.options[:headers]['X-Trace']
           refute_match /^2B0*$/, request_1.options[:headers]['X-Trace']
           assert request_2.options[:headers]['X-Trace'], "There is an X-Trace header"
-          assert_match /^2B[0-9,A-F]*00$/, request_2.options[:headers]['X-Trace']
+          assert_match /^2B[0-9A-F]*00$/, request_2.options[:headers]['X-Trace']
           refute_match /^2B0*$/, request_2.options[:headers]['X-Trace']
         end
       end

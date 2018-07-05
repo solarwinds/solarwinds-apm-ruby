@@ -268,7 +268,7 @@ if !defined?(JRUBY_VERSION)
       assert curl.headers
       assert curl.headers['X-Trace']
       assert curl.headers['Custom']
-      assert_match /^2B[0-9,A-F]*01$/, curl.headers['X-Trace']
+      assert_match /^2B[0-9A-F]*01$/, curl.headers['X-Trace']
       assert_match /specialvalue4/, curl.headers['Custom']
       refute AppOpticsAPM::Context.isValid
     end
@@ -286,7 +286,7 @@ if !defined?(JRUBY_VERSION)
       assert curl.headers
       assert curl.headers['X-Trace']
       assert curl.headers['Custom']
-      assert_match /^2B[0-9,A-F]*01$/, curl.headers['X-Trace']
+      assert_match /^2B[0-9A-F]*01$/, curl.headers['X-Trace']
       assert_match /specialvalue4/, curl.headers['Custom']
       refute AppOpticsAPM::Context.isValid
     end
@@ -304,7 +304,7 @@ if !defined?(JRUBY_VERSION)
       assert curl.headers
       assert curl.headers['X-Trace']
       assert curl.headers['Custom']
-      assert_match /^2B[0-9,A-F]*01$/, curl.headers['X-Trace']
+      assert_match /^2B[0-9A-F]*01$/, curl.headers['X-Trace']
       assert_match /specialvalue4/, curl.headers['Custom']
       refute AppOpticsAPM::Context.isValid
     end
