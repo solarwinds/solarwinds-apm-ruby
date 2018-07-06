@@ -28,15 +28,12 @@ module AppOpticsAPM
     #
 
     module Tracing
-
       # Public: Trace a given block of code. Detect any exceptions thrown by
       # the block and report errors.
       #
       # * +:span+       - The span the block of code belongs to.
-      # * +:opts+       - (optional) A hash containing key/value pairs that will be reported along
-      #                   with the first event of this span.
-      # * +:protect_op+ - (optional) The operation being traced.  Used to avoid double tracing
-      #                   operations that call each other.
+      # * +:opts+       - (optional) A hash containing key/value pairs that will be reported along with the first event of this span.
+      # * +:protect_op+ - (optional) The operation being traced.  Used to avoid double tracing operations that call each other.
       #
       # Example
       #
@@ -54,6 +51,7 @@ module AppOpticsAPM
       #   result = computation_with_oboe(1000)
       #
       # Returns the result of the block.
+      #
       def trace(span, opts = {}, protect_op = nil)
         return yield if !AppOpticsAPM.loaded || !AppOpticsAPM.tracing? || (protect_op && AppOpticsAPM.layer_op == protect_op.to_sym)
 
@@ -80,13 +78,12 @@ module AppOpticsAPM
       #
       # * +span+   - name for the span to be used as label in the trace view
       # * +xtrace+ - (optional) incoming X-Trace identifier to be continued
-      # * +opts+   - (optional) hash containing key/value pairs that will be reported along
-      #              with the first event of this span
+      # * +opts+   - (optional) hash containing key/value pairs that will be reported along with the first event of this span
       #
       # ==== Example
       #
       #   def handle_request(request, response)
-      #     # ... code that modifies request and response ...
+      #     # ... code that processes request and response ...
       #   end
       #
       #   def handle_request_with_appoptics(request, response)
@@ -95,7 +92,8 @@ module AppOpticsAPM
       #     end
       #   end
       #
-      # Returns the result of the block
+      # Returns the result of the block.
+      #
       def start_trace(span, xtrace = nil, opts = {})
         return yield unless AppOpticsAPM.loaded
 
@@ -133,13 +131,12 @@ module AppOpticsAPM
       # * +span+   - The span the block of code belongs to.
       # * +xtrace+ - string - The X-Trace to continue by the target
       # * +target+ - has to respond to #[]=, The target object in which to place the trace information
-      # * +opts+   - A hash containing key/value pairs that will be reported along
-      #              with the first event of this span (optional).
+      # * +opts+   - A hash containing key/value pairs that will be reported along with the first event of this span (optional).
       #
       # ==== Example
       #
       #   def handle_request(request, response)
-      #     # ... code that does something with request and response ...
+      #     # ... code that processes request and response ...
       #   end
       #
       #   def handle_request_with_appoptics(request, response)
@@ -149,6 +146,7 @@ module AppOpticsAPM
       #   end
       #
       # Returns the result of the block.
+      #
       def start_trace_with_target(span, xtrace, target, opts = {})
         return yield unless AppOpticsAPM.loaded
 
@@ -181,11 +179,11 @@ module AppOpticsAPM
       end
 
       # Public: Set a ThreadLocal custom transaction name to be used when sending a trace or metrics for the
-      # current transaction
+      # current transaction.
       #
-      # In addition to setting a transaction name here there is also a configuration
-      # AppOpticsAPM::Config['transaction_name']['prepend_domain'] which allows to have the domain prepended
-      # to the transaction name
+      # In addition to setting a transaction name here there is also a configuration.
+      # AppOpticsAPM::Config['transaction_name']['prepend_domain']. When true the domain will be prepended
+      # to the transaction name.
       #
       # ===== Argument
       #
@@ -201,17 +199,17 @@ module AppOpticsAPM
       end
 
 
-      # Public: Get the currently set transaction name
-      # This is provided for testing
+      # Public: Get the currently set transaction name.
+      # This is provided for testing.
       #
-      # Returns the current transaction name
+      # Returns the current transaction name.
       def get_transaction_name
         AppOpticsAPM.transaction_name
       end
 
-      # Public: Determine if this transaction is being traced?]
-      # Tracing puts some extra load on a system, therefor not all transaction are traced
-      # tracing? method helps to determine this so that extra work can be avoided when not tracing
+      # Public: Determine if this transaction is being traced.
+      # Tracing puts some extra load on a system, therefor not all transaction are traced.
+      # The `tracing?` method helps to determine this so that extra work can be avoided when not tracing.
       #
       # ==== Example
       #
@@ -221,13 +219,13 @@ module AppOpticsAPM
       #     db_request
       #   end
       #
-      # Returns true or false
+      # Returns true or false.
       #
       def tracing?
         AppOpticsAPM.tracing?
       end
 
-      # Public: Wait for AppOptics to be ready to send traces
+      # Public: Wait for AppOptics to be ready to send traces.
       # This may be useful in short lived background processes, when it is important to capture
       # information during the whole time the process is running. Usually AppOptics doesn't block an
       # application while it is starting up.
@@ -236,22 +234,19 @@ module AppOpticsAPM
       #
       # * +wait_milliseconds+ the maximum time to wait in milliseconds, default 3000
       #
-
+      # ==== Example
+      #
       #   unless AppopticsAPM::SDK.appoptics_ready?
       #     Logger.info "AppOptics not ready after 10 seconds, no metrics will be sent"
       #   end
       #
-      # Returns true or false
+      # Returns true or false.
       #
       def appoptics_ready?(wait_milliseconds = 3000)
         AppopticsAPM::Context.isReady(wait_milliseconds)
       end
     end
-  end
-end
 
-module AppOpticsAPM
-  module SDK
-    extend AppOpticsAPM::SDK::Tracing
+    extend Tracing
   end
 end

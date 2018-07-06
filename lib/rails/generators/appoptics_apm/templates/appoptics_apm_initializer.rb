@@ -43,12 +43,13 @@ if defined?(AppOpticsAPM::Config)
   AppOpticsAPM::Config[:sanitize_sql_opts]   = Regexp::IGNORECASE
 
   #
-  # Do Not Trace
-  # These two values allow you to configure specific URL patterns to
-  # never be traced.  By default, this is set to common static file
+  # Do Not Trace - DNT
+  # 'dnt_regexp' and 'dnt_opts' allow you to configure specific URL patterns
+  # to never be traced.  By default, this is set to common static file
   # extensions but you may want to customize this list for your needs.
+  # Examples of such files may be images, javascript, pdfs, and text files.
   #
-  # dnt_regexp and dnt_opts is passed to Regexp.new to create
+  # 'dnt_regexp' and 'dnt_opts' is passed to Regexp.new to create
   # a regular expression object.  That is then used to match against
   # the incoming request path.
   #
