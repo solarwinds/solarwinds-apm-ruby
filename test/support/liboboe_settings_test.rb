@@ -50,6 +50,7 @@ unless defined?(JRUBY_VERSION)
 
     # Test logging of all Ruby datatypes against the SWIG wrapper
     # of addInfo which only has four overloads.
+    # TODO these should probably have 'refute_raises' blocks around the 'log' calls
     def test_swig_datatypes_conversion
       event = AppOpticsAPM::Context.createEvent
       report_kvs = {}
