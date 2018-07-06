@@ -160,7 +160,7 @@ module AppOpticsAPM
 
         AppOpticsAPM::API.log_start(span, xtrace, opts)
         exit_evt = AppOpticsAPM::Context.createEvent
-        result = send_metrics(span, opts) do
+        result = AppOpticsAPM::API.send_metrics(span, opts) do
           begin
             target['X-Trace'] = AppOpticsAPM::EventUtil.metadataString(exit_evt) if AppOpticsAPM.tracing?
             yield
@@ -206,21 +206,7 @@ module AppOpticsAPM
         AppOpticsAPM.transaction_name
       end
 
-      def send_metrics(span, kvs)
-        # This is a new span, we do not know the transaction name yet
-        AppOpticsAPM.transaction_name = nil
 
-        # if a transaction name is provided it will take precedence over transaction names defined
-        # later or in lower spans
-        transaction_name = set_transaction_name(kvs[:TransactionName])
-        start = Time.now
-
-        yield
-      ensure
-        duration =(1000 * 1000 * (Time.now - start)).round(0)
-        transaction_name ||= AppOpticsAPM.transaction_name || "custom-#{span}"
-        set_transaction_name(AppOpticsAPM::Span.createSpan(transaction_name, nil, duration))
-      end
 
     end
   end

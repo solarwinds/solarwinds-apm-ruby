@@ -362,6 +362,9 @@ module AppOpticsAPM
         AppOpticsAPM::Context.toString
       end
 
+      # need to set the context to public, otherwise the following `extends` will be private in api.rb
+      public
+
     end
   end
 end

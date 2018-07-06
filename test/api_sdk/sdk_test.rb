@@ -26,40 +26,6 @@ describe AppOpticsAPM::SDK do
     AppOpticsAPM::Context.clear
   end
 
-  describe 'set_transaction_name' do
-
-    it 'should not set the transaction name if the arg is not a string or an empty string' do
-      AppOpticsAPM.transaction_name = nil
-
-      AppOpticsAPM::SDK.set_transaction_name(123)
-      assert_nil AppOpticsAPM.transaction_name
-
-      AppOpticsAPM::SDK.set_transaction_name('')
-      assert_nil AppOpticsAPM.transaction_name
-
-      AppOpticsAPM::SDK.set_transaction_name(String.new)
-      assert_nil AppOpticsAPM.transaction_name
-
-      AppOpticsAPM::SDK.set_transaction_name(false)
-      assert_nil AppOpticsAPM.transaction_name
-    end
-
-    it 'should return the previous name, if a non-valid one is given' do
-      AppOpticsAPM::SDK.set_transaction_name("this is the one")
-
-      AppOpticsAPM::SDK.set_transaction_name(123)
-      assert_equal "this is the one", AppOpticsAPM.transaction_name
-
-      AppOpticsAPM::SDK.set_transaction_name('')
-      assert_equal "this is the one", AppOpticsAPM.transaction_name
-
-      AppOpticsAPM::SDK.set_transaction_name(String.new)
-      assert_equal "this is the one", AppOpticsAPM.transaction_name
-
-      AppOpticsAPM::SDK.set_transaction_name(false)
-      assert_equal "this is the one", AppOpticsAPM.transaction_name
-    end
-  end
 
   describe 'trace' do
     before do
@@ -420,8 +386,77 @@ describe AppOpticsAPM::SDK do
     end
   end
 
+  describe 'set_transaction_name' do
+
+    it 'should not set the transaction name if the arg is not a string or an empty string' do
+      AppOpticsAPM.transaction_name = nil
+
+      AppOpticsAPM::SDK.set_transaction_name(123)
+      assert_nil AppOpticsAPM.transaction_name
+
+      AppOpticsAPM::SDK.set_transaction_name('')
+      assert_nil AppOpticsAPM.transaction_name
+
+      AppOpticsAPM::SDK.set_transaction_name(String.new)
+      assert_nil AppOpticsAPM.transaction_name
+
+      AppOpticsAPM::SDK.set_transaction_name(false)
+      assert_nil AppOpticsAPM.transaction_name
+    end
+
+    it 'should return the previous name, if a non-valid one is given' do
+      AppOpticsAPM::SDK.set_transaction_name("this is the one")
+
+      AppOpticsAPM::SDK.set_transaction_name(123)
+      assert_equal "this is the one", AppOpticsAPM.transaction_name
+
+      AppOpticsAPM::SDK.set_transaction_name('')
+      assert_equal "this is the one", AppOpticsAPM.transaction_name
+
+      AppOpticsAPM::SDK.set_transaction_name(String.new)
+      assert_equal "this is the one", AppOpticsAPM.transaction_name
+
+      AppOpticsAPM::SDK.set_transaction_name(false)
+      assert_equal "this is the one", AppOpticsAPM.transaction_name
+    end
+  end
+
+  describe 'tracing?' do
+    it 'should return false if we are not tracing' do
+      AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
+      refute AppOpticsAPM::SDK.tracing?
+    end
+
+    it 'should return true if we are tracing' do
+      AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F01')
+      assert AppOpticsAPM::SDK.tracing?
+    end
+
+    it 'should return false if the context is invalid' do
+      AppOpticsAPM::Context.fromString('2BB05F01')
+      refute AppOpticsAPM::SDK.tracing?
+    end
+  end
+
+  describe 'appoptics_ready?' do
+    it 'should return true if it can connect' do
+      AppopticsAPM::Context.expects(:isReady).with(10_000).returns(true)
+      assert AppOpticsAPM::SDK.appoptics_ready?(10_000)
+    end
+
+    it 'should work with no arg' do
+      AppopticsAPM::Context.expects(:isReady).returns(true)
+      assert AppOpticsAPM::SDK.appoptics_ready?
+    end
+
+    it 'should return false if it cannot connect' do
+      AppopticsAPM::Context.expects(:isReady).returns(false)
+      refute AppOpticsAPM::SDK.appoptics_ready?
+    end
+  end
+
   describe 'createSpan' do
-    # Let's test createSpan a bit too
+    # Let's test the return value of createSpan a bit too
     it 'should return a transaction name' do
       assert_equal 'my_name', AppOpticsAPM::Span.createSpan('my_name', nil, 0)
       assert_equal 'unknown', AppOpticsAPM::Span.createSpan(nil, nil, 0)

@@ -5,6 +5,7 @@ module AppOpticsAPM
 
   module API
     extend AppOpticsAPM::API::Logging
+    extend AppOpticsAPM::API::Metrics
     extend AppOpticsAPM::API::Profiling
     extend AppOpticsAPM::API::LayerInit
     extend AppOpticsAPM::API::Util
