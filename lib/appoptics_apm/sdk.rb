@@ -187,7 +187,8 @@ module AppOpticsAPM
       # AppOpticsAPM::Config['transaction_name']['prepend_domain'] which allows to have the domain prepended
       # to the transaction name
       #
-      # ===== Arguments
+      # ===== Argument
+      #
       # * +name+ - A non-empty string with the custom transaction name
       #
       def set_transaction_name(name)
@@ -200,14 +201,51 @@ module AppOpticsAPM
       end
 
 
-      # this is provided for testing
-      # returns the current transaction name
+      # Public: Get the currently set transaction name
+      # This is provided for testing
+      #
+      # Returns the current transaction name
       def get_transaction_name
         AppOpticsAPM.transaction_name
       end
 
+      # Public: Determine if this transaction is being traced?]
+      # Tracing puts some extra load on a system, therefor not all transaction are traced
+      # tracing? method helps to determine this so that extra work can be avoided when not tracing
+      #
+      # ==== Example
+      #
+      #   kvs = expensive_info_gathering_method  if AppOpticsAPM::SDK.tracing?
+      #   AppOpticsAPM::SDK.trace('some_span', kvs) do
+      #     # this may not create a trace every time it runs
+      #     db_request
+      #   end
+      #
+      # Returns true or false
+      #
+      def tracing?
+        AppOpticsAPM.tracing?
+      end
 
+      # Public: Wait for AppOptics to be ready to send traces
+      # This may be useful in short lived background processes, when it is important to capture
+      # information during the whole time the process is running. Usually AppOptics doesn't block an
+      # application while it is starting up.
+      #
+      # ==== Argument
+      #
+      # * +wait_milliseconds+ the maximum time to wait in milliseconds, default 3000
+      #
 
+      #   unless AppopticsAPM::SDK.appoptics_ready?
+      #     Logger.info "AppOptics not ready after 10 seconds, no metrics will be sent"
+      #   end
+      #
+      # Returns true or false
+      #
+      def appoptics_ready?(wait_milliseconds = 3000)
+        AppopticsAPM::Context.isReady(wait_milliseconds)
+      end
     end
   end
 end
