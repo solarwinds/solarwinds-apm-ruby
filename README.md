@@ -2,7 +2,7 @@
 
 The appoptics_apm gem provides [AppOptics APM](https://www.appoptics.com/) performance instrumentation for Ruby.
 
-![Ruby AppOpticsAPM](http://www.appoptics.com/images/ruby_readme/oboe-ruby-header.png)
+![Ruby AppOpticsAPM](https://docs.appoptics.com/_images/ruby_trace.png)
 
 It has the ability to report performance metrics on an array of libraries, databases and frameworks such as Rails, 
 Mongo, Memcache, ActiveRecord, Cassandra, Rack, Resque 
