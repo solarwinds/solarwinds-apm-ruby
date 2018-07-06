@@ -140,7 +140,7 @@ require 'appoptics_apm'
 You can add even more visibility into any part of your application or scripts by adding custom instrumentation.  
 
 ## AppOpticsAPM::SDK.trace
-You can instrument any arbitrary block of code using `AppOpticsAPM::API.trace`.  
+You can instrument any arbitrary block of code using `AppOpticsAPM::SDK.trace`.  
 
 ```ruby
 # layer_name will show up in the AppOptics app dashboard
@@ -159,7 +159,7 @@ AppOpticsAPM::SDK.trace(layer_name, report_kvs) do
 end
 ```
 
-`AppOpticsAPM::API.trace` is used within the context of a request.  It will follow the upstream state of the request 
+`AppOpticsAPM::SDK.trace` is used within the context of a request.  It will follow the upstream state of the request 
 being traced.  i.e. the block of code will only be traced when the parent request is being traced.
 
 This tracing state of a request can also be queried by using `AppOpticsAPM.tracing?`.
@@ -254,7 +254,7 @@ The appoptics gem uses a standard gem layout.  Here are the notable directories.
     lib/appoptics/frameworks         # Framework instrumentation directory
     lib/appoptics/frameworks/rails   # Files specific to Rails instrumentation
     lib/rails                        # A Rails required directory for the Rails install generator
-    lib/api                          # The AppOpticsAPM Tracing API: layers, logging, profiling and tracing
+    lib/api                          # The AppOpticsAPM Tracing API: layers, logging, tracing
     ext/oboe_metal                   # The Ruby c extension that links against the system liboboe library
 
 ## Building the Gem
@@ -269,7 +269,7 @@ gem build appoptics_apm.gemspec
 
 Custom instrumentation for a library, database or other service can be authored fairly easily.  Generally, 
 instrumentation of a library is done by wrapping select operations of that library and timing their execution using the 
-AppOpticsAPM Tracing API which then reports the metrics to the users' AppOptics dashboard.
+AppOpticsAPM Tracing SDK which then reports the metrics to the users' AppOptics dashboard.
 
 Here, I'll use a stripped down version of the Dalli instrumentation (`lib/appoptics/inst/dalli.rb`) as a quick example 
 of how to instrument a client library (the dalli gem).
@@ -334,9 +334,9 @@ end
 ```
 
 Third, in our wrapper method, we capture the arguments passed in, collect the operation and key information into a local 
-hash and then invoke the `AppOpticsAPM::API.trace` method to time the execution of the original operation.
+hash and then invoke the `AppOpticsAPM::SDK.trace` method to time the execution of the original operation.
 
-The `AppOpticsAPM::API.trace` method calls Dalli's native operation and reports the timing metrics and your custom 
+The `AppOpticsAPM::SDK.trace` method calls Dalli's native operation and reports the timing metrics and your custom 
 `report_kvs` up to AppOptics servers to be shown on the user's dashboard.
 
 Some other tips and guidelines:
