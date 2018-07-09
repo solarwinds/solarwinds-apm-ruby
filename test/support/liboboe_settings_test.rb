@@ -44,7 +44,7 @@ unless defined?(JRUBY_VERSION)
 
       kvs = {}
       kvs["SampleRate"] = 1000000
-      kvs["SampleSource"] = OBOE_SAMPLE_RATE_SOURCE_FILE
+      kvs["SampleSource"] = 1 # (OBOE_SAMPLE_RATE_SOURCE_FILE)
       validate_event_keys(traces[0], kvs)
     end
 

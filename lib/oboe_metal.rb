@@ -162,14 +162,14 @@ module AppOpticsAPM
 
       case value
       when :never
-        AppOpticsAPM::Context.setTracingMode(OBOE_TRACE_NEVER)
+        AppOpticsAPM::Context.setTracingMode(APPOPTICS_TRACE_NEVER)
 
       when :always
-        AppOpticsAPM::Context.setTracingMode(OBOE_TRACE_ALWAYS)
+        AppOpticsAPM::Context.setTracingMode(APPOPTICS_TRACE_ALWAYS)
 
       else
         AppOpticsAPM.logger.fatal "[oboe/error] Invalid tracing mode set: #{mode}"
-        AppOpticsAPM::Context.setTracingMode(OBOE_TRACE_NEVER)
+        AppOpticsAPM::Context.setTracingMode(APPOPTICS_TRACE_NEVER)
       end
     end
 

@@ -83,23 +83,6 @@ module AppOpticsAPM
       AppOpticsAPM.logger.warn 'No ActiveRecord'
     end
 
-    # TODO we don't have libs in /usr/lib anymore, is this still needed???
-    # AppOpticsAPM.logger.warn '********************************************************'
-    # AppOpticsAPM.logger.warn '* AppOpticsAPM Libraries'
-    # AppOpticsAPM.logger.warn '********************************************************'
-    # files = []
-    # ['/usr/lib/liboboe*', '/usr/lib64/liboboe*'].each do |d|
-    #   files = Dir.glob(d)
-    #   break if !files.empty?
-    # end
-    # if files.empty?
-    #   AppOpticsAPM.logger.warn 'Error: No liboboe libs!'
-    # else
-    #   files.each { |f|
-    #     AppOpticsAPM.logger.warn f
-    #   }
-    # end
-
     AppOpticsAPM.logger.warn '********************************************************'
     AppOpticsAPM.logger.warn '* AppOpticsAPM::Config Values'
     AppOpticsAPM.logger.warn '********************************************************'
