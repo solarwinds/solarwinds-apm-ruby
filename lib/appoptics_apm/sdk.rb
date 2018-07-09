@@ -9,10 +9,8 @@ module AppOpticsAPM
     ##
     # Traces are best created with an <tt>AppOpticsAPM::SDK.start_trace</tt> block and
     # <tt>AppOpticsAPM::SDK.trace</tt> blocks around calls to be traced.
-    # These two methods guarantee proper nesting of tracing and handling of the tracing context as well as avoiding
-    # broken traces in case of exceptions
-    #
-
+    # These two methods guarantee proper nesting of traces, handling of the tracing context, as well as avoiding
+    # broken traces in case of exceptions.
     #
     # Some optional keys that can be used in the +opts+ hash:
     # * +:TransactionName+ - this will show up in the transactions column in the traces dashboard
@@ -22,20 +20,59 @@ module AppOpticsAPM
     # * +:URL+ - request URI
     # * +:Method+
     #
-    # TODO complete the above
-    #
     # Invalid keys: +:Label+, +:Layer+, +:Edge+, +:Timestamp+, +:Timestamp_u+
     #
-
+    # The methods are exposed as singleton methods for AppOpticsAPM::SDK.
+    #
+    # === Usage:
+    # * +AppOpticsAPM::SDK.appoptics_ready?+
+    # * +AppOpticsAPM::SDK.get_transaction_name+
+    # * +AppOpticsAPM::SDK.set_transaction_name+
+    # * +AppOpticsAPM::SDK.start_trace+
+    # * +AppOpticsAPM::SDK.start_trace_sith_target+
+    # * +AppOpticsAPM::SDK.trace+
+    # * +AppOpticsAPM::SDK.tracing?+
+    #
+    # === Example:
+    #   class MonthlyCouponEmailJob
+    #     def perform(*args)
+    #
+    #       # KVs to report to the dashboard
+    #       report_kvs = {}
+    #       report_kvs[:Spec] = :job
+    #       report_kvs[:Controller] = :MonthlyEmailJob
+    #       report_kvs[:Action] = :CouponEmailer
+    #
+    #       # Start tracing this job with start_trace
+    #       AppOpticsAPM::SDK.start_trace('starling', nil, report_kvs) do
+    #         monthly = MonthlyEmail.new(:CouponEmailer)
+    #
+    #         # Trace a sub-component of this trace
+    #         AppOpticsAPM::SDK.trace(self.class.name) do
+    #
+    #           # The work to be done
+    #           users = User.all
+    #           users.each do |u|
+    #             monthly.send(u.email)
+    #           end
+    #
+    #         end
+    #       end
+    #     end
+    #   end
+    #
     module Tracing
-      # Public: Trace a given block of code. Detect any exceptions thrown by
-      # the block and report errors.
+
+      # Trace a given block of code.
       #
+      # Also detects any exceptions thrown by the block and report errors.
+      #
+      # === Arguments:
       # * +:span+       - The span the block of code belongs to.
       # * +:opts+       - (optional) A hash containing key/value pairs that will be reported along with the first event of this span.
       # * +:protect_op+ - (optional) The operation being traced.  Used to avoid double tracing operations that call each other.
       #
-      # Example
+      # === Example:
       #
       #   def computation(n)
       #     fib(n)
@@ -48,9 +85,10 @@ module AppOpticsAPM
       #     end
       #   end
       #
-      #   result = computation_with_oboe(1000)
+      #   result = computation_with_appoptics(100)
       #
-      # Returns the result of the block.
+      # === Returns:
+      # * The result of the block.
       #
       def trace(span, opts = {}, protect_op = nil)
         return yield if !AppOpticsAPM.loaded || !AppOpticsAPM.tracing? || (protect_op && AppOpticsAPM.layer_op == protect_op.to_sym)
@@ -67,20 +105,21 @@ module AppOpticsAPM
       end
 
 
-      # Public: Collect metrics and start tracing a given block of code. A
-      # trace will be started depending on configuration and probability.
-      # Detect any exceptions thrown by the block and report errors.
+      # Collect metrics and start tracing a given block of code.
+      #
+      # This will start a trace depending on configuration and probability, detect any exceptions
+      # thrown by the block, and report errors.
       #
       # When start_trace returns control to the calling context, the trace will be
       # completed and the tracing context will be cleared.
       #
-      # ==== Arguments
+      # === Arguments:
       #
-      # * +span+   - name for the span to be used as label in the trace view
-      # * +xtrace+ - (optional) incoming X-Trace identifier to be continued
-      # * +opts+   - (optional) hash containing key/value pairs that will be reported along with the first event of this span
+      # * +span+   - Name for the span to be used as label in the trace view.
+      # * +xtrace+ - (optional) incoming X-Trace identifier to be continued.
+      # * +opts+   - (optional) hash containing key/value pairs that will be reported with this span.
       #
-      # ==== Example
+      # === Example:
       #
       #   def handle_request(request, response)
       #     # ... code that processes request and response ...
@@ -92,7 +131,8 @@ module AppOpticsAPM
       #     end
       #   end
       #
-      # Returns the result of the block.
+      # === Returns:
+      # * The result of the block.
       #
       def start_trace(span, xtrace = nil, opts = {})
         return yield unless AppOpticsAPM.loaded
@@ -119,21 +159,22 @@ module AppOpticsAPM
         result
       end
 
-      # Public: Trace a given block of code which can start a trace depending
-      # on configuration and probability. Detect any exceptions thrown by the
-      # block and report errors. Assign an X-Trace to the target.
+      # Collect metrics, trace a given block of code, and assign trace info to target.
+      #
+      # This will start a trace depending on configuration and probability, detect any exceptions
+      # thrown by the block, report errors, and assign an X-Trace to the target.
       #
       # The motivating use case for this is HTTP streaming in rails3. We need
       # access to the exit event's trace id so we can set the header before any
       # work is done, and before any headers are sent back to the client.
       #
-      # ===== Arguments
+      # === Arguments:
       # * +span+   - The span the block of code belongs to.
-      # * +xtrace+ - string - The X-Trace to continue by the target
-      # * +target+ - has to respond to #[]=, The target object in which to place the trace information
-      # * +opts+   - A hash containing key/value pairs that will be reported along with the first event of this span (optional).
+      # * +xtrace+ - (optional) incoming X-Trace identifier to be continued.
+      # * +target+ - (optional) has to respond to #[]=, The target object in which to place the trace information.
+      # * +opts+   - (optional) hash containing key/value pairs that will be reported with this span.
       #
-      # ==== Example
+      # === Example:
       #
       #   def handle_request(request, response)
       #     # ... code that processes request and response ...
@@ -145,7 +186,8 @@ module AppOpticsAPM
       #     end
       #   end
       #
-      # Returns the result of the block.
+      # === Returns:
+      # * The result of the block.
       #
       def start_trace_with_target(span, xtrace, target, opts = {})
         return yield unless AppOpticsAPM.loaded
@@ -165,29 +207,51 @@ module AppOpticsAPM
           rescue Exception => e
             AppOpticsAPM::API.log_exception(span, e)
             exit_evt.addEdge(AppOpticsAPM::Context.get)
-            xtrace = AppOpticsAPM::API.log(span, :exit, { :TransactionName => AppOpticsAPM.transaction_name || "custom-#{span}" }, exit_evt)
+            xtrace = AppOpticsAPM::API.log_end(span, opts, exit_evt)
             e.instance_variable_set(:@xtrace, xtrace)
-            AppOpticsAPM::Context.clear
             raise
           end
         end
         exit_evt.addEdge(AppOpticsAPM::Context.get)
-        AppOpticsAPM::API.log(span, :exit, { :TransactionName => AppOpticsAPM.transaction_name }, exit_evt)
-        AppOpticsAPM::Context.clear
+        AppOpticsAPM::API.log_end(span, opts, exit_evt)
 
         result
       end
 
-      # Public: Set a ThreadLocal custom transaction name to be used when sending a trace or metrics for the
-      # current transaction.
+      # Provide a custom transaction name
       #
-      # In addition to setting a transaction name here there is also a configuration.
-      # AppOpticsAPM::Config['transaction_name']['prepend_domain']. When true the domain will be prepended
-      # to the transaction name.
+      # The AppOpticsAPM gem tries to create meaningful transaction names from controller+action
+      # or something similar depending on the framework used. However, you may want to override the
+      # transaction name to better describe your instrumented operation.
       #
-      # ===== Argument
+      # Take note that on the dashboard the transaction name is converted to lowercase, and might be
+      # truncated with invalid characters replaced. Method calls with an empty string or a non-string
+      # argument won't change the current transaction name.
+      #
+      # The configuration +AppOpticsAPM.Config+['transaction_name']+['prepend_domain']+ can be set to
+      # true to have the domain name prepended to the transaction name. This is a global setting.
+      #
+      # === Argument:
       #
       # * +name+ - A non-empty string with the custom transaction name
+      #
+      # === Example:
+      #
+      #   class DogfoodsController < ApplicationController
+      #
+      #     def create
+      #       @dogfood = Dogfood.new(params.permit(:brand, :name))
+      #       @dogfood.save
+      #
+      #       AppOpticsAPM::SDK.set_transaction_name("dogfoodscontroller.create_for_#{params[:brand]}")
+      #
+      #       redirect_to @dogfood
+      #     end
+      #
+      #   end
+      #
+      # === Returns:
+      # * (String or nil) the current transaction name
       #
       def set_transaction_name(name)
         if name.is_a?(String) && name.strip != ''
@@ -199,19 +263,23 @@ module AppOpticsAPM
       end
 
 
-      # Public: Get the currently set transaction name.
-      # This is provided for testing.
+      # Get the currently set custom transaction name.
       #
-      # Returns the current transaction name.
+      # This is provided for testing
+      #
+      # === Returns:
+      # * (String or nil) the current transaction name
+      #
       def get_transaction_name
         AppOpticsAPM.transaction_name
       end
 
-      # Public: Determine if this transaction is being traced.
+      # Determine if this transaction is being traced.
+      #
       # Tracing puts some extra load on a system, therefor not all transaction are traced.
       # The `tracing?` method helps to determine this so that extra work can be avoided when not tracing.
       #
-      # ==== Example
+      # === Example:
       #
       #   kvs = expensive_info_gathering_method  if AppOpticsAPM::SDK.tracing?
       #   AppOpticsAPM::SDK.trace('some_span', kvs) do
@@ -219,28 +287,25 @@ module AppOpticsAPM
       #     db_request
       #   end
       #
-      # Returns true or false.
-      #
       def tracing?
         AppOpticsAPM.tracing?
       end
 
-      # Public: Wait for AppOptics to be ready to send traces.
-      # This may be useful in short lived background processes, when it is important to capture
+      # Wait for AppOptics to be ready to send traces.
+      #
+      # This may be useful in short lived background processes when it is important to capture
       # information during the whole time the process is running. Usually AppOptics doesn't block an
       # application while it is starting up.
       #
-      # ==== Argument
+      # === Argument:
       #
-      # * +wait_milliseconds+ the maximum time to wait in milliseconds, default 3000
+      # * +wait_milliseconds+ (int, default 3000) the maximum time to wait in milliseconds
       #
-      # ==== Example
+      # === Example:
       #
-      #   unless AppopticsAPM::SDK.appoptics_ready?
+      #   unless AppopticsAPM::SDK.appoptics_ready?(10_000)
       #     Logger.info "AppOptics not ready after 10 seconds, no metrics will be sent"
       #   end
-      #
-      # Returns true or false.
       #
       def appoptics_ready?(wait_milliseconds = 3000)
         AppopticsAPM::Context.isReady(wait_milliseconds)
