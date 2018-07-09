@@ -21,14 +21,13 @@ module  AppOpticsAPM
 
         # if a transaction name is provided it will take precedence over transaction names defined
         # later or in lower spans
-        transaction_name = set_transaction_name(kvs[:TransactionName])
         start = Time.now
 
         yield
       ensure
         duration =(1000 * 1000 * (Time.now - start)).round(0)
-        transaction_name ||= AppOpticsAPM.transaction_name || "custom-#{span}"
-        set_transaction_name(AppOpticsAPM::Span.createSpan(transaction_name, nil, duration))
+        transaction_name = AppOpticsAPM::API.determine_transaction_name(span, kvs)
+        kvs[:TransactionName] = AppOpticsAPM::API.set_transaction_name(AppOpticsAPM::Span.createSpan(transaction_name, nil, duration))
       end
     end
   end

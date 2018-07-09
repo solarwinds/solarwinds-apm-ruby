@@ -179,15 +179,14 @@ module AppOpticsAPM
       #   AppOpticsAPM::API.log_end(:layer_name, { :id => @user.id })
       #
       # Returns an xtrace metadata string if we are tracing
-      def log_end(layer, opts = {})
+      def log_end(layer, opts = {}, event = nil)
         return AppOpticsAPM::Context.toString unless AppOpticsAPM.tracing?
 
         # Deal with the transaction name
-        opts[:TransactionName] ||= opts.delete('TransactionName')
-        AppOpticsAPM::API.set_transaction_name(opts[:TransactionName])
-        opts[:TransactionName] = AppOpticsAPM.transaction_name || "custom-#{layer}"
+        opts[:TransactionName] = determine_transaction_name(layer, opts)
 
-        log_event(layer, :exit, AppOpticsAPM::Context.createEvent, opts)
+        event ||= AppOpticsAPM::Context.createEvent
+        log_event(layer, :exit, event, opts)
       ensure
         # FIXME has_incoming_context commented out, it has importance for JRuby only but breaks Ruby tests
         AppOpticsAPM::Context.clear # unless AppOpticsAPM.has_incoming_context?
@@ -305,6 +304,25 @@ module AppOpticsAPM
 
         AppOpticsAPM::Reporter.sendStatus(event, context)
         AppOpticsAPM::Context.toString
+      end
+
+      ##
+      # Determine the transaction name to be set on the trace
+      #
+      # A transaction name set via the opts key `:TransactionName` takes precedence
+      # over a currently set custom transaction name. if neither are provided it
+      # returns `"custom_#{span}"`
+      #
+      # === Argument:
+      # * +opts+ (hash) the value of :TransactionName will be set as custom transaction name
+      #
+      # === Returns:
+      # (string) the current transaction name
+      #
+      def determine_transaction_name(span, opts = {})
+        opts[:TransactionName] ||= opts.delete('TransactionName')
+        AppOpticsAPM::API.set_transaction_name(opts[:TransactionName])
+        AppOpticsAPM.transaction_name || "custom-#{span}"
       end
 
       private
