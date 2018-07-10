@@ -1,7 +1,9 @@
 FROM ubuntu:16.04
 
-# to use with ./run_tests_docker.rb
 # docker build -f Dockerfile_test -t ruby_appoptics_apm .
+
+# docker-compose run --service-ports ruby_appoptics_apm /code/ruby-appoptics_apm/run_all_tests.rb [true]
+# use true to start up conatiner and install oboe
 
 # install OS packages
 RUN apt-get update \
@@ -32,6 +34,7 @@ RUN  git clone https://github.com/rbenv/rbenv.git ~/.rbenv \
      && git clone https://github.com/rbenv/rbenv-default-gems.git ~/.rbenv/plugins/rbenv-default-gems \
      && echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.profile \
      && echo 'eval "$(rbenv init -)"' >> ~/.profile \
+     && echo 'eval "$(rbenv init -)"' >> ~/.bashrc \
      && echo 'bundler' > ~/.rbenv/default-gems
 
 # install rubies to build our gem against
@@ -72,3 +75,6 @@ ENV DOCKER_PSQL_PASS=docker
 ENV APPOPTICS_TOKEN_BUCKET_CAPACITY=1000
 ENV APPOPTICS_TOKEN_BUCKET_RATE=1000
 ENV SIMPLECOV_COVERAGE=true
+
+# replicate stdout of tests to file in local log directory
+ENV TEST_RUNS_TO_FILE=true

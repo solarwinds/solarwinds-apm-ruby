@@ -6,8 +6,8 @@ require 'simplecov-console' if ENV["SIMPLECOV_COVERAGE"]
 
 SimpleCov.start do
 # SimpleCov.formatter = SimpleCov.formatter = SimpleCov::Formatter::Console
-  merge_timeout 36000
-  command_name "#{ENV['RVM_TEST']}_#{File.basename(ENV['BUNDLE_GEMFILE'])}_#{ENV['DBTYPE']}"
+  merge_timeout 3600
+  command_name "#{RUBY_VERSION}_#{File.basename(ENV['BUNDLE_GEMFILE'])}_#{ENV['DBTYPE']}"
 # SimpleCov.use_merging true
   add_filter '/test/'
   add_filter '../test/'
@@ -33,7 +33,7 @@ if ENV['TEST_RUNS_TO_FILE']
   end
 end
 
-puts "\n\033[1m=== TEST RUN: #{ENV['RVM_TEST']} #{File.basename(ENV['BUNDLE_GEMFILE'])} #{ENV['DBTYPE']} #{Time.now.strftime("%Y-%m-%d %H:%M")} ===\033[0m\n"
+puts "\n\033[1m=== TEST RUN: #{RUBY_VERSION} #{File.basename(ENV['BUNDLE_GEMFILE'])} #{ENV['DBTYPE']} #{Time.now.strftime("%Y-%m-%d %H:%M")} ===\033[0m\n"
 
 ENV['RACK_ENV'] = 'test'
 ENV['APPOPTICS_GEM_TEST'] = 'true'

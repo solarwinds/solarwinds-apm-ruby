@@ -20,3 +20,7 @@ log/
 gemfiles/.bundle
 swig*
 *.gem
+.yardoc
+coverage
+doc
+.*byebug*

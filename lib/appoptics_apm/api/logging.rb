@@ -18,6 +18,9 @@ module AppOpticsAPM
     #
     # These are the lower level methods, please see AppOpticsAPM::SDK
     # for the higher level methods
+    #
+    # If using these directly make sure to always match a start/end and entry/exit to
+    # avoid broken traces.
     module Logging
       @@ints_or_nil = [Integer, Float, NilClass, String]
       @@ints_or_nil << Fixnum unless RUBY_VERSION >= '2.4'

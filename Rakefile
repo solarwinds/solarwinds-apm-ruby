@@ -60,6 +60,40 @@ Rake::TestTask.new do |t|
   end
 end
 
+# desc "Run all test suites defined by the Gemfiles in gemfiles"
+task "test_all" do
+  require 'yaml'
+  travis = YAML.load_file('.travis.yml')
+
+  matrix = []
+  travis['rvm'].each do |rvm|
+    travis['gemfile'].each do |gemfile|
+      travis['env'].each do |env|
+        matrix << { "rvm" => rvm, "gemfile" => gemfile, 'env' => env}
+      end
+    end
+  end
+
+  travis['matrix']['exclude'].each do |h|
+    matrix.delete_if do |m|
+      m == m.merge(h)
+    end
+  end
+
+  n = 3
+  matrix.each do |args|
+    puts "./run_test.sh #{args['rvm']} #{args['gemfile']} #{args['env']}"
+    success = system("./run_test.sh #{args['rvm']} #{args['gemfile']} #{args['env']}")
+    # success = exec("./run_test.sh #{args['rvm']} #{args['gemfile']} #{args['env']i};")
+    # success = system("./run_test.sh", args['rvm'], args['gemfile'], args['env'])
+    # success = `./run_test.sh #{args['rvm']} #{args['gemfile']} #{args['env']}`
+    puts "***************** ran #{success ? 'successfully' : 'unsuccessfully'} "
+    n -= 1
+    break if n == 0
+  end
+end
+
+
 desc "Fetch extension dependency files"
 task :fetch_ext_deps do
   swig_version = %x{swig -version} rescue ''

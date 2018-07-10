@@ -76,6 +76,7 @@ if defined?(::Rails)
       r.header['X-Trace'].must_equal traces[6]['X-Trace']
     end
 
+    # FIXME fails in rails 5.2.x
     it "should trace rails postgres db calls" do
       # Skip for JRuby since the java instrumentation
       # handles DB instrumentation for JRuby
