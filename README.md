@@ -421,4 +421,4 @@ If you need further assistance running tests feel free to get in touch with the 
 
 Copyright (c) 2018 SolarWinds, LLC
 
-Released under the [Librato Open License](http://docs.appoptics.com/kb/apm_tracing/ruby/license/)
+Released under the [Librato Open License](https://docs.appoptics.com/kb/apm_tracing/librato-open-license/)
