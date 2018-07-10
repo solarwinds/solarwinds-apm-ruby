@@ -1,0 +1,826 @@
+{
+  "ci_service": {
+    "branch": "opensource_AO-8260",
+    "build_identifier": "",
+    "build_url": "",
+    "commit_sha": "3abb7d13e1b83e9708870aa113b95ff281f00aa2",
+    "committed_at": 1528498353,
+    "name": ""
+  },
+  "environment": {
+    "gem_version": "2.6.11",
+    "package_version": "",
+    "pwd": "/Users/maiaengeli/workspace/librato/ruby-appoptics",
+    "prefix": "/code/ruby-appoptics_apm",
+    "rails_root": "",
+    "reporter_version": "0.1.4",
+    "simplecov_root": ""
+  },
+  "git": {
+    "branch": "opensource_AO-8260",
+    "head": "3abb7d13e1b83e9708870aa113b95ff281f00aa2",
+    "committed_at": 1528498353
+  },
+  "covered_percent": 74.71392687691878,
+  "covered_strength": 0,
+  "line_counts": {
+    "missed": 906,
+    "covered": 2677,
+    "total": 3583
+  },
+  "source_files": [
+    {
+      "blob_id": "cb3a295b4388dcf03fb5695bf018da9684188bd4",
+      "coverage": "[null,null,null,null,null,null,31,31,null,0,null,null,null,31,31,null,null,null,null,null,31,31,31,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,31,557,null,512,512,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,31,116,null,73,0,0,null,null,null,null,73,null,73,73,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,31,2175,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,2175,null,null,null,1964,1964,1964,null,1964,null,null,246,null,246,246,246,null,null,null,1718,1718,1718,null,null,null,null,211,null,null,6,6,null,null,null,205,205,null,null,2175,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,31,2190,null,1955,null,null,2190,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,31,5181,null,5135,5135,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,31,868,null,746,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,31,5251,null,5117,5117,null,null,null,null,null,null,null,null,null,null,null,null,null,null,31,24,18,18,18,18,null,18,null,null,null,null,null,null,null,null,null,null,31,0,0,null,0,0,0,0,0,null,null,0,0,null,null,31,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,31,15408,15408,null,15408,15408,null,null,49994,null,49994,null,49994,35929,14065,0,null,14065,null,null,49994,49994,null,0,0,null,15408,null,15408,15408,null,null,null,null,null]",
+      "covered_percent": 83.69565217391305,
+      "covered_strength": 5267.20652173913,
+      "line_counts": {
+        "missed": 15,
+        "covered": 77,
+        "total": 92
+      },
+      "name": "lib/appoptics_apm/api/logging.rb"
+    },
+    {
+      "blob_id": "eaa3aba126914a083d039eaa94679fe17a261fef",
+      "coverage": "[null,null,null,28,28,28,28,3,null,null,28,12,null,12,null,null,null,28,28,3,null,null,28,null,33,null,33,33,33,null,0,null,null,33,33,null,33,null,33,null,33,null,null,null,28,28,28,3,null,null,28,6,null,6,null,6,null,null,6,6,6,6,6,null,null,null,null,6,null,null,6,6,6,null,null,null,6,null,null,null,null,null,null,28,3,null,3,null,3,null,3,3,3,null]",
+      "covered_percent": 97.87234042553192,
+      "covered_strength": 16.80851063829787,
+      "line_counts": {
+        "missed": 1,
+        "covered": 46,
+        "total": 47
+      },
+      "name": "lib/appoptics_apm/frameworks/grape.rb"
+    },
+    {
+      "blob_id": "fac9b9dd8030ddbc0e828ab57bf9a5881346bc64",
+      "coverage": "[null,null,null,13,13,13,13,13,6,null,6,null,null,2,4,null,0,null,null,6,6,6,6,null,null,null,null,null,null]",
+      "covered_percent": 92.85714285714286,
+      "covered_strength": 7.642857142857143,
+      "line_counts": {
+        "missed": 1,
+        "covered": 13,
+        "total": 14
+      },
+      "name": "lib/appoptics_apm/frameworks/rails/inst/connection_adapters/mysql2.rb"
+    },
+    {
+      "blob_id": "032e5a682d093311c60bb09a1e9d451ed5bdf08d",
+      "coverage": "[null,null,null,31,31,null,31,28,null,null,null,null,null,null,null,null,null,null,null,null,null,28,28,null,28,505,null,null,28,null,null,null,null,817,null,null,805,null,null,795,null,null,28,0,null,null,28,null,28,805,null,805,805,805,805,805,805,805,null,805,802,null,null,null,805,805,805,null,805,805,805,805,null,805,805,805,null,null,0,null,805,null,null,28,9,9,null,null,null,28,10,10,10,null,10,10,null,null,null,null,null,10,10,null,null,null,28,795,795,795,795,null,795,795,null,null,795,795,null,null,null,null,null,null,null,null,795,null,null,null,null,null,795,null,795,783,783,null,783,null,null,747,null,null,783,null,null,6,6,6,null,6,null,null,0,null,null,6,null,null,null,28,789,null,771,771,6,null,771,771,771,771,null,null,28,771,20,751,367,null,null,null,null,null,null,3,3,3,null,3,3,null,null,3,3,null,null,3,3,null,null,null,null]",
+      "covered_percent": 96.84210526315789,
+      "covered_strength": 425.05263157894734,
+      "line_counts": {
+        "missed": 3,
+        "covered": 92,
+        "total": 95
+      },
+      "name": "lib/appoptics_apm/inst/rack.rb"
+    },
+    {
+      "blob_id": "9ecc08186208e7e479f0c5f537ce9c64a85ae5d5",
+      "coverage": "[null,null,null,13,null,null,null,null,null,null,13,null,13,null,13,13,13,0,0,0,0,0,0,0,0,null,0,null,null,0,0,null,null,null,13,13,0,0,0,0,0,0,0,0,null,0,null,null,0,0,null,null,null,null,null,null,null,null]",
+      "covered_percent": 26.666666666666668,
+      "covered_strength": 3.466666666666667,
+      "line_counts": {
+        "missed": 22,
+        "covered": 8,
+        "total": 30
+      },
+      "name": "lib/appoptics_apm/frameworks/rails/inst/action_view.rb"
+    },
+    {
+      "blob_id": "52e8d8f10898c5bbb2de26cee18056958e9ab679",
+      "coverage": "[null,null,null,13,null,13,null,0,0,0,0,0,0,0,0,0,0,0,null,0,null,null,0,0,null,null,null,0,0,0,0,0,0,0,0,0,0,null,0,null,null,0,0,null,null,null,null,null,null,null]",
+      "covered_percent": 6.896551724137931,
+      "covered_strength": 0.896551724137931,
+      "line_counts": {
+        "missed": 27,
+        "covered": 2,
+        "total": 29
+      },
+      "name": "lib/appoptics_apm/frameworks/rails/inst/action_view_30.rb"
+    },
+    {
+      "blob_id": "96e86916e99ea6612b178f9e8a645191ae57a650",
+      "coverage": "[null,null,null,28,28,null,null,null,null,28,null,28,null,null,null,null,null,null,28,75,null,75,null,null,75,72,null,3,null,null,75,null,null,75,75,null,75,null,0,0,0,0,null,null,75,null,null,null,null,null,null,null,null,28,null,75,0,0,null,0,null,null,75,75,75,null,75,75,null,null,75,69,null,75,null,72,null,null,72,0,null,null,72,234,null,72,72,54,null,null,72,3,3,3,null,75,50,null,null,null,null,null,28,null,28,null,28,9,9,9,9,null,null,null,null,null,null,null,28,null,9,0,0,null,0,null,null,9,9,null,9,null,null,null,null,null,null,null,28,null,9,0,0,null,0,null,null,9,9,null,9,null,null,null,null,null,null,null,28,null,null,null,63,48,48,null,48,null,null,15,null,null,null,15,0,null,15,null,null,15,null,null,null,null,null,null,null,28,null,57,15,15,null,15,null,null,42,42,null,42,null,null,null,null,null,null,null,null,null,28,28,null,28,9,null,null,null,null,null,null,null,28,null,27,12,36,36,36,null,null,12,null,null,15,15,15,null,15,15,15,45,45,45,null,null,null,15,null,15,null,27,54,27,null,27,null,15,0,0,0,null,15,10,null,null,null,null,null,null,null,null,null,28,28,null,28,9,null,null,null,null,null,null,null,null,null,null,null,28,null,93,84,126,126,null,null,84,null,null,9,9,9,null,9,null,9,27,27,null,null,null,9,0,0,0,null,9,6,null,null,null,null,null,28,9,9,9,9,null]",
+      "covered_percent": 85.71428571428571,
+      "covered_strength": 31.94557823129252,
+      "line_counts": {
+        "missed": 21,
+        "covered": 126,
+        "total": 147
+      },
+      "name": "lib/appoptics_apm/inst/curb.rb"
+    },
+    {
+      "blob_id": "3973d0e5b6e93f9054ee5f80b3a776b32205f06f",
+      "coverage": "[null,null,null,31,null,31,31,31,null,null,31,null,31,0,null,null,null,31,0,null,null,null,31,0,null,null,null,31,0,null,null,null,31,0,null,null,null,null,null,31,null,31]",
+      "covered_percent": 70.58823529411765,
+      "covered_strength": 21.88235294117647,
+      "line_counts": {
+        "missed": 5,
+        "covered": 12,
+        "total": 17
+      },
+      "name": "lib/appoptics_apm/logger.rb"
+    },
+    {
+      "blob_id": "004bab4722848a61e1b88251bd4563c3dc13259a",
+      "coverage": "[null,null,null,31,null,null,null,31,31,null,null,null,null,null,31,null,16006,null,null,15418,null,null,14963,null,14951,null,0,0,0,null,null,31,216,null,null,31,246,null,null,31,6,null,null,null,null,null,null,null,31,561,null,561,null,0,0,0,null,null,null,null,null,null,null,31,12869,null,12869,null,0,0,0,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,31,243,null,null,null,216,216,null,0,null,null,null,null,null,null]",
+      "covered_percent": 70.58823529411765,
+      "covered_strength": 2636.794117647059,
+      "line_counts": {
+        "missed": 10,
+        "covered": 24,
+        "total": 34
+      },
+      "name": "lib/appoptics_apm/xtrace.rb"
+    },
+    {
+      "blob_id": "f3c4100cc4b0d9dec7a392fe7f54d48147c7f483",
+      "coverage": "[null,null,null,13,13,13,13,13,1,null,null,0,1,null,null,1,null,1,null,null,1,null,1,null,null,null,null,null,0,null,null,0,null,0,0,0,null,null,null,null,null,null,null]",
+      "covered_percent": 64.70588235294117,
+      "covered_strength": 4.176470588235294,
+      "line_counts": {
+        "missed": 6,
+        "covered": 11,
+        "total": 17
+      },
+      "name": "lib/appoptics_apm/frameworks/rails/inst/connection_adapters/mysql.rb"
+    },
+    {
+      "blob_id": "f27686984b4bef32030b4bfe769225a316a67c66",
+      "coverage": "[null,null,null,28,28,28,28,3,null,null,28,null,3,null,3,3,3,3,3,3,3,3,3,null,3,3,null,0,null,null,3,null,3,0,0,0,null,3,2,null,null,null,28,28,3,3,3,null,null,3055,null,3027,3027,3027,3027,3027,3027,3027,3027,0,0,null,3027,2018,null,null,28,null,3030,null,3021,3021,null,3021,0,3021,3012,null,9,null,null,3021,3021,3021,null,3021,null,null,3021,3021,null,3021,0,0,0,null,3021,2014,null,null,28,null,24,null,3,3,3,null,3,null,3,3,3,0,0,0,null,3,2,null,null,28,null,3,null,3,3,3,null,3,null,3,0,0,0,null,3,2,null,null,null,null,null,28,3,3,3,null]",
+      "covered_percent": 83.15789473684211,
+      "covered_strength": 811.3894736842105,
+      "line_counts": {
+        "missed": 16,
+        "covered": 79,
+        "total": 95
+      },
+      "name": "lib/appoptics_apm/inst/bunny-client.rb"
+    },
+    {
+      "blob_id": "f66f3327bd6823c8562198560a0e2c2496734093",
+      "coverage": "[null,null,null,28,28,28,28,null,28,3,3,3,3,3,null,0,null,null,3,3,3,null,null,null,null,28,42,null,42,42,42,42,42,null,null,42,24,24,null,null,24,24,24,null,24,24,null,null,18,null,null,null,28,3,null,3,null,3,3,3,3,3,null,null,0,null,null,3,3,null,3,3,3,null,3,null,null,null,null,null,null,28,3,3,null,null]",
+      "covered_percent": 95.83333333333334,
+      "covered_strength": 16.104166666666668,
+      "line_counts": {
+        "missed": 2,
+        "covered": 46,
+        "total": 48
+      },
+      "name": "lib/appoptics_apm/inst/dalli.rb"
+    },
+    {
+      "blob_id": "649974db5811c4a42fbb35a9d6d5ecf3eb2e944a",
+      "coverage": "[null,null,null,31,null,31,31,null,null,null,null,31,31,null,31,0,0,0,0,null,null,31,0,0,0,null,null,null,null,null,null,null,null,null,null,null,null,null,null,31,null,null,null,31,31,31,186,null,31,null,31,31,0,0,null,null,null,null,null,31,null,null,null,31,31,null]",
+      "covered_percent": 66.66666666666666,
+      "covered_strength": 26.40740740740741,
+      "line_counts": {
+        "missed": 9,
+        "covered": 18,
+        "total": 27
+      },
+      "name": "lib/appoptics_apm/loading.rb"
+    },
+    {
+      "blob_id": "a37c328208731afd2eaae76f842aac2ecef513bd",
+      "coverage": "[null,null,null,7,7,7,7,null,7,103,103,null,23,null,null,80,265,null,null,103,103,null,103,0,null,103,null,null,103,103,103,103,null,103,null,70,null,33,null,null,null,0,0,null,103,null,null,null,null,7,27,111,null,null,null,null,null,null,null,7,10,null,7,7,7,null,null,3,null,null,null,7,64,null,57,57,57,null,null,7,null,null,null,7,15,null,15,15,15,null,null,0,null,null,null,7,6,null,6,6,6,null,null,0,null,null,null,7,18,null,18,18,18,null,null,0,null,null,null,7,0,0,0,null,null,0,null,null,null,null,null,null]",
+      "covered_percent": 84.12698412698413,
+      "covered_strength": 37.476190476190474,
+      "line_counts": {
+        "missed": 10,
+        "covered": 53,
+        "total": 63
+      },
+      "name": "lib/appoptics_apm/frameworks/rails/inst/connection_adapters/utils.rb"
+    },
+    {
+      "blob_id": "c41a845c03b526c27826c1d0edc2877328f045bf",
+      "coverage": "[null,null,null,null,null,31,null,31,31,null,null,31,31,null,null,null,null,null,null,null,31,49994,null,null,null,null,null,null,null,null,null,null,31,765,765,765,null,null,null,null,null,null,null,31,765,null,765,765,null,0,null,765,null,765,null,null,null,null,null,null,null,null,31,1484,null,null,1484,0,0,null,null,1484,120,null,null,1364,null,null,null,null,null,null,null,31,12,12,12,12,12,null,12,null,12,null,null,null,null,null,null,null,31,30,null,30,0,null,30,null,18,null,12,null,6,null,null,null,6,null,null,30,null,null,31,2175,null,null,null,null]",
+      "covered_percent": 91.30434782608695,
+      "covered_strength": 1409.6304347826087,
+      "line_counts": {
+        "missed": 4,
+        "covered": 42,
+        "total": 46
+      },
+      "name": "lib/appoptics_apm/api/util.rb"
+    },
+    {
+      "blob_id": "e0830ba60723365d5107fe053296c9af22edde21",
+      "coverage": "[null,null,null,null,17,17,17,null,17,17,17,17,17,17,null,null,17,null,17,17,null,17,17,null,17,17,17,null,null,17,null,null,null,null,null,17,17,null,17,17,17,17,17,17,null,null,null,null,17,null,null,null,17,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,17,null,null,17,null,null,null,null,17,null,null,null,null,null,null,null,17,49,null,null,null,10405,439,null,147,null,null,null,null,null,null,null,null,null,null,null,null,null,null,17,0,null,0,0,null,0,null,null,null,null,null,null,null,null,null,null,17,229,null,null,null,null,null,null,null,null,null,null,null,null,null,null,17,104,6,null,98,null,null,null,null,null,null,null,17,0,0,null,null,null,null,null,null,17,7822,9019,null,null,null,null,null,null,17,16845,16708,null,null,17,36,null,null,null,null,null,17,0,0,0,null,0,null,null,null,null,null,null,17,null,0,0,null,0,0,null,0,0,0,0,0,null,0,0,null,null,null,0,null,null,null,null,null,null,17,15,null,null,null,null,null,null,17,0,null,null,17,0,null,null,17,0,null,null,17,0,null,null,null,17,17,null,null,null,null,17,17,17]",
+      "covered_percent": 71.42857142857143,
+      "covered_strength": 689.989010989011,
+      "line_counts": {
+        "missed": 26,
+        "covered": 65,
+        "total": 91
+      },
+      "name": "lib/appoptics_apm/base.rb"
+    },
+    {
+      "blob_id": "916607ff86588f97c6a84956098307c6b01ac207",
+      "coverage": "[null,null,null,28,28,28,28,null,28,null,null,null,null,null,null,28,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,28,null,null,16,16,null,null,null,null,null,null,null,null,null,28,389,389,null,389,389,null,389,295,6,null,289,null,null,null,389,null,270,null,null,null,269,null,6,3,0,0,0,0,0,null,3,9,3,3,0,0,0,null,null,null,null,null,null,3,null,null,21,21,6,null,null,null,9,0,null,9,null,null,null,12,12,12,3,0,null,3,null,9,6,3,null,3,null,null,null,null,6,3,null,3,null,18,6,null,null,3,15,3,null,null,9,6,null,3,null,null,null,null,0,0,null,389,null,null,null,null,null,null,null,28,49,null,49,49,null,49,49,null,49,0,null,49,null,null,null,null,49,49,49,184,null,49,null,null,0,0,null,49,null,null,null,null,null,null,null,28,1766,389,null,389,389,389,389,0,0,0,null,389,260,null,null,1377,null,null,null,null,null,null,null,28,67,null,null,null,null,49,null,49,null,49,49,0,0,0,null,49,33,null,18,null,null,null,null,null,null,null,28,28,16,16,null,null]",
+      "covered_percent": 81.25,
+      "covered_strength": 101.66071428571429,
+      "line_counts": {
+        "missed": 21,
+        "covered": 91,
+        "total": 112
+      },
+      "name": "lib/appoptics_apm/inst/redis.rb"
+    },
+    {
+      "blob_id": "18644e654a0d312a4755dd1e29e1e8b09cb634f3",
+      "coverage": "[null,31,31,31,62,62,null,null,62,26,26,26,26,null,null,62,null,62,62,62,62,0,0,0,null,62,62,62,62,42,null,null,null]",
+      "covered_percent": 86.95652173913044,
+      "covered_strength": 42.73913043478261,
+      "line_counts": {
+        "missed": 3,
+        "covered": 20,
+        "total": 23
+      },
+      "name": "lib/appoptics_apm/method_profiling.rb"
+    },
+    {
+      "blob_id": "36045b6c2f73f9f4ceae4b4d980c04d34fe15666",
+      "coverage": "[null,null,null,null,null,null,null,null,31,null,null,null,null,null,null,null,null,31,null,null,null,null,31,null,null,null,null,null,null,null,null,31,null,null,null,null,null,null,null,null,31,31,31,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,31,31,null,null,null,null,null,null,null,null,null,null,null,null,31,null,null,null,null,null,null,null,null,null,null,31,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,31,31,null,null,null,null,null,null,null,null,null,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,null,null,null,null,null,null,null,null,31,31,31,31,31,31,31,31,31,31,31,31,null,null,null,null,null,null,null,null,null,null,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,null,null]",
+      "covered_percent": 100,
+      "covered_strength": 31,
+      "line_counts": {
+        "missed": 0,
+        "covered": 83,
+        "total": 83
+      },
+      "name": "lib/rails/generators/appoptics_apm/templates/appoptics_apm_initializer.rb"
+    },
+    {
+      "blob_id": "b51902c416a0af29a5a5442fd0a0ab7a62f43e91",
+      "coverage": "[null,null,null,31,null,null,null,null,null,null,null,null,31,31,372,null,372,7084,null,null,372,19877,null,null,null,null]",
+      "covered_percent": 100,
+      "covered_strength": 3521.25,
+      "line_counts": {
+        "missed": 0,
+        "covered": 8,
+        "total": 8
+      },
+      "name": "lib/appoptics_apm/thread_local.rb"
+    },
+    {
+      "blob_id": "a54afbbc8d180e1c76927d5a9dbb6cd210ba77ef",
+      "coverage": "[null,null,null,null,null,null,null,31,31,null,null,null,31,31,null,31,9,null,null,31,17,34,null,0,null,0,null,0,0,0,0,0,null,null,null,null,null]",
+      "covered_percent": 56.25,
+      "covered_strength": 15.375,
+      "line_counts": {
+        "missed": 7,
+        "covered": 9,
+        "total": 16
+      },
+      "name": "lib/appoptics_apm/api/memcache.rb"
+    },
+    {
+      "blob_id": "827682942b483f951672eda5fa4fc0d3d1a3b8f1",
+      "coverage": "[null,null,null,null,null,31,31,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,31,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,31,566,null,557,557,557,6,6,6,null,557,380,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,31,1404,null,1401,1401,1401,null,28,28,28,null,1373,null,1373,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,31,0,null,0,0,0,0,0,0,0,0,null,0,0,0,0,null,null,null,null,null,null,null,null,null,null,null,null,31,87,63,null,24,null,87,null,null,null,null,null,31,0,null,null,null,null]",
+      "covered_percent": 68.18181818181817,
+      "covered_strength": 275.8636363636364,
+      "line_counts": {
+        "missed": 14,
+        "covered": 30,
+        "total": 44
+      },
+      "name": "lib/appoptics_apm/api/tracing.rb"
+    },
+    {
+      "blob_id": "760c07265ab6128b83d37f88043f9c22034d96f1",
+      "coverage": "[null,null,null,6,6,null,null,null,null,null,null,6,6,null,6,24,null,null,null,24,24,null,24,24,24,null,24,24,null,6,6,6,null,24,16,null,null,null,null,null,null,null,6,18,18,null,null,null,null,null]",
+      "covered_percent": 100,
+      "covered_strength": 15.333333333333334,
+      "line_counts": {
+        "missed": 0,
+        "covered": 21,
+        "total": 21
+      },
+      "name": "lib/appoptics_apm/frameworks/rails/inst/action_controller_api.rb"
+    },
+    {
+      "blob_id": "f29a954f402b80835c27733c7edb8298f0db9145",
+      "coverage": "[null,null,null,28,28,28,28,9,9,9,null,null,28,78,78,null,null,null,null,78,75,9,null,66,null,null,3,null,null,78,78,78,78,78,78,null,0,0,null,78,null,null,28,null,72,null,null,72,21,21,null,null,51,51,51,null,51,51,null,51,51,null,51,null,null,51,null,48,48,null,null,48,0,null,null,48,24,null,null,48,3,3,3,null,51,34,null,null,28,45,45,null,null,28,45,null,45,45,null,45,18,18,null,null,27,27,27,27,null,27,27,27,null,27,27,null,27,null,null,27,null,null,27,3,null,24,null,null,3,3,null,null,3,0,null,null,3,3,null,null,null,3,3,24,24,24,null,null,27,18,null,null,28,null,28,126,126,null,111,81,27,84,63,21,21,null,111,null,null,null,null,null,28,9,9,null]",
+      "covered_percent": 96.07843137254902,
+      "covered_strength": 37.794117647058826,
+      "line_counts": {
+        "missed": 4,
+        "covered": 98,
+        "total": 102
+      },
+      "name": "lib/appoptics_apm/inst/httpclient.rb"
+    },
+    {
+      "blob_id": "c996a4b85f5e64b469306bffa219a7936af17f13",
+      "coverage": "[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,31,31,15,null,null,31,31,null,null,null,31,30,null,null,30,30,30,30,30,30,null,null,null,30,30,null,null,30,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,0,null,null,30,30,30,30,0,0,null,null,null,null,null,31,28,null,3,null,null,null,null]",
+      "covered_percent": 88.46153846153845,
+      "covered_strength": 25.076923076923077,
+      "line_counts": {
+        "missed": 3,
+        "covered": 23,
+        "total": 26
+      },
+      "name": "lib/appoptics_apm/legacy_method_profiling.rb"
+    },
+    {
+      "blob_id": "8153440afb8bb76d01876dc1f11733409fb961f9",
+      "coverage": "[null,null,null,28,28,28,28,3,null,null,28,null,27,null,27,null,null,27,27,27,27,27,27,null,27,null,27,null,null,null,null,null,28,null,null,3,null,3,null,3,3,3,null,3,3,3,null,null,null,3,null,null]",
+      "covered_percent": 100,
+      "covered_strength": 18,
+      "line_counts": {
+        "missed": 0,
+        "covered": 26,
+        "total": 26
+      },
+      "name": "lib/appoptics_apm/frameworks/padrino.rb"
+    },
+    {
+      "blob_id": "c99328e20d893cec4c426ed9997ac66cea071274",
+      "coverage": "[null,null,null,28,28,28,28,9,null,null,null,null,null,null,null,28,63,null,63,18,18,18,null,null,45,45,45,45,null,45,null,null,45,3,3,3,null,45,30,null,null,null,null,null,28,28,9,9,null,null]",
+      "covered_percent": 100,
+      "covered_strength": 29.115384615384617,
+      "line_counts": {
+        "missed": 0,
+        "covered": 26,
+        "total": 26
+      },
+      "name": "lib/appoptics_apm/inst/rest-client.rb"
+    },
+    {
+      "blob_id": "f67807ddbfa870541f555ff0c55959efb9a5a670",
+      "coverage": "[null,null,null,28,28,28,0,null,null,0,0,null,null,0,0,0,0,0,0,0,0,null,null,0,0,0,0,null,0,null,0,null,null,28,null,0,null,null,null,null,null,0,null,null,0,0,null,null,0,0,null,null,0,null,null,null,null,28,16,null,16,0,0,0,null,null,null]",
+      "covered_percent": 20.588235294117645,
+      "covered_strength": 5.0588235294117645,
+      "line_counts": {
+        "missed": 27,
+        "covered": 7,
+        "total": 34
+      },
+      "name": "lib/appoptics_apm/inst/sidekiq-worker.rb"
+    },
+    {
+      "blob_id": "db82e388249ea265600bf42b3ff61529a7e527c5",
+      "coverage": "[null,null,null,28,28,28,28,0,null,0,0,0,0,null,null,0,null,0,null,0,0,null,null,0,null,0,0,null,null,0,0,0,0,0,null,null,null,null,null,0,null,null,0,null,null,28,0,null,0,null,0,0,null,null,null,28,0,null,0,null,0,null,0,0,null,null,null,28,0,null,0,null,0,null,0,0,null,null,null,28,0,null,0,0,null,0,0,null,null,0,null,null,null,28,0,null,0,null,0,null,0,0,null,null,null,28,0,null,0,null,0,null,0,0,null,null,null,28,0,null,0,0,null,0,0,null,null,0,null,null,null,28,0,null,0,null,0,null,0,0,null,null,null,28,0,0,null,0,0,null,null,0,null,null,null,28,0,null,0,null,0,0,null,null,null,28,0,null,0,null,0,null,0,0,null,null,null,28,0,0,null,null,0,0,0,0,0,null,0,null,null,0,0,null,null,null,28,0,null,0,0,0,0,null,0,null,null,0,0,null,null,null,28,0,null,0,0,0,null,0,null,null,0,0,null,null,null,28,0,null,0,null,0,0,null,null,null,28,0,null,0,0,null,0,0,null,null,null,28,0,null,0,0,null,0,0,null,null,null,null,null,null,null,null,null,null,null,28,3,null,3,3,null,null,null,null,3,48,48,48,0,null,null,null,null,3,3,3,0,null,null,null,null,null]",
+      "covered_percent": 21.768707482993197,
+      "covered_strength": 5.312925170068027,
+      "line_counts": {
+        "missed": 115,
+        "covered": 32,
+        "total": 147
+      },
+      "name": "lib/appoptics_apm/inst/twitter-cassandra.rb"
+    },
+    {
+      "blob_id": "0cb70b23f93c418af2d7777e291366caab3e0a17",
+      "coverage": "[null,null,null,6,6,null,null,null,null,null,null,6,6,null,6,111,null,null,null,111,111,null,111,87,87,null,87,87,null,0,0,0,null,87,58,null,null,null,null,null,null,null,6,111,111,null,null,null,null,null]",
+      "covered_percent": 85.71428571428571,
+      "covered_strength": 56.904761904761905,
+      "line_counts": {
+        "missed": 3,
+        "covered": 18,
+        "total": 21
+      },
+      "name": "lib/appoptics_apm/frameworks/rails/inst/action_controller5.rb"
+    },
+    {
+      "blob_id": "c40c10d6bca707d3863e1112718d89a308e740fe",
+      "coverage": "[null,null,null,28,28,28,28,3,null,null,40,null,12,12,12,12,12,12,null,12,12,12,12,12,null,12,12,null,0,null,null,null,null,null,12,12,12,12,null,null,12,12,12,12,null,null,12,12,null,0,null,null,12,0,null,null,12,null,12,0,0,null,12,8,null,null,28,12,null,null,12,null,12,6,null,null,6,null,null,12,12,null,9,null,null,null,null,null,28,3,3,null]",
+      "covered_percent": 90.19607843137256,
+      "covered_strength": 12.352941176470589,
+      "line_counts": {
+        "missed": 5,
+        "covered": 46,
+        "total": 51
+      },
+      "name": "lib/appoptics_apm/inst/bunny-consumer.rb"
+    },
+    {
+      "blob_id": "00e8af57e2fc60c7c0b5a55987a69f5f3caf0ef6",
+      "coverage": "[null,null,null,28,28,28,28,9,null,null,28,45,45,12,12,12,null,null,33,33,null,33,33,33,null,33,33,33,null,null,null,33,null,33,3,3,null,null,null,3,null,3,3,3,3,3,3,3,3,null,null,null,3,3,3,null,null,null,33,33,0,0,0,null,33,22,null,null,28,null,28,45,45,null,null,null,null,null,28,28,9,9,null,null]",
+      "covered_percent": 94,
+      "covered_strength": 19.76,
+      "line_counts": {
+        "missed": 3,
+        "covered": 47,
+        "total": 50
+      },
+      "name": "lib/appoptics_apm/inst/faraday.rb"
+    },
+    {
+      "blob_id": "b77e50203ff28e4c107efc50752517f5341cd774",
+      "coverage": "[null,null,null,28,null,28,28,28,28,null,null,28,null,null,28,null,null,28,28,28,null,null,null,null,28,0,null,0,0,0,0,null,null,0,0,0,null,0,0,null,0,null,null,null,0,0,0,0,0,0,null,null,0,null,0,0,null,0,null,0,null,null,0,0,null,null,null,0,0,null,null,null,null,null,0,0,0,0,null,null,0,0,0,null,0,0,null,0,0,0,null,0,0,0,0,null,0,null,0,null,null,0,null,null,0,0,null,null,null,0,0,null,null,null,null,null,0,0,0,0,null,0,0,0,null,0,0,0,0,null,0,null,0,0,null,0,null,0,null,null,null,0,0,0,0,null,0,0,0,null,null,0,0,0,0,null,null,0,null,0,0,0,0,null,null,null,0,null,null,0,0,null,null,null,0,0,null,null,null,0,0,0,0,0,null,0,0,0,null,null,0,0,null,null,0,0,0,0,0,0,0,null,null,null,null,0,null,null,0,0,null,null,null,0,0,null,null,null,0,0,0,null,0,0,0,null,null,0,null,null,0,0,null,null,null,0,0,null,null,null,null,null]",
+      "covered_percent": 8.461538461538462,
+      "covered_strength": 2.3692307692307693,
+      "line_counts": {
+        "missed": 119,
+        "covered": 11,
+        "total": 130
+      },
+      "name": "lib/appoptics_apm/inst/mongo.rb"
+    },
+    {
+      "blob_id": "7ae163c7c16785af62483f954156538e6b7442ad",
+      "coverage": "[null,null,null,28,null,28,28,null,null,null,28,28,null,null,28,null,null,28,null,null,28,null,null,null,28,null,null,null,null,null,null,null,28,108,108,null,0,null,null,null,null,null,null,null,28,28,null,28,3,6,null,null,null,28,6,6,null,6,6,6,6,null,0,null,6,null,null,28,36,3,3,3,3,null,0,null,null,3,3,null,null,33,null,null,null,28,3,null,3,null,3,3,null,null,null,null,null,null,null,28,28,null,28,3,6,null,null,null,28,6,6,null,null,6,6,6,null,0,null,6,6,6,null,0,null,6,null,null,28,3,null,3,null,null,3,3,3,null,0,null,null,3,3,null,null,null,28,3,null,3,null,null,3,3,null,0,null,null,3,3,null,null,null,null,null,null,null,28,28,null,28,3,33,null,null,null,28,45,45,null,45,45,45,45,45,45,null,0,null,45,null,null,28,15,null,3,3,3,null,0,null,null,3,3,null,null,null,28,3,null,3,3,3,3,null,0,null,null,3,3,null,null,null,28,12,9,9,9,9,null,0,null,null,9,9,null,null,3,null,null,null,28,3,null,3,3,3,3,null,0,null,null,3,3,null,null,null,28,9,3,3,3,3,null,0,null,null,3,3,null,null,6,null,null,null,28,3,null,3,3,3,null,0,null,null,3,3,null,null,null,28,3,null,3,3,3,3,null,0,null,null,3,3,null,null,null,28,3,null,3,3,3,null,0,null,null,3,3,null,null,null,28,9,null,9,9,9,9,9,null,0,null,null,9,9,null,null,null,28,3,null,3,3,3,null,0,null,null,3,3,null,null,null,28,3,null,3,3,3,null,0,null,null,3,3,null,null,null,null,null,null,null,28,28,null,28,3,15,null,null,null,28,57,57,null,57,57,57,57,57,null,0,null,57,null,null,28,60,null,null,null,3,null,3,3,null,null,null,28,57,null,45,45,45,null,0,null,null,45,45,null,null,null,28,6,null,6,null,6,6,null,null,null,28,66,0,null,0,0,null,null,66,null,null,null,28,3,null,3,3,null,3,3,null,null,null,null,null,null,28,3,3,3,3,3,null]",
+      "covered_percent": 90,
+      "covered_strength": 14.895833333333334,
+      "line_counts": {
+        "missed": 24,
+        "covered": 216,
+        "total": 240
+      },
+      "name": "lib/appoptics_apm/inst/moped.rb"
+    },
+    {
+      "blob_id": "6fdcaa162b6d3a5d4da791808407402aec6e63d2",
+      "coverage": "[null,null,null,28,null,null,null,null,28,28,28,null,28,28,null,null,null,null,null,28,28,null,28,28,null,null,28,null,28,null,0,null,0,0,0,0,null,null,0,null,null,28,null,null,null,28,6,null,null,0,0,0,null,null,28,null,null,null,null,null,null,28,15408,null,null,null,null,null,null,null,28,0,null,null,null,null,null,null,null,28,1817,null,null,null,null,null,null,null,28,1420,1420,null,1420,null,1342,null,null,null,null,null,null,null,1342,192,null,192,1484,0,null,1484,1038,null,null,1150,1150,12717,null,null,null,1342,null,null,null,null,28,28,0,null,null,null,28,28,null,2175,null,null,2175,2175,null,2175,null,2175,211,211,211,null,null,null,1964,1964,1964,null,null,0,0,null,null,28,1264,null,1264,null,1264,null,48,null,null,1216,null,null,0,0,null,null,null,28,1124,null,null,1124,null,null,null,null,null,28,28]",
+      "covered_percent": 79.48717948717949,
+      "covered_strength": 902.3589743589744,
+      "line_counts": {
+        "missed": 16,
+        "covered": 62,
+        "total": 78
+      },
+      "name": "lib/oboe_metal.rb"
+    },
+    {
+      "blob_id": "c7e7788df29756826fb9daa92138fd9ab56c3f90",
+      "coverage": "[null,null,null,null,null,3,3,null,null,null,null,null,null,null,3,3,null,null,null]",
+      "covered_percent": 100,
+      "covered_strength": 3,
+      "line_counts": {
+        "missed": 0,
+        "covered": 4,
+        "total": 4
+      },
+      "name": "lib/appoptics_apm/noop/context.rb"
+    },
+    {
+      "blob_id": "119cfabe428a2d66e9c1076f7300bad44201b8a4",
+      "coverage": "[null,null,null,13,13,null,null,null,null,null,null,13,null,null,null,null,null,null,null,13,null,6,6,null,0,0,0,null,6,null,0,0,null,null,null,null,null,null,null,null,null,null,13,null,null,6,null,6,null,6,6,null,0,null,null,null,null,null,null,13,280,207,207,207,0,0,0,null,207,143,null,null,null,null,null,null,null,null,13,151,151,null,null,null,null,null,null,null,13,13,13,13,6,null,7,null,null,null,null,13,6,6,6,null,null,null]",
+      "covered_percent": 78.04878048780488,
+      "covered_strength": 43.46341463414634,
+      "line_counts": {
+        "missed": 9,
+        "covered": 32,
+        "total": 41
+      },
+      "name": "lib/appoptics_apm/frameworks/rails/inst/action_controller.rb"
+    },
+    {
+      "blob_id": "37514dd4337c7f60930296ff78ad70f2984b5c97",
+      "coverage": "[null,null,null,6,6,6,6,null,6,75,null,75,75,null,18,null,null,57,57,57,null,null,null,75,75,0,null,null,75,0,null,75,null,null,75,75,75,75,null,75,null,42,null,33,null,null,null,0,0,null,null,75,null,null,null,null,6,25,75,null,null,null,6,54,null,36,36,36,null,null,18,null,null,null,6,18,null,18,18,18,null,null,0,null,null,null,6,15,null,15,15,15,null,null,0,null,null,null,6,6,null,6,6,6,null,null,0,null,null,null,null,null,null]",
+      "covered_percent": 87.27272727272727,
+      "covered_strength": 31.545454545454547,
+      "line_counts": {
+        "missed": 7,
+        "covered": 48,
+        "total": 55
+      },
+      "name": "lib/appoptics_apm/frameworks/rails/inst/connection_adapters/utils5x.rb"
+    },
+    {
+      "blob_id": "6a8d0d895ab20c3977acec2e8f4f6d31edbda221",
+      "coverage": "[null,null,null,28,null,28,null,28,28,null,527,null,null,null,null,527,443,437,437,null,443,null,null,84,84,84,84,null,null,84,84,null,84,84,84,null,null,84,81,null,3,null,null,84,84,84,null,84,null,null,84,null,84,null,null,84,78,78,null,78,null,null,84,null,null,84,3,null,null,84,null,null,84,null,null,null,null,28,28,null,28,null,null]",
+      "covered_percent": 100,
+      "covered_strength": 127.375,
+      "line_counts": {
+        "missed": 0,
+        "covered": 40,
+        "total": 40
+      },
+      "name": "lib/appoptics_apm/inst/http.rb"
+    },
+    {
+      "blob_id": "cf6654c135dcfdb8ad6851e38632aea0dd41c237",
+      "coverage": "[null,null,null,28,28,null,null,null,null,null,null,28,null,null,null,null,null,null,28,105,null,105,20,null,null,105,null,20,null,null,105,null,33,4,null,29,null,null,null,72,72,null,null,105,null,105,0,105,49,null,56,null,null,105,105,105,105,null,0,null,105,null,null,null,null,null,null,null,null,28,143,70,70,null,null,143,null,12,12,null,143,null,null,null,28,28,null,28,3,3,3,3,null,null,28,35,35,35,null,null,35,null,7,7,null,35,null,null,28,null,null,63,null,28,null,null,28,null,null,30,null,6,null,null,28,null,null,0,null,0,null,null,null,28,28,null,28,3,3,3,3,null,null,28,94,null,null,28,0,null,null,28,7,null,null,28,8,null,null,null,null,null,null,28,28,null,null,0,0,null,null,null,28,3,3,3,null,null]",
+      "covered_percent": 91.46341463414635,
+      "covered_strength": 40.02439024390244,
+      "line_counts": {
+        "missed": 7,
+        "covered": 75,
+        "total": 82
+      },
+      "name": "lib/appoptics_apm/inst/sequel.rb"
+    },
+    {
+      "blob_id": "732519740635a30777dd9c85cfbc01f5745f653b",
+      "coverage": "[null,null,null,31,null,null,null,null,31,31,31,0,null,null,null,null,null,null,null,null,31,null,null,null,6,6,null,null,null,null,null,null,31,6,null]",
+      "covered_percent": 90,
+      "covered_strength": 20.4,
+      "line_counts": {
+        "missed": 1,
+        "covered": 9,
+        "total": 10
+      },
+      "name": "lib/appoptics_apm/ruby.rb"
+    },
+    {
+      "blob_id": "eceb1bb86aa7704969dcf87fbbd7bb0294ea25ec",
+      "coverage": "[31,null,31,31,31,28,null,null,null,null,null,31,31,31,31,null,31,null,30,3,3,3,3,null,30,null,null,null,null,null,null,null,31,31,31,null,31,null,51,3,3,3,3,null,51,null,null,null,null,null,null,31,31,31,null,31,null,0,0,0,0,0,null,0,null,null,null,null,null,null,null,31,31,15,null,null,31,31,null,null]",
+      "covered_percent": 85.36585365853658,
+      "covered_strength": 21.463414634146343,
+      "line_counts": {
+        "missed": 6,
+        "covered": 35,
+        "total": 41
+      },
+      "name": "lib/oboe/backward_compatibility.rb"
+    },
+    {
+      "blob_id": "e6c2c2b1f98966b7909a8500d47e44fc94d8c09f",
+      "coverage": "[null,null,null,31,null,null,null,31,31,31,31,31,31,null,31,null,null]",
+      "covered_percent": 100,
+      "covered_strength": 31,
+      "line_counts": {
+        "missed": 0,
+        "covered": 8,
+        "total": 8
+      },
+      "name": "lib/appoptics_apm/api.rb"
+    },
+    {
+      "blob_id": "1c0abed8686ad0ab3ef5e29427ba64b476aa0b3c",
+      "coverage": "[null,null,null,null,31,31,null,31,31,31,31,31,31,31,31,null,null,null,31,31,31,null,31,31,0,0,31,28,28,null,3,3,3,3,3,3,null,null,0,0,0,0,0,null,null,null,null,31,31,null,31,31,31,null,31,28,null,null,28,28,28,28,null,3,null,null,null,null,31,31,null,31,null,0,0,null]",
+      "covered_percent": 81.25,
+      "covered_strength": 20.666666666666668,
+      "line_counts": {
+        "missed": 9,
+        "covered": 39,
+        "total": 48
+      },
+      "name": "lib/appoptics_apm.rb"
+    },
+    {
+      "blob_id": "7c3f3559b5ce3b391570a21f17ca1a4abb85e5c7",
+      "coverage": "[null,null,null,13,13,13,13,13,null,6,null,6,null,null,2,4,null,null,6,6,6,null,null,null,0,null,null,null,null,null,null]",
+      "covered_percent": 92.3076923076923,
+      "covered_strength": 7.769230769230769,
+      "line_counts": {
+        "missed": 1,
+        "covered": 12,
+        "total": 13
+      },
+      "name": "lib/appoptics_apm/frameworks/rails/inst/connection_adapters/postgresql.rb"
+    },
+    {
+      "blob_id": "a9c51ea7d978acb7a8fd8819d80a44b9391e678f",
+      "coverage": "[null,null,null,28,28,28,28,null,null,null,28,28,null,28,28,28,28,28,28,28,28,null,0,null,28,null,null,28,null,43,28,28,28,null,null,43,null,0,0,null,43,null,null,null,null,28,16,null,16,16,16,16,null,null,null]",
+      "covered_percent": 90.32258064516128,
+      "covered_strength": 24.806451612903224,
+      "line_counts": {
+        "missed": 3,
+        "covered": 28,
+        "total": 31
+      },
+      "name": "lib/appoptics_apm/inst/sidekiq-client.rb"
+    },
+    {
+      "blob_id": "b5fba03d6381472a0063223ff88daa5fb7359701",
+      "coverage": "[null,null,null,28,null,null,null,28,28,null,47,47,1081,1081,null,0,0,null,null,null,null,null]",
+      "covered_percent": 77.77777777777779,
+      "covered_strength": 260,
+      "line_counts": {
+        "missed": 2,
+        "covered": 7,
+        "total": 9
+      },
+      "name": "lib/appoptics_apm/instrumentation.rb"
+    },
+    {
+      "blob_id": "0db8c4a9032d0bc4a7fe6ac4b7f96dd5046b950a",
+      "coverage": "[null,null,null,3,3,3,3,3,null,null,3,0,0,null,0,0,0,null,0,null,null,0,null,null,0,0,0,0,0,0,null,0,0,null,null,0,0,null,null,null,null,null,null,0,null,0,0,null,0,null,null,null,0,null,null,null,null,null]",
+      "covered_percent": 21.428571428571427,
+      "covered_strength": 0.6428571428571429,
+      "line_counts": {
+        "missed": 22,
+        "covered": 6,
+        "total": 28
+      },
+      "name": "lib/appoptics_apm/frameworks/padrino/templates.rb"
+    },
+    {
+      "blob_id": "f442d2f3ed29f247c015904c68aee006c0045231",
+      "coverage": "[null,null,null,28,null,28,28,3,null,null,3,null,null,3,3,null,0,null,null,3,null,3,3,null,null,null,null,null,null,3,57,null,57,null,57,6,null,51,null,null,57,0,0,0,null,null,57,57,27,null,null,null,57,57,null,0,null,57,null,null,null,null,null,null,48,42,189,189,132,132,null,null,57,57,null,57,null,3,3,null,189,null,null,42,null,null,null,null,null,null,null,null,null,3,null,3,3,null,3,3,3,null,null,null,null,null,null,3,48,null,48,48,null,48,3,3,3,null,null,48,48,39,39,0,0,null,null,null,null,48,48,null,0,null,48,null,null,null,null,null,null,36,33,72,72,24,24,null,null,48,48,null,48,null,0,0,null,72,null,null,33,null,null,null,null,null,null,null,null,null,null,3,null,3,3,3,null,null,null,null,null,null,3,12,null,12,12,12,12,null,0,null,12,null,null,null,null,null,null,15,12,33,33,21,21,null,null,12,12,null,12,null,0,0,null,33,null,null,12,null,null,null,null,null,null]",
+      "covered_percent": 87.37864077669903,
+      "covered_strength": 31.04854368932039,
+      "line_counts": {
+        "missed": 13,
+        "covered": 90,
+        "total": 103
+      },
+      "name": "lib/appoptics_apm/inst/mongo2.rb"
+    },
+    {
+      "blob_id": "8ca696da65ff89ff69342b75d65021ded5cb1b33",
+      "coverage": "[null,null,null,28,28,null,28,28,28,28,3,3,3,3,null,null,28,18,null,18,18,18,18,null,18,15,null,null,15,0,null,15,null,null,18,18,null,0,null,null,18,null,null,28,18,15,null,15,15,null,null,3,null,null,null,28,18,0,0,null,0,0,null,null,18,null,null,null,28,3,3,null,3,3,null,null,0,null,null,null,null,28,28,3,null,null,28,0,null,0,0,0,0,0,null,null,null,null,0,0,0,0,null,0,0,null,null,0,0,null,0,null,null,null,0,null,0,null,null,0,0,null,null,null,null,28,28,3,null,null,28,0,0,null,0,null,null,null,null,null,28,3,null,3,3,3,3,null,null,null,null]",
+      "covered_percent": 63.74999999999999,
+      "covered_strength": 10.375,
+      "line_counts": {
+        "missed": 29,
+        "covered": 51,
+        "total": 80
+      },
+      "name": "lib/appoptics_apm/inst/resque.rb"
+    },
+    {
+      "blob_id": "e4df7feeffde0e4c7f53dfdf162c0ce876c389bf",
+      "coverage": "[null,null,null,28,28,28,null,28,9,null,null,28,69,69,18,18,18,null,null,51,51,null,null,51,51,null,51,null,51,15,null,null,null,51,51,51,51,null,51,null,null,51,48,null,3,null,null,51,51,null,null,null,51,45,45,null,null,51,51,0,0,0,null,51,34,null,null,null,28,28,9,null,null,28,39,18,18,36,36,null,18,null,null,21,null,21,21,21,null,null,null,null,21,21,39,39,null,null,21,null,null,null,null,null,null,null,28,28,9,9,9,null,null]",
+      "covered_percent": 95.16129032258065,
+      "covered_strength": 32.5,
+      "line_counts": {
+        "missed": 3,
+        "covered": 59,
+        "total": 62
+      },
+      "name": "lib/appoptics_apm/inst/typhoeus.rb"
+    },
+    {
+      "blob_id": "b06b6e3f2acc9ad29e7c96209a2cae73708476fd",
+      "coverage": "[null,null,null,31,null,null,null,31,31,31,null,null,null,null,null,null,191,null,0,null,null,null,null,null,null,null,null,31,463,null,463,null,null,463,463,null,463,463,null,null,152,311,null,463,463,463,null,null,null,0,null,null,null,null,null,null,null,null,null,31,15,null,15,null,null,15,15,null,15,15,null,null,15,15,15,null,null,0,null,null,null,null,null,null,null,null,31,27,null,null,null,null,null,null,null,31,229,null,null,null,null,null,null,null,null,31,2367,null,0,0,null,null,null,null,null,null,null,null,null,null,31,90,0,null,90,null,null,null,null,null,null,null,null,null,null,31,306,306,null,0,0,null,null,null,null,null,null,null,null,31,9,null,9,null,27,9,null,null,null,null,null,null,null,null,null,null,null,null,31,85,null,82,82,null,null,null,null,null,null,null,null,null,null,null,null,31,3,null,3,null,3,0,3,0,null,3,3,null,3,0,3,3,null,null,null,3,3,3,3,3,3,3,3,3,3,3,3,3,null,3,null,null,0,0,null,null,null,3,3,null,null,null,3,3,3,3,null,null,null,null,0,null,0,0,null,3,null,null,null,null,null,null,null,null,null,null,null,31,24,null,24,24,24,24,24,null,24,24,24,null,null,24,24,1925,null,null,0,null,null,null,24,0,24,24,0,0,0,0,0,0,0,0,0,0,0,0,null,0,null,null,null,null,null,null,0,null,0,0,null,24,null,null,null,null,null]",
+      "covered_percent": 73.84615384615385,
+      "covered_strength": 88.56923076923077,
+      "line_counts": {
+        "missed": 34,
+        "covered": 96,
+        "total": 130
+      },
+      "name": "lib/appoptics_apm/util.rb"
+    },
+    {
+      "blob_id": "dd0b3864788ee5f78658229a165eefe5e936d895",
+      "coverage": "[null,null,null,7,7,null,null,null,null,null,null,7,7,null,7,7,7,7,null,null,null,7,151,null,null,null,151,151,null,151,102,102,null,102,null,102,null,0,0,0,null,102,73,null,null,null,null,null]",
+      "covered_percent": 86.36363636363636,
+      "covered_strength": 56.81818181818182,
+      "line_counts": {
+        "missed": 3,
+        "covered": 19,
+        "total": 22
+      },
+      "name": "lib/appoptics_apm/frameworks/rails/inst/action_controller4.rb"
+    },
+    {
+      "blob_id": "d4617cf5bfae339ab9919e02a4300beff6630dfc",
+      "coverage": "[null,null,null,10,10,10,10,null,10,0,0,null,10,null,10,0,0,null,10,null,null,10,null,null,0,0,null,0,null,null,null,null,null,0,0,null,0,0,null,null,0,null,0,null,null,10,null,7,7,null,7,7,null,7,null,null,10,null,null,null,null,7,7,7,null,null,0,null,null,null,null,null,10,6,null,6,6,6,6,7,null,null,6,7,7,null,null,6,7,null,7,7,null,null,7,null,null,null,null,0,null,0,null,0,0,0,null,0,0,0,null,null,0,null,null,null]",
+      "covered_percent": 59.64912280701754,
+      "covered_strength": 4.684210526315789,
+      "line_counts": {
+        "missed": 23,
+        "covered": 34,
+        "total": 57
+      },
+      "name": "lib/appoptics_apm/frameworks/rails.rb"
+    },
+    {
+      "blob_id": "708b204cf6260f0a67e696531ff8392218653fbc",
+      "coverage": "[null,null,null,28,3,3,3,null,null,null,null,null,null,3,3,3,null,null,3,0,0,null,0,null,null,null,null,null,null,null,null,null,null,3,3,null,null,3,3,null,15,15,15,15,15,15,15,null,15,15,null,null,null,null,null,null,3,3,10,10,10,10,10,10,10,10,null,null,10,10,10,null,0,null,null,10,10,10,null,10,null,null,null,null,null,null,null,null,3,3,3,null]",
+      "covered_percent": 91.11111111111111,
+      "covered_strength": 8.022222222222222,
+      "line_counts": {
+        "missed": 4,
+        "covered": 41,
+        "total": 45
+      },
+      "name": "lib/appoptics_apm/inst/delayed_job.rb"
+    },
+    {
+      "blob_id": "9bae8f676f34e24ca4d39dba5232464b29d7250e",
+      "coverage": "[null,null,null,28,28,28,28,28,0,0,null,0,0,null,0,0,0,0,0,null,0,0,null,null,0,null,null,0,null,0,0,0,null,null,null,28,28,0,0,0,null,0,0,0,null,0,null,null,0,null,0,0,0,0,null,0,0,null,null,0,null,null,0,0,null,0,null,null,null,null,null,0,null,null,null,null,null,null,28,0,null,0,0,null,0,0,0,null,0,null,null,null,0,0,null,0,0,0,null,0,null,null,null]",
+      "covered_percent": 14.285714285714285,
+      "covered_strength": 4,
+      "line_counts": {
+        "missed": 48,
+        "covered": 8,
+        "total": 56
+      },
+      "name": "lib/appoptics_apm/inst/em-http-request.rb"
+    },
+    {
+      "blob_id": "f97816818181165c559e5d58b892e02873195e7e",
+      "coverage": "[null,null,null,31,31,null,31,null,null,null,null,null,null,null,null,null,31,0,null,null,null,31,0,0,null,0,0,0,0,0,0,0,0,0,0,0,null,0,0,0,0,null,null,0,0,0,0,null,null,0,0,null,0,0,0,null,0,0,0,0,0,0,null,null,null,0,0,null,0,0,null,0,0,null,0,0,0,0,0,0,null,null,0,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,0,0,0,0,null,0,0,0,0,0,0,0,0,0,null,0,0,0,0,0,0,null,null,0,0,0,0,0,null,0,null,null,null,null]",
+      "covered_percent": 6.578947368421052,
+      "covered_strength": 2.039473684210526,
+      "line_counts": {
+        "missed": 71,
+        "covered": 5,
+        "total": 76
+      },
+      "name": "lib/appoptics_apm/support.rb"
+    },
+    {
+      "blob_id": "5ab7a35f98af7ccdc90d1bcd03e0ce90368a4b34",
+      "coverage": "[null,null,null,null,null,11,11,null,null,11,null,null,null,null,11,null,null,16,null,0,0,null,null,null,null,null,null,null,11,0,null,null,0,0,0,null,0,null,null,null,null]",
+      "covered_percent": 46.15384615384615,
+      "covered_strength": 5.461538461538462,
+      "line_counts": {
+        "missed": 7,
+        "covered": 6,
+        "total": 13
+      },
+      "name": "lib/appoptics_apm/api/layerinit.rb"
+    },
+    {
+      "blob_id": "8f2f1133df77362b9c6a8c42f34ba1872b593c48",
+      "coverage": "[null,null,null,null,null,31,31,null,null,31,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,31,51,null,null,48,48,48,null,48,null,48,48,0,0,0,null,48,48,48,null,48,32,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,31,null,null,67,null,64,3,3,null,61,3,0,null,3,3,null,null,null,58,58,null,null,58,3,3,3,null,null,null,55,55,null,55,55,null,null,18,37,3,3,3,null,null,52,52,40,40,12,12,12,null,null,52,52,null,52,40,40,50,null,null,40,40,null,12,12,12,null,null,12,12,12,null,null,52,null,null,31,null,null,null,null,null,null,null,null,null,null,null,null,null,null,31,52,52,52,null,52,46,null,6,null,null,null,52,13,13,null,null,null,52,52,52,null,null,null,52,null,null,null,null]",
+      "covered_percent": 95.06172839506173,
+      "covered_strength": 33.45679012345679,
+      "line_counts": {
+        "missed": 4,
+        "covered": 77,
+        "total": 81
+      },
+      "name": "lib/appoptics_apm/api/profiling.rb"
+    },
+    {
+      "blob_id": "6fa62099a11a7611d163f02ef69a823d4d499305",
+      "coverage": "[null,null,null,31,null,null,null,null,null,null,31,31,null,31,null,null,null,null,null,null,null,null,31,null,null,null,null,null,null,null,null,null,null,null,null,null,31,52,null,null,52,52,null,null,52,12,6,6,3,null,3,3,null,null,null,null,52,52,null,52,null,15,3,9,null,15,null,null,null,null,null,null,null,null,31,0,0,0,0,null,null,0,0,0,0,null,null,0,0,0,null,null,0,0,0,null,null,0,0,0,null,null,null,null,null,null,null,null,null,null,31,46,1334,null,46,46,null,null,null,null,31,0,0,null,null,null,31,0,null,null,31,80582,0,0,null,null,80582,null,null,null,null,null,null,null,null,null,31,3837,null,3837,0,null,null,3837,1127,3,null,3,null,null,null,1127,6,6,6,null,null,null,null,1127,1127,null,2710,0,null,2710,0,0,null,2710,null,null,6,null,2704,null,null,6,48,null,null,null,2698,1276,null,null,1276,null,null,null,null,31,4581,null,4581,0,null,null,4581,4575,null,null,6,6,null,null,null,null,null,null,null,null,null,null,31]",
+      "covered_percent": 70.65217391304348,
+      "covered_strength": 2326.3695652173915,
+      "line_counts": {
+        "missed": 27,
+        "covered": 65,
+        "total": 92
+      },
+      "name": "lib/appoptics_apm/config.rb"
+    },
+    {
+      "blob_id": "28b563daea11454ce2888085ad4294ed75d3d4f2",
+      "coverage": "[null,null,null,28,28,28,28,9,9,null,null,28,null,28,75,75,75,75,null,null,75,12,3,null,9,null,null,63,null,null,null,null,75,27,27,54,null,27,27,null,48,null,75,75,null,0,0,null,75,null,null,28,null,28,27,27,27,null,27,null,null,28,null,114,null,null,null,null,null,114,66,66,null,null,48,48,null,48,48,null,48,48,null,48,48,null,null,48,null,null,null,null,45,45,45,null,null,45,0,null,null,45,27,null,null,null,45,3,3,3,null,48,32,null,null,null,null,null,28,9,9,null]",
+      "covered_percent": 95.38461538461539,
+      "covered_strength": 39.6,
+      "line_counts": {
+        "missed": 3,
+        "covered": 62,
+        "total": 65
+      },
+      "name": "lib/appoptics_apm/inst/excon.rb"
+    },
+    {
+      "blob_id": "41dbe1b43835e8116256359fa61ecd4393004ea9",
+      "coverage": "[null,null,null,28,28,28,28,null,28,3,null,3,42,36,51,null,51,51,51,51,null,null,51,51,null,48,48,48,null,48,48,null,null,null,36,36,null,null,null,null,null,null,28,28,3,3,3,3,0,0,null,null,null,null,28,3,3,3,null,3,3,3,3,null,3,null,3,3,null,3,null,0,null,3,null,null,0,null,null,null,null,null,null,28,3,3,null,null,3,3,3,null,null,null]",
+      "covered_percent": 92.3076923076923,
+      "covered_strength": 20.53846153846154,
+      "line_counts": {
+        "missed": 4,
+        "covered": 48,
+        "total": 52
+      },
+      "name": "lib/appoptics_apm/inst/memcached.rb"
+    },
+    {
+      "blob_id": "a44ce79e79558e39d4daceed37ea43dda6340c8c",
+      "coverage": "[null,null,null,13,13,13,null,13,13,13,null,13,7,null,6,null,null,13,13,13,null,null,0,0,null,null,null]",
+      "covered_percent": 85.71428571428571,
+      "covered_strength": 10.214285714285714,
+      "line_counts": {
+        "missed": 2,
+        "covered": 12,
+        "total": 14
+      },
+      "name": "lib/appoptics_apm/frameworks/rails/inst/active_record.rb"
+    },
+    {
+      "blob_id": "1019fd8c7344402cab83b982b60c436467e2f041",
+      "coverage": "[null,null,null,28,28,28,28,16,16,null,null,28,null,21,null,21,null,null,21,21,21,21,21,null,21,null,21,null,null,28,0,0,null,null,28,0,0,null,28,null,28,0,0,null,28,null,null,null,null,28,16,16,null,16,null,16,null,16,null,null,null,16,null,null,16,16,null,null,16,null,null]",
+      "covered_percent": 83.78378378378379,
+      "covered_strength": 18.18918918918919,
+      "line_counts": {
+        "missed": 6,
+        "covered": 31,
+        "total": 37
+      },
+      "name": "lib/appoptics_apm/frameworks/sinatra.rb"
+    },
+    {
+      "blob_id": "a8357a7f6f3f22510162541b819218c4a336af50",
+      "coverage": "[null,null,null,31,31,31,null,null,null,null,null,null,31,null,0,null,0,0,0,0,null,null,null,null,null,null,null,null,null,null,null,null,null,31,0,null,null,null,null,null,null,null,null,31,0,null,null,null,null,null,null,null,31,15,0,15,15,null,0,null,null,null,null,null,null,null,null,31,2,0,2,2,null,0,null,null,null,null,null,null,null,null,31,12,0,12,12,null,0,null,null,null,null,null]",
+      "covered_percent": 58.06451612903226,
+      "covered_strength": 11.806451612903226,
+      "line_counts": {
+        "missed": 13,
+        "covered": 18,
+        "total": 31
+      },
+      "name": "lib/appoptics_apm/test.rb"
+    },
+    {
+      "blob_id": "9daae63a9fc42c80180bc5fd5211c9623f89709d",
+      "coverage": "[null,null,null,16,16,16,16,16,null,null,16,90,90,null,90,90,null,90,null,null,45,45,45,45,45,45,45,null,0,0,null,null,45,45,null,null,null,null,null,null,null,45,null,45,45,null,45,null,null,null,0,null,null,null,null,null]",
+      "covered_percent": 88.88888888888889,
+      "covered_strength": 41.888888888888886,
+      "line_counts": {
+        "missed": 3,
+        "covered": 24,
+        "total": 27
+      },
+      "name": "lib/appoptics_apm/frameworks/sinatra/templates.rb"
+    }
+  ],
+  "repo_token": ""
+}
