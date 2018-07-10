@@ -38,5 +38,5 @@ module AppOpticsAPM
 end
 
 AppOpticsAPM.logger = Logger.new(STDERR)
-# set log level to INFO to be consistent with oboe, DEBUG would be default
+# set log level to INFO to be consistent with the c-lib, DEBUG would be default
 AppOpticsAPM.logger.level = Logger::INFO

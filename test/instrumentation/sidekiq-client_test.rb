@@ -8,6 +8,10 @@ unless defined?(JRUBY_VERSION)
   require_relative "../jobs/sidekiq/db_worker_job"
   require_relative "../jobs/sidekiq/error_worker_job"
 
+  Sidekiq.configure_server do |config|
+    config.redis = { :password => 'secret_pass' }
+  end
+
   class SidekiqClientTest < Minitest::Test
     def setup
       clear_all_traces
@@ -33,7 +37,7 @@ unless defined?(JRUBY_VERSION)
 
     def test_enqueue
       # Queue up a job to be run
-      jid, _ = ::AppOpticsAPM::API.start_trace(:enqueue_test) do
+      jid, xtrace = ::AppOpticsAPM::API.start_trace(:enqueue_test) do
         Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
       end
 
@@ -58,6 +62,9 @@ unless defined?(JRUBY_VERSION)
 
       assert_equal 'sidekiq-client',       traces[2]['Layer']
       assert_equal 'exit',                 traces[2]['Label']
+
+      assert_match /^2B[0-9A-F]{56}0[01]$/, xtrace
+      refute_match /^2B0{56}0[01]$/, xtrace
     end
 
     def test_collect_backtraces_default_value

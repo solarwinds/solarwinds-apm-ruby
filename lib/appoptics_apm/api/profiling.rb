@@ -198,6 +198,11 @@ module AppOpticsAPM
         # Merge in any extra_kvs requested
         report_kvs.merge!(extra_kvs)
       end
+
+
+      # need to set the context to public, otherwise the following `extends` will be private in api.rb
+      public
+
     end
   end
 end

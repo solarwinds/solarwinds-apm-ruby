@@ -13,9 +13,7 @@ group :development, :test do
   gem 'rubocop', require: false
   gem 'ruby-prof'
   gem 'benchmark-ips'
-end
 
-group :development do
   gem 'ruby-debug',   :platforms => [:mri_18, :jruby]
   gem 'debugger',     :platform  =>  :mri_19
   gem 'byebug',       :platforms => [:mri_20, :mri_21, :mri_22, :mri_23, :mri_24]

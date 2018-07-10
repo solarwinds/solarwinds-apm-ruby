@@ -134,10 +134,10 @@ module AppOpticsAPM
       return false unless AppOpticsAPM.loaded
 
       # Assure defaults since SWIG enforces Strings
-      layer   = opts[:layer]      ? opts[:layer].to_s.strip.freeze : APPOPTICS_STR_BLANK
       xtrace  = opts[:xtrace]     ? opts[:xtrace].to_s.strip       : APPOPTICS_STR_BLANK
 
-      rv = AppOpticsAPM::Context.sampleRequest(layer, xtrace)
+      # the first arg has changed to be the service name, blank means to use the default (from the service key)
+      rv = AppOpticsAPM::Context.sampleRequest(APPOPTICS_STR_BLANK, xtrace)
 
       if rv == 0
         AppOpticsAPM.sample_rate = -1
@@ -162,14 +162,14 @@ module AppOpticsAPM
 
       case value
       when :never
-        AppOpticsAPM::Context.setTracingMode(OBOE_TRACE_NEVER)
+        AppOpticsAPM::Context.setTracingMode(APPOPTICS_TRACE_NEVER)
 
       when :always
-        AppOpticsAPM::Context.setTracingMode(OBOE_TRACE_ALWAYS)
+        AppOpticsAPM::Context.setTracingMode(APPOPTICS_TRACE_ALWAYS)
 
       else
         AppOpticsAPM.logger.fatal "[oboe/error] Invalid tracing mode set: #{mode}"
-        AppOpticsAPM::Context.setTracingMode(OBOE_TRACE_NEVER)
+        AppOpticsAPM::Context.setTracingMode(APPOPTICS_TRACE_NEVER)
       end
     end
 

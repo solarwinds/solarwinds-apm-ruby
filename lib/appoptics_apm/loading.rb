@@ -28,8 +28,8 @@ module AppOpticsAPM
   end
 
   ##
-  # This module houses all of the loading functionality for the appoptics_apm gem.
-  #
+  # This module houses all of the loading functionality for the appoptics_apm em.
+
   # Note that this does not necessarily _have_ to include initialization routines
   # (although it can).
   #
@@ -46,10 +46,9 @@ module AppOpticsAPM
       Dir.glob(pattern) do |f|
         require f
       end
-      require 'appoptics_apm/api'
 
       begin
-        AppOpticsAPM::API.extend_with_tracing
+        require 'appoptics_apm/api'
       rescue LoadError => e
         AppOpticsAPM.logger.fatal "[appoptics_apm/error] Couldn't load api: #{e.message}"
       end

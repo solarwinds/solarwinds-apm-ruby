@@ -8,6 +8,12 @@
 # `docker build -f Dockerfile_test -t ruby_appoptics_apm .`
 # (docker-compose will build it too if missing)
 
+
+# remove rbenv .ruby_version file that may be stuck on a different ruby version
+# because we mounted this directory in a docker container
+require 'fileutils'
+FileUtils.rm_f('.ruby_version')
+
 require 'yaml'
 travis = YAML.load_file('.travis.yml')
 

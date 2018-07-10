@@ -16,7 +16,7 @@ module AppOpticsAPM
           # Load all of the test workers
           pattern = File.join(File.dirname(__FILE__), '../../test/jobs/**/', '*.rb')
           Dir.glob(pattern) do |f|
-            AppOpticsAPM.logger.debug "Loading test job file: #{File.basename(f)}"
+            AppOpticsAPM.logger.debug "[appoptics_apm/test] Loading test job file: #{File.basename(f)}"
             require f
           end
         end

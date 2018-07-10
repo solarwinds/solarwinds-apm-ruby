@@ -63,7 +63,7 @@ module AppOpticsAPM
               if task_id == AppOpticsAPM::XTrace.task_id(xtrace)
                 AppOpticsAPM::Context.fromString(xtrace)
               else
-                AppOpticsAPM.logger.debug "Mismatched returned X-Trace ID : #{xtrace}"
+                AppOpticsAPM.logger.debug "[appoptics_apm/em-http] Mismatched returned X-Trace ID : #{xtrace}"
               end
             end
 

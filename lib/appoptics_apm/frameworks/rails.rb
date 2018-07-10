@@ -51,7 +51,7 @@ module AppOpticsAPM
       require 'appoptics_apm/frameworks/rails/inst/action_view_30'
       require 'appoptics_apm/frameworks/rails/inst/active_record'
 
-      AppOpticsAPM.logger.info "AppOpticsAPM gem #{AppOpticsAPM::Version::STRING} successfully loaded."
+      AppOpticsAPM.logger.info "[appoptics_apm/rails] AppOpticsAPM gem #{AppOpticsAPM::Version::STRING} successfully loaded."
     end
 
     def self.include_helpers

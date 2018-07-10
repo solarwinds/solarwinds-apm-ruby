@@ -1,5 +1,3 @@
 --no-private
 --readme yardoc_frontpage.md
-lib/appoptics_apm/api/logging.rb
-lib/appoptics_apm/api/profiling.rb
-lib/appoptics_apm/api/tracing.rb
+lib/appoptics_apm/sdk.rb

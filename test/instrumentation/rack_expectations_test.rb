@@ -7,7 +7,7 @@ require 'rack/handler/puma'
 require 'appoptics_apm/inst/rack'
 require 'mocha/minitest'
 
-describe AppOpticsAPM::API::Tracing do
+describe AppOpticsAPM::SDK do
 
   # TODO: add this paragraph to docs and transaction name method comment
   # Transaction names are stored as a tag value on trace metrics
@@ -139,38 +139,6 @@ describe AppOpticsAPM::API::Tracing do
     end
   end
 
-  it 'should not set the transaction name if the arg is not a string or an empty string' do
-    AppOpticsAPM.transaction_name = nil
-
-    AppOpticsAPM::API.set_transaction_name(123)
-    assert_nil AppOpticsAPM.transaction_name
-
-    AppOpticsAPM::API.set_transaction_name('')
-    assert_nil AppOpticsAPM.transaction_name
-
-    AppOpticsAPM::API.set_transaction_name(String.new)
-    assert_nil AppOpticsAPM.transaction_name
-
-    AppOpticsAPM::API.set_transaction_name(false)
-    assert_nil AppOpticsAPM.transaction_name
-  end
-
-  it 'should return the previous name, if a non-valid one is given' do
-    AppOpticsAPM::API.set_transaction_name("this is the one")
-
-    AppOpticsAPM::API.set_transaction_name(123)
-    assert_equal "this is the one", AppOpticsAPM.transaction_name
-
-    AppOpticsAPM::API.set_transaction_name('')
-    assert_equal "this is the one", AppOpticsAPM.transaction_name
-
-    AppOpticsAPM::API.set_transaction_name(String.new)
-    assert_equal "this is the one", AppOpticsAPM.transaction_name
-
-    AppOpticsAPM::API.set_transaction_name(false)
-    assert_equal "this is the one", AppOpticsAPM.transaction_name
-  end
-
 
   it 'should provide the domain name to createHttpSpan if configured' do
     AppOpticsAPM::Config['transaction_name']['prepend_domain'] = true
@@ -212,6 +180,7 @@ describe AppOpticsAPM::API::Tracing do
 
   end
 
+  # Let's test createHttpSpan a bit too
   it 'should prepend the domain to the url if no transaction name given' do
     assert_equal "example.org:80/lobster", AppOpticsAPM::Span.createHttpSpan(nil, "/lobster", "example.org:80", 0, 200, 'GET', 0)
     assert_equal "example.org:80/lobster", AppOpticsAPM::Span.createHttpSpan(nil, "example.org/lobster", "example.org:80", 0, 200, 'GET', 0)

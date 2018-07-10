@@ -42,16 +42,10 @@ module AppOpticsAPM
       #
       # Returns a trimmed backtrace
       def trim_backtrace(backtrace)
-        return backtrace unless backtrace.is_a?(Array)
+        return backtrace unless backtrace.is_a?(Array) && backtrace.size > BACKTRACE_CUTOFF
 
-        length = backtrace.size
-        if length > BACKTRACE_CUTOFF
-          # Trim backtraces by getting the first 180 and last 20 lines
-          trimmed = backtrace[0, 180] + ['...[snip]...'] + backtrace[length - 20, 20]
-        else
-          trimmed = backtrace
-        end
-        trimmed
+        # Trim backtraces by getting the first 180 and last 20 lines
+        backtrace[0, 180] + ['...[snip]...'] + backtrace[length - 20, 20]
       end
 
       # Internal: Check if a host is blacklisted from tracing

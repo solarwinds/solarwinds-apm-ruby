@@ -40,7 +40,7 @@ Bundler.require(:default, :test)
 AppOpticsAPM::Config[:verbose] = true
 AppOpticsAPM::Config[:tracing_mode] = "always"
 AppOpticsAPM::Config[:sample_rate] = 1000000
-AppOpticsAPM.logger.level = Logger::DEBUG
+# AppOpticsAPM.logger.level = Logger::DEBUG
 
 # Pre-create test databases (see also .travis.yml)
 # puts "Pre-creating test databases"

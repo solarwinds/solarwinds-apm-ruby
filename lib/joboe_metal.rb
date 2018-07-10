@@ -150,13 +150,11 @@ module AppOpticsAPM
 
         # Validation to make Joboe happy.  Assure that we have the KVs and that they
         # are not empty strings.
-        opts[:layer]  = nil      if opts[:layer].is_a?(String)      && opts[:layer].empty?
         opts[:xtrace] = nil      if opts[:xtrace].is_a?(String)     && opts[:xtrace].empty?
 
-        opts[:layer]      ||= nil
         opts[:xtrace]     ||= nil
 
-        sr_cfg = Java::ComTracelyticsJoboe::LayerUtil.shouldTraceRequest(opts[:layer], { 'X-Trace' => opts[:xtrace] })
+        sr_cfg = Java::ComTracelyticsJoboe::LayerUtil.shouldTraceRequest(APPOPTICS_STR_BLANK, { 'X-Trace' => opts[:xtrace] })
 
         # Store the returned SampleRateConfig into AppOpticsAPM::Config
         if sr_cfg
@@ -179,7 +177,7 @@ module AppOpticsAPM
     end
 
     def set_tracing_mode(_mode)
-      AppOpticsAPM.logger.warn 'When using JRuby set the tracing mode in /usr/local/tracelytics/javaagent.json instead'
+      AppOpticsAPM.logger.warn '[appoptics_apm/joboe] When using JRuby set the tracing mode in /usr/local/tracelytics/javaagent.json instead'
     end
 
     def set_sample_rate(_rate)

@@ -73,11 +73,11 @@ if defined?(::Delayed)
                   AppOpticsAPM.logger.warn "[appoptics_apm/warning] inst/delayed_job.rb: #{e.message}"
                 end
 
-                result = AppOpticsAPM::API.start_trace(:'delayed_job-worker', nil, report_kvs) do
-                  block.call(worker, job)
-                  AppOpticsAPM::API.log_exception(nil, job.error) if job.error
+                AppOpticsAPM::SDK.start_trace(:'delayed_job-worker', nil, report_kvs) do
+                  result = block.call(worker, job)
+                  AppOpticsAPM::API.log_exception(:'delayed_job-worker', job.error) if job.error
+                  result
                 end
-                result[0]
               end
             end
           end
