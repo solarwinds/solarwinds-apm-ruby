@@ -23,6 +23,8 @@ require 'minitest/debugger' if ENV['DEBUG']
 
 if ENV['TEST_RUNS_TO_FILE']
 # write to STDOUT as well as file (comes in handy with docker runs)
+# this approach preserves the coloring of pass fail, which the cli
+# `./run_tests.sh 2>&1 | tee -a test/docker_test.log` does not
   FileUtils.mkdir_p('log')  # create if it doesn't exist
   $out_file = File.new("log/test_runs_#{Time.now.strftime("%Y_%m_%d")}.log", 'a')
   $out_file.sync = true
