@@ -1,8 +1,8 @@
 FROM ubuntu:16.04
 
-# docker build -f Dockerfile_test -t ruby_appoptics_apm .
+# docker build -f Dockerfile_test -t ruby_appoptics .
 
-# docker-compose run --service-ports ruby_appoptics_apm /code/ruby-appoptics_apm/run_all_tests.rb [true]
+# docker-compose run --service-ports ruby_appoptics_apm /code/ruby-appoptics/read_travis_yml.rb [true]
 # use true to start up conatiner and install oboe
 
 # install OS packages
@@ -40,7 +40,6 @@ RUN  git clone https://github.com/rbenv/rbenv.git ~/.rbenv \
 # install rubies to build our gem against
 RUN . ~/.profile \
     && rbenv install 2.3.6 \
-    && rbenv install 2.4.3 \
     && rbenv install 2.4.4 \
     && rbenv install 2.5.1
 #    && rbenv install jruby-9.1.16.0
@@ -72,8 +71,8 @@ RUN apt-get update && \
 ENV PATH="/root/.rbenv/bin:/root/.rbenv/shims:$PATH"
 ENV RUBY_ENV=test
 ENV DOCKER_PSQL_PASS=docker
-ENV APPOPTICS_TOKEN_BUCKET_CAPACITY=1000
-ENV APPOPTICS_TOKEN_BUCKET_RATE=1000
+ENV APPOPTICS_TOKEN_BUCKET_CAPACITY=10000
+ENV APPOPTICS_TOKEN_BUCKET_RATE=10000
 ENV SIMPLECOV_COVERAGE=true
 
 # replicate stdout of tests to file in local log directory
