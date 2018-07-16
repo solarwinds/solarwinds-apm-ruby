@@ -17,8 +17,8 @@ rvm:
 #  - jruby-9.0.5.0
 
 gemfile:
-  - gemfiles/noop.gemfile
   - gemfiles/libraries.gemfile
+  - gemfiles/noop.gemfile
   - gemfiles/instrumentation_mocked.gemfile
   - gemfiles/instrumentation_mocked_oldgems.gemfile
   - gemfiles/frameworks.gemfile

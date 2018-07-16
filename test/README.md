@@ -8,10 +8,10 @@
   * [Running Tests](#running-tests)
     * [Run all tests](#run-all-tests)
     * [Run some tests](#run-some-tests)
-    * [Run one test suite, test file, or test](#run-one-test-suite,-test-file,-or-test)
-  * [Duplication (◔_◔) and Missing Tests ( •̆௰•̆ )](#duplication-(◔_◔)-and-missing-tests-(-•̆௰•̆-))
+    * [Run one test from suite, a specific test file, or a specific test](#run-one-test-from-suite,-a-specific-test-file,-or-a-specific-test)
+  * [pry-byebug for debugging](#pry-byebug-for-debugging)
+  * [Duplication (◔_◔) and missing tests ( •̆௰•̆ )](#duplication-(◔_◔)-and-missing-tests-(-•̆௰•̆-))
   
-
 The tests for this gem focus on sending the correct information
 to the data collector as well as dealing with exceptions when 
 using the gem.
@@ -84,10 +84,10 @@ It is also possible to run them like this:
 cd run_tests
 docker-compose run --service-ports ruby_appoptics /code/ruby-appoptics/test/run_tests/ruby_setup.sh test
 ```
-Be aware that starting the container can take a long time (>2 hours 
-on a slowish Mac) if the Docker image needs to be created. In 
-this case it will install three versions of Ruby, which is a pretty 
-slow process.
+Be aware that starting the container takes longer if the Docker image needs to be created first 
+(+10-15 minutes), because it needs to install three versions of Ruby, which is a pretty 
+slow process. It is recommended to keep the appoptics_apm image and only replace 
+it if there is a change with the Ruby versions required for the tests. 
  
 ### Run some tests
 In this case we want to start the docker image and then define 
@@ -143,10 +143,11 @@ byebug
 See here for docu: https://github.com/deivid-rodriguez/pry-byebug
 
 ## Duplication (◔_◔) and missing tests ( •̆௰•̆ )
-Sorry, it takes some time to run all the tests. There is duplication as 
-well as omissions. The test code is a bit of a jungle, so for now the 
-aim is to get good coverage for added and refactored code and clean up
-tests whenever it makes sense.
+Sorry, it takes some time to run all the tests (31 test suites, approx. 40  
+minutes in local docker container or travis with 5 workers). There is 
+duplication as well as omissions. The test code is a bit of a jungle, so 
+for now the aim is to get good coverage for added and refactored code and 
+clean up tests whenever it makes sense.
 
 If you are contributing, please make sure all the tests pass and add 
 tests for your code, so that it can't be broken.
