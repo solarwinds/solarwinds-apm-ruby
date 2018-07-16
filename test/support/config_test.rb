@@ -12,6 +12,7 @@ class ConfigTest
     @@template = File.join(File.dirname(File.dirname(File.dirname(__FILE__))),
                            'lib/rails/generators/appoptics_apm/templates/appoptics_apm_initializer.rb')
     @@rails_config_path = File.join(Dir.pwd, 'config', 'initializers', 'appoptics_apm.rb')
+    FileUtils.mkdir_p(File.join(Dir.pwd, 'config', 'initializers'))
 
     before do
       ENV.delete('APPOPTICS_APM_CONFIG_RUBY')
