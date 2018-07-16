@@ -1,35 +1,46 @@
 #!/bin/bash
 
+##
+# This script sets up the environment for running the tests
+#
+# Many of the tests depend on other services like postgres, redis, memcached,
+# which will be started here.
+#
+# Further necessary services like mysql, rabbitmq, and mongo are setup through docker-compose
+##
+
 dir=`pwd`
 cd /code/ruby-appoptics/
 
+rm -f gemfiles/*.lock
 rm -f .ruby-version
 
 rbenv global 2.4.4
 
-rm -f gemfiles/*.lock
-
-#export RVM_TEST=$1
-#export BUNDLE_GEMFILE=$2
+echo "Installing gems ..."
 bundle install --quiet
 
 bundle exec rake fetch_ext_deps
 bundle exec rake clean
 bundle exec rake compile
 
-# start postgres
+echo "Starting services ..."
+## start postgres
 service postgresql start
 
-# start redis with password
+## start redis with password
 redis-server --requirepass secret_pass &
 
-# start memcached
+## start memcached
 service memcached start
 
-# mysql add table for tests
+## add table for tests in mysql
+# sorry for the warning about providing the password on the commandline
 mysql -e 'create database travis_ci_test;' -h$MYSQL_HOST -p$MYSQL_ROOT_PASSWORD
 
+## we also want to use this file to setup the env without running all the tests
 if [ "$1" == "test" ]; then
+  echo "Running tests ..."
   cd test/run_tests
   ./run_tests.sh
 else
@@ -37,5 +48,4 @@ else
 fi
 
 cd $pwd
-
 mysql -e 'drop database travis_ci_test;' -h$MYSQL_HOST -p$MYSQL_ROOT_PASSWORD

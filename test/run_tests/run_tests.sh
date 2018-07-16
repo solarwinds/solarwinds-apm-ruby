@@ -1,30 +1,86 @@
 #!/usr/bin/env bash
 
-mapfile -t input2 < <(./read_travis_yml.rb)
+##
+# This script can be used to run all or select tests in a Linux environment with
+# the appoptics_apm dependencies installed
+#
+# It offers the following options:
+# -r ruby-version - restrict the tests to run with this ruby version
+# -g gemfile      - restrict the tests to the ones associated with this gemfile (path from gem-root)
+# -e env-setting  - restrict to this env setting, eg DBTYPE=postgresql
+# -n num          - run only the first num tests, -n1 is useful when debugging
+#
+# The options for -r, -g, and -e have to correspond to configurations in the travis.yml file
+##
 
-cd /code/ruby-appoptics
+## Read opts
+num=-1
+while getopts ":r:g:e:n:" opt; do
+  case ${opt} in
+    r ) # process option a
+      ruby=$OPTARG
+      ;;
+    g ) # process option t
+      gemfile=$OPTARG
+      export BUNDLE_GEMFILE=$gemfile
+      ;;
+    e )
+      env=$OPTARG
+      ;;
+    n )
+      num=$OPTARG
+      ;;
+    \? ) echo "
+Usage: $0 [-r ruby-version] [-g gemfile] [-e env-setting] [-n num-tests]
 
+     -r ruby-version - restrict the tests to run with this ruby version
+     -g gemfile      - restrict the tests to the ones associated with this gemfile (path from gem-root)
+     -e env-setting  - restrict to this env setting, eg DBTYPE=postgresql
+     -n num          - run only the first num tests, -n1 is useful when debugging
+
+The values for -r, -g, and -e have to correspond to configurations in the .travis.yml file
+"
+      exit 1
+      ;;
+  esac
+done
+
+## Read travis configuration
+cd "$( dirname "$0" )/../.."
+mapfile -t input2 < <(test/run_tests/read_travis_yml.rb .travis.yml)
+
+## Setup and run tests
 for index in ${!input2[*]} ;
 do
   args=(${input2[$index]})
-  rbenv local ${args[0]}
+
+  if [[ "$ruby" != "" && "$ruby" != "${args[0]}" ]]; then continue; fi
+  rbenv global ${args[0]}
+
+  if [[ "$gemfile" != "" && "$gemfile" != "${args[1]}" ]]; then continue; fi
   export BUNDLE_GEMFILE=${args[1]}
+
+  if [[ "$env" != "" && "$env" != "${args[2]}" ]]; then continue; fi
   export ${args[2]}
 
   echo "Installing gems ..."
   bundle install --quiet
 
   if [ "$?" -eq 0 ]; then
-    rm -f /tmp/appoptics_traces.bson
     bundle exec rake test
-    if [ "$?" -ne 0 ]; then exit 1; fi
+
+    # kill all sidekiq processes, they don't stop automatically and can add up if tests are run repeatedly
     pids=`ps -ef | grep 'sidekiq' | grep -v grep | awk '{print $2}'`
-    if [ "$pids" != "" ]; then
-      ps -ef | grep 'sidekiq' | grep -v grep | awk '{print $2}' | xargs kill
-    fi
+    if [ "$pids" != "" ]; then kill $pids; fi
   else
-    echo "Problem installing gems. Skipping tests for $*"
-    exit 1
+    echo "Problem during gem install. Skipping tests for ${args[1]}"
+    exit 1 # we are not continiuing here to keep ctrl-c working as expected
+  fi
+
+  num=$((num-1))
+  if [ "$num" -eq "0" ]; then
+    cd -
+    exit
   fi
 done
 

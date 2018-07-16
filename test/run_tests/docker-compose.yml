@@ -2,12 +2,10 @@ version: "2"
 
 #########################################################################################################
 #
-# to start the services:
-# > docker-compose up -d
-# ('ruby_appoptics' and 'wait' will exit)
+# docker-compose to set up containers to run tests
 #
-# to run some ruby tests:
-# > docker-compose run --service-ports ruby_appoptics /code/ruby-appoptics/test/run_tests/ruby_setup.sh [test]
+# used by
+# > bundle exec tests
 #
 ########################################################################################################
 
@@ -36,7 +34,7 @@ services:
 
 #  ruby_appoptics_apm_alpine:
 #     container_name: ruby_appoptics_alpine
-#     image: ruby_alpine
+#     image: ruby_appoptics_alpine
 #     build:
 #        context: .
 #        dockerfile: ./Dockerfile_alpine

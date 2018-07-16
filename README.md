@@ -384,38 +384,7 @@ You can read more about Ruby gems with C extensions in the
 
 ## Running the Tests
 
-There are few caveats with the tests:
-1. They only run on Linux systems, because of the c-lib used by the appoptics-apm gem.
-1. The are split up, different suites can be run with `bundle exec rake test` depending on the Gemfile set in the 
-environment variable `BUNDLE_GEMFILE`.
-1. Some are integration tests that depend on external services and databases.
-
-Unless you are developing on a linux system it may be easiest to run the tests using docker. The docker test setup is 
-currently being improved to become more comprehensive. 
-
-The command `./run_tests_docker.rb` will run the tests and dump the output to a file in the log folder.
-In the shell it will print the commands to run a single test suite, e.g.
-
-```bash
-docker-compose run --rm --service-ports ruby_appoptics_apm /code/ruby-appoptics_apm/ruby_setup.sh 2.5.1 gemfiles/libraries.gemfile DBTYPE=postgresql
-```
-
-If `true` is added to that command line it will stop in a sheel in the docker container, which is great for debugging.
-
-```bash
-docker-compose run --rm --service-ports ruby_appoptics_apm /code/ruby-appoptics_apm/ruby_setup.sh 2.5.1 gemfiles/libraries.gemfile DBTYPE=postgresql true
-```
-
-The gem is setup to be debugged with `pry` and `pry-byebug`, add the following lines in the code for a break:
-```ruby
-require 'pry'
-require 'pry-byebug'
-byebug
-```
-
-If you need further assistance running tests feel free to get in touch with the main developer.
-
-
+See the README in the test directory.
 
 # License
 
