@@ -33,7 +33,7 @@ using the provided Docker test setup.
 The appoptics_apm gem only runs on Linux because the c-library that 
 sends data to the collector is only available on Linux.
 
-Therefor the tests need to run in Linux and debugging needs to be
+Therefore the tests need to run in Linux and debugging needs to be
 done in Linux. 
 
 Please see further down on how to run a single test.

@@ -41,7 +41,7 @@ services:
 #     cpu_quota: 100000 # 1 cpu, assumes cpu_period of 1 second
 #     mem_limit: 1G
 #     volumes:
-#       - ../../:/code/ruby-appoptics_apm
+#       - ../../:/code/ruby-appoptics
 #     depends_on:
 #       - wait
 #     links:

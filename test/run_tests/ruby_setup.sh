@@ -47,5 +47,5 @@ else
   /bin/bash
 fi
 
-cd $pwd
+cd $dir
 mysql -e 'drop database travis_ci_test;' -h$MYSQL_HOST -p$MYSQL_ROOT_PASSWORD
