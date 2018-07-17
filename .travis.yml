@@ -18,15 +18,15 @@ rvm:
 
 gemfile:
   - gemfiles/libraries.gemfile
-  - gemfiles/noop.gemfile
   - gemfiles/instrumentation_mocked.gemfile
   - gemfiles/instrumentation_mocked_oldgems.gemfile
   - gemfiles/frameworks.gemfile
-##  - gemfiles/rails32.gemfile # We currently are not supporting Rails 3.2
-  - gemfiles/rails42.gemfile
-  - gemfiles/rails51.gemfile
 ##  - gemfiles/rails52.gemfile # postgres test needs fixing first
+  - gemfiles/rails51.gemfile
+  - gemfiles/rails42.gemfile
+##  - gemfiles/rails32.gemfile # We currently are not supporting Rails 3.2
   - gemfiles/delayed_job.gemfile
+  - gemfiles/noop.gemfile
 
 matrix:
   exclude:
