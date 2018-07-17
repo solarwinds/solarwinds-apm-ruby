@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# builds the appoptics_apm gem for JRuby and MRI.
+# builds the appoptics_apm gem for MRI.
 
 echo -e "\n=== building for MRI ===\n"
 export RBENV_VERSION=2.3.1

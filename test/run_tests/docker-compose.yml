@@ -2,26 +2,24 @@ version: "2"
 
 #########################################################################################################
 #
-# to start the services:
-# > docker-compose up -d
-# ('ruby_appoptics' and 'wait' will exit)
+# docker-compose to set up containers to run tests
 #
-# to run some ruby tests:
-# > docker-compose run --service-ports ruby_appoptics_apm /code/ruby-appoptics_apm/ruby_setup.sh 2.3.6 gemfiles/rails42.gemfile
+# used by
+# > bundle exec tests
 #
 ########################################################################################################
 
 services:
-  ruby_appoptics_apm:
-     container_name: ruby_appoptics_apm
-     image: ruby_appoptics_apm
+  ruby_appoptics:
+     container_name: ruby_appoptics
+     image: ruby_appoptics
      build:
         context: .
         dockerfile: ./Dockerfile_test
      cpu_quota: 100000 # 1 cpu, assumes cpu_period of 1 second
      mem_limit: 1G
      volumes:
-       - .:/code/ruby-appoptics_apm
+       - ../../:/code/ruby-appoptics
      depends_on:
        - wait
      links:
@@ -35,15 +33,15 @@ services:
        - APPOPTICS_MONGO_SERVER=mongo
 
 #  ruby_appoptics_apm_alpine:
-#     container_name: ruby_appoptics_apm_alpine
-#     image: ruby_alpine
+#     container_name: ruby_appoptics_alpine
+#     image: ruby_appoptics_alpine
 #     build:
 #        context: .
 #        dockerfile: ./Dockerfile_alpine
 #     cpu_quota: 100000 # 1 cpu, assumes cpu_period of 1 second
 #     mem_limit: 1G
 #     volumes:
-#       - .:/code/ruby-appoptics_apm
+#       - ../../:/code/ruby-appoptics
 #     depends_on:
 #       - wait
 #     links:

@@ -60,6 +60,18 @@ Rake::TestTask.new do |t|
   end
 end
 
+desc "Run all test suites defined by travis"
+task "docker_tests" do
+  Dir.chdir('test/run_tests')
+  exec('docker-compose run --service-ports ruby_appoptics /code/ruby-appoptics/test/run_tests/ruby_setup.sh test')
+end
+
+desc "Start docker container for testing and debugging"
+task "docker" do
+  Dir.chdir('test/run_tests')
+  exec('docker-compose run --service-ports ruby_appoptics /code/ruby-appoptics/test/run_tests/ruby_setup.sh bash')
+end
+
 desc "Fetch extension dependency files"
 task :fetch_ext_deps do
   swig_version = %x{swig -version} rescue ''

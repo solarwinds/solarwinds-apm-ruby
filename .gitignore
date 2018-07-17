@@ -15,8 +15,13 @@ ext/oboe_metal/src/oboe.h
 ext/oboe_metal/src/oboe.hpp
 ext/oboe_metal/src/oboe_debug.h
 ext/oboe_metal/src/oboe_wrap.cxx
+ext/oboe_metal/src/bson/*
 log/
 .vagrant
 gemfiles/.bundle
 swig*
 *.gem
+.yardoc
+coverage
+doc
+.*byebug*

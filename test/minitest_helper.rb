@@ -1,6 +1,19 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
+require 'simplecov' if ENV["SIMPLECOV_COVERAGE"]
+require 'simplecov-console' if ENV["SIMPLECOV_COVERAGE"]
+
+SimpleCov.start do
+# SimpleCov.formatter = SimpleCov.formatter = SimpleCov::Formatter::Console
+  merge_timeout 3600
+  command_name "#{RUBY_VERSION}_#{File.basename(ENV['BUNDLE_GEMFILE'])}_#{ENV['DBTYPE']}"
+# SimpleCov.use_merging true
+  add_filter '/test/'
+  add_filter '../test/'
+  use_merging true
+end  if ENV["SIMPLECOV_COVERAGE"]
+
 require 'rubygems'
 require 'bundler/setup'
 require 'minitest/spec'
@@ -10,6 +23,8 @@ require 'minitest/debugger' if ENV['DEBUG']
 
 if ENV['TEST_RUNS_TO_FILE']
 # write to STDOUT as well as file (comes in handy with docker runs)
+# this approach preserves the coloring of pass fail, which the cli
+# `./run_tests.sh 2>&1 | tee -a test/docker_test.log` does not
   FileUtils.mkdir_p('log')  # create if it doesn't exist
   $out_file = File.new("log/test_runs_#{Time.now.strftime("%Y_%m_%d")}.log", 'a')
   $out_file.sync = true
@@ -20,7 +35,7 @@ if ENV['TEST_RUNS_TO_FILE']
   end
 end
 
-puts "\n\033[1m=== TEST RUN: #{ENV['RVM_TEST']} #{File.basename(ENV['BUNDLE_GEMFILE'])} #{ENV['DBTYPE']} #{Time.now.strftime("%Y-%m-%d %H:%M")} ===\033[0m\n"
+puts "\n\033[1m=== TEST RUN: #{RUBY_VERSION} #{File.basename(ENV['BUNDLE_GEMFILE'])} #{ENV['DBTYPE']} #{Time.now.strftime("%Y-%m-%d %H:%M")} ===\033[0m\n"
 
 ENV['RACK_ENV'] = 'test'
 ENV['APPOPTICS_GEM_TEST'] = 'true'

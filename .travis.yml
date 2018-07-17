@@ -17,23 +17,23 @@ rvm:
 #  - jruby-9.0.5.0
 
 gemfile:
-  - gemfiles/noop.gemfile
   - gemfiles/libraries.gemfile
+  - gemfiles/noop.gemfile
   - gemfiles/instrumentation_mocked.gemfile
   - gemfiles/instrumentation_mocked_oldgems.gemfile
   - gemfiles/frameworks.gemfile
-#  - gemfiles/rails32.gemfile # We currently are not supporting Rails 3.2
+##  - gemfiles/rails32.gemfile # We currently are not supporting Rails 3.2
   - gemfiles/rails42.gemfile
   - gemfiles/rails51.gemfile
-#  - gemfiles/rails52.gemfile # postgres test needs fixing first
+##  - gemfiles/rails52.gemfile # postgres test needs fixing first
   - gemfiles/delayed_job.gemfile
 
 matrix:
   exclude:
     - rvm: 2.5.1
       env: DBTYPE=mysql
-    - rvm: 2.4.3
-      env: DBTYPE=mysql
+#    - rvm: 2.4.3
+#      env: DBTYPE=mysql
     - rvm: 2.4.4
       env: DBTYPE=mysql
 
