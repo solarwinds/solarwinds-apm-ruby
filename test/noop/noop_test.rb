@@ -86,7 +86,7 @@ class NoopTest < Minitest::Test
 
   # ===== Make sure the methods we document as SDK don't barf in noop mode ==================
 
-  def test_start_trace_doesnt_barf
+  def test_api_start_trace_doesnt_barf
     AppOpticsAPM::API.start_trace('noop_test')  do
       AppOpticsAPM::API.trace('blah_block') do
         "this block should not be traced"
@@ -96,6 +96,18 @@ class NoopTest < Minitest::Test
     traces = get_all_traces
     assert_equal 0, traces.count, "generate no traces"
   end
+
+  def test_sdk_start_trace_doesnt_barf
+    AppOpticsAPM::SDK.start_trace('noop_test')  do
+      AppOpticsAPM::SDK.trace('blah_block') do
+        "this block should not be traced"
+      end
+    end
+
+    traces = get_all_traces
+    assert_equal 0, traces.count, "generate no traces"
+  end
+
 
   def test_trace_doesnt_barf
     AppOpticsAPM::API.trace('noop_test')  do
