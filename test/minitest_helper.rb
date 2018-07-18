@@ -89,8 +89,9 @@ when /libraries/
   # Load Sidekiq if TEST isn't defined or if it is, it calls
   # out the sidekiq tests
   # Background Sidekiq thread
-  # if !ENV.key?('TEST') || ENV['TEST'] =~ /sidekiq/
-  require './test/servers/sidekiq.rb' if ENV['TEST'] =~ /sidekiq/
+  if !ENV.key?('TEST') || ENV['TEST'] =~ /sidekiq/
+    require './test/servers/sidekiq.rb'
+  end
 end
 
 ##
