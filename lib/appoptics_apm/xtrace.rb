@@ -30,7 +30,7 @@ module AppOpticsAPM
       end
 
       def sampled?(xtrace)
-        xtrace[59].to_i & 1 == 1
+        valid?(xtrace) && xtrace[59].to_i & 1 == 1
       end
 
       def set_sampled(xtrace)

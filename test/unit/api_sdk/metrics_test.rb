@@ -14,12 +14,11 @@ describe AppOpticsAPM::API::Metrics do
       end
     end
 
-    it 'should set the created transaction name' do
-      Time.stub(:now, Time.at(0)) do
-        AppOpticsAPM::API.send_metrics('test') {}
-      end
+    it 'should set the created transaction name and return the result from the block' do
+      result = AppOpticsAPM::API.send_metrics('test') { 42 }
 
       assert_equal 'custom-test', AppOpticsAPM::SDK.get_transaction_name
+      assert_equal 42, result
     end
 
     it 'should use the transaction name from the params' do
