@@ -1,0 +1,11 @@
+source "https://rubygems.org"
+
+group :development, :test do
+  gem 'minitest'
+  gem 'mocha'
+  gem 'minitest-reporters', '< 1.0.18'
+  gem 'bson', '~> 4.0'
+end
+
+gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')
+# vim:syntax=ruby

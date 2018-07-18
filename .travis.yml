@@ -18,6 +18,7 @@ rvm:
 
 gemfile:
   - gemfiles/libraries.gemfile
+  - gemfiles/unit.gemfile
   - gemfiles/instrumentation_mocked.gemfile
   - gemfiles/instrumentation_mocked_oldgems.gemfile
   - gemfiles/frameworks.gemfile
@@ -32,11 +33,11 @@ matrix:
   exclude:
     - rvm: 2.5.1
       env: DBTYPE=mysql
-#    - rvm: 2.4.3
-#      env: DBTYPE=mysql
     - rvm: 2.4.4
       env: DBTYPE=mysql
 
+    - gemfile: gemfiles/unit.gemfile
+      env: DBTYPE=mysql
     - gemfile: gemfiles/noop.gemfile
       env: DBTYPE=mysql
     - gemfile: gemfiles/libraries.gemfile
@@ -54,6 +55,8 @@ matrix:
     - gemfile: gemfiles/delayed_job.gemfile
       env: DBTYPE=mysql
 
+    - gemfile: gemfiles/unit.gemfile
+      env: DBTYPE=mysql2
     - gemfile: gemfiles/noop.gemfile
       env: DBTYPE=mysql2
     - gemfile: gemfiles/libraries.gemfile
@@ -71,7 +74,7 @@ matrix:
     # We currently are not supporting Rails 3.2
     - rvm: 2.5.1
       gemfile: gemfiles/rails32.gemfile
-    - rvm: 2.4.3
+    - rvm: 2.4.4
       gemfile: gemfiles/rails32.gemfile
 
 #    - rvm: jruby-9.0.5.0

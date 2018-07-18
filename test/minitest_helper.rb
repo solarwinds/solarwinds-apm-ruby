@@ -7,12 +7,12 @@ require 'simplecov-console' if ENV["SIMPLECOV_COVERAGE"]
 SimpleCov.start do
 # SimpleCov.formatter = SimpleCov.formatter = SimpleCov::Formatter::Console
   merge_timeout 3600
-  command_name "#{RUBY_VERSION}_#{File.basename(ENV['BUNDLE_GEMFILE'])}_#{ENV['DBTYPE']}"
+  command_name "#{RUBY_VERSION} #{File.basename(ENV['BUNDLE_GEMFILE'])} #{ENV['DBTYPE']}"
 # SimpleCov.use_merging true
   add_filter '/test/'
   add_filter '../test/'
   use_merging true
-end  if ENV["SIMPLECOV_COVERAGE"]
+end if ENV["SIMPLECOV_COVERAGE"]
 
 require 'rubygems'
 require 'bundler/setup'
@@ -63,7 +63,7 @@ AppOpticsAPM::Config[:sample_rate] = 1000000
 # puts %x{psql -c 'create database travis_ci_test;' -U postgres}
 
 # Our background Rack-app for http client testing
-require './test/servers/rackapp_8101'
+require './test/servers/rackapp_8101' unless File.basename(ENV['BUNDLE_GEMFILE']) =~ /unit/
 
 # Conditionally load other background servers
 # depending on what we're testing
@@ -84,13 +84,13 @@ when /rails3/
 
 when /frameworks/
 when /libraries/
-  require 'rack/test'
+  require 'rack/test' unless File.basename(ENV['BUNDLE_GEMFILE']) =~ /unit/
+
   # Load Sidekiq if TEST isn't defined or if it is, it calls
   # out the sidekiq tests
-  if !ENV.key?('TEST') || ENV['TEST'] =~ /sidekiq/
-    # Background Sidekiq thread
-    require './test/servers/sidekiq.rb'
-  end
+  # Background Sidekiq thread
+  # if !ENV.key?('TEST') || ENV['TEST'] =~ /sidekiq/
+  require './test/servers/sidekiq.rb' if ENV['TEST'] =~ /sidekiq/
 end
 
 ##
