@@ -84,7 +84,7 @@ when /rails3/
 
 when /frameworks/
 when /libraries/
-  require 'rack/test' unless File.basename(ENV['BUNDLE_GEMFILE']) =~ /unit/
+  require 'rack/test'
 
   # Load Sidekiq if TEST isn't defined or if it is, it calls
   # out the sidekiq tests

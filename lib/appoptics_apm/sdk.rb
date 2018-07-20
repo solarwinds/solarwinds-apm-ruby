@@ -93,6 +93,9 @@ module AppOpticsAPM
       def trace(span, opts = {}, protect_op = nil)
         return yield if !AppOpticsAPM.loaded || !AppOpticsAPM.tracing? || (protect_op && AppOpticsAPM.layer_op == protect_op.to_sym)
 
+        opts.delete(:TransactionName)
+        opts.delete('TransactionName')
+
         AppOpticsAPM::API.log_entry(span, opts, protect_op)
         begin
           yield
@@ -135,28 +138,7 @@ module AppOpticsAPM
       # * The result of the block.
       #
       def start_trace(span, xtrace = nil, opts = {})
-        return yield unless AppOpticsAPM.loaded
-
-        # in case it is not an entry span!
-        return trace(span, opts) { yield } if AppOpticsAPM::Context.isValid
-
-        AppOpticsAPM::API.log_start(span, xtrace, opts)
-
-        # send_metrics deals with the logic for setting AppOpticsAPM.transaction_name
-        # and ensures that metrics are sent
-        # log_end includes sending the transaction_name
-        result = AppOpticsAPM::API.send_metrics(span, opts) do
-          begin
-            yield
-          rescue Exception => e # rescue everything ok, since we are raising
-            AppOpticsAPM::API.log_exception(span, e)
-            e.instance_variable_set(:@xtrace, AppOpticsAPM::API.log_end(span))
-            raise
-          end
-        end
-        AppOpticsAPM::API.log_end(span)
-
-        result
+        start_trace_with_target(span, xtrace, {}, opts) { yield }
       end
 
       # Collect metrics, trace a given block of code, and assign trace info to target.
@@ -198,20 +180,30 @@ module AppOpticsAPM
           return result
         end
 
+        # :TransactionName and 'TransactionName' need to be removed from opts
+        # :TransactionName should only be sent after it is set by send_metrics
+        transaction_name = opts.delete('TransactionName')
+        transaction_name = opts.delete(:TransactionName) || transaction_name
+        # This is the beginning of a transaction, therefore AppOpticsAPM.transaction_name
+        # needs to be set to nil or whatever is provided in the opts
+        AppOpticsAPM.transaction_name = transaction_name
+
+
         AppOpticsAPM::API.log_start(span, xtrace, opts)
         exit_evt = AppOpticsAPM::Context.createEvent
-        result = AppOpticsAPM::API.send_metrics(span, opts) do
-          begin
-            target['X-Trace'] = AppOpticsAPM::EventUtil.metadataString(exit_evt) if AppOpticsAPM.tracing?
+        result = begin
+          AppOpticsAPM::API.send_metrics(span, opts) do
+            target['X-Trace'] = AppOpticsAPM::EventUtil.metadataString(exit_evt)
             yield
-          rescue Exception => e
-            AppOpticsAPM::API.log_exception(span, e)
-            exit_evt.addEdge(AppOpticsAPM::Context.get)
-            xtrace = AppOpticsAPM::API.log_end(span, opts, exit_evt)
-            e.instance_variable_set(:@xtrace, xtrace)
-            raise
           end
+        rescue Exception => e
+          AppOpticsAPM::API.log_exception(span, e)
+          exit_evt.addEdge(AppOpticsAPM::Context.get)
+          xtrace = AppOpticsAPM::API.log_end(span, opts, exit_evt)
+          e.instance_variable_set(:@xtrace, xtrace)
+          raise
         end
+
         exit_evt.addEdge(AppOpticsAPM::Context.get)
         AppOpticsAPM::API.log_end(span, opts, exit_evt)
 

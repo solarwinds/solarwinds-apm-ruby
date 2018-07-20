@@ -10,32 +10,36 @@ describe AppOpticsAPM::API::Metrics do
     it 'should send the correct duration and create a transaction name' do
       Time.stub(:now, Time.at(0)) do
         AppOpticsAPM::Span.expects(:createSpan).with('custom-test', nil, 0)
-        AppOpticsAPM::API.send_metrics('test') {}
+        AppOpticsAPM::API.send_metrics('test', {}) {}
       end
     end
 
     it 'should set the created transaction name and return the result from the block' do
-      result = AppOpticsAPM::API.send_metrics('test') { 42 }
+      opts = {}
+      result = AppOpticsAPM::API.send_metrics('test', opts) { 42 }
 
-      assert_equal 'custom-test', AppOpticsAPM::SDK.get_transaction_name
+      assert_equal 'custom-test', opts[:TransactionName]
       assert_equal 42, result
     end
 
-    it 'should use the transaction name from the params' do
+    it 'should override the transaction name from the params' do
       Time.stub(:now, Time.at(0)) do
         AppOpticsAPM::Span.expects(:createSpan).with('this_name', nil, 0)
-        AppOpticsAPM::SDK.set_transaction_name('trying_to_confuse_you')
-        AppOpticsAPM::API.send_metrics('test', :TransactionName => 'this_name') {}
+
+        AppOpticsAPM::SDK.set_transaction_name('this_name')
+        # :TransactionName should not even be in there!!!
+        AppOpticsAPM::API.send_metrics('test', :TransactionName => 'trying_to_confuse_you') {}
       end
     end
 
-    it 'should set the transaction name from the params' do
-      Time.stub(:now, Time.at(0)) do
-        AppOpticsAPM::SDK.set_transaction_name('trying_to_confuse_you')
-        AppOpticsAPM::API.send_metrics('test', :TransactionName => 'this_name') {}
-      end
+    it 'should override the transaction name from the params' do
+      # :TransactionName should not even be in there!!!
+      opts = { :TransactionName => 'trying_to_confuse_you' }
 
-      assert_equal 'this_name', AppOpticsAPM::SDK.get_transaction_name
+      AppOpticsAPM::SDK.set_transaction_name('this_name')
+      AppOpticsAPM::API.send_metrics('test', opts) {}
+
+      assert_equal 'this_name', opts[:TransactionName]
     end
 
   end

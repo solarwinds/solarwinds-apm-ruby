@@ -14,21 +14,37 @@ module  AppOpticsAPM
       #
       # Returns the result of the block.
       #
+      # Assigns the transaction_name to kvs[:TransactionName]
 
-      def send_metrics(span, kvs = {})
-        # This is a new span, we do not know the transaction name yet
-        AppOpticsAPM.transaction_name = nil
-
-        # if a transaction name is provided it will take precedence over transaction names defined
-        # later or in lower spans
+      def send_metrics(span, kvs)
         start = Time.now
-
         yield
       ensure
         duration =(1000 * 1000 * (Time.now - start)).round(0)
-        transaction_name = AppOpticsAPM::API.determine_transaction_name(span, kvs)
-        kvs[:TransactionName] = AppOpticsAPM::API.set_transaction_name(AppOpticsAPM::Span.createSpan(transaction_name, nil, duration))
+        transaction_name = AppOpticsAPM::API.determine_transaction_name(span)
+        kvs[:TransactionName] = AppOpticsAPM::Span.createSpan(transaction_name, nil, duration)
+        AppOpticsAPM.transaction_name = nil
       end
+
+      private
+
+      ##
+      # Determine the transaction name to be set on the trace
+      #
+      # A transaction name set via the opts key `:TransactionName` takes precedence
+      # over a currently set custom transaction name. if neither are provided it
+      # returns `"custom_#{span}"`
+      #
+      # === Argument:
+      # * +opts+ (hash) the value of :TransactionName will be set as custom transaction name
+      #
+      # === Returns:
+      # (string) the current transaction name
+      #
+      def determine_transaction_name(span)
+        AppOpticsAPM.transaction_name || AppOpticsAPM::SDK.set_transaction_name("custom-#{span}")
+      end
+
     end
   end
 end
