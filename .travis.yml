@@ -6,9 +6,9 @@ cache:
   - vendor/bundle
 
 env:
-  - DBTYPE=mysql
-  - DBTYPE=mysql2
   - DBTYPE=postgresql
+  - DBTYPE=mysql2
+  - DBTYPE=mysql
 
 rvm:
   - 2.5.1
