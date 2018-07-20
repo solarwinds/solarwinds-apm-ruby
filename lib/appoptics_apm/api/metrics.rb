@@ -7,14 +7,16 @@ module  AppOpticsAPM
       # it checks if it can send metrics with the current transaction name
       # or a default transaction name and sets the transaction name accordingly
       #
-      # === Arguments
+      # === Arguments:
       #
       # * +span+ the name of the current span (used to construct a transaction name if none is defined)
       # * +kvs+ A hash containing key/value pairs, only the value of :TransactionName will be relevant
       #
-      # Returns the result of the block.
+      # === Returns:
+      # The result of the block.
       #
-      # Assigns the transaction_name to kvs[:TransactionName]
+      # === Assigns:
+      # The transaction_name to kvs[:TransactionName]
 
       def send_metrics(span, kvs)
         start = Time.now
@@ -30,10 +32,6 @@ module  AppOpticsAPM
 
       ##
       # Determine the transaction name to be set on the trace
-      #
-      # A transaction name set via the opts key `:TransactionName` takes precedence
-      # over a currently set custom transaction name. if neither are provided it
-      # returns `"custom_#{span}"`
       #
       # === Argument:
       # * +opts+ (hash) the value of :TransactionName will be set as custom transaction name
