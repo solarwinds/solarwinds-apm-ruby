@@ -76,14 +76,13 @@ the Mac users and it probably makes sense for Linux users as well,
 because it takes care of starting the required services.
 
 ### Run all tests
+To run all tests as defined in .travs.yml:
 ```bash
 bundle exec rake docker_tests
 ```
-It is also possible to run them like this:
-```bash
-cd run_tests
-docker-compose run --service-ports ruby_appoptics /code/ruby-appoptics/test/run_tests/ruby_setup.sh test
-```
+>Temporarily commenting out components (e.g. a ruby version) in travis.yml 
+is a good way to reduce the time of a test run.
+
 Be aware that starting the container takes longer if the Docker image needs to be created first 
 (+10-15 minutes), because it needs to install three versions of Ruby, which is a pretty 
 slow process. It is recommended to keep the appoptics_apm image and only replace 

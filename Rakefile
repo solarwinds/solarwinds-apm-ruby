@@ -53,6 +53,8 @@ Rake::TestTask.new do |t|
     t.test_files = FileList['test/mocked/*_test.rb']
   when /noop/
     t.test_files = FileList['test/noop/*_test.rb']
+  when /unit/
+    t.test_files = FileList['test/unit/*/*_test.rb']
   end
 
   if defined?(JRUBY_VERSION)

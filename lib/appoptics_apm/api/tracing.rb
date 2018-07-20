@@ -44,29 +44,8 @@ module AppOpticsAPM
       #
       # Returns an array with the result of the block and the last xtrace used
       def start_trace(span, xtrace = nil, opts = {})
-        return [yield, nil] unless AppOpticsAPM.loaded
-
-        # if it is not an entry span!
-        return [trace(span, opts) { yield }, AppopticsAPM::Context.toString] if AppOpticsAPM::Context.isValid
-
-        log_start(span, xtrace, opts)
-
-        # send_metrics deals with the logic for setting AppOpticsAPM.transaction_name
-        # and ensures that metrics are sent
-        # log_end sets the transaction_name
-        result = send_metrics(span, opts) do
-          begin
-            yield
-          rescue Exception => e # rescue everything ok, since we are raising
-            AppOpticsAPM::API.log_exception(span, e)
-            e.instance_variable_set(:@xtrace, log_end(span))
-            raise
-          end
-        end
-        xtrace = AppopticsAPM::Context.toString
-        log_end(span, opts)
-
-        [result, xtrace]
+        target = {}
+        [start_trace_with_target(span, xtrace, target, opts) { yield }, target['X-Trace']]
       end
 
 

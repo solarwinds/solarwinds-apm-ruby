@@ -74,7 +74,7 @@ do
     if [ "$pids" != "" ]; then kill $pids; fi
   else
     echo "Problem during gem install. Skipping tests for ${args[1]}"
-    exit 1 # we are not continiuing here to keep ctrl-c working as expected
+    exit 1 # we are not continuing here to keep ctrl-c working as expected
   fi
 
   num=$((num-1))
