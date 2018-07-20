@@ -94,7 +94,7 @@ before_install:
   - echo "127.0.0.1 localhost"  | sudo tee /etc/hosts
   - echo "127.0.0.1 " `hostname` | sudo tee -a /etc/hosts
   - sudo service cassandra start
-  - nvm install                         # Install node version from .nvmrc
+#  - nvm install                         # Install node version from .nvmrc
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
 
