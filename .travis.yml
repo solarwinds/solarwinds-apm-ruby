@@ -94,9 +94,6 @@ before_install:
   - echo "127.0.0.1 localhost"  | sudo tee /etc/hosts
   - echo "127.0.0.1 " `hostname` | sudo tee -a /etc/hosts
   - sudo service cassandra start
-#  - nvm install                         # Install node version from .nvmrc
-  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-  - chmod +x ./cc-test-reporter
 
 install:
   - curl -LO http://kent.dl.sourceforge.net/project/swig/swig/swig-3.0.8/swig-3.0.8.tar.gz
@@ -118,14 +115,6 @@ before_script:
   - export APPOPTICS_TOKEN_BUCKET_RATE=1000
 
 script: "N=1 bundle exec rake test"
-
-# Pipe the coverage data to Code Climate
-after_script:
-  - ./cc-test-reporter format-coverage -t simplecov -o coverage/codeclimate.backend.json coverage/backend/.resultset.json # Format backend coverage
-  - ./cc-test-reporter format-coverage -t lcov -o coverage/codeclimate.frontend.json coverage/frontend/lcov.info  # Format frontend coverage
-  - ./cc-test-reporter sum-coverage coverage/codeclimate.*.json -p 2                  # Sum both coverage parts into coverage/codeclimate.json
-  - if [[ "$TRAVIS_TEST_RESULT" == 0 ]]; then ./cc-test-reporter upload-coverage; fi  # Upload coverage/codeclimate.json
-
 
 services:
   - mongodb
