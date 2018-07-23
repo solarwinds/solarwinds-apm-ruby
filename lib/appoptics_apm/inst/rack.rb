@@ -137,11 +137,9 @@ if AppOpticsAPM.loaded
         confirmed_transaction_name = send_metrics(env, req, req_url, start, status)
         xtrace = AppOpticsAPM::API.log_end(:rack, :Status => status, :TransactionName => confirmed_transaction_name)
 
-        if headers && AppOpticsAPM::XTrace.valid?(xtrace)
-          # TODO revisit this JRUBY condition
-          # headers['X-Trace'] = xtrace if headers.is_a?(Hash) unless defined?(JRUBY_VERSION) && AppOpticsAPM.is_continued_trace?
-          headers['X-Trace'] = xtrace if headers.is_a?(Hash) unless defined?(JRUBY_VERSION) && AppOpticsAPM.is_continued_trace?
-        end
+        # TODO revisit this JRUBY condition
+        # headers['X-Trace'] = xtrace if headers.is_a?(Hash) unless defined?(JRUBY_VERSION) && AppOpticsAPM.is_continued_trace?
+        headers['X-Trace'] = xtrace if headers.is_a?(Hash)
 
         [status, headers, response]
       rescue Exception => e
@@ -150,11 +148,9 @@ if AppOpticsAPM.loaded
         confirmed_transaction_name ||= send_metrics(env, req, req_url, start, status)
         xtrace = AppOpticsAPM::API.log_end(:rack, :Status => status, :TransactionName => confirmed_transaction_name)
 
-        if headers && AppOpticsAPM::XTrace.valid?(xtrace)
-          # TODO revisit this JRUBY condition
-          # headers['X-Trace'] = xtrace if headers.is_a?(Hash) unless defined?(JRUBY_VERSION) && AppOpticsAPM.is_continued_trace?
-          headers['X-Trace'] = xtrace if headers.is_a?(Hash) unless defined?(JRUBY_VERSION) && AppOpticsAPM.is_continued_trace?
-        end
+        # TODO revisit this JRUBY condition
+        # headers['X-Trace'] = xtrace if headers.is_a?(Hash) unless defined?(JRUBY_VERSION) && AppOpticsAPM.is_continued_trace?
+        headers['X-Trace'] = xtrace if headers.is_a?(Hash)
 
         raise
       end
@@ -163,14 +159,16 @@ if AppOpticsAPM.loaded
       def send_metrics(env, req, req_url, start, status)
         return if ::AppOpticsAPM::Util.static_asset?(env['PATH_INFO'])
 
-        domain = nil
-        if AppOpticsAPM::Config['transaction_name']['prepend_domain']
-          domain = [80, 443].include?(req.port) ? req.host : "#{req.host}:#{req.port}"
-        end
         status = status.to_i
         error = status.between?(500,599) ? 1 : 0
         duration =(1000 * 1000 * (Time.now - start)).round(0)
-        AppOpticsAPM::Span.createHttpSpan(transaction_name(env), req_url, domain, duration, status, req.request_method, error) || ''
+        AppOpticsAPM::Span.createHttpSpan(transaction_name(env), req_url, domain(req), duration, status, req.request_method, error) || ''
+      end
+
+      def domain(req)
+        if AppOpticsAPM::Config['transaction_name']['prepend_domain']
+          [80, 443].include?(req.port) ? req.host : "#{req.host}:#{req.port}"
+        end
       end
 
       def transaction_name(env)

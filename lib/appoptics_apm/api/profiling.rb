@@ -88,14 +88,13 @@ module AppOpticsAPM
         if !klass.is_a?(Module)
           AppOpticsAPM.logger.warn "[appoptics_apm/error] profile_method: Not sure what to do with #{klass}.  Send a class or module."
           return false
+        end
 
+        if method.is_a?(String)
+          method = method.to_sym
         elsif !method.is_a?(Symbol)
-          if method.is_a?(String)
-            method = method.to_sym
-          else
-            AppOpticsAPM.logger.warn "[appoptics_apm/error] profile_method: Not sure what to do with #{method}.  Send a string or symbol for method."
-            return false
-          end
+          AppOpticsAPM.logger.warn "[appoptics_apm/error] profile_method: Not sure what to do with #{method}.  Send a string or symbol for method."
+          return false
         end
 
         instance_method = klass.instance_methods.include?(method) || klass.private_instance_methods.include?(method)
@@ -177,11 +176,7 @@ module AppOpticsAPM
         report_kvs[:Language] ||= :ruby
         report_kvs[:ProfileName] ||= opts[:name] ? opts[:name] : method
 
-        if klass.is_a?(Class)
-          report_kvs[:Class] = klass.to_s
-        else
-          report_kvs[:Module] = klass.to_s
-        end
+        klass.is_a?(Class) ? report_kvs[:Class] = klass.to_s : report_kvs[:Module] = klass.to_s
 
         # If this is a Rails Controller, report the KVs
         if defined?(::AbstractController::Base) && klass.ancestors.include?(::AbstractController::Base)
