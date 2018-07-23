@@ -53,10 +53,6 @@ module AppOpticsAPM
             name == 'ActiveRecord::SchemaMigration Load'
         end
 
-        # def cfg
-        #   @config
-        # end
-
         def execute_with_appoptics(sql, name = nil)
           if AppOpticsAPM.tracing? && !ignore_payload?(name)
 

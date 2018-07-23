@@ -86,7 +86,7 @@ class DelayedJobWorkerTest < Minitest::Test
   end
 
   def test_log_args_default_value
-    skip # there is no code using AppOpticsAPM::Config[:delayed_jobworker][:log_args]
-    assert_equal true, AppOpticsAPM::Config[:delayed_jobworker][:log_args], "log_args default "
+    skip # TODO: there is no code checking AppOpticsAPM::Config[:delayed_jobworker][:log_args]
+    assert_equal true, AppOpticsAPM::Config[:delayed_jobworker][:log_args], "test log_args on by default "
   end
 end
