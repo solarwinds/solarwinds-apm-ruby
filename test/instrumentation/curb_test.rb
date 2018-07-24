@@ -39,7 +39,8 @@ unless defined?(JRUBY_VERSION)
       assert_equal 'curb',                    traces[1]['Layer']
       assert_equal 'entry',                   traces[1]['Label']
       assert_equal 1,                         traces[1]['IsService']
-      assert_equal url,                       traces[1]['RemoteURL']
+      # curb started using URI#to_s and may have a trailing '?', https://github.com/taf2/curb/commit/32fa6d78968c3b63e2a54a2c326efb577db04043
+      assert_equal url,                       traces[1]['RemoteURL'].chomp('?')
       assert_equal method,                    traces[1]['HTTPMethod']
       assert                                  traces[1]['Backtrace']
 
@@ -300,7 +301,8 @@ unless defined?(JRUBY_VERSION)
       assert valid_edges?(traces), "Trace edge validation"
 
       assert_equal 1,                                traces[1]['IsService']
-      assert_equal 'http://asfjalkfjlajfljkaljf/',   traces[1]['RemoteURL']
+      # curb started using URI#to_s and may have a trailing '?', https://github.com/taf2/curb/commit/32fa6d78968c3b63e2a54a2c326efb577db04043
+      assert_equal 'http://asfjalkfjlajfljkaljf/',   traces[1]['RemoteURL'].chomp('?')
       assert_equal 'GET',                            traces[1]['HTTPMethod']
       assert                                         traces[1]['Backtrace']
 
