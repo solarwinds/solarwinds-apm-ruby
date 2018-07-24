@@ -26,7 +26,8 @@ module AppOpticsAPM
 
         report_kvs[:Controller] = options[:for].name
         if route && route.pattern
-          report_kvs[:Action] = route.pattern.origin
+          report_kvs[:Action] = route.options ? "#{route.options[:method]}#{route.pattern.origin}" : route.pattern.origin
+          # report_kvs[:Action] = route.pattern.origin
         else
           report_kvs[:Action] = args.empty? ? env['PATH_INFO'] : args[0]['PATH_INFO']
         end
