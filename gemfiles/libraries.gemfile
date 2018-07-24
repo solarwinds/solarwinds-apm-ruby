@@ -24,10 +24,10 @@ else
   gem 'sinatra'
 end
 
-gem 'bunny', '< 2.6.5'
+gem 'bunny'
 gem 'mongo'
 gem 'cassandra'
-gem 'curb', '<= 0.9.3' unless defined?(JRUBY_VERSION)
+gem 'curb' unless defined?(JRUBY_VERSION)
 gem 'dalli'
 gem 'excon'
 gem 'faraday'

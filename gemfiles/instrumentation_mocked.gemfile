@@ -14,7 +14,7 @@ group :development, :test do
   gem 'mocha'
 end
 
-gem 'curb', '<= 0.9.3' unless defined?(JRUBY_VERSION)
+gem 'curb'
 gem 'excon'
 gem 'faraday'
 gem 'httpclient'

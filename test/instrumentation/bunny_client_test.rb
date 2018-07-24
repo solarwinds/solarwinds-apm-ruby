@@ -153,12 +153,11 @@ unless defined?(JRUBY_VERSION)
 
       begin
         AppOpticsAPM::API.start_trace('bunny_tests') do
-          @exchange = @ch.topic("tv.ruby.error.1", :auto_delete => true)
           @exchange = @ch.fanout("tv.ruby.error.1", :auto_delete => true)
           @exchange.publish("The Tortoise and the Hare in the topic exchange.", :routing_key => 'tv.ruby.test.1').publish("And another...", :routing_key => 'tv.ruby.test.2' )
         end
       rescue
-        # Capture intentional redeclaration error
+        # Capture intentional error
       end
 
       traces = get_all_traces
