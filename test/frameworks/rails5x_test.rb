@@ -76,7 +76,8 @@ if defined?(::Rails)
       r.header['X-Trace'].must_equal traces[6]['X-Trace']
     end
 
-    # FIXME fails in rails 5.2.x
+    # Different behavior in Rails >= 5.2.0
+    # https://github.com/rails/rails/pull/30619
     it "should trace rails postgres db calls" do
       # Skip for JRuby since the java instrumentation
       # handles DB instrumentation for JRuby
@@ -95,7 +96,7 @@ if defined?(::Rails)
       traces[3]['Label'].must_equal "entry"
       traces[3]['Flavor'].must_equal "postgresql"
       traces[3]['Query'].must_equal "INSERT INTO \"widgets\" (\"name\", \"description\", \"created_at\", \"updated_at\") VALUES ($?, $?, $?, $?) RETURNING \"id\""
-      traces[3]['Name'].must_equal "SQL"
+      traces[3]['Name'].must_equal Rails.version < '5.2.0' ? "SQL" : "Widget Create"
       traces[3].key?('Backtrace').must_equal false
 
       traces[4]['Layer'].must_equal "activerecord"
@@ -116,7 +117,7 @@ if defined?(::Rails)
       traces[7]['Label'].must_equal "entry"
       traces[7]['Flavor'].must_equal "postgresql"
       traces[7]['Query'].must_equal "DELETE FROM \"widgets\" WHERE \"widgets\".\"id\" = $?"
-      traces[7]['Name'].must_equal "SQL"
+      traces[7]['Name'].must_equal Rails.version < '5.2.0' ? "SQL" : "Widget Destroy"
       traces[7].key?('Backtrace').must_equal false
       traces[7].key?('QueryArgs').must_equal false
 
@@ -128,6 +129,10 @@ if defined?(::Rails)
       r.header['X-Trace'].must_equal traces[12]['X-Trace']
     end
 
+    # Different behavior in Rails >= 5.2.0
+    # https://github.com/rails/rails/pull/30619
+    # and
+    # https://github.com/rails/rails/commit/213796fb4936dce1da2f0c097a054e1af5c25c2c
     it "should trace rails mysql2 db calls" do
       # Skip for JRuby since the java instrumentation
       # handles DB instrumentation for JRuby
@@ -153,30 +158,32 @@ if defined?(::Rails)
       entry_traces[2]['Flavor'].must_equal "mysql"
       entry_traces[2]['Query'].gsub!(/\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d/, 'the_date')
       entry_traces[2]['Query'].must_equal "INSERT INTO `widgets` (`name`, `description`, `created_at`, `updated_at`) VALUES ('blah', 'This is an amazing widget.', 'the_date', 'the_date')"
-      entry_traces[2]['Name'].must_equal "SQL"
+      entry_traces[2]['Name'].must_equal Rails.version < '5.2.0' ? "SQL" : "Widget Create"
       entry_traces[2].key?('Backtrace').must_equal false
-      entry_traces[2].key?('QueryArgs').must_equal true
+      entry_traces[2].key?('QueryArgs').must_equal Rails.version < '5.2.0' ? true : false
 
       entry_traces[3]['Layer'].must_equal "activerecord"
       entry_traces[3]['Flavor'].must_equal "mysql"
       entry_traces[3]['Query'].must_equal "SELECT  `widgets`.* FROM `widgets` WHERE `widgets`.`name` = 'blah' ORDER BY `widgets`.`id` ASC LIMIT 1"
       entry_traces[3]['Name'].must_equal "Widget Load"
       entry_traces[3].key?('Backtrace').must_equal false
-      entry_traces[3].key?('QueryArgs').must_equal true
+      entry_traces[3].key?('QueryArgs').must_equal Rails.version < '5.2.0' ? true : false
 
       entry_traces[4]['Layer'].must_equal "activerecord"
       entry_traces[4]['Flavor'].must_equal "mysql"
       entry_traces[4]['Query'].gsub!(/\d+/, 'ID')
       entry_traces[4]['Query'].must_equal "DELETE FROM `widgets` WHERE `widgets`.`id` = ID"
-      entry_traces[4]['Name'].must_equal "SQL"
+      entry_traces[4]['Name'].must_equal Rails.version < '5.2.0' ? "SQL" : "Widget Destroy"
       entry_traces[4].key?('Backtrace').must_equal false
-      entry_traces[4].key?('QueryArgs').must_equal true
+      entry_traces[4].key?('QueryArgs').must_equal Rails.version < '5.2.0' ? true : false
 
       # Validate the existence of the response header
       r.header.key?('X-Trace').must_equal true
       r.header['X-Trace'].must_equal traces[12]['X-Trace']
     end
 
+    # Different behavior in Rails >= 5.2.0
+    # https://github.com/rails/rails/pull/30619
     it "should trace rails mysql2 db calls with sanitize sql" do
       # Skip for JRuby since the java instrumentation
       # handles DB instrumentation for JRuby
@@ -201,7 +208,7 @@ if defined?(::Rails)
       entry_traces[2]['Layer'].must_equal "activerecord"
       entry_traces[2]['Flavor'].must_equal "mysql"
       entry_traces[2]['Query'].must_equal "INSERT INTO `widgets` (`name`, `description`, `created_at`, `updated_at`) VALUES (?, ?, ?, ?)"
-      entry_traces[2]['Name'].must_equal "SQL"
+      entry_traces[2]['Name'].must_equal Rails.version < '5.2.0' ? "SQL" : "Widget Create"
       entry_traces[2].key?('Backtrace').must_equal false
       entry_traces[2].key?('QueryArgs').must_equal false
 
@@ -215,7 +222,7 @@ if defined?(::Rails)
       entry_traces[4]['Layer'].must_equal "activerecord"
       entry_traces[4]['Flavor'].must_equal "mysql"
       entry_traces[4]['Query'].must_equal "DELETE FROM `widgets` WHERE `widgets`.`id` = ?"
-      entry_traces[4]['Name'].must_equal "SQL"
+      entry_traces[4]['Name'].must_equal Rails.version < '5.2.0' ? "SQL" : "Widget Destroy"
       entry_traces[4].key?('Backtrace').must_equal false
       entry_traces[4].key?('QueryArgs').must_equal false
 
