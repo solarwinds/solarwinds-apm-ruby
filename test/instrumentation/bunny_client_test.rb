@@ -153,23 +153,24 @@ unless defined?(JRUBY_VERSION)
 
       begin
         AppOpticsAPM::API.start_trace('bunny_tests') do
-          @exchange = @ch.fanout("tv.ruby.error.1", :auto_delete => true)
-          @exchange.publish("The Tortoise and the Hare in the topic exchange.", :routing_key => 'tv.ruby.test.1').publish("And another...", :routing_key => 'tv.ruby.test.2' )
+          @ch = @conn.create_channel
+          @ch.queue("bunny.tests.queues.auto-delete", auto_delete: true, durable: false)
+          @ch.queue_declare("bunny.tests.queues.auto-delete", auto_delete: false, durable: true)
         end
       rescue
-        # Capture intentional error
+        # ignore exception and continue
       end
 
       traces = get_all_traces
-      assert_equal 3, traces.count
+      assert_equal 5, traces.count
 
       validate_outer_layers(traces, "bunny_tests")
       assert valid_edges?(traces), "Invalid edge in traces"
 
-      traces[1]['Label'].must_equal "error"
-      traces[1]['ErrorClass'].must_equal "Bunny::PreconditionFailed"
-      traces[1]['ErrorMsg'].must_match(/PRECONDITION_FAILED/)
-      traces[1].key?('Backtrace').must_equal true
+      traces[3]['Label'].must_equal "error"
+      traces[3]['ErrorClass'].must_equal "Bunny::PreconditionFailed"
+      traces[3]['ErrorMsg'].must_match(/PRECONDITION_FAILED/)
+      traces[3].key?('Backtrace').must_equal true
 
       @conn.close
     end
