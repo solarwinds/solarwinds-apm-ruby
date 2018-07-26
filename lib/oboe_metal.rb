@@ -21,8 +21,7 @@ module AppOpticsAPM
         return unless AppOpticsAPM.loaded
 
         begin
-          protocol = ENV.key?('APPOPTICS_GEM_TEST') ? 'file' :
-                       ENV['TRACELYTICS_REPORTER'] || 'ssl'
+          protocol = ENV.key?('APPOPTICS_GEM_TEST') ? 'file' : 'ssl'
 
           case protocol
           when 'file'
