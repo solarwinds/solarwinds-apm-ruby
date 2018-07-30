@@ -127,4 +127,61 @@ describe AppOpticsAPM::API::Logging do
       AppOpticsAPM::API.log_multi_exit(:test, [])
     end
   end
+
+  describe "when we use the op parameter" do
+    before do
+      AppOpticsAPM::Context.fromString('2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFA01')
+      AppOpticsAPM.layer_op = nil
+    end
+
+    it "should add and remove the layer_op (same op)" do
+      AppOpticsAPM::API.log_entry(:test, {}, :test)
+      AppOpticsAPM::API.log_entry(:test, {}, :test)
+      assert_equal [:test, :test], AppOpticsAPM.layer_op
+      AppOpticsAPM::API.log_exit(:test, {}, :test)
+      AppOpticsAPM::API.log_entry(:test, {}, :test)
+      assert_equal [:test, :test], AppOpticsAPM.layer_op
+      AppOpticsAPM::API.log_exit(:test, {}, :test)
+      AppOpticsAPM::API.log_entry(:test, {}, :test)
+      assert_equal [:test, :test], AppOpticsAPM.layer_op
+      AppOpticsAPM::API.log_exit(:test, {}, :test)
+      assert_equal [:test], AppOpticsAPM.layer_op
+      AppOpticsAPM::API.log_exit(:test, {}, :test)
+
+      assert_empty AppOpticsAPM.layer_op
+    end
+
+    it "should add and remove the layer_op (different ops)" do
+      AppOpticsAPM::API.log_entry(:test, {}, :test)
+      AppOpticsAPM::API.log_entry(:test, {}, :test_2)
+      assert_equal [:test, :test_2], AppOpticsAPM.layer_op
+      AppOpticsAPM::API.log_exit(:test, {}, :test_2)
+      AppOpticsAPM::API.log_entry(:test, {}, :test)
+      assert_equal [:test, :test], AppOpticsAPM.layer_op
+      AppOpticsAPM::API.log_exit(:test, {}, :test)
+      AppOpticsAPM::API.log_entry(:test, {}, :test_3)
+      assert_equal [:test, :test_3], AppOpticsAPM.layer_op
+      AppOpticsAPM::API.log_exit(:test, {}, :test_3)
+      assert_equal [:test], AppOpticsAPM.layer_op
+      AppOpticsAPM::API.log_exit(:test, {}, :test)
+
+      assert_empty AppOpticsAPM.layer_op
+    end
+
+    it "should stack ops even if they repeat" do
+      AppOpticsAPM::API.log_entry(:test, {}, :test)
+      AppOpticsAPM::API.log_entry(:test, {}, :test_2)
+      assert_equal [:test, :test_2], AppOpticsAPM.layer_op
+      AppOpticsAPM::API.log_entry(:test, {}, :test)
+      assert_equal [:test, :test_2, :test], AppOpticsAPM.layer_op
+      AppOpticsAPM::API.log_exit(:test, {}, :test)
+      assert_equal [:test, :test_2], AppOpticsAPM.layer_op
+      AppOpticsAPM::API.log_exit(:test, {}, :test_2)
+      assert_equal [:test], AppOpticsAPM.layer_op
+      AppOpticsAPM::API.log_exit(:test, {}, :test)
+
+      assert_empty AppOpticsAPM.layer_op
+    end
+
+  end
 end

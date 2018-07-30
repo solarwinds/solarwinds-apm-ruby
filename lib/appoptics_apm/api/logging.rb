@@ -128,6 +128,9 @@ module AppOpticsAPM
         # end
         #++
 
+        # This is a bit ugly, but here is the best place to reset the layer_op thread local var.
+        AppOpticsAPM.layer_op = nil unless AppOpticsAPM::Context.isValid
+
         if AppOpticsAPM.sample?(opts.merge(:xtrace => xtrace))
           # Yes, we're sampling this request
           # Probablistic tracing of a subset of requests based off of
@@ -212,7 +215,7 @@ module AppOpticsAPM
       def log_entry(layer, opts = {}, op = nil)
         return AppOpticsAPM::Context.toString unless AppOpticsAPM.tracing?
 
-        AppOpticsAPM.layer_op = op.to_sym if op
+        AppOpticsAPM.layer_op = (AppOpticsAPM.layer_op || []) << op.to_sym if op
         log_event(layer, :entry, AppOpticsAPM::Context.createEvent, opts)
       end
 
@@ -257,7 +260,8 @@ module AppOpticsAPM
       def log_exit(layer, opts = {}, op = nil)
         return AppOpticsAPM::Context.toString unless AppOpticsAPM.tracing?
 
-        AppOpticsAPM.layer_op = nil if op
+        AppOpticsAPM.layer_op.pop if op && AppOpticsAPM.layer_op.is_a?(Array) && AppOpticsAPM.layer_op.last == op.to_sym
+
         log_event(layer, :exit, AppOpticsAPM::Context.createEvent, opts)
       end
 

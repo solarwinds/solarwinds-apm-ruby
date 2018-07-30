@@ -38,6 +38,24 @@ describe AppOpticsAPM::SDK do
       assert_equal 42, result
     end
 
+    it 'should log an entry, exception, and exit there is an exception' do
+      AppOpticsAPM::API.expects(:log_entry)
+      AppOpticsAPM::API.expects(:log_exception)
+      AppOpticsAPM::API.expects(:log_exit)
+
+      begin
+        AppOpticsAPM::SDK.trace(:test) { raise StandardError }
+      rescue
+      end
+    end
+
+    it 'should not log if we are not sampling' do
+      AppOpticsAPM::Context.fromString('2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFA00')
+      AppOpticsAPM::API.expects(:log).never
+      result = AppOpticsAPM::SDK.trace(:test) { 42 }
+      assert_equal 42, result
+    end
+
     it "should work without request_op parameter" do
       AppOpticsAPM::API.expects(:log_entry).twice
       AppOpticsAPM::API.expects(:log_exit).twice
@@ -57,25 +75,63 @@ describe AppOpticsAPM::SDK do
         end
       end
 
-      refute AppOpticsAPM.layer_op
+      assert AppOpticsAPM.layer_op.empty? || AppOpticsAPM.layer_op.nil?
     end
 
-    it 'should log an entry, excepetion, and exit there is an exception' do
-      AppOpticsAPM::API.expects(:log_entry)
-      AppOpticsAPM::API.expects(:log_exception)
-      AppOpticsAPM::API.expects(:log_exit)
+    it "should work with sequential calls and an op paramter" do
+      AppOpticsAPM::API.expects(:log_event).with(:test, :entry, optionally(anything), optionally(anything)).times(3)
+      AppOpticsAPM::API.expects(:log_event).with(:test, :exit, optionally(anything), optionally(anything)).times(3)
 
-      begin
-        AppOpticsAPM::SDK.trace(:test) { raise StandardError }
-      rescue
+      AppOpticsAPM::SDK.trace(:test, {}, 'test') {}
+      AppOpticsAPM::SDK.trace(:test, {}, 'test') {}
+      AppOpticsAPM::SDK.trace(:test, {}, 'test') {}
+    end
+
+    it "should work with nested and sequential calls and an op param" do
+      AppOpticsAPM::API.expects(:log_event).with(:test, :entry, optionally(anything), optionally(anything)).once
+      AppOpticsAPM::API.expects(:log_event).with(:test, :exit, optionally(anything), optionally(anything)).once
+
+      AppOpticsAPM::SDK.trace(:test, {}, 'test') do
+        AppOpticsAPM::SDK.trace(:test, {}, 'test') {}
+        AppOpticsAPM::SDK.trace(:test, {}, 'test') {}
+        AppOpticsAPM::SDK.trace(:test, {}, 'test') {}
       end
     end
 
-    it 'should not log if we are not sampling' do
-      AppOpticsAPM::Context.fromString('2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFA00')
-      AppOpticsAPM::API.expects(:log).never
-      result = AppOpticsAPM::SDK.trace(:test) { 42 }
-      assert_equal 42, result
+    it "should create spans for different ops" do
+      AppOpticsAPM::API.expects(:log_event).with(:test, :entry, optionally(anything), optionally(anything)).times(3)
+      AppOpticsAPM::API.expects(:log_event).with(:test, :exit, optionally(anything), optionally(anything)).times(3)
+
+      AppOpticsAPM::SDK.trace(:test, {}, 'test') do
+        AppOpticsAPM::SDK.trace(:test, {}, 'test_2') {}
+        AppOpticsAPM::SDK.trace(:test, {}, 'test') {}
+        AppOpticsAPM::SDK.trace(:test, {}, 'test_2') {}
+      end
+    end
+
+    it "should create a span if the ops are not sequential" do
+      AppOpticsAPM::API.expects(:log_event).with(:test, :entry, optionally(anything), optionally(anything)).times(3)
+      AppOpticsAPM::API.expects(:log_event).with(:test, :exit, optionally(anything), optionally(anything)).times(3)
+
+      AppOpticsAPM::SDK.trace(:test, {}, 'test') do
+        AppOpticsAPM::SDK.trace(:test, {}, 'test_2') do
+          AppOpticsAPM::SDK.trace(:test, {}, 'test') {}
+        end
+      end
+    end
+
+    it 'should do the right thing in the recursive example' do
+        def computation_with_appoptics(n)
+          AppOpticsAPM::SDK.trace('computation', { :number => n }, :comp) do
+            return n if n == 0
+            n + computation_with_appoptics(n-1)
+          end
+        end
+
+        AppOpticsAPM::API.expects(:log_event).with('computation', :entry, optionally(anything), optionally(anything)).once
+        AppOpticsAPM::API.expects(:log_event).with('computation', :exit, optionally(anything), optionally(anything)).once
+
+        computation_with_appoptics(3)
     end
   end
 

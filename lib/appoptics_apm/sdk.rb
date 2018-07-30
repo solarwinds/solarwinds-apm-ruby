@@ -75,14 +75,10 @@ module AppOpticsAPM
       #
       # === Example:
       #
-      #   def computation(n)
-      #     fib(n)
-      #     raise Exception.new
-      #   end
-      #
       #   def computation_with_appoptics(n)
-      #     trace('fib', { :number => n }, :fib) do
-      #       computation(n)
+      #     AppOpticsAPM::SDK.trace('computation', { :number => n }, :computation) do
+      #       return n if n == 0
+      #       n + computation_with_appoptics(n-1)
       #     end
       #   end
       #
@@ -92,7 +88,7 @@ module AppOpticsAPM
       # * The result of the block.
       #
       def trace(span, opts = {}, protect_op = nil)
-        return yield if !AppOpticsAPM.loaded || !AppOpticsAPM.tracing? || (protect_op && AppOpticsAPM.layer_op == protect_op.to_sym)
+        return yield if !AppOpticsAPM.loaded || !AppOpticsAPM.tracing? || AppOpticsAPM.tracing_layer_op?(protect_op)
 
         opts.delete(:TransactionName)
         opts.delete('TransactionName')

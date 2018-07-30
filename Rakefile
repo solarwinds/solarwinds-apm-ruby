@@ -54,7 +54,8 @@ Rake::TestTask.new do |t|
   when /noop/
     t.test_files = FileList['test/noop/*_test.rb']
   when /unit/
-    t.test_files = FileList['test/unit/*/*_test.rb']
+    t.test_files = FileList['test/unit/*_test.rb'] +
+                   FileList['test/unit/*/*_test.rb']
   end
 
   if defined?(JRUBY_VERSION)

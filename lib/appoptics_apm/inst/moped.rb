@@ -256,7 +256,7 @@ module AppOpticsAPM
       end
 
       def update_with_appoptics(change, flags = nil)
-        if AppOpticsAPM.tracing? && !AppOpticsAPM.tracing_layer_op?([:update_all, :upsert])
+        if AppOpticsAPM.tracing? && !AppOpticsAPM.tracing_layer_op?(:update_all) && !AppOpticsAPM.tracing_layer_op?(:upsert)
           begin
             report_kvs = extract_trace_details(:update)
             report_kvs[:Flags] = flags.to_s if flags

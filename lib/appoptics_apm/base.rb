@@ -135,17 +135,16 @@ module AppOpticsAPMBase
   # operation being traced.  This is used in cases of recursive
   # operation tracing or one instrumented operation calling another.
   #
-  # <operation> can be a single symbol or an array of symbols that
-  # will be checked against.
-  #
   # In such cases, we only want to trace the outermost operation.
   #
   def tracing_layer_op?(operation)
-    if operation.is_a?(Array)
-      operation.include?(AppOpticsAPM.layer_op)
-    else
-      AppOpticsAPM.layer_op == operation.to_sym
+    unless AppOpticsAPM.layer_op.nil? || AppOpticsAPM.layer_op.is_a?(Array)
+      AppOpticsAPM.logger.error('[appopticsapm/logging] INTERNAL: layer_op should be nil or an array, please report to support@appoptics.com')
+      return false
     end
+
+    return false if AppOpticsAPM.layer_op.nil? || AppOpticsAPM.layer_op.empty? || !operation.respond_to?(:to_sym)
+    AppOpticsAPM.layer_op.last == operation.to_sym
   end
 
   ##
@@ -189,32 +188,6 @@ module AppOpticsAPMBase
     else
       false
     end
-  end
-
-  ##
-  # Debugging helper method
-  #
-  # FIXME does this belong here? Is it still needed?
-  def pry!
-    # Only valid for development or test environments
-    env = ENV['RACK_ENV'] || ENV['RAILS_ENV']
-    return unless %w(development, test).include? env
-
-    require 'pry'
-    require 'pry-byebug'
-
-    if defined?(PryByebug)
-      Pry.commands.alias_command 'c', 'continue'
-      Pry.commands.alias_command 's', 'step'
-      Pry.commands.alias_command 'n', 'next'
-      Pry.commands.alias_command 'f', 'finish'
-
-      Pry::Commands.command(/^$/, 'repeat last command') do
-        _pry_.run_command Pry.history.to_a.last
-      end
-    end
-
-    byebug
   end
 
   ##
