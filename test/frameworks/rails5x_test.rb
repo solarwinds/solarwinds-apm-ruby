@@ -370,6 +370,23 @@ if defined?(::Rails)
       r.header['X-Trace'].must_equal traces[6]['X-Trace']
     end
 
+    it 'should log one exception and create unbroken traces when there is an exception' do
+      AppOpticsAPM::Config[:report_rescued_errors] = true
+      uri = URI.parse('http://127.0.0.1:8140/hello/error')
+      r = Net::HTTP.get_response(uri)
+
+      traces = get_all_traces
+
+      traces.select{ |trace| trace['Label'] == 'error' }.count.must_equal 1
+      traces.select{ |trace| trace['Label'] == 'entry' }.count.must_equal 2
+      traces.select{ |trace| trace['Label'] == 'exit'  }.count.must_equal 2
+    end
+
+    # TODO: figure out how to test this, when does this happen?
+    it 'should only log one exception, when it gets raised' do
+      skip
+    end
+
     require_relative "rails_shared_tests"
     require_relative "rails_crud_test"
   end

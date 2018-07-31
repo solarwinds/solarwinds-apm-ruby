@@ -33,6 +33,7 @@ class Rails50MetalStack < Rails::Application
     get "/hello/:id/show"    => "hello#show"
     get "/hello/metal"       => "ferro#world"
     get "/hello/db"          => "hello#db"
+    get "/hello/error"       => "hello#error"
     get "/hello/servererror" => "hello#servererror"
 
     post "/widgets"          => "widgets#create"
@@ -73,6 +74,10 @@ class HelloController < ActionController::Base
     w2.delete
 
     render :plain => "Hello database!"
+  end
+
+  def error
+    render :json => { :error => 0/0 }
   end
 
   def servererror

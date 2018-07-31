@@ -45,18 +45,17 @@ module AppOpticsAPM
         # we only report it once.
         return false if exception.instance_variable_get(:@appoptics_logged)
 
-        has_handler = has_handler?(exception)
-
-        if !has_handler || (has_handler && AppOpticsAPM::Config[:report_rescued_errors])
-          return true
+        if has_handler?(exception) && !AppOpticsAPM::Config[:report_rescued_errors]
+          return false
         end
-        false
+        true
       end
 
       ##
       # This method does the logging if we are tracing
       # it `wraps` around the call to the original method
       #
+      # This can't use the SDK trace() method because of the log_rails_error?(e) condition
       def trace(layer)
         return yield unless AppOpticsAPM.tracing?
         begin
