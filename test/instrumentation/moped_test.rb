@@ -71,8 +71,6 @@ describe "Moped" do
   end
 
   it 'should trace command' do
-    # TODO: This randomly fails for a yet unknown reason. Does it?
-    # skip
     AppOpticsAPM::API.start_trace('moped_test', '', {}) do
       command = {}
       command[:mapreduce] = "users"
