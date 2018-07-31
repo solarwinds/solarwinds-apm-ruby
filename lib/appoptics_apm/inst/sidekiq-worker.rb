@@ -8,7 +8,7 @@ module AppOpticsAPM
         # Attempt to collect up pertinent info.  If we hit something unexpected,
         # keep calm and instrument on.
         report_kvs = {}
-        worker, msg, queue = args
+        _worker, msg, queue = args
 
         # Background Job Spec KVs
         report_kvs[:Spec]       = :job

@@ -128,9 +128,9 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_obey_collect_backtraces_when_true
-      # FIXME: This can't be tested with the current Sidekiq minitest integration (e.g. already booted
-      # sidekiq in a different process)
-      skip
+      # FIXME: This can't be tested with the current Sidekiq minitest integration
+      # ____   can't change the config of the already running sidekiq worker
+      # skip
 
       AppOpticsAPM::Config[:sidekiqworker][:collect_backtraces] = true
 
@@ -148,9 +148,9 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_obey_log_args_when_false
-      # FIXME: This can't be tested with the current Sidekiq minitest integration (e.g. already booted
-      # sidekiq in a different process)
-      skip
+      # FIXME: This can't be tested with the current Sidekiq minitest integration,
+      # ____   can't change the config of the already running sidekiq worker
+      # skip
 
       AppOpticsAPM::Config[:sidekiqworker][:log_args] = false
 
@@ -161,6 +161,9 @@ unless defined?(JRUBY_VERSION)
       sleep 5
 
       traces = get_all_traces
+      require 'pry'
+      require 'pry-byebug'
+      byebug
       assert_equal 17, traces.count, "Trace count"
       assert valid_edges?(traces), "Invalid edge in traces"
       assert_equal false, traces[0].key?('Args')

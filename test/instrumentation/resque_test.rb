@@ -75,12 +75,6 @@ unless defined?(JRUBY_VERSION)
       assert_equal "exit",                        traces[4]['Label'], "exit event label"
     end
 
-    def test_legacy_resque_config
-      skip # i think they are dead now
-      assert_equal true, (AppOpticsAPM::Config[:resque][:enabled] = true), "set legacy resque config options don't die"
-      assert_equal true, (AppOpticsAPM::Config[:resque][:link_workers] = true), "set legacy resque config options don't die"
-    end
-
     def test_collect_backtraces_default_value
       assert_equal AppOpticsAPM::Config[:resqueclient][:collect_backtraces], true, "default backtrace collection"
     end
