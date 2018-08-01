@@ -130,7 +130,7 @@ unless defined?(JRUBY_VERSION)
     def test_obey_collect_backtraces_when_true
       # FIXME: This can't be tested with the current Sidekiq minitest integration
       # ____   can't change the config of the already running sidekiq worker
-      # skip
+      skip
 
       AppOpticsAPM::Config[:sidekiqworker][:collect_backtraces] = true
 
@@ -150,7 +150,7 @@ unless defined?(JRUBY_VERSION)
     def test_obey_log_args_when_false
       # FIXME: This can't be tested with the current Sidekiq minitest integration,
       # ____   can't change the config of the already running sidekiq worker
-      # skip
+      skip
 
       AppOpticsAPM::Config[:sidekiqworker][:log_args] = false
 
