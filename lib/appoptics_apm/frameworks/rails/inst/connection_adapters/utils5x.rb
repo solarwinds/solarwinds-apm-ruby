@@ -61,7 +61,7 @@ module AppOpticsAPM
         end
 
         def exec_query_with_appoptics(sql, name = nil, binds = [], prepare: false)
-          if AppOpticsAPM.tracing? && AppOpticsAPM.layer_op != :ar_started && !ignore_payload?(name)
+          if AppOpticsAPM.tracing? && !AppOpticsAPM.tracing_layer_op?(:ar_started) && !ignore_payload?(name)
 
             opts = extract_trace_details(sql, name, binds)
             AppOpticsAPM::API.trace('activerecord', opts) do
