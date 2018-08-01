@@ -161,9 +161,6 @@ unless defined?(JRUBY_VERSION)
       sleep 5
 
       traces = get_all_traces
-      require 'pry'
-      require 'pry-byebug'
-      byebug
       assert_equal 17, traces.count, "Trace count"
       assert valid_edges?(traces), "Invalid edge in traces"
       assert_equal false, traces[0].key?('Args')
