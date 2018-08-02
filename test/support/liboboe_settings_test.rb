@@ -27,7 +27,7 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_localset_sample_source
-      skip("FIXME: broken on travis only") if ENV['TRAVIS'] == "true"
+      # skip("FIXME: broken on travis only") if ENV['TRAVIS'] == "true"
 
       # We make an initial call here which will force the appoptics_apm gem to retrieve
       # the sample_rate and sample_source from liboboe (via sample? method)

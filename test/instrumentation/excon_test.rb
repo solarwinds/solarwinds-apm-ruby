@@ -122,8 +122,6 @@ class ExconTest < Minitest::Test
   end
 
   def test_pipelined_requests
-    skip if Excon::VERSION <= '0.17.0'
-
     clear_all_traces
 
     AppOpticsAPM::API.start_trace('excon_tests') do

@@ -383,7 +383,7 @@ if defined?(::Rails)
     end
 
     # TODO: figure out how to test this, when does this happen?
-    it 'should only log one exception, when it gets raised' do
+    it 'should only log one exception, when it gets raised recursively' do
       skip
     end
 
