@@ -23,6 +23,9 @@ module AppOpticsAPM
         env['appoptics_apm.action']     = report_kvs[:Action]
 
         result
+      rescue => e
+        ::AppOpticsAPM::API.log_exception('padrino', e)
+        raise e
       ensure
         ::AppOpticsAPM::API.log_exit('padrino', report_kvs)
       end

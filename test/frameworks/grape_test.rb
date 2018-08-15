@@ -80,10 +80,15 @@ if defined?(::Grape)
       traces[3]['Label'].must_equal "exit"
       traces[2].has_key?('Controller').must_equal true
       traces[2].has_key?('Action').must_equal true
+
+      traces[4]['Layer'].must_equal "rack"
+      traces[4]['Spec'].must_equal "error"
       traces[4]['Label'].must_equal "error"
       traces[4]['ErrorClass'].must_equal "GrapeError"
       traces[4]['ErrorMsg'].must_equal "This is a error with 'error'!"
       traces[4].has_key?('Backtrace').must_equal true
+      traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 1
+
       traces[5]['Layer'].must_equal "rack"
       traces[5]['Label'].must_equal "exit"
 
@@ -112,9 +117,12 @@ if defined?(::Grape)
       traces[3]['Layer'].must_equal "grape"
       traces[2].has_key?('Controller').must_equal true
       traces[2].has_key?('Action').must_equal true
+
+      traces[4]['Spec'].must_equal "error"
       traces[4]['Label'].must_equal "error"
       traces[4]['ErrorClass'].must_equal "Exception"
       traces[4]['ErrorMsg'].must_equal "This should have http status code 500!"
+
       traces[5]['Label'].must_equal "exit"
     end
 
@@ -136,6 +144,8 @@ if defined?(::Grape)
       traces[3]['Layer'].must_equal "grape"
       traces[2].has_key?('Controller').must_equal true
       traces[2].has_key?('Action').must_equal true
+
+      traces[4]['Spec'].must_equal "error"
       traces[4]['Label'].must_equal "error"
       traces[4]['ErrorClass'].must_equal "GrapeError"
       traces[4]['ErrorMsg'].must_equal "This is an error with 'error'!"

@@ -253,10 +253,12 @@ describe "RestClient" do
     traces[1]['Label'].must_equal 'entry'
 
     traces[2]['Layer'].must_equal 'rest-client'
+    traces[2]['Spec'].must_equal 'error'
     traces[2]['Label'].must_equal 'error'
     traces[2]['ErrorClass'].must_equal 'SocketError'
     traces[2].key?('ErrorMsg').must_equal true
     traces[2].key?('Backtrace').must_equal true
+    traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 1
 
     traces[3]['Layer'].must_equal 'rest-client'
     traces[3]['Label'].must_equal 'exit'

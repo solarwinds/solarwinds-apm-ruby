@@ -167,10 +167,13 @@ unless defined?(JRUBY_VERSION)
       validate_outer_layers(traces, "bunny_tests")
       assert valid_edges?(traces), "Invalid edge in traces"
 
+      traces[3]['Layer'].must_equal "bunny_tests"
+      traces[3]['Spec'].must_equal "error"
       traces[3]['Label'].must_equal "error"
       traces[3]['ErrorClass'].must_equal "Bunny::PreconditionFailed"
       traces[3]['ErrorMsg'].must_match(/PRECONDITION_FAILED/)
       traces[3].key?('Backtrace').must_equal true
+      traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 1
 
       @conn.close
     end

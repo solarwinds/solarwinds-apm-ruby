@@ -95,10 +95,12 @@ if defined?(::Rails)
       traces[2]['Controller'].must_equal "MonkeyController"
       traces[2]['Action'].must_equal "error"
 
+      traces[3]['Spec'].must_equal "error"
       traces[3]['Label'].must_equal "error"
       traces[3]['ErrorClass'].must_equal "RuntimeError"
       traces[3]['ErrorMsg'].must_equal "Rails API fake error from controller"
       traces[3].key?('Backtrace').must_equal true
+      traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 1
 
       traces[4]['Layer'].must_equal "rails-api"
       traces[4]['Label'].must_equal "exit"

@@ -58,19 +58,15 @@ module AppOpticsAPM
           layer_kvs[:KVOp] = :get_multi
 
           AppOpticsAPM::API.trace(:memcache, layer_kvs || {}, :get_multi) do
-            begin
-              info_kvs = {}
-              info_kvs[:KVKeyCount] = keys.flatten.length
+            info_kvs = {}
+            info_kvs[:KVKeyCount] = keys.flatten.length
 
-              values = get_multi_without_appoptics(keys, raw)
+            values = get_multi_without_appoptics(keys, raw)
 
-              info_kvs[:KVHitCount] = values.length
-              info_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:memcached][:collect_backtraces]
+            info_kvs[:KVHitCount] = values.length
+            info_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:memcached][:collect_backtraces]
 
-              AppOpticsAPM::API.log(:memcache, :info, info_kvs)
-            rescue
-              values = get_multi_without_appoptics(keys, raw)
-            end
+            AppOpticsAPM::API.log(:memcache, :info, info_kvs)
             values
           end
         else

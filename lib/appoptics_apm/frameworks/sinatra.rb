@@ -23,6 +23,9 @@ module AppOpticsAPM
         env['appoptics_apm.action']     = report_kvs[:Action]
 
         response
+      rescue => e
+        ::AppOpticsAPM::API.log_exception('sinatra', e)
+        raise e
       ensure
         ::AppOpticsAPM::API.log_exit('sinatra', report_kvs)
       end

@@ -120,7 +120,8 @@ One file:
 rbenv global 2.4.4
 export BUNDLE_GEMFILE=gemfiles/delayed_job.gemfile
 export DBTYPE=mysql2       # optional, defaults to postgresql
-bundle exec ruby -I test queues/delayed_job*_test.rb
+bundle
+bundle exec ruby -I test queues/delayed_job-client_test.rb
 ```
 
 A specific test:
@@ -128,6 +129,7 @@ A specific test:
 rbenv global 2.5.1
 export BUNDLE_GEMFILE=gemfiles/libraries.gemfile
 export DBTYPE=mysql2
+bundle
 bundle exec ruby -I test instrumentation/moped_test.rb -n /drop_collection/
 ```
 

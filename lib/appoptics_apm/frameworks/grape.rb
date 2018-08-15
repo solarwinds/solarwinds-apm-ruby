@@ -58,6 +58,7 @@ module AppOpticsAPM
             # Since Grape uses throw/catch and not Exceptions, we manually log
             # the error here.
             kvs = {}
+            kvs[:Spec] = 'error'
             kvs[:ErrorClass] = 'GrapeError'
             kvs[:ErrorMsg] = error[:message] ? error[:message] : "No message given."
             kvs[:Backtrace] = ::AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:grape][:collect_backtraces]

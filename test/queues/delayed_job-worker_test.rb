@@ -71,10 +71,13 @@ class DelayedJobWorkerTest < Minitest::Test
     assert_equal 'delayed_job-worker',          traces[0]['Layer']
     assert_equal 'entry',                       traces[0]['Label']
 
+    assert_equal 'delayed_job-worker',          traces[1]['Layer']
     assert_equal 'error',                       traces[1]['Label']
+    assert_equal 'error',                       traces[1]['Spec']
     assert_equal 'FakeTestError',               traces[1]['ErrorMsg']
     assert       traces[1].key?('Backtrace')
     assert       traces[1].key?('ErrorClass')
+    assert_equal 1, traces.select { |trace| trace['Label'] == 'error' }.count
 
     assert_equal 'delayed_job-worker',          traces[2]['Layer']
     assert_equal 'exit',                        traces[2]['Label']

@@ -27,8 +27,9 @@ module AppOpticsAPM
           response = run_without_appoptics
 
           if response.code == 0
-            AppOpticsAPM::API.log(:typhoeus, :error, { :ErrorClass => response.return_code,
-                                                    :ErrorMsg => response.return_message })
+            AppOpticsAPM::API.log(:typhoeus, :error, { :Spec => 'error',
+                                                       :ErrorClass => response.return_code,
+                                                       :ErrorMsg => response.return_message })
           end
 
           kvs = {}

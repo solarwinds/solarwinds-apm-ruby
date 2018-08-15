@@ -229,7 +229,10 @@ unless defined?(JRUBY_VERSION)
       assert traces[1].key?('Backtrace')
 
       assert_equal 'httpclient', traces[2]['Layer']
+      assert_equal 'error', traces[2]['Spec']
       assert_equal 'error', traces[2]['Label']
+      assert_equal 1, traces.select { |trace| trace['Label'] == 'error' }.count
+
       assert_equal "SocketError", traces[2]['ErrorClass']
       assert traces[2].key?('ErrorMsg')
       assert traces[2].key?('Backtrace')
