@@ -23,7 +23,7 @@ gemfile:
   - gemfiles/instrumentation_mocked_oldgems.gemfile
   - gemfiles/frameworks.gemfile
   - gemfiles/rails52.gemfile
-  - gemfiles/rails51.gemfile
+#  - gemfiles/rails51.gemfile
   - gemfiles/rails42.gemfile
 ##  - gemfiles/rails32.gemfile # We currently are not supporting Rails 3.2
   - gemfiles/delayed_job.gemfile
