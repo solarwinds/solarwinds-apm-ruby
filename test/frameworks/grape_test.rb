@@ -122,6 +122,7 @@ if defined?(::Grape)
       traces[4]['Label'].must_equal "error"
       traces[4]['ErrorClass'].must_equal "Exception"
       traces[4]['ErrorMsg'].must_equal "This should have http status code 500!"
+      traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 1
 
       traces[5]['Label'].must_equal "exit"
     end
@@ -150,6 +151,8 @@ if defined?(::Grape)
       traces[4]['ErrorClass'].must_equal "GrapeError"
       traces[4]['ErrorMsg'].must_equal "This is an error with 'error'!"
       traces[5]['Layer'].must_equal "rack"
+      traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 1
+
       traces[5]['Label'].must_equal "exit"
       traces[5]['Status'].must_equal 500
     end
