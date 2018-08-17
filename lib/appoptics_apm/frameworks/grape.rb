@@ -1,5 +1,7 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
+#
+class GrapeError < StandardError; end
 
 module AppOpticsAPM
   module Grape
@@ -55,13 +57,12 @@ module AppOpticsAPM
           xtrace = AppOpticsAPM::Context.toString
 
           if AppOpticsAPM.tracing?
-            # Since Grape uses throw/catch and not Exceptions, we manually log
-            # the error here.
-            kvs = {}
-            kvs[:ErrorClass] = 'GrapeError'
-            kvs[:ErrorMsg] = error[:message] ? error[:message] : "No message given."
-            kvs[:Backtrace] = ::AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:grape][:collect_backtraces]
-            ::AppOpticsAPM::API.log('rack', 'error', kvs)
+
+            # Since Grape uses throw/catch and not Exceptions, we have to create an exception here
+            exception = GrapeError.new(error[:message] ? error[:message] : "No message given.")
+            exception.set_backtrace(::AppOpticsAPM::API.backtrace) if AppOpticsAPM::Config[:grape][:collect_backtraces]
+
+            ::AppOpticsAPM::API.log_exception('rack', exception )
 
             # Since calls to error() are handled similar to abort in Grape.  We
             # manually log the rack exit here since the original code won't

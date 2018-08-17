@@ -19,6 +19,14 @@ class RackTestApp < Minitest::Test
         use Rack::Lint
         run Rack::Lobster.new
       end
+
+      map "/the_exception" do
+        run Proc.new {
+          raise StandardError
+          [500, {"Content-Type" => "text/html"}, ['Hello AppOpticsAPM!']]
+        }
+
+      end
     }
   end
 
@@ -160,6 +168,19 @@ class RackTestApp < Minitest::Test
     result = get '/lobster'
 
     assert_equal 200, result.status
+  end
+
+  def test_exception
+    clear_all_traces
+    get '/the_exception'
+
+    traces = get_all_traces
+
+    error_trace = traces.find { |trace| trace['Label'] == 'error' }
+    assert_equal 'error', error_trace['Spec']
+    assert error_trace.key?('ErrorClass')
+    assert error_trace.key?('ErrorMsg')
+    assert_equal 1, traces.select { |trace| trace['Label'] == 'error' }.count
   end
 end
 

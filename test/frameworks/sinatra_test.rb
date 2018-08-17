@@ -32,6 +32,33 @@ describe Sinatra do
     r.headers['X-Trace'].must_equal traces[8]['X-Trace']
   end
 
+  it "should log an error on exception" do
+    @app = SinatraSimple
+
+    SinatraSimple.any_instance.expects(:dispatch_without_appoptics).raises(StandardError.new('Hello Sinatra'))
+
+    begin
+      r = get "/render"
+    rescue
+    end
+
+    traces = get_all_traces
+
+    traces.count.must_equal 6
+    valid_edges?(traces).must_equal true
+    validate_outer_layers(traces, 'rack')
+
+    traces[2]['Layer'].must_equal "sinatra"
+
+    error_trace = traces.find{ |trace| trace['Label'] == 'error' }
+
+    error_trace['Layer'].must_equal 'sinatra'
+    error_trace['Spec'].must_equal 'error'
+    error_trace['ErrorClass'].must_equal 'StandardError'
+    error_trace['ErrorMsg'].must_equal 'Hello Sinatra'
+    traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 1
+  end
+
   it "should not have RUM code in the response" do
     @app = SinatraSimple
 

@@ -252,10 +252,15 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < '2.4')
       validate_event_keys(traces[1], @entry_kvs)
       traces[1]['Query'].must_equal "this is bad sql"
       traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
+
       traces[2]['Layer'].must_equal "sequel"
+      traces[2]['Spec'].must_equal "error"
       traces[2]['Label'].must_equal "error"
       traces[2].has_key?('Backtrace').must_equal true
+      traces[2].has_key?('ErrorMsg').must_equal true
       traces[2]['ErrorClass'].must_equal "Sequel::DatabaseError"
+      traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 1
+
       validate_event_keys(traces[3], @exit_kvs)
     end
 

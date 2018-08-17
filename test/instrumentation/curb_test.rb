@@ -307,10 +307,12 @@ unless defined?(JRUBY_VERSION)
       assert                                         traces[1]['Backtrace']
 
       assert_equal 'curb',                           traces[2]['Layer']
+      assert_equal 'error',                          traces[2]['Spec']
       assert_equal 'error',                          traces[2]['Label']
       assert_equal "Curl::Err::HostResolutionError", traces[2]['ErrorClass']
       assert                                         traces[2].key?('ErrorMsg')
       assert                                         traces[2].key?('Backtrace')
+      assert_equal 1, traces.select { |trace| trace['Label'] == 'error' }.count
 
       assert_equal 'curb',                           traces[3]['Layer']
       assert_equal 'exit',                           traces[3]['Label']

@@ -98,8 +98,23 @@ describe AppOpticsAPM::API::Logging do
     end
 
     it "log_exception should log an event" do
-      AppOpticsAPM::API.expects(:log_event)
+      AppOpticsAPM::API.expects(:log).with do |layer, label, opts|
+            layer == :test &&
+            label == :error &&
+            opts[:Spec] == 'error' &&
+            opts[:ErrorMsg] == 'no worries - testing error' &&
+            opts[:ErrorClass] == 'StandardError'
+      end.once
       AppOpticsAPM::API.log_exception(:test, StandardError.new('no worries - testing error'))
+    end
+
+    it "log_exception should only log an exception once" do
+      exception = StandardError.new('no worries - testing error')
+      AppOpticsAPM::API.expects(:log).once
+
+      AppOpticsAPM::API.log_exception(:test_0, exception)
+      AppOpticsAPM::API.log_exception(:test_1, exception)
+
     end
 
     it "log_end should log an event" do

@@ -76,9 +76,10 @@ module AppOpticsAPM
           return AppOpticsAPM::Context.toString
         end
 
-        opts.merge!(:ErrorClass => exception.class.name,
-                    :ErrorMsg => exception.message,
-                    :Backtrace => exception.backtrace.join("\r\n")) if exception.backtrace
+        opts.merge!(:Spec => 'error',
+                    :ErrorClass => exception.class.name,
+                    :ErrorMsg => exception.message)
+        opts.merge!(:Backtrace => exception.backtrace.join("\r\n")) if exception.backtrace
 
         exception.instance_variable_set(:@exn_logged, true)
         log(layer, :error, opts)

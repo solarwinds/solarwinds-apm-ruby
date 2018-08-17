@@ -149,10 +149,12 @@ unless defined?(JRUBY_VERSION)
       traces[0].key?('Backtrace').must_equal false
 
       traces[1]['Layer'].must_equal "rabbitmq-consumer"
+      traces[1]['Spec'].must_equal "error"
       traces[1]['Label'].must_equal "error"
       traces[1]['ErrorClass'].must_equal "RuntimeError"
       traces[1]['ErrorMsg'].must_equal "blah"
       traces[1].key?('Backtrace').must_equal true
+      traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 1
 
       traces[2]['Layer'].must_equal "rabbitmq-consumer"
       traces[2]['Label'].must_equal "exit"

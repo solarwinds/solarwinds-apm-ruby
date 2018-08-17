@@ -98,7 +98,10 @@ unless defined?(JRUBY_VERSION)
 
       assert_equal traces[1]['Layer'], 'sidekiq-worker'
       assert_equal traces[1]['Label'], 'error'
+      assert_equal traces[1]['Spec'], 'error'
       assert_equal traces[1]['ErrorClass'], "RuntimeError"
+      assert_equal 1, traces.select { |trace| trace['Label'] == 'error' }.count
+
       assert traces[1].key?('ErrorMsg')
       assert traces[1].key?('Backtrace')
     end

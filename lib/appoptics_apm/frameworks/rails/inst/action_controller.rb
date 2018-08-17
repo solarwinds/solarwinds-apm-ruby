@@ -43,11 +43,10 @@ module AppOpticsAPM
       def log_rails_error?(exception)
         # As it's perculating up through the layers...  make sure that
         # we only report it once.
-        return false if exception.instance_variable_get(:@appoptics_logged)
+        return false if exception.instance_variable_get(:@exn_logged)
 
-        if has_handler?(exception) && !AppOpticsAPM::Config[:report_rescued_errors]
-          return false
-        end
+        return false if has_handler?(exception) && !AppOpticsAPM::Config[:report_rescued_errors]
+
         true
       end
 

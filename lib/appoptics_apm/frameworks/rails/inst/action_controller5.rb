@@ -28,7 +28,7 @@ module AppOpticsAPM
           super(method_name, *args)
 
         rescue Exception => e
-          AppOpticsAPM::API.log_exception(nil, e) if log_rails_error?(e)
+          AppOpticsAPM::API.log_exception('rails', e) if log_rails_error?(e)
           raise
         ensure
           AppOpticsAPM::API.log_exit('rails')

@@ -380,6 +380,12 @@ if defined?(::Rails)
       traces.select{ |trace| trace['Label'] == 'error' }.count.must_equal 1
       traces.select{ |trace| trace['Label'] == 'entry' }.count.must_equal 2
       traces.select{ |trace| trace['Label'] == 'exit'  }.count.must_equal 2
+
+      error_trace = traces.find{ |trace| trace['Label'] == 'error' }
+      error_trace['Spec'].must_equal 'error'
+      error_trace.key?('ErrorClass').must_equal true
+      error_trace.key?('ErrorMsg').must_equal true
+      traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 1
     end
 
     # TODO: figure out how to test this, when does this happen?

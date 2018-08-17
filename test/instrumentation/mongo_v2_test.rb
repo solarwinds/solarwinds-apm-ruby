@@ -125,10 +125,12 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
 
       traces[2]['Layer'].must_equal "mongo"
+      traces[2]['Spec'].must_equal "error"
       traces[2]['Label'].must_equal "error"
       traces[2]['ErrorClass'].must_equal "Mongo::Error::OperationFailure"
       traces[2]['ErrorMsg'].must_match /collection.*already exists/
       traces[2].has_key?('Backtrace').must_equal true
+      traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 1
     end
 
     it "should trace insert_one" do
