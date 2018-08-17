@@ -52,8 +52,6 @@ describe Sinatra do
 
     error_trace = traces.find{ |trace| trace['Label'] == 'error' }
 
-    puts error_trace.pretty_inspect
-
     error_trace['Layer'].must_equal 'sinatra'
     error_trace['Spec'].must_equal 'error'
     error_trace['ErrorClass'].must_equal 'StandardError'

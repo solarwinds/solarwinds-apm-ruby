@@ -31,7 +31,7 @@ module AppOpticsAPM
       end
 
       def handle_exception_with_appoptics(boom)
-        AppOpticsAPM::API.log_exception(nil, boom)
+        AppOpticsAPM::API.log_exception(:sinatra, boom)
         handle_exception_without_appoptics(boom)
       end
 

@@ -1,5 +1,6 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
+class TyphoeusError < StandardError; end
 
 module AppOpticsAPM
   module Inst
@@ -27,9 +28,9 @@ module AppOpticsAPM
           response = run_without_appoptics
 
           if response.code == 0
-            AppOpticsAPM::API.log(:typhoeus, :error, { :Spec => 'error',
-                                                       :ErrorClass => response.return_code,
-                                                       :ErrorMsg => response.return_message })
+            exception = TyphoeusError.new(response.return_message)
+            exception.set_backtrace(AppOpticsAPM::API.backtrace) if AppOpticsAPM::Config[:typhoeus][:collect_backtraces]
+            AppOpticsAPM::API.log_exception(:typhoeus, exception)
           end
 
           kvs = {}

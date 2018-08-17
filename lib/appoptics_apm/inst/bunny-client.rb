@@ -32,7 +32,7 @@ module AppOpticsAPM
 
           delete_without_appoptics(opts)
         rescue => e
-          AppOpticsAPM::API.log_exception(nil, e)
+          AppOpticsAPM::API.log_exception(:'rabbitmq-client', e)
           raise e
         ensure
           AppOpticsAPM::API.log_exit(:'rabbitmq-client', kvs)
@@ -48,20 +48,18 @@ module AppOpticsAPM
       end
 
       def collect_channel_kvs
-        begin
-          kvs = {}
-          kvs[:Spec] = :pushq
-          kvs[:Flavor] = :rabbitmq
-          kvs[:RemoteHost] = @connection.host
-          kvs[:RemotePort] = @connection.port.to_i
-          kvs[:VirtualHost] = @connection.vhost
-          kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:bunnyclient][:collect_backtraces]
-          kvs
-        rescue => e
-          AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
-        ensure
-          return kvs
-        end
+        kvs = {}
+        kvs[:Spec] = :pushq
+        kvs[:Flavor] = :rabbitmq
+        kvs[:RemoteHost] = @connection.host
+        kvs[:RemotePort] = @connection.port.to_i
+        kvs[:VirtualHost] = @connection.vhost
+        kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:bunnyclient][:collect_backtraces]
+        kvs
+      rescue => e
+        AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
+      ensure
+        return kvs
       end
 
       def basic_publish_with_appoptics(payload, exchange, routing_key, opts = {})
@@ -91,7 +89,7 @@ module AppOpticsAPM
 
           basic_publish_without_appoptics(payload, exchange, routing_key, opts)
         rescue => e
-          AppOpticsAPM::API.log_exception(nil, e)
+          AppOpticsAPM::API.log_exception(:'rabbitmq-client', e)
           raise e
         ensure
           AppOpticsAPM::API.log_exit(:'rabbitmq-client', kvs)
@@ -112,7 +110,7 @@ module AppOpticsAPM
           kvs[:Queue] = result.name
           result
         rescue => e
-          AppOpticsAPM::API.log_exception(nil, e)
+          AppOpticsAPM::API.log_exception(:'rabbitmq-client', e)
           raise e
         ensure
           AppOpticsAPM::API.log_exit(:'rabbitmq-client', kvs)
@@ -131,7 +129,7 @@ module AppOpticsAPM
 
           wait_for_confirms_without_appoptics
         rescue => e
-          AppOpticsAPM::API.log_exception(nil, e)
+          AppOpticsAPM::API.log_exception(:'rabbitmq-client', e)
           raise e
         ensure
           AppOpticsAPM::API.log_exit(:'rabbitmq-client', kvs)

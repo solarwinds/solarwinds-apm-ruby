@@ -195,7 +195,7 @@ describe "Typhoeus" do
     traces[2]['Layer'].must_equal 'typhoeus'
     traces[2]['Spec'].must_equal 'error'
     traces[2]['Label'].must_equal 'error'
-    traces[2].must_include('ErrorClass')
+    traces[2]['ErrorClass'].must_equal 'TyphoeusError'
     traces[2].must_include('ErrorMsg')
     traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 1
 
