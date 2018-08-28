@@ -64,6 +64,30 @@ module AppOpticsAPM
         config_files.each { |path| $stderr.puts "  #{path}" }
       end
       load(config_files[0])
+      check_env_vars
+    end
+
+    # There are 4 variables that can be set in the config file or as env vars.
+    # since env vars take priority we need to check them here.
+    # Oboe reads the env vars, so we need to set them, if they are defined via config file
+    def self.check_env_vars
+      ENV['APPOPTICS_SERVICE_KEY'] ||= AppOpticsAPM::Config[:service_key]
+      ENV['APPOPTICS_HOSTNAME_ALIAS'] ||= AppOpticsAPM::Config[:hostname_alias]
+
+      unless ENV.key?('APPOPTICS_DEBUG_LEVEL') && (0..6).include?(ENV['APPOPTICS_DEBUG_LEVEL'].to_i)
+        if (0..6).include?(AppOpticsAPM::Config[:debug_level])
+          ENV['APPOPTICS_DEBUG_LEVEL'] = AppOpticsAPM::Config[:debug_level].to_s
+        else
+          ENV['APPOPTICS_DEBUG_LEVEL'] = '3'
+        end
+      end
+      # let's use this setting for ruby as well
+      AppOpticsAPM.logger.level = [4 - ENV['APPOPTICS_DEBUG_LEVEL'].to_i, 0].max
+
+      # the verbose setting is only relevant for ruby, no need to update the env var
+      if ENV.key?('APPOPTICS_GEM_VERBOSE')
+        AppOpticsAPM::Config[:verbose] = ENV['APPOPTICS_GEM_VERBOSE'].downcase == 'true'
+      end
     end
 
     ##

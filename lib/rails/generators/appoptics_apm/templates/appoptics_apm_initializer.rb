@@ -9,6 +9,41 @@
 if defined?(AppOpticsAPM::Config)
 
   #
+  # Set APPOPTICS_SERVICE_KEY
+  # This Setting will be overridden if APPOPTICS_SERVICE_KEY is set as an environment variable.
+  # This is a required setting. If the service key is not set here it needs to be set as environment variable.
+  #
+  # The service key is a combination of the API token plus a service name.
+  # E.g.: a4770c19-2503-439a-836e-a0ab5eb5b00f:rails_app
+  #
+  # AppOpticsAPM::Config[:service_key] = '11111111-1111-1111-1111-111111111111:the_service_name'
+
+  #
+  # Set APPOPTICS_HOSTNAME_ALIAS
+  # This Setting will be overridden if APPOPTICS_HOSTNAME_ALIAS is set as an environment variable
+  #
+  # AppOpticsAPM::Config[:hostname_alias] = 'service_name'
+
+  #
+  # Set APPOPTICS_DEBUG_LEVEL
+  # This Setting will be overridden if APPOPTICS_DEBUG_LEVEL is set as an environment variable
+  #
+  # It takes the following values:
+  # 0 fatal, 1 error, 2 warning, 3 info (the default), 4 debug low, 5 debug medium, 6 debug high.
+  #
+  # AppOpticsAPM::Config[:debug_level] = 3
+
+  #
+  # Set APPOPTICS_GEM_VERBOSE
+  # This Setting will be overridden if APPOPTICS_GEM_VERBOSE is set as an environment variable
+  #
+  # On startup the components that are being instrumented will be reported if this is set to true.
+  # If true and the log level is 4 or higher this may create extra debug log messages
+  # Default: false
+  #
+  # AppOpticsAPM::Config[:verbose] = false
+
+  #
   # Turn tracing on or off
   #
   # By default tracing is set to 'always', the other option is 'never'.
@@ -16,11 +51,6 @@ if defined?(AppOpticsAPM::Config)
   # sampling rate. 'never' means that there is no sampling.
   #
   AppOpticsAPM::Config[:tracing_mode] = :always
-
-  #
-  # Verbose output of instrumentation initialization
-  #
-  AppOpticsAPM::Config[:verbose] = ENV.key?('APPOPTICS_GEM_VERBOSE') && ENV['APPOPTICS_GEM_VERBOSE'] == 'true' ? true : false
 
   #
   # Prepend domain to transaction name

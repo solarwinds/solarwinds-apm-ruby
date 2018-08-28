@@ -18,8 +18,10 @@ begin
   # with an alternate metal (see the oboe-heroku gem)
   unless defined?(OboeHeroku)
     require 'appoptics_apm/base'
-    AppOpticsAPM.loaded = false
+    require 'appoptics_apm/config'
+    AppOpticsAPM::Config.load_config_file
 
+    AppOpticsAPM.loaded = false
     begin
       if RUBY_PLATFORM == 'java'
         require '/usr/local/tracelytics/tracelyticsagent.jar'
@@ -44,9 +46,6 @@ begin
       end
     end
   end
-
-  require 'appoptics_apm/config'
-  AppOpticsAPM::Config.load_config_file
 
   require 'appoptics_apm/loading'
   require 'appoptics_apm/legacy_method_profiling'
