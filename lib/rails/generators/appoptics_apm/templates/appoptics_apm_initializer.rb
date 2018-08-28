@@ -14,24 +14,30 @@ if defined?(AppOpticsAPM::Config)
   # This is a required setting. If the service key is not set here it needs to be set as environment variable.
   #
   # The service key is a combination of the API token plus a service name.
-  # E.g.: a4770c19-2503-439a-836e-a0ab5eb5b00f:rails_app
+  # E.g.: 0123456789abcde0123456789abcde0123456789abcde0123456789abcde1234:my_service
   #
-  # AppOpticsAPM::Config[:service_key] = '11111111-1111-1111-1111-111111111111:the_service_name'
+  # AppOpticsAPM::Config[:service_key] = '0123456789abcde0123456789abcde0123456789abcde0123456789abcde1234:my_service'
 
   #
   # Set APPOPTICS_HOSTNAME_ALIAS
   # This Setting will be overridden if APPOPTICS_HOSTNAME_ALIAS is set as an environment variable
   #
-  # AppOpticsAPM::Config[:hostname_alias] = 'service_name'
+  # AppOpticsAPM::Config[:hostname_alias] = 'alias_name'
 
   #
   # Set APPOPTICS_DEBUG_LEVEL
   # This Setting will be overridden if APPOPTICS_DEBUG_LEVEL is set as an environment variable
   #
-  # It takes the following values:
-  # 0 fatal, 1 error, 2 warning, 3 info (the default), 4 debug low, 5 debug medium, 6 debug high.
+  # It sets the log level and takes the following values:
+  ## 0 fatal, 1 error, 2 warning, 3 info (the default), 4 debug low, 5 debug medium, 6 debug high.
+  #
   #
   AppOpticsAPM::Config[:debug_level] = 3
+  #
+  # The level will be used in the c-extension of the gem and also mapped to the
+  # Ruby logger as FATAL, ERROR, WARN, INFO, or DEBUG
+  # The Ruby logger can afterwards be changed to a different level as follows:
+  # AppOpticsAPM.logger.level = Logger::INFO
 
   #
   # Set APPOPTICS_GEM_VERBOSE
