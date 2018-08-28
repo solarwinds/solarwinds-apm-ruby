@@ -143,7 +143,6 @@ class ConfigTest
     end
 
     it 'should have the correct instrumentation defaults' do
-      ENV['APPOPTICS_GEM_VERBOSE'] = 'true'
       # Reset AppOpticsAPM::Config to defaults
       AppOpticsAPM::Config.initialize
 
