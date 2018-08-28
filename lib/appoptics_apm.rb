@@ -18,10 +18,11 @@ begin
   # with an alternate metal (see the oboe-heroku gem)
   unless defined?(OboeHeroku)
     require 'appoptics_apm/base'
+    AppOpticsAPM.loaded = false
+
     require 'appoptics_apm/config'
     AppOpticsAPM::Config.load_config_file
 
-    AppOpticsAPM.loaded = false
     begin
       if RUBY_PLATFORM == 'java'
         require '/usr/local/tracelytics/tracelyticsagent.jar'
@@ -52,6 +53,8 @@ begin
   require 'appoptics_apm/method_profiling'
 
   if AppOpticsAPM.loaded
+    # tracing mode is configured via config file but can only be set once we have oboe_metal loaded
+    AppOpticsAPM.set_tracing_mode(AppOpticsAPM::Config[:tracing_mode].to_sym)
     require 'appoptics_apm/instrumentation'
 
     # Frameworks

@@ -147,8 +147,9 @@ class ConfigTest
       # Reset AppOpticsAPM::Config to defaults
       AppOpticsAPM::Config.initialize
 
+      AppOpticsAPM::Config[:debug_level] = 3
+      AppOpticsAPM::Config[:verbose].must_equal false
       AppOpticsAPM::Config[:tracing_mode].must_equal :always
-      AppOpticsAPM::Config[:verbose].must_equal true
       AppOpticsAPM::Config[:sanitize_sql].must_equal true
       AppOpticsAPM::Config[:sanitize_sql_regexp].must_equal '(\'[\s\S][^\']*\'|\d*\.\d+|\d+|NULL)'
       AppOpticsAPM::Config[:sanitize_sql_opts].must_equal Regexp::IGNORECASE

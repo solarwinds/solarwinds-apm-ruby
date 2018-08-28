@@ -31,7 +31,7 @@ if defined?(AppOpticsAPM::Config)
   # It takes the following values:
   # 0 fatal, 1 error, 2 warning, 3 info (the default), 4 debug low, 5 debug medium, 6 debug high.
   #
-  # AppOpticsAPM::Config[:debug_level] = 3
+  AppOpticsAPM::Config[:debug_level] = 3
 
   #
   # Set APPOPTICS_GEM_VERBOSE
@@ -39,9 +39,8 @@ if defined?(AppOpticsAPM::Config)
   #
   # On startup the components that are being instrumented will be reported if this is set to true.
   # If true and the log level is 4 or higher this may create extra debug log messages
-  # Default: false
   #
-  # AppOpticsAPM::Config[:verbose] = false
+  AppOpticsAPM::Config[:verbose] = false
 
   #
   # Turn tracing on or off
