@@ -29,13 +29,13 @@ module AppOpticsAPM
           when 'udp'
             options = "addr=#{AppOpticsAPM::Config[:reporter_host]},port=#{AppOpticsAPM::Config[:reporter_port]}"
           else
-            if ENV['APPOPTICS_SERVICE_KEY'].to_s == ''
+            if AppOpticsAPM::Config[:service_key].to_s == ''
               AppOpticsAPM.logger.warn "[appoptics_apm/warn] APPOPTICS_SERVICE_KEY not set. Cannot submit data."
               AppOpticsAPM.loaded = false
               return
             end
             # ssl reporter requires the service key passed in as arg "cid"
-            options = "cid=#{ENV['APPOPTICS_SERVICE_KEY']}"
+            options = "cid=#{AppOpticsAPM::Config[:service_key]}"
           end
 
           AppOpticsAPM.reporter = Oboe_metal::Reporter.new(protocol, options)

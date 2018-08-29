@@ -57,7 +57,7 @@ module AppOpticsAPM
       config_file = File.join(Dir.pwd, 'appoptics_apm_config.rb')
       config_files << config_file if File.exist?(config_file)
 
-      return if config_files.empty?
+      return if config_files.empty?  # we use the defaults from the template in this case
 
       if config_files.size > 1
         $stderr.puts 'Found multiple configuration files, using the first one listed:'
@@ -71,7 +71,15 @@ module AppOpticsAPM
     # since env vars take priority we need to check them here.
     # Oboe reads the env vars, so we need to set them, if they are defined via config file
     def self.check_env_vars
-      ENV['APPOPTICS_SERVICE_KEY'] ||= AppOpticsAPM::Config[:service_key]
+      # Since subprocesses may want a different service name, we can't override the ENV['APPOPTICS_SERVICE_KEY']
+      if ENV.key?('APPOPTICS_SERVICE_KEY')
+        AppOpticsAPM::Config[:service_key] = ENV['APPOPTICS_SERVICE_KEY']
+        AppOpticsAPM.logger.debug '[config] Using APPOPTICS_SERVICE_KEY environment variable.'
+      else
+        AppOpticsAPM.logger.debug '[config] Using service key setting from config file.'
+      end
+
+      # APPOPTICS_HOSTNAME_ALIAS and APPOPTICS_DEBUG_LEVEL are read by oboe, subprocesses will use what is set here
       ENV['APPOPTICS_HOSTNAME_ALIAS'] ||= AppOpticsAPM::Config[:hostname_alias]
 
       unless ENV.key?('APPOPTICS_DEBUG_LEVEL') && (0..6).include?(ENV['APPOPTICS_DEBUG_LEVEL'].to_i)
@@ -133,12 +141,16 @@ module AppOpticsAPM
     #
     # rubocop:disable Metrics/AbcSize
     def self.initialize(_data = {})
-      @@instrumentation.each do |k|
-        @@config[k] = {}
-      end
+      @@instrumentation.each { |k| @@config[k] = {} }
       @@config[:transaction_name] = {}
+
+      # Always load the template, it has all the keys and defaults defined,
+      # no guarantee of completeness in the user's config file
       load(File.join(File.dirname(File.dirname(__FILE__)),
                     'rails/generators/appoptics_apm/templates/appoptics_apm_initializer.rb'))
+
+      # to make sure we include the service_key if it is set as an ENV var
+      check_env_vars
     end
     # rubocop:enable Metrics/AbcSize
 

@@ -62,7 +62,8 @@ class ConfigTest
 
       AppOpticsAPM::Config.load_config_file
 
-      ENV['APPOPTICS_SERVICE_KEY'].must_equal '11111111-1111-1111-1111-111111111111:the_service_name'
+      ENV['APPOPTICS_SERVICE_KEY'].must_equal nil
+      AppOpticsAPM::Config[:service_key].must_equal '11111111-1111-1111-1111-111111111111:the_service_name'
       ENV['APPOPTICS_HOSTNAME_ALIAS'].must_equal 'my_service'
       # logging happens in 2 places, oboe and ruby, we translate
       ENV['APPOPTICS_DEBUG_LEVEL'].must_equal '6'
@@ -87,26 +88,11 @@ class ConfigTest
        AppOpticsAPM::Config.load_config_file
 
        ENV['APPOPTICS_SERVICE_KEY'].must_equal '22222222-2222-2222-2222-222222222222:the_service_name'
+       AppOpticsAPM::Config[:service_key].must_equal '22222222-2222-2222-2222-222222222222:the_service_name'
        ENV['APPOPTICS_HOSTNAME_ALIAS'].must_equal 'my_other_service'
        ENV['APPOPTICS_DEBUG_LEVEL'].must_equal '2'
        AppOpticsAPM.logger.level.must_equal Logger::WARN
        AppOpticsAPM::Config[:verbose].must_equal true
-    end
-
-    it 'should barf when there is a wrong type for SERVICE_KEY' do
-      File.open(@@default_config_path, 'w') do |f|
-        f.puts "AppOpticsAPM::Config[:service_key] = 123"
-      end
-
-      proc { AppOpticsAPM::Config.load_config_file }.must_raise TypeError
-    end
-
-    it 'should barf when there is a wrong type for HOSTNAME_ALIAS' do
-      File.open(@@default_config_path, 'w') do |f|
-        f.puts "AppOpticsAPM::Config[:hostname_alias] = 123"
-      end
-
-      proc { AppOpticsAPM::Config.load_config_file }.must_raise TypeError
     end
 
     it 'should use default when there is a wrong debug level setting' do
