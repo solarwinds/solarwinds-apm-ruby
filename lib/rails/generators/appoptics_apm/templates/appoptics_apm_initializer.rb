@@ -158,7 +158,9 @@ if defined?(AppOpticsAPM::Config)
   #
   # If you're having trouble with one of the instrumentation libraries, they
   # can be individually disabled here by setting the :enabled
-  # value to false:
+  # value to false.
+  #
+  # :enabled settings are read on startup and can't be changed afterwards
   #
   AppOpticsAPM::Config[:action_controller][:enabled] = true
   AppOpticsAPM::Config[:action_controller_api][:enabled] = true
