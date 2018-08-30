@@ -68,31 +68,17 @@ module AppOpticsAPM
     end
 
     # There are 4 variables that can be set in the config file or as env vars.
-    # since env vars take priority we need to check them here.
-    # Oboe reads the env vars, so we need to set them, if they are defined via config file
+    # Oboe will override vars passed in if it finds an environment variable
+    # :debug_level and :verbose need special consideration, because they are used in Ruby
     def self.check_env_vars
-      # Since subprocesses may want a different service name, we can't override the ENV['APPOPTICS_SERVICE_KEY']
-      if ENV.key?('APPOPTICS_SERVICE_KEY')
-        AppOpticsAPM::Config[:service_key] = ENV['APPOPTICS_SERVICE_KEY']
-        AppOpticsAPM.logger.debug '[config] Using APPOPTICS_SERVICE_KEY environment variable.'
-      else
-        AppOpticsAPM.logger.debug '[config] Using service key setting from config file.'
+      unless (0..6).include?(AppOpticsAPM::Config[:debug_level])
+        AppOpticsAPM::Config[:debug_level] = nil
       end
+      # let's use the same debug level for ruby as well
+      debug_level = ENV['APPOPTICS_DEBUG_LEVEL'] || AppOpticsAPM::Config[:debug_level] || 3
+      AppOpticsAPM.logger.level = [4 - debug_level.to_i, 0].max
 
-      # APPOPTICS_HOSTNAME_ALIAS and APPOPTICS_DEBUG_LEVEL are read by oboe, subprocesses will use what is set here
-      ENV['APPOPTICS_HOSTNAME_ALIAS'] ||= AppOpticsAPM::Config[:hostname_alias]
-
-      unless ENV.key?('APPOPTICS_DEBUG_LEVEL') && (0..6).include?(ENV['APPOPTICS_DEBUG_LEVEL'].to_i)
-        if (0..6).include?(AppOpticsAPM::Config[:debug_level])
-          ENV['APPOPTICS_DEBUG_LEVEL'] = AppOpticsAPM::Config[:debug_level].to_s
-        else
-          ENV['APPOPTICS_DEBUG_LEVEL'] = '3'
-        end
-      end
-      # let's use this setting for ruby as well
-      AppOpticsAPM.logger.level = [4 - ENV['APPOPTICS_DEBUG_LEVEL'].to_i, 0].max
-
-      # the verbose setting is only relevant for ruby, no need to update the env var
+      # the verbose setting is only relevant for ruby, ENV['APPOPTICS_GEM_VERBOSE'] overrides
       if ENV.key?('APPOPTICS_GEM_VERBOSE')
         AppOpticsAPM::Config[:verbose] = ENV['APPOPTICS_GEM_VERBOSE'].downcase == 'true'
       end

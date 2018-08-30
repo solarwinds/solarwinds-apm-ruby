@@ -8,6 +8,7 @@
 
 if defined?(AppOpticsAPM::Config)
 
+  # :service_key, :hostname_alias, and :debug_level are startup settings and can't be changed afterwards.
   #
   # Set APPOPTICS_SERVICE_KEY
   # This Setting will be overridden if APPOPTICS_SERVICE_KEY is set as an environment variable.
@@ -34,7 +35,7 @@ if defined?(AppOpticsAPM::Config)
   #
   AppOpticsAPM::Config[:debug_level] = 3
   #
-  # The level will be used in the c-extension of the gem and also mapped to the
+  # :debug_level will be used in the c-extension of the gem and also mapped to the
   # Ruby logger as FATAL, ERROR, WARN, INFO, or DEBUG
   # The Ruby logger can afterwards be changed to a different level as follows:
   # AppOpticsAPM.logger.level = Logger::INFO
