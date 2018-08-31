@@ -15,6 +15,8 @@ class ConfigTest
     FileUtils.mkdir_p(File.join(Dir.pwd, 'config', 'initializers'))
 
     before do
+      @tracing_mode = AppOpticsAPM::Config[:tracing_mode]
+      @sample_rate = AppOpticsAPM::Config[:sample_rate]
       @gem_verbose =  AppOpticsAPM::Config[:verbose]
 
       ENV.delete('APPOPTICS_APM_CONFIG_RUBY')
@@ -34,9 +36,8 @@ class ConfigTest
     end
 
     after do
-      # Set back to always trace mode
-      AppOpticsAPM::Config[:tracing_mode] = "always"
-      AppOpticsAPM::Config[:sample_rate] = 1000000
+      AppOpticsAPM::Config[:tracing_mode] = @tracing_mode
+      AppOpticsAPM::Config[:sample_rate] = @sample_rate
       AppOpticsAPM::Config[:verbose] = @gem_verbose
     end
 
