@@ -62,18 +62,18 @@ class ConfigTest
 
       AppOpticsAPM::Config.load_config_file
 
-      ENV['APPOPTICS_SERVICE_KEY'].must_equal nil
+      ENV['APPOPTICS_SERVICE_KEY'].must_be_nil
       AppOpticsAPM::Config[:service_key].must_equal '11111111-1111-1111-1111-111111111111:the_service_name'
 
-      ENV['APPOPTICS_HOSTNAME_ALIAS'].must_equal nil
+      ENV['APPOPTICS_HOSTNAME_ALIAS'].must_be_nil
       AppOpticsAPM::Config[:hostname_alias].must_equal 'my_service'
 
       # logging happens in 2 places, oboe and ruby, we translate
-      ENV['APPOPTICS_DEBUG_LEVEL'].must_equal nil
+      ENV['APPOPTICS_DEBUG_LEVEL'].must_be_nil
       AppOpticsAPM::Config[:debug_level].must_equal 6
       AppOpticsAPM.logger.level.must_equal Logger::DEBUG
 
-      ENV['APPOPTICS_GEM_VERBOSE'].must_equal nil
+      ENV['APPOPTICS_GEM_VERBOSE'].must_be_nil
       AppOpticsAPM::Config[:verbose].must_equal true
     end
 
@@ -107,8 +107,8 @@ class ConfigTest
 
       AppOpticsAPM::Config.load_config_file
 
-      ENV['APPOPTICS_DEBUG_LEVEL'].must_equal nil
-      AppOpticsAPM::Config[:debug_level].must_equal nil
+      ENV['APPOPTICS_DEBUG_LEVEL'].must_be_nil
+      AppOpticsAPM::Config[:debug_level].must_be_nil
       AppOpticsAPM.logger.level.must_equal Logger::INFO
     end
 
