@@ -24,7 +24,7 @@ begin
       require '/usr/local/tracelytics/tracelyticsagent.jar'
       require 'joboe_metal'
     elsif RUBY_PLATFORM =~ /linux/
-      require 'oboe_metal.so'
+      require_relative './oboe_metal.so'
       require 'oboe_metal.rb'  # sets AppOpticsAPM.loaded = true if successful
     else
       $stderr.puts '==================================================================='
@@ -34,10 +34,11 @@ begin
       $stderr.puts 'Contact support@appoptics.com if this is unexpected.'
       $stderr.puts '==================================================================='
     end
-  rescue LoadError
+  rescue LoadError => e
     unless ENV['RAILS_GROUP'] == 'assets' or ENV['IGNORE_APPOPTICS_WARNING']
       $stderr.puts '=============================================================='
       $stderr.puts 'Missing AppOpticsAPM libraries.  Tracing disabled.'
+      $stderr.puts "Error: #{e.message}"
       $stderr.puts 'See: https://docs.appoptics.com/kb/apm_tracing/ruby/'
       $stderr.puts '=============================================================='
     end
