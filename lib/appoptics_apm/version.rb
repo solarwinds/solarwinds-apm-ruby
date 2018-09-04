@@ -8,7 +8,7 @@ module AppOpticsAPM
   module Version
     MAJOR = 4
     MINOR = 2
-    PATCH = 3
+    PATCH = 4
 
     STRING = [MAJOR, MINOR, PATCH].compact.join('.')
   end
