@@ -15,34 +15,133 @@ class ConfigTest
     FileUtils.mkdir_p(File.join(Dir.pwd, 'config', 'initializers'))
 
     before do
+      @tracing_mode = AppOpticsAPM::Config[:tracing_mode]
+      @sample_rate = AppOpticsAPM::Config[:sample_rate]
+      @gem_verbose =  AppOpticsAPM::Config[:verbose]
+
       ENV.delete('APPOPTICS_APM_CONFIG_RUBY')
+      ENV.delete('APPOPTICS_SERVICE_KEY')
+      ENV.delete('APPOPTICS_HOSTNAME_ALIAS')
+      ENV.delete('APPOPTICS_DEBUG_LEVEL')
+      ENV.delete('APPOPTICS_GEM_VERBOSE')
+
+      AppOpticsAPM::Config[:service_key] = nil
+      AppOpticsAPM::Config[:hostname_alias] = nil
+      AppOpticsAPM::Config[:debug_level] = nil
+      AppOpticsAPM::Config[:verbose] = nil
+
       FileUtils.rm(@@default_config_path, :force => true)
       FileUtils.rm(@@rails_config_path, :force => true)
       FileUtils.rm(@@test_config_path, :force => true)
     end
 
     after do
-      # Set back to always trace mode
-      AppOpticsAPM::Config[:tracing_mode] = "always"
-      AppOpticsAPM::Config[:sample_rate] = 1000000
+      AppOpticsAPM::Config[:tracing_mode] = @tracing_mode
+      AppOpticsAPM::Config[:sample_rate] = @sample_rate
+      AppOpticsAPM::Config[:verbose] = @gem_verbose
+      FileUtils.rm_f(@@default_config_path)
     end
 
     after(:all) do
-      AppOpticsAPM::Config[:tracing_mode] = "always"
-      AppOpticsAPM::Config[:sample_rate] = 1000000
       ENV.delete('APPOPTICS_APM_CONFIG_RUBY')
+      ENV.delete('APPOPTICS_SERVICE_KEY')
+      ENV.delete('APPOPTICS_HOSTNAME_ALIAS')
+      ENV.delete('APPOPTICS_DEBUG_LEVEL')
+      ENV.delete('APPOPTICS_GEM_VERBOSE')
       FileUtils.rm(@@default_config_path, :force => true)
       FileUtils.rm(@@rails_config_path, :force => true)
       FileUtils.rm(@@test_config_path, :force => true)
+    end
+
+    it 'should read the settings from the config file' do
+      File.open(@@default_config_path, 'w') do |f|
+        f.puts "AppOpticsAPM::Config[:service_key] = '11111111-1111-1111-1111-111111111111:the_service_name'"
+        f.puts "AppOpticsAPM::Config[:hostname_alias] = 'my_service'"
+        f.puts "AppOpticsAPM::Config[:debug_level] = 6"
+        f.puts "AppOpticsAPM::Config[:verbose] = true"
+      end
+
+      AppOpticsAPM::Config.load_config_file
+
+      ENV['APPOPTICS_SERVICE_KEY'].must_be_nil
+      AppOpticsAPM::Config[:service_key].must_equal '11111111-1111-1111-1111-111111111111:the_service_name'
+
+      ENV['APPOPTICS_HOSTNAME_ALIAS'].must_be_nil
+      AppOpticsAPM::Config[:hostname_alias].must_equal 'my_service'
+
+      # logging happens in 2 places, oboe and ruby, we translate
+      ENV['APPOPTICS_DEBUG_LEVEL'].must_be_nil
+      AppOpticsAPM::Config[:debug_level].must_equal 6
+      AppOpticsAPM.logger.level.must_equal Logger::DEBUG
+
+      ENV['APPOPTICS_GEM_VERBOSE'].must_be_nil
+      AppOpticsAPM::Config[:verbose].must_equal true
+    end
+
+    it 'should NOT override env vars with config file settings' do
+       ENV['APPOPTICS_SERVICE_KEY'] = '22222222-2222-2222-2222-222222222222:the_service_name'
+       ENV['APPOPTICS_HOSTNAME_ALIAS'] = 'my_other_service'
+       ENV['APPOPTICS_DEBUG_LEVEL'] = '2'
+       ENV['APPOPTICS_GEM_VERBOSE'] = 'TRUE'
+
+       File.open(@@default_config_path, 'w') do |f|
+         f.puts "AppOpticsAPM::Config[:service_key] = '11111111-1111-1111-1111-111111111111:the_service_name'"
+         f.puts "AppOpticsAPM::Config[:hostname_alias] = 'my_service'"
+         f.puts "AppOpticsAPM::Config[:debug_level] = 6"
+         f.puts "AppOpticsAPM::Config[:verbose] = false"
+       end
+
+       AppOpticsAPM::Config.load_config_file
+
+       ENV['APPOPTICS_SERVICE_KEY'].must_equal '22222222-2222-2222-2222-222222222222:the_service_name'
+       ENV['APPOPTICS_HOSTNAME_ALIAS'].must_equal 'my_other_service'
+       ENV['APPOPTICS_DEBUG_LEVEL'].must_equal '2'
+       AppOpticsAPM.logger.level.must_equal Logger::WARN
+       ENV['APPOPTICS_GEM_VERBOSE'].must_equal 'TRUE'
+       AppOpticsAPM::Config[:verbose].must_equal true
+    end
+
+    it 'should use default when there is a wrong debug level setting' do
+      File.open(@@default_config_path, 'w') do |f|
+        f.puts "AppOpticsAPM::Config[:debug_level] = 7"
+      end
+
+      AppOpticsAPM::Config.load_config_file
+
+      ENV['APPOPTICS_DEBUG_LEVEL'].must_be_nil
+      AppOpticsAPM::Config[:debug_level].must_be_nil
+      AppOpticsAPM.logger.level.must_equal Logger::INFO
+    end
+
+    it "should accept 'true'/'TRUE'/'True'/... as true for VERBOSE" do
+      File.open(@@default_config_path, 'w') do |f|
+        f.puts "AppOpticsAPM::Config[:verbose] = false"
+      end
+
+      ENV['APPOPTICS_GEM_VERBOSE'] = 'FALSE'
+      AppOpticsAPM::Config.load_config_file
+      AppOpticsAPM::Config[:verbose].wont_equal true
+
+      ENV['APPOPTICS_GEM_VERBOSE'] = 'TRUE'
+      AppOpticsAPM::Config.load_config_file
+      AppOpticsAPM::Config[:verbose].must_equal true
+
+      ENV['APPOPTICS_GEM_VERBOSE'] = 'verbose'
+      AppOpticsAPM::Config.load_config_file
+      AppOpticsAPM::Config[:verbose].wont_equal true
+
+      ENV['APPOPTICS_GEM_VERBOSE'] = 'True'
+      AppOpticsAPM::Config.load_config_file
+      AppOpticsAPM::Config[:verbose].must_equal true
     end
 
     it 'should have the correct instrumentation defaults' do
       # Reset AppOpticsAPM::Config to defaults
       AppOpticsAPM::Config.initialize
 
+      AppOpticsAPM::Config[:debug_level] = 3
+      AppOpticsAPM::Config[:verbose].must_equal false
       AppOpticsAPM::Config[:tracing_mode].must_equal :always
-      AppOpticsAPM::Config[:verbose].must_equal ENV.key?('APPOPTICS_GEM_VERBOSE') && ENV['APPOPTICS_GEM_VERBOSE'] == 'true' ? true : false
-
       AppOpticsAPM::Config[:sanitize_sql].must_equal true
       AppOpticsAPM::Config[:sanitize_sql_regexp].must_equal '(\'[\s\S][^\']*\'|\d*\.\d+|\d+|NULL)'
       AppOpticsAPM::Config[:sanitize_sql_opts].must_equal Regexp::IGNORECASE

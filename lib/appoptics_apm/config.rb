@@ -57,13 +57,31 @@ module AppOpticsAPM
       config_file = File.join(Dir.pwd, 'appoptics_apm_config.rb')
       config_files << config_file if File.exist?(config_file)
 
-      return if config_files.empty?
+      return if config_files.empty?  # we use the defaults from the template in this case
 
       if config_files.size > 1
         $stderr.puts 'Found multiple configuration files, using the first one listed:'
         config_files.each { |path| $stderr.puts "  #{path}" }
       end
       load(config_files[0])
+      check_env_vars
+    end
+
+    # There are 4 variables that can be set in the config file or as env vars.
+    # Oboe will override vars passed in if it finds an environment variable
+    # :debug_level and :verbose need special consideration, because they are used in Ruby
+    def self.check_env_vars
+      unless (0..6).include?(AppOpticsAPM::Config[:debug_level])
+        AppOpticsAPM::Config[:debug_level] = nil
+      end
+      # let's use the same debug level for ruby as well
+      debug_level = ENV['APPOPTICS_DEBUG_LEVEL'] || AppOpticsAPM::Config[:debug_level] || 3
+      AppOpticsAPM.logger.level = [4 - debug_level.to_i, 0].max
+
+      # the verbose setting is only relevant for ruby, ENV['APPOPTICS_GEM_VERBOSE'] overrides
+      if ENV.key?('APPOPTICS_GEM_VERBOSE')
+        AppOpticsAPM::Config[:verbose] = ENV['APPOPTICS_GEM_VERBOSE'].downcase == 'true'
+      end
     end
 
     ##
@@ -109,12 +127,16 @@ module AppOpticsAPM
     #
     # rubocop:disable Metrics/AbcSize
     def self.initialize(_data = {})
-      @@instrumentation.each do |k|
-        @@config[k] = {}
-      end
+      @@instrumentation.each { |k| @@config[k] = {} }
       @@config[:transaction_name] = {}
+
+      # Always load the template, it has all the keys and defaults defined,
+      # no guarantee of completeness in the user's config file
       load(File.join(File.dirname(File.dirname(__FILE__)),
                     'rails/generators/appoptics_apm/templates/appoptics_apm_initializer.rb'))
+
+      # to make sure we include the service_key if it is set as an ENV var
+      check_env_vars
     end
     # rubocop:enable Metrics/AbcSize
 
