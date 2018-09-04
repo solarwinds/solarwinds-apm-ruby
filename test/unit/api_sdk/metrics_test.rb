@@ -6,6 +6,9 @@ require 'mocha/minitest'
 
 describe AppOpticsAPM::API::Metrics do
   describe 'send_metrics' do
+    before do
+      AppOpticsAPM.transaction_name = nil
+    end
 
     it 'should send the correct duration and create a transaction name' do
       Time.stub(:now, Time.at(0)) do
@@ -22,7 +25,7 @@ describe AppOpticsAPM::API::Metrics do
       assert_equal 42, result
     end
 
-    it 'should override the transaction name from the params' do
+    it 'should override the transaction name from the params for createSpan' do
       Time.stub(:now, Time.at(0)) do
         AppOpticsAPM::Span.expects(:createSpan).with('this_name', nil, 0)
 

@@ -8,6 +8,47 @@
 
 if defined?(AppOpticsAPM::Config)
 
+  # :service_key, :hostname_alias, and :debug_level are startup settings and can't be changed afterwards.
+  #
+  # Set APPOPTICS_SERVICE_KEY
+  # This Setting will be overridden if APPOPTICS_SERVICE_KEY is set as an environment variable.
+  # This is a required setting. If the service key is not set here it needs to be set as environment variable.
+  #
+  # The service key is a combination of the API token plus a service name.
+  # E.g.: 0123456789abcde0123456789abcde0123456789abcde0123456789abcde1234:my_service
+  #
+  # AppOpticsAPM::Config[:service_key] = '0123456789abcde0123456789abcde0123456789abcde0123456789abcde1234:my_service'
+
+  #
+  # Set APPOPTICS_HOSTNAME_ALIAS
+  # This Setting will be overridden if APPOPTICS_HOSTNAME_ALIAS is set as an environment variable
+  #
+  # AppOpticsAPM::Config[:hostname_alias] = 'alias_name'
+
+  #
+  # Set APPOPTICS_DEBUG_LEVEL
+  # This Setting will be overridden if APPOPTICS_DEBUG_LEVEL is set as an environment variable
+  #
+  # It sets the log level and takes the following values:
+  ## 0 fatal, 1 error, 2 warning, 3 info (the default), 4 debug low, 5 debug medium, 6 debug high.
+  #
+  #
+  AppOpticsAPM::Config[:debug_level] = 3
+  #
+  # :debug_level will be used in the c-extension of the gem and also mapped to the
+  # Ruby logger as FATAL, ERROR, WARN, INFO, or DEBUG
+  # The Ruby logger can afterwards be changed to a different level as follows:
+  # AppOpticsAPM.logger.level = Logger::INFO
+
+  #
+  # Set APPOPTICS_GEM_VERBOSE
+  # This Setting will be overridden if APPOPTICS_GEM_VERBOSE is set as an environment variable
+  #
+  # On startup the components that are being instrumented will be reported if this is set to true.
+  # If true and the log level is 4 or higher this may create extra debug log messages
+  #
+  AppOpticsAPM::Config[:verbose] = false
+
   #
   # Turn tracing on or off
   #
@@ -16,11 +57,6 @@ if defined?(AppOpticsAPM::Config)
   # sampling rate. 'never' means that there is no sampling.
   #
   AppOpticsAPM::Config[:tracing_mode] = :always
-
-  #
-  # Verbose output of instrumentation initialization
-  #
-  AppOpticsAPM::Config[:verbose] = ENV.key?('APPOPTICS_GEM_VERBOSE') && ENV['APPOPTICS_GEM_VERBOSE'] == 'true' ? true : false
 
   #
   # Prepend domain to transaction name
@@ -122,7 +158,9 @@ if defined?(AppOpticsAPM::Config)
   #
   # If you're having trouble with one of the instrumentation libraries, they
   # can be individually disabled here by setting the :enabled
-  # value to false:
+  # value to false.
+  #
+  # :enabled settings are read on startup and can't be changed afterwards
   #
   AppOpticsAPM::Config[:action_controller][:enabled] = true
   AppOpticsAPM::Config[:action_controller_api][:enabled] = true

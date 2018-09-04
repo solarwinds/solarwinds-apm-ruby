@@ -21,24 +21,27 @@ module AppOpticsAPM
         return unless AppOpticsAPM.loaded
 
         begin
-          protocol = ENV.key?('APPOPTICS_GEM_TEST') ? 'file' : 'ssl'
+          options = []
 
-          case protocol
+          ENV['APPOPTICS_REPORTER'] = 'file' if ENV.key?('APPOPTICS_GEM_TEST')
+
+          case ENV['APPOPTICS_REPORTER']
           when 'file'
-            options = "file=#{TRACE_FILE}"
+            ENV['APPOPTICS_REPORTER_FILE'] = TRACE_FILE
           when 'udp'
-            options = "addr=#{AppOpticsAPM::Config[:reporter_host]},port=#{AppOpticsAPM::Config[:reporter_port]}"
-          else
-            if ENV['APPOPTICS_SERVICE_KEY'].to_s == ''
+            ENV['APPOPTICS_REPORTER_UDP'] = "#{AppOpticsAPM::Config[:reporter_host]}:#{AppOpticsAPM::Config[:reporter_port]}"
+          else # default is ssl, service_key is mandatory
+            if AppOpticsAPM::Config[:service_key].to_s == '' && ENV['APPOPTICS_SERVICE_KEY'].to_s == ''
               AppOpticsAPM.logger.warn "[appoptics_apm/warn] APPOPTICS_SERVICE_KEY not set. Cannot submit data."
               AppOpticsAPM.loaded = false
               return
             end
-            # ssl reporter requires the service key passed in as arg "cid"
-            options = "cid=#{ENV['APPOPTICS_SERVICE_KEY']}"
+            # Oboe will override these settings if there are env settings for them
+            options << AppOpticsAPM::Config[:service_key].to_s
+            options << AppOpticsAPM::Config[:hostname_alias].to_s
+            options << AppOpticsAPM::Config[:debug_level] unless AppOpticsAPM::Config[:debug_level].nil?
           end
-
-          AppOpticsAPM.reporter = Oboe_metal::Reporter.new(protocol, options)
+          AppOpticsAPM.reporter = Oboe_metal::Reporter.new(*options)
 
           # Only report __Init from here if we are not instrumenting a framework.
           # Otherwise, frameworks will handle reporting __Init after full initialization

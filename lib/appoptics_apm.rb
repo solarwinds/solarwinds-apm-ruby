@@ -13,46 +13,44 @@ begin
   require 'appoptics_apm/util'
   require 'appoptics_apm/xtrace'
   require 'appoptics_apm/support'
-
-  # If OboeHeroku is already defined then we are in a PaaS environment
-  # with an alternate metal (see the oboe-heroku gem)
-  unless defined?(OboeHeroku)
-    require 'appoptics_apm/base'
-    AppOpticsAPM.loaded = false
-
-    begin
-      if RUBY_PLATFORM == 'java'
-        require '/usr/local/tracelytics/tracelyticsagent.jar'
-        require 'joboe_metal'
-      elsif RUBY_PLATFORM =~ /linux/
-        require 'oboe_metal.so'
-        require 'oboe_metal.rb'  # sets AppOpticsAPM.loaded = true  if successful
-      else
-        $stderr.puts '==================================================================='
-        $stderr.puts "AppOptics warning: Platform #{RUBY_PLATFORM} not yet supported."
-        $stderr.puts 'see: https://docs.appoptics.com/kb/apm_tracing/supported_platforms/'
-        $stderr.puts 'Tracing disabled.'
-        $stderr.puts 'Contact support@appoptics.com if this is unexpected.'
-        $stderr.puts '==================================================================='
-      end
-    rescue LoadError
-      unless ENV['RAILS_GROUP'] == 'assets' or ENV['IGNORE_APPOPTICS_WARNING']
-        $stderr.puts '=============================================================='
-        $stderr.puts 'Missing AppOpticsAPM libraries.  Tracing disabled.'
-        $stderr.puts 'See: https://docs.appoptics.com/kb/apm_tracing/ruby/'
-        $stderr.puts '=============================================================='
-      end
-    end
-  end
+  require 'appoptics_apm/base'
+  AppOpticsAPM.loaded = false
 
   require 'appoptics_apm/config'
   AppOpticsAPM::Config.load_config_file
+
+  begin
+    if RUBY_PLATFORM == 'java'
+      require '/usr/local/tracelytics/tracelyticsagent.jar'
+      require 'joboe_metal'
+    elsif RUBY_PLATFORM =~ /linux/
+      require_relative './oboe_metal.so'
+      require 'oboe_metal.rb'  # sets AppOpticsAPM.loaded = true if successful
+    else
+      $stderr.puts '==================================================================='
+      $stderr.puts "AppOptics warning: Platform #{RUBY_PLATFORM} not yet supported."
+      $stderr.puts 'see: https://docs.appoptics.com/kb/apm_tracing/supported_platforms/'
+      $stderr.puts 'Tracing disabled.'
+      $stderr.puts 'Contact support@appoptics.com if this is unexpected.'
+      $stderr.puts '==================================================================='
+    end
+  rescue LoadError => e
+    unless ENV['RAILS_GROUP'] == 'assets' or ENV['IGNORE_APPOPTICS_WARNING']
+      $stderr.puts '=============================================================='
+      $stderr.puts 'Missing AppOpticsAPM libraries.  Tracing disabled.'
+      $stderr.puts "Error: #{e.message}"
+      $stderr.puts 'See: https://docs.appoptics.com/kb/apm_tracing/ruby/'
+      $stderr.puts '=============================================================='
+    end
+  end
 
   require 'appoptics_apm/loading'
   require 'appoptics_apm/legacy_method_profiling'
   require 'appoptics_apm/method_profiling'
 
   if AppOpticsAPM.loaded
+    # tracing mode is configured via config file but can only be set once we have oboe_metal loaded
+    AppOpticsAPM.set_tracing_mode(AppOpticsAPM::Config[:tracing_mode].to_sym)
     require 'appoptics_apm/instrumentation'
 
     # Frameworks

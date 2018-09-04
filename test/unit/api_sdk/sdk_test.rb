@@ -451,17 +451,17 @@ describe AppOpticsAPM::SDK do
 
   describe 'appoptics_ready?' do
     it 'should return true if it can connect' do
-      AppopticsAPM::Context.expects(:isReady).with(10_000).returns(true)
+      AppopticsAPM::Context.expects(:isReady).with(10_000).returns(1)
       assert AppOpticsAPM::SDK.appoptics_ready?(10_000)
     end
 
     it 'should work with no arg' do
-      AppopticsAPM::Context.expects(:isReady).returns(true)
+      AppopticsAPM::Context.expects(:isReady).returns(1)
       assert AppOpticsAPM::SDK.appoptics_ready?
     end
 
     it 'should return false if it cannot connect' do
-      AppopticsAPM::Context.expects(:isReady).returns(false)
+      AppopticsAPM::Context.expects(:isReady).returns(2)
       refute AppOpticsAPM::SDK.appoptics_ready?
     end
   end
