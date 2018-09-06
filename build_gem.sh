@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # builds the appoptics_apm gem for MRI.
 
+# we currently only build for MRI, no JRuby
 echo -e "\n=== building for MRI ===\n"
-export RBENV_VERSION=2.3.1
 rm -f Gemfile.lock
 bundle install
 bundle exec rake distclean

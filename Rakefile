@@ -45,9 +45,6 @@ Rake::TestTask.new do |t|
                    FileList['test/instrumentation/*_test.rb'] +
                    FileList['test/profiling/*_test.rb'] -
                    ['test/instrumentation/twitter-cassandra_test.rb']
-      # FIXME: exclude cassandra tests for now
-      # TODO: they need refactoring to use the 'cassandra-driver' gem
-      # ____  instead of the 'cassandra' gem, which hasn't had a commit since 09/2014
   when /instrumentation_mocked/
     # WebMock is interfering with other tests, so these have to run seperately
     t.test_files = FileList['test/mocked/*_test.rb']
@@ -145,7 +142,7 @@ task :compile do
     else
       Dir.chdir(pwd)
       puts '!! Extension failed to build (see above). Have the required binary and header files been fetched?'
-      puts '!! Try the tasks in this order: clean > fetchsource > compile.'
+      puts '!! Try the tasks in this order: clean > fetch_ext_deps > compile.'
     end
   else
     puts '== Nothing to do under JRuby.'
