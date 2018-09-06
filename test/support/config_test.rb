@@ -39,10 +39,6 @@ class ConfigTest
       AppOpticsAPM::Config[:tracing_mode] = @tracing_mode
       AppOpticsAPM::Config[:sample_rate] = @sample_rate
       AppOpticsAPM::Config[:verbose] = @gem_verbose
-      FileUtils.rm_f(@@default_config_path)
-    end
-
-    after(:all) do
       ENV.delete('APPOPTICS_APM_CONFIG_RUBY')
       ENV.delete('APPOPTICS_SERVICE_KEY')
       ENV.delete('APPOPTICS_HOSTNAME_ALIAS')

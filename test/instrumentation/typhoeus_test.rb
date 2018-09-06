@@ -250,6 +250,7 @@ describe "Typhoeus" do
     end
 
     traces = get_all_traces
+    traces.count.must_equal 8
     traces[5]['RemoteURL'].casecmp('http://127.0.0.1:8101/?blah=1').must_equal 0
   end
 
@@ -261,6 +262,7 @@ describe "Typhoeus" do
     end
 
     traces = get_all_traces
+    traces.count.must_equal 8
     traces[5]['RemoteURL'].casecmp('http://127.0.0.1:8101/').must_equal 0
   end
 
@@ -272,6 +274,7 @@ describe "Typhoeus" do
     end
 
     traces = get_all_traces
+    traces.count.must_equal 8
     layer_has_key(traces, 'typhoeus', 'Backtrace')
   end
 
@@ -283,6 +286,7 @@ describe "Typhoeus" do
     end
 
     traces = get_all_traces
+    traces.count.must_equal 8
     layer_doesnt_have_key(traces, 'typhoeus', 'Backtrace')
   end
 end

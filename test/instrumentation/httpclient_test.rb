@@ -42,7 +42,7 @@ unless defined?(JRUBY_VERSION)
       assert response.headers.key?("X-Trace")
       assert AppOpticsAPM::XTrace.valid?(response.headers["X-Trace"])
 
-      assert_equal traces.count, 7
+      assert_equal 7, traces.count
       assert valid_edges?(traces), "Invalid edge in traces"
       validate_outer_layers(traces, "httpclient_tests")
 
@@ -70,7 +70,7 @@ unless defined?(JRUBY_VERSION)
       assert xtrace
       assert AppOpticsAPM::XTrace.valid?(xtrace)
 
-      assert_equal traces.count, 7
+      assert_equal 7, traces.count
       assert valid_edges?(traces), "Invalid edge in traces"
       validate_outer_layers(traces, "httpclient_tests")
 
@@ -98,7 +98,7 @@ unless defined?(JRUBY_VERSION)
       assert xtrace
       assert AppOpticsAPM::XTrace.valid?(xtrace)
 
-      assert_equal traces.count, 7
+      assert_equal 7, traces.count
       assert valid_edges?(traces), "Invalid edge in traces"
       validate_outer_layers(traces, "httpclient_tests")
 
@@ -126,7 +126,7 @@ unless defined?(JRUBY_VERSION)
       assert xtrace
       assert AppOpticsAPM::XTrace.valid?(xtrace)
 
-      assert_equal traces.count, 7
+      assert_equal 7, traces.count
       assert valid_edges?(traces), "Invalid edge in traces"
       validate_outer_layers(traces, "httpclient_tests")
 
@@ -153,7 +153,7 @@ unless defined?(JRUBY_VERSION)
 
       traces = get_all_traces
 
-      assert_equal traces.count, 7
+      assert_equal 7, traces.count
       assert valid_edges?(traces), "Invalid edge in traces"
 
       # In the case of async the layers are not always ordered the same
@@ -187,7 +187,7 @@ unless defined?(JRUBY_VERSION)
 
       traces = get_all_traces
 
-      assert_equal traces.count, 7
+      assert_equal 7, traces.count
       assert valid_edges?(traces), "Invalid edge in traces"
       validate_outer_layers(traces, "httpclient_tests")
 
