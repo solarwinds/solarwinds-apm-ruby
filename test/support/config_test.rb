@@ -153,7 +153,7 @@ class ConfigTest
 
       # Verify the number of individual instrumentations
       instrumentation = AppOpticsAPM::Config.instrumentation
-      instrumentation.count.must_equal 29
+      instrumentation.count.must_equal 31
 
       AppOpticsAPM::Config[:action_controller][:enabled].must_equal true
       AppOpticsAPM::Config[:action_controller_api][:enabled].must_equal true
