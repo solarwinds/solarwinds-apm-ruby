@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+// Process with:
+// bundle exec grpc_tools_ruby_protoc test/servers/grpc/grpc.proto --ruby_out . --grpc_out .
+
+package grpctest;
+
+service AddressService {
+    // unary
+    rpc store_address (Address) returns (AddressId);
+    rpc get_address (AddressId) returns (Address);
+    rpc cancel(NullMessage) returns(NullMessage);
+    rpc unimplemented(NullMessage) returns(NullMessage);
+
+    // client streaming
+    rpc add_phones(stream Phone) returns (NullMessage);
+    rpc client_stream_cancel(stream Phone) returns (NullMessage);
+    rpc client_stream_unimplemented(stream Phone) returns (NullMessage);
+
+    // server streaming
+    rpc get_phones (AddressId)  returns (stream Phone);
+    rpc server_stream_cancel(NullMessage) returns(stream Phone);
+    rpc server_stream_unimplemented(NullMessage) returns(stream Phone);
+}
+
+message NullMessage {}
+
+message Phone {
+    string number = 1;
+    string type = 2;
+}
+
+message AddressId {
+    int32 id = 1;
+}
+
+message Address {
+    AddressId id = 5;
+    string street = 1;
+    int32 number = 2;
+    string town = 3;
+    repeated Phone phonenumbers = 4;
+}
