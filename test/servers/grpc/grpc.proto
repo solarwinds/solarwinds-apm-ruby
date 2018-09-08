@@ -5,22 +5,27 @@ syntax = "proto3";
 
 package grpctest;
 
-service AddressService {
+service TestService {
     // unary
-    rpc store_address (Address) returns (AddressId);
-    rpc get_address (AddressId) returns (Address);
-    rpc cancel(NullMessage) returns(NullMessage);
-    rpc unimplemented(NullMessage) returns(NullMessage);
+    rpc unary_1 (Address) returns (AddressId);
+    rpc unary_2 (AddressId) returns (Address);
+    rpc unary_cancel(NullMessage) returns(NullMessage);
+    rpc unary_unimplemented(NullMessage) returns(NullMessage);
 
     // client streaming
-    rpc add_phones(stream Phone) returns (NullMessage);
+    rpc client_stream(stream Phone) returns (NullMessage);
     rpc client_stream_cancel(stream Phone) returns (NullMessage);
     rpc client_stream_unimplemented(stream Phone) returns (NullMessage);
 
     // server streaming
-    rpc get_phones (AddressId)  returns (stream Phone);
+    rpc server_stream (AddressId)  returns (stream Phone);
     rpc server_stream_cancel(NullMessage) returns(stream Phone);
     rpc server_stream_unimplemented(NullMessage) returns(stream Phone);
+
+    // bidi streaming
+    rpc bidi_stream(stream Phone) returns (stream Phone);
+    rpc bidi_stream_cancel(stream Phone) returns (stream Phone);
+    rpc bidi_stream_unimplemented(stream Phone) returns (stream Phone);
 }
 
 message NullMessage {}

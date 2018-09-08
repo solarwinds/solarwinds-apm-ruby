@@ -91,23 +91,23 @@ class Address
   end
 end
 
-class AddressService < Grpctest::AddressService::Service
+class AddressService < Grpctest::TestService::Service
 
   #### UNARY ###
-  def store_address(req, _)
+  def unary_1(req, _)
     ::Address.new(req).to_grpc.id
   end
 
-  def cancel(_req, _)
-    raise ::GRPC::Cancelled
-  end
-
-  def get_address(req, _)
+  def unary_2(req, _)
     ::Address.find(req).to_grpc
   end
 
+  def unary_cancel(_req, _)
+    raise ::GRPC::Cancelled
+  end
+
   ### CLIENT_STREAMING ###
-  def add_phones(call)
+  def client_stream(call)
     call.each_remote_read { |req| Phone.new(req) }
     Grpctest::NullMessage.new
   end
@@ -116,12 +116,13 @@ class AddressService < Grpctest::AddressService::Service
     raise ::GRPC::Cancelled
   end
 
+  # needs implementation, otherwise it returns UNKNOWN
   def client_stream_unimplemented(_req)
     raise ::GRPC::Unimplemented
   end
 
   ### SERVER_STREAMING ###
-  def get_phones(_req, _unused_call)
+  def server_stream(_req, _unused_call)
     [Grpctest::Phone.new( number: '113456789', type: 'mobile'),
      Grpctest::Phone.new( number: '223456789', type: 'mobile')]
   end
@@ -130,6 +131,16 @@ class AddressService < Grpctest::AddressService::Service
     raise ::GRPC::Cancelled
   end
 
+  ### BIDI_STREAMING ###
+  def bidi_stream(_req, call)
+    call.each_remote_read { |_| }
+    [Grpctest::Phone.new( number: '113456789', type: 'mobile'),
+     Grpctest::Phone.new( number: '223456789', type: 'mobile')]
+  end
+
+  def bidi_stream_cancel(_req, _call)
+    raise ::GRPC::Cancelled
+  end
 end
 
 class AddressServer
