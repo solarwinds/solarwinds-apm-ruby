@@ -13,12 +13,11 @@ group :development, :test do
   gem 'rubocop', require: false
   gem 'ruby-prof'
   gem 'benchmark-ips'
-  gem 'ruby-debug',   :platforms => [:mri_18, :jruby]
+  gem 'ruby-debug',   :platforms =>  :jruby
   gem 'debugger',     :platform  =>  :mri_19
-  gem 'byebug',       :platforms => [:mri_20, :mri_21, :mri_22, :mri_23, :mri_24]
-  #  gem 'perftools.rb', :platforms => [ :mri_20, :mri_21 ], :require => 'perftools'
+  gem 'byebug',       :platforms => [:mri_22, :mri_23, :mri_24]
   gem 'pry'
-  gem 'pry-byebug', :platforms => [:mri_20, :mri_21, :mri_22, :mri_23, :mri_24]
+  gem 'pry-byebug',   :platforms => [:mri_22, :mri_23, :mri_24]
 end
 
 if defined?(JRUBY_VERSION)
