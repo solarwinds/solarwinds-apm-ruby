@@ -42,6 +42,7 @@ Gem::Specification.new do |s|
     s.add_development_dependency('byebug', '>= 8.0.0')
     s.add_development_dependency('pry', '>= 0.10.0')
     s.add_development_dependency('pry-byebug', '>= 3.0.0')
+    s.add_development_dependency('minitest-hooks', '~>1.5.0')
   else
     s.add_development_dependency('pry', '>= 0.10.0')
   end
