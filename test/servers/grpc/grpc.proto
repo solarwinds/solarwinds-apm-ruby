@@ -62,6 +62,7 @@ service TestService {
     // bidi streaming
     rpc bidi_stream(stream Phone) returns (stream Phone);
     rpc bidi_stream_cancel(stream Phone) returns (stream Phone);
+    rpc bidi_stream_unknown(stream Phone) returns (stream Phone);
     rpc bidi_stream_unimplemented(stream Phone) returns (stream Phone);
 >>>>>>> [grpc/test] add bidi service to .proto and include README
 }
