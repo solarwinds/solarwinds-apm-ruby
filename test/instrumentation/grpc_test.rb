@@ -3,11 +3,20 @@
 
 require 'minitest_helper'
 require 'grpc'
+require 'minitest/hooks/default'
 
 $LOAD_PATH.unshift(File.join(File.dirname(File.dirname(__FILE__)), 'servers/grpc'))
 require 'grpc_server_50051'
 
 describe 'GRPC' do
+  before(:all) do
+    @server = GRPC::RpcServer.new
+    @server.add_http2_port("0.0.0.0:50051", :this_port_is_insecure)
+    @server.handle(AddressService)
+    @server_thread = Thread.new do
+      @server.run_till_terminated
+    end
+  end
 
   before do
     clear_all_traces
@@ -33,6 +42,11 @@ describe 'GRPC' do
 
   after do
     AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = @bt
+  end
+
+  after(:all) do
+    @server.stop
+    @server_thread.join
   end
 
   describe 'UNARY' do
