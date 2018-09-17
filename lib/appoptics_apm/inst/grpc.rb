@@ -34,39 +34,31 @@ module AppOpticsAPM
         unary_response(req, type: 'CLIENT_STREAMING', metadata: metadata, without: :client_streamer_without_appoptics)
       end
 
-      def server_streamer_with_appoptics(req, metadata: {}, &blk)
-        streaming_reponse(req, type: 'SERVER_STREAMING', metadata: metadata, without: :server_streamer_without_appoptics, &blk)
-      end
-
-      def bidi_streamer_with_appoptics(req, metadata: {}, &blk)
-        streaming_reponse(req, type: 'BIDI_STREAMING', metadata: metadata, without: :bidi_streamer_without_appoptics, &blk)
-      end
-
       def unary_response(req, type: , metadata: , without:)
         tags = grpc_tags(type, metadata[:method])
         AppOpticsAPM::SDK.trace('grpc_client', tags) do
           metadata['x-trace'] = AppOpticsAPM::Context.toString
           begin
-            response = send(without, req, metadata: metadata)
+            send(without, req, metadata: metadata)
           rescue => e
             e.instance_variable_set(:@dont_log_backtraces, !AppOpticsAPM::Config[:grpc_client][:collect_backtraces])
             raise e
           ensure
+            # we need to translate the status.code, it is not the status.details we want, they are not matching 1:1
             tags['GRPCStatus'] ||= @call.status ? AppOpticsAPM::GRPC::StatusCodes[@call.status.code].to_s : 'UNKNOWN'
             AppOpticsAPM::Context.fromString(metadata['x-trace']) if metadata['x-trace']
-            response
           end
         end
       end
 
-      def streaming_reponse(req, type: , metadata: , without:, &blk)
-        @tags = grpc_tags(type, metadata[:method])
+      def server_streamer_with_appoptics(req, metadata:, &blk)
+        @tags = grpc_tags('SERVER_STREAMING', metadata[:method])
         AppOpticsAPM::API.log_entry('grpc_client', @tags)
         metadata['x-trace'] = AppOpticsAPM::Context.toString
 
         patch_receive_and_check_status # need to patch this so that log_exit can be called after the enum is consumed
 
-        response = send(without, req, metadata: metadata)
+        response = server_streamer_without_appoptics(req, metadata: metadata)
         AppOpticsAPM::Context.fromString(metadata['x-trace']) if metadata['x-trace']
         if block_given?
           response.each { |r| yield r }
@@ -74,10 +66,9 @@ module AppOpticsAPM
           return response
         end
       rescue => e
-        e.instance_variable_set(:@dont_log_backtraces, !AppOpticsAPM::Config[:grpc_client][:collect_backtraces])
-
-        # this check is needed because exceptions may have been raised from patch_receive_and_check_status
+        # this check is needed because the exception may have been logged in patch_receive_and_check_status
         unless e.instance_variable_get(:@exn_logged)
+          e.instance_variable_set(:@dont_log_backtraces, !AppOpticsAPM::Config[:grpc_client][:collect_backtraces])
           AppOpticsAPM::API.log_exception('grpc_client', e)
           @tags['GRPCStatus'] = @call.status ? AppOpticsAPM::GRPC::StatusCodes[@call.status.code].to_s : 'UNKNOWN'
           AppOpticsAPM::API.log_exit('grpc_client', @tags)
@@ -97,6 +88,44 @@ module AppOpticsAPM
           AppOpticsAPM::API.log_exit('grpc_client', @tags)
         end
       end
+
+      def bidi_streamer_with_appoptics(req, metadata: {}, &blk)
+        @tags = grpc_tags('BIDI_STREAMING', metadata[:method])
+        AppOpticsAPM::API.log_entry('grpc_client', @tags)
+        metadata['x-trace'] = AppOpticsAPM::Context.toString
+
+        patch_set_input_stream_done
+
+        response = bidi_streamer_without_appoptics(req, metadata: metadata)
+        AppOpticsAPM::Context.fromString(metadata['x-trace']) if metadata['x-trace']
+        if block_given?
+          response.each { |r| yield r }
+        else
+          return response
+        end
+      rescue => e
+        # this check is necessary because the exception may have been logged in patch_set_input_stream_done
+        unless e.instance_variable_get(:@exn_logged)
+          e.instance_variable_set(:@dont_log_backtraces, !AppOpticsAPM::Config[:grpc_client][:collect_backtraces])
+          AppOpticsAPM::API.log_exception('grpc_client', e)
+          @tags['GRPCStatus'] = @call.status ? AppOpticsAPM::GRPC::StatusCodes[@call.status.code].to_s : 'UNKNOWN'
+          AppOpticsAPM::API.log_exit('grpc_client', @tags)
+        end
+        raise e
+      end
+
+      def patch_set_input_stream_done
+        def self.set_input_stream_done
+          return if status.nil?
+          if status.code > 0
+            $!.instance_variable_set(:@dont_log_backtraces, !AppOpticsAPM::Config[:grpc_client][:collect_backtraces])
+            AppOpticsAPM::API.log_exception('grpc_client', $!) unless $!.instance_variable_get(:@exn_logged)
+          end
+          @tags['GRPCStatus'] = AppOpticsAPM::GRPC::StatusCodes[status.code].to_s
+          AppOpticsAPM::API.log_exit(:grpc_client, @tags)
+          super
+        end
+      end
     end
 
   end
@@ -107,12 +136,11 @@ if defined?(::GRPC) && AppOpticsAPM::Config[:grpc_client][:enabled]
 
   ::AppOpticsAPM::Util.send_include(::GRPC::ActiveCall, ::AppOpticsAPM::GRPC::ActiveCall)
 
+  # patch ClientStub methods to include method name in metadata
   GRPC_ClientStub_ops = [:request_response, :client_streamer, :server_streamer, :bidi_streamer]
   module GRPC
     class ClientStub
-
       GRPC_ClientStub_ops.reject { |m| !method_defined?(m) }.each do |m|
-
         define_method("#{m}_with_appoptics") do |method, req, marshal, unmarshal, deadline: nil,
             return_op: false, parent: nil,
             credentials: nil, metadata: {}, &blk|
