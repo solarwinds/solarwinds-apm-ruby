@@ -37,12 +37,12 @@ Gem::Specification.new do |s|
 
   # Development dependencies used in gem development & testing
   s.add_development_dependency('rake', '>= 0.9.0')
+  s.add_development_dependency('minitest-hooks', '>= 1.5.0')
 
   unless defined?(JRUBY_VERSION)
     s.add_development_dependency('byebug', '>= 8.0.0')
     s.add_development_dependency('pry', '>= 0.10.0')
     s.add_development_dependency('pry-byebug', '>= 3.0.0')
-    s.add_development_dependency('minitest-hooks', '>= 1.5.0')
   else
     s.add_development_dependency('pry', '>= 0.10.0')
   end
