@@ -5,6 +5,7 @@ gem 'eventmachine', '< 1.2.0'
 gem 'em-synchrony'
 gem 'em-http-request'
 gem 'rest-client'
+gem 'grpc'
 
 group :development, :test do
   gem 'minitest'
@@ -17,6 +18,7 @@ group :development, :test do
   gem 'bson', '~> 4.0'
   gem 'puma', '< 3.1.0'
   gem 'webmock'
+  gem 'grpc-tools'
 end
 
 if defined?(JRUBY_VERSION)
