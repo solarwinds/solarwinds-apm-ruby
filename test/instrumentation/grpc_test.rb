@@ -9,31 +9,33 @@ require 'grpc_server_50051'
 
 describe 'GRPC' do
 
-    before do
-      clear_all_traces
-      AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F01')
+  before do
+    clear_all_traces
+    AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F01')
 
-      @null_msg = Grpctest::NullMessage.new
-      @address_msg = Grpctest::Address.new(street: 'the_street', number:  123, town: 'Mission')
-      @phone_msg = Grpctest::Phone.new(number: '12345678', type: 'mobile')
+    @null_msg = Grpctest::NullMessage.new
+    @address_msg = Grpctest::Address.new(street: 'the_street', number:  123, town: 'Mission')
+    @phone_msg = Grpctest::Phone.new(number: '12345678', type: 'mobile')
 
-      @stub = Grpctest::TestService::Stub.new('localhost:50051', :this_channel_is_insecure)
-      @unavailable = Grpctest::TestService::Stub.new('localhost:50052', :this_channel_is_insecure)
-      @no_time = Grpctest::TestService::Stub.new('localhost:50051', :this_channel_is_insecure, timeout: 0)
+    @stub = Grpctest::TestService::Stub.new('localhost:50051', :this_channel_is_insecure)
+    @unavailable = Grpctest::TestService::Stub.new('localhost:50052', :this_channel_is_insecure)
+    @no_time = Grpctest::TestService::Stub.new('localhost:50051', :this_channel_is_insecure, timeout: 0)
 
-      # secure_channel_creds = GRPC::Core::ChannelCredentials.new(certs[0], nil, nil)
-      # secure_stub_opts = { channel_args: { GRPC::Core::Channel::SSL_TARGET => 'foo.test.google.fr' } }
-      # @secure = GRPC::ClientStub.new("localhost:#{server_port}", secure_channel_creds, **secure_stub_opts)
+    @count = 50  ### this seems high enough to trigger a resource exhausted exception
 
-      @bt = AppOpticsAPM::Config[:grpc_client][:collect_backtraces]
-      AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = false
-    end
+    # secure_channel_creds = GRPC::Core::ChannelCredentials.new(certs[0], nil, nil)
+    # secure_stub_opts = { channel_args: { GRPC::Core::Channel::SSL_TARGET => 'foo.test.google.fr' } }
+    # @secure = GRPC::ClientStub.new("localhost:#{server_port}", secure_channel_creds, **secure_stub_opts)
 
-    after do
-      AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = @bt
-    end
+    @bt = AppOpticsAPM::Config[:grpc_client][:collect_backtraces]
+    AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = false
+  end
 
-    describe 'UNARY' do
+  after do
+    AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = @bt
+  end
+
+  describe 'UNARY' do
 
     it 'should collect traces for unary' do
       res = @stub.unary_1(@address_msg)
@@ -54,7 +56,7 @@ describe 'GRPC' do
 
       begin
         @no_time.unary_1(@address_msg)
-      rescue
+      rescue => _
       end
 
       traces = get_all_traces
@@ -70,7 +72,7 @@ describe 'GRPC' do
     it 'should report CANCELLED for unary' do
       begin
         @stub.unary_cancel(@null_msg)
-      rescue
+      rescue => _
       end
 
       traces = get_all_traces
@@ -84,7 +86,7 @@ describe 'GRPC' do
     it 'should report UNAVAILABLE for unary' do
       begin
         @unavailable.unary_2(@address_msg)
-      rescue
+      rescue => _
       end
 
       traces = get_all_traces
@@ -98,7 +100,7 @@ describe 'GRPC' do
     it 'should report UNKNOWN for unary' do
       begin
        @stub.unary_2(@address_msg)
-      rescue
+      rescue => _
       end
 
       traces = get_all_traces
@@ -112,7 +114,7 @@ describe 'GRPC' do
     it 'should report UNIMPLEMENTED for unary' do
       begin
        @stub.unary_unimplemented(@null_msg)
-      rescue
+      rescue => _
       end
 
       traces = get_all_traces
@@ -142,7 +144,7 @@ describe 'GRPC' do
 
       begin
         @no_time.client_stream([@phone_msg, @phone_msg])
-      rescue
+      rescue => _
       end
 
       traces = get_all_traces
@@ -157,7 +159,7 @@ describe 'GRPC' do
     it 'should report CANCELLED for client_streaming' do
       begin
         @stub.client_stream_cancel([@null_msg, @null_msg])
-      rescue
+      rescue => _
       end
 
       traces = get_all_traces
@@ -171,7 +173,7 @@ describe 'GRPC' do
     it 'should report UNAVAILABLE for client_streaming' do
       begin
         @unavailable.client_stream([@phone_msg, @phone_msg])
-      rescue
+      rescue => _
       end
 
       traces = get_all_traces
@@ -185,7 +187,7 @@ describe 'GRPC' do
     it 'should report UNKNOWN for client_streaming' do
       begin
         @stub.client_stream(@null_msg)
-      rescue
+      rescue => _
       end
 
       traces = get_all_traces
@@ -199,7 +201,7 @@ describe 'GRPC' do
     it 'should report UNIMPLEMENTED for client_streaming' do
       begin
         @stub.client_stream_unimplemented([@phone_msg, @phone_msg])
-      rescue
+      rescue => _
       end
 
       traces = get_all_traces
@@ -229,7 +231,7 @@ describe 'GRPC' do
       res = @stub.server_stream_cancel(@null_msg)
       begin
         res.each { |_| }
-      rescue
+      rescue => _
       end
 
       traces = get_all_traces
@@ -246,7 +248,7 @@ describe 'GRPC' do
       begin
         res = @no_time.server_stream(@null_msg)
         res.each { |_| }
-      rescue
+      rescue => _
       end
 
       traces = get_all_traces
@@ -261,7 +263,7 @@ describe 'GRPC' do
       begin
         res = @unavailable.server_stream(@null_msg)
         res.each { |_| }
-      rescue
+      rescue => _
       end
 
       traces = get_all_traces
@@ -276,7 +278,7 @@ describe 'GRPC' do
       begin
         res = @stub.server_stream([@null_msg, @null_msg])
         res.each { |_| }
-      rescue
+      rescue => _
       end
 
       traces = get_all_traces
@@ -291,7 +293,7 @@ describe 'GRPC' do
       begin
         res = @stub.server_stream_unimplemented(@null_msg)
         res.each { |_| }
-      rescue
+      rescue => _
       end
 
       traces = get_all_traces
@@ -319,7 +321,7 @@ describe 'GRPC' do
     it 'should report CANCEL for server_streaming using block' do
       begin
         @stub.server_stream_cancel(@null_msg) { |_| }
-      rescue
+      rescue => _
       end
 
       traces = get_all_traces
@@ -333,7 +335,7 @@ describe 'GRPC' do
     it 'should report DEADLINE_EXCEEDED for server_streaming using block' do
       begin
         @no_time.server_stream(@null_msg) { |_| }
-      rescue
+      rescue => _
       end
 
       traces = get_all_traces
@@ -349,7 +351,7 @@ describe 'GRPC' do
 
       begin
         res = @unavailable.server_stream(@null_msg) { |_| }
-      rescue
+      rescue => _
       end
 
       traces = get_all_traces
@@ -363,7 +365,7 @@ describe 'GRPC' do
     it 'should report UNKNOWN for server_streaming using block' do
       begin
         res = @stub.server_stream([@null_msg, @null_msg]) { |_| }
-      rescue
+      rescue => _
       end
 
       traces = get_all_traces
@@ -377,7 +379,7 @@ describe 'GRPC' do
     it 'should report UNIMPLEMENTED for server_streaming using block' do
       begin
         res = @stub.server_stream_unimplemented(@null_msg) { |_| }
-      rescue
+      rescue => _
       end
 
       traces = get_all_traces
@@ -407,7 +409,7 @@ describe 'GRPC' do
       begin
         response = @stub.bidi_stream_cancel([@null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg])
         response.each { |_| }
-      rescue
+      rescue => _
       end
 
       traces = get_all_traces
@@ -422,7 +424,7 @@ describe 'GRPC' do
       begin
         response = @no_time.bidi_stream([@null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg])
         response.each { |_| }
-      rescue
+      rescue => _
       end
 
       traces = get_all_traces
@@ -437,7 +439,7 @@ describe 'GRPC' do
       begin
         response = @unavailable.bidi_stream([@null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg])
         response.each { |_| }
-      rescue
+      rescue => _
       end
 
       traces = get_all_traces
@@ -452,7 +454,7 @@ describe 'GRPC' do
       begin
         response = @stub.bidi_stream_unknown([@null_msg, @null_msg])
         response.each { |_| }
-      rescue
+      rescue => _
       end
 
       traces = get_all_traces
@@ -467,7 +469,7 @@ describe 'GRPC' do
       begin
         response = @stub.bidi_stream_unimplemented([@null_msg, @null_msg])
         response.each { |_| }
-      rescue
+      rescue => _
       end
 
       traces = get_all_traces
@@ -496,7 +498,7 @@ describe 'GRPC' do
     it 'should report CANCEL for bidi_streaming using block' do
       begin
         @stub.bidi_stream_cancel([@null_msg, @null_msg]) { |_| }
-      rescue
+      rescue => _
       end
 
       traces = get_all_traces
@@ -510,7 +512,7 @@ describe 'GRPC' do
     it 'should report DEADLINE_EXCEEDED for bidi_streaming using block' do
       begin
         @no_time.bidi_stream([@null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg]) { |_| }
-      rescue
+      rescue => _
       end
 
       traces = get_all_traces
@@ -524,7 +526,7 @@ describe 'GRPC' do
     it 'should report UNAVAILABLE for bidi_streaming using block' do
       begin
        @unavailable.bidi_stream([@null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg]) { |_| }
-      rescue
+      rescue => _
       end
 
       traces = get_all_traces
@@ -538,7 +540,7 @@ describe 'GRPC' do
     it 'should report UNKNOWN for bidi_streaming using block' do
       begin
         @stub.bidi_stream_unknown([@null_msg, @null_msg]) { |_| }
-      rescue
+      rescue => _
       end
 
       traces = get_all_traces
@@ -552,7 +554,7 @@ describe 'GRPC' do
     it 'should report UNIMPLEMENTED for bidi_streaming using block' do
       begin
         @stub.bidi_stream_unimplemented([@null_msg, @null_msg]) { |_| }
-      rescue
+      rescue => _
       end
 
       traces = get_all_traces
@@ -565,12 +567,6 @@ describe 'GRPC' do
   end
 
   describe "stressing the bidi_server" do
-    before do
-      clear_all_traces
-      @count = 50  ### this seems high enough to trigger a resource exhausted exception
-      AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = false
-    end
-
     it "should report when bidi RESOURCE_EXHAUSTED" do
       threads = []
       @count.times do
@@ -579,7 +575,7 @@ describe 'GRPC' do
             md = AppOpticsAPM::Metadata.makeRandom(true)
             AppOpticsAPM::Context.set(md)
             @stub.bidi_stream(Array.new(200, @phone_msg)) { |_| }
-          rescue
+          rescue => _
           end
         end
       end
@@ -602,7 +598,7 @@ describe 'GRPC' do
             md = AppOpticsAPM::Metadata.makeRandom(true)
             AppOpticsAPM::Context.set(md)
             @stub.bidi_stream_cancel(Array.new(200, @phone_msg)) { |_| }
-          rescue
+          rescue => _
           end
         end
       end
@@ -625,7 +621,7 @@ describe 'GRPC' do
             md = AppOpticsAPM::Metadata.makeRandom(true)
             AppOpticsAPM::Context.set(md)
             @unavailable.bidi_stream(Array.new(200, @phone_msg)) { |_| }
-          rescue
+          rescue => _
           end
         end
       end
