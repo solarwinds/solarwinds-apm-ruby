@@ -133,13 +133,18 @@ class AddressService < Grpctest::TestService::Service
 
   ### BIDI_STREAMING ###
   def bidi_stream(_req, call)
-    call.each_remote_read { |_| }
-    [Grpctest::Phone.new( number: '113456789', type: 'mobile'),
-     Grpctest::Phone.new( number: '223456789', type: 'mobile')]
+    call.each_remote_read { |r| r.number = (r.number.to_i * r.number.to_i ).to_s  }
+    Array.new(3, Grpctest::Phone.new( number: '113456789', type: 'mobile'))
+  rescue => e
+    puts e.message
   end
 
   def bidi_stream_cancel(_req, _call)
     raise ::GRPC::Cancelled
+  end
+
+  def bidi_stream_unknown(_req, _call)
+    raise StandardError
   end
 end
 

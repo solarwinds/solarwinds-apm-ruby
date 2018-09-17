@@ -30,6 +30,7 @@ module Grpctest
       # bidi streaming
       rpc :bidi_stream, stream(Phone), stream(Phone)
       rpc :bidi_stream_cancel, stream(Phone), stream(Phone)
+      rpc :bidi_stream_unknown, stream(Phone), stream(Phone)
       rpc :bidi_stream_unimplemented, stream(Phone), stream(Phone)
     end
 
