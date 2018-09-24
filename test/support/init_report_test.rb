@@ -14,7 +14,7 @@ class InitReportTest  < Minitest::Test
     init_kvs.has_key?("__Init").must_equal true
     init_kvs.has_key?("Force").must_equal true
     init_kvs.has_key?("Ruby.AppContainer.Version").must_equal true
-    init_kvs["Ruby.AppOpticsAPM.Version"].must_equal AppOpticsAPM::Version::STRING
+    init_kvs["Ruby.AppOptics.Version"].must_equal AppOpticsAPM::Version::STRING
     init_kvs["Ruby.TraceMode.Version"].must_equal AppOpticsAPM::Config[:tracing_mode]
   end
 
