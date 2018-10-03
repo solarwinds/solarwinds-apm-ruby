@@ -83,6 +83,7 @@ describe "RestClient" do
     traces[2]['Layer'].must_equal 'net-http'
     traces[2]['Label'].must_equal 'entry'
 
+<<<<<<< HEAD
     traces[5]['Layer'].must_equal 'net-http'
     traces[5]['Label'].must_equal 'exit'
     traces[5]['IsService'].must_equal 1
@@ -90,6 +91,20 @@ describe "RestClient" do
     traces[5]['HTTPMethod'].must_equal 'GET'
     traces[5]['HTTPStatus'].must_equal "200"
     traces[5].key?('Backtrace').must_equal !!AppOpticsAPM::Config[:nethttp][:collect_backtraces]
+=======
+    traces[6]['Layer'].must_equal 'net-http'
+    traces[6]['Label'].must_equal 'info'
+    traces[6]['IsService'].must_equal 1
+    traces[6]['RemoteProtocol'].must_equal 'HTTP'
+    traces[6]['RemoteHost'].must_equal '127.0.0.1:8101'
+    traces[6]['ServiceArg'].must_equal '/?a=1'
+    traces[6]['HTTPMethod'].must_equal 'GET'
+    traces[6]['HTTPStatus'].must_equal "200"
+    traces[6].key?('Backtrace').must_equal !!AppOpticsAPM::Config[:rest_client][:collect_backtraces]
+
+    traces[7]['Layer'].must_equal 'net-http'
+    traces[7]['Label'].must_equal 'exit'
+>>>>>>> [tests] tweaks and corrections
 
     traces[6]['Layer'].must_equal 'rest-client'
     traces[6]['Label'].must_equal 'exit'
@@ -119,7 +134,6 @@ describe "RestClient" do
     traces[5]['HTTPMethod'].must_equal 'POST'
     traces[5]['HTTPStatus'].must_equal "200"
     traces[5].key?('Backtrace').must_equal !!AppOpticsAPM::Config[:nethttp][:collect_backtraces]
-
     traces[6]['Layer'].must_equal 'rest-client'
     traces[6]['Label'].must_equal 'exit'
   end
@@ -180,9 +194,6 @@ describe "RestClient" do
     traces[5]['HTTPStatus'].must_equal "301"
     traces[5].key?('Backtrace').must_equal !!AppOpticsAPM::Config[:nethttp][:collect_backtraces]
 
-    traces[6]['Layer'].must_equal 'rest-client'
-    traces[6]['Label'].must_equal 'entry'
-
     traces[7]['Layer'].must_equal 'net-http'
     traces[7]['Label'].must_equal 'entry'
 
@@ -226,6 +237,7 @@ describe "RestClient" do
     traces[2]['ErrorClass'].must_equal 'SocketError'
     traces[2].key?('ErrorMsg').must_equal true
     traces[2].key?('Backtrace').must_equal !!AppOpticsAPM::Config[:nethttp][:collect_backtraces]
+
     traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 1
 
     traces[3]['Layer'].must_equal 'rest-client'

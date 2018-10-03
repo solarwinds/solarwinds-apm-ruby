@@ -93,6 +93,7 @@ if defined?(::Rails)
       traces[2]['Label'].must_equal "error"
       traces[2]['ErrorClass'].must_equal "RuntimeError"
       traces[2]['ErrorMsg'].must_equal "Rails API fake error from controller"
+
       traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 1
 
       traces[3]['Layer'].must_equal "rails-api"

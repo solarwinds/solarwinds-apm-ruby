@@ -173,6 +173,7 @@ unless defined?(JRUBY_VERSION)
       traces[3]['Label'].must_equal "error"
       traces[3]['ErrorClass'].must_equal "Bunny::PreconditionFailed"
       traces[3]['ErrorMsg'].must_match(/PRECONDITION_FAILED/)
+      traces[3].key?('Backtrace').must_equal !!AppOpticsAPM::Config[:bunnyclient][:collect_backtraces]
 
       traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 1
 
