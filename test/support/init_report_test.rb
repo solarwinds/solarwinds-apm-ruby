@@ -18,6 +18,7 @@ class InitReportTest  < Minitest::Test
     init_kvs["Ruby.TraceMode.Version"].must_equal AppOpticsAPM::Config[:tracing_mode]
   end
 
+  # @deprecated
   def test_legacy_report_format
     init_kvs = ::AppOpticsAPM::Util.legacy_build_init_report
     init_kvs.is_a?(Hash)
