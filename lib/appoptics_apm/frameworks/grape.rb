@@ -60,7 +60,7 @@ module AppOpticsAPM
 
             # Since Grape uses throw/catch and not Exceptions, we have to create an exception here
             exception = GrapeError.new(error[:message] ? error[:message] : "No message given.")
-            exception.set_backtrace(::AppOpticsAPM::API.backtrace) if AppOpticsAPM::Config[:grape][:collect_backtraces]
+            exception.set_backtrace(::AppOpticsAPM::API.backtrace)
 
             ::AppOpticsAPM::API.log_exception('rack', exception )
 
