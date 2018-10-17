@@ -38,7 +38,9 @@ end
 puts "\n\033[1m=== TEST RUN: #{RUBY_VERSION} #{File.basename(ENV['BUNDLE_GEMFILE'])} #{ENV['DBTYPE']} #{Time.now.strftime("%Y-%m-%d %H:%M")} ===\033[0m\n"
 
 ENV['RACK_ENV'] = 'test'
-ENV['APPOPTICS_GEM_TEST'] = 'true'
+
+ENV['APPOPTICS_GEM_TEST'] = 'true' # comment this out to send traces to the collector configured in `env`
+
 # ENV['APPOPTICS_GEM_VERBOSE'] = 'true'
 
 Minitest::Spec.new 'pry'
@@ -52,7 +54,7 @@ end
 Bundler.require(:default, :test)
 
 # Configure AppOpticsAPM
-AppOpticsAPM::Config[:verbose] = true
+# AppOpticsAPM::Config[:verbose] = true
 AppOpticsAPM::Config[:tracing_mode] = "always"
 AppOpticsAPM::Config[:sample_rate] = 1000000
 # AppOpticsAPM.logger.level = Logger::DEBUG
@@ -100,7 +102,7 @@ end
 # Truncates the trace output file to zero
 #
 def clear_all_traces
-  if AppOpticsAPM.loaded
+  if AppOpticsAPM.loaded && ENV['APPOPTICS_REPORTER'] == 'file'
     AppOpticsAPM::Context.clear
     AppOpticsAPM::Reporter.clear_all_traces
     sleep 0.2 # it seems like the docker file system needs a bit of time to clear the file
@@ -113,7 +115,8 @@ end
 # Retrieves all traces written to the trace file
 #
 def get_all_traces
-  if AppOpticsAPM.loaded
+  if AppOpticsAPM.loaded && ENV['APPOPTICS_REPORTER'] =='file'
+    sleep 0.2
     AppOpticsAPM::Reporter.get_all_traces
   else
     []
@@ -158,8 +161,23 @@ def has_edge?(edge, traces)
       return true
     end
   end
-  AppOpticsAPM.logger.debug "[oboe/debug] edge #{edge} not found in traces."
+  AppOpticsAPM.logger.debug "[appoptics_apm/test] edge #{edge} not found in traces."
   false
+end
+
+def assert_entry_exit(traces, num = nil, check_task_id=true)
+  if check_task_id
+    task_id = traces[0]['X-Trace'][0..8]
+    refute traces.find{ |tr| tr['X-Trace'][0..8] != task_id }, "task ids not matching"
+  end
+  num_entries = traces.select { |tr| tr ['Label'] == 'entry'}.size
+  num_exits = traces.select { |tr| tr ['Label'] == 'exit'}.size
+  if num && num > 0
+    num_entries.must_equal num, "incorrect number of entry spans"
+    num_exits.must_equal num, "incorrect number of exit spans"
+  else
+    num_exits.must_equal num_entries, "number of exit spans is not the same as entry spans"
+  end
 end
 
 ##
@@ -173,7 +191,8 @@ end
 # against.
 #
 def valid_edges?(traces)
-  traces.reverse.each do  |t|
+  return true unless traces.is_a?(Array) # why do we need this?
+  traces[1..-1].reverse.each do  |t|
     if t.key?("Edge")
       unless has_edge?(t["Edge"], traces)
         return false
@@ -241,7 +260,9 @@ def sampled?(xtrace)
 end
 
 def print_traces(traces, more_keys = [])
+  return unless traces.is_a?(Array)
   indent = ''
+  puts "\n"
   traces.each do |trace|
     indent += '  ' if trace["Label"] == "entry"
 
@@ -253,7 +274,13 @@ def print_traces(traces, more_keys = [])
 
     indent = indent[0...-2] if trace["Label"] == "exit"
   end
-  nil
+  puts "\n"
+end
+
+def print_edges(traces)
+  traces.each do |trace|
+    puts "EVENT: Edge: #{trace['Edge']} (#{trace['Label']}) \nnext Edge: #{trace['X-Trace'][42..-3]}\n"
+  end
 end
 
 if (File.basename(ENV['BUNDLE_GEMFILE']) =~ /^frameworks/) == 0
