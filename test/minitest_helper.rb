@@ -191,7 +191,7 @@ end
 # against.
 #
 def valid_edges?(traces)
-  return true unless traces.is_a?(Array) # why do we need this?
+  return true unless traces.is_a?(Array) # so that in case the traces are sent to the collector, tests will fail but not barf
   traces[1..-1].reverse.each do  |t|
     if t.key?("Edge")
       unless has_edge?(t["Edge"], traces)
@@ -260,7 +260,7 @@ def sampled?(xtrace)
 end
 
 def print_traces(traces, more_keys = [])
-  return unless traces.is_a?(Array)
+  return unless traces.is_a?(Array) # so that in case the traces are sent to the collector, tests will fail but not barf
   indent = ''
   puts "\n"
   traces.each do |trace|
