@@ -43,7 +43,7 @@ module  AppOpticsAPM
       def determine_transaction_name(span, kvs = {})
         if AppOpticsAPM.transaction_name
           AppOpticsAPM.transaction_name
-        elsif kvs['Controller'] || kvs['Action']
+        elsif kvs['Controller'] && kvs['Action']
           [kvs['Controller'], kvs['Action']].join('.')
         else
           "custom-#{span}"

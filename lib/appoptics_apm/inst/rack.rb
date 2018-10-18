@@ -174,7 +174,7 @@ if AppOpticsAPM.loaded
       def transaction_name(env)
         if AppOpticsAPM.transaction_name
           AppOpticsAPM.transaction_name
-        elsif env['appoptics_apm.controller'] || env['appoptics_apm.action']
+        elsif env['appoptics_apm.controller'] && env['appoptics_apm.action']
           [env['appoptics_apm.controller'], env['appoptics_apm.action']].join('.')
         end
       end
