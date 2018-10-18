@@ -65,6 +65,7 @@ describe 'GRPC' do
   after(:all) do
     AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = @bt_client
     AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = @bt_server
+    stop_server
   end
 
   unless ['file', 'udp'].include? ENV['APPOPTICS_REPORTER'] || AppopticsAPM::SDK.appoptics_ready?(10_000)
