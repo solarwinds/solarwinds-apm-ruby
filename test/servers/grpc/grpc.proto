@@ -15,14 +15,6 @@ service TestService {
 
     // client streaming
     rpc client_stream(stream Phone) returns (NullMessage);
-    // unary
-    rpc unary_1 (Address) returns (AddressId);
-    rpc unary_2 (AddressId) returns (Address);
-    rpc unary_cancel(NullMessage) returns(NullMessage);
-    rpc unary_unimplemented(NullMessage) returns(NullMessage);
-
-    // client streaming
-    rpc client_stream(stream Phone) returns (NullMessage);
     rpc client_stream_find (stream AddressId) returns (Address);
     rpc client_stream_long(stream Phone) returns (NullMessage);
     rpc client_stream_cancel(stream Phone) returns (NullMessage);

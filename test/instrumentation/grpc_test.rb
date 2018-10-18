@@ -1035,7 +1035,7 @@ describe 'GRPC' do
       assert_entry_exit(traces, @count, false)
 
       traces.select { |tr| tr['GRPCMethodType'] == 'BIDI_STREAMING' }.size.must_equal   2*@count
-      traces.bunny_client_test.rb:175select { |tr| tr['GRPCStatus'] == 'RESOURCE_EXHAUSTED' }.size.must_equal (traces.size - 2*@count)
+      traces.select { |tr| tr['GRPCStatus'] == 'RESOURCE_EXHAUSTED' }.size.must_equal (traces.size - 2*@count)
     end
 
     it "should work when stressed bidi gets CANCELLED" do
