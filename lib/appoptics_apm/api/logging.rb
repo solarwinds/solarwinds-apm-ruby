@@ -76,6 +76,7 @@ module AppOpticsAPM
           return AppOpticsAPM::Context.toString
         end
 
+        exception.message << exception.class.name if exception.message.length < 4
         opts.merge!(:Spec => 'error',
                     :ErrorClass => exception.class.name,
                     :ErrorMsg => exception.message)

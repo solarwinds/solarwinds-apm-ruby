@@ -62,6 +62,7 @@ while retries > 0
       $stderr.puts 'Download of the c-extension for the appoptics_apm gem failed.'
       $stderr.puts 'appoptics_apm will not instrument the code. No tracing will occur.'
       $stderr.puts 'Contact support@appoptics.com if the problem persists.'
+      $stderr.puts "error:\n#{e.message}"
       $stderr.puts '==================================================================='
       create_makefile('oboe_noop', 'noop')
     end

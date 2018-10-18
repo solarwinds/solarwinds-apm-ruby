@@ -61,7 +61,7 @@ if defined?(::Grape)
       r.headers['X-Trace'].must_equal traces[4]['X-Trace']
     end
 
-    it "should trace a an error in a nested grape stack" do
+    it "should trace an error in a nested grape stack" do
       @app = GrapeNested
 
       r = get "/error"

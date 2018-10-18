@@ -23,7 +23,7 @@ module  AppOpticsAPM
         yield
       ensure
         duration =(1000 * 1000 * (Time.now - start)).round(0)
-        transaction_name = determine_transaction_name(span)
+        transaction_name = determine_transaction_name(span, kvs)
         kvs[:TransactionName] = AppOpticsAPM::Span.createSpan(transaction_name, nil, duration)
         AppOpticsAPM.transaction_name = nil
       end
@@ -31,16 +31,23 @@ module  AppOpticsAPM
       private
 
       ##
-      # Determine the transaction name to be set on the trace
+      # Determine the transaction name to be set on the trace.
       #
       # === Argument:
-      # * +opts+ (hash) the value of :TransactionName will be set as custom transaction name
+      # * +span+ the name of the current span (used to construct a transaction name if none is defined)
+      # * +kvs+ (hash, optional) the hash that may have values for 'Controller' and 'Action'
       #
       # === Returns:
-      # (string) the current transaction name
+      # (string) the determined transaction name
       #
-      def determine_transaction_name(span)
-        AppOpticsAPM.transaction_name || AppOpticsAPM::SDK.set_transaction_name("custom-#{span}")
+      def determine_transaction_name(span, kvs = {})
+        if AppOpticsAPM.transaction_name
+          AppOpticsAPM.transaction_name
+        elsif kvs['Controller'] && kvs['Action']
+          [kvs['Controller'], kvs['Action']].join('.')
+        else
+          "custom-#{span}"
+        end
       end
 
     end

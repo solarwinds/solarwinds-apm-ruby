@@ -49,7 +49,7 @@ RUN curl -SL http://kent.dl.sourceforge.net/project/swig/swig/swig-3.0.8/swig-3.
     | tar xzC /tmp \
     && cd /tmp/swig-3.0.8 \
     && ./configure && make && make install \
-    && cd \
+    && cd - \
     && rm -rf /tmp/swig-3.0.8
 
 # install postgres, redis, and memcached
