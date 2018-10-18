@@ -96,7 +96,7 @@ task :fetch_ext_deps do
   open(remote_file, 'rb') do |rf|
     content = rf.read
     File.open(local_file, 'wb') { |f| f.puts content }
-    puts "!!!!!!! C-Lib VERSION: #{content} !!!!!!!!"
+    puts "!!!!!!! C-Lib VERSION: #{content.strip} !!!!!!!!"
   end
 
   # oboe and bson header files
