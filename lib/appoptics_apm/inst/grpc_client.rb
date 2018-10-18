@@ -49,6 +49,7 @@ module AppOpticsAPM
         # this check is needed because the exception may have been logged in patch_receive_and_check_status
         unless e.instance_variable_get(:@exn_logged)
           context_from_incoming
+          AppOpticsAPM::API.log_exception('grpc_client', e)
           AppOpticsAPM::API.log_exit('grpc_client', exit_tags(@tags))
         end
         raise e
