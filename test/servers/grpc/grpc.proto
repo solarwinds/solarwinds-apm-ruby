@@ -5,9 +5,16 @@ syntax = "proto3";
 
 package grpctest;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 service TestService {
+    // unary
+    rpc unary_1 (Address) returns (AddressId);
+    rpc unary_2 (AddressId) returns (Address);
+    rpc unary_long(NullMessage) returns(NullMessage);
+    rpc unary_cancel(NullMessage) returns(NullMessage);
+    rpc unary_unimplemented(NullMessage) returns(NullMessage);
+
+    // client streaming
+    rpc client_stream(stream Phone) returns (NullMessage);
     // unary
     rpc unary_1 (Address) returns (AddressId);
     rpc unary_2 (AddressId) returns (Address);
@@ -16,55 +23,24 @@ service TestService {
 
     // client streaming
     rpc client_stream(stream Phone) returns (NullMessage);
-=======
-service AddressService {
-=======
-service TestService {
->>>>>>> [grpc/test] add bidi service to .proto and include README
-    // unary
-    rpc unary_1 (Address) returns (AddressId);
-    rpc unary_2 (AddressId) returns (Address);
-    rpc unary_cancel(NullMessage) returns(NullMessage);
-    rpc unary_unimplemented(NullMessage) returns(NullMessage);
-
-    // client streaming
-<<<<<<< HEAD
-    rpc add_phones(stream Phone) returns (NullMessage);
->>>>>>> [grpc wip] add client instrumentation and most tests
-=======
-    rpc client_stream(stream Phone) returns (NullMessage);
->>>>>>> [grpc/test] add bidi service to .proto and include README
+    rpc client_stream_find (stream AddressId) returns (Address);
+    rpc client_stream_long(stream Phone) returns (NullMessage);
     rpc client_stream_cancel(stream Phone) returns (NullMessage);
     rpc client_stream_unimplemented(stream Phone) returns (NullMessage);
 
     // server streaming
-<<<<<<< HEAD
-<<<<<<< HEAD
     rpc server_stream (AddressId)  returns (stream Phone);
+    rpc server_stream_find(AddressId) returns (stream Address);
+    rpc server_stream_long (AddressId) returns (stream Phone);
     rpc server_stream_cancel(NullMessage) returns(stream Phone);
     rpc server_stream_unimplemented(NullMessage) returns(stream Phone);
 
     // bidi streaming
     rpc bidi_stream(stream Phone) returns (stream Phone);
     rpc bidi_stream_cancel(stream Phone) returns (stream Phone);
+    rpc bidi_stream_long(stream Phone) returns (stream Phone);
     rpc bidi_stream_unknown(stream Phone) returns (stream Phone);
     rpc bidi_stream_unimplemented(stream Phone) returns (stream Phone);
-=======
-    rpc get_phones (AddressId)  returns (stream Phone);
-    rpc server_stream_cancel(NullMessage) returns(stream Phone);
-    rpc server_stream_unimplemented(NullMessage) returns(stream Phone);
->>>>>>> [grpc wip] add client instrumentation and most tests
-=======
-    rpc server_stream (AddressId)  returns (stream Phone);
-    rpc server_stream_cancel(NullMessage) returns(stream Phone);
-    rpc server_stream_unimplemented(NullMessage) returns(stream Phone);
-
-    // bidi streaming
-    rpc bidi_stream(stream Phone) returns (stream Phone);
-    rpc bidi_stream_cancel(stream Phone) returns (stream Phone);
-    rpc bidi_stream_unknown(stream Phone) returns (stream Phone);
-    rpc bidi_stream_unimplemented(stream Phone) returns (stream Phone);
->>>>>>> [grpc/test] add bidi service to .proto and include README
 }
 
 message NullMessage {}
