@@ -43,7 +43,7 @@ describe 'GRPC' do
     @bt_client = AppOpticsAPM::Config[:grpc_client][:collect_backtraces]
     # @bt_server = AppOpticsAPM::Config[:grpc_server][:collect_backtraces]
 
-    AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = false
+    # AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = false
     start_server
 
     @null_msg = Grpctest::NullMessage.new
