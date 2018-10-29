@@ -20,6 +20,7 @@ services:
      mem_limit: 1G
      volumes:
        - ../../:/code/ruby-appoptics
+#       - /Users/maiaengeli/workspace/repos/grpc:/grpc_ruby
      depends_on:
        - wait
      links:

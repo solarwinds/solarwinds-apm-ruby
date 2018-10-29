@@ -4,6 +4,9 @@ require 'mocha/minitest'
 describe 'AppOpticsAPMBase' do
 
   describe 'tracing_layer_op?' do
+    after do
+      AppOpticsAPM.layer_op = nil
+    end
 
     it 'should return false for nil op' do
       refute AppOpticsAPM.tracing_layer_op?(nil)
