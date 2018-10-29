@@ -28,7 +28,11 @@ describe 'GRPC' do
     @server.add_http2_port("0.0.0.0:50051", :this_port_is_insecure)
     @server.handle(AddressService)
     @server_thread = Thread.new do
-      @server.run_till_terminated
+      begin
+        @server.run_till_terminated
+      rescue SystemExit, Interrupt
+        @server.stop
+      end
     end
     sleep 0.5
   end
@@ -107,12 +111,12 @@ describe 'GRPC' do
     end
 
     it 'should include backtraces for unary if configured' do
-      stop_server
+      # stop_server
       # server_bt = AppOpticsAPM::Config[:grpc_server][:collect_backtraces]
       client_bt = AppOpticsAPM::Config[:grpc_client][:collect_backtraces]
       # AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = true
       AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = true
-      start_server
+      # start_server
 
       AppopticsAPM::SDK.start_trace(:test) do
         @stub.unary_1(@address_msg)
@@ -124,10 +128,10 @@ describe 'GRPC' do
       traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'entry' }.each { |tr| tr['Backtrace'].wont_be_nil "Backtrace missing" }
       traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'exit' }.each { |tr| tr['Backtrace'].must_be_nil "Extra backtrace in trace"}
 
-      stop_server
+      # stop_server
       # AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = server_bt
       AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = client_bt
-      start_server
+      # start_server
     end
 
     # Both: Client Application cancelled the request
@@ -296,12 +300,12 @@ describe 'GRPC' do
     end
 
     it 'should include backtraces for client_streaming if configured' do
-      stop_server
+      # stop_server
       # server_bt = AppOpticsAPM::Config[:grpc_server][:collect_backtraces]
       client_bt = AppOpticsAPM::Config[:grpc_client][:collect_backtraces]
       # AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = true
       AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = true
-      start_server
+      # start_server
 
       AppopticsAPM::SDK.start_trace(:test) do
         @stub.client_stream([@phone_msg, @phone_msg])
@@ -318,10 +322,10 @@ describe 'GRPC' do
       traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'OK' }
       traces.select { |tr| tr['Label'] == 'entry'}.each { |tr| tr['Backtrace'].wont_be_nil "backtrace missing!" }
 
-      stop_server
+      # stop_server
       # AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = server_bt
       AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = client_bt
-      start_server
+      # start_server
     end
 
     it 'should report DEADLINE_EXCEEDED for client_streaming' do
@@ -448,12 +452,12 @@ describe 'GRPC' do
     end
 
     it 'should add backtraces for server_streaming with enumerator if configured' do
-      stop_server
+      # stop_server
       # server_bt = AppOpticsAPM::Config[:grpc_server][:collect_backtraces]
       client_bt = AppOpticsAPM::Config[:grpc_client][:collect_backtraces]
       # AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = true
       AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = true
-      start_server
+      # start_server
 
       AppopticsAPM::SDK.start_trace(:test) do
         res = @stub.server_stream(Grpctest::AddressId.new(id: 2))
@@ -466,10 +470,10 @@ describe 'GRPC' do
       traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'entry' }.each { |tr| tr['Backtrace'].wont_be_nil "Backtrace missing" }
       traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'exit' }.each { |tr| tr['Backtrace'].must_be_nil "Extra backtrace in trace"}
 
-      stop_server
+      # stop_server
       # AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = server_bt
       AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = client_bt
-      start_server
+      # start_server
     end
 
     it 'should report CANCEL for server_streaming with enumerator' do
@@ -600,12 +604,12 @@ describe 'GRPC' do
     end
 
     it 'should add backtraces for server_streaming using block if configured' do
-      stop_server
+      # stop_server
       # server_bt = AppOpticsAPM::Config[:grpc_server][:collect_backtraces]
       client_bt = AppOpticsAPM::Config[:grpc_client][:collect_backtraces]
       # AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = true
       AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = true
-      start_server
+      # start_server
 
       AppopticsAPM::SDK.start_trace(:test) do
         @stub.server_stream(Grpctest::AddressId.new(id: 2)) { |_| }
@@ -617,10 +621,10 @@ describe 'GRPC' do
       traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'entry' }.each { |tr| tr['Backtrace'].wont_be_nil "Backtrace missing" }
       traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'exit' }.each { |tr| tr['Backtrace'].must_be_nil "Extra backtrace in trace"}
 
-      stop_server
+      # stop_server
       # AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = server_bt
       AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = client_bt
-      start_server
+      # start_server
     end
 
     it 'should report CANCEL for server_streaming using block' do
@@ -749,12 +753,12 @@ describe 'GRPC' do
     end
 
     it 'should add backtraces for bidi_streaming with enumerator if configured' do
-      stop_server
+      # stop_server
       # server_bt = AppOpticsAPM::Config[:grpc_server][:collect_backtraces]
       client_bt = AppOpticsAPM::Config[:grpc_client][:collect_backtraces]
       # AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = true
       AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = true
-      start_server
+      # start_server
 
       AppopticsAPM::SDK.start_trace(:test) do
         response = @stub.bidi_stream([@null_msg, @null_msg])
@@ -767,10 +771,10 @@ describe 'GRPC' do
       traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'entry' }.each { |tr| tr['Backtrace'].wont_be_nil "Backtrace missing" }
       traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'exit' }.each { |tr| tr['Backtrace'].must_be_nil "Extra backtrace in trace"}
 
-      stop_server
+      # stop_server
       # AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = server_bt
       AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = client_bt
-      start_server
+      # start_server
     end
 
     it 'should report CANCEL for bidi_streaming with enumerator' do
@@ -900,12 +904,12 @@ describe 'GRPC' do
     end
 
     it 'should add backtraces for bidi_streaming using block if configured' do
-      stop_server
+      # stop_server
       # server_bt = AppOpticsAPM::Config[:grpc_server][:collect_backtraces]
       client_bt = AppOpticsAPM::Config[:grpc_client][:collect_backtraces]
       # AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = true
       AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = true
-      start_server
+      # start_server
 
       AppopticsAPM::SDK.start_trace(:test) do
         @stub.bidi_stream([@phone_msg, @phone_msg]) { |_| }
@@ -917,10 +921,10 @@ describe 'GRPC' do
       traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'entry' }.each { |tr| tr['Backtrace'].wont_be_nil "Backtrace missing" }
       traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'exit' }.each { |tr| tr['Backtrace'].must_be_nil "Extra backtrace in trace"}
 
-      stop_server
+      # stop_server
       # AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = server_bt
       AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = client_bt
-      start_server
+      # start_server
     end
 
     it 'should report CANCEL for bidi_streaming using block' do
