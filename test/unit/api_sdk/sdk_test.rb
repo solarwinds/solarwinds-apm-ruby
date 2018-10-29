@@ -198,6 +198,18 @@ describe AppOpticsAPM::SDK do
       AppOpticsAPM::SDK.start_trace('test_01') { 42 }
     end
 
+    it 'should log the tags when there is a sampling context' do
+      AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F01')
+      tags = { 'Spec' => 'rsc', 'RemoteURL' => 'https://asdf.com:1234/resource?id=5', 'IsService' => true  }
+
+      AppOpticsAPM::API.expects(:log_start).never
+      AppOpticsAPM::API.expects(:send_metrics).never
+      AppOpticsAPM::API.expects(:log_end).never
+      AppOpticsAPM::SDK.expects(:trace).with('test_01', tags)
+
+      AppOpticsAPM::SDK.start_trace('test_01', nil, tags) { 42 }
+    end
+
     it 'should do metrics and not logging when there is an incoming non-sampling context' do
       xtrace = '2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00'
 
@@ -371,25 +383,25 @@ describe AppOpticsAPM::SDK do
       AppOpticsAPM::API.expects(:log_start).never
       AppOpticsAPM::Span.expects(:createSpan).never
       AppOpticsAPM::API.expects(:log_end).never
-      AppOpticsAPM::SDK.expects(:trace).with('test_01')
+      AppOpticsAPM::SDK.expects(:trace).with('test_01', instance_of(Hash))
 
       AppOpticsAPM::SDK.start_trace_with_target('test_01', nil, target) {}
     end
 
     it 'should call trace and not call log_start when there is a non-sampling context' do
-      target = { 'test' => true }
+      target = { :test => true }
       AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
 
       AppOpticsAPM::API.expects(:log_start).never
       AppOpticsAPM::Span.expects(:createSpan).never
       AppOpticsAPM::API.expects(:log_end).never
-      AppOpticsAPM::SDK.expects(:trace).with('test_01')
+      AppOpticsAPM::SDK.expects(:trace).with('test_01', instance_of(Hash))
 
       AppOpticsAPM::SDK.start_trace_with_target('test_01', nil, target) { 42 }
     end
 
     it 'should return the result from the block when there is a non-sampling context ttt' do
-      target = { 'test' => true }
+      target = { :test => true }
       AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
 
       result = AppOpticsAPM::SDK.start_trace_with_target('test_01', nil, target) { 42 }
@@ -429,6 +441,8 @@ describe AppOpticsAPM::SDK do
 
       AppOpticsAPM::SDK.set_transaction_name(false)
       assert_equal "this is the one", AppOpticsAPM.transaction_name
+
+      AppOpticsAPM.transaction_name = nil
     end
   end
 

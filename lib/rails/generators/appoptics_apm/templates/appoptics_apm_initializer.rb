@@ -177,7 +177,6 @@ if defined?(AppOpticsAPM::Config)
   AppOpticsAPM::Config[:excon][:enabled] = true
   AppOpticsAPM::Config[:faraday][:enabled] = true
   AppOpticsAPM::Config[:grpc_client][:enabled] = true
-  AppOpticsAPM::Config[:grpc_server][:enabled] = true
   AppOpticsAPM::Config[:grape][:enabled] = true
   AppOpticsAPM::Config[:httpclient][:enabled] = true
   AppOpticsAPM::Config[:memcached][:enabled] = true
@@ -204,8 +203,6 @@ if defined?(AppOpticsAPM::Config)
   AppOpticsAPM::Config[:bunnyconsumer][:log_args] = true
   AppOpticsAPM::Config[:curb][:log_args] = true
   AppOpticsAPM::Config[:excon][:log_args] = true
-  AppOpticsAPM::Config[:grpc_client][:log_args] = true
-  AppOpticsAPM::Config[:grpc_server][:log_args] = true
   AppOpticsAPM::Config[:httpclient][:log_args] = true
   AppOpticsAPM::Config[:mongo][:log_args] = true
   AppOpticsAPM::Config[:nethttp][:log_args] = true
@@ -240,8 +237,7 @@ if defined?(AppOpticsAPM::Config)
   AppOpticsAPM::Config[:excon][:collect_backtraces] = true
   AppOpticsAPM::Config[:faraday][:collect_backtraces] = false
   AppOpticsAPM::Config[:grape][:collect_backtraces] = true
-  AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = true
-  AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = true
+  AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = false
   AppOpticsAPM::Config[:httpclient][:collect_backtraces] = true
   AppOpticsAPM::Config[:memcached][:collect_backtraces] = false
   AppOpticsAPM::Config[:mongo][:collect_backtraces] = true

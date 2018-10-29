@@ -29,7 +29,7 @@ module AppOpticsAPM
 
           if response.code == 0
             exception = TyphoeusError.new(response.return_message)
-            exception.set_backtrace(AppOpticsAPM::API.backtrace) if AppOpticsAPM::Config[:typhoeus][:collect_backtraces]
+            exception.set_backtrace(AppOpticsAPM::API.backtrace)
             AppOpticsAPM::API.log_exception(:typhoeus, exception)
           end
 

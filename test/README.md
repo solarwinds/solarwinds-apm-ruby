@@ -100,9 +100,9 @@ check out the options:
 run_tests/run_tests.sh -h 
 ```
 
-Example: Run the framework tests with ruby 2.5.1 
+Example: Run the framework tests with ruby 2.5.3 
 ```bash
-run_tests/run_tests.sh -r 2.5.1 -g gemfiles/frameworks.gemfile
+run_tests/run_tests.sh -r 2.5.3 -g gemfiles/frameworks.gemfile
 ```
 
 ### Run one test from suite, a specific test file, or a specific test
@@ -112,12 +112,12 @@ env and use `ruby -I test`
 
 One test from suite:
 ```bash
-run_tests/run_tests.sh -r 2.5.1 -g gemfiles/frameworks.gemfile -n 1
+run_tests/run_tests.sh -r 2.5.3 -g gemfiles/frameworks.gemfile -n 1
 ```
 
 One file:
 ```bash
-rbenv global 2.4.4
+rbenv global 2.4.5
 export BUNDLE_GEMFILE=gemfiles/delayed_job.gemfile
 export DBTYPE=mysql2       # optional, defaults to postgresql
 bundle
@@ -126,7 +126,7 @@ bundle exec ruby -I test queues/delayed_job-client_test.rb
 
 A specific test:
 ```bash
-rbenv global 2.5.1
+rbenv global 2.5.3
 export BUNDLE_GEMFILE=gemfiles/libraries.gemfile
 export DBTYPE=mysql2
 bundle

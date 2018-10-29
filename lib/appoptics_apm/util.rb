@@ -183,7 +183,10 @@ module AppOpticsAPM
       # This legacy version of build_init_report is used for apps without Bundler.
       #
       # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
+      #
+      # @deprecated Please use {#build_init_report} instead
       def legacy_build_init_report
+        AppOpticsAPM.logger.warn '[appoptics_apm/warn] Oboe::API will be deprecated in a future version.'
         platform_info = {}
 
         begin

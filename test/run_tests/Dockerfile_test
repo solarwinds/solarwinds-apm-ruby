@@ -39,9 +39,9 @@ RUN  git clone https://github.com/rbenv/rbenv.git ~/.rbenv \
 
 # install rubies to build our gem against
 RUN . ~/.profile \
-    && rbenv install 2.3.6 \
-    && rbenv install 2.4.4 \
-    && rbenv install 2.5.1
+    && rbenv install 2.3.8 \
+    && rbenv install 2.4.5 \
+    && rbenv install 2.5.3
 #    && rbenv install jruby-9.1.16.0
 
 # install swig 3.0.8
@@ -49,7 +49,7 @@ RUN curl -SL http://kent.dl.sourceforge.net/project/swig/swig/swig-3.0.8/swig-3.
     | tar xzC /tmp \
     && cd /tmp/swig-3.0.8 \
     && ./configure && make && make install \
-    && cd \
+    && cd - \
     && rm -rf /tmp/swig-3.0.8
 
 # install postgres, redis, and memcached
