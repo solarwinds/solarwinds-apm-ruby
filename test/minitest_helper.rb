@@ -190,7 +190,9 @@ end
 # since we won't have those remote traces to validate
 # against.
 #
-def valid_edges?(traces)
+# The param synchronous can be set to false if there are async traces
+#
+def valid_edges?(traces, synchronous = true)
   return true unless traces.is_a?(Array) # so that in case the traces are sent to the collector, tests will fail but not barf
   traces[1..-1].reverse.each do  |t|
     if t.key?("Edge")
@@ -198,6 +200,9 @@ def valid_edges?(traces)
         return false
       end
     end
+  end
+  if synchronous
+    return traces.map{ |tr| tr['Edge'] }.uniq.size == traces.size
   end
   true
 end
