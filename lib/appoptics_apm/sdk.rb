@@ -178,8 +178,7 @@ module AppOpticsAPM
           return result
         end
 
-        # :TransactionName and 'TransactionName' need to be removed from opts
-        AppOpticsAPM.transaction_name = opts.delete('TransactionName') || opts.delete(:TransactionName)
+        transaction_name_from_opts(opts)
 
         AppOpticsAPM::API.log_start(span, xtrace, opts)
         # AppOpticsAPM::Event.startTrace creates an Event without an Edge
@@ -294,7 +293,6 @@ module AppOpticsAPM
       #   end
       #
       def appoptics_ready?(wait_milliseconds = 3000)
-        return false unless AppOpticsAPM.loaded
         # These codes are returned by isReady:
         # OBOE_SERVER_RESPONSE_UNKNOWN 0
         # OBOE_SERVER_RESPONSE_OK 1
@@ -303,6 +301,21 @@ module AppOpticsAPM
         # OBOE_SERVER_RESPONSE_INVALID_API_KEY 4
         # OBOE_SERVER_RESPONSE_CONNECT_ERROR 5
         AppopticsAPM::Context.isReady(wait_milliseconds) == 1
+      end
+
+      private
+      # private method
+      #
+      # This should only be called at the beginning of a transaction,
+      # when AppOpticsAPM.transaction_name needs to be set to nil
+      # or whatever is provided in the opts
+      def transaction_name_from_opts(opts)
+        # :TransactionName and 'TransactionName' need to be removed from opts
+        # :TransactionName should only be sent after it is set by send_metrics
+        transaction_name = opts.delete('TransactionName')
+        transaction_name = opts.delete(:TransactionName) || transaction_name
+
+        AppOpticsAPM.transaction_name = transaction_name
       end
     end
 
