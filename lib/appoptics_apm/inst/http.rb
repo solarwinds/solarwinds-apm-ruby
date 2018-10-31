@@ -21,26 +21,19 @@ if AppOpticsAPM::Config[:nethttp][:enabled]
         return request_without_appoptics(*args, &block)
       end
 
-      AppOpticsAPM::API.trace(:'net-http') do
-        opts = {}
+      opts = {}
+      AppOpticsAPM::API.trace(:'net-http', opts) do
         context = AppOpticsAPM::Context.toString
-        task_id = AppOpticsAPM::XTrace.task_id(context)
+        # task_id = AppOpticsAPM::XTrace.task_id(context)
 
         # Collect KVs to report in the info event
-        if args.length && args[0]
-          req = args[0]
+        if args.respond_to?(:first) && args.first
+          req = args.first
 
+          opts[:Spec] = 'rsc'
           opts[:IsService] = 1
-          opts[:RemoteProtocol] = use_ssl? ? :HTTPS : :HTTP
-          opts[:RemoteHost] = addr_port
-
-          # Conditionally log query params
-          if AppOpticsAPM::Config[:nethttp][:log_args]
-            opts[:ServiceArg] = req.path
-          else
-            opts[:ServiceArg] = req.path.split('?').first
-          end
-
+          opts[:RemoteURL] = "#{use_ssl? ? 'https' : 'http'}://#{addr_port}"
+          opts[:RemoteURL] << (AppOpticsAPM::Config[:nethttp][:log_args] ? req.path : req.path.split('?').first)
           opts[:HTTPMethod] = req.method
           opts[:Blacklisted] = true if blacklisted
           opts[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:nethttp][:collect_backtraces]
@@ -68,9 +61,6 @@ if AppOpticsAPM::Config[:nethttp][:enabled]
           end
 
           next resp
-        ensure
-          # Log the info event with the KVs in opts
-          AppOpticsAPM::API.log(:'net-http', :info, opts)
         end
       end
     end
