@@ -39,7 +39,9 @@ puts "\n\033[1m=== TEST RUN: #{RUBY_VERSION} #{File.basename(ENV['BUNDLE_GEMFILE
 
 ENV['RACK_ENV'] = 'test'
 
-ENV['APPOPTICS_GEM_TEST'] = 'true' # comment this out to send traces to the collector configured in `env`
+ # comment this out to send traces to the collector configured in `env`
+ # make sure to set APPOPTICS_SERVICE_KEY
+ENV['APPOPTICS_GEM_TEST'] = 'true'
 
 # ENV['APPOPTICS_GEM_VERBOSE'] = 'true'
 
@@ -190,10 +192,10 @@ end
 # since we won't have those remote traces to validate
 # against.
 #
-# The param synchronous can be set to false if there are async traces
+# The param connected can be set to false if there are undisconnected traces
 #
-def valid_edges?(traces, synchronous = true)
-  return true unless traces.is_a?(Array) # so that in case the traces are sent to the collector, tests will fail but not barf
+def valid_edges?(traces, connected = true)
+  return true unless traces.is_a?(Array) && traces.count > 1 # so that in case the traces are sent to the collector, tests will fail but not barf
   traces[1..-1].reverse.each do  |t|
     if t.key?("Edge")
       unless has_edge?(t["Edge"], traces)
@@ -201,7 +203,7 @@ def valid_edges?(traces, synchronous = true)
       end
     end
   end
-  if synchronous
+  if connected
     return traces.map{ |tr| tr['Edge'] }.uniq.size == traces.size
   end
   true
