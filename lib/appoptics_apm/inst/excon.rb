@@ -13,20 +13,20 @@ module AppOpticsAPM
 
       def appoptics_collect(params)
         kvs = {}
+        kvs[:Spec] = 'rsc'
         kvs[:IsService] = 1
-        kvs[:RemoteProtocol] = ::AppOpticsAPM::Util.upcase(@data[:scheme])
-        kvs[:RemoteHost] = @data[:host]
 
         # Conditionally log query args
         if AppOpticsAPM::Config[:excon][:log_args] && @data[:query]
           if @data[:query].is_a?(Hash)
-            kvs[:ServiceArg] = "#{@data[:path]}?#{URI.encode_www_form(@data[:query])}"
+            service_arg = "#{@data[:path]}?#{URI.encode_www_form(@data[:query])}"
           else
-            kvs[:ServiceArg] = "#{@data[:path]}?#{@data[:query]}"
+            service_arg = "#{@data[:path]}?#{@data[:query]}"
           end
         else
-          kvs[:ServiceArg] = @data[:path]
+          service_arg = @data[:path]
         end
+        kvs[:RemoteURL] = "#{@data[:scheme]}://#{@data[:host]}:#{@data[:port]}#{service_arg}"
 
         # In the case of HTTP pipelining, params could be an array of
         # request hashes.
@@ -35,7 +35,7 @@ module AppOpticsAPM
           params.each do |p|
             methods << ::AppOpticsAPM::Util.upcase(p[:method])
           end
-          kvs[:HTTPMethods] = methods.join(', ')[0..1024]
+          kvs[:HTTPMethods] = methods.join(',')[0..1024]
           kvs[:Pipeline] = true
         else
           kvs[:HTTPMethod] = ::AppOpticsAPM::Util.upcase(params[:method])
@@ -53,8 +53,10 @@ module AppOpticsAPM
 
       def requests_with_appoptics(pipeline_params)
         responses = nil
-        AppOpticsAPM::API.trace(:excon, appoptics_collect(pipeline_params)) do
+        kvs = appoptics_collect(pipeline_params)
+        AppOpticsAPM::API.trace(:excon, kvs) do
           responses = requests_without_appoptics(pipeline_params)
+          kvs[:HTTPStatuses] = responses.map { |r| r.status }.join(',')
         end
         responses
       end

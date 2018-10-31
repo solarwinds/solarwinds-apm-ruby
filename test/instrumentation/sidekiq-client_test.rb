@@ -45,8 +45,8 @@ unless defined?(JRUBY_VERSION)
       sleep 3
 
       traces = get_all_traces
-      assert_equal 21, refined_trace_count(traces)
-      assert valid_edges?(traces), "Invalid edge in traces"
+      assert_equal 20, refined_trace_count(traces)
+      assert valid_edges?(traces, false), "Invalid edge in traces"
 
       assert_equal 'sidekiq-client',       traces[1]['Layer']
       assert_equal 'entry',                traces[1]['Label']
@@ -87,8 +87,8 @@ unless defined?(JRUBY_VERSION)
       sleep 3
 
       traces = get_all_traces
-      assert_equal 21, refined_trace_count(traces)
-      assert valid_edges?(traces), "Invalid edge in traces"
+      assert_equal 20, refined_trace_count(traces)
+      assert valid_edges?(traces, false), "Invalid edge in traces"
       assert_equal 'sidekiq-client',   traces[1]['Layer']
       assert_equal false,              traces[1].key?('Backtrace')
     end
@@ -105,8 +105,8 @@ unless defined?(JRUBY_VERSION)
       sleep 3
 
       traces = get_all_traces
-      assert_equal 21, refined_trace_count(traces)
-      assert valid_edges?(traces), "Invalid edge in traces"
+      assert_equal 20, refined_trace_count(traces)
+      assert valid_edges?(traces, false), "Invalid edge in traces"
       assert_equal 'sidekiq-client',   traces[1]['Layer']
       assert_equal true,               traces[1].key?('Backtrace')
     end
@@ -123,8 +123,8 @@ unless defined?(JRUBY_VERSION)
       sleep 3
 
       traces = get_all_traces
-      assert_equal 21, refined_trace_count(traces)
-      assert valid_edges?(traces), "Invalid edge in traces"
+      assert_equal 20, refined_trace_count(traces)
+      assert valid_edges?(traces, false), "Invalid edge in traces"
       assert_equal false, traces[1].key?('Args')
     end
 
@@ -140,8 +140,8 @@ unless defined?(JRUBY_VERSION)
       sleep 3
 
       traces = get_all_traces
-      assert_equal 21, refined_trace_count(traces)
-      assert valid_edges?(traces), "Invalid edge in traces"
+      assert_equal 20, refined_trace_count(traces)
+      assert valid_edges?(traces, false), "Invalid edge in traces"
       assert_equal true,         traces[1].key?('Args')
       assert_equal '[1, 2, 3]',  traces[1]['Args']
     end
@@ -160,7 +160,7 @@ unless defined?(JRUBY_VERSION)
       # FIXME: the sidekiq worker is not respecting the AppOpticsAPM::Config[:tracing_mode] = 'never' setting
       # ____ instead of no traces we are getting 17, that is 4 less than we would get with tracing
       # assert_equal 0, traces.count
-      assert_equal 17, refined_trace_count(traces)
+      assert_equal 16, refined_trace_count(traces)
     end
   end
 end

@@ -25,7 +25,19 @@ module AppOpticsAPM
           context = AppOpticsAPM::Context.toString
           options[:headers]['X-Trace'] = context unless blacklisted
 
+          kvs = {}
+          kvs[:Spec] = 'rsc'
+          kvs[:IsService] = 1
+          kvs[:HTTPMethod] = ::AppOpticsAPM::Util.upcase(options[:method])
+
           response = run_without_appoptics
+
+          # Re-attach edge unless it's blacklisted
+          # or if we don't have a valid X-Trace header
+          unless blacklisted
+            xtrace = response.headers['X-Trace']
+            AppOpticsAPM::XTrace.continue_service_context(context, xtrace)
+          end
 
           if response.code == 0
             exception = TyphoeusError.new(response.return_message)
@@ -33,37 +45,19 @@ module AppOpticsAPM
             AppOpticsAPM::API.log_exception(:typhoeus, exception)
           end
 
-          kvs = {}
-          kvs[:IsService] = 1
           kvs[:HTTPStatus] = response.code
           kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:typhoeus][:collect_backtraces]
-
-          uri = URI(response.effective_url)
-
           # Conditionally log query params
-          if AppOpticsAPM::Config[:typhoeus][:log_args]
-            kvs[:RemoteURL] = uri.to_s
-          else
-            kvs[:RemoteURL] = uri.to_s.split('?').first
-          end
-
-          kvs[:HTTPMethod] = ::AppOpticsAPM::Util.upcase(options[:method])
+          uri = URI(response.effective_url)
+          kvs[:RemoteURL] = AppOpticsAPM::Config[:typhoeus][:log_args] ? uri.to_s : uri.to_s.split('?').first
           kvs[:Blacklisted] = true if blacklisted
 
-          # Re-attach net::http edge unless it's blacklisted or if we don't have a
-          # valid X-Trace header
-          unless blacklisted
-            xtrace = response.headers['X-Trace']
-            AppOpticsAPM::XTrace.continue_service_context(context, xtrace)
-          end
-
-          AppOpticsAPM::API.log_info(:typhoeus, kvs)
           response
         rescue => e
           AppOpticsAPM::API.log_exception(:typhoeus, e)
           raise e
         ensure
-          AppOpticsAPM::API.log_exit(:typhoeus)
+          AppOpticsAPM::API.log_exit(:typhoeus, kvs)
         end
       end
     end
