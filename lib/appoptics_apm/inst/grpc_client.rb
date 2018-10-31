@@ -38,7 +38,7 @@ module AppOpticsAPM
       def server_streamer_with_appoptics(req, metadata: {}, &blk)
         @tags = grpc_tags('SERVER_STREAMING', metadata[:method] || metadata_to_send[:method])
         AppOpticsAPM::API.log_entry('grpc_client', @tags)
-        metadata['x-trace'] = AppOpticsAPM::Context.toString
+        metadata['x-trace'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid
         AppOpticsAPM::SDK.set_transaction_name(metadata[:method]) if AppOpticsAPM.transaction_name.nil?
 
         patch_receive_and_check_status # need to patch this so that log_exit can be called after the enum is consumed
@@ -58,7 +58,7 @@ module AppOpticsAPM
       def bidi_streamer_with_appoptics(req, metadata: {}, &blk)
         @tags = grpc_tags('BIDI_STREAMING', metadata[:method] || metadata_to_send[:method])
         AppOpticsAPM::API.log_entry('grpc_client', @tags)
-        metadata['x-trace'] = AppOpticsAPM::Context.toString
+        metadata['x-trace'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid
         AppOpticsAPM::SDK.set_transaction_name(metadata[:method]) if AppOpticsAPM.transaction_name.nil?
 
         patch_set_input_stream_done
@@ -79,7 +79,7 @@ module AppOpticsAPM
       def unary_response(req, type: , metadata: , without:)
         tags = grpc_tags(type, metadata[:method] || metadata_to_send[:method])
         AppOpticsAPM::SDK.trace('grpc_client', tags) do
-          metadata['x-trace'] = AppOpticsAPM::Context.toString
+          metadata['x-trace'] = AppOpticsAPM::Context.toString  if AppOpticsAPM::Context.isValid
           AppOpticsAPM::SDK.set_transaction_name(metadata[:method]) if AppOpticsAPM.transaction_name.nil?
           begin
             send(without, req, metadata: metadata)
@@ -117,9 +117,11 @@ module AppOpticsAPM
       end
 
       def context_from_incoming
-        xtrace ||= @call.trailing_metadata['x-trace'] if @call.trailing_metadata && @call.trailing_metadata['x-trace']
-        xtrace ||= @call.metadata['x-trace'] if @call.metadata && @call.metadata['x-trace']
-        AppOpticsAPM::Context.fromString(xtrace) if xtrace
+        if AppOpticsAPM::Context.isValid
+          xtrace ||= @call.trailing_metadata['x-trace'] if @call.trailing_metadata && @call.trailing_metadata['x-trace']
+          xtrace ||= @call.metadata['x-trace'] if @call.metadata && @call.metadata['x-trace']
+          AppOpticsAPM::Context.fromString(xtrace) if xtrace
+        end
       end
 
       def exit_tags(tags)
