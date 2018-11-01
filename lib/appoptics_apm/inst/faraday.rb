@@ -22,7 +22,7 @@ module AppOpticsAPM
 
         begin
           AppOpticsAPM::API.log_entry(:faraday)
-
+          xtrace = nil
           if remote_call && !blacklisted
             xtrace = AppOpticsAPM::Context.toString
             @headers['X-Trace'] = xtrace if AppOpticsAPM::XTrace.valid?(xtrace)
@@ -44,7 +44,7 @@ module AppOpticsAPM
           # Otherwise, the adapter instrumentation will send the service KVs
           if remote_call
             kvs.merge!(rsc_kvs(url, method, result))
-            if !blacklisted
+            unless blacklisted
               xtrace_new = result.headers['X-Trace']
               AppOpticsAPM::XTrace.continue_service_context(xtrace, xtrace_new)
             end
@@ -68,10 +68,7 @@ module AppOpticsAPM
 
       # This is only considered a remote service call if the middleware/adapter is not instrumented
       def remote_call?
-          !(@builder.handlers.include?(Faraday::Adapter::NetHttp) ||
-            @builder.handlers.include?(Faraday::Adapter::Excon) ||
-            @builder.handlers.include?(Faraday::Adapter::HTTPClient) ||
-            @builder.handlers.include?(Faraday::Adapter::Typhoeus) )
+        (@builder.handlers.map(&:name) & APPOPTICS_INSTR_ADAPTERS).count == 0
       end
 
       def rsc_kvs(url, method, result)
@@ -81,7 +78,7 @@ module AppOpticsAPM
                 :HTTPStatus => result.status, }
         kvs[:Blacklisted] = true if url_blacklisted?
         kvs[:RemoteURL] = result.to_hash[:url].to_s
-        kvs[:RemoteURL].split('?').first if !AppOpticsAPM::Config[:faraday][:log_args]
+        kvs[:RemoteURL].split('?').first unless AppOpticsAPM::Config[:faraday][:log_args]
 
         kvs
       end
@@ -93,5 +90,7 @@ if AppOpticsAPM::Config[:faraday][:enabled]
   if defined?(::Faraday)
     AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting faraday' if AppOpticsAPM::Config[:verbose]
     ::AppOpticsAPM::Util.send_include(::Faraday::Connection, ::AppOpticsAPM::Inst::FaradayConnection)
+    APPOPTICS_INSTR_ADAPTERS = ["Faraday::Adapter::NetHttp", "Faraday::Adapter::Excon", "Faraday::Adapter::Typhoeus"]
+    APPOPTICS_INSTR_ADAPTERS << "Faraday::Adapter::HTTPClient" if defined?Faraday::Adapter::HTTPClient
   end
 end
