@@ -26,6 +26,8 @@ services:
      links:
        - wait
      environment:
+       - APPOPTICS_SERVICE_KEY=${APPOPTICS_SERVICE_KEY}
+       - APPOPTICS_COLLECTOR=${APPOPTICS_COLLECTOR}
        - APPOPTICS_RABBITMQ_SERVER=rabbitmq
        - DOCKER_MYSQL_PASS=admin
        - MYSQL_ALLOW_EMPTY_PASSWORD=yes
