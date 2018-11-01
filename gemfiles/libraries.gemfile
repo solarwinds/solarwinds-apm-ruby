@@ -3,7 +3,7 @@ source "https://rubygems.org"
 gem 'moped'
 gem 'eventmachine', '< 1.2.0'
 gem 'em-synchrony'
-gem 'em-http-request'
+# gem 'em-http-request'
 gem 'rest-client'
 gem 'grpc'
 
@@ -36,6 +36,7 @@ gem 'excon'
 gem 'faraday'
 gem 'httpclient'
 gem 'memcached'
+gem 'patron' # not instrumented, to test non-instrumented faraday adapter
 gem 'redis'
 gem 'resque' unless defined?(JRUBY_VERSION)
 gem 'sequel'

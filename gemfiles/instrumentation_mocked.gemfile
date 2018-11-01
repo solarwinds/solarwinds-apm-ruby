@@ -19,6 +19,7 @@ gem 'excon'
 gem 'faraday'
 gem 'httpclient'
 gem 'typhoeus'
+gem 'patron' # not instrumented, to test non-instrumented faraday adapter
 
 gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')
 # vim:syntax=ruby
