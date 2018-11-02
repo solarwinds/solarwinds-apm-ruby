@@ -44,6 +44,7 @@ if AppOpticsAPM::Config[:em_http_request][:enabled] && !defined?(JRUBY_VERSION)
 
       traces[1]["Layer"].must_equal "em-http-request"
       traces[1]["Label"].must_equal "entry"
+      traces[1]["Spec"].must_equal "rsc"
       traces[1]["IsService"].must_equal "1"
       traces[1]["RemoteURL"].must_equal "http://appneta.com/"
       traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:em_http_request][:collect_backtraces]
@@ -71,6 +72,7 @@ if AppOpticsAPM::Config[:em_http_request][:enabled] && !defined?(JRUBY_VERSION)
 
       traces[1]["Layer"].must_equal "em-http-request"
       traces[1]["Label"].must_equal "entry"
+      traces[1]["Spec"].must_equal "rsc"
       traces[1]["IsService"].must_equal "1"
       traces[1]["RemoteURL"].must_equal "http://appneta.com/"
       traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:em_http_request][:collect_backtraces]

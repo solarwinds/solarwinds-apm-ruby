@@ -19,6 +19,7 @@ module AppOpticsAPM
       def appoptics_collect(verb = nil)
         kvs = {}
 
+        kvs[:Spec] = 'rsc'
         kvs[:IsService] = 1
 
         # Conditionally log query args

@@ -38,6 +38,7 @@ unless defined?(JRUBY_VERSION)
 
       assert_equal 'curb',                    traces[1]['Layer']
       assert_equal 'entry',                   traces[1]['Label']
+      assert_equal 'rsc',                         traces[1]['Spec']
       assert_equal 1,                         traces[1]['IsService']
       # curb started using URI#to_s and may have a trailing '?', https://github.com/taf2/curb/commit/32fa6d78968c3b63e2a54a2c326efb577db04043
       assert_equal url,                       traces[1]['RemoteURL'].chomp('?')

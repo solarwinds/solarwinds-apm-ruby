@@ -13,6 +13,7 @@ module AppOpticsAPM
             report_kvs = {}
 
             begin
+              report_kvs[:Spec] = 'rsc'
               report_kvs[:IsService] = 1
               report_kvs[:RemoteURL] = @uri
               report_kvs[:HTTPMethod] = args[0]
