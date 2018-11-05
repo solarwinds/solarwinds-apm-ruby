@@ -1,6 +1,7 @@
 # Copyright (c) 2018 SolarWinds, LLC.
 # All rights reserved.
 
+if RUBY_VERSION < '2.6.0'
 require 'minitest/spec'
 require 'minitest/autorun'
 require 'minitest/reporters'
@@ -1092,4 +1093,5 @@ describe 'GRPC' do
       traces.select { |tr| tr['GRPCStatus'] =~ /RESOURCE_EXHAUSTED|UNAVAILABLE/ }.size.must_equal @count
     end
   end
+end
 end

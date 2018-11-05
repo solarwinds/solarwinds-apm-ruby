@@ -5,7 +5,7 @@ gem 'eventmachine', '< 1.2.0'
 gem 'em-synchrony'
 # gem 'em-http-request'
 gem 'rest-client'
-gem 'grpc'
+gem 'grpc' if RUBY_VERSION < '2.6.0'
 
 group :development, :test do
   gem 'minitest'
@@ -18,7 +18,7 @@ group :development, :test do
   gem 'bson', '~> 4.0'
   gem 'puma', '< 3.1.0'
   gem 'webmock'
-  gem 'grpc-tools'
+  gem 'grpc-tools' if RUBY_VERSION < '2.6.0'
 end
 
 if defined?(JRUBY_VERSION)
@@ -48,9 +48,7 @@ if defined?(JRUBY_VERSION)
   gem 'jdbc-postgresql'
   gem 'jdbc-mysql'
 else
-  if RUBY_VERSION < '2.4'
-    gem 'mysql'
-  end
+  gem 'mysql' if RUBY_VERSION < '2.4'
   gem 'mysql2'
   gem 'pg'
 end
