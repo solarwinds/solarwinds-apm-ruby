@@ -41,11 +41,10 @@ class ExconTest < Minitest::Test
     validate_outer_layers(traces, "excon_tests")
     assert valid_edges?(traces), "Invalid edge in traces"
 
-    assert_equal 1,           traces[1]['IsService']
-    assert_equal '127.0.0.1', traces[1]['RemoteHost']
-    assert_equal 'HTTP',      traces[1]['RemoteProtocol']
-    assert_equal '/',         traces[1]['ServiceArg']
-    assert_equal 'GET',       traces[1]['HTTPMethod']
+    assert_equal 'rsc',                    traces[1]['Spec']
+    assert_equal 1,                        traces[1]['IsService']
+    assert_equal 'http://127.0.0.1:8101/', traces[1]['RemoteURL']
+    assert_equal 'GET',                    traces[1]['HTTPMethod']
     assert traces[1].key?('Backtrace')
 
     assert_equal 'excon',     traces[5]['Layer']
@@ -69,14 +68,36 @@ class ExconTest < Minitest::Test
     validate_outer_layers(traces, "excon_tests")
     assert valid_edges?(traces), "Invalid edge in traces"
 
-    assert_equal 1,            traces[1]['IsService']
-    assert_equal '127.0.0.1',  traces[1]['RemoteHost']
-    assert_equal 'HTTP',       traces[1]['RemoteProtocol']
-    assert_equal '/?blah=1',   traces[1]['ServiceArg']
+    assert_equal 'rsc',                           traces[1]['Spec']
+    assert_equal 1,                               traces[1]['IsService']
+    assert_equal 'http://127.0.0.1:8101/?blah=1', traces[1]['RemoteURL']
     assert_equal 'GET',        traces[1]['HTTPMethod']
     assert_equal 200,          traces[5]['HTTPStatus']
     assert traces[1].key?('Backtrace')
   end
+
+  def test_cross_uninstr_app_tracing
+    clear_all_traces
+
+    AppOpticsAPM::API.start_trace('excon_tests') do
+      response = Excon.get('http://127.0.0.1:8110/?blah=1')
+      refute response.headers['X-Trace']
+    end
+
+    traces = get_all_traces
+    assert_equal 4, traces.count
+    validate_outer_layers(traces, "excon_tests")
+    assert valid_edges?(traces), "Invalid edge in traces"
+
+    assert_equal 'rsc',                           traces[1]['Spec']
+    assert_equal 1,                               traces[1]['IsService']
+    assert_equal 'http://127.0.0.1:8110/?blah=1', traces[1]['RemoteURL']
+    assert_equal 'GET',        traces[1]['HTTPMethod']
+    assert traces[1].key?('Backtrace')
+
+    assert_equal 200,          traces[2]['HTTPStatus']
+  end
+
 
   def test_persistent_requests
     # Persistence was adding in 0.31.0
@@ -96,26 +117,25 @@ class ExconTest < Minitest::Test
     validate_outer_layers(traces, "excon_tests")
     assert valid_edges?(traces), "Invalid edge in traces"
 
-    assert_equal 1,             traces[1]['IsService']
-    assert_equal '127.0.0.1',   traces[1]['RemoteHost']
-    assert_equal 'HTTP',        traces[1]['RemoteProtocol']
-    assert_equal '/',           traces[1]['ServiceArg']
+    assert_equal 'rsc',                    traces[1]['Spec']
+    assert_equal 1,                        traces[1]['IsService']
+    assert_equal 'http://127.0.0.1:8101/', traces[1]['RemoteURL']
     assert_equal 'GET',         traces[1]['HTTPMethod']
     assert_equal 200,           traces[5]['HTTPStatus']
     assert traces[1].key?('Backtrace')
 
-    assert_equal 1,             traces[6]['IsService']
-    assert_equal '127.0.0.1',   traces[6]['RemoteHost']
-    assert_equal 'HTTP',        traces[6]['RemoteProtocol']
-    assert_equal '/',           traces[6]['ServiceArg']
+    assert_equal 'rsc',                    traces[6]['Spec']
+    assert_equal 1,                        traces[6]['IsService']
+    assert_equal 'http://127.0.0.1:8101/', traces[6]['RemoteURL']
     assert_equal 'GET',         traces[6]['HTTPMethod']
+
     assert_equal 200,           traces[10]['HTTPStatus']
     assert traces[6].key?('Backtrace')
 
-    assert_equal 1,             traces[11]['IsService']
-    assert_equal '127.0.0.1',   traces[11]['RemoteHost']
-    assert_equal 'HTTP',        traces[11]['RemoteProtocol']
-    assert_equal '/',           traces[11]['ServiceArg']
+    assert_equal 'rsc',                    traces[11]['Spec']
+    assert_equal 1,                        traces[11]['IsService']
+    assert_equal 'http://127.0.0.1:8101/', traces[11]['RemoteURL']
+
     assert_equal 'GET',         traces[11]['HTTPMethod']
     assert_equal 200,           traces[15]['HTTPStatus']
     assert traces[11].key?('Backtrace')
@@ -132,15 +152,16 @@ class ExconTest < Minitest::Test
     traces = get_all_traces
     assert_equal 10, traces.count
     validate_outer_layers(traces, "excon_tests")
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
 
-    assert_equal 1,             traces[1]['IsService']
-    assert_equal '127.0.0.1',   traces[1]['RemoteHost']
-    assert_equal 'HTTP',        traces[1]['RemoteProtocol']
-    assert_equal '/',           traces[1]['ServiceArg']
-    assert_equal 'true',        traces[1]['Pipeline']
-    assert_equal 'GET, PUT',    traces[1]['HTTPMethods']
+    assert_equal 'rsc',                    traces[1]['Spec']
+    assert_equal 1,                        traces[1]['IsService']
+    assert_equal 'http://127.0.0.1:8101/', traces[1]['RemoteURL']
+    assert_equal 'true',                   traces[1]['Pipeline']
+    assert_equal 'GET,PUT',                traces[1]['HTTPMethods']
     assert traces[1].key?('Backtrace')
+
+    assert_equal '200,200',                traces[8]['HTTPStatuses']
   end
 
   def test_requests_with_errors
@@ -148,7 +169,7 @@ class ExconTest < Minitest::Test
 
     begin
       AppOpticsAPM::API.start_trace('excon_tests') do
-        Excon.get('http://asfjalkfjlajfljkaljf/')
+        Excon.get('http://asfjalkljkaljf/')
       end
     rescue
     end
@@ -158,23 +179,21 @@ class ExconTest < Minitest::Test
     validate_outer_layers(traces, "excon_tests")
     assert valid_edges?(traces), "Invalid edge in traces"
 
-    assert_equal 1,                          traces[1]['IsService']
-    assert_equal 'asfjalkfjlajfljkaljf',     traces[1]['RemoteHost']
-    assert_equal 'HTTP',                     traces[1]['RemoteProtocol']
-    assert_equal '/',                        traces[1]['ServiceArg']
-    assert_equal 'GET',                      traces[1]['HTTPMethod']
+    assert_equal 'rsc',                       traces[1]['Spec']
+    assert_equal 1,                           traces[1]['IsService']
+    assert_equal 'http://asfjalkljkaljf:80/', traces[1]['RemoteURL']
     assert traces[1].key?('Backtrace')
 
-    assert_equal 'excon',                    traces[2]['Layer']
-    assert_equal 'error',                    traces[2]['Spec']
-    assert_equal 'error',                    traces[2]['Label']
-    assert_equal "Excon::Error::Socket",     traces[2]['ErrorClass']
+    assert_equal 'excon',                     traces[2]['Layer']
+    assert_equal 'error',                     traces[2]['Spec']
+    assert_equal 'error',                     traces[2]['Label']
+    assert_equal "Excon::Error::Socket",      traces[2]['ErrorClass']
     assert traces[2].key?('ErrorMsg')
     assert traces[2].key?('Backtrace')
     assert_equal 1, traces.select { |trace| trace['Label'] == 'error' }.count
 
-    assert_equal 'excon',                    traces[3]['Layer']
-    assert_equal 'exit',                     traces[3]['Label']
+    assert_equal 'excon',                     traces[3]['Layer']
+    assert_equal 'exit',                      traces[3]['Label']
   end
 
   def test_obey_log_args_when_false
@@ -188,8 +207,11 @@ class ExconTest < Minitest::Test
     end
 
     traces = get_all_traces
+    validate_outer_layers(traces, "excon_tests")
+    assert valid_edges?(traces), "Invalid edge in traces"
+
     assert_equal 7, traces.count
-    assert_equal '/', traces[1]['ServiceArg']
+    assert_equal 'http://127.0.0.1:8101/', traces[1]['RemoteURL']
 
     AppOpticsAPM::Config[:excon][:log_args] = @log_args
   end
@@ -205,8 +227,11 @@ class ExconTest < Minitest::Test
     end
 
     traces = get_all_traces
+    validate_outer_layers(traces, "excon_tests")
+    assert valid_edges?(traces), "Invalid edge in traces"
+
     assert_equal 7, traces.count
-    assert_equal '/?blah=1', traces[1]['ServiceArg']
+    assert_equal 'http://127.0.0.1:8101/?blah=1', traces[1]['RemoteURL']
 
     AppOpticsAPM::Config[:excon][:log_args] = @log_args
   end
@@ -222,8 +247,11 @@ class ExconTest < Minitest::Test
     end
 
     traces = get_all_traces
+    validate_outer_layers(traces, "excon_tests")
+    assert valid_edges?(traces), "Invalid edge in traces"
+
     assert_equal 7, traces.count
-    assert_equal '/?blah=1', traces[1]['ServiceArg']
+    assert_equal 'http://127.0.0.1:8101/?blah=1', traces[1]['RemoteURL']
 
     AppOpticsAPM::Config[:excon][:log_args] = @log_args
   end

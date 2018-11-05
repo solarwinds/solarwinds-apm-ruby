@@ -10,59 +10,52 @@ module AppOpticsAPM
 
       def run_request_with_appoptics(method, url, body, headers, &block)
         blacklisted = url_blacklisted?
+        remote_call = remote_call?
+
         unless AppOpticsAPM.tracing?
-          xtrace = AppOpticsAPM::Context.toString
-          @headers['X-Trace'] = xtrace if AppOpticsAPM::XTrace.valid?(xtrace) && !blacklisted
+          if remote_call && !blacklisted
+            xtrace = AppOpticsAPM::Context.toString
+            @headers['X-Trace'] = xtrace if AppOpticsAPM::XTrace.valid?(xtrace)
+          end
           return run_request_without_appoptics(method, url, body, headers, &block)
         end
 
         begin
           AppOpticsAPM::API.log_entry(:faraday)
+          xtrace = nil
+          if remote_call && !blacklisted
+            xtrace = AppOpticsAPM::Context.toString
+            @headers['X-Trace'] = xtrace if AppOpticsAPM::XTrace.valid?(xtrace)
+          end
 
-          xtrace = AppOpticsAPM::Context.toString
-          @headers['X-Trace'] = xtrace if AppOpticsAPM::XTrace.valid?(xtrace) && !blacklisted
           result = run_request_without_appoptics(method, url, body, headers, &block)
 
+          # Re-attach edge unless it's blacklisted
+          # or if we don't have a valid X-Trace header
+          if remote_call && !blacklisted
+            xtrace_new = result.headers['X-Trace']
+            AppOpticsAPM::XTrace.continue_service_context(xtrace, xtrace_new)
+          end
           kvs = {}
           kvs[:Middleware] = @builder.handlers
           kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:faraday][:collect_backtraces]
 
-          # Only send service KVs if we're not using the Net::HTTP adapter
-          # Otherwise, the Net::HTTP instrumentation will send the service KVs
-          handle_service = !@builder.handlers.include?(Faraday::Adapter::NetHttp) &&
-              !@builder.handlers.include?(Faraday::Adapter::Excon)
-          if handle_service
-            context = AppOpticsAPM::Context.toString
-            task_id = AppOpticsAPM::XTrace.task_id(context)
-
-            # Avoid cross host tracing for blacklisted domains
-            # Conditionally add the X-Trace header to the outgoing request
-            @headers['X-Trace'] = context unless blacklisted
-
-            kvs[:IsService] = 1
-            kvs[:RemoteProtocol] = (@url_prefix.scheme == 'https') ? 'HTTPS' : 'HTTP'
-            kvs[:RemoteHost] = @url_prefix.host
-            kvs[:RemotePort] = @url_prefix.port
-            kvs[:ServiceArg] = url
-            kvs[:HTTPMethod] = method
-            kvs[:HTTPStatus] = result.status
-            kvs[:Blacklisted] = true if blacklisted
-
-            # Re-attach net::http edge unless it's blacklisted or if we don't have a
-            # valid X-Trace header
+          # Only send service KVs if we're not using an adapter
+          # Otherwise, the adapter instrumentation will send the service KVs
+          if remote_call
+            kvs.merge!(rsc_kvs(url, method, result))
             unless blacklisted
-              xtrace = result.headers['X-Trace']
-              AppOpticsAPM::XTrace.continue_service_context(context, xtrace)
+              xtrace_new = result.headers['X-Trace']
+              AppOpticsAPM::XTrace.continue_service_context(xtrace, xtrace_new)
             end
           end
 
-          AppOpticsAPM::API.log(:faraday, :info, kvs)
           result
         rescue => e
           AppOpticsAPM::API.log_exception(:faraday, e)
           raise e
         ensure
-          AppOpticsAPM::API.log_exit(:faraday)
+          AppOpticsAPM::API.log_exit(:faraday, kvs)
         end
       end
 
@@ -72,6 +65,23 @@ module AppOpticsAPM
         url = @url_prefix ? @url_prefix.to_s : @host
         AppOpticsAPM::API.blacklisted?(url)
       end
+
+      # This is only considered a remote service call if the middleware/adapter is not instrumented
+      def remote_call?
+        (@builder.handlers.map(&:name) & APPOPTICS_INSTR_ADAPTERS).count == 0
+      end
+
+      def rsc_kvs(url, method, result)
+        kvs = { :Spec => 'rsc',
+                :IsService => 1,
+                :HTTPMethod => method.upcase,
+                :HTTPStatus => result.status, }
+        kvs[:Blacklisted] = true if url_blacklisted?
+        kvs[:RemoteURL] = result.to_hash[:url].to_s
+        kvs[:RemoteURL].split('?').first unless AppOpticsAPM::Config[:faraday][:log_args]
+
+        kvs
+      end
     end
   end
 end
@@ -80,5 +90,7 @@ if AppOpticsAPM::Config[:faraday][:enabled]
   if defined?(::Faraday)
     AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting faraday' if AppOpticsAPM::Config[:verbose]
     ::AppOpticsAPM::Util.send_include(::Faraday::Connection, ::AppOpticsAPM::Inst::FaradayConnection)
+    APPOPTICS_INSTR_ADAPTERS = ["Faraday::Adapter::NetHttp", "Faraday::Adapter::Excon", "Faraday::Adapter::Typhoeus"]
+    APPOPTICS_INSTR_ADAPTERS << "Faraday::Adapter::HTTPClient" if defined?Faraday::Adapter::HTTPClient
   end
 end

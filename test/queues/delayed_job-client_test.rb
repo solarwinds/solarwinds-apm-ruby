@@ -33,7 +33,7 @@ class DelayedJobClientTest < Minitest::Test
     sleep 15
 
     traces = get_all_traces
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces" # we don't connect traces from clients and workers
 
     assert_equal 'dj_delay',              traces[0]['Layer']
     assert_equal 'entry',                 traces[0]['Label']
@@ -69,7 +69,7 @@ class DelayedJobClientTest < Minitest::Test
     end
 
     traces = get_all_traces
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces" # we don't connect traces from clients and workers
 
     assert_equal 'delayed_job-client',    traces[1]['Layer']
     assert_equal 'entry',                 traces[1]['Label']
@@ -87,7 +87,7 @@ class DelayedJobClientTest < Minitest::Test
     end
 
     traces = get_all_traces
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces" # we don't connect traces from clients and workers
 
     assert_equal 'delayed_job-client',    traces[1]['Layer']
     assert_equal 'entry',                 traces[1]['Label']

@@ -12,9 +12,18 @@ Gem::Specification.new do |s|
   s.email = %q{support@appoptics.com}
   s.homepage = %q{https://www.appoptics.com/}
   s.summary = %q{AppOptics APM performance instrumentation gem for Ruby}
-  s.description = %q{The AppOpticsAPM gem provides performance instrumentation for MRI Ruby and related frameworks.}
+  s.description = <<-EOF
+     The appoptics_apm gem provides automatic tracing and metrics for Ruby applications. Get started at appoptics.com. @AppOptics
+  EOF
 
-  s.extra_rdoc_files = ["LICENSE"]
+  s.metadata = {
+      'changelog_uri'     => 'https://github.com/appoptics/appoptics-apm-ruby/releases',
+      'documentation_uri' => 'https://docs.appoptics.com/kb/apm_tracing/ruby/',
+      'homepage_uri'      => 'https://www.appoptics.com/',
+      'source_code_uri'   => 'https://github.com/appoptics/appoptics-apm-ruby',
+  }
+
+  s.extra_rdoc_files = ['LICENSE']
   s.files = `git ls-files`.split("\n").reject { |f| f.match(%r{^(test|gemfiles)/}) }
   s.files += ['ext/oboe_metal/src/oboe.h',
               'ext/oboe_metal/src/oboe.hpp',

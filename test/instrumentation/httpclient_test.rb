@@ -29,23 +29,21 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_get_request
-      response = nil
-
       AppOpticsAPM::API.start_trace('httpclient_tests') do
         clnt = HTTPClient.new
         response = clnt.get('http://127.0.0.1:8101/', :query => { :keyword => 'ruby', :lang => 'en' })
+
+        # Validate returned xtrace
+        assert response.headers.key?("X-Trace")
+        assert AppOpticsAPM::XTrace.valid?(response.headers["X-Trace"])
       end
 
       traces = get_all_traces
-
-      # Validate returned xtrace
-      assert response.headers.key?("X-Trace")
-      assert AppOpticsAPM::XTrace.valid?(response.headers["X-Trace"])
-
       assert_equal 7, traces.count
       assert valid_edges?(traces), "Invalid edge in traces"
       validate_outer_layers(traces, "httpclient_tests")
 
+      assert_equal 'rsc', traces[1]['Spec']
       assert_equal traces[1]['IsService'], 1
       assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/?keyword=ruby&lang=en'
       assert_equal traces[1]['HTTPMethod'], 'GET'
@@ -54,6 +52,29 @@ unless defined?(JRUBY_VERSION)
       assert_equal traces[5]['Layer'], 'httpclient'
       assert_equal traces[5]['Label'], 'exit'
       assert_equal traces[5]['HTTPStatus'], 200
+    end
+
+    def test_get_request_to_uninstr_app
+      AppOpticsAPM::API.start_trace('httpclient_tests') do
+        clnt = HTTPClient.new
+        response = clnt.get('http://127.0.0.1:8110/', :query => { :keyword => 'ruby', :lang => 'en' })
+        refute response.headers.key?("X-Trace")
+      end
+
+      traces = get_all_traces
+      assert_equal 4, traces.count
+      assert valid_edges?(traces), "Invalid edge in traces"
+      validate_outer_layers(traces, "httpclient_tests")
+
+      assert_equal 'rsc', traces[1]['Spec']
+      assert_equal traces[1]['IsService'], 1
+      assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8110/?keyword=ruby&lang=en'
+      assert_equal traces[1]['HTTPMethod'], 'GET'
+      assert traces[1].key?('Backtrace')
+
+      assert_equal traces[2]['Layer'], 'httpclient'
+      assert_equal traces[2]['Label'], 'exit'
+      assert_equal traces[2]['HTTPStatus'], 200
     end
 
     def test_get_with_header_hash
@@ -65,7 +86,6 @@ unless defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
-
       xtrace = response.headers['X-Trace']
       assert xtrace
       assert AppOpticsAPM::XTrace.valid?(xtrace)
@@ -74,6 +94,7 @@ unless defined?(JRUBY_VERSION)
       assert valid_edges?(traces), "Invalid edge in traces"
       validate_outer_layers(traces, "httpclient_tests")
 
+      assert_equal 'rsc', traces[1]['Spec']
       assert_equal traces[1]['IsService'], 1
       assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/'
       assert_equal traces[1]['HTTPMethod'], 'GET'
@@ -102,6 +123,7 @@ unless defined?(JRUBY_VERSION)
       assert valid_edges?(traces), "Invalid edge in traces"
       validate_outer_layers(traces, "httpclient_tests")
 
+      assert_equal 'rsc', traces[1]['Spec']
       assert_equal traces[1]['IsService'], 1
       assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/'
       assert_equal traces[1]['HTTPMethod'], 'GET'
@@ -130,6 +152,7 @@ unless defined?(JRUBY_VERSION)
       assert valid_edges?(traces), "Invalid edge in traces"
       validate_outer_layers(traces, "httpclient_tests")
 
+      assert_equal 'rsc', traces[1]['Spec']
       assert_equal traces[1]['IsService'], 1
       assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/'
       assert_equal traces[1]['HTTPMethod'], 'POST'
@@ -154,7 +177,7 @@ unless defined?(JRUBY_VERSION)
       traces = get_all_traces
 
       assert_equal 7, traces.count
-      assert valid_edges?(traces), "Invalid edge in traces"
+      assert valid_edges?(traces, false), "Invalid edge in traces"
 
       # In the case of async the layers are not always ordered the same
       # validate_outer_layers is not applicable, so we make sure we get the pair for 'httpclient_tests'
@@ -162,6 +185,7 @@ unless defined?(JRUBY_VERSION)
 
       # because of possible different ordering of traces we can't rely on an index and need to use find
       async_entry = traces.find { |trace| trace['Layer'] == 'httpclient' && trace['Label'] == 'entry' }
+      assert_equal 'rsc', async_entry['Spec']
       assert_equal 1, async_entry['Async']
       assert_equal 1, async_entry['IsService']
       assert_equal 'http://127.0.0.1:8101/?blah=1', async_entry['RemoteURL']
@@ -191,6 +215,7 @@ unless defined?(JRUBY_VERSION)
       assert valid_edges?(traces), "Invalid edge in traces"
       validate_outer_layers(traces, "httpclient_tests")
 
+      assert_equal 'rsc', traces[1]['Spec']
       assert_equal 1, traces[1]['IsService']
       assert_equal 'http://127.0.0.1:8101/?keyword=ruby&lang=en', traces[1]['RemoteURL']
       assert_equal 'GET', traces[1]['HTTPMethod']
@@ -223,6 +248,7 @@ unless defined?(JRUBY_VERSION)
       assert valid_edges?(traces), "Invalid edge in traces"
       validate_outer_layers(traces, "httpclient_tests")
 
+      assert_equal 'rsc', traces[1]['Spec']
       assert_equal 1, traces[1]['IsService']
       assert_equal 'http://asfjalkfjlajfljkaljf/', traces[1]['RemoteURL']
       assert_equal 'GET', traces[1]['HTTPMethod']

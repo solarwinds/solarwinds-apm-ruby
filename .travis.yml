@@ -23,9 +23,7 @@ gemfile:
   - gemfiles/instrumentation_mocked_oldgems.gemfile
   - gemfiles/frameworks.gemfile
   - gemfiles/rails52.gemfile
-  - gemfiles/rails51.gemfile
   - gemfiles/rails42.gemfile
-##  - gemfiles/rails32.gemfile # We currently are not supporting Rails 3.2
   - gemfiles/delayed_job.gemfile
   - gemfiles/noop.gemfile
 
@@ -69,20 +67,6 @@ matrix:
       env: DBTYPE=mysql2
     - gemfile: gemfiles/delayed_job.gemfile
       env: DBTYPE=mysql2
-
-    # Rails 3.2 is not compatible with Ruby >= 2.4
-    # We currently are not supporting Rails 3.2
-#    - rvm: 2.5.1
-#      gemfile: gemfiles/rails32.gemfile
-#    - rvm: 2.4.4
-#      gemfile: gemfiles/rails32.gemfile
-
-#    - rvm: jruby-9.0.5.0
-#      gemfile: gemfiles/delayed_job.gemfile
-
-    # Skip testing on JRuby until activerecord-jdbc supports Rails 5.0
-#    - rvm: jruby-9.0.5.0
-#      gemfile: gemfiles/rails50.gemfile
 
 # FIXME: Figure out if this is still an issue when reviewing cassandra test setup
 # Attempt Travis/Cassandra fix re: https://github.com/travis-ci/travis-ci/issues/1484

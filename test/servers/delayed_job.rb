@@ -8,6 +8,8 @@ require "rails/all"
 require "delayed_job"
 require "action_controller/railtie"
 require 'rack/handler/puma'
+require 'appoptics_apm/test'
+
 require File.expand_path(File.dirname(__FILE__) + '/../models/widget')
 
 AppOpticsAPM.logger.level = Logger::DEBUG

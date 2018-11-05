@@ -12,6 +12,7 @@ module AppOpticsAPM
 
       def appoptics_collect(method, uri, query = nil)
         kvs = {}
+        kvs[:Spec] = 'rsc'
         kvs[:IsService] = 1
 
         # Conditionally log URL query params
@@ -27,9 +28,6 @@ module AppOpticsAPM
           kvs[:RemoteURL] = uri.to_s.split('?').first
         end
 
-        kvs[:RemoteProtocol] = uri.scheme.upcase
-        kvs[:RemoteHost] = "#{uri.host}:#{uri.port}"
-        kvs[:ServiceArg] = "/?#{uri.query}"
         kvs[:HTTPMethod] = ::AppOpticsAPM::Util.upcase(method)
         kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:httpclient][:collect_backtraces]
         kvs
