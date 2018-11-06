@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.homepage = %q{https://www.appoptics.com/}
   s.summary = %q{AppOptics APM performance instrumentation gem for Ruby}
   s.description = <<-EOF
-     The appoptics_apm gem provides automatic tracing and metrics for Ruby applications. Get started at appoptics.com. @AppOptics
+The appoptics_apm gem provides automatic tracing and metrics for Ruby apps. Get started at appoptics.com. @AppOptics
   EOF
 
   s.metadata = {
