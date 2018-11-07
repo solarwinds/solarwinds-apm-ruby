@@ -25,3 +25,4 @@ swig*
 coverage
 doc
 .*byebug*
+gemfiles/vendor*

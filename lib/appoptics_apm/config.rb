@@ -14,8 +14,8 @@ module AppOpticsAPM
     @@instrumentation = [:action_controller, :action_controller_api, :action_view,
                          :active_record, :bunnyclient, :bunnyconsumer, :cassandra, :curb,
                          :dalli, :delayed_jobclient, :delayed_jobworker,
-                         :em_http_request, :excon, :faraday, :grpc_client, :grape,
-                         :httpclient, :memcached, :mongo, :moped, :nethttp, :padrino, :rack, :redis,
+                         :em_http_request, :excon, :faraday, :grpc_client, :grpc_server, :grape,
+                         :httpclient, :nethttp, :memcached, :mongo, :moped, :rack, :redis,
                          :resqueclient, :resqueworker, :rest_client,
                          :sequel, :sidekiqclient, :sidekiqworker, :sinatra, :typhoeus]
 
