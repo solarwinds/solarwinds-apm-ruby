@@ -13,6 +13,7 @@ module AppOpticsAPM
     require_relative './sdk'
 
     extend AppOpticsAPM::SDK::Tracing
+    extend AppOpticsAPM::SDK::CustomMetrics
     extend AppOpticsAPM::API::Tracing
   end
 end
