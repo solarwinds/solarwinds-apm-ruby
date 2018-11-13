@@ -21,6 +21,8 @@ services:
      volumes:
        - ../../:/code/ruby-appoptics
 #       - /Users/maiaengeli/workspace/repos/grpc:/grpc_ruby
+       - ../../../oboe-test/collectors/java-collector/test-collector.crt:/certs/java.crt
+       - ../../../oboe-test/collectors/scribe-collector/ca.crt:/certs/scribe.crt
      depends_on:
        - wait
      links:
@@ -34,6 +36,7 @@ services:
        - MYSQL_ROOT_PASSWORD=admin
        - MYSQL_HOST=mysql
        - APPOPTICS_MONGO_SERVER=mongo
+#       - SIMPLECOV_COVERAGE=True
 
 #  ruby_appoptics_apm_alpine:
 #     container_name: ruby_appoptics_alpine
