@@ -10,9 +10,11 @@ module AppOpticsAPM
     extend AppOpticsAPM::API::LayerInit
     extend AppOpticsAPM::API::Util
 
-    require_relative './sdk'
+    require_relative './sdk/tracing'
+    require_relative './sdk/custom_metrics'
 
     extend AppOpticsAPM::SDK::Tracing
+    extend AppOpticsAPM::SDK::CustomMetrics
     extend AppOpticsAPM::API::Tracing
   end
 end

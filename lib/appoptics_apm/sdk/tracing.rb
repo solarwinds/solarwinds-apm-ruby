@@ -127,7 +127,7 @@ module AppOpticsAPM
       #   end
       #
       #   def handle_request_with_appoptics(request, response)
-      #     start_trace('custom_trace', nil, :TransactionName => 'handle_request') do
+      #     AppOpticsAPM::SDK.start_trace('custom_trace', nil, :TransactionName => 'handle_request') do
       #       handle_request(request, response)
       #     end
       #   end
@@ -161,7 +161,7 @@ module AppOpticsAPM
       #   end
       #
       #   def handle_request_with_appoptics(request, response)
-      #     start_trace_with_target('rails', request['X-Trace'], response) do
+      #     AppOpticsAPM::SDK.start_trace_with_target('rails', request['X-Trace'], response) do
       #       handle_request(request, response)
       #     end
       #   end
@@ -307,5 +307,6 @@ module AppOpticsAPM
     end
 
     extend Tracing
+
   end
 end

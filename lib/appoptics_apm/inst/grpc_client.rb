@@ -37,7 +37,7 @@ module AppOpticsAPM
 
       def server_streamer_with_appoptics(req, metadata: {}, &blk)
         @tags = grpc_tags('SERVER_STREAMING', metadata[:method] || metadata_to_send[:method])
-        AppOpticsAPM::API.log_entry('grpc_client', @tags)
+        AppOpticsAPM::API.log_entry('grpc-client', @tags)
         metadata['x-trace'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid
         AppOpticsAPM::SDK.set_transaction_name(metadata[:method]) if AppOpticsAPM.transaction_name.nil?
 
@@ -49,15 +49,15 @@ module AppOpticsAPM
         # this check is needed because the exception may have been logged in patch_receive_and_check_status
         unless e.instance_variable_get(:@exn_logged)
           context_from_incoming
-          AppOpticsAPM::API.log_exception('grpc_client', e)
-          AppOpticsAPM::API.log_exit('grpc_client', exit_tags(@tags))
+          AppOpticsAPM::API.log_exception('grpc-client', e)
+          AppOpticsAPM::API.log_exit('grpc-client', exit_tags(@tags))
         end
         raise e
       end
 
       def bidi_streamer_with_appoptics(req, metadata: {}, &blk)
         @tags = grpc_tags('BIDI_STREAMING', metadata[:method] || metadata_to_send[:method])
-        AppOpticsAPM::API.log_entry('grpc_client', @tags)
+        AppOpticsAPM::API.log_entry('grpc-client', @tags)
         metadata['x-trace'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid
         AppOpticsAPM::SDK.set_transaction_name(metadata[:method]) if AppOpticsAPM.transaction_name.nil?
 
@@ -68,8 +68,8 @@ module AppOpticsAPM
       rescue => e
         unless e.instance_variable_get(:@exn_logged)
           context_from_incoming
-          AppOpticsAPM::API.log_exception('grpc_client', e)
-          AppOpticsAPM::API.log_exit('grpc_client', exit_tags(@tags))
+          AppOpticsAPM::API.log_exception('grpc-client', e)
+          AppOpticsAPM::API.log_exit('grpc-client', exit_tags(@tags))
         end
         raise e
       end
@@ -78,7 +78,7 @@ module AppOpticsAPM
 
       def unary_response(req, type: , metadata: , without:)
         tags = grpc_tags(type, metadata[:method] || metadata_to_send[:method])
-        AppOpticsAPM::SDK.trace('grpc_client', tags) do
+        AppOpticsAPM::SDK.trace('grpc-client', tags) do
           metadata['x-trace'] = AppOpticsAPM::Context.toString  if AppOpticsAPM::Context.isValid
           AppOpticsAPM::SDK.set_transaction_name(metadata[:method]) if AppOpticsAPM.transaction_name.nil?
           begin
@@ -96,10 +96,10 @@ module AppOpticsAPM
           context_from_incoming
         rescue => e
           context_from_incoming
-          AppOpticsAPM::API.log_exception('grpc_client', e)
+          AppOpticsAPM::API.log_exception('grpc-client', e)
           raise e
         ensure
-          AppOpticsAPM::API.log_exit('grpc_client', exit_tags(@tags))
+          AppOpticsAPM::API.log_exit('grpc-client', exit_tags(@tags))
         end
       end
 
@@ -109,9 +109,9 @@ module AppOpticsAPM
           return if status.nil?
           context_from_incoming
           if status.code > 0
-            AppOpticsAPM::API.log_exception('grpc_client', $!)
+            AppOpticsAPM::API.log_exception('grpc-client', $!)
           end
-          AppOpticsAPM::API.log_exit('grpc_client', exit_tags(@tags))
+          AppOpticsAPM::API.log_exit('grpc-client', exit_tags(@tags))
           super
         end
       end
