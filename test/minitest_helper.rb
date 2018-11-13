@@ -21,10 +21,11 @@ require 'minitest/autorun'
 require 'minitest/reporters'
 require 'minitest/debugger' if ENV['DEBUG']
 
-if ENV['TEST_RUNS_TO_FILE']
-# write to STDOUT as well as file (comes in handy with docker runs)
-# this approach preserves the coloring of pass fail, which the cli
+
+# write to a file as well as STDOUT (comes in handy with docker runs)
+# This approach preserves the coloring of pass fail, which the cli
 # `./run_tests.sh 2>&1 | tee -a test/docker_test.log` does not
+if ENV['TEST_RUNS_TO_FILE']
   FileUtils.mkdir_p('log')  # create if it doesn't exist
   $out_file = File.new("log/test_runs_#{Time.now.strftime("%Y_%m_%d")}.log", 'a')
   $out_file.sync = true
@@ -35,6 +36,32 @@ if ENV['TEST_RUNS_TO_FILE']
   end
 end
 
+# Extend Minitest with a refute_raises method
+# There are debates whether or not such a method is needed,
+# because the test would fail anyways when an exception is raised
+#
+# The reason to have and use it is for the statistics. The count of
+# assertions, failures, and errors is less informative without refute_raises
+module MiniTest
+  module Assertions
+    def refute_raises *exp
+      msg = "#{exp.pop}.\n" if String === exp.last
+
+      begin
+        yield
+      rescue MiniTest::Skip => e
+        return e if exp.include? MiniTest::Skip
+        raise e
+      rescue Exception => e
+        exp = exp.first if exp.size == 1
+        flunk "unexpected exception raised: #{e}"
+      end
+
+    end
+  end
+end
+
+# Print out a headline in with the settings used in the test run
 puts "\n\033[1m=== TEST RUN: #{RUBY_VERSION} #{File.basename(ENV['BUNDLE_GEMFILE'])} #{ENV['DBTYPE']} #{Time.now.strftime("%Y-%m-%d %H:%M")} ===\033[0m\n"
 
 ENV['RACK_ENV'] = 'test'
