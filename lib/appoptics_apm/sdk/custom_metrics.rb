@@ -56,7 +56,7 @@ module AppOpticsAPM
       #       start = Time.now
       #       yield # yield to where work is done
       #       duration = Time.now - start
-      #       AppOpticsAPM::SDK.increment_metric(name, duration, 1, false, tags)
+      #       AppOpticsAPM::SDK.summary_metric(name, duration, 1, false, tags)
       #     end
       #   end
       #
