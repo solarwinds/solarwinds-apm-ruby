@@ -9,19 +9,19 @@ describe AppOpticsAPM::SDK do
     describe 'Increment' do
       it 'should do increment with one arg' do
         refute_raises do
-          AppOpticsAPM::SDK.increment_metric('test_name')
+          AppOpticsAPM::SDK.increment_metric('test_name_00')
         end
       end
 
       it 'should do increment with all args' do
         refute_raises do
-          AppOpticsAPM::SDK.increment_metric('test_name', 1, { 'alfa' => 1, 'beta' => 2 } )
+          AppOpticsAPM::SDK.increment_metric('test_name_01', 1, true, { 'alfa' => 1, 'beta' => 2 } )
         end
       end
 
       it 'should handle wrong tags gracefully for increment' do
         refute_raises do
-          AppOpticsAPM::SDK.increment_metric(:test_name, 2, true, 7.7)
+          AppOpticsAPM::SDK.increment_metric(:test_name_02, 2, true, 7.7)
         end
       end
 
@@ -39,19 +39,19 @@ describe AppOpticsAPM::SDK do
     describe 'Summary' do
       it 'should do summary with two args' do
         refute_raises do
-          AppOpticsAPM::SDK.summary_metric('test_name', 7.7)
+          AppOpticsAPM::SDK.summary_metric('test_name_03', 7.7)
         end
       end
 
       it 'should summary with all args' do
         refute_raises do
-          AppOpticsAPM::SDK.summary_metric('test_name', 7.7, 1, { 'alfa' => 1, 'beta' => 2 } )
+          AppOpticsAPM::SDK.summary_metric('test_name_04', 7.7, 1, true, { 'alfa' => 1, 'beta' => 2 } )
         end
       end
 
       it 'should handle wrong arg types gracefully' do
         refute_raises do
-          AppOpticsAPM::SDK.summary_metric(:test_name, 15.4, 2, true, 7.7)
+          AppOpticsAPM::SDK.summary_metric(:test_name_05, 15.4, 2, true, 7.7)
         end
       end
 
