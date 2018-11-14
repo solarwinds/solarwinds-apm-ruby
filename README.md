@@ -64,7 +64,7 @@ To run the install generator run:
 bundle exec rails generate appoptics_apm:install
 ```
 
-After the prompts, this will create an initializer: `config/initializers/appoptics.rb`.
+After the prompts, this will create an initializer: `config/initializers/appoptics_apm.rb`.
 
 ## Sinatra
 
