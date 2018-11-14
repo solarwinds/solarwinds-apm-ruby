@@ -61,7 +61,7 @@ The appoptics_apm gem provides a Rails generator used to seed an initializer whe
 To run the install generator run:
 
 ```bash
-bundle exec rails generate appoptics:install
+bundle exec rails generate appoptics_apm:install
 ```
 
 After the prompts, this will create an initializer: `config/initializers/appoptics.rb`.
