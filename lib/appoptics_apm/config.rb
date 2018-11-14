@@ -78,7 +78,9 @@ module AppOpticsAPM
       # let's use the same debug level for ruby as well,
       debug_level = ENV['APPOPTICS_DEBUG_LEVEL'].to_i || AppOpticsAPM::Config[:debug_level] || 3
       if debug_level < 0
-        AppOpticsAPM.logger.level = 6 # there should be no logging if APPOPTICS_DEBUG_LEVEL == -1
+        # there should be no logging if APPOPTICS_DEBUG_LEVEL == -1
+        # In Ruby level 5 is UNKNOWN and it can log, but level 6 is quiet
+        AppOpticsAPM.logger.level = 6
       else
         AppOpticsAPM.logger.level = [4 - debug_level, 0].max
       end
