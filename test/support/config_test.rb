@@ -56,7 +56,7 @@ class ConfigTest
         f.puts "AppOpticsAPM::Config[:debug_level] = 6"
         f.puts "AppOpticsAPM::Config[:verbose] = true"
       end
-
+      ENV['APPOPTICS_APM_CONFIG_RUBY'] = @@default_config_path
       AppOpticsAPM::Config.load_config_file
 
       ENV['APPOPTICS_SERVICE_KEY'].must_be_nil
@@ -86,7 +86,7 @@ class ConfigTest
          f.puts "AppOpticsAPM::Config[:debug_level] = 6"
          f.puts "AppOpticsAPM::Config[:verbose] = false"
        end
-
+       ENV['APPOPTICS_APM_CONFIG_RUBY'] = @@default_config_path
        AppOpticsAPM::Config.load_config_file
 
        ENV['APPOPTICS_SERVICE_KEY'].must_equal '22222222-2222-2222-2222-222222222222:the_service_name'
@@ -101,19 +101,31 @@ class ConfigTest
       File.open(@@default_config_path, 'w') do |f|
         f.puts "AppOpticsAPM::Config[:debug_level] = 7"
       end
-
+      ENV['APPOPTICS_APM_CONFIG_RUBY'] = @@default_config_path
       AppOpticsAPM::Config.load_config_file
 
       ENV['APPOPTICS_DEBUG_LEVEL'].must_be_nil
-      AppOpticsAPM::Config[:debug_level].must_be_nil
+      AppOpticsAPM::Config[:debug_level].must_equal 3
       AppOpticsAPM.logger.level.must_equal Logger::INFO
+    end
+
+    it "should accept -1 (disable logging)" do
+      File.open(@@default_config_path, 'w') do |f|
+        f.puts "AppOpticsAPM::Config[:debug_level] = -1"
+      end
+      ENV['APPOPTICS_APM_CONFIG_RUBY'] = @@default_config_path
+      AppOpticsAPM::Config.load_config_file
+
+      ENV['APPOPTICS_DEBUG_LEVEL'].must_be_nil
+      AppOpticsAPM::Config[:debug_level].must_equal -1
+      AppOpticsAPM.logger.level.must_equal 6
     end
 
     it "should accept 'true'/'TRUE'/'True'/... as true for VERBOSE" do
       File.open(@@default_config_path, 'w') do |f|
         f.puts "AppOpticsAPM::Config[:verbose] = false"
       end
-
+      ENV['APPOPTICS_APM_CONFIG_RUBY'] = @@default_config_path
       ENV['APPOPTICS_GEM_VERBOSE'] = 'FALSE'
       AppOpticsAPM::Config.load_config_file
       AppOpticsAPM::Config[:verbose].wont_equal true

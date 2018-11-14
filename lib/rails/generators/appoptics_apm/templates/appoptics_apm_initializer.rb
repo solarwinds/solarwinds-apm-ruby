@@ -27,17 +27,17 @@ if defined?(AppOpticsAPM::Config)
 
   #
   # Set APPOPTICS_DEBUG_LEVEL
-  # This Setting will be overridden if APPOPTICS_DEBUG_LEVEL is set as an environment variable
+  # This setting will be overridden if APPOPTICS_DEBUG_LEVEL is set as an environment variable.
   #
   # It sets the log level and takes the following values:
-  ## 0 fatal, 1 error, 2 warning, 3 info (the default), 4 debug low, 5 debug medium, 6 debug high.
-  #
+  # -1 disabled, 0 fatal, 1 error, 2 warning, 3 info (the default), 4 debug low, 5 debug medium, 6 debug high.
+  # Values < -1 or > 6 will set the log level to the default (info).
   #
   AppOpticsAPM::Config[:debug_level] = 3
   #
   # :debug_level will be used in the c-extension of the gem and also mapped to the
-  # Ruby logger as FATAL, ERROR, WARN, INFO, or DEBUG
-  # The Ruby logger can afterwards be changed to a different level as follows:
+  # Ruby logger as DISABLED, FATAL, ERROR, WARN, INFO, or DEBUG
+  # The Ruby logger can afterwards be changed to a different level, e.g:
   # AppOpticsAPM.logger.level = Logger::INFO
 
   #
