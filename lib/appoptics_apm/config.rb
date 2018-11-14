@@ -71,12 +71,12 @@ module AppOpticsAPM
     # Oboe will override vars passed in if it finds an environment variable
     # :debug_level and :verbose need special consideration, because they are used in Ruby
     def self.check_env_vars
-      unless (0..6).include?(AppOpticsAPM::Config[:debug_level])
-        AppOpticsAPM::Config[:debug_level] = nil
+      unless (-1..6).include?(AppOpticsAPM::Config[:debug_level])
+        AppOpticsAPM::Config[:debug_level] = 3
       end
 
-      # let's use the same debug level for ruby as well,
-      debug_level = ENV['APPOPTICS_DEBUG_LEVEL'].to_i || AppOpticsAPM::Config[:debug_level] || 3
+      # let's find and use the  equivalent debug level for ruby
+      debug_level = ENV['APPOPTICS_DEBUG_LEVEL'] ? ENV['APPOPTICS_DEBUG_LEVEL'].to_i : AppOpticsAPM::Config[:debug_level]
       if debug_level < 0
         # there should be no logging if APPOPTICS_DEBUG_LEVEL == -1
         # In Ruby level 5 is UNKNOWN and it can log, but level 6 is quiet
