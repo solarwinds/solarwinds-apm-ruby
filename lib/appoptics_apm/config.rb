@@ -74,9 +74,14 @@ module AppOpticsAPM
       unless (0..6).include?(AppOpticsAPM::Config[:debug_level])
         AppOpticsAPM::Config[:debug_level] = nil
       end
-      # let's use the same debug level for ruby as well
-      debug_level = ENV['APPOPTICS_DEBUG_LEVEL'] || AppOpticsAPM::Config[:debug_level] || 3
-      AppOpticsAPM.logger.level = [4 - debug_level.to_i, 0].max
+
+      # let's use the same debug level for ruby as well,
+      debug_level = ENV['APPOPTICS_DEBUG_LEVEL'].to_i || AppOpticsAPM::Config[:debug_level] || 3
+      if debug_level < 0
+        AppOpticsAPM.logger.level = 6 # there should be no logging if APPOPTICS_DEBUG_LEVEL == -1
+      else
+        AppOpticsAPM.logger.level = [4 - debug_level, 0].max
+      end
 
       # the verbose setting is only relevant for ruby, ENV['APPOPTICS_GEM_VERBOSE'] overrides
       if ENV.key?('APPOPTICS_GEM_VERBOSE')
