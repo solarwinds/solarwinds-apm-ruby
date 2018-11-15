@@ -31,7 +31,7 @@ if defined?(AppOpticsAPM::Config)
   #
   # It sets the log level and takes the following values:
   # -1 disabled, 0 fatal, 1 error, 2 warning, 3 info (the default), 4 debug low, 5 debug medium, 6 debug high.
-  # Values < -1 or > 6 will set the log level to the default (info).
+  # Values out of range (< -1 or > 6) are ignored and the log level is set to the default (info).
   #
   AppOpticsAPM::Config[:debug_level] = 3
   #
