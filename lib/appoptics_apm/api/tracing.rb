@@ -48,7 +48,6 @@ module AppOpticsAPM
         [start_trace_with_target(span, xtrace, target, opts) { yield }, target['X-Trace']]
       end
 
-
     end
   end
 end
