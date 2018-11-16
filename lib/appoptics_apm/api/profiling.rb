@@ -51,6 +51,7 @@ module AppOpticsAPM
             exit_kvs[:Language] = :ruby
             exit_kvs[:ProfileName] = report_kvs[:ProfileName]
 
+            report_kvs.delete(:Backtrace)
             AppOpticsAPM::API.log(nil, :profile_exit, exit_kvs)
           end
         end

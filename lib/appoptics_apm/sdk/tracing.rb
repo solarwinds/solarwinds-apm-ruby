@@ -94,6 +94,7 @@ module AppOpticsAPM
         opts.delete('TransactionName')
 
         AppOpticsAPM::API.log_entry(span, opts, protect_op)
+        opts[:Backtrace] && opts.delete(:Backtrace) # to avoid sending backtrace twice (faster to check presence here)
         begin
           yield
         rescue Exception => e
@@ -182,6 +183,8 @@ module AppOpticsAPM
         AppOpticsAPM.transaction_name = opts.delete('TransactionName') || opts.delete(:TransactionName)
 
         AppOpticsAPM::API.log_start(span, xtrace, opts)
+        opts[:Backtrace] && opts.delete(:Backtrace) # to avoid sending backtrace twice (faster to check presence here)
+
         # AppOpticsAPM::Event.startTrace creates an Event without an Edge
         exit_evt = AppOpticsAPM::Event.startTrace(AppOpticsAPM::Context.get)
         result = begin
