@@ -38,7 +38,7 @@ module AppOpticsAPM
       #
       # render
       #
-      # Our render wrapper that calls 'add_logging', which will log if we are tracing
+      # Our render wrapper that calls 'trace', which will log if we are tracing
       #
       def render(*args, &blk)
         trace('actionview') do
