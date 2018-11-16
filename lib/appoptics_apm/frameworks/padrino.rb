@@ -91,8 +91,6 @@ if defined?(::Padrino)
   # to how Padrino is a superset of Sinatra itself.
   ::AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting Padrino' if AppOpticsAPM::Config[:verbose]
 
-  require 'appoptics_apm/frameworks/padrino/templates'
-
   Padrino.after_load do
     ::AppOpticsAPM.logger = ::Padrino.logger if ::Padrino.respond_to?(:logger)
     ::AppOpticsAPM::Inst.load_instrumentation
