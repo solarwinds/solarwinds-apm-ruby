@@ -40,7 +40,6 @@ module AppOpticsAPM
         else
           kvs[:HTTPMethod] = ::AppOpticsAPM::Util.upcase(params[:method])
         end
-        kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:excon][:collect_backtraces]
         kvs
       rescue => e
         AppOpticsAPM.logger.debug "[appoptics_apm/debug] Error capturing excon KVs: #{e.message}"
@@ -55,6 +54,7 @@ module AppOpticsAPM
         responses = nil
         kvs = appoptics_collect(pipeline_params)
         AppOpticsAPM::API.trace(:excon, kvs) do
+          kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:excon][:collect_backtraces]
           responses = requests_without_appoptics(pipeline_params)
           kvs[:HTTPStatuses] = responses.map { |r| r.status }.join(',')
         end
@@ -111,6 +111,7 @@ module AppOpticsAPM
           AppOpticsAPM::API.log_exception(:excon, e)
           raise e
         ensure
+          kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:excon][:collect_backtraces]
           AppOpticsAPM::API.log_exit(:excon, kvs) unless params[:pipeline]
         end
       end

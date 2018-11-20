@@ -48,16 +48,15 @@ describe "Dalli" do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 5
+    traces.count.must_equal 4
 
     validate_outer_layers(traces, 'dalli_test')
 
     traces[1]['KVOp'].must_equal "get"
     traces[1]['KVKey'].must_equal "some_key"
     traces[1]['RemoteHost'].must_equal "127.0.0.1:11211"
-    traces[2]['Label'].must_equal "info"
     traces[2].has_key?('KVHit').must_equal true
-    traces[3]['Label'].must_equal "exit"
+    traces[2]['Label'].must_equal "exit"
   end
 
   it 'should trace get_multi' do
@@ -66,16 +65,15 @@ describe "Dalli" do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 5
+    traces.count.must_equal 4
 
     validate_outer_layers(traces, 'dalli_test')
 
     traces[1]['KVOp'].must_equal "get_multi"
-    traces[2]['Label'].must_equal "info"
     traces[2]['RemoteHost'].must_equal "127.0.0.1:11211"
     traces[2].has_key?('KVKeyCount').must_equal true
     traces[2].has_key?('KVHitCount').must_equal true
-    traces[3]['Label'].must_equal "exit"
+    traces[2]['Label'].must_equal "exit"
   end
 
   it "should trace increment" do

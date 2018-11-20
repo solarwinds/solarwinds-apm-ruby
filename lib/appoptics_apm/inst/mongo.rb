@@ -22,6 +22,7 @@ module AppOpticsAPM
   end
 end
 
+# TODO find out if we still need to support mongo < '2.0.0', we don't run tests for it. 1.12.5 was released Dec 2015
 if defined?(::Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && AppOpticsAPM::Config[:mongo][:enabled]
   AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting mongo' if AppOpticsAPM::Config[:verbose]
 
@@ -55,13 +56,13 @@ if defined?(::Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && Ap
               report_kvs[:New_Collection_Name] = args[0] if m == :create_collection
               report_kvs[:Collection] = args[0]          if m == :drop_collection
 
-              report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:mongo][:collect_backtraces]
             rescue => e
               AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
             end
 
             AppOpticsAPM::API.trace(:mongo, report_kvs) do
               send("#{m}_without_appoptics", *args)
+              report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:mongo][:collect_backtraces]
             end
           end
 
@@ -104,6 +105,7 @@ if defined?(::Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && Ap
 
             AppOpticsAPM::API.trace(:mongo, report_kvs) do
               send("#{m}_without_appoptics", *args)
+              report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:mongo][:collect_backtraces]
             end
           end
 
@@ -127,8 +129,6 @@ if defined?(::Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && Ap
           kvs[:RemoteHost] = @db.connection.host
           kvs[:RemotePort] = @db.connection.port
           kvs[:Collection] = @name
-
-          kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:mongo][:collect_backtraces]
 
           kvs[:QueryOp] = m
           kvs[:Query] = args[0].to_json if args && !args.empty? && args[0].class == Hash
@@ -168,6 +168,7 @@ if defined?(::Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && Ap
             end
 
             AppOpticsAPM::API.trace(:mongo, report_kvs) do
+              report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:mongo][:collect_backtraces]
               send("#{m}_without_appoptics", *args)
             end
           end
@@ -207,6 +208,7 @@ if defined?(::Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && Ap
             end
 
             AppOpticsAPM::API.trace(:mongo, report_kvs) do
+              report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:mongo][:collect_backtraces]
               send("#{m}_without_appoptics", *args, &blk)
             end
           end
@@ -229,6 +231,7 @@ if defined?(::Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && Ap
             end
 
             AppOpticsAPM::API.trace(:mongo, report_kvs) do
+              report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:mongo][:collect_backtraces]
               send("#{m}_without_appoptics", *args)
             end
           end

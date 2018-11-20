@@ -33,20 +33,20 @@ unless defined?(JRUBY_VERSION)
 
     def assert_correct_traces(url, method)
       traces = get_all_traces
-      assert_equal 7, traces.count, "Trace count"
+      assert_equal 6, traces.count, "Trace count"
       validate_outer_layers(traces, "curb_tests")
 
       assert_equal 'curb',                    traces[1]['Layer']
       assert_equal 'entry',                   traces[1]['Label']
-      assert_equal 'rsc',                         traces[1]['Spec']
+      assert_equal 'rsc',                     traces[1]['Spec']
       assert_equal 1,                         traces[1]['IsService']
       # curb started using URI#to_s and may have a trailing '?', https://github.com/taf2/curb/commit/32fa6d78968c3b63e2a54a2c326efb577db04043
       assert_equal url,                       traces[1]['RemoteURL'].chomp('?')
       assert_equal method,                    traces[1]['HTTPMethod']
-      assert                                  traces[1]['Backtrace']
 
-      assert_equal 'curb',                    traces[5]['Layer']
-      assert_equal 'exit',                    traces[5]['Label']
+      assert_equal 'curb',                    traces[4]['Layer']
+      assert_equal 'exit',                    traces[4]['Label']
+      assert                                  traces[4]['Backtrace']
     end
 
     def test_reports_version_init
@@ -172,7 +172,7 @@ unless defined?(JRUBY_VERSION)
       assert response.header_str =~ /X-Trace/, "X-Trace response header"
 
       traces = get_all_traces
-      assert_equal 7, traces.count, "Trace count"
+      assert_equal 6, traces.count, "Trace count"
       validate_outer_layers(traces, "curb_tests")
 
       assert_correct_traces('http://127.0.0.1:8101/', 'GET')
@@ -195,13 +195,13 @@ unless defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
-      assert_equal 13, traces.count, "Trace count"
+      assert_equal 10, traces.count, "Trace count"
       validate_outer_layers(traces, "curb_tests")
 
       assert_equal traces[1]['Layer'], 'curb_multi'
       assert_equal traces[1]['Label'], 'entry'
-      assert_equal traces[11]['Layer'], 'curb_multi'
-      assert_equal traces[11]['Label'], 'exit'
+      assert_equal traces[8]['Layer'], 'curb_multi'
+      assert_equal traces[8]['Label'], 'exit'
     end
 
     def test_multi_basic_post
@@ -220,13 +220,13 @@ unless defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
-      assert_equal 13, traces.count, "Trace count"
+      assert_equal 10, traces.count, "Trace count"
       validate_outer_layers(traces, "curb_tests")
 
       assert_equal traces[1]['Layer'], 'curb_multi'
       assert_equal traces[1]['Label'], 'entry'
-      assert_equal traces[11]['Layer'], 'curb_multi'
-      assert_equal traces[11]['Label'], 'exit'
+      assert_equal traces[8]['Layer'], 'curb_multi'
+      assert_equal traces[8]['Label'], 'exit'
     end
 
     def test_multi_basic_get_pipeline
@@ -245,13 +245,13 @@ unless defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
-      assert_equal 13, traces.count, "Trace count"
+      assert_equal 10, traces.count, "Trace count"
       validate_outer_layers(traces, "curb_tests")
 
       assert_equal traces[1]['Layer'], 'curb_multi'
       assert_equal traces[1]['Label'], 'entry'
-      assert_equal traces[11]['Layer'], 'curb_multi'
-      assert_equal traces[11]['Label'], 'exit'
+      assert_equal traces[8]['Layer'], 'curb_multi'
+      assert_equal traces[8]['Label'], 'exit'
     end
 
     def test_multi_advanced_get
@@ -278,13 +278,13 @@ unless defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
-      assert_equal 13, traces.count, "Trace count"
+      assert_equal 10, traces.count, "Trace count"
       validate_outer_layers(traces, "curb_tests")
 
       assert_equal traces[1]['Layer'], 'curb_multi'
       assert_equal traces[1]['Label'], 'entry'
-      assert_equal traces[11]['Layer'], 'curb_multi'
-      assert_equal traces[11]['Label'], 'exit'
+      assert_equal traces[8]['Layer'], 'curb_multi'
+      assert_equal traces[8]['Label'], 'exit'
     end
 
     def test_requests_with_errors
@@ -305,7 +305,6 @@ unless defined?(JRUBY_VERSION)
       # curb started using URI#to_s and may have a trailing '?', https://github.com/taf2/curb/commit/32fa6d78968c3b63e2a54a2c326efb577db04043
       assert_equal 'http://asfjalkfjlajfljkaljf/',   traces[1]['RemoteURL'].chomp('?')
       assert_equal 'GET',                            traces[1]['HTTPMethod']
-      assert                                         traces[1]['Backtrace']
 
       assert_equal 'curb',                           traces[2]['Layer']
       assert_equal 'error',                          traces[2]['Spec']
@@ -317,6 +316,7 @@ unless defined?(JRUBY_VERSION)
 
       assert_equal 'curb',                           traces[3]['Layer']
       assert_equal 'exit',                           traces[3]['Label']
+      assert                                         traces[3]['Backtrace']
     end
 
     def test_obey_log_args_when_false
@@ -331,7 +331,7 @@ unless defined?(JRUBY_VERSION)
       }
 
       traces = get_all_traces
-      assert_equal 7, traces.count, "Trace count"
+      assert_equal 6, traces.count, "Trace count"
       assert_equal "http://127.0.0.1:8101/",         traces[1]['RemoteURL']
     end
 
@@ -347,7 +347,7 @@ unless defined?(JRUBY_VERSION)
       }
 
       traces = get_all_traces
-      assert_equal 7, traces.count, "Trace count"
+      assert_equal 6, traces.count, "Trace count"
       assert_equal "http://127.0.0.1:8101/?blah=1", traces[1]['RemoteURL']
     end
 
@@ -380,7 +380,7 @@ unless defined?(JRUBY_VERSION)
       }
 
       traces = get_all_traces
-      layer_has_key(traces, 'curb', 'Backtrace')
+      assert traces.find { |tr| tr['Layer'] == 'curb' && tr['Label'] == 'exit' }['Backtrace']
     end
 
     def test_obey_collect_backtraces_when_false

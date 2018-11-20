@@ -23,7 +23,6 @@ module AppOpticsAPM
                  'GRPCMethodType' => method_type,
                  'IsService' => 'True'
         }
-        tags['Backtrace'] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:grpc_client][:collect_backtraces]
         tags
       end
 
@@ -127,7 +126,7 @@ module AppOpticsAPM
       def exit_tags(tags)
         # we need to translate the status.code, it is not the status.details we want, they are not matching 1:1
         tags['GRPCStatus'] ||= @call.status ? StatusCodes[@call.status.code].to_s : 'UNKNOWN'
-        tags.delete('Backtrace')
+        tags['Backtrace'] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:grpc_client][:collect_backtraces]
         tags
       end
     end
