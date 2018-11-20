@@ -160,7 +160,7 @@ class ExconTest < Minitest::Test
     assert_equal 'http://127.0.0.1:8101/', traces[1]['RemoteURL']
     assert_equal 'true',                   traces[1]['Pipeline']
     assert_equal 'GET,PUT',                traces[1]['HTTPMethods']
-    assert traces[1].key?('Backtrace')
+    assert traces[6].key?('Backtrace')
 
     assert_equal '200,200',                traces[6]['HTTPStatuses']
   end
