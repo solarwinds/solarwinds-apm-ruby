@@ -27,6 +27,7 @@ module AppOpticsAPM
         ::AppOpticsAPM::API.log_exception('sinatra', e)
         raise e
       ensure
+        report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:sinatra][:collect_backtraces]
         ::AppOpticsAPM::API.log_exit('sinatra', report_kvs)
       end
 
@@ -89,6 +90,7 @@ module AppOpticsAPM
             begin
               render_without_appoptics(engine, data, options, locals, &block)
             ensure
+              report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:sinatra][:collect_backtraces]
               ::AppOpticsAPM::API.log_exit(:render, report_kvs, :render)
             end
           end
@@ -100,7 +102,7 @@ module AppOpticsAPM
   end
 end
 
-if defined?(::Sinatra)
+if defined?(::Sinatra) && AppopticsAPM::Config[:sinatra][:enabled]
   require 'appoptics_apm/inst/rack'
 
   AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting Sinatra' if AppOpticsAPM::Config[:verbose]

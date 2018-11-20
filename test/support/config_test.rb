@@ -165,7 +165,7 @@ class ConfigTest
 
       # Verify the number of individual instrumentations
       instrumentation = AppOpticsAPM::Config.instrumentation
-      instrumentation.count.must_equal 30
+      instrumentation.count.must_equal 32
 
       AppOpticsAPM::Config[:action_controller][:enabled].must_equal true
       AppOpticsAPM::Config[:action_controller_api][:enabled].must_equal true
@@ -183,10 +183,11 @@ class ConfigTest
       AppOpticsAPM::Config[:faraday][:enabled].must_equal true
       AppOpticsAPM::Config[:grape][:enabled].must_equal true
       AppOpticsAPM::Config[:httpclient][:enabled].must_equal true
-      AppOpticsAPM::Config[:nethttp][:enabled].must_equal true
       AppOpticsAPM::Config[:memcached][:enabled].must_equal true
       AppOpticsAPM::Config[:mongo][:enabled].must_equal true
       AppOpticsAPM::Config[:moped][:enabled].must_equal true
+      AppOpticsAPM::Config[:nethttp][:enabled].must_equal true
+      AppOpticsAPM::Config[:padrino][:enabled].must_equal true
       AppOpticsAPM::Config[:rack][:enabled].must_equal true
       AppOpticsAPM::Config[:redis][:enabled].must_equal true
       AppOpticsAPM::Config[:resqueclient][:enabled].must_equal true
@@ -195,6 +196,7 @@ class ConfigTest
       AppOpticsAPM::Config[:sequel][:enabled].must_equal true
       AppOpticsAPM::Config[:sidekiqclient][:enabled].must_equal true
       AppOpticsAPM::Config[:sidekiqworker][:enabled].must_equal true
+      AppOpticsAPM::Config[:sinatra][:enabled].must_equal true
       AppOpticsAPM::Config[:typhoeus][:enabled].must_equal true
 
       AppOpticsAPM::Config[:bunnyconsumer][:log_args].must_equal true
@@ -233,6 +235,7 @@ class ConfigTest
       AppOpticsAPM::Config[:mongo][:collect_backtraces].must_equal true
       AppOpticsAPM::Config[:moped][:collect_backtraces].must_equal true
       AppOpticsAPM::Config[:nethttp][:collect_backtraces].must_equal true
+      AppOpticsAPM::Config[:padrino][:collect_backtraces].must_equal true
       AppOpticsAPM::Config[:rack][:collect_backtraces].must_equal true
       AppOpticsAPM::Config[:redis][:collect_backtraces].must_equal false
       AppOpticsAPM::Config[:resqueclient][:collect_backtraces].must_equal true
@@ -241,6 +244,7 @@ class ConfigTest
       AppOpticsAPM::Config[:sequel][:collect_backtraces].must_equal true
       AppOpticsAPM::Config[:sidekiqclient][:collect_backtraces].must_equal false
       AppOpticsAPM::Config[:sidekiqworker][:collect_backtraces].must_equal false
+      AppOpticsAPM::Config[:sinatra][:collect_backtraces].must_equal true
       AppOpticsAPM::Config[:typhoeus][:collect_backtraces].must_equal false
     end
 
