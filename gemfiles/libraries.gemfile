@@ -36,7 +36,7 @@ gem 'excon'
 gem 'faraday'
 gem 'httpclient'
 gem 'memcached'
-gem 'patron' # not instrumented, to test non-instrumented faraday adapter
+gem 'patron' # not instrumented, needed to test a non-instrumented faraday adapter
 gem 'redis'
 gem 'resque' unless defined?(JRUBY_VERSION)
 gem 'sequel'

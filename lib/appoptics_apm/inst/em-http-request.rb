@@ -18,15 +18,12 @@ module AppOpticsAPM
               report_kvs[:RemoteURL] = @uri
               report_kvs[:HTTPMethod] = args[0]
               report_kvs[:Blacklisted] = true if blacklisted
-
-              if AppOpticsAPM::Config[:em_http_request][:collect_backtraces]
-                report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace
-              end
+              report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:em_http_request][:collect_backtraces]
             rescue => e
               AppOpticsAPM.logger.debug "[appoptics_apm/debug] em-http-request KV error: #{e.inspect}"
             end
 
-            ::AppOpticsAPM::API.log_entry('em-http-request', report_kvs)
+            context = AppOpticsAPM::API.log_entry('em-http-request', report_kvs)
           end
           client = setup_request_without_appoptics(*args, &block)
           client.req.headers['X-Trace'] = context unless blacklisted
