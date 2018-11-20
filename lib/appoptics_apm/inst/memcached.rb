@@ -23,11 +23,9 @@ module AppOpticsAPM
               AppOpticsAPM::API.trace(:memcache, opts) do
                 result = send("#{m}_without_appoptics", *args)
 
-                info_kvs = {}
-                info_kvs[:KVHit] = memcache_hit?(result) if m == :get && args.length && args[0].class == String
-                info_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:memcached][:collect_backtraces]
+                opts[:KVHit] = memcache_hit?(result) if m == :get && args.length && args[0].class == String
+                opts[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:memcached][:collect_backtraces]
 
-                AppOpticsAPM::API.log(:memcache, :info, info_kvs) unless info_kvs.empty?
                 result
               end
             end
@@ -58,15 +56,13 @@ module AppOpticsAPM
           layer_kvs[:KVOp] = :get_multi
 
           AppOpticsAPM::API.trace(:memcache, layer_kvs || {}, :get_multi) do
-            info_kvs = {}
-            info_kvs[:KVKeyCount] = keys.flatten.length
+            layer_kvs[:KVKeyCount] = keys.flatten.length
 
             values = get_multi_without_appoptics(keys, raw)
 
-            info_kvs[:KVHitCount] = values.length
-            info_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:memcached][:collect_backtraces]
+            layer_kvs[:KVHitCount] = values.length
+            layer_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:memcached][:collect_backtraces]
 
-            AppOpticsAPM::API.log(:memcache, :info, info_kvs)
             values
           end
         else

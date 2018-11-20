@@ -37,7 +37,7 @@ class ExconTest < Minitest::Test
     end
 
     traces = get_all_traces
-    assert_equal traces.count, 7
+    assert_equal 6, traces.count
     validate_outer_layers(traces, "excon_tests")
     assert valid_edges?(traces), "Invalid edge in traces"
 
@@ -45,11 +45,11 @@ class ExconTest < Minitest::Test
     assert_equal 1,                        traces[1]['IsService']
     assert_equal 'http://127.0.0.1:8101/', traces[1]['RemoteURL']
     assert_equal 'GET',                    traces[1]['HTTPMethod']
-    assert traces[1].key?('Backtrace')
 
-    assert_equal 'excon',     traces[5]['Layer']
-    assert_equal 'exit',      traces[5]['Label']
-    assert_equal 200,         traces[5]['HTTPStatus']
+    assert_equal 'excon',     traces[4]['Layer']
+    assert_equal 'exit',      traces[4]['Label']
+    assert_equal 200,         traces[4]['HTTPStatus']
+    assert traces[4].key?('Backtrace')
   end
 
   def test_cross_app_tracing
@@ -64,7 +64,7 @@ class ExconTest < Minitest::Test
     end
 
     traces = get_all_traces
-    assert_equal 7, traces.count
+    assert_equal 6, traces.count
     validate_outer_layers(traces, "excon_tests")
     assert valid_edges?(traces), "Invalid edge in traces"
 
@@ -72,8 +72,8 @@ class ExconTest < Minitest::Test
     assert_equal 1,                               traces[1]['IsService']
     assert_equal 'http://127.0.0.1:8101/?blah=1', traces[1]['RemoteURL']
     assert_equal 'GET',        traces[1]['HTTPMethod']
-    assert_equal 200,          traces[5]['HTTPStatus']
-    assert traces[1].key?('Backtrace')
+    assert_equal 200,          traces[4]['HTTPStatus']
+    assert traces[4].key?('Backtrace')
   end
 
   def test_cross_uninstr_app_tracing
@@ -92,10 +92,10 @@ class ExconTest < Minitest::Test
     assert_equal 'rsc',                           traces[1]['Spec']
     assert_equal 1,                               traces[1]['IsService']
     assert_equal 'http://127.0.0.1:8110/?blah=1', traces[1]['RemoteURL']
-    assert_equal 'GET',        traces[1]['HTTPMethod']
-    assert traces[1].key?('Backtrace')
+    assert_equal 'GET',                           traces[1]['HTTPMethod']
 
     assert_equal 200,          traces[2]['HTTPStatus']
+    assert traces[2].key?('Backtrace')
   end
 
 
@@ -113,32 +113,33 @@ class ExconTest < Minitest::Test
     end
 
     traces = get_all_traces
-    assert_equal traces.count, 17
+    assert_equal 14, traces.count
     validate_outer_layers(traces, "excon_tests")
     assert valid_edges?(traces), "Invalid edge in traces"
 
     assert_equal 'rsc',                    traces[1]['Spec']
     assert_equal 1,                        traces[1]['IsService']
     assert_equal 'http://127.0.0.1:8101/', traces[1]['RemoteURL']
-    assert_equal 'GET',         traces[1]['HTTPMethod']
-    assert_equal 200,           traces[5]['HTTPStatus']
-    assert traces[1].key?('Backtrace')
+    assert_equal 'GET',                    traces[1]['HTTPMethod']
 
-    assert_equal 'rsc',                    traces[6]['Spec']
-    assert_equal 1,                        traces[6]['IsService']
-    assert_equal 'http://127.0.0.1:8101/', traces[6]['RemoteURL']
-    assert_equal 'GET',         traces[6]['HTTPMethod']
+    assert_equal 200,                      traces[4]['HTTPStatus']
+    assert traces[4].key?('Backtrace')
 
-    assert_equal 200,           traces[10]['HTTPStatus']
-    assert traces[6].key?('Backtrace')
+    assert_equal 'rsc',                    traces[5]['Spec']
+    assert_equal 1,                        traces[5]['IsService']
+    assert_equal 'http://127.0.0.1:8101/', traces[5]['RemoteURL']
+    assert_equal 'GET',                    traces[5]['HTTPMethod']
 
-    assert_equal 'rsc',                    traces[11]['Spec']
-    assert_equal 1,                        traces[11]['IsService']
-    assert_equal 'http://127.0.0.1:8101/', traces[11]['RemoteURL']
+    assert_equal 200,                      traces[8]['HTTPStatus']
 
-    assert_equal 'GET',         traces[11]['HTTPMethod']
-    assert_equal 200,           traces[15]['HTTPStatus']
-    assert traces[11].key?('Backtrace')
+    assert_equal 'rsc',                    traces[9]['Spec']
+    assert_equal 1,                        traces[9]['IsService']
+    assert_equal 'http://127.0.0.1:8101/', traces[9]['RemoteURL']
+
+    assert_equal 'GET',                    traces[9]['HTTPMethod']
+
+    assert_equal 200,                      traces[12]['HTTPStatus']
+    assert traces[12].key?('Backtrace')
   end
 
   def test_pipelined_requests
@@ -150,7 +151,7 @@ class ExconTest < Minitest::Test
     end
 
     traces = get_all_traces
-    assert_equal 10, traces.count
+    assert_equal 8, traces.count
     validate_outer_layers(traces, "excon_tests")
     assert valid_edges?(traces, false), "Invalid edge in traces"
 
@@ -161,7 +162,7 @@ class ExconTest < Minitest::Test
     assert_equal 'GET,PUT',                traces[1]['HTTPMethods']
     assert traces[1].key?('Backtrace')
 
-    assert_equal '200,200',                traces[8]['HTTPStatuses']
+    assert_equal '200,200',                traces[6]['HTTPStatuses']
   end
 
   def test_requests_with_errors
@@ -175,14 +176,13 @@ class ExconTest < Minitest::Test
     end
 
     traces = get_all_traces
-    assert_equal traces.count, 5
+    assert_equal 5, traces.count
     validate_outer_layers(traces, "excon_tests")
     assert valid_edges?(traces), "Invalid edge in traces"
 
     assert_equal 'rsc',                       traces[1]['Spec']
     assert_equal 1,                           traces[1]['IsService']
     assert_equal 'http://asfjalkljkaljf:80/', traces[1]['RemoteURL']
-    assert traces[1].key?('Backtrace')
 
     assert_equal 'excon',                     traces[2]['Layer']
     assert_equal 'error',                     traces[2]['Spec']
@@ -194,6 +194,7 @@ class ExconTest < Minitest::Test
 
     assert_equal 'excon',                     traces[3]['Layer']
     assert_equal 'exit',                      traces[3]['Label']
+    assert traces[3].key?('Backtrace')
   end
 
   def test_obey_log_args_when_false
@@ -210,7 +211,7 @@ class ExconTest < Minitest::Test
     validate_outer_layers(traces, "excon_tests")
     assert valid_edges?(traces), "Invalid edge in traces"
 
-    assert_equal 7, traces.count
+    assert_equal 6, traces.count
     assert_equal 'http://127.0.0.1:8101/', traces[1]['RemoteURL']
 
     AppOpticsAPM::Config[:excon][:log_args] = @log_args
@@ -230,7 +231,7 @@ class ExconTest < Minitest::Test
     validate_outer_layers(traces, "excon_tests")
     assert valid_edges?(traces), "Invalid edge in traces"
 
-    assert_equal 7, traces.count
+    assert_equal 6, traces.count
     assert_equal 'http://127.0.0.1:8101/?blah=1', traces[1]['RemoteURL']
 
     AppOpticsAPM::Config[:excon][:log_args] = @log_args
@@ -250,7 +251,7 @@ class ExconTest < Minitest::Test
     validate_outer_layers(traces, "excon_tests")
     assert valid_edges?(traces), "Invalid edge in traces"
 
-    assert_equal 7, traces.count
+    assert_equal 6, traces.count
     assert_equal 'http://127.0.0.1:8101/?blah=1', traces[1]['RemoteURL']
 
     AppOpticsAPM::Config[:excon][:log_args] = @log_args

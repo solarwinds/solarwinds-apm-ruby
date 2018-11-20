@@ -50,16 +50,18 @@ if AppOpticsAPM.loaded
         report_kvs = {}
 
         begin
-          report_kvs[:'HTTP-Host']        = req.host
+          report_kvs[:'HTTP-Host']      = req.host
           report_kvs[:Port]             = req.port
           report_kvs[:Proto]            = req.scheme
-          report_kvs[:Method]            = req.request_method
+          report_kvs[:Method]           = req.request_method
           report_kvs[:AJAX]             = true if req.xhr?
           report_kvs[:ClientIP]         = req.ip
 
           if AppOpticsAPM::Config[:rack][:log_args]
-            report_kvs[:'Query-String']     = ::CGI.unescape(req.query_string) unless req.query_string.empty?
+            report_kvs[:'Query-String'] = ::CGI.unescape(req.query_string) unless req.query_string.empty?
           end
+
+          report_kvs[:Backtrace]        = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:rack][:collect_backtraces]
 
           # Report any request queue'ing headers.  Report as 'Request-Start' or the summed Queue-Time
           report_kvs[:'Request-Start']     = env['HTTP_X_REQUEST_START']    if env.key?('HTTP_X_REQUEST_START')
@@ -111,7 +113,7 @@ if AppOpticsAPM.loaded
         req_url = req.url   # saving it here because rails3.2 overrides it when there is a 500 error
         status = 500        # initialize with 500
 
-        report_kvs = {}
+        report_kvs = collect(req, env)
         report_kvs[:URL] = AppOpticsAPM::Config[:rack][:log_args] ? ::CGI.unescape(req.fullpath) : ::CGI.unescape(req.path)
 
         # Check for and validate X-Trace request header to pick up tracing context
@@ -126,12 +128,6 @@ if AppOpticsAPM.loaded
         # AppOpticsAPM.is_continued_trace = AppOpticsAPM.has_incoming_context || AppOpticsAPM.has_xtrace_header
 
         AppOpticsAPM::API.log_start(:rack, xtrace, report_kvs) unless ::AppOpticsAPM::Util.static_asset?(env['PATH_INFO'])
-
-        # We log an info event with the HTTP KVs found in AppOpticsAPM::Rack.collect
-        # This is done here so in the case of stacks that try/catch/abort
-        # (looking at you Grape) we're sure the KVs get reported now as
-        # this code may not be returned to later.
-        AppOpticsAPM::API.log_info(:rack, collect(req, env))
 
         status, headers, response = @app.call(env)
         confirmed_transaction_name = send_metrics(env, req, req_url, start, status)
@@ -162,7 +158,8 @@ if AppOpticsAPM.loaded
         status = status.to_i
         error = status.between?(500,599) ? 1 : 0
         duration =(1000 * 1000 * (Time.now - start)).round(0)
-        AppOpticsAPM::Span.createHttpSpan(transaction_name(env), req_url, domain(req), duration, status, req.request_method, error) || ''
+        method = req.request_method
+        AppOpticsAPM::Span.createHttpSpan(transaction_name(env), req_url, domain(req), duration, status, method, error) || ''
       end
 
       def domain(req)

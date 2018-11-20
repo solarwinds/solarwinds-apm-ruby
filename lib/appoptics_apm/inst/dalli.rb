@@ -42,7 +42,6 @@ module AppOpticsAPM
             report_kvs[:KVHit] = memcache_hit?(result) if op == :get && key.class == String
             report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:dalli][:collect_backtraces]
 
-            AppOpticsAPM::API.log(:memcache, :info, report_kvs) unless report_kvs.empty?
             result
           end
         else
@@ -65,12 +64,12 @@ module AppOpticsAPM
           AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
         end
 
-        AppOpticsAPM::API.trace(:memcache, { :KVOp => :get_multi }, :get_multi) do
+        info_kvs[:KVOp] = :get_multi
+        info_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:dalli][:collect_backtraces]
+        AppOpticsAPM::API.trace(:memcache, info_kvs, :get_multi) do
           values = get_multi_without_appoptics(*keys)
 
           info_kvs[:KVHitCount] = values.length
-          info_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:dalli][:collect_backtraces]
-          AppOpticsAPM::API.log(:memcache, :info, info_kvs)
 
           values
         end

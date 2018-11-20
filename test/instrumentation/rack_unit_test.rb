@@ -87,7 +87,7 @@ describe "Rack: " do
       end
     end
 
-    it " should log exit even when there is an exception" do
+    it "should log exit even when there is an exception" do
       AppOpticsAPM::API.expects(:log_exit)
 
       assert_raises StandardError do

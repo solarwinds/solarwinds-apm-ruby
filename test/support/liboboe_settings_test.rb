@@ -38,7 +38,7 @@ unless defined?(JRUBY_VERSION)
       get "/lobster"
 
       traces = get_all_traces
-      traces.count.must_equal 3
+      traces.count.must_equal 2
 
       validate_outer_layers(traces, 'rack')
 

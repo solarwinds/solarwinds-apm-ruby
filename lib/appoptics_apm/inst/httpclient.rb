@@ -29,7 +29,6 @@ module AppOpticsAPM
         end
 
         kvs[:HTTPMethod] = ::AppOpticsAPM::Util.upcase(method)
-        kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:httpclient][:collect_backtraces]
         kvs
       rescue => e
         AppOpticsAPM.logger.debug "[appoptics_apm/debug] Error capturing httpclient KVs: #{e.message}"
@@ -80,6 +79,7 @@ module AppOpticsAPM
           AppOpticsAPM::API.log_exception(:httpclient, e)
           raise e
         ensure
+          kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:httpclient][:collect_backtraces]
           AppOpticsAPM::API.log_exit(:httpclient, kvs)
         end
       end
@@ -144,6 +144,7 @@ module AppOpticsAPM
           raise e
         ensure
           # AppOpticsAPM::API.log_exit('httpclient', kvs.merge('Async' => 1))
+          kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:httpclient][:collect_backtraces]
           AppOpticsAPM::API.log_exit(:httpclient, kvs)
         end
       end

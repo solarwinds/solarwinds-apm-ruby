@@ -82,6 +82,7 @@ module AppOpticsAPM
         kvs[:queued_requests] = queued_requests.count
         kvs[:max_concurrency] = max_concurrency
         kvs[:Async] = 1
+        kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:typhoeus][:collect_backtraces]
 
         # FIXME: Until we figure out a strategy to deal with libcurl internal
         # threading and Ethon's use of easy handles, here we just do a simple

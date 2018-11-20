@@ -22,19 +22,19 @@ if defined?(::Grape)
       r.headers.key?('X-Trace').must_equal true
 
       traces = get_all_traces
-      traces.count.must_equal 5
+      traces.count.must_equal 4
 
       validate_outer_layers(traces, 'rack')
 
+      traces[1]['Layer'].must_equal "grape"
       traces[2]['Layer'].must_equal "grape"
-      traces[3]['Layer'].must_equal "grape"
-      traces[2].has_key?('Controller').must_equal true
-      traces[2].has_key?('Action').must_equal true
-      traces[4]['Label'].must_equal "exit"
+      traces[1].has_key?('Controller').must_equal true
+      traces[1].has_key?('Action').must_equal true
+      traces[3]['Label'].must_equal "exit"
 
       # Validate the existence of the response header
       r.headers.key?('X-Trace').must_equal true
-      r.headers['X-Trace'].must_equal traces[4]['X-Trace']
+      r.headers['X-Trace'].must_equal traces[3]['X-Trace']
     end
 
     it "should trace a request to a nested grape stack" do
@@ -46,19 +46,19 @@ if defined?(::Grape)
       r.headers.key?('X-Trace').must_equal true
 
       traces = get_all_traces
-      traces.count.must_equal 5
+      traces.count.must_equal 4
 
       validate_outer_layers(traces, 'rack')
 
+      traces[1]['Layer'].must_equal "grape"
       traces[2]['Layer'].must_equal "grape"
-      traces[3]['Layer'].must_equal "grape"
-      traces[2].has_key?('Controller').must_equal true
-      traces[2].has_key?('Action').must_equal true
-      traces[4]['Label'].must_equal "exit"
+      traces[1].has_key?('Controller').must_equal true
+      traces[1].has_key?('Action').must_equal true
+      traces[3]['Label'].must_equal "exit"
 
       # Validate the existence of the response header
       r.headers.key?('X-Trace').must_equal true
-      r.headers['X-Trace'].must_equal traces[4]['X-Trace']
+      r.headers['X-Trace'].must_equal traces[3]['X-Trace']
     end
 
     it "should trace an error in a nested grape stack" do
@@ -70,31 +70,31 @@ if defined?(::Grape)
       r.headers.key?('X-Trace').must_equal true
 
       traces = get_all_traces
-      traces.count.must_equal 6
+      traces.count.must_equal 5
 
       validate_outer_layers(traces, 'rack')
 
+      traces[1]['Layer'].must_equal "grape"
+      traces[1]['Label'].must_equal "entry"
       traces[2]['Layer'].must_equal "grape"
-      traces[2]['Label'].must_equal "entry"
-      traces[3]['Layer'].must_equal "grape"
-      traces[3]['Label'].must_equal "exit"
-      traces[2].has_key?('Controller').must_equal true
-      traces[2].has_key?('Action').must_equal true
+      traces[2]['Label'].must_equal "exit"
+      traces[1].has_key?('Controller').must_equal true
+      traces[1].has_key?('Action').must_equal true
 
-      traces[4]['Layer'].must_equal "rack"
-      traces[4]['Spec'].must_equal "error"
-      traces[4]['Label'].must_equal "error"
-      traces[4]['ErrorClass'].must_equal "GrapeError"
-      traces[4]['ErrorMsg'].must_equal "This is a error with 'error'!"
-      traces[4].has_key?('Backtrace').must_equal true
+      traces[3]['Layer'].must_equal "rack"
+      traces[3]['Spec'].must_equal "error"
+      traces[3]['Label'].must_equal "error"
+      traces[3]['ErrorClass'].must_equal "GrapeError"
+      traces[3]['ErrorMsg'].must_equal "This is a error with 'error'!"
+      traces[3].has_key?('Backtrace').must_equal true
       traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 1
 
-      traces[5]['Layer'].must_equal "rack"
-      traces[5]['Label'].must_equal "exit"
+      traces[4]['Layer'].must_equal "rack"
+      traces[4]['Label'].must_equal "exit"
 
       # Validate the existence of the response header
       r.headers.key?('X-Trace').must_equal true
-      r.headers['X-Trace'].must_equal traces[5]['X-Trace']
+      r.headers['X-Trace'].must_equal traces[4]['X-Trace']
     end
 
 
@@ -109,22 +109,22 @@ if defined?(::Grape)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 6
+      traces.count.must_equal 5
 
       validate_outer_layers(traces, 'rack')
 
+      traces[1]['Layer'].must_equal "grape"
       traces[2]['Layer'].must_equal "grape"
-      traces[3]['Layer'].must_equal "grape"
-      traces[2].has_key?('Controller').must_equal true
-      traces[2].has_key?('Action').must_equal true
+      traces[1].has_key?('Controller').must_equal true
+      traces[1].has_key?('Action').must_equal true
 
-      traces[4]['Spec'].must_equal "error"
-      traces[4]['Label'].must_equal "error"
-      traces[4]['ErrorClass'].must_equal "Exception"
-      traces[4]['ErrorMsg'].must_equal "This should have http status code 500!"
+      traces[3]['Spec'].must_equal "error"
+      traces[3]['Label'].must_equal "error"
+      traces[3]['ErrorClass'].must_equal "Exception"
+      traces[3]['ErrorMsg'].must_equal "This should have http status code 500!"
       traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 1
 
-      traces[5]['Label'].must_equal "exit"
+      traces[4]['Label'].must_equal "exit"
     end
 
     it "should trace a request with an error" do
@@ -133,7 +133,7 @@ if defined?(::Grape)
       r = get "/error"
 
       traces = get_all_traces
-      traces.count.must_equal 6
+      traces.count.must_equal 5
 
       r.status.must_equal 500
       r.headers.key?('X-Trace').must_equal true
@@ -141,20 +141,20 @@ if defined?(::Grape)
       validate_outer_layers(traces, 'rack')
 
       traces[0]['Layer'].must_equal "rack"
+      traces[1]['Layer'].must_equal "grape"
       traces[2]['Layer'].must_equal "grape"
-      traces[3]['Layer'].must_equal "grape"
-      traces[2].has_key?('Controller').must_equal true
-      traces[2].has_key?('Action').must_equal true
+      traces[1].has_key?('Controller').must_equal true
+      traces[1].has_key?('Action').must_equal true
 
-      traces[4]['Spec'].must_equal "error"
-      traces[4]['Label'].must_equal "error"
-      traces[4]['ErrorClass'].must_equal "GrapeError"
-      traces[4]['ErrorMsg'].must_equal "This is an error with 'error'!"
-      traces[5]['Layer'].must_equal "rack"
+      traces[3]['Spec'].must_equal "error"
+      traces[3]['Label'].must_equal "error"
+      traces[3]['ErrorClass'].must_equal "GrapeError"
+      traces[3]['ErrorMsg'].must_equal "This is an error with 'error'!"
+      traces[4]['Layer'].must_equal "rack"
       traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 1
 
-      traces[5]['Label'].must_equal "exit"
-      traces[5]['Status'].must_equal 500
+      traces[4]['Label'].must_equal "exit"
+      traces[4]['Status'].must_equal 500
     end
 
     it "should report a simple GET path" do

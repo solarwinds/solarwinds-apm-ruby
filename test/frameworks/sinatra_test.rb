@@ -18,18 +18,18 @@ describe Sinatra do
 
     traces = get_all_traces
 
-    traces.count.must_equal 9
+    traces.count.must_equal 8
     valid_edges?(traces).must_equal true
     validate_outer_layers(traces, 'rack')
 
-    traces[2]['Layer'].must_equal "sinatra"
-    traces[4]['Label'].must_equal "profile_entry"
-    traces[7]['Controller'].must_equal "SinatraSimple"
-    traces[8]['Label'].must_equal "exit"
+    traces[1]['Layer'].must_equal "sinatra"
+    traces[3]['Label'].must_equal "profile_entry"
+    traces[6]['Controller'].must_equal "SinatraSimple"
+    traces[7]['Label'].must_equal "exit"
 
     # Validate the existence of the response header
     r.headers.key?('X-Trace').must_equal true
-    r.headers['X-Trace'].must_equal traces[8]['X-Trace']
+    r.headers['X-Trace'].must_equal traces[7]['X-Trace']
   end
 
   it "should log an error on exception" do
@@ -44,11 +44,11 @@ describe Sinatra do
 
     traces = get_all_traces
 
-    traces.count.must_equal 6
+    traces.count.must_equal 5
     valid_edges?(traces).must_equal true
     validate_outer_layers(traces, 'rack')
 
-    traces[2]['Layer'].must_equal "sinatra"
+    traces[1]['Layer'].must_equal "sinatra"
 
     error_trace = traces.find{ |trace| trace['Label'] == 'error' }
 
