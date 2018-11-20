@@ -5,7 +5,8 @@ version: "2"
 # docker-compose to set up containers to run tests
 #
 # used by
-# > bundle exec tests
+# > rake docker
+# > rake docker_tests
 #
 ########################################################################################################
 

@@ -3,9 +3,8 @@
 
 require 'minitest_helper'
 
-unless ENV['APPOPTICS_MONGO_SERVER']
-  ENV['APPOPTICS_MONGO_SERVER'] = "127.0.0.1:27017"
-end
+ENV['APPOPTICS_MONGO_SERVER'] ||= "127.0.0.1:27017"
+ENV['APPOPTICS_MONGO_SERVER'] += ':27017' unless ENV['APPOPTICS_MONGO_SERVER'] =~ /\:27017$/
 
 if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
   describe "MongoIndex" do

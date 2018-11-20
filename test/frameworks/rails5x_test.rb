@@ -38,7 +38,7 @@ if defined?(::Rails)
 
       traces = get_all_traces
 
-      traces.count.must_equal 7
+      traces.count.must_equal 6
       unless defined?(JRUBY_VERSION)
         # We don't test this under JRuby because the Java instrumentation
         # for the DB drivers doesn't use our test reporter hence we won't
@@ -51,29 +51,26 @@ if defined?(::Rails)
       traces[0]['Label'].must_equal "entry"
       traces[0]['URL'].must_equal "/hello/world"
 
-      traces[1]['Layer'].must_equal "rack"
-      traces[1]['Label'].must_equal "info"
+      traces[1]['Layer'].must_equal "rails"
+      traces[1]['Label'].must_equal "entry"
+      traces[1]['Controller'].must_equal "HelloController"
+      traces[1]['Action'].must_equal "world"
 
-      traces[2]['Layer'].must_equal "rails"
+      traces[2]['Layer'].must_equal "actionview"
       traces[2]['Label'].must_equal "entry"
-      traces[2]['Controller'].must_equal "HelloController"
-      traces[2]['Action'].must_equal "world"
 
       traces[3]['Layer'].must_equal "actionview"
-      traces[3]['Label'].must_equal "entry"
+      traces[3]['Label'].must_equal "exit"
 
-      traces[4]['Layer'].must_equal "actionview"
+      traces[4]['Layer'].must_equal "rails"
       traces[4]['Label'].must_equal "exit"
 
-      traces[5]['Layer'].must_equal "rails"
+      traces[5]['Layer'].must_equal "rack"
       traces[5]['Label'].must_equal "exit"
-
-      traces[6]['Layer'].must_equal "rack"
-      traces[6]['Label'].must_equal "exit"
 
       # Validate the existence of the response header
       r.header.key?('X-Trace').must_equal true
-      r.header['X-Trace'].must_equal traces[6]['X-Trace']
+      r.header['X-Trace'].must_equal traces[5]['X-Trace']
     end
 
     # Different behavior in Rails >= 5.2.0
@@ -88,45 +85,45 @@ if defined?(::Rails)
 
       traces = get_all_traces
 
-      traces.count.must_equal 13
+      traces.count.must_equal 12
       valid_edges?(traces).must_equal true
       validate_outer_layers(traces, 'rack')
 
+      traces[2]['Layer'].must_equal "activerecord"
+      traces[2]['Label'].must_equal "entry"
+      traces[2]['Flavor'].must_equal "postgresql"
+      traces[2]['Query'].must_equal "INSERT INTO \"widgets\" (\"name\", \"description\", \"created_at\", \"updated_at\") VALUES ($?, $?, $?, $?) RETURNING \"id\""
+      traces[2]['Name'].must_equal Rails.version < '5.2.0' ? "SQL" : "Widget Create"
+      traces[2].key?('Backtrace').must_equal false
+
       traces[3]['Layer'].must_equal "activerecord"
-      traces[3]['Label'].must_equal "entry"
-      traces[3]['Flavor'].must_equal "postgresql"
-      traces[3]['Query'].must_equal "INSERT INTO \"widgets\" (\"name\", \"description\", \"created_at\", \"updated_at\") VALUES ($?, $?, $?, $?) RETURNING \"id\""
-      traces[3]['Name'].must_equal Rails.version < '5.2.0' ? "SQL" : "Widget Create"
-      traces[3].key?('Backtrace').must_equal false
+      traces[3]['Label'].must_equal "exit"
 
       traces[4]['Layer'].must_equal "activerecord"
-      traces[4]['Label'].must_equal "exit"
+      traces[4]['Label'].must_equal "entry"
+      traces[4]['Flavor'].must_equal "postgresql"
+      traces[4]['Query'].must_equal "SELECT  \"widgets\".* FROM \"widgets\" WHERE \"widgets\".\"name\" = $? ORDER BY \"widgets\".\"id\" ASC LIMIT $?"
+      traces[4]['Name'].must_equal "Widget Load"
+      traces[4].key?('Backtrace').must_equal false
+      traces[4].key?('QueryArgs').must_equal false
 
       traces[5]['Layer'].must_equal "activerecord"
-      traces[5]['Label'].must_equal "entry"
-      traces[5]['Flavor'].must_equal "postgresql"
-      traces[5]['Query'].must_equal "SELECT  \"widgets\".* FROM \"widgets\" WHERE \"widgets\".\"name\" = $? ORDER BY \"widgets\".\"id\" ASC LIMIT $?"
-      traces[5]['Name'].must_equal "Widget Load"
-      traces[5].key?('Backtrace').must_equal false
-      traces[5].key?('QueryArgs').must_equal false
+      traces[5]['Label'].must_equal "exit"
 
       traces[6]['Layer'].must_equal "activerecord"
-      traces[6]['Label'].must_equal "exit"
+      traces[6]['Label'].must_equal "entry"
+      traces[6]['Flavor'].must_equal "postgresql"
+      traces[6]['Query'].must_equal "DELETE FROM \"widgets\" WHERE \"widgets\".\"id\" = $?"
+      traces[6]['Name'].must_equal Rails.version < '5.2.0' ? "SQL" : "Widget Destroy"
+      traces[6].key?('Backtrace').must_equal false
+      traces[6].key?('QueryArgs').must_equal false
 
       traces[7]['Layer'].must_equal "activerecord"
-      traces[7]['Label'].must_equal "entry"
-      traces[7]['Flavor'].must_equal "postgresql"
-      traces[7]['Query'].must_equal "DELETE FROM \"widgets\" WHERE \"widgets\".\"id\" = $?"
-      traces[7]['Name'].must_equal Rails.version < '5.2.0' ? "SQL" : "Widget Destroy"
-      traces[7].key?('Backtrace').must_equal false
-      traces[7].key?('QueryArgs').must_equal false
-
-      traces[8]['Layer'].must_equal "activerecord"
-      traces[8]['Label'].must_equal "exit"
+      traces[7]['Label'].must_equal "exit"
 
       # Validate the existence of the response header
       r.header.key?('X-Trace').must_equal true
-      r.header['X-Trace'].must_equal traces[12]['X-Trace']
+      r.header['X-Trace'].must_equal traces[11]['X-Trace']
     end
 
     # Different behavior in Rails >= 5.2.0
@@ -144,7 +141,7 @@ if defined?(::Rails)
       r = Net::HTTP.get_response(uri)
 
       traces = get_all_traces
-      traces.count.must_equal 13
+      traces.count.must_equal 12
       valid_edges?(traces).must_equal true
       validate_outer_layers(traces, 'rack')
 
@@ -169,17 +166,9 @@ if defined?(::Rails)
       entry_traces[3].key?('Backtrace').must_equal false
       entry_traces[3].key?('QueryArgs').must_equal Rails.version < '5.2.0' ? true : false
 
-      entry_traces[4]['Layer'].must_equal "activerecord"
-      entry_traces[4]['Flavor'].must_equal "mysql"
-      entry_traces[4]['Query'].gsub!(/\d+/, 'ID')
-      entry_traces[4]['Query'].must_equal "DELETE FROM `widgets` WHERE `widgets`.`id` = ID"
-      entry_traces[4]['Name'].must_equal Rails.version < '5.2.0' ? "SQL" : "Widget Destroy"
-      entry_traces[4].key?('Backtrace').must_equal false
-      entry_traces[4].key?('QueryArgs').must_equal Rails.version < '5.2.0' ? true : false
-
       # Validate the existence of the response header
       r.header.key?('X-Trace').must_equal true
-      r.header['X-Trace'].must_equal traces[12]['X-Trace']
+      r.header['X-Trace'].must_equal traces[11]['X-Trace']
     end
 
     # Different behavior in Rails >= 5.2.0
@@ -195,7 +184,7 @@ if defined?(::Rails)
       r = Net::HTTP.get_response(uri)
 
       traces = get_all_traces
-      traces.count.must_equal 13
+      traces.count.must_equal 12
       valid_edges?(traces).must_equal true
       validate_outer_layers(traces, 'rack')
 
@@ -228,7 +217,7 @@ if defined?(::Rails)
 
       # Validate the existence of the response header
       r.header.key?('X-Trace').must_equal true
-      r.header['X-Trace'].must_equal traces[12]['X-Trace']
+      r.header['X-Trace'].must_equal traces[11]['X-Trace']
     end
 
 
@@ -240,7 +229,7 @@ if defined?(::Rails)
 
       traces = get_all_traces
 
-      traces.count.must_equal 5
+      traces.count.must_equal 4
       unless defined?(JRUBY_VERSION)
         # We don't test this under JRuby because the Java instrumentation
         # for the DB drivers doesn't use our test reporter hence we won't
@@ -253,27 +242,24 @@ if defined?(::Rails)
       traces[0]['Label'].must_equal "entry"
       traces[0]['URL'].must_equal "/hello/metal"
 
-      traces[1]['Layer'].must_equal "rack"
-      traces[1]['Label'].must_equal "info"
+      traces[1]['Label'].must_equal "profile_entry"
+      traces[1]['Language'].must_equal "ruby"
+      traces[1]['ProfileName'].must_equal "world"
+      traces[1]['MethodName'].must_equal "world"
+      traces[1]['Class'].must_equal "FerroController"
+      traces[1]['Controller'].must_equal "FerroController"
+      traces[1]['Action'].must_equal "world"
 
-      traces[2]['Label'].must_equal "profile_entry"
+      traces[2]['Label'].must_equal "profile_exit"
       traces[2]['Language'].must_equal "ruby"
       traces[2]['ProfileName'].must_equal "world"
-      traces[2]['MethodName'].must_equal "world"
-      traces[2]['Class'].must_equal "FerroController"
-      traces[2]['Controller'].must_equal "FerroController"
-      traces[2]['Action'].must_equal "world"
 
-      traces[3]['Label'].must_equal "profile_exit"
-      traces[3]['Language'].must_equal "ruby"
-      traces[3]['ProfileName'].must_equal "world"
-
-      traces[4]['Layer'].must_equal "rack"
-      traces[4]['Label'].must_equal "exit"
+      traces[3]['Layer'].must_equal "rack"
+      traces[3]['Label'].must_equal "exit"
 
       # Validate the existence of the response header
       r.header.key?('X-Trace').must_equal true
-      r.header['X-Trace'].must_equal traces[4]['X-Trace']
+      r.header['X-Trace'].must_equal traces[3]['X-Trace']
     end
 
     it "should collect backtraces when true" do
@@ -284,7 +270,7 @@ if defined?(::Rails)
 
       traces = get_all_traces
 
-      traces.count.must_equal 7
+      traces.count.must_equal 6
       unless defined?(JRUBY_VERSION)
         # We don't test this under JRuby because the Java instrumentation
         # for the DB drivers doesn't use our test reporter hence we won't
@@ -297,30 +283,27 @@ if defined?(::Rails)
       traces[0]['Label'].must_equal "entry"
       traces[0]['URL'].must_equal "/hello/world"
 
-      traces[1]['Layer'].must_equal "rack"
-      traces[1]['Label'].must_equal "info"
+      traces[1]['Layer'].must_equal "rails"
+      traces[1]['Label'].must_equal "entry"
+      traces[1]['Controller'].must_equal "HelloController"
+      traces[1]['Action'].must_equal "world"
+      traces[1].key?('Backtrace').must_equal true
 
-      traces[2]['Layer'].must_equal "rails"
+      traces[2]['Layer'].must_equal "actionview"
       traces[2]['Label'].must_equal "entry"
-      traces[2]['Controller'].must_equal "HelloController"
-      traces[2]['Action'].must_equal "world"
-      traces[2].key?('Backtrace').must_equal true
 
       traces[3]['Layer'].must_equal "actionview"
-      traces[3]['Label'].must_equal "entry"
+      traces[3]['Label'].must_equal "exit"
 
-      traces[4]['Layer'].must_equal "actionview"
+      traces[4]['Layer'].must_equal "rails"
       traces[4]['Label'].must_equal "exit"
 
-      traces[5]['Layer'].must_equal "rails"
+      traces[5]['Layer'].must_equal "rack"
       traces[5]['Label'].must_equal "exit"
-
-      traces[6]['Layer'].must_equal "rack"
-      traces[6]['Label'].must_equal "exit"
 
       # Validate the existence of the response header
       r.header.key?('X-Trace').must_equal true
-      r.header['X-Trace'].must_equal traces[6]['X-Trace']
+      r.header['X-Trace'].must_equal traces[5]['X-Trace']
     end
 
     it "should NOT collect backtraces when false" do
@@ -331,7 +314,7 @@ if defined?(::Rails)
 
       traces = get_all_traces
 
-      traces.count.must_equal 7
+      traces.count.must_equal 6
       unless defined?(JRUBY_VERSION)
         # We don't test this under JRuby because the Java instrumentation
         # for the DB drivers doesn't use our test reporter hence we won't
@@ -344,30 +327,27 @@ if defined?(::Rails)
       traces[0]['Label'].must_equal "entry"
       traces[0]['URL'].must_equal "/hello/world"
 
-      traces[1]['Layer'].must_equal "rack"
-      traces[1]['Label'].must_equal "info"
+      traces[1]['Layer'].must_equal "rails"
+      traces[1]['Label'].must_equal "entry"
+      traces[1]['Controller'].must_equal "HelloController"
+      traces[1]['Action'].must_equal "world"
+      traces[1].key?('Backtrace').must_equal false
 
-      traces[2]['Layer'].must_equal "rails"
+      traces[2]['Layer'].must_equal "actionview"
       traces[2]['Label'].must_equal "entry"
-      traces[2]['Controller'].must_equal "HelloController"
-      traces[2]['Action'].must_equal "world"
-      traces[2].key?('Backtrace').must_equal false
 
       traces[3]['Layer'].must_equal "actionview"
-      traces[3]['Label'].must_equal "entry"
+      traces[3]['Label'].must_equal "exit"
 
-      traces[4]['Layer'].must_equal "actionview"
+      traces[4]['Layer'].must_equal "rails"
       traces[4]['Label'].must_equal "exit"
 
-      traces[5]['Layer'].must_equal "rails"
+      traces[5]['Layer'].must_equal "rack"
       traces[5]['Label'].must_equal "exit"
-
-      traces[6]['Layer'].must_equal "rack"
-      traces[6]['Label'].must_equal "exit"
 
       # Validate the existence of the response header
       r.header.key?('X-Trace').must_equal true
-      r.header['X-Trace'].must_equal traces[6]['X-Trace']
+      r.header['X-Trace'].must_equal traces[5]['X-Trace']
     end
 
     it 'should log one exception and create unbroken traces when there is an exception' do

@@ -32,7 +32,7 @@ describe "Typhoeus" do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 7
+    traces.count.must_equal 6
 
     valid_edges?(traces).must_equal true
     validate_outer_layers(traces, 'typhoeus_test')
@@ -40,13 +40,13 @@ describe "Typhoeus" do
     traces[1]['Layer'].must_equal 'typhoeus'
     traces[1].key?('Backtrace').must_equal AppOpticsAPM::Config[:typhoeus][:collect_backtraces]
 
-    traces[5]['Layer'].must_equal 'typhoeus'
-    traces[5]['Label'].must_equal 'exit'
-    traces[5]['Spec'].must_equal 'rsc'
-    traces[5]['IsService'].must_equal 1
-    traces[5]['RemoteURL'].must_equal 'http://127.0.0.1:8101/'
-    traces[5]['HTTPMethod'].must_equal 'GET'
-    traces[5]['HTTPStatus'].must_equal 200
+    traces[4]['Layer'].must_equal 'typhoeus'
+    traces[4]['Label'].must_equal 'exit'
+    traces[4]['Spec'].must_equal 'rsc'
+    traces[4]['IsService'].must_equal 1
+    traces[4]['RemoteURL'].must_equal 'http://127.0.0.1:8101/'
+    traces[4]['HTTPMethod'].must_equal 'GET'
+    traces[4]['HTTPStatus'].must_equal 200
   end
 
   it 'should trace a typhoeus request to an uninstrumented app' do
@@ -79,7 +79,7 @@ describe "Typhoeus" do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 7
+    traces.count.must_equal 6
 
     valid_edges?(traces).must_equal true
     validate_outer_layers(traces, 'typhoeus_test')
@@ -87,13 +87,13 @@ describe "Typhoeus" do
     traces[1]['Layer'].must_equal 'typhoeus'
     traces[1].key?('Backtrace').must_equal AppOpticsAPM::Config[:typhoeus][:collect_backtraces]
 
-    traces[5]['Layer'].must_equal 'typhoeus'
-    traces[5]['Label'].must_equal 'exit'
-    traces[5]['Spec'].must_equal 'rsc'
-    traces[5]['IsService'].must_equal 1
-    traces[5]['RemoteURL'].casecmp('http://127.0.0.1:8101/').must_equal 0
-    traces[5]['HTTPMethod'].must_equal 'POST'
-    traces[5]['HTTPStatus'].must_equal 200
+    traces[4]['Layer'].must_equal 'typhoeus'
+    traces[4]['Label'].must_equal 'exit'
+    traces[4]['Spec'].must_equal 'rsc'
+    traces[4]['IsService'].must_equal 1
+    traces[4]['RemoteURL'].casecmp('http://127.0.0.1:8101/').must_equal 0
+    traces[4]['HTTPMethod'].must_equal 'POST'
+    traces[4]['HTTPStatus'].must_equal 200
   end
 
   it 'should trace a typhoeus PUT request' do
@@ -103,7 +103,7 @@ describe "Typhoeus" do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 7
+    traces.count.must_equal 6
 
     valid_edges?(traces).must_equal true
     validate_outer_layers(traces, 'typhoeus_test')
@@ -111,13 +111,13 @@ describe "Typhoeus" do
     traces[1]['Layer'].must_equal 'typhoeus'
     traces[1].key?('Backtrace').must_equal AppOpticsAPM::Config[:typhoeus][:collect_backtraces]
 
-    traces[5]['Layer'].must_equal 'typhoeus'
-    traces[5]['Label'].must_equal 'exit'
-    traces[5]['Spec'].must_equal 'rsc'
-    traces[5]['IsService'].must_equal 1
-    traces[5]['RemoteURL'].must_equal 'http://127.0.0.1:8101/'
-    traces[5]['HTTPMethod'].must_equal 'PUT'
-    traces[5]['HTTPStatus'].must_equal 200
+    traces[4]['Layer'].must_equal 'typhoeus'
+    traces[4]['Label'].must_equal 'exit'
+    traces[4]['Spec'].must_equal 'rsc'
+    traces[4]['IsService'].must_equal 1
+    traces[4]['RemoteURL'].must_equal 'http://127.0.0.1:8101/'
+    traces[4]['HTTPMethod'].must_equal 'PUT'
+    traces[4]['HTTPStatus'].must_equal 200
   end
 
   it 'should trace a typhoeus DELETE request' do
@@ -126,7 +126,7 @@ describe "Typhoeus" do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 7
+    traces.count.must_equal 6
 
     valid_edges?(traces).must_equal true
     validate_outer_layers(traces, 'typhoeus_test')
@@ -134,13 +134,13 @@ describe "Typhoeus" do
     traces[1]['Layer'].must_equal 'typhoeus'
     traces[1].key?('Backtrace').must_equal AppOpticsAPM::Config[:typhoeus][:collect_backtraces]
 
-    traces[5]['Layer'].must_equal 'typhoeus'
-    traces[5]['Label'].must_equal 'exit'
-    traces[5]['Spec'].must_equal 'rsc'
-    traces[5]['IsService'].must_equal 1
-    traces[5]['RemoteURL'].must_equal 'http://127.0.0.1:8101/'
-    traces[5]['HTTPMethod'].must_equal 'DELETE'
-    traces[5]['HTTPStatus'].must_equal 200
+    traces[4]['Layer'].must_equal 'typhoeus'
+    traces[4]['Label'].must_equal 'exit'
+    traces[4]['Spec'].must_equal 'rsc'
+    traces[4]['IsService'].must_equal 1
+    traces[4]['RemoteURL'].must_equal 'http://127.0.0.1:8101/'
+    traces[4]['HTTPMethod'].must_equal 'DELETE'
+    traces[4]['HTTPStatus'].must_equal 200
   end
 
   it 'should trace a typhoeus HEAD request' do
@@ -149,7 +149,7 @@ describe "Typhoeus" do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 7
+    traces.count.must_equal 6
 
     valid_edges?(traces).must_equal true
     validate_outer_layers(traces, 'typhoeus_test')
@@ -157,13 +157,13 @@ describe "Typhoeus" do
     traces[1]['Layer'].must_equal 'typhoeus'
     traces[1].key?('Backtrace').must_equal AppOpticsAPM::Config[:typhoeus][:collect_backtraces]
 
-    traces[5]['Layer'].must_equal 'typhoeus'
-    traces[5]['Label'].must_equal 'exit'
-    traces[5]['Spec'].must_equal 'rsc'
-    traces[5]['IsService'].must_equal 1
-    traces[5]['RemoteURL'].must_equal 'http://127.0.0.1:8101/'
-    traces[5]['HTTPMethod'].must_equal 'HEAD'
-    traces[5]['HTTPStatus'].must_equal 200
+    traces[4]['Layer'].must_equal 'typhoeus'
+    traces[4]['Label'].must_equal 'exit'
+    traces[4]['Spec'].must_equal 'rsc'
+    traces[4]['IsService'].must_equal 1
+    traces[4]['RemoteURL'].must_equal 'http://127.0.0.1:8101/'
+    traces[4]['HTTPMethod'].must_equal 'HEAD'
+    traces[4]['HTTPStatus'].must_equal 200
   end
 
   it 'should trace a typhoeus GET request to an instr\'d app' do
@@ -172,7 +172,7 @@ describe "Typhoeus" do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 7
+    traces.count.must_equal 6
 
     valid_edges?(traces).must_equal true
     validate_outer_layers(traces, 'typhoeus_test')
@@ -180,13 +180,13 @@ describe "Typhoeus" do
     traces[1]['Layer'].must_equal 'typhoeus'
     traces[1].key?('Backtrace').must_equal AppOpticsAPM::Config[:typhoeus][:collect_backtraces]
 
-    traces[5]['Layer'].must_equal 'typhoeus'
-    traces[5]['Label'].must_equal 'exit'
-    traces[5]['Spec'].must_equal 'rsc'
-    traces[5]['IsService'].must_equal 1
-    traces[5]['RemoteURL'].casecmp('http://127.0.0.1:8101/').must_equal 0
-    traces[5]['HTTPMethod'].must_equal 'GET'
-    traces[5]['HTTPStatus'].must_equal 200
+    traces[4]['Layer'].must_equal 'typhoeus'
+    traces[4]['Label'].must_equal 'exit'
+    traces[4]['Spec'].must_equal 'rsc'
+    traces[4]['IsService'].must_equal 1
+    traces[4]['RemoteURL'].casecmp('http://127.0.0.1:8101/').must_equal 0
+    traces[4]['HTTPMethod'].must_equal 'GET'
+    traces[4]['HTTPStatus'].must_equal 200
   end
 
   it 'should trace a typhoeus GET request with DNS error' do
@@ -235,7 +235,7 @@ describe "Typhoeus" do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 13
+    traces.count.must_equal 10
 
     valid_edges?(traces, false).must_equal true
     validate_outer_layers(traces, 'typhoeus_test')
@@ -244,8 +244,8 @@ describe "Typhoeus" do
     traces[1]['Label'].must_equal 'entry'
     traces[1]['Async'].must_equal 1
 
-    traces[11]['Layer'].must_equal 'typhoeus_hydra'
-    traces[11]['Label'].must_equal 'exit'
+    traces[8]['Layer'].must_equal 'typhoeus_hydra'
+    traces[8]['Label'].must_equal 'exit'
   end
 
   it 'should obey :log_args setting when true' do
@@ -256,8 +256,8 @@ describe "Typhoeus" do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 7
-    traces[5]['RemoteURL'].casecmp('http://127.0.0.1:8101/?blah=1').must_equal 0
+    traces.count.must_equal 6
+    traces[4]['RemoteURL'].casecmp('http://127.0.0.1:8101/?blah=1').must_equal 0
   end
 
   it 'should obey :log_args setting when false' do
@@ -268,8 +268,8 @@ describe "Typhoeus" do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 7
-    traces[5]['RemoteURL'].casecmp('http://127.0.0.1:8101/').must_equal 0
+    traces.count.must_equal 6
+    traces[4]['RemoteURL'].casecmp('http://127.0.0.1:8101/').must_equal 0
   end
 
   it 'should obey :collect_backtraces setting when true' do
@@ -280,7 +280,7 @@ describe "Typhoeus" do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 7
+    traces.count.must_equal 6
     layer_has_key(traces, 'typhoeus', 'Backtrace')
   end
 
@@ -292,7 +292,7 @@ describe "Typhoeus" do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 7
+    traces.count.must_equal 6
     layer_doesnt_have_key(traces, 'typhoeus', 'Backtrace')
   end
 end

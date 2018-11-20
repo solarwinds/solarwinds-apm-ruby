@@ -173,8 +173,8 @@ end
 #
 def validate_event_keys(event, kvs)
   kvs.each do |k, v|
-    assert_equal true, event.key?(k), "#{k} is missing"
-    assert event[k] == v, "#{k} != #{v} (#{event[k]})"
+    assert event.key?(k), "#{k} is missing"
+    assert_equal event[k], v, "#{k} != #{v} (#{event[k]})"
   end
 end
 
