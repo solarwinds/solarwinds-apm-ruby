@@ -15,9 +15,9 @@ module AppOpticsAPM
                          :active_record, :bunnyclient, :bunnyconsumer, :cassandra, :curb,
                          :dalli, :delayed_jobclient, :delayed_jobworker,
                          :em_http_request, :excon, :faraday, :grpc_client, :grape,
-                         :httpclient, :nethttp, :memcached, :mongo, :moped, :rack, :redis,
+                         :httpclient, :memcached, :mongo, :moped, :nethttp, :padrino, :rack, :redis,
                          :resqueclient, :resqueworker, :rest_client,
-                         :sequel, :sidekiqclient, :sidekiqworker, :typhoeus]
+                         :sequel, :sidekiqclient, :sidekiqworker, :sinatra, :typhoeus]
 
     # Subgrouping of instrumentation
     @@http_clients = [:curb, :excon, :em_http_request, :faraday, :httpclient, :nethttp, :rest_client, :typhoeus]

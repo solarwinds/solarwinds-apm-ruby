@@ -11,11 +11,11 @@ module AppOpticsAPM
       def dispatch_with_appoptics
 
         ::AppOpticsAPM::API.log_entry('padrino', {})
+        report_kvs = {}
 
         result = dispatch_without_appoptics
 
         # Report Controller/Action and Transaction as best possible
-        report_kvs = {}
         controller = (request.controller && !request.controller.empty?) ? request.controller : nil
         report_kvs[:Controller] = controller || self.class
         report_kvs[:Action] = request.route_obj ? request.route_obj.path : request.action
@@ -27,6 +27,7 @@ module AppOpticsAPM
         ::AppOpticsAPM::API.log_exception('padrino', e)
         raise e
       ensure
+        report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:padrino][:collect_backtraces]
         ::AppOpticsAPM::API.log_exit('padrino', report_kvs)
       end
     end
@@ -75,6 +76,7 @@ module AppOpticsAPM
             begin
               render_without_appoptics(engine, data, options, locals, &block)
             ensure
+              report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:padrino][:collect_backtraces]
               ::AppOpticsAPM::API.log_exit(:render, report_kvs)
             end
           end
@@ -86,7 +88,7 @@ module AppOpticsAPM
   end
 end
 
-if defined?(::Padrino)
+if defined?(::Padrino) && AppopticsAPM::Config[:padrino][:enabled]
   # This instrumentation is a superset of the Sinatra instrumentation similar
   # to how Padrino is a superset of Sinatra itself.
   ::AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting Padrino' if AppOpticsAPM::Config[:verbose]
