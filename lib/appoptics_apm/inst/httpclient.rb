@@ -5,9 +5,9 @@ module AppOpticsAPM
   module Inst
     module HTTPClient
       def self.included(klass)
-        ::AppOpticsAPM::Util.method_alias(klass, :do_request, ::HTTPClient)
-        ::AppOpticsAPM::Util.method_alias(klass, :do_request_async, ::HTTPClient)
-        ::AppOpticsAPM::Util.method_alias(klass, :do_get_stream, ::HTTPClient)
+        AppOpticsAPM::Util.method_alias(klass, :do_request, ::HTTPClient)
+        AppOpticsAPM::Util.method_alias(klass, :do_request_async, ::HTTPClient)
+        AppOpticsAPM::Util.method_alias(klass, :do_get_stream, ::HTTPClient)
       end
 
       def appoptics_collect(method, uri, query = nil)
@@ -28,11 +28,11 @@ module AppOpticsAPM
           kvs[:RemoteURL] = uri.to_s.split('?').first
         end
 
-        kvs[:HTTPMethod] = ::AppOpticsAPM::Util.upcase(method)
+        kvs[:HTTPMethod] = AppOpticsAPM::Util.upcase(method)
         kvs
       rescue => e
         AppOpticsAPM.logger.debug "[appoptics_apm/debug] Error capturing httpclient KVs: #{e.message}"
-        AppOpticsAPM.logger.debug e.backtrace.join('\n') if ::AppOpticsAPM::Config[:verbose]
+        AppOpticsAPM.logger.debug e.backtrace.join('\n') if AppOpticsAPM::Config[:verbose]
       ensure
         return kvs
       end
@@ -169,7 +169,7 @@ module AppOpticsAPM
   end
 end
 
-if AppOpticsAPM::Config[:httpclient][:enabled] && defined?(::HTTPClient)
-  ::AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting httpclient' if AppOpticsAPM::Config[:verbose]
-  ::AppOpticsAPM::Util.send_include(::HTTPClient, ::AppOpticsAPM::Inst::HTTPClient)
+if AppOpticsAPM::Config[:httpclient][:enabled] && defined?(HTTPClient)
+  AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting httpclient' if AppOpticsAPM::Config[:verbose]
+  AppOpticsAPM::Util.send_include(HTTPClient, AppOpticsAPM::Inst::HTTPClient)
 end

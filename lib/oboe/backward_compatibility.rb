@@ -11,7 +11,7 @@ module Oboe
   #
   module API
     include AppOpticsAPM::API
-    extend ::AppOpticsAPM::ThreadLocal
+    extend AppOpticsAPM::ThreadLocal
     thread_local :deprecation_notified
 
     def self.method_missing(sym, *args, &blk)
@@ -31,7 +31,7 @@ module Oboe
   # Support for Oboe::Config calls
   #
   module Config
-    extend ::AppOpticsAPM::ThreadLocal
+    extend AppOpticsAPM::ThreadLocal
     thread_local :deprecation_notified
 
     def self.method_missing(sym, *args)
@@ -50,7 +50,7 @@ module Oboe
   # Support for legacy Oboe::Ruby.load calls
   #
   module Ruby
-    extend ::AppOpticsAPM::ThreadLocal
+    extend AppOpticsAPM::ThreadLocal
     thread_local :deprecation_notified
 
     def self.method_missing(sym, *args)

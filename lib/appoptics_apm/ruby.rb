@@ -31,5 +31,5 @@ module AppOpticsAPM
 end
 
 if AppOpticsAPM.loaded && !AppOpticsAPM.framework?
-  ::AppOpticsAPM::Ruby.load
+  AppOpticsAPM::Ruby.load
 end

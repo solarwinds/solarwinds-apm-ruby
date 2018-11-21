@@ -5,12 +5,12 @@ module AppOpticsAPM
   module PadrinoInst
     module Routing
       def self.included(klass)
-        ::AppOpticsAPM::Util.method_alias(klass, :dispatch!, ::Padrino::Routing)
+        AppOpticsAPM::Util.method_alias(klass, :dispatch!, ::Padrino::Routing)
       end
 
       def dispatch_with_appoptics
 
-        ::AppOpticsAPM::API.log_entry('padrino', {})
+        AppOpticsAPM::API.log_entry('padrino', {})
         report_kvs = {}
 
         result = dispatch_without_appoptics
@@ -24,17 +24,17 @@ module AppOpticsAPM
 
         result
       rescue => e
-        ::AppOpticsAPM::API.log_exception('padrino', e)
+        AppOpticsAPM::API.log_exception('padrino', e)
         raise e
       ensure
         report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:padrino][:collect_backtraces]
-        ::AppOpticsAPM::API.log_exit('padrino', report_kvs)
+        AppOpticsAPM::API.log_exit('padrino', report_kvs)
       end
     end
 
     module Rendering
       def self.included(klass)
-        ::AppOpticsAPM::Util.method_alias(klass, :render, ::Padrino::Rendering)
+        AppOpticsAPM::Util.method_alias(klass, :render, ::Padrino::Rendering)
       end
 
       # TODO add test coverage, currently there are no tests for this
@@ -59,8 +59,8 @@ module AppOpticsAPM
               report_kvs[:File]         = __FILE__
               report_kvs[:LineNumber]   = __LINE__
             rescue StandardError => e
-              ::AppOpticsAPM.logger.debug "[appoptics_apm/padrino] #{e.message}"
-              ::AppOpticsAPM.logger.debug e.backtrace.join(', ')
+              AppOpticsAPM.logger.debug "[appoptics_apm/padrino] #{e.message}"
+              AppOpticsAPM.logger.debug e.backtrace.join(', ')
             end
 
             AppOpticsAPM::API.profile(report_kvs[:template], report_kvs, false) do
@@ -71,13 +71,13 @@ module AppOpticsAPM
             # back on exit (a limitation of the AppOpticsAPM::API.trace
             # block method) This removes the need for an info
             # event to send additonal KVs
-            ::AppOpticsAPM::API.log_entry(:render, {}, :render)
+            AppOpticsAPM::API.log_entry(:render, {}, :render)
 
             begin
               render_without_appoptics(engine, data, options, locals, &block)
             ensure
               report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:padrino][:collect_backtraces]
-              ::AppOpticsAPM::API.log_exit(:render, report_kvs)
+              AppOpticsAPM::API.log_exit(:render, report_kvs)
             end
           end
         else
@@ -88,18 +88,18 @@ module AppOpticsAPM
   end
 end
 
-if defined?(::Padrino) && AppopticsAPM::Config[:padrino][:enabled]
+if defined?(Padrino) && AppopticsAPM::Config[:padrino][:enabled]
   # This instrumentation is a superset of the Sinatra instrumentation similar
   # to how Padrino is a superset of Sinatra itself.
-  ::AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting Padrino' if AppOpticsAPM::Config[:verbose]
+  AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting Padrino' if AppOpticsAPM::Config[:verbose]
 
   Padrino.after_load do
-    ::AppOpticsAPM.logger = ::Padrino.logger if ::Padrino.respond_to?(:logger)
-    ::AppOpticsAPM::Inst.load_instrumentation
+    AppOpticsAPM.logger = Padrino.logger if Padrino.respond_to?(:logger)
+    AppOpticsAPM::Inst.load_instrumentation
 
-    ::AppOpticsAPM::Util.send_include(::Padrino::Routing::InstanceMethods, ::AppOpticsAPM::PadrinoInst::Routing)
-    if defined?(::Padrino::Rendering)
-      ::AppOpticsAPM::Util.send_include(::Padrino::Rendering::InstanceMethods, ::AppOpticsAPM::PadrinoInst::Rendering)
+    AppOpticsAPM::Util.send_include(Padrino::Routing::InstanceMethods, AppOpticsAPM::PadrinoInst::Routing)
+    if defined?(Padrino::Rendering)
+      AppOpticsAPM::Util.send_include(Padrino::Rendering::InstanceMethods, AppOpticsAPM::PadrinoInst::Rendering)
     end
 
     # Report __Init after fork when in Heroku

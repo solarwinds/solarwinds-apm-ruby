@@ -19,7 +19,7 @@
 #
 # For example, when a web request comes into a stack, a tracing
 # context is established using `AppOpticsAPM::API.log_start` as the request
-# enters through the rack middleware via `::AppOpticsAPM::Rack`.
+# enters through the rack middleware via `AppOpticsAPM::Rack`.
 #
 # That tracing context is then continued using `AppOpticsAPM::API.trace` or
 # `AppOpticsAPM::API.log_entry` for each subsequent layer such as Rails,

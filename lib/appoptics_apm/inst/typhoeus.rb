@@ -7,7 +7,7 @@ module AppOpticsAPM
     module TyphoeusRequestOps
 
       def self.included(klass)
-        ::AppOpticsAPM::Util.method_alias(klass, :run, ::Typhoeus::Request::Operations)
+        AppOpticsAPM::Util.method_alias(klass, :run, ::Typhoeus::Request::Operations)
       end
 
       def run_with_appoptics
@@ -28,7 +28,7 @@ module AppOpticsAPM
           kvs = {}
           kvs[:Spec] = 'rsc'
           kvs[:IsService] = 1
-          kvs[:HTTPMethod] = ::AppOpticsAPM::Util.upcase(options[:method])
+          kvs[:HTTPMethod] = AppOpticsAPM::Util.upcase(options[:method])
 
           response = run_without_appoptics
 
@@ -64,7 +64,7 @@ module AppOpticsAPM
 
     module TyphoeusHydraRunnable
       def self.included(klass)
-        ::AppOpticsAPM::Util.method_alias(klass, :run, ::Typhoeus::Hydra)
+        AppOpticsAPM::Util.method_alias(klass, :run, ::Typhoeus::Hydra)
       end
 
       def run_with_appoptics
@@ -101,10 +101,8 @@ module AppOpticsAPM
   end
 end
 
-if AppOpticsAPM::Config[:typhoeus][:enabled]
-  if defined?(::Typhoeus)
-    AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting typhoeus' if AppOpticsAPM::Config[:verbose]
-    ::AppOpticsAPM::Util.send_include(::Typhoeus::Request::Operations, ::AppOpticsAPM::Inst::TyphoeusRequestOps)
-    ::AppOpticsAPM::Util.send_include(::Typhoeus::Hydra, ::AppOpticsAPM::Inst::TyphoeusHydraRunnable)
-  end
+if defined?(Typhoeus) && AppOpticsAPM::Config[:typhoeus][:enabled]
+  AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting typhoeus' if AppOpticsAPM::Config[:verbose]
+  AppOpticsAPM::Util.send_include(Typhoeus::Request::Operations, AppOpticsAPM::Inst::TyphoeusRequestOps)
+  AppOpticsAPM::Util.send_include(Typhoeus::Hydra, AppOpticsAPM::Inst::TyphoeusHydraRunnable)
 end

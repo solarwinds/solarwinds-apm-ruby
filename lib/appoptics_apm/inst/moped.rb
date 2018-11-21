@@ -47,7 +47,7 @@ module AppOpticsAPM
 
       def self.included(klass)
         AppOpticsAPM::Inst::Moped::DB_OPS.each do |m|
-          ::AppOpticsAPM::Util.method_alias(klass, m)
+          AppOpticsAPM::Util.method_alias(klass, m)
         end
       end
 
@@ -102,7 +102,7 @@ module AppOpticsAPM
 
       def self.included(klass)
         AppOpticsAPM::Inst::Moped::INDEX_OPS.each do |m|
-          ::AppOpticsAPM::Util.method_alias(klass, m)
+          AppOpticsAPM::Util.method_alias(klass, m)
         end
       end
 
@@ -170,7 +170,7 @@ module AppOpticsAPM
 
       def self.included(klass)
         AppOpticsAPM::Inst::Moped::QUERY_OPS.each do |m|
-          ::AppOpticsAPM::Util.method_alias(klass, m)
+          AppOpticsAPM::Util.method_alias(klass, m)
         end
       end
 
@@ -375,7 +375,7 @@ module AppOpticsAPM
 
       def self.included(klass)
         AppOpticsAPM::Inst::Moped::COLLECTION_OPS.each do |m|
-          ::AppOpticsAPM::Util.method_alias(klass, m)
+          AppOpticsAPM::Util.method_alias(klass, m)
         end
       end
 
@@ -457,10 +457,10 @@ module AppOpticsAPM
   end
 end
 
-if defined?(::Moped) && AppOpticsAPM::Config[:moped][:enabled]
-  ::AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting moped' if AppOpticsAPM::Config[:verbose]
-  ::AppOpticsAPM::Util.send_include(::Moped::Database,   ::AppOpticsAPM::Inst::MopedDatabase)
-  ::AppOpticsAPM::Util.send_include(::Moped::Collection, ::AppOpticsAPM::Inst::MopedCollection)
-  ::AppOpticsAPM::Util.send_include(::Moped::Query,      ::AppOpticsAPM::Inst::MopedQuery)
-  ::AppOpticsAPM::Util.send_include(::Moped::Indexes,    ::AppOpticsAPM::Inst::MopedIndexes)
+if defined?(Moped) && AppOpticsAPM::Config[:moped][:enabled]
+  AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting moped' if AppOpticsAPM::Config[:verbose]
+  AppOpticsAPM::Util.send_include(Moped::Database,   AppOpticsAPM::Inst::MopedDatabase)
+  AppOpticsAPM::Util.send_include(Moped::Collection, AppOpticsAPM::Inst::MopedCollection)
+  AppOpticsAPM::Util.send_include(Moped::Query,      AppOpticsAPM::Inst::MopedQuery)
+  AppOpticsAPM::Util.send_include(Moped::Indexes,    AppOpticsAPM::Inst::MopedIndexes)
 end

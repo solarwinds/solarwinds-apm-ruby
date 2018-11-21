@@ -124,10 +124,10 @@ module AppOpticsAPM
 
         source_location = []
         if instance_method
-          ::AppOpticsAPM::Util.send_include(klass, ::AppOpticsAPM::MethodProfiling)
+          AppOpticsAPM::Util.send_include(klass, AppOpticsAPM::MethodProfiling)
           source_location = klass.instance_method(method).source_location
         elsif class_method
-          ::AppOpticsAPM::Util.send_extend(klass, ::AppOpticsAPM::MethodProfiling)
+          AppOpticsAPM::Util.send_extend(klass, AppOpticsAPM::MethodProfiling)
           source_location = klass.method(method).source_location
         end
 

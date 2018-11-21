@@ -1,7 +1,7 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
-if defined?(::Delayed)
+if defined?(Delayed)
   module AppOpticsAPM
     module Inst
       module DelayedJob
@@ -13,12 +13,12 @@ if defined?(::Delayed)
         #
         module ForkHandler
           def self.extended(klass)
-            ::AppOpticsAPM::Util.class_method_alias(klass, :after_fork, ::Delayed::Worker)
+            AppOpticsAPM::Util.class_method_alias(klass, :after_fork, ::Delayed::Worker)
           end
 
           def after_fork_with_appoptics
-            ::AppOpticsAPM.logger.info '[appoptics_apm/delayed_job] Detected fork.  Restarting AppOpticsAPM reporter.' if AppOpticsAPM::Config[:verbose]
-            ::AppOpticsAPM::Reporter.restart unless ENV.key?('APPOPTICS_GEM_TEST')
+            AppOpticsAPM.logger.info '[appoptics_apm/delayed_job] Detected fork.  Restarting AppOpticsAPM reporter.' if AppOpticsAPM::Config[:verbose]
+            AppOpticsAPM::Reporter.restart unless ENV.key?('APPOPTICS_GEM_TEST')
 
             after_fork_without_appoptics
           end
@@ -86,7 +86,7 @@ if defined?(::Delayed)
     end
   end
 
-  ::AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting delayed_job' if AppOpticsAPM::Config[:verbose]
-  ::AppOpticsAPM::Util.send_extend(::Delayed::Worker, ::AppOpticsAPM::Inst::DelayedJob::ForkHandler)
-  ::Delayed::Worker.plugins << ::AppOpticsAPM::Inst::DelayedJob::Plugin
+  AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting delayed_job' if AppOpticsAPM::Config[:verbose]
+  AppOpticsAPM::Util.send_extend(::Delayed::Worker, AppOpticsAPM::Inst::DelayedJob::ForkHandler)
+  Delayed::Worker.plugins << AppOpticsAPM::Inst::DelayedJob::Plugin
 end
