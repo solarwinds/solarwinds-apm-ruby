@@ -86,10 +86,10 @@ module AppOpticsAPM
       include AppOpticsAPM::Inst::Sequel
 
       def self.included(klass)
-        ::AppOpticsAPM::Util.method_alias(klass, :run, ::Sequel::Database)
-        ::AppOpticsAPM::Util.method_alias(klass, :execute_ddl, ::Sequel::Database)
-        ::AppOpticsAPM::Util.method_alias(klass, :execute_dui, ::Sequel::Database)
-        ::AppOpticsAPM::Util.method_alias(klass, :execute_insert, ::Sequel::Database)
+        AppOpticsAPM::Util.method_alias(klass, :run, ::Sequel::Database)
+        AppOpticsAPM::Util.method_alias(klass, :execute_ddl, ::Sequel::Database)
+        AppOpticsAPM::Util.method_alias(klass, :execute_dui, ::Sequel::Database)
+        AppOpticsAPM::Util.method_alias(klass, :execute_insert, ::Sequel::Database)
       end
 
       def run_with_appoptics(sql, opts = ::Sequel::OPTS)
@@ -135,10 +135,10 @@ module AppOpticsAPM
       include AppOpticsAPM::Inst::Sequel
 
       def self.included(klass)
-        ::AppOpticsAPM::Util.method_alias(klass, :execute, ::Sequel::Dataset)
-        ::AppOpticsAPM::Util.method_alias(klass, :execute_ddl, ::Sequel::Dataset)
-        ::AppOpticsAPM::Util.method_alias(klass, :execute_dui, ::Sequel::Dataset)
-        ::AppOpticsAPM::Util.method_alias(klass, :execute_insert, ::Sequel::Dataset)
+        AppOpticsAPM::Util.method_alias(klass, :execute, ::Sequel::Dataset)
+        AppOpticsAPM::Util.method_alias(klass, :execute_ddl, ::Sequel::Dataset)
+        AppOpticsAPM::Util.method_alias(klass, :execute_dui, ::Sequel::Dataset)
+        AppOpticsAPM::Util.method_alias(klass, :execute_insert, ::Sequel::Dataset)
       end
 
       def execute_with_appoptics(sql, opts = ::Sequel::OPTS, &block)
@@ -172,7 +172,7 @@ if AppOpticsAPM::Config[:sequel][:enabled]
 
   if defined?(::Sequel)
     AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting sequel' if AppOpticsAPM::Config[:verbose]
-    ::AppOpticsAPM::Util.send_include(::Sequel::Database, ::AppOpticsAPM::Inst::SequelDatabase)
-    ::AppOpticsAPM::Util.send_include(::Sequel::Dataset, ::AppOpticsAPM::Inst::SequelDataset)
+    AppOpticsAPM::Util.send_include(::Sequel::Database, AppOpticsAPM::Inst::SequelDatabase)
+    AppOpticsAPM::Util.send_include(::Sequel::Dataset, AppOpticsAPM::Inst::SequelDataset)
   end
 end

@@ -261,14 +261,14 @@ module AppOpticsAPM
 end
 
 # There are two main Cassandra clients for Ruby.  This one from Twitter
-# and the other from datastax.  This one defined ::Cassandra as a class
+# and the other from datastax.  This one defined Cassandra as a class
 # and datastax defines it as a module.  We use this to detect
 # and differentiate between the client in use.
 
-if defined?(::Cassandra) && ::Cassandra.is_a?(Class) && AppOpticsAPM::Config[:cassandra][:enabled]
+if defined?(Cassandra) && Cassandra.is_a?(Class) && AppOpticsAPM::Config[:cassandra][:enabled]
   AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting cassandra' if AppOpticsAPM::Config[:verbose]
 
-  class ::Cassandra
+  class Cassandra
     include AppOpticsAPM::Inst::Cassandra
 
     [:insert, :remove, :count_columns, :get_columns, :multi_get_columns, :get,

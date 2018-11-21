@@ -5,13 +5,13 @@ module AppOpticsAPM
   module Sinatra
     module Base
       def self.included(klass)
-        ::AppOpticsAPM::Util.method_alias(klass, :dispatch!,         ::Sinatra::Base)
-        ::AppOpticsAPM::Util.method_alias(klass, :handle_exception!, ::Sinatra::Base)
+        AppOpticsAPM::Util.method_alias(klass, :dispatch!,         ::Sinatra::Base)
+        AppOpticsAPM::Util.method_alias(klass, :handle_exception!, ::Sinatra::Base)
       end
 
       def dispatch_with_appoptics
 
-        ::AppOpticsAPM::API.log_entry('sinatra', {})
+        AppOpticsAPM::API.log_entry('sinatra', {})
 
         response = dispatch_without_appoptics
 
@@ -24,11 +24,11 @@ module AppOpticsAPM
 
         response
       rescue => e
-        ::AppOpticsAPM::API.log_exception('sinatra', e)
+        AppOpticsAPM::API.log_exception('sinatra', e)
         raise e
       ensure
         report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:sinatra][:collect_backtraces]
-        ::AppOpticsAPM::API.log_exit('sinatra', report_kvs)
+        AppOpticsAPM::API.log_exit('sinatra', report_kvs)
       end
 
       def handle_exception_with_appoptics(boom)
@@ -51,7 +51,7 @@ module AppOpticsAPM
 
     module Templates
       def self.included(klass)
-        ::AppOpticsAPM::Util.method_alias(klass, :render, ::Sinatra::Templates)
+        AppOpticsAPM::Util.method_alias(klass, :render, ::Sinatra::Templates)
       end
 
       def render_with_appoptics(engine, data, options = {}, locals = {}, &block)
@@ -72,8 +72,8 @@ module AppOpticsAPM
               report_kvs[:File]         = __FILE__
               report_kvs[:LineNumber]   = __LINE__
             rescue StandardError => e
-              ::AppOpticsAPM.logger.debug e.message
-              ::AppOpticsAPM.logger.debug e.backtrace.join(', ')
+              AppOpticsAPM.logger.debug e.message
+              AppOpticsAPM.logger.debug e.backtrace.join(', ')
             end
 
             AppOpticsAPM::API.profile(name, report_kvs, false) do
@@ -85,13 +85,13 @@ module AppOpticsAPM
             # back on exit (a limitation of the AppOpticsAPM::API.trace
             # block method) This removes the need for an info
             # event to send additonal KVs
-            ::AppOpticsAPM::API.log_entry(:render, {}, :render)
+            AppOpticsAPM::API.log_entry(:render, {}, :render)
 
             begin
               render_without_appoptics(engine, data, options, locals, &block)
             ensure
               report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:sinatra][:collect_backtraces]
-              ::AppOpticsAPM::API.log_exit(:render, report_kvs, :render)
+              AppOpticsAPM::API.log_exit(:render, report_kvs, :render)
             end
           end
         else
@@ -102,22 +102,22 @@ module AppOpticsAPM
   end
 end
 
-if defined?(::Sinatra) && AppopticsAPM::Config[:sinatra][:enabled]
+if defined?(Sinatra) && AppopticsAPM::Config[:sinatra][:enabled]
   require 'appoptics_apm/inst/rack'
 
   AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting Sinatra' if AppOpticsAPM::Config[:verbose]
 
   AppOpticsAPM::Inst.load_instrumentation
 
-  ::Sinatra::Base.use AppOpticsAPM::Rack
+  Sinatra::Base.use AppOpticsAPM::Rack
 
   # When in the gem TEST environment, we load this instrumentation regardless.
   # Otherwise, only when Padrino isn't around.
-  unless defined?(::Padrino) && !ENV.key?('APPOPTICS_GEM_TEST')
+  unless defined?(Padrino) && !ENV.key?('APPOPTICS_GEM_TEST')
     # Padrino has 'enhanced' routes and rendering so the Sinatra
     # instrumentation won't work anyways.  Only load for pure Sinatra apps.
-    ::AppOpticsAPM::Util.send_include(::Sinatra::Base,      ::AppOpticsAPM::Sinatra::Base)
-    ::AppOpticsAPM::Util.send_include(::Sinatra::Templates, ::AppOpticsAPM::Sinatra::Templates)
+    AppOpticsAPM::Util.send_include(Sinatra::Base,      AppOpticsAPM::Sinatra::Base)
+    AppOpticsAPM::Util.send_include(Sinatra::Templates, AppOpticsAPM::Sinatra::Templates)
 
     # Report __Init after fork when in Heroku
     AppOpticsAPM::API.report_init unless AppOpticsAPM.heroku?

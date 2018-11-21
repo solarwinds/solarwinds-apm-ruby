@@ -57,8 +57,8 @@ module AppOpticsAPM
     using_rails = defined?(::Rails)
     AppOpticsAPM.logger.warn "Using Rails?: #{yesno(using_rails)}"
     if using_rails
-      AppOpticsAPM.logger.warn "AppOpticsAPM::Rails loaded?: #{yesno(defined?(::AppOpticsAPM::Rails))}"
-      if defined?(::AppOpticsAPM::Rack)
+      AppOpticsAPM.logger.warn "AppOpticsAPM::Rails loaded?: #{yesno(defined?(AppOpticsAPM::Rails))}"
+      if defined?(AppOpticsAPM::Rack)
         AppOpticsAPM.logger.warn "AppOpticsAPM::Rack middleware loaded?: #{yesno(::Rails.configuration.middleware.include? AppOpticsAPM::Rack)}"
       end
     end
