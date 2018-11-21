@@ -4,8 +4,8 @@
 require 'json'
 
 if AppOpticsAPM::Config[:mongo][:enabled]
-  if defined?(::Mongo) && (Gem.loaded_specs['mongo'].version.to_s >= '2.0.0')
-    ::AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting mongo' if AppOpticsAPM::Config[:verbose]
+  if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s >= '2.0.0')
+    AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting mongo' if AppOpticsAPM::Config[:verbose]
 
     # Collection Related Operations
     COLL_OTHER_OPS = [:create, :drop, :insert_one, :insert_many, :bulk_write, :map_reduce].freeze
@@ -81,7 +81,7 @@ if AppOpticsAPM::Config[:mongo][:enabled]
               AppOpticsAPM::API.log_exit(:mongo) unless mongo_skipped
             end
           end
-          ::AppOpticsAPM::Util.method_alias(Mongo::Collection, m)
+          AppOpticsAPM::Util.method_alias(Mongo::Collection, m)
         end
       end
     end
@@ -158,7 +158,7 @@ if AppOpticsAPM::Config[:mongo][:enabled]
                 AppOpticsAPM::API.log_exit(:mongo) unless mongo_skipped
               end
             end
-            ::AppOpticsAPM::Util.method_alias(Mongo::Collection::View, m)
+            AppOpticsAPM::Util.method_alias(Mongo::Collection::View, m)
           end
         end
       end
@@ -216,7 +216,7 @@ if AppOpticsAPM::Config[:mongo][:enabled]
                 AppOpticsAPM::API.log_exit(:mongo) unless mongo_skipped
               end
             end
-            ::AppOpticsAPM::Util.method_alias(Mongo::Index::View, m)
+            AppOpticsAPM::Util.method_alias(Mongo::Index::View, m)
           end
         end
       end

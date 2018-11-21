@@ -5,7 +5,7 @@ module AppOpticsAPM
   module Inst
     module BunnyConsumer
       def self.included(klass)
-        ::AppOpticsAPM::Util.method_alias(klass, :call, ::Bunny::Consumer)
+        AppOpticsAPM::Util.method_alias(klass, :call, ::Bunny::Consumer)
       end
 
       def collect_consumer_kvs(args)
@@ -83,7 +83,7 @@ module AppOpticsAPM
   end
 end
 
-if AppOpticsAPM::Config[:bunnyconsumer][:enabled] && defined?(::Bunny)
-  ::AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting bunny consumer' if AppOpticsAPM::Config[:verbose]
-  ::AppOpticsAPM::Util.send_include(::Bunny::Consumer, ::AppOpticsAPM::Inst::BunnyConsumer)
+if AppOpticsAPM::Config[:bunnyconsumer][:enabled] && defined?(Bunny)
+  AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting bunny consumer' if AppOpticsAPM::Config[:verbose]
+  AppOpticsAPM::Util.send_include(Bunny::Consumer, AppOpticsAPM::Inst::BunnyConsumer)
 end

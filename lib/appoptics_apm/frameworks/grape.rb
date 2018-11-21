@@ -7,19 +7,19 @@ module AppOpticsAPM
   module Grape
     module API
       def self.extended(klass)
-        ::AppOpticsAPM::Util.class_method_alias(klass, :inherited, ::Grape::API)
+        AppOpticsAPM::Util.class_method_alias(klass, :inherited, ::Grape::API)
       end
 
       def inherited_with_appoptics(subclass)
         inherited_without_appoptics(subclass)
 
-        subclass.use ::AppOpticsAPM::Rack
+        subclass.use AppOpticsAPM::Rack
       end
     end
 
     module Endpoint
       def self.included(klass)
-        ::AppOpticsAPM::Util.method_alias(klass, :run, ::Grape::Endpoint)
+        AppOpticsAPM::Util.method_alias(klass, :run, ::Grape::Endpoint)
       end
 
       def run_with_appoptics(*args)
@@ -38,18 +38,18 @@ module AppOpticsAPM
         env['appoptics_apm.controller'] = report_kvs[:Controller]
         env['appoptics_apm.action']     = report_kvs[:Action]
 
-        ::AppOpticsAPM::API.log_entry('grape', report_kvs)
+        AppOpticsAPM::API.log_entry('grape', report_kvs)
 
         run_without_appoptics(*args)
       ensure
-        ::AppOpticsAPM::API.log_exit('grape')
+        AppOpticsAPM::API.log_exit('grape')
       end
     end
 
     module Middleware
       module Error
         def self.included(klass)
-          ::AppOpticsAPM::Util.method_alias(klass, :error_response, ::Grape::Middleware::Error)
+          AppOpticsAPM::Util.method_alias(klass, :error_response, ::Grape::Middleware::Error)
         end
 
         def error_response_with_appoptics(error = {})
@@ -61,9 +61,9 @@ module AppOpticsAPM
 
             # Since Grape uses throw/catch and not Exceptions, we have to create an exception here
             exception = GrapeError.new(error[:message] ? error[:message] : "No message given.")
-            exception.set_backtrace(::AppOpticsAPM::API.backtrace)
+            exception.set_backtrace(AppOpticsAPM::API.backtrace)
 
-            ::AppOpticsAPM::API.log_exception('rack', exception)
+            AppOpticsAPM::API.log_exception('rack', exception)
 
             # Since calls to error() are handled similar to abort in Grape.  We
             # manually log the rack exit here since the original code won't
@@ -84,14 +84,14 @@ module AppOpticsAPM
   end
 end
 
-if AppOpticsAPM::Config[:grape][:enabled] && defined?(::Grape)
+if AppOpticsAPM::Config[:grape][:enabled] && defined?(Grape)
   require 'appoptics_apm/inst/rack'
 
   AppOpticsAPM.logger.info "[appoptics_apm/loading] Instrumenting Grape" if AppOpticsAPM::Config[:verbose]
 
   AppOpticsAPM::Inst.load_instrumentation
 
-  ::AppOpticsAPM::Util.send_extend(::Grape::API,               ::AppOpticsAPM::Grape::API)
-  ::AppOpticsAPM::Util.send_include(::Grape::Endpoint,          ::AppOpticsAPM::Grape::Endpoint)
-  ::AppOpticsAPM::Util.send_include(::Grape::Middleware::Error, ::AppOpticsAPM::Grape::Middleware::Error)
+  AppOpticsAPM::Util.send_extend(Grape::API,                AppOpticsAPM::Grape::API)
+  AppOpticsAPM::Util.send_include(Grape::Endpoint,          AppOpticsAPM::Grape::Endpoint)
+  AppOpticsAPM::Util.send_include(Grape::Middleware::Error, AppOpticsAPM::Grape::Middleware::Error)
 end

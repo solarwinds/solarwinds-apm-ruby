@@ -33,7 +33,7 @@ TRACE_FILE = '/tmp/appoptics_traces.bson'.freeze
 # Current variations as of 2014-09-10 are a c-extension, JRuby (using AppOpticsAPM Java
 # instrumentation) and a Heroku c-extension (with embedded tracelyzer)
 module AppOpticsAPMBase
-  extend ::AppOpticsAPM::ThreadLocal
+  extend AppOpticsAPM::ThreadLocal
 
   attr_accessor :reporter
   attr_accessor :loaded

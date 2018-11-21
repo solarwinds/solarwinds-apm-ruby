@@ -51,7 +51,7 @@ module AppOpticsAPMMethodProfiling
                   entry_kvs['File']          = '#{file}'
                   entry_kvs['LineNumber']    = '#{line}'
                   entry_kvs['Args']          = AppOpticsAPM::API.pps(*args) if #{store_args}
-                  entry_kvs.merge!(::AppOpticsAPM::API.get_class_name(self))
+                  entry_kvs.merge!(AppOpticsAPM::API.get_class_name(self))
 
                   AppOpticsAPM::API.log(nil, 'profile_entry', entry_kvs)
 

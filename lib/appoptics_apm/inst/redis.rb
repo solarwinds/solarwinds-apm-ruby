@@ -59,8 +59,8 @@ module AppOpticsAPM
         def self.included(klass)
           # We wrap two of the Redis methods to instrument
           # operations
-          ::AppOpticsAPM::Util.method_alias(klass, :call, ::Redis::Client)
-          ::AppOpticsAPM::Util.method_alias(klass, :call_pipeline, ::Redis::Client)
+          AppOpticsAPM::Util.method_alias(klass, :call, ::Redis::Client)
+          AppOpticsAPM::Util.method_alias(klass, :call_pipeline, ::Redis::Client)
         end
 
         # Given any Redis operation command array, this method
@@ -218,17 +218,17 @@ module AppOpticsAPM
         #
         def call_with_appoptics(command, &block)
           if AppOpticsAPM.tracing?
-            ::AppOpticsAPM::API.log_entry(:redis, {})
+            AppOpticsAPM::API.log_entry(:redis, {})
 
             begin
               r = call_without_appoptics(command, &block)
               report_kvs = extract_trace_details(command, r)
               r
             rescue StandardError => e
-              ::AppOpticsAPM::API.log_exception(:redis, e)
+              AppOpticsAPM::API.log_exception(:redis, e)
               raise
             ensure
-              ::AppOpticsAPM::API.log_exit(:redis, report_kvs)
+              AppOpticsAPM::API.log_exit(:redis, report_kvs)
             end
 
           else
@@ -246,17 +246,17 @@ module AppOpticsAPM
             # back on exit (a limitation of the AppOpticsAPM::API.trace
             # block method)  This removes the need for an info
             # event to send additonal KVs
-            ::AppOpticsAPM::API.log_entry(:redis, {})
+            AppOpticsAPM::API.log_entry(:redis, {})
 
             report_kvs = extract_pipeline_details(pipeline)
 
             begin
               call_pipeline_without_appoptics(pipeline)
             rescue StandardError => e
-              ::AppOpticsAPM::API.log_exception(:redis, e)
+              AppOpticsAPM::API.log_exception(:redis, e)
               raise
             ensure
-              ::AppOpticsAPM::API.log_exit(:redis, report_kvs)
+              AppOpticsAPM::API.log_exit(:redis, report_kvs)
             end
           else
             call_pipeline_without_appoptics(pipeline)
@@ -268,8 +268,8 @@ module AppOpticsAPM
 end
 
 if AppOpticsAPM::Config[:redis][:enabled]
-  if defined?(::Redis) && Gem::Version.new(::Redis::VERSION) >= Gem::Version.new('3.0.0')
+  if defined?(Redis) && Gem::Version.new(Redis::VERSION) >= Gem::Version.new('3.0.0')
     AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting redis' if AppOpticsAPM::Config[:verbose]
-    ::AppOpticsAPM::Util.send_include(::Redis::Client, ::AppOpticsAPM::Inst::Redis::Client)
+    AppOpticsAPM::Util.send_include(Redis::Client, AppOpticsAPM::Inst::Redis::Client)
   end
 end

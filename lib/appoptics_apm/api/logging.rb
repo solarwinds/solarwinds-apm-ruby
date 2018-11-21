@@ -102,7 +102,7 @@ module AppOpticsAPM
       #
       # Returns an xtrace metadata string if we are tracing
       def log_start(layer, xtrace = nil, opts = {})
-        return if !AppOpticsAPM.loaded || (opts.key?(:URL) && ::AppOpticsAPM::Util.static_asset?(opts[:URL]))
+        return if !AppOpticsAPM.loaded || (opts.key?(:URL) && AppOpticsAPM::Util.static_asset?(opts[:URL]))
 
         #--
         # Is the below necessary? Only on JRuby? Could there be an existing context but not x-trace header?

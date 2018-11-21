@@ -73,7 +73,7 @@ if AppOpticsAPM.loaded
           report_kvs[:'Forwarded-Proto']   = env['HTTP_X_FORWARDED_PROTO']  if env.key?('HTTP_X_FORWARDED_PROTO')
           report_kvs[:'Forwarded-Port']    = env['HTTP_X_FORWARDED_PORT']   if env.key?('HTTP_X_FORWARDED_PORT')
 
-          report_kvs[:'Ruby.AppOptics.Version'] = ::AppOpticsAPM::Version::STRING
+          report_kvs[:'Ruby.AppOptics.Version'] = AppOpticsAPM::Version::STRING
           report_kvs[:ProcessID]         = Process.pid
           report_kvs[:ThreadID]          = Thread.current.to_s[/0x\w*/]
         rescue StandardError => e
@@ -127,7 +127,7 @@ if AppOpticsAPM.loaded
         # AppOpticsAPM.has_xtrace_header = xtrace
         # AppOpticsAPM.is_continued_trace = AppOpticsAPM.has_incoming_context || AppOpticsAPM.has_xtrace_header
 
-        AppOpticsAPM::API.log_start(:rack, xtrace, report_kvs) unless ::AppOpticsAPM::Util.static_asset?(env['PATH_INFO'])
+        AppOpticsAPM::API.log_start(:rack, xtrace, report_kvs) unless AppOpticsAPM::Util.static_asset?(env['PATH_INFO'])
 
         status, headers, response = @app.call(env)
         confirmed_transaction_name = send_metrics(env, req, req_url, start, status)
@@ -153,7 +153,7 @@ if AppOpticsAPM.loaded
 
 
       def send_metrics(env, req, req_url, start, status)
-        return if ::AppOpticsAPM::Util.static_asset?(env['PATH_INFO'])
+        return if AppOpticsAPM::Util.static_asset?(env['PATH_INFO'])
 
         status = status.to_i
         error = status.between?(500,599) ? 1 : 0
