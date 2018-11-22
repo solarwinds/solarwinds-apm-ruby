@@ -15,7 +15,7 @@ module AppOpticsAPM
                          :active_record, :bunnyclient, :bunnyconsumer, :cassandra, :curb,
                          :dalli, :delayed_jobclient, :delayed_jobworker,
                          :em_http_request, :excon, :faraday, :grpc_client, :grpc_server, :grape,
-                         :httpclient, :nethttp, :memcached, :mongo, :moped, :rack, :redis,
+                         :httpclient, :nethttp, :memcached, :mongo, :moped, :padrino, :rack, :redis,
                          :resqueclient, :resqueworker, :rest_client,
                          :sequel, :sidekiqclient, :sidekiqworker, :sinatra, :typhoeus]
 

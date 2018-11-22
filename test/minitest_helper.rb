@@ -30,8 +30,8 @@ if ENV['TEST_RUNS_TO_FILE']
   $out_file = File.new("log/test_runs_#{Time.now.strftime("%Y_%m_%d")}.log", 'a')
   $out_file.sync = true
   $stdout.sync = true
-  def $stdout.write string
-    $out_file.write string
+  def $stdout.write(string)
+    $out_file.write(string)
     super
   end
 end
@@ -94,7 +94,7 @@ AppOpticsAPM::Config[:sample_rate] = 1000000
 # puts %x{psql -c 'create database travis_ci_test;' -U postgres}
 
 # Our background Rack-app for http client testing
-# require './test/servers/rackapp_8101' unless File.basename(ENV['BUNDLE_GEMFILE']) =~ /unit/
+require './test/servers/rackapp_8101' unless File.basename(ENV['BUNDLE_GEMFILE']) =~ /unit/
 
 # Conditionally load other background servers
 # depending on what we're testing
@@ -121,7 +121,7 @@ when /libraries/
   # out the sidekiq tests
   # Background Sidekiq thread
   if !ENV.key?('TEST') || ENV['TEST'] =~ /sidekiq/
-    # require './test/servers/sidekiq.rb'
+    require './test/servers/sidekiq.rb'
   end
 end
 
@@ -308,6 +308,15 @@ end
 
 def sampled?(xtrace)
   xtrace[59].to_i & 1 == 1
+end
+
+
+#########################            ###            ###            ###            ###            ###
+### DEBUGGING HELPERS ###
+#########################
+
+def pretty(traces)
+  puts traces.pretty_inspect
 end
 
 def print_traces(traces, more_keys = [])

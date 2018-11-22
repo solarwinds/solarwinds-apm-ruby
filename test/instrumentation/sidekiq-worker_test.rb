@@ -26,7 +26,7 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_reports_version_init
-      init_kvs = ::AppOpticsAPM::Util.build_init_report
+      init_kvs = AppOpticsAPM::Util.build_init_report
       assert init_kvs.key?('Ruby.sidekiq.Version')
       assert_equal ::Sidekiq::VERSION, init_kvs['Ruby.sidekiq.Version']
     end

@@ -52,6 +52,7 @@ unless defined?(JRUBY_VERSION)
       traces[2]['RemoteHost'].must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
       traces[2]['RemotePort'].must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
       traces[2]['VirtualHost'].must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
+      traces[2].has_key?('Backtrace').must_equal !!AppOpticsAPM::Config[:bunnyclient][:collect_backtraces]
 
       @conn.close
     end
@@ -172,7 +173,7 @@ unless defined?(JRUBY_VERSION)
       traces[3]['Label'].must_equal "error"
       traces[3]['ErrorClass'].must_equal "Bunny::PreconditionFailed"
       traces[3]['ErrorMsg'].must_match(/PRECONDITION_FAILED/)
-      traces[3].key?('Backtrace').must_equal !!AppOpticsAPM::Config[:bunnyclient][:collect_backtraces]
+
       traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 1
 
       @conn.close
@@ -274,6 +275,32 @@ unless defined?(JRUBY_VERSION)
       traces[2]['RemoteHost'].must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
       traces[2]['RemotePort'].must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
       traces[2]['VirtualHost'].must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
+    end
+
+    def test_backtrace_config_true
+      bt = AppOpticsAPM::Config[:bunnyclient][:collect_backtraces]
+      AppOpticsAPM::Config[:bunnyclient][:collect_backtraces] = true
+
+      @conn = Bunny.new(@connection_params)
+      @conn.start
+      @ch = @conn.create_channel
+      @queue = @ch.queue("tv.ruby.test")
+      @exchange  = @ch.default_exchange
+
+      AppOpticsAPM::API.start_trace('bunny_tests') do
+        @exchange.publish("The Tortoise and the Hare", :routing_key => @queue.name)
+      end
+
+      traces = get_all_traces
+      traces.count.must_equal 4
+
+      validate_outer_layers(traces, "bunny_tests")
+      assert valid_edges?(traces), "Invalid edge in traces"
+
+      traces[2].has_key?('Backtrace').must_equal !!AppOpticsAPM::Config[:bunnyclient][:collect_backtraces]
+      @conn.close
+
+      AppOpticsAPM::Config[:bunnyclient][:collect_backtraces] = bt
     end
   end
 end
