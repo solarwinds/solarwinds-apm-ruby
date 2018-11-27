@@ -17,7 +17,7 @@ else
   gem 'sinatra'
 end
 
-gem "grape"
+gem 'grape', '< 1.2.0' # temporarily pin grape version because 1.2.0 introduced a breaking change
 
 if defined?(JRUBY_VERSION)
   # Limit padrino gem under JRuby as version 0.13.0 throws
