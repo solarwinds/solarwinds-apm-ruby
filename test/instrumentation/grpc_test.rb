@@ -12,22 +12,25 @@ require 'mocha/minitest'
 $LOAD_PATH.unshift(File.join(File.dirname(File.dirname(__FILE__)), 'servers/grpc'))
 require 'grpc_server_50051'
 
-# to turn on logging in gRPC
+# uncomment to turn on logging from gRPC
 # module GRPC
 #   def self.logger
 #     LOGGER
 #   end
 #
-# # LOGGER = Logger.new(STDOUT)
 #   LOGGER = AppOpticsAPM.logger
-# # LOGGER.level = Logger::WARN
 # end
 
 describe 'GRPC' do
   i_suck_and_my_tests_are_order_dependent!
 
   def start_server
-    @server = GRPC::RpcServer.new(pool_size: 2)
+    @pool_size = 6
+
+    server_bt = AppOpticsAPM::Config[:grpc_server][:collect_backtraces]
+    AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = false
+
+    @server = GRPC::RpcServer.new(pool_size: @pool_size)
     @server.add_http2_port("0.0.0.0:50051", :this_port_is_insecure)
     @server.handle(AddressService)
     @server_thread = Thread.new do
@@ -38,6 +41,7 @@ describe 'GRPC' do
       end
     end
     sleep 0.2
+    AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = server_bt
   end
 
   def stop_server
@@ -62,7 +66,6 @@ describe 'GRPC' do
     end
     sleep 0.2
     stub = Grpctest::TestService::Stub.new('localhost:50052', :this_channel_is_insecure)
-
     yield stub
 
     server.stop
@@ -72,7 +75,6 @@ describe 'GRPC' do
 
   before(:all) do
     @bt_client = AppOpticsAPM::Config[:grpc_client][:collect_backtraces]
-    @bt_server = AppOpticsAPM::Config[:grpc_server][:collect_backtraces]
 
     AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = false
     start_server
@@ -95,11 +97,10 @@ describe 'GRPC' do
 
   after(:all) do
     AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = @bt_client
-    AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = @bt_server
     stop_server
   end
 
-  unless ['file', 'udp'].include? ENV['APPOPTICS_REPORTER'] || AppopticsAPM::SDK.appoptics_ready?(10_000)
+  unless ['file', 'udp'].include?(ENV['APPOPTICS_REPORTER']) || AppopticsAPM::SDK.appoptics_ready?(10_000)
     puts "aborting!!! Agent not ready after 10 seconds"
     exit false
   end
@@ -107,38 +108,34 @@ describe 'GRPC' do
   describe 'UNARY' do
     it 'should collect traces for unary' do
       AppopticsAPM::SDK.start_trace(:test) do
-        res = @stub.unary_1(@address_msg)
-        @stub.unary_2(res)
+        res = @stub.unary(@address_msg)
       end
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-puts traces.pretty_inspect
-      if traces # no traces retrieved if sending them to the collector
-        traces.size.must_equal 8
 
-        assert_entry_exit(traces, 4)
-        assert valid_edges?(traces)
+      traces.size.must_equal 4
 
-        traces[0]['Spec'].must_equal            'rsc'
-        traces[0]['RemoteURL'].must_equal       'grpc://localhost:50051/grpctest.TestService/unary_1'
-        traces[0]['IsService'].must_equal       'True'
+      assert_entry_exit(traces, 2)
+      assert valid_edges?(traces)
 
-        server_entry = traces.find { |tr| tr['Layer'] == 'grpc_server' && tr['Label'] == 'entry' }
-        server_entry['Spec'].must_equal            'grpc_server'
-        server_entry['Controller'].must_equal      'AddressService'
-        server_entry['Action'].must_equal          'unary_1'
-        server_entry['URL'].must_equal             '/grpctest.TestService/unary_1'
-        server_entry['HTTP-Host'].must_match       /127.0.0.1/
+      traces[0]['Spec'].must_equal            'rsc'
+      traces[0]['RemoteURL'].must_equal       'grpc://localhost:50051/grpctest.TestService/unary_1'
+      traces[0]['IsService'].must_equal       'True'
 
-        traces.find { |tr| tr['Layer'] == 'grpc_server' && tr['Label'] == 'exit' }['TransactionName'].must_equal 'AddressService.unary_1'
+      server_entry = traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'entry' }
+      server_entry['Spec'].must_equal            'grpc_server'
+      server_entry['Controller'].must_equal      'AddressService'
+      server_entry['Action'].must_equal          'unary_1'
+      server_entry['URL'].must_equal             '/grpctest.TestService/unary_1'
+      server_entry['HTTP-Host'].must_match       /127.0.0.1/
 
-        traces.each { |tr| tr['GRPCMethodType'].must_equal 'UNARY' }
-        traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'OK' }
-      end
+      traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'exit' }['TransactionName'].must_equal 'AddressService.unary_1'
+
+      traces.each { |tr| tr['GRPCMethodType'].must_equal 'UNARY' }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'OK' }
     end
 
     it 'should include backtraces for unary if configured' do
-      client_bt = AppOpticsAPM::Config[:grpc_client][:collect_backtraces]
       AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = true
 
       server_with_backtraces do |stub|
@@ -149,11 +146,9 @@ puts traces.pretty_inspect
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         traces.size.must_equal 4
 
-        traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'entry' }.each { |tr| tr['Backtrace'].wont_be_nil "Backtrace missing" }
-        traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'exit' }.each { |tr| tr['Backtrace'].must_be_nil "Extra backtrace in trace"}
+        traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| tr['Backtrace'].must_be_nil "Extra backtrace in trace"}
+        traces.select { |tr| tr['Label'] == 'exit' }.each { |tr| tr['Backtrace'].wont_be_nil "Backtrace missing"}
       end
-
-      AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = client_bt
     end
 
     # Both: Client Application cancelled the request
@@ -204,7 +199,7 @@ puts traces.pretty_inspect
     it 'should report UNAVAILABLE for unary' do
       AppopticsAPM::SDK.start_trace(:test) do
         begin
-          @unavailable.unary_2(@address_msg)
+          @unavailable.unary_unknown(@address_msg)
         rescue => _
         end
       end
@@ -224,7 +219,7 @@ puts traces.pretty_inspect
     it 'should report UNKNOWN for unary' do
       AppopticsAPM::SDK.start_trace(:test) do
         begin
-          @stub.unary_2(@address_msg)
+          @stub.unary_unknown(@address_msg)
         rescue => _
         end
       end
@@ -256,7 +251,7 @@ puts traces.pretty_inspect
       assert valid_edges?(traces)
 
       traces[0]['GRPCMethodType'].must_equal  'UNARY'
-      traces.select { |tr| tr['Label'] =~ /exit|entry'/}.each { |tr| tr['Backtrace'].must_be_nil }
+      traces.select { |tr| tr['Label'] =~ /exit|entry/}.each { |tr| tr['Backtrace'].must_be_nil }
       traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNIMPLEMENTED' }
     end
 
@@ -297,21 +292,21 @@ puts traces.pretty_inspect
       end
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      assert_entry_exit(traces, 1)
+      assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 2
+      traces.size.must_equal 4
       traces[0]['Spec'].must_equal            'rsc'
       traces[0]['RemoteURL'].must_equal       'grpc://localhost:50051/grpctest.TestService/client_stream'
       traces[0]['IsService'].must_equal       'True'
 
-      # server_entry = traces.find { |tr| tr['Layer'] == 'grpc_server' && tr['Label'] == 'entry' }
-      # server_entry['Spec'].must_equal            'grpc'
-      # server_entry['Controller'].must_equal      'AddressService'
-      # server_entry['Action'].must_equal          'client_stream'
-      # server_entry['URL'].must_equal             '/grpctest.TestService/client_stream'
-      #
-      # traces.find { |tr| tr['Layer'] == 'grpc_server' && tr['Label'] == 'exit' }['TransactionName'].must_equal 'AddressService.client_stream'
+      server_entry = traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'entry' }
+      server_entry['Spec'].must_equal            'grpc_server'
+      server_entry['Controller'].must_equal      'AddressService'
+      server_entry['Action'].must_equal          'client_stream'
+      server_entry['URL'].must_equal             '/grpctest.TestService/client_stream'
+
+      traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'exit' }['TransactionName'].must_equal 'AddressService.client_stream'
 
       traces.each { |tr| tr['GRPCMethodType'].must_equal  'CLIENT_STREAMING' }
       traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'OK' }
@@ -319,7 +314,6 @@ puts traces.pretty_inspect
     end
 
     it 'should include backtraces for client_streaming if configured' do
-      client_bt = AppOpticsAPM::Config[:grpc_client][:collect_backtraces]
       AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = true
 
       server_with_backtraces do |stub|
@@ -336,10 +330,9 @@ puts traces.pretty_inspect
         traces[0]['RemoteURL'].must_equal       'grpc://localhost:50052/grpctest.TestService/client_stream'
         traces.each { |tr| tr['GRPCMethodType'].must_equal  'CLIENT_STREAMING' }
         traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'OK' }
-        traces.select { |tr| tr['Label'] == 'entry'}.each { |tr| tr['Backtrace'].wont_be_nil "backtrace missing!" }
+        traces.select { |tr| tr['Label'] == 'entry'}.each { |tr| tr['Backtrace'].must_be_nil "Found extra backtrace!" }
+        traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['Backtrace'].wont_be_nil "Backtrace missing!" }
       end
-
-      AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = client_bt
     end
 
     it 'should report DEADLINE_EXCEEDED for client_streaming' do
@@ -351,10 +344,10 @@ puts traces.pretty_inspect
       end
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      assert_entry_exit(traces, 1)
+      assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 3
+      traces.size.must_equal 6
       traces[0]['RemoteURL'].must_equal       'grpc://localhost:50051/grpctest.TestService/client_stream_long'
       traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'CLIENT_STREAMING' }
       traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'DEADLINE_EXCEEDED' }
@@ -369,10 +362,10 @@ puts traces.pretty_inspect
       end
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      assert_entry_exit(traces, 1)
+      assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 3
+      traces.size.must_equal 6
       traces[0]['GRPCMethodType'].must_equal  'CLIENT_STREAMING'
       traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'CANCELLED' }
     end
@@ -397,16 +390,16 @@ puts traces.pretty_inspect
     it 'should report UNKNOWN for client_streaming' do
       begin
         AppopticsAPM::SDK.start_trace(:test) do
-          @stub.client_stream_find([@address_msg, @address_msg])
+          @stub.client_stream_unknown([@address_msg, @address_msg])
         end
       rescue => _
       end
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      assert_entry_exit(traces, 1)
+      assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 3
+      traces.size.must_equal 6
       traces[0]['GRPCMethodType'].must_equal  'CLIENT_STREAMING'
       traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNKNOWN' }
     end
@@ -420,18 +413,16 @@ puts traces.pretty_inspect
       end
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      assert_entry_exit(traces, 1)
+      assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 3
+      traces.size.must_equal 6
       traces[0]['GRPCMethodType'].must_equal  'CLIENT_STREAMING'
       traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNIMPLEMENTED' }
-
     end
 
     it 'sends metrics from the server for client_streaming' do
-      skip
-      Oboe_metal::Span.expects(:createSpan).with('AddressService.client_stream', nil, anything)
+      Oboe_metal::Span.expects(:createSpan).with('AddressService.client_stream', nil, is_a(Integer))
       @stub.client_stream([@null_msg, @null_msg])
     end
   end # CLIENT_STREAMING
@@ -444,21 +435,21 @@ puts traces.pretty_inspect
       end
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      assert_entry_exit(traces, 1)
+      assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 2
+      traces.size.must_equal 4
       traces[0]['Spec'].must_equal            'rsc'
       traces[0]['RemoteURL'].must_equal       'grpc://localhost:50051/grpctest.TestService/server_stream'
       traces[0]['IsService'].must_equal       'True'
 
-      # server_entry = traces.find { |tr| tr['Layer'] == 'grpc_server' && tr['Label'] == 'entry' }
-      # server_entry['Spec'].must_equal            'grpc'
-      # server_entry['Controller'].must_equal      'AddressService'
-      # server_entry['Action'].must_equal          'server_stream'
-      # server_entry['URL'].must_equal             '/grpctest.TestService/server_stream'
-      #
-      # traces.find { |tr| tr['Layer'] == 'grpc_server' && tr['Label'] == 'exit' }['TransactionName'].must_equal 'AddressService.server_stream'
+      server_entry = traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'entry' }
+      server_entry['Spec'].must_equal            'grpc_server'
+      server_entry['Controller'].must_equal      'AddressService'
+      server_entry['Action'].must_equal          'server_stream'
+      server_entry['URL'].must_equal             '/grpctest.TestService/server_stream'
+
+      traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'exit' }['TransactionName'].must_equal 'AddressService.server_stream'
 
       traces.each { |tr| tr['GRPCMethodType'].must_equal  'SERVER_STREAMING' }
       traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'OK' }
@@ -466,7 +457,6 @@ puts traces.pretty_inspect
     end
 
     it 'should add backtraces for server_streaming with enumerator if configured' do
-      client_bt = AppOpticsAPM::Config[:grpc_client][:collect_backtraces]
       AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = true
 
       server_with_backtraces do |stub|
@@ -478,11 +468,9 @@ puts traces.pretty_inspect
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         traces.size.must_equal 4
 
-        traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'entry' }.each { |tr| tr['Backtrace'].wont_be_nil "Backtrace missing" }
-        traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'exit' }.each { |tr| tr['Backtrace'].must_be_nil "Extra backtrace in trace"}
+        traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| tr['Backtrace'].must_be_nil "Extra backtrace in trace" }
+        traces.select { |tr| tr['Label'] == 'exit' }.each { |tr| tr['Backtrace'].wont_be_nil "Backtrace missing" }
       end
-
-      AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = client_bt
     end
 
     it 'should report CANCEL for server_streaming with enumerator' do
@@ -495,10 +483,10 @@ puts traces.pretty_inspect
       end
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      assert_entry_exit(traces, 1)
+      assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 3
+      traces.size.must_equal 6
       traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'SERVER_STREAMING' }
       traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'CANCELLED' }
     end
@@ -513,10 +501,10 @@ puts traces.pretty_inspect
       end
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      assert_entry_exit(traces, 1)
+      assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 3
+      traces.size.must_equal 6
       traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'SERVER_STREAMING' }
       traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'DEADLINE_EXCEEDED' }
     end
@@ -542,7 +530,7 @@ puts traces.pretty_inspect
     it 'should report UNKNOWN for server_streaming with enumerator' do
       begin
         AppopticsAPM::SDK.start_trace(:test) do
-          res = @stub.server_stream_find(@address_msg)
+          res = @stub.server_stream_unknown(@address_msg)
           res.each { |_| }
         end
       rescue => _
@@ -550,8 +538,8 @@ puts traces.pretty_inspect
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
 
-      traces.size.must_equal 3
-      assert_entry_exit(traces, 1)
+      traces.size.must_equal 6
+      assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
       traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'SERVER_STREAMING' }
@@ -568,19 +556,19 @@ puts traces.pretty_inspect
       end
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      assert_entry_exit(traces, 1)
+      assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 3
+      traces.size.must_equal 6
       traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'SERVER_STREAMING' }
       traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNIMPLEMENTED' }
     end
 
     it 'sends metrics from the server for server_streaming with enumerator' do
-      skip
-      Oboe_metal::Span.expects(:createSpan).with('AddressService.server_stream', nil, anything)
+      Oboe_metal::Span.expects(:createSpan).with('AddressService.server_stream', nil, is_a(Integer))
       res = @stub.server_stream(@null_msg)
       res.each { |_| }
+      sleep 0.5
     end
   end # SERVER_STREAMING return Enumerator
 
@@ -591,21 +579,21 @@ puts traces.pretty_inspect
       end
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      assert_entry_exit(traces, 1)
+      assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 2
+      traces.size.must_equal 4
       traces[0]['Spec'].must_equal            'rsc'
       traces[0]['RemoteURL'].must_equal       'grpc://localhost:50051/grpctest.TestService/server_stream'
       traces[0]['IsService'].must_equal       'True'
-      #
-      # server_entry = traces.find { |tr| tr['Layer'] == 'grpc_server' && tr['Label'] == 'entry' }
-      # server_entry['Spec'].must_equal            'grpc'
-      # server_entry['Controller'].must_equal      'AddressService'
-      # server_entry['Action'].must_equal          'server_stream'
-      # server_entry['URL'].must_equal             '/grpctest.TestService/server_stream'
-      #
-      # traces.find { |tr| tr['Layer'] == 'grpc_server' && tr['Label'] == 'exit' }['TransactionName'].must_equal 'AddressService.server_stream'
+
+      server_entry = traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'entry' }
+      server_entry['Spec'].must_equal            'grpc_server'
+      server_entry['Controller'].must_equal      'AddressService'
+      server_entry['Action'].must_equal          'server_stream'
+      server_entry['URL'].must_equal             '/grpctest.TestService/server_stream'
+
+      traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'exit' }['TransactionName'].must_equal 'AddressService.server_stream'
 
       traces.each { |tr| tr['GRPCMethodType'].must_equal  'SERVER_STREAMING' }
       traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'OK' }
@@ -613,7 +601,6 @@ puts traces.pretty_inspect
     end
 
     it 'should add backtraces for server_streaming using block if configured' do
-      client_bt = AppOpticsAPM::Config[:grpc_client][:collect_backtraces]
       AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = true
 
       server_with_backtraces do |stub|
@@ -624,11 +611,9 @@ puts traces.pretty_inspect
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         traces.size.must_equal 4
 
-        traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'entry' }.each { |tr| tr['Backtrace'].wont_be_nil "Backtrace missing" }
-        traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'exit' }.each { |tr| tr['Backtrace'].must_be_nil "Extra backtrace in trace"}
+        traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| tr['Backtrace'].must_be_nil "Extra backtrace in trace"}
+        traces.select { |tr| tr['Label'] == 'exit' }.each { |tr| tr['Backtrace'].wont_be_nil "Backtrace missing" }
       end
-
-      AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = client_bt
     end
 
     it 'should report CANCEL for server_streaming using block' do
@@ -640,10 +625,10 @@ puts traces.pretty_inspect
       end
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      assert_entry_exit(traces, 1)
+      assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 3
+      traces.size.must_equal 6
       traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'SERVER_STREAMING' }
       traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'CANCELLED' }
     end
@@ -657,18 +642,16 @@ puts traces.pretty_inspect
       end
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      assert_entry_exit(traces, 1)
+      assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 3
+      traces.size.must_equal 6
       traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'SERVER_STREAMING' }
       traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'DEADLINE_EXCEEDED' }
 
     end
 
     it 'should report UNAVAILABLE for server_streaming using block' do
-      AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = true
-
       begin
         AppopticsAPM::SDK.start_trace(:test) do
           res = @unavailable.server_stream(@null_msg) { |_| }
@@ -688,17 +671,17 @@ puts traces.pretty_inspect
     it 'should report UNKNOWN for server_streaming using block' do
       begin
         AppopticsAPM::SDK.start_trace(:test) do
-          res = @stub.server_stream_find(@address_msg)
+          res = @stub.server_stream_unknown(@address_msg)
           res.each { |_| }
         end
       rescue => _
       end
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      assert_entry_exit(traces, 1)
+      assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 3
+      traces.size.must_equal 6
       traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'SERVER_STREAMING' }
       traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNKNOWN' }
     end
@@ -712,18 +695,18 @@ puts traces.pretty_inspect
       end
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      assert_entry_exit(traces, 1)
+      assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 3
+      traces.size.must_equal 6
       traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'SERVER_STREAMING' }
       traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNIMPLEMENTED' }
     end
 
     it 'sends metrics from the server for server_streaming using block' do
-      skip
       Oboe_metal::Span.expects(:createSpan).with('AddressService.server_stream', nil, is_a(Integer))
       @stub.server_stream(@null_msg) { |_| }
+      sleep 0.5
     end
   end
 
@@ -735,21 +718,21 @@ puts traces.pretty_inspect
       end
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      assert_entry_exit(traces, 1)
+      assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 2
+      traces.size.must_equal 4
       traces[0]['Spec'].must_equal            'rsc'
       traces[0]['RemoteURL'].must_equal       'grpc://localhost:50051/grpctest.TestService/bidi_stream'
       traces[0]['IsService'].must_equal       'True'
 
-      # server_entry = traces.find { |tr| tr['Layer'] == 'grpc_server' && tr['Label'] == 'entry' }
-      # server_entry['Spec'].must_equal            'grpc'
-      # server_entry['Controller'].must_equal      'AddressService'
-      # server_entry['Action'].must_equal          'bidi_stream'
-      # server_entry['URL'].must_equal             '/grpctest.TestService/bidi_stream'
-      #
-      # traces.find { |tr| tr['Layer'] == 'grpc_server' && tr['Label'] == 'exit' }['TransactionName'].must_equal 'AddressService.bidi_stream'
+      server_entry = traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'entry' }
+      server_entry['Spec'].must_equal            'grpc_server'
+      server_entry['Controller'].must_equal      'AddressService'
+      server_entry['Action'].must_equal          'bidi_stream'
+      server_entry['URL'].must_equal             '/grpctest.TestService/bidi_stream'
+
+      traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'exit' }['TransactionName'].must_equal 'AddressService.bidi_stream'
 
       traces.each { |tr| tr['GRPCMethodType'].must_equal  'BIDI_STREAMING' }
       traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'OK' }
@@ -757,7 +740,6 @@ puts traces.pretty_inspect
     end
 
     it 'should add backtraces for bidi_streaming with enumerator if configured' do
-      client_bt = AppOpticsAPM::Config[:grpc_client][:collect_backtraces]
       AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = true
 
       server_with_backtraces do |stub|
@@ -769,11 +751,9 @@ puts traces.pretty_inspect
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         traces.size.must_equal 4
 
-        traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'entry' }.each { |tr| tr['Backtrace'].wont_be_nil "Backtrace missing" }
-        traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'exit' }.each { |tr| tr['Backtrace'].must_be_nil "Extra backtrace in trace"}
+        traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| tr['Backtrace'].must_be_nil "Extra backtrace in trace"}
+        traces.select { |tr| tr['Label'] == 'exit' }.each { |tr| tr['Backtrace'].wont_be_nil "Backtrace missing" }
       end
-
-      AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = client_bt
     end
 
     it 'should report CANCEL for bidi_streaming with enumerator' do
@@ -786,11 +766,11 @@ puts traces.pretty_inspect
       end
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      assert_entry_exit(traces, 1)
+      assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 3
-      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'BIDI_STREAMING' }
+      traces.size.must_equal 6
+      traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| tr['GRPCMethodType'].must_equal  'BIDI_STREAMING' }
       traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'CANCELLED' }
     end
 
@@ -804,11 +784,11 @@ puts traces.pretty_inspect
       end
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      assert_entry_exit(traces, 1)
+      assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 3
-      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'BIDI_STREAMING' }
+      traces.size.must_equal 6
+      traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| tr['GRPCMethodType'].must_equal  'BIDI_STREAMING' }
       traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'DEADLINE_EXCEEDED' }
     end
 
@@ -840,11 +820,11 @@ puts traces.pretty_inspect
       end
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      assert_entry_exit(traces, 1)
+      assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 3
-      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'BIDI_STREAMING' }
+      traces.size.must_equal 6
+      traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| tr['GRPCMethodType'].must_equal  'BIDI_STREAMING' }
       traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNKNOWN' }
     end
 
@@ -858,16 +838,16 @@ puts traces.pretty_inspect
       end
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      assert_entry_exit(traces, 1)
+
+      assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 3
-      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'BIDI_STREAMING' }
+      traces.size.must_equal 6
+      traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| tr['GRPCMethodType'].must_equal  'BIDI_STREAMING' }
       traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNIMPLEMENTED' }
     end
 
     it 'sends metrics from the server for bidi_streaming with enumerator' do
-      skip
       Oboe_metal::Span.expects(:createSpan).with('AddressService.bidi_stream', nil, is_a(Integer))
       response = @stub.bidi_stream([@null_msg, @null_msg])
       response.each { |_| }
@@ -881,21 +861,21 @@ puts traces.pretty_inspect
       end
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      assert_entry_exit(traces, 1)
+      assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 2
+      traces.size.must_equal 4
       traces[0]['Spec'].must_equal            'rsc'
       traces[0]['RemoteURL'].must_equal       'grpc://localhost:50051/grpctest.TestService/bidi_stream'
       traces[0]['IsService'].must_equal       'True'
 
-      # server_entry = traces.find { |tr| tr['Layer'] == 'grpc_server' && tr['Label'] == 'entry' }
-      # server_entry['Spec'].must_equal            'grpc'
-      # server_entry['Controller'].must_equal      'AddressService'
-      # server_entry['Action'].must_equal          'bidi_stream'
-      # server_entry['URL'].must_equal             '/grpctest.TestService/bidi_stream'
-      #
-      # traces.find { |tr| tr['Layer'] == 'grpc_server' && tr['Label'] == 'exit' }['TransactionName'].must_equal 'AddressService.bidi_stream'
+      server_entry = traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'entry' }
+      server_entry['Spec'].must_equal            'grpc_server'
+      server_entry['Controller'].must_equal      'AddressService'
+      server_entry['Action'].must_equal          'bidi_stream'
+      server_entry['URL'].must_equal             '/grpctest.TestService/bidi_stream'
+
+      traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'exit' }['TransactionName'].must_equal 'AddressService.bidi_stream'
 
       traces.each { |tr| tr['GRPCMethodType'].must_equal  'BIDI_STREAMING' }
       traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'OK' }
@@ -903,7 +883,6 @@ puts traces.pretty_inspect
     end
 
     it 'should add backtraces for bidi_streaming using block if configured' do
-      client_bt = AppOpticsAPM::Config[:grpc_client][:collect_backtraces]
       AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = true
 
       server_with_backtraces do |stub|
@@ -914,11 +893,9 @@ puts traces.pretty_inspect
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         traces.size.must_equal 4
 
-        traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'entry' }.each { |tr| tr['Backtrace'].wont_be_nil "Backtrace missing" }
-        traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'exit' }.each { |tr| tr['Backtrace'].must_be_nil "Extra backtrace in trace"}
+        traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| tr['Backtrace'].must_be_nil "Extra backtrace in trace" }
+        traces.select { |tr| tr['Label'] == 'exit' }.each { |tr| tr['Backtrace'].wont_be_nil "Backtraces missing" }
       end
-
-      AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = client_bt
     end
 
     it 'should report CANCEL for bidi_streaming using block' do
@@ -930,10 +907,10 @@ puts traces.pretty_inspect
       end
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      assert_entry_exit(traces, 1)
+      assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 3
+      traces.size.must_equal 6
       traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'BIDI_STREAMING' }
       traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'CANCELLED' }
     end
@@ -947,10 +924,10 @@ puts traces.pretty_inspect
       end
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      assert_entry_exit(traces, 1)
+      assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 3
+      traces.size.must_equal 6
       traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'BIDI_STREAMING' }
       traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'DEADLINE_EXCEEDED' }
     end
@@ -981,10 +958,10 @@ puts traces.pretty_inspect
       end
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      assert_entry_exit(traces, 1)
+      assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 3
+      traces.size.must_equal 6
       traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'BIDI_STREAMING' }
       traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNKNOWN' }
     end
@@ -998,22 +975,21 @@ puts traces.pretty_inspect
       end
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      assert_entry_exit(traces, 1)
+      assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 3
+      traces.size.must_equal 6
       traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'BIDI_STREAMING' }
       traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNIMPLEMENTED' }
     end
 
     it 'sends metrics from the server for bidi_streaming using block' do
-      skip
       Oboe_metal::Span.expects(:createSpan).with('AddressService.bidi_stream', nil, is_a(Integer))
       @stub.bidi_stream([@null_msg, @null_msg]) { |_| }
     end
   end
 
-  describe "stressing the bidi_server" do
+  describe "stressing the bidi server" do
     it "should report when stressed bidi gets RESOURCE_EXHAUSTED" do
       threads = []
       @count.times do
@@ -1029,39 +1005,42 @@ puts traces.pretty_inspect
       threads.each { |thd| thd.join; }
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      puts "  Exhausted request count: #{traces.select { |tr| tr['GRPCStatus'] =~ /RESOURCE_EXHAUSTED/  }.size} out of #{@count}."
+      # TODO remove once now more debugging is needed
+      # puts "  Exhausted request count: #{traces.select { |tr| tr['GRPCStatus'] =~ /RESOURCE_EXHAUSTED/  }.size} out of #{@count}."
 
       assert_entry_exit(traces, nil, false)
 
-      traces.select { |tr| tr['GRPCMethodType'] == 'BIDI_STREAMING' }.size.must_equal   2*@count
-      traces.select { |tr| tr['GRPCStatus'] == 'RESOURCE_EXHAUSTED' }.size.must_equal (traces.size - 2*@count)
+      # we should get 2 client events for all calls, @pool_size * 2 events from the server, plus error events for exhaustion
+      traces.size.must_equal 3*@count + @pool_size
+      # only @pool_size calls get through, the others respond with RESOURCE_EXHAUSTED
+      traces.select { |tr| tr['GRPCStatus'] == 'RESOURCE_EXHAUSTED' }.size.must_equal   @count - @pool_size
     end
 
-    it "should work when stressed bidi gets CANCELLED" do
+    it "should work when stressed bidi gets cancelled" do
       threads = []
       @count.times do
         threads << Thread.new do
           begin
-            AppopticsAPM::SDK.start_trace(:test) do
+            AppOpticsAPM::SDK.start_trace(:test) do
               @stub.bidi_stream_cancel(Array.new(200, @phone_msg)) { |_| }
             end
           rescue => _
           end
         end
       end
-
       threads.each { |thd| thd.join; }
+
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      assert_entry_exit(traces, @count, false)
+      assert_entry_exit(traces, nil, false)
 
-      traces.size.must_equal 3*@count
+      cancelled = traces.select { |tr| tr['GRPCStatus'] =~ /CANCELLED/ }.size
+      exhausted = traces.select { |tr| tr['GRPCStatus'] =~ /RESOURCE_EXHAUSTED/ }.size
+      (cancelled/2 + exhausted).must_equal @count
 
-      traces.select { |tr| tr['GRPCMethodType'] == 'BIDI_STREAMING' }.size.must_equal 2*@count
-      traces.select { |tr| !tr['Backtrace'].nil? }.size.must_equal                      @count
-      traces.select { |tr| tr['GRPCStatus'] =~ /RESOURCE_EXHAUSTED|CANCELLED/ }.size.must_equal @count
+      traces.size.must_equal @count*6 - exhausted*3
     end
 
-    it "should work when stressed bidi is UNAVAILABLE" do
+    it "should work when stressed bidi is unavailable" do
       AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = true
       threads = []
       @count.times do
@@ -1074,8 +1053,8 @@ puts traces.pretty_inspect
           end
         end
       end
-
       threads.each { |thd| thd.join; }
+
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
       assert_entry_exit(traces, @count, false)
 
@@ -1084,6 +1063,53 @@ puts traces.pretty_inspect
       traces.select { |tr| tr['GRPCMethodType'] == 'BIDI_STREAMING' }.size.must_equal 2*@count
       traces.select { |tr| !tr['Backtrace'].nil? }.size.must_equal                    2*@count
       traces.select { |tr| tr['GRPCStatus'] =~ /RESOURCE_EXHAUSTED|UNAVAILABLE/ }.size.must_equal @count
+    end
+
+
+    it "should raise and tag varying exceptions" do
+      threads = []
+      (3*@count).times do
+        threads << Thread.new do
+          begin
+            AppopticsAPM::SDK.start_trace(:test) do
+              @stub.bidi_stream_varying(Array.new(20, @phone_msg)) { |_| }
+            end
+          rescue => _
+          end
+        end
+      end
+
+      sleep 0.5
+      threads.each { |thd| thd.join; }
+
+      traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
+
+      assert_entry_exit(traces, nil, false)
+
+      groups = traces_group(traces)
+      pairs = groups.map { |arr| arr.select { |a| a['Label'] == 'exit' } }
+      pairs.each { |pair| assert_same_status(pair) }
+    end
+
+    def traces_group(traces)
+      entries = traces.select { |tr| tr['Layer'] == 'grpc-client' && tr['Label'] == 'entry' }
+      groups = []
+      entries.each_with_index do |tr, i|
+        groups[i] = [tr]
+        while tr_new = traces.find { |tr2| tr2['Edge'] == groups[i].last['X-Trace'][42..-3] }
+          groups[i] << tr_new
+        end
+      end
+      groups
+    end
+
+    def assert_same_status(pair)
+      if pair[0]['GRPCStatus'] == 'RESOURCE_EXHAUSTED'
+        refute pair[1], "there should not be a server event for RESOURCE_EXHAUSTED"
+      else
+        assert pair[1], "no server exit event found for #{pair[0]['GRPCStatus']}"
+        assert_equal pair[0]['GRPCStatus'], pair[1]['GRPCStatus']
+      end
     end
   end
 end
