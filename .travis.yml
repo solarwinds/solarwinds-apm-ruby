@@ -14,8 +14,8 @@ rvm:
   - 2.5.3
   - 2.4.5
   - 2.3.8
-#  - jruby-9.0.5.0
   - ruby-head
+#  - jruby-9.0.5.0
 
 gemfile:
   - gemfiles/libraries.gemfile
