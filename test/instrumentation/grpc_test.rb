@@ -22,8 +22,6 @@ require 'grpc_server_50051'
 # end
 
 describe 'GRPC' do
-  i_suck_and_my_tests_are_order_dependent!
-
   def start_server
     @pool_size = 6
 
@@ -140,7 +138,7 @@ describe 'GRPC' do
 
       server_with_backtraces do |stub|
         AppopticsAPM::SDK.start_trace(:test) do
-          stub.unary_1(@address_msg)
+          stub.unary(@address_msg)
         end
 
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
@@ -280,8 +278,8 @@ describe 'GRPC' do
     end
 
     it 'sends metrics from the server for unary' do
-      Oboe_metal::Span.expects(:createSpan).with('AddressService.unary_1', nil, is_a(Integer))
-      @stub.unary_1(@address_msg)
+      Oboe_metal::Span.expects(:createSpan).with('AddressService.unary', nil, is_a(Integer))
+      @stub.unary(@address_msg)
     end
   end
 
