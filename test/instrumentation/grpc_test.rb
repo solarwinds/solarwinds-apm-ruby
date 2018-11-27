@@ -119,17 +119,17 @@ describe 'GRPC' do
       assert valid_edges?(traces)
 
       traces[0]['Spec'].must_equal            'rsc'
-      traces[0]['RemoteURL'].must_equal       'grpc://localhost:50051/grpctest.TestService/unary_1'
+      traces[0]['RemoteURL'].must_equal       'grpc://localhost:50051/grpctest.TestService/unary'
       traces[0]['IsService'].must_equal       'True'
 
       server_entry = traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'entry' }
       server_entry['Spec'].must_equal            'grpc_server'
       server_entry['Controller'].must_equal      'AddressService'
-      server_entry['Action'].must_equal          'unary_1'
-      server_entry['URL'].must_equal             '/grpctest.TestService/unary_1'
+      server_entry['Action'].must_equal          'unary'
+      server_entry['URL'].must_equal             '/grpctest.TestService/unary'
       server_entry['HTTP-Host'].must_match       /127.0.0.1/
 
-      traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'exit' }['TransactionName'].must_equal 'AddressService.unary_1'
+      traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'exit' }['TransactionName'].must_equal 'AddressService.unary'
 
       traces.each { |tr| tr['GRPCMethodType'].must_equal 'UNARY' }
       traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'OK' }
