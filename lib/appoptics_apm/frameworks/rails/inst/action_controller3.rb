@@ -44,10 +44,10 @@ module AppOpticsAPM
 
           process_action_without_appoptics(*args)
         rescue Exception
-         kvs[:Status] = 500
-         kvs.delete(:Backtrace)
-         AppOpticsAPM::API.log(nil, 'info', kvs)
-         raise
+          kvs[:Status] = 500
+          kvs.delete(:Backtrace)
+          AppOpticsAPM::API.log(nil, 'info', kvs)
+          raise
         end
       end
     end
