@@ -51,7 +51,6 @@ if AppOpticsAPM::Config[:mongo][:enabled]
           end
 
           kvs[:RemoteHost] = @database.client.cluster.addresses.first.to_s
-          kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:mongo][:collect_backtraces]
         rescue => e
           AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
         ensure
@@ -72,6 +71,7 @@ if AppOpticsAPM::Config[:mongo][:enabled]
 
               kvs = collect_kvs(m, args)
               AppOpticsAPM::API.log_entry(:mongo, kvs)
+              kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:mongo][:collect_backtraces]
 
               send("#{m}_without_appoptics", *args)
             rescue => e
@@ -128,7 +128,6 @@ if AppOpticsAPM::Config[:mongo][:enabled]
             end
 
             kvs[:RemoteHost] = @collection.database.client.cluster.addresses.first.to_s
-            kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:mongo][:collect_backtraces]
           rescue => e
             AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
           ensure
@@ -149,6 +148,7 @@ if AppOpticsAPM::Config[:mongo][:enabled]
 
                 kvs = collect_kvs(m, args)
                 AppOpticsAPM::API.log_entry(:mongo, kvs)
+                kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:mongo][:collect_backtraces]
 
                 send("#{m}_without_appoptics", *args)
               rescue => e

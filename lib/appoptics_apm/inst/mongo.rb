@@ -61,8 +61,8 @@ if defined?(::Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && Ap
             end
 
             AppOpticsAPM::API.trace(:mongo, report_kvs) do
-              send("#{m}_without_appoptics", *args)
               report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:mongo][:collect_backtraces]
+              send("#{m}_without_appoptics", *args)
             end
           end
 
@@ -104,8 +104,8 @@ if defined?(::Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && Ap
             end
 
             AppOpticsAPM::API.trace(:mongo, report_kvs) do
-              send("#{m}_without_appoptics", *args)
               report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:mongo][:collect_backtraces]
+              send("#{m}_without_appoptics", *args)
             end
           end
 

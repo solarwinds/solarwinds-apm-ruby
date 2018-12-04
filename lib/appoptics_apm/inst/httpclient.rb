@@ -56,6 +56,7 @@ module AppOpticsAPM
 
           AppOpticsAPM::API.log_entry(:httpclient, kvs)
           kvs.clear
+          kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:httpclient][:collect_backtraces]
 
           req_context = add_xtrace_header(header) unless blacklisted
 
@@ -79,7 +80,6 @@ module AppOpticsAPM
           AppOpticsAPM::API.log_exception(:httpclient, e)
           raise e
         ensure
-          kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:httpclient][:collect_backtraces]
           AppOpticsAPM::API.log_exit(:httpclient, kvs)
         end
       end
@@ -111,6 +111,7 @@ module AppOpticsAPM
 
           AppOpticsAPM::API.log_entry(:httpclient, kvs)
           kvs.clear
+          kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:httpclient][:collect_backtraces]
 
           blacklisted ? req.header.delete('X-Trace') : req_context = add_xtrace_header(req.header)
 
@@ -143,8 +144,6 @@ module AppOpticsAPM
           AppOpticsAPM::API.log_exception(:httpclient, e)
           raise e
         ensure
-          # AppOpticsAPM::API.log_exit('httpclient', kvs.merge('Async' => 1))
-          kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:httpclient][:collect_backtraces]
           AppOpticsAPM::API.log_exit(:httpclient, kvs)
         end
       end
