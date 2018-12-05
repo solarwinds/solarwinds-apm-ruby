@@ -170,7 +170,7 @@ module AppOpticsAPM
         return sql unless AppOpticsAPM::Config[:sanitize_sql]
 
         regexp = Regexp.new(AppOpticsAPM::Config[:sanitize_sql_regexp], AppOpticsAPM::Config[:sanitize_sql_opts])
-        sql.gsub(regexp, '?')
+        sql.gsub(/\\\'/,'').gsub(regexp, '?')
       end
 
       ##
