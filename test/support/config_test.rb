@@ -151,7 +151,7 @@ class ConfigTest
       AppOpticsAPM::Config[:verbose].must_equal false
       AppOpticsAPM::Config[:tracing_mode].must_equal :always
       AppOpticsAPM::Config[:sanitize_sql].must_equal true
-      AppOpticsAPM::Config[:sanitize_sql_regexp].must_equal '(\'[\s\S][^\']*\'|\d*\.\d+|\d+|NULL)'
+      AppOpticsAPM::Config[:sanitize_sql_regexp].must_equal '(\'[^\']*\'|\d*\.\d+|\d+|NULL)'
       AppOpticsAPM::Config[:sanitize_sql_opts].must_equal Regexp::IGNORECASE
 
       AppOpticsAPM::Config[:dnt_regexp].must_equal '\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|otf|eot|ttf|woff|woff2|svg|less)(\?.+){0,1}$'
