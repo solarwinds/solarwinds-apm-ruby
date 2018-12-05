@@ -180,6 +180,7 @@ if defined?(::Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && Ap
         # Instrument Collection query operations
         AppOpticsAPM::Inst::Mongo::COLL_QUERY_OPS.reject { |m| !method_defined?(m) }.each do |m|
           define_method("#{m}_with_appoptics") do |*args, &blk|
+            report_kvs = {}
             begin
               report_kvs = appoptics_collect(m, args)
               args_length = args.length
