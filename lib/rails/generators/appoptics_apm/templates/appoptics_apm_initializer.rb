@@ -200,8 +200,11 @@ if defined?(AppOpticsAPM::Config)
   #
   # Argument logging
   #
-  # for http requests
-  # Set to true to enable argument logging
+  #
+  # For http requests:
+  # By default the query string parameters are included in the URLs reported.
+  # Set :log_args to false and instrumentation will stop collecting
+  # and reporting query arguments from URLs.
   #
   AppOpticsAPM::Config[:bunnyconsumer][:log_args] = true
   AppOpticsAPM::Config[:curb][:log_args] = true
