@@ -75,7 +75,7 @@ if defined?(AppOpticsAPM::Config)
   # collect and report query literals to AppOpticsAPM.
   #
   AppOpticsAPM::Config[:sanitize_sql] = true
-  AppOpticsAPM::Config[:sanitize_sql_regexp] = '(\'[\s\S][^\']*\'|\d*\.\d+|\d+|NULL)'
+  AppOpticsAPM::Config[:sanitize_sql_regexp] = '(\'[^\']*\'|\d*\.\d+|\d+|NULL)'
   AppOpticsAPM::Config[:sanitize_sql_opts]   = Regexp::IGNORECASE
 
   #
