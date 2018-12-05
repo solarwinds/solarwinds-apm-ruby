@@ -98,7 +98,6 @@ class RackTestApp < Minitest::Test
     assert AppOpticsAPM::XTrace.valid?(xtrace)
 
     traces[0]['URL'].must_equal "/lobster"
-
   end
 
   def test_log_args_when_true
@@ -113,7 +112,6 @@ class RackTestApp < Minitest::Test
     assert AppOpticsAPM::XTrace.valid?(xtrace)
 
     traces[0]['URL'].must_equal "/lobster?blah=1"
-
   end
 
   def test_has_header_when_not_tracing
