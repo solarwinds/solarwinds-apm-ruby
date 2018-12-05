@@ -126,8 +126,8 @@ describe 'GRPC' do
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
       traces.size.must_equal 2
 
-      traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'entry' }.each { |tr| tr['Backtrace'].wont_be_nil "Backtrace missing" }
-      traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'exit' }.each { |tr| tr['Backtrace'].must_be_nil "Extra backtrace in trace"}
+      traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'entry' }.each { |tr| tr['Backtrace'].must_be_nil "Backtrace missing" }
+      traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'exit' }.each { |tr| tr['Backtrace'].wont_be_nil "Extra backtrace in trace"}
 
       # stop_server
       # AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = server_bt
@@ -321,7 +321,7 @@ describe 'GRPC' do
       traces[0]['RemoteURL'].must_equal       'grpc://localhost:50051/grpctest.TestService/client_stream'
       traces.each { |tr| tr['GRPCMethodType'].must_equal  'CLIENT_STREAMING' }
       traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'OK' }
-      traces.select { |tr| tr['Label'] == 'entry'}.each { |tr| tr['Backtrace'].wont_be_nil "backtrace missing!" }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['Backtrace'].wont_be_nil "backtrace missing!" }
 
       # stop_server
       # AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = server_bt
@@ -468,8 +468,8 @@ describe 'GRPC' do
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
       traces.size.must_equal 2
 
-      traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'entry' }.each { |tr| tr['Backtrace'].wont_be_nil "Backtrace missing" }
-      traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'exit' }.each { |tr| tr['Backtrace'].must_be_nil "Extra backtrace in trace"}
+      traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'entry' }.each { |tr| tr['Backtrace'].must_be_nil "Backtrace missing" }
+      traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'exit' }.each { |tr| tr['Backtrace'].wont_be_nil "Extra backtrace in trace"}
 
       # stop_server
       # AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = server_bt
@@ -619,8 +619,8 @@ describe 'GRPC' do
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
       traces.size.must_equal 2
 
-      traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'entry' }.each { |tr| tr['Backtrace'].wont_be_nil "Backtrace missing" }
-      traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'exit' }.each { |tr| tr['Backtrace'].must_be_nil "Extra backtrace in trace"}
+      traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'entry' }.each { |tr| tr['Backtrace'].must_be_nil "Backtrace missing" }
+      traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'exit' }.each { |tr| tr['Backtrace'].wont_be_nil "Extra backtrace in trace"}
 
       # stop_server
       # AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = server_bt
@@ -769,8 +769,8 @@ describe 'GRPC' do
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
       traces.size.must_equal 2
 
-      traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'entry' }.each { |tr| tr['Backtrace'].wont_be_nil "Backtrace missing" }
-      traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'exit' }.each { |tr| tr['Backtrace'].must_be_nil "Extra backtrace in trace"}
+      traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'entry' }.each { |tr| tr['Backtrace'].must_be_nil "Backtrace missing" }
+      traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'exit' }.each { |tr| tr['Backtrace'].wont_be_nil "Extra backtrace in trace"}
 
       # stop_server
       # AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = server_bt
@@ -919,8 +919,8 @@ describe 'GRPC' do
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
       traces.size.must_equal 2
 
-      traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'entry' }.each { |tr| tr['Backtrace'].wont_be_nil "Backtrace missing" }
-      traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'exit' }.each { |tr| tr['Backtrace'].must_be_nil "Extra backtrace in trace"}
+      traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'entry' }.each { |tr| tr['Backtrace'].must_be_nil "Backtrace missing" }
+      traces.select { |tr| tr['Layer'] =~ /grpc/ && tr['Label'] == 'exit' }.each { |tr| tr['Backtrace'].wont_be_nil "Extra backtrace in trace"}
 
       # stop_server
       # AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = server_bt

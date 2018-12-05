@@ -173,8 +173,8 @@ end
 #
 def validate_event_keys(event, kvs)
   kvs.each do |k, v|
-    assert_equal true, event.key?(k), "#{k} is missing"
-    assert event[k] == v, "#{k} != #{v} (#{event[k]})"
+    assert event.key?(k), "#{k} is missing"
+    assert_equal event[k], v, "#{k} != #{v} (#{event[k]})"
   end
 end
 
@@ -258,6 +258,23 @@ def layer_has_key(traces, layer, key)
 end
 
 ##
+# layer_has_key
+#
+# Checks an array of trace events if a specific layer (regardless of event type)
+# has he specified key
+#
+def layer_has_key_once(traces, layer, key)
+  return false if traces.empty?
+  has_keys = 0
+
+  traces.each do |t|
+    has_keys += 1 if t["Layer"] == layer and t.has_key?(key)
+  end
+
+  has_keys.must_equal 1, "Key #{key} missing in layer #{layer}"
+end
+
+##
 # layer_doesnt_have_key
 #
 # Checks an array of trace events to assure that a specific layer
@@ -271,7 +288,7 @@ def layer_doesnt_have_key(traces, layer, key)
     has_key = true if t["Layer"] == layer and t.has_key?(key)
   end
 
-  has_key.must_equal false
+  has_key.must_equal false, "Key #{key} should not be in layer #{layer}"
 end
 
 ##

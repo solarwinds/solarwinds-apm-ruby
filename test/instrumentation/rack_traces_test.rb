@@ -30,44 +30,49 @@ class RackTestApp < Minitest::Test
     }
   end
 
+  def setup
+    @bt = AppOpticsAPM::Config[:rack][:collect_backtraces]
+    @log_args = AppOpticsAPM::Config[:rack][:log_args]
+    clear_all_traces
+  end
+
   def teardown
+    AppOpticsAPM::Config[:rack][:collect_backtraces] = @bt
+    AppOpticsAPM::Config[:rack][:log_args] =  @log_args
     AppOpticsAPM::Config[:tracing_mode] = :always
   end
 
   def test_get_the_lobster
     # skip("FIXME: broken on travis only") if ENV['TRAVIS'] == "true"
 
-    clear_all_traces
-
     get "/lobster"
 
     traces = get_all_traces
-    traces.count.must_equal 3
+    traces.count.must_equal 2
 
     validate_outer_layers(traces, 'rack')
 
     kvs = {}
     kvs["Label"] = "entry"
     kvs["URL"] = "/lobster"
-    validate_event_keys(traces[0], kvs)
-
-    kvs.clear
-    kvs["Layer"] = "rack"
-    kvs["Label"] = "info"
     kvs["HTTP-Host"] = "example.org"
     kvs["Port"] = 80
     kvs["Proto"] = "http"
     kvs["Method"] = "GET"
     kvs["ClientIP"] = "127.0.0.1"
-    validate_event_keys(traces[1], kvs)
-
+    validate_event_keys(traces[0], kvs)
     assert traces[0].has_key?('SampleRate')
     assert traces[0].has_key?('SampleSource')
-    assert traces[1].has_key?('ProcessID')
-    assert traces[1].has_key?('ThreadID')
+    assert traces[0].has_key?('ProcessID')
+    assert traces[0].has_key?('ThreadID')
+    assert traces[0]['Backtrace']
+    assert traces[0]['Backtrace'].size > 0
 
-    assert traces[2]["Label"] == 'exit'
-    assert traces[2]["Status"] == 200
+    kvs.clear
+    kvs["Layer"] = "rack"
+    kvs["Label"] = "exit"
+    kvs['Status'] = 200
+    validate_event_keys(traces[1], kvs)
 
     assert last_response.ok?
 
@@ -75,7 +80,6 @@ class RackTestApp < Minitest::Test
   end
 
   def test_must_return_xtrace_header
-    clear_all_traces
     get "/lobster"
     xtrace = last_response['X-Trace']
     assert xtrace
@@ -83,9 +87,6 @@ class RackTestApp < Minitest::Test
   end
 
   def test_log_args_when_false
-    clear_all_traces
-
-    @log_args = AppOpticsAPM::Config[:rack][:log_args]
     AppOpticsAPM::Config[:rack][:log_args] = false
 
     get "/lobster?blah=1"
@@ -97,14 +98,9 @@ class RackTestApp < Minitest::Test
     assert AppOpticsAPM::XTrace.valid?(xtrace)
 
     traces[0]['URL'].must_equal "/lobster"
-
-    AppOpticsAPM::Config[:rack][:log_args] = @log_args
   end
 
   def test_log_args_when_true
-    clear_all_traces
-
-    @log_args = AppOpticsAPM::Config[:rack][:log_args]
     AppOpticsAPM::Config[:rack][:log_args] = true
 
     get "/lobster?blah=1"
@@ -116,13 +112,9 @@ class RackTestApp < Minitest::Test
     assert AppOpticsAPM::XTrace.valid?(xtrace)
 
     traces[0]['URL'].must_equal "/lobster?blah=1"
-
-    AppOpticsAPM::Config[:rack][:log_args] = @log_args
   end
 
   def test_has_header_when_not_tracing
-    clear_all_traces
-
     AppOpticsAPM::Config[:tracing_mode] = :never
 
     get "/lobster?blah=1"
@@ -171,7 +163,6 @@ class RackTestApp < Minitest::Test
   end
 
   def test_exception
-    clear_all_traces
     get '/the_exception'
 
     traces = get_all_traces
@@ -182,5 +173,15 @@ class RackTestApp < Minitest::Test
     assert error_trace.key?('ErrorMsg')
     assert_equal 1, traces.select { |trace| trace['Label'] == 'error' }.count
   end
+
+  def test_without_backtrace
+    AppOpticsAPM::Config[:rack][:collect_backtraces] = false
+    get '/lobster'
+
+    traces = get_all_traces
+
+    refute traces[0]['Backtrace']
+  end
+
 end
 

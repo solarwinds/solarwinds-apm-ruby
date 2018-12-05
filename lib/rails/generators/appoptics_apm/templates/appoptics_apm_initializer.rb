@@ -183,6 +183,7 @@ if defined?(AppOpticsAPM::Config)
   AppOpticsAPM::Config[:mongo][:enabled] = true
   AppOpticsAPM::Config[:moped][:enabled] = true
   AppOpticsAPM::Config[:nethttp][:enabled] = true
+  AppOpticsAPM::Config[:padrino][:enabled] = true
   AppOpticsAPM::Config[:rack][:enabled] = true
   AppOpticsAPM::Config[:redis][:enabled] = true
   AppOpticsAPM::Config[:resqueclient][:enabled] = true
@@ -191,14 +192,18 @@ if defined?(AppOpticsAPM::Config)
   AppOpticsAPM::Config[:sequel][:enabled] = true
   AppOpticsAPM::Config[:sidekiqclient][:enabled] = true
   AppOpticsAPM::Config[:sidekiqworker][:enabled] = true
+  AppOpticsAPM::Config[:sinatra][:enabled] = true
   AppOpticsAPM::Config[:typhoeus][:enabled] = true
   #
 
   #
   # Argument logging
   #
-  # for http requests
-  # Set to true to enable argument logging
+  #
+  # For http requests:
+  # By default the query string parameters are included in the URLs reported.
+  # Set :log_args to false and instrumentation will stop collecting
+  # and reporting query arguments from URLs.
   #
   AppOpticsAPM::Config[:bunnyconsumer][:log_args] = true
   AppOpticsAPM::Config[:curb][:log_args] = true
@@ -243,6 +248,7 @@ if defined?(AppOpticsAPM::Config)
   AppOpticsAPM::Config[:mongo][:collect_backtraces] = true
   AppOpticsAPM::Config[:moped][:collect_backtraces] = true
   AppOpticsAPM::Config[:nethttp][:collect_backtraces] = true
+  AppOpticsAPM::Config[:padrino][:collect_backtraces] = true
   AppOpticsAPM::Config[:rack][:collect_backtraces] = true
   AppOpticsAPM::Config[:redis][:collect_backtraces] = false
   AppOpticsAPM::Config[:resqueclient][:collect_backtraces] = true
@@ -251,6 +257,7 @@ if defined?(AppOpticsAPM::Config)
   AppOpticsAPM::Config[:sequel][:collect_backtraces] = true
   AppOpticsAPM::Config[:sidekiqclient][:collect_backtraces] = false
   AppOpticsAPM::Config[:sidekiqworker][:collect_backtraces] = false
+  AppOpticsAPM::Config[:sinatra][:collect_backtraces] = true
   AppOpticsAPM::Config[:typhoeus][:collect_backtraces] = false
 
 end

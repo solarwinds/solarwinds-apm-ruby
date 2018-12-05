@@ -33,7 +33,6 @@ module AppOpticsAPM
 
         # Avoid cross host tracing for blacklisted domains
         kvs[:blacklisted] = AppOpticsAPM::API.blacklisted?(URI(url).hostname)
-        kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:curb][:collect_backtraces]
 
         kvs
       rescue => e
@@ -94,6 +93,7 @@ module AppOpticsAPM
           AppOpticsAPM::API.log_exception(:curb, e)
           raise e
         ensure
+          kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:curb][:collect_backtraces]
           AppOpticsAPM::API.log_exit(:curb, kvs)
         end
       end

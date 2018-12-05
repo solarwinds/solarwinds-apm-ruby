@@ -9,6 +9,11 @@ require File.expand_path(File.dirname(__FILE__) + '/apps/sinatra_simple')
 describe Sinatra do
   before do
     clear_all_traces
+    @bt = AppOpticsAPM::Config[:sinatra][:collect_backtraces]
+  end
+
+  after do
+    AppOpticsAPM::Config[:sinatra][:collect_backtraces] = @bt
   end
 
   it "should trace a request to a simple sinatra stack" do
@@ -18,21 +23,24 @@ describe Sinatra do
 
     traces = get_all_traces
 
-    traces.count.must_equal 9
+    traces.count.must_equal 8
     valid_edges?(traces).must_equal true
     validate_outer_layers(traces, 'rack')
 
-    traces[2]['Layer'].must_equal "sinatra"
-    traces[4]['Label'].must_equal "profile_entry"
-    traces[7]['Controller'].must_equal "SinatraSimple"
-    traces[8]['Label'].must_equal "exit"
+    traces[1]['Layer'].must_equal "sinatra"
+    traces[3]['Label'].must_equal "profile_entry"
+    traces[6]['Controller'].must_equal "SinatraSimple"
+    traces[7]['Label'].must_equal "exit"
+
+    layer_has_key_once(traces, 'sinatra', 'Backtrace')
 
     # Validate the existence of the response header
     r.headers.key?('X-Trace').must_equal true
-    r.headers['X-Trace'].must_equal traces[8]['X-Trace']
+    r.headers['X-Trace'].must_equal traces[7]['X-Trace']
   end
 
   it "should log an error on exception" do
+    AppOpticsAPM::Config[:sinatra][:collect_backtraces] = false
     @app = SinatraSimple
 
     SinatraSimple.any_instance.expects(:dispatch_without_appoptics).raises(StandardError.new('Hello Sinatra'))
@@ -44,19 +52,31 @@ describe Sinatra do
 
     traces = get_all_traces
 
-    traces.count.must_equal 6
+    traces.count.must_equal 5
     valid_edges?(traces).must_equal true
     validate_outer_layers(traces, 'rack')
 
-    traces[2]['Layer'].must_equal "sinatra"
+    traces[1]['Layer'].must_equal "sinatra"
 
-    error_trace = traces.find{ |trace| trace['Label'] == 'error' }
+    error_traces = traces.select{ |trace| trace['Label'] == 'error' }
+    error_traces.size.must_equal 1
 
+    error_trace = error_traces[0]
     error_trace['Layer'].must_equal 'sinatra'
     error_trace['Spec'].must_equal 'error'
     error_trace['ErrorClass'].must_equal 'StandardError'
     error_trace['ErrorMsg'].must_equal 'Hello Sinatra'
-    traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 1
+  end
+
+  it 'should not report backtraces' do
+    AppOpticsAPM::Config[:sinatra][:collect_backtraces] = false
+    @app = SinatraSimple
+
+    r = get "/render"
+
+    traces = get_all_traces
+
+    layer_doesnt_have_key(traces, 'sinatra', 'Backtrace')
   end
 
   it "should not have RUM code in the response" do

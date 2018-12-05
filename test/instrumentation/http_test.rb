@@ -37,7 +37,7 @@ describe "Net::HTTP"  do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 7
+    traces.count.must_equal 6
     valid_edges?(traces).must_equal true
     validate_outer_layers(traces, 'net-http_test')
 
@@ -48,17 +48,14 @@ describe "Net::HTTP"  do
     traces[2]['Label'].must_equal 'entry'
 
     traces[3]['Layer'].must_equal 'rack'
-    traces[3]['Label'].must_equal 'info'
+    traces[3]['Label'].must_equal 'exit'
 
-    traces[4]['Layer'].must_equal 'rack'
-    traces[4]['Label'].must_equal 'exit'
-
-    traces[5]['Spec'].must_equal 'rsc'
-    traces[5]['IsService'].must_equal 1
-    traces[5]['RemoteURL'].must_equal 'http://127.0.0.1:8101/?q=1'
-    traces[5]['HTTPMethod'].must_equal "GET"
-    traces[5]['HTTPStatus'].must_equal "200"
-    traces[5].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:nethttp][:collect_backtraces]
+    traces[4]['Spec'].must_equal 'rsc'
+    traces[4]['IsService'].must_equal 1
+    traces[4]['RemoteURL'].must_equal 'http://127.0.0.1:8101/?q=1'
+    traces[4]['HTTPMethod'].must_equal "GET"
+    traces[4]['HTTPStatus'].must_equal "200"
+    traces[4].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:nethttp][:collect_backtraces]
   end
 
   it "should trace a GET request" do
@@ -69,17 +66,17 @@ describe "Net::HTTP"  do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 7
+    traces.count.must_equal 6
     valid_edges?(traces).must_equal true
     validate_outer_layers(traces, 'net-http_test')
 
     traces[1]['Layer'].must_equal 'net-http'
-    traces[5]['Spec'].must_equal 'rsc'
-    traces[5]['IsService'].must_equal 1
-    traces[5]['RemoteURL'].must_equal 'http://127.0.0.1:8101/?q=1'
-    traces[5]['HTTPMethod'].must_equal "GET"
-    traces[5]['HTTPStatus'].must_equal "200"
-    traces[5].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:nethttp][:collect_backtraces]
+    traces[4]['Spec'].must_equal 'rsc'
+    traces[4]['IsService'].must_equal 1
+    traces[4]['RemoteURL'].must_equal 'http://127.0.0.1:8101/?q=1'
+    traces[4]['HTTPMethod'].must_equal "GET"
+    traces[4]['HTTPStatus'].must_equal "200"
+    traces[4].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:nethttp][:collect_backtraces]
   end
 
   it "should trace a GET request to an uninstrumented app" do
@@ -114,7 +111,7 @@ describe "Net::HTTP"  do
     end
 
     traces = get_all_traces
-    traces[5]['RemoteURL'].must_equal 'http://127.0.0.1:8101/?q=ruby_test_suite'
+    traces[4]['RemoteURL'].must_equal 'http://127.0.0.1:8101/?q=ruby_test_suite'
   end
 
   it "should obey :log_args setting when false" do
@@ -128,7 +125,7 @@ describe "Net::HTTP"  do
     end
 
     traces = get_all_traces
-    traces[5]['RemoteURL'].must_equal 'http://127.0.0.1:8101/'
+    traces[4]['RemoteURL'].must_equal 'http://127.0.0.1:8101/'
   end
 
   it "should obey :collect_backtraces setting when true" do

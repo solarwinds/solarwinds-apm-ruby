@@ -39,7 +39,7 @@ unless defined?(JRUBY_VERSION)
       sleep 5
 
       traces = get_all_traces
-      assert_equal 16, traces.count, "Trace count"
+      assert_equal 12, traces.count, "Trace count"
       validate_outer_layers(traces, "sidekiq-worker")
       assert valid_edges?(traces), "Invalid edge in traces"
 
@@ -62,11 +62,10 @@ unless defined?(JRUBY_VERSION)
       assert_equal "critical",            traces[0]['Queue']
       assert_equal "[1, 2, 3]",           traces[0]['Args']
       assert_equal "false",               traces[0]['Retry']
-
       assert_equal false,                 traces[0].key?('Backtrace')
       assert_equal "net-http",            traces[4]['Layer']
-      assert_equal "entry",               traces[4]['Label']
-      assert_equal "memcache",            traces[14]['Layer']
+      assert_equal "exit",               traces[4]['Label']
+      assert_equal "memcache",            traces[10]['Layer']
     end
 
     def test_jobs_with_errors
@@ -124,7 +123,7 @@ unless defined?(JRUBY_VERSION)
       sleep 5
 
       traces = get_all_traces
-      assert_equal 16, traces.count, "Trace count"
+      assert_equal 12, traces.count, "Trace count"
       assert valid_edges?(traces), "Invalid edge in traces"
       assert_equal 'sidekiq-worker',   traces[0]['Layer']
       assert_equal false,              traces[0].key?('Backtrace')
@@ -164,7 +163,7 @@ unless defined?(JRUBY_VERSION)
       sleep 5
 
       traces = get_all_traces
-      assert_equal 16, traces.count, "Trace count"
+      assert_equal 12, traces.count, "Trace count"
       assert valid_edges?(traces), "Invalid edge in traces"
       assert_equal false, traces[0].key?('Args')
     end
@@ -179,7 +178,7 @@ unless defined?(JRUBY_VERSION)
       sleep 5
 
       traces = get_all_traces
-      assert_equal 16, traces.count, "Trace count"
+      assert_equal 12, traces.count, "Trace count"
       assert valid_edges?(traces), "Invalid edge in traces"
       assert_equal true,         traces[0].key?('Args')
       assert_equal '[1, 2, 3]',  traces[0]['Args']

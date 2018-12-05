@@ -10,6 +10,11 @@ if defined?(::Padrino)
   describe Padrino do
     before do
       clear_all_traces
+      @bt = AppOpticsAPM::Config[:padrino][:collect_backtraces]
+    end
+
+    after do
+      AppOpticsAPM::Config[:padrino][:collect_backtraces] = @bt
     end
 
     it "should trace a request to a simple padrino stack" do
@@ -19,17 +24,19 @@ if defined?(::Padrino)
 
       traces = get_all_traces
 
-      traces.count.must_equal 9
+      traces.count.must_equal 8
       valid_edges?(traces).must_equal true
       validate_outer_layers(traces, 'rack')
 
-      traces[2]['Layer'].must_equal "padrino"
-      traces[7]['Controller'].must_equal "SimpleDemo"
-      traces[8]['Label'].must_equal "exit"
+      traces[1]['Layer'].must_equal "padrino"
+      traces[6]['Controller'].must_equal "SimpleDemo"
+      traces[7]['Label'].must_equal "exit"
+
+      layer_has_key_once(traces, 'padrino', 'Backtrace')
 
       # Validate the existence of the response header
       r.headers.key?('X-Trace').must_equal true
-      r.headers['X-Trace'].must_equal traces[8]['X-Trace']
+      r.headers['X-Trace'].must_equal traces[7]['X-Trace']
     end
 
     it "should log an error on exception" do
@@ -43,18 +50,31 @@ if defined?(::Padrino)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 6
+      traces.count.must_equal 5
       valid_edges?(traces).must_equal true
       validate_outer_layers(traces, 'rack')
 
       traces[2]['Layer'].must_equal "padrino"
 
-      error_trace = traces.find{ |trace| trace['Label'] == 'error' }
+      error_traces = traces.select{ |trace| trace['Label'] == 'error' }
+      error_traces.size.must_equal 1
+
+      error_trace = error_traces[0]
       error_trace['Layer'].must_equal 'padrino'
       error_trace['Spec'].must_equal 'error'
       error_trace.key?('ErrorClass').must_equal true
       error_trace.key?('ErrorMsg').must_equal true
-      traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 1
+    end
+
+    it 'should not report backtraces' do
+      AppOpticsAPM::Config[:padrino][:collect_backtraces] = false
+      @app = SimpleDemo
+
+      r = get "/render"
+
+      traces = get_all_traces
+
+      layer_doesnt_have_key(traces, 'padrino', 'Backtrace')
     end
 
 

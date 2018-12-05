@@ -15,7 +15,7 @@ group :development, :test do
   gem 'mocha'
   gem 'rack-test'
   gem 'rake'
-  gem 'bson', '~> 4.0'
+  gem 'bson' , '~> 4.0'
   gem 'puma', '< 3.1.0'
   gem 'webmock'
   gem 'grpc-tools' if RUBY_VERSION < '2.6.0'
@@ -28,7 +28,7 @@ else
 end
 
 gem 'bunny'
-gem 'mongo'
+gem 'mongo' # , '~> 1.12.5' uncomment to run mongo_v1_test.rb
 # gem 'cassandra'
 gem 'curb' unless defined?(JRUBY_VERSION)
 gem 'dalli'
@@ -36,7 +36,7 @@ gem 'excon'
 gem 'faraday'
 gem 'httpclient'
 gem 'memcached'
-gem 'patron' # not instrumented, to test non-instrumented faraday adapter
+gem 'patron' # not instrumented, needed to test a non-instrumented faraday adapter
 gem 'redis'
 gem 'resque' unless defined?(JRUBY_VERSION)
 gem 'sequel'

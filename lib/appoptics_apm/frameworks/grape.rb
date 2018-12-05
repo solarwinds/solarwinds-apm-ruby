@@ -33,6 +33,7 @@ module AppOpticsAPM
         else
           report_kvs[:Action] = args.empty? ? env['PATH_INFO'] : args[0]['PATH_INFO']
         end
+        report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:grape][:collect_backtraces]
 
         env['appoptics_apm.controller'] = report_kvs[:Controller]
         env['appoptics_apm.action']     = report_kvs[:Action]
@@ -62,7 +63,7 @@ module AppOpticsAPM
             exception = GrapeError.new(error[:message] ? error[:message] : "No message given.")
             exception.set_backtrace(::AppOpticsAPM::API.backtrace)
 
-            ::AppOpticsAPM::API.log_exception('rack', exception )
+            ::AppOpticsAPM::API.log_exception('rack', exception)
 
             # Since calls to error() are handled similar to abort in Grape.  We
             # manually log the rack exit here since the original code won't

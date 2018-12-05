@@ -83,12 +83,11 @@ unless defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 5
+      traces.count.must_equal 4
 
       validate_outer_layers(traces, 'memcached_test')
       validate_event_keys(traces[1], @entry_kvs)
-      validate_event_keys(traces[2], @info_kvs)
-      validate_event_keys(traces[3], @exit_kvs)
+      validate_event_keys(traces[2], @exit_kvs)
 
       traces[1]['KVOp'].must_equal "get_multi"
 
@@ -226,7 +225,7 @@ unless defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
-      layer_has_key(traces, 'memcache', 'Backtrace')
+      traces.find { |tr| tr['Layer'] == 'memcache' && tr['Label'] == 'exit'}.has_key?('Backtrace')
     end
 
     it "should obey :collect_backtraces setting when false" do

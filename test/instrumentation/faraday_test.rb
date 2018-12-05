@@ -35,7 +35,7 @@ describe "Faraday" do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 9
+    traces.count.must_equal 8
 
     assert valid_edges?(traces), "Invalid edge in traces"
     validate_outer_layers(traces, 'faraday_test')
@@ -43,16 +43,16 @@ describe "Faraday" do
     traces[1]['Layer'].must_equal 'faraday'
     traces[1].key?('Backtrace').must_equal AppOpticsAPM::Config[:faraday][:collect_backtraces]
 
-    traces[6]['Layer'].must_equal 'net-http'
-    traces[6]['Label'].must_equal 'exit'
-    traces[6]['Spec'].must_equal 'rsc'
-    traces[6]['IsService'].must_equal 1
-    traces[6]['RemoteURL'].must_equal 'http://127.0.0.1:8101/games?q=1'
-    traces[6]['HTTPMethod'].must_equal 'GET'
-    traces[6]['HTTPStatus'].must_equal '200'
+    traces[5]['Layer'].must_equal 'net-http'
+    traces[5]['Label'].must_equal 'exit'
+    traces[5]['Spec'].must_equal 'rsc'
+    traces[5]['IsService'].must_equal 1
+    traces[5]['RemoteURL'].must_equal 'http://127.0.0.1:8101/games?q=1'
+    traces[5]['HTTPMethod'].must_equal 'GET'
+    traces[5]['HTTPStatus'].must_equal '200'
 
-    traces[7]['Layer'].must_equal 'faraday'
-    traces[7]['Label'].must_equal 'exit'
+    traces[6]['Layer'].must_equal 'faraday'
+    traces[6]['Label'].must_equal 'exit'
   end
 
   it "should trace UNINSTRUMENTED cross-app request" do
@@ -94,7 +94,7 @@ describe "Faraday" do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 9
+    traces.count.must_equal 8
 
     assert valid_edges?(traces), "Invalid edge in traces"
     validate_outer_layers(traces, 'faraday_test')
@@ -102,16 +102,16 @@ describe "Faraday" do
     traces[1]['Layer'].must_equal 'faraday'
     traces[1].key?('Backtrace').must_equal AppOpticsAPM::Config[:faraday][:collect_backtraces]
 
-    traces[6]['Layer'].must_equal 'net-http'
-    traces[6]['Label'].must_equal 'exit'
-    traces[6]['Spec'].must_equal 'rsc'
-    traces[6]['IsService'].must_equal 1
-    traces[6]['RemoteURL'].must_equal 'http://127.0.0.1:8101/?q=ruby_test_suite'
-    traces[6]['HTTPMethod'].must_equal 'GET'
-    traces[6]['HTTPStatus'].must_equal '200'
+    traces[5]['Layer'].must_equal 'net-http'
+    traces[5]['Label'].must_equal 'exit'
+    traces[5]['Spec'].must_equal 'rsc'
+    traces[5]['IsService'].must_equal 1
+    traces[5]['RemoteURL'].must_equal 'http://127.0.0.1:8101/?q=ruby_test_suite'
+    traces[5]['HTTPMethod'].must_equal 'GET'
+    traces[5]['HTTPStatus'].must_equal '200'
 
-    traces[7]['Layer'].must_equal 'faraday'
-    traces[7]['Label'].must_equal 'exit'
+    traces[6]['Layer'].must_equal 'faraday'
+    traces[6]['Label'].must_equal 'exit'
   end
 
   it 'should trace a Faraday class style request' do
@@ -120,7 +120,7 @@ describe "Faraday" do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 9
+    traces.count.must_equal 8
 
     assert valid_edges?(traces), "Invalid edge in traces"
     validate_outer_layers(traces, 'faraday_test')
@@ -128,16 +128,16 @@ describe "Faraday" do
     traces[1]['Layer'].must_equal 'faraday'
     traces[1].key?('Backtrace').must_equal AppOpticsAPM::Config[:faraday][:collect_backtraces]
 
-    traces[6]['Layer'].must_equal 'net-http'
-    traces[6]['Label'].must_equal 'exit'
-    traces[6]['Spec'].must_equal 'rsc'
-    traces[6]['IsService'].must_equal 1
-    traces[6]['RemoteURL'].must_equal 'http://127.0.0.1:8101/?a=1'
-    traces[6]['HTTPMethod'].must_equal 'GET'
-    traces[6]['HTTPStatus'].must_equal '200'
+    traces[5]['Layer'].must_equal 'net-http'
+    traces[5]['Label'].must_equal 'exit'
+    traces[5]['Spec'].must_equal 'rsc'
+    traces[5]['IsService'].must_equal 1
+    traces[5]['RemoteURL'].must_equal 'http://127.0.0.1:8101/?a=1'
+    traces[5]['HTTPMethod'].must_equal 'GET'
+    traces[5]['HTTPStatus'].must_equal '200'
 
-    traces[7]['Layer'].must_equal 'faraday'
-    traces[7]['Label'].must_equal 'exit'
+    traces[6]['Layer'].must_equal 'faraday'
+    traces[6]['Label'].must_equal 'exit'
   end
 
   it 'should trace a Faraday with the excon adapter' do
@@ -149,7 +149,7 @@ describe "Faraday" do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 9
+    traces.count.must_equal 8
 
     assert valid_edges?(traces), "Invalid edge in traces"
     validate_outer_layers(traces, 'faraday_test')
@@ -167,13 +167,13 @@ describe "Faraday" do
     traces[2]['RemoteProtocol'].must_be_nil
     traces[2]['RemoteHost'].must_be_nil
     traces[2]['ServiceArg'].must_be_nil
-    traces[6]['Layer'].must_equal 'excon'
-    traces[6]['Label'].must_equal 'exit'
-    traces[6]['HTTPStatus'].must_equal 200
+    traces[5]['Layer'].must_equal 'excon'
+    traces[5]['Label'].must_equal 'exit'
+    traces[5]['HTTPStatus'].must_equal 200
 
-    traces[7]['Layer'].must_equal 'faraday'
-    traces[7]['Label'].must_equal 'exit'
-    traces[7]['Middleware'].must_equal '[Faraday::Adapter::Excon]'
+    traces[6]['Layer'].must_equal 'faraday'
+    traces[6]['Label'].must_equal 'exit'
+    traces[6]['Middleware'].must_equal '[Faraday::Adapter::Excon]'
   end
 
   it 'should trace a Faraday with the httpclient adapter' do
@@ -185,7 +185,7 @@ describe "Faraday" do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 9
+    traces.count.must_equal 8
 
     assert valid_edges?(traces), "Invalid edge in traces"
     validate_outer_layers(traces, 'faraday_test')
@@ -200,13 +200,13 @@ describe "Faraday" do
     traces[2]['RemoteURL'].must_equal 'http://127.0.0.1:8101/?q=1'
     traces[2]['HTTPMethod'].must_equal 'GET'
 
-    traces[6]['Layer'].must_equal 'httpclient'
-    traces[6]['Label'].must_equal 'exit'
-    traces[6]['HTTPStatus'].must_equal 200
+    traces[5]['Layer'].must_equal 'httpclient'
+    traces[5]['Label'].must_equal 'exit'
+    traces[5]['HTTPStatus'].must_equal 200
 
-    traces[7]['Layer'].must_equal 'faraday'
-    traces[7]['Label'].must_equal 'exit'
-    traces[7]['Middleware'].must_equal '[Faraday::Adapter::HTTPClient]'
+    traces[6]['Layer'].must_equal 'faraday'
+    traces[6]['Label'].must_equal 'exit'
+    traces[6]['Middleware'].must_equal '[Faraday::Adapter::HTTPClient]'
   end
 
   it 'should trace a Faraday with the typhoeus adapter' do
@@ -218,7 +218,7 @@ describe "Faraday" do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 9
+    traces.count.must_equal 8
 
     assert valid_edges?(traces), "Invalid edge in traces"
     validate_outer_layers(traces, 'faraday_test')
@@ -229,17 +229,17 @@ describe "Faraday" do
     traces[2]['Layer'].must_equal 'typhoeus'
     traces[2]['Label'].must_equal 'entry'
 
-    traces[6]['Layer'].must_equal 'typhoeus'
-    traces[6]['Label'].must_equal 'exit'
-    traces[6]['Spec'].must_equal 'rsc'
-    traces[6]['IsService'].must_equal 1
-    traces[6]['RemoteURL'].must_equal 'http://127.0.0.1:8101/?q=1'
-    traces[6]['HTTPMethod'].must_equal 'GET'
-    traces[6]['HTTPStatus'].must_equal 200
+    traces[5]['Layer'].must_equal 'typhoeus'
+    traces[5]['Label'].must_equal 'exit'
+    traces[5]['Spec'].must_equal 'rsc'
+    traces[5]['IsService'].must_equal 1
+    traces[5]['RemoteURL'].must_equal 'http://127.0.0.1:8101/?q=1'
+    traces[5]['HTTPMethod'].must_equal 'GET'
+    traces[5]['HTTPStatus'].must_equal 200
 
-    traces[7]['Layer'].must_equal 'faraday'
-    traces[7]['Label'].must_equal 'exit'
-    traces[7]['Middleware'].must_equal '[Faraday::Adapter::Typhoeus]'
+    traces[6]['Layer'].must_equal 'faraday'
+    traces[6]['Label'].must_equal 'exit'
+    traces[6]['Middleware'].must_equal '[Faraday::Adapter::Typhoeus]'
   end
 
   it 'should trace a Faraday with the UNINSTRUMENTED patron adapter' do
@@ -252,7 +252,7 @@ describe "Faraday" do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 7
+    traces.count.must_equal 6
 
     assert valid_edges?(traces), "Invalid edge in traces"
     validate_outer_layers(traces, 'faraday_test')
@@ -263,18 +263,18 @@ describe "Faraday" do
     traces[2]['Layer'].must_equal 'rack'
     traces[2]['Label'].must_equal 'entry'
 
-    traces[4]['Layer'].must_equal 'rack'
-    traces[4]['Label'].must_equal 'exit'
-    traces[4]['Status'].must_equal 200
+    traces[3]['Layer'].must_equal 'rack'
+    traces[3]['Label'].must_equal 'exit'
+    traces[3]['Status'].must_equal 200
 
-    traces[5]['Spec'].must_equal 'rsc'
-    traces[5]['IsService'].must_equal 1
-    traces[5]['RemoteURL'].must_equal 'http://127.0.0.1:8101/?q=1'
-    traces[5]['HTTPMethod'].must_equal 'GET'
-    traces[5]['HTTPStatus'].must_equal 200
-    traces[5]['Layer'].must_equal 'faraday'
-    traces[5]['Label'].must_equal 'exit'
-    traces[5]['Middleware'].must_equal '[Faraday::Adapter::Patron]'
+    traces[4]['Spec'].must_equal 'rsc'
+    traces[4]['IsService'].must_equal 1
+    traces[4]['RemoteURL'].must_equal 'http://127.0.0.1:8101/?q=1'
+    traces[4]['HTTPMethod'].must_equal 'GET'
+    traces[4]['HTTPStatus'].must_equal 200
+    traces[4]['Layer'].must_equal 'faraday'
+    traces[4]['Label'].must_equal 'exit'
+    traces[4]['Middleware'].must_equal '[Faraday::Adapter::Patron]'
   end
 
   it 'should trace a Faraday with the UNINSTRUMENTED patron adapter to UNINSTRUMENTED rack' do

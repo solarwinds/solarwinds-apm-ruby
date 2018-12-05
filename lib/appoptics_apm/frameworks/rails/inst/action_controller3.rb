@@ -21,12 +21,8 @@ module AppOpticsAPM
       end
 
       def process_with_appoptics(*args)
-        kvs = {
-            :Controller   => self.class.name,
-            :Action       => self.action_name,
-        }
-        request.env['appoptics_apm.controller'] = kvs[:Controller]
-        request.env['appoptics_apm.action'] = kvs[:Action]
+        request.env['appoptics_apm.controller'] = self.class.name
+        request.env['appoptics_apm.action'] = self.action_name
 
         trace('rails') do
           process_without_appoptics(*args)
@@ -49,6 +45,7 @@ module AppOpticsAPM
           process_action_without_appoptics(*args)
         rescue Exception
           kvs[:Status] = 500
+          kvs.delete(:Backtrace)
           AppOpticsAPM::API.log(nil, 'info', kvs)
           raise
         end

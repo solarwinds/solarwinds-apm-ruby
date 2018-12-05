@@ -29,12 +29,12 @@ module AppOpticsAPM
           end
 
           AppOpticsAPM::API.log_entry(:'rabbitmq-client')
-
           delete_without_appoptics(opts)
         rescue => e
           AppOpticsAPM::API.log_exception(:'rabbitmq-client', e)
           raise e
         ensure
+          kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:bunnyclient][:collect_backtraces]
           AppOpticsAPM::API.log_exit(:'rabbitmq-client', kvs)
         end
       end
@@ -54,7 +54,6 @@ module AppOpticsAPM
         kvs[:RemoteHost] = @connection.host
         kvs[:RemotePort] = @connection.port.to_i
         kvs[:VirtualHost] = @connection.vhost
-        kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:bunnyclient][:collect_backtraces]
         kvs
       rescue => e
         AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
@@ -92,6 +91,7 @@ module AppOpticsAPM
           AppOpticsAPM::API.log_exception(:'rabbitmq-client', e)
           raise e
         ensure
+          kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:bunnyclient][:collect_backtraces]
           AppOpticsAPM::API.log_exit(:'rabbitmq-client', kvs)
         end
       end
@@ -113,6 +113,7 @@ module AppOpticsAPM
           AppOpticsAPM::API.log_exception(:'rabbitmq-client', e)
           raise e
         ensure
+          kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:bunnyclient][:collect_backtraces]
           AppOpticsAPM::API.log_exit(:'rabbitmq-client', kvs)
         end
       end
@@ -132,6 +133,7 @@ module AppOpticsAPM
           AppOpticsAPM::API.log_exception(:'rabbitmq-client', e)
           raise e
         ensure
+          kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:bunnyclient][:collect_backtraces]
           AppOpticsAPM::API.log_exit(:'rabbitmq-client', kvs)
         end
       end
