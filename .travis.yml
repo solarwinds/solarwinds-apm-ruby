@@ -30,6 +30,9 @@ gemfile:
 
 matrix:
   exclude:
+    - rvm: ruby-head
+      gemfile: gemfiles/rails42.gemfile
+
     - rvm: 2.5.3
       env: DBTYPE=mysql
     - rvm: 2.4.5
