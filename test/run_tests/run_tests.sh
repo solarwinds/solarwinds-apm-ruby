@@ -55,7 +55,7 @@ do
   args=(${input2[$index]})
 
   if [[ "$ruby" != "" && "$ruby" != "${args[0]}" ]]; then continue; fi
-  rbenv global ${args[0]}
+  rbenv local ${args[0]}
 
   if [[ "$gemfile" != "" && "$gemfile" != "${args[1]}" ]]; then continue; fi
   export BUNDLE_GEMFILE=${args[1]}

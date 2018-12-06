@@ -21,7 +21,7 @@ else
   gem "delayed_job_active_record"
 end
 
-gem "rails", "~> 4.2.5"
+gem "rails" # , "~> 4.2.5"
 
 gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')
 # vim:syntax=ruby
