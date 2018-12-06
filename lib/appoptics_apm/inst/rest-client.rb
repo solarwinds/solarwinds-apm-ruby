@@ -5,7 +5,7 @@ module AppOpticsAPM
   module Inst
     module RestClientRequest
       def self.included(klass)
-        ::AppOpticsAPM::Util.method_alias(klass, :execute, ::RestClient::Request)
+        AppOpticsAPM::Util.method_alias(klass, :execute, ::RestClient::Request)
       end
 
       ##
@@ -42,9 +42,7 @@ module AppOpticsAPM
   end
 end
 
-if AppOpticsAPM::Config[:rest_client][:enabled]
-  if defined?(::RestClient)
-    AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting rest-client' if AppOpticsAPM::Config[:verbose]
-    ::AppOpticsAPM::Util.send_include(::RestClient::Request, ::AppOpticsAPM::Inst::RestClientRequest)
-  end
+if defined?(RestClient) && AppOpticsAPM::Config[:rest_client][:enabled]
+  AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting rest-client' if AppOpticsAPM::Config[:verbose]
+  AppOpticsAPM::Util.send_include(RestClient::Request, AppOpticsAPM::Inst::RestClientRequest)
 end

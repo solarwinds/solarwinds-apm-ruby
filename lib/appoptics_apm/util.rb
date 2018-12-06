@@ -265,12 +265,12 @@ module AppOpticsAPM
           platform_info['Force']                        = true
           platform_info['Ruby.Platform.Version']        = RUBY_PLATFORM
           platform_info['Ruby.Version']                 = RUBY_VERSION
-          platform_info['Ruby.AppOptics.Version']    = ::AppOpticsAPM::Version::STRING
+          platform_info['Ruby.AppOptics.Version']    = AppOpticsAPM::Version::STRING
 
           clib_version_file = File.join(Gem::Specification.find_by_name('appoptics_apm').gem_dir, 'ext', 'oboe_metal', 'src', 'VERSION')
           platform_info['Ruby.clib.Version']            = File.read(clib_version_file).chomp
-          platform_info['RubyHeroku.AppOpticsAPM.Version'] = ::AppOpticsAPMHeroku::Version::STRING if defined?(::AppOpticsAPMHeroku)
-          platform_info['Ruby.TraceMode.Version']       = ::AppOpticsAPM::Config[:tracing_mode]
+          platform_info['RubyHeroku.AppOpticsAPM.Version'] = AppOpticsAPMHeroku::Version::STRING if defined?(AppOpticsAPMHeroku)
+          platform_info['Ruby.TraceMode.Version']       = AppOpticsAPM::Config[:tracing_mode]
 
           # Collect up the loaded gems
           if defined?(Gem) && Gem.respond_to?(:loaded_specs)

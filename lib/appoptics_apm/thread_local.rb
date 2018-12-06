@@ -7,7 +7,7 @@ module AppOpticsAPM
   #
   # Example usage:
   # module AppOpticsAPMBase
-  #   extend ::AppOpticsAPM::ThreadLocal
+  #   extend AppOpticsAPM::ThreadLocal
   #   thread_local :layer_op
   # end
   module ThreadLocal

@@ -106,10 +106,10 @@ module AppOpticsAPM
       include AppOpticsAPM::Inst::CurlUtility
 
       def self.included(klass)
-        ::AppOpticsAPM::Util.method_alias(klass, :http, ::Curl::Easy)
-        ::AppOpticsAPM::Util.method_alias(klass, :perform, ::Curl::Easy)
-        ::AppOpticsAPM::Util.method_alias(klass, :http_put, ::Curl::Easy)
-        ::AppOpticsAPM::Util.method_alias(klass, :http_post, ::Curl::Easy)
+        AppOpticsAPM::Util.method_alias(klass, :http, ::Curl::Easy)
+        AppOpticsAPM::Util.method_alias(klass, :perform, ::Curl::Easy)
+        AppOpticsAPM::Util.method_alias(klass, :http_put, ::Curl::Easy)
+        AppOpticsAPM::Util.method_alias(klass, :http_post, ::Curl::Easy)
       end
 
       ##
@@ -212,7 +212,7 @@ module AppOpticsAPM
       include AppOpticsAPM::Inst::CurlUtility
 
       def self.extended(klass)
-        ::AppOpticsAPM::Util.class_method_alias(klass, :http, ::Curl::Multi)
+        AppOpticsAPM::Util.class_method_alias(klass, :http, ::Curl::Multi)
       end
 
       ##
@@ -275,7 +275,7 @@ module AppOpticsAPM
       include AppOpticsAPM::Inst::CurlUtility
 
       def self.included(klass)
-        ::AppOpticsAPM::Util.method_alias(klass, :perform, ::Curl::Multi)
+        AppOpticsAPM::Util.method_alias(klass, :perform, ::Curl::Multi)
       end
 
       ##
@@ -323,8 +323,8 @@ module AppOpticsAPM
 end
 
 if AppOpticsAPM::Config[:curb][:enabled] && defined?(::Curl)
-  ::AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting curb' if AppOpticsAPM::Config[:verbose]
-  ::AppOpticsAPM::Util.send_include(::Curl::Easy, ::AppOpticsAPM::Inst::CurlEasy)
-  ::AppOpticsAPM::Util.send_extend(::Curl::Multi, ::AppOpticsAPM::Inst::CurlMultiCM)
-  ::AppOpticsAPM::Util.send_include(::Curl::Multi, ::AppOpticsAPM::Inst::CurlMultiIM)
+  AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting curb' if AppOpticsAPM::Config[:verbose]
+  AppOpticsAPM::Util.send_include(::Curl::Easy, AppOpticsAPM::Inst::CurlEasy)
+  AppOpticsAPM::Util.send_extend(::Curl::Multi, AppOpticsAPM::Inst::CurlMultiCM)
+  AppOpticsAPM::Util.send_include(::Curl::Multi, AppOpticsAPM::Inst::CurlMultiIM)
 end

@@ -10,7 +10,7 @@ module AppOpticsAPM
     # to Rails v3
     #
     module ActionController
-      include ::AppOpticsAPM::Inst::RailsBase
+      include AppOpticsAPM::Inst::RailsBase
 
       def self.included(base)
         base.class_eval do

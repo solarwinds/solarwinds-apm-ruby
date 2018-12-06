@@ -10,7 +10,7 @@ module AppOpticsAPM
     # to Rails v5.
     #
     module ActionControllerAPI
-      include ::AppOpticsAPM::Inst::RailsBase
+      include AppOpticsAPM::Inst::RailsBase
 
       def process_action(method_name, *args)
         kvs = {

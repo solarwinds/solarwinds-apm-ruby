@@ -9,9 +9,9 @@ module AppOpticsAPM
     module ResqueClient
       def self.included(klass)
         klass.send :extend, ::Resque
-        ::AppOpticsAPM::Util.method_alias(klass, :enqueue, ::Resque)
-        ::AppOpticsAPM::Util.method_alias(klass, :enqueue_to, ::Resque)
-        ::AppOpticsAPM::Util.method_alias(klass, :dequeue, ::Resque)
+        AppOpticsAPM::Util.method_alias(klass, :enqueue, ::Resque)
+        AppOpticsAPM::Util.method_alias(klass, :enqueue_to, ::Resque)
+        AppOpticsAPM::Util.method_alias(klass, :dequeue, ::Resque)
       end
 
       def extract_trace_details(op, klass, args)
@@ -81,7 +81,7 @@ module AppOpticsAPM
 
     module ResqueWorker
       def self.included(klass)
-        ::AppOpticsAPM::Util.method_alias(klass, :perform, ::Resque::Worker)
+        AppOpticsAPM::Util.method_alias(klass, :perform, ::Resque::Worker)
       end
 
       def perform_with_appoptics(job)
@@ -125,7 +125,7 @@ module AppOpticsAPM
 
     module ResqueJob
       def self.included(klass)
-        ::AppOpticsAPM::Util.method_alias(klass, :fail, ::Resque::Job)
+        AppOpticsAPM::Util.method_alias(klass, :fail, ::Resque::Job)
       end
 
       def fail_with_appoptics(exception)
@@ -138,13 +138,13 @@ module AppOpticsAPM
   end
 end
 
-if defined?(::Resque)
+if defined?(Resque)
   AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting resque' if AppOpticsAPM::Config[:verbose]
 
-  ::AppOpticsAPM::Util.send_include(::Resque,         ::AppOpticsAPM::Inst::ResqueClient) if AppOpticsAPM::Config[:resqueclient][:enabled]
-  ::AppOpticsAPM::Util.send_include(::Resque::Worker, ::AppOpticsAPM::Inst::ResqueWorker) if AppOpticsAPM::Config[:resqueworker][:enabled]
+  AppOpticsAPM::Util.send_include(Resque,         AppOpticsAPM::Inst::ResqueClient) if AppOpticsAPM::Config[:resqueclient][:enabled]
+  AppOpticsAPM::Util.send_include(Resque::Worker, AppOpticsAPM::Inst::ResqueWorker) if AppOpticsAPM::Config[:resqueworker][:enabled]
   if AppOpticsAPM::Config[:resqueclient][:enabled] || AppOpticsAPM::Config[:resqueworker][:enabled]
-    ::AppOpticsAPM::Util.send_include(::Resque::Job,    ::AppOpticsAPM::Inst::ResqueJob)
+    AppOpticsAPM::Util.send_include(Resque::Job,    AppOpticsAPM::Inst::ResqueJob)
   end
 end
 

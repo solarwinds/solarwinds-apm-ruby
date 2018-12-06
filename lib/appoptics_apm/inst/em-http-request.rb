@@ -67,17 +67,17 @@ module AppOpticsAPM
 
           end
         ensure
-          ::AppOpticsAPM::API.log_exit(:'em-http-request', report_kvs)
+          AppOpticsAPM::API.log_exit(:'em-http-request', report_kvs)
         end
       end
     end
   end
 end
 
-if defined?(::EventMachine::HttpConnection) && defined?(::EventMachine::HttpClient) && AppOpticsAPM::Config[:em_http_request][:enabled]
+if defined?(EventMachine::HttpConnection) && defined?(EventMachine::HttpClient) && AppOpticsAPM::Config[:em_http_request][:enabled]
   AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting em-http-request' if AppOpticsAPM::Config[:verbose]
 
-  class ::EventMachine::HttpConnection
+  class EventMachine::HttpConnection
     include AppOpticsAPM::Inst::EventMachine::HttpConnection
 
     if method_defined?(:setup_request)
@@ -88,7 +88,7 @@ if defined?(::EventMachine::HttpConnection) && defined?(::EventMachine::HttpClie
     end
   end
 
-  class ::EventMachine::HttpClient
+  class EventMachine::HttpClient
     include AppOpticsAPM::Inst::EventMachine::HttpClient
 
     if method_defined?(:parse_response_header)

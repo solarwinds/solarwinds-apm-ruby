@@ -23,11 +23,11 @@ module AppOpticsAPM
 end
 
 # TODO find out if we still need to support mongo < '2.0.0', we don't run tests for it. 1.12.5 was released Dec 2015
-if defined?(::Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && AppOpticsAPM::Config[:mongo][:enabled]
+if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && AppOpticsAPM::Config[:mongo][:enabled]
   AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting mongo' if AppOpticsAPM::Config[:verbose]
 
-  if defined?(::Mongo::DB)
-    module ::Mongo
+  if defined?(Mongo::DB)
+    module Mongo
       class DB
         include AppOpticsAPM::Inst::Mongo
 
@@ -73,8 +73,8 @@ if defined?(::Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && Ap
     end
   end
 
-  if defined?(::Mongo::Cursor)
-    module ::Mongo
+  if defined?(Mongo::Cursor)
+    module Mongo
       class Cursor
         include AppOpticsAPM::Inst::Mongo
 
@@ -116,8 +116,8 @@ if defined?(::Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && Ap
     end
   end
 
-  if defined?(::Mongo::Collection)
-    module ::Mongo
+  if defined?(Mongo::Collection)
+    module Mongo
       class Collection
         include AppOpticsAPM::Inst::Mongo
 

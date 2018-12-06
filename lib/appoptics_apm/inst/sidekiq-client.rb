@@ -43,13 +43,13 @@ module AppOpticsAPM
   end
 end
 
-if defined?(::Sidekiq) && AppOpticsAPM::Config[:sidekiqclient][:enabled]
-  ::AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting sidekiq client' if AppOpticsAPM::Config[:verbose]
+if defined?(Sidekiq) && AppOpticsAPM::Config[:sidekiqclient][:enabled]
+  AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting sidekiq client' if AppOpticsAPM::Config[:verbose]
 
-  ::Sidekiq.configure_client do |config|
+  Sidekiq.configure_client do |config|
     config.client_middleware do |chain|
-      ::AppOpticsAPM.logger.info '[appoptics_apm/loading] Adding Sidekiq client middleware' if AppOpticsAPM::Config[:verbose]
-      chain.add ::AppOpticsAPM::SidekiqClient
+      AppOpticsAPM.logger.info '[appoptics_apm/loading] Adding Sidekiq client middleware' if AppOpticsAPM::Config[:verbose]
+      chain.add AppOpticsAPM::SidekiqClient
     end
   end
 end

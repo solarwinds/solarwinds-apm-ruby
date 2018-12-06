@@ -73,13 +73,13 @@ module AppOpticsAPM
   end # module Inst
 end # module AppOpticsAPM
 
-if defined?(::Memcached) && AppOpticsAPM::Config[:memcached][:enabled]
-  ::Memcached.class_eval do
+if defined?(Memcached) && AppOpticsAPM::Config[:memcached][:enabled]
+  Memcached.class_eval do
     include AppOpticsAPM::Inst::Memcached
   end
 
-  if defined?(::Memcached::Rails)
-    ::Memcached::Rails.class_eval do
+  if defined?(Memcached::Rails)
+    Memcached::Rails.class_eval do
       include AppOpticsAPM::Inst::MemcachedRails
     end
   end

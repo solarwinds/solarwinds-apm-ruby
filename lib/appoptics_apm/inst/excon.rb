@@ -5,8 +5,8 @@ module AppOpticsAPM
   module Inst
     module ExconConnection
       def self.included(klass)
-        ::AppOpticsAPM::Util.method_alias(klass, :request, ::Excon::Connection)
-        ::AppOpticsAPM::Util.method_alias(klass, :requests, ::Excon::Connection)
+        AppOpticsAPM::Util.method_alias(klass, :request, ::Excon::Connection)
+        AppOpticsAPM::Util.method_alias(klass, :requests, ::Excon::Connection)
       end
 
       private
@@ -33,17 +33,17 @@ module AppOpticsAPM
         if params.is_a?(Array)
           methods = []
           params.each do |p|
-            methods << ::AppOpticsAPM::Util.upcase(p[:method])
+            methods << AppOpticsAPM::Util.upcase(p[:method])
           end
           kvs[:HTTPMethods] = methods.join(',')[0..1024]
           kvs[:Pipeline] = true
         else
-          kvs[:HTTPMethod] = ::AppOpticsAPM::Util.upcase(params[:method])
+          kvs[:HTTPMethod] = AppOpticsAPM::Util.upcase(params[:method])
         end
         kvs
       rescue => e
         AppOpticsAPM.logger.debug "[appoptics_apm/debug] Error capturing excon KVs: #{e.message}"
-        AppOpticsAPM.logger.debug e.backtrace.join('\n') if ::AppOpticsAPM::Config[:verbose]
+        AppOpticsAPM.logger.debug e.backtrace.join('\n') if AppOpticsAPM::Config[:verbose]
       ensure
         return kvs
       end
@@ -119,7 +119,7 @@ module AppOpticsAPM
   end
 end
 
-if AppOpticsAPM::Config[:excon][:enabled] && defined?(::Excon)
-  ::AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting excon' if AppOpticsAPM::Config[:verbose]
-  ::AppOpticsAPM::Util.send_include(::Excon::Connection, ::AppOpticsAPM::Inst::ExconConnection)
+if AppOpticsAPM::Config[:excon][:enabled] && defined?(Excon)
+  AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting excon' if AppOpticsAPM::Config[:verbose]
+  AppOpticsAPM::Util.send_include(Excon::Connection, AppOpticsAPM::Inst::ExconConnection)
 end

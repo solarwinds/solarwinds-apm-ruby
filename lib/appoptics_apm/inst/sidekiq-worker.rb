@@ -53,13 +53,13 @@ module AppOpticsAPM
   end
 end
 
-if defined?(::Sidekiq) && AppOpticsAPM::Config[:sidekiqworker][:enabled]
-  ::AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting sidekiq worker' if AppOpticsAPM::Config[:verbose]
+if defined?(Sidekiq) && AppOpticsAPM::Config[:sidekiqworker][:enabled]
+  AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting sidekiq worker' if AppOpticsAPM::Config[:verbose]
 
-  ::Sidekiq.configure_server do |config|
+  Sidekiq.configure_server do |config|
     config.server_middleware do |chain|
-      ::AppOpticsAPM.logger.info '[appoptics_apm/loading] Adding Sidekiq worker middleware' if AppOpticsAPM::Config[:verbose]
-      chain.add ::AppOpticsAPM::SidekiqWorker
+      AppOpticsAPM.logger.info '[appoptics_apm/loading] Adding Sidekiq worker middleware' if AppOpticsAPM::Config[:verbose]
+      chain.add AppOpticsAPM::SidekiqWorker
     end
   end
 end

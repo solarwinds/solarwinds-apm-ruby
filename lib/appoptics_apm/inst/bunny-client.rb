@@ -5,7 +5,7 @@ module AppOpticsAPM
   module Inst
     module BunnyExchange
       def self.included(klass)
-        ::AppOpticsAPM::Util.method_alias(klass, :delete, ::Bunny::Exchange)
+        AppOpticsAPM::Util.method_alias(klass, :delete, ::Bunny::Exchange)
       end
 
       def delete_with_appoptics(opts = {})
@@ -42,9 +42,9 @@ module AppOpticsAPM
 
     module BunnyChannel
       def self.included(klass)
-        ::AppOpticsAPM::Util.method_alias(klass, :basic_publish,     ::Bunny::Channel)
-        ::AppOpticsAPM::Util.method_alias(klass, :queue,             ::Bunny::Channel)
-        ::AppOpticsAPM::Util.method_alias(klass, :wait_for_confirms, ::Bunny::Channel)
+        AppOpticsAPM::Util.method_alias(klass, :basic_publish,     ::Bunny::Channel)
+        AppOpticsAPM::Util.method_alias(klass, :queue,             ::Bunny::Channel)
+        AppOpticsAPM::Util.method_alias(klass, :wait_for_confirms, ::Bunny::Channel)
       end
 
       def collect_channel_kvs
@@ -141,8 +141,8 @@ module AppOpticsAPM
   end
 end
 
-if AppOpticsAPM::Config[:bunnyclient][:enabled] && defined?(::Bunny)
-  ::AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting bunny client' if AppOpticsAPM::Config[:verbose]
-  ::AppOpticsAPM::Util.send_include(::Bunny::Exchange, ::AppOpticsAPM::Inst::BunnyExchange)
-  ::AppOpticsAPM::Util.send_include(::Bunny::Channel, ::AppOpticsAPM::Inst::BunnyChannel)
+if defined?(Bunny) && AppOpticsAPM::Config[:bunnyclient][:enabled]
+  AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting bunny client' if AppOpticsAPM::Config[:verbose]
+  AppOpticsAPM::Util.send_include(Bunny::Exchange, AppOpticsAPM::Inst::BunnyExchange)
+  AppOpticsAPM::Util.send_include(Bunny::Channel, AppOpticsAPM::Inst::BunnyChannel)
 end

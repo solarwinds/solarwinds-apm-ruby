@@ -11,10 +11,10 @@ module AppOpticsAPM
       end
 
       def self.included(klass)
-        ::AppOpticsAPM::Util.method_alias(klass, :request_response, ::GRPC::ActiveCall)
-        ::AppOpticsAPM::Util.method_alias(klass, :client_streamer, ::GRPC::ActiveCall)
-        ::AppOpticsAPM::Util.method_alias(klass, :server_streamer, ::GRPC::ActiveCall)
-        ::AppOpticsAPM::Util.method_alias(klass, :bidi_streamer, ::GRPC::ActiveCall)
+        AppOpticsAPM::Util.method_alias(klass, :request_response, ::GRPC::ActiveCall)
+        AppOpticsAPM::Util.method_alias(klass, :client_streamer, ::GRPC::ActiveCall)
+        AppOpticsAPM::Util.method_alias(klass, :server_streamer, ::GRPC::ActiveCall)
+        AppOpticsAPM::Util.method_alias(klass, :bidi_streamer, ::GRPC::ActiveCall)
       end
 
       def grpc_tags(method_type, method)
@@ -134,11 +134,11 @@ module AppOpticsAPM
   end
 end
 
-if defined?(::GRPC) && AppOpticsAPM::Config[:grpc_client][:enabled]
+if defined?(GRPC) && AppOpticsAPM::Config[:grpc_client][:enabled]
   AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting GRPC' if AppOpticsAPM::Config[:verbose]
 
   # Client side is instrumented in ActiveCall and ClientStub
-  ::AppOpticsAPM::Util.send_include(::GRPC::ActiveCall, ::AppOpticsAPM::GRPC::ActiveCall)
+  AppOpticsAPM::Util.send_include(GRPC::ActiveCall, AppOpticsAPM::GRPC::ActiveCall)
 
   GRPC_ClientStub_ops = [:request_response, :client_streamer, :server_streamer, :bidi_streamer]
   module GRPC
@@ -154,7 +154,7 @@ if defined?(::GRPC) && AppOpticsAPM::Config[:grpc_client][:enabled]
                       credentials: credentials, metadata: metadata, &blk)
         end
 
-        ::AppOpticsAPM::Util.method_alias(::GRPC::ClientStub, m)
+        AppOpticsAPM::Util.method_alias(GRPC::ClientStub, m)
       end
 
     end

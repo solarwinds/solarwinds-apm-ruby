@@ -5,7 +5,7 @@ module AppOpticsAPM
   module Inst
     module FaradayConnection
       def self.included(klass)
-        ::AppOpticsAPM::Util.method_alias(klass, :run_request, ::Faraday::Connection)
+        AppOpticsAPM::Util.method_alias(klass, :run_request, ::Faraday::Connection)
       end
 
       def run_request_with_appoptics(method, url, body, headers, &block)
@@ -86,11 +86,9 @@ module AppOpticsAPM
   end
 end
 
-if AppOpticsAPM::Config[:faraday][:enabled]
-  if defined?(::Faraday)
-    AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting faraday' if AppOpticsAPM::Config[:verbose]
-    ::AppOpticsAPM::Util.send_include(::Faraday::Connection, ::AppOpticsAPM::Inst::FaradayConnection)
-    APPOPTICS_INSTR_ADAPTERS = ["Faraday::Adapter::NetHttp", "Faraday::Adapter::Excon", "Faraday::Adapter::Typhoeus"]
-    APPOPTICS_INSTR_ADAPTERS << "Faraday::Adapter::HTTPClient" if defined?Faraday::Adapter::HTTPClient
-  end
+if defined?(Faraday) && AppOpticsAPM::Config[:faraday][:enabled]
+  AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting faraday' if AppOpticsAPM::Config[:verbose]
+  AppOpticsAPM::Util.send_include(Faraday::Connection, AppOpticsAPM::Inst::FaradayConnection)
+  APPOPTICS_INSTR_ADAPTERS = ["Faraday::Adapter::NetHttp", "Faraday::Adapter::Excon", "Faraday::Adapter::Typhoeus"]
+  APPOPTICS_INSTR_ADAPTERS << "Faraday::Adapter::HTTPClient" if defined?Faraday::Adapter::HTTPClient
 end
