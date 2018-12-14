@@ -44,6 +44,7 @@ begin
     end
   end
 
+  # appoptics_apm/loading can set AppOpticsAPM.loaded = false if the service key is not working
   require 'appoptics_apm/loading'
   require 'appoptics_apm/legacy_method_profiling'
   require 'appoptics_apm/method_profiling'
@@ -59,6 +60,10 @@ begin
     require 'appoptics_apm/frameworks/padrino'
     require 'appoptics_apm/frameworks/grape'
   else
+    $stderr.puts '=============================================================='
+    $stderr.puts 'AppOpticsAPM not loaded. Tracing disabled.'
+    $stderr.puts 'Service Key may be wrong or missing.'
+    $stderr.puts '=============================================================='
     require 'appoptics_apm/noop/context'
   end
 

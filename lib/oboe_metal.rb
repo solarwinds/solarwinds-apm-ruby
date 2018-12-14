@@ -31,8 +31,13 @@ module AppOpticsAPM
           when 'udp'
             ENV['APPOPTICS_REPORTER_UDP'] = "#{AppOpticsAPM::Config[:reporter_host]}:#{AppOpticsAPM::Config[:reporter_port]}"
           else # default is ssl, service_key is mandatory
-            if AppOpticsAPM::Config[:service_key].to_s == '' && ENV['APPOPTICS_SERVICE_KEY'].to_s == ''
-              AppOpticsAPM.logger.warn "[appoptics_apm/warn] APPOPTICS_SERVICE_KEY not set. Cannot submit data."
+            service_key = ENV['APPOPTICS_SERVICE_KEY'].to_s || AppOpticsAPM::Config[:service_key].to_s
+            if service_key == ''
+              AppOpticsAPM.logger.warn '[appoptics_apm/warn] APPOPTICS_SERVICE_KEY not set. Cannot submit data.'
+              AppOpticsAPM.loaded = false
+              return
+            elsif service_key !~ /^[0-9a-fA-F]{64}:[-.:_?\\\/\w ]{1,255}$/
+              AppOpticsAPM.logger.warn '[appoptics_apm/warn] APPOPTICS_SERVICE_KEY problem. No service name or api token in wrong format. Cannot submit data.'
               AppOpticsAPM.loaded = false
               return
             end
