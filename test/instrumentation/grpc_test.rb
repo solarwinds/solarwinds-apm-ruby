@@ -1004,18 +1004,15 @@ describe 'GRPC' do
           end
         end
       end
-      threads.each { |thd| thd.join; }
+      threads.each { |thd| thd.join }
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      # TODO remove once now more debugging is needed
-      # puts "  Exhausted request count: #{traces.select { |tr| tr['GRPCStatus'] =~ /RESOURCE_EXHAUSTED/  }.size} out of #{@count}."
 
       assert_entry_exit(traces, nil, false)
 
-      # we should get 2 client events for all calls, @pool_size * 2 events from the server, plus error events for exhaustion
-      traces.size.must_equal 3*@count + @pool_size
-      # only @pool_size calls get through, the others respond with RESOURCE_EXHAUSTED
-      traces.select { |tr| tr['GRPCStatus'] == 'RESOURCE_EXHAUSTED' }.size.must_equal   @count - @pool_size
+      # not all calls get through, the others respond with RESOURCE_EXHAUSTED
+      exhausted_count = traces.select { |tr| tr['GRPCStatus'] == 'RESOURCE_EXHAUSTED' }.size
+      traces.size.must_equal 4*@count - exhausted_count
     end
 
     it "should work when stressed bidi gets cancelled" do
