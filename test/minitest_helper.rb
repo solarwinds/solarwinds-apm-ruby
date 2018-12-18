@@ -94,7 +94,7 @@ AppOpticsAPM::Config[:sample_rate] = 1000000
 # puts %x{psql -c 'create database travis_ci_test;' -U postgres}
 
 # Our background Rack-app for http client testing
-# require './test/servers/rackapp_8101' unless File.basename(ENV['BUNDLE_GEMFILE']) =~ /unit/
+require './test/servers/rackapp_8101' unless File.basename(ENV['BUNDLE_GEMFILE']) =~ /unit/
 
 # Conditionally load other background servers
 # depending on what we're testing
@@ -121,7 +121,7 @@ when /libraries/
   # out the sidekiq tests
   # Background Sidekiq thread
   if !ENV.key?('TEST') || ENV['TEST'] =~ /sidekiq/
-    # require './test/servers/sidekiq.rb'
+    require './test/servers/sidekiq.rb'
   end
 end
 
