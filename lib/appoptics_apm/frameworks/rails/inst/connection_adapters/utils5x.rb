@@ -26,15 +26,10 @@ module AppOpticsAPM
               opts[:Backtrace] = AppOpticsAPM::API.backtrace
             end
 
-            if ::Rails::VERSION::MAJOR == 2
-              config = ::Rails.configuration.database_configuration[::Rails.env]
-            else
-              config = ActiveRecord::Base.connection.instance_variable_get(:@config)
-            end
-
+            config = ActiveRecord::Base.connection_config
             if config
-              opts[:Database]   = config['database'] if config.key?('database')
-              opts[:RemoteHost] = config['host']     if config.key?('host')
+              opts[:Database]   = config[:database] if config.key?(:database)
+              opts[:RemoteHost] = config[:host]     if config.key?(:host)
               adapter_name = config[:adapter]
 
               case adapter_name
@@ -49,7 +44,7 @@ module AppOpticsAPM
             AppOpticsAPM.logger.debug e.backtrace.join('\n')
           end
 
-          opts || {}
+          opts
         end
 
         # We don't want to trace framework caches.  Only instrument SQL that

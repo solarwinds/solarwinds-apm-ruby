@@ -23,9 +23,11 @@ travis = YAML.load_file(ARGV[0])
 # create the travis build matrix
 matrix = []
 travis['rvm'].each do |rvm|
-  travis['gemfile'].each do |gemfile|
-    travis['env'].each do |env|
-      matrix << { "rvm" => rvm, "gemfile" => gemfile, 'env' => env}
+  unless rvm == 'ruby-head'
+    travis['gemfile'].each do |gemfile|
+      travis['env'].each do |env|
+        matrix << { "rvm" => rvm, "gemfile" => gemfile, 'env' => env}
+      end
     end
   end
 end
