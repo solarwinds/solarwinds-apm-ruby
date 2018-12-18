@@ -45,14 +45,17 @@ describe "Rails CRUD Tests" do
 
     traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 0
 
-    traces.select! { |trace| trace['Label'] == 'entry' && trace['Layer'] == 'activerecord' }
+    ar_traces = traces.select { |trace| trace['Layer'] == 'activerecord' }
+    ar_traces.find { |trace| trace.has_key?('RemoteHost') }.wont_be_nil 'RemoteHost key is missing'
+
+    ar_traces.select! { |trace| trace['Label'] == 'entry' }
     if Rails::VERSION::STRING < '5'  && ENV['DBTYPE'] == 'mysql'
-      traces.count.must_equal 3 # mysql + older rails add a BEGIN and a COMMIT query
+      ar_traces.count.must_equal 3 # mysql + older rails add a BEGIN and a COMMIT query
     else
-      traces.count.must_equal 1
+      ar_traces.count.must_equal 1
     end
 
-    traces.select { |trace| trace['Query'] =~ /^INSERT/ }.count.must_equal 1
+    traces.select { |trace| trace['Query'] =~ /^INSERT/ }.count.must_equal 2
   end
 
   it "should trace READ correctly" do

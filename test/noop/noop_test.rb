@@ -145,7 +145,8 @@ class NoopTest < Minitest::Test
 
 
     traces = get_all_traces
-    assert_equal 0, traces.count, "generate no traces"  end
+    assert_equal 0, traces.count, "generate no traces"
+  end
 
   def test_log_info_doesnt_barf
     AppOpticsAPM::API.log_info(nil, {:ok => :yeah })
