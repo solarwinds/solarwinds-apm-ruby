@@ -42,7 +42,7 @@ module AppOpticsAPM
       #   AppOpticsAPM::API.log('logical_layer', 'exit')
       #
       # Returns nothing.
-      def log(layer, label, opts = {}, event=nil)
+      def log(layer, label, opts = {}, event = nil)
         return AppOpticsAPM::Context.toString unless AppOpticsAPM.tracing?
 
         event ||= AppOpticsAPM::Context.createEvent
