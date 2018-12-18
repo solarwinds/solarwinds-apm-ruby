@@ -29,7 +29,6 @@ services:
      links:
        - wait
      environment:
-       - BUNDLE_GEMFILE=gemfiles/libraries.gemfile
        - APPOPTICS_SERVICE_KEY=${APPOPTICS_SERVICE_KEY}
        - APPOPTICS_COLLECTOR=${APPOPTICS_COLLECTOR}
        - APPOPTICS_RABBITMQ_SERVER=rabbitmq
@@ -38,6 +37,7 @@ services:
        - MYSQL_ROOT_PASSWORD=admin
        - MYSQL_HOST=mysql
        - APPOPTICS_MONGO_SERVER=mongo
+       - BUNDLE_GEMFILE=gemfiles/libraries.gemfile
 #       - SIMPLECOV_COVERAGE=True
 
 #  ruby_appoptics_apm_alpine:

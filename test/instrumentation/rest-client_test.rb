@@ -119,6 +119,7 @@ describe "RestClient" do
     traces[5]['HTTPMethod'].must_equal 'POST'
     traces[5]['HTTPStatus'].must_equal "200"
     traces[5].key?('Backtrace').must_equal !!AppOpticsAPM::Config[:nethttp][:collect_backtraces]
+
     traces[6]['Layer'].must_equal 'rest-client'
     traces[6]['Label'].must_equal 'exit'
   end
@@ -178,6 +179,9 @@ describe "RestClient" do
     traces[5]['HTTPMethod'].must_equal 'GET'
     traces[5]['HTTPStatus'].must_equal "301"
     traces[5].key?('Backtrace').must_equal !!AppOpticsAPM::Config[:nethttp][:collect_backtraces]
+
+    traces[6]['Layer'].must_equal 'rest-client'
+    traces[6]['Label'].must_equal 'entry'
 
     traces[7]['Layer'].must_equal 'net-http'
     traces[7]['Label'].must_equal 'entry'
