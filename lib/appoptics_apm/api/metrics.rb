@@ -22,7 +22,7 @@ module  AppOpticsAPM
         start = Time.now
         yield
       ensure
-        duration =(1000 * 1000 * (Time.now - start)).round(0)
+        duration = (1000 * 1000 * (Time.now - start)).to_i
         transaction_name = determine_transaction_name(span, kvs)
         kvs[:TransactionName] = AppOpticsAPM::Span.createSpan(transaction_name, nil, duration)
         AppOpticsAPM.transaction_name = nil
