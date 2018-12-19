@@ -30,8 +30,8 @@ if ENV['TEST_RUNS_TO_FILE']
   $out_file = File.new("log/test_runs_#{Time.now.strftime("%Y_%m_%d")}.log", 'a')
   $out_file.sync = true
   $stdout.sync = true
-  def $stdout.write string
-    $out_file.write string
+  def $stdout.write(string)
+    $out_file.write(string)
     super
   end
 end
@@ -308,6 +308,15 @@ end
 
 def sampled?(xtrace)
   xtrace[59].to_i & 1 == 1
+end
+
+
+#########################            ###            ###            ###            ###            ###
+### DEBUGGING HELPERS ###
+#########################
+
+def pretty(traces)
+  puts traces.pretty_inspect
 end
 
 def print_traces(traces, more_keys = [])

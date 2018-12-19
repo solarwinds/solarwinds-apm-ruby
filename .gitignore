@@ -4,6 +4,7 @@ gemfiles/*.lock
 .ruby-version
 *~
 *.swp
+.env
 lib/oboe_metal.so
 ext/oboe_metal/Makefile
 ext/oboe_metal/mkmf.log
@@ -25,3 +26,4 @@ swig*
 coverage
 doc
 .*byebug*
+gemfiles/vendor*

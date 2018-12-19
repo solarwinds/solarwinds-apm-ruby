@@ -75,11 +75,11 @@ end
 class AddressService < Grpctest::TestService::Service
 
   #### UNARY ###
-  def unary_1(req, _)
+  def unary(req, _)
     ::Address.new(req).to_grpc.id
   end
 
-  def unary_2(req, _)
+  def unary_unknown(req, _)
     ::Address.find(req).to_grpc
   end
 
@@ -97,7 +97,7 @@ class AddressService < Grpctest::TestService::Service
     Grpctest::NullMessage.new
   end
 
-  def client_stream_find(call)
+  def client_stream_unknown(call)
     res = []
     call.each_remote_read { |req| res << ::Address.find(req).to_grpc }
     res.first
@@ -122,7 +122,7 @@ class AddressService < Grpctest::TestService::Service
      Grpctest::Phone.new( number: '223456789', type: 'mobile')]
   end
 
-  def server_stream_find(req, _)
+  def server_stream_unknown(req, _)
     [::Address.find(req).to_grpc,
      ::Address.find(req).to_grpc]
   end
@@ -154,5 +154,9 @@ class AddressService < Grpctest::TestService::Service
 
   def bidi_stream_unknown(_req, _call)
     raise StandardError
+  end
+
+  def bidi_stream_varying(_req, _call)
+    raise [StandardError, ::GRPC::Core::OutOfTime, ::GRPC::Cancelled, ::GRPC::Unimplemented].sample
   end
 end

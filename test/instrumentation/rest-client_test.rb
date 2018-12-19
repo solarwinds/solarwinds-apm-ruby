@@ -226,6 +226,7 @@ describe "RestClient" do
     traces[2]['ErrorClass'].must_equal 'SocketError'
     traces[2].key?('ErrorMsg').must_equal true
     traces[2].key?('Backtrace').must_equal !!AppOpticsAPM::Config[:nethttp][:collect_backtraces]
+
     traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 1
 
     traces[3]['Layer'].must_equal 'rest-client'

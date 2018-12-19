@@ -7,24 +7,24 @@ package grpctest;
 
 service TestService {
     // unary
-    rpc unary_1 (Address) returns (AddressId);
-    rpc unary_2 (AddressId) returns (Address);
-    rpc unary_long(NullMessage) returns(NullMessage);
+    rpc unary (Address) returns (AddressId);
     rpc unary_cancel(NullMessage) returns(NullMessage);
+    rpc unary_long(NullMessage) returns(NullMessage);
+    rpc unary_unknown (AddressId) returns (Address);
     rpc unary_unimplemented(NullMessage) returns(NullMessage);
 
     // client streaming
     rpc client_stream(stream Phone) returns (NullMessage);
-    rpc client_stream_find (stream AddressId) returns (Address);
-    rpc client_stream_long(stream Phone) returns (NullMessage);
     rpc client_stream_cancel(stream Phone) returns (NullMessage);
+    rpc client_stream_long(stream Phone) returns (NullMessage);
+    rpc client_stream_unknown(stream AddressId) returns (Address);
     rpc client_stream_unimplemented(stream Phone) returns (NullMessage);
 
     // server streaming
     rpc server_stream (AddressId)  returns (stream Phone);
-    rpc server_stream_find(AddressId) returns (stream Address);
-    rpc server_stream_long (AddressId) returns (stream Phone);
     rpc server_stream_cancel(NullMessage) returns(stream Phone);
+    rpc server_stream_long (AddressId) returns (stream Phone);
+    rpc server_stream_unknown(AddressId) returns (stream Address);
     rpc server_stream_unimplemented(NullMessage) returns(stream Phone);
 
     // bidi streaming
@@ -33,6 +33,7 @@ service TestService {
     rpc bidi_stream_long(stream Phone) returns (stream Phone);
     rpc bidi_stream_unknown(stream Phone) returns (stream Phone);
     rpc bidi_stream_unimplemented(stream Phone) returns (stream Phone);
+    rpc bidi_stream_varying(stream Phone) returns (stream Phone);
 }
 
 message NullMessage {}

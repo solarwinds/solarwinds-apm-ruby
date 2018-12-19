@@ -165,7 +165,7 @@ class ConfigTest
 
       # Verify the number of individual instrumentations
       instrumentation = AppOpticsAPM::Config.instrumentation
-      instrumentation.count.must_equal 32
+      instrumentation.count.must_equal 33
 
       AppOpticsAPM::Config[:action_controller][:enabled].must_equal true
       AppOpticsAPM::Config[:action_controller_api][:enabled].must_equal true
@@ -181,6 +181,8 @@ class ConfigTest
       AppOpticsAPM::Config[:em_http_request][:enabled].must_equal false
       AppOpticsAPM::Config[:excon][:enabled].must_equal true
       AppOpticsAPM::Config[:faraday][:enabled].must_equal true
+      AppOpticsAPM::Config[:grpc_client][:enabled].must_equal true
+      AppOpticsAPM::Config[:grpc_server][:enabled].must_equal true
       AppOpticsAPM::Config[:grape][:enabled].must_equal true
       AppOpticsAPM::Config[:httpclient][:enabled].must_equal true
       AppOpticsAPM::Config[:memcached][:enabled].must_equal true
@@ -230,6 +232,8 @@ class ConfigTest
       AppOpticsAPM::Config[:excon][:collect_backtraces].must_equal true
       AppOpticsAPM::Config[:faraday][:collect_backtraces].must_equal false
       AppOpticsAPM::Config[:grape][:collect_backtraces].must_equal true
+      AppOpticsAPM::Config[:grpc_client][:collect_backtraces].must_equal false
+      AppOpticsAPM::Config[:grpc_server][:collect_backtraces].must_equal false
       AppOpticsAPM::Config[:httpclient][:collect_backtraces].must_equal true
       AppOpticsAPM::Config[:memcached][:collect_backtraces].must_equal false
       AppOpticsAPM::Config[:mongo][:collect_backtraces].must_equal true
