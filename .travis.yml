@@ -14,7 +14,8 @@ rvm:
   - 2.5.3
   - 2.4.5
   - 2.3.8
-  - ruby-head
+  - 2.6.0-rc1
+#  - ruby-head
 #  - jruby-9.0.5.0
 
 gemfile:
@@ -32,7 +33,11 @@ matrix:
   exclude:
     - rvm: ruby-head
       gemfile: gemfiles/rails42.gemfile
+    - rvm: 2.6.0-rc1
+      gemfile: gemfiles/rails42.gemfile
 
+    - rmv: 2.6.0-rc1
+      env: DBTYPE=mysql
     - rvm: 2.5.3
       env: DBTYPE=mysql
     - rvm: 2.4.5
@@ -75,6 +80,7 @@ matrix:
       env: DBTYPE=mysql2
   allow_failures:
     - rvm: ruby-head
+    - rvm: 2.6.0-rc1
 
 # FIXME: Figure out if this is still an issue when reviewing cassandra test setup
 # Attempt Travis/Cassandra fix re: https://github.com/travis-ci/travis-ci/issues/1484
