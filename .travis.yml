@@ -11,23 +11,23 @@ env:
   - DBTYPE=mysql
 
 rvm:
+  - 2.6.0-rc1
   - 2.5.3
   - 2.4.5
   - 2.3.8
-  - 2.6.0-rc1
 #  - ruby-head
 #  - jruby-9.0.5.0
 
 gemfile:
   - gemfiles/libraries.gemfile
-#  - gemfiles/unit.gemfile
-#  - gemfiles/instrumentation_mocked.gemfile
-#  - gemfiles/instrumentation_mocked_oldgems.gemfile
-#  - gemfiles/frameworks.gemfile
-#  - gemfiles/rails52.gemfile
-#  - gemfiles/rails42.gemfile
-#  - gemfiles/delayed_job.gemfile
-#  - gemfiles/noop.gemfile
+  - gemfiles/unit.gemfile
+  - gemfiles/instrumentation_mocked.gemfile
+  - gemfiles/instrumentation_mocked_oldgems.gemfile
+  - gemfiles/frameworks.gemfile
+  - gemfiles/rails52.gemfile
+  - gemfiles/rails42.gemfile
+  - gemfiles/delayed_job.gemfile
+  - gemfiles/noop.gemfile
 
 matrix:
   exclude:
@@ -80,7 +80,7 @@ matrix:
       env: DBTYPE=mysql2
   allow_failures:
     - rvm: ruby-head
-    - rvm: 2.6.0-rc1
+#    - rvm: 2.6.0-rc1
 
 # FIXME: Figure out if this is still an issue when reviewing cassandra test setup
 # Attempt Travis/Cassandra fix re: https://github.com/travis-ci/travis-ci/issues/1484
