@@ -42,7 +42,7 @@ RUN . ~/.profile \
     && rbenv install 2.3.8 \
     && rbenv install 2.4.5 \
     && rbenv install 2.5.3 \
-    && rbenv install 2.6.0-rc1
+    && rbenv install 2.6.0-rc2
 #    && rbenv install jruby-9.1.16.0
 
 # install swig 3.0.8
