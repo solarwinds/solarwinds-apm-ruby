@@ -64,7 +64,7 @@ do
   export ${args[2]}
 
   echo "Installing gems ..."
-  bundle install --quiet
+  bundle update --quiet
 
   if [ "$?" -eq 0 ]; then
     bundle exec rake test

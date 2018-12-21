@@ -26,13 +26,13 @@ module AppOpticsAPM
         # Report Controller/Action and Transaction as best possible
         report_kvs = {}
 
-        report_kvs[:Controller] = options[:for].name
-        if route && route.pattern
-          report_kvs[:Action] = route.options ? "#{route.options[:method]}#{route.pattern.origin}" : route.pattern.origin
-          # report_kvs[:Action] = route.pattern.origin
-        else
-          report_kvs[:Action] = args.empty? ? env['PATH_INFO'] : args[0]['PATH_INFO']
-        end
+        report_kvs[:Controller] = options[:for].to_s
+        report_kvs[:Action] =
+          if route&.pattern
+            route.options ? "#{route.options[:method]}#{route.pattern.origin}" : route.pattern.origin
+          else
+            args.empty? ? env['PATH_INFO'] : args[0]['PATH_INFO']
+          end
         report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:grape][:collect_backtraces]
 
         env['appoptics_apm.controller'] = report_kvs[:Controller]
