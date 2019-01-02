@@ -11,11 +11,11 @@ env:
   - DBTYPE=mysql
 
 rvm:
-  - 2.6.0-rc2
+  - 2.6.0
   - 2.5.3
   - 2.4.5
   - 2.3.8
-#  - ruby-head
+  - ruby-head
 #  - jruby-9.0.5.0
 
 gemfile:
