@@ -42,8 +42,10 @@ RUN . ~/.profile \
     && rbenv install 2.3.8 \
     && rbenv install 2.4.5 \
     && rbenv install 2.5.3 \
-    && rbenv install 2.6.0-rc2
+    && rbenv install 2.6.0
 #    && rbenv install jruby-9.1.16.0
+
+RUN echo 'gem: --no-document' >> ~/.gemrc
 
 # install swig 3.0.8
 RUN curl -SL http://kent.dl.sourceforge.net/project/swig/swig/swig-3.0.8/swig-3.0.8.tar.gz \
