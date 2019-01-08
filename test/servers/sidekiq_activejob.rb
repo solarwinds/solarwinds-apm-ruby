@@ -23,7 +23,7 @@ gemfile = ENV['BUNDLE_GEMFILE']
 AppOpticsAPM.logger.warn "[appoptics_apm/servers] sidekiq #{arguments}"
 
 Thread.new do
-  system("OBOE_GEM_TEST=true BUNDLE_GEMFILE=#{gemfile} sidekiq #{arguments}")
+  system("APPOPTICS_GEM_TEST=true BUNDLE_GEMFILE=#{gemfile} sidekiq #{arguments}")
 end
 
 # Allow Sidekiq to boot up

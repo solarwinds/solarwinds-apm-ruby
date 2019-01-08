@@ -22,7 +22,8 @@ end
 AppOpticsAPM.logger.debug "[appoptics_apm/servers] sidekiq #{arguments}"
 
 Thread.new do
-  system("OBOE_GEM_TEST=true sidekiq #{arguments}")
+  system("APPOPTICS_GEM_TEST=true sidekiq #{arguments}")
+  # system("sidekiq #{arguments}")
 end
 
 # Allow Sidekiq to boot up

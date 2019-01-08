@@ -1,10 +1,6 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
-# Backward compatibility for supported environment variables
-ENV['APPOPTICS_GEM_VERBOSE'] = ENV['OBOE_GEM_VERBOSE'] if ENV.key?('OBOE_GEM_VERBOSE')
-ENV['APPOPTICS_GEM_TEST']    = ENV['OBOE_GEM_TEST']    if ENV.key?('OBOE_GEM_TEST')
-
 begin
   require 'openssl'
   require 'appoptics_apm/version'
