@@ -78,7 +78,7 @@ because it takes care of starting the required services.
 ### Run all tests
 To run all tests as defined in .travs.yml:
 ```bash
-bundle exec rake docker_tests
+rake docker_tests
 ```
 >Temporarily commenting out components (e.g. a ruby version) in travis.yml 
 is a good way to reduce the time of a test run.
@@ -92,7 +92,7 @@ it if there is a change with the Ruby versions required for the tests.
 In this case we want to start the docker image and then define 
 which tests to run from within.
 ```bash
-bundle exec rake docker
+rake docker
 ```
 
 check out the options:
@@ -133,12 +133,11 @@ bundle
 bundle exec ruby -I test instrumentation/moped_test.rb -n /drop_collection/
 ```
 
-## pry-byebug for debugging
+## byebug for debugging
 
-The gem is setup to be debugged with `pry` and `pry-byebug`, add the following lines in the code for a break:
+The gem is setup to be debugged with `byebug`, add the following lines in the code for a break:
 ```ruby
-require 'pry'
-require 'pry-byebug'
+require 'byebug'
 byebug
 ```
 See here for docu: https://github.com/deivid-rodriguez/pry-byebug
