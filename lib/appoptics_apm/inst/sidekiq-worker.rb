@@ -39,7 +39,7 @@ module AppOpticsAPM
       # are being lost.  So we re-set the tracing mode to assure
       # we sample as desired.  Setting the tracing mode will re-update
       # the liboboe settings.
-      AppOpticsAPM::Config[:tracing_mode] = AppOpticsAPM::Config[:tracing_mode]
+      AppOpticsAPM.set_tracing_mode(AppOpticsAPM::Config[:tracing_mode].to_sym)
 
       # Continue the trace from the enqueue side?
       if args[1].is_a?(Hash) && AppOpticsAPM::XTrace.valid?(args[1]['SourceTrace'])
