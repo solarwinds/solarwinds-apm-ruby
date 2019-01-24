@@ -33,6 +33,7 @@ class RackTestApp < Minitest::Test
   def setup
     @bt = AppOpticsAPM::Config[:rack][:collect_backtraces]
     @log_args = AppOpticsAPM::Config[:rack][:log_args]
+    @sr = AppOpticsAPM::Config[:sample_rate]
     clear_all_traces
   end
 
@@ -40,6 +41,7 @@ class RackTestApp < Minitest::Test
     AppOpticsAPM::Config[:rack][:collect_backtraces] = @bt
     AppOpticsAPM::Config[:rack][:log_args] =  @log_args
     AppOpticsAPM::Config[:tracing_mode] = :always
+    AppOpticsAPM::Config[:sample_rate] = @sr
   end
 
   def test_get_the_lobster
@@ -115,7 +117,7 @@ class RackTestApp < Minitest::Test
   end
 
   def test_has_header_when_not_tracing
-    AppOpticsAPM::Config[:tracing_mode] = :never
+    AppOpticsAPM::Config[:sample_rate] = 0
 
     get "/lobster?blah=1"
 

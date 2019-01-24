@@ -98,15 +98,17 @@ module AppOpticsAPM
       end
 
       ##
-      # static_asset?
+      # dnt?
       #
       # Given a path, this method determines whether it is a static asset or not (based
       # solely on filename)
       #
-      def static_asset?(path)
-        path =~ Regexp.new(AppOpticsAPM::Config[:dnt_regexp], AppOpticsAPM::Config[:dnt_opts])
+      def dnt?(path)
+        return false unless AppOpticsAPM::Config[:dnt_compiled]
+        # once we only support Ruby >= 2.4.0 use `match?` instead of `=~`
+        return AppOpticsAPM::Config[:dnt_compiled] =~ path
       rescue => e
-        AppOpticsAPM.logger.warn "[AppOpticsAPM/debug] Could not apply Regex.new to path. #{e.inspect}"
+        AppOpticsAPM.logger.warn "[AppOpticsAPM/debug] Could not apply do-not-trace filter to path. #{e.inspect}"
         false
       end
 

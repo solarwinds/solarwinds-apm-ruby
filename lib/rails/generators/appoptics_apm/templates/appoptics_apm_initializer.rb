@@ -103,9 +103,17 @@ if defined?(AppOpticsAPM::Config)
   # regardless of case
   #
   # Requests with positive matches (non nil) will not be traced.
-  # See lib/appoptics_apm/util.rb: AppOpticsAPM::Util.static_asset?
+  # See lib/appoptics_apm/util.rb: AppOpticsAPM::Util.dnt?
   #
-  AppOpticsAPM::Config[:dnt_regexp] = '\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|otf|eot|ttf|woff|woff2|svg|less)(\?.+){0,1}$'
+  #
+  # :dnt_extensions is an array of strings for filtering (not regular expressions)
+  AppOpticsAPM::Config[:dnt_extensions] = %w[.bmp .bz2 .css .eot .flv .gif .gz .ico
+                                         .jpeg .jpg .js .less .otf .pdf .png
+                                         .rar .rtf .svg .swf .tar .tgz .ttf .txt
+                                         .wav .woff .woff2 .zip]
+  extensions_source = Regexp.union(AppOpticsAPM::Config[:dnt_extensions]).source
+  AppOpticsAPM::Config[:dnt_regexp] = "#{extensions_source}(\\?.+){0,1}$"
+  # AppOpticsAPM::Config[:dnt_regexp] = '\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|otf|eot|ttf|woff|woff2|svg|less)(\?.+){0,1}$'
   AppOpticsAPM::Config[:dnt_opts]   = Regexp::IGNORECASE
 
   #

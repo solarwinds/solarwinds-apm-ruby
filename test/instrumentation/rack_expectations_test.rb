@@ -9,7 +9,6 @@ require 'mocha/minitest'
 
 describe AppOpticsAPM::SDK do
 
-  # TODO: add this paragraph to docs and transaction name method comment
   # Transaction names are stored as a tag value on trace metrics
   # Tag values must match the regular expression /\A[-.:_\\\/\w ]{1,255}\z/.
   # Tag values are always converted to lower case.
@@ -112,7 +111,6 @@ describe AppOpticsAPM::SDK do
 
   it 'should use the transaction name for metrics even when not sampling' do
     AppOpticsAPM.config_lock.synchronize {
-      AppOpticsAPM::Config[:tracing_mode] = :never
       AppOpticsAPM::Config[:sample_rate] = 0
     }
     name = "lobster"
@@ -138,7 +136,6 @@ describe AppOpticsAPM::SDK do
       get "/#{name}"
     end
   end
-
 
   it 'should provide the domain name to createHttpSpan if configured' do
     AppOpticsAPM::Config['transaction_name']['prepend_domain'] = true

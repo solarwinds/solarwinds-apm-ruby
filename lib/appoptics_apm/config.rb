@@ -48,8 +48,7 @@ module AppOpticsAPM
         elsif File.exist?(File.join(ENV['APPOPTICS_APM_CONFIG_RUBY'], 'appoptics_apm_config.rb'))
           config_files << File.join(ENV['APPOPTICS_APM_CONFIG_RUBY'], 'appoptics_apm_config.rb')
         else
-          $stderr.puts 'Could not find the configuration file set by the APPOPTICS_APM_CONFIG_RUBY environment variable:'
-          $stderr.puts "#{ENV['APPOPTICS_APM_CONFIG_RUBY']}"
+          AppOpticsAPM.logger.warn "[appoptics_apm/config] Could not find the configuration file set by the APPOPTICS_APM_CONFIG_RUBY environment variable:  #{ENV['APPOPTICS_APM_CONFIG_RUBY']}"
         end
       end
 
@@ -60,8 +59,10 @@ module AppOpticsAPM
       return if config_files.empty?  # we use the defaults from the template in this case
 
       if config_files.size > 1
-        $stderr.puts 'Found multiple configuration files, using the first one listed:'
-        config_files.each { |path| $stderr.puts "  #{path}" }
+        AppOpticsAPM.logger.warn [
+          '[appoptics_apm/config] Multiple configuration files configured, using the first one listed: ',
+          config_files.join(', ')
+        ].join(' ')
       end
       load(config_files[0])
       check_env_vars
@@ -174,11 +175,12 @@ module AppOpticsAPM
     #
     # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
     def self.[]=(key, value)
-      @@config[key.to_sym] = value
+      key = key.to_sym
+      @@config[key] = value
 
       if key == :sampling_rate
         AppOpticsAPM.logger.warn '[appoptics_apm/config] sampling_rate is not a supported setting for AppOpticsAPM::Config.  ' \
-                         'Please use :sample_rate.'
+                                 'Please use :sample_rate.'
 
       elsif key == :sample_rate
         unless value.is_a?(Integer) || value.is_a?(Float)
@@ -201,6 +203,33 @@ module AppOpticsAPM
 
       elsif key == :action_blacklist
         AppOpticsAPM.logger.warn "[appoptics_apm/config] :action_blacklist has been deprecated and no longer functions."
+
+      elsif key == :dnt_extensions
+        if value && value.is_a?(Array)
+          value.keep_if { |ele| ele.is_a?(String) }
+
+          @@config[:dnt_extensions] = value
+          if value.empty?
+            AppOpticsAPM::Config[:dnt_regexp] = nil
+          else
+            extensions_source = Regexp.union(value).source
+            AppOpticsAPM::Config[:dnt_regexp] = "#{extensions_source}(\\?.+){0,1}$"
+          end
+        end
+
+      elsif key == :dnt_regexp
+        if value.nil? || value == ''
+          AppOpticsAPM::Config[:dnt_compiled] = nil
+        else
+          @@config[:dnt_compiled] =
+            Regexp.new(AppOpticsAPM::Config[:dnt_regexp], AppOpticsAPM::Config[:dnt_opts] || nil)
+        end
+
+      elsif key == :dnt_opts
+        if AppOpticsAPM::Config[:dnt_regexp] && AppOpticsAPM::Config[:dnt_regexp] != ''
+          @@config[:dnt_compiled] =
+            Regexp.new(AppOpticsAPM::Config[:dnt_regexp], AppOpticsAPM::Config[:dnt_opts] || nil)
+        end
 
       elsif key == :resque
         AppOpticsAPM.logger.warn "[appoptics_apm/config] :resque config is deprecated.  It is now split into :resqueclient and :resqueworker."

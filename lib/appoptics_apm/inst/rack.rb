@@ -27,13 +27,19 @@ if AppOpticsAPM.loaded
       end
 
       def call(env)
+        # no metrics and traces when in never mode or if path matches the
+        # dnt (do not trace) config.
         # In the case of nested Ruby apps such as Grape inside of Rails
         # or Grape inside of Grape, each app has it's own instance
         # of rack middleware.  We avoid tracing rack more than once and
         # instead start instrumenting from the first rack pass.
-        return call_app(env) if AppOpticsAPM.tracing? && AppOpticsAPM.layer == :rack
+        if AppOpticsAPM.never? ||
+          (AppOpticsAPM.tracing? && AppOpticsAPM.layer == :rack) ||
+          AppOpticsAPM::Util.dnt?(env['PATH_INFO'])
 
-        # if we already have a context, we don't want to send metrics in the end
+          return call_app(env)
+        end
+        # don't send metrics if we already have a context
         return sampling_call(env) if AppOpticsAPM::Context.isValid
 
         # else we also send metrics
@@ -127,7 +133,7 @@ if AppOpticsAPM.loaded
         # AppOpticsAPM.has_xtrace_header = xtrace
         # AppOpticsAPM.is_continued_trace = AppOpticsAPM.has_incoming_context || AppOpticsAPM.has_xtrace_header
 
-        AppOpticsAPM::API.log_start(:rack, xtrace, report_kvs) unless AppOpticsAPM::Util.static_asset?(env['PATH_INFO'])
+        AppOpticsAPM::API.log_start(:rack, xtrace, report_kvs)
 
         status, headers, response = @app.call(env)
         confirmed_transaction_name = send_metrics(env, req, req_url, start, status)
@@ -153,8 +159,6 @@ if AppOpticsAPM.loaded
 
 
       def send_metrics(env, req, req_url, start, status)
-        return if AppOpticsAPM::Util.static_asset?(env['PATH_INFO'])
-
         status = status.to_i
         error = status.between?(500,599) ? 1 : 0
         duration =(1000 * 1000 * (Time.now - start)).round(0)
