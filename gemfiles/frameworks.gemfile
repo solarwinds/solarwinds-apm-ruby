@@ -22,9 +22,9 @@ gem 'grape'
 if defined?(JRUBY_VERSION)
   # Limit padrino gem under JRuby as version 0.13.0 throws
   # a bundler load error
-  gem "padrino", '< 0.13.0'
+  gem "padrino" , '< 0.13.0'
 else
-  gem 'padrino'
+  gem 'padrino', '~> 0.14.4' # need to force this, it sometimes defaults to 0.9.21
 end
 
 gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')
