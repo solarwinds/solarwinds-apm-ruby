@@ -12,7 +12,7 @@ require 'appoptics_apm/test'
 
 require File.expand_path(File.dirname(__FILE__) + '/../models/widget')
 
-AppOpticsAPM.logger.level = Logger::DEBUG
+# AppOpticsAPM.logger.level = Logger::DEBUG
 AppOpticsAPM.logger.info "[appoptics_apm/info] Starting background utility rails app on localhost:8140."
 
 AppOpticsAPM::Test.set_postgresql_env
