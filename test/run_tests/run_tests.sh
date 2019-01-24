@@ -63,7 +63,8 @@ do
   if [[ "$env" != "" && "$env" != "${args[2]}" ]]; then continue; fi
   export ${args[2]}
 
-  echo "Installing gems ..."
+  echo
+  echo "Installing gems ... for $(ruby -v)"
   bundle update --quiet
 
   if [ "$?" -eq 0 ]; then
@@ -74,14 +75,17 @@ do
     if [ "$pids" != "" ]; then kill $pids; fi
   else
     echo "Problem during gem install. Skipping tests for ${args[1]}"
+    rbenv local 2.5.3
     exit 1 # we are not continuing here to keep ctrl-c working as expected
   fi
 
   num=$((num-1))
   if [ "$num" -eq "0" ]; then
+    rbenv local 2.5.3
     cd -
     exit
   fi
 done
 
+rbenv local 2.5.3
 cd -
