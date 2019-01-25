@@ -18,6 +18,7 @@ class ConfigTest
       @tracing_mode = AppOpticsAPM::Config[:tracing_mode]
       @sample_rate = AppOpticsAPM::Config[:sample_rate]
       @gem_verbose =  AppOpticsAPM::Config[:verbose]
+      @log_level = AppOpticsAPM.logger.level
 
       ENV.delete('APPOPTICS_APM_CONFIG_RUBY')
       ENV.delete('APPOPTICS_SERVICE_KEY')
@@ -39,11 +40,14 @@ class ConfigTest
       AppOpticsAPM::Config[:tracing_mode] = @tracing_mode
       AppOpticsAPM::Config[:sample_rate] = @sample_rate
       AppOpticsAPM::Config[:verbose] = @gem_verbose
+      AppOpticsAPM.logger.level = @log_level
+
       ENV.delete('APPOPTICS_APM_CONFIG_RUBY')
       ENV.delete('APPOPTICS_SERVICE_KEY')
       ENV.delete('APPOPTICS_HOSTNAME_ALIAS')
       ENV.delete('APPOPTICS_DEBUG_LEVEL')
       ENV.delete('APPOPTICS_GEM_VERBOSE')
+
       FileUtils.rm(@@default_config_path, :force => true)
       FileUtils.rm(@@rails_config_path, :force => true)
       FileUtils.rm(@@test_config_path, :force => true)
@@ -96,6 +100,51 @@ class ConfigTest
        ENV['APPOPTICS_GEM_VERBOSE'].must_equal 'TRUE'
        AppOpticsAPM::Config[:verbose].must_equal true
     end
+
+    it 'tests the env service key' do
+      AppOpticsAPM.logger.level = Logger::ERROR
+
+      ENV['APPOPTICS_SERVICE_KEY'] = nil
+      AppOpticsAPM::Reporter.valid_service_key?.must_equal false
+
+      ENV['APPOPTICS_SERVICE_KEY'] = '22222222-2222-2222-2222-222222222222:service'
+      AppOpticsAPM::Reporter.valid_service_key?.must_equal false
+
+      ENV['APPOPTICS_SERVICE_KEY'] = '1234567890123456789012345678901234567890123456789012345678901234'
+      AppOpticsAPM::Reporter.valid_service_key?.must_equal false
+
+      ENV['APPOPTICS_SERVICE_KEY'] = '1234567890123456789012345678901234567890123456789012345678901234:'
+      AppOpticsAPM::Reporter.valid_service_key?.must_equal false
+
+      ENV['APPOPTICS_SERVICE_KEY'] = '1234567890123456789012345678901234567890123456789012345678901234:service'
+      AppOpticsAPM::Reporter.valid_service_key?.must_equal true
+    end
+
+    it 'tests the config service_key when there is no env' do
+      AppOpticsAPM.logger.level = Logger::ERROR
+      ENV['APPOPTICS_SERVICE_KEY'] = nil
+
+      AppOpticsAPM::Config[:service_key] = nil
+      AppOpticsAPM::Reporter.valid_service_key?.must_equal false
+
+      AppOpticsAPM::Config[:service_key] = '22222222-2222-2222-2222-222222222222:service'
+      AppOpticsAPM::Reporter.valid_service_key?.must_equal false
+
+      AppOpticsAPM::Config[:service_key] = '1234567890123456789012345678901234567890123456789012345678901234'
+      AppOpticsAPM::Reporter.valid_service_key?.must_equal false
+
+      AppOpticsAPM::Config[:service_key] = '1234567890123456789012345678901234567890123456789012345678901234:'
+      AppOpticsAPM::Reporter.valid_service_key?.must_equal false
+
+      AppOpticsAPM::Config[:service_key] = '1234567890123456789012345678901234567890123456789012345678901234:service'
+      AppOpticsAPM::Reporter.valid_service_key?.must_equal true
+
+      ENV['APPOPTICS_SERVICE_KEY'] = 'blabla'
+      AppOpticsAPM::Config[:service_key] = '1234567890123456789012345678901234567890123456789012345678901234:service'
+      AppOpticsAPM::Reporter.valid_service_key?.must_equal false
+    end
+
+
 
     it 'should use default when there is a wrong debug level setting' do
       File.open(@@default_config_path, 'w') do |f|
