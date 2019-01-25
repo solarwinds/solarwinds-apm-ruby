@@ -844,7 +844,9 @@ describe 'GRPC' do
 
       traces.size.must_equal 6
       traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| tr['GRPCMethodType'].must_equal  'BIDI_STREAMING' }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNIMPLEMENTED' }
+      # traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNIMPLEMENTED' }
+      # version 1.18.0 returns UNKNOWN instead of UNIMPLEMENTED
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNKNOWN' }
     end
 
     it 'sends metrics from the server for bidi_streaming with enumerator' do
@@ -981,7 +983,9 @@ describe 'GRPC' do
 
       traces.size.must_equal 6
       traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'BIDI_STREAMING' }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNIMPLEMENTED' }
+      # traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNIMPLEMENTED' }
+      # version 1.18.0 returns UNKNOWN instead of UNIMPLEMENTED
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNKNOWN' }
     end
 
     it 'sends metrics from the server for bidi_streaming using block' do
