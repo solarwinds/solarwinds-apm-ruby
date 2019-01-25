@@ -31,16 +31,7 @@ module AppOpticsAPM
           when 'udp'
             ENV['APPOPTICS_REPORTER_UDP'] = "#{AppOpticsAPM::Config[:reporter_host]}:#{AppOpticsAPM::Config[:reporter_port]}"
           else # default is ssl, service_key is mandatory
-            service_key = ENV['APPOPTICS_SERVICE_KEY'].to_s || AppOpticsAPM::Config[:service_key].to_s
-            if service_key == ''
-              AppOpticsAPM.logger.warn '[appoptics_apm/warn] APPOPTICS_SERVICE_KEY not set. Cannot submit data.'
-              AppOpticsAPM.loaded = false
-              return
-            elsif service_key !~ /^[0-9a-fA-F]{64}:[-.:_?\\\/\w ]{1,255}$/
-              AppOpticsAPM.logger.warn '[appoptics_apm/warn] APPOPTICS_SERVICE_KEY problem. No service name or api token in wrong format. Cannot submit data.'
-              AppOpticsAPM.loaded = false
-              return
-            end
+            return unless valid_service_key?
             # Oboe will override these settings if there are env settings for them
             options << AppOpticsAPM::Config[:service_key].to_s
             options << AppOpticsAPM::Config[:hostname_alias].to_s
@@ -61,6 +52,19 @@ module AppOpticsAPM
       end
       alias :restart :start
 
+      def valid_service_key?
+        service_key = (ENV['APPOPTICS_SERVICE_KEY'] || AppOpticsAPM::Config[:service_key]).to_s
+        if service_key == ''
+          AppOpticsAPM.logger.warn '[appoptics_apm/warn] APPOPTICS_SERVICE_KEY not set. Cannot submit data.'
+          AppOpticsAPM.loaded = false
+          return false
+        elsif service_key !~ /^[0-9a-fA-F]{64}:[-.:_?\\\/\w ]{1,255}$/
+          AppOpticsAPM.logger.warn '[appoptics_apm/warn] APPOPTICS_SERVICE_KEY problem. No service name or api token in wrong format. Cannot submit data.'
+          AppOpticsAPM.loaded = false
+          return false
+        end
+        true
+      end
       ##
       # sendReport
       #
