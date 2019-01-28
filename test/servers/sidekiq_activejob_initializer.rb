@@ -23,4 +23,4 @@ Bundler.require(:default, :test)
 AppOpticsAPM::Config[:tracing_mode] = "always"
 AppOpticsAPM::Config[:sample_rate] = 1000000
 # AppOpticsAPM.logger.level = Logger::DEBUG
-
+AppOpticsAPM.logger.level = Logger::FATAL
