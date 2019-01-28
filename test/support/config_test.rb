@@ -15,13 +15,24 @@ class ConfigTest
     FileUtils.mkdir_p(File.join(Dir.pwd, 'config', 'initializers'))
 
     before do
-      @config = {}
-      AppOpticsAPM::Config.config.each { |k,v| @config[k] = v.is_a?(Hash) ? v.dup : v }
+      @loaded = AppOpticsAPM.loaded
 
-      @env = {}
-      ENV.each { |k,v| @env[k] = v if k.to_s =~ /^APPOPTICS_/ }
+      @config_mode = AppOpticsAPM::Config[:tracing_mode]
+      @config_rate = AppOpticsAPM::Config[:sample_rate]
+      @config_verbose = AppOpticsAPM::Config[:verbose]
+      @config_key = AppOpticsAPM::Config[:service_key]
+      @config_alias = AppOpticsAPM::Config[:hostname_alias]
+      @config_level = AppOpticsAPM::Config[:debug_level]
+      @config_extensions = AppOpticsAPM::Config[:dnt_extensions]
+      @config_regexp = AppOpticsAPM::Config[:dnt_regexp]
 
       @log_level = AppOpticsAPM.logger.level
+
+      @env_config = ENV['APPOPTICS_APM_CONFIG_RUBY']
+      @env_key = ENV['APPOPTICS_SERVICE_KEY']
+      @env_alias = ENV['APPOPTICS_HOSTNAME_ALIAS']
+      @env_debug = ENV['APPOPTICS_DEBUG_LEVEL']
+      @env_verbose = ENV['APPOPTICS_GEM_VERBOSE']
 
       ENV.delete('APPOPTICS_APM_CONFIG_RUBY')
       ENV.delete('APPOPTICS_SERVICE_KEY')
@@ -36,13 +47,34 @@ class ConfigTest
     end
 
     after do
+      ENV.delete('APPOPTICS_APM_CONFIG_RUBY')
+      ENV.delete('APPOPTICS_SERVICE_KEY')
+      ENV.delete('APPOPTICS_HOSTNAME_ALIAS')
+      ENV.delete('APPOPTICS_DEBUG_LEVEL')
+      ENV.delete('APPOPTICS_GEM_VERBOSE')
+
+      ENV['APPOPTICS_APM_CONFIG_RUBY'] = @env_config  if @env_config
+      ENV['APPOPTICS_SERVICE_KEY']     = @env_key     if @env_key
+      ENV['APPOPTICS_HOSTNAME_ALIAS']  = @env_alias   if @env_alias
+      ENV['APPOPTICS_DEBUG_LEVEL']     = @env_debug   if @env_debug
+      ENV['APPOPTICS_GEM_VERBOSE']     = @env_verbose if @env_verbose
+
       FileUtils.rm(@@default_config_path, :force => true)
       FileUtils.rm(@@rails_config_path, :force => true)
       FileUtils.rm(@@test_config_path, :force => true)
 
-      @config.each { |k,v| AppOpticsAPM::Config[k] = v.is_a?(Hash) ? v.dup : v }
-      @env.each { |k,v| ENV[k] = v }
       AppOpticsAPM.logger.level = @log_level
+
+      AppOpticsAPM::Config[:tracing_mode] = @config_mode
+      AppOpticsAPM::Config[:sample_rate] = @config_rate
+      AppOpticsAPM::Config[:verbose] = @config_verbose
+      AppOpticsAPM::Config[:service_key] = @config_key
+      AppOpticsAPM::Config[:hostname_alias] = @config_alias
+      AppOpticsAPM::Config[:debug_level] = @config_level
+      AppOpticsAPM::Config[:dnt_extensions] = @config_extensions
+      AppOpticsAPM::Config[:dnt_regexp] = @config_regexp
+
+      AppOpticsAPM.loaded = @loaded
     end
 
     it 'should read the settings from the config file' do
@@ -135,8 +167,6 @@ class ConfigTest
       AppOpticsAPM::Config[:service_key] = '1234567890123456789012345678901234567890123456789012345678901234:service'
       AppOpticsAPM::Reporter.valid_service_key?.must_equal false
     end
-
-
 
     it 'should use default when there is a wrong debug level setting' do
       File.open(@@default_config_path, 'w') do |f|
@@ -383,7 +413,6 @@ class ConfigTest
 
       AppOpticsAPM::Config[:dnt_compiled].must_be_nil
     end
-
 
     #########################################
     ### Tests for loading the config file ###
