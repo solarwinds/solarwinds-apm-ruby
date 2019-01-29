@@ -80,41 +80,43 @@ if defined?(AppOpticsAPM::Config)
 
   #
   # Do Not Trace - DNT
-  # 'dnt_regexp' and 'dnt_opts' allow you to configure specific URL patterns
-  # to never be traced.  By default, this is set to common static file
-  # extensions but you may want to customize this list for your needs.
-  # Examples of such files may be images, javascript, pdfs, and text files.
   #
-  # 'dnt_regexp' and 'dnt_opts' is passed to Regexp.new to create
-  # a regular expression object.  That is then used to match against
-  # the incoming request path.
+  # This configurations allows listing endpoints or creating a regexp for
+  # paths for which no metrics or traces should get recorded.
   #
-  # The path string originates from the rack layer and is retrieved
-  # as follows:
+  # For example:
+  # - static assets that aren't served by the webserver,
+  # - long running requests that distort the metrics, or
+  # - healthcheck endpoints that respond to a heart beat.
   #
+  # Please comment out if no filtering is desired.
+  #
+  # :dnt_extensions takes an array of strings for filtering (not regular expressions!)
+  #
+  # :dnt_regexp is the regular expression that is applied to the incoming path
+  # to determine whether the request should be measured and traced or not.
+  #
+  # :dnt_opts can be commented out, nil, or Regexp::IGNORECASE
+  #
+  # The path originates from the rack layer and is retrieved as follows:
   #   req = ::Rack::Request.new(env)
   #   path = URI.unescape(req.path)
   #
-  # Usage:
-  #   AppOpticsAPM::Config[:dnt_regexp] = "lobster$"
-  #   AppOpticsAPM::Config[:dnt_opts]   = Regexp::IGNORECASE
+  # If :dnt_extensions are configured they will be matched with the end of the path
+  # before an eventual ? followed by arguments.
+  # This matching happens before routes are applied. A route that incorporates
+  # params into the path will need to be filtered with a :dnt_regexp.
   #
-  # This will ignore all requests that end with the string lobster
-  # regardless of case
-  #
-  # Requests with positive matches (non nil) will not be traced.
-  # See lib/appoptics_apm/util.rb: AppOpticsAPM::Util.dnt?
-  #
-  #
-  # :dnt_extensions is an array of strings for filtering (not regular expressions)
+  # If both, :dnt_extensions and :dnt_regexp, are configured the second
+  # configuration will overwrite the first.
+
   AppOpticsAPM::Config[:dnt_extensions] = %w[.bmp .bz2 .css .eot .flv .gif .gz .ico
                                          .jpeg .jpg .js .less .otf .pdf .png
                                          .rar .rtf .svg .swf .tar .tgz .ttf .txt
                                          .wav .woff .woff2 .zip]
-  extensions_source = Regexp.union(AppOpticsAPM::Config[:dnt_extensions]).source
-  AppOpticsAPM::Config[:dnt_regexp] = "#{extensions_source}(\\?.+){0,1}$"
+
   # AppOpticsAPM::Config[:dnt_regexp] = '\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|otf|eot|ttf|woff|woff2|svg|less)(\?.+){0,1}$'
-  AppOpticsAPM::Config[:dnt_opts]   = Regexp::IGNORECASE
+  AppOpticsAPM::Config[:dnt_opts] = Regexp::IGNORECASE
 
   #
   # Blacklist urls
