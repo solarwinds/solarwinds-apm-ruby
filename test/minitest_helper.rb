@@ -125,6 +125,26 @@ when /libraries/
   end
 end
 
+
+##
+# deep_dup
+#
+# deep duplicate of array or hash
+#
+def deep_dup(obj)
+  if obj.is_a? Array
+    new_obj = []
+    obj.each do |v|
+      new_obj << deep_dup(v)
+    end
+  elsif obj.is_a? Hash
+    new_obj = {}
+    obj.each_pair do |key, value|
+      new_obj[key] = deep_dup(value)
+    end
+  end
+end
+
 ##
 # clear_all_traces
 #

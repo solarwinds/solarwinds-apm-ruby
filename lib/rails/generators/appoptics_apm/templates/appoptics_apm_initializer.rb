@@ -81,42 +81,79 @@ if defined?(AppOpticsAPM::Config)
   #
   # Do Not Trace - DNT
   #
-  # This configurations allows listing endpoints or creating a regexp for
-  # paths for which no metrics or traces should get recorded.
+  # DEPRECATED
+  # Please comment out if no filtering is desired, e.g. your static
+  # assets are served by the web server and not the application
+  #
+  # This configuration allows creating a regexp for paths for which no metrics or
+  # traces should get recorded. These requests should not include transactions
+  # with outbound calls, for which metrics and traces aren't desired either.
   #
   # For example:
-  # - static assets that aren't served by the webserver,
-  # - long running requests that distort the metrics, or
+  # - static assets that aren't served by the web server, or
   # - healthcheck endpoints that respond to a heart beat.
-  #
-  # Please comment out if no filtering is desired.
-  #
-  # :dnt_extensions takes an array of strings for filtering (not regular expressions!)
   #
   # :dnt_regexp is the regular expression that is applied to the incoming path
   # to determine whether the request should be measured and traced or not.
   #
   # :dnt_opts can be commented out, nil, or Regexp::IGNORECASE
   #
+  # The matching happens before routes are applied.
   # The path originates from the rack layer and is retrieved as follows:
   #   req = ::Rack::Request.new(env)
   #   path = URI.unescape(req.path)
   #
-  # If :dnt_extensions are configured they will be matched with the end of the path
-  # before an eventual ? followed by arguments.
-  # This matching happens before routes are applied. A route that incorporates
-  # params into the path will need to be filtered with a :dnt_regexp.
-  #
-  # If both, :dnt_extensions and :dnt_regexp, are configured the second
-  # configuration will overwrite the first.
-
-  AppOpticsAPM::Config[:dnt_extensions] = %w[.bmp .bz2 .css .eot .flv .gif .gz .ico
-                                         .jpeg .jpg .js .less .otf .pdf .png
-                                         .rar .rtf .svg .swf .tar .tgz .ttf .txt
-                                         .wav .woff .woff2 .zip]
-
-  # AppOpticsAPM::Config[:dnt_regexp] = '\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|otf|eot|ttf|woff|woff2|svg|less)(\?.+){0,1}$'
+  AppOpticsAPM::Config[:dnt_regexp] = '\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|otf|eot|ttf|woff|woff2|svg|less)(\?.+){0,1}$'
   AppOpticsAPM::Config[:dnt_opts] = Regexp::IGNORECASE
+  #
+
+  #
+  # Transaction Settings
+  #
+  # Use this configuration to filter out requests for which no metrics or traces
+  # should get recorded, for example long running requests that distort the metrics.
+  #
+  # :type        defaults to :url and can be omitted for now
+  # :extensions  takes an array of strings for filtering (not regular expressions!)
+  # :regexp      is a regular expression that is applied to the incoming path
+  #                 to determine whether the request should be measured and
+  #                 traced or not.
+  # :tracing     defaults to :disabled and can be omitted for now
+  # :opts        can be omitted, nil, or Regexp::IGNORECASE
+  #
+  # The matching of settings to urls happens before routes are applied.
+  # The path originates from the env argument passed to the rack call:
+  #     env['PATH_INFO']
+  #
+  # Be careful not to add too many :regexp configurations as they will slow
+  # down execution.
+  #
+  AppOpticsAPM::Config[:transaction_settings] = [
+    # { type: :url,
+    #   extensions: %w['long_job'],
+    #   tracing: :disabled
+    # },
+    # { type: :url,
+    #   regexp: '^.*\/long_job\/.*$',
+    #   opts: Regexp::IGNORECASE,
+    #   tracing: :disabled
+    # }
+  ]
+
+  AppOpticsAPM::Config[:transaction_settings] = {
+    # url: [
+    #   {
+    #     extensions: %w['long_job'],
+    #     tracing: :disabled
+    #   },
+    #   {
+    #     regexp: '^.*\/long_job\/.*$',
+    #     opts: Regexp::IGNORECASE,
+    #     tracing: :disabled
+    #   }
+    # ]
+  }
+  #
 
   #
   # Blacklist urls

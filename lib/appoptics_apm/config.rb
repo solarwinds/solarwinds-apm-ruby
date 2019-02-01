@@ -204,22 +204,9 @@ module AppOpticsAPM
       elsif key == :action_blacklist
         AppOpticsAPM.logger.warn "[appoptics_apm/config] :action_blacklist has been deprecated and no longer functions."
 
-      elsif key == :dnt_extensions
-        if value && value.is_a?(Array)
-          value.keep_if { |ele| ele.is_a?(String) }
-
-          @@config[:dnt_extensions] = value
-          if value.empty?
-            AppOpticsAPM::Config[:dnt_regexp] = nil
-          else
-            extensions_source = Regexp.union(value).source
-            AppOpticsAPM::Config[:dnt_regexp] = "#{extensions_source}(\\?.+){0,1}$"
-          end
-        end
-
       elsif key == :dnt_regexp
         if value.nil? || value == ''
-          AppOpticsAPM::Config[:dnt_compiled] = nil
+          @@config[:dnt_compiled] = nil
         else
           @@config[:dnt_compiled] =
             Regexp.new(AppOpticsAPM::Config[:dnt_regexp], AppOpticsAPM::Config[:dnt_opts] || nil)
@@ -230,6 +217,9 @@ module AppOpticsAPM
           @@config[:dnt_compiled] =
             Regexp.new(AppOpticsAPM::Config[:dnt_regexp], AppOpticsAPM::Config[:dnt_opts] || nil)
         end
+
+      elsif key == :transaction_settings
+        compile_url_settings(value[:url]) if value.is_a?(Hash)
 
       elsif key == :resque
         AppOpticsAPM.logger.warn "[appoptics_apm/config] :resque config is deprecated.  It is now split into :resqueclient and :resqueworker."
@@ -256,6 +246,53 @@ module AppOpticsAPM
       end
     end
     # rubocop:enable Metrics/AbcSize, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
+
+    def self.compile_url_settings(settings)
+      return @@config[:url_disabled_regexps] = nil unless settings.is_a?(Array) && !settings.empty?
+
+      # for now `type: :url` and `tracing: :disabled` are the only valid settings for these keys
+      settings.keep_if do |v|
+        (!v.has_key?(:type)    || v[:type] == :url) &&
+        (!v.has_key?(:tracing) || v[:tracing] == :disabled)
+      end
+
+      regexp_regexp     = compile_url_settings_regexp(settings)
+      extensions_regexp = compile_url_settings_extensions(settings)
+
+      regexps = [regexp_regexp, extensions_regexp].flatten.compact
+      @@config[:url_disabled_regexps] = regexps.empty? ? nil : regexps
+    end
+
+    def self.compile_url_settings_regexp(value)
+      regexps = value.dup.select do |v|
+        v.key?(:regexp) &&
+          !(v[:regexp].is_a?(String) && v[:regexp].empty?) &&
+          !(v[:regexp].is_a?(Regexp) && v[:regexp].inspect == '//')
+      end
+
+      regexps.map! do |v|
+        begin
+          v[:regexp].is_a?(String) ? Regexp.new(v[:regexp], v[:opts]) : Regexp.new(v[:regexp])
+        rescue
+          AppOpticsAPM.logger.warn "[appoptics_apm/config] Problem compiling transaction_settings item #{v}, will ignore."
+          nil
+        end
+      end
+      regexps.keep_if { |v| !v.nil?}
+      regexps.empty? ? nil : regexps
+    end
+
+    def self.compile_url_settings_extensions(value)
+      extensions = value.dup.select do |v|
+        v.key?(:extensions) &&
+          v[:extensions].is_a?(Array) &&
+          !v[:extensions].empty?
+      end
+      extensions = extensions.map { |v| v[:extensions] }.flatten
+      extensions.keep_if { |v| v.is_a?(String)}
+
+      extensions.empty? ? nil : Regexp.new("#{Regexp.union(extensions).source}(\\?.+){0,1}$")
+    end
 
     def self.method_missing(sym, *args)
       class_var_name = "@@#{sym}"

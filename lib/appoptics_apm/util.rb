@@ -98,17 +98,31 @@ module AppOpticsAPM
       end
 
       ##
-      # dnt?
+      # asset?
       #
-      # Given a path, this method determines whether it is a static asset or not (based
-      # solely on filename)
+      # Given a path, this method determines whether it is a static asset
       #
-      def dnt?(path)
+      def asset?(path)
         return false unless AppOpticsAPM::Config[:dnt_compiled]
         # once we only support Ruby >= 2.4.0 use `match?` instead of `=~`
         return AppOpticsAPM::Config[:dnt_compiled] =~ path
       rescue => e
-        AppOpticsAPM.logger.warn "[AppOpticsAPM/debug] Could not apply do-not-trace filter to path. #{e.inspect}"
+        AppOpticsAPM.logger.warn "[AppOpticsAPM/filter] Could not apply do-not-trace filter to path. #{e.inspect}"
+        false
+      end
+
+      ##
+      # tracing_disabled?
+      #
+      # Given a path, this method determines whether it matches any of the
+      # regexps to exclude it from metrics and traces
+      #
+      def tracing_disabled?(path)
+        return false unless AppOpticsAPM::Config[:url_disabled_regexps].is_a? Array
+        # once we only support Ruby >= 2.4.0 use `match?` instead of `=~`
+        return AppOpticsAPM::Config[:url_disabled_regexps].any? { |regex| regex =~ path }
+      rescue => e
+        AppOpticsAPM.logger.warn "[AppOpticsAPM/filter] Could not apply :never filter to path. #{e.inspect}"
         false
       end
 

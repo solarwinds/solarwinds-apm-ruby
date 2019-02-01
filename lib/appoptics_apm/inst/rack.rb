@@ -27,18 +27,23 @@ if AppOpticsAPM.loaded
       end
 
       def call(env)
-        # no metrics and traces when in never mode or if path matches the
-        # dnt (do not trace) config.
+        # No metrics and traces when in never mode.
         # In the case of nested Ruby apps such as Grape inside of Rails
         # or Grape inside of Grape, each app has it's own instance
-        # of rack middleware.  We avoid tracing rack more than once and
+        # of rack middleware. We avoid tracing rack more than once and
         # instead start instrumenting from the first rack pass.
-        if AppOpticsAPM.never? ||
-          (AppOpticsAPM.tracing? && AppOpticsAPM.layer == :rack) ||
-          AppOpticsAPM::Util.dnt?(env['PATH_INFO'])
+        if (AppOpticsAPM.tracing? && AppOpticsAPM.layer == :rack) ||
+          AppOpticsAPM::Util.asset?(env['PATH_INFO'])
 
           return call_app(env)
         end
+
+        # create a non-sampling context for never requests
+        if AppOpticsAPM.never? || AppOpticsAPM::Util.tracing_disabled?(env['PATH_INFO'])
+
+          return tracing_disabled_call(env)
+        end
+
         # don't send metrics if we already have a context
         return sampling_call(env) if AppOpticsAPM::Context.isValid
 
@@ -67,7 +72,8 @@ if AppOpticsAPM.loaded
             report_kvs[:'Query-String'] = ::CGI.unescape(req.query_string) unless req.query_string.empty?
           end
 
-          report_kvs[:Backtrace]        = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:rack][:collect_backtraces]
+          report_kvs[:URL] = AppOpticsAPM::Config[:rack][:log_args] ? ::CGI.unescape(req.fullpath) : ::CGI.unescape(req.path)
+          report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:rack][:collect_backtraces]
 
           # Report any request queue'ing headers.  Report as 'Request-Start' or the summed Queue-Time
           report_kvs[:'Request-Start']     = env['HTTP_X_REQUEST_START']    if env.key?('HTTP_X_REQUEST_START')
@@ -94,20 +100,38 @@ if AppOpticsAPM.loaded
         @app.call(env)
       end
 
-      # in this case we have an existing context
+      def tracing_disabled_call(env)
+        # Check for and validate X-Trace request header to pass through tracing context
+        # xtrace = env.is_a?(Hash) ? env['HTTP_X_TRACE'] : nil
+        xtrace = env['HTTP_X_TRACE']
+        xtrace = AppOpticsAPM::XTrace.valid?(xtrace) ? xtrace : nil
+        orig_sampled = AppOpticsAPM::XTrace.sampled?(xtrace)
+
+        if xtrace
+          AppOpticsAPM::XTrace.unset_sampled(xtrace)
+          AppOpticsAPM::Context.fromString(xtrace)
+        else
+          md = AppOpticsAPM::Metadata.makeRandom(false)
+          env['HTTP_X_TRACE'] = md.toString if env.is_a?(Hash)
+        end
+
+        status, headers, response = @app.call(env)
+        headers['X-Trace'] ||= xtrace if xtrace && headers.is_a?(Hash)
+        AppOpticsAPM::XTrace.set_sampled(headers['X-Trace']) if headers['X-Trace'] && orig_sampled
+
+        AppOpticsAPM::Context.clear
+
+        [status, headers, response]
+      end
+
+      # In this case we have an existing context from a recursive rack call
+      # don't need to handle headers, they will be handled
+      # by the upstream metrics_sampling_call
       def sampling_call(env)
         req = ::Rack::Request.new(env)
-        report_kvs = {}
-        report_kvs[:URL] = AppOpticsAPM::Config[:rack][:log_args] ? ::CGI.unescape(req.fullpath) : ::CGI.unescape(req.path)
+        report_kvs = collect(req, env)
 
         AppOpticsAPM::API.trace(:rack, report_kvs) do
-          report_kvs = collect(req, env)
-
-          # We log an info event with the HTTP KVs found in AppOpticsAPM::Rack.collect
-          # This is done here so in the case of stacks that try/catch/abort
-          # (looking at you Grape) we're sure the KVs get reported now as
-          # this code may not be returned to later.
-          AppOpticsAPM::API.log_info(:rack, report_kvs)
           @app.call(env)
         end
       end
@@ -120,10 +144,10 @@ if AppOpticsAPM.loaded
         status = 500        # initialize with 500
 
         report_kvs = collect(req, env)
-        report_kvs[:URL] = AppOpticsAPM::Config[:rack][:log_args] ? ::CGI.unescape(req.fullpath) : ::CGI.unescape(req.path)
 
         # Check for and validate X-Trace request header to pick up tracing context
-        xtrace = env.is_a?(Hash) ? env['HTTP_X_TRACE'] : nil
+        # xtrace = env.is_a?(Hash) ? env['HTTP_X_TRACE'] : nil
+        xtrace = env['HTTP_X_TRACE']
         xtrace = AppOpticsAPM::XTrace.valid?(xtrace) ? xtrace : nil
 
         # TODO JRUBY

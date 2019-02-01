@@ -233,7 +233,7 @@ Find more details in the [RubyDoc page](https://www.rubydoc.info/gems/appoptics_
 
 # Support
 
-If you find a bug or would like to request an enhancement, feel free to contact our tech support 
+If you run into a problem, find a bug, or would like to request an enhancement, feel free to contact our tech support 
 [support@appoptics.com](support@appoptics.com).  
 
 # Contributing
