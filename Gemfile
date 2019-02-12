@@ -18,6 +18,8 @@ group :development, :test do
   gem 'byebug' #,       :platforms => [:mri_22, :mri_23, :mri_24]
   gem 'pry'
   gem 'pry-byebug',   :platforms => [:mri_22, :mri_23, :mri_24]
+  gem 'get_process_mem'
+  gem 'memory_profiler'
 end
 
 if defined?(JRUBY_VERSION)
