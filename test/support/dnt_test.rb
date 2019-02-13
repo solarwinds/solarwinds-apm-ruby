@@ -26,13 +26,13 @@ class RackDNTTestApp < Minitest::Test
     clear_all_traces
     @dnt_regexp = AppOpticsAPM::Config[:dnt_regexp]
     @dnt_compiled = AppOpticsAPM::Config[:dnt_compiled]
-    @tr_map = deep_dup(AppOpticsAPM::Config[:transaction_settings])
+    @tr_map = AppOpticsAPM::Util.deep_dup(AppOpticsAPM::Config[:transaction_settings])
   end
 
   def teardown
     AppOpticsAPM::Config[:dnt_regexp] = @dnt_regexp
     AppOpticsAPM::Config[:dnt_compiled] = @dnt_compiled
-    AppOpticsAPM::Config[:transaction_settings] = deep_dup(@tr_map)
+    AppOpticsAPM::Config[:transaction_settings] = AppOpticsAPM::Util.deep_dup(@tr_map)
   end
 
   def test_custom_do_not_trace

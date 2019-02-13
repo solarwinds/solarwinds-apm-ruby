@@ -418,12 +418,12 @@ class ConfigTest
 
     describe "transaction_settings" do
       before do
-        @config_map = deep_dup(AppOpticsAPM::Config[:transaction_settings])
+        @config_map = AppOpticsAPM::Util.deep_dup(AppOpticsAPM::Config[:transaction_settings])
         @config_url_disabled = AppOpticsAPM::Config[:url_disabled_regexps]
       end
 
       after do
-        AppOpticsAPM::Config[:transaction_settings] = deep_dup(@config_map)
+        AppOpticsAPM::Config[:transaction_settings] = AppOpticsAPM::Util.deep_dup(@config_map)
         AppOpticsAPM::Config[:url_disabled_regexps] = @config_url_disabled
       end
 

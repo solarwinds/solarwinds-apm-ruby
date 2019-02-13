@@ -29,7 +29,7 @@ describe "Rack: " do
   before do
     @tracing_mode = AppOpticsAPM::Config.tracing_mode
     @dnt = AppOpticsAPM::Config.dnt_compiled
-    @transactions = deep_dup(AppOpticsAPM::Config[:transaction_settings])
+    @transactions = AppOpticsAPM::Util.deep_dup(AppOpticsAPM::Config[:transaction_settings])
 
     @app = mock('app')
     def @app.call(_); [200, {}, "response"] ; end
@@ -39,7 +39,7 @@ describe "Rack: " do
   after do
     AppOpticsAPM::Config.tracing_mode = @tracing_mode
     AppOpticsAPM::Config.dnt_compiled = @dnt
-    AppOpticsAPM::Config[:transaction_settings] = deep_dup(@transactions)
+    AppOpticsAPM::Config[:transaction_settings] = AppOpticsAPM::Util.deep_dup(@transactions)
   end
 
   # the following is a common situation for grape, which,
