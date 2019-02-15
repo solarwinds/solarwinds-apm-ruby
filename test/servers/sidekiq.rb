@@ -3,14 +3,16 @@
 
 # We configure and launch Sidekiq in a background
 # thread here.
-#
+
 require 'sidekiq/cli'
 
-unless `ps aux | grep [s]idekiq`.empty?
-  AppOpticsAPM.logger.debug "[appoptics_apm/servers] Killing old sidekiq process."
-  cmd = "kill -9 `ps -aef | grep 'sidekiq' | grep -v grep | awk '{print $2}'`"
+unless `ps -aef | grep 'sidekiq' | grep APPOPTICS_GEM_TEST | grep -v grep`.empty?
+  AppOpticsAPM.logger.debug "[appoptics_apm/servers] Killing old sidekiq process:#{`ps aux | grep [s]idekiq`}."
+  cmd = "kill -9 `ps -aef | grep 'sidekiq' | grep APPOPTICS_GEM_TEST | grep -v grep | awk '{print $2}'`"
   `#{cmd}`
+  sleep 1
 end
+
 
 AppOpticsAPM.logger.info "[appoptics_apm/servers] Starting up background Sidekiq."
 
@@ -29,7 +31,6 @@ AppOpticsAPM.logger.debug "[appoptics_apm/servers] sidekiq #{arguments}"
 
 Thread.new do
   system("APPOPTICS_GEM_TEST=true sidekiq #{arguments}")
-  # system("sidekiq #{arguments}")
 end
 
 # Allow Sidekiq to boot up
