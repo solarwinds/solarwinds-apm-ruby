@@ -9,7 +9,7 @@ rbenv global 2.4.1
 
 # prerequisite: package_cloud token needs to be in ~/.packagecloud
 gem=`ls -dt1 appoptics_apm-[^pre]*.gem | head -1`
-package_cloud push AppOptics/apm-instrumentation $gem
+package_cloud push solarwinds/appoptics-apm-ruby $gem
 
 # restore ruby version
 rbenv global $current_ruby
