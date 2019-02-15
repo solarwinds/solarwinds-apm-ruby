@@ -155,6 +155,20 @@ class NoopTest < Minitest::Test
     assert_equal 0, traces.count, "generate no traces"
   end
 
+  def test_log_init_doesnt_barf
+    AppOpticsAPM::API.log_init(nil, {:ok => :yeah })
+
+    traces = get_all_traces
+    assert_equal 0, traces.count, "generate no traces"
+  end
+
+  def test_log_end_doesnt_barf
+    AppOpticsAPM::API.log_end(nil, {:ok => :yeah })
+
+    traces = get_all_traces
+    assert_equal 0, traces.count, "generate no traces"
+  end
+
   def test_set_transaction_name_doesnt_barf
     AppOpticsAPM::API.set_transaction_name("should not throw an exception")
   end
