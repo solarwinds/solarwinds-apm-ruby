@@ -173,6 +173,7 @@ if !defined?(JRUBY_VERSION)
 
       m.perform do
         m.requests.each do |request|
+          request = request[1] if request.is_a?(Array)
           refute request.headers && request.headers['X-Trace']
         end
       end
@@ -198,6 +199,7 @@ if !defined?(JRUBY_VERSION)
 
         m.perform do
           m.requests.each do |request|
+            request = request[1] if request.is_a?(Array)
             assert request.headers['X-Trace']
             assert request.headers['Custom']
             assert sampled?(request.headers['X-Trace'])
@@ -228,6 +230,7 @@ if !defined?(JRUBY_VERSION)
 
           m.perform do
             m.requests.each do |request|
+              request = request[1] if request.is_a?(Array)
               assert request.headers['X-Trace']
               assert not_sampled?(request.headers['X-Trace'])
               refute_match /^2B0*$/, request.headers['X-Trace']
