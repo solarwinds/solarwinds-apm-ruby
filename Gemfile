@@ -15,9 +15,7 @@ group :development, :test do
   gem 'benchmark-ips'
   gem 'ruby-debug',   :platforms =>  :jruby
   gem 'debugger',     :platform  =>  :mri_19
-  gem 'byebug' #,       :platforms => [:mri_22, :mri_23, :mri_24]
-  gem 'pry'
-  gem 'pry-byebug',   :platforms => [:mri_22, :mri_23, :mri_24]
+  gem 'byebug'
   gem 'get_process_mem'
   gem 'memory_profiler'
 end
