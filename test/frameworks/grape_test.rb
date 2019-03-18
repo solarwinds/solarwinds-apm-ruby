@@ -177,7 +177,7 @@ if defined?(::Grape)
       assert_equal 0, test_error
 
       assert_controller_action(test_action)
-      end
+    end
 
     it "should report a GET path with parameter" do
       @app = GrapeSimple
