@@ -8,7 +8,7 @@ begin
   require 'appoptics_apm/logger'
   require 'appoptics_apm/util'
   require 'appoptics_apm/xtrace'
-  require 'appoptics_apm/support'
+  require 'appoptics_apm/support_report'
   require 'appoptics_apm/base'
   AppOpticsAPM.loaded = false
 
