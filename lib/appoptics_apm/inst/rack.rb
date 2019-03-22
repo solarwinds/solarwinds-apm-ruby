@@ -43,15 +43,18 @@ if AppOpticsAPM.loaded
 
         # AppOpticsAPM.logger.warn "%%% FILTER: #{settings} %%%"
 
-        propagate_xtrace(env, settings, xtrace) do
+        response = propagate_xtrace(env, settings, xtrace) do
           sample(env, settings) do
             metrics(env, settings) do
               @app.call(env)
             end
           end
         end || [500, {}, nil]
-      ensure
         AppOpticsAPM::Context.clear unless incoming
+        response
+      rescue
+        AppOpticsAPM::Context.clear unless incoming
+        raise
       end
 
       def self.noop?
