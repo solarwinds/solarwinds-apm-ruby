@@ -15,7 +15,7 @@ unless defined?(JRUBY_VERSION)
 
     def setup
       clear_all_traces
-      AppOpticsAPM::Config[:tracing_mode] = :always
+      AppOpticsAPM::Config[:tracing_mode] = :enabled
     end
 
     def teardown

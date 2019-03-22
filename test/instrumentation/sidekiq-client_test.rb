@@ -148,7 +148,7 @@ unless defined?(JRUBY_VERSION)
 
     def test_dont_log_when_not_sampling
       AppOpticsAPM::Config[:sidekiqclient][:log_args] = true
-      AppOpticsAPM::Config[:tracing_mode] = 'never'
+      AppOpticsAPM::Config[:tracing_mode] = :disabled
 
       ::AppOpticsAPM::API.start_trace(:enqueue_test) do
         Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
@@ -157,7 +157,7 @@ unless defined?(JRUBY_VERSION)
       sleep 3
       traces = get_all_traces
 
-      # FIXME: the sidekiq worker is not respecting the AppOpticsAPM::Config[:tracing_mode] = 'never' setting
+      # FIXME: the sidekiq worker is not respecting the AppOpticsAPM::Config[:tracing_mode] = :disabled setting
       # ____ instead of no traces we are getting 17, that is 4 less than we would get with tracing
       # assert_equal 0, traces.count
       assert_equal 12, refined_trace_count(traces)

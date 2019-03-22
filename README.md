@@ -185,8 +185,8 @@ Bundler.require
 require 'appoptics_apm'
  
 
-# Tracing mode can be 'never', 'through' (to follow upstream) or 'always'
-AppOpticsAPM::Config[:tracing_mode] = 'always'
+# Tracing mode can be :enabled or :disabled
+AppOpticsAPM::Config[:tracing_mode] = :enabled
  
 #
 # Update April 9, 2015 - this is done automagically now

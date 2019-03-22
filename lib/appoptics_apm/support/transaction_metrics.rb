@@ -6,7 +6,7 @@ module AppOpticsAPM
   # This module sends the duration of the call and
   # sets the transaction_name
   #
-  class TransactionMetrics
+  module TransactionMetrics
     class << self
 
       ##

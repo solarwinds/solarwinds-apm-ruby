@@ -51,7 +51,7 @@ Benchmark.ips do |x|
   x.report('bunny_pub_sampling_A') do
     ENV['TEST_AB'] = 'A'
     AppOpticsAPM.loaded = true
-    AppOpticsAPM::Config[:tracing_mode] = 'always'
+    AppOpticsAPM::Config[:tracing_mode] = :enabled
     AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
 
     dostuff(@exchange)
@@ -59,7 +59,7 @@ Benchmark.ips do |x|
   x.report('bunny_pub_sampling_B') do
     ENV['TEST_AB'] = 'B'
     AppOpticsAPM.loaded = true
-    AppOpticsAPM::Config[:tracing_mode] = 'always'
+    AppOpticsAPM::Config[:tracing_mode] = :enabled
     AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
 
     dostuff(@exchange)

@@ -46,7 +46,7 @@ Rake::TestTask.new do |t|
                    FileList['test/profiling/*_test.rb'] -
                    ['test/instrumentation/twitter-cassandra_test.rb']
   when /instrumentation_mocked/
-    # WebMock is interfering with other tests, so these have to run seperately
+    # WebMock is interfering with other tests, so these have to run separately
     t.test_files = FileList['test/mocked/*_test.rb']
   when /noop/
     t.test_files = FileList['test/noop/*_test.rb']
@@ -208,20 +208,12 @@ task :environment do
   ENV['APPOPTICS_GEM_VERBOSE'] = 'true'
 
   Bundler.require(:default, :development)
-  AppOpticsAPM::Config[:tracing_mode] = :always
+  AppOpticsAPM::Config[:tracing_mode] = :enabled
   AppOpticsAPM::Test.load_extras
 
   if AppOpticsAPM::Test.gemfile?(:delayed_job)
     require 'delayed/tasks'
   end
-end
-
-task :console => :environment do
-  ARGV.clear
-  if AppOpticsAPM::Test.gemfile?(:delayed_job)
-    require './test/servers/delayed_job'
-  end
-  Pry.start
 end
 
 # Used when testing Resque locally

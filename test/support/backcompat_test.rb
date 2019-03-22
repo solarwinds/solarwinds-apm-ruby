@@ -29,9 +29,9 @@ describe "BackwardCompatibility" do
     Oboe::Config.sample_rate.must_equal 8e5
     AppOpticsAPM::Config.sample_rate.must_equal 8e5
 
-    Oboe::Config[:tracing_mode] = 'always'
-    Oboe::Config.tracing_mode.must_equal :always
-    AppOpticsAPM::Config.tracing_mode.must_equal :always
+    Oboe::Config[:tracing_mode] = :enabled
+    Oboe::Config.tracing_mode.must_equal :enabled
+    AppOpticsAPM::Config.tracing_mode.must_equal :enabled
 
     Oboe::Config[:sample_rate] = @sr
     Oboe::Config[:tracing_mode] = @tm

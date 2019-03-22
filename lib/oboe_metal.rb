@@ -172,15 +172,15 @@ module AppOpticsAPM
       value = mode.to_sym
 
       case value
-      when :never
-        AppOpticsAPM::Context.setTracingMode(APPOPTICS_TRACE_NEVER)
+      when :disabled, :never
+        AppOpticsAPM::Context.setTracingMode(APPOPTICS_TRACE_DISABLED)
 
-      when :always
-        AppOpticsAPM::Context.setTracingMode(APPOPTICS_TRACE_ALWAYS)
+      when :enabled, :always
+        AppOpticsAPM::Context.setTracingMode(APPOPTICS_TRACE_ENABLED)
 
       else
         AppOpticsAPM.logger.fatal "[oboe/error] Invalid tracing mode set: #{mode}"
-        AppOpticsAPM::Context.setTracingMode(APPOPTICS_TRACE_NEVER)
+        AppOpticsAPM::Context.setTracingMode(APPOPTICS_TRACE_DISABLED)
       end
     end
 

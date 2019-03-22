@@ -44,7 +44,6 @@ unless defined?(JRUBY_VERSION)
       assert valid_edges?(traces), "Invalid edge in traces"
 
       # Validate entry layer KVs
-      assert_equal 'always_sampled', traces[0]['TraceOrigin'],       "is always_sampled"
       assert_equal true,             traces[0].key?('SampleRate'),   "has SampleRate KV"
       assert_equal true,             traces[0].key?('SampleSource'), "has SampleSource KV"
 

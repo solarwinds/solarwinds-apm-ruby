@@ -31,7 +31,7 @@ module AppOpticsAPM
                          'removed in a subsequent version.'
 
         saved_mode = AppOpticsAPM::Config[:tracing_mode]
-        AppOpticsAPM::Config[:tracing_mode] = :always
+        AppOpticsAPM::Config[:tracing_mode] = :enabled
         yield
       ensure
         AppOpticsAPM::Config[:tracing_mode] = saved_mode

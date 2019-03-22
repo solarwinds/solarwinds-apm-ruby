@@ -66,9 +66,9 @@ module Oboe_metal
           cfg = LayerUtil.getLocalSampleRate(nil, nil)
 
           if cfg.hasSampleStartFlag
-            AppOpticsAPM::Config.tracing_mode = :always
+            AppOpticsAPM::Config.tracing_mode = :enabled
           else
-            AppOpticsAPM::Config.tracing_mode = :never
+            AppOpticsAPM::Config.tracing_mode = :disabled
           end
 
           AppOpticsAPM.sample_rate = cfg.getSampleRate

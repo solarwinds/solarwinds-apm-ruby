@@ -27,9 +27,9 @@ describe "RailsSharedTests" do
     }
   end
 
-  it "should NOT trace when tracing is set to :never" do
+  it "should NOT trace when tracing is set to :disabled" do
     AppOpticsAPM.config_lock.synchronize do
-      AppOpticsAPM::Config[:tracing_mode] = :never
+      AppOpticsAPM::Config[:tracing_mode] = :disabled
       uri = URI.parse('http://127.0.0.1:8140/hello/world')
       r = Net::HTTP.get_response(uri)
 
@@ -84,10 +84,10 @@ describe "RailsSharedTests" do
     assert_controller_action(test_action)
   end
 
-  it "should NOT send inbound metrics when tracing_mode is never" do
+  it "should NOT send inbound metrics when tracing_mode is :disabled" do
     test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
     AppOpticsAPM.config_lock.synchronize do
-      AppOpticsAPM::Config[:tracing_mode] = :never
+      AppOpticsAPM::Config[:tracing_mode] = :disabled
       AppOpticsAPM::Span.expects(:createHttpSpan).never
 
       uri = URI.parse('http://127.0.0.1:8140/hello/world')

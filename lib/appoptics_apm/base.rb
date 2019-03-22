@@ -2,8 +2,8 @@
 # All rights reserved.
 
 # Constants from liboboe
-APPOPTICS_TRACE_NEVER   = 0
-APPOPTICS_TRACE_ALWAYS  = 1
+APPOPTICS_TRACE_DISABLED   = 0
+APPOPTICS_TRACE_ENABLED  = 1
 
 # OBOE_SAMPLE_RATE_SOURCE_FILE                   = 1
 # OBOE_SAMPLE_RATE_SOURCE_DEFAULT                = 2
@@ -147,22 +147,26 @@ module AppOpticsAPMBase
     AppOpticsAPM.layer_op.last == operation.to_sym
   end
 
+  # TODO ME review use of these boolean statements
+  # ____ they should now be handled by TransactionSettings,
+  # ____ because there can be exceptions to :enabled and :disabled
+
   ##
-  # Returns true if the tracing_mode is set to always.
+  # Returns true if the tracing_mode is set to :enabled.
   # False otherwise
   #
-  def always?
+  def tracing_enabled?
     AppOpticsAPM::Config[:tracing_mode] &&
-      AppOpticsAPM::Config[:tracing_mode].to_sym == :always
+      [:enabled, :always].include?(AppOpticsAPM::Config[:tracing_mode].to_sym)
   end
 
   ##
-  # Returns true if the tracing_mode is set to never.
+  # Returns true if the tracing_mode is set to :disabled.
   # False otherwise
   #
-  def never?
+  def tracing_disabled?
     AppOpticsAPM::Config[:tracing_mode] &&
-      AppOpticsAPM::Config[:tracing_mode].to_sym == :never
+      [:disabled, :never].include?(AppOpticsAPM::Config[:tracing_mode].to_sym)
   end
 
   ##
@@ -170,7 +174,7 @@ module AppOpticsAPMBase
   # False otherwise
   #
   def tracing?
-    return false if !AppOpticsAPM.loaded || AppOpticsAPM.never?
+    return false if !AppOpticsAPM.loaded # || AppOpticsAPM.tracing_disabled?
     AppOpticsAPM::Context.isSampled
   end
 
