@@ -35,18 +35,19 @@ class RackTestApp < Minitest::Test
     @log_args = AppOpticsAPM::Config[:rack][:log_args]
     @sr = AppOpticsAPM::Config[:sample_rate]
     clear_all_traces
+    AppOpticsAPM::Config[:sample_rate] = 1_000_000
+    AppOpticsAPM::Config[:tracing_mode] = :enabled
   end
 
   def teardown
     AppOpticsAPM::Config[:rack][:collect_backtraces] = @bt
     AppOpticsAPM::Config[:rack][:log_args] =  @log_args
-    AppOpticsAPM::Config[:tracing_mode] = :always
+    AppOpticsAPM::Config[:tracing_mode] = :enabled
     AppOpticsAPM::Config[:sample_rate] = @sr
   end
 
   def test_get_the_lobster
     # skip("FIXME: broken on travis only") if ENV['TRAVIS'] == "true"
-
     get "/lobster"
 
     traces = get_all_traces
@@ -94,6 +95,7 @@ class RackTestApp < Minitest::Test
     get "/lobster?blah=1"
 
     traces = get_all_traces
+    refute traces.empty?, "No traces recorded"
 
     xtrace = last_response['X-Trace']
     assert xtrace
@@ -108,6 +110,7 @@ class RackTestApp < Minitest::Test
     get "/lobster?blah=1"
 
     traces = get_all_traces
+    refute traces.empty?, "No traces recorded"
 
     xtrace = last_response['X-Trace']
     assert xtrace
@@ -157,7 +160,7 @@ class RackTestApp < Minitest::Test
   # the status returned by @app.call(env) is usually an integer, but there are cases where it is a string
   # encountered by this app: https://github.com/librato/api which proxies requests "through to a java service by rack"
   def test_status_can_be_a_string
-    Rack::URLMap.any_instance.stubs(:call).returns(["200", {"Content-Length"=>"592"}, "the body"])
+    Rack::URLMap.any_instance.expects(:call).returns(["200", {"Content-Length"=>"592"}, "the body"])
 
     result = get '/lobster'
 
@@ -168,12 +171,13 @@ class RackTestApp < Minitest::Test
     get '/the_exception'
 
     traces = get_all_traces
+    refute traces.empty?, "No traces recorded"
 
     error_trace = traces.find { |trace| trace['Label'] == 'error' }
     assert_equal 'error', error_trace['Spec']
     assert error_trace.key?('ErrorClass')
     assert error_trace.key?('ErrorMsg')
-    assert_equal 1, traces.select { |trace| trace['Label'] == 'error' }.count
+    assert_equal 1, traces.select { |trace| trace['Label'] == 'error' }.size
   end
 
   def test_without_backtrace
@@ -181,9 +185,27 @@ class RackTestApp < Minitest::Test
     get '/lobster'
 
     traces = get_all_traces
+    refute traces.empty?, "No traces recorded"
 
     refute traces[0]['Backtrace']
   end
 
+  ##########################################
+  # Test that filters are applied properly
+  ##########################################
+
+  def test_sends_metrics_if_do_metrics
+    AppOpticsAPM::TransactionSettings.any_instance.expects(:do_metrics).returns(true).at_least_once
+    AppOpticsAPM::Span.expects(:createHttpSpan).once
+
+    get '/lobster'
+  end
+
+  def test_samples_if_do_sample
+    AppOpticsAPM::TransactionSettings.any_instance.expects(:do_sample).returns(true).at_least_once
+    AppOpticsAPM::API.expects(:log_event).twice
+
+    get '/lobster'
+  end
 end
 

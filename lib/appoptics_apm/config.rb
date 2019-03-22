@@ -1,6 +1,8 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
+require_relative 'support/transaction_settings'
+
 module AppOpticsAPM
   ##
   # This module exposes a nested configuration hash that can be used to
@@ -219,7 +221,11 @@ module AppOpticsAPM
         end
 
       elsif key == :transaction_settings
-        compile_url_settings(value[:url]) if value.is_a?(Hash)
+        if value.is_a?(Hash)
+          AppOpticsAPM::TransactionSettings.compile_url_settings(value[:url])
+        else
+          AppOpticsAPM::TransactionSettings.reset_url_regexps
+        end
 
       elsif key == :resque
         AppOpticsAPM.logger.warn "[appoptics_apm/config] :resque config is deprecated.  It is now split into :resqueclient and :resqueworker."
@@ -247,52 +253,7 @@ module AppOpticsAPM
     end
     # rubocop:enable Metrics/AbcSize, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
 
-    def self.compile_url_settings(settings)
-      return @@config[:url_disabled_regexps] = nil unless settings.is_a?(Array) && !settings.empty?
 
-      # for now `type: :url` and `tracing: :disabled` are the only valid settings for these keys
-      settings.keep_if do |v|
-        (!v.has_key?(:type)    || v[:type] == :url) &&
-        (!v.has_key?(:tracing) || v[:tracing] == :disabled)
-      end
-
-      regexp_regexp     = compile_url_settings_regexp(settings)
-      extensions_regexp = compile_url_settings_extensions(settings)
-
-      regexps = [regexp_regexp, extensions_regexp].flatten.compact
-      @@config[:url_disabled_regexps] = regexps.empty? ? nil : regexps
-    end
-
-    def self.compile_url_settings_regexp(value)
-      regexps = value.dup.select do |v|
-        v.key?(:regexp) &&
-          !(v[:regexp].is_a?(String) && v[:regexp].empty?) &&
-          !(v[:regexp].is_a?(Regexp) && v[:regexp].inspect == '//')
-      end
-
-      regexps.map! do |v|
-        begin
-          v[:regexp].is_a?(String) ? Regexp.new(v[:regexp], v[:opts]) : Regexp.new(v[:regexp])
-        rescue
-          AppOpticsAPM.logger.warn "[appoptics_apm/config] Problem compiling transaction_settings item #{v}, will ignore."
-          nil
-        end
-      end
-      regexps.keep_if { |v| !v.nil?}
-      regexps.empty? ? nil : regexps
-    end
-
-    def self.compile_url_settings_extensions(value)
-      extensions = value.dup.select do |v|
-        v.key?(:extensions) &&
-          v[:extensions].is_a?(Array) &&
-          !v[:extensions].empty?
-      end
-      extensions = extensions.map { |v| v[:extensions] }.flatten
-      extensions.keep_if { |v| v.is_a?(String)}
-
-      extensions.empty? ? nil : Regexp.new("#{Regexp.union(extensions).source}(\\?.+){0,1}$")
-    end
 
     def self.method_missing(sym, *args)
       class_var_name = "@@#{sym}"

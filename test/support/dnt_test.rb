@@ -87,11 +87,14 @@ class RackDNTTestApp < Minitest::Test
     get "/javascripts/show.js"
 
     traces = get_all_traces
-    assert !traces.empty?
+    refute traces.empty?, 'No traces were recorded'
   end
 
   def test_empty_transaction_settings
-    AppOpticsAPM::Config[:transaction_settings] = [{ }]
+    AppOpticsAPM::Config[:transaction_settings] = { url: [] }
+
+    # TODO makes this test more unit
+    AppOpticsAPM::Context.expects(:getDecisions).returns([1, 1, 1000, 1, 0]).once
     AppOpticsAPM::Span.expects(:createHttpSpan).returns("the_transaction_name").once
 
     get "/lobster"
@@ -101,7 +104,7 @@ class RackDNTTestApp < Minitest::Test
   end
 
   def test_transaction_settings_regexp
-    AppOpticsAPM::Config[:transaction_settings] = [{ regexp: /.*LOB.*/i }]
+    AppOpticsAPM::Config[:transaction_settings] = { url: [{ regexp: /.*LOB.*/i }] }
     AppOpticsAPM::Span.expects(:createHttpSpan).never
 
     get "/lobster"
@@ -113,7 +116,7 @@ class RackDNTTestApp < Minitest::Test
   end
 
   def test_transaction_settings_extensions
-    AppOpticsAPM::Config[:transaction_settings] = [{ extensions: ['ter'] }]
+    AppOpticsAPM::Config[:transaction_settings] = { url: [{ extensions: ['ter'] }] }
     AppOpticsAPM::Span.expects(:createHttpSpan).never
 
     get "/lobster"
@@ -123,12 +126,13 @@ class RackDNTTestApp < Minitest::Test
   end
 
   def test_transaction_settings_with_x_trace
-    AppOpticsAPM::Config[:transaction_settings] = [{ extensions: ['ter'] }]
+    AppOpticsAPM::Config[:transaction_settings] = { url: [{ extensions: ['ter'] }] }
     AppOpticsAPM::Span.expects(:createHttpSpan).never
 
     xtrace = '2BE176BC800FE533EB7910F59C44F173BBF6ED7E07EFAAC4BEBB329CA801'
     res = get "/lobster", {}, { 'HTTP_X_TRACE' => xtrace }
 
+    AppOpticsAPM::XTrace.unset_sampled(xtrace)
     assert_equal xtrace, res.get_header('X-Trace')
     traces = get_all_traces
     assert traces.empty?

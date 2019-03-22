@@ -218,7 +218,7 @@ class ConfigTest
 
       AppOpticsAPM::Config[:debug_level] = 3
       AppOpticsAPM::Config[:verbose].must_equal false
-      AppOpticsAPM::Config[:tracing_mode].must_equal :always
+      AppOpticsAPM::Config[:tracing_mode].must_equal :enabled
       AppOpticsAPM::Config[:sanitize_sql].must_equal true
       AppOpticsAPM::Config[:sanitize_sql_regexp].must_equal '(\'[^\']*\'|\d*\.\d+|\d+|NULL)'
       AppOpticsAPM::Config[:sanitize_sql_opts].must_equal Regexp::IGNORECASE
@@ -227,8 +227,8 @@ class ConfigTest
       AppOpticsAPM::Config[:dnt_compiled].inspect.must_equal '/\\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|otf|eot|ttf|woff|woff2|svg|less)(\\?.+){0,1}$/i'
       AppOpticsAPM::Config[:dnt_opts].must_equal Regexp::IGNORECASE
 
-      AppOpticsAPM::Config[:transaction_settings].is_a?(Array)
-      AppOpticsAPM::Config[:transaction_settings].must_equal []
+      AppOpticsAPM::Config[:transaction_settings].is_a?(Hash).must_equal true
+      AppOpticsAPM::Config[:transaction_settings].must_equal({ url: [] })
 
       AppOpticsAPM::Config[:blacklist].is_a?(Array).must_equal true
       AppOpticsAPM::Config[:report_rescued_errors].must_equal false
@@ -376,26 +376,7 @@ class ConfigTest
     ### Tests for DNT (do not trace) configs ###
     ############################################
     describe "asset_filtering" do
-      it 'process correct :dnt_extensions' do
-        skip
-        AppOpticsAPM::Config[:dnt_extensions] = %w[.jpeg .png .gif .js .css .gz]
-        AppOpticsAPM::Config[:dnt_opts] = Regexp::IGNORECASE
-        AppOpticsAPM::Config.dnt_compile
-
-        AppOpticsAPM::Config[:dnt_regexp].must_equal '\\.jpeg|\\.png|\\.gif|\\.js|\\.css|\\.gz(\\?.+){0,1}$'
-        AppOpticsAPM::Config[:dnt_compiled].inspect.must_equal '/\\.jpeg|\\.png|\\.gif|\\.js|\\.css|\\.gz(\\?.+){0,1}$/i'
-      end
-
-      it 'remove non-string values from :dnt_extensions' do
-        skip
-        AppOpticsAPM::Config[:dnt_extensions] = ['.jpeg', 1, nil, '.css', '.gz']
-        AppOpticsAPM::Config[:dnt_opts] = Regexp::IGNORECASE
-
-        AppOpticsAPM::Config[:dnt_regexp].must_equal '\\.jpeg|\\.css|\\.gz(\\?.+){0,1}$'
-        AppOpticsAPM::Config[:dnt_compiled].inspect.must_equal '/\\.jpeg|\\.css|\\.gz(\\?.+){0,1}$/i'
-      end
-
-      it 'use :dnt_regexp if there are no extensions' do
+      it 'use :dnt_regexp' do
         AppOpticsAPM::Config[:dnt_regexp] = '\\.gif|\\.js|\\.css|\\.gz(\\?.+){0,1}$'
         AppOpticsAPM::Config[:dnt_opts] = Regexp::IGNORECASE
         AppOpticsAPM::Config.dnt_compile
@@ -412,126 +393,35 @@ class ConfigTest
       end
     end
 
-    ##########################################
+    ###############################################
     ### Tests for :transaction_settings configs ###
-    ##########################################
+    ###############################################
+    # more tests in transaction_settings_test.rb
 
     describe "transaction_settings" do
       before do
         @config_map = AppOpticsAPM::Util.deep_dup(AppOpticsAPM::Config[:transaction_settings])
+        @config_url_enabled = AppOpticsAPM::Config[:url_enabled_regexps]
         @config_url_disabled = AppOpticsAPM::Config[:url_disabled_regexps]
       end
 
       after do
         AppOpticsAPM::Config[:transaction_settings] = AppOpticsAPM::Util.deep_dup(@config_map)
+        AppOpticsAPM::Config[:url_enabled_regexps] = @config_url_enabled
         AppOpticsAPM::Config[:url_disabled_regexps] = @config_url_disabled
       end
 
-      it 'the default leads to no :url_never_regexps' do
+      it 'the default leads to no :url_disabled_regexps' do
         AppOpticsAPM::Config[:url_disabled_regexps].must_be_nil
       end
 
-      it 'no :url_never_regexps if :transaction_settings is not an array' do
+      it " creates no url regexps if :transaction_settings doesn't have a :url key" do
+        AppOpticsAPM::Config[:url_enabled_regexps] = Regexp.new(/.*lobster.*/)
         AppOpticsAPM::Config[:url_disabled_regexps] = Regexp.new(/.*lobster.*/)
         AppOpticsAPM::Config[:transaction_settings] = 'LA VIE EST BELLE'
 
+        AppOpticsAPM::Config[:url_enabled_regexps].must_be_nil
         AppOpticsAPM::Config[:url_disabled_regexps].must_be_nil
-      end
-
-      it 'does not compile an empty regexp' do
-        AppOpticsAPM::Config[:transaction_settings] = [{ regexp: '' },
-                                                       { regexp: // }]
-
-        AppOpticsAPM::Config[:url_disabled_regexps].must_be_nil
-      end
-
-      it 'does not compile a faulty regexp' do
-        AppOpticsAPM::Config[:transaction_settings] = [{ regexp: 123 }]
-
-        AppOpticsAPM::Config[:url_disabled_regexps].must_be_nil
-      end
-
-      it 'compiles a regexp' do
-        AppOpticsAPM::Config[:transaction_settings] = [{ regexp: /.*lobster.*/ }]
-
-        AppOpticsAPM::Config[:url_disabled_regexps].must_equal [Regexp.new(/.*lobster.*/)]
-      end
-
-      it 'combines multiple regexps' do
-        AppOpticsAPM::Config[:transaction_settings] = [
-          { regexp: /.*lobster.*/ },
-          { regexp: /.*shrimp*/ }
-        ]
-
-        AppOpticsAPM::Config[:url_disabled_regexps].must_equal [Regexp.new(/.*lobster.*/),
-                                                                Regexp.new(/.*shrimp*/)]
-      end
-
-      it 'ignores faulty regexps' do
-        AppOpticsAPM::Config[:transaction_settings] = [
-          { regexp: /.*lobster.*/ },
-          { regexp: 123 },
-          { regexp: /.*shrimp*/ }
-        ]
-
-        AppOpticsAPM::Config[:url_disabled_regexps].must_equal [Regexp.new(/.*lobster.*/),
-                                                                Regexp.new(/.*shrimp*/)]
-      end
-
-      it 'applies url_opts' do
-        AppOpticsAPM::Config[:transaction_settings] = [{ regexp: 'lobster',
-                                                         opts: Regexp::IGNORECASE }]
-
-        AppOpticsAPM::Config[:url_disabled_regexps].must_equal [Regexp.new('lobster', Regexp::IGNORECASE)]
-      end
-
-      it 'ignores url_opts that are incorrect' do
-        AppOpticsAPM::Config[:transaction_settings] = [{ regexp: 'lobster',
-                                                         opts: 123456 }]
-
-        AppOpticsAPM::Config[:url_disabled_regexps].must_equal [Regexp.new(/lobster/)]
-      end
-
-      it 'applies a mixtures of url_opts' do
-        AppOpticsAPM::Config[:transaction_settings] = [
-          { regexp: 'lobster', opts: Regexp::EXTENDED },
-          { regexp: 123, opts: Regexp::IGNORECASE },
-          { regexp: 'shrimp', opts: Regexp::IGNORECASE }
-        ]
-        AppOpticsAPM::Config[:url_disabled_regexps].must_equal [Regexp.new(/lobster/x),
-                                                                Regexp.new(/shrimp/i)]
-      end
-
-      it 'converts a list of extensions into a regex' do
-        AppOpticsAPM::Config[:transaction_settings] = [{ extensions: %w[.just a test] }]
-
-        AppOpticsAPM::Config[:url_disabled_regexps].must_equal [Regexp.new(/\.just|a|test(\?.+){0,1}$/)]
-      end
-
-      it 'ignores empty extensions lists' do
-        AppOpticsAPM::Config[:transaction_settings] = [{ extensions: [] }]
-
-        AppOpticsAPM::Config[:url_disabled_regexps].must_be_nil
-      end
-
-      it 'ignores non-string elements in extensions' do
-        AppOpticsAPM::Config[:transaction_settings] = [{ extensions: ['.just', nil, 'a', 123, 'test'] }]
-
-        AppOpticsAPM::Config[:url_disabled_regexps].must_equal [Regexp.new(/\.just|a|test(\?.+){0,1}$/)]
-      end
-
-      it 'combines regexps and extensions' do
-        AppOpticsAPM::Config[:transaction_settings] = [{ extensions: %w[.just a test] },
-                                                       { regexp: /.*lobster.*/ },
-                                                       { regexp: 123 },
-                                                       { regexp: /.*shrimp*/ }
-        ]
-
-        AppOpticsAPM::Util.tracing_disabled?('test').must_equal true
-        AppOpticsAPM::Util.tracing_disabled?('lobster').must_equal true
-        AppOpticsAPM::Util.tracing_disabled?('bla/bla/shrimp?number=1').must_equal true
-        AppOpticsAPM::Util.tracing_disabled?('123').must_equal false
-        AppOpticsAPM::Util.tracing_disabled?('').must_equal false
       end
     end
 

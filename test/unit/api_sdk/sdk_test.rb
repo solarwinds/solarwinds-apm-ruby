@@ -11,9 +11,8 @@ describe AppOpticsAPM::SDK do
       @tm = AppOpticsAPM::Config[:tracing_mode]
       @sample_rate = AppOpticsAPM::Config[:sample_rate]
     }
-    AppOpticsAPM::Config[:tracing_mode] = 'always'
+    AppOpticsAPM::Config[:tracing_mode] = :enabled
     AppOpticsAPM::Config[:sample_rate] = 1000000
-    clear_all_traces
   end
 
   after do
@@ -51,7 +50,7 @@ describe AppOpticsAPM::SDK do
 
     it 'should not log if we are not sampling' do
       AppOpticsAPM::Context.fromString('2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFA00')
-      AppOpticsAPM::API.expects(:log).never
+      AppOpticsAPM::API.expects(:log_event).never
       result = AppOpticsAPM::SDK.trace(:test) { 42 }
       assert_equal 42, result
     end
@@ -66,8 +65,8 @@ describe AppOpticsAPM::SDK do
 
     it "should respect the request_op parameter" do
       # can't stub :log_entry, because it has the logic to record with the request_op parameter
-      AppOpticsAPM::API.expects(:log_event).with(:test, :entry, optionally(anything), optionally(anything)).once
-      AppOpticsAPM::API.expects(:log_event).with(:test, :exit, optionally(anything), optionally(anything)).once
+      AppOpticsAPM::API.expects(:log_event).with(:test, :entry, anything, anything).once
+      AppOpticsAPM::API.expects(:log_event).with(:test, :exit, anything, anything).once
 
       AppOpticsAPM::SDK.trace(:test, {}, 'test') do
         AppOpticsAPM::SDK.trace(:test, {}, 'test') do
@@ -79,8 +78,8 @@ describe AppOpticsAPM::SDK do
     end
 
     it "should work with sequential calls and an op paramter" do
-      AppOpticsAPM::API.expects(:log_event).with(:test, :entry, optionally(anything), optionally(anything)).times(3)
-      AppOpticsAPM::API.expects(:log_event).with(:test, :exit, optionally(anything), optionally(anything)).times(3)
+      AppOpticsAPM::API.expects(:log_event).with(:test, :entry, anything, anything).times(3)
+      AppOpticsAPM::API.expects(:log_event).with(:test, :exit, anything, anything).times(3)
 
       AppOpticsAPM::SDK.trace(:test, {}, 'test') {}
       AppOpticsAPM::SDK.trace(:test, {}, 'test') {}
@@ -88,8 +87,8 @@ describe AppOpticsAPM::SDK do
     end
 
     it "should work with nested and sequential calls and an op param" do
-      AppOpticsAPM::API.expects(:log_event).with(:test, :entry, optionally(anything), optionally(anything)).once
-      AppOpticsAPM::API.expects(:log_event).with(:test, :exit, optionally(anything), optionally(anything)).once
+      AppOpticsAPM::API.expects(:log_event).with(:test, :entry, anything, anything).once
+      AppOpticsAPM::API.expects(:log_event).with(:test, :exit, anything, anything).once
 
       AppOpticsAPM::SDK.trace(:test, {}, 'test') do
         AppOpticsAPM::SDK.trace(:test, {}, 'test') {}
@@ -99,8 +98,8 @@ describe AppOpticsAPM::SDK do
     end
 
     it "should create spans for different ops" do
-      AppOpticsAPM::API.expects(:log_event).with(:test, :entry, optionally(anything), optionally(anything)).times(3)
-      AppOpticsAPM::API.expects(:log_event).with(:test, :exit, optionally(anything), optionally(anything)).times(3)
+      AppOpticsAPM::API.expects(:log_event).with(:test, :entry, anything, anything).times(3)
+      AppOpticsAPM::API.expects(:log_event).with(:test, :exit, anything, anything).times(3)
 
       AppOpticsAPM::SDK.trace(:test, {}, 'test') do
         AppOpticsAPM::SDK.trace(:test, {}, 'test_2') {}
@@ -110,8 +109,8 @@ describe AppOpticsAPM::SDK do
     end
 
     it "should create a span if the ops are not sequential" do
-      AppOpticsAPM::API.expects(:log_event).with(:test, :entry, optionally(anything), optionally(anything)).times(3)
-      AppOpticsAPM::API.expects(:log_event).with(:test, :exit, optionally(anything), optionally(anything)).times(3)
+      AppOpticsAPM::API.expects(:log_event).with(:test, :entry, anything, anything).times(3)
+      AppOpticsAPM::API.expects(:log_event).with(:test, :exit, anything, anything).times(3)
 
       AppOpticsAPM::SDK.trace(:test, {}, 'test') do
         AppOpticsAPM::SDK.trace(:test, {}, 'test_2') do
@@ -128,8 +127,8 @@ describe AppOpticsAPM::SDK do
           end
         end
 
-        AppOpticsAPM::API.expects(:log_event).with('computation', :entry, optionally(anything), optionally(anything)).once
-        AppOpticsAPM::API.expects(:log_event).with('computation', :exit, optionally(anything), optionally(anything)).once
+        AppOpticsAPM::API.expects(:log_event).with('computation', :entry, anything, anything).once
+        AppOpticsAPM::API.expects(:log_event).with('computation', :exit, anything, anything).once
 
         computation_with_appoptics(3)
     end
@@ -153,7 +152,7 @@ describe AppOpticsAPM::SDK do
 
     it 'should not log when NOT sampling' do
       AppOpticsAPM.config_lock.synchronize do
-        AppOpticsAPM::Config[:tracing_mode] = 'never'
+        AppOpticsAPM::Config[:tracing_mode] = :disabled
       end
       AppOpticsAPM::API.expects(:log_event).never
 
@@ -163,7 +162,7 @@ describe AppOpticsAPM::SDK do
 
     it 'should send metrics when NOT sampling' do
       AppOpticsAPM.config_lock.synchronize {
-        AppOpticsAPM::Config[:tracing_mode] = 'never'
+        AppOpticsAPM::Config[:tracing_mode] = :disabled
       }
       AppOpticsAPM::API.expects(:send_metrics)
 
@@ -228,6 +227,7 @@ describe AppOpticsAPM::SDK do
     end
 
     it 'should continue traces' do
+      clear_all_traces
       xtrace = '2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F01'
 
       result = AppOpticsAPM::SDK.start_trace('test_01', xtrace) { 42 }
@@ -372,8 +372,8 @@ describe AppOpticsAPM::SDK do
     it 'should assign an xtrace to target' do
       target = {}
       AppOpticsAPM::SDK.start_trace_with_target('test_01', nil, target) {}
-      assert target['X-Trace']
-      assert_match /^2B[0-9A-F]*01$/, target['X-Trace']
+
+      assert AppOpticsAPM::XTrace.valid?(target['X-Trace'])
     end
 
     it 'should call trace and not call log_start when there is a sampling context' do

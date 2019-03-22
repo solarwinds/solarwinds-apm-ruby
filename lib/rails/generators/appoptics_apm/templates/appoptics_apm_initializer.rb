@@ -52,11 +52,13 @@ if defined?(AppOpticsAPM::Config)
   #
   # Turn tracing on or off
   #
-  # By default tracing is set to 'always', the other option is 'never'.
-  # 'always' means that sampling will be done according to the current
-  # sampling rate. 'never' means that there is no sampling.
+  # By default tracing is set to :enabled, the other option is :disabled.
+  # :enabled means that sampling will be done according to the current
+  # sampling rate. :disabled means that there is no sampling.
   #
-  AppOpticsAPM::Config[:tracing_mode] = :always
+  # The values :always and :never are deprecated
+  #
+  AppOpticsAPM::Config[:tracing_mode] = :enabled
 
   #
   # Prepend domain to transaction name
@@ -110,38 +112,25 @@ if defined?(AppOpticsAPM::Config)
   #
   # Transaction Settings
   #
-  # Use this configuration to filter out requests for which no metrics or traces
-  # should get recorded, for example long running requests that distort the metrics.
+  # Use this configuration to add exceptions to the global tracing mode and
+  # disable/enable metrics and traces for certain transactions.
   #
-  # :type        defaults to :url and can be omitted for now
+  # Currently allowed hash keys:
+  # :url to apply listed filters to urls.
+  #      The matching of settings to urls happens before routes are applied.
+  #      The url is extracted from the env argument passed to rack: `env['PATH_INFO']`
+  #
   # :extensions  takes an array of strings for filtering (not regular expressions!)
   # :regexp      is a regular expression that is applied to the incoming path
-  #                 to determine whether the request should be measured and
-  #                 traced or not.
-  # :tracing     defaults to :disabled and can be omitted for now
-  # :opts        can be omitted, nil, or Regexp::IGNORECASE
-  #
-  # The matching of settings to urls happens before routes are applied.
-  # The path originates from the env argument passed to the rack call:
-  #     env['PATH_INFO']
+  # :opts        (optional) nil(default) or Regexp::IGNORECASE (options for regexp)
+  # :tracing     defaults to :disabled, can be set to :enabled to override
+  #              the global :disabled setting
   #
   # Be careful not to add too many :regexp configurations as they will slow
   # down execution.
   #
-  AppOpticsAPM::Config[:transaction_settings] = [
-    # { type: :url,
-    #   extensions: %w['long_job'],
-    #   tracing: :disabled
-    # },
-    # { type: :url,
-    #   regexp: '^.*\/long_job\/.*$',
-    #   opts: Regexp::IGNORECASE,
-    #   tracing: :disabled
-    # }
-  ]
-
   AppOpticsAPM::Config[:transaction_settings] = {
-    # url: [
+    url: [
     #   {
     #     extensions: %w['long_job'],
     #     tracing: :disabled
@@ -150,8 +139,11 @@ if defined?(AppOpticsAPM::Config)
     #     regexp: '^.*\/long_job\/.*$',
     #     opts: Regexp::IGNORECASE,
     #     tracing: :disabled
+    #   },
+    #   {
+    #     regexp: /batch/,
     #   }
-    # ]
+    ]
   }
   #
 

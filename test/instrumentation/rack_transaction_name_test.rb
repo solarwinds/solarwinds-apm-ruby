@@ -60,10 +60,6 @@ describe AppOpticsAPM::SDK do
       AppOpticsAPM::Config[:sample_rate] = @sample_rate
       AppOpticsAPM::Config['transaction_name']['prepend_domain'] = @prepend_domain
     }
-
-    # need to do this, because we are stubbing log_end
-    AppOpticsAPM.layer = nil
-    AppOpticsAPM::Context.clear
   end
 
   it 'should set a custom transaction name from the controller' do
@@ -75,7 +71,7 @@ describe AppOpticsAPM::SDK do
 
     Time.stub(:now, Time.at(0)) do
       AppOpticsAPM::Span.expects(:createHttpSpan).with(name, url, nil, 0, 200, 'GET', 0).returns(name)
-      AppOpticsAPM::API.expects(:log_end).with(:rack, :Status => 200, :TransactionName => name)
+      AppOpticsAPM::API.expects(:log_exit).with(:rack, :Status => 200, :TransactionName => name)
 
       get "/#{name}"
 
@@ -91,7 +87,7 @@ describe AppOpticsAPM::SDK do
 
     Time.stub(:now, Time.at(0)) do
       AppOpticsAPM::Span.expects(:createHttpSpan).with(nil, url, nil, 0, 200, 'GET', 0).returns("c.a")
-      AppOpticsAPM::API.expects(:log_end).with(:rack, :Status => 200, :TransactionName => "c.a")
+      AppOpticsAPM::API.expects(:log_exit).with(:rack, :Status => 200, :TransactionName => "c.a")
 
       get "/#{name}"
     end
@@ -103,7 +99,7 @@ describe AppOpticsAPM::SDK do
 
     Time.stub(:now, Time.at(0)) do
       AppOpticsAPM::Span.expects(:createHttpSpan).with(name, url, nil, 0, 200, 'GET', 0).returns("other")
-      AppOpticsAPM::API.expects(:log_end).with(:rack, :Status => 200, :TransactionName => "other")
+      AppOpticsAPM::API.expects(:log_exit).with(:rack, :Status => 200, :TransactionName => "other")
 
       get "/#{name}"
     end
@@ -131,7 +127,7 @@ describe AppOpticsAPM::SDK do
     AppOpticsAPM::API.set_transaction_name("another_name")
     Time.stub(:now, Time.at(0)) do
       AppOpticsAPM::Span.expects(:createHttpSpan).with(name, url, nil, 0, 200, 'GET', 0).returns(name)
-      AppOpticsAPM::API.expects(:log_end).with(:rack, :Status => 200, :TransactionName => name)
+      AppOpticsAPM::API.expects(:log_exit).with(:rack, :Status => 200, :TransactionName => name)
 
       get "/#{name}"
     end

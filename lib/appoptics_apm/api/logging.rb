@@ -87,7 +87,8 @@ module AppOpticsAPM
       end
 
       ##
-      # Public: Decide whether or not to start a trace, and report an entry event
+      # Public: Start a trace depending on TransactionSettings
+      # or decide whether or not to start a trace, and report an entry event
       # appropriately.
       #
       # ==== Arguments
@@ -95,83 +96,38 @@ module AppOpticsAPM
       # * +layer+ - The layer the reported event belongs to
       # * +xtrace+ - An xtrace metadata string, or nil.  Used for cross-application tracing.
       # * +opts+ - A hash containing key/value pairs that will be reported along with this event (optional).
+      # * +settings+ - An instance of TransactionSettings
       #
       # ==== Example
       #
       #   AppOpticsAPM::API.log_start(:layer_name, nil, { :id => @user.id })
       #
       # Returns an xtrace metadata string if we are tracing
-      def log_start(layer, xtrace = nil, opts = {})
+      #
+      def log_start(layer, xtrace = nil, opts = {}, settings = nil)
         return unless AppOpticsAPM.loaded
 
-        #--
-        # Is the below necessary? Only on JRuby? Could there be an existing context but not x-trace header?
-        # See discussion at:
-        # https://github.com/librato/ruby-tracelytics/pull/6/files?diff=split#r131029135
-        #
-        # Used by JRuby/Java webservers such as Tomcat
-        # AppOpticsAPM::Context.fromString(xtrace) if AppOpticsAPM.pickup_context?(xtrace)
-
-        # if AppOpticsAPM.tracing?
-        #   # Pre-existing context.  Either we inherited context from an
-        #   # incoming X-Trace request header or under JRuby, Joboe started
-        #   # tracing before the JRuby code was called (e.g. Tomcat)
-        #   AppOpticsAPM.is_continued_trace = true
-
-        #   if AppOpticsAPM.has_xtrace_header
-        #     opts[:TraceOrigin] = :continued_header
-        #   elsif AppOpticsAPM.has_incoming_context
-        #     opts[:TraceOrigin] = :continued_context
-        #   else
-        #     opts[:TraceOrigin] = :continued
-        #   end
-
-        # return log_entry(layer, opts)
-        # end
-        #++
+        # check if tracing decision is already in effect and a Context created
+        return log_entry(layer, opts) if AppOpticsAPM::Context.isValid
 
         # This is a bit ugly, but here is the best place to reset the layer_op thread local var.
-        AppOpticsAPM.layer_op = nil unless AppOpticsAPM::Context.isValid
+        AppOpticsAPM.layer_op = nil
 
-        if AppOpticsAPM.sample?(opts.merge(:xtrace => xtrace))
-          # Yes, we're sampling this request
-          # Probablistic tracing of a subset of requests based off of
-          # sample rate and sample source
-          opts[:SampleRate]        = AppOpticsAPM.sample_rate
-          opts[:SampleSource]      = AppOpticsAPM.sample_source
-          opts[:TraceOrigin]       = :always_sampled
+        xtrace = nil unless AppOpticsAPM::XTrace.valid?(xtrace)
 
-          if xtrace_v2?(xtrace)
-            # continue valid incoming xtrace
-            # use it for current context, ensuring sample bit is set
-            AppOpticsAPM::XTrace.set_sampled(xtrace)
+        settings ||= AppOpticsAPM::TransactionSettings.new(nil, xtrace)
 
-            md = AppOpticsAPM::Metadata.fromString(xtrace)
-            AppOpticsAPM::Context.fromString(xtrace)
-            log_event(layer, :entry, md.createEvent, opts)
-          else
-            # discard invalid incoming xtrace
-            # create a new context, ensuring sample bit set
-            md = AppOpticsAPM::Metadata.makeRandom(true)
-            AppOpticsAPM::Context.set(md)
-            log_event(layer, :entry, AppOpticsAPM::Event.startTrace(md), opts)
-          end
+        if settings.do_sample
+          opts[:SampleRate]        = settings.rate
+          opts[:SampleSource]      = settings.source
+
+          AppOpticsAPM::XTrace.set_sampled(xtrace) if xtrace
+          event = create_start_event(xtrace)
+          log_event(layer, :entry, event, opts)
         else
-          # No, we're not sampling this request
-          # set the context but don't log the event
-          if xtrace_v2?(xtrace)
-            # continue valid incoming xtrace
-            # use it for current context, ensuring sample bit is not set
-            AppOpticsAPM::XTrace.unset_sampled(xtrace)
-            AppOpticsAPM::Context.fromString(xtrace)
-          else
-            # discard invalid incoming xtrace
-            # create a new context, ensuring sample bit not set
-            md = AppOpticsAPM::Metadata.makeRandom(false)
-            AppOpticsAPM::Context.fromString(md.toString)
-          end
+          create_nontracing_context(xtrace)
+          AppOpticsAPM::Context.toString
         end
-        AppOpticsAPM::Context.toString
       end
 
       ##
@@ -187,6 +143,7 @@ module AppOpticsAPM
       #   AppOpticsAPM::API.log_end(:layer_name, { :id => @user.id })
       #
       # Returns an xtrace metadata string if we are tracing
+      #
       def log_end(layer, opts = {}, event = nil)
         return AppOpticsAPM::Context.toString unless AppOpticsAPM.tracing?
 
@@ -214,11 +171,19 @@ module AppOpticsAPM
       #   AppOpticsAPM::API.log_entry(:layer_name, { :id => @user.id })
       #
       # Returns an xtrace metadata string if we are tracing
-      def log_entry(layer, opts = {}, op = nil)
+      #
+      def log_entry(layer, opts = {}, op = nil) #, event = nil)
         return AppOpticsAPM::Context.toString unless AppOpticsAPM.tracing?
 
-        AppOpticsAPM.layer_op = (AppOpticsAPM.layer_op || []) << op.to_sym if op
-        log_event(layer, :entry, AppOpticsAPM::Context.createEvent, opts)
+        if op
+          # check if re-entry but also add op to list for log_exit
+          re_entry = AppOpticsAPM.layer_op&.last == op.to_sym
+          AppOpticsAPM.layer_op = (AppOpticsAPM.layer_op || []) << op.to_sym
+          return AppOpticsAPM::Context.toString if re_entry
+        end
+
+        event ||= AppOpticsAPM::Context.createEvent
+        log_event(layer, :entry, event, opts)
       end
 
       ##
@@ -236,6 +201,7 @@ module AppOpticsAPM
       #   AppOpticsAPM::API.log_info(:layer_name, { :id => @user.id })
       #
       # Returns an xtrace metadata string if we are tracing
+      #
       def log_info(layer, opts = {})
         return AppOpticsAPM::Context.toString unless AppOpticsAPM.tracing?
 
@@ -251,7 +217,7 @@ module AppOpticsAPM
       #
       # * +layer+ - The layer the reported event belongs to
       # * +opts+  - A hash containing key/value pairs that will be reported along with this event (optional).
-      # * +op+    - Used to avoid double tracing recursive calls, needs to be true in +log_exit+ that corresponds to a
+      # * +op+    - Used to avoid double tracing recursive calls, needs to be the same in +log_exit+ that corresponds to a
       #   +log_entry+
       #
       # ==== Example
@@ -262,7 +228,15 @@ module AppOpticsAPM
       def log_exit(layer, opts = {}, op = nil)
         return AppOpticsAPM::Context.toString unless AppOpticsAPM.tracing?
 
-        AppOpticsAPM.layer_op.pop if op && AppOpticsAPM.layer_op.is_a?(Array) && AppOpticsAPM.layer_op.last == op.to_sym
+        if op
+          if AppOpticsAPM.layer_op&.last == op.to_sym
+            AppOpticsAPM.layer_op.pop
+          else
+            AppOpticsAPM.logger.warn "[ruby/logging] op parameter of exit event doesn't correspond to an entry event op"
+          end
+          # check if the next op is the same, don't log event if so
+          return AppOpticsAPM::Context.toString if AppOpticsAPM.layer_op&.last == op.to_sym
+        end
 
         log_event(layer, :exit, AppOpticsAPM::Context.createEvent, opts)
       end
@@ -365,6 +339,34 @@ module AppOpticsAPM
 
         AppOpticsAPM::Reporter.sendReport(event)
         AppOpticsAPM::Context.toString
+      end
+
+      def create_start_event(xtrace = nil)
+        if AppOpticsAPM::XTrace.sampled?(xtrace)
+          md = AppOpticsAPM::Metadata.fromString(xtrace)
+          AppOpticsAPM::Context.fromString(xtrace)
+          md.createEvent
+        else
+          md = AppOpticsAPM::Metadata.makeRandom(true)
+          AppOpticsAPM::Context.set(md)
+          AppOpticsAPM::Event.startTrace(md)
+        end
+      end
+
+      public
+
+      def create_nontracing_context(xtrace)
+        if AppOpticsAPM::XTrace.valid?(xtrace)
+          # continue valid incoming xtrace
+          # use it for current context, ensuring sample bit is not set
+          AppOpticsAPM::XTrace.unset_sampled(xtrace)
+          AppOpticsAPM::Context.fromString(xtrace)
+        else
+          # discard invalid incoming xtrace
+          # create a new context, ensuring sample bit not set
+          md = AppOpticsAPM::Metadata.makeRandom(false)
+          AppOpticsAPM::Context.fromString(md.toString)
+        end
       end
 
       # need to set the context to public, otherwise the following `extends` will be private in api.rb

@@ -98,35 +98,6 @@ module AppOpticsAPM
       end
 
       ##
-      # asset?
-      #
-      # Given a path, this method determines whether it is a static asset
-      #
-      def asset?(path)
-        return false unless AppOpticsAPM::Config[:dnt_compiled]
-        # once we only support Ruby >= 2.4.0 use `match?` instead of `=~`
-        return AppOpticsAPM::Config[:dnt_compiled] =~ path
-      rescue => e
-        AppOpticsAPM.logger.warn "[AppOpticsAPM/filter] Could not apply do-not-trace filter to path. #{e.inspect}"
-        false
-      end
-
-      ##
-      # tracing_disabled?
-      #
-      # Given a path, this method determines whether it matches any of the
-      # regexps to exclude it from metrics and traces
-      #
-      def tracing_disabled?(path)
-        return false unless AppOpticsAPM::Config[:url_disabled_regexps].is_a? Array
-        # once we only support Ruby >= 2.4.0 use `match?` instead of `=~`
-        return AppOpticsAPM::Config[:url_disabled_regexps].any? { |regex| regex =~ path }
-      rescue => e
-        AppOpticsAPM.logger.warn "[AppOpticsAPM/filter] Could not apply :never filter to path. #{e.inspect}"
-        false
-      end
-
-      ##
       # prettify
       #
       # Even to my surprise, 'prettify' is a real word:
@@ -221,7 +192,7 @@ module AppOpticsAPM
       #
       # @deprecated Please use {#build_init_report} instead
       def legacy_build_init_report
-        AppOpticsAPM.logger.warn '[appoptics_apm/warn] Oboe::API will be deprecated in a future version.'
+        AppOpticsAPM.logger.warn '[appoptics_apm/deprecated] Oboe::API will be deprecated in a future version.'
         platform_info = {}
 
         begin
@@ -278,7 +249,7 @@ module AppOpticsAPM
 
           platform_info['Error'] = "Error in legacy_build_init_report: #{e.message}"
 
-          AppOpticsAPM.logger.warn "[appoptics_apm/warn] Error in legacy_build_init_report: #{e.message}"
+          AppOpticsAPM.logger.warn "[appoptics_apm/legacy] Error in legacy_build_init_report: #{e.message}"
           AppOpticsAPM.logger.debug e.backtrace
         end
         platform_info
