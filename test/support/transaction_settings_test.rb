@@ -10,16 +10,31 @@ describe 'TransactionSettingsTest' do
     @sample_rate = AppOpticsAPM::Config[:sample_rate]
     @config_map = AppOpticsAPM::Util.deep_dup(AppOpticsAPM::Config[:transaction_settings])
     @config_url_disabled = AppOpticsAPM::Config[:url_disabled_regexps]
+    @config_url_enabled = AppOpticsAPM::Config[:url_enabled_regexps]
   end
 
   after do
     AppOpticsAPM::Config[:transaction_settings] = AppOpticsAPM::Util.deep_dup(@config_map)
+    AppOpticsAPM::Config[:url_enabled_regexps] = @config_url_enabled
     AppOpticsAPM::Config[:url_disabled_regexps] = @config_url_disabled
     AppOpticsAPM::Config[:tracing_mode] = @tracing_mode
     AppOpticsAPM::Config[:sample_rate] = @sample_rate
   end
 
   describe 'AppOpticsAPM::TransactionSettings' do
+
+    it 'the default leads to no :url_disabled_regexps' do
+      AppOpticsAPM::Config[:url_disabled_regexps].must_be_nil
+    end
+
+    it " creates no url regexps if :transaction_settings doesn't have a :url key" do
+      AppOpticsAPM::Config[:url_enabled_regexps] = Regexp.new(/.*lobster.*/)
+      AppOpticsAPM::Config[:url_disabled_regexps] = Regexp.new(/.*lobster.*/)
+      AppOpticsAPM::Config[:transaction_settings] = 'LA VIE EST BELLE'
+
+      AppOpticsAPM::Config[:url_enabled_regexps].must_be_nil
+      AppOpticsAPM::Config[:url_disabled_regexps].must_be_nil
+    end
 
     it 'does not compile an empty regexp' do
       AppOpticsAPM::Config[:transaction_settings] = { url: [{ regexp: '' },

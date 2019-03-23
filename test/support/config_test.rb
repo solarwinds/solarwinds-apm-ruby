@@ -393,38 +393,6 @@ class ConfigTest
       end
     end
 
-    ###############################################
-    ### Tests for :transaction_settings configs ###
-    ###############################################
-    # more tests in transaction_settings_test.rb
-
-    describe "transaction_settings" do
-      before do
-        @config_map = AppOpticsAPM::Util.deep_dup(AppOpticsAPM::Config[:transaction_settings])
-        @config_url_enabled = AppOpticsAPM::Config[:url_enabled_regexps]
-        @config_url_disabled = AppOpticsAPM::Config[:url_disabled_regexps]
-      end
-
-      after do
-        AppOpticsAPM::Config[:transaction_settings] = AppOpticsAPM::Util.deep_dup(@config_map)
-        AppOpticsAPM::Config[:url_enabled_regexps] = @config_url_enabled
-        AppOpticsAPM::Config[:url_disabled_regexps] = @config_url_disabled
-      end
-
-      it 'the default leads to no :url_disabled_regexps' do
-        AppOpticsAPM::Config[:url_disabled_regexps].must_be_nil
-      end
-
-      it " creates no url regexps if :transaction_settings doesn't have a :url key" do
-        AppOpticsAPM::Config[:url_enabled_regexps] = Regexp.new(/.*lobster.*/)
-        AppOpticsAPM::Config[:url_disabled_regexps] = Regexp.new(/.*lobster.*/)
-        AppOpticsAPM::Config[:transaction_settings] = 'LA VIE EST BELLE'
-
-        AppOpticsAPM::Config[:url_enabled_regexps].must_be_nil
-        AppOpticsAPM::Config[:url_disabled_regexps].must_be_nil
-      end
-    end
-
     #########################################
     ### Tests for loading the config file ###
     #########################################
