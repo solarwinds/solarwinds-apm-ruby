@@ -62,6 +62,7 @@ begin
     $stderr.puts 'Service Key may be wrong or missing.'
     $stderr.puts '=============================================================='
     require 'appoptics_apm/noop/context'
+    require 'appoptics_apm/noop/metadata'
   end
 
   # Load Ruby module last.  If there is no framework detected,
