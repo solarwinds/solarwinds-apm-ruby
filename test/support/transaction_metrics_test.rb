@@ -19,7 +19,7 @@ describe 'TransactionSettingsTest' do
     AppOpticsAPM::Config[:sample_rate] = @sample_rate
   end
 
-  describe 'start_metrics' do
+  describe 'metrics' do
     it 'obeys do_metrics false' do
       AppopticsAPM::TransactionMetrics.expects(:send_metrics).never
       AppopticsAPM.expects(:transaction_name=).never
@@ -30,7 +30,7 @@ describe 'TransactionSettingsTest' do
 
       yielded = false
 
-      AppOpticsAPM::TransactionMetrics.start_metrics({}, settings) { yielded = true }
+      AppOpticsAPM::TransactionMetrics.metrics({}, settings) { yielded = true }
       assert yielded
     end
 
@@ -44,7 +44,7 @@ describe 'TransactionSettingsTest' do
 
       yielded = false
 
-      AppOpticsAPM::TransactionMetrics.start_metrics({}, settings) { yielded = true }
+      AppOpticsAPM::TransactionMetrics.metrics({}, settings) { yielded = true }
       assert yielded
     end
 
@@ -56,7 +56,7 @@ describe 'TransactionSettingsTest' do
       settings.do_sample = true
       settings.do_metrics = true
       begin
-        AppOpticsAPM::TransactionMetrics.start_metrics({}, settings) { raise StandardError }
+        AppOpticsAPM::TransactionMetrics.metrics({}, settings) { raise StandardError }
       rescue
       end
     end
