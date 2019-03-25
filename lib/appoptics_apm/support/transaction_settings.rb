@@ -57,9 +57,6 @@ module AppOpticsAPM
       end
 
       @do_metrics = metrics > 0
-
-      # TODO ME temporary solution until oboe is fixed
-      # @do_metrics ||= AppOpticsAPM::XTrace.valid?(xtrace) && tracing_mode == AO_TRACING_ENABLED
       @do_sample = sample > 0
     end
 

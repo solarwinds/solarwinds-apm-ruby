@@ -12,7 +12,7 @@ module AppOpticsAPM
       ##
       # sends the duration of the call and
       # sets the transaction_name
-      def start_metrics(env, settings)
+      def metrics(env, settings)
         if settings.do_metrics
           req = ::Rack::Request.new(env)
           url = req.url   # saving it here because rails3.2 overrides it when there is a 500 error
