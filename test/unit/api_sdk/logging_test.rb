@@ -5,6 +5,77 @@ require 'minitest_helper'
 require 'mocha/minitest'
 
 describe AppOpticsAPM::API::Logging do
+  describe 'log_start' do
+    before do
+      AppOpticsAPM::Context.clear
+    end
+
+    it 'does not log if appoptics is not loaded' do
+      AppOpticsAPM.expects(:loaded).returns(false)
+      AppOpticsAPM::API.expects(:log_event).never
+
+      AppOpticsAPM::API.log_start(:test_no_ao)
+      refute AppOpticsAPM::Context.isValid
+    end
+
+    it 'logs if there is a sampling context' do
+      xtrace = '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFA01'
+      AppOpticsAPM::Context.fromString(xtrace)
+      AppOpticsAPM::API.expects(:log_event)
+
+      AppOpticsAPM::API.log_start(:test_sampling_context)
+
+      assert AppOpticsAPM.tracing?
+      taskId_01 = AppOpticsAPM::XTrace.task_id(xtrace)
+      taskId_02 = AppOpticsAPM::XTrace.task_id(AppOpticsAPM::Context.toString)
+      assert_equal taskId_01, taskId_02, 'Task Id is not matching'
+    end
+
+    it 'does not log if there is a non-sampling context ' do
+      xtrace = '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFA00'
+      AppOpticsAPM::Context.fromString(xtrace)
+      AppOpticsAPM::API.expects(:log_event).never
+
+      AppOpticsAPM::API.log_start(:test_non_sampling_context)
+
+      refute AppOpticsAPM.tracing?
+      taskId_01 = AppOpticsAPM::XTrace.task_id(xtrace)
+      taskId_02 = AppOpticsAPM::XTrace.task_id(AppOpticsAPM::Context.toString)
+      assert_equal taskId_01, taskId_02, 'Task Id is not matching'
+    end
+
+    it 'creates settings if none are provided' do
+      settings = AppOpticsAPM::TransactionSettings.new
+      AppOpticsAPM::TransactionSettings.expects(:new).returns(settings)
+
+      AppOpticsAPM::API.log_start(:test_settings)
+    end
+
+    it 'creates a context' do
+      AppOpticsAPM::API.log_start(:test_create_context)
+      assert AppOpticsAPM::Context.isValid
+    end
+
+    it 'logs and creates a sampling context if do sample' do
+      settings = AppOpticsAPM::TransactionSettings.new
+      settings.do_sample = true
+      AppOpticsAPM::TransactionSettings.expects(:new).returns(settings)
+      AppOpticsAPM::API.expects(:log_event)
+
+      AppOpticsAPM::API.log_start(:test_create_sampling_context)
+      assert AppOpticsAPM.tracing?
+    end
+
+    it 'does not log and creates a non-sampling context if NOT do sample' do
+      settings = AppOpticsAPM::TransactionSettings.new
+      settings.do_sample = false
+      AppOpticsAPM::TransactionSettings.expects(:new).returns(settings)
+      AppOpticsAPM::API.expects(:log_event).never
+
+      AppOpticsAPM::API.log_start(:test_create_sampling_context)
+      refute AppOpticsAPM.tracing?
+    end
+  end
 
   describe "when there is a non-sampling context" do
     before do
