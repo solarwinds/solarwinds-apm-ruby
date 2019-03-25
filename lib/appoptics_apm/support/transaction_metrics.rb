@@ -12,8 +12,8 @@ module AppOpticsAPM
       ##
       # sends the duration of the call and
       # sets the transaction_name
-      def start_metrics(env, filter)
-        if filter.do_metrics
+      def start_metrics(env, settings)
+        if settings.do_metrics
           req = ::Rack::Request.new(env)
           url = req.url   # saving it here because rails3.2 overrides it when there is a 500 error
           start = Time.now
@@ -28,7 +28,7 @@ module AppOpticsAPM
           end
         else
           status, headers, response = yield
-          AppOpticsAPM.transaction_name = "#{domain(req)}#{transaction_name(env)}" if filter.do_sample
+          AppOpticsAPM.transaction_name = "#{domain(req)}#{transaction_name(env)}" if settings.do_sample
         end
 
         [status, headers, response]
