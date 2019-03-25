@@ -131,6 +131,8 @@ unless defined?(JRUBY_VERSION)
     def test_obey_collect_backtraces_when_true
       # FIXME: This can't be tested with the current Sidekiq minitest integration
       # ____   can't change the config of the already running sidekiq worker
+      # ____   possible fix: run another sidekiq instance, but how do I configure them?
+      # ____   or, is it possible to restart sidekiq?
       skip
 
       AppOpticsAPM::Config[:sidekiqworker][:collect_backtraces] = true
