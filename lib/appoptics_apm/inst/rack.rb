@@ -43,18 +43,21 @@ if AppOpticsAPM.loaded
 
         # AppOpticsAPM.logger.warn "%%% FILTER: #{settings} %%%"
 
-        response = propagate_xtrace(env, settings, xtrace) do
-          sample(env, settings) do
-            metrics(env, settings) do
-              @app.call(env)
+        response =
+          propagate_xtrace(env, settings, xtrace) do
+            sample(env, settings) do
+              AppOpticsAPM::TransactionMetrics.metrics(env, settings) do
+                @app.call(env)
+              end
             end
-          end
-        end || [500, {}, nil]
+          end || [500, {}, nil]
         AppOpticsAPM::Context.clear unless incoming
         response
       rescue
         AppOpticsAPM::Context.clear unless incoming
         raise
+        # can't use ensure for Context.clearing, because the Grape middleware
+        # needs the context in case of an error, it is somewhat convoluted ...
       end
 
       def self.noop?
@@ -147,16 +150,6 @@ if AppOpticsAPM.loaded
           AppOpticsAPM::API.create_nontracing_context(xtrace)
           yield
         end
-      end
-
-      def metrics(env, settings)
-        status, headers, response = 500, {}, nil
-
-        AppOpticsAPM::TransactionMetrics.start_metrics(env, settings) do
-          status, headers, response = yield
-        end
-
-        [status, headers, response]
       end
 
     end
