@@ -9,7 +9,6 @@ require 'mocha/minitest'
 
 describe AppOpticsAPM::SDK do
 
-  # TODO: add this paragraph to docs and transaction name method comment
   # Transaction names are stored as a tag value on trace metrics
   # Tag values must match the regular expression /\A[-.:_\\\/\w ]{1,255}\z/.
   # Tag values are always converted to lower case.
@@ -61,10 +60,6 @@ describe AppOpticsAPM::SDK do
       AppOpticsAPM::Config[:sample_rate] = @sample_rate
       AppOpticsAPM::Config['transaction_name']['prepend_domain'] = @prepend_domain
     }
-
-    # need to do this, because we are stubbing log_end
-    AppOpticsAPM.layer = nil
-    AppOpticsAPM::Context.clear
   end
 
   it 'should set a custom transaction name from the controller' do
@@ -76,7 +71,7 @@ describe AppOpticsAPM::SDK do
 
     Time.stub(:now, Time.at(0)) do
       AppOpticsAPM::Span.expects(:createHttpSpan).with(name, url, nil, 0, 200, 'GET', 0).returns(name)
-      AppOpticsAPM::API.expects(:log_end).with(:rack, :Status => 200, :TransactionName => name)
+      AppOpticsAPM::API.expects(:log_exit).with(:rack, :Status => 200, :TransactionName => name)
 
       get "/#{name}"
 
@@ -92,7 +87,7 @@ describe AppOpticsAPM::SDK do
 
     Time.stub(:now, Time.at(0)) do
       AppOpticsAPM::Span.expects(:createHttpSpan).with(nil, url, nil, 0, 200, 'GET', 0).returns("c.a")
-      AppOpticsAPM::API.expects(:log_end).with(:rack, :Status => 200, :TransactionName => "c.a")
+      AppOpticsAPM::API.expects(:log_exit).with(:rack, :Status => 200, :TransactionName => "c.a")
 
       get "/#{name}"
     end
@@ -104,7 +99,7 @@ describe AppOpticsAPM::SDK do
 
     Time.stub(:now, Time.at(0)) do
       AppOpticsAPM::Span.expects(:createHttpSpan).with(name, url, nil, 0, 200, 'GET', 0).returns("other")
-      AppOpticsAPM::API.expects(:log_end).with(:rack, :Status => 200, :TransactionName => "other")
+      AppOpticsAPM::API.expects(:log_exit).with(:rack, :Status => 200, :TransactionName => "other")
 
       get "/#{name}"
     end
@@ -112,7 +107,6 @@ describe AppOpticsAPM::SDK do
 
   it 'should use the transaction name for metrics even when not sampling' do
     AppOpticsAPM.config_lock.synchronize {
-      AppOpticsAPM::Config[:tracing_mode] = :never
       AppOpticsAPM::Config[:sample_rate] = 0
     }
     name = "lobster"
@@ -133,12 +127,11 @@ describe AppOpticsAPM::SDK do
     AppOpticsAPM::API.set_transaction_name("another_name")
     Time.stub(:now, Time.at(0)) do
       AppOpticsAPM::Span.expects(:createHttpSpan).with(name, url, nil, 0, 200, 'GET', 0).returns(name)
-      AppOpticsAPM::API.expects(:log_end).with(:rack, :Status => 200, :TransactionName => name)
+      AppOpticsAPM::API.expects(:log_exit).with(:rack, :Status => 200, :TransactionName => name)
 
       get "/#{name}"
     end
   end
-
 
   it 'should provide the domain name to createHttpSpan if configured' do
     AppOpticsAPM::Config['transaction_name']['prepend_domain'] = true

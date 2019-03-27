@@ -27,9 +27,9 @@ describe "RailsSharedTests" do
     }
   end
 
-  it "should NOT trace when tracing is set to :never" do
+  it "should NOT trace when tracing is set to :disabled" do
     AppOpticsAPM.config_lock.synchronize do
-      AppOpticsAPM::Config[:tracing_mode] = :never
+      AppOpticsAPM::Config[:tracing_mode] = :disabled
       uri = URI.parse('http://127.0.0.1:8140/hello/world')
       r = Net::HTTP.get_response(uri)
 
@@ -84,27 +84,15 @@ describe "RailsSharedTests" do
     assert_controller_action(test_action)
   end
 
-  it "should send inbound metrics when not tracing" do
+  it "should NOT send inbound metrics when tracing_mode is :disabled" do
     test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
     AppOpticsAPM.config_lock.synchronize do
-      AppOpticsAPM::Config[:tracing_mode] = :never
-      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
-        test_action = action
-        test_url = url
-        test_status = status
-        test_method = method
-        test_error = error
-      end.once
+      AppOpticsAPM::Config[:tracing_mode] = :disabled
+      AppOpticsAPM::Span.expects(:createHttpSpan).never
 
       uri = URI.parse('http://127.0.0.1:8140/hello/world')
       Net::HTTP.get_response(uri)
     end
-
-    assert_equal "HelloController.world", test_action
-    assert_equal "http://127.0.0.1:8140/hello/world", test_url
-    assert_equal 200, test_status
-    assert_equal "GET", test_method
-    assert_equal 0, test_error
   end
 
   it "should send metrics for 500 errors" do

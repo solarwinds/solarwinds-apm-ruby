@@ -81,9 +81,8 @@ module AppOpticsAPM
       # Remote requests can return a X-Trace header in which case we want
       # to pickup on and continue the context in most cases.
       #
-      # @start is the context just before the outgoing request
-      #
-      # @finish is the context returned to us (as an HTTP response header
+      # +start+ is the context just before the outgoing request
+      # +finish+ is the context returned to us (as an HTTP response header
       # if that be the case)
       #
       def continue_service_context(start, finish)

@@ -52,11 +52,13 @@ if defined?(AppOpticsAPM::Config)
   #
   # Turn tracing on or off
   #
-  # By default tracing is set to 'always', the other option is 'never'.
-  # 'always' means that sampling will be done according to the current
-  # sampling rate. 'never' means that there is no sampling.
+  # By default tracing is set to :enabled, the other option is :disabled.
+  # :enabled means that sampling will be done according to the current
+  # sampling rate. :disabled means that there is no sampling.
   #
-  AppOpticsAPM::Config[:tracing_mode] = :always
+  # The values :always and :never are deprecated
+  #
+  AppOpticsAPM::Config[:tracing_mode] = :enabled
 
   #
   # Prepend domain to transaction name
@@ -80,33 +82,70 @@ if defined?(AppOpticsAPM::Config)
 
   #
   # Do Not Trace - DNT
-  # 'dnt_regexp' and 'dnt_opts' allow you to configure specific URL patterns
-  # to never be traced.  By default, this is set to common static file
-  # extensions but you may want to customize this list for your needs.
-  # Examples of such files may be images, javascript, pdfs, and text files.
   #
-  # 'dnt_regexp' and 'dnt_opts' is passed to Regexp.new to create
-  # a regular expression object.  That is then used to match against
-  # the incoming request path.
+  # DEPRECATED
+  # Please comment out if no filtering is desired, e.g. your static
+  # assets are served by the web server and not the application
   #
-  # The path string originates from the rack layer and is retrieved
-  # as follows:
+  # This configuration allows creating a regexp for paths for which no metrics or
+  # traces should get recorded. These requests should not include transactions
+  # with outbound calls, for which metrics and traces aren't desired either.
   #
+  # For example:
+  # - static assets that aren't served by the web server, or
+  # - healthcheck endpoints that respond to a heart beat.
+  #
+  # :dnt_regexp is the regular expression that is applied to the incoming path
+  # to determine whether the request should be measured and traced or not.
+  #
+  # :dnt_opts can be commented out, nil, or Regexp::IGNORECASE
+  #
+  # The matching happens before routes are applied.
+  # The path originates from the rack layer and is retrieved as follows:
   #   req = ::Rack::Request.new(env)
   #   path = URI.unescape(req.path)
   #
-  # Usage:
-  #   AppOpticsAPM::Config[:dnt_regexp] = "lobster$"
-  #   AppOpticsAPM::Config[:dnt_opts]   = Regexp::IGNORECASE
-  #
-  # This will ignore all requests that end with the string lobster
-  # regardless of case
-  #
-  # Requests with positive matches (non nil) will not be traced.
-  # See lib/appoptics_apm/util.rb: AppOpticsAPM::Util.static_asset?
-  #
   AppOpticsAPM::Config[:dnt_regexp] = '\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|otf|eot|ttf|woff|woff2|svg|less)(\?.+){0,1}$'
-  AppOpticsAPM::Config[:dnt_opts]   = Regexp::IGNORECASE
+  AppOpticsAPM::Config[:dnt_opts] = Regexp::IGNORECASE
+  #
+
+  #
+  # Transaction Settings
+  #
+  # Use this configuration to add exceptions to the global tracing mode and
+  # disable/enable metrics and traces for certain transactions.
+  #
+  # Currently allowed hash keys:
+  # :url to apply listed filters to urls.
+  #      The matching of settings to urls happens before routes are applied.
+  #      The url is extracted from the env argument passed to rack: `env['PATH_INFO']`
+  #
+  # :extensions  takes an array of strings for filtering (not regular expressions!)
+  # :regexp      is a regular expression that is applied to the incoming path
+  # :opts        (optional) nil(default) or Regexp::IGNORECASE (options for regexp)
+  # :tracing     defaults to :disabled, can be set to :enabled to override
+  #              the global :disabled setting
+  #
+  # Be careful not to add too many :regexp configurations as they will slow
+  # down execution.
+  #
+  AppOpticsAPM::Config[:transaction_settings] = {
+    url: [
+    #   {
+    #     extensions: %w['long_job'],
+    #     tracing: :disabled
+    #   },
+    #   {
+    #     regexp: '^.*\/long_job\/.*$',
+    #     opts: Regexp::IGNORECASE,
+    #     tracing: :disabled
+    #   },
+    #   {
+    #     regexp: /batch/,
+    #   }
+    ]
+  }
+  #
 
   #
   # Blacklist urls

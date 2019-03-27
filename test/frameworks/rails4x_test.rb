@@ -524,9 +524,9 @@ if defined?(::Rails)
       r['X-Trace'].must_equal traces[5]['X-Trace']
     end
 
-    it "should NOT trace when tracing is set to :never" do
+    it "should NOT trace when tracing is set to :disabled" do
       AppOpticsAPM.config_lock.synchronize do
-        AppOpticsAPM::Config[:tracing_mode] = :never
+        AppOpticsAPM::Config[:tracing_mode] = :disabled
         uri = URI.parse('http://127.0.0.1:8140/hello/world')
         r = Net::HTTP.get_response(uri)
 

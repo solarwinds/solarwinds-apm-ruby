@@ -21,6 +21,7 @@ end
 gemfile = ENV['BUNDLE_GEMFILE']
 
 AppOpticsAPM.logger.warn "[appoptics_apm/servers] sidekiq #{arguments}"
+AppOpticsAPM.logger.level = Logger::FATAL
 
 Thread.new do
   system("APPOPTICS_GEM_TEST=true BUNDLE_GEMFILE=#{gemfile} sidekiq #{arguments}")

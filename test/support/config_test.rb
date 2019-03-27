@@ -23,7 +23,6 @@ class ConfigTest
       @config_key = AppOpticsAPM::Config[:service_key]
       @config_alias = AppOpticsAPM::Config[:hostname_alias]
       @config_level = AppOpticsAPM::Config[:debug_level]
-      @config_extensions = AppOpticsAPM::Config[:dnt_extensions]
       @config_regexp = AppOpticsAPM::Config[:dnt_regexp]
 
       @log_level = AppOpticsAPM.logger.level
@@ -71,7 +70,6 @@ class ConfigTest
       AppOpticsAPM::Config[:service_key] = @config_key
       AppOpticsAPM::Config[:hostname_alias] = @config_alias
       AppOpticsAPM::Config[:debug_level] = @config_level
-      AppOpticsAPM::Config[:dnt_extensions] = @config_extensions
       AppOpticsAPM::Config[:dnt_regexp] = @config_regexp
 
       AppOpticsAPM.loaded = @loaded
@@ -220,13 +218,17 @@ class ConfigTest
 
       AppOpticsAPM::Config[:debug_level] = 3
       AppOpticsAPM::Config[:verbose].must_equal false
-      AppOpticsAPM::Config[:tracing_mode].must_equal :always
+      AppOpticsAPM::Config[:tracing_mode].must_equal :enabled
       AppOpticsAPM::Config[:sanitize_sql].must_equal true
       AppOpticsAPM::Config[:sanitize_sql_regexp].must_equal '(\'[^\']*\'|\d*\.\d+|\d+|NULL)'
       AppOpticsAPM::Config[:sanitize_sql_opts].must_equal Regexp::IGNORECASE
 
-      AppOpticsAPM::Config[:dnt_regexp].must_equal '\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|otf|eot|ttf|woff|woff2|svg|less)(\?.+){0,1}$'
+      AppOpticsAPM::Config[:dnt_regexp].must_equal '\\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|otf|eot|ttf|woff|woff2|svg|less)(\\?.+){0,1}$'
+      AppOpticsAPM::Config[:dnt_compiled].inspect.must_equal '/\\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|otf|eot|ttf|woff|woff2|svg|less)(\\?.+){0,1}$/i'
       AppOpticsAPM::Config[:dnt_opts].must_equal Regexp::IGNORECASE
+
+      AppOpticsAPM::Config[:transaction_settings].is_a?(Hash).must_equal true
+      AppOpticsAPM::Config[:transaction_settings].must_equal({ url: [] })
 
       AppOpticsAPM::Config[:blacklist].is_a?(Array).must_equal true
       AppOpticsAPM::Config[:report_rescued_errors].must_equal false
@@ -369,6 +371,28 @@ class ConfigTest
       AppOpticsAPM::Config.sample_rate.must_equal 0
     end
 
+
+    ############################################
+    ### Tests for DNT (do not trace) configs ###
+    ############################################
+    describe "asset_filtering" do
+      it 'use :dnt_regexp' do
+        AppOpticsAPM::Config[:dnt_regexp] = '\\.gif|\\.js|\\.css|\\.gz(\\?.+){0,1}$'
+        AppOpticsAPM::Config[:dnt_opts] = Regexp::IGNORECASE
+        AppOpticsAPM::Config.dnt_compile
+
+        AppOpticsAPM::Config[:dnt_compiled].inspect.must_equal '/\\.gif|\\.js|\\.css|\\.gz(\\?.+){0,1}$/i'
+      end
+
+      it 'no regex leads to no :dnt_compiled' do
+        AppOpticsAPM::Config[:dnt_regexp] = ''
+        AppOpticsAPM::Config[:dnt_opts] = Regexp::IGNORECASE
+        AppOpticsAPM::Config.dnt_compile
+
+        AppOpticsAPM::Config[:dnt_compiled].must_be_nil
+      end
+    end
+
     #########################################
     ### Tests for loading the config file ###
     #########################################
@@ -412,7 +436,7 @@ class ConfigTest
     it 'should print a message if env var does not point to a file' do
       ENV['APPOPTICS_APM_CONFIG_RUBY'] = 'non_existing_file'
 
-      $stderr.expects(:puts).at_least_once
+      AppOpticsAPM.logger.expects(:warn).once
       AppOpticsAPM::Config.load_config_file
     end
 
@@ -421,7 +445,7 @@ class ConfigTest
       FileUtils.cp(@@template, @@test_config_path)
       ENV['APPOPTICS_APM_CONFIG_RUBY'] = @@test_config_path
 
-      $stderr.expects(:puts).at_least_once
+      AppOpticsAPM.logger.expects(:warn).once
       AppOpticsAPM::Config.expects(:load).with(@@test_config_path).times(1)
       AppOpticsAPM::Config.load_config_file
     end

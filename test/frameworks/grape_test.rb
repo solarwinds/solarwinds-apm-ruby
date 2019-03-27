@@ -64,10 +64,9 @@ if defined?(::Grape)
     it "should trace an error in a nested grape stack" do
       @app = GrapeNested
 
-      r = get "/error"
+      res = get "/error"
 
-      r.status.must_equal 500
-      r.headers.key?('X-Trace').must_equal true
+      res.status.must_equal 500
 
       traces = get_all_traces
       traces.count.must_equal 5
@@ -93,8 +92,8 @@ if defined?(::Grape)
       traces[4]['Label'].must_equal "exit"
 
       # Validate the existence of the response header
-      r.headers.key?('X-Trace').must_equal true
-      r.headers['X-Trace'].must_equal traces[4]['X-Trace']
+      res.headers.key?('X-Trace').must_equal true
+      res.headers['X-Trace'].must_equal traces[4]['X-Trace']
     end
 
 
@@ -177,7 +176,7 @@ if defined?(::Grape)
       assert_equal 0, test_error
 
       assert_controller_action(test_action)
-      end
+    end
 
     it "should report a GET path with parameter" do
       @app = GrapeSimple

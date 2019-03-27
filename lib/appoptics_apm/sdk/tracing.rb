@@ -187,6 +187,7 @@ module AppOpticsAPM
 
         # AppOpticsAPM::Event.startTrace creates an Event without an Edge
         exit_evt = AppOpticsAPM::Event.startTrace(AppOpticsAPM::Context.get)
+
         result = begin
           AppOpticsAPM::API.send_metrics(span, opts) do
             target['X-Trace'] = AppOpticsAPM::EventUtil.metadataString(exit_evt)

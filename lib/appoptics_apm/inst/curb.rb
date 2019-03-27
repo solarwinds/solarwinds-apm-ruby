@@ -291,6 +291,7 @@ module AppOpticsAPM
         # If we're not tracing or we're already tracing curb, just do a fast return.
         if !AppOpticsAPM.tracing? || [:curb, :curb_multi].include?(AppOpticsAPM.layer)
           self.requests.each do |request|
+            request = request[1] if request.is_a?(Array)
             unless AppOpticsAPM::API.blacklisted?(URI(request.url).hostname)
               request.headers['X-Trace'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid
             end
@@ -305,6 +306,7 @@ module AppOpticsAPM
           AppOpticsAPM::API.log_entry(:curb_multi, kvs)
 
           self.requests.each do |request|
+            request = request[1] if request.is_a?(Array)
             unless AppOpticsAPM::API.blacklisted?(URI(request.url).hostname)
               request.headers['X-Trace'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid
             end

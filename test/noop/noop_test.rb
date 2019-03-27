@@ -47,11 +47,11 @@ class NoopTest < Minitest::Test
     la = AppOpticsAPM::Config[:rack][:log_args]
 
     # Test that we can set various things into AppOpticsAPM::Config still
-    AppOpticsAPM::Config[:tracing_mode] = :always
+    AppOpticsAPM::Config[:tracing_mode] = :enabled
     AppOpticsAPM::Config[:verbose] = false
     AppOpticsAPM::Config[:rack][:log_args] = true
 
-    assert_equal :always, AppOpticsAPM::Config[:tracing_mode]
+    assert_equal :enabled, AppOpticsAPM::Config[:tracing_mode]
     assert_equal false, AppOpticsAPM::Config[:verbose]
     assert_equal true, AppOpticsAPM::Config[:rack][:log_args]
 

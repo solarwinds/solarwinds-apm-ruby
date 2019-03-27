@@ -8,7 +8,7 @@ require 'rack/lobster'
 require 'appoptics_apm/inst/rack'
 
 unless defined?(JRUBY_VERSION)
-  AppOpticsAPM::Config[:tracing_mode] = 'always'
+  AppOpticsAPM::Config[:tracing_mode] = :enabled
   AppOpticsAPM::Config[:sample_rate] = 1e6
 
   class RackTestApp < Minitest::Test
@@ -44,7 +44,7 @@ unless defined?(JRUBY_VERSION)
 
       kvs = {}
       kvs["SampleRate"] = 1000000
-      kvs["SampleSource"] = 1 # (OBOE_SAMPLE_RATE_SOURCE_FILE)
+      kvs["SampleSource"] = 7 # (OBOE_SAMPLE_RATE_SOURCE_CUSTOM)
       validate_event_keys(traces[0], kvs)
     end
 

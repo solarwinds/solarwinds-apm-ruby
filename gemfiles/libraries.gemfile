@@ -15,7 +15,7 @@ group :development, :test do
   gem 'mocha'
   gem 'rack-test'
   gem 'rake'
-  gem 'bson' , '~> 4.0'
+  # gem 'bson' , '~> 4.0'
   gem 'puma'# , '< 3.1.0'
   gem 'webmock'
   gem 'grpc-tools' if RUBY_VERSION < '2.6.0'
@@ -31,7 +31,7 @@ gem 'bunny'
 gem 'mongo' # , '~> 1.12.5' uncomment to run mongo_v1_test.rb
 # gem 'cassandra'
 # gem 'curb' unless defined?(JRUBY_VERSION)
-gem 'curb', '0.9.7' # temporarily freeze version, TODO find fix for 0.9.8
+gem 'curb'
 gem 'dalli'
 gem 'excon'
 gem 'faraday'

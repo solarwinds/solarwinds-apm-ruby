@@ -9,7 +9,7 @@
     * [Run all tests](#run-all-tests)
     * [Run some tests](#run-some-tests)
     * [Run one test from suite, a specific test file, or a specific test](#run-one-test-from-suite,-a-specific-test-file,-or-a-specific-test)
-  * [pry-byebug for debugging](#pry-byebug-for-debugging)
+  * [byebug for debugging](#byebug-for-debugging)
   * [Duplication (◔_◔) and missing tests ( •̆௰•̆ )](#duplication-(◔_◔)-and-missing-tests-(-•̆௰•̆-))
   
 The tests for this gem focus on sending the correct information
@@ -140,7 +140,7 @@ The gem is setup to be debugged with `byebug`, add the following lines in the co
 require 'byebug'
 byebug
 ```
-See here for docu: https://github.com/deivid-rodriguez/pry-byebug
+See here for docu: https://github.com/deivid-rodriguez/byebug 
 
 ## Duplication (◔_◔) and missing tests ( •̆௰•̆ )
 Sorry, it takes some time to run all the tests (31 test suites, approx. 40  

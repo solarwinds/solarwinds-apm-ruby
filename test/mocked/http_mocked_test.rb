@@ -21,7 +21,7 @@ unless defined?(JRUBY_VERSION)
       WebMock.disable!
 
       AppOpticsAPM::Config[:sample_rate] = 1000000
-      AppOpticsAPM::Config[:tracing_mode] = :always
+      AppOpticsAPM::Config[:tracing_mode] = :enabled
       AppOpticsAPM::Config[:blacklist] = []
     end
 

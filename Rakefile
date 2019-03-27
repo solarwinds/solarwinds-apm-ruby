@@ -208,20 +208,12 @@ task :environment do
   ENV['APPOPTICS_GEM_VERBOSE'] = 'true'
 
   Bundler.require(:default, :development)
-  AppOpticsAPM::Config[:tracing_mode] = :always
+  AppOpticsAPM::Config[:tracing_mode] = :enabled
   AppOpticsAPM::Test.load_extras
 
   if AppOpticsAPM::Test.gemfile?(:delayed_job)
     require 'delayed/tasks'
   end
-end
-
-task :console => :environment do
-  ARGV.clear
-  if AppOpticsAPM::Test.gemfile?(:delayed_job)
-    require './test/servers/delayed_job'
-  end
-  Pry.start
 end
 
 # Used when testing Resque locally

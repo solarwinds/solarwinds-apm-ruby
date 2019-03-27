@@ -6,23 +6,23 @@ require 'minitest_helper'
 class TracingModeTest  < Minitest::Test
   def setup
     @tm = AppOpticsAPM::Config[:tracing_mode]
-    AppOpticsAPM::Config[:tracing_mode] = :always
+    AppOpticsAPM::Config[:tracing_mode] = :enabled
   end
 
   def teardown
     AppOpticsAPM::Config[:tracing_mode] = @tm
   end
 
-  def test_trace_when_always
-    AppOpticsAPM::API.start_trace(:test_always) do
+  def test_trace_when_enabled
+    AppOpticsAPM::API.start_trace(:test_enabled) do
       AppOpticsAPM.tracing?.must_equal true
     end
   end
 
-  def test_dont_trace_when_never
-    AppOpticsAPM::Config[:tracing_mode] = :never
+  def test_dont_trace_when_disabled
+    AppOpticsAPM::Config[:tracing_mode] = :disabled
 
-    AppOpticsAPM::API.start_trace(:test_never) do
+    AppOpticsAPM::API.start_trace(:test_disabled) do
       AppOpticsAPM.tracing?.must_equal false
     end
 

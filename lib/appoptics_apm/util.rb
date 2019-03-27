@@ -98,19 +98,6 @@ module AppOpticsAPM
       end
 
       ##
-      # static_asset?
-      #
-      # Given a path, this method determines whether it is a static asset or not (based
-      # solely on filename)
-      #
-      def static_asset?(path)
-        path =~ Regexp.new(AppOpticsAPM::Config[:dnt_regexp], AppOpticsAPM::Config[:dnt_opts])
-      rescue => e
-        AppOpticsAPM.logger.warn "[AppOpticsAPM/debug] Could not apply Regex.new to path. #{e.inspect}"
-        false
-      end
-
-      ##
       # prettify
       #
       # Even to my surprise, 'prettify' is a real word:
@@ -174,6 +161,25 @@ module AppOpticsAPM
       end
 
       ##
+      # deep_dup
+      #
+      # deep duplicate of array or hash
+      #
+      def deep_dup(obj)
+        if obj.is_a? Array
+          new_obj = []
+          obj.each do |v|
+            new_obj << deep_dup(v)
+          end
+        elsif obj.is_a? Hash
+          new_obj = {}
+          obj.each_pair do |key, value|
+            new_obj[key] = deep_dup(value)
+          end
+        end
+      end
+
+      ##
       # legacy_build_init_report
       #
       # Internal: Build a hash of KVs that reports on the status of the
@@ -186,7 +192,7 @@ module AppOpticsAPM
       #
       # @deprecated Please use {#build_init_report} instead
       def legacy_build_init_report
-        AppOpticsAPM.logger.warn '[appoptics_apm/warn] Oboe::API will be deprecated in a future version.'
+        AppOpticsAPM.logger.warn '[appoptics_apm/deprecated] Oboe::API will be deprecated in a future version.'
         platform_info = {}
 
         begin
@@ -243,7 +249,7 @@ module AppOpticsAPM
 
           platform_info['Error'] = "Error in legacy_build_init_report: #{e.message}"
 
-          AppOpticsAPM.logger.warn "[appoptics_apm/warn] Error in legacy_build_init_report: #{e.message}"
+          AppOpticsAPM.logger.warn "[appoptics_apm/legacy] Error in legacy_build_init_report: #{e.message}"
           AppOpticsAPM.logger.debug e.backtrace
         end
         platform_info
