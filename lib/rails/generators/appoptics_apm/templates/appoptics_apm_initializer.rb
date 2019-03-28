@@ -88,9 +88,8 @@ if defined?(AppOpticsAPM::Config)
   # Please comment out if no filtering is desired, e.g. your static
   # assets are served by the web server and not the application
   #
-  # This configuration allows creating a regexp for paths for which no metrics or
-  # traces should get recorded. These requests should not include transactions
-  # with outbound calls, for which metrics and traces aren't desired either.
+  # This configuration allows creating a regexp for paths that should be excluded
+  # from appoptics processing.
   #
   # For example:
   # - static assets that aren't served by the web server, or
@@ -121,10 +120,14 @@ if defined?(AppOpticsAPM::Config)
   #      The matching of settings to urls happens before routes are applied.
   #      The url is extracted from the env argument passed to rack: `env['PATH_INFO']`
   #
-  # :extensions  takes an array of strings for filtering (not regular expressions!)
-  # :regexp      is a regular expression that is applied to the incoming path
-  # :opts        (optional) nil(default) or Regexp::IGNORECASE (options for regexp)
-  # :tracing     defaults to :disabled, can be set to :enabled to override
+  # and the hashes within the :url list either:
+  #   :extensions  takes an array of strings for filtering (not regular expressions!)
+  #   :tracing     defaults to :disabled, can be set to :enabled to override
+  #              the global :disabled setting
+  # or:
+  #   :regexp      is a regular expression that is applied to the incoming path
+  #   :opts        (optional) nil(default) or Regexp::IGNORECASE (options for regexp)
+  #   :tracing     defaults to :disabled, can be set to :enabled to override
   #              the global :disabled setting
   #
   # Be careful not to add too many :regexp configurations as they will slow
