@@ -11,7 +11,7 @@ if defined?(AppOpticsAPM::Config)
   # :service_key, :hostname_alias, and :debug_level are startup settings and can't be changed afterwards.
   #
   # Set APPOPTICS_SERVICE_KEY
-  # This Setting will be overridden if APPOPTICS_SERVICE_KEY is set as an environment variable.
+  # This setting will be overridden if APPOPTICS_SERVICE_KEY is set as an environment variable.
   # This is a required setting. If the service key is not set here it needs to be set as environment variable.
   #
   # The service key is a combination of the API token plus a service name.
@@ -21,7 +21,7 @@ if defined?(AppOpticsAPM::Config)
 
   #
   # Set APPOPTICS_HOSTNAME_ALIAS
-  # This Setting will be overridden if APPOPTICS_HOSTNAME_ALIAS is set as an environment variable
+  # This setting will be overridden if APPOPTICS_HOSTNAME_ALIAS is set as an environment variable
   #
   # AppOpticsAPM::Config[:hostname_alias] = 'alias_name'
 
@@ -42,7 +42,7 @@ if defined?(AppOpticsAPM::Config)
 
   #
   # Set APPOPTICS_GEM_VERBOSE
-  # This Setting will be overridden if APPOPTICS_GEM_VERBOSE is set as an environment variable
+  # This setting will be overridden if APPOPTICS_GEM_VERBOSE is set as an environment variable
   #
   # On startup the components that are being instrumented will be reported if this is set to true.
   # If true and the log level is 4 or higher this may create extra debug log messages
