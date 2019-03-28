@@ -54,7 +54,8 @@ if defined?(AppOpticsAPM::Config)
   #
   # By default tracing is set to :enabled, the other option is :disabled.
   # :enabled means that sampling will be done according to the current
-  # sampling rate. :disabled means that there is no sampling.
+  # sampling rate and metrics are reported.
+  # :disabled means that there is no sampling and metrics are not reported.
   #
   # The values :always and :never are deprecated
   #
@@ -64,7 +65,7 @@ if defined?(AppOpticsAPM::Config)
   # Prepend domain to transaction name
   #
   # If this is set to `true` transaction names will be composed as `my.host.com/controller.action` instead of
-  # `controller.action`. This configuration applies to all transaction names, whether deducted by the instrumentation
+  # `controller.action`. This configuration applies to all transaction names, whether deduced by the instrumentation
   # or implicitly set.
   #
   AppOpticsAPM::Config[:transaction_name][:prepend_domain] = false
