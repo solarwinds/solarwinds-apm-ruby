@@ -22,21 +22,21 @@ services:
      volumes:
        - ../../:/code/ruby-appoptics
 #       - /Users/maiaengeli/workspace/repos/grpc:/grpc_ruby
-       - ../../../oboe-test/collectors/java-collector/test-collector.crt:/certs/java.crt
-       - ../../../oboe-test/collectors/scribe-collector/ca.crt:/certs/scribe.crt
+#       - ../../../oboe-test/collectors/java-collector/test-collector.crt:/certs/java.crt
+#       - ../../../oboe-test/collectors/scribe-collector/ca.crt:/certs/scribe.crt
      depends_on:
-       - wait
+       - ao_ruby_wait
      links:
-       - wait
+       - ao_ruby_wait
      environment:
        - APPOPTICS_SERVICE_KEY=${APPOPTICS_SERVICE_KEY}
        - APPOPTICS_COLLECTOR=${APPOPTICS_COLLECTOR}
-       - APPOPTICS_RABBITMQ_SERVER=rabbitmq
+       - APPOPTICS_RABBITMQ_SERVER=ao_ruby_rabbitmq
        - DOCKER_MYSQL_PASS=admin
        - MYSQL_ALLOW_EMPTY_PASSWORD=yes
        - MYSQL_ROOT_PASSWORD=admin
-       - MYSQL_HOST=mysql
-       - APPOPTICS_MONGO_SERVER=mongo
+       - MYSQL_HOST=ao_ruby_mysql
+       - APPOPTICS_MONGO_SERVER=ao_ruby_mongo
        - BUNDLE_GEMFILE=gemfiles/libraries.gemfile
 #       - SIMPLECOV_COVERAGE=True
 
@@ -62,40 +62,40 @@ services:
 #       - MYSQL_HOST=mysql
 #       - APPOPTICS_MONGO_SERVER=mongo
 
-  rabbitmq:
-    container_name: rabbitmq
+  ao_ruby_rabbitmq:
+    container_name: ao_ruby_rabbitmq
     image: rabbitmq:3-management
-    ports:
-      - "8080:15672"
-      - "5672:5672"
-      - "5671:5671"
+#    ports:
+#      - "8080:15672"
+#      - "5672:5672"
+#      - "5671:5671"
 
-  mysql:
-    container_name: mysql
+  ao_ruby_mysql:
+    container_name: ao_ruby_mysql
     image: mysql:5.7.13
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
       - MYSQL_ROOT_PASSWORD=admin
-    ports:
-      - "3306:3306"
+#    ports:
+#      - "3306:3306"
 
-  mongo:
-    container_name: mongo
+  ao_ruby_mongo:
+    container_name: ao_ruby_mongo
     image: mongo:3.4
-    ports:
-      - "27017:27017"
+#    ports:
+#      - "27017:27017"
 
-  wait:
-    container_name: wait
+  ao_ruby_wait:
+    container_name: ao_ruby_wait
     image: waisbrot/wait
     depends_on:
-      - rabbitmq
-      - mysql
-      - mongo
+      - ao_ruby_rabbitmq
+      - ao_ruby_mysql
+      - ao_ruby_mongo
     links:
-      - rabbitmq
-      - mysql
-      - mongo
-    environment:
-      - TARGETS=mysql:3306;rabbitmq:5672;mongo:27017
+      - ao_ruby_rabbitmq
+      - ao_ruby_mysql
+      - ao_ruby_mongo
+#    environment:
+#      - TARGETS=mysql:3306;rabbitmq:5672;mongo:27017
 

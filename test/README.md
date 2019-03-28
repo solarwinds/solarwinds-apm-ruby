@@ -48,7 +48,7 @@ The tests require different services to be running, mainly:
 * mongo
 
 ### Oboe
-Oboe is the c-library that rovides the methods to send data to
+Oboe is the c-library that provides the methods to send data to
 the collector.
 When using the gem from source it needs to be installed once on a
 new platform:
@@ -88,14 +88,19 @@ Be aware that starting the container takes longer if the Docker image needs to b
 slow process. It is recommended to keep the appoptics_apm image and only replace
 it if there is a change with the Ruby versions required for the tests.
 
+When done with testing, the auxiliary containers can be stopped with:
+```bash
+rake docker_down
+```
+
 ### Run some tests
-In this case we want to start the docker image and then define
+In this case we want to start a docker container and then define
 which tests to run from within.
 ```bash
 rake docker
 ```
 
-check out the options:
+In the container check out the options:
 ```bash
 run_tests/run_tests.sh -h
 ```

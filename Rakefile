@@ -63,13 +63,19 @@ end
 desc "Run all test suites defined by travis"
 task "docker_tests" do
   Dir.chdir('test/run_tests')
-  exec('docker-compose run --service-ports ruby_appoptics /code/ruby-appoptics/test/run_tests/ruby_setup.sh test')
+  exec('docker-compose run ruby_appoptics /code/ruby-appoptics/test/run_tests/ruby_setup.sh test')
 end
 
 desc "Start docker container for testing and debugging"
 task "docker" do
   Dir.chdir('test/run_tests')
-  exec('docker-compose run --service-ports ruby_appoptics /code/ruby-appoptics/test/run_tests/ruby_setup.sh bash')
+  exec('docker-compose run ruby_appoptics /code/ruby-appoptics/test/run_tests/ruby_setup.sh bash')
+end
+
+desc "Stop all containers that were started for testing and debugging"
+task "docker_down" do
+  Dir.chdir('test/run_tests')
+  exec('docker-compose down')
 end
 
 desc "Fetch extension dependency files"
