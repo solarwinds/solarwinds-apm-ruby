@@ -24,7 +24,18 @@ if ENV['APPOPTICS_FROM_S3'].to_s.downcase == 'true'
 else
   ao_path = File.join('https://files.appoptics.com/c-lib', version)
 end
-ao_arch = `ldd --version 2>&1` =~ /musl/ ? 'alpine-x86_64' : 'x86_64'
+
+ao_arch = 'x86_64'
+if File.exist?('/etc/alpine-release')
+  version = open('/etc/alpine-release').read.chomp
+  ao_arch =
+    if Gem::Version.new(version) <  Gem::Version.new('3.9')
+      'alpine-libressl-x86_64'
+    else # openssl
+      'alpine-x86_64'
+    end
+end
+
 ao_clib = "liboboe-1.0-#{ao_arch}.so.0.0.0"
 ao_item = File.join(ao_path, ao_clib)
 ao_checksum_item = "#{ao_item}.sha256"
@@ -88,7 +99,6 @@ if success
     create_makefile('oboe_noop', 'noop')
 
   elsif have_library('oboe', 'oboe_config_get_revision', 'oboe.h')
-
     $libs = append_library($libs, 'oboe')
     $libs = append_library($libs, 'stdc++')
 
