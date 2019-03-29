@@ -372,8 +372,8 @@ manually build this C extension for the gem to function.
 To make this simpler, we've included a few rake tasks to automate this process:
 
 ```bash
+rake clean
 rake compile             # Build the gem's c extension
-rake distclean           # Remove all built files and extensions
 rake recompile           # Rebuild the gem's c extension
 ```
 
