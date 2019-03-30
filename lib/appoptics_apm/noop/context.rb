@@ -13,7 +13,7 @@ module AppOpticsAPM
     # the noop version returns an empty string
     #
     def self.toString
-      ''
+      '2B0000000000000000000000000000000000000000000000000000000000'
     end
 
     ##
