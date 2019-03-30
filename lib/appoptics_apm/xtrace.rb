@@ -33,6 +33,10 @@ module AppOpticsAPM
         valid?(xtrace) && xtrace[59].to_i & 1 == 1
       end
 
+      def empty_context?(xtrace)
+        xtrace == '2B0000000000000000000000000000000000000000000000000000000000'
+      end
+
       def set_sampled(xtrace)
         xtrace[59] = (xtrace[59].hex | 1).to_s(16).upcase
       end
@@ -47,7 +51,7 @@ module AppOpticsAPM
       # Extract and return the task_id portion of an X-Trace ID
       #
       def task_id(xtrace)
-        return nil unless AppOpticsAPM::XTrace.valid?(xtrace)
+        return nil unless valid?(xtrace) || empty_context?(xtrace)
 
         xtrace[2..41]
       rescue StandardError => e
