@@ -19,6 +19,8 @@ describe AppOpticsAPM::SDK do
     end
 
     it 'returns 0s when there is no context' do
+      AppOpticsAPM::Context.clear
+
       trace = AppOpticsAPM::SDK.current_trace
       assert trace, 'it should return a trace'
       assert_equal '0000000000000000000000000000000000000000-0', trace.id
@@ -42,12 +44,14 @@ describe AppOpticsAPM::SDK do
     end
 
     it 'returns an empty string for for_log when there is no context' do
+      AppOpticsAPM::Context.clear
+
       trace = AppOpticsAPM::SDK.current_trace
       assert trace, 'it should return a trace'
       assert_equal '', trace.for_log
     end
 
-    it 'returns an empty string for for_log  when Appoptics is not loaded' do
+    it 'returns an empty string for for_log when Appoptics is not loaded' do
       AppOpticsAPM.loaded=false
 
       trace = AppOpticsAPM::SDK.current_trace
