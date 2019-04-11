@@ -62,6 +62,25 @@ if defined?(AppOpticsAPM::Config)
   AppOpticsAPM::Config[:tracing_mode] = :enabled
 
   #
+  # Add traceId to logs
+  #
+  # Configure if and when the traceId should be included in application logs.
+  # Common Ruby and Rails loggers are auto-instrumented so that they can include
+  # the current traceId in log messages.
+  #
+  # The added string will look like: "ao.traceId=7435A9FE510AE4533414D425DADF4E180D2B4E36-0"
+  # It ends in '-1' if the request is sampled and in '-0' otherwise.
+  #
+  # The following options are available:
+  # :never (default)
+  # :sampled only include the traceId of sampled requests
+  # :trace   only include the traceId if the logging occurs during a traced request
+  # :always  always add a traceId, it will be '0000000000000000000000000000000000000000-0'
+  #          when there is no tracing context.
+  #
+  AppOpticsAPM::Config[:log_traceId] = :never
+
+  #
   # Prepend domain to transaction name
   #
   # If this is set to `true` transaction names will be composed as `my.host.com/controller.action` instead of
