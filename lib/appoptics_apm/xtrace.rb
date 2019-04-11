@@ -5,6 +5,8 @@ module AppOpticsAPM
   ##
   # Methods to act on, manipulate or investigate an X-Trace
   # value
+  #
+  # TODO add unit tests
   module XTrace
     class << self
       ##
@@ -20,9 +22,7 @@ module AppOpticsAPM
         return false if (xtrace =~ /^2b0000000/i) == 0
 
         # Valid X-Trace IDs have a length of 60 bytes and start with '2b'
-        return false unless xtrace.length == 60 && (xtrace =~ /^2b/i) == 0
-
-        true
+        xtrace.length == 60 && (xtrace =~ /^2b/i) == 0
       rescue StandardError => e
         AppOpticsAPM.logger.debug "[appoptics_apm/xtrace] #{e.message}"
         AppOpticsAPM.logger.debug e.backtrace
@@ -35,6 +35,15 @@ module AppOpticsAPM
 
       def empty_context?(xtrace)
         xtrace == '2B0000000000000000000000000000000000000000000000000000000000'
+      end
+
+      def ok?(xtrace)
+        # Valid X-Trace IDs have a length of 60 bytes and start with '2b'
+        xtrace && xtrace.length == 60 && (xtrace =~ /^2b/i) == 0
+      rescue StandardError => e
+        AppOpticsAPM.logger.debug "[appoptics_apm/xtrace] #{e.message}"
+        AppOpticsAPM.logger.debug e.backtrace
+        false
       end
 
       def set_sampled(xtrace)
@@ -51,7 +60,7 @@ module AppOpticsAPM
       # Extract and return the task_id portion of an X-Trace ID
       #
       def task_id(xtrace)
-        return nil unless valid?(xtrace) || empty_context?(xtrace)
+        return nil unless ok?(xtrace)
 
         xtrace[2..41]
       rescue StandardError => e

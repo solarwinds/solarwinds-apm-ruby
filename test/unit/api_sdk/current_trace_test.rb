@@ -3,6 +3,10 @@ require 'minitest_helper'
 describe AppOpticsAPM::SDK do
 
   describe 'current_trace' do
+    before do
+      AppOpticsAPM::Config[:log_traceId] = :traced
+    end
+
     after do
       AppOpticsAPM.loaded=true
       AppOpticsAPM::Context.clear
@@ -36,7 +40,7 @@ describe AppOpticsAPM::SDK do
 
     it 'returns a for_log when there is a context' do
       xtrace = '2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F01'
-      for_log = 'traceId=7435A9FE510AE4533414D425DADF4E180D2B4E36-1'
+      for_log = 'ao.traceId=7435A9FE510AE4533414D425DADF4E180D2B4E36-1'
       AppOpticsAPM::Context.fromString(xtrace)
 
       trace = AppOpticsAPM::SDK.current_trace
