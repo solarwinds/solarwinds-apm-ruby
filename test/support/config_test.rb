@@ -219,6 +219,7 @@ class ConfigTest
       AppOpticsAPM::Config[:debug_level] = 3
       AppOpticsAPM::Config[:verbose].must_equal false
       AppOpticsAPM::Config[:tracing_mode].must_equal :enabled
+      AppOpticsAPM::Config[:log_traceId].must_equal :never
       AppOpticsAPM::Config[:sanitize_sql].must_equal true
       AppOpticsAPM::Config[:sanitize_sql_regexp].must_equal '(\'[^\']*\'|\d*\.\d+|\d+|NULL)'
       AppOpticsAPM::Config[:sanitize_sql_opts].must_equal Regexp::IGNORECASE
