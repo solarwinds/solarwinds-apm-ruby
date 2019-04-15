@@ -8,6 +8,7 @@ group :development, :test do
   gem 'rack-test'
   gem 'puma', '< 3.1.0'
   gem 'bson', '< 4.0'
+  gem 'lograge'
 end
 
 if defined?(JRUBY_VERSION)

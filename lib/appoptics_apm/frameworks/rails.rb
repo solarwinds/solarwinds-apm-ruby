@@ -50,6 +50,7 @@ module AppOpticsAPM
       require 'appoptics_apm/frameworks/rails/inst/action_view'
       require 'appoptics_apm/frameworks/rails/inst/action_view_30'
       require 'appoptics_apm/frameworks/rails/inst/active_record'
+      require 'appoptics_apm/frameworks/rails/inst/logger_formatters'
 
       AppOpticsAPM.logger.info "[appoptics_apm/rails] AppOpticsAPM gem #{AppOpticsAPM::Version::STRING} successfully loaded."
     end

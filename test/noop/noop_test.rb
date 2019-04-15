@@ -172,5 +172,25 @@ class NoopTest < Minitest::Test
   def test_set_transaction_name_doesnt_barf
     AppOpticsAPM::API.set_transaction_name("should not throw an exception")
   end
+
+  def test_current_trace_doesnt_barf
+    trace = AppOpticsAPM::SDK.current_trace
+
+    assert trace, 'it should return a trace when in noop'
+  end
+
+  def test_current_trace_traceid_doesnt_barf
+    trace = AppOpticsAPM::SDK.current_trace
+
+    assert trace.id, 'it should return a trace id when in noop'
+    assert_equal '0000000000000000000000000000000000000000-0', trace.id
+  end
+
+  def test_current_trace_for_log_doesnt_barf
+    trace = AppOpticsAPM::SDK.current_trace
+
+    assert trace.for_log, 'it should create a log string when in noop'
+    assert_equal '', trace.for_log
+  end
 end
 

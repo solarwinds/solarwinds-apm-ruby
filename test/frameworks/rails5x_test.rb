@@ -375,5 +375,6 @@ if defined?(::Rails)
 
     require_relative "rails_shared_tests"
     require_relative "rails_crud_test"
+    require_relative 'rails_logger_formatter_test'
   end
 end

@@ -5,12 +5,15 @@ module AppOpticsAPM
   ##
   # Methods to act on, manipulate or investigate an X-Trace
   # value
+  #
+  # TODO add unit tests
   module XTrace
     class << self
       ##
       #  AppOpticsAPM::XTrace.valid?
       #
-      #  Perform basic validation on a potential X-Trace ID
+      #  Perform basic validation on a potential X-Trace Id
+      #  returns true if it is from a valid context
       #
       def valid?(xtrace)
         # Shouldn't be nil
@@ -20,9 +23,7 @@ module AppOpticsAPM
         return false if (xtrace =~ /^2b0000000/i) == 0
 
         # Valid X-Trace IDs have a length of 60 bytes and start with '2b'
-        return false unless xtrace.length == 60 && (xtrace =~ /^2b/i) == 0
-
-        true
+        xtrace.length == 60 && (xtrace =~ /^2b/i) == 0
       rescue StandardError => e
         AppOpticsAPM.logger.debug "[appoptics_apm/xtrace] #{e.message}"
         AppOpticsAPM.logger.debug e.backtrace
@@ -33,12 +34,23 @@ module AppOpticsAPM
         valid?(xtrace) && xtrace[59].to_i & 1 == 1
       end
 
+      def ok?(xtrace)
+        # Valid X-Trace IDs have a length of 60 bytes and start with '2b'
+        xtrace && xtrace.length == 60 && (xtrace =~ /^2b/i) == 0
+      rescue StandardError => e
+        AppOpticsAPM.logger.debug "[appoptics_apm/xtrace] #{e.message}"
+        AppOpticsAPM.logger.debug e.backtrace
+        false
+      end
+
       def set_sampled(xtrace)
         xtrace[59] = (xtrace[59].hex | 1).to_s(16).upcase
+        xtrace
       end
 
       def unset_sampled(xtrace)
         xtrace[59] = (~(~xtrace[59].hex | 1)).to_s(16).upcase
+        xtrace
       end
 
       ##
@@ -47,7 +59,7 @@ module AppOpticsAPM
       # Extract and return the task_id portion of an X-Trace ID
       #
       def task_id(xtrace)
-        return nil unless AppOpticsAPM::XTrace.valid?(xtrace)
+        return nil unless ok?(xtrace)
 
         xtrace[2..41]
       rescue StandardError => e
@@ -79,7 +91,7 @@ module AppOpticsAPM
       # across servers and applications.
       #
       # Remote requests can return a X-Trace header in which case we want
-      # to pickup on and continue the context in most cases.
+      # to pickup and continue the context in most cases.
       #
       # +start+ is the context just before the outgoing request
       # +finish+ is the context returned to us (as an HTTP response header
@@ -90,7 +102,8 @@ module AppOpticsAPM
 
           # Assure that we received back a valid X-Trace with the same task_id
           # and the sampling bit is set, otherwise it is a response from a non-sampling service
-          if AppOpticsAPM::XTrace.task_id(start) == AppOpticsAPM::XTrace.task_id(finish) && AppOpticsAPM::XTrace.sampled?(finish)
+          if AppOpticsAPM::XTrace.task_id(start) == AppOpticsAPM::XTrace.task_id(finish) &&
+            AppOpticsAPM::XTrace.sampled?(finish)
             AppOpticsAPM::Context.fromString(finish)
           else
             AppOpticsAPM.logger.debug "[XTrace] Sampling flag unset or mismatched start and finish ids:\n#{start}\n#{finish}"
