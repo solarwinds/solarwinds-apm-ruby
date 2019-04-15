@@ -4,6 +4,7 @@ describe AppOpticsAPM::SDK do
 
   describe 'current_trace' do
     before do
+      AppOpticsAPM::Context.clear
       AppOpticsAPM::Config[:log_traceId] = :traced
     end
 
