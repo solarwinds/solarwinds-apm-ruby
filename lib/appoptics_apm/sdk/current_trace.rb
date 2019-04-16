@@ -48,6 +48,10 @@ module AppOpticsAPM
           @hash_for_log||= log? ? { ao: { traceId: @id }} : {}
         end
 
+        def for_lograge
+          @for_lograge ||= log? ? { 'ao.traceID' => @id } : {}
+        end
+
         def log? # should the trace Id be added to the log?
           case AppOpticsAPM::Config[:log_traceId]
           when :never, nil
