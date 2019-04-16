@@ -1,4 +1,5 @@
 require 'minitest_helper'
+require 'lograge'
 
 describe "SimpleFormatter " do
   before(:all) do
