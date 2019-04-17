@@ -4,7 +4,7 @@
 require 'minitest_helper'
 require 'mocha/minitest'
 
-class ConfigTest
+class ConfigTest < Minitest::Test
   describe "AppOpticsAPM::Config" do
 
     @@default_config_path = File.join(Dir.pwd, 'appoptics_apm_config.rb')

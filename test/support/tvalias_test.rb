@@ -3,7 +3,7 @@
 
 require 'minitest_helper'
 
-class APPOPTICSAliasTest < Minitest::Test
+class AppOpticsAPMTest < Minitest::Test
 
   def test_responds_various_capitalization
     defined?(::AppOpticsAPM).must_equal "constant"

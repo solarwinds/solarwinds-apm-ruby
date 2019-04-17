@@ -3,7 +3,7 @@
 
 require 'minitest_helper'
 
-class InitReportTest  < Minitest::Test
+class InitReportTest < Minitest::Test
   def test_report_format
     init_kvs = ::AppOpticsAPM::Util.build_init_report
     init_kvs.is_a?(Hash)
