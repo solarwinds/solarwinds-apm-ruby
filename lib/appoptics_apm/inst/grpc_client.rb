@@ -38,7 +38,6 @@ module AppOpticsAPM
         @tags = grpc_tags('SERVER_STREAMING', metadata[:method] || metadata_to_send[:method])
         AppOpticsAPM::API.log_entry('grpc-client', @tags)
         metadata['x-trace'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid
-        AppOpticsAPM::SDK.set_transaction_name(metadata[:method]) if AppOpticsAPM.transaction_name.nil?
 
         patch_receive_and_check_status # need to patch this so that log_exit can be called after the enum is consumed
 
@@ -58,7 +57,6 @@ module AppOpticsAPM
         @tags = grpc_tags('BIDI_STREAMING', metadata[:method] || metadata_to_send[:method])
         AppOpticsAPM::API.log_entry('grpc-client', @tags)
         metadata['x-trace'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid
-        AppOpticsAPM::SDK.set_transaction_name(metadata[:method]) if AppOpticsAPM.transaction_name.nil?
 
         patch_set_input_stream_done
 
@@ -79,7 +77,6 @@ module AppOpticsAPM
         tags = grpc_tags(type, metadata[:method] || metadata_to_send[:method])
         AppOpticsAPM::SDK.trace('grpc-client', tags) do
           metadata['x-trace'] = AppOpticsAPM::Context.toString  if AppOpticsAPM::Context.isValid
-          AppOpticsAPM::SDK.set_transaction_name(metadata[:method]) if AppOpticsAPM.transaction_name.nil?
           begin
             send(without, req, metadata: metadata)
           ensure
