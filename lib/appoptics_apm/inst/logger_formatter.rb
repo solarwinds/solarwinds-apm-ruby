@@ -23,7 +23,7 @@ module AppOpticsAPM
         if current_trace.log?
           case msg
           when ::String
-            insert_before_empty_lines(msg, current_trace.for_log)
+            msg.strip.empty? ? msg : insert_before_empty_lines(msg, current_trace.for_log)
           when ::Exception
             # conversion to String copied from Logger::Formatter private method #msg2str
             "#{msg.message} (#{msg.class}) #{current_trace.for_log}\n" <<
