@@ -26,7 +26,7 @@ describe "TaggedLogging " do
 end
 
 describe "Lograge " do
-
+  before { Lograge.logger = logger }
   # lograge takes care of formatting controller logs, it isn't a logger per se
   # these tests check that the recommended config works
   # Lograge,custom_options = ->(_) { AppOpticsAPM::SDK.current_trace.hash_for_log }
@@ -34,7 +34,7 @@ describe "Lograge " do
 
   let(:log_output) { StringIO.new }
   let(:logger) { Logger.new(log_output) }
-  let(:subscriber) { Lograge::RequestLogSubscriber.new }
+  let(:subscriber) { Lograge::LogSubscribers::ActionCable.new }
   let(:event_params) { { 'foo' => 'bar' } }
   let(:event) do
     ActiveSupport::Notifications::Event.new(
@@ -55,7 +55,7 @@ describe "Lograge " do
   end
 
   let (:msg) do
-    subscriber.process_action(event)
+    subscriber.perform_action(event)
     log_output.string
   end
 
