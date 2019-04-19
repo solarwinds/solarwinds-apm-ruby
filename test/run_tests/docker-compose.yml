@@ -31,12 +31,12 @@ services:
      environment:
        - APPOPTICS_SERVICE_KEY=${APPOPTICS_SERVICE_KEY}
        - APPOPTICS_COLLECTOR=${APPOPTICS_COLLECTOR}
-       - APPOPTICS_RABBITMQ_SERVER=ao_ruby_rabbitmq
+       - APPOPTICS_RABBITMQ_SERVER=ao-ruby-rabbitmq
        - DOCKER_MYSQL_PASS=admin
        - MYSQL_ALLOW_EMPTY_PASSWORD=yes
        - MYSQL_ROOT_PASSWORD=admin
-       - MYSQL_HOST=ao_ruby_mysql
-       - APPOPTICS_MONGO_SERVER=ao_ruby_mongo
+       - MYSQL_HOST=ao-ruby-mysql
+       - APPOPTICS_MONGO_SERVER=ao-ruby-mongo
        - BUNDLE_GEMFILE=gemfiles/libraries.gemfile
 #       - SIMPLECOV_COVERAGE=True
 
@@ -55,23 +55,23 @@ services:
 #     links:
 #       - wait
 #     environment:
-#       - APPOPTICS_RABBITMQ_SERVER=rabbitmq
+#       - APPOPTICS_RABBITMQ_SERVER=ao-ruby-rabbitmq
 #       - DOCKER_MYSQL_PASS=admin
 #       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
 #       - MYSQL_ROOT_PASSWORD=admin
 #       - MYSQL_HOST=mysql
-#       - APPOPTICS_MONGO_SERVER=mongo
+#       - APPOPTICS_MONGO_SERVER=ao-ruby-mongo
 
-  ao_ruby_rabbitmq:
-    container_name: ao_ruby_rabbitmq
+  ao-ruby-rabbitmq:
+    container_name: ao-ruby-rabbitmq
     image: rabbitmq:3-management
 #    ports:
 #      - "8080:15672"
 #      - "5672:5672"
 #      - "5671:5671"
 
-  ao_ruby_mysql:
-    container_name: ao_ruby_mysql
+  ao-ruby-mysql:
+    container_name: ao-ruby-mysql
     image: mysql:5.7.13
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
@@ -79,8 +79,8 @@ services:
 #    ports:
 #      - "3306:3306"
 
-  ao_ruby_mongo:
-    container_name: ao_ruby_mongo
+  ao-ruby-mongo:
+    container_name: ao-ruby-mongo
     image: mongo:3.4
 #    ports:
 #      - "27017:27017"
@@ -89,13 +89,13 @@ services:
     container_name: ao_ruby_wait
     image: waisbrot/wait
     depends_on:
-      - ao_ruby_rabbitmq
-      - ao_ruby_mysql
-      - ao_ruby_mongo
+      - ao-ruby-rabbitmq
+      - ao-ruby-mysql
+      - ao-ruby-mongo
     links:
-      - ao_ruby_rabbitmq
-      - ao_ruby_mysql
-      - ao_ruby_mongo
+      - ao-ruby-rabbitmq
+      - ao-ruby-mysql
+      - ao-ruby-mongo
 #    environment:
-#      - TARGETS=mysql:3306;rabbitmq:5672;mongo:27017
+#      - TARGETS=ao-ruby-mysql:3306;ao-ruby-rabbitmq:5672;ao-ruby-mongo:27017
 
