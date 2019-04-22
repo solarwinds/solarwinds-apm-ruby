@@ -19,7 +19,7 @@ module AppOpticsAPM
 
       # Log an exception/error event in the current span
       #
-      # this may be helpful to track problems while rescuing an exception
+      # this may be helpful to track problems when an exception is rescued
       #
       # === Arguments:
       # * +exception+ - an exception, must respond to :message and :backtrace
