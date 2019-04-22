@@ -71,6 +71,12 @@ if defined?(AppOpticsAPM::Config)
   # The added string will look like: "ao.traceId=7435A9FE510AE4533414D425DADF4E180D2B4E36-0"
   # It ends in '-1' if the request is sampled and in '-0' otherwise.
   #
+  # FYI: lograge (which is a log formatter) can be configured using the SDK, e.g:
+  #
+  #    Lograge.custom_options = lambda do |event|
+  #       AppOpticsAPM::SDK.current_trace.hash_for_log
+  #    end
+  #
   # The following options are available:
   # :never    (default)
   # :sampled  only include the traceId of sampled requests

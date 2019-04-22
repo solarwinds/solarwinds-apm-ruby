@@ -13,8 +13,9 @@ module AppOpticsAPM
       # === Example:
       #
       #   trace = AppOpticsAPM::SDK.current_trace.new
-      #   trace.id        # '7435A9FE510AE4533414D425DADF4E180D2B4E36-0'
-      #   trace.for_log   # 'traceId=7435A9FE510AE4533414D425DADF4E180D2B4E36-0' or '' depends on Config
+      #   trace.id             # '7435A9FE510AE4533414D425DADF4E180D2B4E36-0'
+      #   trace.for_log        # 'ao.traceId=7435A9FE510AE4533414D425DADF4E180D2B4E36-0' or '' depends on Config
+      #   trace.hash_for_log   # { ao: { traceId: '7435A9FE510AE4533414D425DADF4E180D2B4E36-0 } }  or {} depends on Config
       #
       def current_trace
         TraceId.new
@@ -29,10 +30,14 @@ module AppOpticsAPM
         attr_reader :id
 
         def initialize
-          @xtrace = AppOpticsAPM::Context.toString
-          task_id = AppOpticsAPM::XTrace.task_id(@xtrace)
-          sampled = AppOpticsAPM::XTrace.sampled?(@xtrace)
-          @id = "#{task_id}-#{sampled ? 1 : 0}"
+          if AppOpticsAPM::Config[:log_traceId] == :never
+            @id = '0000000000000000000000000000000000000000-0'
+          else
+            @xtrace = AppOpticsAPM::Context.toString
+            task_id = AppOpticsAPM::XTrace.task_id(@xtrace)
+            sampled = AppOpticsAPM::XTrace.sampled?(@xtrace)
+            @id = "#{task_id}-#{sampled ? 1 : 0}"
+          end
         end
 
         # for_log returns a string in the format 'traceId=<current_trace.id>' or ''.
@@ -48,7 +53,7 @@ module AppOpticsAPM
           @hash_for_log||= log? ? { ao: { traceId: @id }} : {}
         end
 
-        def log? # should the trace Id be added to the log?
+        def log? # should the traceId be added to the log?
           case AppOpticsAPM::Config[:log_traceId]
           when :never, nil
             false
