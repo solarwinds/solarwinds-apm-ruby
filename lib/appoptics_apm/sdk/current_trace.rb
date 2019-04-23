@@ -8,14 +8,21 @@ module AppOpticsAPM
 
     module CurrentTrace
 
-      # Creates an instance of {TraceId} with instance methods {TraceId#id} and {TraceId#for_log}.
+      # Creates an instance of {TraceId} with instance methods {TraceId#id}, {TraceId#for_log}
+      # and {TraceId#hash_for_log}.
       #
       # === Example:
       #
-      #   trace = AppOpticsAPM::SDK.current_trace.new
+      #   trace = AppOpticsAPM::SDK.current_trace
       #   trace.id             # '7435A9FE510AE4533414D425DADF4E180D2B4E36-0'
       #   trace.for_log        # 'ao.traceId=7435A9FE510AE4533414D425DADF4E180D2B4E36-0' or '' depends on Config
       #   trace.hash_for_log   # { ao: { traceId: '7435A9FE510AE4533414D425DADF4E180D2B4E36-0 } }  or {} depends on Config
+      #
+      # Configure traceId injection with lograge:
+      #
+      #    Lograge.custom_options = lambda do |event|
+      #       AppOpticsAPM::SDK.current_trace.hash_for_log
+      #    end
       #
       def current_trace
         TraceId.new
@@ -50,7 +57,7 @@ module AppOpticsAPM
         end
 
         def hash_for_log
-          @hash_for_log||= log? ? { ao: { traceId: @id }} : {}
+          @hash_for_log ||= log? ? { ao: { traceId: @id } } : {}
         end
 
         def log? # should the traceId be added to the log?
