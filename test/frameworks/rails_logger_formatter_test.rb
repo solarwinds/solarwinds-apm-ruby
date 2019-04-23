@@ -26,7 +26,6 @@ describe "TaggedLogging " do
 end
 
 describe "Lograge " do
-  before { Lograge.logger = logger }
   # lograge takes care of formatting controller logs, it isn't a logger per se
   # these tests check that the recommended config works
   # Lograge,custom_options = ->(_) { AppOpticsAPM::SDK.current_trace.hash_for_log }
