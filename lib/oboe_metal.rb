@@ -18,26 +18,14 @@ module AppOpticsAPM
       # Start the AppOpticsAPM Reporter
       #
       def start
+        AppOpticsAPM.loaded = false unless AppOpticsAPM::OboeInitOptions.instance.service_key_ok?
         return unless AppOpticsAPM.loaded
 
         begin
-          options = []
+          options = AppOpticsAPM::OboeInitOptions.instance.array_for_oboe # creates an array with the options in the right order
 
-          ENV['APPOPTICS_REPORTER'] = 'file' if ENV.key?('APPOPTICS_GEM_TEST')
-
-          case ENV['APPOPTICS_REPORTER']
-          when 'file'
-            ENV['APPOPTICS_REPORTER_FILE'] = TRACE_FILE
-          when 'udp'
-            ENV['APPOPTICS_REPORTER_UDP'] = "#{AppOpticsAPM::Config[:reporter_host]}:#{AppOpticsAPM::Config[:reporter_port]}"
-          else # default is ssl, service_key is mandatory
-            return unless valid_service_key?
-            # Oboe will override these settings if there are env settings for them
-            options << AppOpticsAPM::Config[:service_key].to_s
-            options << AppOpticsAPM::Config[:hostname_alias].to_s
-            options << AppOpticsAPM::Config[:debug_level] unless AppOpticsAPM::Config[:debug_level].nil?
-          end
           AppOpticsAPM.reporter = Oboe_metal::Reporter.new(*options)
+
 
           # Only report __Init from here if we are not instrumenting a framework.
           # Otherwise, frameworks will handle reporting __Init after full initialization
@@ -52,19 +40,6 @@ module AppOpticsAPM
       end
       alias :restart :start
 
-      def valid_service_key?
-        service_key = (ENV['APPOPTICS_SERVICE_KEY'] || AppOpticsAPM::Config[:service_key]).to_s
-        if service_key == ''
-          AppOpticsAPM.logger.warn '[appoptics_apm/warn] APPOPTICS_SERVICE_KEY not set. Cannot submit data.'
-          AppOpticsAPM.loaded = false
-          return false
-        elsif service_key !~ /^[0-9a-fA-F]{64}:[-.:_?\\\/\w ]{1,255}$/
-          AppOpticsAPM.logger.warn '[appoptics_apm/warn] APPOPTICS_SERVICE_KEY problem. No service name or api token in wrong format. Cannot submit data.'
-          AppOpticsAPM.loaded = false
-          return false
-        end
-        true
-      end
       ##
       # sendReport
       #
@@ -89,7 +64,7 @@ module AppOpticsAPM
       # Truncates the trace output file to zero
       #
       def clear_all_traces
-        File.truncate(TRACE_FILE, 0)
+        File.truncate(AppOpticsAPM::OboeInitOptions.instance.host, 0)
       end
 
       ##
@@ -98,7 +73,7 @@ module AppOpticsAPM
       # Retrieves all traces written to the trace file
       #
       def get_all_traces
-        io = File.open(TRACE_FILE, 'r')
+        io = File.open(AppOpticsAPM::OboeInitOptions.instance.host, 'r')
         contents = io.readlines(nil)
 
         return contents if contents.empty?
@@ -140,49 +115,49 @@ module AppOpticsAPM
   end
 
   class << self
-    def sample?(opts = {})
-      # Return false if no-op mode
-      return false unless AppOpticsAPM.loaded
+    # def sample?(opts = {})
+    #   # Return false if no-op mode
+    #   return false unless AppOpticsAPM.loaded
+    #
+    #   # Assure defaults since SWIG enforces Strings
+    #   xtrace  = opts[:xtrace]     ? opts[:xtrace].to_s.strip       : APPOPTICS_STR_BLANK
+    #
+    #   # the first arg has changed to be the service name, blank means to use the default (from the service key)
+    #   rv = AppOpticsAPM::Context.sampleRequest(APPOPTICS_STR_BLANK, xtrace)
+    #
+    #   if rv == 0
+    #     AppOpticsAPM.sample_rate = -1
+    #     AppOpticsAPM.sample_source = -1
+    #     false
+    #   else
+    #     # liboboe version > 1.3.1 returning a bit masked integer with SampleRate and
+    #     # source embedded
+    #     AppOpticsAPM.sample_rate = (rv & SAMPLE_RATE_MASK)
+    #     AppOpticsAPM.sample_source = (rv & SAMPLE_SOURCE_MASK) >> 24
+    #     true
+    #   end
+    # rescue StandardError => e
+    #   AppOpticsAPM.logger.debug "[oboe/error] sample? error: #{e.inspect}"
+    #   false
+    # end
 
-      # Assure defaults since SWIG enforces Strings
-      xtrace  = opts[:xtrace]     ? opts[:xtrace].to_s.strip       : APPOPTICS_STR_BLANK
-
-      # the first arg has changed to be the service name, blank means to use the default (from the service key)
-      rv = AppOpticsAPM::Context.sampleRequest(APPOPTICS_STR_BLANK, xtrace)
-
-      if rv == 0
-        AppOpticsAPM.sample_rate = -1
-        AppOpticsAPM.sample_source = -1
-        false
-      else
-        # liboboe version > 1.3.1 returning a bit masked integer with SampleRate and
-        # source embedded
-        AppOpticsAPM.sample_rate = (rv & SAMPLE_RATE_MASK)
-        AppOpticsAPM.sample_source = (rv & SAMPLE_SOURCE_MASK) >> 24
-        true
-      end
-    rescue StandardError => e
-      AppOpticsAPM.logger.debug "[oboe/error] sample? error: #{e.inspect}"
-      false
-    end
-
-    def set_tracing_mode(mode)
-      return unless AppOpticsAPM.loaded
-
-      value = mode.to_sym
-
-      case value
-      when :disabled, :never
-        AppOpticsAPM::Context.setTracingMode(APPOPTICS_TRACE_DISABLED)
-
-      when :enabled, :always
-        AppOpticsAPM::Context.setTracingMode(APPOPTICS_TRACE_ENABLED)
-
-      else
-        AppOpticsAPM.logger.fatal "[oboe/error] Invalid tracing mode set: #{mode}"
-        AppOpticsAPM::Context.setTracingMode(APPOPTICS_TRACE_DISABLED)
-      end
-    end
+    # def set_tracing_mode(mode)
+    #   return unless AppOpticsAPM.loaded
+    #
+    #   value = mode.to_sym
+    #
+    #   case value
+    #   when :disabled, :never
+    #     AppOpticsAPM::Context.setTracingMode(APPOPTICS_TRACE_DISABLED)
+    #
+    #   when :enabled, :always
+    #     AppOpticsAPM::Context.setTracingMode(APPOPTICS_TRACE_ENABLED)
+    #
+    #   else
+    #     AppOpticsAPM.logger.fatal "[oboe/error] Invalid tracing mode set: #{mode}"
+    #     AppOpticsAPM::Context.setTracingMode(APPOPTICS_TRACE_DISABLED)
+    #   end
+    # end
 
     def set_sample_rate(rate)
       return unless AppOpticsAPM.loaded

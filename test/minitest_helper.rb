@@ -66,9 +66,10 @@ puts "\n\033[1m=== TEST RUN: #{RUBY_VERSION} #{File.basename(ENV['BUNDLE_GEMFILE
 
 ENV['RACK_ENV'] = 'test'
 
- # comment this out to send traces to the collector configured in `env`
- # make sure to set APPOPTICS_SERVICE_KEY
 ENV['APPOPTICS_GEM_TEST'] = 'true'
+ENV['APPOPTICS_REPORTER'] = 'file'
+ENV['APPOPTICS_COLLECTOR'] = '/tmp/appoptics_traces.bson'.freeze
+ENV['APPOPTICS_REPORTER_FILE_SINGLE'] = 'false'
 
 # ENV['APPOPTICS_GEM_VERBOSE'] = 'true'
 

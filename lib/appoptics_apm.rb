@@ -21,6 +21,7 @@ begin
       require 'joboe_metal'
     elsif RUBY_PLATFORM =~ /linux/
       require_relative './oboe_metal.so'
+      require 'appoptics_apm/oboe_init_options'
       require 'oboe_metal.rb'  # sets AppOpticsAPM.loaded = true if successful
     else
       $stderr.puts '==================================================================='
@@ -46,8 +47,6 @@ begin
   require 'appoptics_apm/method_profiling'
 
   if AppOpticsAPM.loaded
-    # tracing mode is configured via config file but can only be set once we have oboe_metal loaded
-    AppOpticsAPM.set_tracing_mode(AppOpticsAPM::Config[:tracing_mode].to_sym)
     require 'appoptics_apm/instrumentation'
     require 'appoptics_apm/support/transaction_metrics'
 
@@ -59,7 +58,7 @@ begin
   else
     $stderr.puts '=============================================================='
     $stderr.puts 'AppOpticsAPM not loaded. Tracing disabled.'
-    $stderr.puts 'Service Key may be wrong or missing.'
+    $stderr.puts 'Service Key or other settings may be wrong or missing.'
     $stderr.puts '=============================================================='
     require 'appoptics_apm/noop/context'
     require 'appoptics_apm/noop/metadata'
