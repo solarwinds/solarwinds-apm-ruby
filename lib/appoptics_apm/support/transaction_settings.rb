@@ -71,7 +71,7 @@ module AppOpticsAPM
     # check the config setting for :tracing_mode
     def tracing_mode_disabled?
       AppOpticsAPM::Config[:tracing_mode] &&
-        [:disabled, :never].include?(AppOpticsAPM::Config[:tracing_mode].to_sym)
+        [:disabled, :never].include?(AppOpticsAPM::Config[:tracing_mode])
     end
 
     ##

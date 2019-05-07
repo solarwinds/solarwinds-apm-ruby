@@ -239,15 +239,13 @@ module AppOpticsAPM
           @@config[i][:log_args] = value
         end
 
-      # Update liboboe if updating :tracing_mode
-      #
+      elsif key == :tracing_mode
       #   CAN'T DO THIS ANYMORE, ALL TRACING COMMUNICATION TO OBOE
       #   IS NOW HANDLED BY TransactionSettings
-      # elsif key == :tracing_mode
       #   AppOpticsAPM.set_tracing_mode(value.to_sym) if AppOpticsAPM.loaded
-      #
-      #   # Make sure that the mode is stored as a symbol
-      #   @@config[key.to_sym] = value.to_sym
+
+      # Make sure that the mode is stored as a symbol
+        @@config[key.to_sym] = value.to_sym
       end
     end
     # rubocop:enable Metrics/AbcSize, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
