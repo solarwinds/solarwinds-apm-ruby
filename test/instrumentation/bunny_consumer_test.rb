@@ -3,9 +3,9 @@
 
 require 'minitest_helper'
 
-unless defined?(JRUBY_VERSION)
-  class BunnyConsumerTest < Minitest::Test
-    def setup
+# unless defined?(JRUBY_VERSION)
+  describe 'BunnyConsumerTest' do
+    before do
       # Support specific environment variables to support remote rabbitmq servers
       ENV['APPOPTICS_RABBITMQ_SERVER'] = "127.0.0.1"      unless ENV['APPOPTICS_RABBITMQ_SERVER']
       ENV['APPOPTICS_RABBITMQ_PORT'] = "5672"             unless ENV['APPOPTICS_RABBITMQ_PORT']
@@ -23,7 +23,7 @@ unless defined?(JRUBY_VERSION)
       clear_all_traces
     end
 
-    def test_consume
+    it 'sends events when consuming' do
       @conn = Bunny.new(@connection_params)
       @conn.start
       @ch = @conn.create_channel
@@ -69,7 +69,7 @@ unless defined?(JRUBY_VERSION)
       @conn.close
     end
 
-    def test_blocking_consume
+    it 'sends event when consuming is blocked' do
       @conn = Bunny.new(@connection_params)
       @conn.start
       @ch = @conn.create_channel
@@ -115,7 +115,7 @@ unless defined?(JRUBY_VERSION)
       @conn.close
     end
 
-    def test_consumer_error_handling
+    it 'send event when there is an exception' do
       @conn = Bunny.new(@connection_params)
       @conn.start
       @ch = @conn.create_channel
@@ -160,7 +160,7 @@ unless defined?(JRUBY_VERSION)
       traces[2]['Label'].must_equal "exit"
     end
 
-    def test_message_id_capture
+    it 'captures the id' do
       @conn = Bunny.new(@connection_params)
       @conn.start
       @ch = @conn.create_channel
@@ -202,4 +202,3 @@ unless defined?(JRUBY_VERSION)
       @conn.close
     end
   end
-end
