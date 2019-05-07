@@ -75,12 +75,12 @@ module AppOpticsAPM
       def get_all_traces
         io = File.open(AppOpticsAPM::OboeInitOptions.instance.host, 'r')
         contents = io.readlines(nil)
+        io.close
 
         return contents if contents.empty?
 
         traces = []
 
-        #
         # We use Gem.loaded_spec because older versions of the bson
         # gem didn't even have a version embedded in the gem.  If the
         # gem isn't in the bundle, it should rightfully error out

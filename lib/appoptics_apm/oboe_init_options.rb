@@ -121,7 +121,7 @@ module AppOpticsAPM
         @host = ENV['APPOPTICS_COLLECTOR'] || ''
       when 'udp'
         @host = ENV['APPOPTICS_COLLECTOR'] ||
-                "#{AppOpticsAPM::Config[:reporter_host]}:#{AppOpticsAPM::Config[:reporter_port]}" || ''
+                "#{AppOpticsAPM::Config[:reporter_host]}:#{AppOpticsAPM::Config[:reporter_port]}"
         # TODO decide what to do
         # ____ AppOpticsAPM::Config[:reporter_host] and
         # ____ AppOpticsAPM::Config[:reporter_port] were moved here from
