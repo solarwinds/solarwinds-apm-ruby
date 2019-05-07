@@ -67,19 +67,22 @@ module AppOpticsAPM
         ].join(' ')
       end
       load(config_files[0])
-      check_env_vars
+      # sets AppOpticsAPM::Config[:debug_level], AppOpticsAPM.logger.level
+      set_log_level
+
+      # the verbose setting is only relevant for ruby, ENV['APPOPTICS_GEM_VERBOSE'] overrides
+      if ENV.key?('APPOPTICS_GEM_VERBOSE')
+        AppOpticsAPM::Config[:verbose] = ENV['APPOPTICS_GEM_VERBOSE'].downcase == 'true'
+      end
     end
 
-    # There are 4 variables that can be set in the config file or as env vars.
-    # Oboe will override vars passed in if it finds an environment variable
-    # :debug_level and :verbose need special consideration, because they are used in Ruby
-    def self.check_env_vars
+    def self.set_log_level
       unless (-1..6).include?(AppOpticsAPM::Config[:debug_level])
         AppOpticsAPM::Config[:debug_level] = 3
       end
 
-      # let's find and use the  equivalent debug level for ruby
-      debug_level = ENV['APPOPTICS_DEBUG_LEVEL'] ? ENV['APPOPTICS_DEBUG_LEVEL'].to_i : AppOpticsAPM::Config[:debug_level]
+      # let's find and use the equivalent debug level for ruby
+      debug_level = (ENV['APPOPTICS_DEBUG_LEVEL'] || AppOpticsAPM::Config[:debug_level] || 3).to_i
       if debug_level < 0
         # there should be no logging if APPOPTICS_DEBUG_LEVEL == -1
         # In Ruby level 5 is UNKNOWN and it can log, but level 6 is quiet
@@ -87,11 +90,7 @@ module AppOpticsAPM
       else
         AppOpticsAPM.logger.level = [4 - debug_level, 0].max
       end
-
-      # the verbose setting is only relevant for ruby, ENV['APPOPTICS_GEM_VERBOSE'] overrides
-      if ENV.key?('APPOPTICS_GEM_VERBOSE')
-        AppOpticsAPM::Config[:verbose] = ENV['APPOPTICS_GEM_VERBOSE'].downcase == 'true'
-      end
+      AppOpticsAPM::Config[:debug_level] = debug_level
     end
 
     ##
@@ -144,9 +143,6 @@ module AppOpticsAPM
       # no guarantee of completeness in the user's config file
       load(File.join(File.dirname(File.dirname(__FILE__)),
                     'rails/generators/appoptics_apm/templates/appoptics_apm_initializer.rb'))
-
-      # to make sure we include the service_key if it is set as an ENV var
-      check_env_vars
     end
     # rubocop:enable Metrics/AbcSize
 
@@ -243,11 +239,12 @@ module AppOpticsAPM
           @@config[i][:log_args] = value
         end
 
-      # Update liboboe if updating :tracing_mode
       elsif key == :tracing_mode
-        AppOpticsAPM.set_tracing_mode(value.to_sym) if AppOpticsAPM.loaded
+      #   CAN'T DO THIS ANYMORE, ALL TRACING COMMUNICATION TO OBOE
+      #   IS NOW HANDLED BY TransactionSettings
+      #   AppOpticsAPM.set_tracing_mode(value.to_sym) if AppOpticsAPM.loaded
 
-        # Make sure that the mode is stored as a symbol
+      # Make sure that the mode is stored as a symbol
         @@config[key.to_sym] = value.to_sym
       end
     end

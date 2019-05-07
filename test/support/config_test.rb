@@ -4,7 +4,7 @@
 require 'minitest_helper'
 require 'mocha/minitest'
 
-class ConfigTest < Minitest::Test
+# class ConfigTest < Minitest::Test
   describe "AppOpticsAPM::Config" do
 
     @@default_config_path = File.join(Dir.pwd, 'appoptics_apm_config.rb')
@@ -121,49 +121,6 @@ class ConfigTest < Minitest::Test
        AppOpticsAPM.logger.level.must_equal Logger::WARN
        ENV['APPOPTICS_GEM_VERBOSE'].must_equal 'TRUE'
        AppOpticsAPM::Config[:verbose].must_equal true
-    end
-
-    it 'tests the env service key' do
-      AppOpticsAPM.logger.level = Logger::ERROR
-
-      ENV['APPOPTICS_SERVICE_KEY'] = nil
-      AppOpticsAPM::Reporter.valid_service_key?.must_equal false
-
-      ENV['APPOPTICS_SERVICE_KEY'] = '22222222-2222-2222-2222-222222222222:service'
-      AppOpticsAPM::Reporter.valid_service_key?.must_equal false
-
-      ENV['APPOPTICS_SERVICE_KEY'] = '1234567890123456789012345678901234567890123456789012345678901234'
-      AppOpticsAPM::Reporter.valid_service_key?.must_equal false
-
-      ENV['APPOPTICS_SERVICE_KEY'] = '1234567890123456789012345678901234567890123456789012345678901234:'
-      AppOpticsAPM::Reporter.valid_service_key?.must_equal false
-
-      ENV['APPOPTICS_SERVICE_KEY'] = '1234567890123456789012345678901234567890123456789012345678901234:service'
-      AppOpticsAPM::Reporter.valid_service_key?.must_equal true
-    end
-
-    it 'tests the config service_key when there is no env' do
-      AppOpticsAPM.logger.level = Logger::ERROR
-      ENV['APPOPTICS_SERVICE_KEY'] = nil
-
-      AppOpticsAPM::Config[:service_key] = nil
-      AppOpticsAPM::Reporter.valid_service_key?.must_equal false
-
-      AppOpticsAPM::Config[:service_key] = '22222222-2222-2222-2222-222222222222:service'
-      AppOpticsAPM::Reporter.valid_service_key?.must_equal false
-
-      AppOpticsAPM::Config[:service_key] = '1234567890123456789012345678901234567890123456789012345678901234'
-      AppOpticsAPM::Reporter.valid_service_key?.must_equal false
-
-      AppOpticsAPM::Config[:service_key] = '1234567890123456789012345678901234567890123456789012345678901234:'
-      AppOpticsAPM::Reporter.valid_service_key?.must_equal false
-
-      AppOpticsAPM::Config[:service_key] = '1234567890123456789012345678901234567890123456789012345678901234:service'
-      AppOpticsAPM::Reporter.valid_service_key?.must_equal true
-
-      ENV['APPOPTICS_SERVICE_KEY'] = 'blabla'
-      AppOpticsAPM::Config[:service_key] = '1234567890123456789012345678901234567890123456789012345678901234:service'
-      AppOpticsAPM::Reporter.valid_service_key?.must_equal false
     end
 
     it 'should use default when there is a wrong debug level setting' do
@@ -451,4 +408,4 @@ class ConfigTest < Minitest::Test
       AppOpticsAPM::Config.load_config_file
     end
   end
-end
+# end

@@ -21,12 +21,9 @@ SAMPLE_SOURCE_MASK = 0b1111000000000000000000000000
 # ZERO_SAMPLE_RATE_MASK   = 0b1111000000000000000000000000
 # ZERO_SAMPLE_SOURCE_MASK = 0b0000111111111111111111111111
 
-APPOPTICS_STR_BLANK = ''.freeze
+# APPOPTICS_STR_BLANK = ''.freeze
 APPOPTICS_STR_LAYER = 'Layer'.freeze
 APPOPTICS_STR_LABEL = 'Label'.freeze
-
-# Used in tests to store local trace data
-TRACE_FILE = '/tmp/appoptics_traces.bson'.freeze
 
 ##
 # This module is the base module for the various implementations of AppOpticsAPM reporting.

@@ -21,22 +21,23 @@ begin
       require 'joboe_metal'
     elsif RUBY_PLATFORM =~ /linux/
       require_relative './oboe_metal.so'
+      require 'appoptics_apm/oboe_init_options'
       require 'oboe_metal.rb'  # sets AppOpticsAPM.loaded = true if successful
     else
-      $stderr.puts '==================================================================='
-      $stderr.puts "AppOptics warning: Platform #{RUBY_PLATFORM} not yet supported."
-      $stderr.puts 'see: https://docs.appoptics.com/kb/apm_tracing/supported_platforms/'
-      $stderr.puts 'Tracing disabled.'
-      $stderr.puts 'Contact support@appoptics.com if this is unexpected.'
-      $stderr.puts '==================================================================='
+      AppOpticsAPM.logger.warn '==================================================================='
+      AppOpticsAPM.logger.warn "AppOptics warning: Platform #{RUBY_PLATFORM} not yet supported."
+      AppOpticsAPM.logger.warn 'see: https://docs.appoptics.com/kb/apm_tracing/supported_platforms/'
+      AppOpticsAPM.logger.warn 'Tracing disabled.'
+      AppOpticsAPM.logger.warn 'Contact support@appoptics.com if this is unexpected.'
+      AppOpticsAPM.logger.warn '==================================================================='
     end
   rescue LoadError => e
     unless ENV['RAILS_GROUP'] == 'assets' or ENV['IGNORE_APPOPTICS_WARNING']
-      $stderr.puts '=============================================================='
-      $stderr.puts 'Missing AppOpticsAPM libraries.  Tracing disabled.'
-      $stderr.puts "Error: #{e.message}"
-      $stderr.puts 'See: https://docs.appoptics.com/kb/apm_tracing/ruby/'
-      $stderr.puts '=============================================================='
+      AppOpticsAPM.logger.error '=============================================================='
+      AppOpticsAPM.logger.error 'Missing AppOpticsAPM libraries.  Tracing disabled.'
+      AppOpticsAPM.logger.error "Error: #{e.message}"
+      AppOpticsAPM.logger.error 'See: https://docs.appoptics.com/kb/apm_tracing/ruby/'
+      AppOpticsAPM.logger.error '=============================================================='
     end
   end
 
@@ -46,8 +47,6 @@ begin
   require 'appoptics_apm/method_profiling'
 
   if AppOpticsAPM.loaded
-    # tracing mode is configured via config file but can only be set once we have oboe_metal loaded
-    AppOpticsAPM.set_tracing_mode(AppOpticsAPM::Config[:tracing_mode].to_sym)
     require 'appoptics_apm/instrumentation'
     require 'appoptics_apm/support/transaction_metrics'
 
@@ -57,10 +56,11 @@ begin
     require 'appoptics_apm/frameworks/padrino'
     require 'appoptics_apm/frameworks/grape'
   else
-    $stderr.puts '=============================================================='
-    $stderr.puts 'AppOpticsAPM not loaded. Tracing disabled.'
-    $stderr.puts 'Service Key may be wrong or missing.'
-    $stderr.puts '=============================================================='
+    AppOpticsAPM.logger.warn '=============================================================='
+    AppOpticsAPM.logger.warn 'AppOpticsAPM not loaded. Tracing disabled.'
+    AppOpticsAPM.logger.warn 'There may be a problem with the service key or other settings.'
+    AppOpticsAPM.logger.warn 'Please check previous error messages.'
+    AppOpticsAPM.logger.warn '=============================================================='
     require 'appoptics_apm/noop/context'
     require 'appoptics_apm/noop/metadata'
   end

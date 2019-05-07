@@ -35,11 +35,12 @@ module AppOpticsAPM
       # args: 0: worker, 1: msg, 2: queue
       report_kvs = collect_kvs(args)
 
+      # TODO remove completely once it is determined that this works without
       # Something is happening across Celluloid threads where liboboe settings
       # are being lost.  So we re-set the tracing mode to assure
       # we sample as desired.  Setting the tracing mode will re-update
       # the liboboe settings.
-      AppOpticsAPM.set_tracing_mode(AppOpticsAPM::Config[:tracing_mode].to_sym)
+      # AppOpticsAPM.set_tracing_mode(AppOpticsAPM::Config[:tracing_mode].to_sym)
 
       # Continue the trace from the enqueue side?
       if args[1].is_a?(Hash) && AppOpticsAPM::XTrace.valid?(args[1]['SourceTrace'])

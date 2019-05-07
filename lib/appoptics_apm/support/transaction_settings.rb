@@ -17,7 +17,7 @@ AO_TRACING_DECISIONS_QUEUE_FULL = 5
 
 module AppOpticsAPM
   ##
-  # This module helps with setting up the filters and applying them
+  # This module helps with setting up the transaction filters and applying them
   #
   class TransactionSettings
 
@@ -40,8 +40,9 @@ module AppOpticsAPM
         return
       end
 
-      if AppOpticsAPM.tracing_disabled? && !tracing_enabled?(url) ||
+      if tracing_mode_disabled? && !tracing_enabled?(url) ||
         tracing_disabled?(url)
+
         tracing_mode = AO_TRACING_DISABLED
       end
 
@@ -65,6 +66,14 @@ module AppOpticsAPM
     end
 
     private
+
+    ##
+    # check the config setting for :tracing_mode
+    def tracing_mode_disabled?
+      AppOpticsAPM::Config[:tracing_mode] &&
+        [:disabled, :never].include?(AppOpticsAPM::Config[:tracing_mode])
+    end
+
     ##
     # tracing_enabled?
     #
