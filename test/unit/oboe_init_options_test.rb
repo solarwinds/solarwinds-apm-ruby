@@ -7,7 +7,9 @@ describe 'OboeInitOptions' do
 
   before do
     @env = ENV.to_hash
+    # lets suppress logging, because we will log a lot of errors when testing the service_key
     @log_level = AppOpticsAPM.logger.level
+    AppOpticsAPM.logger.level = 6
   end
 
   after do
@@ -108,6 +110,11 @@ describe 'OboeInitOptions' do
 
     AppOpticsAPM::OboeInitOptions.instance.re_init
     AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal true
+
+    ENV['APPOPTICS_SERVICE_KEY'] = 'f7B-kZXtk1sxaJGkv-wew12Y6Yts3KJJ0KuBs-p1111111111KFVPRv0o8keDro9QbKioW4:test_app'
+
+    AppOpticsAPM::OboeInitOptions.instance.re_init
+    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal true
   end
 
   it 'returns true for the service_key check for other reporters' do
@@ -130,7 +137,6 @@ describe 'OboeInitOptions' do
   end
 
   it 'validates the service key' do
-    AppOpticsAPM.logger.level = 6
     ENV.delete('APPOPTICS_GEM_TEST')
     ENV['APPOPTICS_REPORTER'] = 'ssl'
     ENV['APPOPTICS_SERVICE_KEY'] = nil
@@ -143,15 +149,27 @@ describe 'OboeInitOptions' do
     AppOpticsAPM::OboeInitOptions.instance.re_init
     AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal false
 
-    AppOpticsAPM::Config[:service_key] = '1234567890123456789012345678901234567890123456789012345678901234'
+    AppOpticsAPM::Config[:service_key] = '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000'
     AppOpticsAPM::OboeInitOptions.instance.re_init
     AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal false
 
-    AppOpticsAPM::Config[:service_key] = '1234567890123456789012345678901234567890123456789012345678901234:'
+    AppOpticsAPM::Config[:service_key] = '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000:'
     AppOpticsAPM::OboeInitOptions.instance.re_init
     AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal false
 
-    AppOpticsAPM::Config[:service_key] = '1234567890123456789012345678901234567890123456789012345678901234:service'
+    AppOpticsAPM::Config[:service_key] = '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000:service'
+    AppOpticsAPM::OboeInitOptions.instance.re_init
+    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal true
+
+    AppOpticsAPM::Config[:service_key] = 'f7B-kZXtk1sxaJGkv-wew1244444444444444444444444IptKFVPRv0o8keDro9QbKioW4'
+    AppOpticsAPM::OboeInitOptions.instance.re_init
+    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal false
+
+    AppOpticsAPM::Config[:service_key] = 'f7B-kZXtk1sxaJGkv-wew1255555555555555555555akVIptKFVPRv0o8keDro9QbKioW4:'
+    AppOpticsAPM::OboeInitOptions.instance.re_init
+    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal false
+
+    AppOpticsAPM::Config[:service_key] = 'f7B-kZXtk1sxaJGkv-wew12Y6666666666666666666akVIptKFVPRv0o8keDro9QbKioW4:service'
     AppOpticsAPM::OboeInitOptions.instance.re_init
     AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal true
 
@@ -167,16 +185,29 @@ describe 'OboeInitOptions' do
     AppOpticsAPM::OboeInitOptions.instance.re_init
     AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal false
 
-    ENV['APPOPTICS_SERVICE_KEY'] = '1234567890123456789012345678901234567890123456789012345678901234'
+    ENV['APPOPTICS_SERVICE_KEY'] = '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000'
     AppOpticsAPM::OboeInitOptions.instance.re_init
     AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal false
 
-    ENV['APPOPTICS_SERVICE_KEY'] = '1234567890123456789012345678901234567890123456789012345678901234:'
+    ENV['APPOPTICS_SERVICE_KEY'] = '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000:'
     AppOpticsAPM::OboeInitOptions.instance.re_init
     AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal false
 
-    ENV['APPOPTICS_SERVICE_KEY'] = '1234567890123456789012345678901234567890123456789012345678901234:service'
+    ENV['APPOPTICS_SERVICE_KEY'] = '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000:service'
     AppOpticsAPM::OboeInitOptions.instance.re_init
     AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal true
- end
+
+    ENV['APPOPTICS_SERVICE_KEY'] = 'f7B-kZXtk1sxaJGkv-wew1244444444444444444444444IptKFVPRv0o8keDro9QbKioW4'
+    AppOpticsAPM::OboeInitOptions.instance.re_init
+    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal false
+
+    ENV['APPOPTICS_SERVICE_KEY'] = 'f7B-kZXtk1sxaJGkv-wew1244444444444444444444444IptKFVPRv0o8keDro9QbKioW4:'
+    AppOpticsAPM::OboeInitOptions.instance.re_init
+    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal false
+
+    ENV['APPOPTICS_SERVICE_KEY'] = 'f7B-kZXtk1sxaJGkv-wew1244444444444444444444444IptKFVPRv0o8keDro9QbKioW4:service'
+    AppOpticsAPM::OboeInitOptions.instance.re_init
+    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal true
+
+  end
 end

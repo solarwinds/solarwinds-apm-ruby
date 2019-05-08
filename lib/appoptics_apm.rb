@@ -59,7 +59,7 @@ begin
     AppOpticsAPM.logger.warn '=============================================================='
     AppOpticsAPM.logger.warn 'AppOpticsAPM not loaded. Tracing disabled.'
     AppOpticsAPM.logger.warn 'There may be a problem with the service key or other settings.'
-    AppOpticsAPM.logger.warn 'Please check previous error messages.'
+    AppOpticsAPM.logger.warn 'Please check previous log messages.'
     AppOpticsAPM.logger.warn '=============================================================='
     require 'appoptics_apm/noop/context'
     require 'appoptics_apm/noop/metadata'
