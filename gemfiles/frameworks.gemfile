@@ -24,7 +24,7 @@ if defined?(JRUBY_VERSION)
   # a bundler load error
   gem "padrino" , '< 0.13.0'
 else
-  gem 'padrino', '~> 0.14.4' # need to force this, it sometimes defaults to 0.9.21
+  gem 'padrino', '> 0.14.4' # need to force this, it sometimes defaults to 0.9.21
 end
 
 gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')

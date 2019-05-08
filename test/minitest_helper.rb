@@ -19,6 +19,7 @@ require 'bundler/setup'
 require 'minitest/spec'
 require 'minitest/autorun'
 require 'minitest/reporters'
+require 'minitest/hooks'
 require 'minitest/debugger' if ENV['DEBUG']
 
 
