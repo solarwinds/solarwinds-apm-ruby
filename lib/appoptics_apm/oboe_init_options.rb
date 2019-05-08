@@ -105,7 +105,7 @@ module AppOpticsAPM
           @service_key =~ /^[0-9a-zA-Z_\-]{71}:[-.:_?\\\/\w ]{1,255}$/ ) # SWOKEN
 
         match = @service_key.match( /([^:]+)(:{0,1})([^:]*)/ )
-        masked = match ? "#{match[1][0..1]}...#{match[1][-4..-1]}#{match[2]}#{match[3]}" : ''
+        masked = match ? "#{match[1][0..3]}...#{match[1][-4..-1]}#{match[2]}#{match[3]}" : ''
         AppOpticsAPM.logger.error "[appoptics_apm/oboe_options] APPOPTICS_SERVICE_KEY problem. No service name or api token in wrong format. Cannot submit data. Key: #{masked}"
         return false
       end
