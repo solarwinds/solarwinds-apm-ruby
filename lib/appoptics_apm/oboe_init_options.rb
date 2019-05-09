@@ -8,7 +8,7 @@ module AppOpticsAPM
   class OboeInitOptions
     include Singleton
 
-    attr_reader :reporter, :host
+    attr_reader :reporter, :host, :service_name  # exposing these mainly for testing
 
     # TODO decide if these globals are useful when testing
     # OBOE_HOSTNAME_ALIAS = 0
@@ -51,10 +51,10 @@ module AppOpticsAPM
 
       # the reporter to be used (ssl, upd, file, null)
       # collector endpoint (reporter=ssl), udp address (reporter=udp), or file path (reporter=file)
-      reporter_and_host # sets @reporter and @host
+      @reporter, @host = reporter_and_host
 
       # the service key
-      @service_key = ENV['APPOPTICS_SERVICE_KEY'] || AppOpticsAPM::Config[:service_key] || ''
+      @service_key = read_and_validate_service_key
       # path to the SSL certificate (only for ssl)
       @trusted_path = ENV['APPOPTICS_TRUSTEDPATH'] || ''
       # size of the message buffer
@@ -99,42 +99,82 @@ module AppOpticsAPM
     end
 
     def service_key_ok?
-      # only required for ssl reporter, always return true for other reporters
-      if @reporter == 'ssl' &&
-        !(@service_key =~ /^[0-9a-fA-F]{64}:[-.:_?\\\/\w ]{1,255}$/ ||   # API token
-          @service_key =~ /^[0-9a-zA-Z_\-]{71}:[-.:_?\\\/\w ]{1,255}$/ ) # SWOKEN
-
-        match = @service_key.match( /([^:]+)(:{0,1})([^:]*)/ )
-        masked = match ? "#{match[1][0..3]}...#{match[1][-4..-1]}#{match[2]}#{match[3]}" : ''
-        AppOpticsAPM.logger.error "[appoptics_apm/oboe_options] APPOPTICS_SERVICE_KEY problem. API Token/SWOKEN in wrong format or service name missing. Key: #{masked}"
-        return false
-      end
-      true
+      return !@service_key.empty? || @reporter != 'ssl'
     end
 
     private
 
     def reporter_and_host
 
-      @reporter = ENV['APPOPTICS_REPORTER'] || 'ssl'
+      reporter = ENV['APPOPTICS_REPORTER'] || 'ssl'
       # override with 'file', e.g. when running tests
-      @reporter = 'file' if ENV.key?('APPOPTICS_GEM_TEST')
+      reporter = 'file' if ENV.key?('APPOPTICS_GEM_TEST')
 
-      @host = ''
-      case @reporter
+      host = ''
+      case reporter
       when 'ssl', 'file'
-        @host = ENV['APPOPTICS_COLLECTOR'] || ''
+        host = ENV['APPOPTICS_COLLECTOR'] || ''
       when 'udp'
-        @host = ENV['APPOPTICS_COLLECTOR'] ||
+        host = ENV['APPOPTICS_COLLECTOR'] ||
                 "#{AppOpticsAPM::Config[:reporter_host]}:#{AppOpticsAPM::Config[:reporter_port]}"
         # TODO decide what to do
         # ____ AppOpticsAPM::Config[:reporter_host] and
         # ____ AppOpticsAPM::Config[:reporter_port] were moved here from
         # ____ oboe_metal.rb and are not documented anywhere
       when 'null'
-        @host = ''
+        host = ''
       end
 
+      [reporter, host]
+    end
+
+    def read_and_validate_service_key
+      return '' unless @reporter == 'ssl'
+
+      service_key = ENV['APPOPTICS_SERVICE_KEY'] || AppOpticsAPM::Config[:service_key]
+      unless service_key
+        AppOpticsAPM.logger.error "[appoptics_apm/oboe_options] APPOPTICS_SERVICE_KEY not configured."
+        return ''
+      end
+
+      match = service_key.match( /([^:]+)(:{0,1})(.*)/ )
+      token = match[1]
+      service_name = match[3]
+
+      return '' unless validate_token(token)
+      return '' unless validate_transform_service_name(service_name)
+
+      return "#{token}:#{service_name}"
+    end
+
+    def validate_token(token)
+      if (token !~ /^[0-9a-fA-F]{64}|[0-9a-zA-Z_\-]{71}$/)
+        masked = "#{token[0..3]}...#{token[-4..-1]}"
+        AppOpticsAPM.logger.error "[appoptics_apm/oboe_options] APPOPTICS_SERVICE_KEY problem. API Token in wrong format. Masked token: #{masked}"
+        return false
+      end
+
+      true
+    end
+
+    def validate_transform_service_name(service_name)
+      if service_name.empty?
+        AppOpticsAPM.logger.error "[appoptics_apm/oboe_options] APPOPTICS_SERVICE_KEY problem. Service Name is missing"
+        return false
+      end
+
+      name = service_name.dup
+      name.downcase!
+      name.gsub!(/[^a-z0-9.:_-]/, '')
+      name = name[0..254]
+
+      if name != service_name
+        AppOpticsAPM.logger.warn "[appoptics_apm/oboe_options] APPOPTICS_SERVICE_KEY problem. Service Name transformed from #{service_name} to #{name}"
+        service_name = name
+      end
+      @service_name = service_name # instance variable used in testing
+      true
     end
   end
 end
+

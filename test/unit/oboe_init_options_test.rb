@@ -19,8 +19,10 @@ describe 'OboeInitOptions' do
   end
 
   it 'sets all options from ENV vars' do
-    ENV['APPOPTICS_SERVICE_KEY'] = 'string_0'
-    ENV['APPOPTICS_REPORTER'] = 'udp'
+    ENV.delete('APPOPTICS_GEM_TEST')
+
+    ENV['APPOPTICS_SERVICE_KEY'] = '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000:test_app'
+    ENV['APPOPTICS_REPORTER'] = 'ssl'
     ENV['APPOPTICS_COLLECTOR'] = 'string_2'
     ENV['APPOPTICS_TRUSTEDPATH'] = 'string_3'
     ENV['APPOPTICS_HOSTNAME_ALIAS'] = 'string_4'
@@ -48,9 +50,9 @@ describe 'OboeInitOptions' do
     options[4].must_equal 6
     options[5].must_equal 7
     options[6].must_equal 8
-    options[7].must_equal 'file'  # because we are testing
+    options[7].must_equal 'ssl'
     options[8].must_equal 'string_2'
-    options[9].must_equal 'string_0'
+    options[9].must_equal '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000:test_app'
     options[10].must_equal 'string_3'
     options[11].must_equal 11
     options[12].must_equal 3
@@ -61,13 +63,16 @@ describe 'OboeInitOptions' do
   end
 
   it 'reads config vars' do
+    ENV.delete('APPOPTICS_GEM_TEST')
+    ENV['APPOPTICS_REPORTER'] = 'ssl'
+
     ENV.delete('APPOPTICS_HOSTNAME_ALIAS')
     ENV.delete('APPOPTICS_DEBUG_LEVEL')
     ENV.delete('APPOPTICS_SERVICE_KEY')
 
     AppOpticsAPM::Config[:hostname_alias] = 'string_0'
     AppOpticsAPM::Config[:debug_level] = 0
-    AppOpticsAPM::Config[:service_key] = 'string_1'
+    AppOpticsAPM::Config[:service_key] = '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000:test_app'
 
     AppOpticsAPM::OboeInitOptions.instance.re_init
     options = AppOpticsAPM::OboeInitOptions.instance.array_for_oboe
@@ -76,13 +81,16 @@ describe 'OboeInitOptions' do
 
     options[0].must_equal 'string_0'
     options[1].must_equal 0
-    options[9].must_equal 'string_1'
+    options[9].must_equal '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000:test_app'
   end
 
   it 'env vars override config vars' do
+    ENV.delete('APPOPTICS_GEM_TEST')
+    ENV['APPOPTICS_REPORTER'] = 'ssl'
+
     ENV['APPOPTICS_HOSTNAME_ALIAS'] = 'string_0'
     ENV['APPOPTICS_DEBUG_LEVEL'] = '1'
-    ENV['APPOPTICS_SERVICE_KEY'] = 'string_1'
+    ENV['APPOPTICS_SERVICE_KEY'] = '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000:test_app'
 
     AppOpticsAPM::Config[:hostname_alias] = 'string_2'
     AppOpticsAPM::Config[:debug_level] = 2
@@ -95,7 +103,7 @@ describe 'OboeInitOptions' do
 
     options[0].must_equal 'string_0'
     options[1].must_equal 1
-    options[9].must_equal 'string_1'
+    options[9].must_equal '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000:test_app'
   end
 
   it 'checks the service_key for ssl' do
@@ -208,6 +216,35 @@ describe 'OboeInitOptions' do
     ENV['APPOPTICS_SERVICE_KEY'] = 'f7B-kZXtk1sxaJGkv-wew1244444444444444444444444IptKFVPRv0o8keDro9QbKioW4:service'
     AppOpticsAPM::OboeInitOptions.instance.re_init
     AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal true
+  end
 
+  it 'removes invalid characters from the service name' do
+    ENV.delete('APPOPTICS_GEM_TEST')
+    ENV['APPOPTICS_REPORTER'] = 'ssl'
+    ENV['APPOPTICS_SERVICE_KEY'] = 'f7B-kZXtk1sxaJGkv-wew1244444444444444444444444IptKFVPRv0o8keDro9QbKioW4:service#####.:-_0'
+
+    AppOpticsAPM::OboeInitOptions.instance.re_init
+    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal true
+    AppOpticsAPM::OboeInitOptions.instance.service_name.must_equal 'service.:-_0'
+  end
+
+  it 'transforms the service name to lower case' do
+    ENV.delete('APPOPTICS_GEM_TEST')
+    ENV['APPOPTICS_REPORTER'] = 'ssl'
+    ENV['APPOPTICS_SERVICE_KEY'] = 'f7B-kZXtk1sxaJGkv-wew1244444444444444444444444IptKFVPRv0o8keDro9QbKioW4:SERVICE#####.:-_0'
+
+    AppOpticsAPM::OboeInitOptions.instance.re_init
+    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal true
+    AppOpticsAPM::OboeInitOptions.instance.service_name.must_equal 'service.:-_0'
+  end
+
+  it 'shortens the service name to 255 characters' do
+    ENV.delete('APPOPTICS_GEM_TEST')
+    ENV['APPOPTICS_REPORTER'] = 'ssl'
+    ENV['APPOPTICS_SERVICE_KEY'] = "f7B-kZXtk1sxaJGkv-wew1244444444444444444444444IptKFVPRv0o8keDro9QbKioW4:SERV#_#{'1234567890' * 26}"
+
+    AppOpticsAPM::OboeInitOptions.instance.re_init
+    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal true
+    AppOpticsAPM::OboeInitOptions.instance.service_name.must_equal "serv_#{'1234567890' * 25}"
   end
 end
