@@ -5,14 +5,14 @@ require 'minitest_helper'
 require 'appoptics_apm/inst/rack'
 require File.expand_path(File.dirname(__FILE__) + '../../frameworks/apps/sinatra_simple')
 
-class ExconTest < Minitest::Test
+describe 'ExconTest' do
   include Rack::Test::Methods
 
   def app
     SinatraSimple
   end
 
-  def test_must_return_xtrace_header
+   it 'must_return_xtrace_header' do
     skip if defined?(JRUBY_VERSION)
 
     clear_all_traces
@@ -24,12 +24,12 @@ class ExconTest < Minitest::Test
     assert AppOpticsAPM::XTrace.valid?(xtrace)
   end
 
-  def test_reports_version_init
+   it 'reports_version_init' do
     init_kvs = ::AppOpticsAPM::Util.build_init_report
     assert_equal ::Excon::VERSION, init_kvs['Ruby.excon.Version']
   end
 
-  def test_class_get_request
+   it 'class_get_request' do
     clear_all_traces
 
     AppOpticsAPM::API.start_trace('excon_tests') do
@@ -52,7 +52,7 @@ class ExconTest < Minitest::Test
     assert traces[4].key?('Backtrace')
   end
 
-  def test_cross_app_tracing
+   it 'cross_app_tracing' do
     clear_all_traces
 
     AppOpticsAPM::API.start_trace('excon_tests') do
@@ -76,7 +76,7 @@ class ExconTest < Minitest::Test
     assert traces[4].key?('Backtrace')
   end
 
-  def test_cross_uninstr_app_tracing
+   it 'cross_uninstr_app_tracing' do
     clear_all_traces
 
     AppOpticsAPM::API.start_trace('excon_tests') do
@@ -99,7 +99,7 @@ class ExconTest < Minitest::Test
   end
 
 
-  def test_persistent_requests
+   it 'persistent_requests' do
     # Persistence was adding in 0.31.0
     skip if Excon::VERSION < '0.31.0'
 
@@ -142,7 +142,7 @@ class ExconTest < Minitest::Test
     assert traces[12].key?('Backtrace')
   end
 
-  def test_pipelined_requests
+   it 'pipelined_requests' do
     clear_all_traces
 
     AppOpticsAPM::API.start_trace('excon_tests') do
@@ -165,7 +165,7 @@ class ExconTest < Minitest::Test
     assert_equal '200,200',                traces[6]['HTTPStatuses']
   end
 
-  def test_requests_with_errors
+   it 'requests_with_errors' do
     clear_all_traces
 
     begin
@@ -197,7 +197,7 @@ class ExconTest < Minitest::Test
     assert traces[3].key?('Backtrace')
   end
 
-  def test_obey_log_args_when_false
+   it 'obey_log_args_when_false' do
     @log_args = AppOpticsAPM::Config[:excon][:log_args]
     clear_all_traces
 
@@ -217,7 +217,7 @@ class ExconTest < Minitest::Test
     AppOpticsAPM::Config[:excon][:log_args] = @log_args
   end
 
-  def test_obey_log_args_when_true
+   it 'obey_log_args_when_true' do
     @log_args = AppOpticsAPM::Config[:excon][:log_args]
     clear_all_traces
 
@@ -237,7 +237,7 @@ class ExconTest < Minitest::Test
     AppOpticsAPM::Config[:excon][:log_args] = @log_args
   end
 
-  def test_obey_log_args_when_true_and_using_hash
+   it 'obey_log_args_when_true_and_using_hash' do
     @log_args = AppOpticsAPM::Config[:excon][:log_args]
     clear_all_traces
 
