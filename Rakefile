@@ -63,13 +63,13 @@ end
 desc "Run all test suites defined by travis"
 task "docker_tests" do
   Dir.chdir('test/run_tests')
-  exec('docker-compose run ruby_appoptics /code/ruby-appoptics/test/run_tests/ruby_setup.sh test')
+  exec('docker-compose run ruby_appoptics /code/ruby-appoptics/test/run_tests/ruby_setup.sh test --remove-orphans')
 end
 
 desc "Start docker container for testing and debugging"
 task "docker" do
   Dir.chdir('test/run_tests')
-  exec('docker-compose run ruby_appoptics /code/ruby-appoptics/test/run_tests/ruby_setup.sh bash')
+  exec('docker-compose run ruby_appoptics /code/ruby-appoptics/test/run_tests/ruby_setup.sh bash --remove-orphans')
 end
 
 desc "Stop all containers that were started for testing and debugging"
@@ -108,6 +108,7 @@ task :fetch_ext_deps do
   # oboe and bson header files
   FileUtils.mkdir_p(File.join(ext_src_dir, 'bson'))
   %w(oboe.h oboe.hpp oboe_debug.h oboe.i bson/bson.h bson/platform_hacks.h).each do |filename|
+  # %w(oboe.h oboe_debug.h bson/bson.h bson/platform_hacks.h).each do |filename|
     remote_file = File.join(oboe_s3_dir, 'include', filename)
     local_file = File.join(ext_src_dir, filename)
 

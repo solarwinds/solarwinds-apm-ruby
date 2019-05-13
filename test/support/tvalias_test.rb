@@ -3,9 +3,9 @@
 
 require 'minitest_helper'
 
-class AppOpticsAPMTest < Minitest::Test
+describe 'AppOpticsAPM aliases' do # < Minitest::Test
 
-  def test_responds_various_capitalization
+  it 'responds to various capitalization' do
     defined?(::AppOpticsAPM).must_equal "constant"
     defined?(::AppopticsAPM).must_equal "constant"
     defined?(::AppOpticsApm).must_equal "constant"
