@@ -7,10 +7,10 @@ unless defined?(JRUBY_VERSION)
   require 'appoptics_apm/inst/rack'
   require File.expand_path(File.dirname(__FILE__) + '../../frameworks/apps/sinatra_simple')
 
-  class CurbTest < Minitest::Test
+  describe 'CurbTest' do # < Minitest::Test
     include Rack::Test::Methods
 
-    def setup
+    before do
       clear_all_traces
       AppOpticsAPM.config_lock.synchronize {
         @cb = AppOpticsAPM::Config[:curb][:collect_backtraces]
@@ -19,7 +19,7 @@ unless defined?(JRUBY_VERSION)
       }
     end
 
-    def teardown
+    after do
       AppOpticsAPM.config_lock.synchronize {
         AppOpticsAPM::Config[:curb][:collect_backtraces] = @cb
         AppOpticsAPM::Config[:curb][:log_args] = @log_args
@@ -49,13 +49,13 @@ unless defined?(JRUBY_VERSION)
       assert                                  traces[4]['Backtrace']
     end
 
-    def test_reports_version_init
+    it 'reports version init' do
       init_kvs = ::AppOpticsAPM::Util.build_init_report
       assert init_kvs.key?('Ruby.curb.Version')
       assert_equal ::Curl::CURB_VERSION, init_kvs['Ruby.curb.Version']
     end
 
-    def test_class_get_request
+    it 'class_get_request' do
       response = nil
 
       AppOpticsAPM::API.start_trace('curb_tests') do
@@ -69,7 +69,7 @@ unless defined?(JRUBY_VERSION)
       assert_correct_traces('http://127.0.0.1:8101/', 'GET')
     end
 
-    def test_class_delete_request
+    it 'class delete request' do
       response = nil
 
       AppOpticsAPM::API.start_trace('curb_tests') do
@@ -83,7 +83,7 @@ unless defined?(JRUBY_VERSION)
       assert_correct_traces('http://127.0.0.1:8101/?curb_delete_test', 'DELETE')
     end
 
-    def test_class_post_request
+    it 'class post request' do
       response = nil
 
       AppOpticsAPM::API.start_trace('curb_tests') do
@@ -97,7 +97,7 @@ unless defined?(JRUBY_VERSION)
       assert_correct_traces('http://127.0.0.1:8101/', 'POST')
     end
 
-    def test_easy_class_perform
+    it 'easy class perform' do
       response = nil
 
       AppOpticsAPM::API.start_trace('curb_tests') do
@@ -112,7 +112,7 @@ unless defined?(JRUBY_VERSION)
       assert_correct_traces('http://127.0.0.1:8101/', 'GET')
     end
 
-    def test_easy_http_head
+    it 'easy http head' do
       c = nil
 
       AppOpticsAPM::API.start_trace('curb_tests') do
@@ -127,7 +127,7 @@ unless defined?(JRUBY_VERSION)
       assert_correct_traces('http://127.0.0.1:8101/', 'GET')
     end
 
-    def test_easy_http_put
+    it 'easy http put' do
       c = nil
 
       AppOpticsAPM::API.start_trace('curb_tests') do
@@ -142,7 +142,7 @@ unless defined?(JRUBY_VERSION)
       assert_correct_traces('http://127.0.0.1:8101/', 'PUT')
     end
 
-    def test_easy_http_post
+    it 'easy http post' do
       c = nil
 
       AppOpticsAPM::API.start_trace('curb_tests') do
@@ -158,7 +158,7 @@ unless defined?(JRUBY_VERSION)
       assert_correct_traces('http://127.0.0.1:8101/', 'POST')
     end
 
-    def test_class_fetch_with_block
+    it 'class_ etch with_ lock' do
       response = nil
 
       AppOpticsAPM::API.start_trace('curb_tests') do
@@ -178,7 +178,7 @@ unless defined?(JRUBY_VERSION)
       assert_correct_traces('http://127.0.0.1:8101/', 'GET')
     end
 
-    def test_multi_basic_get
+    it 'multi basic get' do
       responses = nil
       easy_options = {:follow_location => true}
       multi_options = {:pipeline => false}
@@ -204,7 +204,7 @@ unless defined?(JRUBY_VERSION)
       assert_equal traces[8]['Label'], 'exit'
     end
 
-    def test_multi_basic_post
+    it 'multi basic post' do
       easy_options = {:follow_location => true, :multipart_form_post => true}
       multi_options = {:pipeline => true}
 
@@ -229,7 +229,7 @@ unless defined?(JRUBY_VERSION)
       assert_equal traces[8]['Label'], 'exit'
     end
 
-    def test_multi_basic_get_pipeline
+    it 'multi basic get pipeline' do
       easy_options = {:follow_location => true}
       multi_options = {:pipeline => true}
 
@@ -254,7 +254,7 @@ unless defined?(JRUBY_VERSION)
       assert_equal traces[8]['Label'], 'exit'
     end
 
-    def test_multi_advanced_get
+    it 'multi advanced get' do
       responses = {}
 
       urls = []
@@ -287,7 +287,7 @@ unless defined?(JRUBY_VERSION)
       assert_equal traces[8]['Label'], 'exit'
     end
 
-    def test_requests_with_errors
+    it 'requests with errors' do
       begin
         AppOpticsAPM::API.start_trace('curb_tests') do
           Curl.get('http://asfjalkfjlajfljkaljf/')
@@ -319,7 +319,7 @@ unless defined?(JRUBY_VERSION)
       assert                                         traces[3]['Backtrace']
     end
 
-    def test_obey_log_args_when_false
+    it 'obey log args when false' do
       # When testing global config options, use the config_lock
       # semaphore to lock between other running tests.
       AppOpticsAPM.config_lock.synchronize {
@@ -335,7 +335,7 @@ unless defined?(JRUBY_VERSION)
       assert_equal "http://127.0.0.1:8101/",         traces[1]['RemoteURL']
     end
 
-    def test_obey_log_args_when_true
+    it 'obey log args when true' do
       # When testing global config options, use the config_lock
       # semaphore to lock between other running tests.
       AppOpticsAPM.config_lock.synchronize {
@@ -351,7 +351,7 @@ unless defined?(JRUBY_VERSION)
       assert_equal "http://127.0.0.1:8101/?blah=1", traces[1]['RemoteURL']
     end
 
-    def test_without_tracing_class_get
+    it 'without tracing class get' do
       response = ::Curl.get('http://127.0.0.1:8101/?blah=1')
 
       assert response.headers['X-Trace'] == nil
@@ -359,7 +359,7 @@ unless defined?(JRUBY_VERSION)
       assert response.response_code == 200
     end
 
-    def test_without_tracing_easy_perform
+    it 'without tracing easy perform' do
       response = Curl::Easy.perform("http://127.0.0.1:8101/")
 
       assert response.headers['X-Trace'] == nil
@@ -367,7 +367,7 @@ unless defined?(JRUBY_VERSION)
       assert response.response_code == 200
     end
 
-    def test_obey_collect_backtraces_when_true
+    it 'obey collect backtraces when true' do
       # When testing global config options, use the config_lock
       # semaphore to lock between other running tests.
       AppOpticsAPM.config_lock.synchronize {
@@ -383,7 +383,7 @@ unless defined?(JRUBY_VERSION)
       assert traces.find { |tr| tr['Layer'] == 'curb' && tr['Label'] == 'exit' }['Backtrace']
     end
 
-    def test_obey_collect_backtraces_when_false
+    it 'obey collect backtraces when false' do
       # When testing global config options, use the config_lock
       # semaphore to lock between other running tests.
       AppOpticsAPM.config_lock.synchronize {
@@ -400,4 +400,3 @@ unless defined?(JRUBY_VERSION)
 
   end
 end
-

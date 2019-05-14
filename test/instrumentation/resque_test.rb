@@ -9,19 +9,19 @@ unless defined?(JRUBY_VERSION)
   Resque.redis = Redis.new(:url => 'redis://:secret_pass@localhost:6379')
   Resque.enqueue(ResqueRemoteCallWorkerJob)  # calling this here once to avoid other calls having an auth span
 
-  class ResqueClientTest < Minitest::Test
-    def setup
+  describe 'ResqueClient' do
+    before do
       clear_all_traces
       @collect_backtraces = AppOpticsAPM::Config[:resqueclient][:collect_backtraces]
       @log_args = AppOpticsAPM::Config[:resqueclient][:log_args]
     end
 
-    def teardown
+    after do
       AppOpticsAPM::Config[:resqueclient][:collect_backtraces] = @collect_backtraces
       AppOpticsAPM::Config[:resqueclient][:log_args] = @log_args
     end
 
-    def test_appoptics_methods_defined
+     it 'appoptics_methods_defined' do
       [ :enqueue, :enqueue_to, :dequeue ].each do |m|
         assert_equal true, ::Resque.method_defined?("#{m}_with_appoptics")
       end
@@ -35,7 +35,7 @@ unless defined?(JRUBY_VERSION)
       assert_equal true, Resque.enqueue(ResqueRemoteCallWorkerJob, 1, 2, "3"), "not tracing; enqueue extra params"
     end
 
-    def test_enqueue
+     it 'enqueue' do
       AppOpticsAPM::API.start_trace('resque-client_test', '', {}) do
         Resque.enqueue(ResqueRemoteCallWorkerJob)
       end
@@ -55,7 +55,7 @@ unless defined?(JRUBY_VERSION)
       assert_equal "exit",                       traces[4]['Label'], "exit event label"
     end
 
-    def test_dequeue
+     it 'dequeue' do
       AppOpticsAPM::API.start_trace('resque-client_test', '', {}) do
         Resque.dequeue(ResqueRemoteCallWorkerJob, { :generate => :moped })
       end
@@ -75,15 +75,15 @@ unless defined?(JRUBY_VERSION)
       assert_equal "exit",                        traces[4]['Label'], "exit event label"
     end
 
-    def test_collect_backtraces_default_value
+     it 'collect_backtraces_default_value' do
       assert_equal AppOpticsAPM::Config[:resqueclient][:collect_backtraces], true, "default backtrace collection"
     end
 
-    def test_log_args_default_value
+     it 'log_args_default_value' do
       assert_equal AppOpticsAPM::Config[:resqueclient][:log_args], true, "log_args default "
     end
 
-    def test_obey_collect_backtraces_when_false
+     it 'obey_collect_backtraces_when_false' do
       AppOpticsAPM::Config[:resqueclient][:collect_backtraces] = false
 
       # Queue up a job to be run
@@ -108,7 +108,7 @@ unless defined?(JRUBY_VERSION)
       assert_equal "exit",                       traces[4]['Label'], "exit event label"
     end
 
-    def test_obey_collect_backtraces_when_true
+     it 'obey_collect_backtraces_when_true' do
       AppOpticsAPM::Config[:resqueclient][:collect_backtraces] = true
 
       # Queue up a job to be run
@@ -133,7 +133,7 @@ unless defined?(JRUBY_VERSION)
       assert_equal "exit",                       traces[4]['Label'], "exit event label"
     end
 
-    def test_obey_log_args_when_false
+     it 'obey_log_args_when_false' do
       AppOpticsAPM::Config[:resqueclient][:log_args] = false
 
       # Queue up a job to be run
@@ -158,7 +158,7 @@ unless defined?(JRUBY_VERSION)
       assert_equal "exit",                       traces[4]['Label'], "exit event label"
     end
 
-    def test_obey_log_args_when_true
+     it 'obey_log_args_when_true' do
       AppOpticsAPM::Config[:resqueclient][:log_args] = true
 
       # Queue up a job to be run
