@@ -4,8 +4,8 @@
 require 'minitest_helper'
 
 unless defined?(JRUBY_VERSION)
-  class BunnyClientTest < Minitest::Test
-    def setup
+  describe 'BunnyClientTest' do
+    before do
       # Support specific environment variables to support remote rabbitmq servers
       ENV['APPOPTICS_RABBITMQ_SERVER'] = "127.0.0.1"      unless ENV['APPOPTICS_RABBITMQ_SERVER']
       ENV['APPOPTICS_RABBITMQ_PORT'] = "5672"             unless ENV['APPOPTICS_RABBITMQ_PORT']
@@ -23,7 +23,7 @@ unless defined?(JRUBY_VERSION)
       clear_all_traces
     end
 
-    def test_publish_default_exchange
+     it 'publish_default_exchange' do
       @conn = Bunny.new(@connection_params)
       @conn.start
       @ch = @conn.create_channel
@@ -57,7 +57,7 @@ unless defined?(JRUBY_VERSION)
       @conn.close
     end
 
-    def test_publish_fanout_exchange
+     it 'publish_fanout_exchange' do
       @conn = Bunny.new(@connection_params)
       @conn.start
       @ch = @conn.create_channel
@@ -102,7 +102,7 @@ unless defined?(JRUBY_VERSION)
       @conn.close
     end
 
-    def test_publish_topic_exchange
+     it 'publish_topic_exchange' do
       @conn = Bunny.new(@connection_params)
       @conn.start
       @ch = @conn.create_channel
@@ -147,7 +147,7 @@ unless defined?(JRUBY_VERSION)
       @conn.close
     end
 
-    def test_publish_error_handling
+     it 'publish_error_handling' do
       @conn = Bunny.new(@connection_params)
       @conn.start
       @ch = @conn.create_channel
@@ -181,7 +181,7 @@ unless defined?(JRUBY_VERSION)
       @conn.close
     end
 
-    def test_delete_exchange
+     it 'delete_exchange' do
       @conn = Bunny.new(@connection_params)
       @conn.start
       @ch = @conn.create_channel
@@ -210,7 +210,7 @@ unless defined?(JRUBY_VERSION)
       traces[2]['VirtualHost'].must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
     end
 
-    def test_wait_for_confirms
+     it 'wait_for_confirms' do
       @conn = Bunny.new(@connection_params)
       @conn.start
       @ch = @conn.create_channel
@@ -255,7 +255,7 @@ unless defined?(JRUBY_VERSION)
       @conn.close
     end
 
-    def test_channel_queue
+     it 'channel_queue' do
       @conn = Bunny.new(@connection_params)
       @conn.start
       @ch = @conn.create_channel
@@ -279,7 +279,7 @@ unless defined?(JRUBY_VERSION)
       traces[2]['VirtualHost'].must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
     end
 
-    def test_backtrace_config_true
+     it 'backtrace_config_true' do
       bt = AppOpticsAPM::Config[:bunnyclient][:collect_backtraces]
       AppOpticsAPM::Config[:bunnyclient][:collect_backtraces] = true
 
