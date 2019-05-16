@@ -52,7 +52,6 @@ module AppOpticsAPM
 
       metrics, sample, @rate, @source, return_code = AppOpticsAPM::Context.getDecisions(*args)
 
-      puts "return_code class: #{return_code.class}" unless return_code.is_a? Integer
       if return_code > AO_TRACING_DECISIONS_OK
         AppOpticsAPM.logger.warn "[appoptics-apm/sample] Problem getting the sampling decisions, code: #{return_code}"
       end
