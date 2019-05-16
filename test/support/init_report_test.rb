@@ -3,13 +3,13 @@
 
 require 'minitest_helper'
 
-class InitReportTest < Minitest::Test
-  def test_report_format
+describe 'InitReportTest' do
+   it 'report_format' do
     init_kvs = ::AppOpticsAPM::Util.build_init_report
     init_kvs.is_a?(Hash)
   end
 
-  def test_report_kvs
+   it 'report_kvs' do
     init_kvs = ::AppOpticsAPM::Util.build_init_report
     init_kvs.has_key?("__Init").must_equal true
     init_kvs.has_key?("Force").must_equal true
@@ -19,7 +19,7 @@ class InitReportTest < Minitest::Test
   end
 
   # @deprecated
-  def test_legacy_report_format
+   it 'legacy_report_format' do
     init_kvs = ::AppOpticsAPM::Util.legacy_build_init_report
     init_kvs.is_a?(Hash)
   end
