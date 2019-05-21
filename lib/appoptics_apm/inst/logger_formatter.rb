@@ -10,7 +10,7 @@ module AppOpticsAPM
       def call(severity, time, progname, msg)
         return super if AppOpticsAPM::Config[:log_traceId] == :never
 
-        insert_trace_id(msg)
+        msg = insert_trace_id(msg)
         super
       end
 
@@ -23,11 +23,11 @@ module AppOpticsAPM
         if current_trace.log?
           case msg
           when ::String
-            msg.strip.empty? ? msg : insert_before_empty_lines(msg, current_trace.for_log)
+            msg = msg.strip.empty? ? msg : insert_before_empty_lines(msg, current_trace.for_log)
           when ::Exception
             # conversion to String copied from Logger::Formatter private method #msg2str
-            "#{msg.message} (#{msg.class}) #{current_trace.for_log}\n" <<
-              (msg.backtrace || []).join("\n")
+            msg = ("#{msg.message} (#{msg.class}) #{current_trace.for_log}\n" <<
+              (msg.backtrace || []).join("\n"))
           end
         end
         msg

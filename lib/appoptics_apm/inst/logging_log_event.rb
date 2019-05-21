@@ -11,7 +11,7 @@ module AppOpticsAPM
       def initialize(logger, level, data, caller_tracing )
         return super if AppOpticsAPM::Config[:log_traceId] == :never
 
-        insert_trace_id(data)
+        data = insert_trace_id(data)
         super
       end
 
