@@ -10,7 +10,7 @@ module AppOpticsAPM
       def call(severity, time, progname, msg)
         return super if AppOpticsAPM::Config[:log_traceId] == :never
 
-        msg = insert_trace_id(msg)
+        insert_trace_id(msg)
         super
       end
 
@@ -30,6 +30,7 @@ module AppOpticsAPM
               (msg.backtrace || []).join("\n")
           end
         end
+        msg
       end
 
       def insert_before_empty_lines(msg, for_log)
