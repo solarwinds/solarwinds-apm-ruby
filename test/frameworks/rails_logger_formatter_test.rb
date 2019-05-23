@@ -7,7 +7,7 @@ describe "SimpleFormatter " do
     @logger = ActiveSupport::Logger.new(out)
   end
 
-  let (:msg) { @logger.warn "Checking"; @in.gets }
+  let (:msg) { @logger.warn "Message"; @in.gets }
   let (:exc_message) { @logger.warn StandardError.new ; @in.gets }
 
   load File.join(File.dirname(File.dirname(__FILE__)), 'instrumentation', 'logger_formatter_helper.rb')
@@ -19,7 +19,7 @@ describe "TaggedLogging " do
     @logger = ActiveSupport::TaggedLogging.new(Logger.new(out))
   end
 
-  let (:msg) { @logger.tagged('test', 'tag') { @logger.warn "Checking" }; @in.gets }
+  let (:msg) { @logger.tagged('check', 'tag') { @logger.warn "Message" }; @in.gets }
   let (:exc_message) { @logger.warn StandardError.new ; @in.gets }
 
   load File.join(File.dirname(File.dirname(__FILE__)), 'instrumentation', 'logger_formatter_helper.rb')
@@ -33,7 +33,7 @@ describe "Lograge " do
 
   let(:log_output) { StringIO.new }
   let(:logger) { Logger.new(log_output) }
-  let(:subscriber) { Lograge::LogSubscribers::ActionCable.new }
+  let(:subscriber) { Lograge::LogSubscribers::ActionController.new }
   let(:event_params) { { 'foo' => 'bar' } }
   let(:event) do
     ActiveSupport::Notifications::Event.new(
@@ -42,7 +42,7 @@ describe "Lograge " do
       Time.now,
       2,
       status: 200,
-      controller: 'HomeController',
+      controller: 'MessageController',
       action: 'index',
       format: 'application/json',
       method: 'GET',
@@ -54,7 +54,7 @@ describe "Lograge " do
   end
 
   let (:msg) do
-    subscriber.perform_action(event)
+    subscriber.process_action(event)
     log_output.string
   end
 
