@@ -15,8 +15,8 @@ describe "Lumberjack::Formatter " do
 end
 
 describe "Logging::LogEvent " do
-  let(:msg) { Logging::LogEvent.new('error', Time.now, 'test', 'Message.').data }
-  let (:exc_message) { Logging::LogEvent.new('error', Time.now, 'test', StandardError.new).data }
+  let(:msg) { Logging::LogEvent.new('error', Time.now, 'Message.', false).data }
+  let (:exc_message) { Logging::LogEvent.new('error', Time.now, StandardError.new, false).data }
 
   load File.join(File.dirname(__FILE__), 'logger_formatter_helper.rb')
 end

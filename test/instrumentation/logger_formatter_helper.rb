@@ -17,6 +17,7 @@ describe "include traceId in message " do
     it 'adds a traceId when :always' do
       AppOpticsAPM::Config[:log_traceId] = :always
 
+      msg.must_match /Message/
       msg.must_match /ao(=>{:|\.){1}traceId=(>\"){0,1}0000000000000000000000000000000000000000-0/
       msg.wont_match /traceId.*traceId/
     end
@@ -25,6 +26,7 @@ describe "include traceId in message " do
       AppOpticsAPM::Config[:log_traceId] = :traced
       AppOpticsAPM::Context.fromString('2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFA00')
 
+      msg.must_match /Message/
       msg.must_match /ao(=>{:|\.){1}traceId=(>\"){0,1}A462ADE6CFE479081764CC476AA983351DC51B1B-0/
       msg.wont_match /traceId.*traceId/
     end
@@ -32,6 +34,7 @@ describe "include traceId in message " do
     it 'Does NOT add a traceId when :traced and no context' do
       AppOpticsAPM::Config[:log_traceId] = :traced
 
+      msg.must_match /Message/
       msg.wont_match /traceId/
     end
 
@@ -39,6 +42,7 @@ describe "include traceId in message " do
       AppOpticsAPM::Config[:log_traceId] = :sampled
       AppOpticsAPM::Context.fromString('2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFA01')
 
+      msg.must_match /Message/
       msg.must_match /ao(=>{:|\.){1}traceId=(>\"){0,1}A462ADE6CFE479081764CC476AA983351DC51B1B-1/
       msg.wont_match /traceId.*traceId/
     end
@@ -47,6 +51,7 @@ describe "include traceId in message " do
       AppOpticsAPM::Config[:log_traceId] = :sampled
       AppOpticsAPM::Context.fromString('2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFA00')
 
+      msg.must_match /Message/
       msg.wont_match /traceId/
     end
 
@@ -54,6 +59,7 @@ describe "include traceId in message " do
       AppOpticsAPM::Config[:log_traceId] = :never
       AppOpticsAPM::Context.fromString('2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFA01')
 
+      msg.must_match /Message/
       msg.wont_match /traceId/
     end
 
@@ -61,6 +67,7 @@ describe "include traceId in message " do
       AppOpticsAPM::Config[:log_traceId] = nil
       AppOpticsAPM::Context.fromString('2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFA01')
 
+      msg.must_match /Message/
       msg.wont_match /traceId/
     end
 
@@ -70,6 +77,7 @@ describe "include traceId in message " do
     it 'adds a ao.traceId when it is an Exception' do
       AppOpticsAPM::Config[:log_traceId] = :always
 
+      exc_message.must_match /StandardError/
       exc_message.must_match /ao.traceId=0000000000000000000000000000000000000000-0/
       exc_message.wont_match /traceId.*traceId/
     end
