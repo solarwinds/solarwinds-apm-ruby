@@ -17,7 +17,7 @@ if AppOpticsAPM::Config[:active_record][:enabled] && !defined?(JRUBY_VERSION) &&
 
     AppOpticsAPM::Inst::ConnectionAdapters::FlavorInitializers.mysql      if adapter == 'mysql'
     AppOpticsAPM::Inst::ConnectionAdapters::FlavorInitializers.mysql2     if adapter == 'mysql2'
-    AppOpticsAPM::Inst::ConnectionAdapters::FlavorInitializers.postgresql if adapter == 'postgresql'
+    AppOpticsAPM::Inst::ConnectionAdapters::FlavorInitializers.postgresql if adapter =~ /postgresql|postgis/i
 
   rescue StandardError => e
     AppOpticsAPM.logger.error "[appoptics_apm/error] AppOpticsAPM/ActiveRecord error: #{e.inspect}"
