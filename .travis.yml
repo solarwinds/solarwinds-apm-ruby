@@ -85,12 +85,15 @@ matrix:
 # Attempt Travis/Cassandra fix re: https://github.com/travis-ci/travis-ci/issues/1484
 # Updated Cassandra: https://github.com/travis-ci/travis-ci/issues/1650
 
-before_install:
-  - sudo service cassandra stop
-  - sudo sh -c "echo 'JVM_OPTS=\"\${JVM_OPTS} -Djava.net.preferIPv4Stack=false\"' >> /etc/cassandra/cassandra-env.sh"
-  - echo "127.0.0.1 localhost"  | sudo tee /etc/hosts
-  - echo "127.0.0.1 " `hostname` | sudo tee -a /etc/hosts
-  - sudo service cassandra start
+# the following is not working anymore on travis
+# commenting it out as per AO-13532 as we currently don't have instrumentation
+# for cassandra
+#before_install:
+#  - sudo service cassandra stop
+#  - sudo sh -c "echo 'JVM_OPTS=\"\${JVM_OPTS} -Djava.net.preferIPv4Stack=false\"' >> /etc/cassandra/cassandra-env.sh"
+#  - echo "127.0.0.1 localhost"  | sudo tee /etc/hosts
+#  - echo "127.0.0.1 " `hostname` | sudo tee -a /etc/hosts
+#  - sudo service cassandra start
 
 install:
   - curl -LO http://kent.dl.sourceforge.net/project/swig/swig/swig-3.0.8/swig-3.0.8.tar.gz
