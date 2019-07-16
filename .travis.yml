@@ -122,5 +122,5 @@ services:
   - mysql
 #  - cassandra
   - postgresql
-#  - redis
+#  - redis-server
   - rabbitmq

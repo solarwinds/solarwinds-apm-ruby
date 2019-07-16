@@ -6,7 +6,7 @@ require 'minitest_helper'
 # Disable this test on JRuby until we can investigate
 # "SOCKET: SET COMM INACTIVITY UNIMPLEMENTED 10"
 # https://travis-ci.org/tracelytics/ruby-appoptics_apm/jobs/33745752
-if AppOpticsAPM::Config[:em_http_request][:enabled] && !defined?(JRUBY_VERSION)
+if AppOpticsAPM::Config[:em_http_request] && AppOpticsAPM::Config[:em_http_request][:enabled] && !defined?(JRUBY_VERSION)
 
   describe "EventMachine" do
     skip # we aren't supporting em-http-client anymore, not sure when it stopped
