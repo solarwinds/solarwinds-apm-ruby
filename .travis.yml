@@ -11,7 +11,7 @@ env:
   - DBTYPE=mysql
 
 rvm:
-  - 2.6.6
+  - 2.6.3
   - 2.5.5
   - 2.4.5
   - ruby-head
@@ -32,11 +32,11 @@ matrix:
   exclude:
     - rvm: ruby-head
       gemfile: gemfiles/rails42.gemfile
-    - rvm: 2.6.6
+    - rvm: 2.6.3
       gemfile: gemfiles/rails42.gemfile
 
 
-    - rmv: 2.6.6
+    - rmv: 2.6.3
       env: DBTYPE=mysql
     - rvm: 2.5.5
       env: DBTYPE=mysql
