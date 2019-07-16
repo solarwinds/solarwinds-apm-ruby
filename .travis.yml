@@ -119,6 +119,7 @@ script: "N=1 bundle exec rake test"
 services:
   - mongodb
   - memcached
+  - mysql
 #  - cassandra
   - postgresql
 #  - redis
