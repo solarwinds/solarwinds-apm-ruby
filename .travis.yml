@@ -120,6 +120,6 @@ services:
   - mongodb
   - memcached
 #  - cassandra
-  - - postgresql
+  - postgresql
 #  - redis
   - rabbitmq
