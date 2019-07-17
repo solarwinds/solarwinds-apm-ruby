@@ -16,13 +16,16 @@ module AppOpticsAPM
     @@instrumentation = [:action_controller, :action_controller_api, :action_view,
                          :active_record, :bunnyclient, :bunnyconsumer, :cassandra, :curb,
                          :dalli, :delayed_jobclient, :delayed_jobworker,
-                         :em_http_request, :excon, :faraday, :grpc_client, :grpc_server, :grape,
+                         # :em_http_request,
+                         :excon, :faraday, :grpc_client, :grpc_server, :grape,
                          :httpclient, :nethttp, :memcached, :mongo, :moped, :padrino, :rack, :redis,
                          :resqueclient, :resqueworker, :rest_client,
                          :sequel, :sidekiqclient, :sidekiqworker, :sinatra, :typhoeus]
 
     # Subgrouping of instrumentation
-    @@http_clients = [:curb, :excon, :em_http_request, :faraday, :httpclient, :nethttp, :rest_client, :typhoeus]
+    @@http_clients = [:curb, :excon,
+                      # :em_http_request,
+                      :faraday, :httpclient, :nethttp, :rest_client, :typhoeus]
 
     ##
     # load_config_file

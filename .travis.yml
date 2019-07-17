@@ -11,8 +11,8 @@ env:
   - DBTYPE=mysql
 
 rvm:
-  - 2.6.2
-  - 2.5.3
+  - 2.6.3
+  - 2.5.5
   - 2.4.5
   - ruby-head
 #  - jruby-9.0.5.0
@@ -32,13 +32,13 @@ matrix:
   exclude:
     - rvm: ruby-head
       gemfile: gemfiles/rails42.gemfile
-    - rvm: 2.6.2
+    - rvm: 2.6.3
       gemfile: gemfiles/rails42.gemfile
 
 
-    - rmv: 2.6.2
+    - rmv: 2.6.3
       env: DBTYPE=mysql
-    - rvm: 2.5.3
+    - rvm: 2.5.5
       env: DBTYPE=mysql
     - rvm: 2.4.5
       env: DBTYPE=mysql
@@ -85,12 +85,15 @@ matrix:
 # Attempt Travis/Cassandra fix re: https://github.com/travis-ci/travis-ci/issues/1484
 # Updated Cassandra: https://github.com/travis-ci/travis-ci/issues/1650
 
-before_install:
-  - sudo service cassandra stop
-  - sudo sh -c "echo 'JVM_OPTS=\"\${JVM_OPTS} -Djava.net.preferIPv4Stack=false\"' >> /etc/cassandra/cassandra-env.sh"
-  - echo "127.0.0.1 localhost"  | sudo tee /etc/hosts
-  - echo "127.0.0.1 " `hostname` | sudo tee -a /etc/hosts
-  - sudo service cassandra start
+# the following is not working anymore on travis
+# commenting it out as per AO-13532 as we currently don't have instrumentation
+# for cassandra
+#before_install:
+#  - sudo service cassandra stop
+#  - sudo sh -c "echo 'JVM_OPTS=\"\${JVM_OPTS} -Djava.net.preferIPv4Stack=false\"' >> /etc/cassandra/cassandra-env.sh"
+#  - echo "127.0.0.1 localhost"  | sudo tee /etc/hosts
+#  - echo "127.0.0.1 " `hostname` | sudo tee -a /etc/hosts
+#  - sudo service cassandra start
 
 install:
   - curl -LO http://kent.dl.sourceforge.net/project/swig/swig/swig-3.0.8/swig-3.0.8.tar.gz
@@ -116,6 +119,13 @@ script: "N=1 bundle exec rake test"
 services:
   - mongodb
   - memcached
-  - cassandra
-#  - redis
+  - mysql
+#  - cassandra
+  - postgresql
+#  - redis-server
   - rabbitmq
+
+addons:
+  apt:
+    packages:
+      - rabbitmq-server
