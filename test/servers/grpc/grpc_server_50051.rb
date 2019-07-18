@@ -76,7 +76,6 @@ class AddressService < Grpctest::TestService::Service
 
   #### UNARY ###
   def unary(req, _)
-    AppOpticsAPM.logger.debug "**** req received by server: #{req} ****"
     ::Address.new(req.to_h).to_grpc.id
   end
 
