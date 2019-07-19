@@ -17,10 +17,10 @@ require 'grpc_server_50051'
 #     LOGGER
 #   end
 #
+#   AppOpticsAPM.logger.level = Logger::DEBUG
 #   LOGGER = AppOpticsAPM.logger
 # end
 
-if false # skipping these until AO-13525 is fixed
 describe 'GRPC' do
 
   def start_server
@@ -1117,5 +1117,3 @@ describe 'GRPC' do
     end
   end
 end
-
-end # waiting for fix AO-13525

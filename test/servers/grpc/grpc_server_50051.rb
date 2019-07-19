@@ -76,7 +76,7 @@ class AddressService < Grpctest::TestService::Service
 
   #### UNARY ###
   def unary(req, _)
-    ::Address.new(req).to_grpc.id
+    ::Address.new(req.to_h).to_grpc.id
   end
 
   def unary_unknown(req, _)
@@ -93,7 +93,7 @@ class AddressService < Grpctest::TestService::Service
 
   ### CLIENT_STREAMING ###
   def client_stream(call)
-    call.each_remote_read { |req| Phone.new(req) }
+    call.each_remote_read { |req| Phone.new(req.to_h) }
     Grpctest::NullMessage.new
   end
 
