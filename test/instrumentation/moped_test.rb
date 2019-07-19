@@ -466,7 +466,6 @@ describe "Moped" do
   end
 
   it 'should trace aggregate' do
-    skip
     AppOpticsAPM::API.start_trace('moped_test', '', {}) do
       @users.aggregate(
           {'$match' => {:name => "Mary"}},
