@@ -466,6 +466,7 @@ describe "Moped" do
   end
 
   it 'should trace aggregate' do
+    skip # not working with MongoDB >= 4.0
     AppOpticsAPM::API.start_trace('moped_test', '', {}) do
       @users.aggregate(
           {'$match' => {:name => "Mary"}},
