@@ -466,6 +466,8 @@ describe "Moped" do
   end
 
   it 'should trace aggregate' do
+    # moped is not developed since 2015, and
+    # aggregate is not working with MongoDB >= 4.0
     skip
     AppOpticsAPM::API.start_trace('moped_test', '', {}) do
       @users.aggregate(
