@@ -105,9 +105,9 @@ In the container check out the options:
 run_tests/run_tests.sh -h
 ```
 
-Example: Run the framework tests with ruby 2.5.3
+Example: Run the framework tests with ruby 2.5.5
 ```bash
-run_tests/run_tests.sh -r 2.5.3 -g gemfiles/frameworks.gemfile
+run_tests/run_tests.sh -r 2.5.5 -g gemfiles/frameworks.gemfile
 ```
 
 ### Run one test from suite, a specific test file, or a specific test
@@ -117,7 +117,7 @@ env and use `ruby -I test`
 
 One test from suite:
 ```bash
-run_tests/run_tests.sh -r 2.5.3 -g gemfiles/frameworks.gemfile -n 1
+run_tests/run_tests.sh -r 2.5.5 -g gemfiles/frameworks.gemfile -n 1
 ```
 
 One file:
@@ -131,7 +131,7 @@ bundle exec ruby -I test queues/delayed_job-client_test.rb
 
 A specific test:
 ```bash
-rbenv global 2.5.3
+rbenv global 2.5.5
 export BUNDLE_GEMFILE=gemfiles/libraries.gemfile
 export DBTYPE=mysql2
 bundle
