@@ -12,7 +12,7 @@ It requires an [AppOptics](https://www.appoptics.com/) account to view metrics. 
 [it's free](https://my.appoptics.com/sign_up).
 
 [![Gem Version](https://badge.fury.io/rb/appoptics_apm.svg)](https://badge.fury.io/rb/appoptics_apm)
-[![Build Status](https://travis-ci.org/appoptics/appoptics-apm-ruby.png?branch=master)](https://travis-ci.org/appoptics/appoptics-apm-ruby)
+[![Build Status](https://travis-ci.com/appoptics/appoptics-apm-ruby.png?branch=master)](https://travis-ci.com/appoptics/appoptics-apm-ruby)
 [![Maintainability](https://api.codeclimate.com/v1/badges/ac7f36241a23a3a82fc5/maintainability)](https://codeclimate.com/github/appoptics/appoptics-apm-ruby/maintainability)
 
 _Note: The repository is now at https://github.com/appoptics/appoptics-apm-ruby  Please update your github remotes with 
