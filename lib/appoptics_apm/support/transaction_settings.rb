@@ -6,14 +6,7 @@ AO_TRACING_ENABLED = 1
 AO_TRACING_DISABLED = 0
 AO_TRACING_UNSET = -1
 
-AO_TRACING_DECISIONS_TRACING_DISABLED = -2
-AO_TRACING_DECISIONS_XTRACE_NOT_SAMPLED = -1
 AO_TRACING_DECISIONS_OK = 0
-AO_TRACING_DECISIONS_NULL_OUT = 1
-AO_TRACING_DECISIONS_NO_CONFIG = 2
-AO_TRACING_DECISIONS_REPORTER_NOT_READY = 3
-AO_TRACING_DECISIONS_NO_VALID_SETTINGS = 4
-AO_TRACING_DECISIONS_QUEUE_FULL = 5
 
 module AppOpticsAPM
   ##
@@ -21,13 +14,15 @@ module AppOpticsAPM
   #
   class TransactionSettings
 
-    attr_accessor :do_metrics, :do_sample
-    attr_reader   :do_propagate, :rate, :source
+    attr_accessor :do_sample, :do_metrics
+    attr_reader   :auth_msg, :do_propagate, :status_msg, :type, :source, :rate, :xtrace
+                  #, :status
 
-    def initialize(url = nil, xtrace = '')
+    def initialize(url = '', xtrace = '', options = nil)
       @do_metrics = false
       @do_sample = false
       @do_propagate = true
+      @xtrace = xtrace || ''
       tracing_mode = AO_TRACING_ENABLED
 
       if AppOpticsAPM::Context.isValid
@@ -46,14 +41,23 @@ module AppOpticsAPM
         tracing_mode = AO_TRACING_DISABLED
       end
 
-      args = [xtrace || '']
+      args = [@xtrace]
       args << tracing_mode
-      args << AppOpticsAPM::Config[:sample_rate] if AppOpticsAPM::Config[:sample_rate]&. >= 0
+      args << (AppOpticsAPM::Config[:sample_rate] || 0)
 
-      metrics, sample, @rate, @source, return_code = AppOpticsAPM::Context.getDecisions(*args)
+      if options && (options.options || options.signature)
+        args << (options.trigger_trace ? 1 : 0)
+        args << (trigger_tracing_mode_disabled? ? 0 : 1)
+        args << options.options
+        args << options.signature
+        args << options.timestamp
+      end
 
-      if return_code > AO_TRACING_DECISIONS_OK
-        AppOpticsAPM.logger.warn "[appoptics-apm/sample] Problem getting the sampling decisions, code: #{return_code}"
+      metrics, sample, @rate, @source, @type, @auth, @status_msg, @auth_msg, @status =
+        AppOpticsAPM::Context.getDecisions(*args)
+
+      if @status > AO_TRACING_DECISIONS_OK
+        AppOpticsAPM.logger.warn "[appoptics-apm/sample] Problem getting the sampling decisions, code: #{@status}"
       end
 
       @do_metrics = metrics > 0
@@ -62,6 +66,19 @@ module AppOpticsAPM
 
     def to_s
       "do_propagate: #{do_propagate}, do_sample: #{do_sample}, do_metrics: #{do_metrics} rate: #{rate}, source: #{source}"
+    end
+
+    def add_kvs(kvs)
+      kvs[:SampleRate] = @rate
+      kvs[:SampleSource] = @source
+    end
+
+    def triggered_trace?
+      @type == 1
+    end
+
+    def auth_ok?
+      !@auth || @auth < 1
     end
 
     private
@@ -101,6 +118,11 @@ module AppOpticsAPM
     rescue => e
       AppOpticsAPM.logger.warn "[AppOpticsAPM/filter] Could not apply :disabled filter to path. #{e.inspect}"
       false
+    end
+
+    def trigger_tracing_mode_disabled?
+      AppOpticsAPM::Config[:trigger_tracing_mode] &&
+        AppOpticsAPM::Config[:trigger_tracing_mode] == :disabled
     end
 
     ##
