@@ -63,11 +63,31 @@ Rake::TestTask.new do |t|
     end
   end
 
+<<<<<<< HEAD
   desc "Run all test suites defined by travis"
   task "docker_tests" do
     Dir.chdir('test/run_tests')
     exec('docker-compose run ruby_appoptics /code/ruby-appoptics/test/run_tests/ruby_setup.sh test --remove-orphans')
   end
+=======
+desc "Run all test suites defined by travis"
+task "docker_tests" do
+  Dir.chdir('test/run_tests')
+  exec('docker-compose run ruby_appoptics /code/ruby-appoptics/test/run_tests/ruby_setup.sh test --remove-orphans')
+end
+
+desc "Start docker container for testing and debugging"
+task "docker" do
+  Dir.chdir('test/run_tests')
+  exec('docker-compose run ruby_appoptics /code/ruby-appoptics/test/run_tests/ruby_setup.sh bash --remove-orphans')
+end
+
+desc "Stop all containers that were started for testing and debugging"
+task "docker_down" do
+  Dir.chdir('test/run_tests')
+  exec('docker-compose down')
+end
+>>>>>>> [swig] use new swig 4.0.0
 
   desc "Start docker container for testing and debugging"
   task "docker" do
@@ -181,6 +201,7 @@ task :clean do
     Dir.chdir ext_dir
     sh '/usr/bin/env make clean' if File.exist? 'Makefile'
 
+    FileUtils.rm_f "src/oboe_wrap.cxx"
     Dir.chdir pwd
   else
     puts '== Nothing to do under JRuby.'

@@ -98,9 +98,9 @@ matrix:
 #  - sudo service cassandra start
 
 install:
-  - curl -LO http://kent.dl.sourceforge.net/project/swig/swig/swig-3.0.8/swig-3.0.8.tar.gz
-  - tar xzf swig-3.0.8.tar.gz
-  - pushd swig-3.0.8
+  - curl -LO http://kent.dl.sourceforge.net/project/swig/swig/swig-4.0.0/swig-4.0.0.tar.gz
+  - tar xzf swig-4.0.0.tar.gz
+  - pushd swig-4.0.0
   - ./configure && make && sudo make install
   - popd
 
