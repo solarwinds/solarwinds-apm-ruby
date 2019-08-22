@@ -62,6 +62,15 @@ if defined?(AppOpticsAPM::Config)
   AppOpticsAPM::Config[:tracing_mode] = :enabled
 
   #
+  # Turn Trigger Tracing on or off
+  #
+  # By default trigger tracing is :enabled, the other option is :disabled.
+  # It allows to use the X-Trace-Options header to force a request to be
+  # traced (within rate limits set for trigger tracing)
+  #
+  AppOpticsAPM::Config[:trigger_tracing_mode] = :enabled
+
+  #
   # Trace Context in Logs
   #
   # Configure if and when the traceId should be included in application logs.

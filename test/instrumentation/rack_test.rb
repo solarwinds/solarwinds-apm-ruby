@@ -6,6 +6,11 @@ require 'appoptics_apm/inst/rack'
 require 'mocha/minitest'
 
 describe "Rack: " do
+
+  ##
+  # HELPER METHODS
+  #
+  # method name = <name>_<xtrace_tracing_tag>_<expectations for start/exit/HttpSpan>
   def check_01_111(env = {})
 
     _, headers, _ = @rack.call(env)
@@ -379,6 +384,34 @@ describe "Rack: " do
 
       AppOpticsAPM::XTrace.valid?(headers['X-Trace'])
       refute AppOpticsAPM::Context.isValid
+    end
+  end
+
+  describe 'G - with X-Trace-Options' do
+    # TODO
+    describe 'X-Trace-Options kvs' do
+      it 'adds kvs for pingdom' do
+        skip
+      end
+
+      it 'adds kvs for custom-* fields' do
+        skip
+      end
+    end
+
+    describe 'Response Header' do
+      it 'adds an X-Trace-Options-Response header' do
+        skip
+      end
+      it 'includes trigger trace decision' do
+        skip
+      end
+      it 'includes ignored keys' do
+
+      end
+      it 'returns ok if there is no trigger trace and no ignored keys' do
+        skip
+      end
     end
   end
 end

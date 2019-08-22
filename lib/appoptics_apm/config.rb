@@ -240,11 +240,15 @@ module AppOpticsAPM
         end
 
       elsif key == :tracing_mode
-      #   CAN'T DO THIS ANYMORE, ALL TRACING COMMUNICATION TO OBOE
+      #   CAN'T DO `set_tracing_mode` ANYMORE, ALL TRACING COMMUNICATION TO OBOE
       #   IS NOW HANDLED BY TransactionSettings
       #   AppOpticsAPM.set_tracing_mode(value.to_sym) if AppOpticsAPM.loaded
 
-      # Make sure that the mode is stored as a symbol
+        # Make sure that the mode is stored as a symbol
+        @@config[key.to_sym] = value.to_sym
+
+      elsif key == :trigger_tracing_mode
+        # Make sure that the mode is stored as a symbol
         @@config[key.to_sym] = value.to_sym
       end
     end
