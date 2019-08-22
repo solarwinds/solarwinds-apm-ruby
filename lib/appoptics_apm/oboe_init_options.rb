@@ -108,7 +108,8 @@ module AppOpticsAPM
 
       reporter = ENV['APPOPTICS_REPORTER'] || 'ssl'
       # override with 'file', e.g. when running tests
-      reporter = 'file' if ENV.key?('APPOPTICS_GEM_TEST')
+      # changed my mind => set the right reporter in the env when running tests !!!
+      # reporter = 'file' if ENV.key?('APPOPTICS_GEM_TEST')
 
       host = ''
       case reporter
@@ -121,6 +122,7 @@ module AppOpticsAPM
         # ____ AppOpticsAPM::Config[:reporter_host] and
         # ____ AppOpticsAPM::Config[:reporter_port] were moved here from
         # ____ oboe_metal.rb and are not documented anywhere
+        # ____ udp is for internal use only
       when 'null'
         host = ''
       end
@@ -148,7 +150,7 @@ module AppOpticsAPM
     end
 
     def validate_token(token)
-      if (token !~ /^[0-9a-fA-F]{64}|[0-9a-zA-Z_\-]{71}$/)
+      if (token !~ /^[0-9a-fA-F]{64}|[0-9a-zA-Z_\-]{71}$/) && ENV['APPOPTICS_COLLECTOR'] != "sslcollector:12222"
         masked = "#{token[0..3]}...#{token[-4..-1]}"
         AppOpticsAPM.logger.error "[appoptics_apm/oboe_options] APPOPTICS_SERVICE_KEY problem. API Token in wrong format. Masked token: #{masked}"
         return false
@@ -158,6 +160,7 @@ module AppOpticsAPM
     end
 
     def validate_transform_service_name(service_name)
+      service_name = 'test_ssl_collector' if ENV['APPOPTICS_COLLECTOR'] == "sslcollector:12222"
       if service_name.empty?
         AppOpticsAPM.logger.error "[appoptics_apm/oboe_options] APPOPTICS_SERVICE_KEY problem. Service Name is missing"
         return false
