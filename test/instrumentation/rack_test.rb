@@ -386,32 +386,4 @@ describe "Rack: " do
       refute AppOpticsAPM::Context.isValid
     end
   end
-
-  describe 'G - with X-Trace-Options' do
-    # TODO
-    describe 'X-Trace-Options kvs' do
-      it 'adds kvs for pingdom' do
-        skip
-      end
-
-      it 'adds kvs for custom-* fields' do
-        skip
-      end
-    end
-
-    describe 'Response Header' do
-      it 'adds an X-Trace-Options-Response header' do
-        skip
-      end
-      it 'includes trigger trace decision' do
-        skip
-      end
-      it 'includes ignored keys' do
-
-      end
-      it 'returns ok if there is no trigger trace and no ignored keys' do
-        skip
-      end
-    end
-  end
 end
