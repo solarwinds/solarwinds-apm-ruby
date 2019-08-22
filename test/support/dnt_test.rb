@@ -93,8 +93,8 @@ class RackDNTTestApp < Minitest::Test
   def test_empty_transaction_settings
     AppOpticsAPM::Config[:transaction_settings] = { url: [] }
 
-    # TODO makes this test more unit
-    AppOpticsAPM::Context.expects(:getDecisions).returns([1, 1, 1000, 1, 0]).once
+    # TODO make this test more unit
+    AppOpticsAPM::Context.expects(:getDecisions).returns([1, 1, 1000, 1, 0, -1, '', '', 0]).once
     AppOpticsAPM::Span.expects(:createHttpSpan).returns("the_transaction_name").once
 
     get "/lobster"
