@@ -19,7 +19,7 @@ require 'bundler/setup'
 require 'minitest/spec'
 require 'minitest/autorun'
 require 'minitest/reporters'
-require 'minitest/hooks'
+require 'minitest'
 require 'minitest/debugger' if ENV['DEBUG']
 
 
@@ -66,13 +66,13 @@ end
 puts "\n\033[1m=== TEST RUN: #{RUBY_VERSION} #{File.basename(ENV['BUNDLE_GEMFILE'])} #{ENV['DBTYPE']} #{Time.now.strftime("%Y-%m-%d %H:%M")} ===\033[0m\n"
 
 ENV['RACK_ENV'] = 'test'
+# The following should be set in docker, so that tests can use different reporters
+# ENV['APPOPTICS_REPORTER'] = 'file'
+# ENV['APPOPTICS_COLLECTOR'] = '/tmp/appoptics_traces.bson'.freeze
+# ENV['APPOPTICS_REPORTER_FILE_SINGLE'] = 'false'
+# ENV['APPOPTICS_GEM_TEST'] = 'true'
 
-ENV['APPOPTICS_GEM_TEST'] = 'true'
-ENV['APPOPTICS_REPORTER'] = 'file'
-ENV['APPOPTICS_COLLECTOR'] = '/tmp/appoptics_traces.bson'.freeze
-ENV['APPOPTICS_REPORTER_FILE_SINGLE'] = 'false'
-
-# ENV['APPOPTICS_GEM_VERBOSE'] = 'true'
+ENV['APPOPTICS_GEM_VERBOSE'] = 'true'
 
 MiniTest::Reporters.use! MiniTest::Reporters::SpecReporter.new
 
@@ -83,7 +83,7 @@ end
 Bundler.require(:default, :test)
 
 # Configure AppOpticsAPM
-# AppOpticsAPM::Config[:verbose] = true
+AppOpticsAPM::Config[:verbose] = true
 AppOpticsAPM::Config[:tracing_mode] = :enabled
 AppOpticsAPM::Config[:sample_rate] = 1000000
 # AppOpticsAPM.logger.level = Logger::DEBUG
@@ -105,10 +105,9 @@ case File.basename(ENV['BUNDLE_GEMFILE'])
 when /delayed_job/
   require './test/servers/delayed_job'
 
-when /rails5/
-  require './test/servers/rails5x_8140'
+when /rails[56]/
   require './test/servers/rails5x_api_8150'
-
+  require './test/servers/rails5x_8140'
 when /rails4/
   require './test/servers/rails4x_8140'
 

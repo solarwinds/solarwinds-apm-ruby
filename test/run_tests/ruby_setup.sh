@@ -15,14 +15,12 @@ cd /code/ruby-appoptics/
 rm -f gemfiles/*.lock
 rm -f .ruby-version
 
-rbenv global 2.5.3
+rbenv global 2.5.5
 
 echo "Installing gems ..."
 bundle install --quiet
 
-bundle exec rake fetch_ext_deps
-bundle exec rake clean
-bundle exec rake compile
+bundle exec rake clean fetch compile
 
 echo "Starting services ..."
 ## start postgres

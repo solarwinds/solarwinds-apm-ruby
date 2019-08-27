@@ -40,24 +40,24 @@ RUN  git clone https://github.com/rbenv/rbenv.git ~/.rbenv \
 # install rubies to build our gem against
 RUN . ~/.profile \
     && rbenv install 2.4.5 \
-    && rbenv install 2.5.3 \
-    && rbenv install 2.6.2
+    && rbenv install 2.5.5 \
+    && rbenv install 2.6.3
 #    && rbenv install jruby-9.1.16.0
 
 # need to revert to using bundler 1.17.3 because some gems require bundler < 2.0
 RUN . ~/.profile && rbenv local 2.4.5 && gem uninstall bundler --quiet -x && gem install bundler -v 1.17.3
-RUN . ~/.profile && rbenv local 2.5.3 && gem uninstall bundler --quiet -x && gem install bundler -v 1.17.3
-RUN . ~/.profile && rbenv local 2.6.2 && gem uninstall bundler --quiet -x && gem install bundler -v 1.17.3
+RUN . ~/.profile && rbenv local 2.5.5 && gem uninstall bundler --quiet -x && gem install bundler -v 1.17.3
+RUN . ~/.profile && rbenv local 2.6.3 && gem uninstall bundler --quiet -x && gem install bundler -v 1.17.3
 
 RUN echo 'gem: --no-document' >> ~/.gemrc
 
-# install swig 3.0.8
-RUN curl -SL http://kent.dl.sourceforge.net/project/swig/swig/swig-3.0.8/swig-3.0.8.tar.gz \
+# install swig 4.0.0
+RUN curl -SL http://kent.dl.sourceforge.net/project/swig/swig/swig-4.0.0/swig-4.0.0.tar.gz \
     | tar xzC /tmp \
-    && cd /tmp/swig-3.0.8 \
+    && cd /tmp/swig-4.0.0 \
     && ./configure && make && make install \
     && cd - \
-    && rm -rf /tmp/swig-3.0.8
+    && rm -rf /tmp/swig-4.0.0
 
 # install postgres, redis, and memcached
 RUN apt-get update \

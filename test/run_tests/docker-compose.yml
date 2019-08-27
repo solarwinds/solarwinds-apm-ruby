@@ -30,7 +30,6 @@ services:
        - ao_ruby_wait
      environment:
        - APPOPTICS_SERVICE_KEY=${APPOPTICS_SERVICE_KEY}
-       - APPOPTICS_COLLECTOR=${APPOPTICS_COLLECTOR}
        - APPOPTICS_RABBITMQ_SERVER=ao-ruby-rabbitmq
        - DOCKER_MYSQL_PASS=admin
        - MYSQL_ALLOW_EMPTY_PASSWORD=yes
@@ -38,6 +37,12 @@ services:
        - MYSQL_HOST=ao-ruby-mysql
        - APPOPTICS_MONGO_SERVER=ao-ruby-mongo
        - BUNDLE_GEMFILE=gemfiles/libraries.gemfile
+       - APPOPTICS_COLLECTOR=/tmp/appoptics_traces.bson
+       - APPOPTICS_GEM_TEST=true
+       - APPOPTICS_REPORTER=file
+       - APPOPTICS_REPORTER_FILE_SINGLE=false
+       - APPOPTICS_FROM_S3=true
+       - OBOE_VERSION=5.2.0
 #       - SIMPLECOV_COVERAGE=True
 
 #  ruby_appoptics_apm_alpine:

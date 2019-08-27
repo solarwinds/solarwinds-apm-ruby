@@ -51,11 +51,14 @@ class Rails50MetalStack < Rails::Application
   config.secret_key_base = "2048671-96803948"
 end
 
+class ApplicationController < ActionController::Base
+end
+
 #################################################
 #  Controllers
 #################################################
 
-class HelloController < ActionController::Base
+class HelloController < ApplicationController
   def world
     render :plain => "Hello world!"
   end
@@ -85,7 +88,7 @@ class HelloController < ActionController::Base
   end
 end
 
-class WidgetsController < ActionController::Base
+class WidgetsController < ApplicationController
   protect_from_forgery with: :null_session
 
   def show

@@ -84,18 +84,18 @@ module AppOpticsAPM
 end
 
 # ActionController::Base
-if defined?(ActionController::Base) && AppOpticsAPM::Config[:action_controller][:enabled]
+if defined?(ActionController::Base) && AppOpticsAPM::Config[:action_controller][:enabled] && Rails::VERSION::MAJOR < 6
   AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting actioncontroller' if AppOpticsAPM::Config[:verbose]
   require "appoptics_apm/frameworks/rails/inst/action_controller#{Rails::VERSION::MAJOR}"
-  if Rails::VERSION::MAJOR >= 5
+  if Rails::VERSION::MAJOR == 5
     ActionController::Base.send(:prepend, ::AppOpticsAPM::Inst::ActionController)
-  else
+  elsif Rails::VERSION::MAJOR < 5
     AppOpticsAPM::Util.send_include(::ActionController::Base, AppOpticsAPM::Inst::ActionController)
   end
 end
 
-# ActionController::API - Rails 5+ or via the rails-api gem
-if defined?(ActionController::API) && AppOpticsAPM::Config[:action_controller_api][:enabled]
+# ActionController::API - Rails 5 or via the rails-api gem
+if defined?(ActionController::API) && AppOpticsAPM::Config[:action_controller_api][:enabled]  && Rails::VERSION::MAJOR < 6
   AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting actioncontroller api' if AppOpticsAPM::Config[:verbose]
   require "appoptics_apm/frameworks/rails/inst/action_controller_api"
   ActionController::API.send(:prepend, ::AppOpticsAPM::Inst::ActionControllerAPI)
