@@ -83,7 +83,7 @@ end
 Bundler.require(:default, :test)
 
 # Configure AppOpticsAPM
-# AppOpticsAPM::Config[:verbose] = true
+AppOpticsAPM::Config[:verbose] = true
 AppOpticsAPM::Config[:tracing_mode] = :enabled
 AppOpticsAPM::Config[:sample_rate] = 1000000
 # AppOpticsAPM.logger.level = Logger::DEBUG
@@ -105,10 +105,9 @@ case File.basename(ENV['BUNDLE_GEMFILE'])
 when /delayed_job/
   require './test/servers/delayed_job'
 
-when /rails5/
-  require './test/servers/rails5x_8140'
+when /rails[56]/
   require './test/servers/rails5x_api_8150'
-
+  require './test/servers/rails5x_8140'
 when /rails4/
   require './test/servers/rails4x_8140'
 

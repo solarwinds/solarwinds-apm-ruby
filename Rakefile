@@ -31,6 +31,9 @@ Rake::TestTask.new do |t|
     if Rails::VERSION::MAJOR == 5
       t.test_files = FileList["test/frameworks/rails#{Rails::VERSION::MAJOR}x_test.rb"] +
                      FileList["test/frameworks/rails#{Rails::VERSION::MAJOR}x_api_test.rb"]
+    elsif Rails::VERSION::MAJOR == 6
+      t.test_files = FileList["test/frameworks/rails5x_test.rb"] +
+                     FileList["test/frameworks/rails5x_api_test.rb"]
     else
       t.test_files = FileList["test/frameworks/rails#{Rails::VERSION::MAJOR}x_test.rb"]
     end
