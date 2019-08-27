@@ -1,7 +1,7 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
-if defined?(ActionView::Base) && AppOpticsAPM::Config[:action_view][:enabled]
+if defined?(ActionView::Base) && AppOpticsAPM::Config[:action_view][:enabled]  && Rails::VERSION::MAJOR < 6
 
   ##
   # ActionView Instrumentation is version dependent.  ActionView 2.x is separate
