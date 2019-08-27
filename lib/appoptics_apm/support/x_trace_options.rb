@@ -103,9 +103,7 @@ module AppOpticsAPM
         response << "ignored=#{@ignored.join(',')}" unless @ignored.empty?
       end
 
-      unless response.empty?
-        headers['X-Trace-Options-Response'] = response.join(';')
-      end
+      headers['X-Trace-Options-Response'] = response.join(';')
     end
 
   end

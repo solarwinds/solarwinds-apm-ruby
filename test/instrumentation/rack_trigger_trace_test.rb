@@ -50,7 +50,7 @@ describe "Rack Trigger Tracing " do
       AppOpticsAPM::Config[:tracing_mode] = :disabled
     end
 
-    it 'ZZZ does not trigger trace' do
+    it 'does not trigger trace' do
       req_headers = { 'HTTP_X_TRACE_OPTIONS' => 'trigger-trace' }
 
       _, res_headers, _ = @rack.call(req_headers)
@@ -97,7 +97,7 @@ describe "Rack Trigger Tracing " do
   describe 'ok without signature' do
     it 'still works with normal traces' do
       req_headers = { }
-      _ = @rack.call(req_headers)
+      @rack.call(req_headers)
 
       traces = get_all_traces
       if ENV['APPOPTICS_REPORTER'] =='file'
@@ -160,7 +160,7 @@ describe "Rack Trigger Tracing " do
                       'HTTP_X_TRACE_OPTIONS_SIGNATURE' => signature
       }
 
-      _ = @rack.call(req_headers)
+      @rack.call(req_headers)
 
       traces = get_all_traces
       if ENV['APPOPTICS_REPORTER'] =='file'
@@ -219,7 +219,7 @@ describe "Rack Trigger Tracing " do
                       'HTTP_X_TRACE_OPTIONS_SIGNATURE' => signature.gsub(/\d/, 'a')
       }
 
-      _ = @rack.call(req_headers)
+      @rack.call(req_headers)
 
       traces = get_all_traces
       assert traces.empty?

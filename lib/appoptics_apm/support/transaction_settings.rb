@@ -57,7 +57,7 @@ module AppOpticsAPM
         AppOpticsAPM::Context.getDecisions(*args)
 
       if @status > AO_TRACING_DECISIONS_OK
-        AppOpticsAPM.logger.warn "[appoptics-apm/sample] Problem getting the sampling decisions, code: #{@status}"
+        AppOpticsAPM.logger.warn "[appoptics-apm/sample] Problem getting the sampling decisions: #{@status_msg} code: #{@status}"
       end
 
       @do_metrics = metrics > 0
@@ -78,7 +78,7 @@ module AppOpticsAPM
     end
 
     def auth_ok?
-      !@auth || @auth < 1
+      @auth < 1
     end
 
     private
