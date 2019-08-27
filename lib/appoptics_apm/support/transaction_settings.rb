@@ -78,7 +78,8 @@ module AppOpticsAPM
     end
 
     def auth_ok?
-      @auth < 1
+      # @auth is undefined if initialize is called with an existing context
+      !@auth || @auth < 1
     end
 
     private
