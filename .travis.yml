@@ -117,6 +117,7 @@ before_script:
   - export APPOPTICS_REPORTER_FILE_SINGLE=false
   - export APPOPTICS_TOKEN_BUCKET_CAPACITY=1000
   - export APPOPTICS_TOKEN_BUCKET_RATE=1000
+  - export OBOE_VERSION=5.2.0
 
 script: "N=1 bundle exec rake test"
 
