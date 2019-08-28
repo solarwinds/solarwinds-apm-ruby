@@ -109,7 +109,7 @@ before_script:
   - export APPOPTICS_REPORTER_FILE_SINGLE=false
   - export APPOPTICS_TOKEN_BUCKET_CAPACITY=1000
   - export APPOPTICS_TOKEN_BUCKET_RATE=1000
-  - export OBOE_VERSION=5.2.0
+  - export OBOE_VERSION=5.1.1
   - bundle update --jobs=3 --retry=3
   - bundle exec rake fetch_ext_deps
   - bundle exec rake clean
