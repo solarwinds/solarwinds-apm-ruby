@@ -192,19 +192,47 @@ describe "AppOpticsAPM::Config" do
 
     AppOpticsAPM::Config[:blacklist].is_a?(Array).must_equal true
     AppOpticsAPM::Config[:report_rescued_errors].must_equal false
-    AppOpticsAPM::Config[:ec2_metadata_timeout].must_equal 1000
 
     AppOpticsAPM::Config[:bunnyconsumer][:controller].must_equal :app_id
     AppOpticsAPM::Config[:bunnyconsumer][:action].must_equal :type
 
-    # Verify the number of individual instrumentations ...
+    # Verify the number of individual instrumentations
     instrumentation = AppOpticsAPM::Config.instrumentation
-    instrumentation.count.must_equal 32
+    instrumentation.count.must_equal 33
 
-    # ... and make sure they are enabled by default
-    instrumentation.each do |key|
-      AppOpticsAPM::Config[key][:enabled].must_equal true
-    end
+    AppOpticsAPM::Config[:action_controller][:enabled].must_equal true
+    AppOpticsAPM::Config[:action_controller_api][:enabled].must_equal true
+    AppOpticsAPM::Config[:action_view][:enabled].must_equal true
+    AppOpticsAPM::Config[:active_record][:enabled].must_equal true
+    AppOpticsAPM::Config[:bunnyclient][:enabled].must_equal true
+    AppOpticsAPM::Config[:bunnyconsumer][:enabled].must_equal true
+    AppOpticsAPM::Config[:cassandra][:enabled].must_equal true
+    AppOpticsAPM::Config[:curb][:enabled].must_equal true
+    AppOpticsAPM::Config[:dalli][:enabled].must_equal true
+    AppOpticsAPM::Config[:delayed_jobclient][:enabled].must_equal true
+    AppOpticsAPM::Config[:delayed_jobworker][:enabled].must_equal true
+    AppOpticsAPM::Config[:em_http_request][:enabled].must_equal false
+    AppOpticsAPM::Config[:excon][:enabled].must_equal true
+    AppOpticsAPM::Config[:faraday][:enabled].must_equal true
+    AppOpticsAPM::Config[:grpc_client][:enabled].must_equal true
+    AppOpticsAPM::Config[:grpc_server][:enabled].must_equal true
+    AppOpticsAPM::Config[:grape][:enabled].must_equal true
+    AppOpticsAPM::Config[:httpclient][:enabled].must_equal true
+    AppOpticsAPM::Config[:memcached][:enabled].must_equal true
+    AppOpticsAPM::Config[:mongo][:enabled].must_equal true
+    AppOpticsAPM::Config[:moped][:enabled].must_equal true
+    AppOpticsAPM::Config[:nethttp][:enabled].must_equal true
+    AppOpticsAPM::Config[:padrino][:enabled].must_equal true
+    AppOpticsAPM::Config[:rack][:enabled].must_equal true
+    AppOpticsAPM::Config[:redis][:enabled].must_equal true
+    AppOpticsAPM::Config[:resqueclient][:enabled].must_equal true
+    AppOpticsAPM::Config[:resqueworker][:enabled].must_equal true
+    AppOpticsAPM::Config[:rest_client][:enabled].must_equal true
+    AppOpticsAPM::Config[:sequel][:enabled].must_equal true
+    AppOpticsAPM::Config[:sidekiqclient][:enabled].must_equal true
+    AppOpticsAPM::Config[:sidekiqworker][:enabled].must_equal true
+    AppOpticsAPM::Config[:sinatra][:enabled].must_equal true
+    AppOpticsAPM::Config[:typhoeus][:enabled].must_equal true
 
     AppOpticsAPM::Config[:bunnyconsumer][:log_args].must_equal true
     AppOpticsAPM::Config[:curb][:log_args].must_equal true
@@ -233,7 +261,7 @@ describe "AppOpticsAPM::Config" do
     AppOpticsAPM::Config[:dalli][:collect_backtraces].must_equal false
     AppOpticsAPM::Config[:delayed_jobclient][:collect_backtraces].must_equal false
     AppOpticsAPM::Config[:delayed_jobworker][:collect_backtraces].must_equal false
-    # AppOpticsAPM::Config[:em_http_request][:collect_backtraces].must_equal true
+    AppOpticsAPM::Config[:em_http_request][:collect_backtraces].must_equal true
     AppOpticsAPM::Config[:excon][:collect_backtraces].must_equal true
     AppOpticsAPM::Config[:faraday][:collect_backtraces].must_equal false
     AppOpticsAPM::Config[:grape][:collect_backtraces].must_equal true

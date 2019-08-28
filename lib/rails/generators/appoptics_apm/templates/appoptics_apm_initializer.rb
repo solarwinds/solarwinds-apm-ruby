@@ -196,21 +196,6 @@ if defined?(AppOpticsAPM::Config)
   #
 
   #
-  # EC2 metadata fetching timeout
-  #
-  # The timeout can be in the range 0 - 3000 (milliseconds)
-  # Setting to 0 milliseconds effectively disables fetching from
-  # the metadata URL (not waiting), and should only be used if
-  # not running on EC2 / Openstack to minimize agent start up time.
-  #
-  AppOpticsAPM::Config[:ec2_metadata_timeout] = 1000
-
-
-  #############################################
-  ## SETTINGS FOR INDIVIDUAL GEMS/FRAMEWORKS ##
-  #############################################
-
-  #
   # Bunny Controller and Action
   #
   # The bunny (Rabbitmq) instrumentation can optionally report
@@ -250,7 +235,7 @@ if defined?(AppOpticsAPM::Config)
   AppOpticsAPM::Config[:dalli][:enabled] = true
   AppOpticsAPM::Config[:delayed_jobclient][:enabled] = true
   AppOpticsAPM::Config[:delayed_jobworker][:enabled] = true
-  # AppOpticsAPM::Config[:em_http_request][:enabled] = false # not supported anymore
+  AppOpticsAPM::Config[:em_http_request][:enabled] = false
   AppOpticsAPM::Config[:excon][:enabled] = true
   AppOpticsAPM::Config[:faraday][:enabled] = true
   AppOpticsAPM::Config[:grpc_client][:enabled] = true
@@ -316,7 +301,7 @@ if defined?(AppOpticsAPM::Config)
   AppOpticsAPM::Config[:dalli][:collect_backtraces] = false
   AppOpticsAPM::Config[:delayed_jobclient][:collect_backtraces] = false
   AppOpticsAPM::Config[:delayed_jobworker][:collect_backtraces] = false
-  # AppOpticsAPM::Config[:em_http_request][:collect_backtraces] = true # not supported anymore
+  AppOpticsAPM::Config[:em_http_request][:collect_backtraces] = true
   AppOpticsAPM::Config[:excon][:collect_backtraces] = true
   AppOpticsAPM::Config[:faraday][:collect_backtraces] = false
   AppOpticsAPM::Config[:grape][:collect_backtraces] = true

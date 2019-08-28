@@ -38,12 +38,11 @@ describe 'OboeInitOptions' do
     ENV['APPOPTICS_TOKEN_BUCKET_CAPACITY'] = '9'
     ENV['APPOPTICS_TOKEN_BUCKET_RATE'] = '10'
     ENV['APPOPTICS_REPORTER_FILE_SINGLE'] = 'True'
-    ENV['APPOPTICS_EC2_METADATA_TIMEOUT'] = '1234'
 
     AppOpticsAPM::OboeInitOptions.instance.re_init
     options = AppOpticsAPM::OboeInitOptions.instance.array_for_oboe
 
-    options.size.must_equal 18
+    options.size.must_equal 17
     options[0].must_equal 'string_4'
     options[1].must_equal 2
     options[2].must_equal 'string_5'
@@ -61,7 +60,6 @@ describe 'OboeInitOptions' do
     options[14].must_equal 9
     options[15].must_equal 10
     options[16].must_equal 1
-    options[17].must_equal 1234
   end
 
   it 'reads config vars' do
@@ -71,22 +69,19 @@ describe 'OboeInitOptions' do
     ENV.delete('APPOPTICS_HOSTNAME_ALIAS')
     ENV.delete('APPOPTICS_DEBUG_LEVEL')
     ENV.delete('APPOPTICS_SERVICE_KEY')
-    ENV.delete('APPOPTICS_EC2_METADATA_TIMEOUT')
 
     AppOpticsAPM::Config[:hostname_alias] = 'string_0'
     AppOpticsAPM::Config[:debug_level] = 0
     AppOpticsAPM::Config[:service_key] = '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000:test_app'
-    AppOpticsAPM::Config[:ec2_metadata_timeout] = 2345
 
     AppOpticsAPM::OboeInitOptions.instance.re_init
     options = AppOpticsAPM::OboeInitOptions.instance.array_for_oboe
 
-    options.size.must_equal 18
+    options.size.must_equal 17
 
     options[0].must_equal 'string_0'
     options[1].must_equal 0
     options[9].must_equal '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000:test_app'
-    options[17].must_equal 2345
   end
 
   it 'env vars override config vars' do
@@ -96,22 +91,19 @@ describe 'OboeInitOptions' do
     ENV['APPOPTICS_HOSTNAME_ALIAS'] = 'string_0'
     ENV['APPOPTICS_DEBUG_LEVEL'] = '1'
     ENV['APPOPTICS_SERVICE_KEY'] = '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000:test_app'
-    ENV['APPOPTICS_EC2_METADATA_TIMEOUT'] = '1212'
 
     AppOpticsAPM::Config[:hostname_alias] = 'string_2'
     AppOpticsAPM::Config[:debug_level] = 2
     AppOpticsAPM::Config[:service_key] = 'string_3'
-    AppOpticsAPM::Config[:ec2_metadata_timeout] = 2323
 
     AppOpticsAPM::OboeInitOptions.instance.re_init
     options = AppOpticsAPM::OboeInitOptions.instance.array_for_oboe
 
-    options.size.must_equal 18
+    options.size.must_equal 17
 
     options[0].must_equal 'string_0'
     options[1].must_equal 1
     options[9].must_equal '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000:test_app'
-    options[17].must_equal 1212
   end
 
   it 'checks the service_key for ssl' do
@@ -254,22 +246,5 @@ describe 'OboeInitOptions' do
     AppOpticsAPM::OboeInitOptions.instance.re_init
     AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal true
     AppOpticsAPM::OboeInitOptions.instance.service_name.must_equal "serv_#{'1234567890' * 25}"
-  end
-
-  it 'replaces invalid ec2 metadata timeouts with the default' do
-    ENV.delete('APPOPTICS_EC2_METADATA_TIMEOUT')
-
-    ENV['APPOPTICS_EC2_METADATA_TIMEOUT'] = '-12'
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.ec2_md_timeout.must_equal 1000
-
-    ENV['APPOPTICS_EC2_METADATA_TIMEOUT'] = '3001'
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.ec2_md_timeout.must_equal 1000
-
-
-    ENV['APPOPTICS_EC2_METADATA_TIMEOUT'] = 'qoieurqopityeoritbweortmvoiu'
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.ec2_md_timeout.must_equal 1000
   end
 end
