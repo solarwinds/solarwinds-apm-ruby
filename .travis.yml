@@ -23,6 +23,7 @@ gemfile:
   - gemfiles/instrumentation_mocked.gemfile
   - gemfiles/instrumentation_mocked_oldgems.gemfile
   - gemfiles/frameworks.gemfile
+  - gemfiles/rails60.gemfile
   - gemfiles/rails52.gemfile
   - gemfiles/rails42.gemfile
   - gemfiles/delayed_job.gemfile
@@ -57,9 +58,9 @@ matrix:
       env: DBTYPE=mysql
     - gemfile: gemfiles/frameworks.gemfile
       env: DBTYPE=mysql
-    - gemfile: gemfiles/rails51.gemfile
-      env: DBTYPE=mysql
     - gemfile: gemfiles/rails52.gemfile
+      env: DBTYPE=mysql
+    - gemfile: gemfiles/rails60.gemfile
       env: DBTYPE=mysql
     - gemfile: gemfiles/delayed_job.gemfile
       env: DBTYPE=mysql
@@ -96,9 +97,9 @@ matrix:
 #  - sudo service cassandra start
 
 install:
-  - curl -LO http://kent.dl.sourceforge.net/project/swig/swig/swig-3.0.8/swig-3.0.8.tar.gz
-  - tar xzf swig-3.0.8.tar.gz
-  - pushd swig-3.0.8
+  - curl -LO http://kent.dl.sourceforge.net/project/swig/swig/swig-3.0.8/swig-3.0.12.tar.gz
+  - tar xzf swig-3.0.12.tar.gz
+  - pushd swig-3.0.12
   - ./configure && make && sudo make install
   - popd
 
