@@ -11,7 +11,7 @@ env:
   - DBTYPE=mysql
 
 rvm:
-  - 2.6.3
+  - 2.6.4
   - 2.5.5
   - 2.4.5
   - ruby-head
@@ -33,11 +33,11 @@ matrix:
   exclude:
     - rvm: ruby-head
       gemfile: gemfiles/rails42.gemfile
-    - rvm: 2.6.3
+    - rvm: 2.6.4
       gemfile: gemfiles/rails42.gemfile
 
 
-    - rmv: 2.6.3
+    - rmv: 2.6.4
       env: DBTYPE=mysql
     - rvm: 2.5.5
       env: DBTYPE=mysql
@@ -97,9 +97,9 @@ matrix:
 #  - sudo service cassandra start
 
 install:
-  - curl -LO http://kent.dl.sourceforge.net/project/swig/swig/swig-3.0.12/swig-3.0.12.tar.gz
-  - tar xzf swig-3.0.12.tar.gz
-  - pushd swig-3.0.12
+  - curl -LO http://kent.dl.sourceforge.net/project/swig/swig/swig-3.0.8/swig-3.0.8.tar.gz
+  - tar xzf swig-3.0.8.tar.gz
+  - pushd swig-3.0.8
   - ./configure && make && sudo make install
   - popd
 
