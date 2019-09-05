@@ -35,7 +35,8 @@ matrix:
       gemfile: gemfiles/rails42.gemfile
     - rvm: 2.6.4
       gemfile: gemfiles/rails42.gemfile
-
+    - rvm: 2.4.5
+      gemfile: gemfiles/rails60.gemfile
 
     - rmv: 2.6.4
       env: DBTYPE=mysql
