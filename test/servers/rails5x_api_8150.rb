@@ -52,7 +52,7 @@ module Rails50APIStack
     config.middleware.delete ActionDispatch::Flash
     config.secret_token = "48837489qkuweoiuoqwehisuakshdjksadhaisdy78o34y138974xyqp9rmye8yrpiokeuioqwzyoiuxftoyqiuxrhm3iou1hrzmjk"
     config.secret_key_base = "2049671-96803948"
-    config.sqlite3 = {} # deal with https://github.com/rails/rails/issues/37048
+    config.active_record.sqlite3 = {} # deal with https://github.com/rails/rails/issues/37048
   end
 end
 

@@ -106,8 +106,9 @@ when /delayed_job/
   require './test/servers/delayed_job'
 
 when /rails[56]/
-  require './test/servers/rails5x_api_8150'
   require './test/servers/rails5x_8140'
+  sleep 1
+  require './test/servers/rails5x_api_8150'
 when /rails4/
   require './test/servers/rails4x_8140'
 
