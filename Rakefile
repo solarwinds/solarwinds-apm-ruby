@@ -130,6 +130,8 @@ Rake::TestTask.new do |t|
 
   task :fetch => :fetch_ext_deps
 
+task :fetch => :fetch_ext_deps
+
 desc "Build the gem's c extension"
 task :compile do
   if !defined?(JRUBY_VERSION)
