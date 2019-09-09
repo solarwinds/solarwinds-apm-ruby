@@ -102,7 +102,8 @@ if defined?(::Rails)
       traces[4]['Layer'].must_equal "activerecord"
       traces[4]['Label'].must_equal "entry"
       traces[4]['Flavor'].must_equal "postgresql"
-      traces[4]['Query'].must_equal "SELECT  \"widgets\".* FROM \"widgets\" WHERE \"widgets\".\"name\" = $? ORDER BY \"widgets\".\"id\" ASC LIMIT $?"
+      # using match because there is a 1 space difference between Rails 5 and Rails 6
+      traces[4]['Query'].must_match /SELECT\s{1,2}\"widgets\".* FROM \"widgets\" WHERE \"widgets\".\"name\" = \$\? ORDER BY \"widgets\".\"id\" ASC LIMIT \$\?/
       traces[4]['Name'].must_equal "Widget Load"
       traces[4].key?('Backtrace').must_equal false
       traces[4].key?('QueryArgs').must_equal false
