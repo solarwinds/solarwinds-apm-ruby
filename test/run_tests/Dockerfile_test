@@ -23,6 +23,7 @@ RUN apt-get update \
        libpq-dev \
        vim \
        less \
+       tcl \
        tree \
        psmisc \
     && rm -rf /var/lib/apt/lists/*
@@ -60,10 +61,14 @@ RUN curl -SL http://kent.dl.sourceforge.net/project/swig/swig/swig-4.0.0/swig-4.
     && cd - \
     && rm -rf /tmp/swig-4.0.0
 
-# install postgres, redis, and memcached
+# install redis-server version 4++
+RUN curl -SL http://download.redis.io/releases/redis-4.0.0.tar.gz | tar xzC /tmp \
+    && cd /tmp/redis-4.0.0/ \
+    && make  && make install && cd -
+
+# install postgres and memcached
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-       redis-server \
        memcached \
        postgresql \
        postgresql-contrib \

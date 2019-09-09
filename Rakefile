@@ -66,13 +66,13 @@ end
 desc "Run all test suites defined by travis"
 task "docker_tests" do
   Dir.chdir('test/run_tests')
-  exec('docker-compose run ruby_appoptics /code/ruby-appoptics/test/run_tests/ruby_setup.sh test --remove-orphans')
+  exec('docker-compose run --rm ruby_appoptics /code/ruby-appoptics/test/run_tests/ruby_setup.sh test --remove-orphans')
 end
 
 desc "Start docker container for testing and debugging"
 task "docker" do
   Dir.chdir('test/run_tests')
-  exec('docker-compose run ruby_appoptics /code/ruby-appoptics/test/run_tests/ruby_setup.sh bash --remove-orphans')
+  exec('docker-compose run --rm ruby_appoptics /code/ruby-appoptics/test/run_tests/ruby_setup.sh bash --remove-orphans')
 end
 
 desc "Stop all containers that were started for testing and debugging"
@@ -84,11 +84,11 @@ end
 desc "Fetch extension dependency files"
 task :fetch_ext_deps do
   swig_version = %x{swig -version} rescue ''
-  swig_version = swig_version.scan(/swig version 3.0.\d*/i)
+  swig_version = swig_version.scan(/swig version [34]/i)
   if swig_version.empty?
     $stderr.puts '== ERROR ================================================================='
-    $stderr.puts "Could not find required swig version 3.0.*, found #{swig_version.inspect}"
-    $stderr.puts 'Please install swig "~ 3.0.8" and try again.'
+    $stderr.puts "Could not find required swig version >= 3.0.8, found #{swig_version.inspect}"
+    $stderr.puts 'Please install swig ">= 3.0.8" and try again.'
     $stderr.puts '=========================================================================='
     raise
   end
