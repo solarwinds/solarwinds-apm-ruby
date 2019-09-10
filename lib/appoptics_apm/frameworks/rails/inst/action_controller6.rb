@@ -7,7 +7,7 @@ module AppOpticsAPM
     # ActionController
     #
     # This modules contains the instrumentation code specific
-    # to Rails v5
+    # to Rails v6
     #
     module ActionController
       include AppOpticsAPM::Inst::RailsBase
