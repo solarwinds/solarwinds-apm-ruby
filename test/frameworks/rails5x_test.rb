@@ -102,7 +102,8 @@ if defined?(::Rails)
       traces[4]['Layer'].must_equal "activerecord"
       traces[4]['Label'].must_equal "entry"
       traces[4]['Flavor'].must_equal "postgresql"
-      traces[4]['Query'].must_equal "SELECT  \"widgets\".* FROM \"widgets\" WHERE \"widgets\".\"name\" = $? ORDER BY \"widgets\".\"id\" ASC LIMIT $?"
+      # using match because there is a 1 space difference between Rails 5 and Rails 6
+      traces[4]['Query'].must_match /SELECT\s{1,2}\"widgets\".* FROM \"widgets\" WHERE \"widgets\".\"name\" = \$\? ORDER BY \"widgets\".\"id\" ASC LIMIT \$\?/
       traces[4]['Name'].must_equal "Widget Load"
       traces[4].key?('Backtrace').must_equal false
       traces[4].key?('QueryArgs').must_equal false
@@ -161,7 +162,8 @@ if defined?(::Rails)
 
       entry_traces[3]['Layer'].must_equal "activerecord"
       entry_traces[3]['Flavor'].must_equal "mysql"
-      entry_traces[3]['Query'].must_equal "SELECT  `widgets`.* FROM `widgets` WHERE `widgets`.`name` = 'blah' ORDER BY `widgets`.`id` ASC LIMIT 1"
+      # using match because there is a 1 space difference between Rails 5 and Rails 6
+      entry_traces[3]['Query'].must_match /SELECT\s{1,2}`widgets`.* FROM `widgets` WHERE `widgets`.`name` = 'blah' ORDER BY `widgets`.`id` ASC LIMIT 1/
       entry_traces[3]['Name'].must_equal "Widget Load"
       entry_traces[3].key?('Backtrace').must_equal false
       entry_traces[3].key?('QueryArgs').must_equal Rails.version < '5.2.0' ? true : false
@@ -203,7 +205,7 @@ if defined?(::Rails)
 
       entry_traces[3]['Layer'].must_equal "activerecord"
       entry_traces[3]['Flavor'].must_equal "mysql"
-      entry_traces[3]['Query'].must_equal "SELECT  `widgets`.* FROM `widgets` WHERE `widgets`.`name` = ? ORDER BY `widgets`.`id` ASC LIMIT ?"
+      entry_traces[3]['Query'].must_match /SELECT\s{1,2}`widgets`.* FROM `widgets` WHERE `widgets`.`name` = \? ORDER BY `widgets`.`id` ASC LIMIT \?/
       entry_traces[3]['Name'].must_equal "Widget Load"
       entry_traces[3].key?('Backtrace').must_equal false
       entry_traces[3].key?('QueryArgs').must_equal false

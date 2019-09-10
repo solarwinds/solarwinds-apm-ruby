@@ -5,13 +5,13 @@ require 'appoptics_apm/frameworks/rails/inst/connection_adapters/mysql'
 require 'appoptics_apm/frameworks/rails/inst/connection_adapters/mysql2'
 require 'appoptics_apm/frameworks/rails/inst/connection_adapters/postgresql'
 
-if AppOpticsAPM::Config[:active_record][:enabled] && !defined?(JRUBY_VERSION) && Rails::VERSION::MAJOR < 6
+if AppOpticsAPM::Config[:active_record][:enabled] && !defined?(JRUBY_VERSION) && Rails::VERSION::MAJOR <= 6
   begin
     adapter = ActiveRecord::Base.connection_config[:adapter]
 
     if Rails::VERSION::MAJOR < 5
       require 'appoptics_apm/frameworks/rails/inst/connection_adapters/utils'
-    elsif Rails::VERSION::MAJOR == 5
+    elsif Rails::VERSION::MAJOR >= 5
       require 'appoptics_apm/frameworks/rails/inst/connection_adapters/utils5x'
     end
 

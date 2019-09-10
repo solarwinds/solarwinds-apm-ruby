@@ -23,6 +23,7 @@ RUN apt-get update \
        libpq-dev \
        vim \
        less \
+       tcl \
        tree \
        psmisc \
     && rm -rf /var/lib/apt/lists/*
@@ -39,15 +40,16 @@ RUN  git clone https://github.com/rbenv/rbenv.git ~/.rbenv \
 
 # install rubies to build our gem against
 RUN . ~/.profile \
+    && cd /root/.rbenv/plugins/ruby-build && git pull && cd - \
     && rbenv install 2.4.5 \
     && rbenv install 2.5.5 \
-    && rbenv install 2.6.3
+    && rbenv install 2.6.4
 #    && rbenv install jruby-9.1.16.0
 
 # need to revert to using bundler 1.17.3 because some gems require bundler < 2.0
 RUN . ~/.profile && rbenv local 2.4.5 && gem uninstall bundler --quiet -x && gem install bundler -v 1.17.3
 RUN . ~/.profile && rbenv local 2.5.5 && gem uninstall bundler --quiet -x && gem install bundler -v 1.17.3
-RUN . ~/.profile && rbenv local 2.6.3 && gem uninstall bundler --quiet -x && gem install bundler -v 1.17.3
+RUN . ~/.profile && rbenv local 2.6.4 && gem uninstall bundler --quiet -x && gem install bundler -v 1.17.3
 
 RUN echo 'gem: --no-document' >> ~/.gemrc
 
@@ -59,10 +61,14 @@ RUN curl -SL http://kent.dl.sourceforge.net/project/swig/swig/swig-4.0.0/swig-4.
     && cd - \
     && rm -rf /tmp/swig-4.0.0
 
-# install postgres, redis, and memcached
+# install redis-server version 4++
+RUN curl -SL http://download.redis.io/releases/redis-4.0.0.tar.gz | tar xzC /tmp \
+    && cd /tmp/redis-4.0.0/ \
+    && make  && make install && cd -
+
+# install postgres and memcached
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-       redis-server \
        memcached \
        postgresql \
        postgresql-contrib \

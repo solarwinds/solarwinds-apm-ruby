@@ -70,10 +70,6 @@ services:
   ao-ruby-rabbitmq:
     container_name: ao-ruby-rabbitmq
     image: rabbitmq:3-management
-#    ports:
-#      - "8080:15672"
-#      - "5672:5672"
-#      - "5671:5671"
 
   ao-ruby-mysql:
     container_name: ao-ruby-mysql
@@ -81,14 +77,10 @@ services:
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
       - MYSQL_ROOT_PASSWORD=admin
-#    ports:
-#      - "3306:3306"
 
   ao-ruby-mongo:
     container_name: ao-ruby-mongo
     image: mongo:3.4
-#    ports:
-#      - "27017:27017"
 
   ao_ruby_wait:
     container_name: ao_ruby_wait
@@ -101,6 +93,4 @@ services:
       - ao-ruby-rabbitmq
       - ao-ruby-mysql
       - ao-ruby-mongo
-#    environment:
-#      - TARGETS=ao-ruby-mysql:3306;ao-ruby-rabbitmq:5672;ao-ruby-mongo:27017
 
