@@ -1,5 +1,5 @@
 oboe*.gem
-Gemfile.lock
+*.lock
 gemfiles/*.lock
 .ruby-version
 *~
@@ -27,6 +27,7 @@ coverage
 doc
 .*byebug*
 gemfiles/vendor*
-scrap*
+scrap.rb
+scarp_gemfile
 .irbrc
 *.code-workspace
