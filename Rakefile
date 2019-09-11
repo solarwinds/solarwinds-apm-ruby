@@ -63,6 +63,7 @@ Rake::TestTask.new do |t|
     end
   end
 
+
   desc "Run all test suites defined by travis"
   task "docker_tests" do
     Dir.chdir('test/run_tests')
@@ -129,8 +130,6 @@ Rake::TestTask.new do |t|
   end
 
   task :fetch => :fetch_ext_deps
-
-task :fetch => :fetch_ext_deps
 
 desc "Build the gem's c extension"
 task :compile do
