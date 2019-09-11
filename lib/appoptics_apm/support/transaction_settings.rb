@@ -8,6 +8,8 @@ AO_TRACING_UNSET = -1
 
 AO_TRACING_DECISIONS_OK = 0
 
+OBOE_SETTINGS_UNSET = -1
+
 module AppOpticsAPM
   ##
   # This module helps with setting up the transaction filters and applying them
@@ -43,7 +45,7 @@ module AppOpticsAPM
 
       args = [@xtrace]
       args << tracing_mode
-      args << (AppOpticsAPM::Config[:sample_rate] || 0)
+      args << (AppOpticsAPM::Config[:sample_rate] || OBOE_SETTINGS_UNSET)
 
       if options && (options.options || options.signature)
         args << (options.trigger_trace ? 1 : 0)
