@@ -50,7 +50,7 @@ if defined?(AppOpticsAPM::Config)
   AppOpticsAPM::Config[:verbose] = false
 
   #
-  # Turn tracing on or off
+  # Turn Tracing on or off
   #
   # By default tracing is set to :enabled, the other option is :disabled.
   # :enabled means that sampling will be done according to the current
@@ -73,28 +73,29 @@ if defined?(AppOpticsAPM::Config)
   #
   # Trace Context in Logs
   #
-  # Configure if and when the traceId should be included in application logs.
+  # Configure if and when the Trace ID should be included in application logs.
   # Common Ruby and Rails loggers are auto-instrumented, so that they can include
-  # the current traceId in log messages.
+  # the current Trace ID in log messages.
   #
   # The added string will look like: "ao.traceId=7435A9FE510AE4533414D425DADF4E180D2B4E36-0"
   # It ends in '-1' if the request is sampled and in '-0' otherwise.
   #
   # The following options are available:
   # :never    (default)
-  # :sampled  only include the traceId of sampled requests
-  # :traced   include the traceId for all traced requests
-  # :always   always add a traceId, it will be '0000000000000000000000000000000000000000-0'
+  # :sampled  only include the Trace ID of sampled requests
+  # :traced   include the Trace ID for all traced requests
+  # :always   always add a Trace ID, it will be '0000000000000000000000000000000000000000-0'
   #           when there is no tracing context.
   #
   AppOpticsAPM::Config[:log_traceId] = :never
 
   #
-  # Prepend domain to transaction name
+  # Prepend Domain to Transaction Name
   #
-  # If this is set to `true` transaction names will be composed as `my.host.com/controller.action` instead of
-  # `controller.action`. This configuration applies to all transaction names, whether deduced by the instrumentation
-  # or implicitly set.
+  # If this is set to `true` transaction names will be composed as
+  # `my.host.com/controller.action` instead of `controller.action`.
+  # This configuration applies to all transaction names, whether deduced by the
+  # instrumentation or implicitly set.
   #
   AppOpticsAPM::Config[:transaction_name][:prepend_domain] = false
 
@@ -205,7 +206,7 @@ if defined?(AppOpticsAPM::Config)
   #
 
   #
-  # EC2 metadata fetching timeout
+  # EC2 Metadata Fetching Timeout
   #
   # The timeout can be in the range 0 - 3000 (milliseconds)
   # Setting to 0 milliseconds effectively disables fetching from
