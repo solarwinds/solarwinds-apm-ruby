@@ -6,6 +6,11 @@ require 'appoptics_apm/inst/rack'
 require 'mocha/minitest'
 
 describe "Rack: " do
+
+  ##
+  # HELPER METHODS
+  #
+  # method name = <name>_<xtrace_tracing_tag>_<expectations for start/exit/HttpSpan>
   def check_01_111(env = {})
 
     _, headers, _ = @rack.call(env)

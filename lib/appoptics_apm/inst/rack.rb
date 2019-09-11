@@ -27,30 +27,30 @@ if AppOpticsAPM.loaded
       end
 
       def call(env)
-        incoming = AppOpticsAPM::Context.isValid
 
         # In the case of nested Ruby apps such as Grape inside of Rails
         # or Grape inside of Grape, each app has it's own instance
         # of rack middleware. We want to avoid tracing rack more than once
         return @app.call(env) if AppOpticsAPM.tracing? && AppOpticsAPM.layer == :rack
 
+        incoming = AppOpticsAPM::Context.isValid
         AppOpticsAPM.transaction_name = nil
 
         url = env['PATH_INFO']
+        options = AppOpticsAPM::XTraceOptions.new(env['HTTP_X_TRACE_OPTIONS'], env['HTTP_X_TRACE_OPTIONS_SIGNATURE'])
         xtrace = AppOpticsAPM::XTrace.valid?(env['HTTP_X_TRACE']) ? (env['HTTP_X_TRACE']) : nil
-
-        settings = AppOpticsAPM::TransactionSettings.new(url, xtrace)
-
-        # AppOpticsAPM.logger.warn "%%% FILTER: #{settings} %%%"
+        settings = AppOpticsAPM::TransactionSettings.new(url, xtrace, options)
 
         response =
           propagate_xtrace(env, settings, xtrace) do
-            sample(env, settings) do
+            sample(env, settings, options) do
               AppOpticsAPM::TransactionMetrics.metrics(env, settings) do
                 @app.call(env)
               end
             end
           end || [500, {}, nil]
+        options.add_response_header(response[1], settings)
+
         AppOpticsAPM::Context.clear unless incoming
         response
       rescue
@@ -66,7 +66,7 @@ if AppOpticsAPM.loaded
 
       private
 
-      def collect(env, settings)
+      def collect(env)
         req = ::Rack::Request.new(env)
         report_kvs = {}
 
@@ -84,8 +84,6 @@ if AppOpticsAPM.loaded
 
           report_kvs[:URL] = AppOpticsAPM::Config[:rack][:log_args] ? ::CGI.unescape(req.fullpath) : ::CGI.unescape(req.path)
           report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:rack][:collect_backtraces]
-          report_kvs[:SampleRate]        = settings.rate
-          report_kvs[:SampleSource]      = settings.source
 
           # Report any request queue'ing headers.  Report as 'Request-Start' or the summed Queue-Time
           report_kvs[:'Request-Start']     = env['HTTP_X_REQUEST_START']    if env.key?('HTTP_X_REQUEST_START')
@@ -126,11 +124,13 @@ if AppOpticsAPM.loaded
         [status, headers, response]
       end
 
-      def sample(env, settings)
+      def sample(env, settings, options)
         xtrace = env['HTTP_X_TRACE']
         if settings.do_sample
           begin
-            report_kvs = collect(env, settings)
+            report_kvs = collect(env)
+            settings.add_kvs(report_kvs)
+            options&.add_kvs(report_kvs, settings)
 
             AppOpticsAPM::API.log_start(:rack, xtrace, report_kvs, settings)
 

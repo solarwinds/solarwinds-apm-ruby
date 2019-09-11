@@ -59,76 +59,77 @@ Rake::TestTask.new do |t|
   end
 
   if defined?(JRUBY_VERSION)
-    t.ruby_opts << ['-J-javaagent:/usr/local/tracelytics/tracelyticsagent.jar']
-  end
-end
-
-desc "Run all test suites defined by travis"
-task "docker_tests" do
-  Dir.chdir('test/run_tests')
-  exec('docker-compose run --rm ruby_appoptics /code/ruby-appoptics/test/run_tests/ruby_setup.sh test --remove-orphans')
-end
-
-desc "Start docker container for testing and debugging"
-task "docker" do
-  Dir.chdir('test/run_tests')
-  exec('docker-compose run --rm ruby_appoptics /code/ruby-appoptics/test/run_tests/ruby_setup.sh bash --remove-orphans')
-end
-
-desc "Stop all containers that were started for testing and debugging"
-task "docker_down" do
-  Dir.chdir('test/run_tests')
-  exec('docker-compose down')
-end
-
-desc "Fetch extension dependency files"
-task :fetch_ext_deps do
-  swig_version = %x{swig -version} rescue ''
-  swig_version = swig_version.scan(/swig version [34]/i)
-  if swig_version.empty?
-    $stderr.puts '== ERROR ================================================================='
-    $stderr.puts "Could not find required swig version >= 3.0.8, found #{swig_version.inspect}"
-    $stderr.puts 'Please install swig ">= 3.0.8" and try again.'
-    $stderr.puts '=========================================================================='
-    raise
+      t.ruby_opts << ['-J-javaagent:/usr/local/tracelytics/tracelyticsagent.jar']
+    end
   end
 
-  # The c-lib version is different from the gem version
-  oboe_version = ENV['OBOE_VERSION'] || 'latest'
-  oboe_s3_dir = "https://s3-us-west-2.amazonaws.com/rc-files-t2/c-lib/#{oboe_version}"
-  ext_src_dir = File.expand_path('ext/oboe_metal/src')
 
-  # VERSION is used by extconf.rb to download the correct liboboe when installing the gem
-  remote_file = File.join(oboe_s3_dir, 'VERSION')
-  local_file = File.join(ext_src_dir, 'VERSION')
-  puts "fetching #{remote_file} to #{local_file}"
-  open(remote_file, 'rb') do |rf|
-    content = rf.read
-    File.open(local_file, 'wb') { |f| f.puts content }
-    puts "!!!!!!! C-Lib VERSION: #{content.strip} !!!!!!!!"
+  desc "Run all test suites defined by travis"
+  task "docker_tests" do
+    Dir.chdir('test/run_tests')
+    exec('docker-compose run ruby_appoptics /code/ruby-appoptics/test/run_tests/ruby_setup.sh test --remove-orphans')
   end
 
-  # oboe and bson header files
-  FileUtils.mkdir_p(File.join(ext_src_dir, 'bson'))
-  %w(oboe.h oboe.hpp oboe_debug.h oboe.i bson/bson.h bson/platform_hacks.h).each do |filename|
-  # %w(oboe.h oboe_debug.h bson/bson.h bson/platform_hacks.h).each do |filename|
-    remote_file = File.join(oboe_s3_dir, 'include', filename)
-    local_file = File.join(ext_src_dir, filename)
+  desc "Start docker container for testing and debugging"
+  task "docker" do
+    Dir.chdir('test/run_tests')
+    exec('docker-compose run ruby_appoptics /code/ruby-appoptics/test/run_tests/ruby_setup.sh bash --remove-orphans')
+  end
 
+  desc "Stop all containers that were started for testing and debugging"
+  task "docker_down" do
+    Dir.chdir('test/run_tests')
+    exec('docker-compose down')
+  end
+
+  desc "Fetch extension dependency files"
+  task :fetch_ext_deps do
+    swig_version = %x{swig -version} rescue ''
+    swig_version = swig_version.scan(/swig version [34].0.\d*/i)
+    if swig_version.empty?
+      $stderr.puts '== ERROR ================================================================='
+      $stderr.puts "Could not find required swig version >3.0.8, found #{swig_version.inspect}"
+      $stderr.puts 'Please install swig "~ 3.0.12" and try again.'
+      $stderr.puts '=========================================================================='
+      raise
+    end
+
+    # The c-lib version is different from the gem version
+    oboe_version = ENV['OBOE_VERSION'] || 'latest'
+    oboe_s3_dir = "https://s3-us-west-2.amazonaws.com/rc-files-t2/c-lib/#{oboe_version}"
+    ext_src_dir = File.expand_path('ext/oboe_metal/src')
+
+    # VERSION is used by extconf.rb to download the correct liboboe when installing the gem
+    remote_file = File.join(oboe_s3_dir, 'VERSION')
+    local_file = File.join(ext_src_dir, 'VERSION')
     puts "fetching #{remote_file} to #{local_file}"
     open(remote_file, 'rb') do |rf|
       content = rf.read
       File.open(local_file, 'wb') { |f| f.puts content }
+      puts "!!!!!!! C-Lib VERSION: #{content.strip} !!!!!!!!"
+    end
+
+    # oboe and bson header files
+    FileUtils.mkdir_p(File.join(ext_src_dir, 'bson'))
+    %w(oboe.h oboe.hpp oboe_debug.h oboe.i bson/bson.h bson/platform_hacks.h).each do |filename|
+    # %w(oboe.h oboe_debug.h bson/bson.h bson/platform_hacks.h).each do |filename|
+      remote_file = File.join(oboe_s3_dir, 'include', filename)
+      local_file = File.join(ext_src_dir, filename)
+
+      puts "fetching #{remote_file} to #{local_file}"
+      open(remote_file, 'rb') do |rf|
+        content = rf.read
+        File.open(local_file, 'wb') { |f| f.puts content }
+      end
+    end
+
+    FileUtils.cd(ext_src_dir) do
+      system('swig -c++ -ruby -module oboe_metal oboe.i')
+      FileUtils.rm('oboe.i')
     end
   end
 
-  FileUtils.cd(ext_src_dir) do
-    system('swig -c++ -ruby -module oboe_metal oboe.i')
-    FileUtils.rm('oboe.i')
-  end
-end
-
-task :fetch => :fetch_ext_deps
+  task :fetch => :fetch_ext_deps
 
 desc "Build the gem's c extension"
 task :compile do
@@ -141,7 +142,7 @@ task :compile do
     so_file  = File.expand_path('ext/oboe_metal/oboe_metal.so')
 
     Dir.chdir ext_dir
-    ENV['APPOPTICS_FROM_S3'] = 'true'
+    # ENV['APPOPTICS_FROM_S3'] = 'true'
     cmd = [Gem.ruby, 'extconf.rb']
     sh cmd.join(' ')
     sh '/usr/bin/env make'
@@ -179,6 +180,7 @@ task :clean do
     Dir.chdir ext_dir
     sh '/usr/bin/env make clean' if File.exist? 'Makefile'
 
+    FileUtils.rm_f "src/oboe_wrap.cxx"
     Dir.chdir pwd
   else
     puts '== Nothing to do under JRuby.'

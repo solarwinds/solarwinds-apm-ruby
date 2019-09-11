@@ -17,7 +17,7 @@ Name | Description | Default
 
 Name | Description | Default
 ---- | ----------- | -------
-`APPOPTICS_GEM_TEST` | puts the gem in test mode.  Traces are written to /tmp/trace_output.bson. | `false`
+`APPOPTICS_GEM_TEST` | puts the gem in test mode to avoid restarting certain background services used in testing.   `false`
 `DBTYPE` | For tests on Ruby on Rails, specifies the database type to test against.  `postgres`, `mysql` and `mysql2` are valid options. | `postgres`
 `APPOPTICS_CASSANDRA_SERVER` | specifies the Cassandra server to test against. | `127.0.0.1:9160`
 `APPOPTICS_MONGO_SERVER` | specifies the Mongo server to test against. | `127.0.0.1:27017`

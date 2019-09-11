@@ -98,9 +98,9 @@ matrix:
 #  - sudo service cassandra start
 
 install:
-  - curl -LO http://kent.dl.sourceforge.net/project/swig/swig/swig-3.0.8/swig-3.0.8.tar.gz
-  - tar xzf swig-3.0.8.tar.gz
-  - pushd swig-3.0.8
+  - curl -LO http://kent.dl.sourceforge.net/project/swig/swig/swig-3.0.12/swig-3.0.12.tar.gz
+  - tar xzf swig-3.0.12.tar.gz
+  - pushd swig-3.0.12
   - ./configure && make && sudo make install
   - popd
 
@@ -111,8 +111,8 @@ before_script:
   - export APPOPTICS_REPORTER_FILE_SINGLE=false
   - export APPOPTICS_TOKEN_BUCKET_CAPACITY=1000
   - export APPOPTICS_TOKEN_BUCKET_RATE=1000
-  - export OBOE_VERSION=5.1.1
-  - bundle --jobs=3 --retry=3
+
+  - bundle update --jobs=3 --retry=3
   - bundle exec rake clean fetch compile
   - psql -c 'create database travis_ci_test;' -U postgres
   - mysql -e 'create database travis_ci_test;'
