@@ -257,6 +257,10 @@ describe "AppOpticsAPM::Config" do
     AppOpticsAPM::Config[:typhoeus][:collect_backtraces].must_equal false
   end
 
+  it "should not fail on deprecated configs" do
+    AppOpticsAPM::Config[:em_http_request][:collect_backtraces].must_equal nil
+  end
+
   def test_deprecated_config_accessors
     AppOpticsAPM::Config.initialize
 
