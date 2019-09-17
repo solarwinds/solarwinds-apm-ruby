@@ -27,7 +27,6 @@ coverage
 doc
 .*byebug*
 gemfiles/vendor*
-scrap.rb
-scarp_gemfile
+scrap*
 .irbrc
 *.code-workspace
