@@ -15,6 +15,7 @@ module AppOpticsAPM
       def metrics(env, settings)
         if settings.do_metrics
           req = ::Rack::Request.new(env)
+          # TODO rails 3x is not supported anymore ...
           url = req.url   # saving it here because rails3.2 overrides it when there is a 500 error
           start = Time.now
 

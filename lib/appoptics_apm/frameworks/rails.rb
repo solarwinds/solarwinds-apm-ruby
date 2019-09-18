@@ -48,7 +48,6 @@ module AppOpticsAPM
       # Load the Rails specific instrumentation
       require 'appoptics_apm/frameworks/rails/inst/action_controller'
       require 'appoptics_apm/frameworks/rails/inst/action_view'
-      require 'appoptics_apm/frameworks/rails/inst/action_view_30'
       require 'appoptics_apm/frameworks/rails/inst/active_record'
       require 'appoptics_apm/frameworks/rails/inst/logger_formatters'
 
