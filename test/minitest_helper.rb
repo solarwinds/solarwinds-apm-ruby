@@ -112,9 +112,6 @@ when /rails[56]/
 when /rails4/
   require './test/servers/rails4x_8140'
 
-when /rails3/
-  require './test/servers/rails3x_8140'
-
 when /frameworks/
 when /libraries/
   require 'rack/test'
