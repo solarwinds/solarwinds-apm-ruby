@@ -23,20 +23,20 @@ describe Sinatra do
 
     traces = get_all_traces
 
-    _(traces.count).must_equal 8
+    _(traces.count).must_equal 6
     _(valid_edges?(traces)).must_equal true
     validate_outer_layers(traces, 'rack')
 
     _(traces[1]['Layer']).must_equal "sinatra"
-    _(traces[3]['Label']).must_equal "profile_entry"
-    _(traces[6]['Controller']).must_equal "SinatraSimple"
-    _(traces[7]['Label']).must_equal "exit"
+    _(traces[2]['Label']).must_equal "entry"
+    _(traces[4]['Controller']).must_equal "SinatraSimple"
+    _(traces[5]['Label']).must_equal "exit"
 
     layer_has_key_once(traces, 'sinatra', 'Backtrace')
 
     # Validate the existence of the response header
     _(r.headers.key?('X-Trace')).must_equal true
-    _(r.headers['X-Trace']).must_equal traces[7]['X-Trace']
+    _(r.headers['X-Trace']).must_equal traces[5]['X-Trace']
   end
 
   it "should log an error on exception" do
