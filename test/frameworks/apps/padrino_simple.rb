@@ -5,6 +5,7 @@ PADRINO_ROOT = File.dirname(__FILE__) unless defined? PADRINO_ROOT
 #
 # require 'rubygems'
 # require 'padrino-core'
+# require 'appoptics_apm'
 #
 
 class SimpleDemo < Padrino::Application
@@ -73,7 +74,7 @@ end
 # Padrino.mount("SimpleDemo").to("/")
 # Padrino.run! unless Padrino.loaded? # If you enable reloader prevent to re-run the app
 #
-# Then run it from your console: ruby -I"lib" test/fixtures/apps/simple.rb
+# Then run it from your console: ruby -I"lib" test/frameworks/apps/padrino_simple.rb
 #
 
 Padrino.load!
