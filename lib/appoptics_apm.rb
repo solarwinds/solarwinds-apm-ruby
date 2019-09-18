@@ -43,7 +43,6 @@ begin
 
   # appoptics_apm/loading can set AppOpticsAPM.loaded = false if the service key is not working
   require 'appoptics_apm/loading'
-  require 'appoptics_apm/legacy_method_profiling'
   require 'appoptics_apm/method_profiling'
 
   if AppOpticsAPM.loaded
@@ -69,7 +68,6 @@ begin
   # Load Ruby module last.  If there is no framework detected,
   # it will load all of the Ruby instrumentation
   require 'appoptics_apm/ruby'
-  require 'oboe/backward_compatibility'
 
   require 'appoptics_apm/test' if ENV['APPOPTICS_GEM_TEST']
 rescue => e
