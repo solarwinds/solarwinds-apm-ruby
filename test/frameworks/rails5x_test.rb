@@ -35,6 +35,36 @@ if defined?(::Rails)
       _ = Net::HTTP.get_response(uri)
     end
 
+    it "should create a span for a partial" do
+      uri = URI.parse('http://127.0.0.1:8140/hello/with_partial')
+
+      _ = Net::HTTP.get_response(uri)
+
+      traces = get_all_traces
+      _(traces.count).must_equal 8
+
+      _(traces[3]['Layer']).must_equal "partial"
+      _(traces[3]['Label']).must_equal "entry"
+      _(traces[3]['Partial']).must_equal "somepartial"
+      _(traces[4]['Layer']).must_equal "partial"
+      _(traces[4]['Label']).must_equal "exit"
+    end
+
+    it "should create a span for a collection" do
+      uri = URI.parse('http://127.0.0.1:8140/widgets')
+
+      _ = Net::HTTP.get_response(uri)
+
+      traces = get_all_traces
+      _(traces.count).must_equal 16
+
+      _(traces[11]['Layer']).must_equal "collection"
+      _(traces[11]['Label']).must_equal "entry"
+      _(traces[11]['Partial']).must_equal "widget"
+      _(traces[12]['Layer']).must_equal "collection"
+      _(traces[12]['Label']).must_equal "exit"
+    end
+
     it "should trace a request to a rails stack" do
       uri = URI.parse('http://127.0.0.1:8140/hello/world')
       r = Net::HTTP.get_response(uri)
