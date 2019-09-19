@@ -10,6 +10,16 @@ require "action_controller/railtie"
 require 'rack/handler/puma'
 require File.expand_path(File.dirname(__FILE__) + '/../models/widget')
 
+class ApplicationController < ActionController::Base
+  before_action :set_view_path
+
+  private
+
+  def set_view_path
+    prepend_view_path "#{File.dirname(__FILE__)}/app/views/"
+  end
+end
+
 AppOpticsAPM.logger.info "[appoptics_apm/info] Starting background utility rails app on localhost:8140."
 
 if ENV['DBTYPE'] == 'mysql2'
@@ -33,11 +43,14 @@ end
 class Rails40MetalStack < Rails::Application
   routes.append do
     get "/hello/world"       => "hello#world"
+    get "/hello/with_partial" => "hello#with_partial"
     get "/hello/:id/show"    => "hello#show"
     get "/hello/metal"       => "ferro#world"
     get "/hello/db"          => "hello#db"
     get "/hello/servererror" => "hello#servererror"
 
+    get "/widgets"          => "widgets#all"
+    get "/widgets/delete_all" => "widgets#delete_all"
     resources :widgets
   end
 
@@ -55,13 +68,17 @@ end
 #  Controllers
 #################################################
 
-class HelloController < ActionController::Base
+class HelloController < ApplicationController
   def world
     render :text => "Hello world!"
   end
 
   def show
     render :text => "Hello Number #{params[:id]}"
+  end
+
+  def with_partial
+    render partial: "somepartial"
   end
 
   def db
@@ -81,8 +98,20 @@ class HelloController < ActionController::Base
   end
 end
 
-class WidgetsController < ActionController::Base
+class WidgetsController < ApplicationController
   protect_from_forgery with: :null_session
+
+  def self.controller_path
+    "hello" # change path from app/views/user_posts to app/views/posts
+  end
+
+  def all
+    Widget.new(:name => 'This one', :description => 'This is an amazing widget.').save
+    Widget.new(:name => 'This two', :description => 'This is an amazing widget.').save
+    Widget.new(:name => 'This three', :description => 'This is an amazing widget.').save
+    @widgets = Widget.all
+    render partial: "widget", collection: @widgets
+  end
 
   def show
     if widget = Widget.find(params[:id].to_i)
@@ -116,6 +145,11 @@ class WidgetsController < ActionController::Base
     rescue => e
       render :plain => 'Widget NOT destroyed', :status => 500
     end
+  end
+
+  def delete_all
+    Widget.delete_all
+    render plain: 'All widgets destroyed'
   end
 
   private
