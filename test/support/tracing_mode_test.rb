@@ -15,7 +15,7 @@ class TracingModeTest  < Minitest::Test
 
   def test_trace_when_enabled
     AppOpticsAPM::API.start_trace(:test_enabled) do
-      AppOpticsAPM.tracing?.must_equal true
+      _(AppOpticsAPM.tracing?).must_equal true
     end
   end
 
@@ -23,11 +23,11 @@ class TracingModeTest  < Minitest::Test
     AppOpticsAPM::Config[:tracing_mode] = :disabled
 
     AppOpticsAPM::API.start_trace(:test_disabled) do
-      AppOpticsAPM.tracing?.must_equal false
+      _(AppOpticsAPM.tracing?).must_equal false
     end
 
     AppOpticsAPM::API.start_trace('asdf') do
-      AppOpticsAPM.tracing?.must_equal false
+      _(AppOpticsAPM.tracing?).must_equal false
     end
   end
 end

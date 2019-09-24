@@ -23,20 +23,20 @@ if defined?(::Padrino)
       r = get "/render"
 
       traces = get_all_traces
+      _(traces.count).must_equal 6
 
-      traces.count.must_equal 8
-      valid_edges?(traces).must_equal true
+      _(valid_edges?(traces)).must_equal true
       validate_outer_layers(traces, 'rack')
 
-      traces[1]['Layer'].must_equal "padrino"
-      traces[6]['Controller'].must_equal "SimpleDemo"
-      traces[7]['Label'].must_equal "exit"
+      _(traces[1]['Layer']).must_equal "padrino"
+      _(traces[4]['Controller']).must_equal "SimpleDemo"
+      _(traces[5]['Label']).must_equal "exit"
 
       layer_has_key_once(traces, 'padrino', 'Backtrace')
 
       # Validate the existence of the response header
-      r.headers.key?('X-Trace').must_equal true
-      r.headers['X-Trace'].must_equal traces[7]['X-Trace']
+      _(r.headers.key?('X-Trace')).must_equal true
+      _(r.headers['X-Trace']).must_equal traces[5]['X-Trace']
     end
 
     it "should log an error on exception" do
@@ -50,20 +50,20 @@ if defined?(::Padrino)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 5
-      valid_edges?(traces).must_equal true
+      _(traces.count).must_equal 5
+      _(valid_edges?(traces)).must_equal true
       validate_outer_layers(traces, 'rack')
 
-      traces[2]['Layer'].must_equal "padrino"
+      _(traces[2]['Layer']).must_equal "padrino"
 
       error_traces = traces.select{ |trace| trace['Label'] == 'error' }
-      error_traces.size.must_equal 1
+      _(error_traces.size).must_equal 1
 
       error_trace = error_traces[0]
-      error_trace['Layer'].must_equal 'padrino'
-      error_trace['Spec'].must_equal 'error'
-      error_trace.key?('ErrorClass').must_equal true
-      error_trace.key?('ErrorMsg').must_equal true
+      _(error_trace['Layer']).must_equal 'padrino'
+      _(error_trace['Spec']).must_equal 'error'
+      _(error_trace.key?('ErrorClass')).must_equal true
+      _(error_trace.key?('ErrorMsg')).must_equal true
     end
 
     it 'should not report backtraces' do
@@ -135,7 +135,7 @@ if defined?(::Padrino)
 
       r = get "/render/1234567890"
 
-      r.body.must_match /1234567890/
+      _(r.body).must_match /1234567890/
 
       assert_equal "SimpleDemo./render/:id", test_action
       assert_equal "http://example.org/render/1234567890", test_url
@@ -159,7 +159,7 @@ if defined?(::Padrino)
 
       r = get "/symbol_route/1234567890"
 
-      r.body.must_match /1234567890/
+      _(r.body).must_match /1234567890/
 
       assert_equal "SimpleDemo./symbol_route/:id", test_action
       assert_equal "http://example.org/symbol_route/1234567890", test_url
@@ -183,7 +183,7 @@ if defined?(::Padrino)
 
       r = get "/render/1234567890/what"
 
-      r.body.must_match /WOOT is 1234567890/
+      _(r.body).must_match /WOOT is 1234567890/
 
       assert_equal "SimpleDemo./render/:id/what", test_action
       assert_equal "http://example.org/render/1234567890/what", test_url
@@ -229,7 +229,7 @@ if defined?(::Padrino)
 
       r = get "/user/12345/product"
 
-      r.body.must_match /12345/
+      _(r.body).must_match /12345/
 
       assert_equal "product./user/:user_id/product", test_action
       assert_equal "http://example.org/user/12345/product", test_url
@@ -253,8 +253,8 @@ if defined?(::Padrino)
 
       r = get "/user/12345/product/show/101010"
 
-      r.body.must_match /12345/
-      r.body.must_match /101010/
+      _(r.body).must_match /12345/
+      _(r.body).must_match /101010/
 
       assert_equal "product./user/:user_id/product/show/:id", test_action
       assert_equal "http://example.org/user/12345/product/show/101010", test_url

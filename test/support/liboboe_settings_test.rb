@@ -11,7 +11,7 @@ unless defined?(JRUBY_VERSION)
   AppOpticsAPM::Config[:tracing_mode] = :enabled
   AppOpticsAPM::Config[:sample_rate] = 1e6
 
-  class RackTestApp < Minitest::Test
+  describe "RackTestApp" do
     include Rack::Test::Methods
 
     def app
@@ -38,7 +38,7 @@ unless defined?(JRUBY_VERSION)
       get "/lobster"
 
       traces = get_all_traces
-      traces.count.must_equal 2
+      _(traces.count).must_equal 2
 
       validate_outer_layers(traces, 'rack')
 

@@ -15,13 +15,13 @@ describe "Dalli" do
   end
 
   it 'Stock Dalli should be loaded, defined and ready' do
-    defined?(::Dalli).wont_match nil
-    defined?(::Dalli::Client).wont_match nil
+    _(defined?(::Dalli)).wont_match nil
+    _(defined?(::Dalli::Client)).wont_match nil
   end
 
   it 'should have appoptics_apm methods defined' do
     [ :perform_with_appoptics, :get_multi_with_appoptics].each do |m|
-      ::Dalli::Client.method_defined?(m).must_equal true
+      _(::Dalli::Client.method_defined?(m)).must_equal true
     end
   end
 
@@ -31,15 +31,15 @@ describe "Dalli" do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 4
+    _(traces.count).must_equal 4
 
     validate_outer_layers(traces, 'dalli_test')
 
-    traces[1].has_key?("KVOp").must_equal true
-    traces[1].has_key?("KVKey").must_equal true
-    traces[1]['Layer'].must_equal "memcache"
-    traces[1]['KVKey'].must_equal "some_key"
-    traces[1]['RemoteHost'].must_equal "127.0.0.1:11211"
+    _(traces[1].has_key?("KVOp")).must_equal true
+    _(traces[1].has_key?("KVKey")).must_equal true
+    _(traces[1]['Layer']).must_equal "memcache"
+    _(traces[1]['KVKey']).must_equal "some_key"
+    _(traces[1]['RemoteHost']).must_equal "127.0.0.1:11211"
   end
 
   it 'should trace get' do
@@ -48,15 +48,15 @@ describe "Dalli" do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 4
+    _(traces.count).must_equal 4
 
     validate_outer_layers(traces, 'dalli_test')
 
-    traces[1]['KVOp'].must_equal "get"
-    traces[1]['KVKey'].must_equal "some_key"
-    traces[1]['RemoteHost'].must_equal "127.0.0.1:11211"
-    traces[2].has_key?('KVHit').must_equal true
-    traces[2]['Label'].must_equal "exit"
+    _(traces[1]['KVOp']).must_equal "get"
+    _(traces[1]['KVKey']).must_equal "some_key"
+    _(traces[1]['RemoteHost']).must_equal "127.0.0.1:11211"
+    _(traces[2].has_key?('KVHit')).must_equal true
+    _(traces[2]['Label']).must_equal "exit"
   end
 
   it 'should trace get_multi' do
@@ -65,15 +65,15 @@ describe "Dalli" do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 4
+    _(traces.count).must_equal 4
 
     validate_outer_layers(traces, 'dalli_test')
 
-    traces[1]['KVOp'].must_equal "get_multi"
-    traces[2]['RemoteHost'].must_equal "127.0.0.1:11211"
-    traces[2].has_key?('KVKeyCount').must_equal true
-    traces[2].has_key?('KVHitCount').must_equal true
-    traces[2]['Label'].must_equal "exit"
+    _(traces[1]['KVOp']).must_equal "get_multi"
+    _(traces[2]['RemoteHost']).must_equal "127.0.0.1:11211"
+    _(traces[2].has_key?('KVKeyCount')).must_equal true
+    _(traces[2].has_key?('KVHitCount')).must_equal true
+    _(traces[2]['Label']).must_equal "exit"
   end
 
   it "should trace increment" do
@@ -84,14 +84,14 @@ describe "Dalli" do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 4
+    _(traces.count).must_equal 4
 
     validate_outer_layers(traces, 'dalli_test')
 
-    traces[1]['KVOp'].must_equal "incr"
-    traces[1]['KVKey'].must_equal "dalli_key_counter"
-    traces[1]['RemoteHost'].must_equal "127.0.0.1:11211"
-    traces[2]['Label'].must_equal "exit"
+    _(traces[1]['KVOp']).must_equal "incr"
+    _(traces[1]['KVKey']).must_equal "dalli_key_counter"
+    _(traces[1]['RemoteHost']).must_equal "127.0.0.1:11211"
+    _(traces[2]['Label']).must_equal "exit"
   end
 
   it "should trace decrement" do
@@ -102,14 +102,14 @@ describe "Dalli" do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 4
+    _(traces.count).must_equal 4
 
     validate_outer_layers(traces, 'dalli_test')
 
-    traces[1]['KVOp'].must_equal "decr"
-    traces[1]['KVKey'].must_equal "dalli_key_counter"
-    traces[1]['RemoteHost'].must_equal "127.0.0.1:11211"
-    traces[2]['Label'].must_equal "exit"
+    _(traces[1]['KVOp']).must_equal "decr"
+    _(traces[1]['KVKey']).must_equal "dalli_key_counter"
+    _(traces[1]['RemoteHost']).must_equal "127.0.0.1:11211"
+    _(traces[2]['Label']).must_equal "exit"
   end
 
   it "should trace replace" do
@@ -120,14 +120,14 @@ describe "Dalli" do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 4
+    _(traces.count).must_equal 4
 
     validate_outer_layers(traces, 'dalli_test')
 
-    traces[1]['KVOp'].must_equal "replace"
-    traces[1]['KVKey'].must_equal "some_key"
-    traces[1]['RemoteHost'].must_equal "127.0.0.1:11211"
-    traces[2]['Label'].must_equal "exit"
+    _(traces[1]['KVOp']).must_equal "replace"
+    _(traces[1]['KVKey']).must_equal "some_key"
+    _(traces[1]['RemoteHost']).must_equal "127.0.0.1:11211"
+    _(traces[2]['Label']).must_equal "exit"
   end
 
   it "should trace delete" do
@@ -138,13 +138,13 @@ describe "Dalli" do
     end
 
     traces = get_all_traces
-    traces.count.must_equal 4
+    _(traces.count).must_equal 4
 
     validate_outer_layers(traces, 'dalli_test')
 
-    traces[1]['KVOp'].must_equal "delete"
-    traces[1]['KVKey'].must_equal "some_key"
-    traces[1]['RemoteHost'].must_equal "127.0.0.1:11211"
+    _(traces[1]['KVOp']).must_equal "delete"
+    _(traces[1]['KVKey']).must_equal "some_key"
+    _(traces[1]['RemoteHost']).must_equal "127.0.0.1:11211"
   end
 
   it "should obey :collect_backtraces setting when true" do

@@ -112,26 +112,26 @@ describe 'GRPC' do
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
 
-      traces.size.must_equal 4
+      _(traces.size).must_equal 4
 
       assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces[0]['Spec'].must_equal            'rsc'
-      traces[0]['RemoteURL'].must_equal       'grpc://localhost:50051/grpctest.TestService/unary'
-      traces[0]['IsService'].must_equal       'True'
+      _(traces[0]['Spec']).must_equal            'rsc'
+      _(traces[0]['RemoteURL']).must_equal       'grpc://localhost:50051/grpctest.TestService/unary'
+      _(traces[0]['IsService']).must_equal       'True'
 
       server_entry = traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'entry' }
-      server_entry['Spec'].must_equal            'grpc_server'
-      server_entry['Controller'].must_equal      'AddressService'
-      server_entry['Action'].must_equal          'unary'
-      server_entry['URL'].must_equal             '/grpctest.TestService/unary'
-      server_entry['HTTP-Host'].must_match       /127.0.0.1/
+      _(server_entry['Spec']).must_equal            'grpc_server'
+      _(server_entry['Controller']).must_equal      'AddressService'
+      _(server_entry['Action']).must_equal          'unary'
+      _(server_entry['URL']).must_equal             '/grpctest.TestService/unary'
+      _(server_entry['HTTP-Host']).must_match       /127.0.0.1/
 
-      traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'exit' }['TransactionName'].must_equal 'AddressService.unary'
+      _(traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'exit' }['TransactionName']).must_equal 'AddressService.unary'
 
-      traces.each { |tr| tr['GRPCMethodType'].must_equal 'UNARY' }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'OK' }
+      traces.each { |tr| _(tr['GRPCMethodType']).must_equal 'UNARY' }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'OK' }
     end
 
     it 'should include backtraces for unary if configured' do
@@ -143,10 +143,10 @@ describe 'GRPC' do
         end
 
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-        traces.size.must_equal 4
+        _(traces.size).must_equal 4
 
-        traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| tr['Backtrace'].must_be_nil "Extra backtrace in trace"}
-        traces.select { |tr| tr['Label'] == 'exit' }.each { |tr| tr['Backtrace'].wont_be_nil "Backtrace missing"}
+        traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| _(tr['Backtrace']).must_be_nil "Extra backtrace in trace"}
+        traces.select { |tr| tr['Label'] == 'exit' }.each { |tr| _(tr['Backtrace']).wont_be_nil "Backtrace missing"}
       end
     end
 
@@ -162,12 +162,12 @@ describe 'GRPC' do
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
       if traces # no traces retrieved if sending them to the collector
         assert valid_edges?(traces), "Edges aren't valid"
-        traces.size.must_equal 6
+        _(traces.size).must_equal 6
         assert_entry_exit(traces, 2)
 
-        traces[0]['GRPCMethodType'].must_equal  'UNARY'
-        traces.select { |tr| tr['Label'] =~ /exit|entry'/}.each { |tr| tr['Backtrace'].must_be_nil }
-        traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'CANCELLED' }
+        _(traces[0]['GRPCMethodType']).must_equal  'UNARY'
+        traces.select { |tr| tr['Label'] =~ /exit|entry'/}.each { |tr| _(tr['Backtrace']).must_be_nil }
+        traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'CANCELLED' }
       end
     end
 
@@ -182,15 +182,15 @@ describe 'GRPC' do
       end
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      traces.size.must_equal 6
+      _(traces.size).must_equal 6
       assert_entry_exit(traces)
       assert valid_edges?(traces)
 
-      traces[0]['Spec'].must_equal            'rsc'
-      traces[0]['RemoteURL'].must_equal       'grpc://localhost:50051/grpctest.TestService/unary_long'
-      traces[0]['GRPCMethodType'].must_equal  'UNARY'
-      traces.select { |tr| tr['Label'] =~ /exit|entry'/}.each { |tr| tr['Backtrace'].must_be_nil }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'DEADLINE_EXCEEDED' }
+      _(traces[0]['Spec']).must_equal            'rsc'
+      _(traces[0]['RemoteURL']).must_equal       'grpc://localhost:50051/grpctest.TestService/unary_long'
+      _(traces[0]['GRPCMethodType']).must_equal  'UNARY'
+      traces.select { |tr| tr['Label'] =~ /exit|entry'/}.each { |tr| _(tr['Backtrace']).must_be_nil }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'DEADLINE_EXCEEDED' }
     end
 
     # Client: Some data transmitted (e.g., request metadata written to TCP connection) before connection breaks
@@ -204,13 +204,13 @@ describe 'GRPC' do
       end
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      traces.size.must_equal 3
+      _(traces.size).must_equal 3
       assert_entry_exit(traces, 1)
       assert valid_edges?(traces)
 
-      traces[0]['GRPCMethodType'].must_equal  'UNARY'
-      traces.select { |tr| tr['Label'] =~ /exit|entry'/}.each { |tr| tr['Backtrace'].must_be_nil }
-      traces[2]['GRPCStatus'].must_equal      'UNAVAILABLE'
+      _(traces[0]['GRPCMethodType']).must_equal  'UNARY'
+      traces.select { |tr| tr['Label'] =~ /exit|entry'/}.each { |tr| _(tr['Backtrace']).must_be_nil }
+      _(traces[2]['GRPCStatus']).must_equal      'UNAVAILABLE'
     end
 
     # Client: Error parsing returned status
@@ -224,13 +224,13 @@ describe 'GRPC' do
       end
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      traces.size.must_equal 6
+      _(traces.size).must_equal 6
       assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces[0]['GRPCMethodType'].must_equal  'UNARY'
-      traces.select { |tr| tr['Label'] =~ /exit|entry'/}.each { |tr| tr['Backtrace'].must_be_nil }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNKNOWN' }
+      _(traces[0]['GRPCMethodType']).must_equal  'UNARY'
+      traces.select { |tr| tr['Label'] =~ /exit|entry'/}.each { |tr| _(tr['Backtrace']).must_be_nil }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'UNKNOWN' }
     end
 
     # Client: Response cardinality violation (streaming)*
@@ -245,13 +245,13 @@ describe 'GRPC' do
       end
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      traces.size.must_equal 6
+      _(traces.size).must_equal 6
       assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces[0]['GRPCMethodType'].must_equal  'UNARY'
-      traces.select { |tr| tr['Label'] =~ /exit|entry/}.each { |tr| tr['Backtrace'].must_be_nil }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNIMPLEMENTED' }
+      _(traces[0]['GRPCMethodType']).must_equal  'UNARY'
+      traces.select { |tr| tr['Label'] =~ /exit|entry/}.each { |tr| _(tr['Backtrace']).must_be_nil }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'UNIMPLEMENTED' }
     end
 
     # Client: Error parsing response proto, keepalive watchdog times out, could not decompress (algorithm supported)
@@ -267,13 +267,13 @@ describe 'GRPC' do
       end
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-      traces.size.must_equal 6
+      _(traces.size).must_equal 6
       assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces[0]['GRPCMethodType'].must_equal  'UNARY'
-      traces.select { |tr| tr['Label'] =~ /exit|entry'/}.each { |tr| tr['Backtrace'].must_be_nil }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'INTERNAL' }
+      _(traces[0]['GRPCMethodType']).must_equal  'UNARY'
+      traces.select { |tr| tr['Label'] =~ /exit|entry'/}.each { |tr| _(tr['Backtrace']).must_be_nil }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'INTERNAL' }
 
       stop_secure_server
     end
@@ -295,22 +295,22 @@ describe 'GRPC' do
       assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 4
-      traces[0]['Spec'].must_equal            'rsc'
-      traces[0]['RemoteURL'].must_equal       'grpc://localhost:50051/grpctest.TestService/client_stream'
-      traces[0]['IsService'].must_equal       'True'
+      _(traces.size).must_equal 4
+      _(traces[0]['Spec']).must_equal            'rsc'
+      _(traces[0]['RemoteURL']).must_equal       'grpc://localhost:50051/grpctest.TestService/client_stream'
+      _(traces[0]['IsService']).must_equal       'True'
 
       server_entry = traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'entry' }
-      server_entry['Spec'].must_equal            'grpc_server'
-      server_entry['Controller'].must_equal      'AddressService'
-      server_entry['Action'].must_equal          'client_stream'
-      server_entry['URL'].must_equal             '/grpctest.TestService/client_stream'
+      _(server_entry['Spec']).must_equal            'grpc_server'
+      _(server_entry['Controller']).must_equal      'AddressService'
+      _(server_entry['Action']).must_equal          'client_stream'
+      _(server_entry['URL']).must_equal             '/grpctest.TestService/client_stream'
 
-      traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'exit' }['TransactionName'].must_equal 'AddressService.client_stream'
+      _(traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'exit' }['TransactionName']).must_equal 'AddressService.client_stream'
 
-      traces.each { |tr| tr['GRPCMethodType'].must_equal  'CLIENT_STREAMING' }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'OK' }
-      traces.each { |tr| tr['Backtrace'].must_be_nil }
+      traces.each { |tr| _(tr['GRPCMethodType']).must_equal  'CLIENT_STREAMING' }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'OK' }
+      traces.each { |tr| _(tr['Backtrace']).must_be_nil }
     end
 
     it 'should include backtraces for client_streaming if configured' do
@@ -325,13 +325,13 @@ describe 'GRPC' do
         assert_entry_exit(traces, 2)
         assert valid_edges?(traces)
 
-        traces.size.must_equal 4
-        traces[0]['Spec'].must_equal            'rsc'
-        traces[0]['RemoteURL'].must_equal       'grpc://localhost:50052/grpctest.TestService/client_stream'
-        traces.each { |tr| tr['GRPCMethodType'].must_equal  'CLIENT_STREAMING' }
-        traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'OK' }
-        traces.select { |tr| tr['Label'] == 'entry'}.each { |tr| tr['Backtrace'].must_be_nil "Found extra backtrace!" }
-        traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['Backtrace'].wont_be_nil "Backtrace missing!" }
+        _(traces.size).must_equal 4
+        _(traces[0]['Spec']).must_equal            'rsc'
+        _(traces[0]['RemoteURL']).must_equal       'grpc://localhost:50052/grpctest.TestService/client_stream'
+        traces.each { |tr| _(tr['GRPCMethodType']).must_equal  'CLIENT_STREAMING' }
+        traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'OK' }
+        traces.select { |tr| tr['Label'] == 'entry'}.each { |tr| _(tr['Backtrace']).must_be_nil "Found extra backtrace!" }
+        traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['Backtrace']).wont_be_nil "Backtrace missing!" }
       end
     end
 
@@ -347,10 +347,10 @@ describe 'GRPC' do
       assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 6
-      traces[0]['RemoteURL'].must_equal       'grpc://localhost:50051/grpctest.TestService/client_stream_long'
-      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'CLIENT_STREAMING' }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'DEADLINE_EXCEEDED' }
+      _(traces.size).must_equal 6
+      _(traces[0]['RemoteURL']).must_equal       'grpc://localhost:50051/grpctest.TestService/client_stream_long'
+      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| _(tr['GRPCMethodType']).must_equal  'CLIENT_STREAMING' }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'DEADLINE_EXCEEDED' }
     end
 
     it 'should report CANCELLED for client_streaming' do
@@ -365,9 +365,9 @@ describe 'GRPC' do
       assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 6
-      traces[0]['GRPCMethodType'].must_equal  'CLIENT_STREAMING'
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'CANCELLED' }
+      _(traces.size).must_equal 6
+      _(traces[0]['GRPCMethodType']).must_equal  'CLIENT_STREAMING'
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'CANCELLED' }
     end
 
     it 'should report UNAVAILABLE for client_streaming' do
@@ -382,9 +382,9 @@ describe 'GRPC' do
       assert_entry_exit(traces, 1)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 3
-      traces[0]['GRPCMethodType'].must_equal  'CLIENT_STREAMING'
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNAVAILABLE' }
+      _(traces.size).must_equal 3
+      _(traces[0]['GRPCMethodType']).must_equal  'CLIENT_STREAMING'
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'UNAVAILABLE' }
     end
 
     it 'should report UNKNOWN for client_streaming' do
@@ -399,9 +399,9 @@ describe 'GRPC' do
       assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 6
-      traces[0]['GRPCMethodType'].must_equal  'CLIENT_STREAMING'
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNKNOWN' }
+      _(traces.size).must_equal 6
+      _(traces[0]['GRPCMethodType']).must_equal  'CLIENT_STREAMING'
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'UNKNOWN' }
     end
 
     it 'should report UNIMPLEMENTED for client_streaming' do
@@ -416,9 +416,9 @@ describe 'GRPC' do
       assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 6
-      traces[0]['GRPCMethodType'].must_equal  'CLIENT_STREAMING'
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNIMPLEMENTED' }
+      _(traces.size).must_equal 6
+      _(traces[0]['GRPCMethodType']).must_equal  'CLIENT_STREAMING'
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'UNIMPLEMENTED' }
     end
 
     it 'sends metrics from the server for client_streaming' do
@@ -439,22 +439,22 @@ describe 'GRPC' do
       assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 4
-      traces[0]['Spec'].must_equal            'rsc'
-      traces[0]['RemoteURL'].must_equal       'grpc://localhost:50051/grpctest.TestService/server_stream'
-      traces[0]['IsService'].must_equal       'True'
+      _(traces.size).must_equal 4
+      _(traces[0]['Spec']).must_equal            'rsc'
+      _(traces[0]['RemoteURL']).must_equal       'grpc://localhost:50051/grpctest.TestService/server_stream'
+      _(traces[0]['IsService']).must_equal       'True'
 
       server_entry = traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'entry' }
-      server_entry['Spec'].must_equal            'grpc_server'
-      server_entry['Controller'].must_equal      'AddressService'
-      server_entry['Action'].must_equal          'server_stream'
-      server_entry['URL'].must_equal             '/grpctest.TestService/server_stream'
+      _(server_entry['Spec']).must_equal            'grpc_server'
+      _(server_entry['Controller']).must_equal      'AddressService'
+      _(server_entry['Action']).must_equal          'server_stream'
+      _(server_entry['URL']).must_equal             '/grpctest.TestService/server_stream'
 
-      traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'exit' }['TransactionName'].must_equal 'AddressService.server_stream'
+      _(traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'exit' }['TransactionName']).must_equal 'AddressService.server_stream'
 
-      traces.each { |tr| tr['GRPCMethodType'].must_equal  'SERVER_STREAMING' }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'OK' }
-      traces.each { |tr| tr['Backtrace'].must_be_nil }
+      traces.each { |tr| _(tr['GRPCMethodType']).must_equal  'SERVER_STREAMING' }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'OK' }
+      traces.each { |tr| _(tr['Backtrace']).must_be_nil }
     end
 
     it 'should add backtraces for server_streaming with enumerator if configured' do
@@ -467,10 +467,10 @@ describe 'GRPC' do
         end
 
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-        traces.size.must_equal 4
+        _(traces.size).must_equal 4
 
-        traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| tr['Backtrace'].must_be_nil "Extra backtrace in trace" }
-        traces.select { |tr| tr['Label'] == 'exit' }.each { |tr| tr['Backtrace'].wont_be_nil "Backtrace missing" }
+        traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| _(tr['Backtrace']).must_be_nil "Extra backtrace in trace" }
+        traces.select { |tr| tr['Label'] == 'exit' }.each { |tr| _(tr['Backtrace']).wont_be_nil "Backtrace missing" }
       end
     end
 
@@ -487,9 +487,9 @@ describe 'GRPC' do
       assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 6
-      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'SERVER_STREAMING' }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'CANCELLED' }
+      _(traces.size).must_equal 6
+      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| _(tr['GRPCMethodType']).must_equal  'SERVER_STREAMING' }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'CANCELLED' }
     end
 
     it 'should report DEADLINE_EXCEEDED for server_streaming with enumerator' do
@@ -505,9 +505,9 @@ describe 'GRPC' do
       assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 6
-      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'SERVER_STREAMING' }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'DEADLINE_EXCEEDED' }
+      _(traces.size).must_equal 6
+      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| _(tr['GRPCMethodType']).must_equal  'SERVER_STREAMING' }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'DEADLINE_EXCEEDED' }
     end
 
     it 'should report UNAVAILABLE for server_streaming with enumerator' do
@@ -523,9 +523,9 @@ describe 'GRPC' do
       assert_entry_exit(traces, 1)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 3
-      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'SERVER_STREAMING' }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNAVAILABLE' }
+      _(traces.size).must_equal 3
+      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| _(tr['GRPCMethodType']).must_equal  'SERVER_STREAMING' }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'UNAVAILABLE' }
     end
 
     it 'should report UNKNOWN for server_streaming with enumerator' do
@@ -539,12 +539,12 @@ describe 'GRPC' do
 
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
 
-      traces.size.must_equal 6
+      _(traces.size).must_equal 6
       assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'SERVER_STREAMING' }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNKNOWN' }
+      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| _(tr['GRPCMethodType']).must_equal  'SERVER_STREAMING' }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'UNKNOWN' }
     end
 
     it 'should report UNIMPLEMENTED for server_streaming with enumerator' do
@@ -560,9 +560,9 @@ describe 'GRPC' do
       assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 6
-      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'SERVER_STREAMING' }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNIMPLEMENTED' }
+      _(traces.size).must_equal 6
+      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| _(tr['GRPCMethodType']).must_equal  'SERVER_STREAMING' }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'UNIMPLEMENTED' }
     end
 
     it 'sends metrics from the server for server_streaming with enumerator' do
@@ -583,22 +583,22 @@ describe 'GRPC' do
       assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 4
-      traces[0]['Spec'].must_equal            'rsc'
-      traces[0]['RemoteURL'].must_equal       'grpc://localhost:50051/grpctest.TestService/server_stream'
-      traces[0]['IsService'].must_equal       'True'
+      _(traces.size).must_equal 4
+      _(traces[0]['Spec']).must_equal            'rsc'
+      _(traces[0]['RemoteURL']).must_equal       'grpc://localhost:50051/grpctest.TestService/server_stream'
+      _(traces[0]['IsService']).must_equal       'True'
 
       server_entry = traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'entry' }
-      server_entry['Spec'].must_equal            'grpc_server'
-      server_entry['Controller'].must_equal      'AddressService'
-      server_entry['Action'].must_equal          'server_stream'
-      server_entry['URL'].must_equal             '/grpctest.TestService/server_stream'
+      _(server_entry['Spec']).must_equal            'grpc_server'
+      _(server_entry['Controller']).must_equal      'AddressService'
+      _(server_entry['Action']).must_equal          'server_stream'
+      _(server_entry['URL']).must_equal             '/grpctest.TestService/server_stream'
 
-      traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'exit' }['TransactionName'].must_equal 'AddressService.server_stream'
+      _(traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'exit' }['TransactionName']).must_equal 'AddressService.server_stream'
 
-      traces.each { |tr| tr['GRPCMethodType'].must_equal  'SERVER_STREAMING' }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'OK' }
-      traces.each { |tr| tr['Backtrace'].must_be_nil }
+      traces.each { |tr| _(tr['GRPCMethodType']).must_equal  'SERVER_STREAMING' }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'OK' }
+      traces.each { |tr| _(tr['Backtrace']).must_be_nil }
     end
 
     it 'should add backtraces for server_streaming using block if configured' do
@@ -610,10 +610,10 @@ describe 'GRPC' do
         end
 
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-        traces.size.must_equal 4
+        _(traces.size).must_equal 4
 
-        traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| tr['Backtrace'].must_be_nil "Extra backtrace in trace"}
-        traces.select { |tr| tr['Label'] == 'exit' }.each { |tr| tr['Backtrace'].wont_be_nil "Backtrace missing" }
+        traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| _(tr['Backtrace']).must_be_nil "Extra backtrace in trace"}
+        traces.select { |tr| tr['Label'] == 'exit' }.each { |tr| _(tr['Backtrace']).wont_be_nil "Backtrace missing" }
       end
     end
 
@@ -629,9 +629,9 @@ describe 'GRPC' do
       assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 6
-      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'SERVER_STREAMING' }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'CANCELLED' }
+      _(traces.size).must_equal 6
+      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| _(tr['GRPCMethodType']).must_equal  'SERVER_STREAMING' }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'CANCELLED' }
     end
 
     it 'should report DEADLINE_EXCEEDED for server_streaming using block' do
@@ -646,9 +646,9 @@ describe 'GRPC' do
       assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 6
-      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'SERVER_STREAMING' }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'DEADLINE_EXCEEDED' }
+      _(traces.size).must_equal 6
+      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| _(tr['GRPCMethodType']).must_equal  'SERVER_STREAMING' }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'DEADLINE_EXCEEDED' }
 
     end
 
@@ -664,9 +664,9 @@ describe 'GRPC' do
       assert_entry_exit(traces, 1)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 3
-      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'SERVER_STREAMING' }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNAVAILABLE' }
+      _(traces.size).must_equal 3
+      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| _(tr['GRPCMethodType']).must_equal  'SERVER_STREAMING' }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'UNAVAILABLE' }
     end
 
     it 'should report UNKNOWN for server_streaming using block' do
@@ -682,9 +682,9 @@ describe 'GRPC' do
       assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 6
-      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'SERVER_STREAMING' }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNKNOWN' }
+      _(traces.size).must_equal 6
+      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| _(tr['GRPCMethodType']).must_equal  'SERVER_STREAMING' }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'UNKNOWN' }
     end
 
     it 'should report UNIMPLEMENTED for server_streaming using block' do
@@ -699,9 +699,9 @@ describe 'GRPC' do
       assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 6
-      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'SERVER_STREAMING' }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNIMPLEMENTED' }
+      _(traces.size).must_equal 6
+      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| _(tr['GRPCMethodType']).must_equal  'SERVER_STREAMING' }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'UNIMPLEMENTED' }
     end
 
     it 'sends metrics from the server for server_streaming using block' do
@@ -722,22 +722,22 @@ describe 'GRPC' do
       assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 4
-      traces[0]['Spec'].must_equal            'rsc'
-      traces[0]['RemoteURL'].must_equal       'grpc://localhost:50051/grpctest.TestService/bidi_stream'
-      traces[0]['IsService'].must_equal       'True'
+      _(traces.size).must_equal 4
+      _(traces[0]['Spec']).must_equal            'rsc'
+      _(traces[0]['RemoteURL']).must_equal       'grpc://localhost:50051/grpctest.TestService/bidi_stream'
+      _(traces[0]['IsService']).must_equal       'True'
 
       server_entry = traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'entry' }
-      server_entry['Spec'].must_equal            'grpc_server'
-      server_entry['Controller'].must_equal      'AddressService'
-      server_entry['Action'].must_equal          'bidi_stream'
-      server_entry['URL'].must_equal             '/grpctest.TestService/bidi_stream'
+      _(server_entry['Spec']).must_equal            'grpc_server'
+      _(server_entry['Controller']).must_equal      'AddressService'
+      _(server_entry['Action']).must_equal          'bidi_stream'
+      _(server_entry['URL']).must_equal             '/grpctest.TestService/bidi_stream'
 
-      traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'exit' }['TransactionName'].must_equal 'AddressService.bidi_stream'
+      _(traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'exit' }['TransactionName']).must_equal 'AddressService.bidi_stream'
 
-      traces.each { |tr| tr['GRPCMethodType'].must_equal  'BIDI_STREAMING' }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'OK' }
-      traces.each { |tr| tr['Backtrace'].must_be_nil }
+      traces.each { |tr| _(tr['GRPCMethodType']).must_equal  'BIDI_STREAMING' }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'OK' }
+      traces.each { |tr| _(tr['Backtrace']).must_be_nil }
     end
 
     it 'should add backtraces for bidi_streaming with enumerator if configured' do
@@ -750,10 +750,10 @@ describe 'GRPC' do
         end
 
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-        traces.size.must_equal 4
+        _(traces.size).must_equal 4
 
-        traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| tr['Backtrace'].must_be_nil "Extra backtrace in trace"}
-        traces.select { |tr| tr['Label'] == 'exit' }.each { |tr| tr['Backtrace'].wont_be_nil "Backtrace missing" }
+        traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| _(tr['Backtrace']).must_be_nil "Extra backtrace in trace"}
+        traces.select { |tr| tr['Label'] == 'exit' }.each { |tr| _(tr['Backtrace']).wont_be_nil "Backtrace missing" }
       end
     end
 
@@ -770,9 +770,9 @@ describe 'GRPC' do
       assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 6
-      traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| tr['GRPCMethodType'].must_equal  'BIDI_STREAMING' }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'CANCELLED' }
+      _(traces.size).must_equal 6
+      traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| _(tr['GRPCMethodType']).must_equal  'BIDI_STREAMING' }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'CANCELLED' }
     end
 
     it 'should report DEADLINE_EXCEEDED for bidi_streaming with enumerator' do
@@ -788,9 +788,9 @@ describe 'GRPC' do
       assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 6
-      traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| tr['GRPCMethodType'].must_equal  'BIDI_STREAMING' }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'DEADLINE_EXCEEDED' }
+      _(traces.size).must_equal 6
+      traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| _(tr['GRPCMethodType']).must_equal  'BIDI_STREAMING' }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'DEADLINE_EXCEEDED' }
     end
 
     it 'should report UNAVAILABLE for bidi_streaming with enumerator' do
@@ -806,9 +806,9 @@ describe 'GRPC' do
       assert_entry_exit(traces, 1)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 3
-      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'BIDI_STREAMING' }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNAVAILABLE' }
+      _(traces.size).must_equal 3
+      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| _(tr['GRPCMethodType']).must_equal  'BIDI_STREAMING' }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'UNAVAILABLE' }
     end
 
     it 'should report UNKNOWN for bidi_streaming with enumerator' do
@@ -824,9 +824,9 @@ describe 'GRPC' do
       assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 6
-      traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| tr['GRPCMethodType'].must_equal  'BIDI_STREAMING' }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNKNOWN' }
+      _(traces.size).must_equal 6
+      traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| _(tr['GRPCMethodType']).must_equal  'BIDI_STREAMING' }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'UNKNOWN' }
     end
 
     it 'should report UNIMPLEMENTED for bidi_streaming with enumerator' do
@@ -843,11 +843,11 @@ describe 'GRPC' do
       assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 6
-      traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| tr['GRPCMethodType'].must_equal  'BIDI_STREAMING' }
-      # traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNIMPLEMENTED' }
+      _(traces.size).must_equal 6
+      traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| _(tr['GRPCMethodType']).must_equal  'BIDI_STREAMING' }
+      # traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'UNIMPLEMENTED' }
       # version 1.18.0 returns UNKNOWN instead of UNIMPLEMENTED
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNKNOWN' }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'UNKNOWN' }
     end
 
     it 'sends metrics from the server for bidi_streaming with enumerator' do
@@ -868,22 +868,22 @@ describe 'GRPC' do
       assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 4
-      traces[0]['Spec'].must_equal            'rsc'
-      traces[0]['RemoteURL'].must_equal       'grpc://localhost:50051/grpctest.TestService/bidi_stream'
-      traces[0]['IsService'].must_equal       'True'
+      _(traces.size).must_equal 4
+      _(traces[0]['Spec']).must_equal            'rsc'
+      _(traces[0]['RemoteURL']).must_equal       'grpc://localhost:50051/grpctest.TestService/bidi_stream'
+      _(traces[0]['IsService']).must_equal       'True'
 
       server_entry = traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'entry' }
-      server_entry['Spec'].must_equal            'grpc_server'
-      server_entry['Controller'].must_equal      'AddressService'
-      server_entry['Action'].must_equal          'bidi_stream'
-      server_entry['URL'].must_equal             '/grpctest.TestService/bidi_stream'
+      _(server_entry['Spec']).must_equal            'grpc_server'
+      _(server_entry['Controller']).must_equal      'AddressService'
+      _(server_entry['Action']).must_equal          'bidi_stream'
+      _(server_entry['URL']).must_equal             '/grpctest.TestService/bidi_stream'
 
-      traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'exit' }['TransactionName'].must_equal 'AddressService.bidi_stream'
+      _(traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'exit' }['TransactionName']).must_equal 'AddressService.bidi_stream'
 
-      traces.each { |tr| tr['GRPCMethodType'].must_equal  'BIDI_STREAMING' }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'OK' }
-      traces.each { |tr| tr['Backtrace'].must_be_nil }
+      traces.each { |tr| _(tr['GRPCMethodType']).must_equal  'BIDI_STREAMING' }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'OK' }
+      traces.each { |tr| _(tr['Backtrace']).must_be_nil }
     end
 
     it 'should add backtraces for bidi_streaming using block if configured' do
@@ -895,10 +895,10 @@ describe 'GRPC' do
         end
 
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
-        traces.size.must_equal 4
+        _(traces.size).must_equal 4
 
-        traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| tr['Backtrace'].must_be_nil "Extra backtrace in trace" }
-        traces.select { |tr| tr['Label'] == 'exit' }.each { |tr| tr['Backtrace'].wont_be_nil "Backtraces missing" }
+        traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| _(tr['Backtrace']).must_be_nil "Extra backtrace in trace" }
+        traces.select { |tr| tr['Label'] == 'exit' }.each { |tr| _(tr['Backtrace']).wont_be_nil "Backtraces missing" }
       end
     end
 
@@ -914,9 +914,9 @@ describe 'GRPC' do
       assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 6
-      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'BIDI_STREAMING' }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'CANCELLED' }
+      _(traces.size).must_equal 6
+      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| _(tr['GRPCMethodType']).must_equal  'BIDI_STREAMING' }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'CANCELLED' }
     end
 
     it 'should report DEADLINE_EXCEEDED for bidi_streaming using block' do
@@ -931,9 +931,9 @@ describe 'GRPC' do
       assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 6
-      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'BIDI_STREAMING' }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'DEADLINE_EXCEEDED' }
+      _(traces.size).must_equal 6
+      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| _(tr['GRPCMethodType']).must_equal  'BIDI_STREAMING' }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'DEADLINE_EXCEEDED' }
     end
 
     it 'should report UNAVAILABLE for bidi_streaming using block' do
@@ -948,9 +948,9 @@ describe 'GRPC' do
       assert_entry_exit(traces, 1)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 3
-      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'BIDI_STREAMING' }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNAVAILABLE' }
+      _(traces.size).must_equal 3
+      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| _(tr['GRPCMethodType']).must_equal  'BIDI_STREAMING' }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'UNAVAILABLE' }
     end
 
     it 'should report UNKNOWN for bidi_streaming using block' do
@@ -965,9 +965,9 @@ describe 'GRPC' do
       assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 6
-      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'BIDI_STREAMING' }
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNKNOWN' }
+      _(traces.size).must_equal 6
+      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| t_(r['GRPCMethodType']).must_equal  'BIDI_STREAMING' }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'UNKNOWN' }
     end
 
     it 'should report UNIMPLEMENTED for bidi_streaming using block' do
@@ -982,11 +982,11 @@ describe 'GRPC' do
       assert_entry_exit(traces, 2)
       assert valid_edges?(traces)
 
-      traces.size.must_equal 6
-      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| tr['GRPCMethodType'].must_equal  'BIDI_STREAMING' }
-      # traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNIMPLEMENTED' }
+      _(traces.size).must_equal 6
+      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| t_(r['GRPCMethodType']).must_equal  'BIDI_STREAMING' }
+      # traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'UNIMPLEMENTED' }
       # version 1.18.0 returns UNKNOWN instead of UNIMPLEMENTED
-      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| tr['GRPCStatus'].must_equal 'UNKNOWN' }
+      traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'UNKNOWN' }
     end
 
     it 'sends metrics from the server for bidi_streaming using block' do
@@ -1017,7 +1017,7 @@ describe 'GRPC' do
 
       # not all calls get through, the others respond with RESOURCE_EXHAUSTED
       exhausted_count = traces.select { |tr| tr['GRPCStatus'] == 'RESOURCE_EXHAUSTED' }.size
-      traces.size.must_equal 4*@count - exhausted_count
+      _(traces.size).must_equal 4*@count - exhausted_count
     end
 
     it "should work when stressed bidi gets cancelled" do
@@ -1039,9 +1039,9 @@ describe 'GRPC' do
 
       cancelled = traces.select { |tr| tr['GRPCStatus'] =~ /CANCELLED/ }.size
       exhausted = traces.select { |tr| tr['GRPCStatus'] =~ /RESOURCE_EXHAUSTED/ }.size
-      (cancelled/2 + exhausted).must_equal @count
+      _((cancelled/2 + exhausted)).must_equal @count
 
-      traces.size.must_equal @count*6 - exhausted*3
+      _(traces.size).must_equal @count*6 - exhausted*3
     end
 
     it "should work when stressed bidi is unavailable" do
@@ -1062,11 +1062,11 @@ describe 'GRPC' do
       traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
       assert_entry_exit(traces, @count, false)
 
-      traces.size.must_equal 3*@count
+      _(traces.size).must_equal 3*@count
 
-      traces.select { |tr| tr['GRPCMethodType'] == 'BIDI_STREAMING' }.size.must_equal 2*@count
-      traces.select { |tr| !tr['Backtrace'].nil? }.size.must_equal                    2*@count
-      traces.select { |tr| tr['GRPCStatus'] =~ /RESOURCE_EXHAUSTED|UNAVAILABLE/ }.size.must_equal @count
+      _(traces.select { |tr| tr['GRPCMethodType'] == 'BIDI_STREAMING' }.size).must_equal 2*@count
+      _(traces.select { |tr| !tr['Backtrace'].nil? }.size).must_equal                    2*@count
+      _(traces.select { |tr| tr['GRPCStatus'] =~ /RESOURCE_EXHAUSTED|UNAVAILABLE/ }.size).must_equal @count
     end
 
 

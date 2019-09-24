@@ -33,9 +33,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "sadd"
-      traces[2]['KVKey'].must_equal "shrimp"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "sadd"
+      _(traces[2]['KVKey']).must_equal "shrimp"
     end
 
     it "should trace scard" do
@@ -52,9 +52,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "scard"
-      traces[2]['KVKey'].must_equal "mother sauces"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "scard"
+      _(traces[2]['KVKey']).must_equal "mother sauces"
     end
 
     it "should trace sdiff" do
@@ -71,9 +71,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "sdiff"
-      traces[2].has_key?('KVKey').must_equal false
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "sdiff"
+      _(traces[2].has_key?('KVKey')).must_equal false
     end
 
     it "should trace sdiffstore" do
@@ -90,9 +90,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "sdiffstore"
-      traces[2]['destination'].must_equal "dest"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "sdiffstore"
+      _(traces[2]['destination']).must_equal "dest"
     end
 
     it "should trace sinter" do
@@ -109,9 +109,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "sinter"
-      traces[2].has_key?('KVKey').must_equal false
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "sinter"
+      _(traces[2].has_key?('KVKey')).must_equal false
     end
 
     it "should trace sinterstore" do
@@ -128,9 +128,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "sinterstore"
-      traces[2]['destination'].must_equal "dest"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "sinterstore"
+      _(traces[2]['destination']).must_equal "dest"
     end
 
     it "should trace sismember" do
@@ -149,9 +149,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "sismember"
-      traces[2]['KVKey'].must_equal "fibonacci"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "sismember"
+      _(traces[2]['KVKey']).must_equal "fibonacci"
     end
 
     it "should trace smembers" do
@@ -168,9 +168,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "smembers"
-      traces[2]['KVKey'].must_equal "fibonacci"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "smembers"
+      _(traces[2]['KVKey']).must_equal "fibonacci"
     end
 
     it "should trace smove" do
@@ -185,10 +185,10 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "smove"
-      traces[2]['source'].must_equal "alpha"
-      traces[2]['destination'].must_equal "numbers"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "smove"
+      _(traces[2]['source']).must_equal "alpha"
+      _(traces[2]['destination']).must_equal "numbers"
     end
 
     it "should trace spop" do
@@ -203,9 +203,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "spop"
-      traces[2]['KVKey'].must_equal "fibonacci"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "spop"
+      _(traces[2]['KVKey']).must_equal "fibonacci"
     end
 
     it "should trace srandmember" do
@@ -220,9 +220,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "srandmember"
-      traces[2]['KVKey'].must_equal "fibonacci"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "srandmember"
+      _(traces[2]['KVKey']).must_equal "fibonacci"
     end
 
     it "should trace srem" do
@@ -237,9 +237,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "srem"
-      traces[2]['KVKey'].must_equal "fibonacci"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "srem"
+      _(traces[2]['KVKey']).must_equal "fibonacci"
     end
 
     it "should trace sunion" do
@@ -254,9 +254,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "sunion"
-      traces[2].has_key?('KVKey').must_equal false
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "sunion"
+      _(traces[2].has_key?('KVKey')).must_equal false
     end
 
     it "should trace sunionstore" do
@@ -271,10 +271,10 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "sunionstore"
-      traces[2]['destination'].must_equal "dest"
-      traces[2].has_key?('KVKey').must_equal false
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "sunionstore"
+      _(traces[2]['destination']).must_equal "dest"
+      _(traces[2].has_key?('KVKey')).must_equal false
     end
 
     it "should trace sscan" do
@@ -288,9 +288,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "sscan"
-      traces[2]['KVKey'].must_equal "group1"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "sscan"
+      _(traces[2]['KVKey']).must_equal "group1"
     end
   end
 end

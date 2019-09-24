@@ -35,24 +35,24 @@ unless defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, "bunny_tests")
       assert valid_edges?(traces), "Invalid edge in traces"
 
-      traces[1]['Layer'].must_equal "rabbitmq-client"
-      traces[1]['Label'].must_equal "entry"
-      traces[2]['Layer'].must_equal "rabbitmq-client"
-      traces[2]['Label'].must_equal "exit"
-      traces[2]['Spec'].must_equal "pushq"
-      traces[2]['Flavor'].must_equal "rabbitmq"
-      traces[2]['ExchangeName'].must_equal "default"
-      traces[2]['RoutingKey'].must_equal "tv.ruby.test"
-      traces[2]['Op'].must_equal "publish"
-      traces[2]['RemoteHost'].must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
-      traces[2]['RemotePort'].must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
-      traces[2]['VirtualHost'].must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
-      traces[2].has_key?('Backtrace').must_equal !!AppOpticsAPM::Config[:bunnyclient][:collect_backtraces]
+      _(traces[1]['Layer']).must_equal "rabbitmq-client"
+      _(traces[1]['Label']).must_equal "entry"
+      _(traces[2]['Layer']).must_equal "rabbitmq-client"
+      _(traces[2]['Label']).must_equal "exit"
+      _(traces[2]['Spec']).must_equal "pushq"
+      _(traces[2]['Flavor']).must_equal "rabbitmq"
+      _(traces[2]['ExchangeName']).must_equal "default"
+      _(traces[2]['RoutingKey']).must_equal "tv.ruby.test"
+      _(traces[2]['Op']).must_equal "publish"
+      _(traces[2]['RemoteHost']).must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
+      _(traces[2]['RemotePort']).must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
+      _(traces[2]['VirtualHost']).must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
+      _(traces[2].has_key?('Backtrace')).must_equal !!AppOpticsAPM::Config[:bunnyclient][:collect_backtraces]
 
       @conn.close
     end
@@ -68,36 +68,36 @@ unless defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 6
+      _(traces.count).must_equal 6
 
       validate_outer_layers(traces, "bunny_tests")
       assert valid_edges?(traces), "Invalid edge in traces"
 
-      traces[1]['Layer'].must_equal "rabbitmq-client"
-      traces[1]['Label'].must_equal "entry"
-      traces[2]['Layer'].must_equal "rabbitmq-client"
-      traces[2]['Label'].must_equal "exit"
-      traces[2]['Spec'].must_equal "pushq"
-      traces[2]['Flavor'].must_equal "rabbitmq"
-      traces[2]['ExchangeName'].must_equal "tv.ruby.fanout.tests"
-      traces[2]['RoutingKey'].must_equal "tv.ruby.test"
-      traces[2]['Op'].must_equal "publish"
-      traces[2]['RemoteHost'].must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
-      traces[2]['RemotePort'].must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
-      traces[2]['VirtualHost'].must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
+      _(traces[1]['Layer']).must_equal "rabbitmq-client"
+      _(traces[1]['Label']).must_equal "entry"
+      _(traces[2]['Layer']).must_equal "rabbitmq-client"
+      _(traces[2]['Label']).must_equal "exit"
+      _(traces[2]['Spec']).must_equal "pushq"
+      _(traces[2]['Flavor']).must_equal "rabbitmq"
+      _(traces[2]['ExchangeName']).must_equal "tv.ruby.fanout.tests"
+      _(traces[2]['RoutingKey']).must_equal "tv.ruby.test"
+      _(traces[2]['Op']).must_equal "publish"
+      _(traces[2]['RemoteHost']).must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
+      _(traces[2]['RemotePort']).must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
+      _(traces[2]['VirtualHost']).must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
 
-      traces[3]['Layer'].must_equal "rabbitmq-client"
-      traces[3]['Label'].must_equal "entry"
-      traces[4]['Layer'].must_equal "rabbitmq-client"
-      traces[4]['Label'].must_equal "exit"
-      traces[4]['Spec'].must_equal "pushq"
-      traces[4]['Flavor'].must_equal "rabbitmq"
-      traces[4]['ExchangeName'].must_equal "tv.ruby.fanout.tests"
-      traces[4].key?('RoutingKey').must_equal false
-      traces[4]['Op'].must_equal "publish"
-      traces[4]['RemoteHost'].must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
-      traces[4]['RemotePort'].must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
-      traces[4]['VirtualHost'].must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
+      _(traces[3]['Layer']).must_equal "rabbitmq-client"
+      _(traces[3]['Label']).must_equal "entry"
+      _(traces[4]['Layer']).must_equal "rabbitmq-client"
+      _(traces[4]['Label']).must_equal "exit"
+      _(traces[4]['Spec']).must_equal "pushq"
+      _(traces[4]['Flavor']).must_equal "rabbitmq"
+      _(traces[4]['ExchangeName']).must_equal "tv.ruby.fanout.tests"
+      _(traces[4].key?('RoutingKey')).must_equal false
+      _(traces[4]['Op']).must_equal "publish"
+      _(traces[4]['RemoteHost']).must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
+      _(traces[4]['RemotePort']).must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
+      _(traces[4]['VirtualHost']).must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
 
       @conn.close
     end
@@ -113,36 +113,36 @@ unless defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 6
+      _(traces.count).must_equal 6
 
       validate_outer_layers(traces, "bunny_tests")
       assert valid_edges?(traces), "Invalid edge in traces"
 
-      traces[1]['Layer'].must_equal "rabbitmq-client"
-      traces[1]['Label'].must_equal "entry"
-      traces[2]['Layer'].must_equal "rabbitmq-client"
-      traces[2]['Label'].must_equal "exit"
-      traces[2]['Spec'].must_equal "pushq"
-      traces[2]['Flavor'].must_equal "rabbitmq"
-      traces[2]['ExchangeName'].must_equal "tv.ruby.topic.tests"
-      traces[2]['RoutingKey'].must_equal "tv.ruby.test.1"
-      traces[2]['Op'].must_equal "publish"
-      traces[2]['RemoteHost'].must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
-      traces[2]['RemotePort'].must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
-      traces[2]['VirtualHost'].must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
+      _(traces[1]['Layer']).must_equal "rabbitmq-client"
+      _(traces[1]['Label']).must_equal "entry"
+      _(traces[2]['Layer']).must_equal "rabbitmq-client"
+      _(traces[2]['Label']).must_equal "exit"
+      _(traces[2]['Spec']).must_equal "pushq"
+      _(traces[2]['Flavor']).must_equal "rabbitmq"
+      _(traces[2]['ExchangeName']).must_equal "tv.ruby.topic.tests"
+      _(traces[2]['RoutingKey']).must_equal "tv.ruby.test.1"
+      _(traces[2]['Op']).must_equal "publish"
+      _(traces[2]['RemoteHost']).must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
+      _(traces[2]['RemotePort']).must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
+      _(traces[2]['VirtualHost']).must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
 
-      traces[3]['Layer'].must_equal "rabbitmq-client"
-      traces[3]['Label'].must_equal "entry"
-      traces[4]['Layer'].must_equal "rabbitmq-client"
-      traces[4]['Label'].must_equal "exit"
-      traces[4]['Spec'].must_equal "pushq"
-      traces[4]['Flavor'].must_equal "rabbitmq"
-      traces[4]['ExchangeName'].must_equal "tv.ruby.topic.tests"
-      traces[4]['RoutingKey'].must_equal "tv.ruby.test.2"
-      traces[4]['Op'].must_equal "publish"
-      traces[4]['RemoteHost'].must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
-      traces[4]['RemotePort'].must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
-      traces[4]['VirtualHost'].must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
+      _(traces[3]['Layer']).must_equal "rabbitmq-client"
+      _(traces[3]['Label']).must_equal "entry"
+      _(traces[4]['Layer']).must_equal "rabbitmq-client"
+      _(traces[4]['Label']).must_equal "exit"
+      _(traces[4]['Spec']).must_equal "pushq"
+      _(traces[4]['Flavor']).must_equal "rabbitmq"
+      _(traces[4]['ExchangeName']).must_equal "tv.ruby.topic.tests"
+      _(traces[4]['RoutingKey']).must_equal "tv.ruby.test.2"
+      _(traces[4]['Op']).must_equal "publish"
+      _(traces[4]['RemoteHost']).must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
+      _(traces[4]['RemotePort']).must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
+      _(traces[4]['VirtualHost']).must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
 
       @conn.close
     end
@@ -168,15 +168,15 @@ unless defined?(JRUBY_VERSION)
       validate_outer_layers(traces, "bunny_tests")
       assert valid_edges?(traces), "Invalid edge in traces"
 
-      traces[2].key?('Backtrace').must_equal !!AppOpticsAPM::Config[:bunnyclient][:collect_backtraces]
+      _(traces[2].key?('Backtrace')).must_equal !!AppOpticsAPM::Config[:bunnyclient][:collect_backtraces]
 
-      traces[3]['Layer'].must_equal "bunny_tests"
-      traces[3]['Spec'].must_equal "error"
-      traces[3]['Label'].must_equal "error"
-      traces[3]['ErrorClass'].must_equal "Bunny::PreconditionFailed"
-      traces[3]['ErrorMsg'].must_match(/PRECONDITION_FAILED/)
+      _(traces[3]['Layer']).must_equal "bunny_tests"
+      _(traces[3]['Spec']).must_equal "error"
+      _(traces[3]['Label']).must_equal "error"
+      _(traces[3]['ErrorClass']).must_equal "Bunny::PreconditionFailed"
+      _(traces[3]['ErrorMsg']).must_match(/PRECONDITION_FAILED/)
 
-      traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 1
+      _(traces.select { |trace| trace['Label'] == 'error' }.count).must_equal 1
 
       @conn.close
     end
@@ -196,18 +196,18 @@ unless defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, "bunny_tests")
 
-      traces[2]['Spec'].must_equal "pushq"
-      traces[2]['Flavor'].must_equal "rabbitmq"
-      traces[2]['ExchangeName'].must_equal "tv.delete_exchange.test"
-      traces[2]['ExchangeType'].must_equal "fanout"
-      traces[2]['Op'].must_equal "delete"
-      traces[2]['RemoteHost'].must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
-      traces[2]['RemotePort'].must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
-      traces[2]['VirtualHost'].must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
+      _(traces[2]['Spec']).must_equal "pushq"
+      _(traces[2]['Flavor']).must_equal "rabbitmq"
+      _(traces[2]['ExchangeName']).must_equal "tv.delete_exchange.test"
+      _(traces[2]['ExchangeType']).must_equal "fanout"
+      _(traces[2]['Op']).must_equal "delete"
+      _(traces[2]['RemoteHost']).must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
+      _(traces[2]['RemotePort']).must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
+      _(traces[2]['VirtualHost']).must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
     end
 
      it 'wait_for_confirms' do
@@ -232,25 +232,25 @@ unless defined?(JRUBY_VERSION)
 
       validate_outer_layers(traces, "bunny_tests")
 
-      traces[2000]['Spec'].must_equal "pushq"
-      traces[2000]['Flavor'].must_equal "rabbitmq"
-      traces[2000]['ExchangeName'].must_equal "tv.ruby.wait_for_confirm.tests"
-      traces[2000]['RoutingKey'].must_equal "tv.ruby.test"
-      traces[2000]['Op'].must_equal "publish"
-      traces[2000]['RemoteHost'].must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
-      traces[2000]['RemotePort'].must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
-      traces[2000]['VirtualHost'].must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
+      _(traces[2000]['Spec']).must_equal "pushq"
+      _(traces[2000]['Flavor']).must_equal "rabbitmq"
+      _(traces[2000]['ExchangeName']).must_equal "tv.ruby.wait_for_confirm.tests"
+      _(traces[2000]['RoutingKey']).must_equal "tv.ruby.test"
+      _(traces[2000]['Op']).must_equal "publish"
+      _(traces[2000]['RemoteHost']).must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
+      _(traces[2000]['RemotePort']).must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
+      _(traces[2000]['VirtualHost']).must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
 
-      traces[2001]['Layer'].must_equal "rabbitmq-client"
-      traces[2001]['Label'].must_equal "entry"
-      traces[2002]['Layer'].must_equal "rabbitmq-client"
-      traces[2002]['Label'].must_equal "exit"
-      traces[2002]['Spec'].must_equal "pushq"
-      traces[2002]['Flavor'].must_equal "rabbitmq"
-      traces[2002]['Op'].must_equal "wait_for_confirms"
-      traces[2002]['RemoteHost'].must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
-      traces[2002]['RemotePort'].must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
-      traces[2002]['VirtualHost'].must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
+      _(traces[2001]['Layer']).must_equal "rabbitmq-client"
+      _(traces[2001]['Label']).must_equal "entry"
+      _(traces[2002]['Layer']).must_equal "rabbitmq-client"
+      _(traces[2002]['Label']).must_equal "exit"
+      _(traces[2002]['Spec']).must_equal "pushq"
+      _(traces[2002]['Flavor']).must_equal "rabbitmq"
+      _(traces[2002]['Op']).must_equal "wait_for_confirms"
+      _(traces[2002]['RemoteHost']).must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
+      _(traces[2002]['RemotePort']).must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
+      _(traces[2002]['VirtualHost']).must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
 
       @conn.close
     end
@@ -266,17 +266,17 @@ unless defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, "bunny_tests")
 
-      traces[2]['Spec'].must_equal "pushq"
-      traces[2]['Flavor'].must_equal "rabbitmq"
-      traces[2]['Op'].must_equal "queue"
-      traces[2]['Queue'].must_equal "blah"
-      traces[2]['RemoteHost'].must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
-      traces[2]['RemotePort'].must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
-      traces[2]['VirtualHost'].must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
+      _(traces[2]['Spec']).must_equal "pushq"
+      _(traces[2]['Flavor']).must_equal "rabbitmq"
+      _(traces[2]['Op']).must_equal "queue"
+      _(traces[2]['Queue']).must_equal "blah"
+      _(traces[2]['RemoteHost']).must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
+      _(traces[2]['RemotePort']).must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
+      _(traces[2]['VirtualHost']).must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
     end
 
      it 'backtrace_config_true' do
@@ -294,12 +294,12 @@ unless defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, "bunny_tests")
       assert valid_edges?(traces), "Invalid edge in traces"
 
-      traces[2].has_key?('Backtrace').must_equal !!AppOpticsAPM::Config[:bunnyclient][:collect_backtraces]
+      _(traces[2].has_key?('Backtrace')).must_equal !!AppOpticsAPM::Config[:bunnyclient][:collect_backtraces]
       @conn.close
 
       AppOpticsAPM::Config[:bunnyclient][:collect_backtraces] = bt

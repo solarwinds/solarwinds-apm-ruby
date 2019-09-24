@@ -45,26 +45,26 @@ require 'minitest_helper'
 
       traces = get_all_traces
 
-      traces.count.must_equal 10
+      _(traces.count).must_equal 10
       assert valid_edges?(traces, false), "Invalid edge in traces"
 
-      traces[5]['Layer'].must_equal "net-http"
-      traces[5]['Label'].must_equal "entry"
-      traces[8]['Layer'].must_equal "net-http"
-      traces[8]['Label'].must_equal "exit"
+      _(traces[5]['Layer']).must_equal "net-http"
+      _(traces[5]['Label']).must_equal "entry"
+      _(traces[8]['Layer']).must_equal "net-http"
+      _(traces[8]['Label']).must_equal "exit"
 
-      traces[4]['Spec'].must_equal "job"
-      traces[4]['Flavor'].must_equal "rabbitmq"
-      traces[4]['Queue'].must_equal "tv.ruby.consumer.test"
-      traces[4]['RemoteHost'].must_equal @connection_params[:host]
-      traces[4]['RemotePort'].must_equal @connection_params[:port].to_i
-      traces[4]['VirtualHost'].must_equal @connection_params[:vhost]
-      traces[4]['RoutingKey'].must_equal "tv.ruby.consumer.test"
-      traces[4]['Controller'].must_equal "msg_app"
-      traces[4]['Action'].must_equal "generic"
-      traces[4]['URL'].must_equal "/bunny/tv.ruby.consumer.test"
-      traces[4].key?('SourceTrace').must_equal true
-      traces[4].key?('Backtrace').must_equal false
+      _(traces[4]['Spec']).must_equal "job"
+      _(traces[4]['Flavor']).must_equal "rabbitmq"
+      _(traces[4]['Queue']).must_equal "tv.ruby.consumer.test"
+      _(traces[4]['RemoteHost']).must_equal @connection_params[:host]
+      _(traces[4]['RemotePort']).must_equal @connection_params[:port].to_i
+      _(traces[4]['VirtualHost']).must_equal @connection_params[:vhost]
+      _(traces[4]['RoutingKey']).must_equal "tv.ruby.consumer.test"
+      _(traces[4]['Controller']).must_equal "msg_app"
+      _(traces[4]['Action']).must_equal "generic"
+      _(traces[4]['URL']).must_equal "/bunny/tv.ruby.consumer.test"
+      _(traces[4].key?('SourceTrace')).must_equal true
+      _(traces[4].key?('Backtrace')).must_equal false
 
       @conn.close
     end
@@ -90,27 +90,27 @@ require 'minitest_helper'
       sleep 1
 
       traces = get_all_traces
-      traces.count.must_equal 6
+      _(traces.count).must_equal 6
 
       validate_outer_layers(traces, "rabbitmq-consumer")
       assert valid_edges?(traces), "Invalid edge in traces"
 
-      traces[1]['Layer'].must_equal "net-http"
-      traces[1]['Label'].must_equal "entry"
-      traces[4]['Layer'].must_equal "net-http"
-      traces[4]['Label'].must_equal "exit"
+      _(traces[1]['Layer']).must_equal "net-http"
+      _(traces[1]['Label']).must_equal "entry"
+      _(traces[4]['Layer']).must_equal "net-http"
+      _(traces[4]['Label']).must_equal "exit"
 
-      traces[0]['Spec'].must_equal "job"
-      traces[0]['Flavor'].must_equal "rabbitmq"
-      traces[0]['Queue'].must_equal "tv.ruby.consumer.blocking.test"
-      traces[0]['RemoteHost'].must_equal @connection_params[:host]
-      traces[0]['RemotePort'].must_equal @connection_params[:port].to_i
-      traces[0]['VirtualHost'].must_equal @connection_params[:vhost]
-      traces[0]['RoutingKey'].must_equal "tv.ruby.consumer.blocking.test"
-      traces[0]['Controller'].must_equal "msg_app"
-      traces[0]['Action'].must_equal "generic"
-      traces[0]['URL'].must_equal "/bunny/tv.ruby.consumer.blocking.test"
-      traces[0].key?('Backtrace').must_equal false
+      _(traces[0]['Spec']).must_equal "job"
+      _(traces[0]['Flavor']).must_equal "rabbitmq"
+      _(traces[0]['Queue']).must_equal "tv.ruby.consumer.blocking.test"
+      _(traces[0]['RemoteHost']).must_equal @connection_params[:host]
+      _(traces[0]['RemotePort']).must_equal @connection_params[:port].to_i
+      _(traces[0]['VirtualHost']).must_equal @connection_params[:vhost]
+      _(traces[0]['RoutingKey']).must_equal "tv.ruby.consumer.blocking.test"
+      _(traces[0]['Controller']).must_equal "msg_app"
+      _(traces[0]['Action']).must_equal "generic"
+      _(traces[0]['URL']).must_equal "/bunny/tv.ruby.consumer.blocking.test"
+      _(traces[0].key?('Backtrace')).must_equal false
 
       @conn.close
     end
@@ -131,33 +131,33 @@ require 'minitest_helper'
       sleep 1
 
       traces = get_all_traces
-      traces.count.must_equal 3
+      _(traces.count).must_equal 3
 
       validate_outer_layers(traces, "rabbitmq-consumer")
       assert valid_edges?(traces), "Invalid edge in traces"
 
-      traces[0]['Spec'].must_equal "job"
-      traces[0]['Flavor'].must_equal "rabbitmq"
-      traces[0]['Queue'].must_equal "tv.ruby.consumer.error.test"
-      traces[0]['RemoteHost'].must_equal @connection_params[:host]
-      traces[0]['RemotePort'].must_equal @connection_params[:port].to_i
-      traces[0]['VirtualHost'].must_equal @connection_params[:vhost]
-      traces[0]['RoutingKey'].must_equal "tv.ruby.consumer.error.test"
-      traces[0]['Controller'].must_equal "msg_app"
-      traces[0]['Action'].must_equal "generic"
-      traces[0]['URL'].must_equal "/bunny/tv.ruby.consumer.error.test"
-      traces[0].key?('Backtrace').must_equal false
+      _(traces[0]['Spec']).must_equal "job"
+      _(traces[0]['Flavor']).must_equal "rabbitmq"
+      _(traces[0]['Queue']).must_equal "tv.ruby.consumer.error.test"
+      _(traces[0]['RemoteHost']).must_equal @connection_params[:host]
+      _(traces[0]['RemotePort']).must_equal @connection_params[:port].to_i
+      _(traces[0]['VirtualHost']).must_equal @connection_params[:vhost]
+      _(traces[0]['RoutingKey']).must_equal "tv.ruby.consumer.error.test"
+      _(traces[0]['Controller']).must_equal "msg_app"
+      _(traces[0]['Action']).must_equal "generic"
+      _(traces[0]['URL']).must_equal "/bunny/tv.ruby.consumer.error.test"
+      _(traces[0].key?('Backtrace')).must_equal false
 
-      traces[1]['Layer'].must_equal "rabbitmq-consumer"
-      traces[1]['Spec'].must_equal "error"
-      traces[1]['Label'].must_equal "error"
-      traces[1]['ErrorClass'].must_equal "RuntimeError"
-      traces[1]['ErrorMsg'].must_equal "blah"
-      traces[1].key?('Backtrace').must_equal true
-      traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 1
+      _(traces[1]['Layer']).must_equal "rabbitmq-consumer"
+      _(traces[1]['Spec']).must_equal "error"
+      _(traces[1]['Label']).must_equal "error"
+      _(traces[1]['ErrorClass']).must_equal "RuntimeError"
+      _(traces[1]['ErrorMsg']).must_equal "blah"
+      _(traces[1].key?('Backtrace')).must_equal true
+      _(traces.select { |trace| trace['Label'] == 'error' }.count).must_equal 1
 
-      traces[2]['Layer'].must_equal "rabbitmq-consumer"
-      traces[2]['Label'].must_equal "exit"
+      _(traces[2]['Layer']).must_equal "rabbitmq-consumer"
+      _(traces[2]['Label']).must_equal "exit"
     end
 
     it 'captures the id' do
@@ -182,22 +182,22 @@ require 'minitest_helper'
 
       traces = get_all_traces
 
-      traces.count.must_equal 10
+      _(traces.count).must_equal 10
       assert valid_edges?(traces, false), "Invalid edge in traces"
 
-      traces[4]['Spec'].must_equal "job"
-      traces[4]['Flavor'].must_equal "rabbitmq"
-      traces[4]['Queue'].must_equal "tv.ruby.consumer.msgid.test"
-      traces[4]['RemoteHost'].must_equal @connection_params[:host]
-      traces[4]['RemotePort'].must_equal @connection_params[:port].to_i
-      traces[4]['VirtualHost'].must_equal @connection_params[:vhost]
-      traces[4]['RoutingKey'].must_equal "tv.ruby.consumer.msgid.test"
-      traces[4]['Controller'].must_equal "msg_app"
-      traces[4]['Action'].must_equal "generic"
-      traces[4]['URL'].must_equal "/bunny/tv.ruby.consumer.msgid.test"
-      traces[4]['MsgID'].must_equal "1234"
-      traces[4].key?('SourceTrace').must_equal true
-      traces[4].key?('Backtrace').must_equal false
+      _(traces[4]['Spec']).must_equal "job"
+      _(traces[4]['Flavor']).must_equal "rabbitmq"
+      _(traces[4]['Queue']).must_equal "tv.ruby.consumer.msgid.test"
+      _(traces[4]['RemoteHost']).must_equal @connection_params[:host]
+      _(traces[4]['RemotePort']).must_equal @connection_params[:port].to_i
+      _(traces[4]['VirtualHost']).must_equal @connection_params[:vhost]
+      _(traces[4]['RoutingKey']).must_equal "tv.ruby.consumer.msgid.test"
+      _(traces[4]['Controller']).must_equal "msg_app"
+      _(traces[4]['Action']).must_equal "generic"
+      _(traces[4]['URL']).must_equal "/bunny/tv.ruby.consumer.msgid.test"
+      _(traces[4]['MsgID']).must_equal "1234"
+      _(traces[4].key?('SourceTrace')).must_equal true
+      _(traces[4].key?('Backtrace')).must_equal false
 
       @conn.close
     end

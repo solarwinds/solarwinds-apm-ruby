@@ -23,20 +23,20 @@ describe Sinatra do
 
     traces = get_all_traces
 
-    traces.count.must_equal 8
-    valid_edges?(traces).must_equal true
+    _(traces.count).must_equal 6
+    _(valid_edges?(traces)).must_equal true
     validate_outer_layers(traces, 'rack')
 
-    traces[1]['Layer'].must_equal "sinatra"
-    traces[3]['Label'].must_equal "profile_entry"
-    traces[6]['Controller'].must_equal "SinatraSimple"
-    traces[7]['Label'].must_equal "exit"
+    _(traces[1]['Layer']).must_equal "sinatra"
+    _(traces[2]['Label']).must_equal "entry"
+    _(traces[4]['Controller']).must_equal "SinatraSimple"
+    _(traces[5]['Label']).must_equal "exit"
 
     layer_has_key_once(traces, 'sinatra', 'Backtrace')
 
     # Validate the existence of the response header
-    r.headers.key?('X-Trace').must_equal true
-    r.headers['X-Trace'].must_equal traces[7]['X-Trace']
+    _(r.headers.key?('X-Trace')).must_equal true
+    _(r.headers['X-Trace']).must_equal traces[5]['X-Trace']
   end
 
   it "should log an error on exception" do
@@ -52,20 +52,20 @@ describe Sinatra do
 
     traces = get_all_traces
 
-    traces.count.must_equal 5
-    valid_edges?(traces).must_equal true
+    _(traces.count).must_equal 5
+    _(valid_edges?(traces)).must_equal true
     validate_outer_layers(traces, 'rack')
 
-    traces[1]['Layer'].must_equal "sinatra"
+    _(traces[1]['Layer']).must_equal "sinatra"
 
     error_traces = traces.select{ |trace| trace['Label'] == 'error' }
-    error_traces.size.must_equal 1
+    _(error_traces.size).must_equal 1
 
     error_trace = error_traces[0]
-    error_trace['Layer'].must_equal 'sinatra'
-    error_trace['Spec'].must_equal 'error'
-    error_trace['ErrorClass'].must_equal 'StandardError'
-    error_trace['ErrorMsg'].must_equal 'Hello Sinatra'
+    _(error_trace['Layer']).must_equal 'sinatra'
+    _(error_trace['Spec']).must_equal 'error'
+    _(error_trace['ErrorClass']).must_equal 'StandardError'
+    _(error_trace['ErrorMsg']).must_equal 'Hello Sinatra'
   end
 
   it 'should not report backtraces' do
@@ -84,7 +84,7 @@ describe Sinatra do
 
     r = get "/render"
 
-    (r.body =~ /tly.js/).must_be_nil
+    _((r.body =~ /tly.js/)).must_be_nil
   end
 
   it "should report the route with :id" do
@@ -100,7 +100,7 @@ describe Sinatra do
 
     r = get "/render/123304952309747203947"
 
-    r.body.must_match /123304952309747203947/
+    _(r.body).must_match /123304952309747203947/
 
     assert_equal "SinatraSimple.GET /render/:id", test_action
     assert_equal "http://example.org/render/123304952309747203947", test_url
@@ -124,7 +124,7 @@ describe Sinatra do
 
     r = get "/render/123304952309747203947/what"
 
-    r.body.must_match /WOOT.*123304952309747203947/
+    _(r.body).must_match /WOOT.*123304952309747203947/
 
     assert_equal "SinatraSimple.GET /render/:id/what", test_action
     assert_equal "http://example.org/render/123304952309747203947/what", test_url
@@ -148,7 +148,7 @@ describe Sinatra do
 
     r = get "/say/hello/to/world"
 
-    r.body.must_match /hello world/
+    _(r.body).must_match /hello world/
 
     assert_equal "SinatraSimple.GET /say/*/to/*", test_action
     assert_equal "http://example.org/say/hello/to/world", test_url
@@ -173,9 +173,9 @@ describe Sinatra do
 
       r = get "/hello/friend"
 
-      r.body.must_match /Hello, friend/
+      _(r.body).must_match /Hello, friend/
 
-      test_action.must_match  "SinatraSimple.GET \\/hello\\/([\\w]+)", test_action
+      _(test_action).must_match  "SinatraSimple.GET \\/hello\\/([\\w]+)", test_action
       assert_equal "http://example.org/hello/friend", test_url
       assert_equal 200, test_status
       assert_equal "GET", test_method

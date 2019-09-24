@@ -7,7 +7,7 @@ require 'rack/lobster'
 require 'appoptics_apm/inst/rack'
 require 'mocha/minitest'
 
-class RackTestApp < Minitest::Test
+describe "RackTestApp" do
   include Rack::Test::Methods
 
   def app
@@ -30,7 +30,7 @@ class RackTestApp < Minitest::Test
     }
   end
 
-  def setup
+  before do
     @bt = AppOpticsAPM::Config[:rack][:collect_backtraces]
     @log_args = AppOpticsAPM::Config[:rack][:log_args]
     @sr = AppOpticsAPM::Config[:sample_rate]
@@ -39,7 +39,7 @@ class RackTestApp < Minitest::Test
     AppOpticsAPM::Config[:tracing_mode] = :enabled
   end
 
-  def teardown
+  after do
     AppOpticsAPM::Config[:rack][:collect_backtraces] = @bt
     AppOpticsAPM::Config[:rack][:log_args] =  @log_args
     AppOpticsAPM::Config[:tracing_mode] = :enabled
@@ -51,7 +51,7 @@ class RackTestApp < Minitest::Test
     get "/lobster"
 
     traces = get_all_traces
-    traces.count.must_equal 2
+    _(traces.count).must_equal 2
 
     validate_outer_layers(traces, 'rack')
 
@@ -101,7 +101,7 @@ class RackTestApp < Minitest::Test
     assert xtrace
     assert AppOpticsAPM::XTrace.valid?(xtrace)
 
-    traces[0]['URL'].must_equal "/lobster"
+    _(traces[0]['URL']).must_equal "/lobster"
   end
 
   def test_log_args_when_true
@@ -116,7 +116,7 @@ class RackTestApp < Minitest::Test
     assert xtrace
     assert AppOpticsAPM::XTrace.valid?(xtrace)
 
-    traces[0]['URL'].must_equal "/lobster?blah=1"
+    _(traces[0]['URL']).must_equal "/lobster?blah=1"
   end
 
   def test_has_header_when_not_tracing
