@@ -418,11 +418,11 @@ if defined?(::Rails)
       _(traces[0]['Label']).must_equal "entry"
       _(traces[0]['URL']).must_equal "/hello/metal"
 
-      _(traces[1]['Label']).must_equal "entry"
+      _(traces[1]['Label']).must_equal "profile_entry"
       _(traces[1]['Controller']).must_equal "FerroController"
       _(traces[1]['Action']).must_equal "world"
 
-      _(traces[2]['Label']).must_equal "exit"
+      _(traces[2]['Label']).must_equal "profile_exit"
 
       _(traces[3]['Layer']).must_equal "rack"
       _(traces[3]['Label']).must_equal "exit"

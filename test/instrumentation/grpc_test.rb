@@ -966,7 +966,7 @@ describe 'GRPC' do
       assert valid_edges?(traces)
 
       _(traces.size).must_equal 6
-      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| t_(r['GRPCMethodType']).must_equal  'BIDI_STREAMING' }
+      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| _(tr['GRPCMethodType']).must_equal  'BIDI_STREAMING' }
       traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'UNKNOWN' }
     end
 
@@ -983,7 +983,7 @@ describe 'GRPC' do
       assert valid_edges?(traces)
 
       _(traces.size).must_equal 6
-      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| t_(r['GRPCMethodType']).must_equal  'BIDI_STREAMING' }
+      traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| _(tr['GRPCMethodType']).must_equal  'BIDI_STREAMING' }
       # traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'UNIMPLEMENTED' }
       # version 1.18.0 returns UNKNOWN instead of UNIMPLEMENTED
       traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'UNKNOWN' }
