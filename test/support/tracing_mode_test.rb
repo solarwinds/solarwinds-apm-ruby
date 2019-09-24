@@ -3,7 +3,7 @@
 
 require 'minitest_helper'
 
-class TracingModeTest  < Minitest::Test
+describe "TracingModeTest" do
   def setup
     @tm = AppOpticsAPM::Config[:tracing_mode]
     AppOpticsAPM::Config[:tracing_mode] = :enabled
