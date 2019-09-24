@@ -34,7 +34,7 @@ describe "RailsSharedTests" do
       r = Net::HTTP.get_response(uri)
 
       traces = get_all_traces
-      traces.count.must_equal 0
+      _(traces.count).must_equal 0
     end
   end
 
@@ -45,7 +45,7 @@ describe "RailsSharedTests" do
       r = Net::HTTP.get_response(uri)
 
       traces = get_all_traces
-      traces.count.must_equal 0
+      _(traces.count).must_equal 0
     end
   end
 
@@ -55,10 +55,10 @@ describe "RailsSharedTests" do
         "rack.input" => -> {}
     )[1]
 
-    response_headers.key?('X-Trace').must_equal false
+    _(response_headers.key?('X-Trace')).must_equal false
 
     traces = get_all_traces
-    traces.count.must_equal 0
+    _(traces.count).must_equal 0
   end
 
   it "should send inbound metrics" do

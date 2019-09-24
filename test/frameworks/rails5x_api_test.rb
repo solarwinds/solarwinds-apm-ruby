@@ -33,13 +33,13 @@ if defined?(::Rails)
       _ = Net::HTTP.get_response(uri)
 
       traces = get_all_traces
-      traces.count.must_equal 8
+      _(traces.count).must_equal 8
 
-      traces[3]['Layer'].must_equal "partial"
-      traces[3]['Label'].must_equal "entry"
-      traces[3]['Partial'].must_equal "somepartial"
-      traces[4]['Layer'].must_equal "partial"
-      traces[4]['Label'].must_equal "exit"
+      _(traces[3]['Layer']).must_equal "partial"
+      _(traces[3]['Label']).must_equal "entry"
+      _(traces[3]['Partial']).must_equal "somepartial"
+      _(traces[4]['Layer']).must_equal "partial"
+      _(traces[4]['Label']).must_equal "exit"
     end
 
     it "should create a span for a collection" do
@@ -48,13 +48,13 @@ if defined?(::Rails)
       _ = Net::HTTP.get_response(uri)
 
       traces = get_all_traces
-      traces.count.must_equal 16
+      _(traces.count).must_equal 16
 
-      traces[11]['Layer'].must_equal "collection"
-      traces[11]['Label'].must_equal "entry"
-      traces[11]['Partial'].must_equal "widget"
-      traces[12]['Layer'].must_equal "collection"
-      traces[12]['Label'].must_equal "exit"
+      _(traces[11]['Layer']).must_equal "collection"
+      _(traces[11]['Label']).must_equal "entry"
+      _(traces[11]['Partial']).must_equal "widget"
+      _(traces[12]['Layer']).must_equal "collection"
+      _(traces[12]['Label']).must_equal "exit"
     end
 
     it "should trace a request to a rails api stack" do
@@ -63,39 +63,39 @@ if defined?(::Rails)
 
       traces = get_all_traces
 
-      traces.count.must_equal 6
+      _(traces.count).must_equal 6
       unless defined?(JRUBY_VERSION)
         # We don't test this under JRuby because the Java instrumentation
         # for the DB drivers doesn't use our test reporter hence we won't
         # see all trace events. :-(  To be improved.
-        valid_edges?(traces).must_equal true
+        _(valid_edges?(traces)).must_equal true
       end
       validate_outer_layers(traces, 'rack')
 
-      traces[0]['Layer'].must_equal "rack"
-      traces[0]['Label'].must_equal "entry"
-      traces[0]['URL'].must_equal "/monkey/hello"
+      _(traces[0]['Layer']).must_equal "rack"
+      _(traces[0]['Label']).must_equal "entry"
+      _(traces[0]['URL']).must_equal "/monkey/hello"
 
-      traces[1]['Layer'].must_equal "rails-api"
-      traces[1]['Label'].must_equal "entry"
-      traces[1]['Controller'].must_equal "MonkeyController"
-      traces[1]['Action'].must_equal "hello"
+      _(traces[1]['Layer']).must_equal "rails-api"
+      _(traces[1]['Label']).must_equal "entry"
+      _(traces[1]['Controller']).must_equal "MonkeyController"
+      _(traces[1]['Action']).must_equal "hello"
 
-      traces[2]['Layer'].must_equal "actionview"
-      traces[2]['Label'].must_equal "entry"
+      _(traces[2]['Layer']).must_equal "actionview"
+      _(traces[2]['Label']).must_equal "entry"
 
-      traces[3]['Layer'].must_equal "actionview"
-      traces[3]['Label'].must_equal "exit"
+      _(traces[3]['Layer']).must_equal "actionview"
+      _(traces[3]['Label']).must_equal "exit"
 
-      traces[4]['Layer'].must_equal "rails-api"
-      traces[4]['Label'].must_equal "exit"
+      _(traces[4]['Layer']).must_equal "rails-api"
+      _(traces[4]['Label']).must_equal "exit"
 
-      traces[5]['Layer'].must_equal "rack"
-      traces[5]['Label'].must_equal "exit"
+      _(traces[5]['Layer']).must_equal "rack"
+      _(traces[5]['Label']).must_equal "exit"
 
       # Validate the existence of the response header
-      r.header.key?('X-Trace').must_equal true
-      r.header['X-Trace'].must_equal traces[5]['X-Trace']
+      _(r.header.key?('X-Trace')).must_equal true
+      _(r.header['X-Trace']).must_equal traces[5]['X-Trace']
     end
 
     it "should capture errors" do
@@ -104,40 +104,40 @@ if defined?(::Rails)
 
       traces = get_all_traces
 
-      traces.count.must_equal 5
+      _(traces.count).must_equal 5
       unless defined?(JRUBY_VERSION)
         # We don't test this under JRuby because the Java instrumentation
         # for the DB drivers doesn't use our test reporter hence we won't
         # see all trace events. :-(  To be improved.
-        valid_edges?(traces).must_equal true
+        _(valid_edges?(traces)).must_equal true
       end
       validate_outer_layers(traces, 'rack')
 
-      traces[0]['Layer'].must_equal "rack"
-      traces[0]['Label'].must_equal "entry"
-      traces[0]['URL'].must_equal "/monkey/error"
+      _(traces[0]['Layer']).must_equal "rack"
+      _(traces[0]['Label']).must_equal "entry"
+      _(traces[0]['URL']).must_equal "/monkey/error"
 
-      traces[1]['Layer'].must_equal "rails-api"
-      traces[1]['Label'].must_equal "entry"
-      traces[1]['Controller'].must_equal "MonkeyController"
-      traces[1]['Action'].must_equal "error"
+      _(traces[1]['Layer']).must_equal "rails-api"
+      _(traces[1]['Label']).must_equal "entry"
+      _(traces[1]['Controller']).must_equal "MonkeyController"
+      _(traces[1]['Action']).must_equal "error"
 
-      traces[2]['Spec'].must_equal "error"
-      traces[2]['Label'].must_equal "error"
-      traces[2]['ErrorClass'].must_equal "RuntimeError"
-      traces[2]['ErrorMsg'].must_equal "Rails API fake error from controller"
+      _(traces[2]['Spec']).must_equal "error"
+      _(traces[2]['Label']).must_equal "error"
+      _(traces[2]['ErrorClass']).must_equal "RuntimeError"
+      _(traces[2]['ErrorMsg']).must_equal "Rails API fake error from controller"
 
-      traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 1
+      _(traces.select { |trace| trace['Label'] == 'error' }.count).must_equal 1
 
-      traces[3]['Layer'].must_equal "rails-api"
-      traces[3]['Label'].must_equal "exit"
+      _(traces[3]['Layer']).must_equal "rails-api"
+      _(traces[3]['Label']).must_equal "exit"
 
-      traces[4]['Layer'].must_equal "rack"
-      traces[4]['Label'].must_equal "exit"
+      _(traces[4]['Layer']).must_equal "rack"
+      _(traces[4]['Label']).must_equal "exit"
 
       # Validate the existence of the response header
-      r.header.key?('X-Trace').must_equal true
-      r.header['X-Trace'].must_equal traces[4]['X-Trace']
+      _(r.header.key?('X-Trace')).must_equal true
+      _(r.header['X-Trace']).must_equal traces[4]['X-Trace']
     end
 
     it "should collect backtraces when true" do
@@ -148,40 +148,40 @@ if defined?(::Rails)
 
       traces = get_all_traces
 
-      traces.count.must_equal 6
+      _(traces.count).must_equal 6
       unless defined?(JRUBY_VERSION)
         # We don't test this under JRuby because the Java instrumentation
         # for the DB drivers doesn't use our test reporter hence we won't
         # see all trace events. :-(  To be improved.
-        valid_edges?(traces).must_equal true
+        _(valid_edges?(traces)).must_equal true
       end
       validate_outer_layers(traces, 'rack')
 
-      traces[0]['Layer'].must_equal "rack"
-      traces[0]['Label'].must_equal "entry"
-      traces[0]['URL'].must_equal "/monkey/hello"
+      _(traces[0]['Layer']).must_equal "rack"
+      _(traces[0]['Label']).must_equal "entry"
+      _(traces[0]['URL']).must_equal "/monkey/hello"
 
-      traces[1]['Layer'].must_equal "rails-api"
-      traces[1]['Label'].must_equal "entry"
-      traces[1]['Controller'].must_equal "MonkeyController"
-      traces[1]['Action'].must_equal "hello"
-      traces[1].key?('Backtrace').must_equal true
+      _(traces[1]['Layer']).must_equal "rails-api"
+      _(traces[1]['Label']).must_equal "entry"
+      _(traces[1]['Controller']).must_equal "MonkeyController"
+      _(traces[1]['Action']).must_equal "hello"
+      _(traces[1].key?('Backtrace')).must_equal true
 
-      traces[2]['Layer'].must_equal "actionview"
-      traces[2]['Label'].must_equal "entry"
+      _(traces[2]['Layer']).must_equal "actionview"
+      _(traces[2]['Label']).must_equal "entry"
 
-      traces[3]['Layer'].must_equal "actionview"
-      traces[3]['Label'].must_equal "exit"
+      _(traces[3]['Layer']).must_equal "actionview"
+      _(traces[3]['Label']).must_equal "exit"
 
-      traces[4]['Layer'].must_equal "rails-api"
-      traces[4]['Label'].must_equal "exit"
+      _(traces[4]['Layer']).must_equal "rails-api"
+      _(traces[4]['Label']).must_equal "exit"
 
-      traces[5]['Layer'].must_equal "rack"
-      traces[5]['Label'].must_equal "exit"
+      _(traces[5]['Layer']).must_equal "rack"
+      _(traces[5]['Label']).must_equal "exit"
 
       # Validate the existence of the response header
-      r.header.key?('X-Trace').must_equal true
-      r.header['X-Trace'].must_equal traces[5]['X-Trace']
+      _(r.header.key?('X-Trace')).must_equal true
+      _(r.header['X-Trace']).must_equal traces[5]['X-Trace']
     end
 
     it "should NOT collect backtraces when false" do
@@ -192,40 +192,40 @@ if defined?(::Rails)
 
       traces = get_all_traces
 
-      traces.count.must_equal 6
+      _(traces.count).must_equal 6
       unless defined?(JRUBY_VERSION)
         # We don't test this under JRuby because the Java instrumentation
         # for the DB drivers doesn't use our test reporter hence we won't
         # see all trace events. :-(  To be improved.
-        valid_edges?(traces).must_equal true
+        _(valid_edges?(traces)).must_equal true
       end
       validate_outer_layers(traces, 'rack')
 
-      traces[0]['Layer'].must_equal "rack"
-      traces[0]['Label'].must_equal "entry"
-      traces[0]['URL'].must_equal "/monkey/hello"
+      _(traces[0]['Layer']).must_equal "rack"
+      _(traces[0]['Label']).must_equal "entry"
+      _(traces[0]['URL']).must_equal "/monkey/hello"
 
-      traces[1]['Layer'].must_equal "rails-api"
-      traces[1]['Label'].must_equal "entry"
-      traces[1]['Controller'].must_equal "MonkeyController"
-      traces[1]['Action'].must_equal "hello"
-      traces[1].key?('Backtrace').must_equal false
+      _(traces[1]['Layer']).must_equal "rails-api"
+      _(traces[1]['Label']).must_equal "entry"
+      _(traces[1]['Controller']).must_equal "MonkeyController"
+      _(traces[1]['Action']).must_equal "hello"
+      _(traces[1].key?('Backtrace')).must_equal false
 
-      traces[2]['Layer'].must_equal "actionview"
-      traces[2]['Label'].must_equal "entry"
+      _(traces[2]['Layer']).must_equal "actionview"
+      _(traces[2]['Label']).must_equal "entry"
 
-      traces[3]['Layer'].must_equal "actionview"
-      traces[3]['Label'].must_equal "exit"
+      _(traces[3]['Layer']).must_equal "actionview"
+      _(traces[3]['Label']).must_equal "exit"
 
-      traces[4]['Layer'].must_equal "rails-api"
-      traces[4]['Label'].must_equal "exit"
+      _(traces[4]['Layer']).must_equal "rails-api"
+      _(traces[4]['Label']).must_equal "exit"
 
-      traces[5]['Layer'].must_equal "rack"
-      traces[5]['Label'].must_equal "exit"
+      _(traces[5]['Layer']).must_equal "rack"
+      _(traces[5]['Label']).must_equal "exit"
 
       # Validate the existence of the response header
-      r.header.key?('X-Trace').must_equal true
-      r.header['X-Trace'].must_equal traces[5]['X-Trace']
+      _(r.header.key?('X-Trace')).must_equal true
+      _(r.header['X-Trace']).must_equal traces[5]['X-Trace']
     end
 
     require_relative "rails_shared_tests"

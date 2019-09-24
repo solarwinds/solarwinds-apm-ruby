@@ -26,7 +26,7 @@ if defined?(::Redis)
     end
 
     it 'Stock Redis should be loaded, defined and ready' do
-      defined?(::Redis).wont_match nil
+      _(defined?(::Redis)).wont_match nil
     end
 
     it "should trace hdel" do
@@ -39,10 +39,10 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "hdel"
-      traces[2]['KVKey'].must_equal "whale"
-      traces[2]['field'].must_equal "color"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "hdel"
+      _(traces[2]['KVKey']).must_equal "whale"
+      _(traces[2]['field']).must_equal "color"
     end
 
     it "should trace hdel multiple fields" do
@@ -57,10 +57,10 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "hdel"
-      traces[2]['KVKey'].must_equal "whale"
-      traces[2].has_key?('field').must_equal false
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "hdel"
+      _(traces[2]['KVKey']).must_equal "whale"
+      _(traces[2].has_key?('field')).must_equal false
     end
 
     it "should trace hexists" do
@@ -73,10 +73,10 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "hexists"
-      traces[2]['KVKey'].must_equal "whale"
-      traces[2]['field'].must_equal "color"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "hexists"
+      _(traces[2]['KVKey']).must_equal "whale"
+      _(traces[2]['field']).must_equal "color"
     end
 
     it "should trace hget" do
@@ -90,12 +90,12 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 6
-      traces[2]['KVOp'].must_equal "hget"
-      traces[2]['KVKey'].must_equal "whale"
-      traces[2]['KVHit'].must_equal 1
-      traces[2]['field'].must_equal "color"
-      traces[4]['KVHit'].must_equal 0
+      _(traces.count).must_equal 6
+      _(traces[2]['KVOp']).must_equal "hget"
+      _(traces[2]['KVKey']).must_equal "whale"
+      _(traces[2]['KVHit']).must_equal 1
+      _(traces[2]['field']).must_equal "color"
+      _(traces[4]['KVHit']).must_equal 0
     end
 
     it "should trace hgetall" do
@@ -108,9 +108,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "hgetall"
-      traces[2]['KVKey'].must_equal "whale"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "hgetall"
+      _(traces[2]['KVKey']).must_equal "whale"
     end
 
     it "should trace hincrby" do
@@ -123,11 +123,11 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "hincrby"
-      traces[2]['KVKey'].must_equal "whale"
-      traces[2]['field'].must_equal "age"
-      traces[2]['increment'].must_equal 1
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "hincrby"
+      _(traces[2]['KVKey']).must_equal "whale"
+      _(traces[2]['field']).must_equal "age"
+      _(traces[2]['increment']).must_equal 1
     end
 
     it "should trace hincrbyfloat" do
@@ -140,11 +140,11 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "hincrbyfloat"
-      traces[2]['KVKey'].must_equal "whale"
-      traces[2]['field'].must_equal "age"
-      traces[2]['increment'].must_equal 1.3
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "hincrbyfloat"
+      _(traces[2]['KVKey']).must_equal "whale"
+      _(traces[2]['field']).must_equal "age"
+      _(traces[2]['increment']).must_equal 1.3
     end
 
     it "should trace hkeys" do
@@ -157,9 +157,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "hkeys"
-      traces[2]['KVKey'].must_equal "whale"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "hkeys"
+      _(traces[2]['KVKey']).must_equal "whale"
     end
 
     it "should trace hlen" do
@@ -172,9 +172,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "hlen"
-      traces[2]['KVKey'].must_equal "whale"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "hlen"
+      _(traces[2]['KVKey']).must_equal "whale"
     end
 
     it "should trace hmget" do
@@ -189,11 +189,11 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "hmget"
-      traces[2]['KVKey'].must_equal "whale"
-      traces[2]['KVKeyCount'].must_equal 4
-      traces[2]['KVHitCount'].must_equal 2
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "hmget"
+      _(traces[2]['KVKey']).must_equal "whale"
+      _(traces[2]['KVKeyCount']).must_equal 4
+      _(traces[2]['KVHitCount']).must_equal 2
     end
 
     it "should trace hmset" do
@@ -208,9 +208,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "hmset"
-      traces[2]['KVKey'].must_equal "whale"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "hmset"
+      _(traces[2]['KVKey']).must_equal "whale"
     end
 
     it "should trace hset" do
@@ -221,9 +221,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "hset"
-      traces[2]['KVKey'].must_equal "whale"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "hset"
+      _(traces[2]['KVKey']).must_equal "whale"
     end
 
     it "should trace hsetnx" do
@@ -234,9 +234,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "hsetnx"
-      traces[2]['KVKey'].must_equal "whale"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "hsetnx"
+      _(traces[2]['KVKey']).must_equal "whale"
     end
 
     it "should trace hvals" do
@@ -247,9 +247,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "hvals"
-      traces[2]['KVKey'].must_equal "whale"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "hvals"
+      _(traces[2]['KVKey']).must_equal "whale"
     end
 
     it "should trace hscan" do
@@ -260,9 +260,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "hscan"
-      traces[2]['KVKey'].must_equal "whale"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "hscan"
+      _(traces[2]['KVKey']).must_equal "whale"
     end
   end
 end

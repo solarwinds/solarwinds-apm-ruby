@@ -33,9 +33,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "zadd"
-      traces[2]['KVKey'].must_equal "time"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "zadd"
+      _(traces[2]['KVKey']).must_equal "time"
     end
 
     it "should trace zcard" do
@@ -52,9 +52,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "zcard"
-      traces[2]['KVKey'].must_equal "sauce"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "zcard"
+      _(traces[2]['KVKey']).must_equal "sauce"
     end
 
     it "should trace zcount" do
@@ -71,9 +71,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "zcount"
-      traces[2]['KVKey'].must_equal "sauce"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "zcount"
+      _(traces[2]['KVKey']).must_equal "sauce"
     end
 
     it "should trace zincrby" do
@@ -90,9 +90,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "zincrby"
-      traces[2]['KVKey'].must_equal "sauce"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "zincrby"
+      _(traces[2]['KVKey']).must_equal "sauce"
     end
 
     it "should trace zinterstore" do
@@ -110,10 +110,10 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "zinterstore"
-      traces[2]['destination'].must_equal "zinterstore_dest"
-      traces[2].has_key?('KVKey').must_equal false
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "zinterstore"
+      _(traces[2]['destination']).must_equal "zinterstore_dest"
+      _(traces[2].has_key?('KVKey')).must_equal false
     end
 
     it "should trace zrange" do
@@ -130,9 +130,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "zrange"
-      traces[2]['KVKey'].must_equal "sauce"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "zrange"
+      _(traces[2]['KVKey']).must_equal "sauce"
     end
 
     it "should trace zrangebyscore" do
@@ -149,9 +149,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "zrangebyscore"
-      traces[2]['KVKey'].must_equal "sauce"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "zrangebyscore"
+      _(traces[2]['KVKey']).must_equal "sauce"
     end
 
     it "should trace zrank" do
@@ -168,9 +168,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "zrank"
-      traces[2]['KVKey'].must_equal "sauce"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "zrank"
+      _(traces[2]['KVKey']).must_equal "sauce"
     end
 
     it "should trace zrem" do
@@ -187,9 +187,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "zrem"
-      traces[2]['KVKey'].must_equal "sauce"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "zrem"
+      _(traces[2]['KVKey']).must_equal "sauce"
     end
 
     it "should trace zremrangebyrank" do
@@ -206,11 +206,11 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "zremrangebyrank"
-      traces[2]['KVKey'].must_equal "sauce"
-      traces[2]['start'].must_equal (-5)
-      traces[2]['stop'].must_equal (-1)
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "zremrangebyrank"
+      _(traces[2]['KVKey']).must_equal "sauce"
+      _(traces[2]['start']).must_equal (-5)
+      _(traces[2]['stop']).must_equal (-1)
     end
 
     it "should trace zremrangebyscore" do
@@ -227,9 +227,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "zremrangebyscore"
-      traces[2]['KVKey'].must_equal "sauce"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "zremrangebyscore"
+      _(traces[2]['KVKey']).must_equal "sauce"
     end
 
     it "should trace zrevrange" do
@@ -246,11 +246,11 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "zrevrange"
-      traces[2]['KVKey'].must_equal "sauce"
-      traces[2]['start'].must_equal 0
-      traces[2]['stop'].must_equal (-1)
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "zrevrange"
+      _(traces[2]['KVKey']).must_equal "sauce"
+      _(traces[2]['start']).must_equal 0
+      _(traces[2]['stop']).must_equal (-1)
     end
 
     it "should trace zrevrangebyscore" do
@@ -267,9 +267,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "zrevrangebyscore"
-      traces[2]['KVKey'].must_equal "sauce"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "zrevrangebyscore"
+      _(traces[2]['KVKey']).must_equal "sauce"
     end
 
     it "should trace zrevrank" do
@@ -284,9 +284,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "zrevrank"
-      traces[2]['KVKey'].must_equal "letters"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "zrevrank"
+      _(traces[2]['KVKey']).must_equal "letters"
     end
 
     it "should trace zscore" do
@@ -302,9 +302,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "zscore"
-      traces[2]['KVKey'].must_equal "elements"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "zscore"
+      _(traces[2]['KVKey']).must_equal "elements"
     end
 
     it "should trace zunionstore" do
@@ -319,10 +319,10 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "zunionstore"
-      traces[2]['destination'].must_equal "zdest"
-      traces[2].has_key?('KVKey').must_equal false
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "zunionstore"
+      _(traces[2]['destination']).must_equal "zdest"
+      _(traces[2].has_key?('KVKey')).must_equal false
     end
   end
 end

@@ -59,7 +59,7 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
     end
 
     it 'Stock Cassandra should be loaded, defined and ready' do
-      defined?(::Cassandra).wont_match nil
+      _(defined?(::Cassandra)).wont_match nil
     end
 
     it 'Cassandra should have appoptics_apm methods defined' do
@@ -67,10 +67,10 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
         :multi_get, :get_range_single, :get_range_batch, :get_indexed_slices,
         :create_index, :drop_index, :add_column_family, :drop_column_family,
         :add_keyspace, :drop_keyspace ].each do |m|
-        ::Cassandra.method_defined?("#{m}_with_appoptics").must_equal true
+        _(::Cassandra.method_defined?("#{m}_with_appoptics")).must_equal true
       end
       # Special 'exists?' case
-      ::Cassandra.method_defined?("exists_with_appoptics?").must_equal true
+      _(::Cassandra.method_defined?("exists_with_appoptics?")).must_equal true
     end
 
     it 'shouldn\'t break when NOT tracing' do
@@ -100,7 +100,7 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
         # My crappy way to detect and fail if an exception
         # was raised.  I swear there was a Minitest assertion for
         # this but can't find it.
-        e.must_be_nil 'broken when NOT tracing'
+        _(e).must_be_nil 'broken when NOT tracing'
         raise
       end
     end
@@ -113,16 +113,16 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
 
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
       validate_outer_layers(traces, 'cassandra_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      traces[1]['Op'].must_equal "insert"
-      traces[1]['Cf'].must_equal "Users"
-      traces[1]['Key'].must_equal "\"5\""
-      traces[1]['Consistency'].must_equal 1
-      traces[1]['Ttl'].must_equal 600
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
+      _(traces[1]['Op']).must_equal "insert"
+      _(traces[1]['Cf']).must_equal "Users"
+      _(traces[1]['Key']).must_equal "\"5\""
+      _(traces[1]['Consistency']).must_equal 1
+      _(traces[1]['Ttl']).must_equal 600
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -133,14 +133,14 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
 
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
       validate_outer_layers(traces, 'cassandra_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      traces[1]['Op'].must_equal "remove"
-      traces[1]['Cf'].must_equal "Users"
-      traces[1]['Key'].must_equal "\"5\""
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
+      _(traces[1]['Op']).must_equal "remove"
+      _(traces[1]['Cf']).must_equal "Users"
+      _(traces[1]['Key']).must_equal "\"5\""
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -153,15 +153,15 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
 
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
       validate_outer_layers(traces, 'cassandra_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      traces[1]['Op'].must_equal "count_columns"
-      traces[1]['Cf'].must_equal "Statuses"
-      traces[1]['Key'].must_equal "\"12\""
-      traces[1]['Count'].must_equal 50
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
+      _(traces[1]['Op']).must_equal "count_columns"
+      _(traces[1]['Cf']).must_equal "Statuses"
+      _(traces[1]['Key']).must_equal "\"12\""
+      _(traces[1]['Count']).must_equal 50
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -172,14 +172,14 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
 
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
       validate_outer_layers(traces, 'cassandra_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      traces[1]['Op'].must_equal "get_columns"
-      traces[1]['Cf'].must_equal "Statuses"
-      traces[1]['Key'].must_equal "\"12\""
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
+      _(traces[1]['Op']).must_equal "get_columns"
+      _(traces[1]['Cf']).must_equal "Statuses"
+      _(traces[1]['Key']).must_equal "\"12\""
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -190,14 +190,14 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
 
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
       validate_outer_layers(traces, 'cassandra_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      traces[1]['Op'].must_equal "multi_get_columns"
-      traces[1]['Cf'].must_equal "Users"
-      traces[1]['Key'].must_equal "[\"12\", \"5\"]"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
+      _(traces[1]['Op']).must_equal "multi_get_columns"
+      _(traces[1]['Cf']).must_equal "Users"
+      _(traces[1]['Key']).must_equal "[\"12\", \"5\"]"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -208,15 +208,15 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
 
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
       validate_outer_layers(traces, 'cassandra_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      traces[1]['Op'].must_equal "get"
-      traces[1]['Cf'].must_equal "Statuses"
-      traces[1]['Key'].must_equal "\"12\""
-      traces[1]['Reversed'].must_equal "true"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
+      _(traces[1]['Op']).must_equal "get"
+      _(traces[1]['Cf']).must_equal "Statuses"
+      _(traces[1]['Key']).must_equal "\"12\""
+      _(traces[1]['Reversed']).must_equal "true"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -228,20 +228,20 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
 
-      traces.count.must_equal 6
+      _(traces.count).must_equal 6
       validate_outer_layers(traces, 'cassandra_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      traces[1]['Op'].must_equal "exists?"
-      traces[1]['Cf'].must_equal "Statuses"
-      traces[1]['Key'].must_equal "\"12\""
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
+      _(traces[1]['Op']).must_equal "exists?"
+      _(traces[1]['Cf']).must_equal "Statuses"
+      _(traces[1]['Key']).must_equal "\"12\""
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[3]['Op'].must_equal "exists?"
-      traces[3]['Cf'].must_equal "Statuses"
-      traces[3]['Key'].must_equal "\"12\""
-      traces[3].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
+      _(traces[3]['Op']).must_equal "exists?"
+      _(traces[3]['Cf']).must_equal "Statuses"
+      _(traces[3]['Key']).must_equal "\"12\""
+      _(traces[3].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
     end
 
     it 'should trace get_range_keys' do
@@ -251,13 +251,13 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
 
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
       validate_outer_layers(traces, 'cassandra_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      traces[1]['Op'].must_equal "get_range_batch"
-      traces[1]['Cf'].must_equal "Statuses"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
+      _(traces[1]['Op']).must_equal "get_range_batch"
+      _(traces[1]['Cf']).must_equal "Statuses"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -268,16 +268,16 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
 
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
       validate_outer_layers(traces, 'cassandra_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      traces[1]['Op'].must_equal "create_index"
-      traces[1]['Cf'].must_equal "Statuses"
-      traces[1]['Keyspace'].must_equal @ks_name
-      traces[1]['Column_name'].must_equal "column_name"
-      traces[1]['Validation_class'].must_equal "LongType"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
+      _(traces[1]['Op']).must_equal "create_index"
+      _(traces[1]['Cf']).must_equal "Statuses"
+      _(traces[1]['Keyspace']).must_equal @ks_name
+      _(traces[1]['Column_name']).must_equal "column_name"
+      _(traces[1]['Validation_class']).must_equal "LongType"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
 
       # Clean up
@@ -294,15 +294,15 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
 
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
       validate_outer_layers(traces, 'cassandra_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      traces[1]['Op'].must_equal "drop_index"
-      traces[1]['Cf'].must_equal "Statuses"
-      traces[1]['Keyspace'].must_equal @ks_name
-      traces[1]['Column_name'].must_equal "column_name"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
+      _(traces[1]['Op']).must_equal "drop_index"
+      _(traces[1]['Cf']).must_equal "Statuses"
+      _(traces[1]['Keyspace']).must_equal @ks_name
+      _(traces[1]['Column_name']).must_equal "column_name"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -321,13 +321,13 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
 
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
       validate_outer_layers(traces, 'cassandra_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      traces[1]['Op'].must_equal "get_indexed_slices"
-      traces[1]['Cf'].must_equal "Statuses"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
+      _(traces[1]['Op']).must_equal "get_indexed_slices"
+      _(traces[1]['Cf']).must_equal "Statuses"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -342,17 +342,17 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
 
-      traces.count.must_equal 6
+      _(traces.count).must_equal 6
       validate_outer_layers(traces, 'cassandra_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      traces[1]['Op'].must_equal "add_column_family"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
+      _(traces[1]['Op']).must_equal "add_column_family"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[3]['Op'].must_equal "drop_column_family"
-      traces[3]['Cf'].must_equal cf_name
-      traces[3].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
+      _(traces[3]['Op']).must_equal "drop_column_family"
+      _(traces[3]['Cf']).must_equal cf_name
+      _(traces[3].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
     end
 
     it 'should trace adding a keyspace' do
@@ -369,13 +369,13 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
 
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
       validate_outer_layers(traces, 'cassandra_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      traces[1]['Op'].must_equal "add_keyspace"
-      traces[1]['Name'].must_equal ks_name
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
+      _(traces[1]['Op']).must_equal "add_keyspace"
+      _(traces[1]['Name']).must_equal ks_name
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -386,13 +386,13 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
 
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
       validate_outer_layers(traces, 'cassandra_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      traces[1]['Op'].must_equal "drop_keyspace"
-      traces[1]['Name'].must_equal @ks_name
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
+      _(traces[1]['Op']).must_equal "drop_keyspace"
+      _(traces[1]['Name']).must_equal @ks_name
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:cassandra][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 

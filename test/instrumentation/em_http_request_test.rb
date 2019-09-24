@@ -20,11 +20,11 @@ if AppOpticsAPM::Config[:em_http_request] && AppOpticsAPM::Config[:em_http_reque
     end
 
     it 'EventMachine::HttpConnection should be loaded, defined and ready' do
-      defined?(::EventMachine::HttpConnection).wont_match nil
+      _(defined?(::EventMachine::HttpConnection)).wont_match nil
     end
 
     it 'should have appoptics_apm methods defined' do
-      ::EventMachine::HttpConnection.method_defined?("setup_request_with_appoptics").must_equal true
+      _(::EventMachine::HttpConnection.method_defined?("setup_request_with_appoptics")).must_equal true
     end
 
     it 'should trace request' do
@@ -39,20 +39,20 @@ if AppOpticsAPM::Config[:em_http_request] && AppOpticsAPM::Config[:em_http_reque
 
       traces = get_all_traces
 
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
       validate_outer_layers(traces, 'em-http-request_test')
 
-      traces[1]["Layer"].must_equal "em-http-request"
-      traces[1]["Label"].must_equal "entry"
-      traces[1]["Spec"].must_equal "rsc"
-      traces[1]["IsService"].must_equal "1"
-      traces[1]["RemoteURL"].must_equal "http://appneta.com/"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:em_http_request][:collect_backtraces]
+      _(traces[1]["Layer"]).must_equal "em-http-request"
+      _(traces[1]["Label"]).must_equal "entry"
+      _(traces[1]["Spec"]).must_equal "rsc"
+      _(traces[1]["IsService"]).must_equal "1"
+      _(traces[1]["RemoteURL"]).must_equal "http://appneta.com/"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:em_http_request][:collect_backtraces]
 
-      traces[2]["Layer"].must_equal "em-http-request"
-      traces[2]["Label"].must_equal "exit"
-      traces[2]["Async"].must_equal "1"
-      traces[2].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:em_http_request][:collect_backtraces]
+      _(traces[2]["Layer"]).must_equal "em-http-request"
+      _(traces[2]["Label"]).must_equal "exit"
+      _(traces[2]["Async"]).must_equal "1"
+      _(traces[2].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:em_http_request][:collect_backtraces]
     end
 
     it 'should log errors on exception' do
@@ -67,20 +67,20 @@ if AppOpticsAPM::Config[:em_http_request] && AppOpticsAPM::Config[:em_http_reque
 
       traces = get_all_traces
 
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
       validate_outer_layers(traces, 'em-http-request_test')
 
-      traces[1]["Layer"].must_equal "em-http-request"
-      traces[1]["Label"].must_equal "entry"
-      traces[1]["Spec"].must_equal "rsc"
-      traces[1]["IsService"].must_equal "1"
-      traces[1]["RemoteURL"].must_equal "http://appneta.com/"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:em_http_request][:collect_backtraces]
+      _(traces[1]["Layer"]).must_equal "em-http-request"
+      _(traces[1]["Label"]).must_equal "entry"
+      _(traces[1]["Spec"]).must_equal "rsc"
+      _(traces[1]["IsService"]).must_equal "1"
+      _(traces[1]["RemoteURL"]).must_equal "http://appneta.com/"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:em_http_request][:collect_backtraces]
 
-      traces[2]["Layer"].must_equal "em-http-request"
-      traces[2]["Label"].must_equal "exit"
-      traces[2]["Async"].must_equal "1"
-      traces[2].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:em_http_request][:collect_backtraces]
+      _(traces[2]["Layer"]).must_equal "em-http-request"
+      _(traces[2]["Label"]).must_equal "exit"
+      _(traces[2]["Async"]).must_equal "1"
+      _(traces[2].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:em_http_request][:collect_backtraces]
     end
 
     it "should obey :collect_backtraces setting when true" do

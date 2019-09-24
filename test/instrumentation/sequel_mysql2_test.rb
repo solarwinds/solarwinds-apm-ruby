@@ -40,18 +40,18 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
     end
 
     it 'Stock sequel should be loaded, defined and ready' do
-      defined?(::Sequel).wont_match nil
+      _(defined?(::Sequel)).wont_match nil
     end
 
     it 'sequel should have appoptics_apm methods defined' do
       # Sequel::Database
-      ::Sequel::Database.method_defined?(:run_with_appoptics).must_equal true
+      _(::Sequel::Database.method_defined?(:run_with_appoptics)).must_equal true
 
       # Sequel::Dataset
-      ::Sequel::Dataset.method_defined?(:execute_with_appoptics).must_equal true
-      ::Sequel::Dataset.method_defined?(:execute_ddl_with_appoptics).must_equal true
-      ::Sequel::Dataset.method_defined?(:execute_dui_with_appoptics).must_equal true
-      ::Sequel::Dataset.method_defined?(:execute_insert_with_appoptics).must_equal true
+      _(::Sequel::Dataset.method_defined?(:execute_with_appoptics)).must_equal true
+      _(::Sequel::Dataset.method_defined?(:execute_ddl_with_appoptics)).must_equal true
+      _(::Sequel::Dataset.method_defined?(:execute_dui_with_appoptics)).must_equal true
+      _(::Sequel::Dataset.method_defined?(:execute_insert_with_appoptics)).must_equal true
     end
 
     it "should obey :collect_backtraces setting when true" do
@@ -84,12 +84,12 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
 
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      traces[1]['Query'].must_equal "insert into items (name, price) values ('blah', '12')"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
+      _(traces[1]['Query']).must_equal "insert into items (name, price) values ('blah', '12')"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -101,12 +101,12 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
 
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      traces[1]['Query'].must_equal "select 1"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
+      _(traces[1]['Query']).must_equal "select 1"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -122,22 +122,22 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
 
-      traces.count.must_equal 6
+      _(traces.count).must_equal 6
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
 
       # SQL column/value order can vary between Ruby and gem versions
       # Use must_include to test against one or the other
-      [
+      _([
        "INSERT INTO `items` (`price`, `name`) VALUES (2.514, 'abc')",
        "INSERT INTO `items` (`name`, `price`) VALUES ('abc', 2.514)"
-      ].must_include traces[1]['Query']
+      ]).must_include traces[1]['Query']
 
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
-      traces[2]['Layer'].must_equal "sequel"
-      traces[2]['Label'].must_equal "exit"
-      traces[3]['Query'].downcase.must_equal "select count(*) as `count` from `items` limit 1"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
+      _(traces[2]['Layer']).must_equal "sequel"
+      _(traces[2]['Label']).must_equal "exit"
+      _(traces[3]['Query'].downcase).must_equal "select count(*) as `count` from `items` limit 1"
       validate_event_keys(traces[4], @exit_kvs)
     end
 
@@ -152,19 +152,19 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
 
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
 
       # SQL column/value order can vary between Ruby and gem versions
       # Use must_include to test against one or the other
-      [
+      _([
        "INSERT INTO `items` (`price`, `name`) VALUES (?, ?)",
        "INSERT INTO `items` (`name`, `price`) VALUES (?, ?)"
-      ].must_include traces[1]['Query']
+      ]).must_include traces[1]['Query']
 
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -179,12 +179,12 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
 
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      traces[1]['Query'].must_equal "SELECT * FROM `items` WHERE (`name` = 'abc')"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
+      _(traces[1]['Query']).must_equal "SELECT * FROM `items` WHERE (`name` = 'abc')"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -203,12 +203,12 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
 
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      traces[1]['Query'].must_equal "CREATE TABLE `fake` (`id` integer PRIMARY KEY AUTO_INCREMENT, `name` varchar(255), `price` double precision)"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
+      _(traces[1]['Query']).must_equal "CREATE TABLE `fake` (`id` integer PRIMARY KEY AUTO_INCREMENT, `name` varchar(255), `price` double precision)"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -227,12 +227,12 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
 
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      traces[1]['Query'].must_equal "CREATE TABLE `fake` (`id` integer PRIMARY KEY AUTO_INCREMENT, `name` varchar(255), `price` double precision)"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
+      _(traces[1]['Query']).must_equal "CREATE TABLE `fake` (`id` integer PRIMARY KEY AUTO_INCREMENT, `name` varchar(255), `price` double precision)"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -247,20 +247,20 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
 
-      traces.count.must_equal 5
+      _(traces.count).must_equal 5
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      traces[1]['Query'].must_equal "this is bad sql"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
+      _(traces[1]['Query']).must_equal "this is bad sql"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
 
-      traces[2]['Layer'].must_equal "sequel"
-      traces[2]['Spec'].must_equal "error"
-      traces[2]['Label'].must_equal "error"
-      traces[2].has_key?('Backtrace').must_equal true
-      traces[2].has_key?('ErrorMsg').must_equal true
-      traces[2]['ErrorClass'].must_equal "Sequel::DatabaseError"
-      traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 1
+      _(traces[2]['Layer']).must_equal "sequel"
+      _(traces[2]['Spec']).must_equal "error"
+      _(traces[2]['Label']).must_equal "error"
+      _(traces[2].has_key?('Backtrace')).must_equal true
+      _(traces[2].has_key?('ErrorMsg')).must_equal true
+      _(traces[2]['ErrorClass']).must_equal "Sequel::DatabaseError"
+      _(traces.select { |trace| trace['Label'] == 'error' }.count).must_equal 1
 
       validate_event_keys(traces[3], @exit_kvs)
     end
@@ -278,20 +278,20 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
 
-      traces.count.must_equal 6
+      _(traces.count).must_equal 6
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
       if ::Sequel::VERSION > '4.36.0'
-        traces[1]['Query'].must_equal "SELECT * FROM `items` WHERE (`name` = ?)"
-        traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
-        traces[3]['Query'].must_equal "DELETE FROM `items` WHERE (`name` = ?)"
-        traces[3].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
+        _(traces[1]['Query']).must_equal "SELECT * FROM `items` WHERE (`name` = ?)"
+        _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
+        _(traces[3]['Query']).must_equal "DELETE FROM `items` WHERE (`name` = ?)"
+        _(traces[3].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       else
-        traces[1]['Query'].must_equal "SELECT * FROM `items` WHERE (`name` = 'abc')"
-        traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
-        traces[3]['Query'].must_equal "DELETE FROM `items` WHERE (`name` = 'cba')"
-        traces[3].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
+        _(traces[1]['Query']).must_equal "SELECT * FROM `items` WHERE (`name` = 'abc')"
+        _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
+        _(traces[3]['Query']).must_equal "DELETE FROM `items` WHERE (`name` = 'cba')"
+        _(traces[3].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       end
       validate_event_keys(traces[2], @exit_kvs)
     end
@@ -307,20 +307,20 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
 
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
 
       if ::Sequel::VERSION > '4.36.0'
-        traces[1]['Query'].must_equal "SELECT * FROM `items` WHERE (`name` = ?)"
+        _(traces[1]['Query']).must_equal "SELECT * FROM `items` WHERE (`name` = ?)"
       else
-        traces[1]['Query'].must_equal "select_by_name"
+        _(traces[1]['Query']).must_equal "select_by_name"
       end
 
-      traces[1]['QueryArgs'].must_equal "[\"abc\"]"
-      traces[1]['IsPreparedStatement'].must_equal "true"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
+      _(traces[1]['QueryArgs']).must_equal "[\"abc\"]"
+      _(traces[1]['IsPreparedStatement']).must_equal "true"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -335,20 +335,20 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
 
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
 
       if ::Sequel::VERSION > '4.36.0'
-        traces[1]['Query'].must_equal "SELECT * FROM `items` WHERE (`name` = ?)"
+        _(traces[1]['Query']).must_equal "SELECT * FROM `items` WHERE (`name` = ?)"
       else
-        traces[1]['Query'].must_equal "select_by_name"
+        _(traces[1]['Query']).must_equal "select_by_name"
       end
 
-      traces[1]['QueryArgs'].must_be_nil
-      traces[1]['IsPreparedStatement'].must_equal "true"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
+      _(traces[1]['QueryArgs']).must_be_nil
+      _(traces[1]['IsPreparedStatement']).must_equal "true"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
   end

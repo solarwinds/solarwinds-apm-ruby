@@ -36,9 +36,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "blpop"
-      traces[2]['KVKey'].must_equal "savage"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "blpop"
+      _(traces[2]['KVKey']).must_equal "savage"
     end
 
     it "should trace brpop" do
@@ -51,9 +51,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "brpop"
-      traces[2]['KVKey'].must_equal "savage"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "brpop"
+      _(traces[2]['KVKey']).must_equal "savage"
     end
 
     it "should trace brpoplpush" do
@@ -66,9 +66,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "brpoplpush"
-      traces[2]['destination'].must_equal "crawlies"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "brpoplpush"
+      _(traces[2]['destination']).must_equal "crawlies"
     end
 
     it "should trace lindex" do
@@ -83,9 +83,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "lindex"
-      traces[2]['index'].must_equal 1
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "lindex"
+      _(traces[2]['index']).must_equal 1
     end
 
     it "should trace linsert" do
@@ -100,9 +100,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "linsert"
-      traces[2]['KVKey'].must_equal "gods of old"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "linsert"
+      _(traces[2]['KVKey']).must_equal "gods of old"
     end
 
     it "should trace llen" do
@@ -117,9 +117,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "llen"
-      traces[2]['KVKey'].must_equal "gods of old"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "llen"
+      _(traces[2]['KVKey']).must_equal "gods of old"
     end
 
     it "should trace lpop" do
@@ -134,9 +134,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "lpop"
-      traces[2]['KVKey'].must_equal "gods of old"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "lpop"
+      _(traces[2]['KVKey']).must_equal "gods of old"
     end
 
     it "should trace lpush" do
@@ -147,9 +147,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "lpush"
-      traces[2]['KVKey'].must_equal "gods of old"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "lpush"
+      _(traces[2]['KVKey']).must_equal "gods of old"
     end
 
     it "should trace lpushx" do
@@ -160,9 +160,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "lpushx"
-      traces[2]['KVKey'].must_equal "gods of old"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "lpushx"
+      _(traces[2]['KVKey']).must_equal "gods of old"
     end
 
     it "should trace lrange" do
@@ -179,11 +179,11 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "lrange"
-      traces[2]['KVKey'].must_equal "protein types"
-      traces[2]['start'].must_equal 2
-      traces[2]['stop'].must_equal 4
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "lrange"
+      _(traces[2]['KVKey']).must_equal "protein types"
+      _(traces[2]['start']).must_equal 2
+      _(traces[2]['stop']).must_equal 4
     end
 
     it "should trace lrem" do
@@ -201,9 +201,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "lrem"
-      traces[2]['KVKey'].must_equal "australia"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "lrem"
+      _(traces[2]['KVKey']).must_equal "australia"
     end
 
     it "should trace lset" do
@@ -219,9 +219,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "lset"
-      traces[2]['KVKey'].must_equal "australia"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "lset"
+      _(traces[2]['KVKey']).must_equal "australia"
     end
 
     it "should trace ltrim" do
@@ -241,9 +241,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "ltrim"
-      traces[2]['KVKey'].must_equal "australia"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "ltrim"
+      _(traces[2]['KVKey']).must_equal "australia"
     end
 
     it "should trace rpop" do
@@ -258,9 +258,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "rpop"
-      traces[2]['KVKey'].must_equal "santa esmeralda"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "rpop"
+      _(traces[2]['KVKey']).must_equal "santa esmeralda"
     end
 
     it "should trace rpoplpush" do
@@ -275,10 +275,10 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "rpoplpush"
-      traces[2]['KVKey'].must_equal "santa esmeralda"
-      traces[2]['destination'].must_equal "the gods of old"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "rpoplpush"
+      _(traces[2]['KVKey']).must_equal "santa esmeralda"
+      _(traces[2]['destination']).must_equal "the gods of old"
     end
 
     it "should trace rpush" do
@@ -289,9 +289,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "rpush"
-      traces[2]['KVKey'].must_equal "boney m"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "rpush"
+      _(traces[2]['KVKey']).must_equal "boney m"
     end
 
     it "should trace rpushx" do
@@ -302,9 +302,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "rpushx"
-      traces[2]['KVKey'].must_equal "boney m"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "rpushx"
+      _(traces[2]['KVKey']).must_equal "boney m"
     end
   end
 end

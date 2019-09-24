@@ -52,22 +52,22 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
-      r.must_be_instance_of ::Mongo::Operation::Result
+      _(r).must_be_instance_of ::Mongo::Operation::Result
       if Mongo::VERSION < '2.2'
-        r.successful?.must_equal true
+        _(r.successful?).must_equal true
       else
-        r.ok?.must_equal true
+        _(r.ok?).must_equal true
       end
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[1]['QueryOp'].must_equal "create"
-      traces[1]['New_Collection_Name'].must_equal "temp_collection"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1]['QueryOp']).must_equal "create"
+      _(traces[1]['New_Collection_Name']).must_equal "temp_collection"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
     end
 
     it "should trace drop_collection" do
@@ -84,22 +84,22 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
-      r.must_be_instance_of ::Mongo::Operation::Result
+      _(r).must_be_instance_of ::Mongo::Operation::Result
       if Mongo::VERSION < '2.2'
-        r.successful?.must_equal true
+        _(r.successful?).must_equal true
       else
-        r.ok?.must_equal true
+        _(r.ok?).must_equal true
       end
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[1]['QueryOp'].must_equal "drop"
-      traces[1]['Collection'].must_equal "deleteme_collection"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1]['QueryOp']).must_equal "drop"
+      _(traces[1]['Collection']).must_equal "deleteme_collection"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
     end
 
     it "should capture collection creation errors" do
@@ -114,23 +114,23 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 5
+      _(traces.count).must_equal 5
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[3], @exit_kvs)
 
-      traces[1]['QueryOp'].must_equal "create"
-      traces[1]['New_Collection_Name'].must_equal "temp_collection"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1]['QueryOp']).must_equal "create"
+      _(traces[1]['New_Collection_Name']).must_equal "temp_collection"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
 
-      traces[2]['Layer'].must_equal "mongo"
-      traces[2]['Spec'].must_equal "error"
-      traces[2]['Label'].must_equal "error"
-      traces[2]['ErrorClass'].must_equal "Mongo::Error::OperationFailure"
-      traces[2]['ErrorMsg'].must_match /collection.*already exists/
-      traces[2].has_key?('Backtrace').must_equal true
-      traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 1
+      _(traces[2]['Layer']).must_equal "mongo"
+      _(traces[2]['Spec']).must_equal "error"
+      _(traces[2]['Label']).must_equal "error"
+      _(traces[2]['ErrorClass']).must_equal "Mongo::Error::OperationFailure"
+      _(traces[2]['ErrorMsg']).must_match /collection.*already exists/
+      _(traces[2].has_key?('Backtrace')).must_equal true
+      _(traces.select { |trace| trace['Label'] == 'error' }.count).must_equal 1
     end
 
     it "should trace insert_one" do
@@ -142,22 +142,22 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
-      r.must_be_instance_of Mongo::Operation::Insert::Result
+      _(r).must_be_instance_of Mongo::Operation::Insert::Result
       if Mongo::VERSION < '2.2'
-        r.successful?.must_equal true
+        _(r.successful?).must_equal true
       else
-        r.ok?.must_equal true
+        _(r.ok?).must_equal true
       end
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[1]['QueryOp'].must_equal "insert_one"
-      traces[1]['Collection'].must_equal "tv_collection"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1]['QueryOp']).must_equal "insert_one"
+      _(traces[1]['Collection']).must_equal "tv_collection"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
     end
 
     it "should trace insert_many" do
@@ -171,22 +171,22 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       if Mongo::VERSION < '2.1'
-        r.must_be_instance_of Mongo::Operation::Insert::Result
+        _(r).must_be_instance_of Mongo::Operation::Insert::Result
       else
-        r.must_be_instance_of Mongo::BulkWrite::Result
-        r.inserted_count.must_equal 2
+        _(r).must_be_instance_of Mongo::BulkWrite::Result
+        _(r.inserted_count).must_equal 2
       end
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[1]['QueryOp'].must_equal "insert_many"
-      traces[1]['Collection'].must_equal "tv_collection"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1]['QueryOp']).must_equal "insert_many"
+      _(traces[1]['Collection']).must_equal "tv_collection"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
     end
 
     it "should trace find" do
@@ -202,19 +202,19 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      r.must_be_instance_of Mongo::Collection::View
+      _(r).must_be_instance_of Mongo::Collection::View
 
-      traces[1]['Collection'].must_equal "test_collection"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
-      traces[1]['QueryOp'].must_equal "find"
-      traces[1]['Query'].must_equal "{\"name\":\"MyName\",\"limit\":1}"
-      traces[1].has_key?('Query').must_equal true
+      _(traces[1]['Collection']).must_equal "test_collection"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1]['QueryOp']).must_equal "find"
+      _(traces[1]['Query']).must_equal "{\"name\":\"MyName\",\"limit\":1}"
+      _(traces[1].has_key?('Query')).must_equal true
     end
 
     it "should trace find_one_and_delete" do
@@ -230,19 +230,19 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      r.must_be_instance_of BSON::Document
+      _(r).must_be_instance_of BSON::Document
 
-      traces[1]['Collection'].must_equal "test_collection"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
-      traces[1]['QueryOp'].must_equal "find_one_and_delete"
-      traces[1]['Query'].must_equal "{\"name\":\"MyName\"}"
-      traces[1].has_key?('Query').must_equal true
+      _(traces[1]['Collection']).must_equal "test_collection"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1]['QueryOp']).must_equal "find_one_and_delete"
+      _(traces[1]['Query']).must_equal "{\"name\":\"MyName\"}"
+      _(traces[1].has_key?('Query')).must_equal true
     end
 
     it "should trace find_one_and_update" do
@@ -258,19 +258,19 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      r.must_be_instance_of BSON::Document
+      _(r).must_be_instance_of BSON::Document
 
-      traces[1]['Collection'].must_equal "test_collection"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
-      traces[1]['QueryOp'].must_equal "find_one_and_update"
-      traces[1]['Query'].must_equal "{\"name\":\"MyName\"}"
-      traces[1].has_key?('Query').must_equal true
+      _(traces[1]['Collection']).must_equal "test_collection"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1]['QueryOp']).must_equal "find_one_and_update"
+      _(traces[1]['Query']).must_equal "{\"name\":\"MyName\"}"
+      _(traces[1].has_key?('Query')).must_equal true
     end
 
     it "should trace find_one_and_replace" do
@@ -286,19 +286,19 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      r.must_be_instance_of BSON::Document
+      _(r).must_be_instance_of BSON::Document
 
-      traces[1]['Collection'].must_equal "test_collection"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
-      traces[1]['QueryOp'].must_equal "find_one_and_replace"
-      traces[1]['Query'].must_equal "{\"name\":\"MyName\"}"
-      traces[1].has_key?('Query').must_equal true
+      _(traces[1]['Collection']).must_equal "test_collection"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1]['QueryOp']).must_equal "find_one_and_replace"
+      _(traces[1]['Query']).must_equal "{\"name\":\"MyName\"}"
+      _(traces[1].has_key?('Query')).must_equal true
     end
 
     it "should trace update_one" do
@@ -314,19 +314,19 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      r.class.ancestors.include?(Mongo::Operation::Result).must_equal true
+      _(r.class.ancestors.include?(Mongo::Operation::Result)).must_equal true
 
-      traces[1]['Collection'].must_equal "test_collection"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
-      traces[1]['QueryOp'].must_equal "update_one"
-      traces[1]['Query'].must_equal "{\"name\":\"MyName\"}"
-      traces[1].has_key?('Query').must_equal true
+      _(traces[1]['Collection']).must_equal "test_collection"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1]['QueryOp']).must_equal "update_one"
+      _(traces[1]['Query']).must_equal "{\"name\":\"MyName\"}"
+      _(traces[1].has_key?('Query')).must_equal true
     end
 
     it "should trace update_many" do
@@ -342,19 +342,19 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      r.class.ancestors.include?(Mongo::Operation::Result).must_equal true
+      _(r.class.ancestors.include?(Mongo::Operation::Result)).must_equal true
 
-      traces[1]['Collection'].must_equal "test_collection"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
-      traces[1]['QueryOp'].must_equal "update_many"
-      traces[1]['Query'].must_equal "{\"name\":\"MyName\"}"
-      traces[1].has_key?('Query').must_equal true
+      _(traces[1]['Collection']).must_equal "test_collection"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1]['QueryOp']).must_equal "update_many"
+      _(traces[1]['Query']).must_equal "{\"name\":\"MyName\"}"
+      _(traces[1].has_key?('Query')).must_equal true
     end
 
     it "should trace delete_one" do
@@ -370,19 +370,19 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      r.class.ancestors.include?(Mongo::Operation::Result).must_equal true
+      _(r.class.ancestors.include?(Mongo::Operation::Result)).must_equal true
 
-      traces[1]['Collection'].must_equal "test_collection"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
-      traces[1]['QueryOp'].must_equal "delete_one"
-      traces[1]['Query'].must_equal "{\"name\":\"MyName\"}"
-      traces[1].has_key?('Query').must_equal true
+      _(traces[1]['Collection']).must_equal "test_collection"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1]['QueryOp']).must_equal "delete_one"
+      _(traces[1]['Query']).must_equal "{\"name\":\"MyName\"}"
+      _(traces[1].has_key?('Query')).must_equal true
     end
 
     it "should trace delete_many" do
@@ -398,19 +398,19 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      r.class.ancestors.include?(Mongo::Operation::Result).must_equal true
+      _(r.class.ancestors.include?(Mongo::Operation::Result)).must_equal true
 
-      traces[1]['Collection'].must_equal "test_collection"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
-      traces[1]['QueryOp'].must_equal "delete_many"
-      traces[1]['Query'].must_equal "{\"name\":\"MyName\"}"
-      traces[1].has_key?('Query').must_equal true
+      _(traces[1]['Collection']).must_equal "test_collection"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1]['QueryOp']).must_equal "delete_many"
+      _(traces[1]['Query']).must_equal "{\"name\":\"MyName\"}"
+      _(traces[1].has_key?('Query')).must_equal true
     end
 
     it "should trace replace_one" do
@@ -426,19 +426,19 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      r.class.ancestors.include?(Mongo::Operation::Result).must_equal true
+      _(r.class.ancestors.include?(Mongo::Operation::Result)).must_equal true
 
-      traces[1]['Collection'].must_equal "test_collection"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
-      traces[1]['QueryOp'].must_equal "replace_one"
-      traces[1]['Query'].must_equal "{\"name\":\"test\"}"
-      traces[1].has_key?('Query').must_equal true
+      _(traces[1]['Collection']).must_equal "test_collection"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1]['QueryOp']).must_equal "replace_one"
+      _(traces[1]['Query']).must_equal "{\"name\":\"test\"}"
+      _(traces[1].has_key?('Query')).must_equal true
     end
 
     it "should trace count" do
@@ -450,19 +450,19 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      r.is_a?(Numeric).must_equal true
+      _(r.is_a?(Numeric)).must_equal true
 
-      traces[1]['Collection'].must_equal "test_collection"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
-      traces[1]['QueryOp'].must_equal "count"
-      traces[1]['Query'].must_equal "{\"name\":\"MyName\"}"
-      traces[1].has_key?('Query').must_equal true
+      _(traces[1]['Collection']).must_equal "test_collection"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1]['QueryOp']).must_equal "count"
+      _(traces[1]['Query']).must_equal "{\"name\":\"MyName\"}"
+      _(traces[1].has_key?('Query')).must_equal true
     end
 
     it "should trace distinct" do
@@ -474,19 +474,19 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      r.is_a?(Array).must_equal true
+      _(r.is_a?(Array)).must_equal true
 
-      traces[1]['Collection'].must_equal "test_collection"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
-      traces[1]['QueryOp'].must_equal "distinct"
-      traces[1]['Query'].must_equal "{\"name\":\"MyName\"}"
-      traces[1].has_key?('Query').must_equal true
+      _(traces[1]['Collection']).must_equal "test_collection"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1]['QueryOp']).must_equal "distinct"
+      _(traces[1]['Query']).must_equal "{\"name\":\"MyName\"}"
+      _(traces[1].has_key?('Query')).must_equal true
     end
 
     it "should trace aggregate" do
@@ -498,18 +498,18 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      r.must_be_instance_of Mongo::Collection::View::Aggregation
+      _(r).must_be_instance_of Mongo::Collection::View::Aggregation
 
-      traces[1]['Collection'].must_equal "test_collection"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
-      traces[1]['QueryOp'].must_equal "aggregate"
-      traces[1].key?('Query').must_equal false
+      _(traces[1]['Collection']).must_equal "test_collection"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1]['QueryOp']).must_equal "aggregate"
+      _(traces[1].key?('Query')).must_equal false
     end
 
     it "should trace bulk_write" do
@@ -523,23 +523,23 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
       if Mongo::VERSION < '2.1'
-        r.must_be_instance_of Hash
-        r[:n_inserted].must_equal 2
+        _(r).must_be_instance_of Hash
+        _(r[:n_inserted]).must_equal 2
       else
-        r.must_be_instance_of Mongo::BulkWrite::Result
+        _(r).must_be_instance_of Mongo::BulkWrite::Result
       end
 
-      traces[1]['Collection'].must_equal "test_collection"
-      traces[1].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
-      traces[1]['QueryOp'].must_equal "bulk_write"
-      traces[1].key?('Query').must_equal false
+      _(traces[1]['Collection']).must_equal "test_collection"
+      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1]['QueryOp']).must_equal "bulk_write"
+      _(traces[1].key?('Query')).must_equal false
     end
 
     it "should obey :collect_backtraces setting when true" do
