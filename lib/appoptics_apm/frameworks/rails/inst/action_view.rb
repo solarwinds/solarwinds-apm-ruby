@@ -1,7 +1,7 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
-if defined?(ActionView::Base) && AppOpticsAPM::Config[:action_view][:enabled]  && Rails::VERSION::MAJOR < 6
+if defined?(ActionView::Base) && AppOpticsAPM::Config[:action_view][:enabled]
 
   if Rails::VERSION::MAJOR >= 4
 
@@ -9,7 +9,7 @@ if defined?(ActionView::Base) && AppOpticsAPM::Config[:action_view][:enabled]  &
 
     ActionView::PartialRenderer.class_eval do
       alias :render_partial_without_appoptics :render_partial
-      def render_partial
+      def render_partial(*args)
         entry_kvs = {}
         begin
           entry_kvs[:Partial] = AppOpticsAPM::Util.prettify(@options[:partial]) if @options.is_a?(Hash)
@@ -18,13 +18,13 @@ if defined?(ActionView::Base) && AppOpticsAPM::Config[:action_view][:enabled]  &
         end
 
         AppOpticsAPM::SDK.trace('partial', entry_kvs) do
-          render_partial_without_appoptics
           entry_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:action_view][:collect_backtraces]
+          render_partial_without_appoptics(*args)
         end
       end
 
       alias :render_collection_without_appoptics :render_collection
-      def render_collection
+      def render_collection(*args)
         entry_kvs = {}
         begin
           entry_kvs[:Partial] = AppOpticsAPM::Util.prettify(@path)
@@ -33,8 +33,8 @@ if defined?(ActionView::Base) && AppOpticsAPM::Config[:action_view][:enabled]  &
         end
 
         AppOpticsAPM::SDK.trace('collection', entry_kvs) do
-          render_collection_without_appoptics
           entry_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:action_view][:collect_backtraces]
+          render_collection_without_appoptics(*args)
         end
       end
 
