@@ -456,7 +456,6 @@ if defined?(::Rails)
       _(traces[1]['Action']).must_equal "world"
 
       _(traces[2]['Label']).must_equal "exit"
-
       _(traces[3]['Layer']).must_equal "rack"
       _(traces[3]['Label']).must_equal "exit"
 
