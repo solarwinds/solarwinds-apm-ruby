@@ -69,13 +69,9 @@ module AppOpticsAPM
             AppOpticsAPM.logger.debug e.backtrace.join(', ')
           end
 
-          AppOpticsAPM::API.log_entry(:sinatra_render, {}, :sinatra_render)
-
-          begin
-            render_without_appoptics(engine, data, options, locals, &block)
-          ensure
+          AppOpticsAPM::SDK.trace(:sinatra_render, report_kvs, :sinatra_render) do
             report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:sinatra][:collect_backtraces]
-            AppOpticsAPM::API.log_exit(:sinatra_render, report_kvs, :sinatra_render)
+            render_without_appoptics(engine, data, options, locals, &block)
           end
         else
           render_without_appoptics(engine, data, options, locals, &block)

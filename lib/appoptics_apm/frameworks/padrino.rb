@@ -54,13 +54,9 @@ module AppOpticsAPM
             AppOpticsAPM.logger.debug e.backtrace.join(', ')
           end
 
-          AppOpticsAPM::API.log_entry(:padrino_render, {}, :padrino_render)
-
-          begin
-            render_without_appoptics(engine, data, options, locals, &block)
-          ensure
+          AppOpticsAPM::SDK.trace(:padrino_render, report_kvs, :padrino_render) do
             report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:padrino][:collect_backtraces]
-            AppOpticsAPM::API.log_exit(:padrino_render, report_kvs, :padrino_render)
+            render_without_appoptics(engine, data, options, locals, &block)
           end
         else
           render_without_appoptics(engine, data, options, locals, &block)
