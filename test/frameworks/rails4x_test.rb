@@ -39,13 +39,13 @@ if defined?(::Rails)
       _ = Net::HTTP.get_response(uri)
 
       traces = get_all_traces
-      traces.count.must_equal 8
+      _(traces.count).must_equal 8
 
-      traces[3]['Layer'].must_equal "partial"
-      traces[3]['Label'].must_equal "entry"
-      traces[3]['Partial'].must_equal "somepartial"
-      traces[4]['Layer'].must_equal "partial"
-      traces[4]['Label'].must_equal "exit"
+      _(traces[3]['Layer']).must_equal "partial"
+      _(traces[3]['Label']).must_equal "entry"
+      _(traces[3]['Partial']).must_equal "somepartial"
+      _(traces[4]['Layer']).must_equal "partial"
+      _(traces[4]['Label']).must_equal "exit"
     end
 
     it "should create a span for a collection" do
@@ -54,13 +54,13 @@ if defined?(::Rails)
       _ = Net::HTTP.get_response(uri)
 
       traces = get_all_traces
-      traces.count.must_equal 16
+      _(traces.count).must_equal 16
 
-      traces[11]['Layer'].must_equal "collection"
-      traces[11]['Label'].must_equal "entry"
-      traces[11]['Partial'].must_equal "widget"
-      traces[12]['Layer'].must_equal "collection"
-      traces[12]['Label'].must_equal "exit"
+      _(traces[11]['Layer']).must_equal "collection"
+      _(traces[11]['Label']).must_equal "entry"
+      _(traces[11]['Partial']).must_equal "widget"
+      _(traces[12]['Layer']).must_equal "collection"
+      _(traces[12]['Label']).must_equal "exit"
     end
 
     it "should trace a request to a rails stack" do
