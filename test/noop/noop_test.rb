@@ -12,6 +12,7 @@ RUBY_PLATFORM = 'noop'
 require 'minitest_helper'
 require 'rack/lobster'
 require 'net/http'
+require 'mocha/minitest'
 
 class NoopTest < Minitest::Test
   include Rack::Test::Methods
@@ -118,31 +119,25 @@ class NoopTest < Minitest::Test
     assert_equal 0, traces.count, "generate no traces"
   end
 
-  def test_method_profiling_doesnt_barf
-    AppOpticsAPM::API.profile_method(ArrayTest, :sort)
+  def test_trace_method_doesnt_barf
+    AppOpticsAPM::SDK.trace_method(ArrayTest, :sort)
 
     x = ArrayTest.new
     x.push(1).push(3).push(2)
     assert_equal [1, 2, 3], x.sort
 
     traces = get_all_traces
-    assert_equal 0, traces.count, "generate no traces"  end
+    assert_equal 0, traces.count, "generate no traces"
+  end
 
-  def test_profile_doesnt_barf
-    def fib(n)
-      return n if n <= 1
-      n + fib(n-1)
-    end
+  def test_legacy_profile_method_doesnt_barf
+    AppOpticsAPM.logger.expects(:warn) # we are expecting a deprecation warning
 
-    def computation(n)
-      AppOpticsAPM::API.profile('fib', { :n => n }) do
-        fib(n)
-      end
-    end
+    AppOpticsAPM::API.profile_method(ArrayTest, :sort)
 
-    result = computation(4)
-    assert_equal 10, result
-
+    x = ArrayTest.new
+    x.push(1).push(3).push(2)
+    assert_equal [1, 2, 3], x.sort
 
     traces = get_all_traces
     assert_equal 0, traces.count, "generate no traces"

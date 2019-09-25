@@ -32,6 +32,7 @@ module AppOpticsAPM
     # * +AppOpticsAPM::SDK.start_trace+
     # * +AppOpticsAPM::SDK.start_trace_with_target+
     # * +AppOpticsAPM::SDK.trace+
+    # * +AppOpticsAPM::SDK.trace_method+
     # * +AppOpticsAPM::SDK.tracing?+
     #
     # === Example:
@@ -207,6 +208,123 @@ module AppOpticsAPM
         result
       end
 
+      ##
+      # Add tracing to a given method
+      #
+      # This instruments the given method so that every time it is called it
+      # will create a span depending on the current context.
+      #
+      # The method can be of any (accessible) type (instance, singleton,
+      # private, protected etc.).
+      #
+      # The motivating use case for this is MetalController methods in Rails,
+      # which can't be auto-instrumented.
+      #
+      # === Arguments:
+      # * +klass+  - The module/class the method belongs to.
+      # * +method+ - The method name as symbol
+      # * +config+   - (optional) possible keys are:
+      #              :name the name of the span (default: the method name)
+      #              :backtrace true/false (default: false) if true the backtrace will be added to the space
+      # * +opts+    - (optional) hash containing key/value pairs that will be reported with this span.
+      #
+      # === Example:
+      #
+      #   module ExampleModule
+      #     def do_sum(a, b)
+      #       a + b
+      #     end
+      #   end
+      #
+      #  AppOpticsAPM::SDK.trace_method(ExampleModule, :do_sum, {name: 'computation', backtrace: true}, { CustomKey: "some_info"})
+      #
+      def trace_method(klass, method, config = {}, opts = {})
+        # If we're on an unsupported platform (ahem Mac), just act
+        # like we did something to nicely play the no-op part.
+        return true unless AppOpticsAPM.loaded
+
+        if !klass.is_a?(Module)
+          AppOpticsAPM.logger.warn "[appoptics_apm/error] trace_method: Not sure what to do with #{klass}.  Send a class or module."
+          return false
+        end
+
+        if method.is_a?(String)
+          method = method.to_sym
+        elsif !method.is_a?(Symbol)
+          AppOpticsAPM.logger.warn "[appoptics_apm/error] trace_method: Not sure what to do with #{method}.  Send a string or symbol for method."
+          return false
+        end
+
+        instance_method = klass.instance_methods.include?(method) || klass.private_instance_methods.include?(method)
+        class_method = klass.singleton_methods.include?(method)
+
+        # Make sure the request klass::method exists
+        if !instance_method && !class_method
+          AppOpticsAPM.logger.warn "[appoptics_apm/error] trace_method: Can't instrument #{klass}.#{method} as it doesn't seem to exist."
+          AppOpticsAPM.logger.warn "[appoptics_apm/error] #{__FILE__}:#{__LINE__}"
+          return false
+        end
+
+        # Strip '!' or '?' from method if present
+        safe_method_name = method.to_s.chop if method.to_s =~ /\?$|\!$/
+        safe_method_name ||= method
+
+        without_appoptics = "#{safe_method_name}_without_appoptics"
+        with_appoptics    = "#{safe_method_name}_with_appoptics"
+
+        # Check if already profiled
+        if instance_method && klass.instance_methods.include?(with_appoptics.to_sym) ||
+          class_method && klass.singleton_methods.include?(with_appoptics.to_sym)
+          AppOpticsAPM.logger.warn "[appoptics_apm/error] trace_method: #{klass}::#{method} already instrumented.\n#{__FILE__}:#{__LINE__}"
+          return false
+        end
+
+        report_kvs = opts.dup
+        if defined?(::AbstractController::Base) && klass.ancestors.include?(::AbstractController::Base)
+          report_kvs[:Controller] = klass.to_s
+          report_kvs[:Action] = method.to_s
+        else
+          klass.is_a?(Class) ? report_kvs[:Class] = klass.to_s : report_kvs[:Module] = klass.to_s
+          report_kvs[:MethodName] = safe_method_name
+        end
+        backtrace = config[:backtrace]
+
+        span = config[:name] || method
+        if instance_method
+          klass.class_eval do
+            define_method(with_appoptics) do |*args, &block|
+              # if this is a rails controller we want to set the transaction for the outbound metrics
+              if report_kvs[:Controller] && defined?(request) && defined?(request.env)
+                request.env['appoptics_apm.controller'] = report_kvs[:Controller]
+                request.env['appoptics_apm.action'] = report_kvs[:Action]
+              end
+
+              AppOpticsAPM::SDK.trace(span, report_kvs) do
+                report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace(2) if backtrace
+                send(without_appoptics, *args, &block)
+              end
+            end
+
+            alias_method without_appoptics, method.to_s
+            alias_method method.to_s, with_appoptics
+          end
+        elsif class_method
+          klass.define_singleton_method(with_appoptics) do |*args, &block|
+            AppOpticsAPM::SDK.trace(span, report_kvs) do
+              report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace(2) if backtrace
+              send(without_appoptics, *args, &block)
+            end
+          end
+
+          klass.singleton_class.class_eval do
+            alias_method without_appoptics, method.to_s
+            alias_method method.to_s, with_appoptics
+          end
+        end
+        true
+      end
+
+      ##
       # Provide a custom transaction name
       #
       # The AppOpticsAPM gem tries to create meaningful transaction names from controller+action

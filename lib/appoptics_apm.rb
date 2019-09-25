@@ -43,7 +43,6 @@ begin
 
   # appoptics_apm/loading can set AppOpticsAPM.loaded = false if the service key is not working
   require 'appoptics_apm/loading'
-  require 'appoptics_apm/method_profiling'
 
   if AppOpticsAPM.loaded
     require 'appoptics_apm/instrumentation'
