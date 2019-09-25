@@ -409,6 +409,173 @@ describe AppOpticsAPM::SDK do
     end
   end
 
+  describe 'TraceMethod' do
+    before do
+      clear_all_traces
+    end
+
+    after do
+      clear_all_traces
+      AppOpticsAPM::Context.clear
+    end
+
+    it 'traces an instance method' do
+      def to_be_traced(a, b)
+        a + b
+      end
+
+      AppOpticsAPM::SDK.trace_method(self.class, :to_be_traced)
+
+      AppOpticsAPM::SDK.start_trace('trace_test_01')  do
+        result = to_be_traced(3, 5)
+        _(result).must_equal 8
+      end
+
+      traces = get_all_traces
+      _(traces.size).must_equal 4
+
+      _(traces[1]['Label']).must_equal 'entry'
+      _(traces[1]['Layer']).must_equal 'to_be_traced'
+      _(traces[1]['Class']).must_equal 'AppOpticsAPM::SDK::TraceMethod'
+      _(traces[1]['MethodName']).must_equal 'to_be_traced'
+
+    end
+
+    it 'traces an instance method with a block' do
+      def to_be_traced_with_block(a, b, &block)
+        c = block.call
+        a + b + c
+      end
+
+      AppOpticsAPM::SDK.trace_method(self.class, :to_be_traced_with_block)
+
+      AppOpticsAPM::SDK.start_trace('trace_test_01')  do
+        result = to_be_traced_with_block(3, 5) { 8 }
+        _(result).must_equal 16
+      end
+
+      traces = get_all_traces
+      _(traces.size).must_equal 4
+
+      _(traces[1]['Label']).must_equal 'entry'
+      _(traces[1]['Layer']).must_equal 'to_be_traced_with_block'
+    end
+
+    it 'respects the opts when it traces an instance method' do
+      def to_be_traced_2
+        1 + 1
+      end
+
+      AppOpticsAPM::SDK.trace_method(self.class, :to_be_traced_2, { name: 'i_am_traced', backtrace: true })
+
+      AppOpticsAPM::SDK.start_trace('trace_test_01')  do
+        to_be_traced_2
+      end
+
+      traces = get_all_traces
+      _(traces.size).must_equal 4
+
+      _(traces[1]['Label']).must_equal 'entry'
+      _(traces[1]['Layer']).must_equal 'i_am_traced'
+      _(traces[1]['Class']).must_equal 'AppOpticsAPM::SDK::TraceMethod'
+      _(traces[1]['MethodName']).must_equal 'to_be_traced_2'
+      _(traces[2]['Backtrace']).wont_be_nil
+    end
+
+    it 'warns if we try to instrument an instance method twice' do
+      AppOpticsAPM.logger.expects(:warn).with(regexp_matches(/already instrumented/))
+
+      def to_be_traced_3
+        1 + 1
+      end
+
+      AppOpticsAPM::SDK.trace_method(self.class, :to_be_traced_3)
+      AppOpticsAPM::SDK.trace_method(self.class, :to_be_traced_3)
+    end
+
+    it 'traces a class method' do
+      module ::TopTest
+        def self.to_be_traced_4(a, b)
+          a + b
+        end
+      end
+
+      AppOpticsAPM::SDK.trace_method(::TopTest, :to_be_traced_4)
+
+      AppOpticsAPM::SDK.start_trace('trace_test_01')  do
+        result = ::TopTest.to_be_traced_4(5,7)
+        _(result).must_equal 12
+      end
+
+      traces = get_all_traces
+      _(traces.size).must_equal 4
+
+      _(traces[1]['Label']).must_equal 'entry'
+      _(traces[1]['Layer']).must_equal 'to_be_traced_4'
+      _(traces[1]['Module']).must_equal 'TopTest'
+      _(traces[1]['MethodName']).must_equal 'to_be_traced_4'
+    end
+
+    it 'traces a class method with a block' do
+      module ::TopTest
+        def self.to_be_traced_with_block_2(a, b, &block)
+          c = block.call
+          a + b + c
+        end
+      end
+
+      AppOpticsAPM::SDK.trace_method(::TopTest, :to_be_traced_with_block_2)
+
+      AppOpticsAPM::SDK.start_trace('trace_test_01')  do
+        result = ::TopTest.to_be_traced_with_block_2(5,7) { 12 }
+        _(result).must_equal 24
+      end
+
+      traces = get_all_traces
+      _(traces.size).must_equal 4
+
+      _(traces[1]['Label']).must_equal 'entry'
+      _(traces[1]['Layer']).must_equal 'to_be_traced_with_block_2'
+    end
+
+    it 'respects the opts when it traces a class method' do
+      module ::TopTest
+        def self.to_be_traced_5
+          1 + 1
+        end
+      end
+
+      AppOpticsAPM::SDK.trace_method(::TopTest, :to_be_traced_5, { name: 'i_am_traced', backtrace: true })
+
+      AppOpticsAPM::SDK.start_trace('trace_test_01')  do
+        ::TopTest.to_be_traced_5
+      end
+
+      traces = get_all_traces
+      _(traces.size).must_equal 4
+
+      _(traces[1]['Label']).must_equal 'entry'
+      _(traces[1]['Layer']).must_equal 'i_am_traced'
+      _(traces[1]['Module']).must_equal 'TopTest'
+      _(traces[1]['MethodName']).must_equal 'to_be_traced_5'
+      _(traces[2]['Backtrace']).wont_be_nil
+    end
+
+    it 'warns if we try to instrument a class method twice' do
+      AppOpticsAPM.logger.expects(:warn).with(regexp_matches(/already instrumented/))
+
+      module ::TopTest
+        def self.to_be_traced_6
+          1 + 1
+        end
+      end
+
+      AppOpticsAPM::SDK.trace_method(::TopTest, :to_be_traced_6)
+      AppOpticsAPM::SDK.trace_method(::TopTest, :to_be_traced_6)
+    end
+
+  end
+
   describe 'log events' do
     before do
       clear_all_traces
@@ -425,7 +592,7 @@ describe AppOpticsAPM::SDK do
       end
 
       traces = get_all_traces
-      traces.size == 3
+      _(traces.size).must_equal 3
 
       _(traces[1]['Label']).must_equal 'error'
       _(traces[1]['the']).must_equal 'exception'
@@ -437,7 +604,7 @@ describe AppOpticsAPM::SDK do
       end
 
       traces = get_all_traces
-      traces.size == 3
+      _(traces.size).must_equal 3
 
       _(traces[1]['Label']).must_equal 'info'
       _(traces[1]['the']).must_equal 'information'

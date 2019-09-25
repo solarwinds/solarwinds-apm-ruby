@@ -168,7 +168,7 @@ class FerroController < ActionController::Metal
   end
 end
 
-AppOpticsAPM::API.profile_method(FerroController, :world)
+AppOpticsAPM::SDK.trace_method(FerroController, :world)
 
 Rails40MetalStack.initialize!
 
