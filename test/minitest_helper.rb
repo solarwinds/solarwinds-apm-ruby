@@ -162,10 +162,10 @@ end
 # in event
 #
 def validate_outer_layers(traces, layer)
-  traces.first['Layer'].must_equal layer
-  traces.first['Label'].must_equal 'entry'
-  traces.last['Layer'].must_equal layer
-  traces.last['Label'].must_equal 'exit'
+  _(traces.first['Layer']).must_equal layer
+  _(traces.first['Label']).must_equal 'entry'
+  _(traces.last['Layer']).must_equal layer
+  _(traces.last['Label']).must_equal 'exit'
 end
 
 ##
@@ -205,10 +205,10 @@ def assert_entry_exit(traces, num = nil, check_task_id=true)
   num_entries = traces.select { |tr| tr ['Label'] == 'entry'}.size
   num_exits = traces.select { |tr| tr ['Label'] == 'exit'}.size
   if num && num > 0
-    num_entries.must_equal num, "incorrect number of entry spans"
-    num_exits.must_equal num, "incorrect number of exit spans"
+    _(num_entries).must_equal num, "incorrect number of entry spans"
+    _(num_exits).must_equal num, "incorrect number of exit spans"
   else
-    num_exits.must_equal num_entries, "number of exit spans is not the same as entry spans"
+    _(num_exits).must_equal num_entries, "number of exit spans is not the same as entry spans"
   end
 end
 
@@ -253,11 +253,11 @@ def layer_has_key(traces, layer, key)
     if t["Layer"] == layer and t.has_key?(key)
       has_key = true
 
-      (t["Backtrace"].length > 0).must_equal true
+      _(t["Backtrace"].length > 0).must_equal true
     end
   end
 
-  has_key.must_equal true
+  _(has_key).must_equal true
 end
 
 ##
@@ -274,7 +274,7 @@ def layer_has_key_once(traces, layer, key)
     has_keys += 1 if t["Layer"] == layer and t.has_key?(key)
   end
 
-  has_keys.must_equal 1, "Key #{key} missing in layer #{layer}"
+  _(has_keys).must_equal 1, "Key #{key} missing in layer #{layer}"
 end
 
 ##
@@ -291,7 +291,7 @@ def layer_doesnt_have_key(traces, layer, key)
     has_key = true if t["Layer"] == layer and t.has_key?(key)
   end
 
-  has_key.must_equal false, "Key #{key} should not be in layer #{layer}"
+  _(has_key).must_equal false, "Key #{key} should not be in layer #{layer}"
 end
 
 ##

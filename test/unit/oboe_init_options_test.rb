@@ -43,25 +43,25 @@ describe 'OboeInitOptions' do
     AppOpticsAPM::OboeInitOptions.instance.re_init
     options = AppOpticsAPM::OboeInitOptions.instance.array_for_oboe
 
-    options.size.must_equal 18
-    options[0].must_equal 'string_4'
-    options[1].must_equal 2
-    options[2].must_equal 'string_5'
-    options[3].must_equal 5
-    options[4].must_equal 6
-    options[5].must_equal 7
-    options[6].must_equal 8
-    options[7].must_equal 'ssl'
-    options[8].must_equal 'string_2'
-    options[9].must_equal '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000:test_app'
-    options[10].must_equal 'string_3'
-    options[11].must_equal 11
-    options[12].must_equal 3
-    options[13].must_equal 4
-    options[14].must_equal 9
-    options[15].must_equal 10
-    options[16].must_equal 1
-    options[17].must_equal 1234
+    _(options.size).must_equal 18
+    _(options[0]).must_equal 'string_4'
+    _(options[1]).must_equal 2
+    _(options[2]).must_equal 'string_5'
+    _(options[3]).must_equal 5
+    _(options[4]).must_equal 6
+    _(options[5]).must_equal 7
+    _(options[6]).must_equal 8
+    _(options[7]).must_equal 'ssl'
+    _(options[8]).must_equal 'string_2'
+    _(options[9]).must_equal '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000:test_app'
+    _(options[10]).must_equal 'string_3'
+    _(options[11]).must_equal 11
+    _(options[12]).must_equal 3
+    _(options[13]).must_equal 4
+    _(options[14]).must_equal 9
+    _(options[15]).must_equal 10
+    _(options[16]).must_equal 1
+    _(options[17]).must_equal 1234
   end
 
   it 'reads config vars' do
@@ -81,12 +81,12 @@ describe 'OboeInitOptions' do
     AppOpticsAPM::OboeInitOptions.instance.re_init
     options = AppOpticsAPM::OboeInitOptions.instance.array_for_oboe
 
-    options.size.must_equal 18
+    _(options.size).must_equal 18
 
-    options[0].must_equal 'string_0'
-    options[1].must_equal 0
-    options[9].must_equal '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000:test_app'
-    options[17].must_equal 2345
+    _(options[0]).must_equal 'string_0'
+    _(options[1]).must_equal 0
+    _(options[9]).must_equal '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000:test_app'
+    _(options[17]).must_equal 2345
   end
 
   it 'env vars override config vars' do
@@ -106,12 +106,12 @@ describe 'OboeInitOptions' do
     AppOpticsAPM::OboeInitOptions.instance.re_init
     options = AppOpticsAPM::OboeInitOptions.instance.array_for_oboe
 
-    options.size.must_equal 18
+    _(options.size).must_equal 18
 
-    options[0].must_equal 'string_0'
-    options[1].must_equal 1
-    options[9].must_equal '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000:test_app'
-    options[17].must_equal 1212
+    _(options[0]).must_equal 'string_0'
+    _(options[1]).must_equal 1
+    _(options[9]).must_equal '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000:test_app'
+    _(options[17]).must_equal 1212
   end
 
   it 'checks the service_key for ssl' do
@@ -120,17 +120,17 @@ describe 'OboeInitOptions' do
     ENV['APPOPTICS_SERVICE_KEY'] = 'string_0'
 
     AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal false
+    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
 
     ENV['APPOPTICS_SERVICE_KEY'] = '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000:test_app'
 
     AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal true
+    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
 
     ENV['APPOPTICS_SERVICE_KEY'] = 'f7B-kZXtk1sxaJGkv-wew12Y6Yts3KJJ0KuBs-p1111111111KFVPRv0o8keDro9QbKioW4:test_app'
 
     AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal true
+    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
   end
 
   it 'returns true for the service_key check for other reporters' do
@@ -139,17 +139,17 @@ describe 'OboeInitOptions' do
     ENV['APPOPTICS_SERVICE_KEY'] = 'string_0'
 
     AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal true
+    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
 
     ENV['APPOPTICS_REPORTER'] = 'file'
 
     AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal true
+    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
 
     ENV['APPOPTICS_REPORTER'] = 'null'
 
     AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal true
+    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
   end
 
   it 'validates the service key' do
@@ -159,71 +159,71 @@ describe 'OboeInitOptions' do
     AppOpticsAPM::Config[:service_key] = nil
 
     AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal false
+    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
 
     AppOpticsAPM::Config[:service_key] = '22222222-2222-2222-2222-222222222222:service'
     AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal false
+    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
 
     AppOpticsAPM::Config[:service_key] = '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000'
     AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal false
+    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
 
     AppOpticsAPM::Config[:service_key] = '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000:'
     AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal false
+    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
 
     AppOpticsAPM::Config[:service_key] = '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000:service'
     AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal true
+    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
 
     AppOpticsAPM::Config[:service_key] = 'f7B-kZXtk1sxaJGkv-wew1244444444444444444444444IptKFVPRv0o8keDro9QbKioW4'
     AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal false
+    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
 
     AppOpticsAPM::Config[:service_key] = 'f7B-kZXtk1sxaJGkv-wew1255555555555555555555akVIptKFVPRv0o8keDro9QbKioW4:'
     AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal false
+    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
 
     AppOpticsAPM::Config[:service_key] = 'f7B-kZXtk1sxaJGkv-wew12Y6666666666666666666akVIptKFVPRv0o8keDro9QbKioW4:service'
     AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal true
+    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
 
     ENV['APPOPTICS_SERVICE_KEY'] = 'blabla'
     AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal false
+    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
 
     ENV['APPOPTICS_SERVICE_KEY'] = nil
     AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal true
+    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
 
     ENV['APPOPTICS_SERVICE_KEY'] = '22222222-2222-2222-2222-222222222222:service'
     AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal false
+    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
 
     ENV['APPOPTICS_SERVICE_KEY'] = '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000'
     AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal false
+    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
 
     ENV['APPOPTICS_SERVICE_KEY'] = '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000:'
     AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal false
+    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
 
     ENV['APPOPTICS_SERVICE_KEY'] = '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000:service'
     AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal true
+    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
 
     ENV['APPOPTICS_SERVICE_KEY'] = 'f7B-kZXtk1sxaJGkv-wew1244444444444444444444444IptKFVPRv0o8keDro9QbKioW4'
     AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal false
+    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
 
     ENV['APPOPTICS_SERVICE_KEY'] = 'f7B-kZXtk1sxaJGkv-wew1244444444444444444444444IptKFVPRv0o8keDro9QbKioW4:'
     AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal false
+    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
 
     ENV['APPOPTICS_SERVICE_KEY'] = 'f7B-kZXtk1sxaJGkv-wew1244444444444444444444444IptKFVPRv0o8keDro9QbKioW4:service'
     AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal true
+    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
   end
 
   it 'removes invalid characters from the service name' do
@@ -232,8 +232,8 @@ describe 'OboeInitOptions' do
     ENV['APPOPTICS_SERVICE_KEY'] = 'f7B-kZXtk1sxaJGkv-wew1244444444444444444444444IptKFVPRv0o8keDro9QbKioW4:service#####.:-_0'
 
     AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal true
-    AppOpticsAPM::OboeInitOptions.instance.service_name.must_equal 'service.:-_0'
+    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
+    _(AppOpticsAPM::OboeInitOptions.instance.service_name).must_equal 'service.:-_0'
   end
 
   it 'transforms the service name to lower case' do
@@ -242,8 +242,8 @@ describe 'OboeInitOptions' do
     ENV['APPOPTICS_SERVICE_KEY'] = 'f7B-kZXtk1sxaJGkv-wew1244444444444444444444444IptKFVPRv0o8keDro9QbKioW4:SERVICE#####.:-_0'
 
     AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal true
-    AppOpticsAPM::OboeInitOptions.instance.service_name.must_equal 'service.:-_0'
+    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
+    _(AppOpticsAPM::OboeInitOptions.instance.service_name).must_equal 'service.:-_0'
   end
 
   it 'shortens the service name to 255 characters' do
@@ -252,8 +252,8 @@ describe 'OboeInitOptions' do
     ENV['APPOPTICS_SERVICE_KEY'] = "f7B-kZXtk1sxaJGkv-wew1244444444444444444444444IptKFVPRv0o8keDro9QbKioW4:SERV#_#{'1234567890' * 26}"
 
     AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.service_key_ok?.must_equal true
-    AppOpticsAPM::OboeInitOptions.instance.service_name.must_equal "serv_#{'1234567890' * 25}"
+    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
+    _(AppOpticsAPM::OboeInitOptions.instance.service_name).must_equal "serv_#{'1234567890' * 25}"
   end
 
   it 'replaces invalid ec2 metadata timeouts with the default' do
@@ -261,15 +261,15 @@ describe 'OboeInitOptions' do
 
     ENV['APPOPTICS_EC2_METADATA_TIMEOUT'] = '-12'
     AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.ec2_md_timeout.must_equal 1000
+    _(AppOpticsAPM::OboeInitOptions.instance.ec2_md_timeout).must_equal 1000
 
     ENV['APPOPTICS_EC2_METADATA_TIMEOUT'] = '3001'
     AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.ec2_md_timeout.must_equal 1000
+    _(AppOpticsAPM::OboeInitOptions.instance.ec2_md_timeout).must_equal 1000
 
 
     ENV['APPOPTICS_EC2_METADATA_TIMEOUT'] = 'qoieurqopityeoritbweortmvoiu'
     AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM::OboeInitOptions.instance.ec2_md_timeout.must_equal 1000
+    _(AppOpticsAPM::OboeInitOptions.instance.ec2_md_timeout).must_equal 1000
   end
 end

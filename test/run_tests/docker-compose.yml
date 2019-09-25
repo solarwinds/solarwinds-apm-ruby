@@ -41,6 +41,7 @@ services:
        - APPOPTICS_GEM_TEST=true
        - APPOPTICS_REPORTER=file
        - APPOPTICS_REPORTER_FILE_SINGLE=false
+       - APPOPTICS_FROM_S3=true
 #       - SIMPLECOV_COVERAGE=True
 
 #  ruby_appoptics_apm_alpine:

@@ -39,23 +39,23 @@ describe "Rails CRUD Tests" do
     clear_all_traces
 
     response = create_widget
-    response.code.must_equal '200'
+    _(response.code).must_equal '200'
 
     traces = get_all_traces
 
-    traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 0
+    _(traces.select { |trace| trace['Label'] == 'error' }.count).must_equal 0
 
     ar_traces = traces.select { |trace| trace['Layer'] == 'activerecord' }
-    ar_traces.find { |trace| trace.has_key?('RemoteHost') }.wont_be_nil 'RemoteHost key is missing'
+    _(ar_traces.find { |trace| trace.has_key?('RemoteHost') }).wont_be_nil 'RemoteHost key is missing'
 
     ar_traces.select! { |trace| trace['Label'] == 'entry' }
     if Rails::VERSION::STRING < '5'  && ENV['DBTYPE'] == 'mysql'
-      ar_traces.count.must_equal 3 # mysql + older rails add a BEGIN and a COMMIT query
+      _(ar_traces.count).must_equal 3 # mysql + older rails add a BEGIN and a COMMIT query
     else
-      ar_traces.count.must_equal 1
+      _(ar_traces.count).must_equal 1
     end
 
-    traces.select { |trace| trace['Query'] =~ /^INSERT/ }.count.must_equal 2
+    _(traces.select { |trace| trace['Query'] =~ /^INSERT/ }.count).must_equal 2
   end
 
   it "should trace READ correctly" do
@@ -65,15 +65,15 @@ describe "Rails CRUD Tests" do
 
     clear_all_traces
     response = read_widget(widget)
-    response.code.must_equal '200'
+    _(response.code).must_equal '200'
 
     traces = get_all_traces
 
-    traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 0
+    _(traces.select { |trace| trace['Label'] == 'error' }.count).must_equal 0
 
     traces.select! { |trace| trace['Label'] == 'entry' && trace['Layer'] == 'activerecord' }
-    traces.count.must_equal 1
-    traces[0]['Query'].must_match /^SELECT/
+    _(traces.count).must_equal 1
+    _(traces[0]['Query']).must_match /^SELECT/
   end
 
   it "should trace UPDATE correctly" do
@@ -85,21 +85,21 @@ describe "Rails CRUD Tests" do
     widget['name'] = 'Sand'
     widget['description'] = 'the sandy dog'
     response = update_widget(widget)
-    response.code.must_equal '200'
+    _(response.code).must_equal '200'
 
     traces = get_all_traces
 
-    traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 0
+    _(traces.select { |trace| trace['Label'] == 'error' }.count).must_equal 0
 
     traces.select! { |trace| trace['Label'] == 'entry' && trace['Layer'] == 'activerecord' }
     if Rails::VERSION::STRING < '5' && ENV['DBTYPE'] == 'mysql'
-      traces.count.must_equal 4 # mysql + older rails add a BEGIN and a COMMIT query
+      _(traces.count).must_equal 4 # mysql + older rails add a BEGIN and a COMMIT query
     else
-      traces.count.must_equal 2
+      _(traces.count).must_equal 2
     end
 
-    traces.select { |trace| trace['Query'] =~ /^SELECT/ }.count.must_equal 1
-    traces.select { |trace| trace['Query'] =~ /^UPDATE/ }.count.must_equal 1
+    _(traces.select { |trace| trace['Query'] =~ /^SELECT/ }.count).must_equal 1
+    _(traces.select { |trace| trace['Query'] =~ /^UPDATE/ }.count).must_equal 1
   end
 
   it "should trace DELETE correctly" do
@@ -109,15 +109,15 @@ describe "Rails CRUD Tests" do
 
     clear_all_traces
     response = destroy_widget(widget)
-    response.code.must_equal '200'
+    _(response.code).must_equal '200'
 
     traces = get_all_traces
 
-    traces.select { |trace| trace['Label'] == 'error' }.count.must_equal 0
+    _(traces.select { |trace| trace['Label'] == 'error' }.count).must_equal 0
 
     traces.select! { |trace| trace['Label'] == 'entry' && trace['Layer'] == 'activerecord' }
-    traces.count.must_equal 1
-    traces[0]['Query'].must_match /^DELETE/
+    _(traces.count).must_equal 1
+    _(traces[0]['Query']).must_match /^DELETE/
   end
 end
 

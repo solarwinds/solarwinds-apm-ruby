@@ -427,8 +427,8 @@ describe AppOpticsAPM::SDK do
       traces = get_all_traces
       traces.size == 3
 
-      traces[1]['Label'].must_equal 'error'
-      traces[1]['the'].must_equal 'exception'
+      _(traces[1]['Label']).must_equal 'error'
+      _(traces[1]['the']).must_equal 'exception'
     end
 
     it 'SDK should log info' do
@@ -439,8 +439,8 @@ describe AppOpticsAPM::SDK do
       traces = get_all_traces
       traces.size == 3
 
-      traces[1]['Label'].must_equal 'info'
-      traces[1]['the'].must_equal 'information'
+      _(traces[1]['Label']).must_equal 'info'
+      _(traces[1]['the']).must_equal 'information'
     end
   end
 

@@ -41,10 +41,10 @@ if Gem.loaded_specs['mongo'].version.to_s < '2.0.0'
     end
 
     it 'Stock Mongo should be loaded, defined and ready' do
-      defined?(::Mongo).wont_match nil
-      defined?(::Mongo::DB).wont_match nil
-      defined?(::Mongo::Cursor).wont_match nil
-      defined?(::Mongo::Collection).wont_match nil
+      _(defined?(::Mongo)).wont_match nil
+      _(defined?(::Mongo::DB)).wont_match nil
+      _(defined?(::Mongo::Cursor)).wont_match nil
+      _(defined?(::Mongo::Collection)).wont_match nil
     end
 
     it 'reports mongo gem version in init' do
@@ -55,21 +55,21 @@ if Gem.loaded_specs['mongo'].version.to_s < '2.0.0'
 
     it 'Mongo should have appoptics_apm methods defined' do
       AppOpticsAPM::Inst::Mongo::DB_OPS.each do |m|
-        ::Mongo::DB.method_defined?("#{m}_with_appoptics").must_equal true
+        _(::Mongo::DB.method_defined?("#{m}_with_appoptics")).must_equal true
       end
       AppOpticsAPM::Inst::Mongo::CURSOR_OPS.each do |m|
-        ::Mongo::Cursor.method_defined?("#{m}_with_appoptics").must_equal true
+        _(::Mongo::Cursor.method_defined?("#{m}_with_appoptics")).must_equal true
       end
       AppOpticsAPM::Inst::Mongo::COLL_WRITE_OPS.each do |m|
-        ::Mongo::Collection.method_defined?("#{m}_with_appoptics").must_equal true
+        _(::Mongo::Collection.method_defined?("#{m}_with_appoptics")).must_equal true
       end
       AppOpticsAPM::Inst::Mongo::COLL_QUERY_OPS.each do |m|
-        ::Mongo::Collection.method_defined?("#{m}_with_appoptics").must_equal true
+        _(::Mongo::Collection.method_defined?("#{m}_with_appoptics")).must_equal true
       end
       AppOpticsAPM::Inst::Mongo::COLL_INDEX_OPS.each do |m|
-        ::Mongo::Collection.method_defined?("#{m}_with_appoptics").must_equal true
+        _(::Mongo::Collection.method_defined?("#{m}_with_appoptics")).must_equal true
       end
-      ::Mongo::Collection.method_defined?(:appoptics_collect).must_equal true
+      _(::Mongo::Collection.method_defined?(:appoptics_collect)).must_equal true
     end
 
     it "should trace create_collection" do
@@ -78,15 +78,15 @@ if Gem.loaded_specs['mongo'].version.to_s < '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[1]['QueryOp'].must_equal "create_collection"
-      traces[1]['New_Collection_Name'].must_equal "create_and_drop_collection_test"
-      traces[2].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1]['QueryOp']).must_equal "create_collection"
+      _(traces[1]['New_Collection_Name']).must_equal "create_and_drop_collection_test"
+      _(traces[2].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
     end
 
     it "should trace drop_collection" do
@@ -98,15 +98,15 @@ if Gem.loaded_specs['mongo'].version.to_s < '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[1]['QueryOp'].must_equal "drop_collection"
-      traces[1]['Collection'].must_equal "create_and_drop_collection_test"
-      traces[2].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1]['QueryOp']).must_equal "drop_collection"
+      _(traces[1]['Collection']).must_equal "create_and_drop_collection_test"
+      _(traces[2].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
     end
 
     it "should trace count" do
@@ -117,13 +117,13 @@ if Gem.loaded_specs['mongo'].version.to_s < '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 6
+      _(traces.count).must_equal 6
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[3]['QueryOp'].must_equal "count"
+      _(traces[3]['QueryOp']).must_equal "count"
     end
 
     it "should trace find_and_modify" do
@@ -134,16 +134,16 @@ if Gem.loaded_specs['mongo'].version.to_s < '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[1]['Collection'].must_equal "testCollection"
-      traces[1]['QueryOp'].must_equal "find_and_modify"
-      traces[1]['Update_Document'].must_equal "{:count=>203}"
-      traces[2].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1]['Collection']).must_equal "testCollection"
+      _(traces[1]['QueryOp']).must_equal "find_and_modify"
+      _(traces[1]['Update_Document']).must_equal "{:count=>203}"
+      _(traces[2].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
     end
 
     it "should trace insert" do
@@ -155,17 +155,17 @@ if Gem.loaded_specs['mongo'].version.to_s < '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[1]['Collection'].must_equal "testCollection"
-      traces[1]['QueryOp'].must_equal "insert"
+      _(traces[1]['Collection']).must_equal "testCollection"
+      _(traces[1]['QueryOp']).must_equal "insert"
       # Don't test exact hash value since to_json hash ordering varies
-      traces[1].has_key?('Query').must_equal true
-      traces[2].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1].has_key?('Query')).must_equal true
+      _(traces[2].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
     end
 
     it "should trace map_reduce" do
@@ -178,18 +178,18 @@ if Gem.loaded_specs['mongo'].version.to_s < '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[1]['Collection'].must_equal "testCollection"
-      traces[1]['QueryOp'].must_equal "map_reduce"
-      traces[1]['Map_Function'].must_equal "function() { emit(this.name, 1); }"
-      traces[1]['Reduce_Function'].must_equal "function(k, vals) { var sum = 0; for(var i in vals) sum += vals[i]; return sum; }"
-      traces[1]['Limit'].must_equal 100
-      traces[2].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1]['Collection']).must_equal "testCollection"
+      _(traces[1]['QueryOp']).must_equal "map_reduce"
+      _(traces[1]['Map_Function']).must_equal "function() { emit(this.name, 1); }"
+      _(traces[1]['Reduce_Function']).must_equal "function(k, vals) { var sum = 0; for(var i in vals) sum += vals[i]; return sum; }"
+      _(traces[1]['Limit']).must_equal 100
+      _(traces[2].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
     end
 
     it "should trace remove" do
@@ -200,16 +200,16 @@ if Gem.loaded_specs['mongo'].version.to_s < '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[1]['Collection'].must_equal "testCollection"
-      traces[1]['QueryOp'].must_equal "remove"
-      traces[1]['Query'].must_equal "{\"name\":\"SaveOp\"}"
-      traces[2].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1]['Collection']).must_equal "testCollection"
+      _(traces[1]['QueryOp']).must_equal "remove"
+      _(traces[1]['Query']).must_equal "{\"name\":\"SaveOp\"}"
+      _(traces[2].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
     end
 
     it "should trace rename" do
@@ -221,16 +221,16 @@ if Gem.loaded_specs['mongo'].version.to_s < '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[1]['Collection'].must_equal "testCollection"
-      traces[1]['QueryOp'].must_equal "rename"
-      traces[1]['New_Collection_Name'].must_equal new_name
-      traces[2].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1]['Collection']).must_equal "testCollection"
+      _(traces[1]['QueryOp']).must_equal "rename"
+      _(traces[1]['New_Collection_Name']).must_equal new_name
+      _(traces[2].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
 
       # Clean up after test and set collection name back to original
       coll.rename("testCollection")
@@ -248,23 +248,23 @@ if Gem.loaded_specs['mongo'].version.to_s < '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 6
+      _(traces.count).must_equal 6
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[1]['Collection'].must_equal "testCollection"
-      traces[1]['QueryOp'].must_equal "update"
-      traces[1]['Query'].must_equal "{\"_id\":1}"
-      traces[2].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1]['Collection']).must_equal "testCollection"
+      _(traces[1]['QueryOp']).must_equal "update"
+      _(traces[1]['Query']).must_equal "{\"_id\":1}"
+      _(traces[2].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
 
       validate_event_keys(traces[3], @entry_kvs)
       validate_event_keys(traces[4], @exit_kvs)
 
-      traces[3]['QueryOp'].must_equal "update"
-      traces[3]['Query'].must_equal "{\"_id\":1}"
-      traces[4].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[3]['QueryOp']).must_equal "update"
+      _(traces[3]['Query']).must_equal "{\"_id\":1}"
+      _(traces[4].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
     end
 
     it "should trace distinct" do
@@ -275,15 +275,15 @@ if Gem.loaded_specs['mongo'].version.to_s < '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[1]['Collection'].must_equal "testCollection"
-      traces[1]['QueryOp'].must_equal "distinct"
-      traces[2].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1]['Collection']).must_equal "testCollection"
+      _(traces[1]['QueryOp']).must_equal "distinct"
+      _(traces[2].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
     end
 
     it "should trace find" do
@@ -305,19 +305,19 @@ if Gem.loaded_specs['mongo'].version.to_s < '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      result.wont_match nil
-      result.is_a?(Mongo::Cursor).must_equal true
-      traces[1]['Collection'].must_equal "testCollection"
-      traces[1]['QueryOp'].must_equal "find"
-      traces[1].has_key?('Query').must_equal true
-      traces[1]['Limit'].must_equal 1
-      traces[2].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(result).wont_match nil
+      _(result.is_a?(Mongo::Cursor)).must_equal true
+      _(traces[1]['Collection']).must_equal "testCollection"
+      _(traces[1]['QueryOp']).must_equal "find"
+      _(traces[1].has_key?('Query')).must_equal true
+      _(traces[1]['Limit']).must_equal 1
+      _(traces[2].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
     end
 
     it "should trace find (with block)" do
@@ -340,17 +340,17 @@ if Gem.loaded_specs['mongo'].version.to_s < '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      result.must_be_nil
-      traces[1]['Collection'].must_equal "testCollection"
-      traces[1]['QueryOp'].must_equal "find"
-      traces[1].has_key?('Query').must_equal true
-      traces[2].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(result).must_be_nil
+      _(traces[1]['Collection']).must_equal "testCollection"
+      _(traces[1]['QueryOp']).must_equal "find"
+      _(traces[1].has_key?('Query')).must_equal true
+      _(traces[2].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
     end
 
     it "should trace group" do
@@ -364,17 +364,17 @@ if Gem.loaded_specs['mongo'].version.to_s < '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[1]['Collection'].must_equal "testCollection"
-      traces[1]['QueryOp'].must_equal "group"
+      _(traces[1]['Collection']).must_equal "testCollection"
+      _(traces[1]['QueryOp']).must_equal "group"
       # Don't test exact hash value since to_json hash ordering varies
-      traces[1].has_key?('Query').must_equal true
-      traces[2].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1].has_key?('Query')).must_equal true
+      _(traces[2].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
     end
 
     it "should trace create, ensure and drop index" do
@@ -387,29 +387,29 @@ if Gem.loaded_specs['mongo'].version.to_s < '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 8
+      _(traces.count).must_equal 8
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[1]['Collection'].must_equal "testCollection"
-      traces[1]['QueryOp'].must_equal "create_index"
-      traces[2].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1]['Collection']).must_equal "testCollection"
+      _(traces[1]['QueryOp']).must_equal "create_index"
+      _(traces[2].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
 
       validate_event_keys(traces[3], @entry_kvs)
       validate_event_keys(traces[4], @exit_kvs)
 
-      traces[3]['Collection'].must_equal "testCollection"
-      traces[3]['QueryOp'].must_equal "ensure_index"
-      traces[4].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[3]['Collection']).must_equal "testCollection"
+      _(traces[3]['QueryOp']).must_equal "ensure_index"
+      _(traces[4].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
 
       validate_event_keys(traces[5], @entry_kvs)
       validate_event_keys(traces[6], @exit_kvs)
 
-      traces[5]['Collection'].must_equal "testCollection"
-      traces[5]['QueryOp'].must_equal "drop_index"
-      traces[6].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[5]['Collection']).must_equal "testCollection"
+      _(traces[5]['QueryOp']).must_equal "drop_index"
+      _(traces[6].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
     end
 
     it "should trace drop_indexes" do
@@ -420,15 +420,15 @@ if Gem.loaded_specs['mongo'].version.to_s < '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[1]['Collection'].must_equal "testCollection"
-      traces[1]['QueryOp'].must_equal "drop_indexes"
-      traces[2].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1]['Collection']).must_equal "testCollection"
+      _(traces[1]['QueryOp']).must_equal "drop_indexes"
+      _(traces[2].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
     end
 
     it "should trace index_information" do
@@ -439,15 +439,15 @@ if Gem.loaded_specs['mongo'].version.to_s < '2.0.0'
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[1]['Collection'].must_equal "testCollection"
-      traces[1]['QueryOp'].must_equal "index_information"
-      traces[2].has_key?('Backtrace').must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1]['Collection']).must_equal "testCollection"
+      _(traces[1]['QueryOp']).must_equal "index_information"
+      _(traces[2].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
     end
 
     it "should obey :collect_backtraces setting when true" do

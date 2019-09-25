@@ -11,11 +11,11 @@ describe 'InitReportTest' do
 
    it 'report_kvs' do
     init_kvs = ::AppOpticsAPM::Util.build_init_report
-    init_kvs.has_key?("__Init").must_equal true
-    init_kvs.has_key?("Force").must_equal true
-    init_kvs.has_key?("Ruby.AppContainer.Version").must_equal true
-    init_kvs["Ruby.AppOptics.Version"].must_equal AppOpticsAPM::Version::STRING
-    init_kvs["Ruby.TraceMode.Version"].must_equal AppOpticsAPM::Config[:tracing_mode]
+    _(init_kvs.has_key?("__Init")).must_equal true
+    _(init_kvs.has_key?("Force")).must_equal true
+    _(init_kvs.has_key?("Ruby.AppContainer.Version")).must_equal true
+    _(init_kvs["Ruby.AppOptics.Version"]).must_equal AppOpticsAPM::Version::STRING
+    _(init_kvs["Ruby.TraceMode.Version"]).must_equal AppOpticsAPM::Config[:tracing_mode]
   end
 
   # @deprecated

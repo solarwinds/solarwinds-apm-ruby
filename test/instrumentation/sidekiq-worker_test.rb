@@ -13,14 +13,14 @@ unless defined?(JRUBY_VERSION)
   require_relative "../jobs/sidekiq/db_worker_job"
   require_relative "../jobs/sidekiq/error_worker_job"
 
-  class SidekiqWorkerTest < Minitest::Test
-    def setup
+  describe "SidekiqWorkerTest" do
+   before do
       clear_all_traces
       @collect_backtraces = AppOpticsAPM::Config[:sidekiqworker][:collect_backtraces]
       @log_args = AppOpticsAPM::Config[:sidekiqworker][:log_args]
     end
 
-    def teardown
+   after do
       AppOpticsAPM::Config[:sidekiqworker][:collect_backtraces] = @collect_backtraces
       AppOpticsAPM::Config[:sidekiqworker][:log_args] = @log_args
     end

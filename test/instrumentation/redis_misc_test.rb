@@ -32,9 +32,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "auth"
-      traces[2].has_key?('KVKey').must_equal false
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "auth"
+      _(traces[2].has_key?('KVKey')).must_equal false
     end
 
     it "should trace publish" do
@@ -45,10 +45,10 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "publish"
-      traces[2]['channel'].must_equal "channel1"
-      traces[2].has_key?('KVKey').must_equal false
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "publish"
+      _(traces[2]['channel']).must_equal "channel1"
+      _(traces[2].has_key?('KVKey')).must_equal false
     end
 
     it "should trace select" do
@@ -59,9 +59,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "select"
-      traces[2]['db'].must_equal 2
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "select"
+      _(traces[2]['db']).must_equal 2
     end
 
     it "should trace pipelined operations" do
@@ -80,9 +80,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOpCount'].must_equal 6
-      traces[2]['KVOps'].must_equal "zadd, zadd, zadd, lpush, lpush, lpush"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOpCount']).must_equal 6
+      _(traces[2]['KVOps']).must_equal "zadd, zadd, zadd, lpush, lpush, lpush"
     end
 
     it "should trace multi with block" do
@@ -101,9 +101,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOpCount'].must_equal 8
-      traces[2]['KVOps'].must_equal "multi, zadd, zadd, zadd, lpush, lpush, lpush, exec"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOpCount']).must_equal 8
+      _(traces[2]['KVOps']).must_equal "multi, zadd, zadd, zadd, lpush, lpush, lpush, exec"
     end
 
     it "should trace eval" do
@@ -116,13 +116,13 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 8
-      traces[2]['KVOp'].must_equal "eval"
-      traces[2]['Script'].must_equal "return 1"
-      traces[4]['KVOp'].must_equal "eval"
-      traces[4]['Script'].must_equal "return { KEYS, ARGV }"
-      traces[6]['KVOp'].must_equal "eval"
-      traces[6]['Script'].must_equal "return { KEYS, ARGV }"
+      _(traces.count).must_equal 8
+      _(traces[2]['KVOp']).must_equal "eval"
+      _(traces[2]['Script']).must_equal "return 1"
+      _(traces[4]['KVOp']).must_equal "eval"
+      _(traces[4]['Script']).must_equal "return { KEYS, ARGV }"
+      _(traces[6]['KVOp']).must_equal "eval"
+      _(traces[6]['Script']).must_equal "return { KEYS, ARGV }"
     end
 
     it "should trace evalsha" do
@@ -135,9 +135,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "evalsha"
-      traces[2]['sha'].must_equal sha
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "evalsha"
+      _(traces[2]['sha']).must_equal sha
     end
 
     it "should trace script" do
@@ -151,25 +151,25 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 10
+      _(traces.count).must_equal 10
 
       # Validate return values
-      @it_exists1.must_equal true
-      @it_exists2.is_a?(Array).must_equal true
-      @it_exists2[0].must_equal true
-      @it_exists2[1].must_equal false
+      _(@it_exists1).must_equal true
+      _(@it_exists2.is_a?(Array)).must_equal true
+      _(@it_exists2[0]).must_equal true
+      _(@it_exists2[1]).must_equal false
 
-      traces[2]['KVOp'].must_equal "script"
-      traces[2]['subcommand'].must_equal "load"
-      traces[2]['Script'].must_equal "return 1"
-      traces[4]['KVOp'].must_equal "script"
-      traces[4]['subcommand'].must_equal "exists"
-      traces[4]['KVKey'].must_equal @sha
-      traces[6]['KVOp'].must_equal "script"
-      traces[6]['subcommand'].must_equal "exists"
-      traces[6]['KVKey'].must_equal '["e0e1f9fabfc9d4800c877a703b823ac0578ff8db", "other_sha"]'
-      traces[8]['KVOp'].must_equal "script"
-      traces[8]['subcommand'].must_equal "flush"
+      _(traces[2]['KVOp']).must_equal "script"
+      _(traces[2]['subcommand']).must_equal "load"
+      _(traces[2]['Script']).must_equal "return 1"
+      _(traces[4]['KVOp']).must_equal "script"
+      _(traces[4]['subcommand']).must_equal "exists"
+      _(traces[4]['KVKey']).must_equal @sha
+      _(traces[6]['KVOp']).must_equal "script"
+      _(traces[6]['subcommand']).must_equal "exists"
+      _(traces[6]['KVKey']).must_equal '["e0e1f9fabfc9d4800c877a703b823ac0578ff8db", "other_sha"]'
+      _(traces[8]['KVOp']).must_equal "script"
+      _(traces[8]['subcommand']).must_equal "flush"
     end
   end
 end

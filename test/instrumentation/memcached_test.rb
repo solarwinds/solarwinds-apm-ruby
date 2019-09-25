@@ -30,16 +30,16 @@ unless defined?(JRUBY_VERSION)
     end
 
     it 'Stock Memcached should be loaded, defined and ready' do
-      defined?(::Memcached).wont_match nil
-      defined?(::Memcached::Rails).wont_match nil
+      _(defined?(::Memcached)).wont_match nil
+      _(defined?(::Memcached::Rails)).wont_match nil
     end
 
     it 'Memcached should have appoptics_apm methods defined' do
       AppOpticsAPM::API::Memcache::MEMCACHE_OPS.each do |m|
         if ::Memcached.method_defined?(m)
-          ::Memcached.method_defined?("#{m}_with_appoptics").must_equal true
+          _(::Memcached.method_defined?("#{m}_with_appoptics")).must_equal true
         end
-        ::Memcached::Rails.method_defined?(:get_multi_with_appoptics).must_equal true
+        _(::Memcached::Rails.method_defined?(:get_multi_with_appoptics)).must_equal true
       end
     end
 
@@ -49,14 +49,14 @@ unless defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'memcached_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[1]['KVOp'].must_equal "set"
-      traces[1]['KVKey'].must_equal "testKey"
+      _(traces[1]['KVOp']).must_equal "set"
+      _(traces[1]['KVKey']).must_equal "testKey"
     end
 
     it "should trace get" do
@@ -67,14 +67,14 @@ unless defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'memcached_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[1]['KVOp'].must_equal "get"
-      traces[1]['KVKey'].must_equal "testKey"
+      _(traces[1]['KVOp']).must_equal "get"
+      _(traces[1]['KVKey']).must_equal "testKey"
     end
 
     it "should trace get_multi" do
@@ -83,16 +83,16 @@ unless defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'memcached_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[1]['KVOp'].must_equal "get_multi"
+      _(traces[1]['KVOp']).must_equal "get_multi"
 
-      traces[2]['KVKeyCount'].must_equal 6
-      traces[2].has_key?('KVHitCount').must_equal true
+      _(traces[2]['KVKeyCount']).must_equal 6
+      _(traces[2].has_key?('KVHitCount')).must_equal true
     end
 
     it "should trace add" do
@@ -102,14 +102,14 @@ unless defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'memcached_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[1]['KVOp'].must_equal "add"
-      traces[1]['KVKey'].must_equal "testAdd"
+      _(traces[1]['KVOp']).must_equal "add"
+      _(traces[1]['KVKey']).must_equal "testAdd"
     end
 
     it "should trace append" do
@@ -119,14 +119,14 @@ unless defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'memcached_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[1]['KVOp'].must_equal "append"
-      traces[1]['KVKey'].must_equal "rawKey"
+      _(traces[1]['KVOp']).must_equal "append"
+      _(traces[1]['KVKey']).must_equal "rawKey"
     end
 
     it "should trace decr" do
@@ -137,14 +137,14 @@ unless defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'memcached_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[1]['KVOp'].must_equal "decr"
-      traces[1]['KVKey'].must_equal "some_key_counter"
+      _(traces[1]['KVOp']).must_equal "decr"
+      _(traces[1]['KVKey']).must_equal "some_key_counter"
     end
 
     it "should trace increment" do
@@ -155,14 +155,14 @@ unless defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'memcached_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[1]['KVOp'].must_equal "incr"
-      traces[1]['KVKey'].must_equal "some_key_counter"
+      _(traces[1]['KVOp']).must_equal "incr"
+      _(traces[1]['KVKey']).must_equal "some_key_counter"
     end
 
     it "should trace replace" do
@@ -172,14 +172,14 @@ unless defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'memcached_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[1]['KVOp'].must_equal "replace"
-      traces[1]['KVKey'].must_equal "some_key"
+      _(traces[1]['KVOp']).must_equal "replace"
+      _(traces[1]['KVKey']).must_equal "some_key"
     end
 
     it "should trace delete" do
@@ -189,14 +189,14 @@ unless defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
 
       validate_outer_layers(traces, 'memcached_test')
       validate_event_keys(traces[1], @entry_kvs)
       validate_event_keys(traces[2], @exit_kvs)
 
-      traces[1]['KVOp'].must_equal "delete"
-      traces[1]['KVKey'].must_equal "some_key"
+      _(traces[1]['KVOp']).must_equal "delete"
+      _(traces[1]['KVKey']).must_equal "some_key"
     end
 
     it "should properly log errors" do
@@ -210,10 +210,10 @@ unless defined?(JRUBY_VERSION)
 
       error_trace = traces.find { |trace| trace['Label'] == 'error' }
 
-      error_trace['Spec'].must_equal 'error'
-      error_trace['Label'].must_equal 'error'
-      error_trace['ErrorClass'].must_equal "Memcached::NotStored"
-      error_trace['ErrorMsg'].must_equal "Memcached::NotStored"
+      _(error_trace['Spec']).must_equal 'error'
+      _(error_trace['Label']).must_equal 'error'
+      _(error_trace['ErrorClass']).must_equal "Memcached::NotStored"
+      _(error_trace['ErrorMsg']).must_equal "Memcached::NotStored"
       assert_equal 1, traces.select { |trace| trace['Label'] == 'error' }.count
     end
 

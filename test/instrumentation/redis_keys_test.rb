@@ -26,7 +26,7 @@ if defined?(::Redis)
     end
 
     it 'Stock Redis should be loaded, defined and ready' do
-      defined?(::Redis).wont_match nil
+      _(defined?(::Redis)).wont_match nil
     end
 
     it "should trace del" do
@@ -37,9 +37,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "del"
-      traces[2]['KVKey'].must_equal "del_test"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "del"
+      _(traces[2]['KVKey']).must_equal "del_test"
     end
 
     it "should trace del of multiple keys" do
@@ -50,9 +50,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "del"
-      traces[2].has_key?('KVKey').must_equal false
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "del"
+      _(traces[2].has_key?('KVKey')).must_equal false
     end
 
     it "should trace dump" do
@@ -65,9 +65,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "dump"
-      traces[2]['KVKey'].must_equal "del_test"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "dump"
+      _(traces[2]['KVKey']).must_equal "del_test"
     end
 
     it "should trace exists" do
@@ -77,12 +77,12 @@ if defined?(::Redis)
         @it_exists = @redis.exists("talking_heads")
       end
 
-      @it_exists.must_equal true
+      _(@it_exists).must_equal true
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "exists"
-      traces[2]['KVKey'].must_equal "talking_heads"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "exists"
+      _(traces[2]['KVKey']).must_equal "talking_heads"
     end
 
     it "should trace expire" do
@@ -93,9 +93,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "expire"
-      traces[2]['KVKey'].must_equal "expire_please"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "expire"
+      _(traces[2]['KVKey']).must_equal "expire_please"
     end
 
     it "should trace expireat" do
@@ -106,9 +106,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "expireat"
-      traces[2]['KVKey'].must_equal "expireat_please"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "expireat"
+      _(traces[2]['KVKey']).must_equal "expireat_please"
     end
 
     it "should trace keys" do
@@ -117,9 +117,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "keys"
-      traces[2]['pattern'].must_equal "del*"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "keys"
+      _(traces[2]['pattern']).must_equal "del*"
     end
 
     it "should trace basic move" do
@@ -130,10 +130,10 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "move"
-      traces[2]['KVKey'].must_equal "piano"
-      traces[2]['db'].must_equal 1
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "move"
+      _(traces[2]['KVKey']).must_equal "piano"
+      _(traces[2]['db']).must_equal 1
     end
 
     it "should trace persist" do
@@ -146,9 +146,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "persist"
-      traces[2]['KVKey'].must_equal "mine"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "persist"
+      _(traces[2]['KVKey']).must_equal "mine"
     end
 
     it "should trace pexpire" do
@@ -160,13 +160,13 @@ if defined?(::Redis)
         @rv = @redis.pexpire("sand", 8000)
       end
 
-      @rv.must_equal true
+      _(@rv).must_equal true
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "pexpire"
-      traces[2]['KVKey'].must_equal "sand"
-      traces[2]['milliseconds'].must_equal 8000
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "pexpire"
+      _(traces[2]['KVKey']).must_equal "sand"
+      _(traces[2]['milliseconds']).must_equal 8000
     end
 
     it "should trace pexpireat" do
@@ -178,13 +178,13 @@ if defined?(::Redis)
         @rv = @redis.pexpireat("sand", 8000)
       end
 
-      @rv.must_equal true
+      _(@rv).must_equal true
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "pexpireat"
-      traces[2]['KVKey'].must_equal "sand"
-      traces[2]['milliseconds'].must_equal 8000
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "pexpireat"
+      _(traces[2]['KVKey']).must_equal "sand"
+      _(traces[2]['milliseconds']).must_equal 8000
     end
 
     it "should trace pttl" do
@@ -197,9 +197,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "pttl"
-      traces[2]['KVKey'].must_equal "sand"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "pttl"
+      _(traces[2]['KVKey']).must_equal "sand"
     end
 
     it "should trace randomkey" do
@@ -208,8 +208,8 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "randomkey"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "randomkey"
     end
 
     it "should trace rename" do
@@ -220,10 +220,10 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "rename"
-      traces[2]['KVKey'].must_equal "sand"
-      traces[2]['newkey'].must_equal "sandy"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "rename"
+      _(traces[2]['KVKey']).must_equal "sand"
+      _(traces[2]['newkey']).must_equal "sandy"
     end
 
     it "should trace renamenx" do
@@ -234,10 +234,10 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "renamenx"
-      traces[2]['KVKey'].must_equal "sand"
-      traces[2]['newkey'].must_equal "sandy"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "renamenx"
+      _(traces[2]['KVKey']).must_equal "sand"
+      _(traces[2]['newkey']).must_equal "sandy"
     end
 
     it "should trace restore" do
@@ -252,10 +252,10 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "restore"
-      traces[2]['KVKey'].must_equal "blue"
-      traces[2]['ttl'].must_equal 0
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "restore"
+      _(traces[2]['KVKey']).must_equal "blue"
+      _(traces[2]['ttl']).must_equal 0
     end
 
     it "should trace sort" do
@@ -271,9 +271,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "sort"
-      traces[2]['KVKey'].must_equal "penguin"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "sort"
+      _(traces[2]['KVKey']).must_equal "penguin"
     end
 
     it "should trace ttl" do
@@ -286,9 +286,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "ttl"
-      traces[2]['KVKey'].must_equal "sand"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "ttl"
+      _(traces[2]['KVKey']).must_equal "sand"
     end
 
     it "should trace type" do
@@ -301,9 +301,9 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "type"
-      traces[2]['KVKey'].must_equal "sand"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "type"
+      _(traces[2]['KVKey']).must_equal "sand"
     end
 
     it "should trace scan" do
@@ -314,8 +314,8 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      traces.count.must_equal 4
-      traces[2]['KVOp'].must_equal "scan"
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "scan"
     end
   end
 end

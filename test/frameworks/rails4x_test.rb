@@ -37,39 +37,39 @@ if defined?(::Rails)
 
       traces = get_all_traces
 
-      traces.count.must_equal 6
+      _(traces.count).must_equal 6
       unless defined?(JRUBY_VERSION)
         # We don't test this under JRuby because the Java instrumentation
         # for the DB drivers doesn't use our test reporter hence we won't
         # see all trace events. :-(  To be improved.
-        valid_edges?(traces).must_equal true
+        _(valid_edges?(traces)).must_equal true
       end
       validate_outer_layers(traces, 'rack')
 
-      traces[0]['Layer'].must_equal "rack"
-      traces[0]['Label'].must_equal "entry"
-      traces[0]['URL'].must_equal "/hello/world"
+      _(traces[0]['Layer']).must_equal "rack"
+      _(traces[0]['Label']).must_equal "entry"
+      _(traces[0]['URL']).must_equal "/hello/world"
 
-      traces[1]['Layer'].must_equal "rails"
-      traces[1]['Label'].must_equal "entry"
-      traces[1]['Controller'].must_equal "HelloController"
-      traces[1]['Action'].must_equal "world"
+      _(traces[1]['Layer']).must_equal "rails"
+      _(traces[1]['Label']).must_equal "entry"
+      _(traces[1]['Controller']).must_equal "HelloController"
+      _(traces[1]['Action']).must_equal "world"
 
-      traces[2]['Layer'].must_equal "actionview"
-      traces[2]['Label'].must_equal "entry"
+      _(traces[2]['Layer']).must_equal "actionview"
+      _(traces[2]['Label']).must_equal "entry"
 
-      traces[3]['Layer'].must_equal "actionview"
-      traces[3]['Label'].must_equal "exit"
+      _(traces[3]['Layer']).must_equal "actionview"
+      _(traces[3]['Label']).must_equal "exit"
 
-      traces[4]['Layer'].must_equal "rails"
-      traces[4]['Label'].must_equal "exit"
+      _(traces[4]['Layer']).must_equal "rails"
+      _(traces[4]['Label']).must_equal "exit"
 
-      traces[5]['Layer'].must_equal "rack"
-      traces[5]['Label'].must_equal "exit"
+      _(traces[5]['Layer']).must_equal "rack"
+      _(traces[5]['Label']).must_equal "exit"
 
       # Validate the existence of the response header
-      r.header.key?('X-Trace').must_equal true
-      r.header['X-Trace'].must_equal traces[5]['X-Trace']
+      _(r.header.key?('X-Trace')).must_equal true
+      _(r.header['X-Trace']).must_equal traces[5]['X-Trace']
     end
 
     it "should trace rails postgres db calls" do
@@ -82,54 +82,54 @@ if defined?(::Rails)
 
       traces = get_all_traces
 
-      traces.count.must_equal 12
-      valid_edges?(traces).must_equal true
+      _(traces.count).must_equal 12
+      _(valid_edges?(traces)).must_equal true
       validate_outer_layers(traces, 'rack')
 
-      traces[2]['Layer'].must_equal "activerecord"
-      traces[2]['Label'].must_equal "entry"
-      traces[2]['Flavor'].must_equal "postgresql"
-      traces[2]['Name'].must_equal "SQL"
-      traces[2].key?('Backtrace').must_equal false
+      _(traces[2]['Layer']).must_equal "activerecord"
+      _(traces[2]['Label']).must_equal "entry"
+      _(traces[2]['Flavor']).must_equal "postgresql"
+      _(traces[2]['Name']).must_equal "SQL"
+      _(traces[2].key?('Backtrace')).must_equal false
 
       # Use a regular expression to test the SQL string since field order varies between
       # Rails versions
       match_data = traces[2]['Query']
-      match_data.must_equal("INSERT INTO \"widgets\" (\"name\", \"description\", \"created_at\", \"updated_at\") VALUES ($?, $?, $?, $?) RETURNING \"id\"")
+      _(match_data).must_equal("INSERT INTO \"widgets\" (\"name\", \"description\", \"created_at\", \"updated_at\") VALUES ($?, $?, $?, $?) RETURNING \"id\"")
 
-      traces[3]['Layer'].must_equal "activerecord"
-      traces[3]['Label'].must_equal "exit"
+      _(traces[3]['Layer']).must_equal "activerecord"
+      _(traces[3]['Label']).must_equal "exit"
 
-      traces[4]['Layer'].must_equal "activerecord"
-      traces[4]['Label'].must_equal "entry"
-      traces[4]['Flavor'].must_equal "postgresql"
+      _(traces[4]['Layer']).must_equal "activerecord"
+      _(traces[4]['Label']).must_equal "entry"
+      _(traces[4]['Flavor']).must_equal "postgresql"
 
       # Some versions of rails adds in another space before the ORDER keyword.
       # Make 2 or more consecutive spaces just 1
       sql = traces[4]['Query'].gsub(/\s{2,}/, ' ')
-      sql.must_equal "SELECT \"widgets\".* FROM \"widgets\" WHERE \"widgets\".\"name\" = $? ORDER BY \"widgets\".\"id\" ASC LIMIT ?"
+      _(sql).must_equal "SELECT \"widgets\".* FROM \"widgets\" WHERE \"widgets\".\"name\" = $? ORDER BY \"widgets\".\"id\" ASC LIMIT ?"
 
-      traces[4]['Name'].must_equal "Widget Load"
-      traces[4].key?('Backtrace').must_equal false
-      traces[4].key?('QueryArgs').must_equal false
+      _(traces[4]['Name']).must_equal "Widget Load"
+      _(traces[4].key?('Backtrace')).must_equal false
+      _(traces[4].key?('QueryArgs')).must_equal false
 
-      traces[5]['Layer'].must_equal "activerecord"
-      traces[5]['Label'].must_equal "exit"
+      _(traces[5]['Layer']).must_equal "activerecord"
+      _(traces[5]['Label']).must_equal "exit"
 
-      traces[6]['Layer'].must_equal "activerecord"
-      traces[6]['Label'].must_equal "entry"
-      traces[6]['Flavor'].must_equal "postgresql"
-      traces[6]['Query'].must_equal "DELETE FROM \"widgets\" WHERE \"widgets\".\"id\" = $?"
-      traces[6]['Name'].must_equal "SQL"
-      traces[6].key?('Backtrace').must_equal false
-      traces[6].key?('QueryArgs').must_equal false
+      _(traces[6]['Layer']).must_equal "activerecord"
+      _(traces[6]['Label']).must_equal "entry"
+      _(traces[6]['Flavor']).must_equal "postgresql"
+      _(traces[6]['Query']).must_equal "DELETE FROM \"widgets\" WHERE \"widgets\".\"id\" = $?"
+      _(traces[6]['Name']).must_equal "SQL"
+      _(traces[6].key?('Backtrace')).must_equal false
+      _(traces[6].key?('QueryArgs')).must_equal false
 
-      traces[7]['Layer'].must_equal "activerecord"
-      traces[7]['Label'].must_equal "exit"
+      _(traces[7]['Layer']).must_equal "activerecord"
+      _(traces[7]['Label']).must_equal "exit"
 
       # Validate the existence of the response header
-      r.header.key?('X-Trace').must_equal true
-      r.header['X-Trace'].must_equal traces[11]['X-Trace']
+      _(r.header.key?('X-Trace')).must_equal true
+      _(r.header['X-Trace']).must_equal traces[11]['X-Trace']
     end
 
     it "should trace rails mysql db calls" do
@@ -144,69 +144,69 @@ if defined?(::Rails)
 
       traces = get_all_traces
 
-      traces.count.must_equal 16
-      valid_edges?(traces).must_equal true
+      _(traces.count).must_equal 16
+      _(valid_edges?(traces)).must_equal true
       validate_outer_layers(traces, 'rack')
 
-      traces[2]['Layer'].must_equal "activerecord"
-      traces[2]['Label'].must_equal "entry"
-      traces[2]['Flavor'].must_equal "mysql"
-      traces[2]['Query'].must_equal "BEGIN"
-      traces[2].key?('Backtrace').must_equal false
+      _(traces[2]['Layer']).must_equal "activerecord"
+      _(traces[2]['Label']).must_equal "entry"
+      _(traces[2]['Flavor']).must_equal "mysql"
+      _(traces[2]['Query']).must_equal "BEGIN"
+      _(traces[2].key?('Backtrace')).must_equal false
 
-      traces[3]['Layer'].must_equal "activerecord"
-      traces[3]['Label'].must_equal "exit"
+      _(traces[3]['Layer']).must_equal "activerecord"
+      _(traces[3]['Label']).must_equal "exit"
 
-      traces[4]['Layer'].must_equal "activerecord"
-      traces[4]['Label'].must_equal "entry"
-      traces[4]['Flavor'].must_equal "mysql"
-      traces[4]['Query'].must_equal "INSERT INTO `widgets` (`name`, `description`, `created_at`, `updated_at`) VALUES (?, ?, ?, ?)"
-      traces[4]['Name'].must_equal "SQL"
-      traces[4].key?('Backtrace').must_equal false
-      traces[4].key?('QueryArgs').must_equal true
+      _(traces[4]['Layer']).must_equal "activerecord"
+      _(traces[4]['Label']).must_equal "entry"
+      _(traces[4]['Flavor']).must_equal "mysql"
+      _(traces[4]['Query']).must_equal "INSERT INTO `widgets` (`name`, `description`, `created_at`, `updated_at`) VALUES (?, ?, ?, ?)"
+      _(traces[4]['Name']).must_equal "SQL"
+      _(traces[4].key?('Backtrace')).must_equal false
+      _(traces[4].key?('QueryArgs')).must_equal true
 
-      traces[5]['Layer'].must_equal "activerecord"
-      traces[5]['Label'].must_equal "exit"
+      _(traces[5]['Layer']).must_equal "activerecord"
+      _(traces[5]['Label']).must_equal "exit"
 
-      traces[6]['Layer'].must_equal "activerecord"
-      traces[6]['Label'].must_equal "entry"
-      traces[6]['Flavor'].must_equal "mysql"
-      traces[6]['Query'].must_equal "COMMIT"
-      traces[6].key?('Backtrace').must_equal false
+      _(traces[6]['Layer']).must_equal "activerecord"
+      _(traces[6]['Label']).must_equal "entry"
+      _(traces[6]['Flavor']).must_equal "mysql"
+      _(traces[6]['Query']).must_equal "COMMIT"
+      _(traces[6].key?('Backtrace')).must_equal false
 
-      traces[7]['Layer'].must_equal "activerecord"
-      traces[7]['Label'].must_equal "exit"
+      _(traces[7]['Layer']).must_equal "activerecord"
+      _(traces[7]['Label']).must_equal "exit"
 
-      traces[8]['Layer'].must_equal "activerecord"
-      traces[8]['Label'].must_equal "entry"
-      traces[8]['Flavor'].must_equal "mysql"
-      traces[8]['Name'].must_equal "Widget Load"
-      traces[8].key?('Backtrace').must_equal false
+      _(traces[8]['Layer']).must_equal "activerecord"
+      _(traces[8]['Label']).must_equal "entry"
+      _(traces[8]['Flavor']).must_equal "mysql"
+      _(traces[8]['Name']).must_equal "Widget Load"
+      _(traces[8].key?('Backtrace')).must_equal false
 
       # Some versions of rails adds in another space before the ORDER keyword.
       # Make 2 or more consecutive spaces just 1
       sql = traces[8]['Query'].gsub(/\s{2,}/, ' ')
-      sql.must_equal "SELECT `widgets`.* FROM `widgets` WHERE `widgets`.`name` = ? ORDER BY `widgets`.`id` ASC LIMIT 1"
+      _(sql).must_equal "SELECT `widgets`.* FROM `widgets` WHERE `widgets`.`name` = ? ORDER BY `widgets`.`id` ASC LIMIT 1"
 
-      traces[9]['Layer'].must_equal "activerecord"
-      traces[9]['Label'].must_equal "exit"
+      _(traces[9]['Layer']).must_equal "activerecord"
+      _(traces[9]['Label']).must_equal "exit"
 
-      traces[10]['Layer'].must_equal "activerecord"
-      traces[10]['Label'].must_equal "entry"
-      traces[10]['Flavor'].must_equal "mysql"
-      traces[10]['Name'].must_equal "SQL"
-      traces[10].key?('Backtrace').must_equal false
-      traces[10].key?('QueryArgs').must_equal true
-      traces[10]['Query'].must_equal "DELETE FROM `widgets` WHERE `widgets`.`id` = ?"
+      _(traces[10]['Layer']).must_equal "activerecord"
+      _(traces[10]['Label']).must_equal "entry"
+      _(traces[10]['Flavor']).must_equal "mysql"
+      _(traces[10]['Name']).must_equal "SQL"
+      _(traces[10].key?('Backtrace')).must_equal false
+      _(traces[10].key?('QueryArgs')).must_equal true
+      _(traces[10]['Query']).must_equal "DELETE FROM `widgets` WHERE `widgets`.`id` = ?"
 
-      traces[11]['Layer'].must_equal "activerecord"
-      traces[11]['Label'].must_equal "exit"
+      _(traces[11]['Layer']).must_equal "activerecord"
+      _(traces[11]['Label']).must_equal "exit"
 
-      traces[12]['Layer'].must_equal "actionview"
-      traces[12]['Label'].must_equal "entry"
+      _(traces[12]['Layer']).must_equal "actionview"
+      _(traces[12]['Label']).must_equal "entry"
 
       # Validate the existence of the response header
-      r['X-Trace'].must_equal traces[15]['X-Trace']
+      _(r['X-Trace']).must_equal traces[15]['X-Trace']
     end
 
     it "should trace rails mysql db calls with sanitize sql" do
@@ -221,69 +221,69 @@ if defined?(::Rails)
 
       traces = get_all_traces
 
-      traces.count.must_equal 16
-      valid_edges?(traces).must_equal true
+      _(traces.count).must_equal 16
+      _(valid_edges?(traces)).must_equal true
       validate_outer_layers(traces, 'rack')
 
-      traces[2]['Layer'].must_equal "activerecord"
-      traces[2]['Label'].must_equal "entry"
-      traces[2]['Flavor'].must_equal "mysql"
-      traces[2]['Query'].must_equal "BEGIN"
-      traces[2].key?('Backtrace').must_equal false
+      _(traces[2]['Layer']).must_equal "activerecord"
+      _(traces[2]['Label']).must_equal "entry"
+      _(traces[2]['Flavor']).must_equal "mysql"
+      _(traces[2]['Query']).must_equal "BEGIN"
+      _(traces[2].key?('Backtrace')).must_equal false
 
-      traces[3]['Layer'].must_equal "activerecord"
-      traces[3]['Label'].must_equal "exit"
+      _(traces[3]['Layer']).must_equal "activerecord"
+      _(traces[3]['Label']).must_equal "exit"
 
-      traces[4]['Layer'].must_equal "activerecord"
-      traces[4]['Label'].must_equal "entry"
-      traces[4]['Flavor'].must_equal "mysql"
-      traces[4]['Query'].must_equal "INSERT INTO `widgets` (`name`, `description`, `created_at`, `updated_at`) VALUES (?, ?, ?, ?)"
-      traces[4]['Name'].must_equal "SQL"
-      traces[4].key?('Backtrace').must_equal false
-      traces[4].key?('QueryArgs').must_equal false
+      _(traces[4]['Layer']).must_equal "activerecord"
+      _(traces[4]['Label']).must_equal "entry"
+      _(traces[4]['Flavor']).must_equal "mysql"
+      _(traces[4]['Query']).must_equal "INSERT INTO `widgets` (`name`, `description`, `created_at`, `updated_at`) VALUES (?, ?, ?, ?)"
+      _(traces[4]['Name']).must_equal "SQL"
+      _(traces[4].key?('Backtrace')).must_equal false
+      _(traces[4].key?('QueryArgs')).must_equal false
 
-      traces[5]['Layer'].must_equal "activerecord"
-      traces[5]['Label'].must_equal "exit"
+      _(traces[5]['Layer']).must_equal "activerecord"
+      _(traces[5]['Label']).must_equal "exit"
 
-      traces[6]['Layer'].must_equal "activerecord"
-      traces[6]['Label'].must_equal "entry"
-      traces[6]['Flavor'].must_equal "mysql"
-      traces[6]['Query'].must_equal "COMMIT"
-      traces[6].key?('Backtrace').must_equal false
+      _(traces[6]['Layer']).must_equal "activerecord"
+      _(traces[6]['Label']).must_equal "entry"
+      _(traces[6]['Flavor']).must_equal "mysql"
+      _(traces[6]['Query']).must_equal "COMMIT"
+      _(traces[6].key?('Backtrace')).must_equal false
 
-      traces[7]['Layer'].must_equal "activerecord"
-      traces[7]['Label'].must_equal "exit"
+      _(traces[7]['Layer']).must_equal "activerecord"
+      _(traces[7]['Label']).must_equal "exit"
 
-      traces[8]['Layer'].must_equal "activerecord"
-      traces[8]['Label'].must_equal "entry"
-      traces[8]['Flavor'].must_equal "mysql"
-      traces[8]['Name'].must_equal "Widget Load"
-      traces[8].key?('Backtrace').must_equal false
+      _(traces[8]['Layer']).must_equal "activerecord"
+      _(traces[8]['Label']).must_equal "entry"
+      _(traces[8]['Flavor']).must_equal "mysql"
+      _(traces[8]['Name']).must_equal "Widget Load"
+      _(traces[8].key?('Backtrace')).must_equal false
 
       # Some versions of rails adds in another space before the ORDER keyword.
       # Make 2 or more consecutive spaces just 1
       sql = traces[8]['Query'].gsub(/\s{2,}/, ' ')
-      sql.must_equal "SELECT `widgets`.* FROM `widgets` WHERE `widgets`.`name` = ? ORDER BY `widgets`.`id` ASC LIMIT ?"
+      _(sql).must_equal "SELECT `widgets`.* FROM `widgets` WHERE `widgets`.`name` = ? ORDER BY `widgets`.`id` ASC LIMIT ?"
 
-      traces[9]['Layer'].must_equal "activerecord"
-      traces[9]['Label'].must_equal "exit"
+      _(traces[9]['Layer']).must_equal "activerecord"
+      _(traces[9]['Label']).must_equal "exit"
 
-      traces[10]['Layer'].must_equal "activerecord"
-      traces[10]['Label'].must_equal "entry"
-      traces[10]['Flavor'].must_equal "mysql"
-      traces[10]['Name'].must_equal "SQL"
-      traces[10].key?('Backtrace').must_equal false
-      traces[10].key?('QueryArgs').must_equal false
-      traces[10]['Query'].must_equal "DELETE FROM `widgets` WHERE `widgets`.`id` = ?"
+      _(traces[10]['Layer']).must_equal "activerecord"
+      _(traces[10]['Label']).must_equal "entry"
+      _(traces[10]['Flavor']).must_equal "mysql"
+      _(traces[10]['Name']).must_equal "SQL"
+      _(traces[10].key?('Backtrace')).must_equal false
+      _(traces[10].key?('QueryArgs')).must_equal false
+      _(traces[10]['Query']).must_equal "DELETE FROM `widgets` WHERE `widgets`.`id` = ?"
 
-      traces[11]['Layer'].must_equal "activerecord"
-      traces[11]['Label'].must_equal "exit"
+      _(traces[11]['Layer']).must_equal "activerecord"
+      _(traces[11]['Label']).must_equal "exit"
 
-      traces[12]['Layer'].must_equal "actionview"
-      traces[12]['Label'].must_equal "entry"
+      _(traces[12]['Layer']).must_equal "actionview"
+      _(traces[12]['Label']).must_equal "entry"
 
       # Validate the existence of the response header
-      r['X-Trace'].must_equal traces[15]['X-Trace']
+      _(r['X-Trace']).must_equal traces[15]['X-Trace']
     end
 
     it "should trace rails mysql2 db calls" do
@@ -298,50 +298,50 @@ if defined?(::Rails)
 
       traces = get_all_traces
 
-      traces.count.must_equal 12
-      valid_edges?(traces).must_equal true
+      _(traces.count).must_equal 12
+      _(valid_edges?(traces)).must_equal true
       validate_outer_layers(traces, 'rack')
 
-      traces[2]['Layer'].must_equal "activerecord"
-      traces[2]['Label'].must_equal "entry"
-      traces[2]['Flavor'].must_equal "mysql"
+      _(traces[2]['Layer']).must_equal "activerecord"
+      _(traces[2]['Label']).must_equal "entry"
+      _(traces[2]['Flavor']).must_equal "mysql"
 
       # Replace the datestamps with xxx to make testing easier
       traces[2]['Query'].gsub!(/\d\d\d\d-\d\d-\d\d\s\d\d:\d\d:\d\d/, 'xxx')
-      traces[2]['Query'].must_equal "INSERT INTO `widgets` (`name`, `description`, `created_at`, `updated_at`) VALUES ('blah', 'This is an amazing widget.', 'xxx', 'xxx')"
+      _(traces[2]['Query']).must_equal "INSERT INTO `widgets` (`name`, `description`, `created_at`, `updated_at`) VALUES ('blah', 'This is an amazing widget.', 'xxx', 'xxx')"
 
-      traces[2]['Name'].must_equal "SQL"
-      traces[2].key?('Backtrace').must_equal false
-      traces[2].key?('QueryArgs').must_equal true
+      _(traces[2]['Name']).must_equal "SQL"
+      _(traces[2].key?('Backtrace')).must_equal false
+      _(traces[2].key?('QueryArgs')).must_equal true
 
-      traces[3]['Layer'].must_equal "activerecord"
-      traces[3]['Label'].must_equal "exit"
+      _(traces[3]['Layer']).must_equal "activerecord"
+      _(traces[3]['Label']).must_equal "exit"
 
-      traces[4]['Layer'].must_equal "activerecord"
-      traces[4]['Label'].must_equal "entry"
-      traces[4]['Flavor'].must_equal "mysql"
-      traces[4]['Query'].must_equal "SELECT  `widgets`.* FROM `widgets` WHERE `widgets`.`name` = 'blah'  ORDER BY `widgets`.`id` ASC LIMIT 1"
-      traces[4]['Name'].must_equal "Widget Load"
-      traces[4].key?('Backtrace').must_equal false
-      traces[4].key?('QueryArgs').must_equal true
+      _(traces[4]['Layer']).must_equal "activerecord"
+      _(traces[4]['Label']).must_equal "entry"
+      _(traces[4]['Flavor']).must_equal "mysql"
+      _(traces[4]['Query']).must_equal "SELECT  `widgets`.* FROM `widgets` WHERE `widgets`.`name` = 'blah'  ORDER BY `widgets`.`id` ASC LIMIT 1"
+      _(traces[4]['Name']).must_equal "Widget Load"
+      _(traces[4].key?('Backtrace')).must_equal false
+      _(traces[4].key?('QueryArgs')).must_equal true
 
-      traces[5]['Layer'].must_equal "activerecord"
-      traces[5]['Label'].must_equal "exit"
+      _(traces[5]['Layer']).must_equal "activerecord"
+      _(traces[5]['Label']).must_equal "exit"
 
-      traces[6]['Layer'].must_equal "activerecord"
-      traces[6]['Label'].must_equal "entry"
-      traces[6]['Flavor'].must_equal "mysql"
-      traces[6]['Name'].must_equal "SQL"
-      traces[6].key?('Backtrace').must_equal false
+      _(traces[6]['Layer']).must_equal "activerecord"
+      _(traces[6]['Label']).must_equal "entry"
+      _(traces[6]['Flavor']).must_equal "mysql"
+      _(traces[6]['Name']).must_equal "SQL"
+      _(traces[6].key?('Backtrace')).must_equal false
 
       sql = traces[6]['Query'].gsub(/\d+/, 'xxx')
-      sql.must_equal "DELETE FROM `widgets` WHERE `widgets`.`id` = xxx"
+      _(sql).must_equal "DELETE FROM `widgets` WHERE `widgets`.`id` = xxx"
 
-      traces[7]['Layer'].must_equal "activerecord"
-      traces[7]['Label'].must_equal "exit"
+      _(traces[7]['Layer']).must_equal "activerecord"
+      _(traces[7]['Label']).must_equal "exit"
 
       # Validate the existence of the response header
-      r['X-Trace'].must_equal traces[11]['X-Trace']
+      _(r['X-Trace']).must_equal traces[11]['X-Trace']
     end
 
     it "should trace rails mysql2 db calls with santize sql" do
@@ -356,48 +356,48 @@ if defined?(::Rails)
 
       traces = get_all_traces
 
-      traces.count.must_equal 12
-      valid_edges?(traces).must_equal true
+      _(traces.count).must_equal 12
+      _(valid_edges?(traces)).must_equal true
       validate_outer_layers(traces, 'rack')
 
-      traces[2]['Layer'].must_equal "activerecord"
-      traces[2]['Label'].must_equal "entry"
-      traces[2]['Flavor'].must_equal "mysql"
+      _(traces[2]['Layer']).must_equal "activerecord"
+      _(traces[2]['Label']).must_equal "entry"
+      _(traces[2]['Flavor']).must_equal "mysql"
 
       # Replace the datestamps with xxx to make testing easier
-      traces[2]['Query'].must_equal "INSERT INTO `widgets` (`name`, `description`, `created_at`, `updated_at`) VALUES (?, ?, ?, ?)"
+      _(traces[2]['Query']).must_equal "INSERT INTO `widgets` (`name`, `description`, `created_at`, `updated_at`) VALUES (?, ?, ?, ?)"
 
-      traces[2]['Name'].must_equal "SQL"
-      traces[2].key?('Backtrace').must_equal false
-      traces[2].key?('QueryArgs').must_equal false
+      _(traces[2]['Name']).must_equal "SQL"
+      _(traces[2].key?('Backtrace')).must_equal false
+      _(traces[2].key?('QueryArgs')).must_equal false
 
-      traces[3]['Layer'].must_equal "activerecord"
-      traces[3]['Label'].must_equal "exit"
+      _(traces[3]['Layer']).must_equal "activerecord"
+      _(traces[3]['Label']).must_equal "exit"
 
-      traces[4]['Layer'].must_equal "activerecord"
-      traces[4]['Label'].must_equal "entry"
-      traces[4]['Flavor'].must_equal "mysql"
-      traces[4]['Query'].must_equal "SELECT  `widgets`.* FROM `widgets` WHERE `widgets`.`name` = ?  ORDER BY `widgets`.`id` ASC LIMIT ?"
-      traces[4]['Name'].must_equal "Widget Load"
-      traces[4].key?('Backtrace').must_equal false
-      traces[4].key?('QueryArgs').must_equal false
+      _(traces[4]['Layer']).must_equal "activerecord"
+      _(traces[4]['Label']).must_equal "entry"
+      _(traces[4]['Flavor']).must_equal "mysql"
+      _(traces[4]['Query']).must_equal "SELECT  `widgets`.* FROM `widgets` WHERE `widgets`.`name` = ?  ORDER BY `widgets`.`id` ASC LIMIT ?"
+      _(traces[4]['Name']).must_equal "Widget Load"
+      _(traces[4].key?('Backtrace')).must_equal false
+      _(traces[4].key?('QueryArgs')).must_equal false
 
-      traces[5]['Layer'].must_equal "activerecord"
-      traces[5]['Label'].must_equal "exit"
+      _(traces[5]['Layer']).must_equal "activerecord"
+      _(traces[5]['Label']).must_equal "exit"
 
-      traces[6]['Layer'].must_equal "activerecord"
-      traces[6]['Label'].must_equal "entry"
-      traces[6]['Flavor'].must_equal "mysql"
-      traces[6]['Name'].must_equal "SQL"
-      traces[6].key?('Backtrace').must_equal false
+      _(traces[6]['Layer']).must_equal "activerecord"
+      _(traces[6]['Label']).must_equal "entry"
+      _(traces[6]['Flavor']).must_equal "mysql"
+      _(traces[6]['Name']).must_equal "SQL"
+      _(traces[6].key?('Backtrace')).must_equal false
 
-      traces[6]['Query'].must_equal "DELETE FROM `widgets` WHERE `widgets`.`id` = ?"
+      _(traces[6]['Query']).must_equal "DELETE FROM `widgets` WHERE `widgets`.`id` = ?"
 
-      traces[7]['Layer'].must_equal "activerecord"
-      traces[7]['Label'].must_equal "exit"
+      _(traces[7]['Layer']).must_equal "activerecord"
+      _(traces[7]['Label']).must_equal "exit"
 
       # Validate the existence of the response header
-      r['X-Trace'].must_equal traces[11]['X-Trace']
+      _(r['X-Trace']).must_equal traces[11]['X-Trace']
     end
 
     it "should trace a request to a rails metal stack" do
@@ -405,37 +405,30 @@ if defined?(::Rails)
       r = Net::HTTP.get_response(uri)
 
       traces = get_all_traces
-
-      traces.count.must_equal 4
+      _(traces.count).must_equal 4
       unless defined?(JRUBY_VERSION)
         # We don't test this under JRuby because the Java instrumentation
         # for the DB drivers doesn't use our test reporter hence we won't
         # see all trace events. :-(  To be improved.
-        valid_edges?(traces).must_equal true
+        _(valid_edges?(traces)).must_equal true
       end
       validate_outer_layers(traces, 'rack')
 
-      traces[0]['Layer'].must_equal "rack"
-      traces[0]['Label'].must_equal "entry"
-      traces[0]['URL'].must_equal "/hello/metal"
+      _(traces[0]['Layer']).must_equal "rack"
+      _(traces[0]['Label']).must_equal "entry"
+      _(traces[0]['URL']).must_equal "/hello/metal"
 
-      traces[1]['Label'].must_equal "profile_entry"
-      traces[1]['Language'].must_equal "ruby"
-      traces[1]['ProfileName'].must_equal "world"
-      traces[1]['MethodName'].must_equal "world"
-      traces[1]['Class'].must_equal "FerroController"
-      traces[1]['Controller'].must_equal "FerroController"
-      traces[1]['Action'].must_equal "world"
+      _(traces[1]['Label']).must_equal "profile_entry"
+      _(traces[1]['Controller']).must_equal "FerroController"
+      _(traces[1]['Action']).must_equal "world"
 
-      traces[2]['Label'].must_equal "profile_exit"
-      traces[2]['Language'].must_equal "ruby"
-      traces[2]['ProfileName'].must_equal "world"
+      _(traces[2]['Label']).must_equal "profile_exit"
 
-      traces[3]['Layer'].must_equal "rack"
-      traces[3]['Label'].must_equal "exit"
+      _(traces[3]['Layer']).must_equal "rack"
+      _(traces[3]['Label']).must_equal "exit"
 
       # Validate the existence of the response header
-      r['X-Trace'].must_equal traces[3]['X-Trace']
+      _(r['X-Trace']).must_equal traces[3]['X-Trace']
     end
 
     it "should collect backtraces when true" do
@@ -446,39 +439,39 @@ if defined?(::Rails)
 
       traces = get_all_traces
 
-      traces.count.must_equal 6
+      _(traces.count).must_equal 6
       unless defined?(JRUBY_VERSION)
         # We don't test this under JRuby because the Java instrumentation
         # for the DB drivers doesn't use our test reporter hence we won't
         # see all trace events. :-(  To be improved.
-        valid_edges?(traces).must_equal true
+        _(valid_edges?(traces)).must_equal true
       end
       validate_outer_layers(traces, 'rack')
 
-      traces[0]['Layer'].must_equal "rack"
-      traces[0]['Label'].must_equal "entry"
-      traces[0]['URL'].must_equal "/hello/world"
+      _(traces[0]['Layer']).must_equal "rack"
+      _(traces[0]['Label']).must_equal "entry"
+      _(traces[0]['URL']).must_equal "/hello/world"
 
-      traces[1]['Layer'].must_equal "rails"
-      traces[1]['Label'].must_equal "entry"
-      traces[1]['Controller'].must_equal "HelloController"
-      traces[1]['Action'].must_equal "world"
-      traces[1].key?('Backtrace').must_equal true
+      _(traces[1]['Layer']).must_equal "rails"
+      _(traces[1]['Label']).must_equal "entry"
+      _(traces[1]['Controller']).must_equal "HelloController"
+      _(traces[1]['Action']).must_equal "world"
+      _(traces[1].key?('Backtrace')).must_equal true
 
-      traces[2]['Layer'].must_equal "actionview"
-      traces[2]['Label'].must_equal "entry"
+      _(traces[2]['Layer']).must_equal "actionview"
+      _(traces[2]['Label']).must_equal "entry"
 
-      traces[3]['Layer'].must_equal "actionview"
-      traces[3]['Label'].must_equal "exit"
+      _(traces[3]['Layer']).must_equal "actionview"
+      _(traces[3]['Label']).must_equal "exit"
 
-      traces[4]['Layer'].must_equal "rails"
-      traces[4]['Label'].must_equal "exit"
+      _(traces[4]['Layer']).must_equal "rails"
+      _(traces[4]['Label']).must_equal "exit"
 
-      traces[5]['Layer'].must_equal "rack"
-      traces[5]['Label'].must_equal "exit"
+      _(traces[5]['Layer']).must_equal "rack"
+      _(traces[5]['Label']).must_equal "exit"
 
       # Validate the existence of the response header
-      r['X-Trace'].must_equal traces[5]['X-Trace']
+      _(r['X-Trace']).must_equal traces[5]['X-Trace']
     end
 
     it "should NOT collect backtraces when false" do
@@ -489,39 +482,39 @@ if defined?(::Rails)
 
       traces = get_all_traces
 
-      traces.count.must_equal 6
+      _(traces.count).must_equal 6
       unless defined?(JRUBY_VERSION)
         # We don't test this under JRuby because the Java instrumentation
         # for the DB drivers doesn't use our test reporter hence we won't
         # see all trace events. :-(  To be improved.
-        valid_edges?(traces).must_equal true
+        _(valid_edges?(traces)).must_equal true
       end
       validate_outer_layers(traces, 'rack')
 
-      traces[0]['Layer'].must_equal "rack"
-      traces[0]['Label'].must_equal "entry"
-      traces[0]['URL'].must_equal "/hello/world"
+      _(traces[0]['Layer']).must_equal "rack"
+      _(traces[0]['Label']).must_equal "entry"
+      _(traces[0]['URL']).must_equal "/hello/world"
 
-      traces[1]['Layer'].must_equal "rails"
-      traces[1]['Label'].must_equal "entry"
-      traces[1]['Controller'].must_equal "HelloController"
-      traces[1]['Action'].must_equal "world"
-      traces[1].key?('Backtrace').must_equal false
+      _(traces[1]['Layer']).must_equal "rails"
+      _(traces[1]['Label']).must_equal "entry"
+      _(traces[1]['Controller']).must_equal "HelloController"
+      _(traces[1]['Action']).must_equal "world"
+      _(traces[1].key?('Backtrace')).must_equal false
 
-      traces[2]['Layer'].must_equal "actionview"
-      traces[2]['Label'].must_equal "entry"
+      _(traces[2]['Layer']).must_equal "actionview"
+      _(traces[2]['Label']).must_equal "entry"
 
-      traces[3]['Layer'].must_equal "actionview"
-      traces[3]['Label'].must_equal "exit"
+      _(traces[3]['Layer']).must_equal "actionview"
+      _(traces[3]['Label']).must_equal "exit"
 
-      traces[4]['Layer'].must_equal "rails"
-      traces[4]['Label'].must_equal "exit"
+      _(traces[4]['Layer']).must_equal "rails"
+      _(traces[4]['Label']).must_equal "exit"
 
-      traces[5]['Layer'].must_equal "rack"
-      traces[5]['Label'].must_equal "exit"
+      _(traces[5]['Layer']).must_equal "rack"
+      _(traces[5]['Label']).must_equal "exit"
 
       # Validate the existence of the response header
-      r['X-Trace'].must_equal traces[5]['X-Trace']
+      _(r['X-Trace']).must_equal traces[5]['X-Trace']
     end
 
     it "should NOT trace when tracing is set to :disabled" do
@@ -531,7 +524,7 @@ if defined?(::Rails)
         r = Net::HTTP.get_response(uri)
 
         traces = get_all_traces
-        traces.count.must_equal 0
+        _(traces.count).must_equal 0
       end
     end
 
@@ -542,20 +535,20 @@ if defined?(::Rails)
         r = Net::HTTP.get_response(uri)
 
         traces = get_all_traces
-        traces.count.must_equal 0
+        _(traces.count).must_equal 0
       end
     end
 
     it "should NOT trace when there is no context" do
       response_headers = HelloController.action("world").call(
-          "REQUEST_METHOD" => "GET",
-          "rack.input" => -> {}
+        "REQUEST_METHOD" => "GET",
+        "rack.input" => -> {}
       )[1]
 
-      response_headers['X-Trace'].must_be_nil
+      _(response_headers['X-Trace']).must_be_nil
 
       traces = get_all_traces
-      traces.count.must_equal 0
+      _(traces.count).must_equal 0
     end
 
     require_relative "rails_shared_tests"

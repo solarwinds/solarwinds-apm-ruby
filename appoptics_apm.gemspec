@@ -32,6 +32,9 @@ Automatic tracing and metrics for Ruby applications. Get started at appoptics.co
               'ext/oboe_metal/src/bson/bson.h',
               'ext/oboe_metal/src/bson/platform_hacks.h',
               'ext/oboe_metal/src/VERSION']
+  s.files -= ['build_gem.sh',
+              'build_gem_upload_to_packagecloud.sh',
+              'Rakefile']
 
   # TODO this is commented out util we can actually provide gems for different platforms
   # it will create a gem that goes into noop on Darwin and other unsupported platforms
