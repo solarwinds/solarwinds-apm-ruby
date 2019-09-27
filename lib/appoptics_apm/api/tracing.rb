@@ -48,6 +48,10 @@ module AppOpticsAPM
         [start_trace_with_target(span, xtrace, target, opts) { yield }, target['X-Trace']]
       end
 
+      def profile_method(*args)
+        AppOpticsAPM.logger.warn("DEPRECATED: AppOpticsAPM::API.profile_method is deprecated. Use: AppOpticsAPM::SDK::trace_method")
+        AppOpticsAPM::SDK.trace_method(*args)
+      end
     end
   end
 end

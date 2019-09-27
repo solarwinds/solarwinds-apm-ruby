@@ -46,12 +46,12 @@ module AppOpticsAPM
       end
       
       ##
-      # profile_curb_method
+      # trace_curb_method
       #
       # An agnostic method that will profile any Curl::Easy method (and optional args and block)
       # that you throw at it.
       #
-      def profile_curb_method(kvs, method, args, &block)
+      def trace_curb_method(kvs, method, args, &block)
         # If we're not tracing, just do a fast return.
         unless AppOpticsAPM.tracing?
           unless AppOpticsAPM::API.blacklisted?(URI(url).hostname)
@@ -129,7 +129,7 @@ module AppOpticsAPM
         kvs = {}
         kvs[:HTTPMethod] = :POST
 
-        profile_curb_method(kvs, :http_post_without_appoptics, args, &block)
+        trace_curb_method(kvs, :http_post_without_appoptics, args, &block)
       end
 
       ##
@@ -149,7 +149,7 @@ module AppOpticsAPM
         kvs = {}
         kvs[:HTTPMethod] = :PUT
 
-        profile_curb_method(kvs, :http_put_without_appoptics, args, &block)
+        trace_curb_method(kvs, :http_put_without_appoptics, args, &block)
       end
 
       ##
@@ -178,7 +178,7 @@ module AppOpticsAPM
           kvs[:HTTPMethod] = :GET
         end
 
-        profile_curb_method(kvs, :perform_without_appoptics, nil, &block)
+        trace_curb_method(kvs, :perform_without_appoptics, nil, &block)
       end
 
       ##
@@ -198,7 +198,7 @@ module AppOpticsAPM
         kvs = {}
         kvs[:HTTPMethod] = verb
 
-        profile_curb_method(kvs, :http_without_appoptics, [verb], &block)
+        trace_curb_method(kvs, :http_without_appoptics, [verb], &block)
       end
     end
 

@@ -10,7 +10,18 @@ require "action_controller/railtie" # require more if needed
 require 'rack/handler/puma'
 require File.expand_path(File.dirname(__FILE__) + '/../models/widget')
 
+class ApplicationController < ActionController::Base
+  before_action :set_view_path
+
+  private
+
+  def set_view_path
+    prepend_view_path "#{File.dirname(__FILE__)}/app/views/"
+  end
+end
+
 AppOpticsAPM.logger.info "[appoptics_apm/info] Starting background utility rails app on localhost:8140."
+
 if ENV['DBTYPE'] == 'mysql2'
   AppOpticsAPM::Test.set_mysql2_env
 elsif ENV['DBTYPE'] =~ /postgres/
@@ -30,12 +41,15 @@ end
 class Rails50MetalStack < Rails::Application
   routes.append do
     get "/hello/world"       => "hello#world"
+    get "/hello/with_partial" => "hello#with_partial"
     get "/hello/:id/show"    => "hello#show"
     get "/hello/metal"       => "ferro#world"
     get "/hello/db"          => "hello#db"
     get "/hello/error"       => "hello#error"
     get "/hello/servererror" => "hello#servererror"
 
+    get "/widgets"          => "widgets#all"
+    get "/widgets/delete_all" => "widgets#delete_all"
     post "/widgets"          => "widgets#create"
     get "/widgets/:id"       => "widgets#show"
     put "/widgets/:id"       => "widgets#update"
@@ -52,9 +66,6 @@ class Rails50MetalStack < Rails::Application
   config.active_record.sqlite3 = {} # deal with https://github.com/rails/rails/issues/37048
 end
 
-class ApplicationController < ActionController::Base
-end
-
 #################################################
 #  Controllers
 #################################################
@@ -66,6 +77,10 @@ class HelloController < ApplicationController
 
   def show
     render :plain => "Hello Number #{params[:id]}"
+  end
+
+  def with_partial
+    render partial: "somepartial"
   end
 
   def db
@@ -91,6 +106,18 @@ end
 
 class WidgetsController < ApplicationController
   protect_from_forgery with: :null_session
+
+  def self.controller_path
+    "hello" # change path from app/views/user_posts to app/views/posts
+  end
+
+  def all
+    Widget.new(:name => 'This one', :description => 'This is an amazing widget.').save
+    Widget.new(:name => 'This two', :description => 'This is an amazing widget.').save
+    Widget.new(:name => 'This three', :description => 'This is an amazing widget.').save
+    @widgets = Widget.all
+    render partial: "widget", collection: @widgets
+  end
 
   def show
     if widget = Widget.find(params[:id].to_i)
@@ -125,6 +152,11 @@ class WidgetsController < ApplicationController
     end
   end
 
+  def delete_all
+    Widget.delete_all
+    render plain: 'All widgets destroyed'
+  end
+
   private
 
   def widget_params
@@ -141,7 +173,7 @@ class FerroController < ActionController::Metal
   end
 end
 
-AppOpticsAPM::API.profile_method(FerroController, :world)
+AppOpticsAPM::SDK.trace_method(FerroController, :world)
 
 Rails50MetalStack.initialize!
 
