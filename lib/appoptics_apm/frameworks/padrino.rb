@@ -18,7 +18,7 @@ module AppOpticsAPM
         # Report Controller/Action and Transaction as best possible
         controller = (request.controller && !request.controller.empty?) ? request.controller : nil
         report_kvs[:Controller] = controller || self.class
-        report_kvs[:Action] = request.route_obj ? request.route_obj.path : request.action
+        report_kvs[:Action] = request.action
         env['appoptics_apm.controller'] = report_kvs[:Controller]
         env['appoptics_apm.action']     = report_kvs[:Action]
 
@@ -45,14 +45,6 @@ module AppOpticsAPM
 
           report_kvs[:engine] = engine
           report_kvs[:template] = data
-
-          begin
-            report_kvs[:File]         = __FILE__
-            report_kvs[:LineNumber]   = __LINE__
-          rescue StandardError => e
-            AppOpticsAPM.logger.debug "[appoptics_apm/padrino] #{e.message}"
-            AppOpticsAPM.logger.debug e.backtrace.join(', ')
-          end
 
           AppOpticsAPM::SDK.trace(:padrino_render, report_kvs, :padrino_render) do
             report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:padrino][:collect_backtraces]
