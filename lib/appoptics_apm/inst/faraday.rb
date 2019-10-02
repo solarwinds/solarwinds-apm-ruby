@@ -37,7 +37,15 @@ module AppOpticsAPM
             AppOpticsAPM::XTrace.continue_service_context(xtrace, xtrace_new)
           end
           kvs = {}
-          kvs[:Middleware] = @builder.handlers
+
+          # this seems the safer condition than trying to identify the
+          # faraday version when adapter started to work without arg
+          # and handlers don't include the adapter anymore
+          if @builder.method(:adapter).parameters.find { |ele| ele[0] == :req }
+            kvs[:Middleware] = @builder.handlers
+          else
+            kvs[:Middleware] = [@builder.adapter] + @builder.handlers
+          end
           kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:faraday][:collect_backtraces]
 
           # Only send service KVs if we're not using an adapter
@@ -68,16 +76,20 @@ module AppOpticsAPM
 
       # This is only considered a remote service call if the middleware/adapter is not instrumented
       def remote_call?
-        (@builder.handlers.map(&:name) & APPOPTICS_INSTR_ADAPTERS).count == 0
+        if @builder.method(:adapter).parameters.find { |ele| ele[0] == :req }
+          (@builder.handlers.map(&:name) & APPOPTICS_INSTR_ADAPTERS).count == 0
+        else
+          ((@builder.handlers.map(&:name) << @builder.adapter.name) & APPOPTICS_INSTR_ADAPTERS).count == 0
+        end
       end
 
-      def rsc_kvs(url, method, result)
+      def rsc_kvs(_url, method, result)
         kvs = { :Spec => 'rsc',
                 :IsService => 1,
                 :HTTPMethod => method.upcase,
                 :HTTPStatus => result.status, }
         kvs[:Blacklisted] = true if url_blacklisted?
-        kvs[:RemoteURL] = result.to_hash[:url].to_s
+        kvs[:RemoteURL] = result.env.to_hash[:url].to_s
         kvs[:RemoteURL].split('?').first unless AppOpticsAPM::Config[:faraday][:log_args]
 
         kvs

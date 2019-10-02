@@ -97,16 +97,16 @@ module AppOpticsAPM
       # +finish+ is the context returned to us (as an HTTP response header
       # if that be the case)
       #
-      def continue_service_context(start, finish)
-        if AppOpticsAPM::XTrace.valid?(finish) && AppOpticsAPM.tracing?
+      def continue_service_context(start_xtrace, end_xtrace)
+        if AppOpticsAPM::XTrace.valid?(end_xtrace) && AppOpticsAPM.tracing?
 
-          # Assure that we received back a valid X-Trace with the same task_id
+          # Make sure that we received back a valid X-Trace with the same task_id
           # and the sampling bit is set, otherwise it is a response from a non-sampling service
-          if AppOpticsAPM::XTrace.task_id(start) == AppOpticsAPM::XTrace.task_id(finish) &&
-            AppOpticsAPM::XTrace.sampled?(finish)
-            AppOpticsAPM::Context.fromString(finish)
+          if AppOpticsAPM::XTrace.task_id(start_xtrace) == AppOpticsAPM::XTrace.task_id(end_xtrace) &&
+            AppOpticsAPM::XTrace.sampled?(end_xtrace)
+            AppOpticsAPM::Context.fromString(end_xtrace)
           else
-            AppOpticsAPM.logger.debug "[XTrace] Sampling flag unset or mismatched start and finish ids:\n#{start}\n#{finish}"
+            AppOpticsAPM.logger.debug "[XTrace] Sampling flag unset or mismatched start and finish ids:\n#{start_xtrace}\n#{end_xtrace}"
           end
         end
       end

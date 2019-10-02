@@ -219,7 +219,7 @@ end
 # since we won't have those remote traces to validate
 # against.
 #
-# The param connected can be set to false if there are undisconnected traces
+# The param connected can be set to false if there are disconnected traces
 #
 def valid_edges?(traces, connected = true)
   return true unless traces.is_a?(Array) && traces.count > 1 # so that in case the traces are sent to the collector, tests will fail but not barf
