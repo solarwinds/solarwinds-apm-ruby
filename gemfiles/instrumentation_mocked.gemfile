@@ -14,7 +14,7 @@ group :development, :test do
   gem 'mocha'
 end
 
-gem 'curb', '0.9.7' # temporarily freeze version, TODO find fix for 0.9.8
+gem 'curb'
 gem 'excon'
 gem 'faraday'
 gem 'httpclient'
