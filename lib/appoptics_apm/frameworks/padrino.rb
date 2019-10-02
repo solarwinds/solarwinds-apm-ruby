@@ -18,7 +18,7 @@ module AppOpticsAPM
         # Report Controller/Action and Transaction as best possible
         controller = (request.controller && !request.controller.empty?) ? request.controller : nil
         report_kvs[:Controller] = controller || self.class
-        report_kvs[:Action] = request.action
+        report_kvs[:Action] = request.route_obj ? request.route_obj.path : request.action
         env['appoptics_apm.controller'] = report_kvs[:Controller]
         env['appoptics_apm.action']     = report_kvs[:Action]
 
