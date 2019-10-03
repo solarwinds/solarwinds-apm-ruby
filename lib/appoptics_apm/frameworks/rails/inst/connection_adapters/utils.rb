@@ -29,7 +29,7 @@ module AppOpticsAPM
             case adapter_name
             when /mysql/i
               opts[:Flavor] = 'mysql'
-            when /postgres|postgis/i
+            when /^postgres|^postgis/i
               opts[:Flavor] = 'postgresql'
             end
           end
