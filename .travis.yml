@@ -33,18 +33,22 @@ matrix:
   exclude:
     - rvm: ruby-head
       gemfile: gemfiles/rails42.gemfile
+    - rvm: 2.7.0-preview1
+      gemfile: gemfiles/rails42.gemfile
     - rvm: 2.6.4
       gemfile: gemfiles/rails42.gemfile
     - rvm: 2.4.5
       gemfile: gemfiles/rails60.gemfile
 
+    - rvm: ruby-head
+      env: DBTYPE=mysql
+    - rvm: 2.7.0-preview1
+      env: DBTYPE=mysql
     - rmv: 2.6.4
       env: DBTYPE=mysql
     - rvm: 2.5.5
       env: DBTYPE=mysql
     - rvm: 2.4.5
-      env: DBTYPE=mysql
-    - rvm: ruby-head
       env: DBTYPE=mysql
 
     - gemfile: gemfiles/unit.gemfile
