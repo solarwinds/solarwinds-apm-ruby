@@ -46,14 +46,6 @@ module AppOpticsAPM
           report_kvs[:engine] = engine
           report_kvs[:template] = data
 
-          begin
-            report_kvs[:File]         = __FILE__
-            report_kvs[:LineNumber]   = __LINE__
-          rescue StandardError => e
-            AppOpticsAPM.logger.debug "[appoptics_apm/padrino] #{e.message}"
-            AppOpticsAPM.logger.debug e.backtrace.join(', ')
-          end
-
           AppOpticsAPM::SDK.trace(:padrino_render, report_kvs, :padrino_render) do
             report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:padrino][:collect_backtraces]
             render_without_appoptics(engine, data, options, locals, &block)

@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
+gem 'rake'
 
 group :development, :test do
-  gem 'rake'
   gem 'minitest'
   gem 'minitest-reporters', '< 1.0.18'
   gem 'minitest-debugger', :require => false
@@ -18,12 +18,12 @@ group :development, :test do
   gem 'byebug'
   gem 'get_process_mem'
   gem 'memory_profiler'
-end
 
-if defined?(JRUBY_VERSION)
-  gem 'sinatra', :require => false
-else
-  gem 'sinatra'
+  if defined?(JRUBY_VERSION)
+    gem 'sinatra', :require => false
+  else
+    gem 'sinatra'
+  end
 end
 
 gemspec
