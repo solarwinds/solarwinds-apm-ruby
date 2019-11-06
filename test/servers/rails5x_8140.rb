@@ -4,9 +4,8 @@
 
 #  This is a Rails stack that launches on a background
 #  thread and listens on port 8140.
-#
-require "rails/all"
-require "action_controller/railtie" # require more if needed
+
+require "action_controller" # require more rails if needed
 require 'rack/handler/puma'
 require File.expand_path(File.dirname(__FILE__) + '/../models/widget')
 
@@ -63,7 +62,8 @@ class Rails50MetalStack < Rails::Application
   config.middleware.delete ActionDispatch::Flash
   config.secret_token = "49837489qkuweoiuoqwehisuakshdjksadhaisdy78o34y138974xyqp9rmye8yrpiokeuioqwzyoiuxftoyqiuxrhm3iou1hrzmjk"
   config.secret_key_base = "2048671-96803948"
-  config.active_record.sqlite3 = {} # deal with https://github.com/rails/rails/issues/37048
+  # config.active_record.sqlite3 = {} # deal with https://github.com/rails/rails/issues/37048
+  config.assets.enabled = false
 end
 
 #################################################
