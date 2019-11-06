@@ -21,37 +21,14 @@
 
 #include <sys/time.h>
 
+#define PROFILE_BUFF_LEN 2048
+
 long long current_timestamp() {
     struct timeval te; 
     gettimeofday(&te, NULL); // get current time
     long long milliseconds = te.tv_sec*1000LL + te.tv_usec/1000; // calculate milliseconds
-    // printf("milliseconds: %lld\n", milliseconds);
     return milliseconds;
 }
-
-// #include "../ruby_headers/vm_core.h"
-// NOT working, compile errors
-
-// #if defined HAVE_UINTPTR_T && 0
-// typedef uintptr_t VALUE;
-// #elif SIZEOF_LONG == SIZEOF_VOIDP
-// typedef unsigned long VALUE;
-// #elif SIZEOF_LONG_LONG == SIZEOF_VOIDP
-// typedef unsigned LONG_LONG VALUE;
-// #else
-// # error ---->> ruby requires sizeof(void*) == sizeof(long) or sizeof(LONG_LONG) to be compiled. <<----
-// #endif
-//
-// #ifdef __cplusplus
-// extern "C"
-// #else
-// extern
-// #endif
-// {
-//  VALUE rb_thread_backtrace_m(int argc, VALUE *argv, VALUE thval);
-// }
-// NOT working can't find symbol for rb_thread_backtrace_m 
-
 
 class Event;
 class Reporter;
@@ -655,10 +632,17 @@ Event *Event::startTrace(const oboe_metadata_t *md) {
     return new Event(md, false);
 }
 
-static struct {
-    VALUE buff[2048];
-    int lines[2048];
-} _stack;
+struct Backtrace {
+    VALUE buff[PROFILE_BUFF_LEN];
+    int lines[PROFILE_BUFF_LEN];
+};
+
+struct Frame {
+    std::string klass;
+    std::string method;
+    std::string path;
+    int lineno;
+};
 
 class Reporter : private oboe_reporter_t {
     friend class Context;   // Access to the private oboe_reporter_t base structure.
@@ -756,130 +740,74 @@ public:
         return oboe_event_send(OBOE_SEND_STATUS, evt, md) >= 0;
     }
 
-    void profile_thread() {
-        
+    // sampling interval in milliseconds
+    void profile_thread(long interval) {
         pthread_t t;
-        pthread_create(&t, NULL, profiling, NULL);
-
- 
-        // VALUE x;
-        // x = rb_str_new_cstr("Hello, world!");
-        std::cout << "going to sleep" << std::endl;
-        usleep(5000);
+        pthread_create(&t, NULL, profiling, (void *)interval);
     }
 
-    static void sample_frames() {
-        // std::cout << "in sample_frames" << std::endl;
-        while (rb_during_gc()) {
-            std::cout << "ruby gc ... ";
-            usleep(10);
-        }
-        
-        int num = rb_profile_frames(0, sizeof(_stack.buff)/sizeof(VALUE), _stack.buff, _stack.lines);
-        for (int i = 0; i < num-1; i++) {
-            VALUE path = rb_profile_frame_absolute_path(_stack.buff[i]);  // USE for path
-            // VALUE frame = rb_profile_frame_path(_stack.buff[i]);   // don't know yet
-            // VALUE abs_path = rb_profile_frame_absolute_path(_stack.buff[i]); // don't know yet
-            // VALUE label = rb_profile_frame_label(_stack.buff[i]);        // Maybe use
-            // VALUE base_label = rb_profile_frame_base_label(_stack.buff[i]); // don't know yet
-            // VALUE full_label = rb_profile_frame_full_label(_stack.buff[i]); // don't know yet
-            // VALUE lineno = rb_profile_frame_first_lineno(_stack.buff[i]); // hopefully USE 
-            VALUE classpath = rb_profile_frame_classpath(_stack.buff[i]); // don't know yet
-            // VALUE class_method_p= rb_profile_frame_singleton_method_p(_stack.buff[i]); // don't know yet
-            VALUE method = rb_profile_frame_method_name(_stack.buff[i]); // don't know yet 
-            // VALUE method_name = rb_profile_frame_qualified_method_name(_stack.buff[i]); // don't know yet
-
-            std::cout << std::endl << i << ":" << std::endl;
-            if (RB_TYPE_P(path, T_STRING)) std::cout << StringValuePtr(path);
-            std::cout << std::endl;
-            // if (RB_TYPE_P(frame, T_STRING)) std::cout << StringValuePtr(frame);
-            // std::cout << std::endl;
-            // if (RB_TYPE_P(abs_path, T_STRING)) std::cout << StringValuePtr(abs_path);
-            // std::cout << std::endl;
-            // if (RB_TYPE_P(label, T_STRING)) std::cout << StringValuePtr(label);
-            // std::cout << std::endl;
-            // if (RB_TYPE_P(base_label, T_STRING)) std::cout << StringValuePtr(base_label);
-            // std::cout << std::endl;
-            // if (RB_TYPE_P(full_label, T_STRING)) std::cout << StringValuePtr(full_label);
-            // std::cout << std::endl;
-            // if (RB_TYPE_P(lineno, T_FIXNUM)) std::cout << FIX2LONG(lineno);
-            std::cout << _stack.lines[i] << std::endl; 
-            if (RB_TYPE_P(classpath, T_STRING)) std::cout << StringValuePtr(classpath);
-            // else std::cout << TYPE(classpath);  // 17 = nil
-            std::cout << std::endl;
-            // if (RB_TYPE_P(class_method_p, T_STRING)) std::cout << StringValuePtr(class_method_p);
-            // else std::cout << TYPE(class_method_p); // 19 = false 
-            // std::cout << std::endl;
-            if (RB_TYPE_P(method, T_STRING)) std::cout << StringValuePtr(method);
-            // else std::cout << TYPE(method); // 17 = nil
-            std::cout << std::endl;
-            // if (RB_TYPE_P(method_name, T_STRING)) std::cout << StringValuePtr(method_name);
-            // else std::cout << TYPE(method_name); // 17 = nil
-            
-            // std::cout << StringValuePtr(method) << num << std::endl;
-        }
-
-        // VALUE frame = _stack.buff[0];
-        // type of frame is T_IMEMO / RBU_T_IMEMO 
-
-        // VALUE x;
-        // x = rb_str_new_cstr("\nHello, world!");
-        std::cout << std::endl << "Num Lines " << num << std::endl;
-
-        // if (RB_TYPE_P(frame, T_STRING)) {
-            // std::cout << "it's a string" << std::endl;
-        // }
-
-        // std::cout << StringValuePtr(frame) << std::endl;
-    }
-    
-
-    static void *profiling(void *) {
-        std::cout << "in profiling" << std::endl;
-        // int sig = 29;
-        // std::signal(sig, sample_frames);
+    static void *profiling(void *interval) {
+        int num;
+        long tid;
 
         for (;;) {
-            usleep(20000);
-            sample_frames();
-            std::cout << current_timestamp() << std::endl;
+            Frame snapshot[PROFILE_BUFF_LEN], prev_snapshot[PROFILE_BUFF_LEN];
+            long long start = current_timestamp();
+            std::cout << start%10000 << std::endl;
+            
+            num = sample_frames(snapshot, tid);
+            // TODO: process snapshot  ... compare, save, send
+
+            int duration = (long)interval - (current_timestamp() - start);
+            if (duration > 0) usleep(duration * 1000);
+            std::cout << duration << ' ' << num << ' ' << tid << std::endl;
+            for(int i = 0; i < num; i++) {
+                std::cout << snapshot[i].path << ':' << snapshot[i].lineno << ' ' << snapshot[i].klass << "::" << snapshot[i].method << std::endl;
+            }
         }
-        std::cout << "done" << std::endl;
-                // rb_thread_backtrace_m(1, NULL, 1);
-                // get ruby thread(s)
-                // run loop every x milliseconds
-                //    capture backtrace
-                //    print (some) backtrace
+        return NULL;
+    }
 
-                // loop do prev = [] omitted =
-                //     [] if @queue.pop == 'go' send_start started =
-                //         true while @queue.empty
-                //     ? do start = Time.now puts "#{start.nsec/1000}" backtrace
-                //     =
-                //           @parent.backtrace #.reject{
-                //               | entry | entry = ~ /`block(\(\d + levels\))
-                //               ? in / } omitted = send_snapshot(backtrace,
-                //               prev, omitted,
-                //                                                start) prev =
-                //                                                backtrace
+    static int sample_frames(Frame *snapshot, long &tid) {
+        while (rb_during_gc()) { usleep(100); }
 
-                //                     sleep_secs =
-                //                         @interval -
-                //                             (Time.now - start)
-                //                                 .to_f
-                //                                 Oboe_metal::Reporter.msSleep(
-                //                                     (sleep_secs * 1000)
-                //                                         .to_i) if sleep_secs
-                //                                         >
-                //                         0 end if started omitted =
-                //                             send_end(omitted) started =
-                //                                 false end @queue.pop
-                //                                 @response_queue
-                //                                 << 'done' end end ensure
-                //                                 send_end(
-                //                                        omitted) if @started
-                //                                        end
-                return NULL;
+        // static VALUE buff[PROFILE_BUFF_LEN];
+        // static int lines[PROFILE_BUFF_LEN];
+        int num = 0;
+
+        try {
+            rb_gc_disable();
+            VALUE buff[PROFILE_BUFF_LEN];
+            int lines[PROFILE_BUFF_LEN];
+            VALUE id, path, klass, method;
+
+            id = rb_obj_id(rb_thread_current());
+            if (RB_TYPE_P(id, T_FIXNUM)) tid = FIX2LONG(id)%100000000;
+
+            // for some unclear reason num needs to be reduced by 1
+            num = rb_profile_frames(0, sizeof(buff) / sizeof(VALUE), buff, lines) - 1;
+            for (int i = 0; i < num; i++) {
+                path = rb_profile_frame_absolute_path(buff[i]); 
+                klass = rb_profile_frame_classpath(buff[i]);
+                method = rb_profile_frame_method_name(buff[i]);
+
+                snapshot[i].path = (RB_TYPE_P(path, T_STRING)) ? StringValuePtr(path) : (char *)"";
+                snapshot[i].lineno = lines[i];
+                snapshot[i].klass = (RB_TYPE_P(klass, T_STRING)) ? StringValuePtr(klass) : (char *)"";
+                snapshot[i].method =  (RB_TYPE_P(method, T_STRING)) ? StringValuePtr(method) : (char *)"";
+            }
+
+            rb_gc_enable();
+        }
+        catch (int e) {
+            rb_gc_enable();
+            OBOE_DEBUG_LOG_WARNING(OBOE_MODULE_LIBOBOE, "[appoptics_apm/profiling] An exception was caught with value %d", e);
+        } 
+        catch (const std::exception &e) {
+            rb_gc_enable();
+            OBOE_DEBUG_LOG_WARNING(OBOE_MODULE_LIBOBOE, "[appoptics_apm/profiling] An exception was caught: %s", e.what());
+        }
+        return num;
     }
 };
 
@@ -1024,8 +952,7 @@ public:
      * @param level Diagnostic detail level of this message - used to control logging volume by detail level.
      * @param source_name Name of the source file, if available, or another useful name, or NULL.
      * @param source_lineno Number of the line in the source file where message is logged from, if available, or zero.
-     * @param format A C language printf format specification string.
-     * @param args A variable argument list in VA_ARG format containing arguments for each argument specifier in the format.
+     * @param msg The message to be logged.
      */
     static void logMessage(int module, int level, const char *source_name, int source_lineno, const char *msg) {
         oboe_debug_logger(module, level, source_name, source_lineno, "%s", msg);
