@@ -45,7 +45,7 @@ matrix:
       env: DBTYPE=mysql
     - rvm: 2.7.0-preview1
       env: DBTYPE=mysql
-    - rmv: 2.6.4
+    - rvm: 2.6.4
       env: DBTYPE=mysql
     - rvm: 2.5.5
       env: DBTYPE=mysql
