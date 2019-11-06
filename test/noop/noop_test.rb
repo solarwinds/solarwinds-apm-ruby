@@ -187,5 +187,13 @@ class NoopTest < Minitest::Test
     assert trace.for_log, 'it should create a log string when in noop'
     assert_equal '', trace.for_log
   end
+
+  def test_increment_metrics_doesnt_barf
+    AppOpticsAPM::SDK.increment_metric('dont_barf')
+  end
+
+  def test_summary_metrics_doesnt_barf
+    AppOpticsAPM::SDK.summary_metric('dont_barf', 5)
+  end
 end
 
