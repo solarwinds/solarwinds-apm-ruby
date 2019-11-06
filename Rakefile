@@ -60,15 +60,15 @@ Rake::TestTask.new do |t|
 
   if defined?(JRUBY_VERSION)
     t.ruby_opts << ['-J-javaagent:/usr/local/tracelytics/tracelyticsagent.jar']
-    end
+  end
 end
 
 
 desc 'Run all test suites defined by travis'
 task 'docker_tests' do
-  Dir.chdir('test/run_tests')
-  exec('docker-compose run ruby_appoptics /code/ruby-appoptics/test/run_tests/ruby_setup.sh test --remove-orphans')
-end
+    Dir.chdir('test/run_tests')
+    exec('docker-compose run ruby_appoptics /code/ruby-appoptics/test/run_tests/ruby_setup.sh test --remove-orphans')
+  end
 
 desc 'Start docker container for testing and debugging'
 task 'docker' do
@@ -84,13 +84,13 @@ end
 
 desc 'Fetch extension dependency files'
 task :fetch_ext_deps do
-    swig_version = %x{swig -version} rescue ''
+  swig_version = %x{swig -version} rescue ''
   swig_version = swig_version.scan(/swig version [34].0.\d*/i)
   if swig_version.empty?
-      $stderr.puts '== ERROR ================================================================='
-      $stderr.puts "Could not find required swig version >3.0.8, found #{swig_version.inspect}"
-      $stderr.puts 'Please install swig "~ 3.0.12" and try again.'
-      $stderr.puts '=========================================================================='
+    $stderr.puts '== ERROR ================================================================='
+    $stderr.puts "Could not find required swig version >3.0.8, found #{swig_version.inspect}"
+    $stderr.puts 'Please install swig "~ 3.0.12" and try again.'
+    $stderr.puts '=========================================================================='
     raise
   end
 
@@ -111,8 +111,16 @@ task :fetch_ext_deps do
 
   # oboe and bson header files
   FileUtils.mkdir_p(File.join(ext_src_dir, 'bson'))
-    %w(oboe.h oboe.hpp oboe_debug.h oboe.i bson/bson.h bson/platform_hacks.h).each do |filename|
-    # %w(oboe.h oboe_debug.h bson/bson.h bson/platform_hacks.h).each do |filename|
+  files = %w(oboe.h oboe_debug.h oboe.i bson/bson.h bson/platform_hacks.h)
+
+  if ENV['OBOE_HPP_WIP']
+    wip_src_dir = File.expand_path('ext/oboe_metal/src_wip')
+    FileUtils.ln_s(File.join(wip_src_dir, 'oboe.hpp'), ext_src_dir, force: true)
+  else
+    files << 'oboe.hpp' unless ENV['OBOE_HPP_WIP']
+  end
+
+  files.each do |filename|
     remote_file = File.join(oboe_s3_dir, 'include', filename)
     local_file = File.join(ext_src_dir, filename)
 
@@ -129,7 +137,7 @@ task :fetch_ext_deps do
   end
 end
 
-  task :fetch => :fetch_ext_deps
+task :fetch => :fetch_ext_deps
 
 desc "Build the gem's c extension"
 task :compile do

@@ -57,5 +57,9 @@ else
   gem 'pg'
 end
 
+
+gem 'fiddle'
+gem 'gdb'
+
 gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')
 # vim:syntax=ruby
