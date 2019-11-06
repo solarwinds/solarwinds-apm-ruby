@@ -30,3 +30,6 @@ gemfiles/vendor*
 scrap*
 .irbrc
 *.code-workspace
+/.irb_history
+/tt.rb
+/.bundle/config
