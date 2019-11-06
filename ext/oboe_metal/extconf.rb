@@ -107,6 +107,10 @@ if success
     $LIBS << " #{ENV['LIBS']}"
     $LDFLAGS << " #{ENV['LDFLAGS']} '-Wl,-rpath=$$ORIGIN/../ext/oboe_metal/lib'"
 
+    # TODO include debug info
+    # CONFIG["debugflags"] = "-ggdb3"
+    # CONFIG["optflags"] = "-O0"
+
     create_makefile('oboe_metal', 'src')
 
   else

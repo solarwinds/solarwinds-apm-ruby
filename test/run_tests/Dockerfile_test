@@ -11,21 +11,22 @@ RUN apt-get update \
        build-essential \
        apt-utils \
        curl \
+       gdb \
        git-core \
+       less \
+       libcurl4-gnutls-dev \
+       libmysqlclient-dev \
        libpcre3-dev \
+       libpq-dev \
        libreadline-dev \
        libsasl2-dev \
        libssl-dev \
        openjdk-8-jdk \
-       zlib1g-dev \
-       libcurl4-gnutls-dev \
-       libmysqlclient-dev \
-       libpq-dev \
-       vim \
-       less \
+       psmisc \
        tcl \
        tree \
-       psmisc \
+       vim \
+       zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # rbenv setup
