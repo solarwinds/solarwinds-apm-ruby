@@ -32,6 +32,7 @@ module AppOpticsAPM
       # * true on success, false on failure
       #
       def increment_metric(name, count = 1, with_hostname = false, tags_kvs = {})
+        return true unless AppOpticsAPM.loaded
         with_hostname = with_hostname ? 1 : 0
         tags, tags_count = make_tags(tags_kvs)
         AppOpticsAPM::CustomMetrics.increment(name.to_s, count, with_hostname, nil, tags, tags_count) == 1
@@ -64,6 +65,7 @@ module AppOpticsAPM
       # * true on success, false on failure
       #
       def summary_metric(name, value, count = 1, with_hostname = false, tags_kvs = {})
+        return true unless AppOpticsAPM.loaded
         with_hostname = with_hostname ? 1 : 0
         tags, tags_count = make_tags(tags_kvs)
         AppOpticsAPM::CustomMetrics.summary(name.to_s, value, count, with_hostname, nil, tags, tags_count) == 1
