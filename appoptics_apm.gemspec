@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.version = AppOpticsAPM::Version::STRING
   s.date = Time.now.strftime('%Y-%m-%d')
 
-  s.license = "SEE LICENSE IN http://docs.traceview.solarwinds.com/Instrumentation/librato-open-license.html"
+  s.license = "Librato Open License, Version 1.0, https://bit.ly/2Kmm0mN"
 
   s.authors = ["Maia Engeli", "Peter Giacomo Lombardo", "Spiros Eliopoulos"]
   s.email = %q{support@appoptics.com}
