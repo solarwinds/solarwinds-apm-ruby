@@ -54,6 +54,7 @@ Automatic tracing and metrics for Ruby applications. Get started at appoptics.co
   unless defined?(JRUBY_VERSION)
     s.add_development_dependency('byebug', '>= 8.0.0')
     s.add_development_dependency('minitest-hooks', '>= 1.5.0')
+    s.add_development_dependency('minitest-focus', '>=1.1.2')
     s.add_development_dependency('benchmark-ips', '>= 2.7.2')
   end
 
