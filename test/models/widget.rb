@@ -3,8 +3,7 @@
 # Padrino for now.
 
 # this is a stupid solution for not having any assets
-`mkdir -p app/assets/config && echo '{}' > app/assets/config/manifest.js`
-require 'active_record'
+
 unless defined?(Padrino)
   class Widget < ActiveRecord::Base
     def do_work(*args)
