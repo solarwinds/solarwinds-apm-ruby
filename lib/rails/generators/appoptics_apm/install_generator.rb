@@ -20,26 +20,28 @@ module AppOpticsAPM
 
     private
 
-      def print_header
-        say ""
-        say shell.set_color "Welcome to the AppOpticsAPM Ruby instrumentation setup.", :green, :bold
-        say ""
-        say shell.set_color "Documentation Links", :magenta
-        say "-------------------"
-        say ""
-        say "AppOpticsAPM Installation Overview:"
-        say "http://docs.appoptics.solarwinds.com/AppOpticsAPM/install-instrumentation.html"
-        say ""
-        say "More information on instrumenting Ruby applications can be found here:"
-        say "http://docs.appoptics.solarwinds.com/Instrumentation/ruby.html#installing-ruby-instrumentation"
-      end
+    # rubocop:disable Metrics/MethodLength
+    def print_header
+      say ""
+      say shell.set_color "Welcome to the AppOpticsAPM Ruby instrumentation setup.", :green, :bold
+      say ""
+      say shell.set_color "Documentation Links", :magenta
+      say "-------------------"
+      say ""
+      say "AppOpticsAPM Installation Overview:"
+      say "http://docs.appoptics.solarwinds.com/AppOpticsAPM/install-instrumentation.html"
+      say ""
+      say "More information on instrumenting Ruby applications can be found here:"
+      say "http://docs.appoptics.solarwinds.com/Instrumentation/ruby.html#installing-ruby-instrumentation"
+    end
+    # rubocop:enable Metrics/MethodLength
 
-      def print_footer
-        say ""
-        say "You can change configuration values in the future by modifying config/initializers/appoptics_apm.rb"
-        say ""
-        say "Thanks! Creating the AppOpticsAPM initializer..."
-        say ""
-      end
+    def print_footer
+      say ""
+      say "You can change configuration values in the future by modifying config/initializers/appoptics_apm.rb"
+      say ""
+      say "Thanks! Creating the AppOpticsAPM initializer..."
+      say ""
+    end
   end
 end

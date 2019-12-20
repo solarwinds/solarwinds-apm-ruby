@@ -55,7 +55,7 @@ module AppOpticsAPM
       # ==== Arguments
       #
       # * +layer+ - The layer the reported event belongs to
-      # * +exception+ - The exception to report
+      # * +exception+ - The exception to report, responds to :message and :backtrace(optional)
       # * +opts+ - Custom params if you want to log extra information
       #
       # ==== Example
@@ -80,7 +80,10 @@ module AppOpticsAPM
         opts.merge!(:Spec => 'error',
                     :ErrorClass => exception.class.name,
                     :ErrorMsg => exception.message)
-        opts.merge!(:Backtrace => exception.backtrace.join("\r\n")) if exception.backtrace
+
+        if exception.respond_to?(:backtrace) && exception.backtrace
+          opts.merge!(:Backtrace => exception.backtrace.join("\r\n"))
+        end
 
         exception.instance_variable_set(:@exn_logged, true)
         log(layer, :error, opts)
@@ -205,6 +208,7 @@ module AppOpticsAPM
       def log_info(layer, opts = {})
         return AppOpticsAPM::Context.toString unless AppOpticsAPM.tracing?
 
+        opts[:Spec] = 'info'
         log_event(layer, :info, AppOpticsAPM::Context.createEvent, opts)
       end
 

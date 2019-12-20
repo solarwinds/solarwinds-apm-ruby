@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
@@ -20,7 +22,7 @@ ao_include = File.join(ext_dir, 'src')
 version = File.read(File.join(ao_include, 'VERSION')).chomp
 if ENV['APPOPTICS_FROM_S3'].to_s.downcase == 'true'
   ao_path = File.join('https://s3-us-west-2.amazonaws.com/rc-files-t2/c-lib/', version)
-  puts "Fetching c-lib from S3"
+  puts 'Fetching c-lib from S3'
 else
   ao_path = File.join('https://files.appoptics.com/c-lib', version)
 end
@@ -29,7 +31,7 @@ ao_arch = 'x86_64'
 if File.exist?('/etc/alpine-release')
   version = open('/etc/alpine-release').read.chomp
   ao_arch =
-    if Gem::Version.new(version) <  Gem::Version.new('3.9')
+    if Gem::Version.new(version) < Gem::Version.new('3.9')
       'alpine-libressl-x86_64'
     else # openssl
       'alpine-x86_64'

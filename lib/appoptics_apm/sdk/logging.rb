@@ -25,7 +25,7 @@ module AppOpticsAPM
       # * +exception+ - an exception, must respond to :message and :backtrace
       # * +opts+      - (optional) hash containing key/value pairs that will be reported with this span.
       #
-      def log_exception(exception, opts)
+      def log_exception(exception, opts = {})
         AppOpticsAPM::API.log_exception(AppOpticsAPM.layer, exception, opts)
       end
 

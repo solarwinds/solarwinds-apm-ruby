@@ -1,8 +1,29 @@
-Metrics/LineLength:
-  Max: 120
-
-Style/HashSyntax:
-  EnforcedStyle: hash_rockets
-
-Layout/TrailingWhitespace:
+Style/StringLiterals:
+  Description: 'Checks if uses of quotes match the configured preference.'
+  StyleGuide: '#consistent-string-literals'
   Enabled: false
+
+Layout/LineLength:
+  Description: 'Limit lines to 80 characters.'
+  Enabled: false
+
+Naming/VariableNumber:
+  Description: 'Use the configured style when numbering variables.'
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Description: >-
+    Add the frozen_string_literal comment to the top of files
+    to help transition to frozen string literals by default.
+  Enabled: false
+
+Style/Documentation:
+  Description: 'Document classes and non-namespace modules.'
+  Enabled: false
+
+Style/WordArray:
+  EnforcedStyle: brackets
+
+Metrics/BlockLength:
+  Exclude:
+    - test/*/*_test.rb

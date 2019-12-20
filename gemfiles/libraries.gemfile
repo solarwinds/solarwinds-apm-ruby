@@ -35,6 +35,7 @@ gem 'curb'
 gem 'dalli'
 gem 'excon'
 gem 'faraday'
+gem 'graphql' # , :path => "/code/graphql-ruby" # keep for local testing/debugging
 gem 'httpclient'
 gem 'logging'
 gem 'lumberjack'

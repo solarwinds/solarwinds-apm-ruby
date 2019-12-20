@@ -18,6 +18,7 @@ else
 end
 
 gem 'grape'
+gem 'active_record'
 
 if defined?(JRUBY_VERSION)
   # Limit padrino gem under JRuby as version 0.13.0 throws
