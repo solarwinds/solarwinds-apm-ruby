@@ -1,9 +1,6 @@
 # Somehow the Padrino::Reloader v14 is detecting and loading
 # this file when it shouldn't.  Block it from loading for
 # Padrino for now.
-
-# this is a stupid solution for not having any assets
-
 unless defined?(Padrino)
   class Widget < ActiveRecord::Base
     def do_work(*args)
