@@ -170,6 +170,8 @@ end
 
 AppOpticsAPM::SDK.trace_method(FerroController, :world)
 
+# this is a stupid solution for not having any assets
+`mkdir -p app/assets/config && echo '{}' > app/assets/config/manifest.js`
 Rails40MetalStack.initialize!
 
 Thread.new do
