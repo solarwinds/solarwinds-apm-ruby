@@ -327,7 +327,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
       end
     end
 
-    it 'removes comments if remove_comment is FALSE' do
+    it 'does not remove comments if remove_comment is FALSE' do
       AppOpticsAPM::Config[:graphql][:remove_comments] = false
 
       AppOpticsAPM::SDK.start_trace('graphql_test') do
