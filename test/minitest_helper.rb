@@ -20,6 +20,7 @@ require 'minitest/spec'
 require 'minitest/autorun'
 require 'minitest/reporters'
 require 'minitest'
+require 'minitest/focus'
 require 'minitest/debugger' if ENV['DEBUG']
 
 
@@ -250,7 +251,7 @@ def layer_has_key(traces, layer, key)
     if t["Layer"] == layer and t.has_key?(key)
       has_key = true
 
-      _(t["Backtrace"].length > 0).must_equal true
+      _(t[key].length > 0).must_equal true
     end
   end
 

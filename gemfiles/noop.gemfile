@@ -8,6 +8,7 @@ group :development, :test do
   gem 'rack-test'
   gem 'rake'
   gem 'bson', '~> 4.0'
+  gem 'graphql'
   gem 'puma', '< 3.1.0'
   gem 'webmock'
 end

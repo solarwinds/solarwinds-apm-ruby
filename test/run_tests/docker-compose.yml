@@ -21,6 +21,7 @@ services:
      mem_limit: 1G
      volumes:
        - ../../:/code/ruby-appoptics
+       - ../../../graphql-ruby-clone/:/code/graphql-ruby
 #       - /Users/maiaengeli/workspace/repos/grpc:/grpc_ruby
 #       - ../../../oboe-test/collectors/java-collector/test-collector.crt:/certs/java.crt
 #       - ../../../oboe-test/collectors/scribe-collector/ca.crt:/certs/scribe.crt

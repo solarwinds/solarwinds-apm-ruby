@@ -5,7 +5,7 @@ require 'thread'
 
 # Disable docs and Camelcase warns since we're implementing
 # an interface here.  See OboeBase for details.
-# rubocop:disable Style/Documentation, Style/MethodName
+# rubocop:disable Style/Documentation, Naming/MethodName
 module AppOpticsAPM
   extend AppOpticsAPMBase
   include Oboe_metal

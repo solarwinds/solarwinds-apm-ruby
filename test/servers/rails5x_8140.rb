@@ -5,6 +5,7 @@
 #  This is a Rails stack that launches on a background
 #  thread and listens on port 8140.
 
+require "active_record"
 require "action_controller" # require more rails if needed
 require 'rack/handler/puma'
 require File.expand_path(File.dirname(__FILE__) + '/../models/widget')
@@ -175,6 +176,8 @@ end
 
 AppOpticsAPM::SDK.trace_method(FerroController, :world)
 
+# this is a stupid solution for not having any assets
+`mkdir -p app/assets/config && echo '{}' > app/assets/config/manifest.js`
 Rails50MetalStack.initialize!
 
 Thread.new do

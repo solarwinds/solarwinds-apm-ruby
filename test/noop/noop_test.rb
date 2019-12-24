@@ -13,6 +13,7 @@ require 'minitest_helper'
 require 'rack/lobster'
 require 'net/http'
 require 'mocha/minitest'
+require 'graphql'
 
 class NoopTest < Minitest::Test
   include Rack::Test::Methods
@@ -83,6 +84,11 @@ class NoopTest < Minitest::Test
 
   def test_padrino_not_instrumented
     refute ::AppOpticsAPM.const_defined?('Padrino', false), 'This should be noop mode, but Padrino is instrumented.'
+  end
+
+  def test_graphql_not_instrumented
+    refute GraphQL::Schema.plugins.find { |plugin| plugin == GraphQL::Tracing::AppOpticsTracing },
+           'failed: This should be noop mode, but GraphQL is instrumented.'
   end
 
   # ===== Make sure the methods we document as SDK don't barf in noop mode ==================

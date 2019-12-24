@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # AppOpticsAPM Initializer (for the appoptics_apm gem)
 # https://www.appoptics.com/
 #
@@ -111,6 +113,25 @@ if defined?(AppOpticsAPM::Config)
   AppOpticsAPM::Config[:sanitize_sql_opts]   = Regexp::IGNORECASE
 
   #
+  # GraphQL
+  #
+  # Enable tracing for GraphQL.
+  # (true | false, default: true)
+  AppOpticsAPM::Config[:graphql][:enabled] = true
+  # Replace query arguments with a '?' when sent with a trace.
+  # (true | false, default: true)
+  AppOpticsAPM::Config[:graphql][:sanitize] = true
+  # Remove comments from queries when sent with a trace.
+  # (true | false, default: true)
+  AppOpticsAPM::Config[:graphql][:remove_comments] = true
+  # Create a transaction name by combining
+  # "query" or "mutation" with the first word of the query.
+  # This overwrites the default transaction name, which is a combination of
+  # controller + action and would be the same for all graphql queries.
+  # (true | false, default: true)
+  AppOpticsAPM::Config[:graphql][:transaction_name] = true
+
+  #
   # Do Not Trace - DNT
   #
   # DEPRECATED
@@ -136,7 +157,6 @@ if defined?(AppOpticsAPM::Config)
   #
   AppOpticsAPM::Config[:dnt_regexp] = '\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|otf|eot|ttf|woff|woff2|svg|less)(\?.+){0,1}$'
   AppOpticsAPM::Config[:dnt_opts] = Regexp::IGNORECASE
-  #
 
   #
   # Transaction Settings
@@ -164,21 +184,20 @@ if defined?(AppOpticsAPM::Config)
   #
   AppOpticsAPM::Config[:transaction_settings] = {
     url: [
-    #   {
-    #     extensions: %w['long_job'],
-    #     tracing: :disabled
-    #   },
-    #   {
-    #     regexp: '^.*\/long_job\/.*$',
-    #     opts: Regexp::IGNORECASE,
-    #     tracing: :disabled
-    #   },
-    #   {
-    #     regexp: /batch/,
-    #   }
+      #   {
+      #     extensions: %w['long_job'],
+      #     tracing: :disabled
+      #   },
+      #   {
+      #     regexp: '^.*\/long_job\/.*$',
+      #     opts: Regexp::IGNORECASE,
+      #     tracing: :disabled
+      #   },
+      #   {
+      #     regexp: /batch/,
+      #   }
     ]
   }
-  #
 
   #
   # Blacklist urls
@@ -192,7 +211,6 @@ if defined?(AppOpticsAPM::Config)
   # Example: AppOpticsAPM::Config[:blacklist] = ['google.com']
   #
   AppOpticsAPM::Config[:blacklist] = []
-  #
 
   #
   # Rails Exception Logging
@@ -203,7 +221,6 @@ if defined?(AppOpticsAPM::Config)
   # report all raised exceptions regardless.
   #
   AppOpticsAPM::Config[:report_rescued_errors] = false
-  #
 
   #
   # EC2 Metadata Fetching Timeout
@@ -214,7 +231,6 @@ if defined?(AppOpticsAPM::Config)
   # not running on EC2 / Openstack to minimize agent start up time.
   #
   AppOpticsAPM::Config[:ec2_metadata_timeout] = 1000
-
 
   #############################################
   ## SETTINGS FOR INDIVIDUAL GEMS/FRAMEWORKS ##
@@ -238,7 +254,6 @@ if defined?(AppOpticsAPM::Config)
   #
   AppOpticsAPM::Config[:bunnyconsumer][:controller] = :app_id
   AppOpticsAPM::Config[:bunnyconsumer][:action] = :type
-  #
 
   #
   # Enabling/Disabling Instrumentation
@@ -282,7 +297,6 @@ if defined?(AppOpticsAPM::Config)
   AppOpticsAPM::Config[:sidekiqworker][:enabled] = true
   AppOpticsAPM::Config[:sinatra][:enabled] = true
   AppOpticsAPM::Config[:typhoeus][:enabled] = true
-  #
 
   #
   # Argument logging
@@ -305,7 +319,6 @@ if defined?(AppOpticsAPM::Config)
   AppOpticsAPM::Config[:sidekiqclient][:log_args] = true
   AppOpticsAPM::Config[:sidekiqworker][:log_args] = true
   AppOpticsAPM::Config[:typhoeus][:log_args] = true
-  #
 
   #
   # Enabling/Disabling Backtrace Collection

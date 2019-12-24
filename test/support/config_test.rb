@@ -45,9 +45,12 @@ describe "AppOpticsAPM::Config" do
     AppOpticsAPM::Config[:hostname_alias] = nil
     AppOpticsAPM::Config[:debug_level] = nil
     AppOpticsAPM::Config[:verbose] = nil
+
+    @verbose, $VERBOSE = $VERBOSE, nil
   end
 
   after do
+    $VERBOSE = @verbose
     ENV.delete('APPOPTICS_APM_CONFIG_RUBY')
     ENV.delete('APPOPTICS_SERVICE_KEY')
     ENV.delete('APPOPTICS_HOSTNAME_ALIAS')
@@ -199,7 +202,7 @@ describe "AppOpticsAPM::Config" do
 
     # Verify the number of individual instrumentations ...
     instrumentation = AppOpticsAPM::Config.instrumentation
-    _(instrumentation.count).must_equal 32
+    _(instrumentation.count).must_equal 33
 
     # ... and make sure they are enabled by default
     instrumentation.each do |key|
