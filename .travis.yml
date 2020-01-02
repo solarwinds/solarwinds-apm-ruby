@@ -14,8 +14,8 @@ rvm:
   - 2.6.4
   - 2.5.5
   - 2.4.5
-  - 2.7.0-preview2
-#  - ruby-head
+  - 2.7.0
+  - ruby-head
 #  - jruby-9.0.5.0
 
 gemfile:
@@ -87,7 +87,7 @@ matrix:
       env: DBTYPE=mysql2
   allow_failures:
     - rvm: ruby-head
-    - rvm: 2.7.0-preview2
+    - rvm: 2.7.0
 
 # FIXME: Figure out if this is still an issue when reviewing cassandra test setup
 # Attempt Travis/Cassandra fix re: https://github.com/travis-ci/travis-ci/issues/1484
