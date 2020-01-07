@@ -58,7 +58,7 @@ module AppOpticsAPM
   end
 end
 
-if defined?(Padrino) && AppopticsAPM::Config[:padrino][:enabled]
+if defined?(Padrino) && AppOpticsAPM::Config[:padrino][:enabled]
   # This instrumentation is a superset of the Sinatra instrumentation similar
   # to how Padrino is a superset of Sinatra itself.
   AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting Padrino' if AppOpticsAPM::Config[:verbose]
