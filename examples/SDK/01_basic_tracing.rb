@@ -7,7 +7,7 @@
 # `bundle exec ruby 01_basic_tracing.rb`
 
 require 'appoptics_apm'
-unless AppopticsAPM::SDK.appoptics_ready?(10_000)
+unless AppOpticsAPM::SDK.appoptics_ready?(10_000)
   puts "aborting!!! Agent not ready after 10 seconds"
   exit false
 end

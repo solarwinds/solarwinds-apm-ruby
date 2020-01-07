@@ -73,7 +73,7 @@ module AppOpticsAPM
   end
 end
 
-if defined?(Sinatra) && AppopticsAPM::Config[:sinatra][:enabled]
+if defined?(Sinatra) && AppOpticsAPM::Config[:sinatra][:enabled]
   require 'appoptics_apm/inst/rack'
 
   AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting Sinatra' if AppOpticsAPM::Config[:verbose]

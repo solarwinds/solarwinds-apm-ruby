@@ -3,12 +3,12 @@
 describe "include traceId in message " do
 
   before do
-    AppopticsAPM::Context.clear
+    AppOpticsAPM::Context.clear
     @log_traceId = AppOpticsAPM::Config[:log_traceId]
   end
 
   after do
-    AppopticsAPM::Context.clear
+    AppOpticsAPM::Context.clear
     AppOpticsAPM::Config[:log_traceId] = @log_traceId
   end
 

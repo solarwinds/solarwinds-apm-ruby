@@ -411,7 +411,7 @@ module AppOpticsAPM
       #
       # === Example:
       #
-      #   unless AppopticsAPM::SDK.appoptics_ready?(10_000)
+      #   unless AppOpticsAPM::SDK.appoptics_ready?(10_000)
       #     Logger.info "AppOptics not ready after 10 seconds, no metrics will be sent"
       #   end
       #
@@ -424,7 +424,7 @@ module AppOpticsAPM
         # OBOE_SERVER_RESPONSE_LIMIT_EXCEEDED 3
         # OBOE_SERVER_RESPONSE_INVALID_API_KEY 4
         # OBOE_SERVER_RESPONSE_CONNECT_ERROR 5
-        AppopticsAPM::Context.isReady(wait_milliseconds) == 1
+        AppOpticsAPM::Context.isReady(wait_milliseconds) == 1
       end
     end
 
