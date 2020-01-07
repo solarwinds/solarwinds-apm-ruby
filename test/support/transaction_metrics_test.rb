@@ -21,10 +21,10 @@ describe 'TransactionSettingsTest' do
 
   describe 'metrics' do
     it 'obeys do_metrics false' do
-      AppopticsAPM::TransactionMetrics.expects(:send_metrics).never
-      AppopticsAPM.expects(:transaction_name=).never
+      AppOpticsAPM::TransactionMetrics.expects(:send_metrics).never
+      AppOpticsAPM.expects(:transaction_name=).never
 
-      settings = AppopticsAPM::TransactionSettings.new
+      settings = AppOpticsAPM::TransactionSettings.new
       settings.do_sample = false
       settings.do_metrics = false
 
@@ -35,10 +35,10 @@ describe 'TransactionSettingsTest' do
     end
 
     it 'obeys do_metrics true' do
-      AppopticsAPM::TransactionMetrics.expects(:send_metrics).returns('name')
-      AppopticsAPM.expects(:transaction_name=).with('name')
+      AppOpticsAPM::TransactionMetrics.expects(:send_metrics).returns('name')
+      AppOpticsAPM.expects(:transaction_name=).with('name')
 
-      settings = AppopticsAPM::TransactionSettings.new
+      settings = AppOpticsAPM::TransactionSettings.new
       settings.do_sample = true
       settings.do_metrics = true
 
@@ -49,10 +49,10 @@ describe 'TransactionSettingsTest' do
     end
 
     it 'sends metrics when there is an error' do
-      AppopticsAPM::TransactionMetrics.expects(:send_metrics).returns('name')
-      AppopticsAPM.expects(:transaction_name=).with('name')
+      AppOpticsAPM::TransactionMetrics.expects(:send_metrics).returns('name')
+      AppOpticsAPM.expects(:transaction_name=).with('name')
 
-      settings = AppopticsAPM::TransactionSettings.new
+      settings = AppOpticsAPM::TransactionSettings.new
       settings.do_sample = true
       settings.do_metrics = true
       begin

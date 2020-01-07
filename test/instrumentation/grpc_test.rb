@@ -99,14 +99,14 @@ describe 'GRPC' do
     stop_server
   end
 
-  unless ['file', 'udp'].include?(ENV['APPOPTICS_REPORTER']) || AppopticsAPM::SDK.appoptics_ready?(10_000)
+  unless ['file', 'udp'].include?(ENV['APPOPTICS_REPORTER']) || AppOpticsAPM::SDK.appoptics_ready?(10_000)
     puts "aborting!!! Agent not ready after 10 seconds"
     exit false
   end
 
   describe 'UNARY' do
     it 'should collect traces for unary' do
-      AppopticsAPM::SDK.start_trace(:test) do
+      AppOpticsAPM::SDK.start_trace(:test) do
         res = @stub.unary(@address_msg)
       end
 
@@ -138,7 +138,7 @@ describe 'GRPC' do
       AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = true
 
       server_with_backtraces do |stub|
-        AppopticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test) do
           stub.unary(@address_msg)
         end
 
@@ -152,7 +152,7 @@ describe 'GRPC' do
 
     # Both: Client Application cancelled the request
     it 'should report CANCELLED for unary' do
-      AppopticsAPM::SDK.start_trace(:test) do
+      AppOpticsAPM::SDK.start_trace(:test) do
         begin
           @stub.unary_cancel(@null_msg)
         rescue => _
@@ -173,7 +173,7 @@ describe 'GRPC' do
 
     # Both: Deadline expires before server returns status
     it 'should report DEADLINE_EXCEEDED for unary' do
-      AppopticsAPM::SDK.start_trace(:test) do
+      AppOpticsAPM::SDK.start_trace(:test) do
         begin
           AppOpticsAPM::SDK.set_transaction_name('unary_deadline_exceeded')
           @stub.unary_long(@address_msg)
@@ -196,7 +196,7 @@ describe 'GRPC' do
     # Client: Some data transmitted (e.g., request metadata written to TCP connection) before connection breaks
     # Server(not tested): Server shutting down
     it 'should report UNAVAILABLE for unary' do
-      AppopticsAPM::SDK.start_trace(:test) do
+      AppOpticsAPM::SDK.start_trace(:test) do
         begin
           @unavailable.unary_unknown(@address_msg)
         rescue => _
@@ -216,7 +216,7 @@ describe 'GRPC' do
     # Client: Error parsing returned status
     # Server: Application throws an exception (r something othe th returning a Status code to terminate an RPC)
     it 'should report UNKNOWN for unary' do
-      AppopticsAPM::SDK.start_trace(:test) do
+      AppOpticsAPM::SDK.start_trace(:test) do
         begin
           @stub.unary_unknown(@address_msg)
         rescue => _
@@ -237,7 +237,7 @@ describe 'GRPC' do
     # Server: Method not found, compression not supported*, or request cardinality violation (streaming)*
     # * not tested
     it 'should report UNIMPLEMENTED for unary' do
-      AppopticsAPM::SDK.start_trace(:test) do
+      AppOpticsAPM::SDK.start_trace(:test) do
         begin
           @stub.unary_unimplemented(@null_msg)
         rescue => _
@@ -259,7 +259,7 @@ describe 'GRPC' do
     # * not tested
     it 'should report INTERNAL for unary' do
       skip # hard to provoke
-      AppopticsAPM::SDK.start_trace(:test) do
+      AppOpticsAPM::SDK.start_trace(:test) do
         begin
           @secure.unary_2(@null_msg)
         rescue => _
@@ -287,7 +287,7 @@ describe 'GRPC' do
 
   describe 'CLIENT_STREAMING' do
     it 'should collect traces for client_streaming' do
-      AppopticsAPM::SDK.start_trace(:test) do
+      AppOpticsAPM::SDK.start_trace(:test) do
         @stub.client_stream([@phone_msg, @phone_msg])
       end
 
@@ -317,7 +317,7 @@ describe 'GRPC' do
       AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = true
 
       server_with_backtraces do |stub|
-        AppopticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test) do
           stub.client_stream([@phone_msg, @phone_msg])
         end
 
@@ -337,7 +337,7 @@ describe 'GRPC' do
 
     it 'should report DEADLINE_EXCEEDED for client_streaming' do
       begin
-        AppopticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test) do
           @no_time.client_stream_long(Array.new(5, @phone_msg))
         end
       rescue => _
@@ -355,7 +355,7 @@ describe 'GRPC' do
 
     it 'should report CANCELLED for client_streaming' do
       begin
-        AppopticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test) do
           @stub.client_stream_cancel([@null_msg, @null_msg])
         end
       rescue => _
@@ -372,7 +372,7 @@ describe 'GRPC' do
 
     it 'should report UNAVAILABLE for client_streaming' do
       begin
-        AppopticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test) do
           @unavailable.client_stream([@phone_msg, @phone_msg])
         end
       rescue => _
@@ -389,7 +389,7 @@ describe 'GRPC' do
 
     it 'should report UNKNOWN for client_streaming' do
       begin
-        AppopticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test) do
           @stub.client_stream_unknown([@address_msg, @address_msg])
         end
       rescue => _
@@ -406,7 +406,7 @@ describe 'GRPC' do
 
     it 'should report UNIMPLEMENTED for client_streaming' do
       begin
-        AppopticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test) do
           @stub.client_stream_unimplemented([@phone_msg, @phone_msg])
         end
       rescue => _
@@ -430,7 +430,7 @@ describe 'GRPC' do
 
   describe 'SERVER_STREAMING return Enumerator' do
     it 'should collect traces for server_streaming returning enumerator' do
-      AppopticsAPM::SDK.start_trace(:test) do
+      AppOpticsAPM::SDK.start_trace(:test) do
         res = @stub.server_stream(Grpctest::AddressId.new(id: 2))
         res.each { |_| }
       end
@@ -461,7 +461,7 @@ describe 'GRPC' do
       AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = true
 
       server_with_backtraces do |stub|
-        AppopticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test) do
           res = stub.server_stream(Grpctest::AddressId.new(id: 2))
           res.each { |_| }
         end
@@ -475,7 +475,7 @@ describe 'GRPC' do
     end
 
     it 'should report CANCEL for server_streaming with enumerator' do
-      AppopticsAPM::SDK.start_trace(:test) do
+      AppOpticsAPM::SDK.start_trace(:test) do
         res = @stub.server_stream_cancel(@null_msg)
         begin
           res.each { |_| }
@@ -493,7 +493,7 @@ describe 'GRPC' do
     end
 
     it 'should report DEADLINE_EXCEEDED for server_streaming with enumerator' do
-      AppopticsAPM::SDK.start_trace(:test) do
+      AppOpticsAPM::SDK.start_trace(:test) do
         begin
           res = @no_time.server_stream_long(@null_msg)
           res.each { |_| }
@@ -512,7 +512,7 @@ describe 'GRPC' do
 
     it 'should report UNAVAILABLE for server_streaming with enumerator' do
       begin
-        AppopticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test) do
           res = @unavailable.server_stream(@null_msg)
           res.each { |_| }
         end
@@ -530,7 +530,7 @@ describe 'GRPC' do
 
     it 'should report UNKNOWN for server_streaming with enumerator' do
       begin
-        AppopticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test) do
           res = @stub.server_stream_unknown(@address_msg)
           res.each { |_| }
         end
@@ -549,7 +549,7 @@ describe 'GRPC' do
 
     it 'should report UNIMPLEMENTED for server_streaming with enumerator' do
       begin
-        AppopticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test) do
           res = @stub.server_stream_unimplemented(@null_msg)
           res.each { |_| }
         end
@@ -575,7 +575,7 @@ describe 'GRPC' do
 
   describe 'SERVER_STREAMING yield' do
     it 'should collect traces for server_streaming using block' do
-      AppopticsAPM::SDK.start_trace(:test) do
+      AppOpticsAPM::SDK.start_trace(:test) do
         @stub.server_stream(Grpctest::AddressId.new(id: 2)) { |_| }
       end
 
@@ -605,7 +605,7 @@ describe 'GRPC' do
       AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = true
 
       server_with_backtraces do |stub|
-        AppopticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test) do
           stub.server_stream(Grpctest::AddressId.new(id: 2)) { |_| }
         end
 
@@ -619,7 +619,7 @@ describe 'GRPC' do
 
     it 'should report CANCEL for server_streaming using block' do
       begin
-        AppopticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test) do
           @stub.server_stream_cancel(@null_msg) { |_| }
         end
       rescue => _
@@ -636,7 +636,7 @@ describe 'GRPC' do
 
     it 'should report DEADLINE_EXCEEDED for server_streaming using block' do
       begin
-        AppopticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test) do
           @no_time.server_stream_long(@null_msg) { |_| }
         end
       rescue => _
@@ -654,7 +654,7 @@ describe 'GRPC' do
 
     it 'should report UNAVAILABLE for server_streaming using block' do
       begin
-        AppopticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test) do
           res = @unavailable.server_stream(@null_msg) { |_| }
         end
       rescue => _
@@ -671,7 +671,7 @@ describe 'GRPC' do
 
     it 'should report UNKNOWN for server_streaming using block' do
       begin
-        AppopticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test) do
           res = @stub.server_stream_unknown(@address_msg)
           res.each { |_| }
         end
@@ -689,7 +689,7 @@ describe 'GRPC' do
 
     it 'should report UNIMPLEMENTED for server_streaming using block' do
       begin
-        AppopticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test) do
           res = @stub.server_stream_unimplemented(@null_msg) { |_| }
         end
       rescue => _
@@ -713,7 +713,7 @@ describe 'GRPC' do
 
   describe 'BIDI_STREAMING return Enumerator' do
     it 'should collect traces for for bidi_streaming with enumerator' do
-      AppopticsAPM::SDK.start_trace(:test) do
+      AppOpticsAPM::SDK.start_trace(:test) do
         response = @stub.bidi_stream([@null_msg, @null_msg])
         response.each { |_| }
       end
@@ -744,7 +744,7 @@ describe 'GRPC' do
       AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = true
 
       server_with_backtraces do |stub|
-        AppopticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test) do
           response = stub.bidi_stream([@null_msg, @null_msg])
           response.each { |_| }
         end
@@ -759,7 +759,7 @@ describe 'GRPC' do
 
     it 'should report CANCEL for bidi_streaming with enumerator' do
       begin
-        AppopticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test) do
           response = @stub.bidi_stream_cancel([@null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg])
           response.each { |_| }
         end
@@ -777,7 +777,7 @@ describe 'GRPC' do
 
     it 'should report DEADLINE_EXCEEDED for bidi_streaming with enumerator' do
       begin
-        AppopticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test) do
           response = @no_time.bidi_stream_long([@null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg])
           response.each { |_| }
         end
@@ -795,7 +795,7 @@ describe 'GRPC' do
 
     it 'should report UNAVAILABLE for bidi_streaming with enumerator' do
       begin
-        AppopticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test) do
           response = @unavailable.bidi_stream([@null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg])
           response.each { |_| }
         end
@@ -813,7 +813,7 @@ describe 'GRPC' do
 
     it 'should report UNKNOWN for bidi_streaming with enumerator' do
       begin
-        AppopticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test) do
           response = @stub.bidi_stream_unknown([@null_msg, @null_msg])
           response.each { |_| }
         end
@@ -831,7 +831,7 @@ describe 'GRPC' do
 
     it 'should report UNIMPLEMENTED for bidi_streaming with enumerator' do
       begin
-        AppopticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test) do
           response = @stub.bidi_stream_unimplemented([@null_msg, @null_msg])
           response.each { |_| }
         end
@@ -860,7 +860,7 @@ describe 'GRPC' do
 
   describe 'BIDI_STREAMING yield' do
     it 'should collect traces for bidi_streaming using block' do
-      AppopticsAPM::SDK.start_trace(:test) do
+      AppOpticsAPM::SDK.start_trace(:test) do
         @stub.bidi_stream([@null_msg, @null_msg]) { |_| }
       end
 
@@ -890,7 +890,7 @@ describe 'GRPC' do
       AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = true
 
       server_with_backtraces do |stub|
-        AppopticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test) do
           stub.bidi_stream([@phone_msg, @phone_msg]) { |_| }
         end
 
@@ -904,7 +904,7 @@ describe 'GRPC' do
 
     it 'should report CANCEL for bidi_streaming using block' do
       begin
-        AppopticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test) do
           @stub.bidi_stream_cancel([@null_msg, @null_msg]) { |_| }
         end
       rescue => _
@@ -921,7 +921,7 @@ describe 'GRPC' do
 
     it 'should report DEADLINE_EXCEEDED for bidi_streaming using block' do
       begin
-        AppopticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test) do
           @no_time.bidi_stream_long([@null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg]) { |_| }
         end
       rescue => _
@@ -938,7 +938,7 @@ describe 'GRPC' do
 
     it 'should report UNAVAILABLE for bidi_streaming using block' do
       begin
-        AppopticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test) do
           @unavailable.bidi_stream([@null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg]) { |_| }
         end
       rescue => _
@@ -955,7 +955,7 @@ describe 'GRPC' do
 
     it 'should report UNKNOWN for bidi_streaming using block' do
       begin
-        AppopticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test) do
           @stub.bidi_stream_unknown([@null_msg, @null_msg]) { |_| }
         end
       rescue => _
@@ -972,7 +972,7 @@ describe 'GRPC' do
 
     it 'should report UNIMPLEMENTED for bidi_streaming using block' do
       begin
-        AppopticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test) do
           @stub.bidi_stream_unimplemented([@null_msg, @null_msg]) { |_| }
         end
       rescue => _
@@ -1002,7 +1002,7 @@ describe 'GRPC' do
       @count.times do
         threads << Thread.new do
           begin
-            AppopticsAPM::SDK.start_trace(:test) do
+            AppOpticsAPM::SDK.start_trace(:test) do
               @stub.bidi_stream(Array.new(200, @phone_msg)) { |_| }
             end
           rescue => _
@@ -1050,7 +1050,7 @@ describe 'GRPC' do
       @count.times do
         threads << Thread.new do
           begin
-            AppopticsAPM::SDK.start_trace(:test) do
+            AppOpticsAPM::SDK.start_trace(:test) do
               @unavailable.bidi_stream(Array.new(200, @phone_msg)) { |_| }
             end
           rescue => _
@@ -1075,7 +1075,7 @@ describe 'GRPC' do
       (3*@count).times do
         threads << Thread.new do
           begin
-            AppopticsAPM::SDK.start_trace(:test) do
+            AppOpticsAPM::SDK.start_trace(:test) do
               @stub.bidi_stream_varying(Array.new(20, @phone_msg)) { |_| }
             end
           rescue => _
