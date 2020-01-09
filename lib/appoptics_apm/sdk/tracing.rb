@@ -300,7 +300,7 @@ module AppOpticsAPM
               end
 
               AppOpticsAPM::SDK.trace(span, report_kvs) do
-                report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace(2) if backtrace
+                report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if backtrace
                 send(without_appoptics, *args, &block)
               end
             end
@@ -311,7 +311,7 @@ module AppOpticsAPM
         elsif class_method
           klass.define_singleton_method(with_appoptics) do |*args, &block|
             AppOpticsAPM::SDK.trace(span, report_kvs) do
-              report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace(2) if backtrace
+              report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if backtrace
               send(without_appoptics, *args, &block)
             end
           end
