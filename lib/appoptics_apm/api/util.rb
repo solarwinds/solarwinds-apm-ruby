@@ -24,15 +24,14 @@ module AppOpticsAPM
 
       # Internal: Get the current backtrace.
       #
-      # ignore - Number of frames to ignore at the top of the backtrace. Use
-      #          when you know how many layers deep in the key call is being
-      #          made.
+      # from - int, from position in array of backtraces
+      # to - int, end position in array of backtraces, can be negative to count from the end
       #
       # Returns a string with each frame of the backtrace separated by '\r\n'.
       #
-      def backtrace(ignore = 0)
+      def backtrace(from = 0, to = -1)
         bt = Kernel.caller
-        bt.slice!(0, ignore)
+        bt = bt[from..to]
         trim_backtrace(bt).join("\r\n")
       end
 
