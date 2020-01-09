@@ -35,6 +35,7 @@ if defined?(GraphQL::Tracing)
         class AppOpticsTracing < GraphQL::Tracing::PlatformTracing
           # These GraphQL events will show up as 'graphql.prep' spans
           PREP_KEYS = ['lex', 'parse', 'validate', 'analyze_query', 'analyze_multiplex'].freeze
+          EXEC_KEYS = ['execute_multiplex', 'execute_query', 'execute_query_lazy'].freeze
 
           # During auto-instrumentation this version of AppOpticsTracing is compared
           # with the version provided in the graphql gem, so that the newer
@@ -55,16 +56,15 @@ if defined?(GraphQL::Tracing)
           def platform_trace(platform_key, _key, data)
             return yield if !defined?(AppOpticsAPM) || gql_config[:enabled] == false
 
-            kvs = metadata(data)
-            kvs[:Key] = platform_key if PREP_KEYS.include?(platform_key)
+            layer = span_name(platform_key)
+            kvs = metadata(data, layer)
+            kvs[:Key] = platform_key if (PREP_KEYS + EXEC_KEYS).include?(platform_key)
 
-            maybe_set_transaction_name(kvs[:InboundQuery]) if kvs[:InboundQuery]
+            maybe_set_transaction_name(kvs[:InboundQuery]) if kvs[:InboundQuery] && layer == 'graphql.execute'
 
-            ::AppOpticsAPM::SDK.trace(span_name(platform_key), kvs) do
+            ::AppOpticsAPM::SDK.trace(layer, kvs) do
               kvs.clear # we don't have to send them twice
-              result = yield
-              report_errors(result)
-              result
+              yield
             end
           end
 
@@ -78,41 +78,40 @@ if defined?(GraphQL::Tracing)
             ::AppOpticsAPM::Config[:graphql] ||= {}
           end
 
-          ###
-          # any errors graphql has dealt with are added to the response
-          def report_errors(result)
-            return unless result.is_a?(Array)
-
-            result.each do |res|
-              if res.is_a?(GraphQL::Query::Result) && res.to_h['errors']
-                msg = res.to_h['errors'].map { |r| r['message'] }.join("\n")
-                AppOpticsAPM::SDK.log_info(Message: "GraphQL Errors:\n#{msg}")
-              end
-            end
-          end
-
           def maybe_set_transaction_name(query)
             return if gql_config[:transaction_name] == false ||
                       ::AppOpticsAPM::SDK.get_transaction_name
 
             split_query = query.strip.split(/\W+/, 3)
+            split_query[0] = 'query' if split_query[0].empty?
             name = "graphql.#{split_query[0..1].join('.')}"
+
+            ::AppOpticsAPM::SDK.set_transaction_name(name)
+          end
+
+          def multiplex_transaction_name(names)
+            return if gql_config[:transaction_name] == false ||
+                      ::AppOpticsAPM::SDK.get_transaction_name
+
+            name = "graphql.multiplex.#{names.join('.')}"
+            name = "#{name[0..251]}..." if name.length > 254
+
             ::AppOpticsAPM::SDK.set_transaction_name(name)
           end
 
           def span_name(key)
             return 'graphql.prep' if PREP_KEYS.include?(key)
-            return key if key[/^graphql\./]
+            return 'graphql.execute' if EXEC_KEYS.include?(key)
 
-            "graphql.#{key}"
+            key[/^graphql\./] ? key : "graphql.#{key}"
           end
 
           # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-          def metadata(data)
+          def metadata(data, layer)
             data.keys.map do |key|
               case key
               when :context
-                graphql_context(data[key])
+                graphql_context(data[key], layer)
               when :query
                 graphql_query(data[key])
               when :query_string
@@ -126,14 +125,17 @@ if defined?(GraphQL::Tracing)
           end
           # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
-          def graphql_context(context)
-            res = [[:Path, context.path.join('.')]]
-            return res if context.errors.empty?
+          def graphql_context(context, layer)
+            context.errors && context.errors.each do |err|
+              AppOpticsAPM::API.log_exception(layer, err)
+            end
 
-            res << [:Errors, context.errors.join("\n")]
+            [[:Path, context.path.join('.')]]
           end
 
           def graphql_query(query)
+            return [] unless query
+
             query_string = query.query_string
             query_string = remove_comments(query_string) if gql_config[:remove_comments] != false
             query_string = sanitize(query_string) if gql_config[:sanitize_query] != false
@@ -150,9 +152,10 @@ if defined?(GraphQL::Tracing)
           end
 
           def graphql_multiplex(data)
-            names = data.queries.map(&:selected_operation_name).compact.join(', ')
+            names = data.queries.map(&:operations).map(&:keys).flatten.compact
+            multiplex_transaction_name(names) if names.size > 1
 
-            [:Operations, names]
+            [:Operations, names.join(', ')]
           end
 
           def sanitize(query)
@@ -172,17 +175,33 @@ if defined?(GraphQL::Tracing)
   end
 
   module AppOpticsAPM
-    module GraphQLPrepend
+    module GraphQLSchemaPrepend
       def use(plugin, options = {})
         super unless GraphQL::Schema.plugins.find { |pl| pl[0].to_s == plugin.to_s }
 
         GraphQL::Schema.plugins
       end
     end
+
+    # rubocop:disable Style/RedundantSelf
+    module GraphQLErrorPrepend
+      def initialize(*args)
+        super
+        bt = AppOpticsAPM::API.backtrace(1)
+        set_backtrace(bt) unless self.backtrace
+      end
+    end
+    # rubocop:enable Style/RedundantSelf
   end
 
   if defined?(GraphQL::Schema)
-    GraphQL::Schema.singleton_class.prepend(AppOpticsAPM::GraphQLPrepend)
+    GraphQL::Schema.singleton_class.prepend(AppOpticsAPM::GraphQLSchemaPrepend)
     GraphQL::Schema.use(GraphQL::Tracing::AppOpticsTracing)
   end
+
+  # rubocop:disable Style/IfUnlessModifier
+  if defined?(GraphQL::Error)
+    GraphQL::Error.prepend(AppOpticsAPM::GraphQLErrorPrepend)
+  end
+  # rubocop:enable Style/IfUnlessModifier
 end

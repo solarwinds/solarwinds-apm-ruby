@@ -63,7 +63,8 @@ describe GraphQL::Tracing::AppOpticsTracing do
       class Person < GraphQL::Schema::Object
         global_id_field :id
         field :name, String, null: true
-        field :other_name, String, null: true do
+        field :nickname, Integer, null: false
+        field :othername, String, null: true do
           argument :upcase, String, required: false
         end
 
@@ -93,7 +94,8 @@ describe GraphQL::Tracing::AppOpticsTracing do
         def founder
           OpenStruct.new(
             id: AppOpticsTest::Schema.id_from_object,
-            name: 'Peter Pan'
+            name: 'Peter Pan',
+            nickname: nil
           )
         end
 
@@ -147,7 +149,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
 
   it 'traces a simple graphql request' do
     AppOpticsAPM::SDK.start_trace('graphql_test') do
-      query = 'query MyQuery { int }'
+      query = 'query MyInt { int }'
       AppOpticsTest::Schema.execute(query)
     end
 
@@ -172,15 +174,15 @@ describe GraphQL::Tracing::AppOpticsTracing do
     assert_equal "graphql.prep", tr_01[:Layer]
     assert_equal "entry", tr_01[:Label]
     assert_equal "graphql", tr_01[:Spec]
-    assert_equal "query MyQuery { int }", tr_01[:InboundQuery]
+    assert_equal "query MyInt { int }", tr_01[:InboundQuery], "failure: InboundQuery not matching"
 
-    assert_equal "graphql.query.MyQuery", traces.last[:TransactionName]
+    assert_equal "graphql.query.MyInt", traces.last[:TransactionName], "failure: TransactionName not matching"
   end
 
   # rubocop:disable Lint/AmbiguousBlockAssociation
   it 'traces a more complex graphql request' do
     query = <<-GRAPHQL
-        query MyQuery { company(id: "abc") {
+        query MyCompany { company(id: "abc") {
           founder {
             name
           }
@@ -198,7 +200,6 @@ describe GraphQL::Tracing::AppOpticsTracing do
     assert valid_edges?(traces, true), 'failed: edges not valid'
 
     assert traces.find { |tr| tr[:InboundQuery] == query.gsub(/abc/, '?') }
-
     assert traces.find { |tr| tr[:Layer] == 'graphql.MyQuery.company' && tr[:Label] == 'entry' }
     assert traces.find { |tr| tr[:Layer] == 'graphql.MyQuery.company' && tr[:Label] == 'exit' }
     assert traces.find { |tr| tr[:Layer] == 'graphql.Company.founder' && tr[:Label] == 'entry' }
@@ -227,52 +228,34 @@ describe GraphQL::Tracing::AppOpticsTracing do
   end
   # rubocop:enable Lint/AmbiguousBlockAssociation
 
-  it 'adds an error event' do
-    AppOpticsAPM::SDK.start_trace('graphql_test') do
-      query = 'query MyQuery { doErr }'
-      AppOpticsTest::Schema.execute(query)
-    end
-
-    traces = get_all_traces
-    assert valid_edges?(traces, true), 'failed: edges not valid'
-
-    error_tr = traces.find { |tr| tr[:Label] == 'info' && tr[:Message] }
-
-    assert error_tr, 'failed: No Error event was logged with the trace'
-  end
-
-  # the best I can currently provoke are multiple errors during static validation
-  # ideally I would like to provoke multiple errors during execution, but those
-  # either trigger only one error or get summarized in the response
-  it 'add multiple error events' do
+  it 'adds an error event for a disallowed null value' do
     query = <<-GRAPHQL
-        query MyQuery { company(id: "abc") {
+        query MyNullValue { company(id: "abc") {
           founder {
-            age
+            nickname
           }
           owner {
-            city
+            name
           }
         }}
     GRAPHQL
 
     AppOpticsAPM::SDK.start_trace('graphql_test') do
       AppOpticsTest::Schema.execute(query)
-
-      traces = get_all_traces
-      assert valid_edges?(traces, true), 'failed: edges not valid'
-
-      error_tr = traces.find { |tr| tr[:Label] == 'info' && tr[:Message] }
-
-      assert error_tr, 'failed: No Error event was logged with the trace'
-      assert_equal 3, error_tr[:Message].split("\n").size, 'failed: There should have been 2 errors logged with the trace'
     end
+
+    traces = get_all_traces
+    assert valid_edges?(traces, true), 'failed: edges not valid'
+
+    error_tr = traces.find { |tr| tr[:Label] == 'error' && tr[:ErrorMsg] }
+
+    assert error_tr, 'failed: No Error event was logged with the trace'
   end
 
   describe 'test configs' do
     let(:query) do
       <<-GRAPHQL
-        query MyQuery { company(id: "abc") {
+        query MyLetQuery { company(id: "abc") {
           founder {
             # I forgot her name
             name
@@ -347,7 +330,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
       end
 
       trace = get_all_traces.last
-      assert_equal "graphql.query.MyQuery", trace[:TransactionName]
+      assert_equal "graphql.query.MyLetQuery", trace[:TransactionName]
     end
 
     it 'does not set a graphql transaction name if transaction_name is FALSE' do
@@ -358,6 +341,16 @@ describe GraphQL::Tracing::AppOpticsTracing do
 
       trace = get_all_traces.last
       assert_equal "custom-graphql_test", trace[:TransactionName]
+    end
+
+    it 'sets the type in the transaction name to query if it was omitted' do
+      AppOpticsAPM::Config[:graphql][:transaction_name] = true
+      query_short = '{company (id: 1) { name}}'
+      AppOpticsAPM::SDK.start_trace('graphql_test') do
+        AppOpticsTest::Schema.execute(query_short)
+      end
+      trace = get_all_traces.last
+      assert_equal "graphql.query.company", trace[:TransactionName]
     end
 
     it 'does not create traces if graphql is not enabled' do
@@ -373,6 +366,80 @@ describe GraphQL::Tracing::AppOpticsTracing do
       AppOpticsTest::Schema.execute(query)
       traces = get_all_traces
       assert_empty traces, 'failed: it should not have created any traces'
+    end
+  end
+
+  describe 'multiplex requests' do
+    it 'traces multiplex queries' do
+      queries = [
+        {
+          query: 'query MyFirstCompany { company(id: 1) { name } }',
+          variables: {},
+          operation_name: 'MyFirstCompany',
+          context: {}
+        },
+        {
+          query: 'query MySecondCompany { company(id: 2) { name } }',
+          variables: { num: 3 },
+          operation_name: 'MySecondCompany',
+          context: {}
+        },
+        {
+          query: 'query MyThirdCompany { company(id: 3) { name } }',
+          operation_name: 'MyThirdCompany',
+          variables: {},
+          context: {}
+        }
+      ]
+
+      AppOpticsAPM::SDK.start_trace('graphql_multi_test') do
+        AppOpticsTest::Schema.multiplex(queries)
+      end
+
+      traces = get_all_traces
+
+      exec_trace = traces.find { |tr| tr[:Layer] == 'graphql.execute' && tr[:Operations] }
+      assert_equal 'MyFirstCompany, MySecondCompany, MyThirdCompany',
+                   exec_trace[:Operations]
+      assert_equal 'graphql.multiplex.MyFirstCompany.MySecondCompany.MyThirdCompany',
+                   traces.last[:TransactionName]
+    end
+
+    it 'truncates long transaction names' do
+      queries = [
+        {
+          query: 'query MyFirstCompanyMyFirstCompanyMyFirstCompanyMyFirstCompany { company(id: 1) { name } }',
+          variables: {},
+          operation_name: 'MyFirstCompany',
+          context: {}
+        },
+        {
+          query: 'query MySecondCompanyMySecondCompanyMySecondCompanyMySecondCompany { company(id: 2) { name } }',
+          variables: { num: 3 },
+          operation_name: 'MySecondCompany',
+          context: {}
+        },
+        {
+          query: 'query MyThirdCompanyMyThirdCompanyMyThirdCompanyMyThirdCompany { company(id: 3) { name } }',
+          operation_name: 'MyThirdCompany',
+          variables: {},
+          context: {}
+        },
+        {
+          query: 'query MyThirdCompanyMyForthCompanyMyForthCompanyMyForthCompanyMyForthCompany { company(id: 3) { name } }',
+          operation_name: 'MyForthCompany',
+          variables: {},
+          context: {}
+        }
+      ]
+
+      AppOpticsAPM::SDK.start_trace('graphql_multi_test') do
+        AppOpticsTest::Schema.multiplex(queries)
+      end
+
+      traces = get_all_traces
+      assert_equal 'graphql.multiplex.MyFirstCompanyMyFirstCompanyMyFirstCompanyMyFirstCompany.MySecondCompanyMySecondCompanyMySecondCompanyMySecondCompany.MyThirdCompanyMyThirdCompanyMyThirdCompanyMyThirdCompany.MyThirdCompanyMyForthCompanyMyForthCompanyMyForthCompanyMyF...',
+                   traces.last[:TransactionName]
     end
   end
 
@@ -395,7 +462,6 @@ describe GraphQL::Tracing::AppOpticsTracing do
       Kernel.silence_warnings do # silence warning about re-initializing a const
         load graphql_appoptics
         # make the graphql version return an low version number
-        @version = GraphQL::Tracing::AppOpticsTracing::VERSION
         GraphQL::Tracing::AppOpticsTracing::VERSION = Gem::Version.new('0.0.1')
 
         load 'lib/appoptics_apm/inst/graphql.rb'
@@ -411,7 +477,6 @@ describe GraphQL::Tracing::AppOpticsTracing do
       Kernel.silence_warnings do # silence warning about re-initializing a const
         load graphql_appoptics
         # make the graphql version return an high version number
-        @version = GraphQL::Tracing::AppOpticsTracing::VERSION
         GraphQL::Tracing::AppOpticsTracing::VERSION = Gem::Version.new('999.0.0')
         load 'lib/appoptics_apm/inst/graphql.rb'
         assert_match 'graphql-ruby/lib/graphql/tracing/appoptics_tracing.rb',
@@ -420,13 +485,13 @@ describe GraphQL::Tracing::AppOpticsTracing do
                      GraphQL::Tracing::AppOpticsTracing.new.method(:platform_trace).source_location[0]
       end
     end
-  end
 
-  it 'does not add plugins twice' do
-    GraphQL::Schema.use(GraphQL::Tracing::AppOpticsTracing)
-    GraphQL::Schema.use(GraphQL::Tracing::AppOpticsTracing)
+    it 'does not add plugins twice' do
+      GraphQL::Schema.use(GraphQL::Tracing::AppOpticsTracing)
+      GraphQL::Schema.use(GraphQL::Tracing::AppOpticsTracing)
 
-    assert_equal GraphQL::Schema.plugins.uniq.size, GraphQL::Schema.plugins.size,
-                 'failed: duplicate plugins found'
+      assert_equal GraphQL::Schema.plugins.uniq.size, GraphQL::Schema.plugins.size,
+                   'failed: duplicate plugins found'
+    end
   end
 end
