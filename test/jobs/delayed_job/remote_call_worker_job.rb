@@ -6,7 +6,7 @@ class DJRemoteCallWorkerJob
 
   def self.perform(*args)
     # Make some random Dalli (memcache) calls and top it
-    # off with an call to the background rack webserver.
+    # off with a call to the background rack webserver.
     @dc = Dalli::Client.new
     @dc.get(rand(10).to_s)
 
