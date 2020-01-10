@@ -444,27 +444,14 @@ describe GraphQL::Tracing::AppOpticsTracing do
   end
 
   describe 'loading' do
-    let :graphql_appoptics do
-      File.join(Gem.loaded_specs['graphql'].full_gem_path, 'lib/graphql/tracing/appoptics_tracing.rb')
-    end
-
-    before do
-      # it does not make sense but this has to be done before, but otherwise it
-      # gets stuck with the graphql version of GraphQL::Tracing::AppOpticsTracing
-      Kernel.silence_warnings do
-        GraphQL::Tracing::AppOpticsTracing::VERSION = Gem::Version.new('0.0.1')
-        load 'lib/appoptics_apm/inst/graphql.rb'
-      end
-    end
-
+    # in these 2 tests we are simulating the fact that the
+    # GraphQL::Tracing::AppOpticsTracing class
+    # from the graphql gem will be loaded first
     it 'uses the newer version of AppOpticsTracing from the appoptics_apm gem' do
-      skip unless File.exist?(graphql_appoptics)
       Kernel.silence_warnings do # silence warning about re-initializing a const
-        load graphql_appoptics
-        # make the graphql version return an low version number
-        GraphQL::Tracing::AppOpticsTracing::VERSION = Gem::Version.new('0.0.1')
-
+        load 'test/instrumentation/graphql/appoptics_tracing_older.rb'
         load 'lib/appoptics_apm/inst/graphql.rb'
+
         assert_match 'lib/appoptics_apm/inst/graphql.rb',
                      GraphQL::Tracing::AppOpticsTracing.new.method(:metadata).source_location[0]
         assert_match 'lib/appoptics_apm/inst/graphql.rb',
@@ -473,15 +460,13 @@ describe GraphQL::Tracing::AppOpticsTracing do
     end
 
     it 'uses the newer version of AppOpticsTracing from the graphql gem' do
-      skip unless File.exist?(graphql_appoptics)
       Kernel.silence_warnings do # silence warning about re-initializing a const
-        load graphql_appoptics
-        # make the graphql version return an high version number
-        GraphQL::Tracing::AppOpticsTracing::VERSION = Gem::Version.new('999.0.0')
+        load 'test/instrumentation/graphql/appoptics_tracing_newer.rb'
         load 'lib/appoptics_apm/inst/graphql.rb'
-        assert_match 'graphql-ruby/lib/graphql/tracing/appoptics_tracing.rb',
+
+        assert_match 'graphql/appoptics_tracing_newer.rb',
                      GraphQL::Tracing::AppOpticsTracing.new.method(:metadata).source_location[0]
-        assert_match 'graphql-ruby/lib/graphql/tracing/appoptics_tracing.rb',
+        assert_match 'graphql/appoptics_tracing_newer.rb',
                      GraphQL::Tracing::AppOpticsTracing.new.method(:platform_trace).source_location[0]
       end
     end

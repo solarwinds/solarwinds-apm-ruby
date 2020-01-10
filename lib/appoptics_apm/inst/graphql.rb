@@ -21,7 +21,7 @@ if defined?(GraphQL::Tracing)
       this_version = Gem::Version.new('1.0.0')
 
       if defined?(GraphQL::Tracing::AppOpticsTracing)
-        if this_version > GraphQL::Tracing::AppOpticsTracing::VERSION
+        if this_version > GraphQL::Tracing::AppOpticsTracing.version
           send(:remove_const, :AppOpticsTracing)
         else
           dont_redefine = true
@@ -40,7 +40,10 @@ if defined?(GraphQL::Tracing)
           # During auto-instrumentation this version of AppOpticsTracing is compared
           # with the version provided in the graphql gem, so that the newer
           # version of the class can be used
-          VERSION = Gem::Version.new('1.0.0').freeze
+
+          def self.version
+            Gem::Version.new('1.0.0')
+          end
 
           self.platform_keys = {
             'lex' => 'lex',
