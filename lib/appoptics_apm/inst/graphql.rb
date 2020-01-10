@@ -60,7 +60,7 @@ if defined?(GraphQL::Tracing)
             kvs = metadata(data, layer)
             kvs[:Key] = platform_key if (PREP_KEYS + EXEC_KEYS).include?(platform_key)
 
-            maybe_set_transaction_name(kvs[:InboundQuery]) if kvs[:InboundQuery] && layer == 'graphql.execute'
+            transaction_name(kvs[:InboundQuery]) if kvs[:InboundQuery] && layer == 'graphql.execute'
 
             ::AppOpticsAPM::SDK.trace(layer, kvs) do
               kvs.clear # we don't have to send them twice
@@ -78,7 +78,7 @@ if defined?(GraphQL::Tracing)
             ::AppOpticsAPM::Config[:graphql] ||= {}
           end
 
-          def maybe_set_transaction_name(query)
+          def transaction_name(query)
             return if gql_config[:transaction_name] == false ||
                       ::AppOpticsAPM::SDK.get_transaction_name
 

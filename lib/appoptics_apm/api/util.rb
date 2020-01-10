@@ -31,8 +31,7 @@ module AppOpticsAPM
       #
       def backtrace(from = 0, to = -1)
         bt = Kernel.caller
-        bt = bt[from..to]
-        trim_backtrace(bt).join("\r\n")
+        trim_backtrace(bt[from..to]).join("\r\n")
       end
 
       # Internal: Trim a backtrace to a manageable size
@@ -114,7 +113,7 @@ module AppOpticsAPM
       end
 
       def xtrace_v2?(xtr)
-        return xtr && xtr.start_with?('2B')
+        xtr && xtr.start_with?('2B')
       end
     end
   end
