@@ -12,6 +12,7 @@
 # TODO: make sure this stays up to date with
 # ____  what is in the graphql gem and vice-versa
 
+
 if defined?(GraphQL::Tracing)
   module GraphQL
     module Tracing
@@ -162,6 +163,8 @@ if defined?(GraphQL::Tracing)
           end
 
           def sanitize(query)
+            return unless query
+
             # remove arguments
             query.gsub(/"[^"]*"/, '"?"')                 # strings
                  .gsub(/-?[0-9]*\.?[0-9]+e?[0-9]*/, '?') # ints + floats
@@ -169,6 +172,8 @@ if defined?(GraphQL::Tracing)
           end
 
           def remove_comments(query)
+            return unless query
+
             query.gsub(/#[^\n\r]*/, '')
           end
         end
