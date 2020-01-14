@@ -13,6 +13,13 @@ if defined?(::Grape)
       clear_all_traces
     end
 
+    it "alerts me when a new version of grape is released" do
+      skip
+      # TODO: because then the restriction on rack in frameworks.gemfile
+      # ____  needs to be removed and also this test
+      assert_equal "1.2.4", Grape::VERSION, "remove restriction on rack in frameworks.gemfile"
+    end
+
     it "should trace a request to a simple grape stack" do
       @app = GrapeSimple
 

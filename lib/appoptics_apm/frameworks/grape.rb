@@ -53,7 +53,8 @@ module AppOpticsAPM
         end
 
         def error_response_with_appoptics(error = {})
-          status, headers, body = error_response_without_appoptics(error)
+          response = error_response_without_appoptics(error)
+          status, headers, _body = response.finish
 
           xtrace = AppOpticsAPM::Context.toString
 
@@ -77,7 +78,7 @@ module AppOpticsAPM
             end
           end
 
-          [status, headers, body]
+          response
         end
       end
     end

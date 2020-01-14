@@ -17,6 +17,7 @@ else
   gem 'sinatra'
 end
 
+gem 'rack' # , '~> 2.0.8'
 gem 'grape'
 
 if defined?(JRUBY_VERSION)

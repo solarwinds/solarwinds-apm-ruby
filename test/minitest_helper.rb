@@ -331,7 +331,7 @@ def print_traces(traces, more_keys = [])
     puts "#{indent}Label:   #{trace["Label"]}"
     puts "#{indent}Layer:   #{trace["Layer"]}"
 
-    more_keys.each { |key| puts "#{indent}#{key}:   #{trace[key]}"}
+    more_keys.each { |key| puts "#{indent}#{key}:   #{trace[key]}" if trace[key] }
 
     indent = indent[0...-2] if trace["Label"] == "exit"
   end
