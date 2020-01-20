@@ -345,7 +345,7 @@ if defined? GRPC
 
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         assert_entry_exit(traces, 2)
-        assert valid_edges?(traces, false) # sometimes it times out before the strace is attached
+        assert valid_edges?(traces, false) # sometimes it times out before the trace is attached
 
         _(traces.size).must_equal 6
         _(traces[0]['RemoteURL']).must_equal 'grpc://localhost:50051/grpctest.TestService/client_stream_long'
@@ -363,7 +363,7 @@ if defined? GRPC
 
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         assert_entry_exit(traces, 2)
-        assert valid_edges?(traces)
+        assert valid_edges?(traces, false)
 
         _(traces.size).must_equal 6
         _(traces[0]['GRPCMethodType']).must_equal  'CLIENT_STREAMING'
@@ -397,7 +397,7 @@ if defined? GRPC
 
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         assert_entry_exit(traces, 2)
-        assert valid_edges?(traces)
+        assert valid_edges?(traces, false)
 
         _(traces.size).must_equal 6
         _(traces[0]['GRPCMethodType']).must_equal  'CLIENT_STREAMING'
@@ -414,7 +414,7 @@ if defined? GRPC
 
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         assert_entry_exit(traces, 2)
-        assert valid_edges?(traces)
+        assert valid_edges?(traces, false)
 
         _(traces.size).must_equal 6
         _(traces[0]['GRPCMethodType']).must_equal  'CLIENT_STREAMING'
