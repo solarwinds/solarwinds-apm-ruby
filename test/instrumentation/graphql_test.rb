@@ -126,7 +126,6 @@ describe GraphQL::Tracing::AppOpticsTracing do
 
       query MyQuery
       mutation Types::MyMutation
-      use GraphQL::Tracing::AppOpticsTracing
     end
   end
 
