@@ -20,6 +20,7 @@ rvm:
 
 gemfile:
   - gemfiles/libraries.gemfile
+  - gemfiles/libraries_oldgems.gemfile
   - gemfiles/unit.gemfile
   - gemfiles/instrumentation_mocked.gemfile
   - gemfiles/instrumentation_mocked_oldgems.gemfile
@@ -60,6 +61,8 @@ matrix:
       env: DBTYPE=mysql
     - gemfile: gemfiles/libraries.gemfile
       env: DBTYPE=mysql
+    - gemfile: gemfiles/libraries_oldgems.gemfile
+      env: DBTYPE=mysql
     - gemfile: gemfiles/instrumentation_mocked.gemfile
       env: DBTYPE=mysql
     - gemfile: gemfiles/instrumentation_mocked_oldgems.gemfile
@@ -78,6 +81,8 @@ matrix:
     - gemfile: gemfiles/noop.gemfile
       env: DBTYPE=mysql2
     - gemfile: gemfiles/libraries.gemfile
+      env: DBTYPE=mysql2
+    - gemfile: gemfiles/libraries_oldgems.gemfile
       env: DBTYPE=mysql2
     - gemfile: gemfiles/instrumentation_mocked.gemfile
       env: DBTYPE=mysql2

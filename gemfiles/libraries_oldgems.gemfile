@@ -1,11 +1,11 @@
 source "https://rubygems.org"
 
-gem 'moped', '> 2'
+gem 'moped', '1.5.3'
 gem 'eventmachine', '< 1.2.0'
 gem 'em-synchrony'
 # gem 'em-http-request'
-gem 'rest-client'
-gem 'grpc' if RUBY_VERSION < '2.7.0' # TODO keep an eye out for new grpc > 1.27.0
+gem 'rest-client', '2.0.0'
+gem 'grpc' if RUBY_VERSION < '2.7.0'
 
 group :development, :test do
   gem 'minitest'
@@ -30,22 +30,21 @@ end
 gem 'bunny'
 gem 'mongo' # , '~> 1.12.5' uncomment to run mongo_v1_test.rb
 # gem 'cassandra'
-# gem 'curb' unless defined?(JRUBY_VERSION)
-gem 'curb'
+gem 'curb', '0.8.6' unless defined?(JRUBY_VERSION)
 gem 'dalli'
-gem 'excon'
-gem 'faraday'
-gem 'graphql' #, :path => "/code/graphql-ruby" # keep for local testing/debugging
-gem 'httpclient'
+gem 'excon', '0.28.0'
+gem 'faraday', '0.7.6'
+gem 'graphql', '1.8.0' # , :path => "/code/graphql-ruby" # keep for local testing/debugging
+gem 'httpclient', '2.3.0'
 gem 'logging'
 gem 'lumberjack'
 gem 'memcached'
-gem 'patron' # not instrumented, needed to test a non-instrumented faraday adapter
+gem 'patron', '0.7.0' # not instrumented, needed to test a non-instrumented faraday adapter
 gem 'redis'
 gem 'resque' unless defined?(JRUBY_VERSION)
 gem 'sequel'
 gem 'sidekiq'
-gem 'typhoeus'
+gem 'typhoeus', '1.0.0'
 
 # Database adapter gems needed by sequel
 if defined?(JRUBY_VERSION)

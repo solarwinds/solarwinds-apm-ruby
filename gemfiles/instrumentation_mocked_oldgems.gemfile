@@ -2,7 +2,7 @@ source "https://rubygems.org"
 
 # This gemfile uses the oldest versions we claim to support of the gems
 
-gem 'rest-client', '= 1.6.0'
+gem 'rest-client', '= 1.6.3'
 
 group :development, :test do
   gem 'minitest'
