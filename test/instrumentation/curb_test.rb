@@ -348,7 +348,7 @@ unless defined?(JRUBY_VERSION)
 
       traces = get_all_traces
       assert_equal 6, traces.count, "Trace count"
-      assert_equal "http://127.0.0.1:8101/?blah=1", traces[1]['RemoteURL']
+      assert_match "http://127.0.0.1:8101/?blah=1", traces[1]['RemoteURL']
     end
 
     it 'without tracing class get' do

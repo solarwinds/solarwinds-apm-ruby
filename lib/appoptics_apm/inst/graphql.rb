@@ -13,23 +13,23 @@
 # ____  what is in the graphql gem and vice-versa
 
 
-if defined?(GraphQL::Tracing)
+if defined?(GraphQL::Tracing) && !(AppOpticsAPM::Config[:graphql][:enabled] == false)
   module GraphQL
     module Tracing
       # AppOpticsTracing in the graphql gem may be a different version than the
       # one defined here, we want to use the newer one
-      dont_redefine = false
+      redefine = true
       this_version = Gem::Version.new('1.0.0')
 
       if defined?(GraphQL::Tracing::AppOpticsTracing)
         if this_version > GraphQL::Tracing::AppOpticsTracing.version
           send(:remove_const, :AppOpticsTracing)
         else
-          dont_redefine = true
+          redefine = false
         end
       end
 
-      unless dont_redefine
+      if redefine
         #-----------------------------------------------------------------------------#
         #----- this class is duplicated in the graphql gem ---------------------------#
         #-----------------------------------------------------------------------------#
@@ -182,12 +182,20 @@ if defined?(GraphQL::Tracing)
     end
   end
 
+  AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting GraphQL' if AppOpticsAPM::Config[:verbose]
+
   module AppOpticsAPM
     module GraphQLSchemaPrepend
       def use(plugin, options = {})
-        super unless GraphQL::Schema.plugins.find { |pl| pl[0].to_s == plugin.to_s }
+        # super unless GraphQL::Schema.plugins.find { |pl| pl[0].to_s == plugin.to_s }
+        super unless self.plugins.find { |pl| pl[0].to_s == plugin.to_s }
 
-        GraphQL::Schema.plugins
+        self.plugins
+      end
+
+      def inherited(subclass)
+        subclass.use(GraphQL::Tracing::AppOpticsTracing)
+        super
       end
     end
 
@@ -204,7 +212,6 @@ if defined?(GraphQL::Tracing)
 
   if defined?(GraphQL::Schema)
     GraphQL::Schema.singleton_class.prepend(AppOpticsAPM::GraphQLSchemaPrepend)
-    GraphQL::Schema.use(GraphQL::Tracing::AppOpticsTracing)
   end
 
   # rubocop:disable Style/IfUnlessModifier
