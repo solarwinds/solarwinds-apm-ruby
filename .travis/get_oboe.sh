@@ -9,10 +9,8 @@ CURRENT_GEMFILE=$BUNDLE_GEMFILE
 rvm 2.5.3
 unset BUNDLE_GEMFILE
 bundle update --jobs=3 --retry=3
-bundle exec rake clean fetch
+bundle exec rake clean fetch compile
 # restore previous ruby
 rvm $CURRENT_RUBY
 export BUNDLE_GEMFILE=$CURRENT_GEMFILE
-bundle update --jobs=3 --retry=3
-bundle exec rake compile
 
