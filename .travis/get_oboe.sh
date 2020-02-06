@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -ev # (exit immediatly on failure and print script lines before execution)
+source ~/.profile
 # store current ruby
 CURRENT_RUBY=`rvm current`
 # set ruby to 2.5.3 (pre-installed on travis)
