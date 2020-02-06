@@ -107,10 +107,17 @@ matrix:
 #  - sudo service cassandra start
 
 install:
-  - curl -LO http://kent.dl.sourceforge.net/project/swig/swig/swig-3.0.12/swig-3.0.12.tar.gz
-  - curl -LO http://kent.dl.sourceforge.net/project/swig/swig/swig-4.0.1/swig-4.0.1.tar.gz
-  - tar xzf swig-4.0.1.tar.gz
-  - pushd swig-4.0.1
+#  - curl -LO http://kent.dl.sourceforge.net/project/swig/swig/swig-3.0.12/swig-3.0.12.tar.gz
+#  - curl -LO http://kent.dl.sourceforge.net/project/swig/swig/swig-4.0.1/swig-4.0.1.tar.gz
+#  - tar xzf swig-4.0.1.tar.gz
+#  - pushd swig-4.0.1
+#  - ./configure && make && sudo make install
+#  - popd
+
+# use swig from git, it is the only one that works with Ruby 2.7 for now
+  - git clone https://github.com/swig/swig.git
+  - pushd swig
+  - ./autogen.sh
   - ./configure && make && sudo make install
   - popd
 
@@ -124,7 +131,7 @@ before_script:
   - export APPOPTICS_FROM_S3=true
 
   - bundle update --jobs=3 --retry=3
-  - ./.travis/get_oboe.sh
+  - bundle exec rake distclean fetch compile
   - psql -c 'create database travis_ci_test;' -U postgres
   - mysql -e 'create database travis_ci_test;'
   - redis-server --requirepass secret_pass &
