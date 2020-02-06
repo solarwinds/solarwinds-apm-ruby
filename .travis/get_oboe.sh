@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ev # (exit immediatly on failure and print script lines before execution)
+set -e # (exit immediatly on failure)
 source ~/.profile
 # store current ruby
 CURRENT_RUBY=`rvm current`
