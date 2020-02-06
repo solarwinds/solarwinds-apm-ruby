@@ -115,19 +115,19 @@ install:
   - popd
 
 before_script:
-  - export APPOPTICS_GEM_TEST=true
-  - export APPOPTICS_REPORTER=file
-  - export APPOPTICS_COLLECTOR=/tmp/appoptics_traces.bson
-  - export APPOPTICS_REPORTER_FILE_SINGLE=false
-  - export APPOPTICS_TOKEN_BUCKET_CAPACITY=1000
-  - export APPOPTICS_TOKEN_BUCKET_RATE=1000
-  - export APPOPTICS_FROM_S3=true
+export APPOPTICS_GEM_TEST=true
+export APPOPTICS_REPORTER=file
+export APPOPTICS_COLLECTOR=/tmp/appoptics_traces.bson
+export APPOPTICS_REPORTER_FILE_SINGLE=false
+export APPOPTICS_TOKEN_BUCKET_CAPACITY=1000
+export APPOPTICS_TOKEN_BUCKET_RATE=1000
+export APPOPTICS_FROM_S3=true
 
-  - bundle update --jobs=3 --retry=3
-  - ./.travis/get_oboe.sh
-  - psql -c 'create database travis_ci_test;' -U postgres
-  - mysql -e 'create database travis_ci_test;'
-  - redis-server --requirepass secret_pass &
+bundle update --jobs=3 --retry=3
+./.travis/get_oboe.sh
+psql -c 'create database travis_ci_test;' -U postgres
+mysql -e 'create database travis_ci_test;'
+redis-server --requirepass secret_pass &
   - sleep 10
 
 script: "bundle exec rake test"
