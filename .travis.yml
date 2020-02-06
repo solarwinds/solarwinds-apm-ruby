@@ -40,6 +40,8 @@ matrix:
       gemfile: gemfiles/rails42.gemfile
     - rvm: 2.4.5
       gemfile: gemfiles/rails60.gemfile
+    - rvm: 2.4.5  # excluding because of new sprockets version (4.0.0)
+      gemfile: gemfiles/rails52.gemfile
 
     - rvm: ruby-head
       env: DBTYPE=mysql
@@ -89,7 +91,8 @@ matrix:
     - rvm: ruby-head
     - rvm: 2.7.0
 
-# FIXME: Figure out if this is still an issue when reviewing cassandra test setup
+# FIXME: No cassandra tests for now
+# ____   Figure out if this is still an issue when reviving cassandra
 # Attempt Travis/Cassandra fix re: https://github.com/travis-ci/travis-ci/issues/1484
 # Updated Cassandra: https://github.com/travis-ci/travis-ci/issues/1650
 
