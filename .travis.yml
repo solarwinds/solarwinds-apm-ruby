@@ -89,7 +89,6 @@ matrix:
       env: DBTYPE=mysql2
   allow_failures:
     - rvm: ruby-head
-    - rvm: 2.7.0
 
 # FIXME: No cassandra tests for now
 # ____   Figure out if this is still an issue when reviving cassandra
