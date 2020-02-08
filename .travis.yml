@@ -11,10 +11,10 @@ env:
   - DBTYPE=mysql
 
 rvm:
+  - 2.7.0
   - 2.6.4
   - 2.5.5
   - 2.4.5
-  - 2.7.0
   - ruby-head
 #  - jruby-9.0.5.0
 
@@ -34,16 +34,18 @@ matrix:
   exclude:
     - rvm: ruby-head
       gemfile: gemfiles/rails42.gemfile
-    - rvm: 2.7.0-preview2
+    - rvm: 2.7.0
       gemfile: gemfiles/rails42.gemfile
     - rvm: 2.6.4
       gemfile: gemfiles/rails42.gemfile
     - rvm: 2.4.5
       gemfile: gemfiles/rails60.gemfile
+    - rvm: 2.4.5  # excluding because of new sprockets version (4.0.0)
+      gemfile: gemfiles/rails52.gemfile
 
     - rvm: ruby-head
       env: DBTYPE=mysql
-    - rvm: 2.7.0-preview2
+    - rvm: 2.7.0
       env: DBTYPE=mysql
     - rvm: 2.6.4
       env: DBTYPE=mysql
@@ -87,9 +89,9 @@ matrix:
       env: DBTYPE=mysql2
   allow_failures:
     - rvm: ruby-head
-    - rvm: 2.7.0
 
-# FIXME: Figure out if this is still an issue when reviewing cassandra test setup
+# FIXME: No cassandra tests for now
+# ____   Figure out if this is still an issue when reviving cassandra
 # Attempt Travis/Cassandra fix re: https://github.com/travis-ci/travis-ci/issues/1484
 # Updated Cassandra: https://github.com/travis-ci/travis-ci/issues/1650
 
@@ -104,9 +106,17 @@ matrix:
 #  - sudo service cassandra start
 
 install:
-  - curl -LO http://kent.dl.sourceforge.net/project/swig/swig/swig-3.0.12/swig-3.0.12.tar.gz
-  - tar xzf swig-3.0.12.tar.gz
-  - pushd swig-3.0.12
+#  - curl -LO http://kent.dl.sourceforge.net/project/swig/swig/swig-3.0.12/swig-3.0.12.tar.gz
+#  - curl -LO http://kent.dl.sourceforge.net/project/swig/swig/swig-4.0.1/swig-4.0.1.tar.gz
+#  - tar xzf swig-4.0.1.tar.gz
+#  - pushd swig-4.0.1
+#  - ./configure && make && sudo make install
+#  - popd
+
+# use swig from git, it is the only one that works with Ruby 2.7 for now
+  - git clone https://github.com/swig/swig.git
+  - pushd swig
+  - ./autogen.sh
   - ./configure && make && sudo make install
   - popd
 
@@ -119,8 +129,9 @@ before_script:
   - export APPOPTICS_TOKEN_BUCKET_RATE=1000
   - export APPOPTICS_FROM_S3=true
 
-  - bundle update --jobs=3 --retry=3
-  - bundle exec rake clean fetch compile
+#  - bundle update --jobs=3 --retry=3
+  - ./.travis/bundle.sh
+  - bundle exec rake distclean fetch compile
   - psql -c 'create database travis_ci_test;' -U postgres
   - mysql -e 'create database travis_ci_test;'
   - redis-server --requirepass secret_pass &

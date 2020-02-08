@@ -8,6 +8,7 @@ FROM ubuntu:16.04
 # install OS packages
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
+       autoconf \
        build-essential \
        apt-utils \
        curl \
