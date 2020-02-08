@@ -182,8 +182,6 @@ if defined?(GraphQL::Tracing) && !(AppOpticsAPM::Config[:graphql][:enabled] == f
     end
   end
 
-  AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting GraphQL' if AppOpticsAPM::Config[:verbose]
-
   module AppOpticsAPM
     module GraphQLSchemaPrepend
       def use(plugin, options = {})
@@ -210,13 +208,16 @@ if defined?(GraphQL::Tracing) && !(AppOpticsAPM::Config[:graphql][:enabled] == f
     # rubocop:enable Style/RedundantSelf
   end
 
-  if defined?(GraphQL::Schema)
-    GraphQL::Schema.singleton_class.prepend(AppOpticsAPM::GraphQLSchemaPrepend)
-  end
+  if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
+    AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting GraphQL' if AppOpticsAPM::Config[:verbose]
+    if defined?(GraphQL::Schema)
+      GraphQL::Schema.singleton_class.prepend(AppOpticsAPM::GraphQLSchemaPrepend)
+    end
 
-  # rubocop:disable Style/IfUnlessModifier
-  if defined?(GraphQL::Error)
-    GraphQL::Error.prepend(AppOpticsAPM::GraphQLErrorPrepend)
+    # rubocop:disable Style/IfUnlessModifier
+    if defined?(GraphQL::Error)
+      GraphQL::Error.prepend(AppOpticsAPM::GraphQLErrorPrepend)
+    end
+    # rubocop:enable Style/IfUnlessModifier
   end
-  # rubocop:enable Style/IfUnlessModifier
 end
