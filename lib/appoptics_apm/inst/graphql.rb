@@ -206,9 +206,21 @@ if defined?(GraphQL::Tracing) && !(AppOpticsAPM::Config[:graphql][:enabled] == f
       end
     end
     # rubocop:enable Style/RedundantSelf
+
+    # a different way of autoinstrumenting for graphql 1.7.4 - < 1.8.0
+    module GraphQLSchemaPrepend17
+      def initialize
+        super
+        unless tracers.find { |tr| tr.is_a? GraphQL::Tracing::AppOpticsTracing }
+          tracer = GraphQL::Tracing::AppOpticsTracing.new
+          tracers.push(tracer)
+          instrumenters[:field] << tracer
+        end
+      end
+    end
   end
 
-  if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
+  if Gem.loaded_specs['graphql'] && Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
     AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting GraphQL' if AppOpticsAPM::Config[:verbose]
     if defined?(GraphQL::Schema)
       GraphQL::Schema.singleton_class.prepend(AppOpticsAPM::GraphQLSchemaPrepend)
@@ -219,5 +231,10 @@ if defined?(GraphQL::Tracing) && !(AppOpticsAPM::Config[:graphql][:enabled] == f
       GraphQL::Error.prepend(AppOpticsAPM::GraphQLErrorPrepend)
     end
     # rubocop:enable Style/IfUnlessModifier
+  elsif Gem.loaded_specs['graphql'] && Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.7.4')
+    AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting GraphQL' if AppOpticsAPM::Config[:verbose]
+    if defined?(GraphQL::Schema)
+      GraphQL::Schema.prepend(AppOpticsAPM::GraphQLSchemaPrepend17)
+    end
   end
 end

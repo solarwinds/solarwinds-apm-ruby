@@ -59,16 +59,11 @@ describe GraphQL::Tracing::AppOpticsTracing do
       end
     end
 
-
     Schema = GraphQL::Schema.define do
       query QueryType
       mutation MutationType
 
       use GraphQL::Tracing::AppOpticsTracing
-
-      def id_from_object(_object = nil, _type = nil, _context = {})
-
-      end
 
       def other_name(upcase = false)
         return 'WHO AM I???' if upcase
@@ -93,7 +88,8 @@ describe GraphQL::Tracing::AppOpticsTracing do
         OpenStruct.new(
           id: SecureRandom.uuid,
           name: 'Peter Pan',
-          nickname: nil
+          nickname: nil,
+          othername: 'pp'
         )
       end
 
@@ -240,7 +236,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
           founder {
             # I forgot her name
             name
-            otherName(upcase: "yes please")
+            othername(upcase: "yes please")
           }
         }}
       GRAPHQL
