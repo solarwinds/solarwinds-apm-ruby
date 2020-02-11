@@ -130,6 +130,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
 
       # the following is not necessary because we auto-instrument,
       # it should not create any problems nor a double instrumentation
+      # graphql_1_7_4_test tests auto-instrumenting without #use for all versions
       use GraphQL::Tracing::AppOpticsTracing
     end
   end
