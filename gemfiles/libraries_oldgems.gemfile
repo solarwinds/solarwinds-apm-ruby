@@ -28,7 +28,7 @@ else
 end
 
 gem 'bunny'
-gem 'mongo', '< 2.0.0' # will run run mongo_v1_test.rb
+gem 'mongo'
 # gem 'cassandra'
 gem 'curb', '0.8.6' unless defined?(JRUBY_VERSION)
 gem 'dalli'

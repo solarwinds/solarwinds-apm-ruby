@@ -8,7 +8,7 @@ cache:
 env:
   - DBTYPE=postgresql
   - DBTYPE=mysql2
-  - DBTYPE=mysql
+#  - DBTYPE=mysql # looks like all mysql test are excluded
 
 rvm:
   - 2.7.0
@@ -44,37 +44,37 @@ matrix:
     - rvm: 2.4.5  # excluding because of new sprockets version (4.0.0)
       gemfile: gemfiles/rails52.gemfile
 
-    - rvm: ruby-head
-      env: DBTYPE=mysql
-    - rvm: 2.7.0
-      env: DBTYPE=mysql
-    - rvm: 2.6.4
-      env: DBTYPE=mysql
-    - rvm: 2.5.5
-      env: DBTYPE=mysql
-    - rvm: 2.4.5
-      env: DBTYPE=mysql
-
-    - gemfile: gemfiles/unit.gemfile
-      env: DBTYPE=mysql
-    - gemfile: gemfiles/noop.gemfile
-      env: DBTYPE=mysql
-    - gemfile: gemfiles/libraries.gemfile
-      env: DBTYPE=mysql
-    - gemfile: gemfiles/libraries_oldgems.gemfile
-      env: DBTYPE=mysql
-    - gemfile: gemfiles/instrumentation_mocked.gemfile
-      env: DBTYPE=mysql
-    - gemfile: gemfiles/instrumentation_mocked_oldgems.gemfile
-      env: DBTYPE=mysql
-    - gemfile: gemfiles/frameworks.gemfile
-      env: DBTYPE=mysql
-    - gemfile: gemfiles/rails52.gemfile
-      env: DBTYPE=mysql
-    - gemfile: gemfiles/rails60.gemfile
-      env: DBTYPE=mysql
-    - gemfile: gemfiles/delayed_job.gemfile
-      env: DBTYPE=mysql
+#    - rvm: ruby-head
+#      env: DBTYPE=mysql
+#    - rvm: 2.7.0
+#      env: DBTYPE=mysql
+#    - rvm: 2.6.4
+#      env: DBTYPE=mysql
+#    - rvm: 2.5.5
+#      env: DBTYPE=mysql
+#    - rvm: 2.4.5
+#      env: DBTYPE=mysql
+#
+#    - gemfile: gemfiles/unit.gemfile
+#      env: DBTYPE=mysql
+#    - gemfile: gemfiles/noop.gemfile
+#      env: DBTYPE=mysql
+#    - gemfile: gemfiles/libraries.gemfile
+#      env: DBTYPE=mysql
+#    - gemfile: gemfiles/libraries_oldgems.gemfile
+#      env: DBTYPE=mysql
+#    - gemfile: gemfiles/instrumentation_mocked.gemfile
+#      env: DBTYPE=mysql
+#    - gemfile: gemfiles/instrumentation_mocked_oldgems.gemfile
+#      env: DBTYPE=mysql
+#    - gemfile: gemfiles/frameworks.gemfile
+#      env: DBTYPE=mysql
+#    - gemfile: gemfiles/rails52.gemfile
+#      env: DBTYPE=mysql
+#    - gemfile: gemfiles/rails60.gemfile
+#      env: DBTYPE=mysql
+#    - gemfile: gemfiles/delayed_job.gemfile
+#      env: DBTYPE=mysql
 
     - gemfile: gemfiles/unit.gemfile
       env: DBTYPE=mysql2
