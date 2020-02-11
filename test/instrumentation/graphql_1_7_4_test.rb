@@ -59,7 +59,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
       end
     end
 
-    Schema = GraphQL::Schema.define do
+    MySchema = GraphQL::Schema.define do
       query QueryType
       mutation MutationType
 
@@ -127,7 +127,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
   it 'traces a simple graphql request' do
     AppOpticsAPM::SDK.start_trace('graphql_test') do
       query = 'query MyInt { int }'
-      AppOpticsTest::Schema.execute(query)
+      AppOpticsTest::MySchema.execute(query)
     end
 
     traces = get_all_traces
@@ -170,7 +170,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
     GRAPHQL
 
     AppOpticsAPM::SDK.start_trace('graphql_test') do
-      AppOpticsTest::Schema.execute(query)
+      AppOpticsTest::MySchema.execute(query)
     end
 
     traces = get_all_traces
@@ -194,7 +194,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
     GRAPHQL
 
     AppOpticsAPM::SDK.start_trace('graphql_test') do
-      AppOpticsTest::Schema.execute(query)
+      AppOpticsTest::MySchema.execute(query)
     end
 
     traces = get_all_traces
@@ -218,7 +218,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
     GRAPHQL
 
     AppOpticsAPM::SDK.start_trace('graphql_test') do
-      AppOpticsTest::Schema.execute(query)
+      AppOpticsTest::MySchema.execute(query)
     end
 
     traces = get_all_traces
@@ -246,7 +246,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
       AppOpticsAPM::Config[:graphql][:sanitize_query] = true
 
       AppOpticsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::Schema.execute(query)
+        AppOpticsTest::MySchema.execute(query)
 
         traces = get_all_traces
         traces.each do |tr|
@@ -262,7 +262,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
       AppOpticsAPM::Config[:graphql][:sanitize_query] = false
 
       AppOpticsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::Schema.execute(query)
+        AppOpticsTest::MySchema.execute(query)
 
         traces = get_all_traces
         traces.each do |tr|
@@ -278,7 +278,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
       AppOpticsAPM::Config[:graphql][:remove_comments] = true
 
       AppOpticsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::Schema.execute(query)
+        AppOpticsTest::MySchema.execute(query)
 
         traces = get_all_traces
         traces.each do |tr|
@@ -291,7 +291,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
       AppOpticsAPM::Config[:graphql][:remove_comments] = false
 
       AppOpticsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::Schema.execute(query)
+        AppOpticsTest::MySchema.execute(query)
 
         traces = get_all_traces
         traces.each do |tr|
@@ -303,7 +303,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
     it 'sets a graphql transaction name if transaction_name is TRUE' do
       AppOpticsAPM::Config[:graphql][:transaction_name] = true
       AppOpticsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::Schema.execute(query)
+        AppOpticsTest::MySchema.execute(query)
       end
 
       trace = get_all_traces.last
@@ -313,7 +313,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
     it 'does not set a graphql transaction name if transaction_name is FALSE' do
       AppOpticsAPM::Config[:graphql][:transaction_name] = false
       AppOpticsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::Schema.execute(query)
+        AppOpticsTest::MySchema.execute(query)
       end
 
       trace = get_all_traces.last
@@ -324,7 +324,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
       AppOpticsAPM::Config[:graphql][:transaction_name] = true
       query_short = '{company (id: 1) { name}}'
       AppOpticsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::Schema.execute(query_short)
+        AppOpticsTest::MySchema.execute(query_short)
       end
       trace = get_all_traces.last
       assert_equal "graphql.query.company", trace[:TransactionName]
@@ -333,14 +333,14 @@ describe GraphQL::Tracing::AppOpticsTracing do
     it 'does not create traces if graphql is not enabled' do
       AppOpticsAPM::Config[:graphql][:enabled] = false
       AppOpticsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::Schema.execute(query)
+        AppOpticsTest::MySchema.execute(query)
       end
       traces = get_all_traces
       assert_equal 2, traces.size, "failed: It should not have created traces for graphql"
     end
 
     it 'does not trace if there is no context' do
-      AppOpticsTest::Schema.execute(query)
+      AppOpticsTest::MySchema.execute(query)
       traces = get_all_traces
       assert_empty traces, 'failed: it should not have created any traces'
     end
@@ -370,7 +370,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
       ]
 
       AppOpticsAPM::SDK.start_trace('graphql_multi_test') do
-        AppOpticsTest::Schema.multiplex(queries)
+        AppOpticsTest::MySchema.multiplex(queries)
       end
 
       traces = get_all_traces
@@ -411,7 +411,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
       ]
 
       AppOpticsAPM::SDK.start_trace('graphql_multi_test') do
-        AppOpticsTest::Schema.multiplex(queries)
+        AppOpticsTest::MySchema.multiplex(queries)
       end
 
       traces = get_all_traces
