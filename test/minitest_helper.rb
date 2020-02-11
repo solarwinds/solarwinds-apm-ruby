@@ -73,7 +73,7 @@ ENV['RACK_ENV'] = 'test'
 # ENV['APPOPTICS_REPORTER_FILE_SINGLE'] = 'false'
 # ENV['APPOPTICS_GEM_TEST'] = 'true'
 
-ENV['APPOPTICS_GEM_VERBOSE'] = 'true'
+# ENV['APPOPTICS_GEM_VERBOSE'] = 'true' # currently redundant as we are setting AppOpticsAPM::Config[:verbose] = true
 
 MiniTest::Reporters.use! MiniTest::Reporters::SpecReporter.new
 

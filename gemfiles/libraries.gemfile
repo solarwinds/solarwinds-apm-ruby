@@ -5,7 +5,7 @@ gem 'eventmachine', '< 1.2.0'
 gem 'em-synchrony'
 # gem 'em-http-request'
 gem 'rest-client'
-gem 'grpc' if RUBY_VERSION < '2.7.0'
+gem 'grpc' if RUBY_VERSION < '2.7.0' # TODO keep an eye out for new grpc > 1.27.0
 
 group :development, :test do
   gem 'minitest'
@@ -35,7 +35,7 @@ gem 'curb'
 gem 'dalli'
 gem 'excon'
 gem 'faraday'
-gem 'graphql' # , :path => "/code/graphql-ruby" # keep for local testing/debugging
+gem 'graphql' #, :path => "/code/graphql-ruby" # keep for local testing/debugging
 gem 'httpclient'
 gem 'logging'
 gem 'lumberjack'

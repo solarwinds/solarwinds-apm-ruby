@@ -7,135 +7,107 @@
 
 require 'minitest_helper'
 require 'mocha/minitest'
-exit if Gem.loaded_specs['graphql'].version < Gem::Version.new('1.8.0')
 
 describe GraphQL::Tracing::AppOpticsTracing do
-  module Mutations
-    class BaseMutation < GraphQL::Schema::Mutation
-      #   null false
-    end
-
-    class CreateCompany < Mutations::BaseMutation
-      argument :name, String, required: true
-      argument :id, Integer, required: true
-
-      field :name, String, null: true
-      field :id, Integer, null: false
-
-      def resolve(name:, id:)
-        OpenStruct.new(
-          id: id,
-          name: name
-        )
-      end
-    end
-  end
-
-  module Types
-    class BaseArgument < GraphQL::Schema::Argument
-    end
-
-    class BaseField < GraphQL::Schema::Field
-      argument_class Types::BaseArgument
-    end
-
-    class BaseObject < GraphQL::Schema::Object
-      field_class Types::BaseField
-    end
-
-    class MyMutation < GraphQL::Schema::Object
-      field :create_company, mutation: Mutations::CreateCompany
-    end
-  end
 
   module AppOpticsTest
-    class Schema < GraphQL::Schema
-      def self.id_from_object(_object = nil, _type = nil, _context = {})
-        SecureRandom.uuid
+    QueryType = GraphQL::ObjectType.define do
+      name "MyQuery"
+
+      field :company do
+        type CompanyType
+        argument :id, !types.ID
+        description "Find an Address by ID"
+        resolve ->(_obj, args, _ctx) { Company.new(id: args["id"]) }
       end
+    end
 
-      class Address < GraphQL::Schema::Object
-        global_id_field :id
-        field :street, String, null: true
-        field :number, Integer, null: true
-        field :more, Integer, null: true
+    MutationType = GraphQL::ObjectType.define do
+      name "MyMutation"
+
+      field :createCompany, CompanyType do
+        argument :id, !types.ID
+        argument :name, !types.String
+        resolve ->(_obj, args, _ctx) { Company.new(id: args["id"], name: args["name"]) }
       end
+    end
 
-      class Person < GraphQL::Schema::Object
-        global_id_field :id
-        field :name, String, null: true
-        field :nickname, Integer, null: false
-        field :othername, String, null: true do
-          argument :upcase, String, required: false
-        end
+    CompanyType = GraphQL::ObjectType.define do
+      name "Company"
+      field :id, !types.ID
+      field :name, !types.String
+      field :address, AddressType
+      field :founder, PersonType
+      field :owner, PersonType
+    end
 
-        def other_name(upcase = false)
-          return 'WHO AM I???' if upcase
+    AddressType = GraphQL::ObjectType.define do
+      name "Address"
+      field :id, !types.ID
+      field :street, !types.String
+      field :number, !types.Int
+      field :more, !types.Int
+    end
 
-          'who am i?'
-        end
+    PersonType = GraphQL::ObjectType.define do
+      name "Person"
+      field :id, !types.ID
+      field :name, !types.String
+      field :nickname, !types.Int
+      field :othername, !types.String do
+        argument :upcase, !types.String
       end
+    end
 
-      class Company < GraphQL::Schema::Object
-        global_id_field :id
-        field :name, String, null: true
-        field :address, Schema::Address, null: true
-        field :founder, Schema::Person, null: true
-        field :owner, Schema::Person, null: true
+    MySchema = GraphQL::Schema.define do
+      query QueryType
+      mutation MutationType
 
-        def address
-          OpenStruct.new(
-            id: AppOpticsTest::Schema.id_from_object,
-            street: 'MyStreetName',
-            number: Random.new.rand(555),
-            more: nil
-          )
-        end
-
-        def founder
-          OpenStruct.new(
-            id: AppOpticsTest::Schema.id_from_object,
-            name: 'Peter Pan',
-            nickname: nil
-          )
-        end
-
-        def owner
-          OpenStruct.new(
-            id: AppOpticsTest::Schema.id_from_object,
-            name: { a: 1 }
-          )
-        end
-      end
-      # rubocop:disable Style/SingleLineMethods
-      class MyQuery < GraphQL::Schema::Object
-        field :int, Integer, null: false
-        def int; 1; end
-
-        field :company, Company, null: true do
-          argument :id, ID, required: true
-        end
-
-        def company(id:)
-          OpenStruct.new(
-            id: id,
-            name: 'MyName'
-          )
-        end
-      end
-      # rubocop:enable Style/SingleLineMethods
-
-      query MyQuery
-      mutation Types::MyMutation
-
-      # the following is not necessary because we auto-instrument,
-      # it should not create any problems nor a double instrumentation
-      # graphql_1_7_4_test tests auto-instrumenting without #use for all versions
       use GraphQL::Tracing::AppOpticsTracing
+
+      def other_name(upcase = false)
+        return 'WHO AM I???' if upcase
+
+        'who am i?'
+      end
+    end
+
+    class Company
+      attr_reader :id, :name
+
+      def address
+        OpenStruct.new(
+          id: SecureRandom.uuid,
+          street: 'MyStreetName',
+          number: Random.new.rand(555),
+          more: nil
+        )
+      end
+
+      def founder
+        OpenStruct.new(
+          id: SecureRandom.uuid,
+          name: 'Peter Pan',
+          nickname: nil,
+          othername: 'pp'
+        )
+      end
+
+      def owner
+        OpenStruct.new(
+          id: SecureRandom.uuid,
+          name: { a: 1 }
+        )
+      end
+
+      def initialize(id:, name: 'MyName')
+        @id = id
+        @name = name
+      end
     end
   end
 
-  # Tests for the graphql gem instrumentation
+# Tests for the graphql gem instrumentation
   before do
     clear_all_traces
 
@@ -155,7 +127,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
   it 'traces a simple graphql request' do
     AppOpticsAPM::SDK.start_trace('graphql_test') do
       query = 'query MyInt { int }'
-      AppOpticsTest::Schema.execute(query)
+      AppOpticsTest::MySchema.execute(query)
     end
 
     traces = get_all_traces
@@ -184,7 +156,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
     assert_equal "graphql.query.MyInt", traces.last[:TransactionName], "failure: TransactionName not matching"
   end
 
-  # rubocop:disable Lint/AmbiguousBlockAssociation
+# rubocop:disable Lint/AmbiguousBlockAssociation
   it 'traces a more complex graphql request' do
     query = <<-GRAPHQL
         query MyCompany { company(id: "abc") {
@@ -198,7 +170,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
     GRAPHQL
 
     AppOpticsAPM::SDK.start_trace('graphql_test') do
-      AppOpticsTest::Schema.execute(query)
+      AppOpticsTest::MySchema.execute(query)
     end
 
     traces = get_all_traces
@@ -222,7 +194,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
     GRAPHQL
 
     AppOpticsAPM::SDK.start_trace('graphql_test') do
-      AppOpticsTest::Schema.execute(query)
+      AppOpticsTest::MySchema.execute(query)
     end
 
     traces = get_all_traces
@@ -231,7 +203,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
     assert traces.find { |tr| tr[:Layer] == 'graphql.MyMutation.createCompany' && tr[:Label] == 'entry' }
     assert traces.find { |tr| tr[:Layer] == 'graphql.MyMutation.createCompany' && tr[:Label] == 'exit' }
   end
-  # rubocop:enable Lint/AmbiguousBlockAssociation
+# rubocop:enable Lint/AmbiguousBlockAssociation
 
   it 'adds an error event for a disallowed null value' do
     query = <<-GRAPHQL
@@ -246,7 +218,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
     GRAPHQL
 
     AppOpticsAPM::SDK.start_trace('graphql_test') do
-      AppOpticsTest::Schema.execute(query)
+      AppOpticsTest::MySchema.execute(query)
     end
 
     traces = get_all_traces
@@ -264,7 +236,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
           founder {
             # I forgot her name
             name
-            otherName(upcase: "yes please")
+            othername(upcase: "yes please")
           }
         }}
       GRAPHQL
@@ -274,7 +246,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
       AppOpticsAPM::Config[:graphql][:sanitize_query] = true
 
       AppOpticsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::Schema.execute(query)
+        AppOpticsTest::MySchema.execute(query)
 
         traces = get_all_traces
         traces.each do |tr|
@@ -290,7 +262,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
       AppOpticsAPM::Config[:graphql][:sanitize_query] = false
 
       AppOpticsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::Schema.execute(query)
+        AppOpticsTest::MySchema.execute(query)
 
         traces = get_all_traces
         traces.each do |tr|
@@ -306,7 +278,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
       AppOpticsAPM::Config[:graphql][:remove_comments] = true
 
       AppOpticsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::Schema.execute(query)
+        AppOpticsTest::MySchema.execute(query)
 
         traces = get_all_traces
         traces.each do |tr|
@@ -319,7 +291,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
       AppOpticsAPM::Config[:graphql][:remove_comments] = false
 
       AppOpticsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::Schema.execute(query)
+        AppOpticsTest::MySchema.execute(query)
 
         traces = get_all_traces
         traces.each do |tr|
@@ -331,7 +303,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
     it 'sets a graphql transaction name if transaction_name is TRUE' do
       AppOpticsAPM::Config[:graphql][:transaction_name] = true
       AppOpticsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::Schema.execute(query)
+        AppOpticsTest::MySchema.execute(query)
       end
 
       trace = get_all_traces.last
@@ -341,7 +313,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
     it 'does not set a graphql transaction name if transaction_name is FALSE' do
       AppOpticsAPM::Config[:graphql][:transaction_name] = false
       AppOpticsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::Schema.execute(query)
+        AppOpticsTest::MySchema.execute(query)
       end
 
       trace = get_all_traces.last
@@ -352,7 +324,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
       AppOpticsAPM::Config[:graphql][:transaction_name] = true
       query_short = '{company (id: 1) { name}}'
       AppOpticsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::Schema.execute(query_short)
+        AppOpticsTest::MySchema.execute(query_short)
       end
       trace = get_all_traces.last
       assert_equal "graphql.query.company", trace[:TransactionName]
@@ -361,14 +333,14 @@ describe GraphQL::Tracing::AppOpticsTracing do
     it 'does not create traces if graphql is not enabled' do
       AppOpticsAPM::Config[:graphql][:enabled] = false
       AppOpticsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::Schema.execute(query)
+        AppOpticsTest::MySchema.execute(query)
       end
       traces = get_all_traces
       assert_equal 2, traces.size, "failed: It should not have created traces for graphql"
     end
 
     it 'does not trace if there is no context' do
-      AppOpticsTest::Schema.execute(query)
+      AppOpticsTest::MySchema.execute(query)
       traces = get_all_traces
       assert_empty traces, 'failed: it should not have created any traces'
     end
@@ -398,7 +370,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
       ]
 
       AppOpticsAPM::SDK.start_trace('graphql_multi_test') do
-        AppOpticsTest::Schema.multiplex(queries)
+        AppOpticsTest::MySchema.multiplex(queries)
       end
 
       traces = get_all_traces
@@ -439,7 +411,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
       ]
 
       AppOpticsAPM::SDK.start_trace('graphql_multi_test') do
-        AppOpticsTest::Schema.multiplex(queries)
+        AppOpticsTest::MySchema.multiplex(queries)
       end
 
       traces = get_all_traces
@@ -476,12 +448,5 @@ describe GraphQL::Tracing::AppOpticsTracing do
       end
     end
 
-    it 'does not add plugins twice' do
-      GraphQL::Schema.use(GraphQL::Tracing::AppOpticsTracing)
-      GraphQL::Schema.use(GraphQL::Tracing::AppOpticsTracing)
-
-      assert_equal GraphQL::Schema.plugins.uniq.size, GraphQL::Schema.plugins.size,
-                   'failed: duplicate plugins found'
-    end
   end
 end
