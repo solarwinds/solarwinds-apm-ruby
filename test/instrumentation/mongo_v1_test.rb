@@ -7,8 +7,7 @@ unless ENV['APPOPTICS_MONGO_SERVER']
   ENV['APPOPTICS_MONGO_SERVER'] = "127.0.0.1:27017"
 end
 
-
-# TODO remove these tests, they fail with old mongos and we can't really setup for newer mongo < '2.0.0'
+# TODO these can be removed eventually, mongo 2.0.0 is from 2015, old enough
 if Gem.loaded_specs['mongo'].version.to_s < '2.0.0'
   describe "Mongo" do
     before do

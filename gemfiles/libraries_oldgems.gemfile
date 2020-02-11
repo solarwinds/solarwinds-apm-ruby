@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-gem 'moped', '1.5.3'
+gem 'moped', '>= 2.0.7' # currently the newest, but  old enough (2015)
 gem 'eventmachine', '< 1.2.0'
 gem 'em-synchrony'
 # gem 'em-http-request'
@@ -28,7 +28,7 @@ else
 end
 
 gem 'bunny'
-gem 'mongo' # , '~> 1.12.5' uncomment to run mongo_v1_test.rb
+gem 'mongo', '< 2.0.0' # will run run mongo_v1_test.rb
 # gem 'cassandra'
 gem 'curb', '0.8.6' unless defined?(JRUBY_VERSION)
 gem 'dalli'
