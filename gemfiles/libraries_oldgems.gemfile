@@ -34,7 +34,7 @@ gem 'curb', '0.8.6' unless defined?(JRUBY_VERSION)
 gem 'dalli'
 gem 'excon', '0.28.0'
 gem 'faraday', '0.7.6'
-gem 'graphql', '1.8.0' # , :path => "/code/graphql-ruby" # keep for local testing/debugging
+gem 'graphql', '1.7.4' # , :path => "/code/graphql-ruby" # keep for local testing/debugging
 gem 'httpclient', '2.3.0'
 gem 'logging'
 gem 'lumberjack'
