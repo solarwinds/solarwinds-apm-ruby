@@ -111,7 +111,7 @@ describe AppOpticsAPM::SDK do
     }
     name = "lobster"
     url = "#{@url}#{name}"
-    
+
     Time.stub(:now, Time.at(0)) do
       AppOpticsAPM::Span.expects(:createHttpSpan).with(name, url, nil, 0, 200, 'GET', 0)
       AppOpticsAPM::API.expects(:log_event).never
@@ -164,11 +164,10 @@ describe AppOpticsAPM::SDK do
 
     name = "lobster"
 
-    ::Rack::Request.any_instance.stubs(:port).returns(12345)
     Time.stub(:now, Time.at(0)) do
       AppOpticsAPM::Span.expects(:createHttpSpan).with(name, "http://example.org:12345/lobster", "example.org:12345", 0, 200, 'GET', 0)
 
-      get "/#{name}"
+      get "http://#{@domain}:12345/#{name}"
     end
 
   end
