@@ -29,18 +29,17 @@ EOM
 
 ## specific gem and versions
 test_gem="graphql"
-test_file_path="test/instrumentation/graphql_1_7_4_test.rb"
+test_file_path="test/instrumentation/graphql_test.rb"
 #declare -a test_gem_versions=("1.27.0" "1.20.0" "1.13.0" "1.6.0")
 declare -a test_gem_versions=("1.7.4" "1.7.7" "1.7.14" "1.8.0" "1.8.17" "1.9.0" "1.9.19" "1.10.0" "1.10.1" "1.10.2")
 
 ## ruby versions
-#declare -a ruby_versions=("2.7.0" "2.6.4" "2.5.5" "2.4.5")
-declare -a ruby_versions=("2.7.0")
+declare -a ruby_versions=("2.7.0" "2.6.4" "2.5.5" "2.4.5")
+#declare -a ruby_versions=("2.7.0")
 
 ## Setup and run tests
 for i in "${test_gem_versions[@]}"
 do
-   echo "===== $test_gem $i ====="
    gemfile="$test_gem-$i.gemfile"
    export BUNDLE_GEMFILE=$gemfile
 
@@ -55,8 +54,8 @@ do
      bundle install
      bundle exec rake recompile
      bundle exec ruby -Itest $test_file_path
+     rm *.lock
    done
-   rm "$gemfile.lock"
    rm $gemfile
 done
 
