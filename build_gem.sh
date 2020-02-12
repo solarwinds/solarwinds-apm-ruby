@@ -8,8 +8,9 @@ bundle install --without development --without test
 bundle exec rake distclean
 bundle exec rake fetch_ext_deps
 gem build appoptics_apm.gemspec
+mv appoptics_apm*.gem builds
 
 echo -e "\n=== built gems ===\n"
-ls -la appoptics_apm*.gem
+ls -la builds/appoptics_apm*.gem
 
 echo -e "\n=== publish to rubygems via: gem push <gem> ===\n"

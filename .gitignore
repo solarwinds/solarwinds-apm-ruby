@@ -32,3 +32,4 @@ scrap*
 *.code-workspace
 .irb_history
 .bundle/
+/builds/
