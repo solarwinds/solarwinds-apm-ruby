@@ -133,7 +133,8 @@ class RackDNTTestApp < Minitest::Test
     res = get "/lobster", {}, { 'HTTP_X_TRACE' => xtrace }
 
     AppOpticsAPM::XTrace.unset_sampled(xtrace)
-    assert_equal xtrace, res.get_header('X-Trace')
+
+    assert_equal xtrace, res.header['X-Trace']
     traces = get_all_traces
     assert traces.empty?
 
