@@ -7,6 +7,7 @@
 
 require 'minitest_helper'
 require 'mocha/minitest'
+require 'securerandom'
 
 describe GraphQL::Tracing::AppOpticsTracing do
 
@@ -425,7 +426,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
     # GraphQL::Tracing::AppOpticsTracing class
     # from the graphql gem will be loaded first
     it 'uses the newer version of AppOpticsTracing from the appoptics_apm gem' do
-      Kernel.silence_warnings do # silence warning about re-initializing a const
+      # Kernel.silence_warnings do # silence warning about re-initializing a const
         load 'test/instrumentation/graphql/appoptics_tracing_older.rb'
         load 'lib/appoptics_apm/inst/graphql.rb'
 
@@ -433,11 +434,11 @@ describe GraphQL::Tracing::AppOpticsTracing do
                      GraphQL::Tracing::AppOpticsTracing.new.method(:metadata).source_location[0]
         assert_match 'lib/appoptics_apm/inst/graphql.rb',
                      GraphQL::Tracing::AppOpticsTracing.new.method(:platform_trace).source_location[0]
-      end
+      # end
     end
 
     it 'uses the newer version of AppOpticsTracing from the graphql gem' do
-      Kernel.silence_warnings do # silence warning about re-initializing a const
+      # Kernel.silence_warnings do # silence warning about re-initializing a const
         load 'test/instrumentation/graphql/appoptics_tracing_newer.rb'
         load 'lib/appoptics_apm/inst/graphql.rb'
 
@@ -445,7 +446,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
                      GraphQL::Tracing::AppOpticsTracing.new.method(:metadata).source_location[0]
         assert_match 'graphql/appoptics_tracing_newer.rb',
                      GraphQL::Tracing::AppOpticsTracing.new.method(:platform_trace).source_location[0]
-      end
+      # end
     end
 
   end

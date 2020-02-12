@@ -184,7 +184,7 @@ if defined?(GraphQL::Tracing) && !(AppOpticsAPM::Config[:graphql][:enabled] == f
 
   module AppOpticsAPM
     module GraphQLSchemaPrepend
-      def use(plugin, options = {})
+      def use(plugin, **options)
         # super unless GraphQL::Schema.plugins.find { |pl| pl[0].to_s == plugin.to_s }
         super unless self.plugins.find { |pl| pl[0].to_s == plugin.to_s }
 
