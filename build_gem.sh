@@ -11,6 +11,6 @@ gem build appoptics_apm.gemspec
 mv appoptics_apm*.gem builds
 
 echo -e "\n=== built gems ===\n"
-ls -la builds/appoptics_apm*.gem
+ls -lart builds/appoptics_apm*.gem
 
 echo -e "\n=== publish to rubygems via: gem push <gem> ===\n"
