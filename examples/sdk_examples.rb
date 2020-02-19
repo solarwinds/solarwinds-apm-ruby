@@ -100,7 +100,7 @@ AppOpticsAPM::SDK.start_trace('trace_a_method') do
 end
 
 ###############################################################
-# ADD A TRANSACTION NAME
+# SET A CUSTOM TRANSACTION NAME
 ###############################################################
 #
 # AppOpticsAPM::SDK.set_transaction_name()
