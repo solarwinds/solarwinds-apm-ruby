@@ -4,10 +4,13 @@
 ###############################################################
 # SDK EXAMPLES
 ###############################################################
-# Use cases:
-# You may want to either trace a piece of your own code or a
-# method call from a gem that isn't auto-instrumented by
-# appoptics_apm
+# The uses cases of the SDK include:
+# - tracing a piece of your own code
+# - tracing a method call of a gem that is not auto-instrumented
+#   by appoptics_apm
+#
+# SDK documentation:
+# https://rubydoc.info/gems/appoptics_apm/AppOpticsAPM/SDK
 
 ###############################################################
 # Prerequisits
@@ -29,9 +32,10 @@ end
 #
 # AppOpticsAPM::SDK.trace()
 # This method adds a span to a trace that has been started either
-# by the SDK method `start_trace` or by rack.
-# It will not create a trace if it is called outside of the
-# context of a started trace.
+# by the auto-instrumentation of the gem handling incoming requests
+# or the SDK method `start_trace`.
+# If this method is called outside of the context of a started
+# trace no spans will be created.
 #
 # The argument is the name for the span
 
@@ -59,8 +63,8 @@ end
 ###############################################################
 #
 # AppOpticsAPM::SDK.log_exception()
-# This method adds an error event to the trace, which will show
-# up and be counted as exception on the appoptics dashboard.
+# This method adds an error event to the trace, which will be
+# displayed and counted as exception on the appoptics dashboard.
 
 def do_raise
   raise StandardError.new("oops")
