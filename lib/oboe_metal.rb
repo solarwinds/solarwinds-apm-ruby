@@ -85,7 +85,7 @@ module AppOpticsAPM
         # gem isn't in the bundle, it should rightfully error out
         # anyways.
         #
-        if Gem.loaded_specs['bson'].version.to_s < '4.0'
+        if Gem.loaded_specs['bson'] && Gem.loaded_specs['bson'].version.to_s < '4.0'
           s = StringIO.new(contents[0])
 
           until s.eof?
@@ -96,7 +96,7 @@ module AppOpticsAPM
                       end
           end
         else
-          bbb = BSON::ByteBuffer.new(contents[0])
+          bbb = ::BSON::ByteBuffer.new(contents[0])
           until bbb.length == 0
             traces << Hash.from_bson(bbb)
           end
