@@ -52,7 +52,7 @@ Automatic tracing and metrics for Ruby applications. Get started at appoptics.co
   s.add_development_dependency('irb', '>= 1.0.0', '< 1.2.2') if RUBY_VERSION >= '2.6.0'
 
   unless defined?(JRUBY_VERSION)
-    s.add_development_dependency('byebug', '~> 5.14.0')
+    s.add_development_dependency('byebug', '>= 11.0.0')
     s.add_development_dependency('minitest', '>= 8.0.0')
     s.add_development_dependency('minitest-hooks', '>= 1.5.0')
     s.add_development_dependency('minitest-focus', '>=1.1.2')
