@@ -221,7 +221,7 @@ class Event : private oboe_event_t {
 
 private:
     Event();
-    Event(const oboe_metadata_t *md, bool addEdge = true); 
+    Event(const oboe_metadata_t *md, bool addEdge = true);
 
 public:
     ~Event();
@@ -277,11 +277,11 @@ public:
 class MetricTags {
     friend class CustomMetrics;
 public:
-    MetricTags(size_t count); 
-    ~MetricTags(); 
-    bool add(size_t index, char *k, char *v); 
+    MetricTags(size_t count);
+    ~MetricTags();
+    bool add(size_t index, char *k, char *v);
 private:
-    oboe_metric_tag_t* get() const; 
+    oboe_metric_tag_t* get() const;
     oboe_metric_tag_t *tags;
     size_t size;
 };
@@ -369,7 +369,7 @@ public:
  *          arguments as passed to oboe_debug_logger().
  */
 extern "C" void oboe_debug_log_handler(void *context, int module, int level,
-                                       const char *source_name, int source_lineno, 
+                                       const char *source_name, int source_lineno,
                                        const char *msg);
 
 class DebugLog {
@@ -467,7 +467,7 @@ public:
      * @param format A C language printf format specification string.
      * @param args A variable argument list in VA_ARG format containing arguments for each argument specifier in the format.
      */
-    static void logMessage(int module, int level, const char *source_name, 
+    static void logMessage(int module, int level, const char *source_name,
     int source_lineno, const char *msg);
 };
 
