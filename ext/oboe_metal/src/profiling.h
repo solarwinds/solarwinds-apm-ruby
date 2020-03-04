@@ -11,7 +11,7 @@ class Profiling {
     static void profiler_signal_handler(int sigint, siginfo_t* siginfo, void* ucontext);
     static VALUE profiling_start(VALUE self);
     static VALUE profiling_stop(VALUE self);
-    static VALUE profiling_run(int argc, VALUE* argv, VALUE self);
+    static VALUE profiling_run(VALUE self);
 };
 
 static VALUE rb_mAOProfiler;
