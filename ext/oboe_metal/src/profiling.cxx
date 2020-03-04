@@ -79,7 +79,7 @@ VALUE Profiling::profiling_stop(VALUE self) {
     return Qtrue;
 }
 
-VALUE Profiling::profiling_run(int argc, VALUE* argv, VALUE self) {
+VALUE Profiling::profiling_run(VALUE self) {
     rb_need_block();
     profiling_start(self);
     rb_ensure(reinterpret_cast<VALUE (*)(...)>(rb_yield), Qundef,
@@ -89,5 +89,5 @@ VALUE Profiling::profiling_run(int argc, VALUE* argv, VALUE self) {
 
 extern "C" void Init_profiling(void) {
     rb_mAOProfiler = rb_define_module("AOProfiler");
-    rb_define_singleton_method(rb_mAOProfiler, "run", reinterpret_cast<VALUE (*)(...)>(Profiling::profiling_run), -1);
+    rb_define_singleton_method(rb_mAOProfiler, "run", reinterpret_cast<VALUE (*)(...)>(Profiling::profiling_run), 0);
 }
