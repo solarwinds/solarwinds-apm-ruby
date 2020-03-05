@@ -99,7 +99,7 @@ AppOpticsAPM::Config[:sample_rate] = 1000000
 # puts %x{psql -c 'create database travis_ci_test;' -U postgres}
 
 # Our background Rack-app for http client testing
-if ENV['BUNDLE_GEMFILE'] && File.basename(ENV['BUNDLE_GEMFILE']) =~ /libraries|frameworks|instrumentation/
+if ENV['BUNDLE_GEMFILE'] && File.basename(ENV['BUNDLE_GEMFILE']) =~ /libraries|frameworks|instrumentation|noop/
   require './test/servers/rackapp_8101'
 end
 
