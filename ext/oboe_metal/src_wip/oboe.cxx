@@ -144,7 +144,7 @@ void Context::set(oboe_metadata_t *md) {
     oboe_context_set(md);
 }
 
-void fromString(std::string s) {
+void Context::fromString(std::string s) {
     oboe_context_set_fromstr(s.data(), s.size());
 }
 
@@ -331,6 +331,7 @@ bool Event::addSpanRef(oboe_metadata_t *md) {
     oboe_btoh((uint8_t *)buf, buf, OBOE_MAX_OP_ID_LEN);
     buf[2 * OBOE_MAX_OP_ID_LEN] = '\0';
 
+    oboe_event_add_info(this, "Edge", buf);
     return oboe_event_add_info(this, "SpanRef", buf);
 }
 
@@ -344,6 +345,7 @@ bool Event::addContextOpId(uint8_t *id) {
     oboe_btoh((uint8_t *)buf, buf, OBOE_MAX_OP_ID_LEN);
     buf[2 * OBOE_MAX_OP_ID_LEN] = '\0';
 
+    oboe_event_add_info(this, "Edge", buf);
     return oboe_event_add_info(this, "ContextOpId", buf);
 }
 
