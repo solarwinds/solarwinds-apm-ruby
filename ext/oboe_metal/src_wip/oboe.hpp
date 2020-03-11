@@ -13,9 +13,10 @@
 #include <string>
 #include <unistd.h>
 #include <assert.h>
+#include <vector>
 
 #include "oboe.h"
-
+#include "profiling.h"
 
 class Event;
 class Reporter;
@@ -228,9 +229,11 @@ public:
 
     // called e.g. from Python e.addInfo("Key", None) & Ruby e.addInfo("Key", nil)
     bool addInfo(char *key, void* val);
-    bool addInfo(char *key, const std::string& val);
+    bool addInfo(char *key, const std::string &val);
     bool addInfo(char *key, long val);
-    bool addInfo(char *key, double val) ;
+    bool addInfo(char *key, double val);
+    bool addInfo(char *key, const std::vector<long> &val);
+    bool addInfo(char *key, const std::vector<frame_t> &val, int num);
 
     bool addEdge(oboe_metadata_t *md);
     bool addEdgeStr(const std::string& val);
@@ -245,7 +248,7 @@ public:
     Metadata* getMetadata();
     std::string metadataString();
 
-    void getOpID(uint8_t *id);
+    void storeOpID(uint8_t *id);
 
     /**
      * Report this event.
@@ -259,7 +262,7 @@ public:
     bool send_profiling();
 
     bool addSpanRef(oboe_metadata_t *md);
-    bool addContextOpId(uint8_t *id);
+    bool addProfileEdge(uint8_t *id);
 
     static Event* startTrace(const oboe_metadata_t *md);
 };
@@ -315,7 +318,7 @@ public:
         int max_transactions,         // maximum number of transaction names to track
         int max_flush_wait_time,      // maximum wait time for flushing data before terminating in milli seconds
         int events_flush_interval,    // events flush timeout in seconds (threshold for batching messages before sending off)
-        int events_flush_batch_size,  // events flush batch size in KB (threshold for batching messages before sending off)
+        int max_request_size_bytes,  // events flush batch size in KB (threshold for batching messages before sending off)
 
         std::string reporter,      // the reporter to be used ("ssl", "upd", "file", "null")
         std::string host,          // collector endpoint (reporter=ssl), udp address (reporter=udp), or file path (reporter=file)
