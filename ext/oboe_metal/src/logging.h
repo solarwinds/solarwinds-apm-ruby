@@ -5,31 +5,25 @@
 #define LOGGING_H
 
 #include <iostream>
-#include <string>
 #include <sstream> 
 #include <vector>
 
 #include "oboe.hpp"
+#include "profiling.h"
 
-//TODO move to oboe.h
 extern "C" int oboe_gettimeofday(struct timeval *tv);
-
-class Frame {
-   public:
-    Frame(std::string klass, std::string method, std::string filename, int lineno);
-
-    std::string toString();
-};
 
 class Logging {
    public:
-    static bool log_profile_entry();
+    static Event *startEvent(bool entry_event);
+    static bool log_profile_entry(long interval);
     static bool log_profile_exit(std::vector<long> const &ommitted);
     static bool log_profile_snapshot(long timestamp,
-                                     std::vector<Frame> new_frames,
-                                     int exited_frames,
-                                     int total_frames,
-                                     std::vector<long> ommitted);
+                                     std::vector<frame_t> const &new_frames,
+                                     int num_new_frames,
+                                     long exited_frames,
+                                     long total_frames,
+                                     std::vector<long> const &ommitted);
     static bool log_profile_event(Event *event);
 };
 

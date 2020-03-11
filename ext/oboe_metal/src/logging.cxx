@@ -17,48 +17,48 @@ std::string hexStr2(unsigned char *data, int len) {
     return s;
 }
 
+oboe_metadata_t *md;
+
 std::ostringstream ss;
 
-bool Logging::log_profile_entry() {
+Event *Logging::startEvent(bool entry_event = false) {
+    
+    Event *event = Event::startTrace(md); // startTrace does not add "Edge"
+    if (entry_event) {
+        event->addSpanRef(md);
+    } else {
+        event->addProfileEdge(prof_op_id);
+        std::cout << hexStr2(prof_op_id, OBOE_MAX_OP_ID_LEN) << " - ";
+    }
+    event->storeOpID(prof_op_id);
+    std::cout << hexStr2(prof_op_id, OBOE_MAX_OP_ID_LEN) << std::endl;
+    return event;
+}
+
+bool Logging::log_profile_entry(long interval) {
     std::cout << "profile entry, " << Context::toString() << std::endl;
-
-    oboe_metadata_t *md = Context::get();
-    Event *event = Event::startTrace(md);  // startTrace does not add "Edge"
-    event->getOpID(prof_op_id);            // keep track of the edge
-
-    event->addSpanRef(md);  // ref to edge of current trace context
+    md = Context::get();
+    // oboe_metadata_t *md = Context::get();
+    // Event *event = Logging::startEvent();
+     
+    Event *event = Logging::startEvent(true);
     event->addInfo((char *)"Label", "entry");
     event->addInfo((char *)"Language", "ruby");
-    event->addInfo((char *)"Interval", (long)oboe_get_profiling_interval());
+    event->addInfo((char *)"Interval", interval/1000);
 
     struct timeval tv;
     oboe_gettimeofday(&tv);
     event->addInfo((char *)"Timestamp_u", (long)((long)tv.tv_sec * 1000000 + (long)tv.tv_usec));
 
     return Logging::log_profile_event(event);
-    ;
 }
 
 bool Logging::log_profile_exit(std::vector<long> const &ommitted) {
     std::cout << "profile exit, " << Context::toString() << std::endl;
 
-    oboe_metadata_t *md = Context::get();
-    Event *event = Event::startTrace(md);  // startTrace does not add "Edge"
-    event->addContextOpId(prof_op_id);
-
+    Event *event = Logging::startEvent();
     event->addInfo((char *)"Label", "exit");
-
-    ss.seekp(std::ios::beg);
-    ss << '[';
-    for (unsigned int i = 0; i < ommitted.size(); i++) {
-        ss << ommitted.at(i);
-        if (i < ommitted.size() - 1)
-            ss << ',';
-        else
-            ss << ']' << '\0';
-    }
-
-    event->addInfo((char *)"SnapshotsOmitted", ss.str().c_str());
+    event->addInfo((char *)"SnapshotsOmitted", ommitted);
 
     struct timeval tv;
     oboe_gettimeofday(&tv);
@@ -67,15 +67,26 @@ bool Logging::log_profile_exit(std::vector<long> const &ommitted) {
     return Logging::log_profile_event(event);
 };
 
-// TODO can't use the automatic timestamp from oboe
 bool Logging::log_profile_snapshot(long timestamp,
-                                   std::vector<Frame> new_frames,
-                                   int exited_frames,
-                                   int total_frames,
-                                   std::vector<long> ommitted) {
-    // event->addInfo((char *)"PID", (long)AO_GETPID());
+                                   std::vector<frame_t> const &new_frames,
+                                   int num_new_frames,
+                                   long exited_frames,
+                                   long total_frames,
+                                   std::vector<long> const &ommitted) {
+ 
+    struct timeval tv;
+    oboe_gettimeofday(&tv);
 
-    return true;
+    Event *event = Logging::startEvent();
+    event->addInfo((char *)"Timestamp_u", (long)tv.tv_sec * 1000000 + (long)tv.tv_usec);
+    event->addInfo((char *)"Label", "info");
+    
+    event->addInfo((char *)"SnapshotsOmitted", ommitted);
+    event->addInfo((char *)"NewFrames", new_frames, num_new_frames);
+    event->addInfo((char *)"FramesExited", exited_frames);
+    event->addInfo((char *)"FramesCount", total_frames);
+
+    return Logging::log_profile_event(event);
 }
 
 bool Logging::log_profile_event(Event *event) {
@@ -85,6 +96,7 @@ bool Logging::log_profile_event(Event *event) {
     event->addInfo((char *)"X-Trace", event->metadataString());
 
     event->send_profiling();
+    event->storeOpID(prof_op_id);            // keep track of the edge
 
     return true;
 }
