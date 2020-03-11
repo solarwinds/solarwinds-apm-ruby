@@ -271,6 +271,41 @@ bool Event::addInfo(char *key, double val) {
     return oboe_event_add_info_double(this, key, val) == 0;
 }
 
+bool Event::addInfo(char *key, const std::vector<long> &vals) {
+    oboe_bson_append_start_array(&(this->bbuf), key);
+    int i = 1;
+    for (std::vector<long>::const_iterator val = vals.begin(); val != vals.end(); ++val) {
+        char index[5];            // Flawfinder: ignore
+        sprintf(index, "%d", i);  // Flawfinder: ignore
+        i++;
+        std::cout << index << " " << *val << std::endl;
+        oboe_bson_append_long(&(this->bbuf), index, (int64_t)*val);
+    }
+    oboe_bson_append_finish_object(&(this->bbuf));
+    return true;
+};
+
+bool Event::addInfo(char *key, const std::vector<frame_t> &vals, int num) {
+    oboe_bson_append_start_array(&(this->bbuf), key);
+    for (int i = 0; i < num; i++) {
+        char index[5];                // Flawfinder: ignore
+        sprintf(index, "%d", i);  // Flawfinder: ignore
+        // i++;
+        oboe_bson_append_start_object(&(this->bbuf), index);
+
+        frame_t val = vals[i];
+        oboe_bson_append_string(&(this->bbuf), "M", (val.method).c_str());
+        oboe_bson_append_string(&(this->bbuf), "C", (val.klass).c_str());
+        oboe_bson_append_string(&(this->bbuf), "F", (val.file).c_str());
+        oboe_bson_append_long(&(this->bbuf), "L", val.lineno);
+
+        oboe_bson_append_finish_object(&(this->bbuf));
+    }
+    oboe_bson_append_finish_object(&(this->bbuf));
+    return true;
+};
+
+
 bool Event::addEdge(oboe_metadata_t *md) {
     return oboe_event_add_edge(this, md) == 0;
 }
@@ -331,11 +366,10 @@ bool Event::addSpanRef(oboe_metadata_t *md) {
     oboe_btoh((uint8_t *)buf, buf, OBOE_MAX_OP_ID_LEN);
     buf[2 * OBOE_MAX_OP_ID_LEN] = '\0';
 
-    oboe_event_add_info(this, "Edge", buf);
     return oboe_event_add_info(this, "SpanRef", buf);
 }
 
-bool Event::addContextOpId(uint8_t *id) {
+bool Event::addProfileEdge(uint8_t *id) {
    char buf[64]; /* holds btoh'd op_id */ /* Flawfinder: ignore */
 
     assert(2 * OBOE_MAX_OP_ID_LEN < sizeof(buf));
@@ -345,8 +379,7 @@ bool Event::addContextOpId(uint8_t *id) {
     oboe_btoh((uint8_t *)buf, buf, OBOE_MAX_OP_ID_LEN);
     buf[2 * OBOE_MAX_OP_ID_LEN] = '\0';
 
-    oboe_event_add_info(this, "Edge", buf);
-    return oboe_event_add_info(this, "ContextOpId", buf);
+    return oboe_event_add_info(this, "Edge", buf);
 }
 
 /**
@@ -358,7 +391,7 @@ Metadata *Event::getMetadata() {
     return new Metadata(&this->metadata);
 }
 
-void Event::getOpID(uint8_t *id) {
+void Event::storeOpID(uint8_t *id) {
   memmove(id, this->metadata.ids.op_id, OBOE_MAX_OP_ID_LEN);
   return;
 }
@@ -493,7 +526,7 @@ Reporter::Reporter(
     int max_transactions,         // maximum number of transaction names to track
     int max_flush_wait_time,      // maximum wait time for flushing data before terminating in milli seconds
     int events_flush_interval,    // events flush timeout in seconds (threshold for batching messages before sending off)
-    int events_flush_batch_size,  // events flush batch size in KB (threshold for batching messages before sending off)
+    int max_request_size_bytes,  // events flush batch size in KB (threshold for batching messages before sending off)
 
     std::string reporter,      // the reporter to be used ("ssl", "upd", "file", "null")
     std::string host,          // collector endpoint (reporter=ssl), udp address (reporter=udp), or file path (reporter=file)
@@ -511,7 +544,7 @@ Reporter::Reporter(
 ) {
     oboe_init_options_t options;
     memset(&options, 0, sizeof(options));
-    options.version = 8;
+    options.version = 9;
     oboe_init_options_set_defaults(&options);
 
     if (hostname_alias != "") {
@@ -522,7 +555,7 @@ Reporter::Reporter(
     options.max_transactions = max_transactions;
     options.max_flush_wait_time = max_flush_wait_time;
     options.events_flush_interval = events_flush_interval;
-    options.events_flush_batch_size = events_flush_batch_size;
+    options.max_request_size_bytes = max_request_size_bytes;
     if (reporter != "") {
         options.reporter = reporter.c_str();
     }
