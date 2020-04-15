@@ -44,8 +44,10 @@ if AppOpticsAPM.loaded
         response =
           propagate_xtrace(env, settings, xtrace) do
             sample(env, settings, options) do
-              AppOpticsAPM::TransactionMetrics.metrics(env, settings) do
-                @app.call(env)
+              AppOpticsAPM::Profiling.run do
+                AppOpticsAPM::TransactionMetrics.metrics(env, settings) do
+                  @app.call(env)
+                end
               end
             end
           end || [500, {}, nil]
