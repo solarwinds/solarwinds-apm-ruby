@@ -80,6 +80,36 @@ if defined?(AppOpticsAPM::Config)
   AppOpticsAPM::Config[:verbose] = false
 
   #
+  # Turn code profiling on or off
+  #
+  # By default profiling is set to :enabled, the other option is :disabled.
+  # :enabled mean that any traced code will also be profiled to get deeper insight
+  # into the methods called during a trace.
+  # Profiling in the appoptics_apm gem is based on the low-overhead, sampling
+  # profiler implemented in stackprof.
+  #
+  AppOpticsAPM::Config[:profiling] = :enabled
+
+  #
+  # Set the profiling interval (in milliseconds)
+  #
+  # The default is 10 milliseconds, which means that the method call stack is
+  # recorded every 10 milliseconds. Shorter intervals may give better insight,
+  # but will incur more overhead. The minimum interval is 1 millisecond.
+  AppOpticsAPM::Config[:profiling_interval] = 10
+
+  #
+  # Set the root directory of code to be included in the profile
+  #
+  # The main use case is to set this to the application folder and avoid
+  # code from other gems. Like this the slow methods in the application
+  # code are easier to detect.
+  #
+  # The path has to start with '/' and needs the be the start of string
+  # seen when
+  AppOpticsAPM::Config[:profiling_root]
+
+  #
   # Turn Tracing on or off
   #
   # By default tracing is set to :enabled, the other option is :disabled.

@@ -224,6 +224,11 @@ module AppOpticsAPM
             Regexp.new(AppOpticsAPM::Config[:dnt_regexp], AppOpticsAPM::Config[:dnt_opts] || nil)
         end
 
+      elsif key == :profiling_interval
+        unless value.is_a?(Integer) && value > 0
+          @@config[:profiling_interval] = 10
+        end
+
       elsif key == :transaction_settings
         if value.is_a?(Hash)
           AppOpticsAPM::TransactionSettings.compile_url_settings(value[:url])
