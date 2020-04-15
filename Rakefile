@@ -116,8 +116,8 @@ task :fetch_ext_deps do
 
   if ENV['OBOE_HPP_WIP']
     wip_src_dir = File.expand_path('ext/oboe_metal/src_wip')
-    FileUtils.ln_s(File.join(wip_src_dir, 'oboe.cxx'), ext_src_dir, force: true)
-    FileUtils.ln_s(File.join(wip_src_dir, 'oboe.hpp'), ext_src_dir, force: true)
+    FileUtils.cp(File.join(wip_src_dir, 'oboe.cpp'), ext_src_dir)
+    FileUtils.cp(File.join(wip_src_dir, 'oboe.hpp'), ext_src_dir)
   else
     files << 'oboe.hpp'
   end

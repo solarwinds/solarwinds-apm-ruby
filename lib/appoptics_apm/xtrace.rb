@@ -7,7 +7,7 @@ module AppOpticsAPM
   # value
   #
   # TODO add unit tests
-  module XTrace
+  class XTrace
     class << self
       ##
       #  AppOpticsAPM::XTrace.valid?

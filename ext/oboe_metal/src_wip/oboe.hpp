@@ -16,7 +16,17 @@
 #include <vector>
 
 #include "oboe.h"
-#include "profiling.h"
+
+using namespace std;
+
+#ifndef SWIG
+typedef struct frame_info {
+    std::string klass;
+    std::string method;
+    std::string file;
+    int lineno;
+} frame_t;
+#endif
 
 class Event;
 class Reporter;
@@ -232,7 +242,8 @@ public:
     bool addInfo(char *key, const std::string &val);
     bool addInfo(char *key, long val);
     bool addInfo(char *key, double val);
-    bool addInfo(char *key, const std::vector<long> &val);
+    bool addInfo(char*, long *val, int num);
+    bool addInfo(char *key, const std::vector<long> &val, int num);
     bool addInfo(char *key, const std::vector<frame_t> &val, int num);
 
     bool addEdge(oboe_metadata_t *md);
@@ -311,19 +322,19 @@ public:
       * @params  these correspond to the keys of the oboe_init_options struct
       */
     Reporter(
-        std::string hostname_alias,  // optional hostname alias
-        int log_level,               // level at which log messages will be written to log file (0-6)
-        std::string log_file_path,   // file name including path for log file
+        std::string hostname_alias, // optional hostname alias
+        int log_level,              // level at which log messages will be written to log file (0-6)
+        std::string log_file_path,  // file name including path for log file
 
-        int max_transactions,         // maximum number of transaction names to track
-        int max_flush_wait_time,      // maximum wait time for flushing data before terminating in milli seconds
-        int events_flush_interval,    // events flush timeout in seconds (threshold for batching messages before sending off)
-        int max_request_size_bytes,  // events flush batch size in KB (threshold for batching messages before sending off)
+        int max_transactions,       // maximum number of transaction names to track
+        int max_flush_wait_time,    // maximum wait time for flushing data before terminating in milli seconds
+        int events_flush_interval,  // events flush timeout in seconds (threshold for batching messages before sending off)
+        int max_request_size_bytes, // events flush batch size in KB (threshold for batching messages before sending off)
 
-        std::string reporter,      // the reporter to be used ("ssl", "upd", "file", "null")
-        std::string host,          // collector endpoint (reporter=ssl), udp address (reporter=udp), or file path (reporter=file)
-        std::string service_key,   // the service key (also known as access_key)
-        std::string trusted_path,  // path to the SSL certificate (only for ssl)
+        std::string reporter,       // the reporter to be used ("ssl", "upd", "file", "null")
+        std::string host,           // collector endpoint (reporter=ssl), udp address (reporter=udp), or file path (reporter=file)
+        std::string service_key,    // the service key (also known as access_key)
+        std::string trusted_path,   // path to the SSL certificate (only for ssl)
 
         int buffer_size,            // size of the message buffer
         int trace_metrics,          // flag indicating if trace metrics reporting should be enabled (default) or disabled
@@ -332,7 +343,7 @@ public:
         int token_bucket_rate,      // custom token bucket rate
         int file_single,            // use single files in file reporter for each event
 
-        int ec2_metadata_timeout  // the timeout (milli seconds) for retrieving EC2 metadata
+        int ec2_metadata_timeout    // the timeout (milli seconds) for retrieving EC2 metadata
     );
 
     ~Reporter();
@@ -342,170 +353,6 @@ public:
     bool sendStatus(Event *evt) ;
     bool sendStatus(Event *evt, oboe_metadata_t *md) ;
     bool sendProfile(Event *evt, oboe_metadata_t *md);
-};
-
-/**
- * Base class for a diagnostic log message handler.
- */
-class DebugLogger {
-public:
-    virtual ~DebugLogger() {}
-    virtual void log(int module, int level, const char *source_name, int source_lineno, const char *msg) = 0;
-};
-
-/**
- * "C" language wrapper for DebugLogger classes.
- *
- * A logging function that can be added to the logger chain using
- * DebugLog::addDebugLogger().
- *
- * @param context The context pointer that was registered in the call to
- *          DebugLog::addDebugLogger().  Use it to pass the pointer-to-self for
- *          objects (ie. "this" in C++) or just a structure in C,  May be
- *          NULL.
- * @param module The module identifier as passed to oboe_debug_logger().
- * @param level The diagnostic detail level as passed to oboe_debug_logger().
- * @param source_name Name of the source file as passed to oboe_debug_logger().
- * @param source_lineno Number of the line in the source file where message is
- *          logged from as passed to oboe_debug_logger().
- * @param msg The formatted message produced from the format string and its
- *          arguments as passed to oboe_debug_logger().
- */
-extern "C" void oboe_debug_log_handler(void *context, int module, int level,
-                                       const char *source_name, int source_lineno,
-                                       const char *msg);
-
-class DebugLog {
-public:
-    /**
-     * Get a printable name for a diagnostics logging level.
-     *
-     * @param level A detail level in the range 0 to 6 (OBOE_DEBUG_FATAL to OBOE_DEBUG_HIGH).
-     */
-    static std::string getLevelName(int level);
-    /**
-     * Get a printable name for a diagnostics logging module identifier.
-     *
-     * @param module One of the OBOE_MODULE_* values.
-     */
-    static std::string getModuleName(int module);
-
-    /**
-     * Get the maximum logging detail level for a module or for all modules.
-     *
-     * This level applies to the default logger only.  Added loggers get all messages
-     * below their registed detail level and need to do their own module-specific
-     * filtering.
-     *
-     * @param module One of the OBOE_MODULE_* values.  Use OBOE_MODULE_ALL (-1) to
-     *          get the overall maximum detail level.
-     * @return Maximum detail level value for module (or overall) where zero is the
-     *          lowest and higher values generate more detailed log messages.
-     */
-    static int getLevel(int module);
-
-    /**
-     * Set the maximum logging detail level for a module or for all modules.
-     *
-     * This level applies to the default logger only.  Added loggers get all messages
-     * below their registered detail level and need to do their own module-specific
-     * filtering.
-     *
-     * @param module One of the OBOE_MODULE_* values.  Use OBOE_MODULE_ALL to set
-     *          the overall maximum detail level.
-     * @param newLevel Maximum detail level value where zero is the lowest and higher
-     *          values generate more detailed log messages.
-     */
-    static void setLevel(int module, int newLevel);
-    /**
-     * Set the output stream for the default logger.
-     *
-     * @param newStream A valid, open FILE* stream or NULL to disable the default logger.
-     * @return Zero on success; otherwise an error code (normally from errno).
-     */
-    static int setOutputStream(FILE *newStream) ;
-
-    /**
-     * Set the default logger to write to the specified file.
-     *
-     * A NULL or empty path name will disable the default logger.
-     *
-     * If the file exists then it will be opened in append mode.
-     *
-     * @param pathname The path name of the
-     * @return Zero on success; otherwise an error code (normally from errno).
-     */
-    static int setOutputFile(const char *pathname);
-
-    /**
-     * Add a logger that takes messages up to a given logging detail level.
-     *
-     * This adds the logger to a chain in order of the logging level.  Log messages
-     * are passed to each logger down the chain until the remaining loggers only
-     * accept messages of a lower detail level.
-     *
-     * @return Zero on success, one if re-registered with the new logging level, and
-     *          otherwise a negative value to indicate an error.
-     */
-    static int addDebugLogger(DebugLogger *newLogger, int logLevel);
-
-    /**
-     * Remove a logger.
-     *
-     * Remove the logger from the message handling chain.
-     *
-     * @return Zero on success, one if it was not found, and otherwise a negative
-     *          value to indicate an error.
-     */
-    static int removeDebugLogger(DebugLogger *oldLogger);
-
-    /**
-     * Low-level diagnostics logging function.
-     *
-     * Use this to pass
-     * @param module One of the numeric module identifiers defined in debug.h - used to control logging detail by module.
-     * @param level Diagnostic detail level of this message - used to control logging volume by detail level.
-     * @param source_name Name of the source file, if available, or another useful name, or NULL.
-     * @param source_lineno Number of the line in the source file where message is logged from, if available, or zero.
-     * @param format A C language printf format specification string.
-     * @param args A variable argument list in VA_ARG format containing arguments for each argument specifier in the format.
-     */
-    static void logMessage(int module, int level, const char *source_name,
-    int source_lineno, const char *msg);
-};
-
-class Config {
-public:
-    /**
-     * Check if the Oboe library is compatible with a given version.revision.
-     *
-     * This will succeed if the library is at least as recent as specified and if no
-     * definitions have been removed since that revision.
-     *
-     * @param version The library's version number which increments every time the API changes.
-     * @param revision The revision of the current version of the library.
-     * @return Non-zero if the Oboe library is considered compatible with the specified revision.
-     */
-    static bool checkVersion(int version, int revision);
-
-    /**
-     * Get the Oboe library version number.
-     *
-     * This number increments whenever an incompatible change to the API/ABI is made.
-     *
-     * @return The library's version number or -1 if the version is not known.
-     */
-    static int getVersion();
-
-    /**
-     * Get the Oboe library revision number.
-     *
-     * This number increments whenever a compatible change is made to the
-     * API/ABI (ie. an addition).
-     *
-     * @return The library's revision number or -1 if not known.
-     */
-    static int getRevision();
 };
 
 #endif      // OBOE_HPP
