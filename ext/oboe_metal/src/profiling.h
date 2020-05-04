@@ -9,13 +9,19 @@
 #include <sys/time.h>
 #include <string>
 #include <unordered_map>
+#include <thread>
+
+#include "oboe.hpp"
+
+#define FP_ENABLE true
+#include "function_profiler.hpp"
 
 #include <boost/thread/thread.hpp>
 #include <boost/lockfree/spsc_queue.hpp>
 // #include <boost/date_time/posix_time/posix_time.hpp>
 // #include <boost/atomic.hpp>
 
-#include "oboe.hpp"
+oboe_metadata_t *md;
 
 #define BUF_SIZE 2048
 
