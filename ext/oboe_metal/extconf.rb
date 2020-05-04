@@ -116,15 +116,18 @@ if success
 
     $libs = append_library($libs, 'oboe')
     $libs = append_library($libs, 'stdc++')
+    $libs = append_library($libs, 'boost_chrono')
 
     $CFLAGS << " #{ENV['CFLAGS']}"
-    $CPPFLAGS << " #{ENV['CPPFLAGS']}"
+    # $CPPFLAGS << " #{ENV['CPPFLAGS']} -std=c++11"
+    $CPPFLAGS << " #{ENV['CPPFLAGS']} -std=c++11 -pg -I$$ORIGIN/../ext/oboe_metal/include"
     $LIBS << " #{ENV['LIBS']}"
-    $LDFLAGS << " #{ENV['LDFLAGS']} '-Wl,-rpath=$$ORIGIN/../ext/oboe_metal/lib'"
+    $LDFLAGS << " #{ENV['LDFLAGS']} '-Wl,-rpath=$$ORIGIN/../ext/oboe_metal/lib'  -pg"
 
     # ____ include debug info, comment out when not debugging
-    CONFIG["debugflags"] = "-ggdb3"
-    CONFIG["optflags"] = "-O0"
+    # ____ -pg -> profiling info for gprof
+    # CONFIG["debugflags"] = "-ggdb3 -pg"
+    # CONFIG["optflags"] = "-O0"
 
     create_makefile('rb_appoptics_apm', 'src')
 

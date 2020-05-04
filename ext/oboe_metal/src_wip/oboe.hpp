@@ -32,6 +32,8 @@ class Event;
 class Reporter;
 class Context;
 
+void oboe_btoh(const uint8_t *bytes, char *str, size_t len);
+
 /**
  * Metadata is the X-Trace identifier and the information needed to work with it.
  */
@@ -248,6 +250,7 @@ public:
 
     bool addEdge(oboe_metadata_t *md);
     bool addEdgeStr(const std::string& val);
+    bool addOpId(char *key,  oboe_metadata_t *md);
 
     bool addHostname();
 
