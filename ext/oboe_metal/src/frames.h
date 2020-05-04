@@ -9,6 +9,8 @@
 #include <ruby/intern.h>
 #include <ruby/debug.h>
 
+
+#include "oboe.hpp"
 #include "profiling.h"
 #include "ruby_headers/collection.h"
 
@@ -22,7 +24,7 @@ class Frames {
 
 class Snapshot {
     public:
-    static int remove_garbage(VALUE *frames_buffer, int num, string app_root);
+    static int remove_garbage(VALUE *frames_buffer, int num);
     static int compare(VALUE *frames_buffer, int num,
                        VALUE *prev_frames_buffer, int prev_num);
 };
