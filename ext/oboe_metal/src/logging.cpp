@@ -19,10 +19,10 @@ string hex2Str(unsigned char *data, int len) {
 
 std::ostringstream ss;
 
-Event *Logging::createEvent(oboe_metadata_t *md, bool entry_event = false) {
-    // md = Context::get();
+Event *Logging::createEvent(uint8_t *prof_op_id, bool entry_event) {
+    oboe_metadata_t* md = Context::get();
 
-    Event *event = new Event(md, false); // startTrace does not add "Edge"
+    Event *event = Event::startTrace(md); // startTrace does not add "Edge"
     if (entry_event) {
         event->addSpanRef(md);
     } else {
@@ -89,7 +89,7 @@ bool Logging::log_profile_snapshot(uint8_t *prof_op_id,
     return Logging::log_profile_event(event);
 }
 
-oboe_metadata_t*  Logging::log_profile_event(Event *event) {
+bool Logging::log_profile_event(Event *event) {
     // PROFILE_FUNCTION();
     event->addInfo((char *)"Spec", "profiling");
     event->addHostname();
