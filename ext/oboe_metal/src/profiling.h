@@ -9,16 +9,20 @@
 #include <sys/time.h>
 #include <string>
 #include <unordered_map>
-#include <thread>
+
+#include <boost/thread/thread.hpp>
+#include <boost/lockfree/spsc_queue.hpp>
+// #include <boost/date_time/posix_time/posix_time.hpp>
+// #include <boost/atomic.hpp>
 
 #include "oboe.hpp"
+
+#define BUF_SIZE 2048
 
 #define FP_ENABLE true
 #include "function_profiler.hpp"
 
 using namespace std;
-
-oboe_metadata_t *md;
 
 #if !defined(AO_GETTID)
      #if defined(_WIN32)
@@ -31,6 +35,14 @@ oboe_metadata_t *md;
         #endif
      #endif
 #endif
+
+typedef struct msg {
+   VALUE frames_buffer[BUF_SIZE]; 
+   int num; 
+   pid_t tid; 
+   long ts;
+   string xtrace;
+} msg_t;
 
 class Profiling {
    public:
@@ -52,5 +64,11 @@ class Profiling {
 };
 
 extern "C" void Init_profiling(void);
+
+class Processing {
+   public:
+    static void consumer();
+    static void process(msg_t message);
+};
 
 #endif // PROFILING_H

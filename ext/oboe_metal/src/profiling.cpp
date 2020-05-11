@@ -4,14 +4,13 @@
 #include "profiling.h"
 #include "logging.h"
 
-#define BUF_SIZE 2048
 
 string app_root;
 static int running = 0;
 
 typedef struct frames_struct {
     bool running_p = false;
-    oboe_metadata_t *md;
+    // oboe_metadata_t *md;
     uint8_t prof_op_id[OBOE_MAX_OP_ID_LEN];
 
     struct timeval prev_timestamp;
@@ -29,7 +28,7 @@ static VALUE frames_buffer[BUF_SIZE];
 static int lines_buffer[BUF_SIZE];
 static vector<frame_t> new_frames(BUF_SIZE);
 
-
+boost::lockfree::spsc_queue<msg_t, boost::lockfree::capacity<1024> > spsc_queue;
 
 
 // static bool in_gc_p;
@@ -71,10 +70,24 @@ void Profiling::profiler_record_frames(void *data) {
     // check if this thread is being profiled
     if (prof_data[tid].running_p) {
         // get the frames
-        int num = rb_profile_frames(0, sizeof(frames_buffer) / sizeof(VALUE), frames_buffer, lines_buffer);
+        int num = rb_profile_frames(0, sizeof(frames_buffer)/sizeof(VALUE), frames_buffer, lines_buffer);
 
-        // std::async(std::launch::async, Profiling::process_snapshot, frames_buffer, num, tid, ts);
-        Profiling::process_snapshot(prof_data[tid].md, frames_buffer, num, tid, ts);
+        if (getenv("AO_PROF_THREAD")) {
+            // msg message = { frames_buffer, num, tid, ts, Context::toString() };
+            msg message= { {}, num, tid, ts, Context::toString() };
+            copy_n(frames_buffer, num, message.frames_buffer);
+            
+            // TODO check https://www.boost.org/doc/libs/1_72_0/doc/html/lockfree/examples.html
+            // why are they doing
+            // while (!spsc_queue.push(value))
+            // ;
+            // that's blocking
+
+            spsc_queue.push(message);
+            // std::async(std::launch::async, Profiling::process_snapshot, frames_buffer, num, tid, ts);
+        } else {
+            Profiling::process_snapshot(frames_buffer, num, tid, ts);
+        }
     }
 
     // add this timestamp as omitted to other running threads that are profiled
@@ -87,12 +100,11 @@ void Profiling::profiler_record_frames(void *data) {
 
 }
 
-
 // preparing a function that could run in a thread
 std::mutex pm;
 
 void Profiling::process_snapshot(VALUE *frames_buffer, int num, pid_t tid, long ts) {
-    PROFILE_FUNCTION();
+    // PROFILE_FUNCTION();
 // cout << "running asynch" << endl;
 
     num = Snapshot::remove_garbage(frames_buffer, num);
@@ -179,7 +191,7 @@ VALUE Profiling::profiling_start(pid_t tid) {
         interval = interval_remote;
 
     // send profile entry event
-    Logging::log_profile_entry(prof_data[tid].md, tid, interval);
+    Logging::log_profile_entry(prof_data[tid].prof_op_id, tid, interval);
 
     if (!running) {
         struct sigaction sa;
@@ -304,7 +316,35 @@ stackprof_atfork_child(void) {
     cout << "A child is born" << endl;
 }
 
+void Processing::consumer() {
+    msg_t msg;
+    bool done = false;
+
+    while (!done) {
+        while (!spsc_queue.pop(msg)) {
+            // sleep for an interval
+            boost::this_thread::sleep(boost::posix_time::milliseconds(interval));
+            try {
+                boost::this_thread::interruption_point();
+            } catch (const boost::thread_interrupted &) {
+                // Thread interruption request received, break the loop
+                std::cout << "- Thread interrupted. Exiting thread." << std::endl;
+                done = true;
+            }
+        }
+        process(msg);
+    }
+
+}
+
+void Processing::process(msg_t msg) {
+    // TODO: find faster way to pass context
+    Context::fromString(msg.xtrace);
+    Profiling::process_snapshot(msg.frames_buffer, msg.num, msg.tid, msg.ts);
+}
+
 extern "C" void Init_profiling(void) {
+
     static VALUE rb_mAOProfiler = rb_define_module("AOProfiler");
     rb_define_singleton_method(rb_mAOProfiler, "get_interval", reinterpret_cast<VALUE (*)(...)>(Profiling::get_interval), 0);
     rb_define_singleton_method(rb_mAOProfiler, "set_interval", reinterpret_cast<VALUE (*)(...)>(Profiling::set_interval), -1);
@@ -313,5 +353,11 @@ extern "C" void Init_profiling(void) {
 
     pthread_atfork(stackprof_atfork_prepare, stackprof_atfork_parent, stackprof_atfork_child);
 
+    if (getenv("AO_PROF_THREAD")) {
+        boost::thread consumer_thread(Processing::consumer);
+    } 
+
     for (int i = 0; i < BUF_SIZE; i++) rb_gc_mark(frames_buffer[i]);
 }
+
+// TODO: How to shut down thread, does it shut down automatically?

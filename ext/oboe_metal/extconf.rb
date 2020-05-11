@@ -116,6 +116,7 @@ if success
 
     $libs = append_library($libs, 'oboe')
     $libs = append_library($libs, 'stdc++')
+    $libs = append_library($libs, 'boost_thread')
     $libs = append_library($libs, 'boost_chrono')
 
     $CFLAGS << " #{ENV['CFLAGS']}"
