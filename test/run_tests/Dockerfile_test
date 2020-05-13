@@ -51,13 +51,14 @@ RUN . ~/.profile \
     && rbenv install 2.4.5 \
     && rbenv install 2.5.5 \
     && rbenv install 2.6.4 \
-    && rbenv install 2.7.0-preview1
+    && rbenv install 2.7.0
 #    && rbenv install jruby-9.1.16.0
 
 # need to revert to using bundler 1.17.3 because some gems require bundler < 2.0
-RUN . ~/.profile && rbenv local 2.4.5 && gem uninstall bundler --quiet -x && gem install bundler -v 1.17.3
-RUN . ~/.profile && rbenv local 2.5.5 && gem uninstall bundler --quiet -x && gem install bundler -v 1.17.3
-RUN . ~/.profile && rbenv local 2.6.4 && gem uninstall bundler --quiet -x && gem install bundler -v 1.17.3
+#RUN . ~/.profile && rbenv local 2.4.5 && gem uninstall bundler --quiet -x && gem install bundler -v 1.17.3
+#RUN . ~/.profile && rbenv local 2.5.5 && gem uninstall bundler --quiet -x && gem install bundler -v 1.17.3
+#RUN . ~/.profile && rbenv local 2.6.4 && gem uninstall bundler --quiet -x && gem install bundler -v 1.17.3
+#RUN . ~/.profile && rbenv local 2.7.0 && gem uninstall bundler --quiet -x && gem install bundler -v 1.17.3
 
 RUN echo 'gem: --no-document' >> ~/.gemrc
 
@@ -70,10 +71,10 @@ RUN echo 'gem: --no-document' >> ~/.gemrc
 #    && rm -rf /tmp/swig-4.0.1
 
 RUN git clone https://github.com/swig/swig.git \
-    && pushd swig \
+    && cd swig \
     && ./autogen.sh \
     && ./configure && make && make install \
-    && popd
+    && cd -
 
 # install redis-server version 4++
 RUN curl -SL http://download.redis.io/releases/redis-4.0.0.tar.gz | tar xzC /tmp \

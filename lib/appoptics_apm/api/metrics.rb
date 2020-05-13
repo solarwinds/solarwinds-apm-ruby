@@ -45,6 +45,8 @@ module  AppOpticsAPM
           AppOpticsAPM.transaction_name
         elsif kvs['Controller'] && kvs['Action']
           [kvs['Controller'], kvs['Action']].join('.')
+        elsif kvs[:Controller] && kvs[:Action]
+          [kvs[:Controller], kvs[:Action]].join('.')
         else
           "custom-#{span}"
         end

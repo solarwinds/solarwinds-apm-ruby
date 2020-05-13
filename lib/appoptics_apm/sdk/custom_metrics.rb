@@ -29,7 +29,7 @@ module AppOpticsAPM
       #   end
       #
       # === Returns:
-      # * true on success, false on failure
+      # * 0 on success, error code on failure
       #
       def increment_metric(name, count = 1, with_hostname = false, tags_kvs = {})
         return true unless AppOpticsAPM.loaded
@@ -62,7 +62,7 @@ module AppOpticsAPM
       #   end
       #
       # === Returns:
-      # * true on success, false on failure
+      # * 0 on success, error code on failure
       #
       def summary_metric(name, value, count = 1, with_hostname = false, tags_kvs = {})
         return true unless AppOpticsAPM.loaded
