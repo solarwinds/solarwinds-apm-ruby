@@ -13,6 +13,7 @@
 # The options for -r, -g, and -e have to correspond to configurations in the travis.yml file
 ##
 
+export BUNDLE_ALLOW_BUNDLER_DEPENDENCY_CONFLICTS=true
 RUBY=`rbenv local`
 ## Read opts
 num=-1
@@ -60,6 +61,8 @@ do
 
   if [[ "$gemfile" != "" && "$gemfile" != "${args[1]}" ]]; then continue; fi
   export BUNDLE_GEMFILE=${args[1]}
+  echo ${args[1]}.lock
+  rm -f ${args[1]}.lock
 
   if [[ "$env" != "" && "$env" != "${args[2]}" ]]; then continue; fi
   export ${args[2]}

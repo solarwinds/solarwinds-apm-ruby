@@ -84,7 +84,7 @@ end
 
 desc 'Fetch extension dependency files'
 task :fetch_ext_deps do
-    swig_version = %x{swig -version} rescue ''
+  swig_version = %x{swig -version} rescue ''
   swig_version = swig_version.scan(/swig version [34].0.\d*/i)
   if swig_version.empty?
       $stderr.puts '== ERROR ================================================================='

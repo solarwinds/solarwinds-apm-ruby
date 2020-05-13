@@ -14,7 +14,7 @@ unless defined?(JRUBY_VERSION)
   require_relative "../jobs/sidekiq/error_worker_job"
 
   describe "SidekiqWorkerTest" do
-   before do
+    before do
       clear_all_traces
       @collect_backtraces = AppOpticsAPM::Config[:sidekiqworker][:collect_backtraces]
       @log_args = AppOpticsAPM::Config[:sidekiqworker][:log_args]
@@ -128,11 +128,29 @@ unless defined?(JRUBY_VERSION)
       assert_equal false,              traces[0].key?('Backtrace')
     end
 
+    def test_transaction_name
+      AppOpticsAPM::Config[:sidekiqworker][:collect_backtraces] = false
+
+      # Queue up a job to be run
+      Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
+
+      # Allow the job to be run
+      sleep 5
+
+      traces = get_all_traces
+      assert_equal 12, traces.count, "Trace count"
+      assert valid_edges?(traces), "Invalid edge in traces"
+      assert_equal 'sidekiq-worker',   traces[0]['Layer']
+      assert_equal 'Sidekiq_critical.RemoteCallWorkerJob', traces.last['TransactionName']
+    end
+
     def test_obey_collect_backtraces_when_true
       # FIXME: This can't be tested with the current Sidekiq minitest integration
       # ____   can't change the config of the already running sidekiq worker
       # ____   possible fix: run another sidekiq instance, but how do I configure them?
       # ____   or, is it possible to restart sidekiq?
+      #
+      # ____  new insight: it could be done through the args we are sending 05/20
       skip
 
       AppOpticsAPM::Config[:sidekiqworker][:collect_backtraces] = true
