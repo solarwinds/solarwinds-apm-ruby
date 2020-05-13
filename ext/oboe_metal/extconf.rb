@@ -49,7 +49,7 @@ while retries > 0
   begin
     # download
     # TODO warning: calling URI.open via Kernel#open is deprecated, call URI.open directly or use URI#open
-    # ____ figure out if URI.open is supported in older rubies
+    # ____ URI.open is not supported in 2.4.5, let's use open until we can deprecate 2.4.5
     download = open(ao_item, 'rb')
     IO.copy_stream(download, clib)
 
