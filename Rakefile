@@ -74,7 +74,7 @@ task :docker_tests, :environment do
   exec("docker-compose run ruby_appoptics_#{os} /code/ruby-appoptics/test/run_tests/ruby_setup.sh test --remove-orphans")
 end
 
-desc 'Start docker container for testing and debugging, excepts: alpine, debian, centos as args, default: ubuntu'
+desc 'Start docker container for testing and debugging, accepts: alpine, debian, centos as args, default: ubuntu'
 task :docker, :environment do
   _arg1, arg2 = ARGV
   os = arg2 || 'ubuntu'
