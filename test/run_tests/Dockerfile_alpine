@@ -1,25 +1,39 @@
-FROM ruby:2.4-alpine3.7
+FROM alpine:latest
 
-# Use this Dockerfile to create the gem
-# > docker build -f Dockerfile_alpine -t ruby_alpine .
-# > docker run --rm  -v `pwd`:/code/ruby-appoptics ruby_alpine /bin/bash -l -c 'cd /code/ruby-appoptics'
+VOLUME [ "/sys/fs/cgroup" ]
 
 # install OS packages
 RUN apk update
+
+# TODO I don;t think grpc is needed, but grpc tests are SEGV in alpine
 RUN apk add --upgrade \
+      autoconf \
+      automake \
       bash \
+      bison \
       build-base \
       curl \
       curl-dev \
-      linux-headers \
+      cyrus-sasl-dev \
+      gcompat \
       git \
+      grpc \
+      less \
+      libpq \
+      linux-headers \
+      mariadb-dev \
+      mysql-client \
+      openjdk8 \
+      openssl-dev \
       pcre \
       pcre-dev \
+      postgresql-dev \
       readline-dev \
-      openjdk8 \
-      zlib-dev \
-      less \
+      ruby-google-protobuf \
       swig \
+      tree \
+      vim \
+      zlib-dev \
    && rm -rf /var/lib/apt/lists/*
 
 # rbenv setup
@@ -29,37 +43,59 @@ RUN  git clone https://github.com/rbenv/rbenv.git ~/.rbenv \
    && git clone https://github.com/rbenv/rbenv-default-gems.git ~/.rbenv/plugins/rbenv-default-gems \
    && echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.profile \
    && echo 'eval "$(rbenv init -)"' >> ~/.profile \
+   && echo 'eval "$(rbenv init -)"' >> ~/.bashrc \
    && echo 'bundler' > ~/.rbenv/default-gems
+
+RUN echo 'alias be="bundle exec"' >> ~/.bashrc
+RUN echo 'alias be="bundle exec"' >> ~/.profile
 
 # install rubies to build our gem against
 RUN source  ~/.profile \
+   && cd /root/.rbenv/plugins/ruby-build && git pull && cd - \
    && rbenv install 2.4.5 \
+   && rbenv install 2.5.5 \
+   && rbenv install 2.6.4 \
+   && rbenv install 2.7.0
    # && rbenv install jruby-9.0.5.0
 
-# install swig 3.0.12
-RUN curl -SL http://kent.dl.sourceforge.net/project/swig/swig/swig-3.0.12/swig-3.0.12.tar.gz \
-   | tar xzC /tmp \
-   && cd /tmp/swig-3.0.12 \
-   && ./configure && make && make install \
-   && cd \
-   && rm -rf /tmp/swig-3.0.12
+RUN echo 'gem: --no-document' >> ~/.gemrc
+
+# install swig 4.0.1
+#RUN curl -SL http://kent.dl.sourceforge.net/project/swig/swig/swig-4.0.1/swig-4.0.1.tar.gz \
+#    | tar xzC /tmp \
+#    && cd /tmp/swig-4.0.1 \
+#    && ./configure && make && make install \
+#    && cd - \
+#    && rm -rf /tmp/swig-4.0.1
+
+# waiting for swig 4.0.2 because of changes in Ruby 4.7.0,
+# in the meantime use github version
+RUN git clone https://github.com/swig/swig.git \
+    && cd swig \
+    && ./autogen.sh \
+    && ./configure && make && make install \
+    && cd -
 
 RUN apk add --upgrade \
       redis \
       memcached \
-      postgresql \
-      openrc \
-   && rc-service postgresql start \
-   && echo "psql --command \"CREATE USER docker WITH SUPERUSER PASSWORD 'docker';\"" >> /tmp/config \
-   && echo "createdb -O docker travis_ci_test" >> /tmp/config \
-   && su postgres -c "bash /tmp/config" \
-   && rm -f /tmp/config
+      openrc
+
+RUN rc-update add memcached sysinit
+#    && touch /run/openrc/softlevel \
+#    && rc-service memcached start
+# Attempt to disable transparent huge pages because redis complains
+#RUN echo never > /sys/kernel/mm/transparent_hugepage/enabled
+#RUN echo never > /sys/kernel/mm/transparent_hugepage/defrag
 
 RUN apk add --update mysql-client mysql mariadb
 
+#RUN service postgresql start \
+#   && echo "psql --command \"CREATE USER docker WITH SUPERUSER PASSWORD 'docker';\"" >> /tmp/config \
+#   && echo "createdb -O docker travis_ci_test" >> /tmp/config \
+#   && su postgres -c "bash /tmp/config" \
+#   && rm -f /tmp/config
+
 ENV PATH="/root/.rbenv/bin:/root/.rbenv/shims:$PATH"
-ENV RUBY_ENV=test
-ENV DOCKER_PSQL_PASS=docker
-ENV APPOPTICS_OS_ARCH=alpine-x86_64
 
 CMD bash

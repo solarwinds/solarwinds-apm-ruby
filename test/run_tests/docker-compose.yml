@@ -1,4 +1,4 @@
-version: "2"
+version: "2.1"
 
 #########################################################################################################
 #
@@ -9,63 +9,116 @@ version: "2"
 # > rake docker_tests
 #
 ########################################################################################################
+x-ao-env: &ao-env
+  APPOPTICS_COLLECTOR: "/tmp/appoptics_traces.bson"
+  APPOPTICS_FROM_S3: "true"
+  APPOPTICS_GEM_TEST: "true"
+  APPOPTICS_MONGO_SERVER: "ao-ruby-mongo"
+  APPOPTICS_RABBITMQ_SERVER: "ao-ruby-rabbitmq"
+  APPOPTICS_REPORTER: "file"
+  APPOPTICS_REPORTER_FILE_SINGLE: "false"
+  APPOPTICS_SERVICE_KEY: "${APPOPTICS_SERVICE_KEY}"
+  APPOPTICS_TOKEN_BUCKET_CAPACITY: 10000
+  APPOPTICS_TOKEN_BUCKET_RATE: 10000
+
+  BUNDLE_GEMFILE: "gemfiles/libraries.gemfile"
+  DOCKER_MYSQL_PASS: "admin"
+  DOCKER_PSQL_PASS: "docker"
+  MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+  MYSQL_ROOT_PASSWORD: "admin"
+  MYSQL_HOST: "ao-ruby-mysql"
+  PSQL_HOST: "ao_ruby_postgres"
+  RUBY_ENV: "test"
+  TEST_RUNS_TO_FILE: "true"
+#    - SIMPLECOV_COVERAGE=true
+#    - OBOE_HPP_WIP=true
+#    - APPOPTICS_DEBUG_LEVEL=6
+
+x-ao-shared: &ao-shared
+  cpu_quota: 50000
+  cpu_period: 100000
+  mem_limit: 1G
+  logging:
+    options:
+      max-file: "1"
+      max-size: "100m"
+  ports:
+    - "3000"
+  volumes:
+    - ../../:/code/ruby-appoptics
+#    - /dev/null:/sys/fs/cgroup
+#       - ../../../graphql-ruby-clone/:/code/graphql-ruby
+#       - /Users/maiaengeli/workspace/repos/grpc:/grpc_ruby
+  depends_on:
+    - ao_ruby_wait
+  links:
+    - ao_ruby_wait
+  stdin_open: true
+  tty: true
 
 services:
-  ruby_appoptics:
-     container_name: ruby_appoptics
-     image: ruby_appoptics
-     build:
-        context: .
-        dockerfile: ./Dockerfile_test
-     cpu_quota: 100000 # 1 cpu, assumes cpu_period of 1 second
-     mem_limit: 1G
-     volumes:
-       - ../../:/code/ruby-appoptics
-       - ../../../graphql-ruby-clone/:/code/graphql-ruby
-#       - /Users/maiaengeli/workspace/repos/grpc:/grpc_ruby
-#       - ../../../oboe-test/collectors/java-collector/test-collector.crt:/certs/java.crt
-#       - ../../../oboe-test/collectors/scribe-collector/ca.crt:/certs/scribe.crt
-     depends_on:
-       - ao_ruby_wait
-     links:
-       - ao_ruby_wait
-     environment:
-       - APPOPTICS_SERVICE_KEY=${APPOPTICS_SERVICE_KEY}
-       - APPOPTICS_RABBITMQ_SERVER=ao-ruby-rabbitmq
-       - DOCKER_MYSQL_PASS=admin
-       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
-       - MYSQL_ROOT_PASSWORD=admin
-       - MYSQL_HOST=ao-ruby-mysql
-       - APPOPTICS_MONGO_SERVER=ao-ruby-mongo
-       - BUNDLE_GEMFILE=gemfiles/libraries.gemfile
-       - APPOPTICS_COLLECTOR=/tmp/appoptics_traces.bson
-       - APPOPTICS_GEM_TEST=true
-       - APPOPTICS_REPORTER=file
-       - APPOPTICS_REPORTER_FILE_SINGLE=false
-       - APPOPTICS_FROM_S3=true
-#       - SIMPLECOV_COVERAGE=True
+  ruby_appoptics_ubuntu:
+    container_name: ruby_appoptics_ubuntu
+    image: ruby_appoptics_ubuntu
+    build:
+      context: .
+      dockerfile: Dockerfile_ubuntu
+    hostname: docker.ao.ubuntu
+    << : *ao-shared
+    volumes:
+      - ../../:/code/ruby-appoptics
+      - ./.ruby_version_ubuntu:/code/ruby-appoptics/.ruby-version
+    #       - ../../../graphql-ruby-clone/:/code/graphql-ruby
+    #       - /Users/maiaengeli/workspace/repos/grpc:/grpc_ruby
+    environment:
+      << : *ao-env
+      APPOPTICS_HOSTNAME_ALIAS: "AO_RUBY_UBUNTU"
 
-#  ruby_appoptics_apm_alpine:
-#     container_name: ruby_appoptics_alpine
-#     image: ruby_appoptics_alpine
-#     build:
-#        context: .
-#        dockerfile: ./Dockerfile_alpine
-#     cpu_quota: 100000 # 1 cpu, assumes cpu_period of 1 second
-#     mem_limit: 1G
-#     volumes:
-#       - ../../:/code/ruby-appoptics
-#     depends_on:
-#       - wait
-#     links:
-#       - wait
-#     environment:
-#       - APPOPTICS_RABBITMQ_SERVER=ao-ruby-rabbitmq
-#       - DOCKER_MYSQL_PASS=admin
-#       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
-#       - MYSQL_ROOT_PASSWORD=admin
-#       - MYSQL_HOST=mysql
-#       - APPOPTICS_MONGO_SERVER=ao-ruby-mongo
+  ruby_appoptics_alpine:
+    container_name: ruby_appoptics_alpine
+    image: ruby_appoptics_alpine
+    build:
+      context: .
+      dockerfile: ./Dockerfile_alpine
+    hostname: docker.ao.alpine
+    <<: *ao-shared
+    volumes:
+      - ../../:/code/ruby-appoptics
+      - ./.ruby_version_alpine:/code/ruby-appoptics/.ruby-version
+    environment:
+      <<: *ao-env
+      APPOPTICS_HOSTNAME_ALIAS: "AO_RUBY_ALPINE"
+
+  ruby_appoptics_debian:
+    container_name: ruby_appoptics_debian
+    image: ruby_appoptics_debian
+    build:
+      context: .
+      dockerfile: Dockerfile_debian
+    hostname: docker.ao.debian
+    << : *ao-shared
+    volumes:
+      - ../../:/code/ruby-appoptics
+      - ./.ruby_version_debian:/code/ruby-appoptics/.ruby-version
+    environment:
+      << : *ao-env
+      APPOPTICS_HOSTNAME_ALIAS: "AO_RUBY_DEBIAN"
+
+  ruby_appoptics_centos:
+    container_name: ruby_appoptics_centos
+    image: ruby_appoptics_centos
+    build:
+      context: .
+      dockerfile: Dockerfile_centos
+    hostname: docker.ao.centos
+    << : *ao-shared
+    volumes:
+      - ../../:/code/ruby-appoptics
+      - ./.ruby_version_centos:/code/ruby-appoptics/.ruby-version
+    environment:
+      << : *ao-env
+      APPOPTICS_HOSTNAME_ALIAS: "AO_RUBY_CENTOS"
+    privileged: true
 
   ao-ruby-rabbitmq:
     container_name: ao-ruby-rabbitmq
@@ -82,6 +135,14 @@ services:
     container_name: ao-ruby-mongo
     image: mongo:3.4
 
+  ao_ruby_postgres:
+    container_name: ao_ruby_postgres
+    image: postgres:latest
+    volumes:
+      - ./postgres_init.sh:/docker-entrypoint-initdb.d/init-user-db.sh
+#    environment:
+#      POSTGRES_PASSWORD: postgres  # this is the default
+
   ao_ruby_wait:
     container_name: ao_ruby_wait
     image: waisbrot/wait
@@ -89,8 +150,10 @@ services:
       - ao-ruby-rabbitmq
       - ao-ruby-mysql
       - ao-ruby-mongo
+      - ao_ruby_postgres
     links:
       - ao-ruby-rabbitmq
       - ao-ruby-mysql
       - ao-ruby-mongo
+      - ao_ruby_postgres
 

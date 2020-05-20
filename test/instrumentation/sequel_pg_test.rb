@@ -25,7 +25,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
         'Layer' => 'sequel',
         'Label' => 'entry',
         'Database' => 'travis_ci_test',
-        'RemoteHost' => '127.0.0.1',
+        'RemoteHost' => ENV['PSQL_HOST'] || '127.0.0.1',
         'RemotePort' => 5432 }
 
       @exit_kvs = { 'Layer' => 'sequel', 'Label' => 'exit' }
@@ -209,7 +209,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      _(traces[1]['Query']).must_equal "CREATE TABLE \"fake\" (\"id\" serial PRIMARY KEY, \"name\" text, \"price\" double precision)"
+      _(traces[1]['Query']).must_match /CREATE TABLE "fake" \("id" .* PRIMARY KEY, "name" text, "price" double precision\)/
       _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
@@ -232,7 +232,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      _(traces[1]['Query']).must_equal "CREATE TABLE \"fake\" (\"id\" serial PRIMARY KEY, \"name\" text, \"price\" double precision)"
+      _(traces[1]['Query']).must_match /CREATE TABLE "fake" \("id" .* PRIMARY KEY, "name" text, "price" double precision\)/
       _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end

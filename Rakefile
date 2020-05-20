@@ -2,6 +2,7 @@
 
 require 'rubygems'
 require 'fileutils'
+require 'optparse'
 require 'open-uri'
 require 'bundler/setup'
 require 'rake/testtask'
@@ -65,21 +66,32 @@ end
 
 
 desc 'Run all test suites defined by travis'
-task 'docker_tests' do
+task :docker_tests, :environment do
+  _arg1, arg2 = ARGV
+  os = arg2 || 'ubuntu'
+
   Dir.chdir('test/run_tests')
-  exec('docker-compose run ruby_appoptics /code/ruby-appoptics/test/run_tests/ruby_setup.sh test --remove-orphans')
+  exec("docker-compose run ruby_appoptics_#{os} /code/ruby-appoptics/test/run_tests/ruby_setup.sh test --remove-orphans")
 end
 
-desc 'Start docker container for testing and debugging'
-task 'docker' do
+desc 'Start docker container for testing and debugging, accepts: alpine, debian, centos as args, default: ubuntu'
+task :docker, :environment do
+  _arg1, arg2 = ARGV
+  os = arg2 || 'ubuntu'
+
   Dir.chdir('test/run_tests')
-  exec('docker-compose run ruby_appoptics /code/ruby-appoptics/test/run_tests/ruby_setup.sh bash --remove-orphans')
+  exec("docker-compose run ruby_appoptics_#{os} /code/ruby-appoptics/test/run_tests/ruby_setup.sh bash --remove-orphans")
 end
 
 desc 'Stop all containers that were started for testing and debugging'
 task 'docker_down' do
   Dir.chdir('test/run_tests')
   exec('docker-compose down')
+end
+
+desc 'Run smoke tests'
+task 'smoke' do
+  exec('test/run_tests/smoke_test/smoketest.sh')
 end
 
 desc 'Fetch extension dependency files'
