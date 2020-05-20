@@ -50,14 +50,12 @@ done
 ## Read travis configuration
 cd "$( dirname "$0" )/../.."
 mapfile -t input2 < <(test/run_tests/read_travis_yml.rb .travis.yml)
+current_ruby=""
 
 ## Setup and run tests
 for index in ${!input2[*]} ;
 do
   args=(${input2[$index]})
-
-  if [[ "$ruby" != "" && "$ruby" != "${args[0]}" ]]; then continue; fi
-  rbenv local ${args[0]}
 
   if [[ "$gemfile" != "" && "$gemfile" != "${args[1]}" ]]; then continue; fi
   export BUNDLE_GEMFILE=${args[1]}
@@ -67,9 +65,19 @@ do
   if [[ "$env" != "" && "$env" != "${args[2]}" ]]; then continue; fi
   export ${args[2]}
 
-  echo
-  echo "Installing gems ... for $(ruby -v)"
-  bundle update --quiet
+  if [[ "$ruby" != "" && "$ruby" != "${args[0]}" ]]; then continue; fi
+  if [[ "${args[0]}" != $current_ruby ]]; then
+    rbenv local ${args[0]}
+    current_ruby=${args[0]}
+    echo
+    echo "Installing gems ... for $(ruby -v)"
+    bundle update # --quiet
+    bundle exec rake clean fetch compile
+  else
+    echo
+    echo "Installing gems ... for $(ruby -v)"
+    bundle update # --quiet
+  fi
 
   if [ "$?" -eq 0 ]; then
     bundle exec rake test
@@ -79,7 +87,7 @@ do
     if [ "$pids" != "" ]; then kill $pids; fi
   else
     echo "Problem during gem install. Skipping tests for ${args[1]}"
-    rbenv local 2.5.5
+    rbenv local  2.5.5
     exit 1 # we are not continuing here to keep ctrl-c working as expected
   fi
 

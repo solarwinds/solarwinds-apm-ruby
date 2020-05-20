@@ -1,12 +1,12 @@
 #!/bin/bash
 
 ##
-# This script can be used to run one test file against mulitple ruby and
+# This script can be used to run one test file against multiple ruby and
 # gem versions
 #
 # The versions need to be set within this file
 
-RUBY=`rbenv local`
+RUBY=`rbenv global`
 export RUBY_ENV=test
 
 read -r -d '' gemfile_string << EOM
@@ -49,7 +49,7 @@ do
 
    for j in "${ruby_versions[@]}"
    do
-     rbenv local $j
+     rbenv global $j
      bundle update --bundler
      bundle install
      bundle exec rake recompile
@@ -59,4 +59,4 @@ do
    rm $gemfile
 done
 
-rbenv local $RUBY
+rbenv global $RUBY
