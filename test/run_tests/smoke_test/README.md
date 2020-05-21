@@ -1,15 +1,15 @@
 #smoketest
 
-Quickly test the current gem uploaded to package cloud.
-If it is not uploaded, this fails as it matches the info in version.rb
+Quickly smoke test the appoptics_apm gem uploaded to package cloud. There should be:
 
-use linux containers from parent directory
+- a reporter init message indicating a working connection
+- 5 traces in https://my-stg.appoptics.com/
+- a WARN message with a trace-id
 
-inside container
+### how to...
+The gem version needs to be updated in the Gemfile.
 
-run script `./smoketest.sh` locally
+Use linux containers from parent directory
 
+Inside a container run the script `./smoketest.sh` locally
 or call it from any directory: `bundle exec rake smoke`
-
-- it uses the latest gem version from packagecloud
-- it sends traces to the collector

@@ -1,8 +1,6 @@
-# source 'https://rubygems.org'
-
-require_relative '../../../lib/appoptics_apm/version'
+source 'https://rubygems.org'
 
 # Add appoptics agent from PackageCloud
 source 'https://e7a157ba14962984396983edf2cd291fe020ee728e9e6915:@packagecloud.io/solarwinds/appoptics-apm-ruby' do
-  gem 'appoptics_apm', AppOpticsAPM::Version::STRING
+  gem 'appoptics_apm' , '4.11.2'
 end
