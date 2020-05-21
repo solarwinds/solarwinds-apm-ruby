@@ -42,21 +42,21 @@ Automatic tracing and metrics for Ruby applications. Get started at appoptics.co
 
   s.extensions = ['ext/oboe_metal/extconf.rb'] unless defined?(JRUBY_VERSION)
 
-  s.add_runtime_dependency('json', '>= 0')
+  s.add_runtime_dependency('json', '~> 2.3')
   s.add_runtime_dependency('no_proxy_fix', '~> 0.1.2', '>= 0.1.2')
 
   # Development dependencies used in gem development & testing
-  s.add_development_dependency('rake', '>= 0.9.0')
-  s.add_development_dependency('simplecov', '>= 0.16.0') if ENV["SIMPLECOV_COVERAGE"]
-  s.add_development_dependency('simplecov-console', '>= 0.4.0') if ENV["SIMPLECOV_COVERAGE"]
-  s.add_development_dependency('irb', '>= 1.0.0') if RUBY_VERSION >= '2.6.0'
-
-  unless defined?(JRUBY_VERSION)
-    s.add_development_dependency('byebug', '>= 8.0.0')
-    s.add_development_dependency('minitest-hooks', '>= 1.5.0')
-    s.add_development_dependency('minitest-focus', '>=1.1.2')
-    s.add_development_dependency('benchmark-ips', '>= 2.7.2')
-  end
+  # s.add_development_dependency('rake', '>= 0.9.0')
+  # s.add_development_dependency('simplecov', '>= 0.16.0') if ENV["SIMPLECOV_COVERAGE"]
+  # s.add_development_dependency('simplecov-console', '>= 0.4.0') if ENV["SIMPLECOV_COVERAGE"]
+  # s.add_development_dependency('irb', '>= 1.0.0') if RUBY_VERSION >= '2.6.0'
+  #
+  # unless defined?(JRUBY_VERSION)
+  #   s.add_development_dependency('byebug', '>= 8.0.0')
+  #   s.add_development_dependency('minitest-hooks', '>= 1.5.0')
+  #   s.add_development_dependency('minitest-focus', '>=1.1.2')
+  #   s.add_development_dependency('benchmark-ips', '>= 2.7.2')
+  # end
 
   s.required_ruby_version = '>= 2.4.0'
   s.executables   = s.files.grep(%r{^bin/}) { |f| File.basename(f) }
