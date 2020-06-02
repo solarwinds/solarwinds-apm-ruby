@@ -1,23 +1,23 @@
 source "https://rubygems.org"
 
-group :development, :test do
-  gem 'rake'
-  gem 'minitest'
-  gem 'minitest-reporters', '1.3.0' # 1.3.1 is breaking tests
-  gem 'minitest-debugger', :require => false
-  gem 'mocha'
-  gem 'rack-test'
-  gem 'puma', '< 3.1.0'
-  gem 'bson', '< 4.0'
-  gem 'lograge'
-end
+# group :development, :test do
+#   gem 'rake'
+#   gem 'minitest'
+#   gem 'minitest-reporters', '1.3.0' # 1.3.1 is breaking tests
+#   gem 'minitest-debugger', :require => false
+#   gem 'mocha'
+#   gem 'rack-test'
+#   gem 'puma', '< 3.1.0'
+#   gem 'bson', '< 4.0'
+#   gem 'lograge'
+# end
 
 if defined?(JRUBY_VERSION)
-  gem 'sinatra', :require => false
+  # gem 'sinatra', :require => false
   gem 'activerecord-jdbc-adapter'
   gem 'jdbc-postgresql'
 else
-  gem 'sinatra'
+  # gem 'sinatra'
   gem 'pg', '< 0.19'
   if RUBY_VERSION < '2.4'
     gem 'mysql'
@@ -28,5 +28,6 @@ end
 gem "rails", "~> 4.2.5"
 gem 'sidekiq'
 
+eval(File.read(File.join(File.dirname(__FILE__), 'test_gems.gemfile')))
 gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')
 # vim:syntax=ruby
