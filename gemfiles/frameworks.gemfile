@@ -23,7 +23,7 @@ source "https://rubygems.org"
 gem 'dalli'
 gem 'grape'
 gem 'rack' # , '~> 2.0.8'
-# gem 'rack-cache', path: '/rack-cache'
+gem 'rack-cache'
 
 if defined?(JRUBY_VERSION)
   # Limit padrino gem under JRuby as version 0.13.0 throws
