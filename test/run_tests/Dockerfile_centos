@@ -31,6 +31,7 @@ RUN yum update -y \
        psmisc \
        readline-devel \
        tcl \
+       tmux \
        tree \
        vim \
        zlib-devel \

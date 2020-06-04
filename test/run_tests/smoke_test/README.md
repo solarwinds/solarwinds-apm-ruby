@@ -7,9 +7,19 @@ Quickly smoke test the appoptics_apm gem uploaded to package cloud. There should
 - a WARN message with a trace-id
 
 ### how to...
+
 The gem version needs to be updated in the Gemfile.
 
 Use linux containers from parent directory
 
-Inside a container run the script `./smoketest.sh` locally
-or call it from any directory: `bundle exec rake smoke`
+Inside a container run:  `./smoketest.sh` 
+
+```
+mkdir /smoke
+cp -r test/run_tests/smoke_test/* /smoke/.
+cd /smoke
+rm -f Gemfile.lock
+./smoketest.sh
+cd -
+/bin/rm -r /smoke
+```
