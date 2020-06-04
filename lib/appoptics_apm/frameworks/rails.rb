@@ -1,6 +1,8 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
+require_relative '../../../lib/appoptics_apm/inst/logger_formatter'
+
 module AppOpticsAPM
   module Rails
     module Helpers
@@ -75,6 +77,10 @@ if defined?(::Rails)
         AppOpticsAPM::Rails.include_helpers
       end
 
+      initializer 'appoptics_apm.controller', before: 'wicked_pdf.register' do
+        AppOpticsAPM::Rails.load_instrumentation
+      end
+
       initializer 'appoptics_apm.rack' do |app|
         AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting rack' if AppOpticsAPM::Config[:verbose]
         app.config.middleware.insert 0, AppOpticsAPM::Rack
@@ -84,7 +90,7 @@ if defined?(::Rails)
         AppOpticsAPM.logger = ::Rails.logger if ::Rails.logger && !ENV.key?('APPOPTICS_GEM_TEST')
 
         AppOpticsAPM::Inst.load_instrumentation
-        AppOpticsAPM::Rails.load_instrumentation
+        # AppOpticsAPM::Rails.load_instrumentation
 
         # Report __Init after fork when in Heroku
         AppOpticsAPM::API.report_init unless AppOpticsAPM.heroku?
