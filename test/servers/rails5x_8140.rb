@@ -48,6 +48,8 @@ class Rails50MetalStack < Rails::Application
     get "/hello/error"       => "hello#error"
     get "/hello/servererror" => "hello#servererror"
 
+    get "/wicked"   => "wicked#show"
+
     get "/widgets"          => "widgets#all"
     get "/widgets/delete_all" => "widgets#delete_all"
     post "/widgets"          => "widgets#create"
@@ -102,6 +104,17 @@ class HelloController < ApplicationController
 
   def servererror
     render :plain => "broken", :status => 500
+  end
+end
+
+class WickedController < ApplicationController
+  def show
+    respond_to do |format|
+      format.html
+      format.pdf do
+        render pdf: "file_name", file: 'test.html'
+      end
+    end
   end
 end
 

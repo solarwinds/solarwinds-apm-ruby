@@ -17,6 +17,10 @@ describe "RailsSharedTests" do
     AppOpticsAPM.config_lock.synchronize {
       @tm = AppOpticsAPM::Config[:tracing_mode]
       @sample_rate = AppOpticsAPM::Config[:sample_rate]
+      @dnt_regexp = AppOpticsAPM::Config[:dnt_regexp]
+      @ac_bt = AppOpticsAPM::Config[:action_controller][:collect_backtraces]
+      @av_bt = AppOpticsAPM::Config[:action_view][:collect_backtraces]
+      @rack_bt = AppOpticsAPM::Config[:rack][:collect_backtraces]
     }
   end
 
@@ -24,6 +28,10 @@ describe "RailsSharedTests" do
     AppOpticsAPM.config_lock.synchronize {
       AppOpticsAPM::Config[:tracing_mode] = @tm
       AppOpticsAPM::Config[:sample_rate] = @sample_rate
+      AppOpticsAPM::Config[:dnt_regexp] = @dnt_regexp
+      AppOpticsAPM::Config[:action_controller][:collect_backtraces] = @ac_bt
+      AppOpticsAPM::Config[:action_view][:collect_backtraces] = @av_bt
+      AppOpticsAPM::Config[:rack][:collect_backtraces] = @rack_bt
     }
   end
 
@@ -181,6 +189,44 @@ describe "RailsSharedTests" do
     assert sidekiq_traces.find { |tr| tr['Layer'] == 'sidekiq-worker' && tr['JobName'] == 'ActiveJobWorkerJob' }
     assert sidekiq_traces.find { |tr| tr['Layer'] == 'sidekiq-worker' && tr['Action'] == 'ActiveJobWorkerJob' }
 
+  end
+
+  it "finds a 'wicked_pdf.register' initializer" do
+    found = Rails.application.initializers.any? do |initializer|
+      initializer.name == 'wicked_pdf.register'
+    end
+
+    assert found, "'wicked_pdf.register' initializer not found, maybe it changed name"
+  end
+
+  it "traces html from the 'wicked' controller" do
+    uri = URI.parse('http://127.0.0.1:8140/wicked')
+    r = Net::HTTP.get_response(uri)
+
+    traces = get_all_traces
+
+    assert_equal 6, traces.count
+    valid_edges?(traces)
+    assert_equal 2, traces.select { |tr| tr['Layer'] =~ /actionview/ }.count
+  end
+
+  it "traces pdfs from the 'wicked' controller" do
+    # fyi: wicked_pdf is not instrumented
+    AppOpticsAPM::Config[:dnt_regexp] = ''
+    AppOpticsAPM::Config[:action_controller][:collect_backtraces] = false
+    AppOpticsAPM::Config[:action_view][:collect_backtraces] = false
+    AppOpticsAPM::Config[:rack][:collect_backtraces] = false
+
+    uri = URI.parse('http://127.0.0.1:8140/wicked.pdf')
+    r = Net::HTTP.get_response(uri)
+
+    traces = get_all_traces
+
+    assert_equal 6, traces.count
+    valid_edges?(traces)
+
+    traces.select { |tr| tr['Layer'] =~ /sidekiq/ }
+    assert_equal 2, traces.select { |tr| tr['Layer'] =~ /actionview/ }.count
   end
 
 end

@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-gem 'rails', '~> 5.2.0'
+gem 'rails', '~> 5.2.3'
 gem 'sass-rails'
 gem 'uglifier'
 gem 'coffee-rails'
@@ -11,6 +11,7 @@ gem 'jbuilder'
 gem 'sidekiq'
 gem 'lograge'
 gem 'wicked_pdf'
+gem 'wkhtmltopdf-binary'
 
 group :development do
   # Access an IRB console on exception pages or by using <%= console %> in views

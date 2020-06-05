@@ -11,6 +11,7 @@ gem 'jbuilder'
 gem 'sidekiq'
 gem 'lograge'
 gem 'wicked_pdf'
+gem 'wkhtmltopdf-binary'
 
 group :development do
   # Access an IRB console on exception pages or by using <%= console %> in views

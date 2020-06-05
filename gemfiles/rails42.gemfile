@@ -17,6 +17,7 @@ gem "rails", "~> 4.2.5"
 gem 'sidekiq'
 gem 'lograge'
 gem 'wicked_pdf'
+gem 'wkhtmltopdf-binary'
 
 eval(File.read(File.join(File.dirname(__FILE__), 'test_gems.gemfile')))
 gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')
