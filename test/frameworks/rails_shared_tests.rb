@@ -191,6 +191,10 @@ describe "RailsSharedTests" do
 
   end
 
+  ### wicked_pdf gem ###########################################################
+  # we don't instrument wicked_pdf, but its instrumentation can
+  # interfere with our instrumentation
+
   it "finds a 'wicked_pdf.register' initializer" do
     found = Rails.application.initializers.any? do |initializer|
       initializer.name == 'wicked_pdf.register'
