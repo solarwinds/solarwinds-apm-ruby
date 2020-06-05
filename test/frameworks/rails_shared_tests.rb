@@ -200,6 +200,9 @@ describe "RailsSharedTests" do
   end
 
   it "traces html from the 'wicked' controller" do
+    AppOpticsAPM::Config[:action_controller][:collect_backtraces] = false
+    AppOpticsAPM::Config[:action_view][:collect_backtraces] = false
+    AppOpticsAPM::Config[:rack][:collect_backtraces] = false
     uri = URI.parse('http://127.0.0.1:8140/wicked')
     r = Net::HTTP.get_response(uri)
 
