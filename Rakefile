@@ -71,7 +71,7 @@ task :docker_tests, :environment do
   os = arg2 || 'ubuntu'
 
   Dir.chdir('test/run_tests')
-  exec("docker-compose run ruby_appoptics_#{os} /code/ruby-appoptics/test/run_tests/ruby_setup.sh test --remove-orphans")
+  exec("docker-compose run --service-ports --name ruby_appoptics_#{os} ruby_appoptics_#{os} /code/ruby-appoptics/test/run_tests/ruby_setup.sh test")
 end
 
 desc 'Start docker container for testing and debugging, accepts: alpine, debian, centos as args, default: ubuntu'
@@ -80,7 +80,7 @@ task :docker, :environment do
   os = arg2 || 'ubuntu'
 
   Dir.chdir('test/run_tests')
-  exec("docker-compose run ruby_appoptics_#{os} /code/ruby-appoptics/test/run_tests/ruby_setup.sh bash --remove-orphans")
+  exec("docker-compose run --service-ports --name ruby_appoptics_#{os} ruby_appoptics_#{os} /code/ruby-appoptics/test/run_tests/ruby_setup.sh bash")
 end
 
 desc 'Stop all containers that were started for testing and debugging'
@@ -100,8 +100,8 @@ task :fetch_ext_deps do
   swig_version = swig_version.scan(/swig version [34].0.\d*/i)
   if swig_version.empty?
       $stderr.puts '== ERROR ================================================================='
-      $stderr.puts "Could not find required swig version >3.0.8, found #{swig_version.inspect}"
-      $stderr.puts 'Please install swig "~ 3.0.12" and try again.'
+      $stderr.puts "Could not find required swig version > 3.0.8, found #{swig_version.inspect}"
+      $stderr.puts 'Please install swig "> 3.0.8" and try again.'
       $stderr.puts '=========================================================================='
     raise
   end
