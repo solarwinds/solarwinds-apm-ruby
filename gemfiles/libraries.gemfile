@@ -14,27 +14,6 @@ if  !File.exist?('/etc/alpine-release') # && RUBY_VERSION < '2.7.0'
   gem 'google-protobuf'
 end
 
-# group :development, :test do
-#   gem 'minitest'
-#   gem 'minitest-reporters', '1.3.0' # 1.3.1 is breaking tests
-#   gem 'minitest-debugger', :require => false
-#   gem 'minitest-hooks'
-#   gem 'minitest-focus'
-#   gem 'mocha'
-#   gem 'rack-test'
-#   gem 'rake'
-#   # gem 'bson' , '~> 4.0'
-#   gem 'puma'
-#   gem 'webmock'
-#   gem 'grpc-tools' if RUBY_VERSION < '2.7.0'
-# end
-
-# if defined?(JRUBY_VERSION)
-#   gem 'sinatra', :require => false
-# else
-#   gem 'sinatra'
-# end
-
 gem 'bunny'
 # gem 'cassandra'
 gem 'curb'
