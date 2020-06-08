@@ -190,6 +190,12 @@ describe "AppOpticsAPM::Config" do
     _(AppOpticsAPM::Config[:dnt_compiled].inspect).must_equal '/\\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|otf|eot|ttf|woff|woff2|svg|less)(\\?.+){0,1}$/i'
     _(AppOpticsAPM::Config[:dnt_opts]).must_equal Regexp::IGNORECASE
 
+    _(AppOpticsAPM::Config[:graphql][:sanitize]).must_equal true
+    _(AppOpticsAPM::Config[:graphql][:remove_comments]).must_equal true
+    _(AppOpticsAPM::Config[:graphql][:transaction_name]).must_equal true
+
+    _(AppOpticsAPM::Config[:rack_cache][:transaction_name]).must_equal true
+
     _(AppOpticsAPM::Config[:transaction_settings].is_a?(Hash)).must_equal true
     _(AppOpticsAPM::Config[:transaction_settings]).must_equal({ url: [] })
 
@@ -206,7 +212,7 @@ describe "AppOpticsAPM::Config" do
 
     # ... and make sure they are enabled by default
     instrumentation.each do |key|
-      _(AppOpticsAPM::Config[key][:enabled]).must_equal true
+      _(AppOpticsAPM::Config[key][:enabled]).must_equal true, key
     end
 
     _(AppOpticsAPM::Config[:bunnyconsumer][:log_args]).must_equal true
