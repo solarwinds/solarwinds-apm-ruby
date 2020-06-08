@@ -10,6 +10,8 @@ gem 'turbolinks'
 gem 'jbuilder'
 gem 'sidekiq'
 gem 'lograge'
+gem 'wicked_pdf'
+gem 'wkhtmltopdf-binary'
 
 group :development do
   # Access an IRB console on exception pages or by using <%= console %> in views
@@ -22,17 +24,6 @@ end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
-
-# group :development, :test do
-#   gem 'rake'
-#   gem 'minitest'
-#   gem 'minitest-reporters', '1.3.0' # 1.3.1 is breaking tests
-#   gem 'minitest-debugger', :require => false
-#   gem 'mocha'
-#   gem 'rack-test'
-#   gem 'puma'
-#   gem 'bson'
-# end
 
 if defined?(JRUBY_VERSION)
   gem 'activerecord-jdbc-adapter'
