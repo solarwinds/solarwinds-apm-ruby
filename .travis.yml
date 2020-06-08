@@ -75,7 +75,7 @@ matrix:
 #  - sudo service cassandra start
 
 install:
-  - curl -SL http://kent.dl.sourceforge.net/project/swig/swig/swig-4.0.2/swig-4.0.2.tar.gz
+  - curl -LO http://kent.dl.sourceforge.net/project/swig/swig/swig-4.0.2/swig-4.0.2.tar.gz
   - tar xzf swig-4.0.2.tar.gz
   - pushd swig-4.0.2
   - ./configure && make && sudo make install
