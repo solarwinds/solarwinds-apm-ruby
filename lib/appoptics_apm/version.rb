@@ -8,7 +8,7 @@ module AppOpticsAPM
   module Version
     MAJOR = 4 # breaking,
     MINOR = 11 # feature,
-    PATCH = 2 # fix => BFF
+    PATCH = 3 # fix => BFF
 
     STRING = [MAJOR, MINOR, PATCH].compact.join('.')
   end

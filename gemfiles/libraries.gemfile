@@ -14,28 +14,7 @@ if  !File.exist?('/etc/alpine-release') # && RUBY_VERSION < '2.7.0'
   gem 'google-protobuf'
 end
 
-group :development, :test do
-  gem 'minitest'
-  gem 'minitest-reporters', '1.3.0' # 1.3.1 is breaking tests
-  gem 'minitest-debugger', :require => false
-  gem 'minitest-hooks'
-  gem 'mocha'
-  gem 'rack-test'
-  gem 'rake'
-  # gem 'bson' , '~> 4.0'
-  gem 'puma'
-  gem 'webmock'
-  gem 'grpc-tools' if RUBY_VERSION < '2.7.0'
-end
-
-if defined?(JRUBY_VERSION)
-  gem 'sinatra', :require => false
-else
-  gem 'sinatra'
-end
-
 gem 'bunny'
-gem 'mongo', '>= 2.11.3'
 # gem 'cassandra'
 gem 'curb'
 gem 'dalli'
@@ -46,6 +25,7 @@ gem 'httpclient'
 gem 'logging'
 gem 'lumberjack'
 gem 'memcached'
+gem 'mongo', '>= 2.11.3'
 gem 'patron' # not instrumented, included to test a non-instrumented faraday adapter
 gem 'redis'
 gem 'resque' unless defined?(JRUBY_VERSION)
@@ -63,5 +43,7 @@ else
   gem 'pg'
 end
 
-gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')
+eval(File.read(File.join(File.dirname(__FILE__), 'test_gems.gemfile')))
+
+gemspec :path => File.dirname(File.dirname(__FILE__))
 # vim:syntax=ruby

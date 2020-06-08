@@ -36,7 +36,7 @@ unless defined?(JRUBY_VERSION)
       jid = Sidekiq::Client.push('queue' => 'critical', 'class' => RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
 
       # Allow the job to be run
-      sleep 5
+      sleep 7
 
       traces = get_all_traces
       assert_equal 12, traces.count, "Trace count"
@@ -72,7 +72,7 @@ unless defined?(JRUBY_VERSION)
       jid = Sidekiq::Client.push('queue' => 'critical', 'class' => ErrorWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
 
       # Allow the job to be run
-      sleep 5
+      sleep 7
 
       traces = get_all_traces
       assert_equal 3, traces.count, "Trace count"

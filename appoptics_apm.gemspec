@@ -42,7 +42,7 @@ Automatic tracing and metrics for Ruby applications. Get started at appoptics.co
 
   s.extensions = ['ext/oboe_metal/extconf.rb'] unless defined?(JRUBY_VERSION)
 
-  s.add_runtime_dependency('json', '~> 2.3')
+  s.add_runtime_dependency('json')
   s.add_runtime_dependency('no_proxy_fix', '~> 0.1.2', '>= 0.1.2')
 
   # Development dependencies used in gem development & testing

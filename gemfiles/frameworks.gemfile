@@ -1,24 +1,8 @@
 source "https://rubygems.org"
 
-group :development, :test do
-  gem 'rake'
-  gem 'minitest'
-  gem 'minitest-reporters', '1.3.0' # 1.3.1 is breaking tests
-  gem 'minitest-debugger', :require => false
-  gem 'mocha'
-  gem 'rack-test'
-  gem 'puma' #, '< 3.1.0'
-  gem 'bson', '< 4.0'
-end
-
-if defined?(JRUBY_VERSION)
-  gem 'sinatra', :require => false
-else
-  gem 'sinatra'
-end
-
-gem 'rack' # , '~> 2.0.8'
+gem 'dalli'
 gem 'grape'
+gem 'rack' # , '~> 2.0.8'
 
 if defined?(JRUBY_VERSION)
   # Limit padrino gem under JRuby as version 0.13.0 throws
@@ -27,6 +11,8 @@ if defined?(JRUBY_VERSION)
 else
   gem 'padrino', '>= 0.14.4' # need to force this, it sometimes defaults to 0.9.21
 end
+
+eval(File.read(File.join(File.dirname(__FILE__), 'test_gems.gemfile')))
 
 gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')
 # vim:syntax=ruby

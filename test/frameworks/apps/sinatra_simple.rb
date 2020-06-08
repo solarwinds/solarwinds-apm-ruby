@@ -2,9 +2,17 @@
 # All rights reserved.
 
 require 'sinatra'
+require "rack/cache"
+require "dalli"
+require 'appoptics_apm'
+
+use Rack::Cache, metastore:   'memcached://localhost:11211',
+    entitystore: 'memcached://localhost:11211',
+    verbose:     true
 
 class SinatraSimple < Sinatra::Base
   set :reload, true
+  set :logging, true
 
   template :layout do
     # Use both the legacy and new RUM helper
@@ -17,6 +25,10 @@ class SinatraSimple < Sinatra::Base
     <%= yield %>
   </body>
 </html>}
+  end
+
+  before do
+    expires 20, :public, :must_revalidate
   end
 
   get "/" do
