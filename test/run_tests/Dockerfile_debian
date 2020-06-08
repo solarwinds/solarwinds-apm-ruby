@@ -23,12 +23,14 @@ RUN apt-get update \
        libpcre3-dev \
        libreadline-dev \
        libsasl2-dev \
+       libsqlite3-dev \
        libssl-dev \
 #       openjdk-8-jdk \ # TODO do we need this?
        psmisc \
        vim \
        less \
        tcl \
+       tmux \
        tree \
        zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*

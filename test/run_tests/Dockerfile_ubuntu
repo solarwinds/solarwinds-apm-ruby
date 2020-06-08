@@ -22,12 +22,14 @@ RUN apt-get update \
        libpcre3-dev \
        libreadline-dev \
        libsasl2-dev \
+       libsqlite3-dev \
        libssl-dev \
        openjdk-8-jdk \
        psmisc \
        vim \
        less \
        tcl \
+       tmux \
        tree \
        zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
@@ -100,7 +102,6 @@ RUN apt-get update && \
 
 ENV PATH="/root/.rbenv/bin:/root/.rbenv/shims:$PATH"
 ENV RUBY_ENV=test
-ENV DOCKER_PSQL_PASS=docker
 ENV APPOPTICS_TOKEN_BUCKET_CAPACITY=10000
 ENV APPOPTICS_TOKEN_BUCKET_RATE=10000
 
