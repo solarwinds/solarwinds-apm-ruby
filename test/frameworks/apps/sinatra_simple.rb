@@ -2,6 +2,13 @@
 # All rights reserved.
 
 require 'sinatra'
+require "rack/cache"
+require "dalli"
+require 'appoptics_apm'
+
+use Rack::Cache,
+    metastore:   'memcached://localhost:11211',
+    entitystore: 'memcached://localhost:11211'
 
 class SinatraSimple < Sinatra::Base
   set :reload, true
@@ -17,6 +24,11 @@ class SinatraSimple < Sinatra::Base
     <%= yield %>
   </body>
 </html>}
+  end
+
+  get "/cache" do
+    cache_control :public, :max_age => 10
+    render :erb, "<h1>I have a header</h1>"
   end
 
   get "/" do
