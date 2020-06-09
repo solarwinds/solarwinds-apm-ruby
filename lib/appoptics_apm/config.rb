@@ -73,9 +73,10 @@ module AppOpticsAPM
                                    ].join(' ')
         end
         load(config_files[0])
-        # sets AppOpticsAPM::Config[:debug_level], AppOpticsAPM.logger.level
-        set_log_level
       end
+
+      # sets AppOpticsAPM::Config[:debug_level], AppOpticsAPM.logger.level
+      set_log_level
 
       # the verbose setting is only relevant for ruby, ENV['APPOPTICS_GEM_VERBOSE'] overrides
       if ENV.key?('APPOPTICS_GEM_VERBOSE')
