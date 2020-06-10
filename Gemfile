@@ -8,7 +8,7 @@ gem 'rake', '>= 0.9.0'
 group :development, :test do
   # gem 'benchmark-ips', '>= 2.7.2'
   # gem 'bson'
-  # gem 'byebug', '>= 8.0.0'
+  gem 'byebug', '>= 8.0.0'
   # gem 'debugger',     :platform  =>  :mri_19
   # gem 'get_process_mem'
   gem 'irb', '>= 1.0.0' # if RUBY_VERSION >= '2.6.0'

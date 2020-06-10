@@ -97,13 +97,15 @@ end
 desc 'Fetch extension dependency files'
 task :fetch_ext_deps do
   swig_version = %x{swig -version} rescue ''
-  swig_version = swig_version.scan(/swig version [34].\d*.\d*/i)
-  if swig_version.empty?
+  swig_valid_version = swig_version.scan(/swig version [34].\d*.\d*/i)
+  if swig_valid_version.empty?
       $stderr.puts '== ERROR ================================================================='
       $stderr.puts "Could not find required swig version > 3.0.8, found #{swig_version.inspect}"
       $stderr.puts 'Please install swig "> 3.0.8" and try again.'
       $stderr.puts '=========================================================================='
     raise
+  else
+    $stderr.puts "+++++++++++ Using #{swig_version.strip.split("\n")[0]}"
   end
 
   # The c-lib version is different from the gem version

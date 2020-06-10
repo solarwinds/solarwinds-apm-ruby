@@ -140,5 +140,5 @@ AppOpticsAPM::Config[:log_traceId] = :always
 
 AppOpticsAPM::SDK.start_trace("log_trace_id_#{name}") do
   trace = AppOpticsAPM::SDK.current_trace
-  AppOpticsAPM.logger.warn "Some log message #{trace.for_log}"
+  AppOpticsAPM.logger.warn "Logging the TraceId: #{trace.for_log}"
 end
