@@ -10,6 +10,7 @@ version: "2.1"
 #
 ########################################################################################################
 x-ao-env: &ao-env
+#  APPOPTICS_COLLECTOR: "collector-stg.appoptics.com"
   APPOPTICS_COLLECTOR: "/tmp/appoptics_traces.bson"
   APPOPTICS_FROM_S3: "true"
   APPOPTICS_GEM_TEST: "true"
@@ -21,12 +22,13 @@ x-ao-env: &ao-env
   APPOPTICS_TOKEN_BUCKET_CAPACITY: 10000
   APPOPTICS_TOKEN_BUCKET_RATE: 10000
 
-  BUNDLE_GEMFILE: "gemfiles/libraries.gemfile"
+#  BUNDLE_GEMFILE: "gemfiles/libraries.gemfile"
   DOCKER_MYSQL_PASS: "admin"
   DOCKER_PSQL_PASS: "docker"
   MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
   MYSQL_ROOT_PASSWORD: "admin"
   MYSQL_HOST: "ao-ruby-mysql"
+  OBOE_VERSION: "10.0.0"
   PSQL_HOST: "ao_ruby_postgres"
   RUBY_ENV: "test"
   TEST_RUNS_TO_FILE: "true"
@@ -44,8 +46,8 @@ x-ao-shared: &ao-shared
       max-size: "100m"
   ports:
     - "3000"
-  volumes:
-    - ../../:/code/ruby-appoptics
+#  volumes:
+#    - ../../:/code/ruby-appoptics
 #    - /dev/null:/sys/fs/cgroup
 #       - ../../../graphql-ruby-clone/:/code/graphql-ruby
 #       - /Users/maiaengeli/workspace/repos/grpc:/grpc_ruby
@@ -115,6 +117,7 @@ services:
     volumes:
       - ../../:/code/ruby-appoptics
       - ./.ruby_version_centos:/code/ruby-appoptics/.ruby-version
+      - ../../../../repos/rack-cache/:/rack-cache
     environment:
       << : *ao-env
       APPOPTICS_HOSTNAME_ALIAS: "AO_RUBY_CENTOS"
@@ -138,10 +141,10 @@ services:
   ao_ruby_postgres:
     container_name: ao_ruby_postgres
     image: postgres:latest
+    environment:
+      DOCKER_PSQL_PASS: "docker"
     volumes:
       - ./postgres_init.sh:/docker-entrypoint-initdb.d/init-user-db.sh
-#    environment:
-#      POSTGRES_PASSWORD: postgres  # this is the default
 
   ao_ruby_wait:
     container_name: ao_ruby_wait

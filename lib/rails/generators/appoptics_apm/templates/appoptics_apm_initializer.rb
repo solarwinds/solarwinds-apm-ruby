@@ -113,25 +113,6 @@ if defined?(AppOpticsAPM::Config)
   AppOpticsAPM::Config[:sanitize_sql_opts]   = Regexp::IGNORECASE
 
   #
-  # GraphQL
-  #
-  # Enable tracing for GraphQL.
-  # (true | false, default: true)
-  AppOpticsAPM::Config[:graphql][:enabled] = true
-  # Replace query arguments with a '?' when sent with a trace.
-  # (true | false, default: true)
-  AppOpticsAPM::Config[:graphql][:sanitize] = true
-  # Remove comments from queries when sent with a trace.
-  # (true | false, default: true)
-  AppOpticsAPM::Config[:graphql][:remove_comments] = true
-  # Create a transaction name by combining
-  # "query" or "mutation" with the first word of the query.
-  # This overwrites the default transaction name, which is a combination of
-  # controller + action and would be the same for all graphql queries.
-  # (true | false, default: true)
-  AppOpticsAPM::Config[:graphql][:transaction_name] = true
-
-  #
   # Do Not Trace - DNT
   #
   # DEPRECATED
@@ -157,6 +138,36 @@ if defined?(AppOpticsAPM::Config)
   #
   AppOpticsAPM::Config[:dnt_regexp] = '\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|otf|eot|ttf|woff|woff2|svg|less)(\?.+){0,1}$'
   AppOpticsAPM::Config[:dnt_opts] = Regexp::IGNORECASE
+
+  #
+  # GraphQL
+  #
+  # Enable tracing for GraphQL.
+  # (true | false, default: true)
+  AppOpticsAPM::Config[:graphql][:enabled] = true
+  # Replace query arguments with a '?' when sent with a trace.
+  # (true | false, default: true)
+  AppOpticsAPM::Config[:graphql][:sanitize] = true
+  # Remove comments from queries when sent with a trace.
+  # (true | false, default: true)
+  AppOpticsAPM::Config[:graphql][:remove_comments] = true
+  # Create a transaction name by combining
+  # "query" or "mutation" with the first word of the query.
+  # This overwrites the default transaction name, which is a combination of
+  # controller + action and would be the same for all graphql queries.
+  # (true | false, default: true)
+  AppOpticsAPM::Config[:graphql][:transaction_name] = true
+
+  #
+  # Rack::Cache
+  #
+  # Create a transaction name like `rack-cache.<cache-store>`,
+  # e.g. `rack-cache.memcached`
+  # This can reduce the number of transaction names, when many requests are
+  # served directly from the cache without hitting a controller action.
+  # When set to `false` the path will be used for the transaction name.
+  #
+  AppOpticsAPM::Config[:rack_cache] = { transaction_name: true }
 
   #
   # Transaction Settings

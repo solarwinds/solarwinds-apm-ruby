@@ -31,6 +31,7 @@ RUN apk add --upgrade \
       readline-dev \
       ruby-google-protobuf \
       swig \
+      tmux \
       tree \
       vim \
       zlib-dev \

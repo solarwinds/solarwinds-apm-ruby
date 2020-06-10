@@ -65,15 +65,16 @@ module AppOpticsAPM
       config_file = File.join(Dir.pwd, 'appoptics_apm_config.rb')
       config_files << config_file if File.exist?(config_file)
 
-      return if config_files.empty?  # we use the defaults from the template in this case
-
-      if config_files.size > 1
-        AppOpticsAPM.logger.warn [
-          '[appoptics_apm/config] Multiple configuration files configured, using the first one listed: ',
-          config_files.join(', ')
-        ].join(' ')
+      unless config_files.empty? # we use the defaults from the template if there are no config files
+        if config_files.size > 1
+          AppOpticsAPM.logger.warn [
+                                     '[appoptics_apm/config] Multiple configuration files configured, using the first one listed: ',
+                                     config_files.join(', ')
+                                   ].join(' ')
+        end
+        load(config_files[0])
       end
-      load(config_files[0])
+
       # sets AppOpticsAPM::Config[:debug_level], AppOpticsAPM.logger.level
       set_log_level
 
