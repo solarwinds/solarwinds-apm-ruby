@@ -33,7 +33,7 @@ using namespace std;
 #if !defined(AO_GETTID)
      #if defined(_WIN32)
         #define AO_GETTID GetCurrentThreadId
-     #else 
+     #else
         #include <unistd.h>
         #include <sys/syscall.h>
         #ifdef SYS_gettid
@@ -43,9 +43,9 @@ using namespace std;
 #endif
 
 typedef struct msg {
-   VALUE frames_buffer[BUF_SIZE]; 
-   int num; 
-   pid_t tid; 
+   VALUE frames_buffer[BUF_SIZE];
+   int num;
+   pid_t tid;
    long ts;
    string xtrace;
 } msg_t;

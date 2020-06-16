@@ -15,6 +15,7 @@
 dir=`pwd`
 cd /code/ruby-appoptics/
 
+rm -f Gemfile.lock
 rm -f gemfiles/*.lock
 #rm -f .ruby-version
 
