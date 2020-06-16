@@ -5,10 +5,11 @@
 #define LOGGING_H
 
 #include <iostream>
-#include <sstream> 
+#include <sstream>
 #include <vector>
 #include <sys/syscall.h>    /* For SYS_xxx definitions */
 
+#include "oboe.hpp"
 #include "profiling.h"
 #include "frames.h"
 

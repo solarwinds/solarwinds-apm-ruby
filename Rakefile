@@ -116,7 +116,8 @@ task :fetch_ext_deps do
   # VERSION is used by extconf.rb to download the correct liboboe when installing the gem
   remote_file = File.join(oboe_s3_dir, 'VERSION')
   local_file = File.join(ext_src_dir, 'VERSION')
-  puts "fetching #{remote_file} to #{local_file}"
+  puts "fetching #{remote_file}"
+  puts "      to #{local_file}"
   open(remote_file, 'rb') do |rf|
     content = rf.read
     File.open(local_file, 'wb') { |f| f.puts content }
@@ -125,12 +126,22 @@ task :fetch_ext_deps do
 
   # oboe and bson header files
   FileUtils.mkdir_p(File.join(ext_src_dir, 'bson'))
-    %w(oboe.h oboe.hpp oboe_debug.h oboe.i bson/bson.h bson/platform_hacks.h).each do |filename|
-    # %w(oboe.h oboe_debug.h bson/bson.h bson/platform_hacks.h).each do |filename|
+  files = %w(oboe.h oboe_debug.h oboe.i bson/bson.h bson/platform_hacks.h)
+
+  if ENV['OBOE_HPP_WIP']
+    wip_src_dir = File.expand_path('ext/oboe_metal/src_wip')
+    FileUtils.cp(File.join(wip_src_dir, 'oboe.cpp'), ext_src_dir)
+    FileUtils.cp(File.join(wip_src_dir, 'oboe.hpp'), ext_src_dir)
+  else
+    files << 'oboe.hpp'
+  end
+
+  files.each do |filename|
     remote_file = File.join(oboe_s3_dir, 'include', filename)
     local_file = File.join(ext_src_dir, filename)
 
-    puts "fetching #{remote_file} to #{local_file}"
+    puts "fetching #{remote_file}"
+    puts "      to #{local_file}"
     open(remote_file, 'rb') do |rf|
       content = rf.read
       File.open(local_file, 'wb') { |f| f.puts content }
@@ -152,8 +163,8 @@ task :compile do
 
     pwd      = Dir.pwd
     ext_dir  = File.expand_path('ext/oboe_metal')
-    final_so = File.expand_path('lib/oboe_metal.so')
-    so_file  = File.expand_path('ext/oboe_metal/oboe_metal.so')
+    final_so = File.expand_path('lib/rb_appoptics_apm.so')
+    so_file  = File.expand_path('ext/oboe_metal/rb_appoptics_apm.so')
 
     Dir.chdir ext_dir
     # ENV['APPOPTICS_FROM_S3'] = 'true'
@@ -183,7 +194,7 @@ task :clean do
     pwd     = Dir.pwd
     ext_dir = File.expand_path('ext/oboe_metal')
     symlinks = [
-      File.expand_path('lib/oboe_metal.so'),
+      File.expand_path('lib/rb_appoptics_apm.so'),
       File.expand_path('ext/oboe_metal/lib/liboboe.so'),
       File.expand_path('ext/oboe_metal/lib/liboboe-1.0.so.0')
     ]
@@ -208,7 +219,7 @@ task :distclean do
     ext_dir = File.expand_path('ext/oboe_metal')
     mkmf_log = File.expand_path('ext/oboe_metal/mkmf.log')
     symlinks = [
-      File.expand_path('lib/oboe_metal.so'),
+      File.expand_path('lib/rb_appoptics_apm.so'),
       File.expand_path('ext/oboe_metal/lib/liboboe.so'),
       File.expand_path('ext/oboe_metal/lib/liboboe-1.0.so.0')
     ]

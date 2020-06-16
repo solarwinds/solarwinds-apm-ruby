@@ -10,13 +10,13 @@ version: "2.1"
 #
 ########################################################################################################
 x-ao-env: &ao-env
-#  APPOPTICS_COLLECTOR: "collector-stg.appoptics.com"
-  APPOPTICS_COLLECTOR: "/tmp/appoptics_traces.bson"
+  APPOPTICS_COLLECTOR: "collector-stg.appoptics.com"
+#  APPOPTICS_COLLECTOR: "/tmp/appoptics_traces.bson"
   APPOPTICS_FROM_S3: "true"
   APPOPTICS_GEM_TEST: "true"
   APPOPTICS_MONGO_SERVER: "ao-ruby-mongo"
   APPOPTICS_RABBITMQ_SERVER: "ao-ruby-rabbitmq"
-  APPOPTICS_REPORTER: "file"
+#  APPOPTICS_REPORTER: "file"
   APPOPTICS_REPORTER_FILE_SINGLE: "false"
   APPOPTICS_SERVICE_KEY: "${APPOPTICS_SERVICE_KEY}"
   APPOPTICS_TOKEN_BUCKET_CAPACITY: 10000
@@ -29,11 +29,11 @@ x-ao-env: &ao-env
   MYSQL_ROOT_PASSWORD: "admin"
   MYSQL_HOST: "ao-ruby-mysql"
   OBOE_VERSION: "10.0.0"
+  OBOE_HPP_WIP: "true"
   PSQL_HOST: "ao_ruby_postgres"
   RUBY_ENV: "test"
   TEST_RUNS_TO_FILE: "true"
 #    - SIMPLECOV_COVERAGE=true
-#    - OBOE_HPP_WIP=true
 #    - APPOPTICS_DEBUG_LEVEL=6
 
 x-ao-shared: &ao-shared

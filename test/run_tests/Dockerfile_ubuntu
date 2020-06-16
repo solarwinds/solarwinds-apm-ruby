@@ -16,6 +16,7 @@ RUN apt-get update \
        build-essential \
        curl \
        git-core \
+       libboost* \
        libcurl4-gnutls-dev \
        libmysqlclient-dev \
        libpq-dev \
@@ -64,8 +65,8 @@ RUN . ~/.profile \
 
 RUN echo 'gem: --no-document' >> ~/.gemrc
 
-# install swig 4.0.0
-RUN curl -SL http://kent.dl.sourceforge.net/project/swig/swig/swig-4.0.2/swig-4.0.2.tar.gz \
+# install swig 4.0.2
+RUN curl -SL http://downloads.sourceforge.net/project/swig/swig/swig-4.0.2/swig-4.0.2.tar.gz \
     | tar xzC /tmp \
     && cd /tmp/swig-4.0.2 \
     && ./configure && make && make install \

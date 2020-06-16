@@ -328,7 +328,7 @@ void Processing::consumer() {
                 boost::this_thread::interruption_point();
             } catch (const boost::thread_interrupted &) {
                 // Thread interruption request received, break the loop
-                std::cout << "- Thread interrupted. Exiting thread." << std::endl;
+                std::cout << "- Snapshot processing thread interrupted. Exiting thread." << std::endl;
                 done = true;
             }
         }
