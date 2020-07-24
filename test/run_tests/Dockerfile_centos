@@ -13,6 +13,7 @@ RUN yum update -y \
 #       curl \
        cyrus-sasl-devel \
        cyrus-sasl-plain \
+       gdb \
        git-core \
        less \
        libcurl-devel \
@@ -56,6 +57,7 @@ RUN . ~/.profile \
     && rbenv install 2.4.5 \
     && rbenv install 2.5.5 \
     && rbenv install 2.6.4 \
+    && rbenv install 2.6.5 \
     && rbenv install 2.7.0
 #    && rbenv install jruby-9.1.16.0
 

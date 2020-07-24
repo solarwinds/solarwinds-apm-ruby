@@ -16,6 +16,7 @@ RUN apk add --upgrade \
       curl-dev \
       cyrus-sasl-dev \
       gcompat \
+      gdb \
       git \
       grpc \
       less \
@@ -56,6 +57,7 @@ RUN source  ~/.profile \
    && rbenv install 2.4.5 \
    && rbenv install 2.5.5 \
    && rbenv install 2.6.4 \
+   && rbenv install 2.6.5 \
    && rbenv install 2.7.0
    # && rbenv install jruby-9.0.5.0
 
