@@ -54,13 +54,13 @@ if defined?(AppOpticsAPM::Config)
   #
   # Turn code profiling on or off
   #
-  # By default profiling is set to :enabled, the other option is :disabled.
-  # :enabled mean that any traced code will also be profiled to get deeper insight
+  # By default profiling is set to :disabled, the other option is :enabled.
+  # :enabled means that any traced code will also be profiled to get deeper insight
   # into the methods called during a trace.
   # Profiling in the appoptics_apm gem is based on the low-overhead, sampling
   # profiler implemented in stackprof.
   #
-  AppOpticsAPM::Config[:profiling] = :enabled
+  AppOpticsAPM::Config[:profiling] = :disabled
 
   #
   # Set the profiling interval (in milliseconds)
@@ -79,6 +79,7 @@ if defined?(AppOpticsAPM::Config)
   #
   # The path has to start with '/' and needs the be the start of string
   # seen when
+  # TODO finish above sentence
   AppOpticsAPM::Config[:profiling_root]
 
   #

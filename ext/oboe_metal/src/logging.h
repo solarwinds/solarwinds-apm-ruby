@@ -6,12 +6,8 @@
 
 #include <iostream>
 #include <sstream>
-#include <vector>
-#include <sys/syscall.h>    /* For SYS_xxx definitions */
 
-#include "oboe.hpp"
 #include "profiling.h"
-#include "frames.h"
 
 extern "C" int oboe_gettimeofday(struct timeval *tv);
 
@@ -22,7 +18,7 @@ class Logging {
     static bool log_profile_exit(uint8_t *prof_op_id, pid_t tid, long *omitted, int num_omitted);
     static bool log_profile_snapshot(uint8_t *prof_op_id,
                                      long timestamp,
-                                     std::vector<frame_t> const &new_frames,
+                                     std::vector<FrameData> const &new_frames,
                                      int num_new_frames,
                                      long exited_frames,
                                      long total_frames,

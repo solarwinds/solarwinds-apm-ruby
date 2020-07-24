@@ -36,3 +36,4 @@ scrap*
 .bundle/
 builds/*
 /ext/.vscode/
+/ext/oboe_metal/src/ruby_headers/

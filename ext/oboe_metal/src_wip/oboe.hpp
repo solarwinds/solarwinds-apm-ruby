@@ -16,20 +16,23 @@
 #include <vector>
 
 #include "oboe.h"
-#include "profiling.h"
 
 class Event;
 class Reporter;
 class Context;
 
+// exclude some stuff that unnecessarily bloats the swig interface
+#ifndef SWIG 
 void oboe_btoh(const uint8_t *bytes, char *str, size_t len);
 
+// FrameData is for profiling and only used via Ruby gem cpp-code
 typedef struct frame_info {
     std::string klass;
     std::string method;
     std::string file;
     int lineno;
-} frame_t;
+} FrameData;
+#endif // SWIG exclusion
 
 /**
  * Metadata is the X-Trace identifier and the information needed to work with it.
@@ -56,6 +59,10 @@ public:
 
     static Metadata *makeRandom(bool sampled = true);
     static Metadata* fromString(std::string s);
+
+// TODO functions to manage prof_id used for profiling events in Ruby
+    // addProfId();
+    // getProfId();
 
 #ifdef SWIGJAVA
     std::string toStr();
@@ -170,6 +177,7 @@ public:
      * Set the current context (this updates thread-local storage).
      */
     static void set(oboe_metadata_t *md);
+    static void set(Metadata *md);
 
     /**
      * Set the current context from a string.
@@ -243,7 +251,10 @@ public:
     bool addInfo(char *key, double val);
     bool addInfo(char *key, const std::vector<long> &val);
     bool addInfo(char*, long *val, int num);
-    bool addInfo(char *key, const std::vector<frame_t> &val, int num);
+
+    #ifndef SWIG  // for profiling only used by Ruby gem cpp-code
+    bool addInfo(char *key, const std::vector<FrameData> &val, int num);
+    #endif
 
     bool addEdge(oboe_metadata_t *md);
     bool addEdgeStr(const std::string& val);
@@ -300,6 +311,7 @@ private:
     size_t size;
 };
 
+
 class CustomMetrics {
 public:
     static int summary(const char *name, const double value, const int count, const int host_tag,
@@ -308,6 +320,7 @@ public:
     static int increment(const char *name, const int count, const int host_tag,
             const char *service_name, const MetricTags *tags, size_t tags_count);
 };
+
 
 class Reporter : private oboe_reporter_t {
     friend class Context;   // Access to the private oboe_reporter_t base structure.
@@ -355,135 +368,6 @@ public:
     bool sendProfile(Event *evt, oboe_metadata_t *md);
 };
 
-/**
- * Base class for a diagnostic log message handler.
- */
-class DebugLogger {
-public:
-    virtual ~DebugLogger() {}
-    virtual void log(int module, int level, const char *source_name, int source_lineno, const char *msg) = 0;
-};
-
-/**
- * "C" language wrapper for DebugLogger classes.
- *
- * A logging function that can be added to the logger chain using
- * DebugLog::addDebugLogger().
- *
- * @param context The context pointer that was registered in the call to
- *          DebugLog::addDebugLogger().  Use it to pass the pointer-to-self for
- *          objects (ie. "this" in C++) or just a structure in C,  May be
- *          NULL.
- * @param module The module identifier as passed to oboe_debug_logger().
- * @param level The diagnostic detail level as passed to oboe_debug_logger().
- * @param source_name Name of the source file as passed to oboe_debug_logger().
- * @param source_lineno Number of the line in the source file where message is
- *          logged from as passed to oboe_debug_logger().
- * @param msg The formatted message produced from the format string and its
- *          arguments as passed to oboe_debug_logger().
- */
-extern "C" void oboe_debug_log_handler(void *context, int module, int level,
-                                       const char *source_name, int source_lineno,
-                                       const char *msg);
-
-class DebugLog {
-public:
-    /**
-     * Get a printable name for a diagnostics logging level.
-     *
-     * @param level A detail level in the range 0 to 6 (OBOE_DEBUG_FATAL to OBOE_DEBUG_HIGH).
-     */
-    static std::string getLevelName(int level);
-    /**
-     * Get a printable name for a diagnostics logging module identifier.
-     *
-     * @param module One of the OBOE_MODULE_* values.
-     */
-    static std::string getModuleName(int module);
-
-    /**
-     * Get the maximum logging detail level for a module or for all modules.
-     *
-     * This level applies to the default logger only.  Added loggers get all messages
-     * below their registed detail level and need to do their own module-specific
-     * filtering.
-     *
-     * @param module One of the OBOE_MODULE_* values.  Use OBOE_MODULE_ALL (-1) to
-     *          get the overall maximum detail level.
-     * @return Maximum detail level value for module (or overall) where zero is the
-     *          lowest and higher values generate more detailed log messages.
-     */
-    static int getLevel(int module);
-
-    /**
-     * Set the maximum logging detail level for a module or for all modules.
-     *
-     * This level applies to the default logger only.  Added loggers get all messages
-     * below their registered detail level and need to do their own module-specific
-     * filtering.
-     *
-     * @param module One of the OBOE_MODULE_* values.  Use OBOE_MODULE_ALL to set
-     *          the overall maximum detail level.
-     * @param newLevel Maximum detail level value where zero is the lowest and higher
-     *          values generate more detailed log messages.
-     */
-    static void setLevel(int module, int newLevel);
-    /**
-     * Set the output stream for the default logger.
-     *
-     * @param newStream A valid, open FILE* stream or NULL to disable the default logger.
-     * @return Zero on success; otherwise an error code (normally from errno).
-     */
-    static int setOutputStream(FILE *newStream) ;
-
-    /**
-     * Set the default logger to write to the specified file.
-     *
-     * A NULL or empty path name will disable the default logger.
-     *
-     * If the file exists then it will be opened in append mode.
-     *
-     * @param pathname The path name of the
-     * @return Zero on success; otherwise an error code (normally from errno).
-     */
-    static int setOutputFile(const char *pathname);
-
-    /**
-     * Add a logger that takes messages up to a given logging detail level.
-     *
-     * This adds the logger to a chain in order of the logging level.  Log messages
-     * are passed to each logger down the chain until the remaining loggers only
-     * accept messages of a lower detail level.
-     *
-     * @return Zero on success, one if re-registered with the new logging level, and
-     *          otherwise a negative value to indicate an error.
-     */
-    static int addDebugLogger(DebugLogger *newLogger, int logLevel);
-
-    /**
-     * Remove a logger.
-     *
-     * Remove the logger from the message handling chain.
-     *
-     * @return Zero on success, one if it was not found, and otherwise a negative
-     *          value to indicate an error.
-     */
-    static int removeDebugLogger(DebugLogger *oldLogger);
-
-    /**
-     * Low-level diagnostics logging function.
-     *
-     * Use this to pass
-     * @param module One of the numeric module identifiers defined in debug.h - used to control logging detail by module.
-     * @param level Diagnostic detail level of this message - used to control logging volume by detail level.
-     * @param source_name Name of the source file, if available, or another useful name, or NULL.
-     * @param source_lineno Number of the line in the source file where message is logged from, if available, or zero.
-     * @param format A C language printf format specification string.
-     * @param args A variable argument list in VA_ARG format containing arguments for each argument specifier in the format.
-     */
-    static void logMessage(int module, int level, const char *source_name,
-    int source_lineno, const char *msg);
-};
 
 class Config {
 public:

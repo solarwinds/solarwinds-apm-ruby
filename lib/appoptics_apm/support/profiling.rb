@@ -1,15 +1,18 @@
 # Copyright (c) 2020 SolarWinds, LLC.
 # All rights reserved.
 
+# require 'rack-mini-profiler'
+
 module AppOpticsAPM
   class Profiling
+
     def self.run
      return yield unless AppOpticsAPM::Config.profiling == :enabled
 
      AOProfiler.set_interval(AppOpticsAPM::Config.profiling_interval)
      AOProfiler.run do
         # for some reason `return` is needed here
-        # this is coming out of c-code, but why it needs return ... ????
+        # this is yielded by c-code, but why it needs `return` ... ????
         return yield
       end
     end
@@ -20,21 +23,15 @@ module AppOpticsAPM
     end
 
     def self.interval
-      AOProfiler.get_interval
-    end
-
-    def self.app_root(path)
-      if path[0] != '/'
-        path = "/#{path}"
-      elsif path[1] == '/'
-        path = path[1..-1]
-      end
-
-      AOProfiler.set_app_root(path)
+      AOProfiler.get_rb_interval
     end
 
     def self.running?
       AOProfiler.running?
+    end
+
+    def self.getTid
+      AOProfiler.getTid
     end
 
     def self.stack
