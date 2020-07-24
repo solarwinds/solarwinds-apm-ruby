@@ -150,6 +150,10 @@ void Context::set(oboe_metadata_t *md) {
     oboe_context_set(md);
 }
 
+void Context::set(Metadata *md) {
+    oboe_context_set(md);
+}
+
 void Context::fromString(std::string s) {
     oboe_context_set_fromstr(s.data(), s.size());
 }
@@ -286,17 +290,20 @@ bool Event::addInfo(char *key, long *vals, int num) {
     }
     oboe_bson_append_finish_object(&(this->bbuf));
     return true;
-};
+}
 
-bool Event::addInfo(char *key, const std::vector<frame_t> &vals, int num) {
+// Ruby
+// for profiling to add an array of frames
+// called from c++ not Ruby
+bool Event::addInfo(char *key, const std::vector<FrameData> &vals, int num) {
     oboe_bson_append_start_array(&(this->bbuf), key);
     for (int i = 0; i < num; i++) {
         char index[5];                // Flawfinder: ignore
         sprintf(index, "%d", i);  // Flawfinder: ignore
-        // i++;
+      
         oboe_bson_append_start_object(&(this->bbuf), index);
 
-        frame_t val = vals[i];
+        FrameData val = vals[i];
         oboe_bson_append_string(&(this->bbuf), "M", (val.method).c_str());
         oboe_bson_append_string(&(this->bbuf), "C", (val.klass).c_str());
         oboe_bson_append_string(&(this->bbuf), "F", (val.file).c_str());
@@ -306,8 +313,7 @@ bool Event::addInfo(char *key, const std::vector<frame_t> &vals, int num) {
     }
     oboe_bson_append_finish_object(&(this->bbuf));
     return true;
-};
-
+}
 
 bool Event::addEdge(oboe_metadata_t *md) {
     return oboe_event_add_edge(this, md) == 0;

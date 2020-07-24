@@ -1,18 +1,13 @@
+// Copyright (c) 2020 SolarWinds, LLC.
+// All rights reserved.
+
 #include "frames.h"
-#include <sstream>
 
-
-int Frames::extract_frame_info(VALUE frame, frame_t *frame_info) {
-    // PROFILE_FUNCTION();
+int Frames::extract_frame_info(VALUE frame, FrameData *frame_info) {
     VALUE val;
 
-// TODO revert adding tid to class
-    pid_t tid = AO_GETTID;
-    std::stringstream tid_s;
-    tid_s << (long)tid;
-
     val = rb_profile_frame_classpath(frame);  // returns class or nil
-    if (RB_TYPE_P(val, T_STRING)) frame_info->klass = tid_s.str() + ' ' + RSTRING_PTR(val);
+    if (RB_TYPE_P(val, T_STRING)) frame_info->klass = RSTRING_PTR(val);
 
     val = rb_profile_frame_absolute_path(frame);  // returns file, use rb_profile_frame_path() if nil
     if (!RB_TYPE_P(val, T_STRING)) val = rb_profile_frame_path(frame); 
@@ -34,21 +29,6 @@ void Frames::print_raw_frame_info(VALUE frame) {
     string file, klass, method;
 
     val = rb_profile_frame_path(frame);
-    // if (RB_TYPE_P(val, T_STRING)) std::cout << "\nrb_profile_frame_path: " << RSTRING_PTR(val); 
-    // val = rb_profile_frame_absolute_path(frame);
-    // if (RB_TYPE_P(val, T_STRING)) std::cout << ", rb_profile_frame_absolute_path: " << RSTRING_PTR(val); 
-    // val = rb_profile_frame_label(frame);
-    // if (RB_TYPE_P(val, T_STRING)) std::cout << "\n, rb_profile_frame_label: " << RSTRING_PTR(val); 
-    // val = rb_profile_frame_base_label(frame);
-    // if (RB_TYPE_P(val, T_STRING)) std::cout << ", rb_profile_frame_base_label: " << RSTRING_PTR(val); 
-    // val = rb_profile_frame_full_label(frame);
-    // if (RB_TYPE_P(val, T_STRING)) std::cout << ", rb_profile_frame_full_label: " << RSTRING_PTR(val); 
-    // val = rb_profile_frame_classpath(frame);
-    // if (RB_TYPE_P(val, T_STRING)) std::cout << "\n, rb_profile_frame_classpath: " << RSTRING_PTR(val); 
-    // val = rb_profile_frame_method_name(frame);
-    // if (RB_TYPE_P(val, T_STRING)) std::cout << "\n, rb_profile_frame_method_name: " << RSTRING_PTR(val); 
-    // val = rb_profile_frame_qualified_method_name(frame);
-    // if (RB_TYPE_P(val, T_STRING)) std::cout << ", rb_profile_frame_qualified_method_name: " << RSTRING_PTR(val); 
 
     val = rb_profile_frame_first_lineno(frame); // returns line number
     if (RB_TYPE_P(val, T_FIXNUM)) lineno = NUM2INT(val);
@@ -71,7 +51,7 @@ void Frames::print_raw_frame_info(VALUE frame) {
 }
 
 // helper function to print frame info
-void Frames::print_frame_info(frame_t *frame, int i) {
+void Frames::print_frame_info(FrameData *frame, int i) {
     std::cout << i << ": "
               << frame->lineno << " "
               << frame->file << " "
@@ -84,7 +64,6 @@ void Frames::print_frame_info(frame_t *frame, int i) {
 // - frames with line number == 0
 // - all but last of repeated frames
 int Snapshot::remove_garbage(VALUE *frames_buffer, int num) {
-    // PROFILE_FUNCTION();
     // 1) ignore top frames where the line number is 0
     bool go = true;
     while(go) {
@@ -132,12 +111,6 @@ int Snapshot::remove_garbage(VALUE *frames_buffer, int num) {
        // get the method or use block if its not readable
        method = RB_TYPE_P(val, T_STRING) ? RSTRING_PTR(val) : "block ";
 
-    //    val = rb_profile_frame_absolute_path(frames_buffer[count]);  // returns file, use rb_profile_frame_path() if nil
-    //    if (!RB_TYPE_P(val, T_STRING)) val = rb_profile_frame_path(frames_buffer[count]);
-    //    file = RB_TYPE_P(val, T_STRING) ? RSTRING_PTR(val) : "_";
-
-    //    if (method.rfind("block ", 0) == 0 ||
-    //        (!app_root.empty() && file.rfind(app_root, 0) != 0)) {
        if (method.rfind("block ", 0) == 0) {
            k++;
        } else {
@@ -152,7 +125,6 @@ int Snapshot::remove_garbage(VALUE *frames_buffer, int num) {
 int Snapshot::compare(VALUE *frames_buffer,      int num,
                       VALUE *prev_frames_buffer, int prev_num) {
 
-    // PROFILE_FUNCTION();
     int i;
     int min = std::min(num, prev_num);
     

@@ -3,8 +3,6 @@
 
 #include "logging.h"
 
-// uint8_t context_op_id[OBOE_MAX_OP_ID_LEN];
-
 const char hexmap[] = {'0', '1', '2', '3', '4', '5', '6', '7',
                        '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
@@ -19,8 +17,10 @@ string hex2Str(unsigned char *data, int len) {
 
 std::ostringstream ss;
 
+// TODO refactor to pass in metadata
 Event *Logging::createEvent(uint8_t *prof_op_id, bool entry_event) {
     oboe_metadata_t* md = Context::get();
+    // add md to frames
 
     Event *event = Event::startTrace(md); // startTrace does not add "Edge"
     if (entry_event) {
@@ -34,8 +34,6 @@ Event *Logging::createEvent(uint8_t *prof_op_id, bool entry_event) {
 }
 
 bool Logging::log_profile_entry(uint8_t *prof_op_id, pid_t tid, long interval) {
-
-    // PROFILE_FUNCTION();
     Event *event = Logging::createEvent(prof_op_id, true);
     event->addInfo((char *)"Label", "entry");
     event->addInfo((char *)"Language", "ruby");
@@ -50,8 +48,6 @@ bool Logging::log_profile_entry(uint8_t *prof_op_id, pid_t tid, long interval) {
 }
 
 bool Logging::log_profile_exit(uint8_t *prof_op_id, pid_t tid, long *omitted, int num_omitted) {
-
-    // PROFILE_FUNCTION();
     Event *event = Logging::createEvent(prof_op_id);
     event->addInfo((char *)"Label", "exit");
     event->addInfo((char *)"TID", (long)tid);
@@ -62,11 +58,11 @@ bool Logging::log_profile_exit(uint8_t *prof_op_id, pid_t tid, long *omitted, in
     event->addInfo((char *)"Timestamp_u", (long)tv.tv_sec * 1000000 + (long)tv.tv_usec);
 
     return Logging::log_profile_event(event);
-};
+}
 
 bool Logging::log_profile_snapshot(uint8_t *prof_op_id, 
                                    long timestamp,
-                                   std::vector<frame_t> const &new_frames,
+                                   std::vector<FrameData> const &new_frames,
                                    int num_new_frames,
                                    long exited_frames,
                                    long total_frames,
@@ -74,7 +70,6 @@ bool Logging::log_profile_snapshot(uint8_t *prof_op_id,
                                    int num_omitted,
                                    pid_t tid) {
  
-    // PROFILE_FUNCTION();
     Event *event = Logging::createEvent(prof_op_id);
     event->addInfo((char *)"Timestamp_u", timestamp);
     event->addInfo((char *)"Label", "info");
@@ -90,7 +85,6 @@ bool Logging::log_profile_snapshot(uint8_t *prof_op_id,
 }
 
 bool Logging::log_profile_event(Event *event) {
-    // PROFILE_FUNCTION();
     event->addInfo((char *)"Spec", "profiling");
     event->addHostname();
     event->addInfo((char *)"PID", (long)AO_GETPID());
