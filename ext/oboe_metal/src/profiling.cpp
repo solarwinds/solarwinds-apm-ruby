@@ -21,7 +21,6 @@ long interval = 10;  // in milliseconds, initializing in case ruby forgets to
 thread_local struct prof_data {
     bool running_p = false;
     uint8_t prof_op_id[OBOE_MAX_OP_ID_LEN];
-    Metadata* md = NULL;
 
     struct timeval prev_timestamp;
     VALUE prev_frames_buffer[BUF_SIZE];
@@ -47,17 +46,7 @@ void Profiling::profiler_record_frames(void *data) {
     Profiling::process_snapshot(frames_buffer, num, tid, ts);
 }
 
-void Profiling::send_omitted(pid_t tid, long ts, Metadata *md) {
-    oboe_metadata_t *local_md;
-    bool valid_context = false;
-    if (md != NULL) {
-        local_md = Context::get();
-        valid_context = Context::isValid();
-
-        // switch context
-        Context::set(md);
-    }
-
+void Profiling::send_omitted(pid_t tid, long ts) {
     Logging::log_profile_snapshot(th_prof_data.prof_op_id,
                                   ts,                        // timestamp
                                   new_frames,                // <vector> new frames
@@ -67,13 +56,6 @@ void Profiling::send_omitted(pid_t tid, long ts, Metadata *md) {
                                   th_prof_data.omitted,      // array of timestamps of omitted snapshots
                                   th_prof_data.omitted_num,  // number of omitted snapshots
                                   tid);                      // thread id
-
-    if (md != NULL) {
-        if (valid_context)
-            Context::set(local_md);
-        else
-            Context::clear();
-    }
 
     th_prof_data.omitted_num = 0;
 }
@@ -100,7 +82,7 @@ void Profiling::process_snapshot(VALUE *frames_buffer, int num, pid_t tid, long 
         // running that is taking up a lot of time.
         // We need to send a profiling event when it is full
         if (th_prof_data.omitted_num >= BUF_SIZE) {
-            std::cout << "=== Buffer full! ===" << std::endl;
+            // std::cout << "=== Buffer full! ===" << std::endl;
             Profiling::send_omitted(tid, ts);
         }
         return;
@@ -129,8 +111,9 @@ void Profiling::process_snapshot(VALUE *frames_buffer, int num, pid_t tid, long 
 
 static void profiler_job_handler(void *data) {
     static std::atomic_int in_job_handler;
+    
     if (in_job_handler) return;
-    if (!running) return;
+    if (!running || !th_prof_data.running_p) return;
 
     in_job_handler++;
     Profiling::profiler_record_frames(data);
@@ -138,16 +121,10 @@ static void profiler_job_handler(void *data) {
 }
 
 void Profiling::profiler_signal_handler(int sigint, siginfo_t *siginfo, void *ucontext) {
-    static std::atomic_int in_signal_handler = 0;
-
-    pid_t tid = AO_GETTID;
-    static int i = 0;
-    if (!(i%10))
-        std::cout << tid % 10;
-    i++;
+    static std::atomic_int in_signal_handler{0};
 
     if (in_signal_handler) return;
-    if (!running || !th_prof_data.running_p) return;
+    if (!running) return;
 
     in_signal_handler++;
     rb_postponed_job_register_one(0, profiler_job_handler, (void *)0);
@@ -162,18 +139,19 @@ VALUE Profiling::profiling_start(pid_t tid) {
         interval = interval_remote;
 
     Logging::log_profile_entry(th_prof_data.prof_op_id, tid, interval);
-    delete th_prof_data.md;
-    th_prof_data.md = Context::copy();
+    th_prof_data.prev_num = 0;
+    th_prof_data.omitted_num = 0;
     th_prof_data.running_p = true;
 
     if (!running) {
-        // the signal is sent to all threads,
+        // the signal is sent to the process and then one thread,
         // timer/signal may already be running
         struct sigaction sa;
         struct itimerval timer;
 
         // TODO figure out the mask and threads thing
         // TODO figure out what happens if there is another action for the same signal
+        // => last one defined wins!
         // set up signal handler and timer
         sa.sa_sigaction = profiler_signal_handler;
         sa.sa_flags = SA_RESTART | SA_SIGINFO;
@@ -187,8 +165,6 @@ VALUE Profiling::profiling_start(pid_t tid) {
     }
 
     running++;
-
-    std::cout << tid << " started p + t: " << running << " " << th_prof_data.running_p << std::endl;
 
     return Qtrue;
 }
@@ -214,7 +190,6 @@ VALUE Profiling::profiling_stop(pid_t tid) {
 
     Logging::log_profile_exit(th_prof_data.prof_op_id, tid, th_prof_data.omitted, th_prof_data.omitted_num);
 
-    std::cout << tid << " exited p + t: " << running << " " << th_prof_data.running_p << std::endl;
     th_prof_data.running_p = false;
 
     return Qtrue;
@@ -232,12 +207,11 @@ VALUE Profiling::get_interval() {
     return INT2FIX(interval);
 }
 
-VALUE Profiling::profiling_run() {
+VALUE Profiling::profiling_run(VALUE self, VALUE rb_thread_val) {
     rb_need_block(); // checks if function is called with a block in Ruby
 
     pid_t tid = AO_GETTID;
 
-    std::cout << "thread id: " << tid << ", running? " << th_prof_data.running_p << endl;
     if (th_prof_data.running_p) return Qfalse;
     th_prof_data.omitted_num = 0;
 
@@ -261,7 +235,7 @@ VALUE Profiling::getTid() {
 
 static void
 stackprof_atfork_prepare(void) {
-    cout << "Parent getting ready" << endl;
+    // cout << "Parent getting ready" << endl;
     struct itimerval timer;
     if (running) {
         memset(&timer, 0, sizeof(timer));
@@ -271,7 +245,7 @@ stackprof_atfork_prepare(void) {
 
 static void
 stackprof_atfork_parent(void) {
-    cout << "Parent let child loose" << endl;
+    // cout << "Parent let child loose" << endl;
     struct itimerval timer;
     if (running) {
         timer.it_interval.tv_sec = 0;
@@ -283,15 +257,15 @@ stackprof_atfork_parent(void) {
 
 static void
 stackprof_atfork_child(void) {
-    cout << "A child is born" << endl;
+    // cout << "A child is born" << endl;
 }
 
 extern "C" void Init_profiling(void) {
-    cout << "Initializing Profiling" << endl;
+    // cout << "Initializing Profiling" << endl;
     static VALUE rb_mAOProfiler = rb_define_module("AOProfiler");
     rb_define_singleton_method(rb_mAOProfiler, "get_interval", reinterpret_cast<VALUE (*)(...)>(Profiling::get_interval), 0);
     rb_define_singleton_method(rb_mAOProfiler, "set_interval", reinterpret_cast<VALUE (*)(...)>(Profiling::set_interval), -1);
-    rb_define_singleton_method(rb_mAOProfiler, "run", reinterpret_cast<VALUE (*)(...)>(Profiling::profiling_run), 0);
+    rb_define_singleton_method(rb_mAOProfiler, "run", reinterpret_cast<VALUE (*)(...)>(Profiling::profiling_run), 1);
     rb_define_singleton_method(rb_mAOProfiler, "running?", reinterpret_cast<VALUE (*)(...)>(Profiling::profiling_running_p), 0);
     rb_define_singleton_method(rb_mAOProfiler, "getTid", reinterpret_cast<VALUE (*)(...)>(Profiling::getTid), 0);
 

@@ -22,7 +22,7 @@ class Reporter;
 class Context;
 
 // exclude some stuff that unnecessarily bloats the swig interface
-#ifndef SWIG 
+#ifndef SWIG
 void oboe_btoh(const uint8_t *bytes, char *str, size_t len);
 
 // FrameData is for profiling and only used via Ruby gem cpp-code
@@ -30,7 +30,7 @@ typedef struct frame_info {
     std::string klass;
     std::string method;
     std::string file;
-    int lineno;
+    int lineno = 0;
 } FrameData;
 #endif // SWIG exclusion
 
@@ -60,6 +60,7 @@ public:
     static Metadata *makeRandom(bool sampled = true);
     static Metadata* fromString(std::string s);
 
+    oboe_metadata_t *metadata();
 // TODO functions to manage prof_id used for profiling events in Ruby
     // addProfId();
     // getProfId();
@@ -249,12 +250,13 @@ public:
     bool addInfo(char *key, const std::string &val);
     bool addInfo(char *key, long val);
     bool addInfo(char *key, double val);
-    bool addInfo(char *key, const std::vector<long> &val);
-    bool addInfo(char*, long *val, int num);
+    bool addInfo(char *key, const long *vals, int num);
+    bool addInfo(char *key, const std::vector<long> &vals);
 
-    #ifndef SWIG  // for profiling only used by Ruby gem cpp-code
-    bool addInfo(char *key, const std::vector<FrameData> &val, int num);
-    #endif
+#ifndef SWIG  // for profiling only used by Ruby gem cpp-code
+    bool addInfo(char *key, const std::vector<FrameData> &vals, int num);
+    bool addInfo(char *key, const std::vector<FrameData> &vals);
+#endif
 
     bool addEdge(oboe_metadata_t *md);
     bool addEdgeStr(const std::string& val);
@@ -285,6 +287,7 @@ public:
 
     bool addSpanRef(oboe_metadata_t *md);
     bool addProfileEdge(uint8_t *id);
+    bool addProfileEdge(oboe_metadata_t *md);
 
     static Event* startTrace(const oboe_metadata_t *md);
 };
