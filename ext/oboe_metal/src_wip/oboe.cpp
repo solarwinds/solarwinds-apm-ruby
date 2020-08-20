@@ -43,6 +43,10 @@ Metadata *Metadata::fromString(std::string s) {
     return new Metadata(&md);  // copies md
 }
 
+oboe_metadata_t *Metadata::metadata() {
+    return this;
+}
+
 Event *Metadata::createEvent() {
     return new Event(this);
 }
@@ -281,12 +285,25 @@ bool Event::addInfo(char *key, double val) {
     return oboe_event_add_info_double(this, key, val) == 0;
 }
 
-bool Event::addInfo(char *key, long *vals, int num) {
+bool Event::addInfo(char *key, const long *vals, int num) {
+   oboe_bson_append_start_array(&(this->bbuf), key);
+   for (int i = 0; i < num; i++) {
+       char index[5];            // Flawfinder: ignore
+       sprintf(index, "%d", i);  // Flawfinder: ignore
+       oboe_bson_append_long(&(this->bbuf), index, (int64_t)vals[i]);
+   }
+   oboe_bson_append_finish_object(&(this->bbuf));
+   return true;
+}
+
+bool Event::addInfo(char *key, const std::vector<long> &vals) {
     oboe_bson_append_start_array(&(this->bbuf), key);
-    for (int i = 0; i < num; i++) {
+    int i = 0;
+    for (long val: vals) {
         char index[5];            // Flawfinder: ignore
         sprintf(index, "%d", i);  // Flawfinder: ignore
-        oboe_bson_append_long(&(this->bbuf), index, (int64_t)vals[i]);
+        i++;
+        oboe_bson_append_long(&(this->bbuf), index, (int64_t)val);
     }
     oboe_bson_append_finish_object(&(this->bbuf));
     return true;
@@ -300,14 +317,41 @@ bool Event::addInfo(char *key, const std::vector<FrameData> &vals, int num) {
     for (int i = 0; i < num; i++) {
         char index[5];                // Flawfinder: ignore
         sprintf(index, "%d", i);  // Flawfinder: ignore
-      
+
         oboe_bson_append_start_object(&(this->bbuf), index);
 
-        FrameData val = vals[i];
-        oboe_bson_append_string(&(this->bbuf), "M", (val.method).c_str());
-        oboe_bson_append_string(&(this->bbuf), "C", (val.klass).c_str());
-        oboe_bson_append_string(&(this->bbuf), "F", (val.file).c_str());
-        oboe_bson_append_long(&(this->bbuf), "L", (int64_t)val.lineno);
+        if (vals[i].method != "")
+            oboe_bson_append_string(&(this->bbuf), "M", (vals[i].method).c_str());
+        if (vals[i].klass != "")
+            oboe_bson_append_string(&(this->bbuf), "C", (vals[i].klass).c_str());
+        if (vals[i].file != "")
+            oboe_bson_append_string(&(this->bbuf), "F", (vals[i].file).c_str());
+        if (vals[i].lineno != 0)
+            oboe_bson_append_long(&(this->bbuf), "L", (int64_t)vals[i].lineno);
+
+        oboe_bson_append_finish_object(&(this->bbuf));
+    }
+    oboe_bson_append_finish_object(&(this->bbuf));
+    return true;
+}
+
+bool Event::addInfo(char *key, const std::vector<FrameData> &vals) {
+    oboe_bson_append_start_array(&(this->bbuf), key);
+    int i = 0;
+    for (FrameData val : vals) {
+        char index[5];                // Flawfinder: ignore
+        sprintf(index, "%d", i);  // Flawfinder: ignore
+        i++;
+        oboe_bson_append_start_object(&(this->bbuf), index);
+
+        if (val.method != "")
+            oboe_bson_append_string(&(this->bbuf), "M", (val.method).c_str());
+        if (val.klass != "")
+            oboe_bson_append_string(&(this->bbuf), "C", (val.klass).c_str());
+        if (val.file != "")
+            oboe_bson_append_string(&(this->bbuf), "F", (val.file).c_str());
+        if (val.lineno != 0)
+            oboe_bson_append_long(&(this->bbuf), "L", (int64_t)val.lineno);
 
         oboe_bson_append_finish_object(&(this->bbuf));
     }
@@ -396,6 +440,19 @@ bool Event::addProfileEdge(uint8_t *id) {
     assert(2 * OBOE_MAX_OP_ID_LEN < sizeof(buf));
 
     memmove(buf, id, OBOE_MAX_OP_ID_LEN);
+
+    oboe_btoh((uint8_t *)buf, buf, OBOE_MAX_OP_ID_LEN);
+    buf[2 * OBOE_MAX_OP_ID_LEN] = '\0';
+
+    return oboe_event_add_info(this, "Edge", buf);
+}
+
+bool Event::addProfileEdge(oboe_metadata_t *md) {
+   char buf[64]; /* holds btoh'd op_id */ /* Flawfinder: ignore */
+
+    assert(2 * OBOE_MAX_OP_ID_LEN < sizeof(buf));
+
+    memmove(buf, md->ids.op_id, OBOE_MAX_OP_ID_LEN);
 
     oboe_btoh((uint8_t *)buf, buf, OBOE_MAX_OP_ID_LEN);
     buf[2 * OBOE_MAX_OP_ID_LEN] = '\0';

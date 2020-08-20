@@ -32,7 +32,7 @@ using namespace std;
 
 class Profiling {
    public:
-    static VALUE profiling_run();
+    static VALUE profiling_run(VALUE self, VALUE rb_thread_val);
     static VALUE profiling_running_p();
     static VALUE get_interval();
     static VALUE set_interval(int interval);
@@ -48,7 +48,7 @@ class Profiling {
                                  pid_t tid,
                                  long ts);
     static void profiler_record_frames(void *data);
-    static void send_omitted(pid_t tid, long ts, Metadata* md = NULL);
+    static void send_omitted(pid_t tid, long ts);
 #endif
 };
 
