@@ -5,7 +5,6 @@
 
 module AppOpticsAPM
   class Profiling
-    AOProfiler = AOProfiler_V2 if ENV['AO_PROFILER_V2']
     AOProfiler.set_interval(AppOpticsAPM::Config.profiling_interval)
 
     def self.run
