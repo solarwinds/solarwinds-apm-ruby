@@ -20,16 +20,15 @@ std::ostringstream ss;
 // TODO refactor to pass in metadata
 Event *Logging::createEvent(uint8_t *prof_op_id, bool entry_event) {
     oboe_metadata_t* md = Context::get();
-    // add md to frames
 
     Event *event = Event::startTrace(md); // startTrace does not add "Edge"
     if (entry_event) {
         event->addSpanRef(md);
     } else {
         event->addProfileEdge(prof_op_id);
+        event->addOpId((char *)"ContextOpId", md);
     }
     event->storeOpID(prof_op_id);
-    event->addOpId((char *)"ContextOpId", md);
     return event;
 }
 
@@ -85,12 +84,15 @@ bool Logging::log_profile_snapshot(uint8_t *prof_op_id,
 }
 
 bool Logging::log_profile_event(Event *event) {
-    event->addInfo((char *)"Spec", "profiling");
-    event->addHostname();
-    event->addInfo((char *)"PID", (long)AO_GETPID());
-    event->addInfo((char *)"X-Trace", event->metadataString());
-    event->send_profiling();
+        event->addInfo((char *)"Spec", "profiling");
+        event->addHostname();
+        event->addInfo((char *)"PID", (long)AO_GETPID());
+        event->addInfo((char *)"X-Trace", event->metadataString());
+        event->send_profiling();
 
-    delete event;
-    return true;
+        // comment in oboe.cpp:
+        // event needs to be deleted, it is managed by swig %newobject
+        // !!! It needs to be deleted, tested it !!!
+        delete event;
+        return true;
 }
