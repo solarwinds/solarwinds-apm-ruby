@@ -131,9 +131,9 @@ end
 #
 # Truncates the trace output file to zero
 #
-def clear_all_traces
+def clear_all_traces(clear_context = true)
   if AppOpticsAPM.loaded && ENV['APPOPTICS_REPORTER'] == 'file'
-    AppOpticsAPM::Context.clear
+    AppOpticsAPM::Context.clear if clear_context
     AppOpticsAPM::Reporter.clear_all_traces
     sleep 0.2 # it seems like the docker file system needs a bit of time to clear the file
   end
