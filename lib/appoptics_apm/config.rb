@@ -228,6 +228,9 @@ module AppOpticsAPM
         unless value.is_a?(Integer) && value > 0
           @@config[:profiling_interval] = 10
         end
+        # CProfiler may not be loaded yet, the profiler will send the value
+        # after it is loaded
+        AppOpticsAPM::CProfiler.set_interval(value) if defined? AppOpticsAPM::CProfiler
 
       elsif key == :transaction_settings
         if value.is_a?(Hash)
