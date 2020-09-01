@@ -19,6 +19,10 @@ describe "Rack: " do
     refute AppOpticsAPM::Context.isValid, 'Context after call should not be valid'
 
     traces = get_all_traces
+    require 'byebug'
+    byebug
+
+
     assert_equal 2, traces.size
     assert_equal headers['X-Trace'], traces[1]['X-Trace']
 
@@ -161,6 +165,7 @@ describe "Rack: " do
   describe 'A - tracing mode :enabled' do
     before do
       AppOpticsAPM::Config.tracing_mode = :enabled
+      AppOpticsAPM::Config.profiling = :enabled
       AppOpticsAPM::Config[:transaction_settings] = {
         url: [{ extensions: ['jpg', 'css'] },
               { regexp: '^.*\/long_job\/.*$',
