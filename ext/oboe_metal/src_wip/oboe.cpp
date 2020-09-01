@@ -677,3 +677,16 @@ bool Reporter::sendStatus(Event *evt, oboe_metadata_t *md) {
 bool Reporter::sendProfile(Event *evt, oboe_metadata_t *md) {
     return oboe_event_send(OBOE_SEND_PROFILING, evt, md);
 }
+
+
+bool Config::checkVersion(int version, int revision) {
+    return (oboe_config_check_version(version, revision) != 0);
+}
+
+int Config::getVersion() {
+    return oboe_config_get_version();
+}
+
+int Config::getRevision() {
+    return oboe_config_get_revision();
+}

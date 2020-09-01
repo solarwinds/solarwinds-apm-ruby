@@ -26,24 +26,23 @@ Automatic tracing and metrics for Ruby applications. Get started at appoptics.co
   s.extra_rdoc_files = ['LICENSE']
 
   s.files = `git ls-files`.split("\n").reject { |f| f.match(%r{^(test|gemfiles)/}) }
-  s.files += ['ext/oboe_metal/src/frames.cxx',
+  s.files += ['ext/oboe_metal/src/frames.cc',
               'ext/oboe_metal/src/frames.h',
-              'ext/oboe_metal/src/logging.cxx',
+              'ext/oboe_metal/src/logging.cc',
               'ext/oboe_metal/src/logging.h',
-              'ext/oboe_metal/src/profiling.cxx',
+              'ext/oboe_metal/src/profiling.cc',
               'ext/oboe_metal/src/profiling.h',
-              'ext/oboe_metal/src/init_appoptics_apm.cxx',
+              'ext/oboe_metal/src/init_appoptics_apm.cc',
               'ext/oboe_metal/src/oboe.h',
-              'ext/oboe_metal/src/oboe.cxx',
               'ext/oboe_metal/src/oboe_debug.h',
-              'ext/oboe_metal/src/oboe_wrap.cxx',
+              'ext/oboe_metal/src/oboe_swig_wrap.cc',
               'ext/oboe_metal/src/bson/bson.h',
               'ext/oboe_metal/src/bson/platform_hacks.h',
               'ext/oboe_metal/src/VERSION']
   s.files -= ['build_gem.sh',
               'build_gem_upload_to_packagecloud.sh',
               'Rakefile',
-              'lib/rb_appoptics_apm.so']
+              'lib/libappoptics_apm.so']
 
   # TODO this is commented out util we can actually provide gems for different platforms
   # it will create a gem that goes into noop on Darwin and other unsupported platforms

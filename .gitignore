@@ -5,7 +5,7 @@ gemfiles/*.lock
 *~
 *.swp
 .env
-lib/rb_appoptics_apm.so
+lib/libappoptics_apm.so
 ext/oboe_metal/Makefile
 ext/oboe_metal/mkmf.log
 ext/oboe_metal/oboe_metal.so
@@ -15,9 +15,9 @@ ext/oboe_metal/lib/liboboe*so*
 ext/oboe_metal/src/oboe.h
 ext/oboe_metal/src/oboe.hpp
 ext/oboe_metal/src/oboe_debug.h
-ext/oboe_metal/src/oboe_wrap.cxx
+ext/oboe_metal/src/oboe_swig_wrap.cc
 ext/oboe_metal/src/bson/*
-ext/oboe_metal/src/oboe.cxx
+ext/oboe_metal/src/oboe.cpp
 ext/.vscode
 log/
 .vagrant

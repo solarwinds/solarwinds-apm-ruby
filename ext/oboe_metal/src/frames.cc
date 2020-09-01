@@ -22,60 +22,24 @@ int Frames::extract_frame_info(VALUE frame, FrameData *frame_info) {
     return (frame_info->method.rfind("block ", 0) != 0);
 }
 
-// helper function to print frame from ruby pointers to frame
-void Frames::print_raw_frame_info(VALUE frame) {
-    VALUE val;
-    int lineno;
-    string file, klass, method;
-
-    val = rb_profile_frame_path(frame);
-
-    val = rb_profile_frame_first_lineno(frame); // returns line number
-    if (RB_TYPE_P(val, T_FIXNUM)) lineno = NUM2INT(val);
-
-   val = rb_profile_frame_classpath(frame);  // returns class or nil
-    if (RB_TYPE_P(val, T_STRING)) klass = RSTRING_PTR(val);
-
-    val = rb_profile_frame_absolute_path(frame);  // returns file, use rb_profile_frame_path() if nil
-    if (!RB_TYPE_P(val, T_STRING)) val = rb_profile_frame_path(frame); 
-    if (RB_TYPE_P(val, T_STRING)) file = RSTRING_PTR(val);
-
-    val = rb_profile_frame_label(frame);  // returns method or block
-    if (RB_TYPE_P(val, T_STRING)) method = RSTRING_PTR(val);
-
-    cout << "   "
-         << lineno << " "
-         << file << " "
-         << klass << " "
-         << method << endl;
-}
-
-// helper function to print frame info
-void Frames::print_frame_info(FrameData *frame, int i) {
-    std::cout << i << ": "
-              << frame->lineno << " "
-              << frame->file << " "
-              << frame->klass << " "
-              << frame->method << std::endl;
-}
-
 /////
 // in-place removal of 
 // - frames with line number == 0
 // - all but last of repeated frames
-int Snapshot::remove_garbage(VALUE *frames_buffer, int num) {
+// - remove "block" frames (they are confusing)
+int Frames::remove_garbage(VALUE *frames_buffer, int num) {
     // 1) ignore top frames where the line number is 0
-    bool go = true;
-    while(go) {
+    bool found = true;
+    while(found && num > 0) {
         VALUE val = rb_profile_frame_first_lineno(frames_buffer[num - 1]);
-        go = (!RB_TYPE_P(val, T_FIXNUM) || !NUM2INT(val));
-        if (go) num--;
+        found = (!RB_TYPE_P(val, T_FIXNUM) || !NUM2INT(val));
+        if (found) num--;
     }
 
     // 2) remove all repeated frames, keep the last one
     int count = 0;
     int k = 0;
-    bool found = false;
+    found = false;
     while (count < num-k) {
         // is this frame repeated ahead? 
         // if so we will replace it with the next one in line
@@ -122,17 +86,55 @@ int Snapshot::remove_garbage(VALUE *frames_buffer, int num) {
  }
 
 // returns the number of the matching frames
-int Snapshot::compare(VALUE *frames_buffer,      int num,
-                      VALUE *prev_frames_buffer, int prev_num) {
+ int Frames::num_matching(VALUE *frames_buffer, int num,
+                          VALUE *prev_frames_buffer, int prev_num) {
+     int i;
+     int min = std::min(num, prev_num);
 
-    int i;
-    int min = std::min(num, prev_num);
-    
-    for(i = 0; i < min; i++) {
-        if (frames_buffer[num - 1 - i] != prev_frames_buffer[prev_num - 1 - i]) {
-            return i;
-        }
-    }
+     for (i = 0; i < min; i++) {
+         // start from the "top" (=end)
+         if (frames_buffer[num - 1 - i] != prev_frames_buffer[prev_num - 1 - i]) {
+             return i;
+         }
+     }
 
-    return i;
+     return i;
+ }
+
+// helper function to print frame from ruby pointers to frame
+void Frames::print_raw_frame_info(VALUE frame) {
+    VALUE val;
+    int lineno;
+    string file, klass, method;
+
+    val = rb_profile_frame_path(frame);
+
+    val = rb_profile_frame_first_lineno(frame); // returns line number
+    if (RB_TYPE_P(val, T_FIXNUM)) lineno = NUM2INT(val);
+
+   val = rb_profile_frame_classpath(frame);  // returns class or nil
+    if (RB_TYPE_P(val, T_STRING)) klass = RSTRING_PTR(val);
+
+    val = rb_profile_frame_absolute_path(frame);  // returns file, use rb_profile_frame_path() if nil
+    if (!RB_TYPE_P(val, T_STRING)) val = rb_profile_frame_path(frame); 
+    if (RB_TYPE_P(val, T_STRING)) file = RSTRING_PTR(val);
+
+    val = rb_profile_frame_label(frame);  // returns method or block
+    if (RB_TYPE_P(val, T_STRING)) method = RSTRING_PTR(val);
+
+    cout << "   "
+         << lineno << " "
+         << file << " "
+         << klass << " "
+         << method << endl;
 }
+
+// helper function to print frame info
+void Frames::print_frame_info(FrameData *frame, int i) {
+    std::cout << i << ": "
+              << frame->lineno << " "
+              << frame->file << " "
+              << frame->klass << " "
+              << frame->method << std::endl;
+}
+

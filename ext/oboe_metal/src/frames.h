@@ -9,16 +9,11 @@
 class Frames {
     public:
     static int extract_frame_info(VALUE frame, FrameData *frame_info);
+    static int remove_garbage(VALUE *frames_buffer, int num);
+    static int num_matching(VALUE *frames_buffer, int num,
+                       VALUE *prev_frames_buffer, int prev_num);
     static void print_raw_frame_info(VALUE frame);
     static void print_frame_info(FrameData *frame_info, int i);
-};
-
-
-class Snapshot {
-    public:
-    static int remove_garbage(VALUE *frames_buffer, int num);
-    static int compare(VALUE *frames_buffer, int num,
-                       VALUE *prev_frames_buffer, int prev_num);
 };
 
 #endif //FRAMES_H

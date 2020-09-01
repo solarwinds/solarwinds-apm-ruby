@@ -149,7 +149,7 @@ task :fetch_ext_deps do
   end
 
   FileUtils.cd(ext_src_dir) do
-    system('swig -c++ -ruby -module oboe_metal oboe.i')
+    system('swig -c++ -ruby -module oboe_metal -o oboe_swig_wrap.cc oboe.i')
     FileUtils.rm('oboe.i')
   end
 end
@@ -163,8 +163,8 @@ task :compile do
 
     pwd      = Dir.pwd
     ext_dir  = File.expand_path('ext/oboe_metal')
-    final_so = File.expand_path('lib/rb_appoptics_apm.so')
-    so_file  = File.expand_path('ext/oboe_metal/rb_appoptics_apm.so')
+    final_so = File.expand_path('lib/libappoptics_apm.so')
+    so_file  = File.expand_path('ext/oboe_metal/libappoptics_apm.so')
 
     Dir.chdir ext_dir
     # ENV['APPOPTICS_FROM_S3'] = 'true'
@@ -194,7 +194,7 @@ task :clean do
     pwd     = Dir.pwd
     ext_dir = File.expand_path('ext/oboe_metal')
     symlinks = [
-      File.expand_path('lib/rb_appoptics_apm.so'),
+      File.expand_path('lib/libappoptics_apm.so'),
       File.expand_path('ext/oboe_metal/lib/liboboe.so'),
       File.expand_path('ext/oboe_metal/lib/liboboe-1.0.so.0')
     ]
@@ -205,7 +205,7 @@ task :clean do
     Dir.chdir ext_dir
     sh '/usr/bin/env make clean' if File.exist? 'Makefile'
 
-    FileUtils.rm_f 'src/oboe_wrap.cxx'
+    FileUtils.rm_f 'src/oboe_swig_wrap.cc'
     Dir.chdir pwd
   else
     puts '== Nothing to do under JRuby.'
@@ -219,7 +219,7 @@ task :distclean do
     ext_dir = File.expand_path('ext/oboe_metal')
     mkmf_log = File.expand_path('ext/oboe_metal/mkmf.log')
     symlinks = [
-      File.expand_path('lib/rb_appoptics_apm.so'),
+      File.expand_path('lib/libappoptics_apm.so'),
       File.expand_path('ext/oboe_metal/lib/liboboe.so'),
       File.expand_path('ext/oboe_metal/lib/liboboe-1.0.so.0')
     ]

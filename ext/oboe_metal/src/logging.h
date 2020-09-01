@@ -13,7 +13,6 @@ extern "C" int oboe_gettimeofday(struct timeval *tv);
 
 class Logging {
    public:
-    static Event *createEvent(uint8_t *prof_op_id, bool entry_event = false);
     static bool log_profile_entry(uint8_t *prof_op_id, pid_t tid, long interval);
     static bool log_profile_exit(uint8_t *prof_op_id, pid_t tid, long *omitted, int num_omitted);
     static bool log_profile_snapshot(uint8_t *prof_op_id,
@@ -25,6 +24,9 @@ class Logging {
                                      long *omitted,
                                      int num_omitted,
                                      pid_t tid);
+
+   private:
+    static Event *createEvent(uint8_t *prof_op_id, bool entry_event = false);
     static bool log_profile_event(Event *event);
 };
 
