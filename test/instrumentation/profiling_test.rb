@@ -1,5 +1,4 @@
 require 'minitest_helper'
-require 'cmath'
 
 describe "Profiling: " do
 
