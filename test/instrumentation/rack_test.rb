@@ -162,7 +162,6 @@ describe "Rack: " do
   describe 'A - tracing mode :enabled' do
     before do
       AppOpticsAPM::Config.tracing_mode = :enabled
-      AppOpticsAPM::Config.profiling = :enabled
       AppOpticsAPM::Config[:transaction_settings] = {
         url: [{ extensions: ['jpg', 'css'] },
               { regexp: '^.*\/long_job\/.*$',
