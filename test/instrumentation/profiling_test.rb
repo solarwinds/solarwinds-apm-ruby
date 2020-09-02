@@ -1,6 +1,24 @@
 require 'minitest_helper'
 
 describe "Profiling: " do
+  class TestMethods
+    class << self
+      def recurse_with_sleep(num, sleep_every = 200)
+        return if num == 0
+
+        num -= 1
+        sleep 0.1 if  num % sleep_every == 0
+        recurse_with_sleep(num, sleep_every)
+      end
+
+      def recurse(num)
+        return if num == 0
+
+        num -= 1
+        recurse(num)
+      end
+    end
+  end
 
   before do
     clear_all_traces
@@ -43,14 +61,15 @@ describe "Profiling: " do
     assert_equal 'ruby', entry_trace['Language']
     assert_equal tid, entry_trace['TID']
 
-    snapshot_trace = traces.find { |tr| tr['Label'] == 'info' }
+    # grabbing the first frame that reports 'sleep'
+    snapshot_trace = traces.find { |tr| tr['Label'] == 'info' && tr['NewFrames'][0]['M'] == 'sleep'}
     assert_equal AppOpticsAPM::XTrace.edge_id(xtrace_context), snapshot_trace['ContextOpId']
     assert_equal AppOpticsAPM::XTrace.edge_id(entry_trace['X-Trace']), snapshot_trace['Edge']
-    assert_equal 17, snapshot_trace['NewFrames'].size
-    assert_equal 'run', snapshot_trace['NewFrames'][0]['M']
-    assert_equal 'AppOpticsAPM::Profiling', snapshot_trace['NewFrames'][0]['C']
+    assert_equal 18, snapshot_trace['NewFrames'].size
+    assert_equal 'sleep', snapshot_trace['NewFrames'][0]['M'] # obviously
+    assert_equal 'Kernel', snapshot_trace['NewFrames'][0]['C']
     assert_equal 0, snapshot_trace['FramesExited']
-    assert_equal 17, snapshot_trace['FramesCount']
+    assert_equal 18, snapshot_trace['FramesCount']
     assert_equal [], snapshot_trace['SnapshotsOmitted']
     assert_equal tid, snapshot_trace['TID']
 
@@ -61,35 +80,34 @@ describe "Profiling: " do
   end
 
   it 'logs snapshot after stack change' do
-    AppOpticsAPM::Config[:profiling_interval] = 17
+    AppOpticsAPM::Config[:profiling_interval] = 1
     AppOpticsAPM::SDK.start_trace(:trace) do
       AppOpticsAPM::Profiling.run do
         sleep 0.1
-        # change the stack and restart recording of trace
-        clear_all_traces(false)
-        sleep 0.2
+        # use a predictable method, that doesn't call other methods
+        # since it is recursive, don't recurse too much,
+        # exploding stack is a different test
+        TestMethods.recurse(1500)
+        TestMethods.recurse(1500)
+        TestMethods.recurse(1500)
+        TestMethods.recurse(1500)
+        TestMethods.recurse(1500)
+        TestMethods.recurse(1500)
+        TestMethods.recurse(1500)
       end
     end
 
     traces = get_all_traces
-    traces.select! { |tr| tr['Spec'] == "profiling" }
-    assert_equal 3, traces.size
+    traces.select! { |tr| tr['Spec'] == 'profiling' && tr['Label'] == 'info' }
 
-    assert_equal 'info', traces[0]['Label']
-    assert_equal 'clear_all_traces', traces[0]['NewFrames'][0]['M']
-    assert_equal 'Object', traces[0]['NewFrames'][0]['C']
-    assert_equal 0, traces[0]['FramesExited']
+    traces.select! { |tr| tr['NewFrames'][0]['M'] == 'recurse' }
+
+    assert_equal 'info', traces[0]['Label']                # obviously
+    assert_equal 'recurse', traces[0]['NewFrames'][0]['M'] # obviously
+    assert_equal 'TestMethods', traces[0]['NewFrames'][0]['C']
+    assert_equal 1, traces[0]['FramesExited']
     assert_equal 18, traces[0]['FramesCount']
     assert traces[0]['SnapshotsOmitted'].size > 0
-
-    assert_equal 'info', traces[1]['Label']
-    assert_equal [], traces[1]['NewFrames']
-    assert_equal 1, traces[1]['FramesExited']
-    assert_equal 17, traces[1]['FramesCount']
-    assert traces[1]['SnapshotsOmitted'].size > 0
-
-    assert_equal 'exit', traces[2]['Label']
-    assert traces[2]['SnapshotsOmitted'].size > 0
   end
 
   # VERY IMPORTANT TEST
@@ -109,13 +127,6 @@ describe "Profiling: " do
 
   it "doesn't fail if the stack is large" do
     # create a large stack of more than the BUF_SIZE of 2048
-    def recurse(num)
-      num -= 1
-      return if num == 0
-
-      sleep 0.1 if num % 200 == 0 || num <= 10
-      recurse(num)
-    end
 
     AppOpticsAPM::SDK.start_trace(:trace) do
       AppOpticsAPM::Profiling.run do
@@ -139,10 +150,9 @@ describe "Profiling: " do
 
     # this may be flaky, because there it is expected that there can be
     # small variations in the timing of the snapshots
-    assert_equal 20-1, traces.last['SnapshotsOmitted'].size,
-                 "flaky, run again to match number of expected snapshots"
+    assert traces.last['SnapshotsOmitted'].size >= 18
     # this may be flaky, it relies on rounding to smooth out variations in timing
-    assert_equal 10, (traces.last['SnapshotsOmitted'][18]-traces.last['SnapshotsOmitted'][0])/18/1000,
-                 "flaky, run again to match expected interval"
+    average_interval = (traces.last['SnapshotsOmitted'][16]-traces.last['SnapshotsOmitted'][0])/16/1000
+    assert (average_interval >= 9 && average_interval <= 11)
   end
 end
