@@ -89,11 +89,11 @@ void Profiling::process_snapshot(VALUE *frames_buffer, int num, pid_t tid, long 
         th_prof_data.omitted[th_prof_data.omitted_num] = ts;
         th_prof_data.omitted_num++;
         th_prof_data.prev_timestamp = timestamp;
-        // the omitted buffer can fill up if there is another thread
-        // running that is taking up a lot of time.
-        // We need to send a profiling event when it is full
+
+        // the omitted buffer can fill up if the interval is small
+        // and the stack doesn't change 
+        // We need to send a profiling event with the timestamps when it is full
         if (th_prof_data.omitted_num >= BUF_SIZE) {
-            // std::cout << "=== Buffer full! ===" << std::endl;
             Profiling::send_omitted(tid, ts);
         }
         return;

@@ -99,18 +99,6 @@ if defined?(AppOpticsAPM::Config)
   AppOpticsAPM::Config[:profiling_interval] = 10
 
   #
-  # Set the root directory of code to be included in the profile
-  #
-  # The main use case is to set this to the application folder and avoid
-  # code from other gems. Like this the slow methods in the application
-  # code are easier to detect.
-  #
-  # The path has to start with '/' and needs the be the start of string
-  # seen when
-  # TODO finish above sentence
-  AppOpticsAPM::Config[:profiling_root]
-
-  #
   # Turn Tracing on or off
   #
   # By default tracing is set to :enabled, the other option is :disabled.

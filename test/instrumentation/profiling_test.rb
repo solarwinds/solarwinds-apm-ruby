@@ -12,10 +12,10 @@ describe "Profiling: " do
       end
 
       def recurse(num)
-        return if num == 0
+        return 0 if num == 0
 
         num -= 1
-        recurse(num)
+        1 + recurse(num) + 1 # make sure it can't optimize tail recursion
       end
     end
   end
@@ -130,7 +130,7 @@ describe "Profiling: " do
 
     AppOpticsAPM::SDK.start_trace(:trace) do
       AppOpticsAPM::Profiling.run do
-        recurse(2100)
+        TestMethods.recurse_with_sleep(2100, 200)
       end
     end
     # it didn't crash, return success just for stats
@@ -155,4 +155,40 @@ describe "Profiling: " do
     average_interval = (traces.last['SnapshotsOmitted'][16]-traces.last['SnapshotsOmitted'][0])/16/1000
     assert (average_interval >= 9 && average_interval <= 11)
   end
+
+  it 'profiles inside threads' do
+    AppOpticsAPM::Config[:profiling_interval] = 1
+
+    threads = []
+    tids = []
+    AppOpticsAPM::SDK.start_trace("trace_main") do
+      AppOpticsAPM::Profiling.run do
+        p "strating thread(s)"
+        5.times do
+          th = Thread.new do
+            tid = AppOpticsAPM::CProfiler.get_tid
+            tids << tid
+            AppOpticsAPM::SDK.start_trace("trace_#{tid}") do
+              AppOpticsAPM::Profiling.run do
+               # The threads have to be busy, otherwise
+               # they don't get profiled because they are not executing
+               20.times do
+                 TestMethods.recurse(1500)
+               end
+              end
+            end
+          end
+          threads << th
+        end
+        threads.each(&:join)
+      end
+    end
+    traces = get_all_traces
+    traces.select! { |tr| tr['Spec'] == 'profiling' }
+
+    tids.each do |tid|
+      assert_equal 3, traces.select { |tr| tr['TID'] == tid }.size
+    end
+  end
+
 end
