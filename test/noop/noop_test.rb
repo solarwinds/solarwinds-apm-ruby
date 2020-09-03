@@ -201,5 +201,15 @@ class NoopTest < Minitest::Test
   def test_summary_metrics_doesnt_barf
     AppOpticsAPM::SDK.summary_metric('dont_barf', 5)
   end
+
+  def test_profiling_doesnt_barf
+    AppOpticsAPM::Profiling.run do
+      sleep 0.1
+    end
+  end
+
+  def test_cprofiler_doesnt_barf
+    AppOpticsAPM::CProfiler.set_interval(10)
+  end
 end
 
