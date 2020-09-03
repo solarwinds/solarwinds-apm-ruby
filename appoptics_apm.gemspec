@@ -34,6 +34,8 @@ Automatic tracing and metrics for Ruby applications. Get started at appoptics.co
               'ext/oboe_metal/src/profiling.h',
               'ext/oboe_metal/src/init_appoptics_apm.cc',
               'ext/oboe_metal/src/oboe.h',
+              'ext/oboe_metal/src/oboe.cpp',
+              'ext/oboe_metal/src/oboe.hpp',
               'ext/oboe_metal/src/oboe_debug.h',
               'ext/oboe_metal/src/oboe_swig_wrap.cc',
               'ext/oboe_metal/src/bson/bson.h',

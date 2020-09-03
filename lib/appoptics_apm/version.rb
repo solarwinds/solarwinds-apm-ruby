@@ -7,7 +7,7 @@ module AppOpticsAPM
   # appoptics_apm.gemspec during gem build process
   module Version
     MAJOR = 4 # breaking,
-    MINOR = 12 # feature,
+    MINOR = 13 # feature,
     PATCH = 0 # fix => BFF
 
     STRING = [MAJOR, MINOR, PATCH].compact.join('.')

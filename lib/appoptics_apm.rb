@@ -63,6 +63,7 @@ begin
     AppOpticsAPM.logger.warn '=============================================================='
     require 'appoptics_apm/noop/context'
     require 'appoptics_apm/noop/metadata'
+    require 'appoptics_apm/noop/profiling'
   end
 
   # Load Ruby module last.  If there is no framework detected,
