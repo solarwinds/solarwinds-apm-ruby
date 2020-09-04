@@ -3,23 +3,35 @@
 
 #include "frames.h"
 
-int Frames::extract_frame_info(VALUE frame, FrameData *frame_info) {
+int Frames::extract_frame_info(VALUE *frames_buffer, int num, vector<FrameData> &frame_data) {
     VALUE val;
 
-    val = rb_profile_frame_classpath(frame);  // returns class or nil
-    if (RB_TYPE_P(val, T_STRING)) frame_info->klass = RSTRING_PTR(val);
+    for(int i = 0; i < num; i++) {
+        VALUE frame = frames_buffer[i];
+        FrameData data;
 
-    val = rb_profile_frame_absolute_path(frame);  // returns file, use rb_profile_frame_path() if nil
-    if (!RB_TYPE_P(val, T_STRING)) val = rb_profile_frame_path(frame); 
-    if (RB_TYPE_P(val, T_STRING)) frame_info->file = RSTRING_PTR(val);
+        val = rb_profile_frame_label(frame);  // returns method or block
+        if (RB_TYPE_P(val, T_STRING)) data.method = RSTRING_PTR(val);
 
-    val = rb_profile_frame_label(frame);  // returns method or block
-    if (RB_TYPE_P(val, T_STRING)) frame_info->method = RSTRING_PTR(val);
+        // we ignore block level info because they make things messy 
+        if (data.method.rfind("block ", 0) == 0)
+            continue;
 
-    val = rb_profile_frame_first_lineno(frame); // returns line number
-    if (RB_TYPE_P(val, T_FIXNUM)) frame_info->lineno = NUM2INT(val);
+        val = rb_profile_frame_classpath(frame);  // returns class or nil
+        if (RB_TYPE_P(val, T_STRING)) data.klass = RSTRING_PTR(val);
 
-    return (frame_info->method.rfind("block ", 0) != 0);
+        val = rb_profile_frame_absolute_path(frame);  // returns file, use rb_profile_frame_path() if nil
+        if (!RB_TYPE_P(val, T_STRING)) val = rb_profile_frame_path(frame);
+        if (RB_TYPE_P(val, T_STRING)) data.file = RSTRING_PTR(val);
+
+        val = rb_profile_frame_first_lineno(frame);  // returns line number
+        if (RB_TYPE_P(val, T_FIXNUM)) data.lineno = NUM2INT(val);
+
+     
+        frame_data.push_back(data);
+    }
+ 
+    return 0;
 }
 
 /////
@@ -130,11 +142,11 @@ void Frames::print_raw_frame_info(VALUE frame) {
 }
 
 // helper function to print frame info
-void Frames::print_frame_info(FrameData *frame, int i) {
+void Frames::print_frame_info(FrameData &frame, int i) {
     std::cout << i << ": "
-              << frame->lineno << " "
-              << frame->file << " "
-              << frame->klass << " "
-              << frame->method << std::endl;
+              << frame.lineno << " "
+              << frame.file << " "
+              << frame.klass << " "
+              << frame.method << std::endl;
 }
 

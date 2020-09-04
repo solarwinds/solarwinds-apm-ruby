@@ -71,6 +71,7 @@ module AppOpticsAPM
       @file_single = (ENV['APPOPTICS_REPORTER_FILE_SINGLE'].to_s.downcase == 'true') ? 1 : 0
       # timeout for ec2 metadata
       @ec2_md_timeout = read_and_validate_ec2_md_timeout
+      @grpc_proxy = AppOpticsAPM::Config[:grpc_proxy] || ''
     end
 
     def re_init # for testing with changed ENV vars
@@ -97,7 +98,8 @@ module AppOpticsAPM
         @token_bucket_capacity,
         @token_bucket_rate,
         @file_single,
-        @ec2_md_timeout
+        @ec2_md_timeout,
+        @grpc_proxy
       ]
     end
 

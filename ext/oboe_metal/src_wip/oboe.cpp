@@ -312,28 +312,28 @@ bool Event::addInfo(char *key, const std::vector<long> &vals) {
 // Ruby
 // for profiling to add an array of frames
 // called from c++ not Ruby
-bool Event::addInfo(char *key, const std::vector<FrameData> &vals, int num) {
-    oboe_bson_append_start_array(&(this->bbuf), key);
-    for (int i = 0; i < num; i++) {
-        char index[5];                // Flawfinder: ignore
-        sprintf(index, "%d", i);  // Flawfinder: ignore
+// bool Event::addInfo(char *key, const std::vector<FrameData> &vals, int num) {
+//     oboe_bson_append_start_array(&(this->bbuf), key);
+//     for (int i = 0; i < num; i++) {
+//         char index[5];                // Flawfinder: ignore
+//         sprintf(index, "%d", i);  // Flawfinder: ignore
 
-        oboe_bson_append_start_object(&(this->bbuf), index);
+//         oboe_bson_append_start_object(&(this->bbuf), index);
 
-        if (vals[i].method != "")
-            oboe_bson_append_string(&(this->bbuf), "M", (vals[i].method).c_str());
-        if (vals[i].klass != "")
-            oboe_bson_append_string(&(this->bbuf), "C", (vals[i].klass).c_str());
-        if (vals[i].file != "")
-            oboe_bson_append_string(&(this->bbuf), "F", (vals[i].file).c_str());
-        if (vals[i].lineno != 0)
-            oboe_bson_append_long(&(this->bbuf), "L", (int64_t)vals[i].lineno);
+//         if (vals[i].method != "")
+//             oboe_bson_append_string(&(this->bbuf), "M", (vals[i].method).c_str());
+//         if (vals[i].klass != "")
+//             oboe_bson_append_string(&(this->bbuf), "C", (vals[i].klass).c_str());
+//         if (vals[i].file != "")
+//             oboe_bson_append_string(&(this->bbuf), "F", (vals[i].file).c_str());
+//         if (vals[i].lineno != 0)
+//             oboe_bson_append_long(&(this->bbuf), "L", (int64_t)vals[i].lineno);
 
-        oboe_bson_append_finish_object(&(this->bbuf));
-    }
-    oboe_bson_append_finish_object(&(this->bbuf));
-    return true;
-}
+//         oboe_bson_append_finish_object(&(this->bbuf));
+//     }
+//     oboe_bson_append_finish_object(&(this->bbuf));
+//     return true;
+// }
 
 bool Event::addInfo(char *key, const std::vector<FrameData> &vals) {
     oboe_bson_append_start_array(&(this->bbuf), key);
@@ -598,9 +598,9 @@ Reporter::Reporter(
     int log_level,               // level at which log messages will be written to log file (0-6)
     std::string log_file_path,   // file name including path for log file
 
-    int max_transactions,         // maximum number of transaction names to track
-    int max_flush_wait_time,      // maximum wait time for flushing data before terminating in milli seconds
-    int events_flush_interval,    // events flush timeout in seconds (threshold for batching messages before sending off)
+    int max_transactions,        // maximum number of transaction names to track
+    int max_flush_wait_time,     // maximum wait time for flushing data before terminating in milli seconds
+    int events_flush_interval,   // events flush timeout in seconds (threshold for batching messages before sending off)
     int max_request_size_bytes,  // events flush batch size in KB (threshold for batching messages before sending off)
 
     std::string reporter,      // the reporter to be used ("ssl", "upd", "file", "null")
@@ -615,7 +615,8 @@ Reporter::Reporter(
     int token_bucket_rate,      // custom token bucket rate
     int file_single,            // use single files in file reporter for each event
 
-    int ec2_metadata_timeout  // the timeout (milli seconds) for retrieving EC2 metadata
+    int ec2_metadata_timeout,   // the timeout (milli seconds) for retrieving EC2 metadata
+    std::string grpc_proxy      // HTTP proxy address and port to be used for the gRPC connection
 ) {
     oboe_init_options_t options;
     memset(&options, 0, sizeof(options));
@@ -650,7 +651,9 @@ Reporter::Reporter(
     options.token_bucket_rate = token_bucket_rate;
     options.file_single = file_single;
     options.ec2_metadata_timeout = ec2_metadata_timeout;
-
+    if (grpc_proxy != "") {
+        options.proxy = grpc_proxy.c_str();
+    }
     init_status = oboe_init(&options);
 }
 

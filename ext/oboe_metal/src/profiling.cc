@@ -22,7 +22,7 @@ atomic_long running;
 static struct timeval timestamp;
 static VALUE frames_buffer[BUF_SIZE];
 static int lines_buffer[BUF_SIZE];
-static vector<FrameData> new_frames(BUF_SIZE);
+// static vector<FrameData> new_frames;
 
 long interval = 10;  // in milliseconds, initializing in case Ruby forgets to
 // long interval;  // in milliseconds
@@ -58,10 +58,10 @@ void Profiling::profiler_record_frames(void *data) {
 }
 
 void Profiling::send_omitted(pid_t tid, long ts) {
+    static vector<FrameData> empty;
     Logging::log_profile_snapshot(th_prof_data.prof_op_id,
                                   ts,                        // timestamp
-                                  new_frames,                // <vector> new frames
-                                  0,                         // number of new frames
+                                  empty,                     // <vector> new frames
                                   0,                         // number of exited frames
                                   th_prof_data.prev_num,     // total number of frames
                                   th_prof_data.omitted,      // array of timestamps of omitted snapshots
@@ -74,6 +74,7 @@ void Profiling::send_omitted(pid_t tid, long ts) {
 void Profiling::process_snapshot(VALUE *frames_buffer, int num, pid_t tid, long ts) {
     int num_new = 0;
     int num_exited = 0;
+    vector<FrameData> new_frames;
     num = Frames::remove_garbage(frames_buffer, num);
 
     // find the number of matching frames from the top
@@ -99,14 +100,12 @@ void Profiling::process_snapshot(VALUE *frames_buffer, int num, pid_t tid, long 
         return;
     }
 
-    for (int i = 0; i < num_new; i++) {
-        Frames::extract_frame_info(frames_buffer[i], &new_frames[i]);
-    }
+    Frames::extract_frame_info(frames_buffer, num_new, new_frames);
 
     Logging::log_profile_snapshot(th_prof_data.prof_op_id,
                                   ts,                        // timestamp
                                   new_frames,                // <vector> new frames
-                                  num_new,                   // number of new frames
+                                //   num_new,                   // number of new frames
                                   num_exited,                // number of exited frames
                                   num,                       // total number of frames
                                   th_prof_data.omitted,      // array of timestamps of omitted snapshots
@@ -206,6 +205,10 @@ VALUE Profiling::set_interval(VALUE self, VALUE val) {
     if (!FIXNUM_P(val)) return Qfalse;
 
     interval = FIX2INT(val);
+
+    // TODO remove this condition once the fileReporter is changed to return -1 for oboe_get_profiling_interval()
+    if (!getenv("APPOPTICS_REPORTER") || strcmp(getenv("APPOPTICS_REPORTER"), "file") != 0)
+        interval = max(interval, (long)oboe_get_profiling_interval());
     // cout << "--- Profiling interval set to " << interval << endl;
     return Qtrue;
 }

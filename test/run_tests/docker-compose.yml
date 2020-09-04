@@ -28,7 +28,7 @@ x-ao-env: &ao-env
   MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
   MYSQL_ROOT_PASSWORD: "admin"
   MYSQL_HOST: "ao-ruby-mysql"
-  OBOE_VERSION: "10.0.0"
+  OBOE_VERSION: "10.0.1"
   OBOE_HPP_WIP: "true"
   PSQL_HOST: "ao_ruby_postgres"
   RUBY_ENV: "test"

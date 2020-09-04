@@ -12,7 +12,6 @@
 #include <mutex>
 #include <thread>
 #include <unordered_map>
-#include <vector>
 
 #include "oboe.hpp"
 
