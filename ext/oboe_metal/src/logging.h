@@ -18,7 +18,6 @@ class Logging {
     static bool log_profile_snapshot(uint8_t *prof_op_id,
                                      long timestamp,
                                      std::vector<FrameData> const &new_frames,
-                                     int num_new_frames,
                                      long exited_frames,
                                      long total_frames,
                                      long *omitted,

@@ -12,6 +12,7 @@
 #include <iostream>
 #include <string>
 #include <unistd.h>
+#define NDEBUG
 #include <assert.h>
 #include <vector>
 
@@ -26,7 +27,7 @@ class Context;
 void oboe_btoh(const uint8_t *bytes, char *str, size_t len);
 
 // FrameData is for profiling and only used via Ruby gem cpp-code
-typedef struct frame_info {
+typedef struct frame_data {
     std::string klass;
     std::string method;
     std::string file;
@@ -61,9 +62,6 @@ public:
     static Metadata* fromString(std::string s);
 
     oboe_metadata_t *metadata();
-// TODO functions to manage prof_id used for profiling events in Ruby
-    // addProfId();
-    // getProfId();
 
 #ifdef SWIGJAVA
     std::string toStr();
@@ -254,7 +252,7 @@ public:
     bool addInfo(char *key, const std::vector<long> &vals);
 
 #ifndef SWIG  // for profiling only used by Ruby gem cpp-code
-    bool addInfo(char *key, const std::vector<FrameData> &vals, int num);
+    // bool addInfo(char *key, const std::vector<FrameData> &vals, int num);
     bool addInfo(char *key, const std::vector<FrameData> &vals);
 #endif
 
@@ -342,9 +340,9 @@ public:
         int log_level,               // level at which log messages will be written to log file (0-6)
         std::string log_file_path,   // file name including path for log file
 
-        int max_transactions,         // maximum number of transaction names to track
-        int max_flush_wait_time,      // maximum wait time for flushing data before terminating in milli seconds
-        int events_flush_interval,    // events flush timeout in seconds (threshold for batching messages before sending off)
+        int max_transactions,        // maximum number of transaction names to track
+        int max_flush_wait_time,     // maximum wait time for flushing data before terminating in milli seconds
+        int events_flush_interval,   // events flush timeout in seconds (threshold for batching messages before sending off)
         int max_request_size_bytes,  // events flush batch size in KB (threshold for batching messages before sending off)
 
         std::string reporter,      // the reporter to be used ("ssl", "upd", "file", "null")
@@ -359,7 +357,8 @@ public:
         int token_bucket_rate,      // custom token bucket rate
         int file_single,            // use single files in file reporter for each event
 
-        int ec2_metadata_timeout  // the timeout (milli seconds) for retrieving EC2 metadata
+        int ec2_metadata_timeout,   // the timeout (milli seconds) for retrieving EC2 metadata
+        std::string grpc_proxy      // HTTP proxy address and port to be used for the gRPC connection
     );
 
     ~Reporter();

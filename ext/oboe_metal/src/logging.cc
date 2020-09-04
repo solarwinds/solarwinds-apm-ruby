@@ -62,7 +62,6 @@ bool Logging::log_profile_exit(uint8_t *prof_op_id, pid_t tid, long *omitted, in
 bool Logging::log_profile_snapshot(uint8_t *prof_op_id, 
                                    long timestamp,
                                    std::vector<FrameData> const &new_frames,
-                                   int num_new_frames,
                                    long exited_frames,
                                    long total_frames,
                                    long *omitted,
@@ -74,7 +73,7 @@ bool Logging::log_profile_snapshot(uint8_t *prof_op_id,
     event->addInfo((char *)"Label", "info");
     
     event->addInfo((char *)"SnapshotsOmitted", omitted, num_omitted);
-    event->addInfo((char *)"NewFrames", new_frames, num_new_frames);
+    event->addInfo((char *)"NewFrames", new_frames);
     event->addInfo((char *)"FramesExited", exited_frames);
     event->addInfo((char *)"FramesCount", total_frames);
     event->addInfo((char *)"TID", (long)tid);

@@ -48,7 +48,6 @@ describe "Profiling: " do
     traces = get_all_traces
     traces.select! { |tr| tr['Spec'] == "profiling" }
     assert_equal 3, traces.size
-    # puts traces.pretty_inspect
 
     assert_equal 1, traces.select { |tr| tr['Label'] == 'entry'}.size
     assert_equal 1, traces.select { |tr| tr['Label'] == 'exit'}.size
@@ -61,7 +60,7 @@ describe "Profiling: " do
     assert_equal 'ruby', entry_trace['Language']
     assert_equal tid, entry_trace['TID']
 
-    # grabbing the first frame that reports 'sleep'
+    # grabbing the first frame that reports 'sleep
     snapshot_trace = traces.find { |tr| tr['Label'] == 'info' && tr['NewFrames'][0]['M'] == 'sleep'}
     assert_equal AppOpticsAPM::XTrace.edge_id(xtrace_context), snapshot_trace['ContextOpId']
     assert_equal AppOpticsAPM::XTrace.edge_id(entry_trace['X-Trace']), snapshot_trace['Edge']
@@ -163,7 +162,6 @@ describe "Profiling: " do
     tids = []
     AppOpticsAPM::SDK.start_trace("trace_main") do
       AppOpticsAPM::Profiling.run do
-        p "strating thread(s)"
         5.times do
           th = Thread.new do
             tid = AppOpticsAPM::CProfiler.get_tid
@@ -188,6 +186,18 @@ describe "Profiling: " do
 
     tids.each do |tid|
       assert_equal 3, traces.select { |tr| tr['TID'] == tid }.size
+    end
+  end
+
+  it 'does not shorten sleep' do
+    AppOpticsAPM::Config[:profiling_interval] = 1
+    AppOpticsAPM::SDK.start_trace(:trace) do
+      AppOpticsAPM::Profiling.run do
+        start = Time.now
+        sleep 2
+        # as precise as it gets, good enough to test that sleep isn't interrupted
+        assert_equal 2.0, (Time.now - start).round(1)
+      end
     end
   end
 
