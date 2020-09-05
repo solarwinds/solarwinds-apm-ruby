@@ -43,7 +43,7 @@ describe 'OboeInitOptions' do
     AppOpticsAPM::OboeInitOptions.instance.re_init
     options = AppOpticsAPM::OboeInitOptions.instance.array_for_oboe
 
-    _(options.size).must_equal 18
+    _(options.size).must_equal 19
     _(options[0]).must_equal 'string_4'
     _(options[1]).must_equal 2
     _(options[2]).must_equal 'string_5'
@@ -62,6 +62,7 @@ describe 'OboeInitOptions' do
     _(options[15]).must_equal 10
     _(options[16]).must_equal 1
     _(options[17]).must_equal 1234
+    _(options[18]).must_equal ''
   end
 
   it 'reads config vars' do
@@ -81,7 +82,7 @@ describe 'OboeInitOptions' do
     AppOpticsAPM::OboeInitOptions.instance.re_init
     options = AppOpticsAPM::OboeInitOptions.instance.array_for_oboe
 
-    _(options.size).must_equal 18
+    _(options.size).must_equal 19
 
     _(options[0]).must_equal 'string_0'
     _(options[1]).must_equal 0
@@ -106,7 +107,7 @@ describe 'OboeInitOptions' do
     AppOpticsAPM::OboeInitOptions.instance.re_init
     options = AppOpticsAPM::OboeInitOptions.instance.array_for_oboe
 
-    _(options.size).must_equal 18
+    _(options.size).must_equal 19
 
     _(options[0]).must_equal 'string_0'
     _(options[1]).must_equal 1

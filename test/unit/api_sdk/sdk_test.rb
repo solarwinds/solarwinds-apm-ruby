@@ -295,7 +295,7 @@ describe AppOpticsAPM::SDK do
       AppOpticsAPM::API.expects(:send_metrics).once
 
       AppOpticsAPM::SDK.start_trace('test_01') do
-        AppOpticsAPM::SDK.start_trace('test_02') { 42 }
+        AppOpticsAPM::SDK.start_trace('test_02') { sleep 0.1 }
       end
     end
 
