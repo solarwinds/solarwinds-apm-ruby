@@ -84,19 +84,14 @@ describe "Profiling: " do
       AppOpticsAPM::Profiling.run do
         sleep 0.1
         # use a predictable method, that doesn't call other methods
-        # since it is recursive, don't recurse too much,
-        # exploding stack is a different test
-        TestMethods.recurse(1500)
-        TestMethods.recurse(1500)
-        TestMethods.recurse(1500)
-        TestMethods.recurse(1500)
-        TestMethods.recurse(1500)
-        TestMethods.recurse(1500)
-        TestMethods.recurse(1500)
+        # since it is recursive,
+        # don't recurse too deeply, exploding the stack is a different test
+        20.times do
+          TestMethods.recurse(1500)
+        end
       end
     end
 
-    sleep 0.5
     traces = get_all_traces
     traces.select! { |tr| tr['Spec'] == 'profiling' && tr['Label'] == 'info' }
 
