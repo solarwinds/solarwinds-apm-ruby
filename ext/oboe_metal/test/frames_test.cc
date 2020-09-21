@@ -26,17 +26,17 @@ void Init_RubyCallsFrames() {
 
 TEST (Frames, extract_frame_info) {
     rb_eval_string("TestMe::Snapshot::all_kinds");
-    FrameData info;
-    Frames::extract_frame_info(test_frames[0], &info);
+    vector<FrameData> data;
+    Frames::extract_frame_info(test_frames, 1, data);
 
-    EXPECT_EQ("take_snapshot", info.method)
+    EXPECT_EQ("take_snapshot", data[0].method)
         << "method name incorrect";
-    EXPECT_EQ("TestMe::Snapshot", info.klass)
+    EXPECT_EQ("TestMe::Snapshot", data[0].klass)
         << "klass name incorrect";
-    std::size_t found = info.file.find("ext/oboe_metal/test/ruby_test_helper.rb");
-    EXPECT_EQ(info.file.length() - 39, found)
-        << "filename incorrect " << found << " " << info.file.length();
-    EXPECT_EQ(7, info.lineno)
+    std::size_t found = data[0].file.find("ext/oboe_metal/test/ruby_test_helper.rb");
+    EXPECT_EQ(data[0].file.length() - 39, found)
+        << "filename incorrect " << found << " " << data[0].file.length();
+    EXPECT_EQ(7, data[0].lineno)
         << "line number incorrect";
 }
 

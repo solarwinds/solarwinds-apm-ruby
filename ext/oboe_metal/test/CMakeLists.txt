@@ -21,8 +21,8 @@ include_directories(
 link_directories(
   /usr/lib/
   /root/.rbenv/versions/2.6.5/lib/
-  /appoptics_apm/lib/
-  /appoptics_apm/ext/oboe_metal/lib
+  ../../../lib/
+  ../lib
 )
 
 set (sources

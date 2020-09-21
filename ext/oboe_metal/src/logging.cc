@@ -26,9 +26,9 @@ Event *Logging::createEvent(uint8_t *prof_op_id, bool entry_event) {
         event->addSpanRef(md);
     } else {
         event->addProfileEdge(prof_op_id);
-        event->addOpId((char *)"ContextOpId", md);
+        event->addContextOpId(md);
     }
-    event->storeOpID(prof_op_id);
+    event->extractOpID(prof_op_id);
     return event;
 }
 
@@ -87,7 +87,7 @@ bool Logging::log_profile_event(Event *event) {
         event->addHostname();
         event->addInfo((char *)"PID", (long)AO_GETPID());
         event->addInfo((char *)"X-Trace", event->metadataString());
-        event->send_profiling();
+        event->sendProfiling();
 
         // comment in oboe.cpp:
         // event needs to be deleted, it is managed by swig %newobject
