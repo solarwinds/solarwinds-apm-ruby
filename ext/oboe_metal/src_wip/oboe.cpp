@@ -52,7 +52,7 @@ Event *Metadata::createEvent() {
 }
 
 #ifdef SWIGJAVA
-std::string Metadata::toStr(){
+std::string Metadata::toStr() {
 #else
 std::string Metadata::toString() {
 #endif
@@ -77,58 +77,56 @@ void Context::setDefaultSampleRate(int newRate) {
 }
 
 void Context::getDecisions(
-			// output
-			int *do_metrics,
-			int *do_sample,
-			int *sample_rate,
-			int *sample_source,
-			int *type,
-			int *auth,
-			std::string *status_msg,
-			std::string *auth_msg,
-			int *status,
-			// input
-			const char *in_xtrace,
-			int custom_tracing_mode,
-			int custom_sample_rate,
-			int request_type,
-			int custom_trigger_mode,
-			const char *header_options,
-			const char *header_signature,
-			long header_timestamp
-    )  {
+    // output
+    int *do_metrics,
+    int *do_sample,
+    int *sample_rate,
+    int *sample_source,
+    int *type,
+    int *auth,
+    std::string *status_msg,
+    std::string *auth_msg,
+    int *status,
+    // input
+    const char *in_xtrace,
+    int custom_tracing_mode,
+    int custom_sample_rate,
+    int request_type,
+    int custom_trigger_mode,
+    const char *header_options,
+    const char *header_signature,
+    long header_timestamp) {
+    oboe_tracing_decisions_in_t tdi;
+    memset(&tdi, 0, sizeof(tdi));
+    tdi.custom_tracing_mode = custom_tracing_mode;
+    tdi.custom_sample_rate = custom_sample_rate;
+    tdi.custom_trigger_mode = custom_trigger_mode;
+    tdi.request_type = request_type;
+    tdi.version = 2;
+    tdi.in_xtrace = in_xtrace;
+    tdi.header_options = header_options;
+    tdi.header_signature = header_signature;
+    tdi.header_timestamp = header_timestamp;
 
-        oboe_tracing_decisions_in_t tdi;
-        memset(&tdi, 0, sizeof(tdi));
-        tdi.custom_tracing_mode = custom_tracing_mode;
-        tdi.custom_sample_rate = custom_sample_rate;
-        tdi.custom_trigger_mode = custom_trigger_mode;
-        tdi.request_type = request_type;
-        tdi.version = 2;
-        tdi.in_xtrace = in_xtrace;
-        tdi.header_options = header_options;
-        tdi.header_signature = header_signature;
-        tdi.header_timestamp = header_timestamp;
+    oboe_tracing_decisions_out_t tdo;
+    memset(&tdo, 0, sizeof(tdo));
+    tdo.version = 2;
 
-        oboe_tracing_decisions_out_t tdo;
-        memset(&tdo, 0, sizeof(tdo));
-        tdo.version = 2;
+    *status = oboe_tracing_decisions(&tdi, &tdo);
 
-        *status = oboe_tracing_decisions(&tdi, &tdo);
-
-        *do_sample = tdo.do_sample;
-        *do_metrics = tdo.do_metrics;
-        *sample_rate = tdo.sample_rate;
-        *sample_source = tdo.sample_source;
-        *type = tdo.request_provisioned;
-        if (tdo.status_message && tdo.status_message[0] != '\0') {
-            *status_msg = tdo.status_message;
-        }
-        *auth = tdo.auth_status;
-        if (tdo.auth_message && tdo.auth_message[0] != '\0') {
-            *auth_msg = tdo.auth_message;
-        }
+    *do_sample = tdo.do_sample;
+    *do_metrics = tdo.do_metrics;
+    *sample_rate = tdo.sample_rate;
+    *sample_source = tdo.sample_source;
+    *type = tdo.request_provisioned;
+    if (tdo.status_message && tdo.status_message[0] != '\0') {
+        *status_msg = tdo.status_message;
     }
+    *auth = tdo.auth_status;
+    if (tdo.auth_message && tdo.auth_message[0] != '\0') {
+        *auth_msg = tdo.auth_message;
+    }
+}
 
 oboe_metadata_t *Context::get() {
     return oboe_context_get();
@@ -151,10 +149,6 @@ std::string Context::toString() {
 }
 
 void Context::set(oboe_metadata_t *md) {
-    oboe_context_set(md);
-}
-
-void Context::set(Metadata *md) {
     oboe_context_set(md);
 }
 
@@ -226,7 +220,6 @@ Event *Context::startTrace() {
     return new Event();
 }
 
-
 /////// Event ///////
 Event::Event() {
     oboe_event_init(this, Context::get(), NULL);
@@ -286,24 +279,11 @@ bool Event::addInfo(char *key, double val) {
 }
 
 bool Event::addInfo(char *key, const long *vals, int num) {
-   oboe_bson_append_start_array(&(this->bbuf), key);
-   for (int i = 0; i < num; i++) {
-       char index[5];            // Flawfinder: ignore
-       sprintf(index, "%d", i);  // Flawfinder: ignore
-       oboe_bson_append_long(&(this->bbuf), index, (int64_t)vals[i]);
-   }
-   oboe_bson_append_finish_object(&(this->bbuf));
-   return true;
-}
-
-bool Event::addInfo(char *key, const std::vector<long> &vals) {
     oboe_bson_append_start_array(&(this->bbuf), key);
-    int i = 0;
-    for (long val: vals) {
+    for (int i = 0; i < num; i++) {
         char index[5];            // Flawfinder: ignore
         sprintf(index, "%d", i);  // Flawfinder: ignore
-        i++;
-        oboe_bson_append_long(&(this->bbuf), index, (int64_t)val);
+        oboe_bson_append_long(&(this->bbuf), index, (int64_t)vals[i]);
     }
     oboe_bson_append_finish_object(&(this->bbuf));
     return true;
@@ -312,34 +292,12 @@ bool Event::addInfo(char *key, const std::vector<long> &vals) {
 // Ruby
 // for profiling to add an array of frames
 // called from c++ not Ruby
-// bool Event::addInfo(char *key, const std::vector<FrameData> &vals, int num) {
-//     oboe_bson_append_start_array(&(this->bbuf), key);
-//     for (int i = 0; i < num; i++) {
-//         char index[5];                // Flawfinder: ignore
-//         sprintf(index, "%d", i);  // Flawfinder: ignore
-
-//         oboe_bson_append_start_object(&(this->bbuf), index);
-
-//         if (vals[i].method != "")
-//             oboe_bson_append_string(&(this->bbuf), "M", (vals[i].method).c_str());
-//         if (vals[i].klass != "")
-//             oboe_bson_append_string(&(this->bbuf), "C", (vals[i].klass).c_str());
-//         if (vals[i].file != "")
-//             oboe_bson_append_string(&(this->bbuf), "F", (vals[i].file).c_str());
-//         if (vals[i].lineno != 0)
-//             oboe_bson_append_long(&(this->bbuf), "L", (int64_t)vals[i].lineno);
-
-//         oboe_bson_append_finish_object(&(this->bbuf));
-//     }
-//     oboe_bson_append_finish_object(&(this->bbuf));
-//     return true;
-// }
 
 bool Event::addInfo(char *key, const std::vector<FrameData> &vals) {
     oboe_bson_append_start_array(&(this->bbuf), key);
     int i = 0;
     for (FrameData val : vals) {
-        char index[5];                // Flawfinder: ignore
+        char index[5];            // Flawfinder: ignore
         sprintf(index, "%d", i);  // Flawfinder: ignore
         i++;
         oboe_bson_append_start_object(&(this->bbuf), index);
@@ -368,14 +326,14 @@ bool Event::addEdgeStr(const std::string &val) {
 }
 
 bool Event::addHostname() {
-    static char oboe_hostname[HOST_NAME_MAX + 1] = { '\0' }; // Flawfinder: ignore
+    static char oboe_hostname[HOST_NAME_MAX + 1] = {'\0'};  // Flawfinder: ignore
 
     if (oboe_hostname[0] == '\0') {
         (void)gethostname(oboe_hostname, sizeof(oboe_hostname) - 1);
         if (oboe_hostname[0] == '\0') {
             // Something is wrong but we don't want to to report this more than
             // once so we'll set it to a minimal non-empty string.
-            OBOE_DEBUG_LOG_WARNING(OBOE_MODULE_LIBOBOE, "Failed to get hostname, using '?'");
+            OBOE_DEBUG_LOG_WARNING(OBOE_MODULE_LIBOBOE, "Failed to get hostname, setting it to '?'");
             oboe_hostname[0] = '?';
             oboe_hostname[1] = '\0';
         }
@@ -383,34 +341,7 @@ bool Event::addHostname() {
     return oboe_event_add_info(this, "Hostname", oboe_hostname) == 0;
 }
 
-/*
- * Copy bytes over to another buffer as a hex string.
- *
- * NOTE:
- *  - it's safe for the source and destination memory to be the same.
- *  We write to one end by reading from the other.
- *  - this is memory-unsafe, i.e., you'd better have enough room to do this.
- */
-
-static char hex_table[16] = { // Flawfinder: ignore
-    '0', '1', '2', '3',
-    '4', '5', '6', '7',
-    '8', '9', 'A', 'B',
-    'C', 'D', 'E', 'F'
-};
-
-void oboe_btoh(const uint8_t *bytes, char *str, size_t len) {
-    if (len == 0) return;
-
-    char *p = str + 2 * len - 1;
-
-    for (int i = len - 1; i >= 0; i--) {
-        *(p--) = hex_table[bytes[i] & 0xF];
-        *(p--) = hex_table[bytes[i] >> 4];
-    }
-}
-
-bool Event::addOpId(char *key, oboe_metadata_t *md) {
+bool Event::addContextOpId(oboe_metadata_t *md) {
     char buf[64]; /* holds btoh'd op_id */ /* Flawfinder: ignore */
     assert(2 * OBOE_MAX_OP_ID_LEN < sizeof(buf));
 
@@ -418,9 +349,8 @@ bool Event::addOpId(char *key, oboe_metadata_t *md) {
     oboe_btoh((uint8_t *)buf, buf, OBOE_MAX_OP_ID_LEN);
     buf[2 * OBOE_MAX_OP_ID_LEN] = '\0';
 
-    return oboe_event_add_info(this, key, buf);
+    return oboe_event_add_info(this, "ContextOpId", buf);
 }
-
 
 bool Event::addSpanRef(oboe_metadata_t *md) {
     char buf[64]; /* holds btoh'd op_id */ /* Flawfinder: ignore */
@@ -435,24 +365,11 @@ bool Event::addSpanRef(oboe_metadata_t *md) {
 }
 
 bool Event::addProfileEdge(uint8_t *id) {
-   char buf[64]; /* holds btoh'd op_id */ /* Flawfinder: ignore */
+    char buf[64]; /* holds btoh'd op_id */ /* Flawfinder: ignore */
 
     assert(2 * OBOE_MAX_OP_ID_LEN < sizeof(buf));
 
     memmove(buf, id, OBOE_MAX_OP_ID_LEN);
-
-    oboe_btoh((uint8_t *)buf, buf, OBOE_MAX_OP_ID_LEN);
-    buf[2 * OBOE_MAX_OP_ID_LEN] = '\0';
-
-    return oboe_event_add_info(this, "Edge", buf);
-}
-
-bool Event::addProfileEdge(oboe_metadata_t *md) {
-   char buf[64]; /* holds btoh'd op_id */ /* Flawfinder: ignore */
-
-    assert(2 * OBOE_MAX_OP_ID_LEN < sizeof(buf));
-
-    memmove(buf, md->ids.op_id, OBOE_MAX_OP_ID_LEN);
 
     oboe_btoh((uint8_t *)buf, buf, OBOE_MAX_OP_ID_LEN);
     buf[2 * OBOE_MAX_OP_ID_LEN] = '\0';
@@ -469,9 +386,9 @@ Metadata *Event::getMetadata() {
     return new Metadata(&this->metadata);
 }
 
-void Event::storeOpID(uint8_t *id) {
-  memmove(id, this->metadata.ids.op_id, OBOE_MAX_OP_ID_LEN);
-  return;
+void Event::extractOpID(uint8_t *id) {
+    memmove(id, this->metadata.ids.op_id, OBOE_MAX_OP_ID_LEN);
+    return;
 }
 
 std::string Event::metadataString() {
@@ -496,7 +413,11 @@ bool Event::send() {
     return (oboe_event_send(OBOE_SEND_EVENT, this, Context::get()) >= 0);
 }
 
-bool Event::send_profiling() {
+/**
+ * Report a Profiling Event
+ * needs to be sent raw, so that the timestamp doesn't get altered
+ */
+bool Event::sendProfiling() {
     int retval = -1;
 
     this->bb_str = oboe_bson_buffer_finish(&this->bbuf);
@@ -522,7 +443,7 @@ std::string Span::createSpan(const char *transaction, const char *domain, const 
     params.duration = duration;
     params.service = service_name;
 
-    char buffer[OBOE_TRANSACTION_NAME_MAX_LENGTH + 1]; // Flawfinder: ignore
+    char buffer[OBOE_TRANSACTION_NAME_MAX_LENGTH + 1];  // Flawfinder: ignore
     int len = oboe_span(buffer, sizeof(buffer), &params);
     if (len > 0) {
         return std::string(buffer);
@@ -532,7 +453,7 @@ std::string Span::createSpan(const char *transaction, const char *domain, const 
 }
 
 std::string Span::createHttpSpan(const char *transaction, const char *url, const char *domain, const int64_t duration,
-        const int status, const char *method, const int has_error, const char *service_name) {
+                                 const int status, const char *method, const int has_error, const char *service_name) {
     oboe_span_params_t params;
     memset(&params, 0, sizeof(oboe_span_params_t));
     params.version = 1;
@@ -545,7 +466,7 @@ std::string Span::createHttpSpan(const char *transaction, const char *url, const
     params.has_error = has_error;
     params.service = service_name;
 
-    char buffer[OBOE_TRANSACTION_NAME_MAX_LENGTH + 1]; // Flawfinder: ignore
+    char buffer[OBOE_TRANSACTION_NAME_MAX_LENGTH + 1];  // Flawfinder: ignore
     int len = oboe_http_span(buffer, sizeof(buffer), &params);
     if (len > 0) {
         return std::string(buffer);
@@ -615,8 +536,8 @@ Reporter::Reporter(
     int token_bucket_rate,      // custom token bucket rate
     int file_single,            // use single files in file reporter for each event
 
-    int ec2_metadata_timeout,   // the timeout (milli seconds) for retrieving EC2 metadata
-    std::string grpc_proxy      // HTTP proxy address and port to be used for the gRPC connection
+    int ec2_metadata_timeout,  // the timeout (milli seconds) for retrieving EC2 metadata
+    std::string grpc_proxy     // HTTP proxy address and port to be used for the gRPC connection
 ) {
     oboe_init_options_t options;
     memset(&options, 0, sizeof(options));
@@ -677,11 +598,6 @@ bool Reporter::sendStatus(Event *evt, oboe_metadata_t *md) {
     return oboe_event_send(OBOE_SEND_STATUS, evt, md) >= 0;
 }
 
-bool Reporter::sendProfile(Event *evt, oboe_metadata_t *md) {
-    return oboe_event_send(OBOE_SEND_PROFILING, evt, md);
-}
-
-
 bool Config::checkVersion(int version, int revision) {
     return (oboe_config_check_version(version, revision) != 0);
 }
@@ -693,3 +609,140 @@ int Config::getVersion() {
 int Config::getRevision() {
     return oboe_config_get_revision();
 }
+
+/**
+ * "C" language wrapper for DebugLogger classes.
+ *
+ * A logging function that can be added to the logger chain using
+ * DebugLog::addDebugLogger().
+ *
+ * @param context The context pointer that was registered in the call to
+ *          DebugLog::addDebugLogger().  Use it to pass the pointer-to-self for
+ *          objects (ie. "this" in C++) or just a structure in C,  May be
+ *          NULL.
+ * @param module The module identifier as passed to oboe_debug_logger().
+ * @param level The diagnostic detail level as passed to oboe_debug_logger().
+ * @param source_name Name of the source file as passed to oboe_debug_logger().
+ * @param source_lineno Number of the line in the source file where message is
+ *          logged from as passed to oboe_debug_logger().
+ * @param msg The formatted message produced from the format string and its
+ *          arguments as passed to oboe_debug_logger().
+ */
+extern "C" void oboe_debug_log_handler(void *context, int module, int level, const char *source_name, int source_lineno, const char *msg) {
+    ((DebugLogger *)context)->log(module, level, source_name, source_lineno, msg);
+}
+
+    /**
+     * Get a printable name for a diagnostics logging level.
+     *
+     * @param level A detail level in the range 0 to 6 (OBOE_DEBUG_FATAL to OBOE_DEBUG_HIGH).
+     */
+    std::string DebugLog::getLevelName(int level) {
+        return std::string(oboe_debug_log_level_name(level));
+    }
+
+    /**
+     * Get a printable name for a diagnostics logging module identifier.
+     *
+     * @param module One of the OBOE_MODULE_* values.
+     */
+    std::string DebugLog::getModuleName(int module) {
+        return std::string(oboe_debug_module_name(module));
+    }
+
+    /**
+     * Get the maximum logging detail level for a module or for all modules.
+     *
+     * This level applies to the default logger only.  Added loggers get all messages
+     * below their registed detail level and need to do their own module-specific
+     * filtering.
+     *
+     * @param module One of the OBOE_MODULE_* values.  Use OBOE_MODULE_ALL (-1) to
+     *          get the overall maximum detail level.
+     * @return Maximum detail level value for module (or overall) where zero is the
+     *          lowest and higher values generate more detailed log messages.
+     */
+    int DebugLog::getLevel(int module) {
+        return oboe_debug_log_level_get(module);
+    }
+
+    /**
+     * Set the maximum logging detail level for a module or for all modules.
+     *
+     * This level applies to the default logger only.  Added loggers get all messages
+     * below their registered detail level and need to do their own module-specific
+     * filtering.
+     *
+     * @param module One of the OBOE_MODULE_* values.  Use OBOE_MODULE_ALL to set
+     *          the overall maximum detail level.
+     * @param newLevel Maximum detail level value where zero is the lowest and higher
+     *          values generate more detailed log messages.
+     */
+    void DebugLog::setLevel(int module, int newLevel) {
+        oboe_debug_log_level_set(module, newLevel);
+    }
+
+    /**
+     * Set the output stream for the default logger.
+     *
+     * @param newStream A valid, open FILE* stream or NULL to disable the default logger.
+     * @return Zero on success; otherwise an error code (normally from errno).
+     */
+    int DebugLog::setOutputStream(FILE *newStream) {
+        return oboe_debug_log_to_stream(newStream);
+    }
+
+    /**
+     * Set the default logger to write to the specified file.
+     *
+     * A NULL or empty path name will disable the default logger.
+     *
+     * If the file exists then it will be opened in append mode.
+     *
+     * @param pathname The path name of the
+     * @return Zero on success; otherwise an error code (normally from errno).
+     */
+    int DebugLog::setOutputFile(const char *pathname) {
+        return oboe_debug_log_to_file(pathname);
+    }
+
+    /**
+     * Add a logger that takes messages up to a given logging detail level.
+     *
+     * This adds the logger to a chain in order of the logging level.  Log messages
+     * are passed to each logger down the chain until the remaining loggers only
+     * accept messages of a lower detail level.
+     *
+     * @return Zero on success, one if re-registered with the new logging level, and
+     *          otherwise a negative value to indicate an error.
+     */
+    int DebugLog::addDebugLogger(DebugLogger *newLogger, int logLevel) {
+        return oboe_debug_log_add(oboe_debug_log_handler, newLogger, logLevel);
+    }
+
+    /**
+     * Remove a logger.
+     *
+     * Remove the logger from the message handling chain.
+     *
+     * @return Zero on success, one if it was not found, and otherwise a negative
+     *          value to indicate an error.
+     */
+    int DebugLog::removeDebugLogger(DebugLogger *oldLogger) {
+        return oboe_debug_log_remove(oboe_debug_log_handler, oldLogger);
+    }
+
+    /**
+     * Low-level diagnostics logging function.
+     *
+     * Use this to pass
+     * @param module One of the numeric module identifiers defined in debug.h - used to control logging detail by module.
+     * @param level Diagnostic detail level of this message - used to control logging volume by detail level.
+     * @param source_name Name of the source file, if available, or another useful name, or NULL.
+     * @param source_lineno Number of the line in the source file where message is logged from, if available, or zero.
+     * @param format A C language printf format specification string.
+     * @param args A variable argument list in VA_ARG format containing arguments for each argument specifier in the format.
+     */
+    void DebugLog::logMessage(int module, int level, const char *source_name, int source_lineno, const char *msg) {
+        oboe_debug_logger(module, level, source_name, source_lineno, "%s", msg);
+    }
