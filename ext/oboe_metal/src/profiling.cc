@@ -9,7 +9,7 @@
 #include <thread>
 #include <unordered_map>
 
-#include "oboe.hpp"
+#include "oboe_api.hpp"
 
 #include "profiling.h"
 #include "logging.h"
@@ -92,7 +92,7 @@ void Profiling::process_snapshot(VALUE *frames_buffer, int num, pid_t tid, long 
         th_prof_data.prev_timestamp = timestamp;
 
         // the omitted buffer can fill up if the interval is small
-        // and the stack doesn't change 
+        // and the stack doesn't change
         // We need to send a profiling event with the timestamps when it is full
         if (th_prof_data.omitted_num >= BUF_SIZE) {
             Profiling::send_omitted(tid, ts);
@@ -121,7 +121,7 @@ void Profiling::process_snapshot(VALUE *frames_buffer, int num, pid_t tid, long 
 
 void Profiling::profiler_job_handler(void *data) {
     static std::atomic_int in_job_handler;
-    
+
     if (in_job_handler) return;
     if (!running || !th_prof_data.running) return;
 

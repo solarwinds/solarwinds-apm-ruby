@@ -6,7 +6,7 @@ module AppOpticsAPM
     end
   end
 
-  class CProfiler
+  module CProfiler
     def self.set_interval(_)
       # do nothing
     end
