@@ -24,16 +24,17 @@ x-ao-env: &ao-env
 
 #  BUNDLE_GEMFILE: "gemfiles/libraries.gemfile"
   DOCKER_MYSQL_PASS: "admin"
-  DOCKER_PSQL_PASS: "docker"
+#  DOCKER_PSQL_PASS: "docker"
   MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
   MYSQL_ROOT_PASSWORD: "admin"
   MYSQL_HOST: "ao-ruby-mysql"
   OBOE_VERSION: "10.0.0"
+  POSTGRES_USER: "docker"
   PSQL_HOST: "ao_ruby_postgres"
   RUBY_ENV: "test"
   TEST_RUNS_TO_FILE: "true"
 #    - SIMPLECOV_COVERAGE=true
-#    - OBOE_HPP_WIP=true
+#    - OBOE_WIP=true
 #    - APPOPTICS_DEBUG_LEVEL=6
 
 x-ao-shared: &ao-shared
@@ -142,7 +143,8 @@ services:
     container_name: ao_ruby_postgres
     image: postgres:latest
     environment:
-      DOCKER_PSQL_PASS: "docker"
+      POSTGRES_DB: "travis_ci_test"
+      POSTGRES_USER: "docker"
     volumes:
       - ./postgres_init.sh:/docker-entrypoint-initdb.d/init-user-db.sh
 

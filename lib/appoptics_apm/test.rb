@@ -53,8 +53,8 @@ module AppOpticsAPM
       def set_postgresql_env
         if ENV.key?('TRAVIS_PSQL_PASS')
           ENV['DATABASE_URL'] = "postgresql://postgres:#{ENV['TRAVIS_PSQL_PASS']}@127.0.0.1:5432/travis_ci_test"
-        elsif ENV.key?('DOCKER_PSQL_PASS')
-          ENV['DATABASE_URL'] = "postgresql://docker:#{ENV['DOCKER_PSQL_PASS']}@#{ENV['PSQL_HOST']}:5432/travis_ci_test"
+        elsif ENV.key?('POSTGRES_USER')
+          ENV['DATABASE_URL'] = "postgresql://#{ENV['POSTGRES_USER']}@#{ENV['PSQL_HOST']}:5432/travis_ci_test"
           # ENV['DATABASE_URL'] = "postgresql://postgres@#{ENV['PSQL_HOST']}:5432/travis_ci_test"
         else
           ENV['DATABASE_URL'] = 'postgresql://postgres@127.0.0.1:5432/travis_ci_test'

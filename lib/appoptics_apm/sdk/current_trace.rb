@@ -37,14 +37,10 @@ module AppOpticsAPM
         attr_reader :id
 
         def initialize
-          if AppOpticsAPM::Config[:log_traceId] == :never
-            @id = '0000000000000000000000000000000000000000-0'
-          else
-            @xtrace = AppOpticsAPM::Context.toString
-            task_id = AppOpticsAPM::XTrace.task_id(@xtrace)
-            sampled = AppOpticsAPM::XTrace.sampled?(@xtrace)
-            @id = "#{task_id}-#{sampled ? 1 : 0}"
-          end
+          @xtrace = AppOpticsAPM::Context.toString
+          task_id = AppOpticsAPM::XTrace.task_id(@xtrace)
+          sampled = AppOpticsAPM::XTrace.sampled?(@xtrace)
+          @id = "#{task_id}-#{sampled ? 1 : 0}"
         end
 
         # for_log returns a string in the format 'traceId=<current_trace.id>' or ''.
