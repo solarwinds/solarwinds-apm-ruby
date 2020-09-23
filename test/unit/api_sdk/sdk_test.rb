@@ -222,6 +222,7 @@ describe AppOpticsAPM::SDK do
       xtrace = '2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F01'
 
       AppOpticsAPM::API.expects(:send_metrics)
+      sleep 0.1
 
       AppOpticsAPM::SDK.start_trace('test_01', xtrace) { 42 }
     end
@@ -661,6 +662,7 @@ describe AppOpticsAPM::SDK do
 
     it 'should return false if the context is invalid' do
       AppOpticsAPM::Context.fromString('2BB05F01')
+      sleep 0.1
       refute AppOpticsAPM::SDK.tracing?
     end
   end
