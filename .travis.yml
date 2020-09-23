@@ -96,6 +96,7 @@ before_script:
 #  - export APPOPTICS_TOKEN_BUCKET_CAPACITY=1000
 #  - export APPOPTICS_TOKEN_BUCKET_RATE=1000
   - export APPOPTICS_FROM_S3=true
+  - export OBOE_VERSION=10.0.0
 
 #  - bundle update --jobs=3 --retry=3
   - ./.travis/bundle.sh

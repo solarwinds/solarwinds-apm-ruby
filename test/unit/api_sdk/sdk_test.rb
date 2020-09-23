@@ -222,6 +222,7 @@ describe AppOpticsAPM::SDK do
       xtrace = '2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F01'
 
       AppOpticsAPM::API.expects(:send_metrics)
+      sleep 0.1
 
       AppOpticsAPM::SDK.start_trace('test_01', xtrace) { 42 }
     end
@@ -256,7 +257,7 @@ describe AppOpticsAPM::SDK do
       AppOpticsAPM::API.expects(:log_event).with('test_01', :entry, anything, anything)
       AppOpticsAPM::Span.expects(:createSpan).with('custom_name_this_one', nil, 0).returns('domain/custom_name_this_one')
       AppOpticsAPM::API.expects(:log_event).with('test_01', :exit, anything, has_entry(:TransactionName => 'domain/custom_name_this_one'))
-
+      sleep 0.1
       AppOpticsAPM::SDK.start_trace('test_01', nil, :TransactionName => 'custom_name') do
         AppOpticsApm::SDK.set_transaction_name('custom_name_this_one')
       end
@@ -293,7 +294,7 @@ describe AppOpticsAPM::SDK do
   describe 'start_trace nested invocation' do
     it 'should call send_metrics only once' do
       AppOpticsAPM::API.expects(:send_metrics).once
-
+      sleep 0.1
       AppOpticsAPM::SDK.start_trace('test_01') do
         AppOpticsAPM::SDK.start_trace('test_02') { 42 }
       end
@@ -661,6 +662,7 @@ describe AppOpticsAPM::SDK do
 
     it 'should return false if the context is invalid' do
       AppOpticsAPM::Context.fromString('2BB05F01')
+      sleep 0.1
       refute AppOpticsAPM::SDK.tracing?
     end
   end
