@@ -29,7 +29,7 @@ x-ao-env: &ao-env
   MYSQL_ROOT_PASSWORD: "admin"
   MYSQL_HOST: "ao-ruby-mysql"
   OBOE_VERSION: "10.0.1"
-  OBOE_HPP_WIP: "true"
+  OBOE_WIP: "true"
   PSQL_HOST: "ao_ruby_postgres"
   RUBY_ENV: "test"
   TEST_RUNS_TO_FILE: "true"
@@ -70,6 +70,8 @@ services:
     volumes:
       - ../../:/code/ruby-appoptics
       - ./.ruby_version_ubuntu:/code/ruby-appoptics/.ruby-version
+      # and for OBOE_WIP ...
+      - ../../../oboe/liboboe:/code/oboe/liboboe
     #       - ../../../graphql-ruby-clone/:/code/graphql-ruby
     #       - /Users/maiaengeli/workspace/repos/grpc:/grpc_ruby
     environment:

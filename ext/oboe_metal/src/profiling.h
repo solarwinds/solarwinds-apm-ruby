@@ -12,8 +12,9 @@
 #include <mutex>
 #include <thread>
 #include <unordered_map>
+#include <vector>
 
-#include "oboe.hpp"
+#include "oboe_api.hpp"
 
 using namespace std;
 
