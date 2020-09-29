@@ -103,6 +103,7 @@ services:
     << : *ao-shared
     volumes:
       - ../../:/code/ruby-appoptics
+      - ../../../oboe/liboboe:/code/oboe
       - ./.ruby_version_debian:/code/ruby-appoptics/.ruby-version
     environment:
       << : *ao-env
