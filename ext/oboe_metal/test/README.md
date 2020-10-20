@@ -2,7 +2,7 @@ run c++ tests:
 
 `cmake CMakeLists.txt`
 
-ignore warning
+IGNORE WARNING `Could NOT find PkgConfig (missing:  PKG_CONFIG_EXECUTABLE)`
 
 `make`
 

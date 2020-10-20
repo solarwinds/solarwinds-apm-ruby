@@ -29,7 +29,7 @@ long interval = 10;  // in milliseconds, initializing in case Ruby forgets to
 
 thread_local struct prof_data {
     bool running = false;
-    uint8_t prof_op_id[OBOE_MAX_OP_ID_LEN];
+    string prof_op_id;
 
     struct timeval prev_timestamp;
     VALUE prev_frames_buffer[BUF_SIZE];

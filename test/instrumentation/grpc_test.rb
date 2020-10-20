@@ -49,6 +49,7 @@ if defined? GRPC
       @server.stop
       @server_thread.join
     end
+
     def server_with_backtraces
       server_bt = AppOpticsAPM::Config[:grpc_server][:collect_backtraces]
       AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = true

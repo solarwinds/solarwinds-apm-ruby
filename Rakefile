@@ -113,6 +113,10 @@ task :fetch_ext_deps do
   oboe_s3_dir = "https://s3-us-west-2.amazonaws.com/rc-files-t2/c-lib/#{oboe_version}"
   ext_src_dir = File.expand_path('ext/oboe_metal/src')
 
+  # remove all oboe* files, they may hang around because of name changes
+  # from oboe* to oboe_api*
+  Dir.glob(File.join(ext_src_dir, 'oboe*')).each { |file| File.delete(file) }
+
   # VERSION is used by extconf.rb to download the correct liboboe when installing the gem
   remote_file = File.join(oboe_s3_dir, 'VERSION')
   local_file = File.join(ext_src_dir, 'VERSION')
