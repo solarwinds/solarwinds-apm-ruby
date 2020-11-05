@@ -139,7 +139,7 @@ task :fetch_ext_deps do
     FileUtils.cp(File.join(wip_src_dir, 'oboe.h'), ext_src_dir)
     FileUtils.cp(File.join(wip_src_dir, 'swig', 'oboe.i'), ext_src_dir)
   else
-    files += ['oboe.h', 'oboe_api.hpp', 'oboe.i']
+    files += ['oboe.h', 'oboe_api.hpp', 'oboe_api.cpp', 'oboe.i']
   end
 
   files.each do |filename|

@@ -10,10 +10,10 @@ env:
   - DBTYPE=mysql2
 
 rvm:
-  - 2.7.0
-  - 2.6.4
-  - 2.5.5
-  - 2.4.5
+  - 2.7.2
+  - 2.6.6
+  - 2.5.8
+  - 2.4.10
   - ruby-head
 #  - jruby-9.0.5.0
 
@@ -33,13 +33,13 @@ matrix:
   exclude:
     - rvm: ruby-head
       gemfile: gemfiles/rails42.gemfile
-    - rvm: 2.7.0
+    - rvm: 2.7.2
       gemfile: gemfiles/rails42.gemfile
-    - rvm: 2.6.4
+    - rvm: 2.6.6
       gemfile: gemfiles/rails42.gemfile
-    - rvm: 2.4.5
+    - rvm: 2.4.10
       gemfile: gemfiles/rails60.gemfile
-    - rvm: 2.4.5  # excluding because of new sprockets version (4.0.0)
+    - rvm: 2.4.10  # excluding because of new sprockets version (4.0.0)
       gemfile: gemfiles/rails52.gemfile
 
     - gemfile: gemfiles/unit.gemfile
@@ -96,8 +96,8 @@ before_script:
 #  - export APPOPTICS_TOKEN_BUCKET_CAPACITY=1000
 #  - export APPOPTICS_TOKEN_BUCKET_RATE=1000
   - export APPOPTICS_FROM_S3=true
-  - export OBOE_WIP=true
-  - export OBOE_VERSION=10.0.1
+#  - export OBOE_WIP=true
+#  - export OBOE_VERSION=10.0.1
 
 #  - bundle update --jobs=3 --retry=3
   - ./.travis/bundle.sh
