@@ -73,7 +73,7 @@ describe "Profiling: " do
     assert_equal tid, snapshot_trace['TID']
 
     exit_trace = traces.find { |tr| tr['Label'] == 'exit'}
-    assert (exit_trace['SnapshotsOmitted'].size > 100), "no omitted snapshot found"
+    assert (exit_trace['SnapshotsOmitted'].size > 0), "no omitted snapshot found"
     assert_equal AppOpticsAPM::XTrace.edge_id(snapshot_trace['X-Trace']), exit_trace['Edge']
     assert_equal tid, exit_trace['TID']
   end
@@ -145,7 +145,7 @@ describe "Profiling: " do
 
     # this may be flaky, because there it is expected that there can be
     # small variations in the timing of the snapshots
-    assert (traces.last['SnapshotsOmitted'].size >= 18), "Size is only #{traces.last['SnapshotsOmitted'].size}"
+    assert (traces.last['SnapshotsOmitted'].size >= 15), "Size is only #{traces.last['SnapshotsOmitted'].size}"
     # this may be flaky, it relies on rounding to smooth out variations in timing
     average_interval = (traces.last['SnapshotsOmitted'][16]-traces.last['SnapshotsOmitted'][0])/16/1000
     assert (average_interval >= 9 && average_interval <= 11)
