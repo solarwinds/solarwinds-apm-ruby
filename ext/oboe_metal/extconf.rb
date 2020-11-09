@@ -31,8 +31,7 @@ ao_include = File.join(ext_dir, 'src')
 # Download the appropriate liboboe from S3(via rake for testing) or files.appoptics.com (production)
 version = File.read(File.join(ao_include, 'VERSION')).chomp
 
-# TODO remove 10.0.2 condition before deploying, needed to test on unido-web
-if ENV['APPOPTICS_FROM_S3'].to_s.downcase == 'true' || version == '10.0.2'
+if ENV['APPOPTICS_FROM_S3'].to_s.downcase == 'true'
   ao_path = File.join('https://s3-us-west-2.amazonaws.com/rc-files-t2/c-lib/', version)
   puts 'Fetching c-lib from S3'
 else
