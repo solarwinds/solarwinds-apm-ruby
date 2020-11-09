@@ -34,7 +34,7 @@ describe "Profiling: " do
   end
 
   it 'logs start, snapshots, end' do
-    AppOpticsAPM::Config[:profiling_interval] = 17
+    AppOpticsAPM::Config[:profiling_interval] = 13
     xtrace_context = nil
     AppOpticsAPM::SDK.start_trace(:trace) do
       # it does not modify the tracing context
@@ -56,7 +56,7 @@ describe "Profiling: " do
 
     entry_trace = traces.find { |tr| tr['Label'] == 'entry'}
     assert_equal AppOpticsAPM::XTrace.edge_id(xtrace_context), entry_trace['SpanRef']
-    assert_equal 17, entry_trace['Interval']
+    assert_equal 13, entry_trace['Interval']
     assert_equal 'ruby', entry_trace['Language']
     assert_equal tid, entry_trace['TID']
 
@@ -73,7 +73,7 @@ describe "Profiling: " do
     assert_equal tid, snapshot_trace['TID']
 
     exit_trace = traces.find { |tr| tr['Label'] == 'exit'}
-    assert exit_trace['SnapshotsOmitted'].size > 0
+    assert (exit_trace['SnapshotsOmitted'].size > 100), "no omitted snapshot found"
     assert_equal AppOpticsAPM::XTrace.edge_id(snapshot_trace['X-Trace']), exit_trace['Edge']
     assert_equal tid, exit_trace['TID']
   end
@@ -145,7 +145,7 @@ describe "Profiling: " do
 
     # this may be flaky, because there it is expected that there can be
     # small variations in the timing of the snapshots
-    assert traces.last['SnapshotsOmitted'].size >= 18
+    assert (traces.last['SnapshotsOmitted'].size >= 18), "Size is only #{traces.last['SnapshotsOmitted'].size}"
     # this may be flaky, it relies on rounding to smooth out variations in timing
     average_interval = (traces.last['SnapshotsOmitted'][16]-traces.last['SnapshotsOmitted'][0])/16/1000
     assert (average_interval >= 9 && average_interval <= 11)
