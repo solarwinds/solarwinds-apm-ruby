@@ -146,6 +146,7 @@ services:
     image: postgres:latest
     environment:
       DOCKER_PSQL_PASS: "docker"
+      POSTGRES_PASSWORD: "docker"
     volumes:
       - ./postgres_init.sh:/docker-entrypoint-initdb.d/init-user-db.sh
 
