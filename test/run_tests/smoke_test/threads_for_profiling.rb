@@ -82,7 +82,6 @@ end
 class Kids
   def giggle
     temps = ['colder', 'warmer', 'chilly','hot']
-    100_000.times { AppOpticsAPM::Profiling.interval}
     # ts = AppOpticsAPM::TransactionSettings.new
     # 100_000.times do
     #   ts.to_s
@@ -109,7 +108,7 @@ unless AppOpticsAPM::SDK.appoptics_ready?(10_000)
   exit false
 end
 
-require 'get_process_mem'
+# require 'get_process_mem'
 
 
 def do_stuff
@@ -120,14 +119,15 @@ def do_stuff
   n = 30
   threads = []
   threads2 = []
-  30.times do |i|
+  3.times do |i|
     threads[i] = Thread.new do
-      tid = AppOpticsAPM::Profiling.getTid
+      tid = AppOpticsAPM::CProfiler.get_tid
+      puts tid
       AppOpticsAPM::SDK.start_trace("thread_#{tid}") do
         # 500_000_000.times do |j|
           AppOpticsAPM::Profiling.run do
             # if (j % 20_000_000 == 0)
-              mem = GetProcessMem.new
+            #  mem = GetProcessMem.new
               # puts "#{tid} Memory used : #{mem.mb.round(6)} MB"
               # puts "#{tid} #{vm.chomp} #{rss.chomp}"
             # end
@@ -163,14 +163,15 @@ def do_stuff
       # end
     end
   end
-  30.times do |i|
+  3.times do |i|
     threads2[i] = Thread.new do
-      tid = AppOpticsAPM::Profiling.getTid
+      tid = AppOpticsAPM::CProfiler.get_tid
+      puts tid
       AppOpticsAPM::SDK.start_trace("thread_#{tid}") do
         # 500_000_000.times do |j|
         AppOpticsAPM::Profiling.run do
           # if (j % 20_000_000 == 0)
-          mem = GetProcessMem.new
+          # mem = GetProcessMem.new
           # puts "#{tid} Memory used : #{mem.mb.round(6)} MB"
           # puts "#{tid} #{vm.chomp} #{rss.chomp}"
           # end
