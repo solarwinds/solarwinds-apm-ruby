@@ -4,7 +4,7 @@ path=$(dirname "$0")
 
 export APPOPTICS_COLLECTOR=collector-stg.appoptics.com
 unset APPOPTICS_REPORTER
-unset APPOPTICS_FROM_S3
+#unset APPOPTICS_FROM_S3
 
 # bundler has a problem resolving the gem in packagecloud
 # when defining the gemfile via BUNDLE_GEMFILE
