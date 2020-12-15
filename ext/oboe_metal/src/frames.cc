@@ -6,29 +6,45 @@
 int Frames::extract_frame_info(VALUE *frames_buffer, int num, vector<FrameData> &frame_data) {
     VALUE val;
 
+    if(frames_buffer[0] == PR_OTHER_THREAD) {
+        FrameData data;
+        data.method = "OTHER THREADS";
+        frame_data.push_back(data);
+        return 0;
+    }
+
     for(int i = 0; i < num; i++) {
         VALUE frame = frames_buffer[i];
         FrameData data;
 
-        val = rb_profile_frame_label(frame);  // returns method or block
-        if (RB_TYPE_P(val, T_STRING)) data.method = RSTRING_PTR(val);
-
-        // we ignore block level info because they make things messy 
-        if (data.method.rfind("block ", 0) == 0)
+        if (cached_frames.count(frame) == 1 && getenv("AO_CACHE_FRAMES")) {
+            frame_data.push_back(cached_frames[frame]);
             continue;
+        }
 
-        val = rb_profile_frame_classpath(frame);  // returns class or nil
-        if (RB_TYPE_P(val, T_STRING)) data.klass = RSTRING_PTR(val);
+        // if (cached_frames.count(frame) == 0) {
+            val = rb_profile_frame_label(frame);  // returns method or block
+            if (RB_TYPE_P(val, T_STRING)) data.method = RSTRING_PTR(val);
 
-        val = rb_profile_frame_absolute_path(frame);  // returns file, use rb_profile_frame_path() if nil
-        if (!RB_TYPE_P(val, T_STRING)) val = rb_profile_frame_path(frame);
-        if (RB_TYPE_P(val, T_STRING)) data.file = RSTRING_PTR(val);
+            // we ignore block level info because they make things messy
+            if (data.method.rfind("block ", 0) == 0)
+                continue;
 
-        val = rb_profile_frame_first_lineno(frame);  // returns line number
-        if (RB_TYPE_P(val, T_FIXNUM)) data.lineno = NUM2INT(val);
+            val = rb_profile_frame_classpath(frame);  // returns class or nil
+            if (RB_TYPE_P(val, T_STRING)) data.klass = RSTRING_PTR(val);
 
-     
-        frame_data.push_back(data);
+            val = rb_profile_frame_absolute_path(frame);  // returns file, use rb_profile_frame_path() if nil
+            if (!RB_TYPE_P(val, T_STRING)) val = rb_profile_frame_path(frame);
+            if (RB_TYPE_P(val, T_STRING)) data.file = RSTRING_PTR(val);
+
+            val = rb_profile_frame_first_lineno(frame);  // returns line number
+            if (RB_TYPE_P(val, T_FIXNUM)) data.lineno = NUM2INT(val);
+
+            if (getenv("AO_CACHE_FRAMES"))
+                cached_frames[frame] = data;
+            // }
+
+            frame_data.push_back(data);
     }
  
     return 0;
@@ -40,6 +56,9 @@ int Frames::extract_frame_info(VALUE *frames_buffer, int num, vector<FrameData> 
 // - all but last of repeated frames
 // - remove "block" frames (they are confusing)
 int Frames::remove_garbage(VALUE *frames_buffer, int num) {
+    if (frames_buffer[0] == PR_OTHER_THREAD)
+        return 1;
+
     // 1) ignore top frames where the line number is 0
     bool found = true;
     while(found && num > 0) {
@@ -97,7 +116,7 @@ int Frames::remove_garbage(VALUE *frames_buffer, int num) {
     return count;
  }
 
-// returns the number of the matching frames
+ // returns the number of the matching frames
  int Frames::num_matching(VALUE *frames_buffer, int num,
                           VALUE *prev_frames_buffer, int prev_num) {
      int i;
@@ -113,8 +132,14 @@ int Frames::remove_garbage(VALUE *frames_buffer, int num) {
      return i;
  }
 
+/////////////////////// DEBUGGING HELPER FUNCTIONS /////////////////////////////
 // helper function to print frame from ruby pointers to frame
 void Frames::print_raw_frame_info(VALUE frame) {
+    if(frame == PR_OTHER_THREAD) {
+        // cout << "OTHER_THREADS" << endl;
+        return;
+    }
+
     VALUE val;
     int lineno;
     string file, klass, method;
