@@ -19,6 +19,7 @@
 using namespace std;
 
 #define BUF_SIZE 2048
+#define PR_OTHER_THREAD -1
 
 #if !defined(AO_GETTID)
      #if defined(_WIN32)
@@ -31,6 +32,7 @@ using namespace std;
         #endif
      #endif
 #endif
+
 
 class Profiling {
    public:

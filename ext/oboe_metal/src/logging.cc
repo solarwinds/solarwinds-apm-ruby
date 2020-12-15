@@ -4,8 +4,8 @@
 #include "logging.h"
 
 // TODO refactor to pass in metadata
-Event *Logging::createEvent(string &prof_op_id, bool entry_event) {
-    oboe_metadata_t* md = Context::get();
+Event *Logging::createEvent(oboe_metadata_t* md, string &prof_op_id, bool entry_event) {
+    // oboe_metadata_t* md = Context::get();
 
     Event *event = Event::startTrace(md); // startTrace does not add "Edge"
     if (entry_event) {
@@ -19,8 +19,8 @@ Event *Logging::createEvent(string &prof_op_id, bool entry_event) {
     return event;
 }
 
-bool Logging::log_profile_entry(string &prof_op_id, pid_t tid, long interval) {
-    Event *event = Logging::createEvent(prof_op_id, true);
+bool Logging::log_profile_entry(oboe_metadata_t* md, string &prof_op_id, pid_t tid, long interval) {
+    Event *event = Logging::createEvent(md, prof_op_id, true);
     event->addInfo((char *)"Label", "entry");
     event->addInfo((char *)"Language", "ruby");
     event->addInfo((char *)"TID", (long)tid);
@@ -33,8 +33,8 @@ bool Logging::log_profile_entry(string &prof_op_id, pid_t tid, long interval) {
     return Logging::log_profile_event(event);
 }
 
-bool Logging::log_profile_exit(string &prof_op_id, pid_t tid, long *omitted, int num_omitted) {
-    Event *event = Logging::createEvent(prof_op_id);
+bool Logging::log_profile_exit(oboe_metadata_t* md, string &prof_op_id, pid_t tid, long *omitted, int num_omitted) {
+    Event *event = Logging::createEvent(md, prof_op_id);
     event->addInfo((char *)"Label", "exit");
     event->addInfo((char *)"TID", (long)tid);
     event->addInfo((char *)"SnapshotsOmitted", omitted, num_omitted);
@@ -46,7 +46,8 @@ bool Logging::log_profile_exit(string &prof_op_id, pid_t tid, long *omitted, int
     return Logging::log_profile_event(event);
 }
 
-bool Logging::log_profile_snapshot(string &prof_op_id,
+bool Logging::log_profile_snapshot(oboe_metadata_t* md, 
+                                   string &prof_op_id,
                                    long timestamp,
                                    std::vector<FrameData> const &new_frames,
                                    long exited_frames,
@@ -55,7 +56,7 @@ bool Logging::log_profile_snapshot(string &prof_op_id,
                                    int num_omitted,
                                    pid_t tid) {
 
-    Event *event = Logging::createEvent(prof_op_id);
+    Event *event = Logging::createEvent(md, prof_op_id);
     event->addInfo((char *)"Timestamp_u", timestamp);
     event->addInfo((char *)"Label", "info");
 

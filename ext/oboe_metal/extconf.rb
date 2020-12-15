@@ -126,6 +126,7 @@ if success
     $LIBS << " #{ENV['LIBS']}"
     $LDFLAGS << " #{ENV['LDFLAGS']} '-Wl,-rpath=$$ORIGIN/../ext/oboe_metal/lib'  -pg"
     # $LDFLAGS << " #{ENV['LDFLAGS']} '-Wl,-rpath=$$ORIGIN/../ext/oboe_metal/lib'"
+    $CXXFLAGS += " -std=c++11 "
 
     # ____ include debug info, comment out when not debugging
     # ____ -pg -> profiling info for gprof

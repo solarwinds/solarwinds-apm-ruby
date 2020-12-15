@@ -6,6 +6,8 @@
 
 #include "profiling.h"
 
+extern thread_local unordered_map<VALUE, FrameData> cached_frames;
+
 class Frames {
     public:
     static int extract_frame_info(VALUE *frames_buffer, int num, vector<FrameData>&frame_data);

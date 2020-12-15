@@ -1,21 +1,12 @@
 // Copyright (c) 2020 SolarWinds, LLC.
 // All rights reserved.
 
-#include <ruby/ruby.h>
-#include <ruby/debug.h>
-
-#include <signal.h>
-#include <mutex>
-#include <thread>
-#include <unordered_map>
-
-#include "oboe_api.hpp"
-
 #include "profiling.h"
 #include "logging.h"
 #include "frames.h"
 
-atomic_long running;
+
+static atomic_long running;
 
 // need to initialize here, hangs if it is done inside the signal handler
 // these are reused for every snapshot
@@ -25,76 +16,99 @@ static int lines_buffer[BUF_SIZE];
 // static vector<FrameData> new_frames;
 
 long interval = 10;  // in milliseconds, initializing in case Ruby forgets to
-// long interval;  // in milliseconds
 
-thread_local struct prof_data {
-    bool running = false;
+typedef struct prof_data {
+    bool running_p = false;
+    oboe_metadata_t *md;
     string prof_op_id;
+    pid_t tid;
 
     struct timeval prev_timestamp;
     VALUE prev_frames_buffer[BUF_SIZE];
     int prev_num = 0;
     long omitted[BUF_SIZE];
     int omitted_num = 0;
-} th_prof_data;
+} prof_data_t;
+
+unordered_map<pid_t, prof_data_t> prof_data_map;
+thread_local unordered_map<VALUE, FrameData> cached_frames;
 
 // TODO maybe use std::async for some stuff that doesn't read the frame info from Ruby
 void Profiling::profiler_record_frames(void *data) {
-    // check if this thread is being profiled
-    // doing it here, because I'm not sure if a postponed job executes in the
-    if (!th_prof_data.running) return;
 
     pid_t tid = AO_GETTID;
 
     gettimeofday(&timestamp, NULL);
     long ts = (long)timestamp.tv_sec * 1000000 + (long)timestamp.tv_usec;
 
-    // exectues in the same thread as rb_postponed_job was called from
-    // get the frames
-    // won't overrun frames buffer, because size is set in arg 2
-    int num = rb_profile_frames(0, sizeof(frames_buffer) / sizeof(VALUE), frames_buffer, lines_buffer);
+    // check if this thread is being profiled
+    if (prof_data_map[tid].running_p) {
+        // exectues in the same thread as rb_postponed_job was called from
+        // get the frames
+        // won't overrun frames buffer, because size is set in arg 2
+        int num = rb_profile_frames(0, sizeof(frames_buffer) / sizeof(VALUE), frames_buffer, lines_buffer);
 
-    Profiling::process_snapshot(frames_buffer, num, tid, ts);
+        // std::async(std::launch::async, Profiling::process_snapshot, frames_buffer, num, tid, ts);
+        Profiling::process_snapshot(frames_buffer, num, tid, ts);
+    }
+
+    if (getenv("AO_OTHERTHREADS")) {
+        // add this timestamp as omitted to other running threads that are profiled
+        for (pair<const pid_t, prof_data_t> &ele : prof_data_map) {
+            if (ele.second.running_p && ele.first != tid) {
+                // ele.second.omitted[ele.second.omitted_num] = ts;
+                // ele.second.omitted_num++;
+                frames_buffer[0] = PR_OTHER_THREAD;
+                Frames::print_raw_frame_info(frames_buffer[0]);
+                Profiling::process_snapshot(frames_buffer, 1, ele.first, ts);
+            }
+        }
+    }
 }
 
 void Profiling::send_omitted(pid_t tid, long ts) {
     static vector<FrameData> empty;
-    Logging::log_profile_snapshot(th_prof_data.prof_op_id,
-                                  ts,                        // timestamp
-                                  empty,                     // <vector> new frames
-                                  0,                         // number of exited frames
-                                  th_prof_data.prev_num,     // total number of frames
-                                  th_prof_data.omitted,      // array of timestamps of omitted snapshots
-                                  th_prof_data.omitted_num,  // number of omitted snapshots
-                                  tid);                      // thread id
+    Logging::log_profile_snapshot(prof_data_map[tid].md,
+                                  prof_data_map[tid].prof_op_id,
+                                  ts,                              // timestamp
+                                  empty,                           // <vector> new frames
+                                  0,                               // number of exited frames
+                                  prof_data_map[tid].prev_num,     // total number of frames
+                                  prof_data_map[tid].omitted,      // array of timestamps of omitted snapshots
+                                  prof_data_map[tid].omitted_num,  // number of omitted snapshots
+                                  tid);                            // thread id
 
-    th_prof_data.omitted_num = 0;
+    prof_data_map[tid].omitted_num = 0;
 }
 
 void Profiling::process_snapshot(VALUE *frames_buffer, int num, pid_t tid, long ts) {
     int num_new = 0;
     int num_exited = 0;
+    // TODO is this going to blow up, because it allocates memory?
     vector<FrameData> new_frames;
     num = Frames::remove_garbage(frames_buffer, num);
 
     // find the number of matching frames from the top
     int num_match = Frames::num_matching(frames_buffer,
                                       num,
-                                      th_prof_data.prev_frames_buffer,
-                                      th_prof_data.prev_num);
+                                      prof_data_map[tid].prev_frames_buffer,
+                                      prof_data_map[tid].prev_num);
     num_new = num - num_match;
 
-    num_exited = th_prof_data.prev_num - num_match;
+    num_exited = prof_data_map[tid].prev_num - num_match;
+    
+    // cout << "Numbers: num: " << num << " num_match " << num_match << " num_new " 
+    //      << num_new << " num_exited " << num_exited << endl;
 
     if (num_new == 0 && num_exited == 0) {
-        th_prof_data.omitted[th_prof_data.omitted_num] = ts;
-        th_prof_data.omitted_num++;
-        th_prof_data.prev_timestamp = timestamp;
+        prof_data_map[tid].omitted[prof_data_map[tid].omitted_num] = ts;
+        prof_data_map[tid].omitted_num++;
+        prof_data_map[tid].prev_timestamp = timestamp;
 
         // the omitted buffer can fill up if the interval is small
         // and the stack doesn't change
         // We need to send a profiling event with the timestamps when it is full
-        if (th_prof_data.omitted_num >= BUF_SIZE) {
+        if (prof_data_map[tid].omitted_num >= BUF_SIZE) {
             Profiling::send_omitted(tid, ts);
         }
         return;
@@ -102,28 +116,41 @@ void Profiling::process_snapshot(VALUE *frames_buffer, int num, pid_t tid, long 
 
     Frames::extract_frame_info(frames_buffer, num_new, new_frames);
 
-    Logging::log_profile_snapshot(th_prof_data.prof_op_id,
-                                  ts,                        // timestamp
-                                  new_frames,                // <vector> new frames
-                                //   num_new,                   // number of new frames
-                                  num_exited,                // number of exited frames
-                                  num,                       // total number of frames
-                                  th_prof_data.omitted,      // array of timestamps of omitted snapshots
-                                  th_prof_data.omitted_num,  // number of omitted snapshots
-                                  tid);                      // thread id
+    // cout << tid
+    //      << ": bucket_count = " << cached_frames.bucket_count()
+    //      << ", size = " << cached_frames.size()
+    //      << ", load_factor = " << cached_frames.load_factor()
+    //      << ", max_load_factor = " << cached_frames.max_load_factor() << endl;
 
-    th_prof_data.omitted_num = 0;
-    th_prof_data.prev_timestamp = timestamp;
-    th_prof_data.prev_num = num;
+    Logging::log_profile_snapshot(prof_data_map[tid].md,
+                                  prof_data_map[tid].prof_op_id,
+                                  ts,                              // timestamp
+                                  new_frames,                      // <vector> new frames
+                                                                   //   num_new,                   // number of new frames
+                                  num_exited,                      // number of exited frames
+                                  num,                             // total number of frames
+                                  prof_data_map[tid].omitted,      // array of timestamps of omitted snapshots
+                                  prof_data_map[tid].omitted_num,  // number of omitted snapshots
+                                  tid);                            // thread id
+
+    prof_data_map[tid].omitted_num = 0;
+    prof_data_map[tid].prev_timestamp = timestamp;
+    prof_data_map[tid].prev_num = num;
     for (int i = 0; i < num; ++i)
-        th_prof_data.prev_frames_buffer[i] = frames_buffer[i];
+        prof_data_map[tid].prev_frames_buffer[i] = frames_buffer[i];
 }
 
 void Profiling::profiler_job_handler(void *data) {
     static std::atomic_int in_job_handler;
 
+    pid_t tid = AO_GETTID;
+    gettimeofday(&timestamp, NULL); 
+    long ts = ((long)timestamp.tv_sec*1000 + (long)timestamp.tv_usec/1000)%10000;
+    // std::cout << "Time: " << ts << ",  tid " << tid << ",  running? " << running << ",  prof_data_map[tid].running_p " << prof_data_map[tid].running_p << endl;
+
     if (in_job_handler) return;
-    if (!running || !th_prof_data.running) return;
+    // if (!running || !prof_data_map[tid].running_p) return;
+    if (!running) return;
 
     in_job_handler++;
     Profiling::profiler_record_frames(data);
@@ -143,11 +170,22 @@ void Profiling::profiler_signal_handler(int sigint, siginfo_t *siginfo, void *uc
 }
 
 void Profiling::profiling_start(pid_t tid) {
+    prof_data_map[tid].md = Context::get();
+    Logging::log_profile_entry(prof_data_map[tid].md,
+                               prof_data_map[tid].prof_op_id,
+                               tid,
+                               interval);
+    prof_data_map[tid].prev_num = 0;
+    prof_data_map[tid].omitted_num = 0;
+    prof_data_map[tid].running_p = true;
 
-    Logging::log_profile_entry(th_prof_data.prof_op_id, tid, interval);
-    th_prof_data.prev_num = 0;
-    th_prof_data.omitted_num = 0;
-    th_prof_data.running = true;
+    // int num = rb_profile_frames(0, sizeof(frames_buffer) / sizeof(VALUE), frames_buffer, lines_buffer);
+    // cout << "***** Current num frames: " << num << endl;
+
+    if(cached_frames.load_factor() > (cached_frames.max_load_factor())/2.0)
+        cached_frames.reserve(cached_frames.bucket_count() * 2);
+    else if (cached_frames.bucket_count() < 1024)
+        cached_frames.reserve(1024);
 
     if (!running) {
         // the signal is sent to the process and then one thread,
@@ -194,9 +232,13 @@ VALUE Profiling::profiling_stop(pid_t tid) {
         sigaction(SIGALRM, &sa, NULL);
     }
 
-    Logging::log_profile_exit(th_prof_data.prof_op_id, tid, th_prof_data.omitted, th_prof_data.omitted_num);
+    Logging::log_profile_exit(prof_data_map[tid].md,
+                              prof_data_map[tid].prof_op_id,
+                              tid,
+                              prof_data_map[tid].omitted,
+                              prof_data_map[tid].omitted_num);
 
-    th_prof_data.running = false;
+    prof_data_map[tid].running_p = false;
 
     return Qtrue;
 }
@@ -222,8 +264,12 @@ VALUE Profiling::profiling_run(VALUE self, VALUE rb_thread_val) {
 
     pid_t tid = AO_GETTID;
 
-    if (th_prof_data.running) return Qfalse;
-    th_prof_data.omitted_num = 0;
+    // cout << tid << " running? " << prof_data_map[tid].running_p << endl;
+
+    if (prof_data_map[tid].running_p) return Qfalse;
+    prof_data_map[tid].omitted_num = 0;
+
+    // cout << "starting profiling for tid " << tid << endl;
 
     profiling_start(tid);
     rb_ensure(reinterpret_cast<VALUE (*)(...)>(rb_yield), Qundef,
