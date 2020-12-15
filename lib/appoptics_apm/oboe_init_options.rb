@@ -165,7 +165,7 @@ module AppOpticsAPM
     end
 
     def validate_transform_service_name(service_name)
-      service_name = 'test_ssl_collector' if ENV['APPOPTICS_COLLECTOR'] == "sslcollector:12222"
+      service_name = 'test_ssl_collector' if ENV['APPOPTICS_COLLECTOR'] =~ /java-collector:1222/
       if service_name.empty?
         AppOpticsAPM.logger.error "[appoptics_apm/oboe_options] APPOPTICS_SERVICE_KEY problem. Service Name is missing"
         return false
