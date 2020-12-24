@@ -67,7 +67,8 @@ if defined?(AppOpticsAPM::Config)
   #
   # The default is 10 milliseconds, which means that the method call stack is
   # recorded every 10 milliseconds. Shorter intervals may give better insight,
-  # but will incur more overhead. The minimum interval is 1 millisecond.
+  # but will incur more overhead.
+  # The smallest recommended interval is 5 milliseconds.
   AppOpticsAPM::Config[:profiling_interval] = 10
 
   #

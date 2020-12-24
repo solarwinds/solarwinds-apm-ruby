@@ -19,7 +19,7 @@
 using namespace std;
 
 #define BUF_SIZE 2048
-#define PR_OTHER_THREAD -1
+#define PR_OTHER_THREAD 0
 
 #if !defined(AO_GETTID)
      #if defined(_WIN32)
@@ -41,7 +41,7 @@ class Profiling {
     static VALUE get_interval();
     static VALUE set_interval(VALUE self, VALUE interval);
     static VALUE getTid();
-    
+
     // This is used via rb_ensure and needs VALUE as a return type
     static VALUE profiling_stop(pid_t tid);
 
@@ -58,6 +58,9 @@ class Profiling {
                                  long ts);
     static void profiler_record_frames(void *data);
     static void send_omitted(pid_t tid, long ts);
+
+    // A handy function fo debugging
+    static void print_cached_frames();
 };
 
 extern "C" void Init_profiling(void);

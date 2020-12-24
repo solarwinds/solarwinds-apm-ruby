@@ -3,12 +3,13 @@
 
 module AppOpticsAPM
   class Profiling
-    CProfiler.set_interval(AppOpticsAPM::Config.profiling_interval)
 
     def self.run
-     return yield unless AppOpticsAPM::Config.profiling == :enabled && AppOpticsAPM.tracing?
+      # allow enabling and disabling and setting interval interactively
+      return yield unless AppOpticsAPM::Config.profiling == :enabled && AppOpticsAPM.tracing?
+      CProfiler.set_interval(AppOpticsAPM::Config.profiling_interval)
 
-     CProfiler.run(Thread.current) do
+      CProfiler.run(Thread.current) do
         # for some reason `return` is needed here
         # this is yielded by c-code, but why it needs `return` ... ????
         return yield
