@@ -24,10 +24,10 @@ void Init_RubyCallsFrames() {
     rb_define_singleton_method(cTest, "get_frames", reinterpret_cast<VALUE (*)(...)>(RubyCallsFrames::c_get_frames), 0);
 };
 
-TEST (Frames, extract_frame_info) {
+TEST (Frames, collect_frame_data) {
     rb_eval_string("TestMe::Snapshot::all_kinds");
     vector<FrameData> data;
-    Frames::extract_frame_info(test_frames, 1, data);
+    Frames::collect_frame_data(test_frames, 1, data);
 
     EXPECT_EQ("take_snapshot", data[0].method)
         << "method name incorrect";

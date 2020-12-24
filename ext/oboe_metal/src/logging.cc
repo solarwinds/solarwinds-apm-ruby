@@ -46,7 +46,7 @@ bool Logging::log_profile_exit(oboe_metadata_t* md, string &prof_op_id, pid_t ti
     return Logging::log_profile_event(event);
 }
 
-bool Logging::log_profile_snapshot(oboe_metadata_t* md, 
+bool Logging::log_profile_snapshot(oboe_metadata_t* md,
                                    string &prof_op_id,
                                    long timestamp,
                                    std::vector<FrameData> const &new_frames,
@@ -77,9 +77,9 @@ bool Logging::log_profile_event(Event *event) {
         event->addInfo((char *)"X-Trace", event->metadataString());
         event->sendProfiling();
 
-        // comment in oboe.cpp:
-        // event needs to be deleted, it is managed by swig %newobject
-        // !!! It needs to be deleted, tested it !!!
+        // see comment in oboe_api.cpp:
+        // "event needs to be deleted, it is managed by swig %newobject"
+        // !!! It needs to be deleted, I tested it !!!
         delete event;
         return true;
 }

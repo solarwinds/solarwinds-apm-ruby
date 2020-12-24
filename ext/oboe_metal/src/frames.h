@@ -6,11 +6,15 @@
 
 #include "profiling.h"
 
-extern thread_local unordered_map<VALUE, FrameData> cached_frames;
+extern thread_local unordered_map<VALUE, FrameData> th_cached_frames;
+
+extern unordered_map<VALUE, FrameData> cached_frames;
+extern mutex cached_frames_mutex;
 
 class Frames {
     public:
-    static int extract_frame_info(VALUE *frames_buffer, int num, vector<FrameData>&frame_data);
+    static int cache_frame(VALUE);
+    static int collect_frame_data(VALUE *frames_buffer, int num, vector<FrameData>&frame_data);
     static int remove_garbage(VALUE *frames_buffer, int num);
     static int num_matching(VALUE *frames_buffer, int num,
                        VALUE *prev_frames_buffer, int prev_num);

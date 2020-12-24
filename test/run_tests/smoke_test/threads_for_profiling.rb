@@ -48,22 +48,23 @@ end
 
 def massive_fun(temps)
   aa = Array.new
-  # 40.times do
+  4.times do
+  5.times do
     5.times do
-      5.times do
-        4.times do
-          temps.sort.reverse
-          aa << "it is too #{temps.shuffle!.first}"
-          aa.reverse.size
-          # puts "............................... #{aa.last} ......................."
-          aa.delete_if do |a|
-            a =~ /[l|r]/
-          end
-          # sleep 0.05
+      4.times do
+        temps.sort.reverse
+        aa << "it is too #{temps.shuffle!.first}"
+        aa.reverse.size
+        # puts "............................... #{aa.last} ......................."
+        aa.delete_if do |a|
+          a =~ /[l|r]/
         end
+        # sleep 0.01
       end
     end
-  # end
+  end
+  # sleep 0.01
+  end
 end
 
 class Hola
@@ -108,134 +109,70 @@ unless AppOpticsAPM::SDK.appoptics_ready?(10_000)
   exit false
 end
 
-# require 'get_process_mem'
-
-
 def do_stuff
+  AppOpticsAPM::Config[:profiling] = :enabled
+  AppOpticsAPM::Config[:profiling_interval] = 100
 
-  # puts "interval: #{AppOpticsAPM::Profiling.interval}"
-  # 1.times do
-  # AppOpticsAPM::SDK.trace(:all) do
-  n = 30
   threads = []
-  threads2 = []
-  3.times do |i|
-    threads[i] = Thread.new do
+
+  puts "Main tid: #{AppOpticsAPM::CProfiler.get_tid}"
+
+  AppOpticsAPM::SDK.start_trace("threads") do
+    AppOpticsAPM::Profiling.run do
       tid = AppOpticsAPM::CProfiler.get_tid
       puts tid
-      AppOpticsAPM::SDK.start_trace("thread_#{tid}") do
-        # 500_000_000.times do |j|
-          AppOpticsAPM::Profiling.run do
-            # if (j % 20_000_000 == 0)
-            #  mem = GetProcessMem.new
-              # puts "#{tid} Memory used : #{mem.mb.round(6)} MB"
-              # puts "#{tid} #{vm.chomp} #{rss.chomp}"
-            # end
-            # th1 = Thread.new do
-            #   # AppOpticsAPM::SDK.start_trace(:th_1) do
-            #   # AOProfiler.run do
-            #   puts "th1 id: #{Thread.current.__id__}"
-            #   puts "th1 tracing: #{AppOpticsAPM::Context.isValid}"
-            #
-            # (n*1).times do |i|
-            # 10.times do |i|
-            # puts "HaHaHa #{i}, #{Thread.current.object_id}" #if i%5 == 0
-            AppOpticsAPM::SDK.trace(:boo) do
-              HaHaHa.new.laughing
-              i+i
-              sleep 2
+
+      5.times do |i|
+        threads[i] = Thread.new do
+          AppOpticsAPM::SDK.start_trace("thread-#{i}") do
+            AppOpticsAPM::Profiling.run do
+              tid = AppOpticsAPM::CProfiler.get_tid
+              puts "2 - #{tid}, tracing? #{AppOpticsAPM.tracing?}"
+
+              AppOpticsAPM::SDK.trace(:boo) do
+                30.times do
+                  HaHaHa.new.laughing
+                  i+i
+                  # sleep 0.2
+                end
+              # start = Time.new
+              #   while true
+              #     time = Time.new
+              #     if time - start > 2
+              #       raise StandardError
+              #     end
+              #
+              #   end
+              # rescue StandardError
+              #   puts "*** done waiting ***"
+              end
             end
-            # end
-            #
-
-            # Kids.new.giggle
-            # HaHaHa.new.laughing
-            # Hola.my_fun
-
-            # puts "... main thread waiting ..."
-
-
-            # th1.join
-            # puts AppOpticsAPM::Context.toString
-            # puts AppOpticsAPM::XTrace.task_id(AppOpticsAPM::Context.toString)
           end
         end
-      # end
-    end
-  end
-  3.times do |i|
-    threads2[i] = Thread.new do
-      tid = AppOpticsAPM::CProfiler.get_tid
-      puts tid
-      AppOpticsAPM::SDK.start_trace("thread_#{tid}") do
-        # 500_000_000.times do |j|
-        AppOpticsAPM::Profiling.run do
-          # if (j % 20_000_000 == 0)
-          # mem = GetProcessMem.new
-          # puts "#{tid} Memory used : #{mem.mb.round(6)} MB"
-          # puts "#{tid} #{vm.chomp} #{rss.chomp}"
-          # end
-          # th1 = Thread.new do
-          #   # AppOpticsAPM::SDK.start_trace(:th_1) do
-          #   # AOProfiler.run do
-          #   puts "th1 id: #{Thread.current.__id__}"
-          #   puts "th1 tracing: #{AppOpticsAPM::Context.isValid}"
-          #
-          # (n*1).times do |i|
-          # 10.times do |i|
-          # puts "HaHaHa #{i}, #{Thread.current.object_id}" #if i%5 == 0
-          AppOpticsAPM::SDK.trace(:boo) do
-            HaHaHa.new.laughing
-            i+i
-            sleep 2
-          end
-          # end
-          #
 
-          # Kids.new.giggle
-          # HaHaHa.new.laughing
-          # Hola.my_fun
-
-          # puts "... main thread waiting ..."
-
-
-          # th1.join
-          # puts AppOpticsAPM::Context.toString
-          # puts AppOpticsAPM::XTrace.task_id(AppOpticsAPM::Context.toString)
-        end
       end
-      # end
+
+      AppOpticsAPM::SDK.trace(:boo_main) do
+        80.times do
+          HaHaHa.new.laughing
+          2+2
+        end
+      #   start = Time.new
+      #   while true
+      #     time = Time.new
+      #     if time - start > 2
+      #       raise StandardError
+      #     end
+      #
+      #   end
+      # rescue StandardError
+      #   puts "*** done waiting ***"
+      end
+      # sleep 0.2
+      threads.each { |th| th.join }
     end
+    puts AppopticsAPM::XTrace.task_id(AppopticsAPM::Context.toString)
   end
-  threads.each { |th| th.join }
-  threads2.each { |th| th.join }
 end
 
 do_stuff
-
-# BENCHMARK do_stuff with and without profiling
-#
-# profile = StackProf.run(mode: :wall, raw: true) do
-# n = 1_000
-# Benchmark.ips do |x|
-#   x.config(:time => 60, :warmup => 10)
-#   # x.report("warmup(10)") { AppOpticsAPM::Config.profiling_interval = 10; do_stuff }
-#   x.report("50        ") { AppOpticsAPM::Config.profiling_interval = 50; clear_all_traces; do_stuff }
-#   x.report("20        ") { AppOpticsAPM::Config.profiling_interval = 20; clear_all_traces; do_stuff }
-#   x.report("10        ") { AppOpticsAPM::Config.profiling_interval = 10; clear_all_traces; do_stuff }
-#   x.report("5         ") { AppOpticsAPM::Config.profiling_interval =  5; clear_all_traces; do_stuff }
-#   x.report("disabled  ") { AppOpticsAPM::Config.profiling = :disabled;   clear_all_traces; do_stuff }
-# end
-
-# end
-# puts profile.pretty_inspect
-
-# puts aa.pretty_inspect if defined? aa
-# duration = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start_time
-# puts "    >>>>> #{duration} <<<<<< "
-# sleep 0.5
-# traces = get_all_traces
-
-# print_traces traces
-# puts traces.pretty_inspect
-

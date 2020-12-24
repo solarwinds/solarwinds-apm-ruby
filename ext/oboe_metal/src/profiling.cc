@@ -31,7 +31,17 @@ typedef struct prof_data {
 } prof_data_t;
 
 unordered_map<pid_t, prof_data_t> prof_data_map;
-thread_local unordered_map<VALUE, FrameData> cached_frames;
+
+unordered_map<VALUE, FrameData> cached_frames;
+mutex cached_frames_mutex;
+
+// a handy function for debugging
+void Profiling::print_cached_frames() {
+    std::cout << "cached_frames contains:" << endl;
+    for (auto it = cached_frames.cbegin(); it != cached_frames.cend(); ++it)
+        std::cout << "           " << it->first << " - " << it->second.method << ":" << it->second.lineno << endl;  // cannot modify *it
+    std::cout << std::endl;
+}
 
 // TODO maybe use std::async for some stuff that doesn't read the frame info from Ruby
 void Profiling::profiler_record_frames(void *data) {
@@ -52,16 +62,13 @@ void Profiling::profiler_record_frames(void *data) {
         Profiling::process_snapshot(frames_buffer, num, tid, ts);
     }
 
-    if (getenv("AO_OTHERTHREADS")) {
-        // add this timestamp as omitted to other running threads that are profiled
-        for (pair<const pid_t, prof_data_t> &ele : prof_data_map) {
-            if (ele.second.running_p && ele.first != tid) {
-                // ele.second.omitted[ele.second.omitted_num] = ts;
-                // ele.second.omitted_num++;
-                frames_buffer[0] = PR_OTHER_THREAD;
-                Frames::print_raw_frame_info(frames_buffer[0]);
-                Profiling::process_snapshot(frames_buffer, 1, ele.first, ts);
-            }
+    // add this timestamp as omitted to other running threads that are profiled
+    for (pair<const pid_t, prof_data_t> &ele : prof_data_map) {
+        if (ele.second.running_p && ele.first != tid) {
+            // ele.second.omitted[ele.second.omitted_num] = ts;
+            // ele.second.omitted_num++;
+            frames_buffer[0] = PR_OTHER_THREAD;
+            Profiling::process_snapshot(frames_buffer, 1, ele.first, ts);
         }
     }
 }
@@ -96,8 +103,8 @@ void Profiling::process_snapshot(VALUE *frames_buffer, int num, pid_t tid, long 
     num_new = num - num_match;
 
     num_exited = prof_data_map[tid].prev_num - num_match;
-    
-    // cout << "Numbers: num: " << num << " num_match " << num_match << " num_new " 
+
+    // cout << "Numbers: num: " << num << " num_match " << num_match << " num_new "
     //      << num_new << " num_exited " << num_exited << endl;
 
     if (num_new == 0 && num_exited == 0) {
@@ -114,13 +121,7 @@ void Profiling::process_snapshot(VALUE *frames_buffer, int num, pid_t tid, long 
         return;
     }
 
-    Frames::extract_frame_info(frames_buffer, num_new, new_frames);
-
-    // cout << tid
-    //      << ": bucket_count = " << cached_frames.bucket_count()
-    //      << ", size = " << cached_frames.size()
-    //      << ", load_factor = " << cached_frames.load_factor()
-    //      << ", max_load_factor = " << cached_frames.max_load_factor() << endl;
+    Frames::collect_frame_data(frames_buffer, num_new, new_frames);
 
     Logging::log_profile_snapshot(prof_data_map[tid].md,
                                   prof_data_map[tid].prof_op_id,
@@ -143,11 +144,6 @@ void Profiling::process_snapshot(VALUE *frames_buffer, int num, pid_t tid, long 
 void Profiling::profiler_job_handler(void *data) {
     static std::atomic_int in_job_handler;
 
-    pid_t tid = AO_GETTID;
-    gettimeofday(&timestamp, NULL); 
-    long ts = ((long)timestamp.tv_sec*1000 + (long)timestamp.tv_usec/1000)%10000;
-    // std::cout << "Time: " << ts << ",  tid " << tid << ",  running? " << running << ",  prof_data_map[tid].running_p " << prof_data_map[tid].running_p << endl;
-
     if (in_job_handler) return;
     // if (!running || !prof_data_map[tid].running_p) return;
     if (!running) return;
@@ -161,10 +157,10 @@ void Profiling::profiler_signal_handler(int sigint, siginfo_t *siginfo, void *uc
     static std::atomic_int in_signal_handler{0};
 
     if (in_signal_handler) return;
-    if (!running) return;
+    // if (!running) return;
 
     in_signal_handler++;
-    rb_postponed_job_register_one(0, profiler_job_handler, (void *)0);
+    rb_postponed_job_register(0, profiler_job_handler, (void *)0);
     // TODO how can I *ensure* this gets reset?
     in_signal_handler--;
 }
@@ -179,13 +175,14 @@ void Profiling::profiling_start(pid_t tid) {
     prof_data_map[tid].omitted_num = 0;
     prof_data_map[tid].running_p = true;
 
-    // int num = rb_profile_frames(0, sizeof(frames_buffer) / sizeof(VALUE), frames_buffer, lines_buffer);
-    // cout << "***** Current num frames: " << num << endl;
-
-    if(cached_frames.load_factor() > (cached_frames.max_load_factor())/2.0)
+    // TODO make the following a function in frames.cc
+    {
+    lock_guard<mutex> guard(cached_frames_mutex);
+    if (cached_frames.load_factor() > (cached_frames.max_load_factor()) / 2.0)
         cached_frames.reserve(cached_frames.bucket_count() * 2);
     else if (cached_frames.bucket_count() < 1024)
         cached_frames.reserve(1024);
+    }
 
     if (!running) {
         // the signal is sent to the process and then one thread,
