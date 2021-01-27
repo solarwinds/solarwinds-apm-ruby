@@ -124,7 +124,7 @@ if success
     $CPPFLAGS << " #{ENV['CPPFLAGS']} -std=c++11 -pg -gdwarf-2 -I$$ORIGIN/../ext/oboe_metal/include -I$$ORIGIN/../ext/oboe_metal/src"
     # $CPPFLAGS << " #{ENV['CPPFLAGS']} -std=c++11 -I$$ORIGIN/../ext/oboe_metal/include"
     $LIBS << " #{ENV['LIBS']}"
-    $LDFLAGS << " #{ENV['LDFLAGS']} '-Wl,-rpath=$$ORIGIN/../ext/oboe_metal/lib'  -pg"
+    $LDFLAGS << " #{ENV['LDFLAGS']} '-Wl,-rpath=$$ORIGIN/../ext/oboe_metal/lib'  -pg -lrt"
     # $LDFLAGS << " #{ENV['LDFLAGS']} '-Wl,-rpath=$$ORIGIN/../ext/oboe_metal/lib'"
     $CXXFLAGS += " -std=c++11 "
 

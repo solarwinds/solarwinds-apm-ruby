@@ -3,12 +3,16 @@
 #include <string.h>
 
 #include "ruby/ruby.h"
+#include "ruby/debug.h"
 
 #include "test.h"
 #include "../src/frames.h"
+#include "../src/profiling.h"
 
 #include "gtest/gtest.h"
 // #include "gmock/gmock.h"
+
+extern unordered_map<VALUE, FrameData> cached_frames;
 
 static VALUE test_frames[BUF_SIZE];
 static int test_lines[BUF_SIZE];
@@ -22,10 +26,14 @@ VALUE RubyCallsFrames::c_get_frames() {
 void Init_RubyCallsFrames() {
     static VALUE cTest = rb_define_module("RubyCalls");
     rb_define_singleton_method(cTest, "get_frames", reinterpret_cast<VALUE (*)(...)>(RubyCallsFrames::c_get_frames), 0);
+    cached_frames.reserve(1024);
 };
 
 TEST (Frames, collect_frame_data) {
     rb_eval_string("TestMe::Snapshot::all_kinds");
+
+    int num = Frames::remove_garbage(test_frames, test_num);
+    
     vector<FrameData> data;
     Frames::collect_frame_data(test_frames, 1, data);
 
@@ -44,13 +52,7 @@ TEST(Frames, remove_garbage){
     // run some Ruby code and get a snapshot
     rb_eval_string("TestMe::Snapshot::all_kinds");
 
-    // for(int i = 0; i < test_num; i++)
-    //     Frames::print_raw_frame_info(test_frames[i]);
-    // cout << endl;
-
     int num = Frames::remove_garbage(test_frames, test_num);
-    // for(int i = 0; i < num; i++)
-    //     Frames::print_raw_frame_info(test_frames[i]);
 
     EXPECT_EQ(7, num)
         << "wrong number of expected frames after remove_garbage";
@@ -61,9 +63,33 @@ TEST(Frames, remove_garbage){
     int i = 0;
     for (i = 0; i < num; i++)
         for (int j = i + 1; j < num; j++)
-            if (test_frames[i] == test_frames[j]) break;
-    EXPECT_EQ(num, i)
-        << "not all repeated frames were removed";
+            EXPECT_NE(test_frames[i], test_frames[j])
+                << "not all repeated frames were removed";
+}
+
+TEST(Frames, cached_frames) {
+    cached_frames.clear();
+    // run some Ruby code and get a snapshot
+    rb_eval_string("TestMe::Snapshot::all_kinds");
+
+    for(int i = 0; i <test_num; i++)
+        Frames::print_raw_frame_info(test_frames[i]);
+
+    Frames::remove_garbage(test_frames, test_num);
+
+    // Check the expected size
+    EXPECT_EQ(8, cached_frames.size());
+
+    // check that each frame is cached
+    for(int i = 0; i < test_num; i++)
+        EXPECT_EQ(1, cached_frames.count(test_frames[i])); 
+
+    // repeat
+    rb_eval_string("TestMe::Snapshot::all_kinds");
+    Frames::remove_garbage(test_frames, test_num);
+    EXPECT_EQ(9, cached_frames.size()); // +1 for an extra main frame
+    for (int i = 0; i < test_num; i++)
+        EXPECT_EQ(1, cached_frames.count(test_frames[i])); 
 }
 
 TEST(Frames, num_matching) {

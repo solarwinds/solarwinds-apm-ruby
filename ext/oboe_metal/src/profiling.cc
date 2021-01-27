@@ -1,21 +1,33 @@
-// Copyright (c) 2020 SolarWinds, LLC.
+// Copyright (c) 2021 SolarWinds, LLC.
 // All rights reserved.
 
 #include "profiling.h"
-#include "logging.h"
-#include "frames.h"
 
+#include <ruby/debug.h>
+#include <signal.h>
+#include <time.h>
+
+#include <atomic>
+#include <mutex>
+#include <unordered_map>
+#include <vector>
+
+#include "frames.h"
+#include "logging.h"
+#include "oboe_api.hpp"
+
+
+#define TIMER_SIG 64           /* Our timer notification signal */
 
 static atomic_long running;
 
 // need to initialize here, hangs if it is done inside the signal handler
 // these are reused for every snapshot
-static struct timeval timestamp;
 static VALUE frames_buffer[BUF_SIZE];
 static int lines_buffer[BUF_SIZE];
-// static vector<FrameData> new_frames;
 
 long interval = 10;  // in milliseconds, initializing in case Ruby forgets to
+timer_t timerid;
 
 typedef struct prof_data {
     bool running_p = false;
@@ -23,7 +35,6 @@ typedef struct prof_data {
     string prof_op_id;
     pid_t tid;
 
-    struct timeval prev_timestamp;
     VALUE prev_frames_buffer[BUF_SIZE];
     int prev_num = 0;
     long omitted[BUF_SIZE];
@@ -32,41 +43,50 @@ typedef struct prof_data {
 
 unordered_map<pid_t, prof_data_t> prof_data_map;
 
-unordered_map<VALUE, FrameData> cached_frames;
-mutex cached_frames_mutex;
+long ts_now() {
+    struct timeval tv;
 
-// a handy function for debugging
-void Profiling::print_cached_frames() {
-    std::cout << "cached_frames contains:" << endl;
-    for (auto it = cached_frames.cbegin(); it != cached_frames.cend(); ++it)
-        std::cout << "           " << it->first << " - " << it->second.method << ":" << it->second.lineno << endl;  // cannot modify *it
-    std::cout << std::endl;
+    oboe_gettimeofday(&tv);
+    return (long)tv.tv_sec * 1000000 + (long)tv.tv_usec;
 }
 
-// TODO maybe use std::async for some stuff that doesn't read the frame info from Ruby
 void Profiling::profiler_record_frames(void *data) {
-
     pid_t tid = AO_GETTID;
-
-    gettimeofday(&timestamp, NULL);
-    long ts = (long)timestamp.tv_sec * 1000000 + (long)timestamp.tv_usec;
+    long ts = ts_now();
 
     // check if this thread is being profiled
     if (prof_data_map[tid].running_p) {
-        // exectues in the same thread as rb_postponed_job was called from
+        // executes in the same thread as rb_postponed_job was called from
+
         // get the frames
         // won't overrun frames buffer, because size is set in arg 2
         int num = rb_profile_frames(0, sizeof(frames_buffer) / sizeof(VALUE), frames_buffer, lines_buffer);
 
-        // std::async(std::launch::async, Profiling::process_snapshot, frames_buffer, num, tid, ts);
         Profiling::process_snapshot(frames_buffer, num, tid, ts);
     }
 
     // add this timestamp as omitted to other running threads that are profiled
     for (pair<const pid_t, prof_data_t> &ele : prof_data_map) {
         if (ele.second.running_p && ele.first != tid) {
-            // ele.second.omitted[ele.second.omitted_num] = ts;
-            // ele.second.omitted_num++;
+            frames_buffer[0] = PR_OTHER_THREAD;
+            Profiling::process_snapshot(frames_buffer, 1, ele.first, ts);
+        }
+    }
+}
+
+void Profiling::profiler_record_gc() {
+   pid_t tid = AO_GETTID;
+   long ts = ts_now();
+
+    // check if this thread is being profiled
+    if (prof_data_map[tid].running_p) {
+        frames_buffer[0] = PR_IN_GC;
+        Profiling::process_snapshot(frames_buffer, 1, tid, ts);
+    }
+
+    // add this timestamp as omitted to other running threads that are profiled
+    for (pair<const pid_t, prof_data_t> &ele : prof_data_map) {
+        if (ele.second.running_p && ele.first != tid) {
             frames_buffer[0] = PR_OTHER_THREAD;
             Profiling::process_snapshot(frames_buffer, 1, ele.first, ts);
         }
@@ -91,8 +111,8 @@ void Profiling::send_omitted(pid_t tid, long ts) {
 void Profiling::process_snapshot(VALUE *frames_buffer, int num, pid_t tid, long ts) {
     int num_new = 0;
     int num_exited = 0;
-    // TODO is this going to blow up, because it allocates memory?
     vector<FrameData> new_frames;
+
     num = Frames::remove_garbage(frames_buffer, num);
 
     // find the number of matching frames from the top
@@ -104,13 +124,9 @@ void Profiling::process_snapshot(VALUE *frames_buffer, int num, pid_t tid, long 
 
     num_exited = prof_data_map[tid].prev_num - num_match;
 
-    // cout << "Numbers: num: " << num << " num_match " << num_match << " num_new "
-    //      << num_new << " num_exited " << num_exited << endl;
-
     if (num_new == 0 && num_exited == 0) {
         prof_data_map[tid].omitted[prof_data_map[tid].omitted_num] = ts;
         prof_data_map[tid].omitted_num++;
-        prof_data_map[tid].prev_timestamp = timestamp;
 
         // the omitted buffer can fill up if the interval is small
         // and the stack doesn't change
@@ -127,7 +143,6 @@ void Profiling::process_snapshot(VALUE *frames_buffer, int num, pid_t tid, long 
                                   prof_data_map[tid].prof_op_id,
                                   ts,                              // timestamp
                                   new_frames,                      // <vector> new frames
-                                                                   //   num_new,                   // number of new frames
                                   num_exited,                      // number of exited frames
                                   num,                             // total number of frames
                                   prof_data_map[tid].omitted,      // array of timestamps of omitted snapshots
@@ -135,7 +150,6 @@ void Profiling::process_snapshot(VALUE *frames_buffer, int num, pid_t tid, long 
                                   tid);                            // thread id
 
     prof_data_map[tid].omitted_num = 0;
-    prof_data_map[tid].prev_timestamp = timestamp;
     prof_data_map[tid].prev_num = num;
     for (int i = 0; i < num; ++i)
         prof_data_map[tid].prev_frames_buffer[i] = frames_buffer[i];
@@ -145,69 +159,99 @@ void Profiling::profiler_job_handler(void *data) {
     static std::atomic_int in_job_handler;
 
     if (in_job_handler) return;
-    // if (!running || !prof_data_map[tid].running_p) return;
-    if (!running) return;
 
     in_job_handler++;
     Profiling::profiler_record_frames(data);
     in_job_handler--;
 }
 
+void profiler_gc_handler(void *data) {
+    static std::atomic_int in_gc_handler;
+    if (in_gc_handler) return;
+
+    in_gc_handler++;
+    Profiling::profiler_record_gc();
+    in_gc_handler--;
+}
+
 void Profiling::profiler_signal_handler(int sigint, siginfo_t *siginfo, void *ucontext) {
     static std::atomic_int in_signal_handler{0};
 
     if (in_signal_handler) return;
-    // if (!running) return;
 
     in_signal_handler++;
-    rb_postponed_job_register(0, profiler_job_handler, (void *)0);
+    if (rb_during_gc()) {
+        rb_postponed_job_register(0, profiler_gc_handler, (void *)0);
+    } else {
+        rb_postponed_job_register(0, profiler_job_handler, (void *)0);
+    }
     // TODO how can I *ensure* this gets reset?
     in_signal_handler--;
 }
 
 void Profiling::profiling_start(pid_t tid) {
     prof_data_map[tid].md = Context::get();
-    Logging::log_profile_entry(prof_data_map[tid].md,
-                               prof_data_map[tid].prof_op_id,
-                               tid,
-                               interval);
     prof_data_map[tid].prev_num = 0;
     prof_data_map[tid].omitted_num = 0;
     prof_data_map[tid].running_p = true;
 
-    // TODO make the following a function in frames.cc
-    {
-    lock_guard<mutex> guard(cached_frames_mutex);
-    if (cached_frames.load_factor() > (cached_frames.max_load_factor()) / 2.0)
-        cached_frames.reserve(cached_frames.bucket_count() * 2);
-    else if (cached_frames.bucket_count() < 1024)
-        cached_frames.reserve(1024);
-    }
+    Frames::reserve_cached_frames();
+
+    Logging::log_profile_entry(prof_data_map[tid].md,
+                               prof_data_map[tid].prof_op_id,
+                               tid,
+                               interval);
 
     if (!running) {
-        // the signal is sent to the process and then one thread,
+        // the signal is sent to the process and then to one thread,
         // timer/signal may already be running
         struct sigaction sa;
-        struct itimerval timer;
 
-        // TODO figure out the mask and threads thing
-        // TODO figure out what happens if there is another action for the same signal
+        // what's the mask?
+        // sa_mask : Additional set of signals to be blocked during execution of signal-catching function
+        // what happens if there is another action for the same signal?
         // => last one defined wins!
         // set up signal handler and timer
-        sa.sa_sigaction = profiler_signal_handler;
-        sa.sa_flags = SA_RESTART | SA_SIGINFO;
-        sigemptyset(&sa.sa_mask);
-        sigaction(SIGALRM, &sa, NULL);
 
-        timer.it_interval.tv_sec = 0;
-        timer.it_interval.tv_usec = interval * 1000;
-        timer.it_value = timer.it_interval;
-        setitimer(ITIMER_REAL, &timer, 0);
+        // TODO decide which timer to use
+        if (getenv("AO_SETITIMER")) {
+            struct itimerval timer;
+
+            sa.sa_sigaction = profiler_signal_handler;
+            sa.sa_flags = SA_RESTART | SA_SIGINFO;
+            sigemptyset(&sa.sa_mask);
+            sigaction(SIGALRM, &sa, NULL);
+
+            timer.it_interval.tv_sec = 0;
+            timer.it_interval.tv_usec = interval * 1000;
+            timer.it_value.tv_sec = timer.it_interval.tv_sec;
+            timer.it_value.tv_usec = timer.it_interval.tv_usec;
+            setitimer(ITIMER_REAL, &timer, 0);
+
+        } else {
+            // use create_timer created in Init_profiling instead of setitimer
+            struct itimerspec ts;
+
+            // TODO does sigaction need to be assigned each time or does it persist?
+            sa.sa_sigaction = profiler_signal_handler;
+            sa.sa_flags = SA_RESTART | SA_SIGINFO;
+            sigemptyset(&sa.sa_mask);
+            if (sigaction(TIMER_SIG, &sa, NULL) == -1)
+                perror("sigaction");
+
+            /* start timer  */
+            ts.it_interval.tv_sec = 0;
+            ts.it_interval.tv_nsec = interval * 1000000;
+            ts.it_value.tv_sec = 0;
+            ts.it_value.tv_nsec = interval * 1000000;
+
+            if (timer_settime(timerid, 0, &ts, NULL) == -1)
+                perror("timer_settime");
+
+            // TODO figure out how to handle eventual errors, what is perror()?
+        }
     }
-
     running++;
-
-    // return Qtrue;
 }
 
 VALUE Profiling::profiling_stop(pid_t tid) {
@@ -216,17 +260,28 @@ VALUE Profiling::profiling_stop(pid_t tid) {
     running--;
 
     if (!running) {
-        // no threads are profiling -> stop global timer/signal
-        struct sigaction sa;
-        struct itimerval timer;
+        if (getenv("AO_SETITIMER")) {
+            // no threads are profiling -> stop global timer/signal
+            struct sigaction sa;
+            struct itimerval timer;
 
-        memset(&timer, 0, sizeof(timer));
-        setitimer(ITIMER_REAL, &timer, 0);
+            memset(&timer, 0, sizeof(timer));
+            setitimer(ITIMER_REAL, &timer, 0);
 
-        sa.sa_handler = SIG_IGN;
-        sa.sa_flags = SA_RESTART;
-        sigemptyset(&sa.sa_mask);
-        sigaction(SIGALRM, &sa, NULL);
+            sa.sa_handler = SIG_IGN;
+            sa.sa_flags = SA_RESTART;
+            sigemptyset(&sa.sa_mask);
+            sigaction(SIGALRM, &sa, NULL);
+        } else {
+            // stop the timer, needs both (value and interval) set to 0
+            struct itimerspec ts;
+            ts.it_value.tv_sec = 0;
+            ts.it_value.tv_nsec = 0;
+            ts.it_interval.tv_sec = 0;
+            ts.it_interval.tv_nsec = 0;
+
+            timer_settime(timerid, 0, &ts, NULL);
+        }
     }
 
     Logging::log_profile_exit(prof_data_map[tid].md,
@@ -248,7 +303,7 @@ VALUE Profiling::set_interval(VALUE self, VALUE val) {
     // TODO remove this condition once the fileReporter is changed to return -1 for oboe_get_profiling_interval()
     if (!getenv("APPOPTICS_REPORTER") || strcmp(getenv("APPOPTICS_REPORTER"), "file") != 0)
         interval = max(interval, (long)oboe_get_profiling_interval());
-    // cout << "--- Profiling interval set to " << interval << endl;
+
     return Qtrue;
 }
 
@@ -281,6 +336,9 @@ VALUE Profiling::getTid() {
     return INT2NUM(tid);
 }
 
+
+// TODO what's with the atfork stuff???
+// ____ copied from stackprof, do I need it?
 static void
 stackprof_atfork_prepare(void) {
     // cout << "Parent getting ready" << endl;
@@ -309,6 +367,20 @@ stackprof_atfork_child(void) {
 }
 
 extern "C" void Init_profiling(void) {
+
+    if (!getenv("AO_SETITIMER")) {
+        struct sigevent sev;
+
+        sev.sigev_value.sival_ptr = &timerid;
+        sev.sigev_notify = SIGEV_SIGNAL; /* Notify via signal */
+        sev.sigev_signo = SIGRTMAX;      /* Notify using this signal */
+
+        if (timer_create(CLOCK_REALTIME, &sev, &timerid) == -1) {
+            perror("timer_create");
+            // exit(1);
+        }
+    }
+
     // creates Ruby Module: AppOpticsAPM::CProfiler
     static VALUE rb_mAppOpticsAPM = rb_define_module("AppOpticsAPM");
     static VALUE rb_mCProfiler = rb_define_module_under(rb_mAppOpticsAPM, "CProfiler");
@@ -324,6 +396,7 @@ extern "C" void Init_profiling(void) {
                    stackprof_atfork_child);
 
     // TODO better understand the gc marking
+    // ____ needed???
     // ____ does it last forever or is it reset after a gc?
     for (int i = 0; i < BUF_SIZE; i++) rb_gc_mark(frames_buffer[i]);
 }

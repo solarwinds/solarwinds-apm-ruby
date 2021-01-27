@@ -36,6 +36,10 @@ RUN apt-get update \
        zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# gtest and gmock setup
+RUN cd /usr/src/gtest && cmake CMakeLists.txt && make && cp *.a /usr/lib && cd -
+RUN cd /usr/src/gmock && cmake CMakeLists.txt && make && cp *.a /usr/lib && cd
+
 # rbenv setup
 # use rbenv-default-gems to automatically install bundler for each ruby version
 RUN  git clone https://github.com/rbenv/rbenv.git ~/.rbenv \
@@ -54,7 +58,6 @@ RUN . ~/.profile \
     && cd /root/.rbenv/plugins/ruby-build && git pull && cd - \
     && rbenv install 2.4.5 \
     && rbenv install 2.5.5 \
-    && rbenv install 2.6.4 \
     && rbenv install 2.6.5 \
     && rbenv install 2.7.0
 #    && rbenv install jruby-9.1.16.0
@@ -105,5 +108,4 @@ RUN apt-get update && \
 
 RUN groupadd -r memcached && useradd --no-log-init
 
-
-CMD /bin/bash
+CMD ["/bin/bash"]

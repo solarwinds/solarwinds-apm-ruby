@@ -1,13 +1,13 @@
-// Copyright (c) 2020 SolarWinds, LLC.
+// Copyright (c) 2021 SolarWinds, LLC.
 // All rights reserved.
 
 #include "logging.h"
 
-// TODO refactor to pass in metadata
 Event *Logging::createEvent(oboe_metadata_t* md, string &prof_op_id, bool entry_event) {
-    // oboe_metadata_t* md = Context::get();
+    // startTrace does not add "Edge", we need to keep track of edges separately
+    // from the trace metadata for profiling
+    Event *event = Event::startTrace(md);
 
-    Event *event = Event::startTrace(md); // startTrace does not add "Edge"
     if (entry_event) {
         event->addSpanRef(md);
     } else {
@@ -28,12 +28,13 @@ bool Logging::log_profile_entry(oboe_metadata_t* md, string &prof_op_id, pid_t t
 
     struct timeval tv;
     oboe_gettimeofday(&tv);
-    event->addInfo((char *)"Timestamp_u", (long)((long)tv.tv_sec * 1000000 + (long)tv.tv_usec));
+    event->addInfo((char *)"Timestamp_u", (long)tv.tv_sec * 1000000 + (long)tv.tv_usec);
 
     return Logging::log_profile_event(event);
 }
 
-bool Logging::log_profile_exit(oboe_metadata_t* md, string &prof_op_id, pid_t tid, long *omitted, int num_omitted) {
+bool Logging::log_profile_exit(oboe_metadata_t *md, string &prof_op_id, pid_t tid,
+                               long *omitted, int num_omitted) {
     Event *event = Logging::createEvent(md, prof_op_id);
     event->addInfo((char *)"Label", "exit");
     event->addInfo((char *)"TID", (long)tid);

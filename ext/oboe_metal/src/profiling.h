@@ -1,25 +1,23 @@
-// Copyright (c) 2020 SolarWinds, LLC.
+// Copyright (c) 2021 SolarWinds, LLC.
 // All rights reserved.
 
 #ifndef PROFILING_H
 #define PROFILING_H
 
-#include <ruby/ruby.h>
-#include <ruby/debug.h>
-
-#include <atomic>
 #include <signal.h>
-#include <mutex>
-#include <thread>
-#include <unordered_map>
-#include <vector>
 
-#include "oboe_api.hpp"
+#include <ruby/ruby.h>
 
 using namespace std;
 
 #define BUF_SIZE 2048
-#define PR_OTHER_THREAD 0
+
+// these definitions are based on the assumption that there are no
+// frames with VALUE == 1 or VALUE == 2 in Ruby
+// profiling wont blow up if there are, because there is also a check to see
+// if the stack has size == 1 when assuming these frames
+#define PR_OTHER_THREAD 1
+#define PR_IN_GC 2
 
 #if !defined(AO_GETTID)
      #if defined(_WIN32)
@@ -57,10 +55,8 @@ class Profiling {
                                  pid_t tid,
                                  long ts);
     static void profiler_record_frames(void *data);
+    static void profiler_record_gc();
     static void send_omitted(pid_t tid, long ts);
-
-    // A handy function fo debugging
-    static void print_cached_frames();
 };
 
 extern "C" void Init_profiling(void);

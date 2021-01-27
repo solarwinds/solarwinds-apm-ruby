@@ -26,14 +26,7 @@ Automatic tracing and metrics for Ruby applications. Get started at appoptics.co
   s.extra_rdoc_files = ['LICENSE']
 
   s.files = `git ls-files`.split("\n").reject { |f| f.match(%r{^(test|gemfiles)/}) }
-  s.files += ['ext/oboe_metal/src/frames.cc',
-              'ext/oboe_metal/src/frames.h',
-              'ext/oboe_metal/src/logging.cc',
-              'ext/oboe_metal/src/logging.h',
-              'ext/oboe_metal/src/profiling.cc',
-              'ext/oboe_metal/src/profiling.h',
-              'ext/oboe_metal/src/init_appoptics_apm.cc',
-              'ext/oboe_metal/src/oboe.h',
+  s.files += ['ext/oboe_metal/src/oboe.h',
               'ext/oboe_metal/src/oboe_api.cpp',
               'ext/oboe_metal/src/oboe_api.hpp',
               'ext/oboe_metal/src/oboe_debug.h',
