@@ -1,20 +1,20 @@
-// Copyright (c) 2020 SolarWinds, LLC.
+// Copyright (c) 2021 SolarWinds, LLC.
 // All rights reserved.
 
 #ifndef LOGGING_H
 #define LOGGING_H
 
-#include <iostream>
-#include <sstream>
+#include "oboe_api.hpp"
 
-#include "profiling.h"
+using namespace std;
 
 extern "C" int oboe_gettimeofday(struct timeval *tv);
 
 class Logging {
    public:
     static bool log_profile_entry(oboe_metadata_t* md, string &prof_op_id, pid_t tid, long interval);
-    static bool log_profile_exit(oboe_metadata_t* md, string &prof_op_id, pid_t tid, long *omitted, int num_omitted);
+    static bool log_profile_exit(oboe_metadata_t *md, string &prof_op_id, pid_t tid,
+                                 long *omitted, int num_omitted);
     static bool log_profile_snapshot(oboe_metadata_t *md,
                                      string &prof_op_id,
                                      long timestamp,

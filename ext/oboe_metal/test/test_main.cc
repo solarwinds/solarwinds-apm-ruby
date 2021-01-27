@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
-#include "gmock/gmock.h"
-#include "ruby/ruby.h"
+// #include "gmock/gmock.h"
+#include <ruby/ruby.h>
 #include "../src/frames.h"
 #include "test.h"
 

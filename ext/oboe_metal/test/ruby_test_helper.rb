@@ -17,7 +17,6 @@ class TestMe
       def all_kinds
         begin
           Teddy.new.sing do
-            # Teddy.newobj do
             take_snapshot
           end
         rescue => e

@@ -25,7 +25,7 @@ def get_all_traces
     []
   end
 end
-AppOpticsAPM::Config[:sample_rate] = 1000000
+AppOpticsAPM::Config[:sample_rate] = 1000000 if defined? AppOpticsAPM
 
 def print_traces(traces, more_keys = [])
   return unless traces.is_a?(Array) # so that in case the traces are sent to the collector, tests will fail but not barf
@@ -99,42 +99,73 @@ class HaHaHa
 end
 
 # AppOpticsAPM::SDK.trace_method(HaHaHa, :laughing)
-AppOpticsAPM::SDK.trace_method(Kids, :giggle)
-AppOpticsAPM::SDK.trace_method(Hola, :my_fun)
+AppOpticsAPM::SDK.trace_method(Kids, :giggle) if defined? AppOpticsAPM
+AppOpticsAPM::SDK.trace_method(Hola, :my_fun) if defined? AppOpticsAPM
 
-AppOpticsAPM::Config.profiling = :enabled
+AppOpticsAPM::Config.profiling = :enabled if defined? AppOpticsAPM
+AppOpticsAPM::Config[:profiling_interval] = 1 if defined? AppOpticsAPM
 
 unless AppOpticsAPM::SDK.appoptics_ready?(10_000)
   puts "aborting!!! Agent not ready after 10 seconds"
   exit false
+end if defined? AppOpticsAPM
+
+
+class A
+  def initialize
+    pow
+    self.class.newobj
+    math
+    # Array(1..100).reverse
+    # File.open("log.txt", "w") { |f| f.write "#{Time.now} - timestamped!!!\n" }
+
+  end
+
+  def pow
+    2 ** 100
+  end
+
+  def self.newobj
+    Object.new
+    Object.new
+  end
+
+  def math
+    2.times do
+      # print "."
+      2 + 3 * 4 ^ 5 / 6
+    end
+  end
 end
 
 def do_stuff
-  AppOpticsAPM::Config[:profiling] = :enabled
-  AppOpticsAPM::Config[:profiling_interval] = 100
 
   threads = []
 
   puts "Main tid: #{AppOpticsAPM::CProfiler.get_tid}"
 
-  AppOpticsAPM::SDK.start_trace("threads") do
-    AppOpticsAPM::Profiling.run do
-      tid = AppOpticsAPM::CProfiler.get_tid
-      puts tid
+  # AppOpticsAPM::SDK.start_trace("threads") do
+  #   AppOpticsAPM::Profiling.run do
+  #     tid = AppOpticsAPM::CProfiler.get_tid
+  #     puts tid
 
-      5.times do |i|
-        threads[i] = Thread.new do
-          AppOpticsAPM::SDK.start_trace("thread-#{i}") do
-            AppOpticsAPM::Profiling.run do
-              tid = AppOpticsAPM::CProfiler.get_tid
-              puts "2 - #{tid}, tracing? #{AppOpticsAPM.tracing?}"
+  5.times do |i|
+    if i.odd?
+      threads << Thread.new do
+        sleep 0.1
+        AppOpticsAPM::SDK.start_trace("thread-#{i}") do
+          AppOpticsAPM::Profiling.run do
+            tid = AppOpticsAPM::CProfiler.get_tid
+            puts "2 - #{tid}, tracing? #{AppOpticsAPM.tracing?}"
 
-              AppOpticsAPM::SDK.trace(:boo) do
-                30.times do
-                  HaHaHa.new.laughing
-                  i+i
-                  # sleep 0.2
-                end
+            AppOpticsAPM::SDK.trace(:boo) do
+              1_000_000.times do
+                # File.open("foo_#{i}.txt", 'w') { |f| f.write(Time.now) }
+                A.new
+                # HaHaHa.new.laughing
+                # i+i
+                # sleep 0.2
+              end
               # start = Time.new
               #   while true
               #     time = Time.new
@@ -145,34 +176,71 @@ def do_stuff
               #   end
               # rescue StandardError
               #   puts "*** done waiting ***"
-              end
             end
           end
         end
-
+        # sleep 0.2
       end
+    end
 
-      AppOpticsAPM::SDK.trace(:boo_main) do
-        80.times do
-          HaHaHa.new.laughing
-          2+2
-        end
-      #   start = Time.new
-      #   while true
-      #     time = Time.new
-      #     if time - start > 2
-      #       raise StandardError
-      #     end
-      #
+  end
+
+      # AppOpticsAPM::SDK.trace(:boo_main) do
+      #   120.times do
+      #     File.open('foo.txt', 'w') { |f| f.write(Time.now) }
+      #     # HaHaHa.new.laughing
+      #     # 2+2
+      #     # A.new
       #   end
-      # rescue StandardError
-      #   puts "*** done waiting ***"
-      end
+      # #   start = Time.new
+      # #   while true
+      # #     time = Time.new
+      # #     if time - start > 2
+      # #       raise StandardError
+      # #     end
+      # #
+      # #   end
+      # # rescue StandardError
+      # #   puts "*** done waiting ***"
+      # end
       # sleep 0.2
       threads.each { |th| th.join }
     end
-    puts AppopticsAPM::XTrace.task_id(AppopticsAPM::Context.toString)
+#     puts AppopticsAPM::XTrace.task_id(AppopticsAPM::Context.toString)
+#   end
+# end
+
+# do_stuff
+
+
+def do_this
+  name = ENV['AO_SETITIMER'] ? 'setitimer' : 'timer_create'
+  1.times do
+    AppOpticsAPM::SDK.start_trace(name) do
+
+      # profile = StackProf.run(mode: :wall, interval: 20_000, raw: true) do
+      start = Time.now
+      AppOpticsAPM::Profiling.run do
+      # sleep 0.5
+      # 200_000.times do
+      1_000_000.times do
+        # sleep 0.01
+        A.new
+      end
+      puts "Time spent profiling #{Time.now - start} seconds"
+    end
+      # return profile
+  end
+  # sleep 10
   end
 end
 
 do_stuff
+# profile = do_this
+# result = StackProf::Report.new(profile)
+#
+# puts
+# puts result.data[:raw_timestamp_deltas]
+# puts
+# result.print_text
+# puts

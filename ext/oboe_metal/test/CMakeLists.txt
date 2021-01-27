@@ -14,13 +14,13 @@ find_package(GMock REQUIRED)
 include_directories(
   ${GTEST_INCLUDE_DIRS}
   ../src/
-  /root/.rbenv/versions/2.6.5/include/ruby-2.6.0/
-  /root/.rbenv/versions/2.6.5/include/ruby-2.6.0/x86_64-linux/
+  /root/.rbenv/versions/2.6.4/include/ruby-2.6.0/
+  /root/.rbenv/versions/2.6.4/include/ruby-2.6.0/x86_64-linux/
   )
 
 link_directories(
   /usr/lib/
-  /root/.rbenv/versions/2.6.5/lib/
+  /root/.rbenv/versions/2.6.4/lib/
   ../../../lib/
   ../lib
 )
@@ -28,7 +28,7 @@ link_directories(
 set (sources
   test_main.cc
   frames_test.cc
-  ../src/profiling.cc
+  # ../src/profiling.cc
   ../src/frames.cc
   ../src/logging.cc
 #   ../src/oboe_swig_wrap.cc
