@@ -31,24 +31,24 @@ Rake::TestTask.new do |t|
 
     if Rails::VERSION::MAJOR == 5
       t.test_files = FileList["test/frameworks/rails#{Rails::VERSION::MAJOR}x_test.rb"] +
-                     FileList["test/frameworks/rails#{Rails::VERSION::MAJOR}x_api_test.rb"]
+        FileList["test/frameworks/rails#{Rails::VERSION::MAJOR}x_api_test.rb"]
     elsif Rails::VERSION::MAJOR == 6
       t.test_files = FileList['test/frameworks/rails5x_test.rb'] +
-                     FileList['test/frameworks/rails5x_api_test.rb']
+        FileList['test/frameworks/rails5x_api_test.rb']
     else
       t.test_files = FileList["test/frameworks/rails#{Rails::VERSION::MAJOR}x_test.rb"]
     end
 
   when /frameworks/
     t.test_files = FileList['test/frameworks/sinatra*_test.rb'] +
-                   FileList['test/frameworks/padrino*_test.rb'] +
-                   FileList['test/frameworks/grape*_test.rb']
+      FileList['test/frameworks/padrino*_test.rb'] +
+      FileList['test/frameworks/grape*_test.rb']
   when /libraries/
     t.test_files = FileList['test/support/*_test.rb'] +
-                   FileList['test/reporter/*_test.rb'] +
-                   FileList['test/instrumentation/*_test.rb'] +
-                   FileList['test/profiling/*_test.rb'] -
-                   ['test/instrumentation/twitter-cassandra_test.rb']
+      FileList['test/reporter/*_test.rb'] +
+      FileList['test/instrumentation/*_test.rb'] +
+      FileList['test/profiling/*_test.rb'] -
+      ['test/instrumentation/twitter-cassandra_test.rb']
   when /instrumentation_mocked/
     # WebMock is interfering with other tests, so these have to run separately
     t.test_files = FileList['test/mocked/*_test.rb']
@@ -56,12 +56,12 @@ Rake::TestTask.new do |t|
     t.test_files = FileList['test/noop/*_test.rb']
   when /unit/
     t.test_files = FileList['test/unit/*_test.rb'] +
-                   FileList['test/unit/*/*_test.rb']
+      FileList['test/unit/*/*_test.rb']
   end
 
   if defined?(JRUBY_VERSION)
     t.ruby_opts << ['-J-javaagent:/usr/local/tracelytics/tracelyticsagent.jar']
-    end
+  end
 end
 
 
@@ -80,7 +80,7 @@ task :docker, :environment do
   os = arg2 || 'ubuntu'
 
   Dir.chdir('test/run_tests')
-  exec("docker-compose run --service-ports --name ruby_appoptics_#{os} ruby_appoptics_#{os} /code/ruby-appoptics/test/run_tests/ruby_setup.sh bash")
+  exec("docker-compose down -v --remove-orphans && docker-compose run --service-ports --name ruby_appoptics_#{os} ruby_appoptics_#{os} /code/ruby-appoptics/test/run_tests/ruby_setup.sh bash")
 end
 
 desc 'Stop all containers that were started for testing and debugging'
@@ -99,10 +99,10 @@ task :fetch_ext_deps do
   swig_version = %x{swig -version} rescue ''
   swig_valid_version = swig_version.scan(/swig version [34].\d*.\d*/i)
   if swig_valid_version.empty?
-      $stderr.puts '== ERROR ================================================================='
-      $stderr.puts "Could not find required swig version > 3.0.8, found #{swig_version.inspect}"
-      $stderr.puts 'Please install swig "> 3.0.8" and try again.'
-      $stderr.puts '=========================================================================='
+    $stderr.puts '== ERROR ================================================================='
+    $stderr.puts "Could not find required swig version > 3.0.8, found #{swig_version.inspect}"
+    $stderr.puts 'Please install swig "> 3.0.8" and try again.'
+    $stderr.puts '=========================================================================='
     raise
   else
     $stderr.puts "+++++++++++ Using #{swig_version.strip.split("\n")[0]}"
@@ -113,10 +113,15 @@ task :fetch_ext_deps do
   oboe_s3_dir = "https://s3-us-west-2.amazonaws.com/rc-files-t2/c-lib/#{oboe_version}"
   ext_src_dir = File.expand_path('ext/oboe_metal/src')
 
+  # remove all oboe* files, they may hang around because of name changes
+  # from oboe* to oboe_api*
+  Dir.glob(File.join(ext_src_dir, 'oboe*')).each { |file| File.delete(file) }
+
   # VERSION is used by extconf.rb to download the correct liboboe when installing the gem
   remote_file = File.join(oboe_s3_dir, 'VERSION')
   local_file = File.join(ext_src_dir, 'VERSION')
-  puts "fetching #{remote_file} to #{local_file}"
+  puts "fetching #{remote_file}"
+  puts "      to #{local_file}"
   open(remote_file, 'rb') do |rf|
     content = rf.read
     File.open(local_file, 'wb') { |f| f.puts content }
@@ -125,12 +130,24 @@ task :fetch_ext_deps do
 
   # oboe and bson header files
   FileUtils.mkdir_p(File.join(ext_src_dir, 'bson'))
-    %w(oboe.h oboe.hpp oboe_debug.h oboe.i bson/bson.h bson/platform_hacks.h).each do |filename|
-    # %w(oboe.h oboe_debug.h bson/bson.h bson/platform_hacks.h).each do |filename|
+  files = %w(oboe_debug.h bson/bson.h bson/platform_hacks.h)
+
+  if ENV['OBOE_WIP']
+    wip_src_dir = File.expand_path('../oboe/liboboe')
+    FileUtils.cp(File.join(wip_src_dir, 'oboe_api.cpp'), ext_src_dir)
+    FileUtils.cp(File.join(wip_src_dir, 'oboe_api.hpp'), ext_src_dir)
+    FileUtils.cp(File.join(wip_src_dir, 'oboe.h'), ext_src_dir)
+    FileUtils.cp(File.join(wip_src_dir, 'swig', 'oboe.i'), ext_src_dir)
+  else
+    files += ['oboe.h', 'oboe_api.hpp', 'oboe_api.cpp', 'oboe.i']
+  end
+
+  files.each do |filename|
     remote_file = File.join(oboe_s3_dir, 'include', filename)
     local_file = File.join(ext_src_dir, filename)
 
-    puts "fetching #{remote_file} to #{local_file}"
+    puts "fetching #{remote_file}"
+    puts "      to #{local_file}"
     open(remote_file, 'rb') do |rf|
       content = rf.read
       File.open(local_file, 'wb') { |f| f.puts content }
@@ -138,12 +155,12 @@ task :fetch_ext_deps do
   end
 
   FileUtils.cd(ext_src_dir) do
-    system('swig -c++ -ruby -module oboe_metal oboe.i')
+    system('swig -c++ -ruby -module oboe_metal -o oboe_swig_wrap.cc oboe.i')
     FileUtils.rm('oboe.i')
   end
 end
 
-  task :fetch => :fetch_ext_deps
+task :fetch => :fetch_ext_deps
 
 desc "Build the gem's c extension"
 task :compile do
@@ -152,8 +169,8 @@ task :compile do
 
     pwd      = Dir.pwd
     ext_dir  = File.expand_path('ext/oboe_metal')
-    final_so = File.expand_path('lib/oboe_metal.so')
-    so_file  = File.expand_path('ext/oboe_metal/oboe_metal.so')
+    final_so = File.expand_path('lib/libappoptics_apm.so')
+    so_file  = File.expand_path('ext/oboe_metal/libappoptics_apm.so')
 
     Dir.chdir ext_dir
     # ENV['APPOPTICS_FROM_S3'] = 'true'
@@ -170,7 +187,7 @@ task :compile do
     else
       Dir.chdir(pwd)
       puts '!! Extension failed to build (see above). Have the required binary and header files been fetched?'
-      puts '!! Try the tasks in this order: clean > fetch_ext_deps > compile.'
+      puts '!! Try the tasks in this order: clean > fetch > compile.'
     end
   else
     puts '== Nothing to do under JRuby.'
@@ -183,7 +200,7 @@ task :clean do
     pwd     = Dir.pwd
     ext_dir = File.expand_path('ext/oboe_metal')
     symlinks = [
-      File.expand_path('lib/oboe_metal.so'),
+      File.expand_path('lib/libappoptics_apm.so'),
       File.expand_path('ext/oboe_metal/lib/liboboe.so'),
       File.expand_path('ext/oboe_metal/lib/liboboe-1.0.so.0')
     ]
@@ -194,7 +211,7 @@ task :clean do
     Dir.chdir ext_dir
     sh '/usr/bin/env make clean' if File.exist? 'Makefile'
 
-    FileUtils.rm_f 'src/oboe_wrap.cxx'
+    FileUtils.rm_f 'src/oboe_swig_wrap.cc'
     Dir.chdir pwd
   else
     puts '== Nothing to do under JRuby.'
@@ -208,7 +225,7 @@ task :distclean do
     ext_dir = File.expand_path('ext/oboe_metal')
     mkmf_log = File.expand_path('ext/oboe_metal/mkmf.log')
     symlinks = [
-      File.expand_path('lib/oboe_metal.so'),
+      File.expand_path('lib/libappoptics_apm.so'),
       File.expand_path('ext/oboe_metal/lib/liboboe.so'),
       File.expand_path('ext/oboe_metal/lib/liboboe-1.0.so.0')
     ]

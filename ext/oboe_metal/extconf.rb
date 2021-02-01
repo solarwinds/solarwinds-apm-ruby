@@ -8,6 +8,16 @@ require 'rbconfig'
 require 'open-uri'
 require 'no_proxy_fix'
 
+CONFIG['warnflags'] = CONFIG['warnflags'].gsub(/-Wdeclaration-after-statement/, '')
+                        .gsub(/-Wimplicit-function-declaration/, '')
+                        .gsub(/-Wimplicit-int/, '')
+                        .gsub(/-Wno-tautological-compare/, '')
+                        .gsub(/-Wno-self-assign/, '')
+                        .gsub(/-Wno-parentheses-equality/, '')
+                        .gsub(/-Wno-constant-logical-operand/, '')
+                        .gsub(/-Wno-cast-function-type/, '')
+init_mkmf(CONFIG)
+
 ext_dir = File.expand_path(File.dirname(__FILE__))
 
 # Check if we're running in JRuby
@@ -77,7 +87,7 @@ while retries > 0
       $stderr.puts 'Download of the c-extension for the appoptics_apm gem failed.'
       $stderr.puts 'appoptics_apm will not instrument the code. No tracing will occur.'
       $stderr.puts 'Contact support@appoptics.com if the problem persists.'
-      $stderr.puts "error:\n#{e.message}"
+      $stderr.puts "error: #{ao_item}\n#{e.message}"
       $stderr.puts '==================================================================='
       create_makefile('oboe_noop', 'noop')
     end
@@ -107,11 +117,21 @@ if success
     $libs = append_library($libs, 'stdc++')
 
     $CFLAGS << " #{ENV['CFLAGS']}"
-    $CPPFLAGS << " #{ENV['CPPFLAGS']}"
+    # $CPPFLAGS << " #{ENV['CPPFLAGS']} -std=c++11"
+    # TODO for debugging: -pg -gdwarf-2, remove for production
+    # $CPPFLAGS << " #{ENV['CPPFLAGS']} -std=c++11 -pg -gdwarf-2 -I$$ORIGIN/../ext/oboe_metal/include -I$$ORIGIN/../ext/oboe_metal/src"
+    $CPPFLAGS << " #{ENV['CPPFLAGS']} -std=c++11 -I$$ORIGIN/../ext/oboe_metal/include"
     $LIBS << " #{ENV['LIBS']}"
-    $LDFLAGS << " #{ENV['LDFLAGS']} '-Wl,-rpath=$$ORIGIN/../ext/oboe_metal/lib'"
+    $LDFLAGS << " #{ENV['LDFLAGS']} '-Wl,-rpath=$$ORIGIN/../ext/oboe_metal/lib'  -pg -lrt"
+    # $LDFLAGS << " #{ENV['LDFLAGS']} '-Wl,-rpath=$$ORIGIN/../ext/oboe_metal/lib'"
+    $CXXFLAGS += " -std=c++11 "
 
-    create_makefile('oboe_metal', 'src')
+    # ____ include debug info, comment out when not debugging
+    # ____ -pg -> profiling info for gprof
+    # CONFIG["debugflags"] = "-ggdb3 -pg"
+    # CONFIG["optflags"] = "-O0"
+
+    create_makefile('libappoptics_apm', 'src')
 
   else
     $stderr.puts   '== ERROR ========================================================='
