@@ -40,7 +40,7 @@ if defined?(AppOpticsAPM::Config)
   # http://<username>:<password>@<proxyHost>:<proxyPort> for a proxy server that
   # requires basic authentication.
   #
-  # Note that while HTTP is the only type of connection supported), the traffic
+  # Note that while HTTP is the only type of connection supported, the traffic
   # to AppOptics is still encrypted using SSL/TLS.
   #
   # It is recommended to configure the proxy in this file or as APPOPTICS_PROXY
