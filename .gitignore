@@ -9,11 +9,9 @@
 .*byebug*
 .bundle
 .env
-.github
 .irb_history
 .irbrc
 .ruby-version
-.travis
 .vagrant
 .yardoc
 builds
@@ -32,7 +30,7 @@ ext/oboe_metal/src/oboe_api.cpp
 ext/oboe_metal/src/oboe_api.hpp
 ext/oboe_metal/src/oboe_debug.h
 ext/oboe_metal/src/oboe_wrap.cxx
-ext/oboe_metal/src/oboe_swig_wrap.cxx
+ext/oboe_metal/src/oboe_swig_wrap.cc
 ext/oboe_metal/test
 gemfiles/vendor*
 log

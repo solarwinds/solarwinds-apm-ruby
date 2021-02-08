@@ -71,8 +71,10 @@ task :docker_tests, :environment do
   os = arg2 || 'ubuntu'
 
   Dir.chdir('test/run_tests')
-  exec("docker-compose run --service-ports --name ruby_appoptics_#{os} ruby_appoptics_#{os} /code/ruby-appoptics/test/run_tests/ruby_setup.sh test")
+  exec("docker-compose down -v --remove-orphans && docker-compose run --service-ports --name ruby_appoptics_#{os} ruby_appoptics_#{os} /code/ruby-appoptics/test/run_tests/ruby_setup.sh test")
 end
+
+task :docker_test => :docker_tests
 
 desc 'Start docker container for testing and debugging, accepts: alpine, debian, centos as args, default: ubuntu'
 task :docker, :environment do
@@ -110,7 +112,7 @@ task :fetch_ext_deps do
 
   # The c-lib version is different from the gem version
   oboe_version = ENV['OBOE_VERSION'] || 'latest'
-  oboe_s3_dir = "https://s3-us-west-2.amazonaws.com/rc-files-t2/c-lib/#{oboe_version}"
+  oboe_s3_dir = "https://rc-files-t2.s3-us-west-2.amazonaws.com/c-lib/#{oboe_version}"
   ext_src_dir = File.expand_path('ext/oboe_metal/src')
 
   # remove all oboe* files, they may hang around because of name changes
@@ -122,10 +124,19 @@ task :fetch_ext_deps do
   local_file = File.join(ext_src_dir, 'VERSION')
   puts "fetching #{remote_file}"
   puts "      to #{local_file}"
-  open(remote_file, 'rb') do |rf|
-    content = rf.read
-    File.open(local_file, 'wb') { |f| f.puts content }
-    puts "!!!!!!! C-Lib VERSION: #{content.strip} !!!!!!!!"
+
+  if RUBY_VERSION < '2.5.0'
+    open(remote_file, 'rb') do |rf|
+      content = rf.read
+      File.open(local_file, 'wb') { |f| f.puts content }
+      puts "!!!!!!! C-Lib VERSION: #{content.strip} !!!!!!!!"
+    end
+  else
+    URI.open(remote_file, 'rb') do |rf|
+      content = rf.read
+      File.open(local_file, 'wb') { |f| f.puts content }
+      puts "!!!!!!! C-Lib VERSION: #{content.strip} !!!!!!!!"
+    end
   end
 
   # oboe and bson header files
@@ -148,9 +159,16 @@ task :fetch_ext_deps do
 
     puts "fetching #{remote_file}"
     puts "      to #{local_file}"
-    open(remote_file, 'rb') do |rf|
-      content = rf.read
-      File.open(local_file, 'wb') { |f| f.puts content }
+    if RUBY_VERSION < '2.5.0'
+      open(remote_file, 'rb') do |rf|
+        content = rf.read
+        File.open(local_file, 'wb') { |f| f.puts content }
+      end
+    else
+      URI.open(remote_file, 'rb') do |rf|
+        content = rf.read
+        File.open(local_file, 'wb') { |f| f.puts content }
+      end
     end
   end
 
