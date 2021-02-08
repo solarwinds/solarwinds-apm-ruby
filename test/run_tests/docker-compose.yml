@@ -52,9 +52,15 @@ x-ao-shared: &ao-shared
 #       - ../../../graphql-ruby-clone/:/code/graphql-ruby
 #       - /Users/maiaengeli/workspace/repos/grpc:/grpc_ruby
   depends_on:
-    - ao_ruby_wait
+    - ao-ruby-rabbitmq
+    - ao-ruby-mysql
+    - ao-ruby-mongo
+    - ao-ruby-postgres
   links:
-    - ao_ruby_wait
+    - ao-ruby-rabbitmq
+    - ao-ruby-mysql
+    - ao-ruby-mongo
+    - ao-ruby-postgres
   stdin_open: true
   tty: true
 
@@ -129,10 +135,14 @@ services:
 
   ao-ruby-mysql:
     container_name: ao-ruby-mysql
-    image: mysql:5.7.13
+    image: mysql:5.7.33
+    command: --init-file /data/application/init.sql
+    volumes:
+      - ./init.sql:/data/application/init.sql
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
       - MYSQL_ROOT_PASSWORD=admin
+
 
   ao-ruby-mongo:
     container_name: ao-ruby-mongo

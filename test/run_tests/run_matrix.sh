@@ -34,7 +34,7 @@ test_file_path="test/instrumentation/graphql_test.rb"
 declare -a test_gem_versions=("1.7.4" "1.7.7" "1.7.14" "1.8.0" "1.8.17" "1.9.0" "1.9.19" "1.10.0" "1.10.1" "1.10.2")
 
 ## ruby versions
-declare -a ruby_versions=("2.7.0" "2.6.4" "2.5.5" "2.4.5")
+declare -a ruby_versions=("2.7.0" "2.6.5" "2.5.5" "2.4.5")
 #declare -a ruby_versions=("2.7.0")
 
 ## Setup and run tests

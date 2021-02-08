@@ -52,6 +52,11 @@ cd "$( dirname "$0" )/../.."
 mapfile -t input2 < <(test/run_tests/read_travis_yml.rb .travis.yml)
 current_ruby=""
 
+time=$(date "+%Y%m%d_%H%M")
+export TEST_RUNS_FILE_NAME="log/testrun_"$time".log"
+
+echo $TEST_RUNS_FILE_NAME
+
 ## Setup and run tests
 for index in ${!input2[*]} ;
 do
@@ -71,12 +76,26 @@ do
     current_ruby=${args[0]}
     echo
     echo "Installing gems ... for $(ruby -v)"
-    bundle update # --quiet
+    if [[ "$BUNDLE_GEMFILE" == *"gemfiles/frameworks.gemfile"* || "$BUNDLE_GEMFILE" == *"gemfiles/rails42.gemfile"* ]]
+    then
+      echo "*** using bundler 1.17.3 with $BUNDLE_GEMFILE ***"
+      bundle _1.17.3_ update # --quiet
+    else
+      echo "*** using default bundler with $BUNDLE_GEMFILE ***"
+      bundle update # --quiet
+    fi
     bundle exec rake clean fetch compile
   else
     echo
     echo "Installing gems ... for $(ruby -v)"
-    bundle update # --quiet
+    if [[ "$BUNDLE_GEMFILE" == *"gemfiles/frameworks.gemfile"* || "$BUNDLE_GEMFILE" == *"gemfiles/rails42.gemfile"* ]]
+    then
+      echo "*** using bundler 1.17.3 with $BUNDLE_GEMFILE ***"
+      bundle _1.17.3_ update # --quiet
+    else
+      echo "*** using default bundler with $BUNDLE_GEMFILE ***"
+      bundle update # --quiet
+    fi
   fi
 
   if [ "$?" -eq 0 ]; then
@@ -98,6 +117,10 @@ do
     exit
   fi
 done
+
+echo ""
+echo "--- SUMMARY ------------------------------"
+egrep '===|failures|FAIL|ERROR,' $TEST_RUNS_FILE_NAME
 
 rbenv local $RUBY
 cd -

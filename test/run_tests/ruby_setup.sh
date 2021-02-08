@@ -15,12 +15,12 @@ cd /code/ruby-appoptics/
 rm -f gemfiles/*.lock
 #rm -f .ruby-version
 
-rbenv global 2.5.5
-
-echo "Installing gems ..."
-bundle install # --quiet
-
-bundle exec rake clean fetch compile
+#rbenv global 2.5.5
+#
+#echo "Installing gems ..."
+#bundle install # --quiet
+#
+#bundle exec rake clean fetch compile
 
 echo "Starting services ..."
 ## start postgres
@@ -41,7 +41,10 @@ fi
 
 ## add table for tests in mysql
 # sorry for the warning about providing the password on the commandline
-mysql -e 'create database travis_ci_test;' -h$MYSQL_HOST -p$MYSQL_ROOT_PASSWORD
+# changed to using init.sql
+#
+# mysql -e 'create database travis_ci_test;' -h$MYSQL_HOST -p$MYSQL_ROOT_PASSWORD
+
 
 ## we also want to use this file to setup the env without running all the tests
 if [ "$1" == "test" ]; then
