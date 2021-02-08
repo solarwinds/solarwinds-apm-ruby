@@ -20,7 +20,7 @@ begin
       require '/usr/local/tracelytics/tracelyticsagent.jar'
       require 'joboe_metal'
     elsif RUBY_PLATFORM =~ /linux/
-      require_relative './oboe_metal.so'
+      require_relative './libappoptics_apm.so'
       require 'appoptics_apm/oboe_init_options'
       require 'oboe_metal.rb'  # sets AppOpticsAPM.loaded = true if successful
     else

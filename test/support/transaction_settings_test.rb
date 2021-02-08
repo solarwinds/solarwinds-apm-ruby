@@ -164,7 +164,7 @@ describe 'TransactionSettingsTest' do
     it 'sends the sample_rate and tracing_mode' do
       AppOpticsAPM::Config[:tracing_mode] = :disabled
       AppOpticsAPM::Config[:sample_rate] = 123456
-      AppOpticsAPM::Context.expects(:getDecisions).with('', AO_TRACING_DISABLED, 123456).returns([0,0,0,0,0,0,'','',0]).once
+      AppOpticsAPM::Context.expects(:getDecisions).with('', AO_TRACING_DISABLED, 123456).returns([0,0,0,0,0,0,0,0,'','',0]).once
 
       AppOpticsAPM::TransactionSettings.new('')
     end

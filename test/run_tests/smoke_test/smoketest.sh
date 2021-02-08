@@ -10,7 +10,7 @@ unset APPOPTICS_FROM_S3
 # when defining the gemfile via BUNDLE_GEMFILE
 # export BUNDLE_GEMFILE=$path/Gemfile
 
-for version in 2.7.0 2.6.4 2.5.5 2.4.5
+for version in 2.7.0 2.6.5 2.5.5 2.4.5
 do
   printf "\n=== $version ===\n"
   rbenv local $version

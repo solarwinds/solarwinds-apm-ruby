@@ -22,15 +22,16 @@ x-ao-env: &ao-env
   APPOPTICS_TOKEN_BUCKET_CAPACITY: 10000
   APPOPTICS_TOKEN_BUCKET_RATE: 10000
 
-#  BUNDLE_GEMFILE: "gemfiles/libraries.gemfile"
+  BUNDLE_GEMFILE: "gemfiles/libraries.gemfile"
   DOCKER_MYSQL_PASS: "admin"
-#  DOCKER_PSQL_PASS: "docker"
+  DOCKER_PSQL_PASS: "docker"
   MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
   MYSQL_ROOT_PASSWORD: "admin"
   MYSQL_HOST: "ao-ruby-mysql"
-  OBOE_VERSION: "10.0.0"
+  OBOE_VERSION: "10.1.0"
+  POSTGRES_PASSWORD: "docker"
   POSTGRES_USER: "docker"
-  PSQL_HOST: "ao_ruby_postgres"
+  PSQL_HOST: "ao-ruby-postgres"
   RUBY_ENV: "test"
   TEST_RUNS_TO_FILE: "true"
 #    - SIMPLECOV_COVERAGE=true
@@ -38,8 +39,6 @@ x-ao-env: &ao-env
 #    - APPOPTICS_DEBUG_LEVEL=6
 
 x-ao-shared: &ao-shared
-  cpu_quota: 50000
-  cpu_period: 100000
   mem_limit: 1G
   logging:
     options:
@@ -53,9 +52,15 @@ x-ao-shared: &ao-shared
 #       - ../../../graphql-ruby-clone/:/code/graphql-ruby
 #       - /Users/maiaengeli/workspace/repos/grpc:/grpc_ruby
   depends_on:
-    - ao_ruby_wait
+    - ao-ruby-rabbitmq
+    - ao-ruby-mysql
+    - ao-ruby-mongo
+    - ao-ruby-postgres
   links:
-    - ao_ruby_wait
+    - ao-ruby-rabbitmq
+    - ao-ruby-mysql
+    - ao-ruby-mongo
+    - ao-ruby-postgres
   stdin_open: true
   tty: true
 
@@ -130,21 +135,26 @@ services:
 
   ao-ruby-mysql:
     container_name: ao-ruby-mysql
-    image: mysql:5.7.13
+    image: mysql:5.7.33
+    command: --init-file /data/application/init.sql
+    volumes:
+      - ./init.sql:/data/application/init.sql
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
       - MYSQL_ROOT_PASSWORD=admin
+
 
   ao-ruby-mongo:
     container_name: ao-ruby-mongo
     image: mongo:3.4
 
-  ao_ruby_postgres:
-    container_name: ao_ruby_postgres
+  ao-ruby-postgres:
+    container_name: ao-ruby-postgres
     image: postgres:latest
     environment:
       POSTGRES_DB: "travis_ci_test"
       POSTGRES_USER: "docker"
+      POSTGRES_PASSWORD: "docker"
     volumes:
       - ./postgres_init.sh:/docker-entrypoint-initdb.d/init-user-db.sh
 
@@ -155,10 +165,10 @@ services:
       - ao-ruby-rabbitmq
       - ao-ruby-mysql
       - ao-ruby-mongo
-      - ao_ruby_postgres
+      - ao-ruby-postgres
     links:
       - ao-ruby-rabbitmq
       - ao-ruby-mysql
       - ao-ruby-mongo
-      - ao_ruby_postgres
+      - ao-ruby-postgres
 

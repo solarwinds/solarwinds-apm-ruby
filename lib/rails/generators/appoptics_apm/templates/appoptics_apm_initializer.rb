@@ -10,7 +10,9 @@
 
 if defined?(AppOpticsAPM::Config)
 
-  # :service_key, :hostname_alias, and :debug_level are startup settings and can't be changed afterwards.
+  # :service_key, :hostname_alias, :http_proxy, and :debug_level
+  # are startup settings and can't be changed afterwards.
+
   #
   # Set APPOPTICS_SERVICE_KEY
   # This setting will be overridden if APPOPTICS_SERVICE_KEY is set as an environment variable.
@@ -28,6 +30,28 @@ if defined?(AppOpticsAPM::Config)
   # AppOpticsAPM::Config[:hostname_alias] = 'alias_name'
 
   #
+  # Set Proxy for AppOptics
+  # This setting will be overridden if APPOPTICS_PROXY is set as an environment variable.
+  #
+  # Please configure http_proxy if a proxy needs to be used to communicate with
+  # the AppOptics backend.
+  # The format should either be http://<proxyHost>:<proxyPort> for a proxy
+  # server that does not require authentication, or
+  # http://<username>:<password>@<proxyHost>:<proxyPort> for a proxy server that
+  # requires basic authentication.
+  #
+  # Note that while HTTP is the only type of connection supported, the traffic
+  # to AppOptics is still encrypted using SSL/TLS.
+  #
+  # It is recommended to configure the proxy in this file or as APPOPTICS_PROXY
+  # environment variable. However, the agent's underlying network library will
+  # use a system-wide proxy defined in the environment variables grpc_proxy,
+  # https_proxy or http_proxy if no AppOptics-specific configuration is set.
+  # Please refer to gRPC environment variables for more information.
+  #
+  # AppOpticsAPM::Config[:http_proxy] = http://<proxyHost>:<proxyPort>
+
+  #
   # Set APPOPTICS_DEBUG_LEVEL
   # This setting will be overridden if APPOPTICS_DEBUG_LEVEL is set as an environment variable.
   #
@@ -36,6 +60,7 @@ if defined?(AppOpticsAPM::Config)
   # Values out of range (< -1 or > 6) are ignored and the log level is set to the default (info).
   #
   AppOpticsAPM::Config[:debug_level] = 3
+
   #
   # :debug_level will be used in the c-extension of the gem and also mapped to the
   # Ruby logger as DISABLED, FATAL, ERROR, WARN, INFO, or DEBUG

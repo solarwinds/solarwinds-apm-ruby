@@ -55,7 +55,7 @@ module AppOpticsAPM
         args << options.timestamp
       end
 
-      metrics, sample, @rate, @source, @type, @auth, @status_msg, @auth_msg, @status =
+      metrics, sample, @rate, @source, @bucket_rate, @bucket_cap, @type, @auth, @status_msg, @auth_msg, @status =
         AppOpticsAPM::Context.getDecisions(*args)
 
       if @status > AO_TRACING_DECISIONS_OK

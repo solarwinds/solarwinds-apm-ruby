@@ -8,6 +8,16 @@ require 'rbconfig'
 require 'open-uri'
 require 'no_proxy_fix'
 
+CONFIG['warnflags'] = CONFIG['warnflags'].gsub(/-Wdeclaration-after-statement/, '')
+                        .gsub(/-Wimplicit-function-declaration/, '')
+                        .gsub(/-Wimplicit-int/, '')
+                        .gsub(/-Wno-tautological-compare/, '')
+                        .gsub(/-Wno-self-assign/, '')
+                        .gsub(/-Wno-parentheses-equality/, '')
+                        .gsub(/-Wno-constant-logical-operand/, '')
+                        .gsub(/-Wno-cast-function-type/, '')
+init_mkmf(CONFIG)
+
 ext_dir = File.expand_path(File.dirname(__FILE__))
 
 # Check if we're running in JRuby
@@ -21,7 +31,7 @@ ao_include = File.join(ext_dir, 'src')
 # Download the appropriate liboboe from S3(via rake for testing) or files.appoptics.com (production)
 version = File.read(File.join(ao_include, 'VERSION')).chomp
 if ENV['APPOPTICS_FROM_S3'].to_s.downcase == 'true'
-  ao_path = File.join('https://s3-us-west-2.amazonaws.com/rc-files-t2/c-lib/', version)
+  ao_path = File.join('https://rc-files-t2.s3-us-west-2.amazonaws.com/c-lib/', version)
   puts 'Fetching c-lib from S3'
 else
   ao_path = File.join('https://files.appoptics.com/c-lib', version)
@@ -29,7 +39,13 @@ end
 
 ao_arch = 'x86_64'
 if File.exist?('/etc/alpine-release')
-  version = open('/etc/alpine-release').read.chomp
+
+  if RUBY_VERSION < '2.5.0'
+    version = open('/etc/alpine-release').read.chomp
+  else
+    version = URI.open('/etc/alpine-release').read.chomp
+  end
+
   ao_arch =
     if Gem::Version.new(version) < Gem::Version.new('3.9')
       'alpine-libressl-x86_64'
@@ -48,13 +64,16 @@ success = false
 while retries > 0
   begin
     # download
-    # TODO warning: calling URI.open via Kernel#open is deprecated, call URI.open directly or use URI#open
-    # ____ URI.open is not supported in 2.4.5, let's use open until we can deprecate 2.4.5
-    download = open(ao_item, 'rb')
+    if RUBY_VERSION < '2.5.0'
+      download = open(ao_item, 'rb')
+      checksum = open(ao_checksum_item, 'r').read.chomp
+    else
+      download = URI.open(ao_item, 'rb')
+      checksum = URI.open(ao_checksum_item, 'r').read.chomp
+    end
     IO.copy_stream(download, clib)
-
-    checksum = open(ao_checksum_item, 'r').read.chomp
     clib_checksum = Digest::SHA256.file(clib).hexdigest
+    download.close
 
     # verify_checksum
     if clib_checksum != checksum
@@ -77,7 +96,7 @@ while retries > 0
       $stderr.puts 'Download of the c-extension for the appoptics_apm gem failed.'
       $stderr.puts 'appoptics_apm will not instrument the code. No tracing will occur.'
       $stderr.puts 'Contact support@appoptics.com if the problem persists.'
-      $stderr.puts "error:\n#{e.message}"
+      $stderr.puts "error: #{ao_item}\n#{e.message}"
       $stderr.puts '==================================================================='
       create_makefile('oboe_noop', 'noop')
     end
@@ -107,11 +126,21 @@ if success
     $libs = append_library($libs, 'stdc++')
 
     $CFLAGS << " #{ENV['CFLAGS']}"
-    $CPPFLAGS << " #{ENV['CPPFLAGS']}"
+    # $CPPFLAGS << " #{ENV['CPPFLAGS']} -std=c++11"
+    # TODO for debugging: -pg -gdwarf-2, remove for production
+    # $CPPFLAGS << " #{ENV['CPPFLAGS']} -std=c++11 -pg -gdwarf-2 -I$$ORIGIN/../ext/oboe_metal/include -I$$ORIGIN/../ext/oboe_metal/src"
+    $CPPFLAGS << " #{ENV['CPPFLAGS']} -std=c++11 -I$$ORIGIN/../ext/oboe_metal/include"
     $LIBS << " #{ENV['LIBS']}"
-    $LDFLAGS << " #{ENV['LDFLAGS']} '-Wl,-rpath=$$ORIGIN/../ext/oboe_metal/lib'"
+    $LDFLAGS << " #{ENV['LDFLAGS']} '-Wl,-rpath=$$ORIGIN/../ext/oboe_metal/lib'  -pg -lrt"
+    # $LDFLAGS << " #{ENV['LDFLAGS']} '-Wl,-rpath=$$ORIGIN/../ext/oboe_metal/lib'"
+    $CXXFLAGS += " -std=c++11 "
 
-    create_makefile('oboe_metal', 'src')
+    # ____ include debug info, comment out when not debugging
+    # ____ -pg -> profiling info for gprof
+    # CONFIG["debugflags"] = "-ggdb3 -pg"
+    # CONFIG["optflags"] = "-O0"
+
+    create_makefile('libappoptics_apm', 'src')
 
   else
     $stderr.puts   '== ERROR ========================================================='

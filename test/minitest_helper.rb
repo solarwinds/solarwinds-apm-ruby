@@ -29,7 +29,11 @@ require 'minitest/debugger' if ENV['DEBUG']
 # `./run_tests.sh 2>&1 | tee -a test/docker_test.log` does not
 if ENV['TEST_RUNS_TO_FILE']
   FileUtils.mkdir_p('log')  # create if it doesn't exist
-  $out_file = File.new("log/test_runs_#{Time.now.strftime("%Y_%m_%d")}.log", 'a')
+  if ENV['TEST_RUNS_FILE_NAME']
+    $out_file = File.new(ENV['TEST_RUNS_FILE_NAME'], 'a')
+  else
+     $out_file = File.new("log/test_direct_runs_#{Time.now.strftime("%Y%m%d_%H_%M")}.log", 'a')
+  end
   $out_file.sync = true
   $stdout.sync = true
   def $stdout.write(string)
