@@ -11,13 +11,6 @@ unless defined?(JRUBY_VERSION)
     # prepend HttpMock to check if appoptics is in the ancestors chain
     # resorting to this solution because a method instrumented by using :prepend
     # can't be mocked with mocha
-    module HttpMock
-      def request(*args, &block)
-        res = super
-        res['ancestors'] = self.class.ancestors
-        return res
-      end
-    end
 
     def setup
       AppOpticsAPM::Context.clear
@@ -29,9 +22,6 @@ unless defined?(JRUBY_VERSION)
       AppOpticsAPM::Config[:sample_rate] = 1000000
       AppOpticsAPM::Config[:tracing_mode] = :enabled
       AppOpticsAPM::Config[:blacklist] = []
-
-      # prepending outside of tests didn't work when using run_tests.sh
-      Net::HTTP.prepend(HTTPMockedTest::HttpMock)
     end
 
     def test_tracing_sampling
@@ -44,8 +34,8 @@ unless defined?(JRUBY_VERSION)
 
           res = http.request(request)
           # did we instrument?
-          assert res['ancestors'].include?('AppOpticsAPM::Inst::NetHttp')
-          # is the x-trace correct, it does not change during this call
+          assert http.class.ancestors.include?(AppOpticsAPM::Inst::NetHttp)
+
           assert request['x-trace']
           assert res['x-trace']
           assert AppOpticsAPM::XTrace.sampled?(res['x-trace'])
@@ -69,8 +59,8 @@ unless defined?(JRUBY_VERSION)
 
             res = http.request(request) # Net::HTTPResponse object
             # did we instrument?
-            assert res['ancestors'].include?('AppOpticsAPM::Inst::NetHttp')
-            # is the x-trace correct, it does not change during this call
+            assert http.class.ancestors.include?(AppOpticsAPM::Inst::NetHttp)
+
             assert request['x-trace']
             assert res['x-trace']
             refute AppOpticsAPM::XTrace.sampled?(res.to_hash['x-trace'])
@@ -89,7 +79,7 @@ unless defined?(JRUBY_VERSION)
         request = Net::HTTP::Get.new(uri)
         res = http.request(request) # Net::HTTPResponse object
 
-        assert res['ancestors'].include?('AppOpticsAPM::Inst::NetHttp')
+        assert http.class.ancestors.include?(AppOpticsAPM::Inst::NetHttp)
         refute request['x-trace']
         # the result may have an x-trace from the outbound call and that is ok
       end
@@ -104,10 +94,9 @@ unless defined?(JRUBY_VERSION)
             request = Net::HTTP::Get.new(uri)
             res = http.request(request) # Net::HTTPResponse object
             # did we instrument?
-            assert res['ancestors'].include?('AppOpticsAPM::Inst::NetHttp')
-            # is the x-trace correct, it does not change during this call
+            assert http.class.ancestors.include?(AppOpticsAPM::Inst::NetHttp)
             refute request['x-trace']
-            # the result should either not have an x-trace or
+            # the result should not have an x-trace
             refute res['x-trace']
           end
         end
@@ -125,8 +114,7 @@ unless defined?(JRUBY_VERSION)
             request = Net::HTTP::Get.new(uri)
             res = http.request(request) # Net::HTTPResponse object
             # did we instrument?
-            assert res['ancestors'].include?('AppOpticsAPM::Inst::NetHttp')
-            # is the x-trace correct, it does not change during this call
+            assert http.class.ancestors.include?(AppOpticsAPM::Inst::NetHttp)
             refute request['x-trace']
             # the result should either not have an x-trace or
             refute res['x-trace']
@@ -145,8 +133,7 @@ unless defined?(JRUBY_VERSION)
           request['Custom'] = 'specialvalue'
           res = http.request(request) # Net::HTTPResponse object
           # did we instrument?
-          assert res['ancestors'].include?('AppOpticsAPM::Inst::NetHttp')
-          # is the x-trace correct, it does not change during this call
+          assert http.class.ancestors.include?(AppOpticsAPM::Inst::NetHttp)
           assert request['x-trace']
           assert res['x-trace']
           assert_equal 'specialvalue', request['Custom']
