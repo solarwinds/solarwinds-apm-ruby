@@ -10,7 +10,7 @@ env:
   - DBTYPE=mysql2
 
 rvm:
-  - 3.0.0 # appoptics_apm instrumentation not ready yet
+#  - 3.0.0 # appoptics_apm instrumentation not ready yet
   - 2.7.0
   - 2.6.5
   - 2.5.5

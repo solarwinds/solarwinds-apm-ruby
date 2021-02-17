@@ -57,8 +57,6 @@ if AppOpticsAPM::Config[:nethttp][:enabled]
                 resp.delete('X-Trace') # if xtrace
               else
                 xtrace = xtrace[0] if xtrace && xtrace.is_a?(Array)
-                # TODO: what happens if the xtrace is not valid???
-                xtrace = "abc"
                 AppOpticsAPM::XTrace.continue_service_context(context, xtrace)
               end
 
