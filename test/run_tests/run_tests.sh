@@ -16,9 +16,6 @@
 export BUNDLE_ALLOW_BUNDLER_DEPENDENCY_CONFLICTS=true
 RUBY=`rbenv local`
 
-cp -r /code/ruby-appoptics /code/ruby-appoptics_test
-cd /code/ruby-appoptics_test/test/run_tests
-
 ## Read opts
 num=-1
 while getopts ":r:g:e:n:" opt; do
@@ -50,6 +47,9 @@ The values for -r, -g, and -e have to correspond to configurations in the .travi
       ;;
   esac
 done
+
+cp -r /code/ruby-appoptics /code/ruby-appoptics_test
+cd /code/ruby-appoptics_test/test/run_tests
 
 ## Read travis configuration
 cd "$( dirname "$0" )/../.."
