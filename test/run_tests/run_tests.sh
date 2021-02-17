@@ -15,6 +15,10 @@
 
 export BUNDLE_ALLOW_BUNDLER_DEPENDENCY_CONFLICTS=true
 RUBY=`rbenv local`
+
+cp -r /code/ruby-appoptics /code/ruby-appoptics_test
+cd /code/ruby-appoptics_test/test/run_tests
+
 ## Read opts
 num=-1
 while getopts ":r:g:e:n:" opt; do
