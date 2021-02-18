@@ -10,11 +10,12 @@ env:
   - DBTYPE=mysql2
 
 rvm:
+#  - 3.0.0 # appoptics_apm instrumentation not ready yet
   - 2.7.0
-  - 2.6.4
+  - 2.6.5
   - 2.5.5
   - 2.4.5
-  - ruby-head
+#  - ruby-head
 #  - jruby-9.0.5.0
 
 gemfile:
@@ -35,7 +36,7 @@ matrix:
       gemfile: gemfiles/rails42.gemfile
     - rvm: 2.7.0
       gemfile: gemfiles/rails42.gemfile
-    - rvm: 2.6.4
+    - rvm: 2.6.5
       gemfile: gemfiles/rails42.gemfile
     - rvm: 2.4.5
       gemfile: gemfiles/rails60.gemfile

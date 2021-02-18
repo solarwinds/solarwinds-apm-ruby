@@ -20,10 +20,8 @@ describe "Net::HTTP"  do
     _(defined?(::Net::HTTP)).wont_match nil
   end
 
-  it 'Net::HTTP should have appoptics_apm methods defined' do
-    [ :request_with_appoptics ].each do |m|
-      _(::Net::HTTP.method_defined?(m)).must_equal true
-    end
+  it 'Net::HTTP should have AppOpticsAPM instrumentation' do
+    _(::Net::HTTP.ancestors.include?(AppopticsAPM::Inst::NetHttp)).must_equal true
   end
 
   it "should trace a Net::HTTP request to an instr'd app" do

@@ -10,6 +10,6 @@ module AppOpticsAPM
     MINOR = 12 # feature,
     PATCH = 2  # fix => BFF
 
-    STRING = [MAJOR, MINOR, PATCH].compact.join('.')
+    STRING = [MAJOR, MINOR, PATCH].compact.join('.') + ".pre"
   end
 end
