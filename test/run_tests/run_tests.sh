@@ -14,7 +14,7 @@
 ##
 
 export BUNDLE_ALLOW_BUNDLER_DEPENDENCY_CONFLICTS=true
-RUBY=`rbenv local`
+# RUBY=`rbenv local`
 
 ## Read opts
 num=-1

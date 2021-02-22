@@ -245,7 +245,7 @@ describe AppOpticsAPM::SDK do
     it 'should use the transaction name from opts' do
       Time.expects(:now).returns(Time.at(0)).twice
       AppOpticsAPM::API.expects(:log_event).with('test_01', :entry, anything, Not(has_entry(:TransactionName => 'domain/this_name')))
-      AppOpticsAPM::Span.expects(:createSpan).with('this_name', nil, 0).returns('domain/this_name')
+      AppOpticsAPM::Span.expects(:createSpan).with('this_name', nil, 0, 0).returns('domain/this_name')
       AppOpticsAPM::API.expects(:log_event).with('test_01', :exit, anything, has_entry(:TransactionName => 'domain/this_name'))
 
       result = AppOpticsAPM::SDK.start_trace('test_01', nil, :TransactionName => 'this_name') { 42 }
@@ -255,7 +255,7 @@ describe AppOpticsAPM::SDK do
     it 'should overwrite the transaction name from opts' do
       Time.expects(:now).returns(Time.at(0)).twice
       AppOpticsAPM::API.expects(:log_event).with('test_01', :entry, anything, anything)
-      AppOpticsAPM::Span.expects(:createSpan).with('custom_name_this_one', nil, 0).returns('domain/custom_name_this_one')
+      AppOpticsAPM::Span.expects(:createSpan).with('custom_name_this_one', nil, 0, 0).returns('domain/custom_name_this_one')
       AppOpticsAPM::API.expects(:log_event).with('test_01', :exit, anything, has_entry(:TransactionName => 'domain/custom_name_this_one'))
       sleep 0.1
       AppOpticsAPM::SDK.start_trace('test_01', nil, :TransactionName => 'custom_name') do
@@ -265,7 +265,7 @@ describe AppOpticsAPM::SDK do
 
     it 'should call createSpan and log_end in case of an exception' do
       Time.expects(:now).returns(Time.at(0)).twice
-      AppOpticsAPM::Span.expects(:createSpan).with('custom-test_01', nil, 0).returns('domain/custom-test_01')
+      AppOpticsAPM::Span.expects(:createSpan).with('custom-test_01', nil, 0, 0).returns('domain/custom-test_01')
       AppOpticsAPM::API.expects(:log_end).with('test_01', has_entry(:TransactionName => 'domain/custom-test_01'), instance_of(Oboe_metal::Event))
       begin
         AppOpticsAPM::SDK.start_trace('test_01') do
@@ -277,7 +277,7 @@ describe AppOpticsAPM::SDK do
 
     it 'should report duration correctly when there is an exception' do
       AppOpticsAPM::API.expects(:log_exception).once
-      AppOpticsAPM::Span.expects(:createSpan).with('custom-test_01', nil, 42000000)
+      AppOpticsAPM::Span.expects(:createSpan).with('custom-test_01', nil, 42000000, 0)
       Time.expects(:now).returns(Time.at(0))
       begin
         AppOpticsAPM::SDK.start_trace('test_01') do
@@ -309,7 +309,7 @@ describe AppOpticsAPM::SDK do
 
     it 'should use the opts from the first call to start_trace for transaction name' do
       Time.expects(:now).returns(Time.at(0)).twice
-      AppOpticsAPM::Span.expects(:createSpan).with('custom_name', nil, 0)
+      AppOpticsAPM::Span.expects(:createSpan).with('custom_name', nil, 0, 0)
 
       AppOpticsAPM::SDK.start_trace('test_01', nil, :TransactionName => 'custom_name') do
         AppOpticsAPM::SDK.start_trace('test_02', nil, :TransactionName => 'custom_name_02') { 42 }
@@ -318,7 +318,7 @@ describe AppOpticsAPM::SDK do
 
     it 'should NOT use the opts from the second call to start_trace for transaction name' do
       Time.expects(:now).returns(Time.at(0)).twice
-      AppOpticsAPM::Span.expects(:createSpan).with('custom-test_01', nil, 0)
+      AppOpticsAPM::Span.expects(:createSpan).with('custom-test_01', nil, 0, 0)
 
       AppOpticsAPM::SDK.start_trace('test_01') do
         AppOpticsAPM::SDK.start_trace('test_02', nil, :TransactionName => 'custom_name_02') { 42 }
@@ -327,8 +327,8 @@ describe AppOpticsAPM::SDK do
 
     it 'should use the last assigned transaction name' do
       Time.expects(:now).returns(Time.at(0)).times(4)
-      AppOpticsAPM::Span.expects(:createSpan).with('actually_this_one', nil, 0)
-      AppOpticsAPM::Span.expects(:createSpan).with('actually_this_one_as_well', nil, 0)
+      AppOpticsAPM::Span.expects(:createSpan).with('actually_this_one', nil, 0, 0)
+      AppOpticsAPM::Span.expects(:createSpan).with('actually_this_one_as_well', nil, 0, 0)
 
       AppOpticsAPM::SDK.start_trace('test_01', nil, :TransactionName => 'custom_name') do
         AppOpticsAPM::SDK.set_transaction_name('this_one')
@@ -687,10 +687,10 @@ describe AppOpticsAPM::SDK do
   describe 'createSpan' do
     # Let's test the return value of createSpan a bit too
     it 'should return a transaction name' do
-      assert_equal 'my_name', AppOpticsAPM::Span.createSpan('my_name', nil, 0)
-      assert_equal 'unknown', AppOpticsAPM::Span.createSpan(nil, nil, 0)
-      assert_equal 'unknown', AppOpticsAPM::Span.createSpan('', nil, 0)
-      assert_equal 'domain/my_name', AppOpticsAPM::Span.createSpan('my_name', 'domain', 0)
+      assert_equal 'my_name', AppOpticsAPM::Span.createSpan('my_name', nil, 0, 0)
+      assert_equal 'unknown', AppOpticsAPM::Span.createSpan(nil, nil, 0, 0)
+      assert_equal 'unknown', AppOpticsAPM::Span.createSpan('', nil, 0, 0)
+      assert_equal 'domain/my_name', AppOpticsAPM::Span.createSpan('my_name', 'domain', 0, 0)
     end
   end
 end
