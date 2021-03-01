@@ -1,0 +1,32 @@
+name: Ruby Gem to PackageCloud
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    name: Build + Publish to PackageCloud
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Ruby 2.6
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: 2.6.x
+
+      - name: Publish to PackageCloud
+        run: |
+          rm -f Gemfile.lock
+          bundle install --without development --without test
+          bundle exec rake distclean
+          bundle exec rake fetch_ext_deps
+          gem build appoptics_apm.gemspec
+          gem install package_cloud
+          gem=`ls -dt1 appoptics_apm-[^pre]*.gem | head -1`
+          package_cloud push solarwinds/appoptics-apm-ruby $gem
+        env:
+          PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
