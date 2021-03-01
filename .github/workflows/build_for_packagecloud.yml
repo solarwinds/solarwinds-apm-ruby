@@ -26,8 +26,7 @@ jobs:
           bundle exec rake fetch_ext_deps
           echo `ls -l ext/oboe_metal/src`
           gem build appoptics_apm.gemspec
-          gem install package_cloud
-          gem=`ls -dt1 appoptics_apm-[^pre]*.gem | head -1`
-          package_cloud push solarwinds/appoptics-apm-ruby $gem
+          gem install package_cloud --no-ri --no-rdoc
+          package_cloud push solarwinds/appoptics-apm-ruby *.gem
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
