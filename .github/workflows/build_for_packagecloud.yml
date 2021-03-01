@@ -20,13 +20,14 @@ jobs:
 
       - name: Publish to PackageCloud
         run: |
+          echo 'gem: --no-document' >> ~/.gemrc
           rm -f Gemfile.lock
           bundle install --without development --without test
           bundle exec rake distclean
           bundle exec rake fetch_ext_deps
           echo `ls -l ext/oboe_metal/src`
           gem build appoptics_apm.gemspec
-          gem install package_cloud --no-ri --no-rdoc
+          gem install package_cloud
           package_cloud push solarwinds/appoptics-apm-ruby *.gem
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
