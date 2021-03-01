@@ -24,7 +24,7 @@ jobs:
           bundle install --without development --without test
           bundle exec rake distclean
           bundle exec rake fetch_ext_deps
-          echo `ls ext/oboe_metal/src`
+          echo `ls -l ext/oboe_metal/src`
           gem build appoptics_apm.gemspec
           gem install package_cloud
           gem=`ls -dt1 appoptics_apm-[^pre]*.gem | head -1`
