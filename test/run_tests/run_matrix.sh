@@ -23,7 +23,7 @@ group :development, :test do
   gem 'rake'
   gem 'puma' # , '< 3.1.0'
   gem 'webmock'
-  gem 'grpc-tools' if RUBY_VERSION < '2.7.0'
+  gem 'grpc-tools' if RUBY_VERSION < '3.0.0'
 end
 EOM
 
