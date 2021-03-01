@@ -28,6 +28,6 @@ jobs:
           echo `ls -l ext/oboe_metal/src`
           gem build appoptics_apm.gemspec
           gem install package_cloud
-          package_cloud push solarwinds/appoptics-apm-ruby *.gem
-        env:
-          PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
+          # package_cloud push solarwinds/appoptics-apm-ruby *.gem
+          # env:
+          # PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
