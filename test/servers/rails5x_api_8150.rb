@@ -5,16 +5,6 @@
 #  This is a Rails API stack that launches on a background
 #  thread and listens on port 8150.
 #
-if ENV['DBTYPE'] == 'mysql2'
-  AppOpticsAPM::Test.set_mysql2_env
-elsif ENV['DBTYPE'] =~ /postgres/
-  AppOpticsAPM::Test.set_postgresql_env
-else
-  AppOpticsAPM.logger.warn "[appoptics_apm/rails] Unidentified DBTYPE: #{ENV['DBTYPE']}"
-  AppOpticsAPM.logger.debug "[appoptics_apm/rails] Defaulting to postgres DB for background Rails server."
-  AppOpticsAPM::Test.set_postgresql_env
-end
-
 require "rails"
 require "active_model/railtie"
 require "active_job/railtie"
@@ -26,6 +16,17 @@ require "action_cable/engine"
 require "rails/test_unit/railtie"
 
 require 'rack/handler/puma'
+
+if ENV['DBTYPE'] == 'mysql2'
+  AppOpticsAPM::Test.set_mysql2_env
+elsif ENV['DBTYPE'] =~ /postgres/
+  AppOpticsAPM::Test.set_postgresql_env
+else
+  AppOpticsAPM.logger.warn "[appoptics_apm/rails] Unidentified DBTYPE: #{ENV['DBTYPE']}"
+  AppOpticsAPM.logger.debug "[appoptics_apm/rails] Defaulting to postgres DB for background Rails server."
+  AppOpticsAPM::Test.set_postgresql_env
+end
+
 require File.expand_path(File.dirname(__FILE__) + '/../models/widget')
 
 AppOpticsAPM.logger.info "[appoptics_apm/info] Starting background utility rails app on localhost:8150."
@@ -73,7 +74,7 @@ end
 Rails50APIStack::Application.initialize!
 
 Thread.new do
-  Rack::Handler::Puma.run(Rails50APIStack::Application.to_app, {:Host => '127.0.0.1', :Port => 8150})
+  Rack::Handler::Puma.run(Rails50APIStack::Application.to_app, :Host => '127.0.0.1', :Port => 8150)
 end
 
 sleep(2)

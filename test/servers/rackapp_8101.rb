@@ -21,7 +21,7 @@ Thread.new do
     end
   }
 
-  Rack::Handler::Puma.run(app, {:Host => '127.0.0.1', :Port => 8101})
+  Rack::Handler::Puma.run(app, :Host => '127.0.0.1', :Port => 8101)
 end
 
 AppOpticsAPM.logger.info "[appoptics_apm/info] Starting UNINSTRUMENTED background utility rack app on localhost:8110."
@@ -37,7 +37,7 @@ Thread.new do
     end
   }
 
-  Rack::Handler::Puma.run(app, {:Host => '127.0.0.1', :Port => 8110})
+  Rack::Handler::Puma.run(app, :Host => '127.0.0.1', :Port => 8110)
 end
 
 # Allow Thin to boot.
