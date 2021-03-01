@@ -2,7 +2,7 @@ name: Ruby Gem to PackageCloud
 
 on:
   push:
-    branches: [ master ]
+    branches: [ AO-18649_GH_build_actions ]
   pull_request:
     branches: [ master ]
 
@@ -24,6 +24,7 @@ jobs:
           bundle install --without development --without test
           bundle exec rake distclean
           bundle exec rake fetch_ext_deps
+          echo `ls ext/oboe_metal/src`
           gem build appoptics_apm.gemspec
           gem install package_cloud
           gem=`ls -dt1 appoptics_apm-[^pre]*.gem | head -1`
