@@ -10,7 +10,7 @@ env:
   - DBTYPE=mysql2
 
 rvm:
-#  - 3.0.0 # appoptics_apm instrumentation not ready yet
+  - 3.0.0 # appoptics_apm instrumentation not ready yet, probably ok, let's see
   - 2.7.0
   - 2.6.5
   - 2.5.5
@@ -24,6 +24,7 @@ gemfile:
   - gemfiles/instrumentation_mocked.gemfile
   - gemfiles/instrumentation_mocked_oldgems.gemfile
   - gemfiles/frameworks.gemfile
+  - gemfiles/rails61.gemfile
   - gemfiles/rails60.gemfile
   - gemfiles/rails52.gemfile
   - gemfiles/rails42.gemfile
@@ -38,6 +39,8 @@ matrix:
       gemfile: gemfiles/rails42.gemfile
     - rvm: 2.6.5
       gemfile: gemfiles/rails42.gemfile
+    - rvm: 2.4.5
+      gemfile: gemfiles/rails61.gemfile
     - rvm: 2.4.5
       gemfile: gemfiles/rails60.gemfile
     - rvm: 2.4.5  # excluding because of new sprockets version (4.0.0)

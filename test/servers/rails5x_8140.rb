@@ -194,7 +194,7 @@ AppOpticsAPM::SDK.trace_method(FerroController, :world)
 Rails50MetalStack.initialize!
 
 Thread.new do
-  Rack::Handler::Puma.run(Rails50MetalStack.to_app, {:Host => '127.0.0.1', :Port => 8140})
+  Rack::Handler::Puma.run(Rails50MetalStack.to_app, :Host => '127.0.0.1', :Port => 8140)
 end
 
 sleep(2)

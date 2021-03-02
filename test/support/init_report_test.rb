@@ -15,7 +15,7 @@ describe 'InitReportTest' do
     _(init_kvs.has_key?("Force")).must_equal true
     _(init_kvs.has_key?("Ruby.AppContainer.Version")).must_equal true
     _(init_kvs["Ruby.AppOptics.Version"]).must_equal AppOpticsAPM::Version::STRING
-    _(init_kvs["Ruby.AppOpticsExtension.Version"]).must_equal File.read(clib_version_file).chomp
+    _(init_kvs["Ruby.AppOpticsExtension.Version"]).must_equal Oboe_metal::Config.getVersionString
     _(init_kvs["Ruby.TraceMode.Version"]).must_equal AppOpticsAPM::Config[:tracing_mode]
   end
 

@@ -37,7 +37,7 @@ if defined?(::Rails)
 
       _(traces[3]['Layer']).must_equal "partial"
       _(traces[3]['Label']).must_equal "entry"
-      _(traces[3]['Partial']).must_equal "somepartial"
+      _(traces[3]['Partial']).must_equal "hello/_somepartial"
       _(traces[4]['Layer']).must_equal "partial"
       _(traces[4]['Label']).must_equal "exit"
     end
@@ -52,7 +52,7 @@ if defined?(::Rails)
 
       _(traces[11]['Layer']).must_equal "collection"
       _(traces[11]['Label']).must_equal "entry"
-      _(traces[11]['Partial']).must_equal "widget"
+      _(traces[11]['Partial']).must_equal "hello/_widget"
       _(traces[12]['Layer']).must_equal "collection"
       _(traces[12]['Label']).must_equal "exit"
     end

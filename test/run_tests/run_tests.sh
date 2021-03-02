@@ -18,6 +18,7 @@ export BUNDLE_ALLOW_BUNDLER_DEPENDENCY_CONFLICTS=true
 
 ## Read opts
 num=-1
+copy=0
 while getopts ":r:g:e:n:" opt; do
   case ${opt} in
     r ) # process option a
@@ -33,6 +34,9 @@ while getopts ":r:g:e:n:" opt; do
     n )
       num=$OPTARG
       ;;
+    c )
+      copy=1
+      ;;
     \? ) echo "
 Usage: $0 [-r ruby-version] [-g gemfile] [-e env-setting] [-n num-tests]
 
@@ -40,6 +44,7 @@ Usage: $0 [-r ruby-version] [-g gemfile] [-e env-setting] [-n num-tests]
      -g gemfile      - restrict the tests to the ones associated with this gemfile (path from gem-root)
      -e env-setting  - restrict to this env setting, eg DBTYPE=postgresql
      -n num          - run only the first num tests, -n1 is useful when debugging
+     -c copy         - run tests with a copy of the code, so that edits don't interfere
 
 The values for -r, -g, and -e have to correspond to configurations in the .travis.yml file
 "
@@ -51,11 +56,14 @@ done
 # version=`rbenv version`
 # set -- $version
 # RUBY=$1
+if [ "$copy" -eq 1 ]; then
+    rm -rf /code/ruby-appoptics_test
+    cp -r /code/ruby-appoptics /code/ruby-appoptics_test
 
-cp -r /code/ruby-appoptics /code/ruby-appoptics_test
+    cd /code/ruby-appoptics_test/
+fi
 
 ## Read travis configuration
-cd /code/ruby-appoptics_test/
 mapfile -t input2 < <(test/run_tests/read_travis_yml.rb .travis.yml)
 current_ruby=""
 
@@ -71,7 +79,7 @@ do
 
   if [[ "$gemfile" != "" && "$gemfile" != "${args[1]}" ]]; then continue; fi
   export BUNDLE_GEMFILE=${args[1]}
-  echo ${args[1]}.lock
+#   echo ${args[1]}.lock
   rm -f ${args[1]}.lock
 
   if [[ "$env" != "" && "$env" != "${args[2]}" ]]; then continue; fi
@@ -118,7 +126,7 @@ do
   fi
 
   num=$((num-1))
-  if [ "$num" -eq "0" ]; then
+  if [ "$num" -eq 0 ]; then
     rbenv local 2.5.5
     cd -
     exit
@@ -127,7 +135,11 @@ done
 
 echo ""
 echo "--- SUMMARY ------------------------------"
-egrep '===|failures|FAIL|ERROR,' $TEST_RUNS_FILE_NAME
+egrep '===|failures|FAIL|ERROR' $TEST_RUNS_FILE_NAME
+
+if [ "$copy" -eq 1 ]; then
+    mv $TEST_RUNS_FILE_NAME /code/ruby-appoptics/log/
+fi
 
 rbenv local $RUBY
 cd -
