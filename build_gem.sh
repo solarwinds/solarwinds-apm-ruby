@@ -3,10 +3,10 @@
 
 # we currently only build for MRI, no JRuby
 echo -e "\n=== building for MRI ===\n"
-# rm -f Gemfile.lock
-# bundle install --without development --without test
-# bundle exec rake distclean
-# bundle exec rake fetch_ext_deps
+rm -f Gemfile.lock
+bundle install --without development --without test
+bundle exec rake distclean
+bundle exec rake fetch_ext_deps
 gem build appoptics_apm.gemspec
 mv appoptics_apm*.gem builds
 
