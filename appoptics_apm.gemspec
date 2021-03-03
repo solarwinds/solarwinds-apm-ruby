@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.version = AppOpticsAPM::Version::STRING
   s.date = Time.now.strftime('%Y-%m-%d')
 
-  s.license = "Apache License 2.0, https://spdx.org/licenses/Apache-2.0.html"
+  s.license = "Apache-2.0"
 
   s.authors = ["Maia Engeli", "Peter Giacomo Lombardo", "Spiros Eliopoulos"]
   s.email = %q{support@appoptics.com}

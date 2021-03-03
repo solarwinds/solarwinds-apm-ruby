@@ -191,7 +191,6 @@ task :compile do
     so_file  = File.expand_path('ext/oboe_metal/libappoptics_apm.so')
 
     Dir.chdir ext_dir
-    # ENV['APPOPTICS_FROM_S3'] = 'true'
     cmd = [Gem.ruby, 'extconf.rb']
     sh cmd.join(' ')
     sh '/usr/bin/env make'
