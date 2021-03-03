@@ -12,6 +12,7 @@
 .irb_history
 .irbrc
 .ruby-version
+.travis/*
 .vagrant
 .yardoc
 builds
