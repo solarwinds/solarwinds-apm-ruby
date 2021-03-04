@@ -8,7 +8,7 @@ group :development, :test do
   gem 'byebug', '>= 8.0.0'
   gem 'debugger',     :platform  =>  :mri_19
   gem 'get_process_mem'
-  gem 'irb', '>= 1.0.0' if RUBY_VERSION >= '2.5.0'
+  gem 'irb', '>= 1.0.0'
   # gem 'memory_profiler'
   gem 'minitest'
   gem 'minitest-debugger', :require => false
