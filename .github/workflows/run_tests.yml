@@ -73,6 +73,14 @@ jobs:
           export BUNDLE_GEMFILE=gemfiles/${{ matrix.gemfile }}.gemfile
           bundle install --jobs 4 --retry 3
 
+      - name: Install swig 4.0.2
+        run: |
+          curl -SL http://kent.dl.sourceforge.net/project/swig/swig/swig-4.0.2/swig-4.0.2.tar.gz | tar xzC /tmp \
+          cd /tmp/swig-4.0.2
+          ./configure && make && sudo make install
+          cd -
+          rm -rf /tmp/swig-4.0.2
+
       - name: Compile c-extension
 #        need swig 4.0.2
         run: |
