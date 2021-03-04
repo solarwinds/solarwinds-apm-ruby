@@ -56,8 +56,28 @@ jobs:
       APPOPTICS_GEM_TEST: true
       APPOPTICS_REPORTER: file
       APPOPTICS_COLLECTOR: /tmp/appoptics_traces.bson
+      APPOPTICS_MONGO_SERVER: "ao-ruby-mongo"
+      APPOPTICS_RABBITMQ_SERVER: "ao-ruby-rabbitmq"
       APPOPTICS_REPORTER_FILE_SINGLE: false
       APPOPTICS_FROM_S3: true
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_ROOT_PASSWORD: "admin"
+      MYSQL_HOST: "ao-ruby-mysql"
+      POSTGRES_DB: "travis_ci_test"
+      DOCKER_PSQL_PASS: "docker"
+      POSTGRES_USER: "docker"
+      POSTGRES_PASSWORD: "docker"
+      PSQL_HOST: "ao-ruby-postgres"
+    services:
+      ao-ruby-rabbitmq:
+        image: rabbitmq:3-management
+      ao-ruby-mongo:
+        image: mongo:3.4
+      ao-ruby-postgres:
+        image: postgres:latest
+      ao-ruby-mysql:
+        image: mysql:5.7.33
+
     steps:
       - uses: actions/checkout@v2
 
