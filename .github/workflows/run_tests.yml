@@ -50,12 +50,15 @@ jobs:
     name: ${{ matrix.ruby }} - ${{ matrix.gemfile }}
     steps:
       - uses: actions/checkout@v2
+        -
       - name: Install dependencies
         run: sudo apt install -y --no-install-recommends libcurl4-gnutls-dev libsasl2-dev
+
       - name: Set up ${{ matrix.ruby }}
         uses: actions/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
+
       - name: Bundle ${{ matrix.gemfile }} with 1.17.3
         if: matrix.gemfile == 'rails42' || matrix.gemfile == 'frameworks'
         run: |
@@ -68,3 +71,8 @@ jobs:
           gem install bundler
           export BUNDLE_GEMFILE=gemfiles/${{ matrix.gemfile }}.gemfile
           bundle install --jobs 4 --retry 3
+
+      - name: Compile c-extension
+        run: bundle exec rake fetch compile
+#      - name: Set up services
+#      - name: Run tests
