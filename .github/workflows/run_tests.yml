@@ -75,7 +75,7 @@ jobs:
 
       - name: Install swig 4.0.2
         run: |
-          curl -SL http://kent.dl.sourceforge.net/project/swig/swig/swig-4.0.2/swig-4.0.2.tar.gz | tar xzC /tmp \
+          curl -SL http://kent.dl.sourceforge.net/project/swig/swig/swig-4.0.2/swig-4.0.2.tar.gz | tar xzC /tmp
           cd /tmp/swig-4.0.2
           ./configure && make && sudo make install
           cd -
