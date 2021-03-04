@@ -10,41 +10,41 @@ jobs:
       matrix:
         ruby: [3.0.x, 2.7.x, 2.6.x, 2.5.x, 2.4.x]
         gemfile:
-          - libraries.gemfile
-          - unit.gemfile
-          - instrumentation_mocked.gemfile
-          - instrumentation_mocked_oldgems.gemfile
-          - frameworks.gemfile
-          - rails60.gemfile
-          - rails52.gemfile
-          - rails42.gemfile
-          - delayed_job.gemfile
-          - noop.gemfile
+          - libraries
+          - unit
+          - instrumentation_mocked
+          - instrumentation_mocked_oldgems
+          - frameworks
+          - rails60
+          - rails52
+          - rails42
+          - delayed_job
+          - noop
         exclude:
           - ruby: 3.0.x
-            gemfile: rails42.gemfile
+            gemfile: rails42
           - ruby: 2.7.x
-            gemfile: rails42.gemfile
+            gemfile: rails42
           - ruby: 2.6.x
-            gemfile: rails42.gemfile
+            gemfile: rails42
           - ruby: 2.4.x
-            gemfile: rails60.gemfile
+            gemfile: rails60
           - ruby: 2.4.x  # excluding because of new sprockets version (4.0.0)
-            gemfile: rails52.gemfile
+            gemfile: rails52
 
-#          - gemfile: unit.gemfile
+#          - gemfile: unit
 #            env: DBTYPE=mysql2
-#          - gemfile: noop.gemfile
+#          - gemfile: noop
 #            env: DBTYPE=mysql2
-#          - gemfile: libraries.gemfile
+#          - gemfile: libraries
 #            env: DBTYPE=mysql2
-#          - gemfile: instrumentation_mocked.gemfile
+#          - gemfile: instrumentation_mocked
 #            env: DBTYPE=mysql2
-#          - gemfile: instrumentation_mocked_oldgems.gemfile
+#          - gemfile: instrumentation_mocked_oldgems
 #            env: DBTYPE=mysql2
-#          - gemfile: frameworks.gemfile
+#          - gemfile: frameworks
 #            env: DBTYPE=mysql2
-#          - gemfile: delayed_job.gemfile
+#          - gemfile: delayed_job
 #            env: DBTYPE=mysql2
 
     name: ${{ matrix.ruby }} - ${{ matrix.gemfile }}
@@ -55,14 +55,14 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
       - name: Bundle ${{ matrix.gemfile }} with 1.17.3
-        if: matrix.ruby == '2.4.x'
+        if: matrix.gemfile == 'rails42' || matrix.gemfile == 'frameworks'
         run: |
           gem install bundler:1.17.3
-          export BUNDLE_GEMFILE=gemfiles/${{ matrix.gemfile }}
+          export BUNDLE_GEMFILE=gemfiles/${{ matrix.gemfile }}.gemfile
           bundle _1.17.3_ install --jobs 4 --retry 3
       - name: Bundle
-        if: matrix.ruby != '2.4.x'
+        if: matrix.gemfile != 'rails42' && matrix.gemfile != 'frameworks'
         run: |
           gem install bundler
-          export BUNDLE_GEMFILE=gemfiles/${{ matrix.gemfile }}
+          export BUNDLE_GEMFILE=gemfiles/${{ matrix.gemfile }}.gemfile
           bundle install --jobs 4 --retry 3
