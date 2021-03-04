@@ -64,7 +64,9 @@ jobs:
         run: |
           gem install bundler:1.17.3
           export BUNDLE_GEMFILE=gemfiles/${{ matrix.gemfile }}.gemfile
+#          can I set the bundle version in an env var?
           bundle _1.17.3_ install --jobs 4 --retry 3
+          export BUNDLER_VERSION=1.17.3
       - name: Bundle
         if: matrix.gemfile != 'rails42' && matrix.gemfile != 'frameworks'
         run: |
@@ -73,6 +75,8 @@ jobs:
           bundle install --jobs 4 --retry 3
 
       - name: Compile c-extension
-        run: bundle exec rake fetch compile
+#        need swig 4.0.2
+        run: |
+          bundle exec rake fetch compile
 #      - name: Set up services
 #      - name: Run tests
