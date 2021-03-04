@@ -82,8 +82,8 @@ jobs:
           rm -rf /tmp/swig-4.0.2
 
       - name: Compile c-extension
-#        need swig 4.0.2
         run: |
           bundle exec rake fetch compile
 #      - name: Set up services
-#      - name: Run tests
+      - name: Run tests
+        run: bundle exec rake test
