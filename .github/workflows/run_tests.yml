@@ -11,7 +11,7 @@ jobs:
         ruby: [3.0.x, 2.7.x, 2.6.x, 2.5.x, 2.4.x]
         gemfile: [gemfiles/libraries.gemfile, gemfiles/noop.gemfile]
 
-    name: Ruby ${{ matrix.ruby }} - Gemfile ${{ gemfile }}
+    name: Ruby ${{ matrix.ruby }} - Gemfile ${{ matrix.gemfile }}
     steps:
       - uses: actions/checkout@v2
       - name: Set up  ${{ matrix.ruby }}
