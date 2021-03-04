@@ -21,15 +21,15 @@ jobs:
           - gemfiles/delayed_job.gemfile
           - gemfiles/noop.gemfile
         exclude:
-          - rvm: ruby-head
+          - ruby: ruby-head
             gemfile: gemfiles/rails42.gemfile
-          - rvm: 2.7.0
+          - ruby: 2.7.0
             gemfile: gemfiles/rails42.gemfile
-          - rvm: 2.6.5
+          - ruby: 2.6.5
             gemfile: gemfiles/rails42.gemfile
-          - rvm: 2.4.5
+          - ruby: 2.4.5
             gemfile: gemfiles/rails60.gemfile
-          - rvm: 2.4.5  # excluding because of new sprockets version (4.0.0)
+          - ruby: 2.4.5  # excluding because of new sprockets version (4.0.0)
             gemfile: gemfiles/rails52.gemfile
 
 #          - gemfile: gemfiles/unit.gemfile
