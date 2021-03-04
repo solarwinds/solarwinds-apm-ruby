@@ -50,7 +50,7 @@ jobs:
     name: ${{ matrix.ruby }} - ${{ matrix.gemfile }}
     steps:
       - uses: actions/checkout@v2
-        -
+
       - name: Install dependencies
         run: sudo apt install -y --no-install-recommends libcurl4-gnutls-dev libsasl2-dev
 
