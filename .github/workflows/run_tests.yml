@@ -10,6 +10,8 @@ jobs:
       matrix:
         ruby: [3.0.x, 2.7.x, 2.6.x, 2.5.x, 2.4.x]
         gemfile: [gemfiles/libraries.gemfile, gemfiles/noop.gemfile]
+      exclude:
+        - {ruby: "3.0.0", gemfile: "gemfiles/noop.gemfile"}
 
     name: Ruby ${{ matrix.ruby }} - Gemfile ${{ matrix.gemfile }}
     steps:
@@ -20,5 +22,6 @@ jobs:
           ruby-version:  ${{ matrix.ruby }}
       - name: Bundle ${{ matrix.gemfile }}
         run: |
+          gem install bundler
           export BUNDLE_GEMFILE=${{ matrix.gemfile }}
           bundle install --jobs 4 --retry 3
