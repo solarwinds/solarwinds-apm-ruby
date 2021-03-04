@@ -1,0 +1,24 @@
+name: Run all Tests
+
+on: [push, pull_request, merge]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: [3.0.x, 2.7.x, 2.6.x, 2.5.x, 2.4.x]
+        gemfile: [gemfiles/libraries.gemfile, gemfiles/noop.gemfile]
+
+    name: Ruby ${{ matrix.ruby }} - Gemfile ${{ gemfile }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up  ${{ matrix.ruby }}
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version:  ${{ matrix.ruby }}
+      - name: Bundle ${{ gemfile }}
+        run: |
+          export BUNDLE_GEMFILE=${{ gemfile }}
+          bundle install --jobs 4 --retry 3
