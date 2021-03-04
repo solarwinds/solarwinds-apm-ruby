@@ -21,15 +21,15 @@ jobs:
           - gemfiles/delayed_job.gemfile
           - gemfiles/noop.gemfile
         exclude:
-          - ruby: ruby-head
+          - ruby: 3.0.x
             gemfile: gemfiles/rails42.gemfile
-          - ruby: 2.7.0
+          - ruby: 2.7.x
             gemfile: gemfiles/rails42.gemfile
-          - ruby: 2.6.5
+          - ruby: 2.6.x
             gemfile: gemfiles/rails42.gemfile
-          - ruby: 2.4.5
+          - ruby: 2.4.x
             gemfile: gemfiles/rails60.gemfile
-          - ruby: 2.4.5  # excluding because of new sprockets version (4.0.0)
+          - ruby: 2.4.x  # excluding because of new sprockets version (4.0.0)
             gemfile: gemfiles/rails52.gemfile
 
 #          - gemfile: gemfiles/unit.gemfile
@@ -47,7 +47,7 @@ jobs:
 #          - gemfile: gemfiles/delayed_job.gemfile
 #            env: DBTYPE=mysql2
 
-    name: Ruby ${{ matrix.ruby }} - Gemfile ${{ matrix.gemfile }}
+    name: ${{ matrix.ruby }} - ${{ matrix.gemfile }}
     steps:
       - uses: actions/checkout@v2
       - name: Set up  ${{ matrix.ruby }}
