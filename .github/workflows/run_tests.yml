@@ -48,6 +48,8 @@ jobs:
 #            env: DBTYPE=mysql2
 
     name: ${{ matrix.ruby }} - ${{ matrix.gemfile }}
+    env:
+      BUNDLE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile
     steps:
       - uses: actions/checkout@v2
 
@@ -59,13 +61,12 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
 
-      - name: Bundle ${{ matrix.gemfile }} with 1.17.3
+      - name: Bundle with 1.17.3
         if: matrix.gemfile == 'rails42' || matrix.gemfile == 'frameworks'
         run: |
           gem install bundler:1.17.3
           export BUNDLE_GEMFILE=gemfiles/${{ matrix.gemfile }}.gemfile
           bundle _1.17.3_ install --jobs 4 --retry 3
-          export BUNDLER_VERSION=1.17.3
       - name: Bundle
         if: matrix.gemfile != 'rails42' && matrix.gemfile != 'frameworks'
         run: |
