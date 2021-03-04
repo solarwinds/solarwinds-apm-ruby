@@ -18,7 +18,7 @@ jobs:
         uses: actions/setup-ruby@v1
         with:
           ruby-version:  ${{ matrix.ruby }}
-      - name: Bundle ${{ gemfile }}
+      - name: Bundle ${{ matrix.gemfile }}
         run: |
           export BUNDLE_GEMFILE=${{ matrix.gemfile }}
           bundle install --jobs 4 --retry 3
