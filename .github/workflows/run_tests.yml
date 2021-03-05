@@ -8,18 +8,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: [3.0.x, 2.7.x, 2.6.x, 2.5.x, 2.4.x]
+#        ruby: [3.0.x, 2.7.x, 2.6.x, 2.5.x, 2.4.x]
+        ruby: [2.6.x]
         gemfile:
-          - libraries
-          - unit
-          - instrumentation_mocked
-          - instrumentation_mocked_oldgems
+#          - libraries
+#          - unit
+#          - instrumentation_mocked
+#          - instrumentation_mocked_oldgems
           - frameworks
-          - rails61
-          - rails60
+#          - rails61
+#          - rails60
           - rails52
-          - rails42
-          - delayed_job
+#          - rails42
+#          - delayed_job
           - noop
         exclude:
           - ruby: 3.0.x
@@ -117,7 +118,7 @@ jobs:
           bundle exec rake fetch compile
       - name: Initialize services
         run: |
-          psql -c 'create database travis_ci_test;' -U postgres
+          psql -c 'create database travis_ci_test;' -U postgres -h ao-ruby-postgres
           mysql -e 'create database travis_ci_test;'
           redis-server --requirepass secret_pass &
       - name: Run tests
