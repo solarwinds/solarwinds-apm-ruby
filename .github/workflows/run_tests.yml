@@ -126,7 +126,7 @@ jobs:
           bundle exec rake fetch compile
       - name: Initialize services
         run: |
-          psql -c 'create database travis_ci_test;' -U postgres -h ao-ruby-postgres
+          psql -c 'create database travis_ci_test;' -U postgres
           mysql -e 'create database travis_ci_test;'
           redis-server --requirepass secret_pass &
       - name: Run tests
