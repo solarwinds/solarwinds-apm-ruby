@@ -136,7 +136,7 @@ jobs:
         run: |
           export PGPASSWORD=$POSTGRES_PASSWORD; psql -c 'create database travis_ci_test;' -U postgres -h localhost -p $POSTGRES_PORT
 #          mysql -e 'create database travis_ci_test;'
-#          redis-server --requirepass secret_pass &
+          redis-server --requirepass secret_pass
 
       - name: Run tests
         env:
