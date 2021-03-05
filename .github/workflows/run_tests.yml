@@ -72,10 +72,10 @@ jobs:
       POSTGRES_PASSWORD: "docker"
       PSQL_HOST: "localhost"
     services:
-      ao-ruby-rabbitmq:
-        image: rabbitmq:3-management
-      ao-ruby-mongo:
-        image: mongo:3.4
+#      ao-ruby-rabbitmq:
+#        image: rabbitmq:3-management
+#      ao-ruby-mongo:
+#        image: mongo:3.4
       postgres:
         image: postgres:10.8
         env:
@@ -87,8 +87,8 @@ jobs:
           - 5432/tcp
         # needed because the postgres container does not provide a healthcheck
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-      ao-ruby-mysql:
-        image: mysql:5.7.33
+#      ao-ruby-mysql:
+#        image: mysql:5.7.33
 
     steps:
       - uses: actions/checkout@v2
@@ -133,7 +133,7 @@ jobs:
           POSTGRES_PORT: ${{ job.services.ao-ruby-postgres.ports[5432] }} # get randomly assigned published port
         run: |
           echo `docker ps`
-          psql -c 'create database travis_ci_test;' -U postgres
+          psql -c 'create database travis_ci_test;' -U postgres -h localhost
           mysql -e 'create database travis_ci_test;'
           redis-server --requirepass secret_pass &
 #      - name: Run tests
