@@ -6,36 +6,36 @@ on: [push]
 jobs:
   tests:
     runs-on: ubuntu-latest
-#    strategy:
-#      fail-fast: false
-#      matrix:
-##        ruby: [3.0.x, 2.7.x, 2.6.x, 2.5.x, 2.4.x]
-#        ruby: [2.6.x]
-#        gemfile:
-##          - libraries
-##          - unit
-##          - instrumentation_mocked
-##          - instrumentation_mocked_oldgems
-##          - frameworks
-##          - rails61
-##          - rails60
-##          - rails52
-##          - rails42
-##          - delayed_job
-#          - noop
-#        exclude:
-#          - ruby: 3.0.x
-#            gemfile: rails42
-#          - ruby: 2.7.x
-#            gemfile: rails42
-#          - ruby: 2.6.x
-#            gemfile: rails42
-#          - ruby: 2.4.x
-#            gemfile: rails61
-#          - ruby: 2.4.x
-#            gemfile: rails60
-#          - ruby: 2.4.x  # excluding because of new sprockets version (4.0.0)
-#            gemfile: rails52
+    strategy:
+      fail-fast: false
+      matrix:
+#        ruby: [3.0.x, 2.7.x, 2.6.x, 2.5.x, 2.4.x]
+        ruby: [2.6.x]
+        gemfile:
+#          - libraries
+#          - unit
+#          - instrumentation_mocked
+#          - instrumentation_mocked_oldgems
+#          - frameworks
+#          - rails61
+          - rails60
+#          - rails52
+#          - rails42
+#          - delayed_job
+          - noop
+        exclude:
+          - ruby: 3.0.x
+            gemfile: rails42
+          - ruby: 2.7.x
+            gemfile: rails42
+          - ruby: 2.6.x
+            gemfile: rails42
+          - ruby: 2.4.x
+            gemfile: rails61
+          - ruby: 2.4.x
+            gemfile: rails60
+          - ruby: 2.4.x  # excluding because of new sprockets version (4.0.0)
+            gemfile: rails52
 
 #          - gemfile: unit
 #            env: DBTYPE=mysql2
@@ -52,27 +52,27 @@ jobs:
 #          - gemfile: delayed_job
 #            env: DBTYPE=mysql2
 
-#    name: ${{ matrix.ruby }} - ${{ matrix.gemfile }}
+    name: ${{ matrix.ruby }} - ${{ matrix.gemfile }}
 #    name: Test Service Setup
-#    env:
-#      BUNDLE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile
-#      APPOPTICS_GEM_TEST: true
-#      APPOPTICS_REPORTER: file
-#      APPOPTICS_COLLECTOR: /tmp/appoptics_traces.bson
-#      APPOPTICS_MONGO_SERVER: "ao-ruby-mongo"
-#      APPOPTICS_RABBITMQ_SERVER: "ao-ruby-rabbitmq"
-#      APPOPTICS_REPORTER_FILE_SINGLE: false
-#      APPOPTICS_FROM_S3: true
+    env:
+      BUNDLE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile
+      APPOPTICS_GEM_TEST: true
+      APPOPTICS_REPORTER: file
+      APPOPTICS_COLLECTOR: /tmp/appoptics_traces.bson
+      APPOPTICS_MONGO_SERVER: "ao-ruby-mongo"
+      APPOPTICS_RABBITMQ_SERVER: "ao-ruby-rabbitmq"
+      APPOPTICS_REPORTER_FILE_SINGLE: false
+      APPOPTICS_FROM_S3: true
 #      DBTYPE: mysql2
-#      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-#      MYSQL_ROOT_PASSWORD: "admin"
-#      MYSQL_HOST: "ao-ruby-mysql"
-#      POSTGRES_DB: "travis_ci_test"
-#      DOCKER_MYSQL_PASS: "admin"
-#      DOCKER_PSQL_PASS: "docker"
-#      POSTGRES_USER: "docker"
-#      POSTGRES_PASSWORD: "docker"
-#      PSQL_HOST: "localhost"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_ROOT_PASSWORD: "admin"
+      MYSQL_HOST: "ao-ruby-mysql"
+      POSTGRES_DB: "travis_ci_test"
+      DOCKER_MYSQL_PASS: "admin"
+      DOCKER_PSQL_PASS: "postgres"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      PSQL_HOST: "localhost"
     services:
 #      ao-ruby-rabbitmq:
 #        image: rabbitmq:3-management
@@ -81,8 +81,8 @@ jobs:
       postgres:
         image: postgres:10.8
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+#          POSTGRES_USER: postgres
+#          POSTGRES_PASSWORD: postgres
           POSTGRES_DB: postgres
         ports:
           - 5432/tcp
@@ -94,38 +94,39 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-#      - name: Install dependencies
-#        run: sudo apt install -y --no-install-recommends libcurl4-gnutls-dev libsasl2-dev
-#
-#      - name: Set up ${{ matrix.ruby }}
-#        uses: actions/setup-ruby@v1
-#        with:
-#          ruby-version: ${{ matrix.ruby }}
-#
-#      - name: Bundle with 1.17.3
-#        if: matrix.gemfile == 'rails42' || matrix.gemfile == 'frameworks'
-#        run: |
-#          gem install bundler:1.17.3
-#          export BUNDLE_GEMFILE=gemfiles/${{ matrix.gemfile }}.gemfile
-#          bundle _1.17.3_ install --jobs 4 --retry 3
-#      - name: Bundle
-#        if: matrix.gemfile != 'rails42' && matrix.gemfile != 'frameworks'
-#        run: |
-#          gem install bundler
-#          export BUNDLE_GEMFILE=gemfiles/${{ matrix.gemfile }}.gemfile
-#          bundle install --jobs 4 --retry 3
-#
-#      - name: Install swig 4.0.2
-#        run: |
-#          curl -SL http://kent.dl.sourceforge.net/project/swig/swig/swig-4.0.2/swig-4.0.2.tar.gz | tar xzC /tmp
-#          cd /tmp/swig-4.0.2
-#          ./configure && make && sudo make install
-#          cd -
-#          rm -rf /tmp/swig-4.0.2
-#
-#      - name: Compile c-extension
-#        run: |
-#          bundle exec rake fetch compile
+      - name: Install dependencies
+        run: sudo apt install -y --no-install-recommends libcurl4-gnutls-dev libsasl2-dev
+
+      - name: Set up ${{ matrix.ruby }}
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+
+      - name: Bundle with 1.17.3
+        if: matrix.gemfile == 'rails42' || matrix.gemfile == 'frameworks'
+        run: |
+          gem install bundler:1.17.3
+          export BUNDLE_GEMFILE=gemfiles/${{ matrix.gemfile }}.gemfile
+          bundle _1.17.3_ install --jobs 4 --retry 3
+      - name: Bundle
+        if: matrix.gemfile != 'rails42' && matrix.gemfile != 'frameworks'
+        run: |
+          gem install bundler
+          export BUNDLE_GEMFILE=gemfiles/${{ matrix.gemfile }}.gemfile
+          bundle install --jobs 4 --retry 3
+
+      - name: Install swig 4.0.2
+        run: |
+          curl -SL http://kent.dl.sourceforge.net/project/swig/swig/swig-4.0.2/swig-4.0.2.tar.gz | tar xzC /tmp
+          cd /tmp/swig-4.0.2
+          ./configure && make && sudo make install
+          cd -
+          rm -rf /tmp/swig-4.0.2
+
+      - name: Compile c-extension
+        run: |
+          bundle exec rake fetch compile
+
       - name: Initialize services
         env:
           # use localhost for the host here because we are running the job on the VM.
@@ -137,5 +138,6 @@ jobs:
           export PGPASSWORD=$POSTGRES_PASSWORD; psql -c 'create database travis_ci_test;' -U postgres -h localhost -p $POSTGRES_PORT
 #          mysql -e 'create database travis_ci_test;'
 #          redis-server --requirepass secret_pass &
-#      - name: Run tests
-#        run: bundle exec rake test
+
+      - name: Run tests
+        run: bundle exec rake test
