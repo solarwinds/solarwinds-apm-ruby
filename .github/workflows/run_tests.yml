@@ -15,10 +15,10 @@ jobs:
 #          - unit
 #          - instrumentation_mocked
 #          - instrumentation_mocked_oldgems
-          - frameworks
+#          - frameworks
 #          - rails61
 #          - rails60
-          - rails52
+#          - rails52
 #          - rails42
 #          - delayed_job
           - noop
@@ -92,42 +92,47 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install dependencies
-        run: sudo apt install -y --no-install-recommends libcurl4-gnutls-dev libsasl2-dev
-
-      - name: Set up ${{ matrix.ruby }}
-        uses: actions/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby }}
-
-      - name: Bundle with 1.17.3
-        if: matrix.gemfile == 'rails42' || matrix.gemfile == 'frameworks'
-        run: |
-          gem install bundler:1.17.3
-          export BUNDLE_GEMFILE=gemfiles/${{ matrix.gemfile }}.gemfile
-          bundle _1.17.3_ install --jobs 4 --retry 3
-      - name: Bundle
-        if: matrix.gemfile != 'rails42' && matrix.gemfile != 'frameworks'
-        run: |
-          gem install bundler
-          export BUNDLE_GEMFILE=gemfiles/${{ matrix.gemfile }}.gemfile
-          bundle install --jobs 4 --retry 3
-
-      - name: Install swig 4.0.2
-        run: |
-          curl -SL http://kent.dl.sourceforge.net/project/swig/swig/swig-4.0.2/swig-4.0.2.tar.gz | tar xzC /tmp
-          cd /tmp/swig-4.0.2
-          ./configure && make && sudo make install
-          cd -
-          rm -rf /tmp/swig-4.0.2
-
-      - name: Compile c-extension
-        run: |
-          bundle exec rake fetch compile
+#      - name: Install dependencies
+#        run: sudo apt install -y --no-install-recommends libcurl4-gnutls-dev libsasl2-dev
+#
+#      - name: Set up ${{ matrix.ruby }}
+#        uses: actions/setup-ruby@v1
+#        with:
+#          ruby-version: ${{ matrix.ruby }}
+#
+#      - name: Bundle with 1.17.3
+#        if: matrix.gemfile == 'rails42' || matrix.gemfile == 'frameworks'
+#        run: |
+#          gem install bundler:1.17.3
+#          export BUNDLE_GEMFILE=gemfiles/${{ matrix.gemfile }}.gemfile
+#          bundle _1.17.3_ install --jobs 4 --retry 3
+#      - name: Bundle
+#        if: matrix.gemfile != 'rails42' && matrix.gemfile != 'frameworks'
+#        run: |
+#          gem install bundler
+#          export BUNDLE_GEMFILE=gemfiles/${{ matrix.gemfile }}.gemfile
+#          bundle install --jobs 4 --retry 3
+#
+#      - name: Install swig 4.0.2
+#        run: |
+#          curl -SL http://kent.dl.sourceforge.net/project/swig/swig/swig-4.0.2/swig-4.0.2.tar.gz | tar xzC /tmp
+#          cd /tmp/swig-4.0.2
+#          ./configure && make && sudo make install
+#          cd -
+#          rm -rf /tmp/swig-4.0.2
+#
+#      - name: Compile c-extension
+#        run: |
+#          bundle exec rake fetch compile
       - name: Initialize services
+        env:
+          # use localhost for the host here because we are running the job on the VM.
+          # If we were running the job on in a container this would be postgres
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: ${{ job.services.ao-ruby-postgres.ports[5432] }} # get randomly assigned published port
         run: |
-          psql -c 'create database travis_ci_test;' -U postgres -h localhost
+          psql -c 'create database travis_ci_test;' -U postgres
           mysql -e 'create database travis_ci_test;'
           redis-server --requirepass secret_pass &
-      - name: Run tests
-        run: bundle exec rake test
+#      - name: Run tests
+#        run: bundle exec rake test
