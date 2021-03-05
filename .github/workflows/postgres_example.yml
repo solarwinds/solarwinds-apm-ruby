@@ -1,6 +1,6 @@
 name: Postgres Service Example
 
-on: [push]
+on: [workflow_dispatch]
 
 jobs:
   container-job:
@@ -64,4 +64,4 @@ jobs:
           # If we were running the job on in a container this would be postgres
           POSTGRES_HOST: localhost
           POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }} # get randomly assigned published port
-      - run: export PGPASSWORD='postgres'; psql -c 'create database travis_ci_test;' -U postgres -hlocalhost -p ${{ job.services.postgres.ports[5432] }}
+      - run: export PGPASSWORD='postgres'; psql -c 'create database travis_ci_test;' -U postgres -h localhost -p ${{ job.services.postgres.ports[5432] }}
