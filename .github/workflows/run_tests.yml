@@ -5,7 +5,6 @@ on: [push, pull_request]
 jobs:
   tests:
     runs-on: ubuntu-latest
-    container: ruby:latest
     strategy:
       fail-fast: false
       matrix:
@@ -68,14 +67,14 @@ jobs:
       DOCKER_PSQL_PASS: "docker"
       POSTGRES_USER: "docker"
       POSTGRES_PASSWORD: "docker"
-      PSQL_HOST: "ao-ruby-postgres"
+      PSQL_HOST: "postgres"
     services:
       ao-ruby-rabbitmq:
         image: rabbitmq:3-management
       ao-ruby-mongo:
         image: mongo:3.4
-      ao-ruby-postgres:
-        image: postgres:latest
+      postgres:
+        image: postgres
       ao-ruby-mysql:
         image: mysql:5.7.33
 
