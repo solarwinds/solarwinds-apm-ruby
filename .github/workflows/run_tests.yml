@@ -126,7 +126,7 @@ jobs:
 #        run: |
 #          bundle exec rake fetch compile
       - name: Initialize services
-#        env:
+        env:
           # use localhost for the host here because we are running the job on the VM.
           # If we were running the job on in a container this would be postgres
           POSTGRES_HOST: localhost
