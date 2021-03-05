@@ -76,13 +76,14 @@ jobs:
         image: rabbitmq:3-management
       ao-ruby-mongo:
         image: mongo:3.4
-      ao-ruby-postgres:
-        image: postgres
+      postgres:
+        image: postgres:10.8
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: postgres
         ports:
+          # will assign a random free host port
           - 5432/tcp
         # needed because the postgres container does not provide a healthcheck
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
@@ -131,6 +132,7 @@ jobs:
           POSTGRES_HOST: localhost
           POSTGRES_PORT: ${{ job.services.ao-ruby-postgres.ports[5432] }} # get randomly assigned published port
         run: |
+          echo `docker ps`
           psql -c 'create database travis_ci_test;' -U postgres
           mysql -e 'create database travis_ci_test;'
           redis-server --requirepass secret_pass &
