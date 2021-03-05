@@ -131,8 +131,8 @@ jobs:
 #          POSTGRES_HOST: localhost
 #          POSTGRES_PORT: ${{ job.services.ao-ruby-postgres.ports[5432] }} # get randomly assigned published port
         run: |
-          echo -e `docker ps`
-          echo -e `ps -ef`
+          docker ps
+          ps -ef
           psql -c 'create database travis_ci_test;' -U postgres -h localhost -p 5432
 #          mysql -e 'create database travis_ci_test;'
 #          redis-server --requirepass secret_pass &
