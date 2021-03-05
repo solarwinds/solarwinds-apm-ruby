@@ -70,7 +70,7 @@ jobs:
       DOCKER_PSQL_PASS: "docker"
       POSTGRES_USER: "docker"
       POSTGRES_PASSWORD: "docker"
-      PSQL_HOST: "ao-ruby-postgres"
+      PSQL_HOST: "localhost"
     services:
       ao-ruby-rabbitmq:
         image: rabbitmq:3-management
@@ -83,7 +83,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: postgres
         ports:
-          - 5432:5432
+          - 5432/tcp
         # needed because the postgres container does not provide a healthcheck
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
       ao-ruby-mysql:
