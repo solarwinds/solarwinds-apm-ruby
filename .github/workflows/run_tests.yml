@@ -88,6 +88,11 @@ jobs:
           - 5432/tcp
         # needed because the postgres container does not provide a healthcheck
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+      redis:
+        images: redis
+        ports:
+          - 6379:6379
+        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
 #      ao-ruby-mysql:
 #        image: mysql:5.7.33
 
@@ -95,7 +100,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Install dependencies
-        run: sudo apt install -y --no-install-recommends libcurl4-gnutls-dev libsasl2-dev
+        run: sudo apt install -y --no-install-recommends libcurl4-gnutls-dev libsasl2-dev redis-server
 
       - name: Set up ${{ matrix.ruby }}
         uses: actions/setup-ruby@v1
@@ -135,7 +140,7 @@ jobs:
           POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }} # get randomly assigned published port
         run: |
           export PGPASSWORD=$POSTGRES_PASSWORD; psql -c 'create database travis_ci_test;' -U postgres -h localhost -p $POSTGRES_PORT
-          redis-server --requirepass secret_pass
+#          redis-server --requirepass secret_pass
       #          mysql -e 'create database travis_ci_test;'
 
       - name: Run tests
