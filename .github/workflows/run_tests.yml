@@ -60,6 +60,7 @@ jobs:
       APPOPTICS_RABBITMQ_SERVER: "ao-ruby-rabbitmq"
       APPOPTICS_REPORTER_FILE_SINGLE: false
       APPOPTICS_FROM_S3: true
+      DBTYPE: mysql2
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
       MYSQL_ROOT_PASSWORD: "admin"
       MYSQL_HOST: "ao-ruby-mysql"
@@ -67,13 +68,13 @@ jobs:
       DOCKER_PSQL_PASS: "docker"
       POSTGRES_USER: "docker"
       POSTGRES_PASSWORD: "docker"
-      PSQL_HOST: "postgres"
+      PSQL_HOST: "ao-ruby-postgres"
     services:
       ao-ruby-rabbitmq:
         image: rabbitmq:3-management
       ao-ruby-mongo:
         image: mongo:3.4
-      postgres:
+      ao-ruby-postgres:
         image: postgres
       ao-ruby-mysql:
         image: mysql:5.7.33
