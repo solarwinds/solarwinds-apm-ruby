@@ -5,8 +5,6 @@ on: [push, pull_request]
 jobs:
   tests:
     runs-on: ubuntu-latest
-    container:
-      image: ubuntu:latest
     strategy:
       fail-fast: false
       matrix:
@@ -85,7 +83,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: postgres
         ports:
-          - 5432:5432
+          - 5432/tcp
         # needed because the postgres container does not provide a healthcheck
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 #      ao-ruby-mysql:
@@ -130,12 +128,12 @@ jobs:
         env:
           # use localhost for the host here because we are running the job on the VM.
           # If we were running the job on in a container this would be postgres
-          POSTGRES_HOST: localhost
-          POSTGRES_PORT: ${{ job.services.ao-ruby-postgres.ports[5432] }} # get randomly assigned published port
+#          POSTGRES_HOST: localhost
+#          POSTGRES_PORT: ${{ job.services.ao-ruby-postgres.ports[5432] }} # get randomly assigned published port
         run: |
           echo `docker ps`
-          psql -c 'create database travis_ci_test;' -U postgres -h localhost
-          mysql -e 'create database travis_ci_test;'
-          redis-server --requirepass secret_pass &
+          psql -c 'create database travis_ci_test;' -U postgres -h localhost -p 5432
+#          mysql -e 'create database travis_ci_test;'
+#          redis-server --requirepass secret_pass &
 #      - name: Run tests
 #        run: bundle exec rake test
