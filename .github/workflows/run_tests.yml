@@ -65,6 +65,7 @@ jobs:
       MYSQL_ROOT_PASSWORD: "admin"
       MYSQL_HOST: "ao-ruby-mysql"
       POSTGRES_DB: "travis_ci_test"
+      DOCKER_MYSQL_PASS: "admin"
       DOCKER_PSQL_PASS: "docker"
       POSTGRES_USER: "docker"
       POSTGRES_PASSWORD: "docker"
@@ -114,6 +115,10 @@ jobs:
       - name: Compile c-extension
         run: |
           bundle exec rake fetch compile
-#      - name: Set up services
+      - name: Initialize services
+        run: |
+          psql -c 'create database travis_ci_test;' -U postgres
+          mysql -e 'create database travis_ci_test;'
+          redis-server --requirepass secret_pass &
       - name: Run tests
         run: bundle exec rake test
