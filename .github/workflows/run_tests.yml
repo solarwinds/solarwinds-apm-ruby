@@ -9,8 +9,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-#        ruby: [3.0.x, 2.7.x, 2.6.x, 2.5.x, 2.4.x]
-        ruby: [2.6.x]
+#        ruby: [3.0, 2.7, 2.6, 2.5, 2.4]
+        ruby: [2.6]
         gemfile:
           - libraries
           - unit
@@ -24,17 +24,17 @@ jobs:
           - delayed_job
           - noop
         exclude:
-          - ruby: 3.0.x
+          - ruby: 3.0
             gemfile: rails42
-          - ruby: 2.7.x
+          - ruby: 2.7
             gemfile: rails42
-          - ruby: 2.6.x
+          - ruby: 2.6
             gemfile: rails42
-          - ruby: 2.4.x
+          - ruby: 2.4
             gemfile: rails61
-          - ruby: 2.4.x
+          - ruby: 2.4
             gemfile: rails60
-          - ruby: 2.4.x  # excluding because of new sprockets version (4.0.0)
+          - ruby: 2.4  # excluding because of new sprockets version (4.0.0)
             gemfile: rails52
 
 #          - gemfile: unit
