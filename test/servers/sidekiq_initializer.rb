@@ -7,7 +7,9 @@
 ENV['BUNDLE_GEMFILE'] = Dir.pwd + "/gemfiles/libraries.gemfile"
 
 Sidekiq.configure_server do |config|
-  config.redis = { :password => 'secret_pass' }
+  if ENV.key?('REDIS_PASSWORD')
+    config.redis = { :password => ENV['REDIS_PASSWORD'] }
+  end
 end
 
 require 'rubygems'

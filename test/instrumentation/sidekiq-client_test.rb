@@ -9,7 +9,9 @@ unless defined?(JRUBY_VERSION)
   require_relative "../jobs/sidekiq/error_worker_job"
 
   Sidekiq.configure_server do |config|
-    config.redis = { :password => 'secret_pass' }
+    if ENV.key?('REDIS_PASSWORD')
+      config.redis = { :password => ENV['REDIS_PASSWORD'] }
+    end
   end
 
   class SidekiqClientTest < Minitest::Test

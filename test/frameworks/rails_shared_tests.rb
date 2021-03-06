@@ -8,7 +8,9 @@ require_relative '../jobs/sidekiq/activejob_worker_job'
 require_relative '../servers/sidekiq_activejob.rb'
 
 Sidekiq.configure_server do |config|
-  config.redis = { :password => 'secret_pass' }
+  if ENV.key?('REDIS_PASSWORD')
+    config.redis = { :password => ENV['REDIS_PASSWORD'] }
+  end
 end
 
 describe "RailsSharedTests" do

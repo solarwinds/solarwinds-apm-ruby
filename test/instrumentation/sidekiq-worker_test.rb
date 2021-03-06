@@ -6,7 +6,9 @@ unless defined?(JRUBY_VERSION)
   require 'sidekiq'
 
   Sidekiq.configure_server do |config|
-    config.redis = { :password => 'secret_pass' }
+    if ENV.key?('REDIS_PASSWORD')
+      config.redis = { :password => ENV['REDIS_PASSWORD'] }
+    end
   end
 
   require_relative "../jobs/sidekiq/remote_call_worker_job"
