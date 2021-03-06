@@ -67,6 +67,7 @@ jobs:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
       MYSQL_ROOT_PASSWORD: "admin"
       MYSQL_HOST: "localhost"
+      MYSQL_DATABASE: "travis_ci_test"
       POSTGRES_DB: "travis_ci_test"
       DOCKER_MYSQL_PASS: "admin"
       DOCKER_PSQL_PASS: "postgres"
@@ -97,7 +98,7 @@ jobs:
         image: mysql
         ports:
           - 3306:3306
-        options: --health-cmd "mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 5
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
       - uses: actions/checkout@v2
@@ -143,7 +144,7 @@ jobs:
           POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }} # get randomly assigned published port
         run: |
           export PGPASSWORD=$POSTGRES_PASSWORD; psql -c 'create database travis_ci_test;' -U postgres -h localhost -p $POSTGRES_PORT
-          mysql -e 'create database travis_ci_test;'
+#          mysql -e 'create database travis_ci_test;'
 #          redis-server --requirepass secret_pass
 
       - name: Run tests
