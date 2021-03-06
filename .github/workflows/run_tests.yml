@@ -12,17 +12,17 @@ jobs:
 #        ruby: [3.0.x, 2.7.x, 2.6.x, 2.5.x, 2.4.x]
         ruby: [2.6.x]
         gemfile:
-#          - libraries
-#          - unit
-#          - instrumentation_mocked
-#          - instrumentation_mocked_oldgems
-#          - frameworks
-#          - rails61
+          - libraries
+          - unit
+          - instrumentation_mocked
+          - instrumentation_mocked_oldgems
+          - frameworks
+          - rails61
           - rails60
-#          - rails52
-#          - rails42
-#          - delayed_job
-#          - noop
+          - rails52
+          - rails42
+          - delayed_job
+          - noop
         exclude:
           - ruby: 3.0.x
             gemfile: rails42
@@ -103,7 +103,7 @@ jobs:
         run: sudo apt install -y --no-install-recommends libcurl4-gnutls-dev libsasl2-dev
 
       - name: Set up ${{ matrix.ruby }}
-        uses: actions/setup-ruby@v1
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
 
