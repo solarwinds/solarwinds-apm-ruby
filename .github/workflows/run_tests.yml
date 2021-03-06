@@ -66,7 +66,7 @@ jobs:
 #      DBTYPE: mysql2
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
       MYSQL_ROOT_PASSWORD: "admin"
-      MYSQL_HOST: "ao-ruby-mysql"
+      MYSQL_HOST: "localhost"
       POSTGRES_DB: "travis_ci_test"
       DOCKER_MYSQL_PASS: "admin"
       DOCKER_PSQL_PASS: "postgres"
@@ -93,8 +93,10 @@ jobs:
         ports:
           - 6379:6379
         options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
-#      ao-ruby-mysql:
-#        image: mysql:5.7.33
+      mysql:
+        image: mysql
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
 
     steps:
       - uses: actions/checkout@v2
@@ -140,8 +142,8 @@ jobs:
           POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }} # get randomly assigned published port
         run: |
           export PGPASSWORD=$POSTGRES_PASSWORD; psql -c 'create database travis_ci_test;' -U postgres -h localhost -p $POSTGRES_PORT
+          mysql -e 'create database travis_ci_test;'
 #          redis-server --requirepass secret_pass
-      #          mysql -e 'create database travis_ci_test;'
 
       - name: Run tests
         env:
