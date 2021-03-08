@@ -39,19 +39,19 @@ jobs:
             gemfile: rails52
 
           - gemfile: unit
-            dbtype: mysql
+            dbtype: mysql2
           - gemfile: noop
-            dbtype: mysql
+            dbtype: mysql2
           - gemfile: libraries
-            dbtype: mysql
+            dbtype: mysql2
           - gemfile: instrumentation_mocked
-            dbtype: mysql
+            dbtype: mysql2
           - gemfile: instrumentation_mocked_oldgems
-            dbtype: mysql
+            dbtype: mysql2
           - gemfile: frameworks
-            dbtype: mysql
+            dbtype: mysql2
           - gemfile: delayed_job
-            dbtype: mysql
+            dbtype: mysql2
 
     name: ${{ matrix.ruby }} - ${{ matrix.gemfile }}
 #    name: Test Service Setup
