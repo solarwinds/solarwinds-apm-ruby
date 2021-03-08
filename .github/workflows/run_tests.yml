@@ -156,7 +156,7 @@ jobs:
           POSTGRES_HOST: psql
 #          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }} # get randomly assigned published port
         run: |
-          export PGPASSWORD=$POSTGRES_PASSWORD; psql -c 'create database travis_ci_test;' -U postgres -h localhost
+          export PGPASSWORD=$POSTGRES_PASSWORD; psql -c 'create database travis_ci_test;' -U postgres -h $POSTGRES_HOST
 #          mysql -e 'create database travis_ci_test;'
 #          redis-server --requirepass secret_pass
 
