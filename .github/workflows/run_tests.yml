@@ -13,16 +13,16 @@ jobs:
         ruby: [2.6]
         gemfile:
           - libraries
-          - unit
-          - instrumentation_mocked
-          - instrumentation_mocked_oldgems
-          - frameworks
-          - rails61
-          - rails60
-          - rails52
-          - rails42
-          - delayed_job
-          - noop
+#          - unit
+#          - instrumentation_mocked
+#          - instrumentation_mocked_oldgems
+#          - frameworks
+#          - rails61
+#          - rails60
+#          - rails52
+#          - rails42
+#          - delayed_job
+#          - noop
         dbtype: [postgresql, mysql2]
         exclude:
           - ruby: 3.0
