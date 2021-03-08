@@ -23,6 +23,7 @@ jobs:
           - rails42
           - delayed_job
           - noop
+        dbtype: [postgresql, mysql2]
         exclude:
           - ruby: 3.0
             gemfile: rails42
@@ -37,20 +38,20 @@ jobs:
           - ruby: 2.4  # excluding because of new sprockets version (4.0.0)
             gemfile: rails52
 
-#          - gemfile: unit
-#            env: DBTYPE=mysql2
-#          - gemfile: noop
-#            env: DBTYPE=mysql2
-#          - gemfile: libraries
-#            env: DBTYPE=mysql2
-#          - gemfile: instrumentation_mocked
-#            env: DBTYPE=mysql2
-#          - gemfile: instrumentation_mocked_oldgems
-#            env: DBTYPE=mysql2
-#          - gemfile: frameworks
-#            env: DBTYPE=mysql2
-#          - gemfile: delayed_job
-#            env: DBTYPE=mysql2
+          - gemfile: unit
+            dbtype: mysql
+          - gemfile: noop
+            dbtype: mysql
+          - gemfile: libraries
+            dbtype: mysql
+          - gemfile: instrumentation_mocked
+            dbtype: mysql
+          - gemfile: instrumentation_mocked_oldgems
+            dbtype: mysql
+          - gemfile: frameworks
+            dbtype: mysql
+          - gemfile: delayed_job
+            dbtype: mysql
 
     name: ${{ matrix.ruby }} - ${{ matrix.gemfile }}
 #    name: Test Service Setup
@@ -115,6 +116,9 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
+
+      - name: Set database type env var
+        run: export DBTYPE=${{ matrix.dbtype }}
 
       - name: Bundle with 1.17.3
         if: matrix.gemfile == 'rails42' || matrix.gemfile == 'frameworks'

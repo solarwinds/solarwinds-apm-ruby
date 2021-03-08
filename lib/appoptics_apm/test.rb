@@ -73,7 +73,11 @@ module AppOpticsAPM
         if ENV.key?('TRAVIS_MYSQL_PASS')
           ENV['DATABASE_URL'] = "mysql://root:#{ENV['TRAVIS_MYSQL_PASS']}@127.0.0.1:3306/travis_ci_test"
         elsif ENV.key?('DOCKER_MYSQL_PASS')
-          ENV['DATABASE_URL'] = "mysql://root:#{ENV['DOCKER_MYSQL_PASS']}@#{ENV['MYSQL_HOST']}:3306/travis_ci_test"
+          if ENV.key?('MYSQL_PORT')
+            ENV['DATABASE_URL'] = "mysql://root:#{ENV['DOCKER_MYSQL_PASS']}@#{ENV['MYSQL_HOST']}:#{ENV['MYSQL_PORT']}/travis_ci_test"
+          else
+            ENV['DATABASE_URL'] = "mysql://root:#{ENV['DOCKER_MYSQL_PASS']}@#{ENV['MYSQL_HOST']}:3306/travis_ci_test"
+          end
         else
           ENV['DATABASE_URL'] = 'mysql://root@127.0.0.1:3306/travis_ci_test'
         end
