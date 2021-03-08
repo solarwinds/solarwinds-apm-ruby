@@ -102,7 +102,7 @@ jobs:
           MYSQL_DATABASE: travis_ci_test
           MYSQL_ROOT_PASSWORD: admin
         ports:
-          - 3306:3306
+          - 3306
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
@@ -155,8 +155,5 @@ jobs:
       - name: Run tests
         env:
           POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
+          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: bundle exec rake test
-
-      - name: Dump docker logs on failure
-        if: failure()
-        uses: jwalton/gh-docker-logs@v1
