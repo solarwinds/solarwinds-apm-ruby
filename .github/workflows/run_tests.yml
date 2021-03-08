@@ -55,7 +55,9 @@ jobs:
 
     container:
       image: ubuntu-latest
-      name: ${{ matrix.ruby }} - ${{ matrix.gemfile }}
+
+    name: ${{ matrix.ruby }} - ${{ matrix.gemfile }}
+
 #    name: Test Service Setup
     env:
       BUNDLE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile
