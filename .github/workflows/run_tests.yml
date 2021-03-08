@@ -27,7 +27,7 @@ jobs:
         exclude:
           - ruby: 3.0
             gemfile: rails42
-          - ruby: 2.7
+          - ruby: 2.7sequel_mysql2_test.rb:10
             gemfile: rails42
           - ruby: 2.6
             gemfile: rails42
@@ -67,7 +67,7 @@ jobs:
 #      DBTYPE: mysql2
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
       MYSQL_ROOT_PASSWORD: "admin"
-      MYSQL_HOST: "localhost"
+      MYSQL_HOST: "127.0.0.1"
       MYSQL_DATABASE: "travis_ci_test"
       POSTGRES_DB: "travis_ci_test"
       DOCKER_MYSQL_PASS: "admin"
