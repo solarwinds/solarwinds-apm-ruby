@@ -9,8 +9,12 @@ unless defined?(JRUBY_VERSION)
   require_relative "../jobs/sidekiq/error_worker_job"
 
   Sidekiq.configure_server do |config|
-    if ENV.key?('REDIS_PASSWORD')
-      config.redis = { :password => ENV['REDIS_PASSWORD'] }
+    # if ENV.key?('REDIS_PASSWORD')
+    config.redis = { :password => ENV['REDIS_PASSWORD'] || 'secret_pass' }
+    # config.redis = { :password => 'secret_pass' }
+    # end
+    if ENV.key?('REDIS_HOST')
+      config.redis << { :url => "redis://#{ENV['REDIS_HOST']}:6379" }
     end
   end
 

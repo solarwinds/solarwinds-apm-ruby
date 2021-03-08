@@ -16,11 +16,13 @@ if defined?(::Redis)
     before do
       clear_all_traces
 
-      if ENV.key?('REDIS_PASSWORD')
-        @redis ||= Redis.new(:host => ENV['APPOPTICS_REDIS_SERVER'] || '127.0.0.1', :password => ENV['REDIS_PASSOWRD'])
-      else
-        @redis ||= Redis.new(:host => ENV['APPOPTICS_REDIS_SERVER'] || '127.0.0.1')
-      end
+      @redis ||= Redis.new(:host => ENV['APPOPTICS_REDIS_SERVER'] || '127.0.0.1',
+                           :password => ENV['REDIS_PASSWORD'] || 'secret_pass')
+      # if ENV.key?('REDIS_PASSWORD')
+      #   @redis ||= Redis.new(:host => ENV['APPOPTICS_REDIS_SERVER'] || '127.0.0.1', :password => ENV['REDIS_PASSOWRD'])
+      # else
+      #   @redis ||= Redis.new(:host => ENV['APPOPTICS_REDIS_SERVER'] || '127.0.0.1')
+      # end
 
       @redis_version ||= @redis.info["redis_version"]
 

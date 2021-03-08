@@ -79,6 +79,8 @@ jobs:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
       PSQL_HOST: "postgres"
+      REDIS_HOST: "redis"
+      APPOPTICS_REDIS_SERVER: "redis"
     services:
 #      ao-ruby-rabbitmq:
 #        image: rabbitmq:3-management
@@ -124,6 +126,18 @@ jobs:
       - name: Set database type env var
         run: export DBTYPE=${{ matrix.dbtype }}
 
+
+      - name: Initialize services
+        env:
+          # use localhost for the host here because if running the job on the VM
+          # If we were running the job on in a container the host is postgres
+          POSTGRES_HOST: postgres
+        #          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }} # get randomly assigned published port
+        run: |
+          export PGPASSWORD=$POSTGRES_PASSWORD; psql -c 'create database travis_ci_test;' -U postgres -h $POSTGRES_HOST
+    #          mysql -e 'create database travis_ci_test;'
+    #          redis-server --requirepass secret_pass
+
       - name: Bundle with 1.17.3
         if: matrix.gemfile == 'rails42' || matrix.gemfile == 'frameworks'
         run: |
@@ -149,16 +163,6 @@ jobs:
         run: |
           bundle exec rake fetch compile
 
-      - name: Initialize services
-        env:
-          # use localhost for the host here because we are running the job on the VM.
-          # If we were running the job on in a container this would be postgres
-          POSTGRES_HOST: postgres
-#          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }} # get randomly assigned published port
-        run: |
-          export PGPASSWORD=$POSTGRES_PASSWORD; psql -c 'create database travis_ci_test;' -U postgres -h $POSTGRES_HOST
-#          mysql -e 'create database travis_ci_test;'
-#          redis-server --requirepass secret_pass
 
       - name: Run tests
 #        env:
