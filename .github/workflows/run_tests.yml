@@ -53,7 +53,9 @@ jobs:
           - gemfile: delayed_job
             dbtype: mysql2
 
-    name: ${{ matrix.ruby }} - ${{ matrix.gemfile }}
+    container:
+      image: ubuntu-latest
+      name: ${{ matrix.ruby }} - ${{ matrix.gemfile }}
 #    name: Test Service Setup
     env:
       BUNDLE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile
@@ -67,14 +69,14 @@ jobs:
 #      DBTYPE: mysql2
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
       MYSQL_ROOT_PASSWORD: "admin"
-      MYSQL_HOST: "127.0.0.1"
+      MYSQL_HOST: "mysql"
       MYSQL_DATABASE: "travis_ci_test"
       POSTGRES_DB: "travis_ci_test"
       DOCKER_MYSQL_PASS: "admin"
       DOCKER_PSQL_PASS: "postgres"
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
-      PSQL_HOST: "localhost"
+      PSQL_HOST: "psql"
     services:
 #      ao-ruby-rabbitmq:
 #        image: rabbitmq:3-management
@@ -87,7 +89,7 @@ jobs:
 #          POSTGRES_PASSWORD: postgres
           POSTGRES_DB: postgres
         ports:
-          - 5432/tcp
+          - 5432:5432
         # needed because the postgres container does not provide a healthcheck
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
       redis:
@@ -103,7 +105,7 @@ jobs:
           MYSQL_DATABASE: travis_ci_test
           MYSQL_ROOT_PASSWORD: admin
         ports:
-          - 3306
+          - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
@@ -157,7 +159,7 @@ jobs:
 #          redis-server --requirepass secret_pass
 
       - name: Run tests
-        env:
-          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
-          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
+#        env:
+#          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
+#          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: bundle exec rake test
