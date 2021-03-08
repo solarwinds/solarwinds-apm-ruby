@@ -54,7 +54,7 @@ jobs:
             dbtype: mysql2
 
     container:
-      image: ubuntu:18.04
+      image:  ruby:${{ matrix.ruby }}
 
     name: ${{ matrix.ruby }} - ${{ matrix.gemfile }}
 
@@ -68,7 +68,7 @@ jobs:
       APPOPTICS_RABBITMQ_SERVER: "ao-ruby-rabbitmq"
       APPOPTICS_REPORTER_FILE_SINGLE: false
       APPOPTICS_FROM_S3: true
-      ImageOS: ubuntu18
+#      ImageOS: ubuntu18
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
       MYSQL_ROOT_PASSWORD: "admin"
       MYSQL_HOST: "mysql"
@@ -116,10 +116,10 @@ jobs:
       - name: Install dependencies
         run: apt update && apt install -y --no-install-recommends libcurl4-gnutls-dev libsasl2-dev
 
-      - name: Set up ${{ matrix.ruby }}
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby }}
+#      - name: Set up ${{ matrix.ruby }}
+#        uses: ruby/setup-ruby@v1
+#        with:
+#          ruby-version: ${{ matrix.ruby }}
 
       - name: Set database type env var
         run: export DBTYPE=${{ matrix.dbtype }}
