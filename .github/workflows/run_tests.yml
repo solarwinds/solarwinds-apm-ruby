@@ -54,7 +54,7 @@ jobs:
             dbtype: mysql2
 
     container:
-      image: ubuntu-latest
+      image: ubuntu
 
     name: ${{ matrix.ruby }} - ${{ matrix.gemfile }}
 
