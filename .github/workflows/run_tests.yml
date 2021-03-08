@@ -153,10 +153,10 @@ jobs:
         env:
           # use localhost for the host here because we are running the job on the VM.
           # If we were running the job on in a container this would be postgres
-          POSTGRES_HOST: localhost
-          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }} # get randomly assigned published port
+          POSTGRES_HOST: psql
+#          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }} # get randomly assigned published port
         run: |
-          export PGPASSWORD=$POSTGRES_PASSWORD; psql -c 'create database travis_ci_test;' -U postgres -h localhost -p $POSTGRES_PORT
+          export PGPASSWORD=$POSTGRES_PASSWORD; psql -c 'create database travis_ci_test;' -U postgres -h localhost
 #          mysql -e 'create database travis_ci_test;'
 #          redis-server --requirepass secret_pass
 
