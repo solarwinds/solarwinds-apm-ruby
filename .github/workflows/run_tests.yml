@@ -54,7 +54,7 @@ jobs:
             dbtype: mysql2
 
     container:
-      image: ubuntu:latest
+      image: ubuntu:18
 
     name: ${{ matrix.ruby }} - ${{ matrix.gemfile }}
 
@@ -68,7 +68,7 @@ jobs:
       APPOPTICS_RABBITMQ_SERVER: "ao-ruby-rabbitmq"
       APPOPTICS_REPORTER_FILE_SINGLE: false
       APPOPTICS_FROM_S3: true
-#      DBTYPE: mysql2
+      ImageOS: ubuntu18
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
       MYSQL_ROOT_PASSWORD: "admin"
       MYSQL_HOST: "mysql"
