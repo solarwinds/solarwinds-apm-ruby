@@ -79,9 +79,9 @@ jobs:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
       PSQL_HOST: "postgres"
-      REDIS_HOST: "redis"
+      REDIS_HOST: "localhost"
       REDIS_PASSWORD: "redis_pass"
-      APPOPTICS_REDIS_SERVER: "redis"
+      APPOPTICS_REDIS_SERVER: "localhost"
     services:
 #      ao-ruby-rabbitmq:
 #        image: rabbitmq:3-management
@@ -97,13 +97,13 @@ jobs:
           - 5432:5432
         # needed because the postgres container does not provide a healthcheck
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-      redis:
-        image: redis
-        env:
-          REDIS_PASSWORD: "redis_pass"
-        ports:
-          - 6379:6379
-        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5 -eREDIS_PASSWORD=$REDIS_PASSWORD
+#      redis:
+#        image: redis
+#        env:
+#          REDIS_PASSWORD: "redis_pass"
+#        ports:
+#          - 6379:6379
+#        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
       mysql:
         image: mariadb:latest
         env:
@@ -129,7 +129,6 @@ jobs:
       - name: Set database type env var
         run: export DBTYPE=${{ matrix.dbtype }}
 
-
       - name: Initialize services
         env:
           # use localhost for the host here because if running the job on the VM
@@ -138,8 +137,9 @@ jobs:
         #          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }} # get randomly assigned published port
         run: |
           export PGPASSWORD=$POSTGRES_PASSWORD; psql -c 'create database travis_ci_test;' -U postgres -h $POSTGRES_HOST
-    #          mysql -e 'create database travis_ci_test;'
-    #          redis-server --requirepass secret_pass
+          curl -SL http://download.redis.io/releases/redis-4.0.0.tar.gz | tar xzC /tmp && cd /tmp/redis-4.0.0/ && make && make install && cd -
+          redis-server --requirepass redis_pass &
+      #          mysql -e 'create database travis_ci_test;'
 
       - name: Bundle with 1.17.3
         if: matrix.gemfile == 'rails42' || matrix.gemfile == 'frameworks'
