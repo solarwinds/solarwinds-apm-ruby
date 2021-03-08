@@ -78,7 +78,7 @@ jobs:
       DOCKER_PSQL_PASS: "postgres"
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
-      PSQL_HOST: "psql"
+      PSQL_HOST: "postgres"
     services:
 #      ao-ruby-rabbitmq:
 #        image: rabbitmq:3-management
@@ -153,7 +153,7 @@ jobs:
         env:
           # use localhost for the host here because we are running the job on the VM.
           # If we were running the job on in a container this would be postgres
-          POSTGRES_HOST: psql
+          POSTGRES_HOST: postgres
 #          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }} # get randomly assigned published port
         run: |
           export PGPASSWORD=$POSTGRES_PASSWORD; psql -c 'create database travis_ci_test;' -U postgres -h $POSTGRES_HOST
