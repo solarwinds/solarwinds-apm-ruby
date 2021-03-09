@@ -79,9 +79,9 @@ jobs:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
       PSQL_HOST: "postgres"
-      REDIS_HOST: "localhost"
+#      REDIS_HOST: "localhost"
       REDIS_PASSWORD: "redis_pass"
-      APPOPTICS_REDIS_SERVER: "localhost"
+#      APPOPTICS_REDIS_SERVER: "localhost"
     services:
 #      ao-ruby-rabbitmq:
 #        image: rabbitmq:3-management
