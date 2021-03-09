@@ -65,7 +65,7 @@ jobs:
       APPOPTICS_REPORTER: file
       APPOPTICS_COLLECTOR: /tmp/appoptics_traces.bson
       APPOPTICS_MONGO_SERVER: "mongo"
-      APPOPTICS_RABBITMQ_SERVER: "ao-ruby-rabbitmq"
+      APPOPTICS_RABBITMQ_SERVER: "rabbitmq"
       APPOPTICS_REPORTER_FILE_SINGLE: false
       APPOPTICS_FROM_S3: true
 #      ImageOS: ubuntu18
