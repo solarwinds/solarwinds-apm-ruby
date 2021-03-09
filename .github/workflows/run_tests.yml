@@ -83,8 +83,11 @@ jobs:
       REDIS_PASSWORD: "redis_pass"
 #      APPOPTICS_REDIS_SERVER: "localhost"
     services:
-#      ao-ruby-rabbitmq:
+      rabbitmq:
 #        image: rabbitmq:3-management
+        image: rabbitmq:latest
+        ports:
+          - 5672:5672
       mongo:
       #        image: mongo:3.4
         image: mongo:latest
