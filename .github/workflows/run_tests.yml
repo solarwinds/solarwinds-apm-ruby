@@ -66,6 +66,7 @@ jobs:
       APPOPTICS_COLLECTOR: /tmp/appoptics_traces.bson
       APPOPTICS_MONGO_SERVER: "mongo"
       APPOPTICS_RABBITMQ_SERVER: "rabbitmq"
+      APPOPTICS_MEMCACHED_SERVER: "memcached"
       APPOPTICS_REPORTER_FILE_SINGLE: false
       APPOPTICS_FROM_S3: true
 #      ImageOS: ubuntu18
@@ -79,9 +80,7 @@ jobs:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
       PSQL_HOST: "postgres"
-#      REDIS_HOST: "localhost"
       REDIS_PASSWORD: "redis_pass"
-#      APPOPTICS_REDIS_SERVER: "localhost"
     services:
       memcached:
         image: memcached:latest
@@ -89,7 +88,6 @@ jobs:
           - 11211:11211
         options: --health-cmd "timeout 5 bash -c 'cat < /dev/null > /dev/udp/127.0.0.1/11211'" --health-interval 10s --health-timeout 5s --health-retries 5
       rabbitmq:
-#        image: rabbitmq:3-management
         image: rabbitmq:latest
         ports:
           - 5672:5672
@@ -123,11 +121,6 @@ jobs:
       - name: Install dependencies
         run: apt update && apt install -y --no-install-recommends libcurl4-gnutls-dev libsasl2-dev postgresql-client
 
-#      - name: Set up ${{ matrix.ruby }}
-#        uses: ruby/setup-ruby@v1
-#        with:
-#          ruby-version: ${{ matrix.ruby }}
-
       - name: Set database type env var
         run: export DBTYPE=${{ matrix.dbtype }}
 
@@ -136,7 +129,7 @@ jobs:
           # use localhost for the host here because if running the job on the VM
           # If we were running the job on in a container the host is postgres
           POSTGRES_HOST: postgres
-        #          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }} # get randomly assigned published port
+          # POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }} # get randomly assigned published port
         run: |
           export PGPASSWORD=$POSTGRES_PASSWORD; psql -c 'create database travis_ci_test;' -U postgres -h $POSTGRES_HOST
           curl -SL http://download.redis.io/releases/redis-4.0.0.tar.gz | tar xzC /tmp && cd /tmp/redis-4.0.0/ && make && make install && cd -
