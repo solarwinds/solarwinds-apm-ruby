@@ -6,7 +6,7 @@ require 'minitest_helper'
 describe "Dalli" do
   before do
     clear_all_traces
-    @dc = Dalli::Client.new
+    @dc = Dalli::Client.new("#{ENV['APPOPTICS_MEMCACHED_SERVER'] || 'localhost'}:11211")
     @collect_backtraces = AppOpticsAPM::Config[:dalli][:collect_backtraces]
   end
 
