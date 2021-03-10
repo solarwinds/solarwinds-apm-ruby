@@ -191,7 +191,7 @@ describe "Typhoeus" do
 
   it 'should trace a typhoeus GET request with DNS error' do
     AppOpticsAPM::API.start_trace('typhoeus_test') do
-      Typhoeus.get("thisdomaindoesntexisthopefully.asdf/products/appoptics_apm/")
+      Typhoeus.get("http://thisdomaindoesntexisthopefully.asdf/products/appoptics_apm/")
     end
 
     traces = get_all_traces

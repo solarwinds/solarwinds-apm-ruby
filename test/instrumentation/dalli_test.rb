@@ -6,7 +6,8 @@ require 'minitest_helper'
 describe "Dalli" do
   before do
     clear_all_traces
-    @dc = Dalli::Client.new("#{ENV['APPOPTICS_MEMCACHED_SERVER'] || '127.0.0.1'}:11211")
+    @server = "#{ENV['APPOPTICS_MEMCACHED_SERVER'] || '127.0.0.1'}:11211"
+    @dc = Dalli::Client.new(@server)
     @collect_backtraces = AppOpticsAPM::Config[:dalli][:collect_backtraces]
   end
 
@@ -39,7 +40,7 @@ describe "Dalli" do
     _(traces[1].has_key?("KVKey")).must_equal true
     _(traces[1]['Layer']).must_equal "memcache"
     _(traces[1]['KVKey']).must_equal "some_key"
-    _(traces[1]['RemoteHost']).must_equal "127.0.0.1:11211"
+    _(traces[1]['RemoteHost']).must_equal @server
   end
 
   it 'should trace get' do
@@ -54,7 +55,7 @@ describe "Dalli" do
 
     _(traces[1]['KVOp']).must_equal "get"
     _(traces[1]['KVKey']).must_equal "some_key"
-    _(traces[1]['RemoteHost']).must_equal "127.0.0.1:11211"
+    _(traces[1]['RemoteHost']).must_equal @server
     _(traces[2].has_key?('KVHit')).must_equal true
     _(traces[2]['Label']).must_equal "exit"
   end
@@ -70,7 +71,7 @@ describe "Dalli" do
     validate_outer_layers(traces, 'dalli_test')
 
     _(traces[1]['KVOp']).must_equal "get_multi"
-    _(traces[2]['RemoteHost']).must_equal "127.0.0.1:11211"
+    _(traces[2]['RemoteHost']).must_equal @server
     _(traces[2].has_key?('KVKeyCount')).must_equal true
     _(traces[2].has_key?('KVHitCount')).must_equal true
     _(traces[2]['Label']).must_equal "exit"
@@ -90,7 +91,7 @@ describe "Dalli" do
 
     _(traces[1]['KVOp']).must_equal "incr"
     _(traces[1]['KVKey']).must_equal "dalli_key_counter"
-    _(traces[1]['RemoteHost']).must_equal "127.0.0.1:11211"
+    _(traces[1]['RemoteHost']).must_equal @server
     _(traces[2]['Label']).must_equal "exit"
   end
 
@@ -108,7 +109,7 @@ describe "Dalli" do
 
     _(traces[1]['KVOp']).must_equal "decr"
     _(traces[1]['KVKey']).must_equal "dalli_key_counter"
-    _(traces[1]['RemoteHost']).must_equal "127.0.0.1:11211"
+    _(traces[1]['RemoteHost']).must_equal @server
     _(traces[2]['Label']).must_equal "exit"
   end
 
@@ -126,7 +127,7 @@ describe "Dalli" do
 
     _(traces[1]['KVOp']).must_equal "replace"
     _(traces[1]['KVKey']).must_equal "some_key"
-    _(traces[1]['RemoteHost']).must_equal "127.0.0.1:11211"
+    _(traces[1]['RemoteHost']).must_equal @server
     _(traces[2]['Label']).must_equal "exit"
   end
 
@@ -144,7 +145,7 @@ describe "Dalli" do
 
     _(traces[1]['KVOp']).must_equal "delete"
     _(traces[1]['KVKey']).must_equal "some_key"
-    _(traces[1]['RemoteHost']).must_equal "127.0.0.1:11211"
+    _(traces[1]['RemoteHost']).must_equal @server
   end
 
   it "should obey :collect_backtraces setting when true" do
