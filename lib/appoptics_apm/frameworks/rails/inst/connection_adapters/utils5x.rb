@@ -26,8 +26,12 @@ module AppOpticsAPM
               opts[:Backtrace] = AppOpticsAPM::API.backtrace
             end
 
-            # config = ActiveRecord::Base.connection_config
-            config = ActiveRecord::Base.connection_db_config.configuration_hash
+            if ActiveRecord::Base.method_defined?(:connection_db_config)
+              # Rails 6.1++ deprecates connection_config
+              config = ActiveRecord::Base.connection_db_config.configuration_hash
+            else
+              config = ActiveRecord::Base.connection_config
+            end
 
             if config
               opts[:Database]   = config[:database] if config.key?(:database)
