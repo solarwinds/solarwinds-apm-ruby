@@ -18,7 +18,7 @@ jobs:
           - instrumentation_mocked_oldgems
 #          - frameworks
           - rails61
-          - rails60
+#          - rails60
           - rails52
           - rails42
 #          - delayed_job
@@ -27,7 +27,7 @@ jobs:
         exclude:
           - ruby: 3.0
             gemfile: rails42
-          - ruby: 2.7sequel_mysql2_test.rb:10
+          - ruby: 2.7
             gemfile: rails42
           - ruby: 2.6
             gemfile: rails42
