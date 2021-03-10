@@ -9,20 +9,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-#        ruby: [3.0, 2.7, 2.6, 2.5, 2.4]
-        ruby: [2.6]
+        ruby: [3.0, 2.7, 2.6, 2.5, 2.4]
+#        ruby: [2.6]
         gemfile:
           - libraries
-#          - unit
-#          - instrumentation_mocked
-#          - instrumentation_mocked_oldgems
-#          - frameworks
-#          - rails61
-#          - rails60
-#          - rails52
-#          - rails42
-#          - delayed_job
-#          - noop
+          - unit
+          - instrumentation_mocked
+          - instrumentation_mocked_oldgems
+          - frameworks
+          - rails61
+          - rails60
+          - rails52
+          - rails42
+          - delayed_job
+          - noop
         dbtype: [postgresql, mysql2]
         exclude:
           - ruby: 3.0
