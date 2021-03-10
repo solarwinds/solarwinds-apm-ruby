@@ -29,7 +29,7 @@ if defined?(::Redis)
     it "should trace auth and not include password" do
 
       AppOpticsAPM::API.start_trace('redis_test', '', {}) do
-        @redis.auth("secret_pass")
+        @redis.auth(ENV['REDIS_PASSWORD'] || 'secret_pass')
       end
 
       traces = get_all_traces
