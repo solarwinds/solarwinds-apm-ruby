@@ -26,7 +26,9 @@ module AppOpticsAPM
               opts[:Backtrace] = AppOpticsAPM::API.backtrace
             end
 
-            config = ActiveRecord::Base.connection_config
+            # config = ActiveRecord::Base.connection_config
+            config = ActiveRecord::Base.connection_db_config.configuration_hash
+
             if config
               opts[:Database]   = config[:database] if config.key?(:database)
               opts[:RemoteHost] = config[:host]     if config.key?(:host)

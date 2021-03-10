@@ -113,7 +113,7 @@ class WickedController < ApplicationController
     respond_to do |format|
       format.html
       format.pdf do
-        render pdf: "file_name", file: 'test.html'
+        render pdf: "file_name", file: "#{File.dirname(__FILE__)}/app/views/test.html"
       end
     end
   end
