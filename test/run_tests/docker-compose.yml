@@ -31,7 +31,7 @@ x-ao-env: &ao-env
 #  OBOE_VERSION: "10.1.0"
   POSTGRES_PASSWORD: "docker"
   POSTGRES_USER: "docker"
-  PSQL_HOST: "ao-ruby-postgres"
+  POSTGRES_HOST: "ao-ruby-postgres"
   RUBY_ENV: "test"
   TEST_RUNS_TO_FILE: "true"
 #    - SIMPLECOV_COVERAGE=true

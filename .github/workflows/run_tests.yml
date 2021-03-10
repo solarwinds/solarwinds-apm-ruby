@@ -9,20 +9,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-#        ruby: [3.0, 2.7, 2.6, 2.5, 2.4]
-        ruby: [3.0, 2.7, 2.6]
+        ruby: [3.0, 2.7, 2.6, 2.5, 2.4]
         gemfile:
-#          - libraries
-#          - unit
-#          - instrumentation_mocked
+          - libraries
+          - unit
+          - instrumentation_mocked
           - instrumentation_mocked_oldgems
-#          - frameworks
+          - frameworks
           - rails61
           - rails60
           - rails52
           - rails42
-#          - delayed_job
-#          - noop
+          - delayed_job
+          - noop
         dbtype: [postgresql, mysql2]
         exclude:
           - ruby: 3.0
@@ -60,7 +59,6 @@ jobs:
 
     name: ${{ matrix.ruby }} - ${{ matrix.gemfile }}
 
-#    name: Test Service Setup
     env:
       BUNDLE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile
       APPOPTICS_GEM_TEST: true
@@ -71,7 +69,6 @@ jobs:
       APPOPTICS_MEMCACHED_SERVER: "memcached"
       APPOPTICS_REPORTER_FILE_SINGLE: false
       APPOPTICS_FROM_S3: true
-#      ImageOS: ubuntu18
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
       MYSQL_ROOT_PASSWORD: "admin"
       MYSQL_HOST: "mysql"
@@ -81,7 +78,7 @@ jobs:
       DOCKER_PSQL_PASS: "postgres"
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
-      PSQL_HOST: "postgres"
+      POSTGRES_HOST: "postgres"
       REDIS_PASSWORD: "redis_pass"
     services:
       memcached:
@@ -127,16 +124,12 @@ jobs:
         run: export DBTYPE=${{ matrix.dbtype }}
 
       - name: Initialize services
-        env:
-          # use localhost for the host here because if running the job on the VM
-          # If we were running the job on in a container the host is postgres
-          POSTGRES_HOST: postgres
-          # POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }} # get randomly assigned published port
+#        env:
+#          POSTGRES_HOST: postgres
         run: |
           export PGPASSWORD=$POSTGRES_PASSWORD; psql -c 'create database travis_ci_test;' -U postgres -h $POSTGRES_HOST
           curl -SL http://download.redis.io/releases/redis-4.0.0.tar.gz | tar xzC /tmp && cd /tmp/redis-4.0.0/ && make && make install && cd -
           redis-server --requirepass redis_pass &
-      #          mysql -e 'create database travis_ci_test;'
 
       - name: Bundle with 1.17.3
         if: matrix.gemfile == 'rails42' || matrix.gemfile == 'frameworks'
@@ -163,9 +156,5 @@ jobs:
         run: |
           bundle exec rake fetch compile
 
-
       - name: Run tests
-#        env:
-#          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
-#          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: bundle exec rake test

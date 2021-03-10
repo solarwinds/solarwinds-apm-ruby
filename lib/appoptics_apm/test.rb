@@ -55,10 +55,9 @@ module AppOpticsAPM
           ENV['DATABASE_URL'] = "postgresql://postgres:#{ENV['TRAVIS_PSQL_PASS']}@127.0.0.1:5432/travis_ci_test"
         elsif ENV.key?('POSTGRES_USER')
           if ENV.key?('POSTGRES_PORT')
-            ENV['DATABASE_URL'] = "postgresql://#{ENV['POSTGRES_PASSWORD']}:#{ENV['POSTGRES_USER']}@#{ENV['PSQL_HOST']}:#{ENV['POSTGRES_PORT']}/travis_ci_test"
+            ENV['DATABASE_URL'] = "postgresql://#{ENV['POSTGRES_PASSWORD']}:#{ENV['POSTGRES_USER']}@#{ENV['POSTGRES_HOST']}:#{ENV['POSTGRES_PORT']}/travis_ci_test"
           else
-            ENV['DATABASE_URL'] = "postgresql://#{ENV['POSTGRES_PASSWORD']}:#{ENV['POSTGRES_USER']}@#{ENV['PSQL_HOST']}:5432/travis_ci_test"
-          # ENV['DATABASE_URL'] = "postgresql://postgres@#{ENV['PSQL_HOST']}:5432/travis_ci_test"
+            ENV['DATABASE_URL'] = "postgresql://#{ENV['POSTGRES_PASSWORD']}:#{ENV['POSTGRES_USER']}@#{ENV['POSTGRES_HOST']}:5432/travis_ci_test"
           end
         else
           ENV['DATABASE_URL'] = 'postgresql://postgres@127.0.0.1:5432/travis_ci_test'
