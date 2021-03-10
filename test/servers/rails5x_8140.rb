@@ -5,6 +5,7 @@
 #  This is a Rails stack that launches on a background
 #  thread and listens on port 8140.
 
+require "rails/all"
 require "active_record"
 require "action_controller" # require more rails if needed
 require 'rack/handler/puma'
