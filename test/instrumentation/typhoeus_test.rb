@@ -214,6 +214,7 @@ describe "Typhoeus" do
     _(traces[3]['Label']).must_equal 'exit'
     _(traces[3]['Spec']).must_equal 'rsc'
     _(traces[3]['IsService']).must_equal 1
+    puts traces[3]['RemoteURL']
     _(traces[3]['RemoteURL'].casecmp('http://thisdomaindoesntexisthopefully.asdf/products/appoptics_apm/')).must_equal 0
     _(traces[3]['HTTPMethod']).must_equal 'GET'
     _(traces[3]['HTTPStatus']).must_equal 0
@@ -252,7 +253,7 @@ describe "Typhoeus" do
     AppOpticsAPM::Config[:typhoeus][:log_args] = true
 
     AppOpticsAPM::API.start_trace('typhoeus_test') do
-      Typhoeus.get("127.0.0.1:8101/?blah=1")
+      Typhoeus.get("http://127.0.0.1:8101/?blah=1")
     end
 
     traces = get_all_traces
@@ -264,7 +265,7 @@ describe "Typhoeus" do
     AppOpticsAPM::Config[:typhoeus][:log_args] = false
 
     AppOpticsAPM::API.start_trace('typhoeus_test') do
-      Typhoeus.get("127.0.0.1:8101/?blah=1")
+      Typhoeus.get("http://127.0.0.1:8101/?blah=1")
     end
 
     traces = get_all_traces
