@@ -5,7 +5,7 @@ source "https://rubygems.org"
 gem 'rest-client', '= 1.6.3'
 
 # gem 'curb', '= 0.8.6' unless defined?(JRUBY_VERSION)
-gem 'curb', '= 0.9.5' unless defined?(JRUBY_VERSION)
+gem 'curb', '= 0.9.7' unless defined?(JRUBY_VERSION)
 gem 'excon', '0.28.0'
 gem 'faraday', '0.7.6'
 gem 'httpclient', '2.3.0'
