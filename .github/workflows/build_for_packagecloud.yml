@@ -45,6 +45,7 @@ jobs:
           name=*.gem
           vers=${name#*-}; echo $vers
           vers=${vers%.gem}; echo $vers
+          echo $vers
           export GEM_VERSION=$vers
           echo "::set-env name=GEM_VERSION::$GEM_VERSION"
 

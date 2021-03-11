@@ -1,11 +1,11 @@
 name: Run all Tests
 
 #on: [push, pull_request]
-on:
-  - pull_request:
-  - push:
-      branches:
-        - master
+#on:
+#  - pull_request:
+#  - push:
+#      branches:
+#        - master
 
 jobs:
   tests:
