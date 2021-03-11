@@ -1,0 +1,61 @@
+name: Ruby Gem to PackageCloud
+
+on: [push]
+#  workflow_dispatch:
+
+#  push:
+#    branches: [ AO-18649_GH_build_actions ]
+#  pull_request:
+#    branches: [ master ]
+
+jobs:
+  build:
+    name: Build + Release gem to RubyGems
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Ruby 2.6 and bundle
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: 2.6.x
+
+      - name: Install gems
+        run: |
+          echo 'gem: --no-document' >> ~/.gemrc
+          bundle install --without development --without test
+
+      - name: Install swig 4.0.2
+        run: |
+          curl -SL http://kent.dl.sourceforge.net/project/swig/swig/swig-4.0.2/swig-4.0.2.tar.gz | tar xzC /tmp
+          cd /tmp/swig-4.0.2
+          ./configure && make && make install
+          cd -
+
+      - name: Download oboe files from github, compile swig wrapper
+        run: |
+          bundle exec rake oboe_github_fetch ${{ secrets.OBOE_TOKEN }}
+          ls -l ext/oboe_metal/src
+
+      - name: Verify downloaded files against production
+        run: bundle exec rake verify_oboe_files
+
+      - name: Build Gem
+        run:  |
+          gem build appoptics_apm.gemspec
+          echo `shasum -a256 *.gem`
+
+      - name: Publish to PackageCloud
+        run: |
+          gem install package_cloud
+          package_cloud yank solarwinds/appoptics-apm-ruby *.gem
+          package_cloud push solarwinds/appoptics-apm-ruby *.gem
+        env:
+          PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
+
+#      - name: Test install
+#        TODO test if gem installs
+
+# access to raw file in github, e.g
+# https://raw.githubusercontent.com/librato/oboe/liboboe-10.1.0/liboboe/oboe_api.cpp?token=AA2OLM43LDKHC7GCMRAMN2TAKOOZA
