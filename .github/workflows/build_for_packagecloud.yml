@@ -26,15 +26,27 @@ jobs:
           echo 'gem: --no-document' >> ~/.gemrc
           bundle install --without development --without test
 
+      - name: Install swig 4.0.2
+        run: |
+          curl -SL http://kent.dl.sourceforge.net/project/swig/swig/swig-4.0.2/swig-4.0.2.tar.gz | tar xzC /tmp
+          cd /tmp/swig-4.0.2
+          ./configure && make && make install
+          cd -
+
       - name: Download oboe files from S3, compile swig wrapper
         run: |
           bundle exec rake fetch
-          echo -e `ls -l ext/oboe_metal/src`
+          ls -l ext/oboe_metal/src
 
       - name: Build Gem
         run:  |
           gem build appoptics_apm.gemspec
           echo `shasum -a256 *.gem`
+          name=*.gem
+          vers=${name#*-}; echo $vers
+          vers=${vers%.gem}; echo $vers
+          export GEM_VERSION=$vers
+          echo "::set-env name=GEM_VERSION::$GEM_VERSION"
 
       - name: Publish to PackageCloud
         run: |
@@ -44,5 +56,12 @@ jobs:
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
 
-#      - name: Test install
-#        TODO test if gem installs
+      - name: Test install
+        run: |
+          gem source --add https://packagecloud.io/solarwinds/appoptics-apm-ruby/
+          gem install appoptics_apm --version $GEM_VERSION
+          ruby test_install.rb
+
+
+# access to raw file in github, e.g
+# https://raw.githubusercontent.com/librato/oboe/liboboe-10.1.0/liboboe/oboe_api.cpp?token=AA2OLM43LDKHC7GCMRAMN2TAKOOZA

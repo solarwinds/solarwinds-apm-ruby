@@ -154,7 +154,6 @@ jobs:
           cd /tmp/swig-4.0.2
           ./configure && make && make install
           cd -
-          rm -rf /tmp/swig-4.0.2
 
       - name: Compile c-extension
         run: |
