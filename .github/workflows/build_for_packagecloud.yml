@@ -39,6 +39,7 @@ jobs:
           ls -l ext/oboe_metal/src
 
       - name: Build Gem
+        id: gemstep
         run:  |
           gem build appoptics_apm.gemspec
           echo `shasum -a256 *.gem`
@@ -46,8 +47,7 @@ jobs:
           vers=${name#*-}; echo $vers
           vers=${vers%.gem}; echo $vers
           echo $vers
-          export GEM_VERSION=$vers
-          echo "::set-env name=GEM_VERSION::$GEM_VERSION"
+          echo "::set-output name=GEM_VERSION::$vers"
 
       - name: Publish to PackageCloud
         run: |
@@ -60,7 +60,7 @@ jobs:
       - name: Test install
         run: |
           gem source --add https://packagecloud.io/solarwinds/appoptics-apm-ruby/
-          gem install appoptics_apm --version $GEM_VERSION
+          gem install appoptics_apm --version ${{ steps.gemstep.outputs.GEM_VERSION }}
           ruby test_install.rb
 
 
