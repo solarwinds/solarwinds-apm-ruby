@@ -1,6 +1,6 @@
 name: Ruby Gem to PackageCloud
 
-on: workflow_dispatch
+on: [workflow_dispatch]
 
 #  push:
 #    branches: [ AO-18649_GH_build_actions ]
