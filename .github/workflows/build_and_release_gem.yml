@@ -1,12 +1,14 @@
 name: Ruby Gem to PackageCloud
 
-on: [push]
-#  workflow_dispatch:
-
-#  push:
-#    branches: [ AO-18649_GH_build_actions ]
-#  pull_request:
-#    branches: [ master ]
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Are you sure you want to push the gemm to Rubygems?'
+        required: true
+        default: 'warning'
+      tags:
+        description: 'The real deal'
 
 jobs:
   build:
