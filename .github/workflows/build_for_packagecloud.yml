@@ -19,6 +19,8 @@ jobs:
         uses: actions/setup-ruby@v1
         with:
           ruby-version: 2.6.x
+
+      - name: Install gems
         run: |
           echo 'gem: --no-document' >> ~/.gemrc
           bundle install --without development --without test
