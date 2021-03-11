@@ -1,7 +1,7 @@
 name: Ruby Gem to PackageCloud
 
-on:
-  workflow_dispatch:
+on: workflow_dispatch
+
 #  push:
 #    branches: [ AO-18649_GH_build_actions ]
 #  pull_request:
@@ -14,21 +14,33 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Ruby 2.6
+
+      - name: Set up Ruby 2.6 and bundle
         uses: actions/setup-ruby@v1
         with:
           ruby-version: 2.6.x
+        run: |
+          echo 'gem: --no-document' >> ~/.gemrc
+          bundle install --without development --without test
+
+      - name: Download oboe files from S3, compile swig wrapper
+        run: |
+          bundle exec rake fetch
+          echo -e `ls -l ext/oboe_metal/src`
+
+      - name: Build Gem
+        run:  |
+          gem build appoptics_apm.gemspec
+          gem=`ls -dt1 builds/appoptics_apm-[^pre]*.gem | head -1`
+          echo `shasum -a256 $gem`
 
       - name: Publish to PackageCloud
         run: |
-          echo 'gem: --no-document' >> ~/.gemrc
-          rm -f Gemfile.lock
-          bundle install --without development --without test
-          bundle exec rake distclean
-          bundle exec rake fetch_ext_deps
-          echo `ls -l ext/oboe_metal/src`
-          gem build appoptics_apm.gemspec
           gem install package_cloud
-          # package_cloud push solarwinds/appoptics-apm-ruby *.gem
-          # env:
-          # PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
+          package_cloud yank solarwinds/appoptics-apm-ruby *.gem
+          package_cloud push solarwinds/appoptics-apm-ruby *.gem
+        env:
+          PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
+
+#      - name: Test install
+#        TODO test if gem installs

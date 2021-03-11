@@ -125,6 +125,11 @@ task :fetch_ext_deps do
   puts "fetching #{remote_file}"
   puts "      to #{local_file}"
 
+  # TODO
+  #   also include
+  #   - liboboe-1.0-alpine-x86_64.so.0.0.0.sha256
+  #   - liboboe-1.0-x86_64.so.0.0.0.sha256
+
   if RUBY_VERSION < '2.5.0'
     open(remote_file, 'rb') do |rf|
       content = rf.read
