@@ -34,8 +34,7 @@ jobs:
       - name: Build Gem
         run:  |
           gem build appoptics_apm.gemspec
-          gem=`ls -dt1 builds/appoptics_apm-[^pre]*.gem | head -1`
-          echo `shasum -a256 $gem`
+          echo `shasum -a256 *.gem`
 
       - name: Publish to PackageCloud
         run: |
