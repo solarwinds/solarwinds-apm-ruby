@@ -43,11 +43,7 @@ jobs:
         run:  |
           gem build appoptics_apm.gemspec
           echo `shasum -a256 *.gem`
-          name=*.gem
-          vers=${name#*-}; echo $vers
-          vers=${vers%.gem}; echo $vers
-          echo $vers
-          echo "::set-output name=GEM_VERSION::$vers"
+          echo "::set-output name=GEM_VERSION::`ruby -e 'require "./lib/appoptics_apm/version"; puts AppOpticsAPM::Version::STRING'`"
 
       - name: Publish to PackageCloud
         run: |
