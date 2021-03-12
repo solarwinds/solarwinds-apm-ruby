@@ -1,10 +1,10 @@
-name: Ruby Gem to PackageCloud
+name: !!! Ruby Gem to RubyGems !!!
 
 on:
   workflow_dispatch:
     inputs:
       confirm:
-        description: 'Are you sure you want to push the gemm to Rubygems?'
+        description: 'Are you sure you want to push the gem to Rubygems?'
         required: true
         default: 'warning'
       tags:
