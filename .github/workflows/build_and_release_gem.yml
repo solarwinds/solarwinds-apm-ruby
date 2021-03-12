@@ -1,4 +1,4 @@
-name: !!! Ruby Gem to RubyGems !!!
+name: RELEASE Ruby Gem to RubyGems
 
 on:
   workflow_dispatch:
