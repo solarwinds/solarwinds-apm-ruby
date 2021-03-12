@@ -3,12 +3,9 @@ name: !!! Ruby Gem to RubyGems !!!
 on:
   workflow_dispatch:
     inputs:
-      confirm:
-        description: 'Are you sure you want to push the gem to Rubygems?'
+      oboe_version:
+        description: 'Oboe version to use with this gem version'
         required: true
-        default: 'warning'
-      tags:
-        description: 'The real deal'
 
 jobs:
   build:
@@ -37,27 +34,21 @@ jobs:
 
       - name: Download oboe files from github, compile swig wrapper
         run: |
-          bundle exec rake oboe_github_fetch ${{ secrets.OBOE_TOKEN }}
+          bundle exec rake oboe_github_fetch ${{ github.event.inputs.oboe_version }} ${{ secrets.OBOE_TOKEN }}
           ls -l ext/oboe_metal/src
 
       - name: Verify downloaded files against production
         run: bundle exec rake verify_oboe_files
 
-      - name: Build Gem
-        run:  |
-          gem build appoptics_apm.gemspec
-          echo `shasum -a256 *.gem`
+#      - name: Build Gem
+#        run:  |
+#          gem build appoptics_apm.gemspec
+#          echo `shasum -a256 *.gem`
 
-      - name: Publish to PackageCloud
-        run: |
-          gem install package_cloud
-          package_cloud yank solarwinds/appoptics-apm-ruby *.gem
-          package_cloud push solarwinds/appoptics-apm-ruby *.gem
-        env:
-          PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
+# - name: Add checksum to tag for gem release and publish tag
+
+# - name: push to rubygems and check checksum
+
 
 #      - name: Test install
 #        TODO test if gem installs
-
-# access to raw file in github, e.g
-# https://raw.githubusercontent.com/librato/oboe/liboboe-10.1.0/liboboe/oboe_api.cpp?token=AA2OLM43LDKHC7GCMRAMN2TAKOOZA

@@ -185,6 +185,17 @@ end
 
 task :fetch => :fetch_ext_deps
 
+desc "Fetch files from github (for release via github actions)"
+task :oboe_github_fetch do
+  oboe_version, github_token = ARGV
+  puts oboe_version
+  puts github_token
+  # https://raw.githubusercontent.com/librato/oboe/master/liboboe/oboe_api.cpp?token=AA2OLMZ4F5XQZ4YEYZTLM7TAKPZ2Q
+  oboe_github = "https://raw.githubusercontent.com/librato/oboe/liboboe-#{oboe_version}/liboboe/"
+
+
+end
+
 desc "Build the gem's c extension"
 task :compile do
   if !defined?(JRUBY_VERSION)
