@@ -37,7 +37,7 @@ jobs:
 #    bundle exec rake oboe_github_fetch ${{ github.event.inputs.oboe_version }} ${{ secrets.OBOE_TOKEN }}
 #    ls -l ext/oboe_metal/src
         run: |
-          bundle exec rake oboe_github_fetch 10.1.0 ${{ secrets.OBOE_TOKEN }}
+          bundle exec rake oboe_github_fetch[10.1.0, ${{ secrets.OBOE_TOKEN }}]
           ls -l ext/oboe_metal/src
 
 #      - name: Verify downloaded files against production
