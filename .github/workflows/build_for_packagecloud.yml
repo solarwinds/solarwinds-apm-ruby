@@ -55,6 +55,9 @@ jobs:
 
       - name: Test install
         working-directory: .github/workflows/
+        env:
+          APPOPTICS_SERVICE_KEY: ${{ secrets.APPOPTICS_SERVICE_KEY }}
+          APPOPTICS_COLLECTOR: ${{ secrets.APPOPTICS_COLLECTOR}}
         run: |
           gem source --add https://packagecloud.io/solarwinds/appoptics-apm-ruby/
           gem install appoptics_apm --version ${{ steps.gemstep.outputs.GEM_VERSION }}
