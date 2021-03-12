@@ -54,10 +54,11 @@ jobs:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
 
       - name: Test install
+        working-directory: .github/workflows/
         run: |
           gem source --add https://packagecloud.io/solarwinds/appoptics-apm-ruby/
           gem install appoptics_apm --version ${{ steps.gemstep.outputs.GEM_VERSION }}
-          ruby .github/workspace/scripts/test_install.rb
+          ruby ./scripts/test_install.rb
 
 
 # access to raw file in github, e.g
