@@ -9,7 +9,7 @@ on: [push]
 
 jobs:
   build:
-    name: Build + Release gem to RubyGems
+    name: Build + Release Gem to RubyGems
     runs-on: ubuntu-latest
 
     steps:
