@@ -185,19 +185,38 @@ end
 
 task :fetch => :fetch_ext_deps
 
-desc "Fetch files from github (for release via github actions)"
+desc "Fetch files from github and files.appoptics.com (for release verification via github actions)"
 task :oboe_github_fetch, [:oboe_version] do |_, args|
   puts "oboe_version: #{args[:oboe_version]}"
   puts "oboe_token: #{ENV['OBOE_TOKEN']}"
 
   oboe_version = args[:oboe_version]
-  # https://raw.githubusercontent.com/librato/oboe/master/liboboe/oboe_api.cpp?token=AA2OLMZ4F5XQZ4YEYZTLM7TAKPZ2Q
+  oboe_token = ENV['OBOE_TOKEN']
   oboe_github = "https://raw.githubusercontent.com/librato/oboe/liboboe-#{oboe_version}/liboboe/"
+  ext_src_dir = File.expand_path('ext/oboe_metal/src')
+
+  # files + directories
+    FileUtils.mkdir_p(File.join(ext_src_dir, 'bson'))
+    files = %w(oboe.h, oboe_api.hpp', oboe_api.cpp, oboe.i oboe_debug.h bson/bson.h bson/platform_hacks.h)
 
   # fetch files
-  #
-  #
+  # https://raw.githubusercontent.com/librato/oboe/master/liboboe/oboe_api.cpp?token=AA2OLMZ4F5XQZ4YEYZTLM7TAKPZ2Q
+  files.each do |file|
+    remote_file = "#{File.join(oboe_github, filename)}?token=AA2OLMZ4F5XQZ4YEYZTLM7TAKPZ2Q"
+    local_file = File.join(ext_src_dir, filename)
 
+    puts "fetching #{remote_file}"
+    puts "      to #{local_file}"
+
+    URI.open(remote_file, 'rb') do |rf|
+      content = rf.read
+      File.open(local_file, 'wb') { |f| f.puts content }
+    end
+  end
+
+  FileUtils.cd(ext_src_dir) do
+    system('swig -c++ -ruby -module oboe_metal -o oboe_swig_wrap.cc oboe.i')
+  end
 end
 
 desc "Build the gem's c extension"

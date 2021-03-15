@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Set up Ruby 2.6 and bundle
-        uses: actions/setup-ruby@v1
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: 2.6.x
 
@@ -37,14 +37,10 @@ jobs:
       - name: Download oboe files from github, compile swig wrapper
         env:
           OBOE_TOKEN: ${{ secrets.OBOE_TOKEN }}
-#          OBOE_VERSION: #{{ cat ext/oboe_metal/src/VERSION }}
-#          OBOE_VERSION: ${{ github.event.inputs.oboe_version }}
         run: |
           oboe_version=`cat ext/oboe_metal/src/VERSION`
-          echo $oboe_version
           bundle exec rake oboe_github_fetch[$oboe_version]
           ls -l ext/oboe_metal/src
-#          echo "::set-output name=OBOE_VERSION::`cat ext/oboe_metal/src/VERSION`"
 
 #      - name: Verify downloaded files against production
 #        run: bundle exec rake verify_oboe_files
