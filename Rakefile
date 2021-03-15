@@ -186,9 +186,11 @@ end
 task :fetch => :fetch_ext_deps
 
 desc "Fetch files from github (for release via github actions)"
-task :oboe_github_fetch, [:oboe_version, :github_token] => [:environment] do |_, args|
-  puts "oboe_version: #{args[:oboe_version]}"
-  puts "oboe_token: #{args[:github_token]}"
+task :oboe_github_fetch do
+  puts "oboe_version: #{ENV['OBOE_VERSION']}"
+  puts "oboe_token: #{ENV['OBOE_TOKEN']}"
+
+  oboe_version = args[:oboe_version]
   # https://raw.githubusercontent.com/librato/oboe/master/liboboe/oboe_api.cpp?token=AA2OLMZ4F5XQZ4YEYZTLM7TAKPZ2Q
   oboe_github = "https://raw.githubusercontent.com/librato/oboe/liboboe-#{oboe_version}/liboboe/"
 
