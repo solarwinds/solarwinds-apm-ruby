@@ -1,13 +1,13 @@
 name: RELEASE Ruby Gem to RubyGems
 
-#on: [push]
-on:
-  workflow_dispatch:
-    inputs:
-      oboe_version:
-        description: 'Oboe version to use with this gem version'
-        required: true
-        default: 0.0.0
+on: [push]
+#on:
+#  workflow_dispatch:
+#    inputs:
+#      oboe_version:
+#        description: 'Oboe version to use with this gem version'
+#        required: true
+#        default: 0.0.0
 
 jobs:
   build:
@@ -37,7 +37,7 @@ jobs:
       - name: Download oboe files from github, compile swig wrapper
         env:
           OBOE_TOKEN: ${{ secrets.OBOE_TOKEN }}
-          OBOE_VERSION: 10.1.0
+          OBOE_VERSION: `cat ext/oboe_metal/src/VERSION`
 #          OBOE_VERSION: ${{ github.event.inputs.oboe_version }}
         run: |
           bundle exec rake 'oboe_github_fetch'
