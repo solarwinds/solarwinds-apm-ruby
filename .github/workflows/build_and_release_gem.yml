@@ -42,7 +42,7 @@ jobs:
         run: |
           oboe_version=`cat ext/oboe_metal/src/VERSION`
           echo $oboe_version
-          bundle exec rake 'oboe_github_fetch[$oboe_version]'
+          bundle exec rake oboe_github_fetch[$oboe_version]
           ls -l ext/oboe_metal/src
 #          echo "::set-output name=OBOE_VERSION::`cat ext/oboe_metal/src/VERSION`"
 
