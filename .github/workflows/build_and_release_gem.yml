@@ -37,11 +37,12 @@ jobs:
       - name: Download oboe files from github, compile swig wrapper
         env:
           OBOE_TOKEN: ${{ secrets.OBOE_TOKEN }}
-          OBOE_VERSION: `cat ext/oboe_metal/src/VERSION`
+#          OBOE_VERSION: #{{ cat ext/oboe_metal/src/VERSION }}
 #          OBOE_VERSION: ${{ github.event.inputs.oboe_version }}
         run: |
-          bundle exec rake 'oboe_github_fetch'
+          bundle exec rake 'oboe_github_fetch[`cat ext/oboe_metal/src/VERSION`]'
           ls -l ext/oboe_metal/src
+#          echo "::set-output name=OBOE_VERSION::`cat ext/oboe_metal/src/VERSION`"
 
 #      - name: Verify downloaded files against production
 #        run: bundle exec rake verify_oboe_files
@@ -50,6 +51,7 @@ jobs:
 #        run:  |
 #          gem build appoptics_apm.gemspec
 #          echo `shasum -a256 *.gem`
+#          echo "::set-output name=GEM_VERSION::`ruby -e 'require "./lib/appoptics_apm/version"; puts AppOpticsAPM::Version::STRING'`"
 
 # - name: Add checksum to tag for gem release and publish tag
 

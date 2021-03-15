@@ -186,8 +186,8 @@ end
 task :fetch => :fetch_ext_deps
 
 desc "Fetch files from github (for release via github actions)"
-task :oboe_github_fetch do
-  puts "oboe_version: #{ENV['OBOE_VERSION']}"
+task :oboe_github_fetch, [:oboe_version] do |_, args|
+  puts "oboe_version: #{args[:oboe_version]}"
   puts "oboe_token: #{ENV['OBOE_TOKEN']}"
 
   oboe_version = args[:oboe_version]
