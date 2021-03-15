@@ -201,7 +201,7 @@ task :oboe_github_fetch, [:oboe_version] do |_, args|
 
   # fetch files
   # https://raw.githubusercontent.com/librato/oboe/master/liboboe/oboe_api.cpp?token=AA2OLMZ4F5XQZ4YEYZTLM7TAKPZ2Q
-  files.each do |file|
+  files.each do |filename|
     remote_file = "#{File.join(oboe_github, filename)}?token=AA2OLMZ4F5XQZ4YEYZTLM7TAKPZ2Q"
     local_file = File.join(ext_src_dir, filename)
 
