@@ -182,8 +182,8 @@ end
 task :fetch => :fetch_ext_deps
 
 @files = %w(oboe.h oboe_api.hpp oboe_api.cpp oboe.i oboe_debug.h bson/bson.h bson/platform_hacks.h)
-@ext_dir = File.expand_path('../ext/oboe_metal')
-@ext_verify_dir = File.expand_path('../ext/oboe_metal/verify')
+@ext_dir = File.expand_path('ext/oboe_metal')
+@ext_verify_dir = File.expand_path('ext/oboe_metal/verify')
 
 desc "Fetch oboe files from github"
 task :oboe_github_fetch, [:oboe_version] do |_, args|
@@ -223,7 +223,7 @@ task :oboe_files_appoptics_fetch, [:oboe_version] do |_, args|
   files_appoptics = "https://files.appoptics.com/c-lib/#{oboe_version}"
 
   # files + directories
-  FileUtils.mkdir_p(File.join(@ext_dir, 'bson'))
+  FileUtils.mkdir_p(File.join(@ext_dir, 'src', 'bson'))
 
   # fetch files
   @files.each do |filename|
