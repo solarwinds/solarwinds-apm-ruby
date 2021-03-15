@@ -39,8 +39,15 @@ jobs:
           OBOE_TOKEN: ${{ secrets.OBOE_TOKEN }}
         run: |
           oboe_version=`cat ext/oboe_metal/src/VERSION`
-          bundle exec rake oboe_github_fetch[$oboe_version]
-          ls -l ext/oboe_metal/src
+#          bundle exec rake oboe_github_fetch[$oboe_version]
+#          ls -l ext/oboe_metal/src
+# TODO work on the above once I have access to secret server
+
+      - name: Download files from files.appoptics.aom
+        run: |
+          oboe_version=`cat ext/oboe_metal/src/VERSION`
+          bundle exec rake oboe_files_appoptics_fetch[$oboe_version]
+          bundle exec rake oboe_verify
 
 #      - name: Verify downloaded files against production
 #        run: bundle exec rake verify_oboe_files
@@ -58,3 +65,4 @@ jobs:
 
 #      - name: Test install
 #        TODO test if gem installs
+
