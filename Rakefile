@@ -197,7 +197,7 @@ task :oboe_github_fetch, [:oboe_version] do |_, args|
 
   # files + directories
     FileUtils.mkdir_p(File.join(ext_src_dir, 'bson'))
-    files = %w(oboe.h, oboe_api.hpp', oboe_api.cpp, oboe.i oboe_debug.h bson/bson.h bson/platform_hacks.h)
+    files = %w(oboe.h oboe_api.hpp oboe_api.cpp oboe.i oboe_debug.h bson/bson.h bson/platform_hacks.h)
 
   # fetch files
   # https://raw.githubusercontent.com/librato/oboe/master/liboboe/oboe_api.cpp?token=AA2OLMZ4F5XQZ4YEYZTLM7TAKPZ2Q
