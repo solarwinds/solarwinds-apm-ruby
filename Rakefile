@@ -240,8 +240,6 @@ task :oboe_files_appoptics_fetch, [:oboe_version] do |_, args|
     end
   end
 
-  # TODO
-  #   also include
   sha_files = ['liboboe-1.0-alpine-x86_64.so.0.0.0.sha256',
                'liboboe-1.0-x86_64.so.0.0.0.sha256']
 
@@ -266,7 +264,7 @@ end
 desc "Verify files"
 task :oboe_verify do
   @files.each do |filename|
-    puts "TODO: Verify #{filename}"
+    puts "Verifying #{filename}"
 
     sha_1 = Digest::SHA2.file(File.join(@ext_dir, 'src', filename)).hexdigest
     sha_2 = Digest::SHA2.file(File.join(@ext_verify_dir, filename)).hexdigest
@@ -304,7 +302,7 @@ task :compile do
     else
       Dir.chdir(pwd)
       puts '!! Extension failed to build (see above). Have the required binary and header files been fetched?'
-      puts '!! Try the tasks in this order: clean > fetch > compile.'
+      puts '!! Try the tasks in this order: clean > fetch > compile'
     end
   else
     puts '== Nothing to do under JRuby.'
@@ -363,7 +361,7 @@ task :distclean do
   end
 end
 
-desc "Rebuild the gem's c extension"
+desc "Rebuild the gem's c extension without fetching the oboe files, without recreating the swig wrapper"
 task :recompile => [:distclean, :compile]
 
 task :environment do

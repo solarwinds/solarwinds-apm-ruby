@@ -49,15 +49,23 @@ jobs:
           bundle exec rake oboe_files_appoptics_fetch[$oboe_version]
           bundle exec rake oboe_verify
 
-#      - name: Build Gem
-#        run:  |
-#          gem build appoptics_apm.gemspec
-#          echo `shasum -a256 *.gem`
-#          echo "::set-output name=GEM_VERSION::`ruby -e 'require "./lib/appoptics_apm/version"; puts AppOpticsAPM::Version::STRING'`"
+      - name: Build Gem, create release tag, upload to Rubygems, compare checksums
+        id: build
+        run:  |
+          gem build appoptics_apm.gemspec
+          checksum=`shasum -a256 *.gem`
+          echo "checksum: $checksum"
+          echo ::set-output name=checksum::$checksum
+          echo ::set-output name=gem_version::`ruby -e 'require "./lib/appoptics_apm/version"; puts AppOpticsAPM::Version::STRING'`
 
-# - name: Add checksum to tag for gem release and publish tag
+      - name: Add checksum to tag for gem release and publish tag
+# https://docs.github.com/en/rest/reference/repos#create-a-release
+        run: |
+          echo "checksum: ${{ steps.build.outputs.checksum }}"
+          echo "gem version: ${{ steps.build.outputs.gem_version }}"
 
 # - name: push to rubygems and check checksum
+#   https://guides.rubygems.org/rubygems-org-api-v2
 #          store as artifact for now
 
 
