@@ -205,7 +205,7 @@ task :oboe_github_fetch, [:oboe_version] do |_, args|
 
     local_file = File.join(@ext_verify_dir, filename)
 
-    puts "fetching #{remote_file}"
+    puts "fetching #{filename}"
     puts "      to #{local_file}"
 
     res = Net::HTTP.start(uri.host, uri.port,
