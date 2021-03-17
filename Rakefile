@@ -199,8 +199,7 @@ task :oboe_github_fetch, [:oboe_version] do |_, args|
 
   # fetch files
   @files.each do |filename|
-    filename = "swig/oboe.i" if filename == 'oboe.i'
-    uri = URI("#{File.join(oboe_github, filename)}")
+    uri = filename == 'oboe.i' ? URI("#{File.join(oboe_github, 'swig', filename)}") : URI("#{File.join(oboe_github, filename)}")
     req = Net::HTTP::Get.new(uri)
     req['Authorization'] = "token #{oboe_token}"
 
