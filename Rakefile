@@ -182,8 +182,7 @@ end
 
 task :fetch => :fetch_ext_deps
 
-# @files = %w(oboe.h oboe_api.hpp oboe_api.cpp oboe.i oboe_debug.h bson/bson.h bson/platform_hacks.h)
-@files = %w(oboe.h bson/bson.h)
+@files = %w(oboe.h oboe_api.hpp oboe_api.cpp oboe.i oboe_debug.h bson/bson.h bson/platform_hacks.h)
 @ext_dir = File.expand_path('ext/oboe_metal')
 @ext_verify_dir = File.expand_path('ext/oboe_metal/verify')
 
@@ -208,14 +207,11 @@ task :oboe_github_fetch, [:oboe_version] do |_, args|
     puts "fetching #{filename}"
     puts "      to #{local_file}"
 
-    res = Net::HTTP.start(uri.host, uri.port,
-                    :use_ssl => uri.scheme == 'https') do |http|
+    res = Net::HTTP.start(uri.host, uri.port, :use_ssl => uri.scheme == 'https') do |http|
       http.request(req)
     end
 
-    puts res.body
-
-    # File.open(local_file, 'wb') { |f| f.puts res.body }
+    File.open(local_file, 'wb') { |f| f.puts res.body }
   end
 end
 
