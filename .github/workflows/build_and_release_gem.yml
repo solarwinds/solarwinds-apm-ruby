@@ -72,8 +72,8 @@ jobs:
               owner: "appoptics",
               repo: "appoptics-apm-ruby",
               body: "SHA256 checksum: ${{ steps.build.outputs.checksum }}",
-              tag_name: ${{ steps.build.outputs.gem_version }}",
-              name: ${{ steps.build.outputs.gem_version }}",
+              tag_name: "${{ steps.build.outputs.gem_version }}",
+              name: "${{ steps.build.outputs.gem_version }}",
               draft: true
             })
 
