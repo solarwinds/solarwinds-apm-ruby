@@ -4,6 +4,7 @@ source 'https://rubygems.org'
 # use rake commands or gemfiles in the gemfiles directory for testing
 
 gem 'rake', '>= 0.9.0'
+gem 'digest'
 
 group :development, :test do
   gem 'byebug', '>= 8.0.0'

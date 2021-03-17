@@ -4,6 +4,7 @@ require 'rubygems'
 require 'fileutils'
 require 'net/http'
 require 'optparse'
+require ‘digest’
 require 'open-uri'
 require 'bundler/setup'
 require 'rake/testtask'
@@ -266,6 +267,12 @@ desc "Verify files"
 task :oboe_verify do
   @files.each do |filename|
     puts "TODO: Verify #{filename}"
+
+    sha_1 = Digest::SHA2.file(File.join(@ext_dir, 'src', filename)).hexdigest
+    sha_2 = Digest::SHA2.file(File.join(@ext_verify_dir, filename)).hexdigest
+
+    exit 1 if sha_1 != sha_2
+
   end
 end
 

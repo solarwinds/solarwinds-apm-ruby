@@ -41,14 +41,13 @@ jobs:
           oboe_version=`cat ext/oboe_metal/src/VERSION`
           bundle exec rake oboe_github_fetch[$oboe_version]
           ls -l ext/oboe_metal/verify
-# TODO work on the above once I have access to secret server
+          ls -l ext/oboe_metal/verify/bson
 
-#      - name: Download files from files.appoptics.com and github, and verify
-#        run: |
-#          oboe_version=`cat ext/oboe_metal/src/VERSION`
-#          bundle exec rake oboe_files_appoptics_fetch[$oboe_version]
-#          bundle exec rake oboe_github_fetch[$oboe_version]
-#          bundle exec rake oboe_verify
+      - name: Download files from files.appoptics.com and github, and verify
+        run: |
+          oboe_version=`cat ext/oboe_metal/src/VERSION`
+          bundle exec rake oboe_files_appoptics_fetch[$oboe_version]
+          bundle exec rake oboe_verify
 
 #      - name: Build Gem
 #        run:  |
