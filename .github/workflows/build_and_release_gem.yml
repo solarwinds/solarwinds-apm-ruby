@@ -64,6 +64,19 @@ jobs:
           echo "checksum: ${{ steps.build.outputs.checksum }}"
           echo "gem version: ${{ steps.build.outputs.gem_version }}"
 
+      - uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.repos.createRelease({
+              owner: "appoptics",
+              repo: "appoptics-apm-ruby",
+              body: "SHA256 checksum: ${{ steps.build.outputs.checksum }}",
+              tag_name: ${{ steps.build.outputs.gem_version }}",
+              name: ${{ steps.build.outputs.gem_version }}",
+              draft: true
+            })
+
 # - name: push to rubygems and check checksum
 #   https://guides.rubygems.org/rubygems-org-api-v2
 #          store as artifact for now
