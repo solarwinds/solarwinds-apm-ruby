@@ -4,7 +4,7 @@ require 'rubygems'
 require 'fileutils'
 require 'net/http'
 require 'optparse'
-require ‘digest’
+require 'digest'
 require 'open-uri'
 require 'bundler/setup'
 require 'rake/testtask'
