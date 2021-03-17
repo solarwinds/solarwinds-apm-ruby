@@ -2,6 +2,7 @@
 
 require 'rubygems'
 require 'fileutils'
+require 'net/http'
 require 'optparse'
 require 'open-uri'
 require 'bundler/setup'
