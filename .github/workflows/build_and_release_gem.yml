@@ -53,18 +53,20 @@ jobs:
         id: build
         run:  |
           gem build appoptics_apm.gemspec
-          checksum=`shasum -a256 *.gem`
+          checksum=`shasum -a256 *.gem | awk '{print $1;}'`
           echo "checksum: $checksum"
           echo ::set-output name=checksum::$checksum
           echo ::set-output name=gem_version::`ruby -e 'require "./lib/appoptics_apm/version"; puts AppOpticsAPM::Version::STRING'`
+# push gem to rubygems.org
 
-      - name: Add checksum to tag for gem release and publish tag
+      - name:  echo gem release and checksum
 # https://docs.github.com/en/rest/reference/repos#create-a-release
         run: |
           echo "checksum: ${{ steps.build.outputs.checksum }}"
           echo "gem version: ${{ steps.build.outputs.gem_version }}"
 
-      - uses: actions/github-script@v3
+      - name: Create release
+        uses: actions/github-script@v3
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
