@@ -181,43 +181,46 @@ end
 
 task :fetch => :fetch_ext_deps
 
-@files = %w(oboe.h oboe_api.hpp oboe_api.cpp oboe.i oboe_debug.h bson/bson.h bson/platform_hacks.h)
+# @files = %w(oboe.h oboe_api.hpp oboe_api.cpp oboe.i oboe_debug.h bson/bson.h bson/platform_hacks.h)
+@files = %w(oboe.h bson/bson.h)
 @ext_dir = File.expand_path('ext/oboe_metal')
 @ext_verify_dir = File.expand_path('ext/oboe_metal/verify')
 
 desc "Fetch oboe files from github"
 task :oboe_github_fetch, [:oboe_version] do |_, args|
   puts "oboe_version: #{args[:oboe_version]}"
-  puts "oboe_token: #{ENV['OBOE_TOKEN']}"
 
   oboe_version = args[:oboe_version]
-  oboe_token = ENV['OBOE_TOKEN']
+  oboe_token = ENV['TRACE_QA_USER_TOKEN']
   oboe_github = "https://raw.githubusercontent.com/librato/oboe/liboboe-#{oboe_version}/liboboe/"
 
-  # files + directories
-    FileUtils.mkdir_p(File.join(@ext_verify_dir, 'bson'))
+  FileUtils.mkdir_p(File.join(@ext_verify_dir, 'bson'))
 
   # fetch files
-  # TODO use 'trace_qa' user
-  # https://raw.githubusercontent.com/librato/oboe/master/liboboe/oboe_api.cpp?token=AA2OLMZ4F5XQZ4YEYZTLM7TAKPZ2Q
   @files.each do |filename|
-    remote_file = "#{File.join(oboe_github, filename)}?token=AA2OLMZ4F5XQZ4YEYZTLM7TAKPZ2Q"
+    uri = URI("#{File.join(oboe_github, filename)}")
+    req = Net::HTTP::Get.new(uri)
+    req['Authorization'] = "token #{oboe_token}"
+
     local_file = File.join(@ext_verify_dir, filename)
 
     puts "fetching #{remote_file}"
     puts "      to #{local_file}"
 
-    URI.open(remote_file, 'rb') do |rf|
-      content = rf.read
-      File.open(local_file, 'wb') { |f| f.puts content }
+    res = Net::HTTP.start(uri.host, uri.port,
+                    :use_ssl => uri.scheme == 'https') do |http|
+      http.request(req)
     end
+
+    puts res.body
+
+    # File.open(local_file, 'wb') { |f| f.puts res.body }
   end
 end
 
 desc "Fetch oboe files from files.appoptics.com and create swig wrapper"
 task :oboe_files_appoptics_fetch, [:oboe_version] do |_, args|
   puts "oboe_version: #{args[:oboe_version]}"
-  puts "oboe_token: #{ENV['OBOE_TOKEN']}"
 
   oboe_version = args[:oboe_version]
   files_appoptics = "https://files.appoptics.com/c-lib/#{oboe_version}"
@@ -265,7 +268,7 @@ end
 desc "Verify files"
 task :oboe_verify do
   @files.each do |filename|
-    puts "TODO: Verify downloaded files"
+    puts "TODO: Verify #{filename}"
   end
 end
 

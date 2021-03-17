@@ -32,7 +32,10 @@ Automatic tracing and metrics for Ruby applications. Get started at appoptics.co
               'ext/oboe_metal/src/oboe_swig_wrap.cc',
               'ext/oboe_metal/src/bson/bson.h',
               'ext/oboe_metal/src/bson/platform_hacks.h',
-              'ext/oboe_metal/src/VERSION']
+              'ext/oboe_metal/src/VERSION',
+              'ext/oboe_metal/lib/liboboe-1.0-alpine-x86_64.so.0.0.0.sha256',
+              'ext/oboe_metal/lib/liboboe-1.0-x86_64.so.0.0.0.sha256'
+             ]
   s.files -= ['build_gem.sh',
               'build_gem_upload_to_packagecloud.sh',
               'Rakefile']
