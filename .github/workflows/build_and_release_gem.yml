@@ -40,7 +40,7 @@ jobs:
         run: |
           oboe_version=`cat ext/oboe_metal/src/VERSION`
           bundle exec rake oboe_github_fetch[$oboe_version]
-          ls -l ext/oboe_metal/src
+          ls -l ext/oboe_metal/verify
 # TODO work on the above once I have access to secret server
 
 #      - name: Download files from files.appoptics.com and github, and verify
