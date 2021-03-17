@@ -271,7 +271,11 @@ task :oboe_verify do
     sha_1 = Digest::SHA2.file(File.join(@ext_dir, 'src', filename)).hexdigest
     sha_2 = Digest::SHA2.file(File.join(@ext_verify_dir, filename)).hexdigest
 
-    exit 1 if sha_1 != sha_2
+    if sha_1 != sha_2
+      puts "#{filename} from github and files.appoptics.com not the same"
+      puts `diff #{File.join(@ext_dir, 'src', filename)} #{File.join(@ext_verify_dir, filename)}"`
+      exit 1
+    end
 
   end
 end
