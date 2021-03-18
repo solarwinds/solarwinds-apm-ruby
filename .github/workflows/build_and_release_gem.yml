@@ -57,7 +57,7 @@ jobs:
           echo "checksum: $checksum"
           echo ::set-output name=checksum::$checksum
           echo ::set-output name=gem_version::`ruby -e 'require "./lib/appoptics_apm/version"; puts AppOpticsAPM::Version::STRING'`
-          gem push *.gem
+          gem push *.gem -k ${{ secrets.RUBYGEMS_TOKEN }}
 
       - name:  echo gem release and checksum
 # https://docs.github.com/en/rest/reference/repos#create-a-release
