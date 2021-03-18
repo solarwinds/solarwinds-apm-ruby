@@ -98,7 +98,7 @@ task 'smoke' do
   exec('test/run_tests/smoke_test/smoketest.sh')
 end
 
-desc 'Fetch extension dependency files'
+desc 'Fetch oboe files from S3'
 task :fetch_ext_deps do
   swig_version = %x{swig -version} rescue ''
   swig_valid_version = swig_version.scan(/swig version [34].\d*.\d*/i)
@@ -116,6 +116,7 @@ task :fetch_ext_deps do
   oboe_version = ENV['OBOE_VERSION'] || 'latest'
   oboe_s3_dir = "https://rc-files-t2.s3-us-west-2.amazonaws.com/c-lib/#{oboe_version}"
   ext_src_dir = File.expand_path('ext/oboe_metal/src')
+  ext_lib_dir = File.expand_path('ext/oboe_metal/lib')
 
   # remove all oboe* files, they may hang around because of name changes
   # from oboe* to oboe_api*
@@ -172,6 +173,22 @@ task :fetch_ext_deps do
         content = rf.read
         File.open(local_file, 'wb') { |f| f.puts content }
       end
+    end
+  end
+
+  sha_files = ['liboboe-1.0-alpine-x86_64.so.0.0.0.sha256',
+               'liboboe-1.0-x86_64.so.0.0.0.sha256']
+
+  sha_files.each do |filename|
+    remote_file = File.join(oboe_s3_dir, filename)
+    local_file = File.join(ext_lib_dir, filename)
+
+    puts "fetching #{remote_file}"
+    puts "      to #{local_file}"
+
+    URI.open(remote_file, 'rb') do |rf|
+      content = rf.read
+      File.open(local_file, 'wb') { |f| f.puts content }
     end
   end
 

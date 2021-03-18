@@ -56,26 +56,19 @@ end
 
 ao_clib = "liboboe-1.0-#{ao_arch}.so.0.0.0"
 ao_item = File.join(ao_path, ao_clib)
-ao_checksum_item = "#{ao_item}.sha256"
+ao_checksum_file = File.join(ao_lib_dir, "#{ao_clib}.sha256")
 clib = File.join(ao_lib_dir, ao_clib)
 
 retries = 3
 success = false
 while retries > 0
   begin
-    # download
-    if RUBY_VERSION < '2.5.0'
-      download = open(ao_item, 'rb')
-      checksum = open(ao_checksum_item, 'r').read.chomp
-    else
-      download = URI.open(ao_item, 'rb')
-      checksum = URI.open(ao_checksum_item, 'r').read.chomp
-    end
+    download = RUBY_VERSION < '2.5.0' ? open(ao_item, 'rb') : URI.open(ao_item, 'rb')
     IO.copy_stream(download, clib)
+
     clib_checksum = Digest::SHA256.file(clib).hexdigest
     download.close
-
-    # verify_checksum
+    checksum =  File.read(ao_checksum_file).chomp
     if clib_checksum != checksum
       $stderr.puts '== ERROR ================================================================='
       $stderr.puts 'Checksum Verification failed for the c-extension of the appoptics_apm gem.'
