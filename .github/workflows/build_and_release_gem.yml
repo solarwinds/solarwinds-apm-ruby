@@ -53,10 +53,6 @@ jobs:
         uses: dawidd6/action-publish-gem@v1
         with:
           api_key: rubygems_975622645c0838cd055da85b75fafa3294b54a39db464cdb
-        if: ${{ failure() }}
-        run: |
-          echo "It's ok, gem couldn't upload probably because it is already there"
-          exit 0
 
       - name: Build Gem and upload to Rubygems
         id: build
