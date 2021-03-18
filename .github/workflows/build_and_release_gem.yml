@@ -59,10 +59,7 @@ jobs:
           echo "checksum: $checksum"
           echo ::set-output name=checksum::$checksum
           echo ::set-output name=gem_version::`ruby -e 'require "./lib/appoptics_apm/version"; puts AppOpticsAPM::Version::STRING'`
-          echo ":rubygems_api_key: ${{ secrets.RUBYGEMS_TOKEN }}" >> ~/.gem/credentials
-          less ~/.gem/credentials
-          chmod 0600 ~/.gem/credentials
-          gem push *.gem
+          curl -H "${{ secrets.RUBYGEMS_TOKEN }}" --data-binary @appoptics_apm-4.0.6.pre1.gem  https://rubygems.org/api/v1/gems
 
       - name:  echo gem release and checksum
         run: |
