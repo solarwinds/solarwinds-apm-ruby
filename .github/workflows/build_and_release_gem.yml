@@ -94,7 +94,7 @@ jobs:
       - name: verify checksum
         if: fromJson(steps.checksum.outputs.geminfo).sha != steps.build.outputs.checksum
         run: |
-          echo "local and rubygems checksum not matching
+          echo "local and rubygems checksum not matching"
           exit 1
 
 
