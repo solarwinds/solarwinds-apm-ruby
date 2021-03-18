@@ -49,7 +49,7 @@ jobs:
           bundle exec rake oboe_files_appoptics_fetch[$oboe_version]
           bundle exec rake oboe_verify
 
-      - name: Build Gem, create release tag, upload to Rubygems, compare checksums
+      - name: Build Gem and upload to Rubygems
         id: build
         env:
           GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_TOKEN }}
@@ -59,8 +59,9 @@ jobs:
           echo "checksum: $checksum"
           echo ::set-output name=checksum::$checksum
           gemname=*.gem
+          echo "gemname: @$gemname"
           echo ::set-output name=gem_version::`ruby -e 'require "./lib/appoptics_apm/version"; puts AppOpticsAPM::Version::STRING'`
-          curl -v -H "rubygems_975622645c0838cd055da85b75fafa3294b54a39db464cdb" --data-binary @$gemname  https://rubygems.org/api/v1/gems
+          curl -v -H "rubygems_975622645c0838cd055da85b75fafa3294b54a39db464cdb" --data-binary @$gemname https://rubygems.org/api/v1/gems
 
       - name:  echo gem release and checksum
         run: |
