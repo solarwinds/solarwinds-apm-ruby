@@ -50,9 +50,9 @@ jobs:
           bundle exec rake oboe_verify
 
       - name: TEMP lets try this build and publish action
-          uses: dawidd6/action-publish-gem@v1
-          with:
-            api_key: ${{secrets.RUBYGEMS_TOKEN}}
+        uses: dawidd6/action-publish-gem@v1
+        with:
+          api_key: ${{secrets.RUBYGEMS_TOKEN}}
 
       - name: Build Gem and upload to Rubygems
         id: build
