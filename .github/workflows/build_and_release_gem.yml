@@ -51,13 +51,15 @@ jobs:
 
       - name: Build Gem, create release tag, upload to Rubygems, compare checksums
         id: build
+        env:
+          GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_TOKEN }}
         run:  |
           gem build appoptics_apm.gemspec
           checksum=`shasum -a256 *.gem | awk '{print $1;}'`
           echo "checksum: $checksum"
           echo ::set-output name=checksum::$checksum
           echo ::set-output name=gem_version::`ruby -e 'require "./lib/appoptics_apm/version"; puts AppOpticsAPM::Version::STRING'`
-          gem push *.gem -k ${{ secrets.RUBYGEMS_TOKEN }}
+          gem push *.gem
 
       - name:  echo gem release and checksum
 # https://docs.github.com/en/rest/reference/repos#create-a-release
