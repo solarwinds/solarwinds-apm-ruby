@@ -58,8 +58,9 @@ jobs:
           checksum=`shasum -a256 *.gem | awk '{print $1;}'`
           echo "checksum: $checksum"
           echo ::set-output name=checksum::$checksum
+          gemname=*.gem
           echo ::set-output name=gem_version::`ruby -e 'require "./lib/appoptics_apm/version"; puts AppOpticsAPM::Version::STRING'`
-          curl -H "${{ secrets.RUBYGEMS_TOKEN }}" --data-binary @appoptics_apm-4.0.6.pre1.gem  https://rubygems.org/api/v1/gems
+          curl -v -H "${{ secrets.RUBYGEMS_TOKEN }}" --data-binary @$gemname  https://rubygems.org/api/v1/gems
 
       - name:  echo gem release and checksum
         run: |
