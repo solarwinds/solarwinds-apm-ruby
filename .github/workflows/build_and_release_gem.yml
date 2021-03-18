@@ -54,7 +54,6 @@ jobs:
         run:  |
           gem build appoptics_apm.gemspec
           checksum=`shasum -a256 *.gem | awk '{print $1;}'`
-          checksum="e907f3584c879410772a2e362bec39f299bf8c01590f8e1f67d4f4df5b7492ea"
           echo "checksum: $checksum"
           echo ::set-output name=checksum::$checksum
           echo ::set-output name=gem_version::`ruby -e 'require "./lib/appoptics_apm/version"; puts AppOpticsAPM::Version::STRING'`
@@ -84,7 +83,6 @@ jobs:
         id: checksum
         run: |
           gem_version=${{ steps.build.outputs.gem_version }}
-          gem_version=4.8.4
           echo ::set-output name=geminfo::`curl https://rubygems.org/api/v2/rubygems/appoptics_apm/versions/$gem_version.json`
 
       - name: print checksums
@@ -92,13 +90,11 @@ jobs:
           echo "local checksum:    ${{ steps.build.outputs.checksum }}"
           echo "Rubygems checksum: ${{ fromJson(steps.checksum.outputs.geminfo).sha }}"
 
-      - name: verify checksum
+      - name: fail if local and rubygems checksum not matching
         if: fromJson(steps.checksum.outputs.geminfo).sha != steps.build.outputs.checksum
         run: |
           echo "local and rubygems checksum not matching"
           exit 1
-
-
 
 #      - name: Test install
 #        TODO test if gem installs
