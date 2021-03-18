@@ -58,8 +58,8 @@ jobs:
         id: build
         env:
           GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_TOKEN }}
+        #          gem build appoptics_apm.gemspec
         run:  |
-#          gem build appoptics_apm.gemspec
           checksum=`shasum -a256 *.gem | awk '{print $1;}'`
           echo "checksum: $checksum"
           echo ::set-output name=checksum::$checksum
