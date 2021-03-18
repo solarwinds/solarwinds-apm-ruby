@@ -36,7 +36,7 @@ jobs:
 
       - name: Download oboe files from github, compile swig wrapper
         env:
-          TRACE_QA_USER_TOKEN: ${{ secrets.TRACE_QA_USER_TOKEN }}
+          TRACE_QA_TOKEN: ${{ secrets.TRACE_QA_GH_ACTIONS_API_ACCESS_TOKEN }}
         run: |
           oboe_version=`cat ext/oboe_metal/src/VERSION`
           bundle exec rake oboe_github_fetch[$oboe_version]
