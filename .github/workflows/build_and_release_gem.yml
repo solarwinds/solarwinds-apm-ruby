@@ -36,7 +36,7 @@ jobs:
 
       - name: Download oboe files from github, compile swig wrapper
         env:
-          TRACE_QA_TOKEN: ${{ secrets.TRACE_QA_GH_ACTIONS_API_ACCESS_TOKEN }}
+          TRACE_BUILD_TOKEN: ${{ secrets.TRACE_BUILD_RUBY_ACTIONS_API_TOKEN }}
         run: |
           oboe_version=`cat ext/oboe_metal/src/VERSION`
           bundle exec rake oboe_github_fetch[$oboe_version]
@@ -59,6 +59,7 @@ jobs:
           echo "checksum: $checksum"
           echo ::set-output name=checksum::$checksum
           echo ::set-output name=gem_version::`ruby -e 'require "./lib/appoptics_apm/version"; puts AppOpticsAPM::Version::STRING'`
+
           gem push *.gem
 
       - name:  echo gem release and checksum
