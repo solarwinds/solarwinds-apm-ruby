@@ -88,7 +88,8 @@ jobs:
 
       - name: verify checksum
         run:
-          echo ${{ fromJson(needs.checksum.outputs.geminfo).sha }}
+          echo ${{ steps.checksum.outputs.geminfo }}
+          echo ${{ fromJson(steps.checksum.outputs.geminfo).sha }}
           echo "e907f3584c879410772a2e362bec39f299bf8c01590f8e1f67d4f4df5b7492ea"
 
 
