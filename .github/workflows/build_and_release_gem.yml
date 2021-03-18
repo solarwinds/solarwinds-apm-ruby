@@ -87,11 +87,10 @@ jobs:
           echo ::set-output name=geminfo::`curl https://rubygems.org/api/v2/rubygems/appoptics_apm/versions/$gem_version.json`
 
       - name: verify checksum
-        run:
-          echo ${{ steps.checksum.outputs.geminfo }}
-          echo ${{ fromJson(steps.checksum.outputs.geminfo).sha }}
-          echo "e907f3584c879410772a2e362bec39f299bf8c01590f8e1f67d4f4df5b7492ea"
-
+        if: ${{ fromJson(steps.checksum.outputs.geminfo).sha != steps.build.outputs.checksum }}
+        run: |
+          echo "local and rubygems checksum not matching
+          exit 1
 
 
 #      - name: Test install
