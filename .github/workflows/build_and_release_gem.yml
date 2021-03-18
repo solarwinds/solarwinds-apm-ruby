@@ -86,6 +86,11 @@ jobs:
           gem_version=4.8.4
           echo ::set-output name=geminfo::`curl https://rubygems.org/api/v2/rubygems/appoptics_apm/versions/$gem_version.json`
 
+      - name: print checksums
+        run: |
+          echo "local checksum ${{ steps.build.outputs.checksum }}"
+          echo "Rubygems checksum ${{ fromJson(steps.checksum.outputs.geminfo).sha }}"
+
       - name: verify checksum
         if: ${{ fromJson(steps.checksum.outputs.geminfo).sha != steps.build.outputs.checksum }}
         run: |
