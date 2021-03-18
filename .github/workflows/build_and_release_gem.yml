@@ -49,19 +49,26 @@ jobs:
           bundle exec rake oboe_files_appoptics_fetch[$oboe_version]
           bundle exec rake oboe_verify
 
+      - name: TEMP lets try this build and publish action
+          uses: dawidd6/action-publish-gem@v1
+          with:
+            api_key: ${{secrets.RUBYGEMS_TOKEN}}
+
       - name: Build Gem and upload to Rubygems
         id: build
         env:
           GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_TOKEN }}
         run:  |
-          gem build appoptics_apm.gemspec
+#          gem build appoptics_apm.gemspec
           checksum=`shasum -a256 *.gem | awk '{print $1;}'`
           echo "checksum: $checksum"
           echo ::set-output name=checksum::$checksum
-          gemname=`echo appoptics_apm*.gem`
-          echo "gemname: @$gemname"
-          echo ::set-output name=gem_version::`ruby -e 'require "./lib/appoptics_apm/version"; puts AppOpticsAPM::Version::STRING'`
-          curl -v -H "rubygems_975622645c0838cd055da85b75fafa3294b54a39db464cdb" --data-binary @$gemname https://rubygems.org/api/v1/gems
+#          gemname=`echo appoptics_apm*.gem`
+#          echo "gemname: @$gemname"
+#          echo ::set-output name=gem_version::`ruby -e 'require "./lib/appoptics_apm/version"; puts AppOpticsAPM::Version::STRING'`
+#          curl -v -H "rubygems_975622645c0838cd055da85b75fafa3294b54a39db464cdb" \
+#                  -H "Content-Type:application/octet-stream" \
+#                  --data-binary @$gemname https://rubygems.org/api/v1/gems
 
       - name:  echo gem release and checksum
         run: |
