@@ -52,7 +52,7 @@ jobs:
       - name: TEMP lets try this build and publish action
         uses: dawidd6/action-publish-gem@v1
         with:
-          api_key: rubygems_975622645c0838cd055da85b75fafa3294b54a39db464cdb
+          api_key: ${{ secrets.RUBYGEMS_TOKEN }}
 
       - name: Build Gem and upload to Rubygems
         id: build
