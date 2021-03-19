@@ -296,26 +296,27 @@ task :oboe_verify do
 end
 
 desc "Build and publish to Rubygems"
-# code copied from https://github.com/dawidd6/action-publish-gem
+# code originally from https://github.com/dawidd6/action-publish-gem
 task :build_gem do
-  api_key = ENV['GEM_HOST_API_KEY'] || []
-
-  credentials_dir_path = "#{Dir.home}/.gem"
-  credentials_file_path = "#{credentials_dir_path}/credentials"
-  credentials = <<~END_OF_CREDENTIALS
-  ---
-  :rubygems_api_key: #{api_key}
-  END_OF_CREDENTIALS
-
-  FileUtils.mkdir_p(credentials_dir_path)
-  File.open(credentials_file_path, 'w') { |f| f.write(credentials) }
-  FileUtils.chmod(0600, credentials_file_path)
-
   gemspec_file = 'appoptics_apm.gemspec'
   gemspec = Gem::Specification.load(gemspec_file)
   gem_file = gemspec.full_name + '.gem'
   exit 1 unless system('gem', 'build', gemspec_file)
-  unless api_key.empty?
+
+  if ENV['GEM_HOST_API_KEY']
+    api_key = ENV['GEM_HOST_API_KEY']
+
+    credentials_dir_path = "#{Dir.home}/.gem"
+    credentials_file_path = "#{credentials_dir_path}/credentials"
+    credentials = <<~END_OF_CREDENTIALS
+    ---
+    :rubygems_api_key: #{api_key}
+    END_OF_CREDENTIALS
+
+    FileUtils.mkdir_p(credentials_dir_path)
+    File.open(credentials_file_path, 'w') { |f| f.write(credentials) }
+    FileUtils.chmod(0600, credentials_file_path)
+
     exit 1 unless system('gem', 'push', gem_file)
   end
 end

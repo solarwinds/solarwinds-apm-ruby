@@ -1,13 +1,16 @@
-name: RELEASE Ruby Gem to RubyGems
+name: BUILD, VERIFY, and RELEASE Ruby Gem to RubyGems
+
+# This workflow relies on the following secrets
+# - TRACE_BUILD_RUBY_ACTIONS_API_TOKEN (from the trace-build user in github)
+# - RUBYGEMS_TOKEN (from the appoptics user on rubygems.org)
+# - APPOPTICS_SERVICE_KEY
+# - APPOPTICS_COLLECTOR
+#
+# The correct oboe version has to be in the file ext/oboe_metal/src/VERSION
 
 on: [push]
 #on:
 #  workflow_dispatch:
-#    inputs:
-#      oboe_version:
-#        description: 'Oboe version to use with this gem version'
-#        required: true
-#        default: 0.0.0
 
 jobs:
   build:
@@ -34,7 +37,7 @@ jobs:
           ./configure && make && sudo make install
           cd -
 
-      - name: Download oboe files from github, compile swig wrapper
+      - name: Download oboe files from github
         env:
           TRACE_BUILD_TOKEN: ${{ secrets.TRACE_BUILD_RUBY_ACTIONS_API_TOKEN }}
         run: |
@@ -43,7 +46,7 @@ jobs:
           ls -l ext/oboe_metal/verify
           ls -l ext/oboe_metal/verify/bson
 
-      - name: Download files from files.appoptics.com and github, and verify
+      - name: Download files from files.appoptics.com and create swig wrapper
         run: |
           oboe_version=`cat ext/oboe_metal/src/VERSION`
           bundle exec rake oboe_files_appoptics_fetch[$oboe_version]
@@ -60,24 +63,24 @@ jobs:
           echo ::set-output name=checksum::$checksum
           echo ::set-output name=gem_version::`ruby -e 'require "./lib/appoptics_apm/version"; puts AppOpticsAPM::Version::STRING'`
 
-      - name: get checksum from Rubygems
+      - name: Get checksum from Rubygems
         id: checksum
         run: |
           gem_version=${{ steps.build.outputs.gem_version }}
           echo ::set-output name=geminfo::`curl https://rubygems.org/api/v2/rubygems/appoptics_apm/versions/$gem_version.json`
 
-      - name: print checksums
+      - name: Print checksums (in case some debugging is needed)
         run: |
           echo "local checksum:    ${{ steps.build.outputs.checksum }}"
           echo "Rubygems checksum: ${{ fromJson(steps.checksum.outputs.geminfo).sha }}"
 
-      - name: fail if local and rubygems checksum not matching
+      - name: Fail if local and rubygems checksums don't match
         if: fromJson(steps.checksum.outputs.geminfo).sha != steps.build.outputs.checksum
         run: |
-          echo "local and rubygems checksum not matching"
+          echo "local and rubygems checksum not matching, gem needs to be yanked from rubygems.org"
           exit 1
 
-      - name: Create release
+      - name: Create release draft that includes the checksum
         uses: actions/github-script@v3
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -92,7 +95,7 @@ jobs:
             })
 
       # may need a bit of time for the gem to become available (sleep 1)
-      - name: Test new Rubygem downloaded from Rubygems
+      - name: Download new Rubygem from rubygems.org and test
         working-directory: .github/workflows/
         env:
           APPOPTICS_SERVICE_KEY: ${{ secrets.APPOPTICS_SERVICE_KEY }}
