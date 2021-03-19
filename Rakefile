@@ -188,9 +188,16 @@ task :fetch_ext_deps do
     puts "fetching #{remote_file}"
     puts "      to #{local_file}"
 
-    URI.open(remote_file, 'rb') do |rf|
-      content = rf.read
-      File.open(local_file, 'wb') { |f| f.puts content }
+    if RUBY_VERSION < '2.5.0'
+      open(remote_file, 'rb') do |rf|
+        content = rf.read
+        File.open(local_file, 'wb') { |f| f.puts content }
+      end
+    else
+      URI.open(remote_file, 'rb') do |rf|
+        content = rf.read
+        File.open(local_file, 'wb') { |f| f.puts content }
+      end
     end
   end
 
