@@ -128,7 +128,6 @@ task :fetch_ext_deps do
   puts "fetching #{remote_file}"
   puts "      to #{local_file}"
 
-
   if RUBY_VERSION < '2.5.0'
     open(remote_file, 'rb') do |rf|
       content = rf.read
@@ -240,7 +239,6 @@ task :oboe_files_appoptics_fetch, [:oboe_version] do |_, args|
   oboe_version = args[:oboe_version]
   files_appoptics = "https://files.appoptics.com/c-lib/#{oboe_version}"
 
-  # files + directories
   FileUtils.mkdir_p(File.join(@ext_dir, 'src', 'bson'))
 
   # fetch files
@@ -303,8 +301,8 @@ task :build_gem do
   gem_file = gemspec.full_name + '.gem'
   exit 1 unless system('gem', 'build', gemspec_file)
 
-  if ENV['GEM_HOST_API_KEY']
-    api_key = ENV['GEM_HOST_API_KEY']
+  if ENV['RUBYGEMS_TOKEN']
+    api_key = ENV['RUBYGEMS_TOKEN']
 
     credentials_dir_path = "#{Dir.home}/.gem"
     credentials_file_path = "#{credentials_dir_path}/credentials"

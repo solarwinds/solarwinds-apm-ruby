@@ -1,12 +1,10 @@
+# Copyright (c) 2021 SolarWinds, LLC.
+# All rights reserved.
+
 name: Ruby Gem to PackageCloud
 
-on: [push]
-#  workflow_dispatch:
-
-#  push:
-#    branches: [ AO-18649_GH_build_actions ]
-#  pull_request:
-#    branches: [ master ]
+on:
+  workflow_dispatch:
 
 jobs:
   build:
@@ -62,7 +60,3 @@ jobs:
           gem sources --add https://packagecloud.io/solarwinds/appoptics-apm-ruby/
           gem install appoptics_apm --version ${{ steps.gemstep.outputs.GEM_VERSION }}
           ruby ./scripts/test_install.rb
-
-
-# access to raw file in github, e.g
-# https://raw.githubusercontent.com/librato/oboe/liboboe-10.1.0/liboboe/oboe_api.cpp?token=AA2OLM43LDKHC7GCMRAMN2TAKOOZA

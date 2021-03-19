@@ -8,7 +8,7 @@ require_relative '../jobs/sidekiq/activejob_worker_job'
 require_relative '../servers/sidekiq_activejob.rb'
 
 Sidekiq.configure_server do |config|
-    config.redis = { :password => ENV['REDIS_PASSWORD']  || 'secret_pass'}
+    config.redis = { :password => ENV['REDIS_PASSWORD'] || 'secret_pass'}
   if ENV.key?('REDIS_HOST')
     config.redis << { :url => "redis://#{ENV['REDIS_HOST']}:6379" }
   end

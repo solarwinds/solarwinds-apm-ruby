@@ -1,3 +1,6 @@
+# Copyright (c) 2021 SolarWinds, LLC.
+# All rights reserved.
+
 name: BUILD, VERIFY, and RELEASE Ruby Gem to RubyGems
 
 # This workflow relies on the following secrets
@@ -55,7 +58,7 @@ jobs:
       - name: Build Gem and upload to Rubygems
         id: build
         env:
-          GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_TOKEN }}
+          RUBYGEMS_TOKEN: ${{ secrets.RUBYGEMS_TOKEN }}
         run:  |
           bundle exec rake build_gem
           checksum=`shasum -a256 *.gem | awk '{print $1;}'`
