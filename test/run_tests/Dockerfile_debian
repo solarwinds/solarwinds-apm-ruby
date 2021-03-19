@@ -1,3 +1,6 @@
+# Copyright (c) 2019 SolarWinds, LLC.
+# All rights reserved.
+
 FROM debian:jessie
 
 # docker build -f Dockerfile_ubuntu -t ruby_appoptics .

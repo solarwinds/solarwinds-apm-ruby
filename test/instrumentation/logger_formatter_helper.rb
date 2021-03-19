@@ -1,4 +1,5 @@
-
+# Copyright (c) 2019 SolarWinds, LLC.
+# All rights reserved.
 
 describe "include traceId in message " do
 

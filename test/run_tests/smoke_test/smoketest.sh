@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Copyright (c) 2020 SolarWinds, LLC.
+# All rights reserved.
+
 path=$(dirname "$0")
 
 export APPOPTICS_COLLECTOR=collector-stg.appoptics.com

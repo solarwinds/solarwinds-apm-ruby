@@ -1,3 +1,6 @@
+# Copyright (c) 2019 SolarWinds, LLC.
+# All rights reserved.
+
 require 'minitest_helper'
 
 describe "Logger::Formatter " do

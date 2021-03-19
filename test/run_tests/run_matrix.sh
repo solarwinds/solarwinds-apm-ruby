@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Copyright (c) 2019 SolarWinds, LLC.
+# All rights reserved.
+
 ##
 # This script can be used to run one test file against multiple ruby and
 # gem versions

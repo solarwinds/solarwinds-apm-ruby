@@ -1,3 +1,6 @@
+# Copyright (c) 2019 SolarWinds, LLC.
+# All rights reserved.
+
 require 'grpc'
 
 $LOAD_PATH.unshift(File.dirname(__FILE__))

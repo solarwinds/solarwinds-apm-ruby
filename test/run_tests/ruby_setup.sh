@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Copyright (c) 2019 SolarWinds, LLC.
+# All rights reserved.
+
 ##
 # This script sets up the environment for running the tests
 #

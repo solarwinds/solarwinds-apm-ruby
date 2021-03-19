@@ -1,3 +1,6 @@
+# Copyright (c) 2019 SolarWinds, LLC.
+# All rights reserved.
+
 require "active_job/railtie"
 
 Sidekiq.configure_server do |config|

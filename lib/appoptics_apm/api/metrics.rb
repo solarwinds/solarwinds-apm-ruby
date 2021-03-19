@@ -1,3 +1,6 @@
+# Copyright (c) 2019 SolarWinds, LLC.
+# All rights reserved.
+
 module  AppOpticsAPM
   module API
     module Metrics

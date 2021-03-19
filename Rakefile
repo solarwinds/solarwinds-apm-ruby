@@ -1,5 +1,8 @@
 #!/usr/bin/env rake
 
+# Copyright (c) 2016 SolarWinds, LLC.
+# All rights reserved.
+
 require 'rubygems'
 require 'fileutils'
 require 'net/http'

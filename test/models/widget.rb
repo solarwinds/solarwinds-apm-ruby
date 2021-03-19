@@ -1,3 +1,6 @@
+# Copyright (c) 2019 SolarWinds, LLC.
+# All rights reserved.
+
 # Somehow the Padrino::Reloader v14 is detecting and loading
 # this file when it shouldn't.  Block it from loading for
 # Padrino for now.

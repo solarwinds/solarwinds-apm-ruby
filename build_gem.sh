@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+
+# Copyright (c) 2019 SolarWinds, LLC.
+# All rights reserved.
+
 # builds the appoptics_apm gem for MRI.
 
 # we currently only build for MRI, no JRuby
