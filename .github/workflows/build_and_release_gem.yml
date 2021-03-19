@@ -60,25 +60,6 @@ jobs:
           echo ::set-output name=checksum::$checksum
           echo ::set-output name=gem_version::`ruby -e 'require "./lib/appoptics_apm/version"; puts AppOpticsAPM::Version::STRING'`
 
-      - name:  echo gem release and checksum
-        run: |
-          echo "checksum: ${{ steps.build.outputs.checksum }}"
-          echo "gem version: ${{ steps.build.outputs.gem_version }}"
-
-      - name: Create release
-        uses: actions/github-script@v3
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            github.repos.createRelease({
-              owner: "appoptics",
-              repo: "appoptics-apm-ruby",
-              body: "SHA256 checksum: ${{ steps.build.outputs.checksum }}",
-              tag_name: "${{ steps.build.outputs.gem_version }}",
-              name: "${{ steps.build.outputs.gem_version }}",
-              draft: true
-            })
-
       - name: get checksum from Rubygems
         id: checksum
         run: |
@@ -96,6 +77,28 @@ jobs:
           echo "local and rubygems checksum not matching"
           exit 1
 
-#      - name: Test install
-#        TODO test if gem installs
+      - name: Create release
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.repos.createRelease({
+              owner: "appoptics",
+              repo: "appoptics-apm-ruby",
+              body: "SHA256 checksum: ${{ steps.build.outputs.checksum }}",
+              tag_name: "${{ steps.build.outputs.gem_version }}",
+              name: "${{ steps.build.outputs.gem_version }}",
+              draft: true
+            })
+
+      - name: Test new Rubygem downloaded from Rubygems
+        working-directory: .github/workflows/
+        env:
+          APPOPTICS_SERVICE_KEY: ${{ secrets.APPOPTICS_SERVICE_KEY }}
+          APPOPTICS_COLLECTOR: ${{ secrets.APPOPTICS_COLLECTOR}}
+        run: |
+          gem sources --add https://rubygems.org
+          gem install appoptics_apm --version ${{ steps.build.outputs.gem_version }}
+          ruby ./scripts/test_install.rb
+
 
