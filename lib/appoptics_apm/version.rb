@@ -6,10 +6,10 @@ module AppOpticsAPM
   # The current version of the gem.  Used mainly by
   # appoptics_apm.gemspec during gem build process
   module Version
-    MAJOR = 4  # breaking,
-    MINOR = 12 # feature,
-    PATCH = 2  # fix => BFF
-    PRE   = "ghtest3"
+    MAJOR = 0  # breaking,
+    MINOR = 0 # feature,
+    PATCH = 0  # fix => BFF
+    PRE   = "ghtest4"
 
     STRING = [MAJOR, MINOR, PATCH, PRE].compact.join('.')
   end
