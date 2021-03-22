@@ -14,6 +14,7 @@ describe AppOpticsAPM::SDK do
     AppOpticsAPM::Config[:tracing_mode] = :enabled
     AppOpticsAPM::Config[:sample_rate] = 1000000
 
+    # clean up because a test from a previous test files may not
     AppOpticsAPM.layer = nil
     AppOpticsAPM::Context.clear
   end

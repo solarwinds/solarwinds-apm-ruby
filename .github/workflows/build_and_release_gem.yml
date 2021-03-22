@@ -11,8 +11,8 @@ name: BUILD, VERIFY, and RELEASE Ruby Gem to RubyGems
 #
 # The correct oboe version has to be in the file ext/oboe_metal/src/VERSION
 
-on:
-  workflow_dispatch:
+on: [push]
+#  workflow_dispatch:
 
 jobs:
   build:
@@ -34,32 +34,24 @@ jobs:
 
       - name: Install swig 4.0.2
         run: |
-          curl -SL http://kent.dl.sourceforge.net/project/swig/swig/swig-4.0.2/swig-4.0.2.tar.gz | tar xzC /tmp
+          curl -SL https://github.com/swig/swig/archive/refs/tags/v4.0.2.tar.gz | tar xzC /tmp
           cd /tmp/swig-4.0.2
-          ./configure && make && sudo make install
+          ./autogen.sh && ./configure && make && sudo make install
           cd -
 
-      - name: Download oboe files from github
+      - name: Download files from files.appoptics.com and create swig wrapper
         env:
           TRACE_BUILD_TOKEN: ${{ secrets.TRACE_BUILD_RUBY_ACTIONS_API_TOKEN }}
         run: |
-          oboe_version=`cat ext/oboe_metal/src/VERSION`
-          bundle exec rake oboe_github_fetch[$oboe_version]
-          ls -l ext/oboe_metal/verify
-          ls -l ext/oboe_metal/verify/bson
-
-      - name: Download files from files.appoptics.com and create swig wrapper
-        run: |
-          oboe_version=`cat ext/oboe_metal/src/VERSION`
-          bundle exec rake oboe_files_appoptics_fetch[$oboe_version]
+          bundle exec rake oboe_files_appoptics_fetch
           bundle exec rake oboe_verify
 
       - name: Build Gem and upload to Rubygems
         id: build
         env:
-          RUBYGEMS_TOKEN: ${{ secrets.RUBYGEMS_TOKEN }}
+          GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_TOKEN }}
         run:  |
-          bundle exec rake build_gem
+          bundle exec rake build_and_publish_gem
           checksum=`shasum -a256 *.gem | awk '{print $1;}'`
           echo "checksum: $checksum"
           echo ::set-output name=checksum::$checksum

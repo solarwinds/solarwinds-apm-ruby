@@ -213,11 +213,8 @@ task :fetch => :fetch_ext_deps
 @ext_dir = File.expand_path('ext/oboe_metal')
 @ext_verify_dir = File.expand_path('ext/oboe_metal/verify')
 
-desc "Fetch oboe files from github"
-task :oboe_github_fetch, [:oboe_version] do |_, args|
-  puts "oboe_version: #{args[:oboe_version]}"
-
-  oboe_version = args[:oboe_version]
+def oboe_github_fetch
+  oboe_version = File.open('ext/oboe_metal/src/VERSION', &:readline).chomp
   oboe_token = ENV['TRACE_BUILD_TOKEN']
   oboe_github = "https://raw.githubusercontent.com/librato/oboe/liboboe-#{oboe_version}/liboboe/"
 
@@ -243,10 +240,8 @@ task :oboe_github_fetch, [:oboe_version] do |_, args|
 end
 
 desc "Fetch oboe files from files.appoptics.com and create swig wrapper"
-task :oboe_files_appoptics_fetch, [:oboe_version] do |_, args|
-  puts "oboe_version: #{args[:oboe_version]}"
-
-  oboe_version = args[:oboe_version]
+task :oboe_files_appoptics_fetch do
+  oboe_version = File.open('ext/oboe_metal/src/VERSION', &:readline).chomp
   files_appoptics = "https://files.appoptics.com/c-lib/#{oboe_version}"
 
   FileUtils.mkdir_p(File.join(@ext_dir, 'src', 'bson'))
@@ -288,6 +283,7 @@ end
 
 desc "Verify files"
 task :oboe_verify do
+  oboe_github_fetch
   @files.each do |filename|
     puts "Verifying #{filename}"
 
@@ -299,32 +295,19 @@ task :oboe_verify do
       puts `diff #{File.join(@ext_dir, 'src', filename)} #{File.join(@ext_verify_dir, filename)}`
       exit 1
     end
-
   end
 end
 
 desc "Build and publish to Rubygems"
-# code originally from https://github.com/dawidd6/action-publish-gem
-task :build_gem do
+task :build_and_publish_gem do
   gemspec_file = 'appoptics_apm.gemspec'
   gemspec = Gem::Specification.load(gemspec_file)
   gem_file = gemspec.full_name + '.gem'
+
+  exit 1 unless system(gem update --system)
   exit 1 unless system('gem', 'build', gemspec_file)
 
-  if ENV['RUBYGEMS_TOKEN']
-    api_key = ENV['RUBYGEMS_TOKEN']
-
-    credentials_dir_path = "#{Dir.home}/.gem"
-    credentials_file_path = "#{credentials_dir_path}/credentials"
-    credentials = <<~END_OF_CREDENTIALS
-    ---
-    :rubygems_api_key: #{api_key}
-    END_OF_CREDENTIALS
-
-    FileUtils.mkdir_p(credentials_dir_path)
-    File.open(credentials_file_path, 'w') { |f| f.write(credentials) }
-    FileUtils.chmod(0600, credentials_file_path)
-
+  if ENV['GEM_HOST_API_KEY']
     exit 1 unless system('gem', 'push', gem_file)
   end
 end

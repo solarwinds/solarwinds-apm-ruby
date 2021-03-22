@@ -3,7 +3,7 @@
 
 name: Run all Tests
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   tests:
@@ -148,9 +148,9 @@ jobs:
 
       - name: Install swig 4.0.2
         run: |
-          curl -SL http://kent.dl.sourceforge.net/project/swig/swig/swig-4.0.2/swig-4.0.2.tar.gz | tar xzC /tmp
+          curl -SL https://github.com/swig/swig/archive/refs/tags/v4.0.2.tar.gz | tar xzC /tmp
           cd /tmp/swig-4.0.2
-          ./configure && make && make install
+          ./autogen.sh && ./configure && make && make install
           cd -
 
       - name: Compile c-extension
