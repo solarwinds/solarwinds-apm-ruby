@@ -13,6 +13,9 @@ describe AppOpticsAPM::SDK do
     }
     AppOpticsAPM::Config[:tracing_mode] = :enabled
     AppOpticsAPM::Config[:sample_rate] = 1000000
+
+    AppOpticsAPM.layer = nil
+    AppOpticsAPM::Context.clear
   end
 
   after do
@@ -26,6 +29,7 @@ describe AppOpticsAPM::SDK do
     AppOpticsAPM::Context.clear
   end
 
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
   describe 'trace' do
     before do
@@ -120,17 +124,17 @@ describe AppOpticsAPM::SDK do
     end
 
     it 'should do the right thing in the recursive example' do
-        def computation_with_appoptics(n)
-          AppOpticsAPM::SDK.trace('computation', { :number => n }, :comp) do
-            return n if n == 0
-            n + computation_with_appoptics(n-1)
-          end
+      def computation_with_appoptics(n)
+        AppOpticsAPM::SDK.trace('computation', { :number => n }, :comp) do
+          return n if n == 0
+          n + computation_with_appoptics(n-1)
         end
+      end
 
-        AppOpticsAPM::API.expects(:log_event).with('computation', :entry, anything, anything).once
-        AppOpticsAPM::API.expects(:log_event).with('computation', :exit, anything, anything).once
+      AppOpticsAPM::API.expects(:log_event).with('computation', :entry, anything, anything).once
+      AppOpticsAPM::API.expects(:log_event).with('computation', :exit, anything, anything).once
 
-        computation_with_appoptics(3)
+      computation_with_appoptics(3)
     end
   end
 
@@ -222,7 +226,6 @@ describe AppOpticsAPM::SDK do
       xtrace = '2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F01'
 
       AppOpticsAPM::API.expects(:send_metrics)
-      sleep 0.1
 
       AppOpticsAPM::SDK.start_trace('test_01', xtrace) { 42 }
     end
@@ -612,8 +615,8 @@ describe AppOpticsAPM::SDK do
     end
   end
 
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
   describe 'set_transaction_name' do
-
     it 'should not set the transaction name if the arg is not a string or an empty string' do
       AppOpticsAPM.transaction_name = nil
 
