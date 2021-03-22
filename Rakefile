@@ -304,7 +304,7 @@ task :build_and_publish_gem do
   gemspec = Gem::Specification.load(gemspec_file)
   gem_file = gemspec.full_name + '.gem'
 
-  exit 1 unless system('gem', 'update --system')
+  exit 1 unless system('gem update --system')
   exit 1 unless system('gem', 'build', gemspec_file)
 
   if ENV['GEM_HOST_API_KEY']
