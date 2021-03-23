@@ -9,3 +9,4 @@
 
 require 'appoptics_apm'
 AppOpticsAPM.support_report
+exit 1 unless AppOpticsAPM.reporter
