@@ -59,9 +59,9 @@ jobs:
         env:
           APPOPTICS_SERVICE_KEY: ${{ secrets.APPOPTICS_SERVICE_KEY }}
           APPOPTICS_COLLECTOR: ${{ secrets.APPOPTICS_COLLECTOR}}
+          APPOPTICS_FROM_S3: true
         run: |
           sleep 10
           gem sources --add https://packagecloud.io/solarwinds/appoptics-apm-ruby/
           gem install appoptics_apm --version ${{ steps.gemstep.outputs.GEM_VERSION }}
-          ls /opt/hostedtoolcache/Ruby/2.6.6/x64/lib/ruby/gems/2.6.0/gems/appoptics_apm-0.1.0.ghtest10/lib/
           ruby ./scripts/test_install.rb
