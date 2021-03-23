@@ -59,7 +59,7 @@ jobs:
         env:
           APPOPTICS_SERVICE_KEY: ${{ secrets.APPOPTICS_SERVICE_KEY }}
           APPOPTICS_COLLECTOR: ${{ secrets.APPOPTICS_COLLECTOR}}
-          APPOPTICS_FROM_S3: true
+#          APPOPTICS_FROM_S3: true
         run: |
           sleep 10
           gem sources --add https://packagecloud.io/solarwinds/appoptics-apm-ruby/
