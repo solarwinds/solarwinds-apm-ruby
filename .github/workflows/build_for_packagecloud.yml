@@ -3,8 +3,8 @@
 
 name: Ruby Gem to PackageCloud
 
-on:
-  workflow_dispatch:
+on: [push]
+#  workflow_dispatch:
 
 jobs:
   build:
@@ -26,7 +26,7 @@ jobs:
 
       - name: Install swig 4.0.2
         run: |
-          alias yacc='/usr/bin/bison -y'
+          apt udate && apt install -y --no-install-recommends bison
           curl -SL https://github.com/swig/swig/archive/refs/tags/v4.0.2.tar.gz | tar xzC /tmp
           cd /tmp/swig-4.0.2
           ./autogen.sh && ./configure && make && sudo make install
