@@ -11,8 +11,8 @@ name: BUILD, VERIFY, and RELEASE Ruby Gem to RubyGems
 #
 # The correct oboe version has to be in the file ext/oboe_metal/src/VERSION
 
-on: [push]
-#  workflow_dispatch:
+on:
+  workflow_dispatch:
 
 jobs:
   build:
