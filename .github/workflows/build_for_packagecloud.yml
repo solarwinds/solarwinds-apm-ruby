@@ -32,7 +32,7 @@ jobs:
           ./autogen.sh && ./configure && make && sudo make install
           cd -
 
-      - name: Download oboe files from S3, compile swig wrapper
+      - name: Download oboe development files S3, compile swig wrapper
         run: |
           bundle exec rake fetch
           ls -l ext/oboe_metal/src
@@ -47,10 +47,10 @@ jobs:
       - name: Publish to PackageCloud
         run: |
           gem install package_cloud
-#          set +e
-#          package_cloud yank solarwinds/appoptics-apm-ruby *.gem
-#          set -e
-#          package_cloud push solarwinds/appoptics-apm-ruby *.gem
+          set +e
+          package_cloud yank solarwinds/appoptics-apm-ruby *.gem
+          set -e
+          package_cloud push solarwinds/appoptics-apm-ruby *.gem
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
 
@@ -60,7 +60,7 @@ jobs:
           APPOPTICS_SERVICE_KEY: ${{ secrets.APPOPTICS_SERVICE_KEY }}
           APPOPTICS_COLLECTOR: ${{ secrets.APPOPTICS_COLLECTOR}}
         run: |
-          sleep 2
+          sleep 10
           gem sources --add https://packagecloud.io/solarwinds/appoptics-apm-ruby/
           gem install appoptics_apm --version ${{ steps.gemstep.outputs.GEM_VERSION }}
           ruby ./scripts/test_install.rb
