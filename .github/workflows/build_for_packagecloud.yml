@@ -3,8 +3,8 @@
 
 name: Ruby Gem to PackageCloud
 
-on: [push]
-#  workflow_dispatch:
+on:
+  workflow_dispatch:
 
 jobs:
   build:
@@ -46,12 +46,11 @@ jobs:
           cat ext/oboe_metal/src/VERSION
 
       - name: Publish to PackageCloud
+        # PackageCloud is unreliable with regards to
+        # republishing after yanking a gem
+        # we are going to fail if republishing is attempted
         run: |
           gem install package_cloud
-          set +e
-          package_cloud yank solarwinds/appoptics-apm-ruby *.gem
-          set -e
-          sleep 10
           package_cloud push solarwinds/appoptics-apm-ruby *.gem
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
