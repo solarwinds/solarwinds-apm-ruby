@@ -129,7 +129,7 @@ task :fetch_ext_deps do
   Dir.glob(File.join(ext_src_dir, 'oboe*')).each { |file| File.delete(file) }
 
   # let's print the latest version, in case there is a new one
-  remote_file = File.join(oboe_s3_dir, 'VERSION')
+  remote_file = File.join("https://rc-files-t2.s3-us-west-2.amazonaws.com/c-lib/latest", 'VERSION')
   local_file  = File.join(ext_src_dir, 'VERSION_latest')
   if RUBY_VERSION < '2.5.0'
     open(remote_file, 'rb') do |rf|
@@ -194,11 +194,13 @@ task :fetch_ext_deps do
       open(remote_file, 'rb') do |rf|
         content = rf.read
         File.open(local_file, 'wb') { |f| f.puts content }
+        puts "%%% #{filename} checksum: #{content.strip} %%%"
       end
     else
       URI.open(remote_file, 'rb') do |rf|
         content = rf.read
         File.open(local_file, 'wb') { |f| f.puts content }
+        puts "%%% #{filename} checksum: #{content.strip} %%%"
       end
     end
   end
