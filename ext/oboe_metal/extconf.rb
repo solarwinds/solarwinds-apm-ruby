@@ -38,12 +38,7 @@ end
 
 ao_arch = 'x86_64'
 if File.exist?('/etc/alpine-release')
-
-  if RUBY_VERSION < '2.5.0'
-    version = open('/etc/alpine-release').read.strip
-  else
-    version = URI.open('/etc/alpine-release').read.strip
-  end
+  version = File.read('/etc/alpine-release').strip
 
   ao_arch =
     if Gem::Version.new(version) < Gem::Version.new('3.9')
@@ -73,11 +68,11 @@ while retries > 0
       $stderr.puts 'Checksum Verification failed for the c-extension of the appoptics_apm gem.'
       $stderr.puts 'appoptics_apm will not instrument the code. No tracing will occur.'
       $stderr.puts 'Contact support@appoptics.com if the problem persists.'
+      $stderr.puts "\nChecksum cut into gem:        #{checksum}"
+      $stderr.puts "Checksum caluclated from lib: #{clib_checksum}"
       $stderr.puts '=========================================================================='
       create_makefile('oboe_noop', 'noop')
       retries = 0
-      $stdout.puts "checksum in cut into gem:     #{clib_checksum}"
-      $stdout.puts "checksum caluclated from lib: #{checksum}"
     else
       success = true
       retries = 0

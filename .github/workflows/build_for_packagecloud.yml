@@ -64,5 +64,5 @@ jobs:
         run: |
           sleep 10
           gem sources --add https://packagecloud.io/solarwinds/appoptics-apm-ruby/
-          gem install appoptics_apm --version ${{ steps.gemstep.outputs.GEM_VERSION }}
+          gem install appoptics_apm --version ${{ steps.gemstep.outputs.GEM_VERSION }} --verbose
           ruby ./scripts/test_install.rb
