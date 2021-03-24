@@ -51,6 +51,7 @@ jobs:
           set +e
           package_cloud yank solarwinds/appoptics-apm-ruby *.gem
           set -e
+          sleep 10
           package_cloud push solarwinds/appoptics-apm-ruby *.gem
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
