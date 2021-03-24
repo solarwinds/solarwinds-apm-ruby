@@ -63,16 +63,18 @@ while retries > 0
     clib_checksum = Digest::SHA256.file(clib).hexdigest
     download.close
     checksum =  File.read(ao_checksum_file).strip
+
+    # unfortunately these messages only show if the install command is run
+    # with the `--verbose` flag
     if clib_checksum != checksum
       $stderr.puts '== ERROR ================================================================='
-      $stderr.puts 'Checksum Verification failed for the c-extension of the appoptics_apm gem.'
-      $stderr.puts 'appoptics_apm will not instrument the code. No tracing will occur.'
-      $stderr.puts 'Contact support@appoptics.com if the problem persists.'
+      $stderr.puts 'Checksum Verification failed for the c-extension of the appoptics_apm gem'
+      $stderr.puts 'Installation can not continue'
       $stderr.puts "\nChecksum cut into gem:        #{checksum}"
       $stderr.puts "Checksum caluclated from lib: #{clib_checksum}"
+      $stderr.puts 'Contact support@appoptics.com if the problem persists'
       $stderr.puts '=========================================================================='
-      create_makefile('oboe_noop', 'noop')
-      retries = 0
+      exit 1
     else
       success = true
       retries = 0

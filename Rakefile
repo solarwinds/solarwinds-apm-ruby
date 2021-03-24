@@ -119,7 +119,7 @@ task :fetch_ext_deps do
   ext_lib_dir = File.expand_path('ext/oboe_metal/lib')
 
   # The c-lib version is different from the gem version
-  oboe_version = File.open(File.join(ext_src_dir, 'VERSION'), &:readline).strip
+  oboe_version = File.read(File.join(ext_src_dir, 'VERSION')).strip
   puts "!!!!!! C-Lib VERSION: #{oboe_version} !!!!!!!"
 
   oboe_s3_dir = "https://rc-files-t2.s3-us-west-2.amazonaws.com/c-lib/#{oboe_version}"
@@ -128,7 +128,7 @@ task :fetch_ext_deps do
   # from oboe* to oboe_api*
   Dir.glob(File.join(ext_src_dir, 'oboe*')).each { |file| File.delete(file) }
 
-  # let's print the latest version, in case there is a new one
+  # inform when there is a newer oboe version
   remote_file = File.join("https://rc-files-t2.s3-us-west-2.amazonaws.com/c-lib/latest", 'VERSION')
   local_file  = File.join(ext_src_dir, 'VERSION_latest')
   if RUBY_VERSION < '2.5.0'
@@ -143,7 +143,9 @@ task :fetch_ext_deps do
     URI.open(remote_file, 'rb') do |rf|
       content = rf.read
       File.open(local_file, 'wb') { |f| f.puts content }
-      puts "FYI: latest C-Lib VERSION: #{content.strip} !"
+      unless content.strip == oboe_version
+        puts "FYI: latest C-Lib VERSION: #{content.strip} !"
+      end
     end
   end
 
@@ -218,7 +220,7 @@ task :fetch => :fetch_ext_deps
 @ext_verify_dir = File.expand_path('ext/oboe_metal/verify')
 
 def oboe_github_fetch
-  oboe_version = File.open('ext/oboe_metal/src/VERSION', &:readline).strip
+  oboe_version = File.read('ext/oboe_metal/src/VERSION').strip
   oboe_token = ENV['TRACE_BUILD_TOKEN']
   oboe_github = "https://raw.githubusercontent.com/librato/oboe/liboboe-#{oboe_version}/liboboe/"
 
@@ -245,7 +247,7 @@ end
 
 desc "Fetch oboe files from files.appoptics.com and create swig wrapper"
 task :oboe_files_appoptics_fetch do
-  oboe_version = File.open('ext/oboe_metal/src/VERSION', &:readline).strip
+  oboe_version = File.read('ext/oboe_metal/src/VERSION').strip
   files_appoptics = "https://files.appoptics.com/c-lib/#{oboe_version}"
 
   FileUtils.mkdir_p(File.join(@ext_dir, 'src', 'bson'))
@@ -303,7 +305,7 @@ task :oboe_verify do
 end
 
 desc "Build and publish to Rubygems"
-# !!! publishing requires gem version >=3.0.5 !!!
+# !!! publishing requires gem >=3.0.5 !!!
 # Don't run with Ruby versions < 2.7 they have gem < 3.0.5
 task :build_and_publish_gem do
   gemspec_file = 'appoptics_apm.gemspec'
