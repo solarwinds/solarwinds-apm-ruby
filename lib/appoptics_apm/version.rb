@@ -9,7 +9,7 @@ module AppOpticsAPM
     MAJOR = 0  # breaking,
     MINOR = 1 # feature,
     PATCH = 0  # fix => BFF
-    PRE   = "ghtest11"
+    PRE   = "ghtest12"
 
     STRING = [MAJOR, MINOR, PATCH, PRE].compact.join('.')
   end
