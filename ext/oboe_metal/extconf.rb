@@ -28,7 +28,7 @@ ao_lib_dir = File.join(ext_dir, 'lib')
 ao_include = File.join(ext_dir, 'src')
 
 # Download the appropriate liboboe from S3(via rake for testing) or files.appoptics.com (production)
-version = File.read(File.join(ao_include, 'VERSION')).chomp
+version = File.read(File.join(ao_include, 'VERSION')).strip
 if ENV['APPOPTICS_FROM_S3'].to_s.downcase == 'true'
   ao_path = File.join('https://rc-files-t2.s3-us-west-2.amazonaws.com/c-lib/', version)
   puts 'Fetching c-lib from S3'
@@ -40,9 +40,9 @@ ao_arch = 'x86_64'
 if File.exist?('/etc/alpine-release')
 
   if RUBY_VERSION < '2.5.0'
-    version = open('/etc/alpine-release').read.chomp
+    version = open('/etc/alpine-release').read.strip
   else
-    version = URI.open('/etc/alpine-release').read.chomp
+    version = URI.open('/etc/alpine-release').read.strip
   end
 
   ao_arch =
@@ -67,7 +67,7 @@ while retries > 0
 
     clib_checksum = Digest::SHA256.file(clib).hexdigest
     download.close
-    checksum =  File.read(ao_checksum_file).chomp
+    checksum =  File.read(ao_checksum_file).strip
     if clib_checksum != checksum
       $stderr.puts '== ERROR ================================================================='
       $stderr.puts 'Checksum Verification failed for the c-extension of the appoptics_apm gem.'
