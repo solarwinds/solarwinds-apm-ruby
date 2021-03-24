@@ -76,6 +76,8 @@ while retries > 0
       $stderr.puts '=========================================================================='
       create_makefile('oboe_noop', 'noop')
       retries = 0
+      $stdout.puts "checksum in cut into gem:     #{clib_checksum}"
+      $stdout.puts "checksum caluclated from lib: #{checksum}"
     else
       success = true
       retries = 0
