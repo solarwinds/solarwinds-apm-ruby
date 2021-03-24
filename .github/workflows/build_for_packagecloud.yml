@@ -43,6 +43,7 @@ jobs:
           gem build appoptics_apm.gemspec
           echo `shasum -a256 *.gem`
           echo "::set-output name=GEM_VERSION::`ruby -e 'require "./lib/appoptics_apm/version"; puts AppOpticsAPM::Version::STRING'`"
+          cat ext/oboe_metal/src/VERSION
 
       - name: Publish to PackageCloud
         run: |
@@ -54,7 +55,7 @@ jobs:
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
 
-      - name: Test install (give packagecloud 2 seconds to index)
+      - name: Test install (give packagecloud 10 seconds to index)
         working-directory: .github/workflows/
         env:
           APPOPTICS_SERVICE_KEY: ${{ secrets.APPOPTICS_SERVICE_KEY }}
