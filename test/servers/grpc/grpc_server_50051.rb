@@ -1,5 +1,8 @@
 #!/usr/bin/env ruby
 
+# Copyright (c) 2019 SolarWinds, LLC.
+# All rights reserved.
+
 $LOAD_PATH.unshift('.') unless $LOAD_PATH.include?('.')
 
 require 'grpc'

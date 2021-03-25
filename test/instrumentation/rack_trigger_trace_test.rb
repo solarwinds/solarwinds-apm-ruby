@@ -6,9 +6,9 @@ require 'appoptics_apm/inst/rack'
 require 'mocha/minitest'
 require 'openssl'
 
-Minitest::Test.i_suck_and_my_tests_are_order_dependent!
+# Minitest::Test.i_suck_and_my_tests_are_order_dependent!
 describe "Rack Trigger Tracing " do
-  Minitest::Test.i_suck_and_my_tests_are_order_dependent!
+  # Minitest::Test.i_suck_and_my_tests_are_order_dependent!
 
   def restart_rack
     @rack = AppOpticsAPM::Rack.new(@app)

@@ -4,9 +4,13 @@ source "https://rubygems.org"
 
 gem 'rest-client', '= 1.6.3'
 
-gem 'curb', '= 0.8.6' unless defined?(JRUBY_VERSION)
-gem 'excon', '0.28.0'
-gem 'faraday', '0.7.6'
+
+# appoptics_apm does support older versions of curb, but newer libcurl
+# doesn't, 0.9.7 is the oldest version that can be tested in github actions
+gem 'curb', '= 0.9.7' unless defined?(JRUBY_VERSION)
+# gem 'curb', '= 0.8.6' unless defined?(JRUBY_VERSION)
+gem 'excon', RUBY_VERSION < '3.0.0' ? '0.28.0' : '0.72.0'
+gem 'faraday',  RUBY_VERSION < '3.0.0' ? '0.7.6' : '1.0.0'
 gem 'httpclient', '2.3.0'
 gem 'typhoeus', '0.6.2'
 gem 'patron', '0.7.0' # not instrumented, to test non-instrumented faraday adapter

@@ -1,3 +1,6 @@
+# Copyright (c) 2019 SolarWinds, LLC.
+# All rights reserved.
+
 FROM ubuntu:16.04
 
 # docker build -f Dockerfile_ubuntu -t ruby_appoptics .
@@ -66,8 +69,8 @@ RUN . ~/.profile && rbenv local 3.0.0 && gem install bundler -v 1.17.3
 
 RUN echo 'gem: --no-document' >> ~/.gemrc
 
-# install swig 4.0.0
-RUN curl -SL http://kent.dl.sourceforge.net/project/swig/swig/swig-4.0.2/swig-4.0.2.tar.gz \
+# install swig 4.0.2
+RUN curl -SL https://github.com/swig/swig/archive/refs/tags/v4.0.2.tar.gz \
     | tar xzC /tmp \
     && cd /tmp/swig-4.0.2 \
     && ./configure && make && make install \

@@ -10,7 +10,7 @@ unless defined?(JRUBY_VERSION)
 
     before do
       clear_all_traces
-      @mc = ::Memcached::Rails.new(:servers => ['127.0.0.1'])
+      @mc = ::Memcached::Rails.new(:servers => [ENV['APPOPTICS_MEMCACHED_SERVER'] || '127.0.0.1'])
 
       # These are standard entry/exit KVs that are passed up with all mongo operations
       @entry_kvs = {

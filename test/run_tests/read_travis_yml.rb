@@ -1,5 +1,8 @@
 #!/usr/bin/env ruby
 
+# Copyright (c) 2019 SolarWinds, LLC.
+# All rights reserved.
+
 ##
 # This script reads the travis.yml file and provides the arguments for the jobs to run
 # It was written to produce input to the bash script that runs the tests

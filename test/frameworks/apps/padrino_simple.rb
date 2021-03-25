@@ -1,3 +1,6 @@
+# Copyright (c) 2019 SolarWinds, LLC.
+# All rights reserved.
+
 # This test Padrino stack file was taken from the padrino-core gem.
 #
 PADRINO_ROOT = File.dirname(__FILE__) unless defined? PADRINO_ROOT

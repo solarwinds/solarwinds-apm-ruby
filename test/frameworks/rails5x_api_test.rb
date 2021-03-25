@@ -50,11 +50,12 @@ if defined?(::Rails)
       traces = get_all_traces
       _(traces.count).must_equal 16
 
-      _(traces[11]['Layer']).must_equal "collection"
-      _(traces[11]['Label']).must_equal "entry"
-      _(traces[11]['Partial']).must_equal "hello/_widget"
-      _(traces[12]['Layer']).must_equal "collection"
-      _(traces[12]['Label']).must_equal "exit"
+      collection_events = traces.select { |tr| tr['Layer'] == 'collection' }
+      _(collection_events.size).must_equal 2
+
+      _(collection_events[0]['Label']).must_equal "entry"
+      _(collection_events[0]['Partial']).must_equal "hello/_widget"
+      _(collection_events[1]['Label']).must_equal "exit"
     end
 
     it "should trace a request to a rails api stack" do

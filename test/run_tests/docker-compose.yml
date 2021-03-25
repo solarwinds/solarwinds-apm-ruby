@@ -1,3 +1,6 @@
+# Copyright (c) 2019 SolarWinds, LLC.
+# All rights reserved.
+
 version: "2.1"
 
 #########################################################################################################
@@ -28,10 +31,10 @@ x-ao-env: &ao-env
   MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
   MYSQL_ROOT_PASSWORD: "admin"
   MYSQL_HOST: "ao-ruby-mysql"
-  OBOE_VERSION: "10.1.0"
+#  OBOE_VERSION: "10.1.0"
   POSTGRES_PASSWORD: "docker"
   POSTGRES_USER: "docker"
-  PSQL_HOST: "ao-ruby-postgres"
+  POSTGRES_HOST: "ao-ruby-postgres"
   RUBY_ENV: "test"
   TEST_RUNS_TO_FILE: "true"
 #    - SIMPLECOV_COVERAGE=true

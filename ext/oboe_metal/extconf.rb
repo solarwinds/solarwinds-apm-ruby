@@ -22,14 +22,13 @@ ext_dir = File.expand_path(File.dirname(__FILE__))
 
 # Check if we're running in JRuby
 jruby = defined?(JRUBY_VERSION) ? true : false
-
 # Set the mkmf lib paths so we have no issues linking to
 # the AppOpticsAPM libs.
 ao_lib_dir = File.join(ext_dir, 'lib')
 ao_include = File.join(ext_dir, 'src')
 
 # Download the appropriate liboboe from S3(via rake for testing) or files.appoptics.com (production)
-version = File.read(File.join(ao_include, 'VERSION')).chomp
+version = File.read(File.join(ao_include, 'VERSION')).strip
 if ENV['APPOPTICS_FROM_S3'].to_s.downcase == 'true'
   ao_path = File.join('https://rc-files-t2.s3-us-west-2.amazonaws.com/c-lib/', version)
   puts 'Fetching c-lib from S3'
@@ -39,12 +38,7 @@ end
 
 ao_arch = 'x86_64'
 if File.exist?('/etc/alpine-release')
-
-  if RUBY_VERSION < '2.5.0'
-    version = open('/etc/alpine-release').read.chomp
-  else
-    version = URI.open('/etc/alpine-release').read.chomp
-  end
+  version = File.read('/etc/alpine-release').strip
 
   ao_arch =
     if Gem::Version.new(version) < Gem::Version.new('3.9')
@@ -56,34 +50,31 @@ end
 
 ao_clib = "liboboe-1.0-#{ao_arch}.so.0.0.0"
 ao_item = File.join(ao_path, ao_clib)
-ao_checksum_item = "#{ao_item}.sha256"
+ao_checksum_file = File.join(ao_lib_dir, "#{ao_clib}.sha256")
 clib = File.join(ao_lib_dir, ao_clib)
 
 retries = 3
 success = false
 while retries > 0
   begin
-    # download
-    if RUBY_VERSION < '2.5.0'
-      download = open(ao_item, 'rb')
-      checksum = open(ao_checksum_item, 'r').read.chomp
-    else
-      download = URI.open(ao_item, 'rb')
-      checksum = URI.open(ao_checksum_item, 'r').read.chomp
-    end
+    download = RUBY_VERSION < '2.5.0' ? open(ao_item, 'rb') : URI.open(ao_item, 'rb')
     IO.copy_stream(download, clib)
+
     clib_checksum = Digest::SHA256.file(clib).hexdigest
     download.close
+    checksum =  File.read(ao_checksum_file).strip
 
-    # verify_checksum
+    # unfortunately these messages only show if the install command is run
+    # with the `--verbose` flag
     if clib_checksum != checksum
       $stderr.puts '== ERROR ================================================================='
-      $stderr.puts 'Checksum Verification failed for the c-extension of the appoptics_apm gem.'
-      $stderr.puts 'appoptics_apm will not instrument the code. No tracing will occur.'
-      $stderr.puts 'Contact support@appoptics.com if the problem persists.'
+      $stderr.puts 'Checksum Verification failed for the c-extension of the appoptics_apm gem'
+      $stderr.puts 'Installation cannot continue'
+      $stderr.puts "\nChecksum packaged with gem:   #{checksum}"
+      $stderr.puts "Checksum calculated from lib: #{clib_checksum}"
+      $stderr.puts 'Contact support@appoptics.com if the problem persists'
       $stderr.puts '=========================================================================='
-      create_makefile('oboe_noop', 'noop')
-      retries = 0
+      exit 1
     else
       success = true
       retries = 0

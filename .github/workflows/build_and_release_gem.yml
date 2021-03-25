@@ -1,0 +1,103 @@
+# Copyright (c) 2021 SolarWinds, LLC.
+# All rights reserved.
+
+name: BUILD, VERIFY, and RELEASE Ruby Gem to RubyGems
+
+# This workflow relies on the following secrets
+# - TRACE_BUILD_RUBY_ACTIONS_API_TOKEN (from the trace-build user in github)
+# - RUBYGEMS_TOKEN (from the appoptics user on rubygems.org)
+# - APPOPTICS_SERVICE_KEY
+# - APPOPTICS_COLLECTOR
+#
+# The correct oboe version has to be in the file ext/oboe_metal/src/VERSION
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build + Release Gem to RubyGems
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Ruby 2.7 and bundle
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7
+
+      - name: Install gems
+        run: |
+          echo 'gem: --no-document' >> ~/.gemrc
+          bundle install --without development --without test
+
+      - name: Install swig 4.0.2
+        run: |
+          apt udate && apt install -y --no-install-recommends bison
+          curl -SL https://github.com/swig/swig/archive/refs/tags/v4.0.2.tar.gz | tar xzC /tmp
+          cd /tmp/swig-4.0.2
+          ./autogen.sh && ./configure && make && sudo make install
+          cd -
+
+      - name: Download files from files.appoptics.com and create swig wrapper
+        env:
+          TRACE_BUILD_TOKEN: ${{ secrets.TRACE_BUILD_RUBY_ACTIONS_API_TOKEN }}
+        run: |
+          bundle exec rake oboe_files_appoptics_fetch
+          bundle exec rake oboe_verify
+
+      - name: Build Gem and upload to Rubygems
+        id: build
+        env:
+          GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_TOKEN }}
+        run:  |
+          bundle exec rake build_and_publish_gem
+          checksum=`shasum -a256 *.gem | awk '{print $1;}'`
+          echo "checksum: $checksum"
+          echo ::set-output name=checksum::$checksum
+          echo ::set-output name=gem_version::`ruby -e 'require "./lib/appoptics_apm/version"; puts AppOpticsAPM::Version::STRING'`
+
+      - name: Get checksum from Rubygems
+        id: checksum
+        run: |
+          gem_version=${{ steps.build.outputs.gem_version }}
+          echo ::set-output name=geminfo::`curl https://rubygems.org/api/v2/rubygems/appoptics_apm/versions/$gem_version.json`
+
+      - name: Print checksums (in case some debugging is needed)
+        run: |
+          echo "local checksum:    ${{ steps.build.outputs.checksum }}"
+          echo "Rubygems checksum: ${{ fromJson(steps.checksum.outputs.geminfo).sha }}"
+
+      - name: Fail if local and rubygems checksums don't match
+        if: fromJson(steps.checksum.outputs.geminfo).sha != steps.build.outputs.checksum
+        run: |
+          echo "local and rubygems checksum not matching, gem needs to be yanked from rubygems.org"
+          exit 1
+
+      - name: Create release draft that includes the checksum
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.repos.createRelease({
+              owner: "appoptics",
+              repo: "appoptics-apm-ruby",
+              body: "SHA256 checksum: ${{ steps.build.outputs.checksum }}",
+              tag_name: "${{ steps.build.outputs.gem_version }}",
+              name: "${{ steps.build.outputs.gem_version }}",
+              draft: true
+            })
+
+      # may need a bit of time for the gem to become available (sleep 1)
+      - name: Download new Rubygem from rubygems.org and test
+        working-directory: .github/workflows/
+        env:
+          APPOPTICS_SERVICE_KEY: ${{ secrets.APPOPTICS_SERVICE_KEY }}
+          APPOPTICS_COLLECTOR: ${{ secrets.APPOPTICS_COLLECTOR}}
+        run: |
+          sleep 1
+          gem install appoptics_apm --version ${{ steps.build.outputs.gem_version }}
+          ruby ./scripts/test_install.rb
+
+

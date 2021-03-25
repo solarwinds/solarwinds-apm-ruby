@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Copyright (c) 2019 SolarWinds, LLC.
+# All rights reserved.
+
 ##
 # This script sets up the environment for running the tests
 #
@@ -46,11 +49,13 @@ fi
 # mysql -e 'create database travis_ci_test;' -h$MYSQL_HOST -p$MYSQL_ROOT_PASSWORD
 
 
-## we also want to use this file to setup the env without running all the tests
+## we also want to use this file to setup the env without running the tests
+# if we run the tests we make a copy of the tiles so that they can be edited
+# without influencing the test run
 if [ "$1" == "test" ]; then
   echo "Running tests ..."
   cd test/run_tests
-  ./run_tests.sh
+  ./run_tests.sh -c
 else
   /bin/bash
 fi

@@ -74,7 +74,7 @@ describe "Typhoeus" do
 
   it 'should trace a typhoeus POST request' do
     AppOpticsAPM::API.start_trace('typhoeus_test') do
-      Typhoeus.post("127.0.0.1:8101/",
+      Typhoeus.post("http://127.0.0.1:8101/",
                     :body => { :key => "appoptics-ruby-fake", :content => "appoptics-ruby repo test suite"})
     end
 
@@ -168,7 +168,7 @@ describe "Typhoeus" do
 
   it 'should trace a typhoeus GET request to an instr\'d app' do
     AppOpticsAPM::API.start_trace('typhoeus_test') do
-      Typhoeus.get("127.0.0.1:8101/")
+      Typhoeus.get("http://127.0.0.1:8101/")
     end
 
     traces = get_all_traces
@@ -191,7 +191,7 @@ describe "Typhoeus" do
 
   it 'should trace a typhoeus GET request with DNS error' do
     AppOpticsAPM::API.start_trace('typhoeus_test') do
-      Typhoeus.get("thisdomaindoesntexisthopefully.asdf/products/appoptics_apm/")
+      Typhoeus.get("http://thisdomaindoesntexisthopefully.asdf/products/appoptics_apm/")
     end
 
     traces = get_all_traces
@@ -214,6 +214,7 @@ describe "Typhoeus" do
     _(traces[3]['Label']).must_equal 'exit'
     _(traces[3]['Spec']).must_equal 'rsc'
     _(traces[3]['IsService']).must_equal 1
+    puts traces[3]['RemoteURL']
     _(traces[3]['RemoteURL'].casecmp('http://thisdomaindoesntexisthopefully.asdf/products/appoptics_apm/')).must_equal 0
     _(traces[3]['HTTPMethod']).must_equal 'GET'
     _(traces[3]['HTTPStatus']).must_equal 0
@@ -223,9 +224,9 @@ describe "Typhoeus" do
     AppOpticsAPM::API.start_trace('typhoeus_test') do
       hydra = Typhoeus::Hydra.hydra
 
-      first_request  = Typhoeus::Request.new("127.0.0.1:8101/products/appoptics_apm/")
-      second_request = Typhoeus::Request.new("127.0.0.1:8101/products/")
-      third_request  = Typhoeus::Request.new("127.0.0.1:8101/")
+      first_request  = Typhoeus::Request.new("http://127.0.0.1:8101/products/appoptics_apm/")
+      second_request = Typhoeus::Request.new("http://127.0.0.1:8101/products/")
+      third_request  = Typhoeus::Request.new("http://127.0.0.1:8101/")
 
       hydra.queue first_request
       hydra.queue second_request
@@ -252,7 +253,7 @@ describe "Typhoeus" do
     AppOpticsAPM::Config[:typhoeus][:log_args] = true
 
     AppOpticsAPM::API.start_trace('typhoeus_test') do
-      Typhoeus.get("127.0.0.1:8101/?blah=1")
+      Typhoeus.get("http://127.0.0.1:8101/?blah=1")
     end
 
     traces = get_all_traces
@@ -264,7 +265,7 @@ describe "Typhoeus" do
     AppOpticsAPM::Config[:typhoeus][:log_args] = false
 
     AppOpticsAPM::API.start_trace('typhoeus_test') do
-      Typhoeus.get("127.0.0.1:8101/?blah=1")
+      Typhoeus.get("http://127.0.0.1:8101/?blah=1")
     end
 
     traces = get_all_traces
@@ -276,7 +277,7 @@ describe "Typhoeus" do
     AppOpticsAPM::Config[:typhoeus][:collect_backtraces] = true
 
     AppOpticsAPM::API.start_trace('typhoeus_test') do
-      Typhoeus.get("127.0.0.1:8101/?blah=1")
+      Typhoeus.get("http://127.0.0.1:8101/?blah=1")
     end
 
     traces = get_all_traces
@@ -288,7 +289,7 @@ describe "Typhoeus" do
     AppOpticsAPM::Config[:typhoeus][:collect_backtraces] = false
 
     AppOpticsAPM::API.start_trace('typhoeus_test') do
-      Typhoeus.get("127.0.0.1:8101/")
+      Typhoeus.get("http://127.0.0.1:8101/")
     end
 
     traces = get_all_traces

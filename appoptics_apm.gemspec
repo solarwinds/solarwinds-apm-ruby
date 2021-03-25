@@ -32,7 +32,10 @@ Automatic tracing and metrics for Ruby applications. Get started at appoptics.co
               'ext/oboe_metal/src/oboe_swig_wrap.cc',
               'ext/oboe_metal/src/bson/bson.h',
               'ext/oboe_metal/src/bson/platform_hacks.h',
-              'ext/oboe_metal/src/VERSION']
+              'ext/oboe_metal/src/VERSION',
+              'ext/oboe_metal/lib/liboboe-1.0-alpine-x86_64.so.0.0.0.sha256',
+              'ext/oboe_metal/lib/liboboe-1.0-x86_64.so.0.0.0.sha256'
+             ]
   s.files -= ['build_gem.sh',
               'build_gem_upload_to_packagecloud.sh',
               'Rakefile']
@@ -43,7 +46,9 @@ Automatic tracing and metrics for Ruby applications. Get started at appoptics.co
 
   s.extensions = ['ext/oboe_metal/extconf.rb'] unless defined?(JRUBY_VERSION)
 
-  s.add_runtime_dependency('json')
+  # this still gives a warning, would have to be pinned to a minor version
+  # but that is not necessary and may restrict other gems
+  s.add_runtime_dependency('json', '~> 2.0')
   s.add_runtime_dependency('no_proxy_fix', '~> 0.1.2', '>= 0.1.2')
 
   # Development dependencies used in gem development & testing

@@ -12,6 +12,7 @@
 .irb_history
 .irbrc
 .ruby-version
+.ruby_version*
 .travis/*
 .vagrant
 .yardoc
@@ -37,7 +38,6 @@ gemfiles/vendor*
 log
 oboe*.gem
 scrap*
-swig*
 vendor
 ext/oboe_metal/experiments/
 ext/oboe_metal/test/

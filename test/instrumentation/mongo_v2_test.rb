@@ -128,7 +128,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       _(traces[2]['Spec']).must_equal "error"
       _(traces[2]['Label']).must_equal "error"
       _(traces[2]['ErrorClass']).must_equal "Mongo::Error::OperationFailure"
-      _(traces[2]['ErrorMsg']).must_match /collection.*already exists/
+      _(traces[2]['ErrorMsg']).must_match /[Cc]ollection.*already exists/
       _(traces[2].has_key?('Backtrace')).must_equal true
       _(traces.select { |trace| trace['Label'] == 'error' }.count).must_equal 1
     end

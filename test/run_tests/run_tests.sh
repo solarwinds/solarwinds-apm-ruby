@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Copyright (c) 2019 SolarWinds, LLC.
+# All rights reserved.
+
 ##
 # This script can be used to run all or select tests in a Linux environment with
 # the appoptics_apm dependencies installed

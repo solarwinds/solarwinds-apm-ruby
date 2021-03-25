@@ -1,0 +1,68 @@
+# Copyright (c) 2021 SolarWinds, LLC.
+# All rights reserved.
+
+name: Ruby Gem to PackageCloud
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build + Publish to PackageCloud
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Ruby 2.6 and bundle
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
+
+      - name: Install gems
+        run: |
+          echo 'gem: --no-document' >> ~/.gemrc
+          bundle install --without development --without test
+
+      - name: Install swig 4.0.2
+        run: |
+          apt udate && apt install -y --no-install-recommends bison
+          curl -SL https://github.com/swig/swig/archive/refs/tags/v4.0.2.tar.gz | tar xzC /tmp
+          cd /tmp/swig-4.0.2
+          ./autogen.sh && ./configure && make && sudo make install
+          cd -
+
+      - name: Download oboe staging files from S3, compile swig wrapper
+        run: |
+          bundle exec rake fetch
+          ls -l ext/oboe_metal/src
+
+      - name: Build Gem
+        id: gemstep
+        run:  |
+          gem build appoptics_apm.gemspec
+          echo `shasum -a256 *.gem`
+          echo "::set-output name=GEM_VERSION::`ruby -e 'require "./lib/appoptics_apm/version"; puts AppOpticsAPM::Version::STRING'`"
+          cat ext/oboe_metal/src/VERSION
+
+      - name: Publish to PackageCloud
+        # PackageCloud is unreliable with regards to
+        # republishing after yanking a gem
+        # we are going to fail if republishing is attempted
+        run: |
+          gem install package_cloud
+          package_cloud push solarwinds/appoptics-apm-ruby *.gem
+        env:
+          PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
+
+      - name: Test install (give packagecloud 10 seconds to index)
+        working-directory: .github/workflows/
+        env:
+          APPOPTICS_SERVICE_KEY: ${{ secrets.APPOPTICS_SERVICE_KEY }}
+          APPOPTICS_COLLECTOR: ${{ secrets.APPOPTICS_COLLECTOR}}
+          APPOPTICS_FROM_S3: true
+        run: |
+          sleep 10
+          gem sources --add https://packagecloud.io/solarwinds/appoptics-apm-ruby/
+          gem install appoptics_apm --version ${{ steps.gemstep.outputs.GEM_VERSION }} --verbose
+          ruby ./scripts/test_install.rb
