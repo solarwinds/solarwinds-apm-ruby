@@ -245,17 +245,6 @@ def oboe_github_fetch
   end
 end
 
-desc "fetch oboe files from github (for github actinos tests) and compile the swig wrapper"
-task :oboe_for_tests do
-  oboe_github_fetch
-
-  ext_src_dir = File.join(@ext_dir, 'src')
-  FileUtils.cd(ext_src_dir) do
-    system('swig -c++ -ruby -module oboe_metal -o oboe_swig_wrap.cc oboe.i')
-    FileUtils.rm('oboe.i')
-  end
-end
-
 desc "Fetch oboe files from files.appoptics.com and create swig wrapper"
 task :oboe_files_appoptics_fetch do
   oboe_version = File.read('ext/oboe_metal/src/VERSION').strip

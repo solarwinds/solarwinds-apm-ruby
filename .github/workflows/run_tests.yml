@@ -155,10 +155,8 @@ jobs:
           cd -
 
       - name: Compile c-extension
-          env:
-            TRACE_BUILD_TOKEN: ${{ secrets.TRACE_BUILD_RUBY_ACTIONS_API_TOKEN }}
         run: |
-          bundle exec rake oboe_for_tests compile
+          bundle exec rake fetch compile
 
       - name: Run tests
         run: bundle exec rake test
