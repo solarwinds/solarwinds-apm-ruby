@@ -48,7 +48,7 @@ Automatic tracing and metrics for Ruby applications. Get started at appoptics.co
 
   # this still gives a warning, would have to be pinned to a minor version
   # but that is not necessary and may restrict other gems
-  s.add_runtime_dependency('json', '>= 0.4.0')
+  s.add_runtime_dependency('json', '~> 2.0')
   s.add_runtime_dependency('no_proxy_fix', '~> 0.1.2', '>= 0.1.2')
 
   # Development dependencies used in gem development & testing

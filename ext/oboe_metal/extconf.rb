@@ -69,9 +69,9 @@ while retries > 0
     if clib_checksum != checksum
       $stderr.puts '== ERROR ================================================================='
       $stderr.puts 'Checksum Verification failed for the c-extension of the appoptics_apm gem'
-      $stderr.puts 'Installation can not continue'
-      $stderr.puts "\nChecksum cut into gem:        #{checksum}"
-      $stderr.puts "Checksum caluclated from lib: #{clib_checksum}"
+      $stderr.puts 'Installation cannot continue'
+      $stderr.puts "\nChecksum packaged with gem:   #{checksum}"
+      $stderr.puts "Checksum calculated from lib: #{clib_checksum}"
       $stderr.puts 'Contact support@appoptics.com if the problem persists'
       $stderr.puts '=========================================================================='
       exit 1
