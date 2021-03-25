@@ -147,8 +147,9 @@ jobs:
           bundle install --jobs 4 --retry 3
 
       - name: Install swig 4.0.2
+        working-directory: .github/workflows/swig
         run: |
-          curl -SL https://github.com/swig/swig/archive/refs/tags/v4.0.2.tar.gz | tar xzC /tmp
+          tar -xf swig-v4.0.2.tar.gz -C /tmp
           cd /tmp/swig-4.0.2
           ./autogen.sh && ./configure && make && make install
           cd -
