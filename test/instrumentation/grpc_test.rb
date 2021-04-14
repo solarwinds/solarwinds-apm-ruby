@@ -280,7 +280,7 @@ if defined? GRPC
       end
 
       it 'sends metrics from the server for unary' do
-        Oboe_metal::Span.expects(:createSpan).with('AddressService.unary', nil, is_a(Integer))
+        Oboe_metal::Span.expects(:createSpan).with('AddressService.unary', nil, is_a(Integer), is_a(Integer))
         @stub.unary(@address_msg)
         sleep 0.5
       end
@@ -423,7 +423,7 @@ if defined? GRPC
       end
 
       it 'sends metrics from the server for client_streaming' do
-        Oboe_metal::Span.expects(:createSpan).with('AddressService.client_stream', nil, is_a(Integer))
+        Oboe_metal::Span.expects(:createSpan).with('AddressService.client_stream', nil, is_a(Integer), is_a(Integer))
         @stub.client_stream([@null_msg, @null_msg])
         sleep 0.5
       end
@@ -567,7 +567,7 @@ if defined? GRPC
       end
 
       it 'sends metrics from the server for server_streaming with enumerator' do
-        Oboe_metal::Span.expects(:createSpan).with('AddressService.server_stream', nil, is_a(Integer))
+        Oboe_metal::Span.expects(:createSpan).with('AddressService.server_stream', nil, is_a(Integer), is_a(Integer))
         res = @stub.server_stream(@null_msg)
         res.each { |_| }
         sleep 0.5
@@ -706,7 +706,7 @@ if defined? GRPC
       end
 
       it 'sends metrics from the server for server_streaming using block' do
-        Oboe_metal::Span.expects(:createSpan).with('AddressService.server_stream', nil, is_a(Integer))
+        Oboe_metal::Span.expects(:createSpan).with('AddressService.server_stream', nil, is_a(Integer), is_a(Integer))
         @stub.server_stream(@null_msg) { |_| }
         sleep 0.5
       end
@@ -852,7 +852,7 @@ if defined? GRPC
       end
 
       it 'sends metrics from the server for bidi_streaming with enumerator' do
-        Oboe_metal::Span.expects(:createSpan).with('AddressService.bidi_stream', nil, is_a(Integer))
+        Oboe_metal::Span.expects(:createSpan).with('AddressService.bidi_stream', nil, is_a(Integer), is_a(Integer))
         response = @stub.bidi_stream([@null_msg, @null_msg])
         response.each { |_| }
         sleep 0.5
@@ -991,7 +991,7 @@ if defined? GRPC
       end
 
       it 'sends metrics from the server for bidi_streaming using block' do
-        Oboe_metal::Span.expects(:createSpan).with('AddressService.bidi_stream', nil, is_a(Integer))
+        Oboe_metal::Span.expects(:createSpan).with('AddressService.bidi_stream', nil, is_a(Integer), is_a(Integer))
         @stub.bidi_stream([@null_msg, @null_msg]) { |_| }
         sleep 0.5
       end

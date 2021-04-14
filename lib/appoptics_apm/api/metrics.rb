@@ -1,3 +1,6 @@
+# Copyright (c) 2019 SolarWinds, LLC.
+# All rights reserved.
+
 module  AppOpticsAPM
   module API
     module Metrics
@@ -22,9 +25,12 @@ module  AppOpticsAPM
         start = Time.now
         yield
       ensure
+        # TODO send_metrics is currently used in grpc, sdk
+        # ____ the error (0,1) would have to be returned from yield
+        error = 0
         duration = (1000 * 1000 * (Time.now - start)).to_i
         transaction_name = determine_transaction_name(span, kvs)
-        kvs[:TransactionName] = AppOpticsAPM::Span.createSpan(transaction_name, nil, duration)
+        kvs[:TransactionName] = AppOpticsAPM::Span.createSpan(transaction_name, nil, duration, error)
         AppOpticsAPM.transaction_name = nil
       end
 

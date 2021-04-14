@@ -5,7 +5,7 @@ inspired by: https://dev.to/wataash/how-to-create-and-debug-ruby-gem-with-c-nati
 
 ## install ruby with sources
 
-rbenv is your friend ;) 😄 -k means keep sources
+rbenv is your friend ;) -k means keep sources
 
 ```
 rbenv install -k 2.6.3

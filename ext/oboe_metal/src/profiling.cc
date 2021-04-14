@@ -3,20 +3,6 @@
 
 #include "profiling.h"
 
-#include <ruby/debug.h>
-#include <signal.h>
-#include <time.h>
-
-#include <atomic>
-#include <mutex>
-#include <unordered_map>
-#include <vector>
-
-#include "frames.h"
-#include "logging.h"
-#include "oboe_api.hpp"
-
-
 #define TIMER_SIG 64           /* Our timer notification signal */
 
 static atomic_long running;

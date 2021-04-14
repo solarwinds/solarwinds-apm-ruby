@@ -1,4 +1,4 @@
-version: "2.2"
+version: "2.1"
 
 #########################################################################################################
 #
@@ -10,30 +10,33 @@ version: "2.2"
 #
 ########################################################################################################
 x-ao-env: &ao-env
-  APPOPTICS_COLLECTOR: "collector-stg.appoptics.com"
-#  APPOPTICS_COLLECTOR: "/tmp/appoptics_traces.bson"
+#  APPOPTICS_COLLECTOR: "collector-stg.appoptics.com"
+  APPOPTICS_COLLECTOR: "/tmp/appoptics_traces.bson"
   APPOPTICS_FROM_S3: "true"
   APPOPTICS_GEM_TEST: "true"
   APPOPTICS_MONGO_SERVER: "ao-ruby-mongo"
   APPOPTICS_RABBITMQ_SERVER: "ao-ruby-rabbitmq"
-#  APPOPTICS_REPORTER: "file"
+  APPOPTICS_REPORTER: "file"
   APPOPTICS_REPORTER_FILE_SINGLE: "false"
   APPOPTICS_SERVICE_KEY: "${APPOPTICS_SERVICE_KEY}"
   APPOPTICS_TOKEN_BUCKET_CAPACITY: 10000
   APPOPTICS_TOKEN_BUCKET_RATE: 10000
 
-#  BUNDLE_GEMFILE: "gemfiles/libraries.gemfile"
+  BUNDLE_GEMFILE: "gemfiles/libraries.gemfile"
   DOCKER_MYSQL_PASS: "admin"
   DOCKER_PSQL_PASS: "docker"
   MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
   MYSQL_ROOT_PASSWORD: "admin"
   MYSQL_HOST: "ao-ruby-mysql"
-#  OBOE_VERSION: "10.0.1"
-#  OBOE_WIP: "true"
+#  OBOE_VERSION: "10.1.0"
+  POSTGRES_PASSWORD: "docker"
+  POSTGRES_USER: "docker"
+  POSTGRES_HOST: "ao-ruby-postgres"
   PSQL_HOST: "ao_ruby_postgres"
   RUBY_ENV: "test"
   TEST_RUNS_TO_FILE: "true"
 #    - SIMPLECOV_COVERAGE=true
+#    - OBOE_HPP_WIP=true
 #    - APPOPTICS_DEBUG_LEVEL=6
 
 x-ao-shared: &ao-shared
@@ -62,7 +65,6 @@ services:
   ruby_appoptics_ubuntu:
     container_name: ruby_appoptics_ubuntu
     image: ruby_appoptics_ubuntu
-    init: true
     build:
       context: .
       dockerfile: Dockerfile_ubuntu
@@ -104,7 +106,7 @@ services:
     << : *ao-shared
     volumes:
       - ../../:/code/ruby-appoptics
-      - ../../../oboe/liboboe:/code/oboe
+#      - ../../../oboe/liboboe:/code/oboe
       - ./.ruby_version_debian:/code/ruby-appoptics/.ruby-version
     environment:
       << : *ao-env
@@ -133,7 +135,10 @@ services:
 
   ao-ruby-mysql:
     container_name: ao-ruby-mysql
-    image: mysql:5.7.13
+    image: mysql:5.7.33
+    command: --init-file /data/application/init.sql
+    volumes:
+      - ./init.sql:/data/application/init.sql
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
       - MYSQL_ROOT_PASSWORD=admin
@@ -142,11 +147,12 @@ services:
     container_name: ao-ruby-mongo
     image: mongo:3.4
 
-  ao_ruby_postgres:
-    container_name: ao_ruby_postgres
+  ao-ruby-postgres:
+    container_name: ao-ruby-postgres
     image: postgres:latest
     environment:
-      DOCKER_PSQL_PASS: "docker"
+      POSTGRES_DB: "travis_ci_test"
+      POSTGRES_USER: "docker"
       POSTGRES_PASSWORD: "docker"
     volumes:
       - ./postgres_init.sh:/docker-entrypoint-initdb.d/init-user-db.sh
@@ -158,10 +164,10 @@ services:
       - ao-ruby-rabbitmq
       - ao-ruby-mysql
       - ao-ruby-mongo
-      - ao_ruby_postgres
+      - ao-ruby-postgres
     links:
       - ao-ruby-rabbitmq
       - ao-ruby-mysql
       - ao-ruby-mongo
-      - ao_ruby_postgres
+      - ao-ruby-postgres
 

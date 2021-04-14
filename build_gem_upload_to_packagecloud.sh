@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Copyright (c) 2019 SolarWinds, LLC.
+# All rights reserved.
+
 # build the gem,
 # oboe/c-lib version can be given as optional parameter
 if [ "$1" != "" ]; then

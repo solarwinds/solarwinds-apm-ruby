@@ -39,6 +39,7 @@ describe 'OboeInitOptions' do
     ENV['APPOPTICS_TOKEN_BUCKET_RATE'] = '10'
     ENV['APPOPTICS_REPORTER_FILE_SINGLE'] = 'True'
     ENV['APPOPTICS_EC2_METADATA_TIMEOUT'] = '1234'
+    ENV['APPOPTICS_PROXY'] = 'http://the.proxy:1234'
 
     AppOpticsAPM::OboeInitOptions.instance.re_init
     options = AppOpticsAPM::OboeInitOptions.instance.array_for_oboe
@@ -62,7 +63,7 @@ describe 'OboeInitOptions' do
     _(options[15]).must_equal 10
     _(options[16]).must_equal 1
     _(options[17]).must_equal 1234
-    _(options[18]).must_equal ''
+    _(options[18]).must_equal 'http://the.proxy:1234'
   end
 
   it 'reads config vars' do
@@ -73,11 +74,13 @@ describe 'OboeInitOptions' do
     ENV.delete('APPOPTICS_DEBUG_LEVEL')
     ENV.delete('APPOPTICS_SERVICE_KEY')
     ENV.delete('APPOPTICS_EC2_METADATA_TIMEOUT')
+    ENV.delete('APPOPTICS_PROXY')
 
     AppOpticsAPM::Config[:hostname_alias] = 'string_0'
     AppOpticsAPM::Config[:debug_level] = 0
     AppOpticsAPM::Config[:service_key] = '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000:test_app'
     AppOpticsAPM::Config[:ec2_metadata_timeout] = 2345
+    AppOpticsAPM::Config[:http_proxy] = 'http://the.proxy:7777'
 
     AppOpticsAPM::OboeInitOptions.instance.re_init
     options = AppOpticsAPM::OboeInitOptions.instance.array_for_oboe
@@ -88,6 +91,7 @@ describe 'OboeInitOptions' do
     _(options[1]).must_equal 0
     _(options[9]).must_equal '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000:test_app'
     _(options[17]).must_equal 2345
+    _(options[18]).must_equal 'http://the.proxy:7777'
   end
 
   it 'env vars override config vars' do
@@ -98,11 +102,13 @@ describe 'OboeInitOptions' do
     ENV['APPOPTICS_DEBUG_LEVEL'] = '1'
     ENV['APPOPTICS_SERVICE_KEY'] = '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000:test_app'
     ENV['APPOPTICS_EC2_METADATA_TIMEOUT'] = '1212'
+    ENV['APPOPTICS_PROXY'] = 'http://the.proxy:2222'
 
     AppOpticsAPM::Config[:hostname_alias] = 'string_2'
     AppOpticsAPM::Config[:debug_level] = 2
     AppOpticsAPM::Config[:service_key] = 'string_3'
     AppOpticsAPM::Config[:ec2_metadata_timeout] = 2323
+    AppOpticsAPM::Config[:http_proxy] = 'http://the.proxy:7777'
 
     AppOpticsAPM::OboeInitOptions.instance.re_init
     options = AppOpticsAPM::OboeInitOptions.instance.array_for_oboe
@@ -113,6 +119,7 @@ describe 'OboeInitOptions' do
     _(options[1]).must_equal 1
     _(options[9]).must_equal '2895f613c0f452d6bc5dc000008f6754062689e224ec245926be520be0c00000:test_app'
     _(options[17]).must_equal 1212
+    _(options[18]).must_equal 'http://the.proxy:2222'
   end
 
   it 'checks the service_key for ssl' do
@@ -258,8 +265,6 @@ describe 'OboeInitOptions' do
   end
 
   it 'replaces invalid ec2 metadata timeouts with the default' do
-    ENV.delete('APPOPTICS_EC2_METADATA_TIMEOUT')
-
     ENV['APPOPTICS_EC2_METADATA_TIMEOUT'] = '-12'
     AppOpticsAPM::OboeInitOptions.instance.re_init
     _(AppOpticsAPM::OboeInitOptions.instance.ec2_md_timeout).must_equal 1000
@@ -272,5 +277,24 @@ describe 'OboeInitOptions' do
     ENV['APPOPTICS_EC2_METADATA_TIMEOUT'] = 'qoieurqopityeoritbweortmvoiu'
     AppOpticsAPM::OboeInitOptions.instance.re_init
     _(AppOpticsAPM::OboeInitOptions.instance.ec2_md_timeout).must_equal 1000
+  end
+
+  it 'rejects invalid proxy strings' do
+    ENV['APPOPTICS_PROXY'] = ''
+
+    AppOpticsAPM::OboeInitOptions.instance.re_init
+    _(AppOpticsAPM::OboeInitOptions.instance.grpc_proxy).must_equal ''
+
+    ENV['APPOPTICS_PROXY'] = 'qoieurqopityeoritbweortmvoiu'
+    AppOpticsAPM::OboeInitOptions.instance.re_init
+    _(AppOpticsAPM::OboeInitOptions.instance.grpc_proxy).must_equal ''
+
+    ENV['APPOPTICS_PROXY'] = 'https://sgdgsdg:4000'
+    AppOpticsAPM::OboeInitOptions.instance.re_init
+    _(AppOpticsAPM::OboeInitOptions.instance.grpc_proxy).must_equal ''
+
+    ENV['APPOPTICS_PROXY'] = 'http://sgdgsdg'
+    AppOpticsAPM::OboeInitOptions.instance.re_init
+    _(AppOpticsAPM::OboeInitOptions.instance.grpc_proxy).must_equal ''
   end
 end

@@ -44,7 +44,6 @@ describe "Profiling: " do
       end
       assert_equal xtrace_context, AppOpticsAPM::Context.toString
     end
-
     traces = get_all_traces
     traces.select! { |tr| tr['Spec'] == "profiling" }
     assert_equal 3, traces.size

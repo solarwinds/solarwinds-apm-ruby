@@ -19,7 +19,6 @@ RUN apt-get update \
        gdb \
        git-core \
        google-mock \
-       libboost* \
        libcurl4-gnutls-dev \
        libgtest-dev \
        libmysqlclient-dev \
@@ -62,19 +61,21 @@ RUN . ~/.profile \
     && rbenv install 2.4.5 \
     && rbenv install 2.5.5 \
     && rbenv install 2.6.5 \
-    && rbenv install 2.7.0
+    && rbenv install 2.7.0 \
+    && rbenv install 3.0.0
 #    && rbenv install jruby-9.1.16.0
 
-# need to revert to using bundler 1.17.3 because some gems require bundler < 2.0
-#RUN . ~/.profile && rbenv local 2.4.5 && gem uninstall bundler --quiet -x && gem install bundler -v 1.17.3
-#RUN . ~/.profile && rbenv local 2.5.5 && gem uninstall bundler --quiet -x && gem install bundler -v 1.17.3
-#RUN . ~/.profile && rbenv local 2.6.4 && gem uninstall bundler --quiet -x && gem install bundler -v 1.17.3
-#RUN . ~/.profile && rbenv local 2.7.0 && gem uninstall bundler --quiet -x && gem install bundler -v 1.17.3
+# need to provide bundler 1.17.3 as well, because some gems require bundler < 2.0
+RUN . ~/.profile && rbenv local 2.4.5 && gem install bundler -v 1.17.3
+RUN . ~/.profile && rbenv local 2.5.5 && gem install bundler -v 1.17.3
+RUN . ~/.profile && rbenv local 2.6.5 && gem install bundler -v 1.17.3
+RUN . ~/.profile && rbenv local 2.7.0 && gem install bundler -v 1.17.3
+RUN . ~/.profile && rbenv local 3.0.0 && gem install bundler -v 1.17.3
 
 RUN echo 'gem: --no-document' >> ~/.gemrc
 
 # install swig 4.0.2
-RUN curl -SL http://downloads.sourceforge.net/project/swig/swig/swig-4.0.2/swig-4.0.2.tar.gz \
+RUN curl -SL https://github.com/swig/swig/archive/refs/tags/v4.0.2.tar.gz \
     | tar xzC /tmp \
     && cd /tmp/swig-4.0.2 \
     && ./configure && make && make install \

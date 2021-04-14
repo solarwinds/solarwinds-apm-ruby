@@ -25,7 +25,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
         'Layer' => 'sequel',
         'Label' => 'entry',
         'Database' => 'travis_ci_test',
-        'RemoteHost' => ENV['PSQL_HOST'] || '127.0.0.1',
+        'RemoteHost' => ENV['POSTGRES_HOST'] || '127.0.0.1',
         'RemotePort' => 5432 }
 
       @exit_kvs = { 'Layer' => 'sequel', 'Label' => 'exit' }

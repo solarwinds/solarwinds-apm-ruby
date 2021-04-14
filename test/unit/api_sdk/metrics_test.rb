@@ -12,7 +12,7 @@ describe AppOpticsAPM::API::Metrics do
 
     it 'should send the correct duration and create a transaction name' do
       Time.stub(:now, Time.at(0)) do
-        AppOpticsAPM::Span.expects(:createSpan).with('custom-test', nil, 0)
+        AppOpticsAPM::Span.expects(:createSpan).with('custom-test', nil, 0, 0)
         AppOpticsAPM::API.send_metrics('test', {}) {}
       end
     end
@@ -27,7 +27,7 @@ describe AppOpticsAPM::API::Metrics do
 
     it 'should override the transaction name from the params for createSpan' do
       Time.stub(:now, Time.at(0)) do
-        AppOpticsAPM::Span.expects(:createSpan).with('this_name', nil, 0)
+        AppOpticsAPM::Span.expects(:createSpan).with('this_name', nil, 0, 0)
 
         AppOpticsAPM::SDK.set_transaction_name('this_name')
         # :TransactionName should not even be in there!!!

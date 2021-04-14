@@ -4,9 +4,20 @@
 #ifndef PROFILING_H
 #define PROFILING_H
 
-#include <signal.h>
-
 #include <ruby/ruby.h>
+#include <ruby/debug.h>
+#include <signal.h>
+#include <time.h>
+
+#include <atomic>
+#include <mutex>
+#include <unordered_map>
+#include <vector>
+
+#include "frames.h"
+#include "logging.h"
+#include "oboe_api.hpp"
+
 
 using namespace std;
 

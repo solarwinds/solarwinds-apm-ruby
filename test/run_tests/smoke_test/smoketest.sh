@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Copyright (c) 2020 SolarWinds, LLC.
+# All rights reserved.
+
 path=$(dirname "$0")
 
 export APPOPTICS_COLLECTOR=collector-stg.appoptics.com
@@ -10,7 +13,7 @@ unset APPOPTICS_REPORTER
 # when defining the gemfile via BUNDLE_GEMFILE
 # export BUNDLE_GEMFILE=$path/Gemfile
 
-for version in 2.7.0 2.6.4 2.5.5 2.4.5
+for version in 2.7.0 2.6.5 2.5.5 2.4.5
 do
   printf "\n=== $version ===\n"
   rbenv local $version

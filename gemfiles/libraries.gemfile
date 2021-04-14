@@ -8,8 +8,8 @@ gem 'rest-client'
 
 # doesn't install well on alpine, explained here:
 # https://qiita.com/takkeybook/items/5eae085d902957f0fe5b
-# TODO keep an eye out for new grpc > 1.27.0 for ruby 2.7
-if  !File.exist?('/etc/alpine-release') # && RUBY_VERSION < '2.7.0'
+# TODO keep an eye out for new grpc > 1.36.0 for ruby 3.0
+if  !File.exist?('/etc/alpine-release') && RUBY_VERSION < '3.0.0'
   gem 'grpc'
   gem 'google-protobuf'
 end
@@ -20,7 +20,7 @@ gem 'curb'
 gem 'dalli'
 gem 'excon'
 gem 'faraday'
-gem 'graphql' #, :path => "/code/graphql-ruby" # keep for local testing/debugging
+gem 'graphql', '~> 1.11.7' #, :path => "/code/graphql-ruby" # keep for local testing/debugging
 gem 'httpclient'
 gem 'logging'
 gem 'lumberjack'

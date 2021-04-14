@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Copyright (c) 2019 SolarWinds, LLC.
+# All rights reserved.
+
 ##
 # This script sets up the environment for running the tests
 #
@@ -16,12 +19,12 @@ rm -f Gemfile.lock
 rm -f gemfiles/*.lock
 #rm -f .ruby-version
 
-rbenv global 2.5.5
-
-echo "Installing gems ..."
-bundle install # --quiet
-
-bundle exec rake clean fetch compile
+#rbenv global 2.5.5
+#
+#echo "Installing gems ..."
+#bundle install # --quiet
+#
+#bundle exec rake clean fetch compile
 
 echo "Starting services ..."
 ## start postgres
@@ -42,13 +45,18 @@ fi
 
 ## add table for tests in mysql
 # sorry for the warning about providing the password on the commandline
-mysql -e 'create database travis_ci_test;' -h$MYSQL_HOST -p$MYSQL_ROOT_PASSWORD
+# changed to using init.sql
+#
+# mysql -e 'create database travis_ci_test;' -h$MYSQL_HOST -p$MYSQL_ROOT_PASSWORD
 
-## we also want to use this file to setup the env without running all the tests
+
+## we also want to use this file to setup the env without running the tests
+# if we run the tests we make a copy of the tiles so that they can be edited
+# without influencing the test run
 if [ "$1" == "test" ]; then
   echo "Running tests ..."
   cd test/run_tests
-  ./run_tests.sh
+  ./run_tests.sh -c
 else
   /bin/bash
 fi

@@ -53,14 +53,13 @@ module AppOpticsAPM
       def set_postgresql_env
         if ENV.key?('TRAVIS_PSQL_PASS')
           ENV['DATABASE_URL'] = "postgresql://postgres:#{ENV['TRAVIS_PSQL_PASS']}@127.0.0.1:5432/travis_ci_test"
-        elsif ENV.key?('DOCKER_PSQL_PASS')
-          ENV['DATABASE_URL'] = "postgresql://docker:#{ENV['DOCKER_PSQL_PASS']}@#{ENV['PSQL_HOST']}:5432/travis_ci_test"
-          # ENV['DATABASE_URL'] = "postgresql://postgres@#{ENV['PSQL_HOST']}:5432/travis_ci_test"
+        elsif ENV.key?('POSTGRES_USER')
+          port = ENV.key?('POSTGRES_PORT') ? ENV['POSTGRES_PORT'] : 5432
+          ENV['DATABASE_URL'] = "postgresql://#{ENV['POSTGRES_PASSWORD']}:#{ENV['POSTGRES_USER']}@#{ENV['POSTGRES_HOST']}:#{port}/travis_ci_test"
         else
           ENV['DATABASE_URL'] = 'postgresql://postgres@127.0.0.1:5432/travis_ci_test'
         end
       end
-
       ##
       # set_mysql_env
       #
@@ -70,7 +69,8 @@ module AppOpticsAPM
         if ENV.key?('TRAVIS_MYSQL_PASS')
           ENV['DATABASE_URL'] = "mysql://root:#{ENV['TRAVIS_MYSQL_PASS']}@127.0.0.1:3306/travis_ci_test"
         elsif ENV.key?('DOCKER_MYSQL_PASS')
-          ENV['DATABASE_URL'] = "mysql://root:#{ENV['DOCKER_MYSQL_PASS']}@#{ENV['MYSQL_HOST']}:3306/travis_ci_test"
+          port = ENV.key?('MYSQL_PORT') ? ENV['MYSQL_PORT'] : 3306
+          ENV['DATABASE_URL'] = "mysql://root:#{ENV['DOCKER_MYSQL_PASS']}@#{ENV['MYSQL_HOST']}:#{port}/travis_ci_test"
         else
           ENV['DATABASE_URL'] = 'mysql://root@127.0.0.1:3306/travis_ci_test'
         end

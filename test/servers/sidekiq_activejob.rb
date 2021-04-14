@@ -13,7 +13,6 @@ arguments = ""
 options << ["-r", Dir.pwd + "/test/servers/sidekiq_activejob_initializer.rb"]
 options << ["-q", "default"]
 options << ["-c", "1"]
-options << ["-P", "/tmp/sidekiq_activejob_#{Process.pid}.pid"]
 
 options.flatten.each do |x|
   arguments += " #{x}"

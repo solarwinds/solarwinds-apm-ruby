@@ -8,7 +8,7 @@ module AppOpticsAPM
   class OboeInitOptions
     include Singleton
 
-    attr_reader :reporter, :host, :service_name, :ec2_md_timeout  # exposing these mainly for testing
+    attr_reader :reporter, :host, :service_name, :ec2_md_timeout, :grpc_proxy  # exposing these mainly for testing
 
     # TODO decide if these globals are useful when testing
     # OBOE_HOSTNAME_ALIAS = 0
@@ -185,10 +185,22 @@ module AppOpticsAPM
     end
 
     def read_and_validate_ec2_md_timeout
-      timeout = (ENV['APPOPTICS_EC2_METADATA_TIMEOUT'] || AppOpticsAPM::Config[:ec2_metadata_timeout])
+      timeout = ENV['APPOPTICS_EC2_METADATA_TIMEOUT'] || AppOpticsAPM::Config[:ec2_metadata_timeout]
       return 1000 unless timeout.is_a?(Integer) || timeout =~ /^\d+$/
       timeout = timeout.to_i
       return timeout.between?(0, 3000) ? timeout : 1000
+    end
+
+    def read_and_validate_proxy
+      proxy = ENV['APPOPTICS_PROXY'] || AppOpticsAPM::Config[:http_proxy] || ''
+      return proxy if proxy == ''
+
+      unless proxy =~ /http:\/\/.*:\d+$/
+        AppOpticsAPM.logger.error "[appoptics_apm/oboe_options] APPOPTICS_PROXY/http_proxy doesn't start with 'http://', #{proxy}"
+        return '' # try without proxy, it may work, shouldn't crash but may not report
+      end
+
+      proxy
     end
   end
 end

@@ -12,6 +12,7 @@ extern "C" int oboe_gettimeofday(struct timeval *tv);
 
 class Logging {
    public:
+    static const string profiling, ruby, entry, info, exit;
     static bool log_profile_entry(oboe_metadata_t* md, string &prof_op_id, pid_t tid, long interval);
     static bool log_profile_exit(oboe_metadata_t *md, string &prof_op_id, pid_t tid,
                                  long *omitted, int num_omitted);
