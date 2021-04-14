@@ -47,7 +47,7 @@ describe "Profiling: " do
 
     traces = get_all_traces
     traces.select! { |tr| tr['Spec'] == "profiling" }
-    assert_equal 3, traces.size
+    assert_equal 3, traces.size, "traces size should be 3, actual: #{traces.size}, #{traces.pretty_inspect}"
 
     assert_equal 1, traces.select { |tr| tr['Label'] == 'entry'}.size
     assert_equal 1, traces.select { |tr| tr['Label'] == 'exit'}.size
@@ -141,14 +141,23 @@ describe "Profiling: " do
     end
 
     traces = get_all_traces
+
     traces.select! { |tr| tr['Spec'] == 'profiling' }
 
-    # this may be flaky, because there it is expected that there can be
-    # small variations in the timing of the snapshots
-    assert (traces.last['SnapshotsOmitted'].size >= 15), "Size is only #{traces.last['SnapshotsOmitted'].size}"
-    # this may be flaky, it relies on rounding to smooth out variations in timing
-    average_interval = (traces.last['SnapshotsOmitted'][16]-traces.last['SnapshotsOmitted'][0])/16/1000
-    assert (average_interval >= 9 && average_interval <= 11)
+    num = 0
+    omitted_trace_num = 0
+    traces.each do |tr|
+      if tr['SnapshotsOmitted']
+        num += tr['SnapshotsOmitted'].size
+        omitted_trace_num += 1
+      end
+    end
+    assert (num >= 15), "Number of SnapshotsOmitted is only #{num} should be >= 15 , #{traces.pretty_inspect}"
+
+    duration = traces.last['Timestamp_u'] - traces[0]['Timestamp_u']
+    average_interval = duration/(traces.size+num-omitted_trace_num)/1000
+    assert (average_interval >= 9 && average_interval <= 11),
+           "average interval should be >= 9 and <= 11, actual #{average_interval}"
   end
 
   it 'profiles inside threads' do
@@ -158,6 +167,8 @@ describe "Profiling: " do
     tids = []
     AppOpticsAPM::SDK.start_trace("trace_main") do
       AppOpticsAPM::Profiling.run do
+        tid = AppOpticsAPM::CProfiler.get_tid
+        tids << tid
         5.times do
           th = Thread.new do
             tid = AppOpticsAPM::CProfiler.get_tid
@@ -177,11 +188,13 @@ describe "Profiling: " do
         threads.each(&:join)
       end
     end
+    sleep 1
     traces = get_all_traces
     traces.select! { |tr| tr['Spec'] == 'profiling' }
 
+    # for each thread we want to see an entry, info, and exit trace
     tids.each do |tid|
-      assert_equal 3, traces.select { |tr| tr['TID'] == tid }.size
+      assert_equal(3, traces.select { |tr| tr['TID'] == tid }.size, "tids: #{tids}, traces: #{traces.pretty_inspect}")
     end
   end
 
