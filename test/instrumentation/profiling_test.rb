@@ -33,7 +33,7 @@ describe "Profiling: " do
     AppOpticsAPM::Config[:profiling_interval] = @profiling_interval_config
   end
 
-  it 'logs start, snapshots, end' do
+  it 'logs entry, snapshots, and exit' do
     AppOpticsAPM::Config[:profiling_interval] = 13
     xtrace_context = nil
     AppOpticsAPM::SDK.start_trace(:trace) do
@@ -46,12 +46,12 @@ describe "Profiling: " do
     end
 
     traces = get_all_traces
-    traces.select! { |tr| tr['Spec'] == "profiling" && tr[''] }
+    traces.select! { |tr| tr['Spec'] == "profiling" }
     # assert_equal 3, traces.size, "traces size should be 3, actual: #{traces.size}, #{traces.pretty_inspect}"
 
-    assert_equal 1, traces.select { |tr| tr['Label'] == 'entry'}.size
+    assert_equal 1, traces.select { |tr| tr['Label'] == 'entry' }.size, "no entry found #{traces.pretty_inspect}"
     assert traces.select { |tr| tr['Label'] == 'exit'}.size >= 1
-    assert_equal 1, traces.select { |tr| tr['Label'] == 'exit'}.size
+    assert_equal 1, traces.select { |tr| tr['Label'] == 'exit' }.size
 
     tid = AppOpticsAPM::CProfiler.get_tid
 
@@ -193,9 +193,10 @@ describe "Profiling: " do
     traces = get_all_traces
     traces.select! { |tr| tr['Spec'] == 'profiling' }
 
-    # for each thread we want to see an entry, info, and exit trace
+    # for each thread we want to see an entry and exit trace
     tids.each do |tid|
-      assert_equal(3, traces.select { |tr| tr['TID'] == tid }.size, "tids: #{tids}, traces: #{traces.pretty_inspect}")
+      assert traces.select { |tr| tr['TID'] == tid && tr['Label'] == 'entry' }
+      assert traces.select { |tr| tr['TID'] == tid && tr['Label'] == 'exit' }
     end
   end
 
