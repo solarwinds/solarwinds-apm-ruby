@@ -26,6 +26,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Install swig 4.0.2
+        working-directory: .github/workflows/swig
+        run: |
+          tar -xf swig-v4.0.2.tar.gz -C /tmp
+          cd /tmp/swig-4.0.2
+          ./autogen.sh && ./configure && make && make install
+          cd -
+
       - name: Bundle & download c-files
         run: |
           gem install bundler
@@ -33,16 +41,16 @@ jobs:
           bundle exec rake clean fetch compile
 
       - name: install gtests
+        working-directory: /usr/src/gtest
         run: |
           apt update && apt install libgtest-dev google-mock cmake`
-          cd /usr/src/gtest`
           cmake .
           make
           mv libg* /usr/lib/
 
       - name: compile and run tests
+        working-directory: ext/oboe_metal/test
         run: |
-          cd ext/oboe_metal/test
           cmake CMakeLists.txt
           make
           ./runTests
