@@ -44,7 +44,7 @@ jobs:
 
       - name: install gtests
         run: |
-          apt update && apt install  -y --no-install-recommends libgtest-dev google-mock cmake
+          apt update && apt install  -y --no-install-recommends libgtest-dev google-mock cmake ruby
           cd /usr/src/gtest
           cmake .
           make
@@ -53,6 +53,8 @@ jobs:
       - name: compile and run tests
         working-directory: ext/oboe_metal/test
         run: |
+          export RUBY_INC_DIR=$(ruby ruby_inc_dir.rb)
+          export RUBY_PREFIX=$(ruby ruby_prefix.rb)
           cmake CMakeLists.txt
           make
           ./runTests

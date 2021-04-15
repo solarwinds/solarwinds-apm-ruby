@@ -14,13 +14,13 @@ find_package(GTest REQUIRED)
 include_directories(
   ${GTEST_INCLUDE_DIRS}
   ../src/
-  /root/.rbenv/versions/2.6.5/include/ruby-2.6.0/
-  /root/.rbenv/versions/2.6.5/include/ruby-2.6.0/x86_64-linux/
-  )
+  $ENV{RUBY_INC_DIR}
+  $ENV{RUBY_INC_DIR}/x86_64-linux/
+)
 
 link_directories(
   /usr/lib/
-  /root/.rbenv/versions/2.6.5/lib/
+  $ENV{RUBY_PREFIX}/lib/
   ../../../lib/
   ../lib
 )
