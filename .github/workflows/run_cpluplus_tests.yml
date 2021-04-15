@@ -43,9 +43,9 @@ jobs:
           bundle exec rake clean fetch compile
 
       - name: install gtests
-        working-directory: /usr/src/gtest
         run: |
-          apt update && apt install libgtest-dev google-mock cmake`
+          apt update && apt install  -y --no-install-recommends libgtest-dev google-mock cmake
+          cd /usr/src/gtest
           cmake .
           make
           mv libg* /usr/lib/
