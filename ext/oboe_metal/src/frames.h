@@ -20,7 +20,7 @@ class Frames {
     static int remove_garbage(VALUE *frames_buffer, int num);
     static int num_matching(VALUE *frames_buffer, int num,
                        VALUE *prev_frames_buffer, int prev_num);
-    // Debugging helper functions                   
+    // Debugging helper functions
     static void print_raw_frame_info(VALUE frame);
     static void print_frame_info(VALUE frame);
     static void print_cached_frames();

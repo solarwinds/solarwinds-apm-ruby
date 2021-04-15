@@ -128,8 +128,8 @@ if success
 
     # ____ include debug info, comment out when not debugging
     # ____ -pg -> profiling info for gprof
-    # CONFIG["debugflags"] = "-ggdb3 -pg"
-    # CONFIG["optflags"] = "-O0"
+    CONFIG["debugflags"] = "-ggdb3 -pg"
+    CONFIG["optflags"] = "-O0"
 
     create_makefile('libappoptics_apm', 'src')
 

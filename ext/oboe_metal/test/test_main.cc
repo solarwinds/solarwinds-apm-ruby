@@ -17,7 +17,10 @@ int main(int argc, char **argv) {
 
     int state = RUN_ALL_TESTS();
 
+    cout << " ---------- Done testing! ---------- state: " << state << endl;
+
     ruby_cleanup(0);
+    cout << " ---------- Done testing! ----------" << endl;
 
     return state;
 }
