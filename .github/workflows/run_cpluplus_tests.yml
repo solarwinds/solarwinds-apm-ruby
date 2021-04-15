@@ -29,6 +29,7 @@ jobs:
       - name: Install swig 4.0.2
         working-directory: .github/workflows/swig
         run: |
+          apt update && apt install -y --no-install-recommends bison
           tar -xf swig-v4.0.2.tar.gz -C /tmp
           cd /tmp/swig-4.0.2
           ./autogen.sh && ./configure && make && make install
