@@ -12,7 +12,7 @@
 #include "gtest/gtest.h"
 // #include "gmock/gmock.h"
 
-//extern unordered_map<VALUE, FrameData> cached_frames;
+extern unordered_map<VALUE, FrameData> cached_frames;
 
 static VALUE test_frames[BUF_SIZE];
 static int test_lines[BUF_SIZE];
