@@ -28,10 +28,6 @@ link_directories(
 set (sources
   test_main.cc
   frames_test.cc
-  # ../src/profiling.cc
-  ../src/frames.cc
-  ../src/logging.cc
-#   ../src/oboe_swig_wrap.cc
 )
 
 # Link runTests with what we want to test and the GTest and pthread library
