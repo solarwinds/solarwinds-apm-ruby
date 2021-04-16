@@ -26,8 +26,7 @@ VALUE RubyCallsFrames::c_get_frames() {
 void Init_RubyCallsFrames() {
     static VALUE cTest = rb_define_module("RubyCalls");
     rb_define_singleton_method(cTest, "get_frames", reinterpret_cast<VALUE (*)(...)>(RubyCallsFrames::c_get_frames), 0);
-    // TODO this line gives error: double free or corruption (!prev)
-    cached_frames.reserve(1024);
+    Frames::reserve_cached_frames();
 };
 
 TEST (Frames, collect_frame_data) {
