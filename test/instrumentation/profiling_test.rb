@@ -61,12 +61,15 @@ describe "Profiling: " do
     assert_equal tid, entry_trace['TID']
 
     # grabbing the first frame that reports 'sleep
-    snapshot_trace = traces.find { |tr| tr['Label'] == 'info' && tr['NewFrames'][0]['M'] == 'sleep'}
+    snapshot_trace = traces.find { |tr| tr['Label'] == 'info' }
     assert_equal AppOpticsAPM::XTrace.edge_id(xtrace_context), snapshot_trace['ContextOpId']
     assert_equal AppOpticsAPM::XTrace.edge_id(entry_trace['X-Trace']), snapshot_trace['Edge']
     assert (15 < snapshot_trace['NewFrames'].size) # different number in travis
-    assert_equal 'sleep', snapshot_trace['NewFrames'][0]['M'] # obviously
-    assert_equal 'Kernel', snapshot_trace['NewFrames'][0]['C']
+
+    sleep_frame = snapshot_trace['NewFrames'].find { |fr| fr['M'] == 'sleep'}
+    assert sleep_frame
+    assert_equal 'Kernel', sleep_frame['C']
+
     assert_equal 0, snapshot_trace['FramesExited']
     assert (15 < snapshot_trace['FramesCount']) # different number in travis
     assert_equal [], snapshot_trace['SnapshotsOmitted']
@@ -100,7 +103,8 @@ describe "Profiling: " do
     assert_equal 'info', traces[0]['Label']                # obviously
     assert_equal 'recurse', traces[0]['NewFrames'][0]['M'] # obviously
     assert_equal 'TestMethods', traces[0]['NewFrames'][0]['C']
-    assert_equal 1, traces[0]['FramesExited']
+    puts "----------- frames exited #{traces[0]['FramesExited']} -----------"
+    assert traces[0]['FramesExited'] >= 1
     assert (15 < traces[0]['FramesCount']) # different number in travis
     assert traces[0]['SnapshotsOmitted'].size > 0
   end
@@ -175,11 +179,11 @@ describe "Profiling: " do
             tids << tid
             AppOpticsAPM::SDK.start_trace("trace_#{tid}") do
               AppOpticsAPM::Profiling.run do
-               # The threads have to be busy, otherwise
-               # they don't get profiled because they are not executing
-               20.times do
-                 TestMethods.recurse(1500)
-               end
+                # The threads have to be busy, otherwise
+                # they don't get profiled because they are not executing
+                20.times do
+                  TestMethods.recurse(1500)
+                end
               end
             end
           end
