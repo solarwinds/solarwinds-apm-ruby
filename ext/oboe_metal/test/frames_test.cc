@@ -18,6 +18,8 @@ static VALUE test_frames[BUF_SIZE];
 static int test_lines[BUF_SIZE];
 int test_num;
 
+static int ruby_version;
+
 VALUE RubyCallsFrames::c_get_frames() {
     test_num = rb_profile_frames(1, sizeof(test_frames)/sizeof(VALUE), test_frames, test_lines);
     return Qnil;
@@ -27,6 +29,10 @@ void Init_RubyCallsFrames() {
     static VALUE cTest = rb_define_module("RubyCalls");
     rb_define_singleton_method(cTest, "get_frames", reinterpret_cast<VALUE (*)(...)>(RubyCallsFrames::c_get_frames), 0);
     Frames::reserve_cached_frames();
+
+    VALUE result;
+    result = rb_eval_string("RUBY_VERSION[0].to_i");
+    ruby_version = NUM2INT(result);
 };
 
 TEST (Frames, collect_frame_data) {
@@ -35,32 +41,39 @@ TEST (Frames, collect_frame_data) {
     int num = Frames::remove_garbage(test_frames, test_num);
 
     vector<FrameData> data;
-    Frames::collect_frame_data(test_frames, 1, data);
+    // Ruby 3 reports a <cfunc>, before the "take_snapshot" method
+    // we have to adjust the index
+    int i = ruby_version == 2 ? 0 : 1; 
+    Frames::collect_frame_data(test_frames, i+1, data);
 
-    EXPECT_EQ("take_snapshot", data[0].method)
-        << "method name incorrect";
-    EXPECT_EQ("TestMe::Snapshot", data[0].klass)
-        << "klass name incorrect";
-    std::size_t found = data[0].file.find("ext/oboe_metal/test/ruby_test_helper.rb");
-    EXPECT_EQ(data[0].file.length() - 39, found)
-        << "filename incorrect " << found << " " << data[0].file.length();
-    EXPECT_EQ(7, data[0].lineno)
-        << "line number incorrect";
+    EXPECT_EQ("take_snapshot", data[i].method) << "method name incorrect";
+    EXPECT_EQ("TestMe::Snapshot", data[i].klass) << "klass name incorrect";
+    std::size_t found = data[i].file.find("ext/oboe_metal/test/ruby_test_helper.rb");
+    EXPECT_EQ(data[i].file.length() - 39, found)
+        << "filename incorrect " << found << " " << data[i].file.length();
+    EXPECT_EQ(7, data[i].lineno) << "line number incorrect";
 }
 
-TEST(Frames, remove_garbage){
+TEST(Frames, remove_garbage) {
     // run some Ruby code and get a snapshot
     rb_eval_string("TestMe::Snapshot::all_kinds");
 
     int num = Frames::remove_garbage(test_frames, test_num);
 
-    EXPECT_EQ(7, num)
+    int expected = (ruby_version == 2) ? 7 : 9;
+    EXPECT_EQ(expected, num)
         << "wrong number of expected frames after remove_garbage";
     // check no lineno 0 frame at top
-    EXPECT_NE(0, NUM2INT(rb_profile_frame_first_lineno(test_frames[0])))
-        << "the frame with linenumbber 0 was not removed";
-    // check no repeted frames
-    int i = 0;
+    VALUE val;
+    int i = (ruby_version == 2) ? 0 : 1; 
+    val = rb_profile_frame_first_lineno(test_frames[i]);  // returns line number
+    if (RB_TYPE_P(val, T_FIXNUM)) {
+        EXPECT_NE(0, NUM2INT(val))
+            << "the frame with linenumber 0 was not removed";
+    } else {
+        EXPECT_TRUE(false) << " ************ line number not an int **********";
+    }
+    // check no repeated frames
     for (i = 0; i < num; i++)
         for (int j = i + 1; j < num; j++)
             EXPECT_NE(test_frames[i], test_frames[j])
@@ -72,13 +85,11 @@ TEST(Frames, cached_frames) {
     // run some Ruby code and get a snapshot
     rb_eval_string("TestMe::Snapshot::all_kinds");
 
-//    for(int i = 0; i <test_num; i++)
-//        Frames::print_raw_frame_info(test_frames[i]);
-
     Frames::remove_garbage(test_frames, test_num);
 
     // Check the expected size
-    EXPECT_EQ(8, cached_frames.size());
+    int expected = (ruby_version == 2) ? 8 : 10;
+    EXPECT_EQ(expected, cached_frames.size());
 
     // check that each frame is cached
     for(int i = 0; i < test_num; i++)
@@ -87,7 +98,9 @@ TEST(Frames, cached_frames) {
     // repeat
     rb_eval_string("TestMe::Snapshot::all_kinds");
     Frames::remove_garbage(test_frames, test_num);
-    EXPECT_EQ(9, cached_frames.size()); // +1 for an extra main frame
+
+    expected = (ruby_version == 2) ? 9 : 11;
+    EXPECT_EQ(expected, cached_frames.size()); // +1 for an extra main frame
     for (int i = 0; i < test_num; i++)
         EXPECT_EQ(1, cached_frames.count(test_frames[i]));
 }

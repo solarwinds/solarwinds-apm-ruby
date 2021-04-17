@@ -49,11 +49,16 @@ int Frames::cache_frame(VALUE frame) {
         if (!RB_TYPE_P(val, T_STRING)) val = rb_profile_frame_path(frame);
         if (RB_TYPE_P(val, T_STRING)) data.file = RSTRING_PTR(val);
 
-        val = rb_profile_frame_first_lineno(frame);  // returns line number
-        if (RB_TYPE_P(val, T_FIXNUM)) {
-            data.lineno = NUM2INT(val);
+        // Ruby 3 reports <cfunc>, but the linenumbers are bogus
+        if (data.file.compare("<cfunc>") == 0) {
+            data.lineno = -1;
         } else {
-            data.lineno = -1;  // can be removed once the default set in oboe_api.cpp is -1
+            val = rb_profile_frame_first_lineno(frame);  // returns line number
+            if (RB_TYPE_P(val, T_FIXNUM)) {
+                data.lineno = NUM2INT(val);
+            } else {
+                data.lineno = -1;  // can be removed once the default set in oboe_api.cpp is -1
+            }
         }
         lock_guard<mutex> guard(cached_frames_mutex);
         cached_frames.insert({frame, data});
@@ -98,6 +103,8 @@ int Frames::collect_frame_data(VALUE *frames_buffer, int num, vector<FrameData> 
 int Frames::remove_garbage(VALUE *frames_buffer, int num) {
     if (num == 1 && (frames_buffer[0] == PR_OTHER_THREAD || frames_buffer[0] == PR_IN_GC))
         return 1;
+
+// TODO decide what to do with <cfunc> frames in Ruby 3
 
     // 1) ignore top frames where the line number is 0
     // does that mean there is no line number???
@@ -196,8 +203,6 @@ void Frames::print_raw_frame_info(VALUE frame) {
     int lineno;
     string file, klass, method;
 
-    val = rb_profile_frame_path(frame);
-
     val = rb_profile_frame_first_lineno(frame);  // returns line number
     if (RB_TYPE_P(val, T_FIXNUM)) lineno = NUM2INT(val);
 
@@ -212,10 +217,16 @@ void Frames::print_raw_frame_info(VALUE frame) {
     if (RB_TYPE_P(val, T_STRING)) method = RSTRING_PTR(val);
 
     cout << "    " << frame << "   "
-         << lineno << " "
-         << file << " "
-         << klass << " "
-         << method << endl;
+         << "L: " << lineno << " "
+         << "F: " << file << " "
+         << "C: " << klass << " "
+         << "M: " << method << endl;
+}
+
+void Frames::print_all_raw_frames(VALUE *frames_buffer, int num) {
+   for (int i = 0; i < num; i++) { 
+       print_raw_frame_info(frames_buffer[i]);
+   }
 }
 
 // helper function to print frame info
