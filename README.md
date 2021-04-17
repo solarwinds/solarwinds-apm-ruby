@@ -18,9 +18,6 @@ It requires an [AppOptics](https://www.appoptics.com/) account to view metrics. 
 
 [comment]: <> ([![Maintainability]&#40;https://api.codeclimate.com/v1/badges/ac7f36241a23a3a82fc5/maintainability&#41;]&#40;https://codeclimate.com/github/appoptics/appoptics-apm-ruby/maintainability&#41;)
 
-_Note: The repository is now at https://github.com/appoptics/appoptics-apm-ruby  Please update your github remotes with 
-`git remote set-url origin git@github.com:appoptics/appoptics-apm-ruby.git`._
-
 # Documentation
 
 * [AppOptics Knowledge Base](https://docs.appoptics.com/kb/apm_tracing/ruby)
