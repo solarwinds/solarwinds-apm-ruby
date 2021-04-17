@@ -22,6 +22,7 @@ class Frames {
                        VALUE *prev_frames_buffer, int prev_num);
     // Debugging helper functions
     static void print_raw_frame_info(VALUE frame);
+    static void print_all_raw_frames(VALUE *frames_buffer, int num);
     static void print_frame_info(VALUE frame);
     static void print_cached_frames();
 
