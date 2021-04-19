@@ -60,12 +60,12 @@ describe "Profiling: " do
     assert_equal 'ruby', entry_trace['Language']
     assert_equal tid, entry_trace['TID']
 
-    # grabbing the first frame that reports 'sleep
     snapshot_trace = traces.find { |tr| tr['Label'] == 'info' }
     assert_equal AppOpticsAPM::XTrace.edge_id(xtrace_context), snapshot_trace['ContextOpId']
     assert_equal AppOpticsAPM::XTrace.edge_id(entry_trace['X-Trace']), snapshot_trace['Edge']
     assert (15 < snapshot_trace['NewFrames'].size) # different number in travis
 
+    # grabbing the first frame that reports 'sleep
     sleep_frame = snapshot_trace['NewFrames'].find { |fr| fr['M'] == 'sleep'}
     assert sleep_frame
     assert_equal 'Kernel', sleep_frame['C']
@@ -75,6 +75,8 @@ describe "Profiling: " do
     assert_equal [], snapshot_trace['SnapshotsOmitted']
     assert_equal tid, snapshot_trace['TID']
 
+    # check an edge
+    snapshot_trace = traces.select { |tr| tr['Label'] == 'info' }.last
     exit_trace = traces.find { |tr| tr['Label'] == 'exit'}
     assert (exit_trace['SnapshotsOmitted'].size > 0), "no omitted snapshot found"
     assert_equal AppOpticsAPM::XTrace.edge_id(snapshot_trace['X-Trace']), exit_trace['Edge']
@@ -103,7 +105,6 @@ describe "Profiling: " do
     assert_equal 'info', traces[0]['Label']                # obviously
     assert_equal 'recurse', traces[0]['NewFrames'][0]['M'] # obviously
     assert_equal 'TestMethods', traces[0]['NewFrames'][0]['C']
-    puts "----------- frames exited #{traces[0]['FramesExited']} -----------"
     assert traces[0]['FramesExited'] >= 1
     assert (15 < traces[0]['FramesCount']) # different number in travis
     assert traces[0]['SnapshotsOmitted'].size > 0
