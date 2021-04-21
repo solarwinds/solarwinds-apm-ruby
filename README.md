@@ -392,4 +392,4 @@ See the README in the test directory.
 
 Copyright (c) 2018 SolarWinds, LLC
 
-Released under the [Librato Open License](https://docs.appoptics.com/kb/apm_tracing/librato-open-license/)
+Released under the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0)
