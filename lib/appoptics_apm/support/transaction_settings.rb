@@ -20,11 +20,11 @@ module AppOpticsAPM
     attr_reader   :auth_msg, :do_propagate, :status_msg, :type, :source, :rate, :xtrace
                   #, :status
 
-    def initialize(url = '', xtrace = '', options = nil)
+    def initialize(url = '', xtrace = nil, options = nil)
       @do_metrics = false
       @do_sample = false
       @do_propagate = true
-      @xtrace = xtrace || ''
+      @xtrace = xtrace
       tracing_mode = AO_TRACING_ENABLED
 
       if AppOpticsAPM::Context.isValid

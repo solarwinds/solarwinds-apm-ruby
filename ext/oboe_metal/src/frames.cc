@@ -3,27 +3,27 @@
 
 #include "frames.h"
 
-#include <mutex>
-#include <unordered_map>
-
-#include <ruby/debug.h>
-
-#include "profiling.h"
-
 unordered_map<VALUE, FrameData> cached_frames;
 
 // in theory the mutex is not needed, because Ruby does not context switch
-// while exectuing a foreign function, but will this always hold true
+// while executing a foreign function, but will this always hold true?
 mutex cached_frames_mutex;
 
 void Frames::reserve_cached_frames() {
     lock_guard<mutex> guard(cached_frames_mutex);
-    if (cached_frames.load_factor() > (cached_frames.max_load_factor()) / 2.0)
-        cached_frames.reserve(cached_frames.bucket_count() * 2);
-    else if (cached_frames.bucket_count() < 1024)
-        cached_frames.reserve(1024);
+    // unordered_maps grow automatically, but it starts at 1 and then
+    // doubles when it is full, so lets avoid the warmup
+    cached_frames.reserve(500);  // it will round to a prime number: 503
 }
 
+void Frames::clear_cached_frames() {
+    lock_guard<mutex> guard(cached_frames_mutex);
+        // unordered_maps grow automatically, but it starts at 1 and then
+        // doubles when it is full, so lets avoid the warmup
+    cached_frames.clear();
+}
+
+// this is a private function
 int Frames::cache_frame(VALUE frame) {
     VALUE val;
     FrameData data;
@@ -66,8 +66,9 @@ int Frames::cache_frame(VALUE frame) {
     return 0;
 }
 
-// all frames in frames_buffer must be in cached_frames before calling this function
-// we are saving the check to increase performance
+// all frames in frames_buffer must be in cached_frames
+// before calling this function
+// we are saving the check for better performance
 int Frames::collect_frame_data(VALUE *frames_buffer, int num, vector<FrameData> &frame_data) {
     if (num == 1) {
         if (frames_buffer[0] == PR_IN_GC) {
@@ -76,7 +77,7 @@ int Frames::collect_frame_data(VALUE *frames_buffer, int num, vector<FrameData> 
             frame_data.push_back(data);
             return 0;
         } else if (frames_buffer[0] == PR_OTHER_THREAD) {
-           FrameData data;
+            FrameData data;
             data.method = "OTHER THREADS";
             frame_data.push_back(data);
             return 0;
@@ -87,7 +88,6 @@ int Frames::collect_frame_data(VALUE *frames_buffer, int num, vector<FrameData> 
         VALUE frame = frames_buffer[i];
         frame_data.push_back(cached_frames[frame]);
     }
-
     return 0;
 }
 
@@ -104,11 +104,12 @@ int Frames::remove_garbage(VALUE *frames_buffer, int num) {
     if (num == 1 && (frames_buffer[0] == PR_OTHER_THREAD || frames_buffer[0] == PR_IN_GC))
         return 1;
 
-// TODO decide what to do with <cfunc> frames in Ruby 3
+    // TODO decide what to do with <cfunc> frames in Ruby 3
 
     // 1) ignore top frames where the line number is 0
     // does that mean there is no line number???
     bool found = true;
+
     while (found && num > 0) {
         if (cached_frames.count(frames_buffer[num - 1]) == 1) {
             found = (cached_frames[frames_buffer[num - 1]].lineno == 0);
@@ -164,9 +165,9 @@ int Frames::remove_garbage(VALUE *frames_buffer, int num) {
         cache_frame(frames_buffer[count]);
         method = cached_frames[frames_buffer[count]].method;
 
-// TODO revisit need to remove block frames, they only appear when the Ruby
-// ____ script is not started with a method and has blocks outside of the
-// ____ methods called and sometimes inside of rack
+        // TODO revisit need to remove block frames, they only appear when the Ruby
+        // ____ script is not started with a method and has blocks outside of the
+        // ____ methods called and sometimes inside of rack
         if (method.rfind("block ", 0) == 0) {
             k++;
         } else {
@@ -183,12 +184,11 @@ int Frames::num_matching(VALUE *frames_buffer, int num,
     int min = std::min(num, prev_num);
 
     for (i = 0; i < min; i++) {
-        // start from the "top" (=end)
+        // we have to start from the "top"
         if (frames_buffer[num - 1 - i] != prev_frames_buffer[prev_num - 1 - i]) {
             return i;
         }
     }
-
     return i;
 }
 
@@ -224,14 +224,14 @@ void Frames::print_raw_frame_info(VALUE frame) {
 }
 
 void Frames::print_all_raw_frames(VALUE *frames_buffer, int num) {
-   for (int i = 0; i < num; i++) { 
-       print_raw_frame_info(frames_buffer[i]);
-   }
+    for (int i = 0; i < num; i++) {
+        print_raw_frame_info(frames_buffer[i]);
+    }
 }
 
 // helper function to print frame info
 void Frames::print_frame_info(VALUE frame) {
-    if (cached_frames.find(frame) != cached_frames.end() )
+    if (cached_frames.find(frame) != cached_frames.end())
         std::cout << cached_frames[frame].lineno << " "
                   << cached_frames[frame].file << " "
                   << cached_frames[frame].klass << " "
@@ -245,4 +245,3 @@ void Frames::print_cached_frames() {
         std::cout << "           " << it->first << " - " << it->second.method << ":" << it->second.lineno << endl;  // cannot modify *it
     std::cout << std::endl;
 }
-

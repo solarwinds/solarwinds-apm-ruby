@@ -12,7 +12,8 @@ run c++ tests in the ext/oboe_metal/test directory:
 
 `cmake CMakeLists.txt`
 
-IGNORE WARNING `Could NOT find PkgConfig (missing:  PKG_CONFIG_EXECUTABLE)`
+if there is a warning `Could NOT find PkgConfig (missing:  PKG_CONFIG_EXECUTABLE)`
+either ignore it or install `pkg-config`
 
 `make`
 

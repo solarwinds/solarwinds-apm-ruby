@@ -26,6 +26,7 @@ static atomic_long running;
 static VALUE frames_buffer[BUF_SIZE];
 static int lines_buffer[BUF_SIZE];
 
+static atomic_bool profiling_shutdown{false};
 long interval = 10;  // in milliseconds, initializing in case Ruby forgets to
 timer_t timerid;
 
@@ -48,6 +49,25 @@ long ts_now() {
 
     oboe_gettimeofday(&tv);
     return (long)tv.tv_sec * 1000000 + (long)tv.tv_usec;
+}
+
+// try catch block to be used inside functions that return an int
+// shuts down profiling and returns -1 on error
+int Profiling::try_catch_shutdown(std::function<int()> f, string fun_name) {
+    try {
+        return f();
+    } catch (const std::exception &e) {
+        string msg = "Exception in " + fun_name + ", can't recover, profiling shutting down";
+        OBOE_DEBUG_LOG_ERROR(OBOE_MODULE_RUBY, e.what());
+        OBOE_DEBUG_LOG_HIGH(OBOE_MODULE_RUBY, msg.c_str());
+        Profiling::shut_down();
+        return -1;
+    } catch (...) {
+        string msg = "Exception in " + fun_name + ", can't recover, profiling shutting down";
+        OBOE_DEBUG_LOG_ERROR(OBOE_MODULE_RUBY, msg.c_str());
+        Profiling::shut_down();
+        return -1;
+    }
 }
 
 void Profiling::profiler_record_frames(void *data) {
@@ -117,9 +137,9 @@ void Profiling::process_snapshot(VALUE *frames_buffer, int num, pid_t tid, long 
 
     // find the number of matching frames from the top
     int num_match = Frames::num_matching(frames_buffer,
-                                      num,
-                                      prof_data_map[tid].prev_frames_buffer,
-                                      prof_data_map[tid].prev_num);
+                                         num,
+                                         prof_data_map[tid].prev_frames_buffer,
+                                         prof_data_map[tid].prev_num);
     num_new = num - num_match;
 
     num_exited = prof_data_map[tid].prev_num - num_match;
@@ -159,18 +179,26 @@ void Profiling::profiler_job_handler(void *data) {
     static std::atomic_int in_job_handler;
 
     if (in_job_handler) return;
-
     in_job_handler++;
-    Profiling::profiler_record_frames(data);
+
+    try_catch_shutdown([&]() {
+        Profiling::profiler_record_frames(data);
+        return 0;  // block needs an int returned
+    }, "Profiling::profiler_job_handler()");
+
     in_job_handler--;
 }
 
-void profiler_gc_handler(void *data) {
+void Profiling::profiler_gc_handler(void *data) {
     static std::atomic_int in_gc_handler;
     if (in_gc_handler) return;
-
     in_gc_handler++;
-    Profiling::profiler_record_gc();
+
+    try_catch_shutdown([]() {
+        Profiling::profiler_record_gc();
+        return 0;  // block needs an int returned
+    }, "Profiling::profiler_gc_handler()");
+
     in_gc_handler--;
 }
 
@@ -178,14 +206,17 @@ void Profiling::profiler_signal_handler(int sigint, siginfo_t *siginfo, void *uc
     static std::atomic_int in_signal_handler{0};
 
     if (in_signal_handler) return;
-
     in_signal_handler++;
-    if (rb_during_gc()) {
-        rb_postponed_job_register(0, profiler_gc_handler, (void *)0);
-    } else {
-        rb_postponed_job_register(0, profiler_job_handler, (void *)0);
-    }
-    // TODO how can I *ensure* this gets reset?
+
+    try_catch_shutdown([]() {
+        if (rb_during_gc()) {
+            rb_postponed_job_register(0, profiler_gc_handler, (void *)0);
+        } else {
+            rb_postponed_job_register(0, profiler_job_handler, (void *)0);
+        }
+        return 0;  // block needs an int returned
+    }, "Profiling::profiler_signal_handler()");
+
     in_signal_handler--;
 }
 
@@ -195,60 +226,39 @@ void Profiling::profiling_start(pid_t tid) {
     prof_data_map[tid].omitted_num = 0;
     prof_data_map[tid].running_p = true;
 
-    Frames::reserve_cached_frames();
-
     Logging::log_profile_entry(prof_data_map[tid].md,
                                prof_data_map[tid].prof_op_id,
                                tid,
                                interval);
 
     if (!running) {
-        // the signal is sent to the process and then to one thread,
-        // timer/signal may already be running
         struct sigaction sa;
 
-        // what's the mask?
         // sa_mask : Additional set of signals to be blocked during execution of signal-catching function
         // what happens if there is another action for the same signal?
         // => last one defined wins!
-        // set up signal handler and timer
 
-        // TODO decide which timer to use
-        if (getenv("AO_SETITIMER")) {
-            struct itimerval timer;
+        // use create_timer created in Init_profiling instead of setitimer
+        struct itimerspec ts;
 
-            sa.sa_sigaction = profiler_signal_handler;
-            sa.sa_flags = SA_RESTART | SA_SIGINFO;
-            sigemptyset(&sa.sa_mask);
-            sigaction(SIGALRM, &sa, NULL);
+        // TODO does sigaction need to be assigned each time or does it persist?
+        sa.sa_sigaction = profiler_signal_handler;
+        sa.sa_flags = SA_RESTART | SA_SIGINFO;
+        sigemptyset(&sa.sa_mask);
+        if (sigaction(TIMER_SIG, &sa, NULL) == -1) {
+            OBOE_DEBUG_LOG_ERROR(OBOE_MODULE_RUBY, "sigaction() failed");
+            shut_down();
+        }
 
-            timer.it_interval.tv_sec = 0;
-            timer.it_interval.tv_usec = interval * 1000;
-            timer.it_value.tv_sec = timer.it_interval.tv_sec;
-            timer.it_value.tv_usec = timer.it_interval.tv_usec;
-            setitimer(ITIMER_REAL, &timer, 0);
+        /* start timer  */
+        ts.it_interval.tv_sec = 0;
+        ts.it_interval.tv_nsec = interval * 1000000;
+        ts.it_value.tv_sec = 0;
+        ts.it_value.tv_nsec = interval * 1000000;
 
-        } else {
-            // use create_timer created in Init_profiling instead of setitimer
-            struct itimerspec ts;
-
-            // TODO does sigaction need to be assigned each time or does it persist?
-            sa.sa_sigaction = profiler_signal_handler;
-            sa.sa_flags = SA_RESTART | SA_SIGINFO;
-            sigemptyset(&sa.sa_mask);
-            if (sigaction(TIMER_SIG, &sa, NULL) == -1)
-                perror("sigaction");
-
-            /* start timer  */
-            ts.it_interval.tv_sec = 0;
-            ts.it_interval.tv_nsec = interval * 1000000;
-            ts.it_value.tv_sec = 0;
-            ts.it_value.tv_nsec = interval * 1000000;
-
-            if (timer_settime(timerid, 0, &ts, NULL) == -1)
-                perror("timer_settime");
-
-            // TODO figure out how to handle eventual errors, what is perror()?
+        if (timer_settime(timerid, 0, &ts, NULL) == -1) {
+            OBOE_DEBUG_LOG_ERROR(OBOE_MODULE_RUBY, "timer_settime() failed");
+            shut_down();
         }
     }
     running++;
@@ -258,21 +268,8 @@ VALUE Profiling::profiling_stop(pid_t tid) {
     if (!running) return Qfalse;
 
     running--;
-
-    if (!running) {
-        if (getenv("AO_SETITIMER")) {
-            // no threads are profiling -> stop global timer/signal
-            struct sigaction sa;
-            struct itimerval timer;
-
-            memset(&timer, 0, sizeof(timer));
-            setitimer(ITIMER_REAL, &timer, 0);
-
-            sa.sa_handler = SIG_IGN;
-            sa.sa_flags = SA_RESTART;
-            sigemptyset(&sa.sa_mask);
-            sigaction(SIGALRM, &sa, NULL);
-        } else {
+    int result = try_catch_shutdown([&]() {
+        if (!running) {
             // stop the timer, needs both (value and interval) set to 0
             struct itimerspec ts;
             ts.it_value.tv_sec = 0;
@@ -280,29 +277,29 @@ VALUE Profiling::profiling_stop(pid_t tid) {
             ts.it_interval.tv_sec = 0;
             ts.it_interval.tv_nsec = 0;
 
-            timer_settime(timerid, 0, &ts, NULL);
+            if (timer_settime(timerid, 0, &ts, NULL) == -1) {
+                OBOE_DEBUG_LOG_ERROR(OBOE_MODULE_RUBY, "timer_settime() failed");
+                shut_down();
+            }
         }
-    }
 
-    Logging::log_profile_exit(prof_data_map[tid].md,
-                              prof_data_map[tid].prof_op_id,
-                              tid,
-                              prof_data_map[tid].omitted,
-                              prof_data_map[tid].omitted_num);
+        Logging::log_profile_exit(prof_data_map[tid].md,
+                                  prof_data_map[tid].prof_op_id,
+                                  tid,
+                                  prof_data_map[tid].omitted,
+                                  prof_data_map[tid].omitted_num);
 
-    prof_data_map[tid].running_p = false;
+        prof_data_map[tid].running_p = false;
+        return 0; // block needs an int returned
+    }, "Profiling::profiling_stop()");
 
-    return Qtrue;
+    return (result == 0) ? Qtrue : Qfalse;
 }
 
 VALUE Profiling::set_interval(VALUE self, VALUE val) {
     if (!FIXNUM_P(val)) return Qfalse;
 
     interval = FIX2INT(val);
-
-    // TODO remove this condition once the fileReporter is changed to return -1 for oboe_get_profiling_interval()
-    if (!getenv("APPOPTICS_REPORTER") || strcmp(getenv("APPOPTICS_REPORTER"), "file") != 0)
-        interval = max(interval, (long)oboe_get_profiling_interval());
 
     return Qtrue;
 }
@@ -312,22 +309,49 @@ VALUE Profiling::get_interval() {
 }
 
 VALUE Profiling::profiling_run(VALUE self, VALUE rb_thread_val) {
-    rb_need_block(); // checks if function is called with a block in Ruby
+    rb_need_block();  // checks if function is called with a block in Ruby
+    if (profiling_shutdown) rb_yield(Qundef);
 
     pid_t tid = AO_GETTID;
-
-    // cout << tid << " running? " << prof_data_map[tid].running_p << endl;
 
     if (prof_data_map[tid].running_p) return Qfalse;
     prof_data_map[tid].omitted_num = 0;
 
-    // cout << "starting profiling for tid " << tid << endl;
+    // !!!!! Can't use try_catch_shutdown() here, causes a memory leak !!!!!
+    try {
+        profiling_start(tid);
+        rb_ensure(reinterpret_cast<VALUE (*)(...)>(rb_yield), Qundef,
+                  reinterpret_cast<VALUE (*)(...)>(profiling_stop), tid);
+        return Qtrue;
+    } catch (const std::exception &e) {
+        string msg = "Exception in Profiling::profiling_run, can't recover, profiling shutting down";
+        OBOE_DEBUG_LOG_ERROR(OBOE_MODULE_RUBY, e.what());
+        OBOE_DEBUG_LOG_HIGH(OBOE_MODULE_RUBY, msg.c_str());
+        Profiling::shut_down();
+        return Qfalse;
+    } catch (...) {
+        string msg = "Exception in Profiling::profiling_run, can't recover, profiling shutting down";
+        OBOE_DEBUG_LOG_ERROR(OBOE_MODULE_RUBY, msg.c_str());
+        Profiling::shut_down();
+        return Qfalse;
+    }
 
-    profiling_start(tid);
-    rb_ensure(reinterpret_cast<VALUE (*)(...)>(rb_yield), Qundef,
-              reinterpret_cast<VALUE (*)(...)>(profiling_stop), tid);
+    return Qfalse;
+}
 
-    return Qtrue;
+// in case C++ misbehaves we will stop profiling
+// to be used when catching exceptions
+void Profiling::shut_down() {
+    static bool started = false;
+    // stop all profiling, the last one also stops the timer/signals
+    if (!started) {
+        for (pair<const pid_t, prof_data_t> &ele : prof_data_map) {
+            started = true;
+            profiling_stop(ele.first);
+        }
+    }
+    // avoid running any more profiling
+    profiling_shutdown = true;
 }
 
 VALUE Profiling::getTid() {
@@ -336,50 +360,44 @@ VALUE Profiling::getTid() {
     return INT2NUM(tid);
 }
 
-
-// TODO what's with the atfork stuff???
-// ____ copied from stackprof, do I need it?
 static void
-stackprof_atfork_prepare(void) {
+prof_atfork_prepare(void) {
     // cout << "Parent getting ready" << endl;
-    struct itimerval timer;
-    if (running) {
-        memset(&timer, 0, sizeof(timer));
-        setitimer(ITIMER_REAL, &timer, 0);
-    }
 }
 
 static void
-stackprof_atfork_parent(void) {
+prof_atfork_parent(void) {
     // cout << "Parent let child loose" << endl;
-    struct itimerval timer;
-    if (running) {
-        timer.it_interval.tv_sec = 0;
-        timer.it_interval.tv_usec = interval;
-        timer.it_value = timer.it_interval;
-        setitimer(ITIMER_REAL, &timer, 0);
-    }
 }
 
+// make sure new processes have a clean slate for profiling
 static void
-stackprof_atfork_child(void) {
+prof_atfork_child(void) {
     // cout << "A child is born" << endl;
+    Frames::clear_cached_frames();
+    prof_data_map.clear();
+    running = false;
+
+    // make sure it has a timer ready, it is a per-process-timer
+    Profiling::create_timer();
+}
+
+void Profiling::create_timer() {
+    struct sigevent sev;
+
+    sev.sigev_value.sival_ptr = &timerid;
+    sev.sigev_notify = SIGEV_SIGNAL; /* Notify via signal */
+    sev.sigev_signo = SIGRTMAX;      /* Notify using this signal */
+
+    if (timer_create(CLOCK_REALTIME, &sev, &timerid) == -1) {
+        OBOE_DEBUG_LOG_ERROR(OBOE_MODULE_RUBY, "timer_create() failed");
+        profiling_shutdown = true;  // no profiling without clock
+    }
 }
 
 extern "C" void Init_profiling(void) {
-
-    if (!getenv("AO_SETITIMER")) {
-        struct sigevent sev;
-
-        sev.sigev_value.sival_ptr = &timerid;
-        sev.sigev_notify = SIGEV_SIGNAL; /* Notify via signal */
-        sev.sigev_signo = SIGRTMAX;      /* Notify using this signal */
-
-        if (timer_create(CLOCK_REALTIME, &sev, &timerid) == -1) {
-            perror("timer_create");
-            // exit(1);
-        }
-    }
+    Profiling::create_timer();
+    Frames::reserve_cached_frames();
 
     // creates Ruby Module: AppOpticsAPM::CProfiler
     static VALUE rb_mAppOpticsAPM = rb_define_module("AppOpticsAPM");
@@ -390,14 +408,12 @@ extern "C" void Init_profiling(void) {
     rb_define_singleton_method(rb_mCProfiler, "run", reinterpret_cast<VALUE (*)(...)>(Profiling::profiling_run), 1);
     rb_define_singleton_method(rb_mCProfiler, "get_tid", reinterpret_cast<VALUE (*)(...)>(Profiling::getTid), 0);
 
-    // TODO better understand pthread_atfork
-    pthread_atfork(stackprof_atfork_prepare,
-                   stackprof_atfork_parent,
-                   stackprof_atfork_child);
+    pthread_atfork(prof_atfork_prepare,
+                   prof_atfork_parent,
+                   prof_atfork_child);
 
     // TODO better understand the gc marking
     // ____ needed???
     // ____ does it last forever or is it reset after a gc?
     for (int i = 0; i < BUF_SIZE; i++) rb_gc_mark(frames_buffer[i]);
 }
-

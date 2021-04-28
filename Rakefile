@@ -151,16 +151,17 @@ task :fetch_ext_deps do
 
   # oboe and bson header files
   FileUtils.mkdir_p(File.join(ext_src_dir, 'bson'))
-  files = %w(oboe_debug.h bson/bson.h bson/platform_hacks.h)
+  files = %w(bson/bson.h bson/platform_hacks.h)
 
   if ENV['OBOE_WIP']
     wip_src_dir = File.expand_path('../oboe/liboboe')
     FileUtils.cp(File.join(wip_src_dir, 'oboe_api.cpp'), ext_src_dir)
     FileUtils.cp(File.join(wip_src_dir, 'oboe_api.hpp'), ext_src_dir)
+    FileUtils.cp(File.join(wip_src_dir, 'oboe_debug.h'), ext_src_dir)
     FileUtils.cp(File.join(wip_src_dir, 'oboe.h'), ext_src_dir)
     FileUtils.cp(File.join(wip_src_dir, 'swig', 'oboe.i'), ext_src_dir)
   else
-    files += ['oboe.h', 'oboe_api.hpp', 'oboe_api.cpp', 'oboe.i']
+    files += ['oboe.h', 'oboe_api.hpp', 'oboe_api.cpp', 'oboe_debug.h', 'oboe.i']
   end
 
   files.each do |filename|
