@@ -63,7 +63,7 @@ describe "Profiling: " do
     snapshot_trace = traces.find { |tr| tr['Label'] == 'info' }
     assert_equal AppOpticsAPM::XTrace.edge_id(xtrace_context), snapshot_trace['ContextOpId']
     assert_equal AppOpticsAPM::XTrace.edge_id(entry_trace['X-Trace']), snapshot_trace['Edge']
-    assert (15 < snapshot_trace['NewFrames'].size) # different number in travis
+    assert (15 < snapshot_trace['NewFrames'].size), "expected > 15 new frames, got #{snapshot_trace['NewFrames'].size}" # different number in travis
 
     # grabbing the first frame that reports 'sleep
     sleep_frame = snapshot_trace['NewFrames'].find { |fr| fr['M'] == 'sleep'}
@@ -99,7 +99,6 @@ describe "Profiling: " do
 
     traces = get_all_traces
     traces.select! { |tr| tr['Spec'] == 'profiling' && tr['Label'] == 'info' }
-
     traces.select! { |tr| tr['NewFrames'][0]['M'] == 'recurse' }
 
     assert_equal 'info', traces[0]['Label']                # obviously

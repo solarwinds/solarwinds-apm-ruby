@@ -9,7 +9,7 @@ set(CMAKE_MODULE_PATH .;${CMAKE_MODULE_PATH})
 find_package(GTest REQUIRED)
 
 # Locate GMock
-# find_package(GMock REQUIRED)
+find_package(GMock REQUIRED)
 
 include_directories(
   ${GTEST_INCLUDE_DIRS}
@@ -28,6 +28,7 @@ link_directories(
 set (sources
   test_main.cc
   frames_test.cc
+  profiling_test.cc
 )
 
 # Link runTests with what we want to test and the GTest and pthread library

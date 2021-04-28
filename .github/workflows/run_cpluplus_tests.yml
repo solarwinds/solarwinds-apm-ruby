@@ -7,6 +7,7 @@ on: [push]
 
 jobs:
   tests:
+    puts "----------- frames exited #{traces[0]['FramesExited']} -----------"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -45,10 +46,8 @@ jobs:
       - name: install gtests
         run: |
           apt update && apt install  -y --no-install-recommends libgtest-dev google-mock cmake ruby
-          cd /usr/src/gtest
-          cmake .
-          make
-          mv libg* /usr/lib/
+          cd /usr/src/gtest && cmake CMakeLists.txt && make && cp *.a /usr/lib
+          cd /usr/src/gmock && cmake CMakeLists.txt && make && cp *.a /usr/lib
 
       - name: compile and run tests
         working-directory: ext/oboe_metal/test

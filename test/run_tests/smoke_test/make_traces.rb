@@ -61,6 +61,24 @@ AppOpticsAPM::SDK.start_trace("start_#{name}") do
 end
 
 ###############################################################
+# START A TRACE AND PROFILE
+###############################################################
+#
+# AppOpticsAPM::SDK.start_trace()
+# This method starts a trace.  It is handy for background jobs,
+# workers, or scripts, that are not part of a rack application
+
+AppOpticsAPM::SDK.start_trace("start_#{name}") do
+  AppOpticsAPM::Profiling.run do
+    10.times do
+      [9, 6, 12, 2, 7, 1, 9, 3, 4, 14, 5, 8].sort
+      sleep 0.2
+    end
+  end
+end
+
+
+###############################################################
 # LOG AN ERROR EVENT
 ###############################################################
 #
