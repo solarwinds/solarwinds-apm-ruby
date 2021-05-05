@@ -7,7 +7,6 @@ on: [push]
 
 jobs:
   tests:
-    puts "----------- frames exited #{traces[0]['FramesExited']} -----------"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
