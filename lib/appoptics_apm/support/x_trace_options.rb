@@ -95,7 +95,7 @@ module AppOpticsAPM
       response << "auth=#{settings.auth_msg}" if @signature
       if settings.auth_ok?
         if @trigger_trace
-          trigger_msg = !settings.xtrace.empty? && settings.type == 0 ? 'ignored' : settings.status_msg
+          trigger_msg = settings.xtrace && settings.type == 0 ? 'ignored' : settings.status_msg
         else
           trigger_msg = 'not-requested'
         end
