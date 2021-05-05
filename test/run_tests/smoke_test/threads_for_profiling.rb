@@ -1,7 +1,6 @@
 require 'prime'
 require 'appoptics_apm'
-require 'bson'
-# require '/appoptics_apm/test/minitest_helper.rb'
+# require 'bson'
 # require 'stackprof'
 # require 'benchmark/ips'
 
@@ -98,8 +97,8 @@ class HaHaHa
 end
 
 # AppOpticsAPM::SDK.trace_method(HaHaHa, :laughing)
-AppOpticsAPM::SDK.trace_method(Kids, :giggle) if defined? AppOpticsAPM
-AppOpticsAPM::SDK.trace_method(Hola, :my_fun) if defined? AppOpticsAPM
+# AppOpticsAPM::SDK.trace_method(Kids, :giggle) if defined? AppOpticsAPM
+# AppOpticsAPM::SDK.trace_method(Hola, :my_fun) if defined? AppOpticsAPM
 
 AppOpticsAPM::Config.profiling = :enabled if defined? AppOpticsAPM
 AppOpticsAPM::Config[:profiling_interval] = 5 if defined? AppOpticsAPM
@@ -129,7 +128,7 @@ class A
     Object.new
   end
 
-  def math
+  def A.math
     2.times do
       # print "."
       2 + 3 * 4 ^ 5 / 6
@@ -137,80 +136,115 @@ class A
   end
 end
 
-def do_stuff
-  threads = []
+class Stuff
+  def Stuff.do_stuff
+    100.times { a.math }
+  end
+end
+  # threads = []
 
-  puts "Main tid: #{AppOpticsAPM::CProfiler.get_tid}"
+  # puts "Main tid: #{AppOpticsAPM::CProfiler.get_tid}"
   # AppOpticsAPM::SDK.start_trace("main_thread") do
   #   AppOpticsAPM::Profiling.run do
-  3.times do |i|
-    threads << Thread.new do
-      sleep 0.1
-      AppOpticsAPM::SDK.start_trace("thread-#{i}") do
-        AppOpticsAPM::Profiling.run do
-          tid = AppOpticsAPM::CProfiler.get_tid
-          puts "thread tid: #{tid}, tracing? #{AppOpticsAPM.tracing?}"
+  # 3.times do |i|
+  #   threads << Thread.new do
+  #     sleep 0.1
+  # i = 0
+  # 10.times do
+  # AppOpticsAPM::SDK.start_trace("thread-#{i}") do
+    # AppOpticsAPM::Profiling.run do
+      # tid = AppOpticsAPM::CProfiler.get_tid
+      # puts "thread tid: #{tid}, tracing? #{AppOpticsAPM.tracing?}"
 
-          AppOpticsAPM::SDK.trace(:boo) do
-            5000.times do
-              # File.open("foo_#{i}.txt", 'w') { |f| f.write(Time.now) }
-              A.new
-              # HaHaHa.new.laughing
-              # i+i
-              # sleep 0.2
-            end
-          end
-        end
-      end
-      # sleep 0.2
-    end
-
-  end
-  pid = fork do
+      # AppOpticsAPM::SDK.trace(:boo) do
+      #   50.times do
+      # File.open("foo_#{i}.txt", 'w') { |f| f.write(Time.now) }
+      # A.new
+      # HaHaHa.new.laughing
+      # i+i
+      # sleep 1
+      # end
+    # end
+  # end
+  # end
+  # sleep 0.2
+  # end
+# end
+  # pid = fork do
     threads = []
-    puts "forked tid: #{AppOpticsAPM::CProfiler.get_tid}"
+    # puts "forked tid: #{AppOpticsAPM::CProfiler.get_tid}"
     # AppOpticsAPM::SDK.start_trace("main_thread") do
     #   AppOpticsAPM::Profiling.run do
-    3.times do |i|
-      threads << Thread.new do
-        sleep 0.1
-        AppOpticsAPM::SDK.start_trace("forked-thread-#{i}") do
-          AppOpticsAPM::Profiling.run do
-            tid = AppOpticsAPM::CProfiler.get_tid
-            puts "forked thread tid: #{tid}, tracing? #{AppOpticsAPM.tracing?}"
+    # 3.times do |i|
+    #   threads << Thread.new do
+    #     sleep 0.1
+    #     AppOpticsAPM::SDK.start_trace("forked-thread-#{i}") do
+    #       AppOpticsAPM::Profiling.run do
+    #         tid = AppOpticsAPM::CProfiler.get_tid
+    #         puts "forked thread tid: #{tid}, tracing? #{AppOpticsAPM.tracing?}"
+    #
+    #         # AppOpticsAPM::SDK.trace(:boo) do
+    #           5000.times do
+    #             # File.open("foo_#{i}.txt", 'w') { |f| f.write(Time.now) }
+    #             A.new
+    #             # HaHaHa.new.laughing
+    #             # i+i
+    #             # sleep 0.2
+    #           end
+    #         end
+    #       end
+    #     end
+    #     # sleep 0.2
+    #   # end
+    #
+    # end
+    # sleep 1
+    # threads.each { |th| th.join }
+  # end
+  # sleep 1
+  # threads.each { |th| th.join }
 
-            # AppOpticsAPM::SDK.trace(:boo) do
-              5000.times do
-                # File.open("foo_#{i}.txt", 'w') { |f| f.write(Time.now) }
-                A.new
-                # HaHaHa.new.laughing
-                # i+i
-                # sleep 0.2
-              end
-            end
-          end
-        end
-        # sleep 0.2
-      # end
-
-    end
-    sleep 1
-    threads.each { |th| th.join }
-  end
-  sleep 1
-  threads.each { |th| th.join }
-
-  pid2 = spawn(RbConfig.ruby, "-eputs'Hello, world!'")
-  Process.wait pid
-  puts "pid of forked process: #{pid}"
-  puts "pid of spawned process: #{pid2}"
-  puts Process.waitall
+  # pid2 = spawn(RbConfig.ruby, "-eputs'Hello, world!'")
+  # Process.wait pid
+  # puts "pid of forked process: #{pid}"
+  # puts "pid of spawned process: #{pid2}"
+  # puts Process.waitall
   # end
   # end
   #  puts AppopticsAPM::XTrace.task_id(AppopticsAPM::Context.toString)
+# end
+
+# require 'memory_profiler'
+# MemoryProfiler.start
+# puts "initial: #{`ps -o rss -p #{$$}`.lines.last}"
+# 200.times do |i|
+
+
+puts "initial: #{`ps -o rss -p #{$$}`.lines.last}"
+# warmup
+start = Time.now
+AppOpticsAPM::SDK.start_trace("do_stuff") do
+  5000.times do
+    # AppOpticsAPM::Profiling.run do
+    Stuff.do_stuff
+  end
+end
+puts "warmup: #{`ps -o rss -p #{$$}`.lines.last}"
+puts "warmup time: #{Time.now - start}"
+
+start = Time.now
+AppOpticsAPM::SDK.start_trace("do_stuff") do
+  50000.times do
+    # AppOpticsAPM::Profiling.run do
+    Stuff.do_stuff
+  end
 end
 
-do_stuff
+puts "final: #{`ps -o rss -p #{$$}`.lines.last}"
+puts "time: #{Time.now - start}"
+
+# report = MemoryProfiler.stop
+# report.pretty_print
 # profile = do_this
 # result = StackProf::Report.new(profile)
 #
