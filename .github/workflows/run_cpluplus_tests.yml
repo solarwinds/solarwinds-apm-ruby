@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: install gtests
+      - name: install cmake and gtests
         run: |
           ls -lrt /usr/src
           apt update && apt install  -y --no-install-recommends build-essential libgtest-dev google-mock cmake ruby
