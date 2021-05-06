@@ -11,7 +11,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: [3.0, 2.7, 2.6, 2.5, 2.4]
+        ruby: [2.7]
+#        ruby: [3.0, 2.7, 2.6, 2.5, 2.4]
 
     container:
       image: ruby:${{ matrix.ruby }}
@@ -27,6 +28,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: install gtests
+        run: |
+          apt update && apt install  -y --no-install-recommends build-essential libgtest-dev google-mock cmake ruby
+          ls -lrt /usr/src
+          cd /usr/src/gtest && cmake CMakeLists.txt && make && cp *.a /usr/lib
+          cd /usr/src/gmock && cmake CMakeLists.txt && make && cp *.a /usr/lib
+
       - name: Install swig 4.0.2
         working-directory: .github/workflows/swig
         run: |
@@ -41,13 +49,6 @@ jobs:
           gem install bundler
           bundle install
           bundle exec rake clean fetch compile
-
-      - name: install gtests
-        run: |
-          apt update && apt install  -y --no-install-recommends build-essential libgtest-dev google-mock cmake ruby
-          ls -lrt
-          cd /usr/src/gtest && cmake CMakeLists.txt && make && cp *.a /usr/lib
-          cd /usr/src/gmock && cmake CMakeLists.txt && make && cp *.a /usr/lib
 
       - name: compile and run tests
         working-directory: ext/oboe_metal/test
