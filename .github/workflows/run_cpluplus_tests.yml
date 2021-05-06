@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: install cmake and gtests
+      - name: Install cmake and gtests
         run: |
           ls -lrt /usr/src
           apt update && apt install  -y --no-install-recommends build-essential libgtest-dev google-mock cmake ruby
@@ -53,7 +53,7 @@ jobs:
           bundle install
           bundle exec rake clean fetch compile
 
-      - name: compile and run tests
+      - name: Compile and run tests
         working-directory: ext/oboe_metal/test
         run: |
           export RUBY_INC_DIR=$(ruby ruby_inc_dir.rb)
