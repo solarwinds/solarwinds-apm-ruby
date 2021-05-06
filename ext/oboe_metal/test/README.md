@@ -9,7 +9,8 @@ as root or use sudo:
 `mv libg* /usr/lib/`
 
 run c++ tests in the ext/oboe_metal/test directory:
-
+`export RUBY_INC_DIR=$(ruby ruby_inc_dir.rb)`
+`export RUBY_PREFIX=$(ruby ruby_prefix.rb)`
 `cmake CMakeLists.txt`
 
 if there is a warning `Could NOT find PkgConfig (missing:  PKG_CONFIG_EXECUTABLE)`
