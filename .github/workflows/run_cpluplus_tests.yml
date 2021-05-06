@@ -33,8 +33,8 @@ jobs:
           ls -lrt /usr/src
           apt update && apt install  -y --no-install-recommends build-essential libgtest-dev google-mock cmake ruby
           echo "list googletest:"
-          ls -lrt /usr/googletest/googletest
-          ls -lrt /usr/googletest/googlemock
+          ls -lrt /usr/src/googletest/googletest
+          ls -lrt /usr/src/googletest/googlemock
 #          cd /usr/src/googletest/googletest && cmake CMakeLists.txt && make && cp *.a /usr/lib
 #          cd /usr/src/googletest/googlemock && cmake CMakeLists.txt && make && cp *.a /usr/lib
 
