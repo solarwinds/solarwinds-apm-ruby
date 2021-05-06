@@ -38,6 +38,9 @@ jobs:
           cd /usr/src/googletest/googletest && cmake CMakeLists.txt && make && cp *.a /usr/lib
           cd /usr/src/googletest/googlemock && cmake CMakeLists.txt && make && cp *.a /usr/lib
 
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+
       - name: Install swig 4.0.2
         working-directory: .github/workflows/swig
         run: |
