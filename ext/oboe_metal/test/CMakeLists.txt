@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.1)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR} ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/FindGMock.cmake)
-message(STATUS "${CMAKE_MODULE_PATH}")
+set(GMOCK_INCLUDE_DIR "/usr/src/googletest/googlemock/include/gmock" )
 
 # Locate GTest
 find_package(GTest REQUIRED)
