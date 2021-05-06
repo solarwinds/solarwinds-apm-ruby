@@ -1,24 +1,35 @@
 C-code tests:
 
-Make sure gtests are installed and compiled
-`apt update && apt install libgtest-dev google-mock cmake`
-`cd /usr/src/gtest`
+Make sure gtests are installed and compiled:
+
+```
+apt update && apt install libgtest-dev google-mock cmake
+cd /usr/src/gtest
+```
+
 as root or use sudo:
-`cmake .`
-`make`
-`mv libg* /usr/lib/`
+
+```
+cmake .
+make
+mv libg* /usr/lib/
+```
 
 run c++ tests in the ext/oboe_metal/test directory:
-`export RUBY_INC_DIR=$(ruby ruby_inc_dir.rb)`
-`export RUBY_PREFIX=$(ruby ruby_prefix.rb)`
-`cmake CMakeLists.txt`
+
+```
+export RUBY_INC_DIR=$(ruby ruby_inc_dir.rb)
+export RUBY_PREFIX=$(ruby ruby_prefix.rb)
+cmake CMakeLists.txt
+```
 
 if there is a warning `Could NOT find PkgConfig (missing:  PKG_CONFIG_EXECUTABLE)`
-either ignore it or install `pkg-config`
+either ignore it or install `pkg-config`, then:
 
-`make`
-
-`./runTests`
+```
+make
+./runTests
+```
 
 If it can't find the ruby headers, then maybe the ruby version set in CMakeTLists.txt is
 not installed. Either change the version or install it. 
