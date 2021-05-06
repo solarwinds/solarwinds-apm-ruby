@@ -11,8 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: [2.7]
-#        ruby: [3.0, 2.7, 2.6, 2.5, 2.4]
+        ruby: [3.0, 2.7, 2.6, 2.5, 2.4]
 
     container:
       image: ruby:${{ matrix.ruby }}
@@ -38,11 +37,6 @@ jobs:
           cd /usr/src/googletest/googletest && cmake CMakeLists.txt && make && cp *.a /usr/lib
           cd /usr/src/googletest/googlemock && cmake CMakeLists.txt && make && cp *.a /usr/lib
           cp -r /usr/src/googletest/googlemock/include/gmock /usr/include/
-
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        with:
-          sudo: false
 
       - name: Install swig 4.0.2
         working-directory: .github/workflows/swig
