@@ -37,7 +37,7 @@ jobs:
           ls -lrt /usr/src/googletest/googlemock
           cd /usr/src/googletest/googletest && cmake CMakeLists.txt && make && cp *.a /usr/lib
           cd /usr/src/googletest/googlemock && cmake CMakeLists.txt && make && cp *.a /usr/lib
-          cp -r /usr/src/googletest/googlemock/include/gmock
+#          cp -r /usr/src/googletest/googlemock/include/gmock /usr/include/
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
