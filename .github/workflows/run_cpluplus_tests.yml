@@ -40,6 +40,8 @@ jobs:
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
+        with:
+          sudo: false
 
       - name: Install swig 4.0.2
         working-directory: .github/workflows/swig
