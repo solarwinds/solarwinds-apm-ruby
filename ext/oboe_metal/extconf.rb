@@ -118,18 +118,18 @@ if success
 
     $CFLAGS << " #{ENV['CFLAGS']}"
     # $CPPFLAGS << " #{ENV['CPPFLAGS']} -std=c++11"
-    # TODO for debugging: -pg -gdwarf-2, remove for production
-    $CPPFLAGS << " #{ENV['CPPFLAGS']} -std=c++11 -pg -gdwarf-2 -I$$ORIGIN/../ext/oboe_metal/include -I$$ORIGIN/../ext/oboe_metal/src"
-    # $CPPFLAGS << " #{ENV['CPPFLAGS']} -std=c++11 -I$$ORIGIN/../ext/oboe_metal/include"
+    # for debugging add: -pg -gdwarf-2, remove for production
+    # $CPPFLAGS << " #{ENV['CPPFLAGS']} -std=c++11 -pg -gdwarf-2 -I$$ORIGIN/../ext/oboe_metal/include -I$$ORIGIN/../ext/oboe_metal/src"
+    $CPPFLAGS << " #{ENV['CPPFLAGS']} -std=c++11 -I$$ORIGIN/../ext/oboe_metal/include"
     $LIBS << " #{ENV['LIBS']}"
-    $LDFLAGS << " #{ENV['LDFLAGS']} '-Wl,-rpath=$$ORIGIN/../ext/oboe_metal/lib'  -pg -lrt"
-    # $LDFLAGS << " #{ENV['LDFLAGS']} '-Wl,-rpath=$$ORIGIN/../ext/oboe_metal/lib'"
+    # $LDFLAGS << " #{ENV['LDFLAGS']} '-Wl,-rpath=$$ORIGIN/../ext/oboe_metal/lib'  -pg -lrt"
+    $LDFLAGS << " #{ENV['LDFLAGS']} '-Wl,-rpath=$$ORIGIN/../ext/oboe_metal/lib'"
     $CXXFLAGS += " -std=c++11 "
 
     # ____ include debug info, comment out when not debugging
     # ____ -pg -> profiling info for gprof
-    CONFIG["debugflags"] = "-ggdb3 -pg"
-    CONFIG["optflags"] = "-O0"
+    # CONFIG["debugflags"] = "-ggdb3 -pg"
+    # CONFIG["optflags"] = "-O0"
 
     create_makefile('libappoptics_apm', 'src')
 
@@ -146,5 +146,4 @@ if success
     create_makefile('oboe_noop', 'noop')
   end
 
-  puts Time.now
 end

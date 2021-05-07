@@ -13,7 +13,6 @@
 #include "test.h"
 
 extern unordered_map<VALUE, FrameData> cached_frames;
-extern int profiling_shutdown;
 
 static VALUE test_frames[BUF_SIZE];
 static int test_lines[BUF_SIZE];

@@ -33,7 +33,7 @@ class TestMe
 
     def sing
       3.times do
-        yoddle do
+        yodel do
           html_wrap("title", "Hello") { |_html| yield }
         end
       end
@@ -41,7 +41,7 @@ class TestMe
 
     private
 
-    def yoddle
+    def yodel
       a_proc = -> (x) { x * x;  yield }
       in_block(&a_proc)
     end

@@ -36,7 +36,7 @@ x-ao-env: &ao-env
   RUBY_ENV: "test"
   TEST_RUNS_TO_FILE: "true"
 #    - SIMPLECOV_COVERAGE=true
-#    - OBOE_HPP_WIP=true
+#    - OBOE_WIP=true
 #    - APPOPTICS_DEBUG_LEVEL=6
 
 x-ao-shared: &ao-shared

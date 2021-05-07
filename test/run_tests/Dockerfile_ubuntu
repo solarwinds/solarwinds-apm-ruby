@@ -41,8 +41,8 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # gtest and gmock setup
-RUN cd /usr/src/gtest && cmake CMakeLists.txt && make && cp *.a /usr/lib && cd -
-RUN cd /usr/src/gmock && cmake CMakeLists.txt && make && cp *.a /usr/lib && cd -
+RUN cd /usr/src/gtest && cmake CMakeLists.txt && make && cp *.a /usr/lib
+RUN cd /usr/src/gmock && cmake CMakeLists.txt && make && cp *.a /usr/lib && cd
 
 # rbenv setup
 # use rbenv-default-gems to automatically install bundler for each ruby version

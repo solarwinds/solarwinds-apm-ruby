@@ -47,7 +47,8 @@ using namespace std;
 class Profiling {
    public:
     static void create_timer();
-    // These are available in Ruby and have to return VALUE
+    static int try_catch_shutdown(std::function<int()>, string fun_name);
+    // The following are made available to Ruby and have to return VALUE
     static VALUE profiling_run(VALUE self, VALUE rb_thread_val);
     static VALUE get_interval();
     static VALUE set_interval(VALUE self, VALUE interval);
@@ -55,10 +56,10 @@ class Profiling {
 
    private:
     static void profiling_start(pid_t tid);
-    
+
     // This is used via rb_ensure and therefore needs VALUE as a return type
     static VALUE profiling_stop(pid_t tid);
-  
+
     static void profiler_signal_handler(int sigint,
                                         siginfo_t* siginfo,
                                         void* ucontext);
@@ -74,7 +75,6 @@ class Profiling {
     static void send_omitted(pid_t tid, long ts);
 
     // wrapper for exception handling
-    static int try_catch_shutdown(std::function<int()>, string fun_name);
     // This is used when catching an exception
     static void shut_down();
 
