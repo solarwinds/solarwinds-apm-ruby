@@ -123,7 +123,8 @@ if success
     $CPPFLAGS << " #{ENV['CPPFLAGS']} -std=c++11 -I$$ORIGIN/../ext/oboe_metal/include"
     $LIBS << " #{ENV['LIBS']}"
     # $LDFLAGS << " #{ENV['LDFLAGS']} '-Wl,-rpath=$$ORIGIN/../ext/oboe_metal/lib'  -pg -lrt"
-    $LDFLAGS << " #{ENV['LDFLAGS']} '-Wl,-rpath=$$ORIGIN/../ext/oboe_metal/lib'"
+    # -lrt is import for timer functions
+    $LDFLAGS << " #{ENV['LDFLAGS']} '-Wl,-rpath=$$ORIGIN/../ext/oboe_metal/lib' -lrt"
     $CXXFLAGS += " -std=c++11 "
 
     # ____ include debug info, comment out when not debugging
