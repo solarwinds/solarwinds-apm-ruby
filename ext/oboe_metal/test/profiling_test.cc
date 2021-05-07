@@ -12,18 +12,20 @@
 #include "ruby/ruby.h"
 #include "test.h"
 
-extern int profiling_shutdown;
+extern atomic_bool profiling_shutdown;
 
-TEST(Profiling, testing_something) {
+// FIXME how can I access profiling_shutdown ?
+//TEST(Profiling, testing_something) {
 //     int result;
-//     result = Profiling::try_catch([] {
+//     result = Profiling::try_catch_shutdown([] {
 //         // provoke exception
 //         std::string ().replace (100, 1, 1, 'c');
 //         return 0;
 //     }, "Profiling::try_catch()");
-//     EXPECT_EQ(-1, result);
-//     EXPECT_EQ(1, profiling_shutdown);
-
+//
+//     EXPECT_NE(0, result);
+//     EXPECT_EQ(true, profiling_shutdown);
+//
 //     // reset global var
-//     profiling_shutdown = 0;
-}
+//     profiling_shutdown = false;
+//}

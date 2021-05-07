@@ -179,7 +179,7 @@ describe "AppOpticsAPM::Config" do
     AppOpticsAPM::Config.initialize
 
     AppOpticsAPM::Config[:debug_level] = 3
-    # _(AppOpticsAPM::Config[:profiling]).must_equal :disabled
+    _(AppOpticsAPM::Config[:profiling]).must_equal :disabled
     _(AppOpticsAPM::Config[:verbose]).must_equal false
     _(AppOpticsAPM::Config[:tracing_mode]).must_equal :enabled
     _(AppOpticsAPM::Config[:log_traceId]).must_equal :never
