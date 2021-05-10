@@ -3,7 +3,7 @@ name: Docker Image CI
 on:
   push:
     paths:
-    - 'test/run_tests/Docker_*'
+    - 'test/run_tests/Dockerfile_*'
 
 jobs:
 
