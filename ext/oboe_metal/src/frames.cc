@@ -50,14 +50,11 @@ int Frames::cache_frame(VALUE frame) {
         if (RB_TYPE_P(val, T_STRING)) data.file = RSTRING_PTR(val);
 
         // Ruby 3 reports <cfunc>, but the linenumbers are bogus
-        if (data.file.compare("<cfunc>") == 0) {
-            data.lineno = -1;
-        } else {
+        // the default line number is 0
+        if (!data.file.compare("<cfunc>") == 0) {
             val = rb_profile_frame_first_lineno(frame);  // returns line number
             if (RB_TYPE_P(val, T_FIXNUM)) {
                 data.lineno = NUM2INT(val);
-            } else {
-                data.lineno = -1;  // can be removed once the default set in oboe_api.cpp is -1
             }
         }
         lock_guard<mutex> guard(cached_frames_mutex);
