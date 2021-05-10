@@ -13,6 +13,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Build the Docker image
-      run: docker build . --file test/run_tests/Dockerfile_ubuntu --tag ao_ubuntu
+#      run: docker build . --file test/run_tests/Dockerfile_ubuntu --tag ao_ubuntu
+    - name: Build image and push to GitHub Packages
+      uses: docker/build-push-action@v1
+      with:
+        file: test/run_tests/Dockerfile_ubuntu
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        registry: docker.pkg.github.com
+        repository: appoptics/appoptics_apm/docker_images
+        tags: ao_ubuntu
