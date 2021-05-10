@@ -8,32 +8,36 @@ FROM debian:jessie
 # install OS packages
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-       apt-utils \
-       autoconf \
-       autotools-dev \
-       automake \
-       bison \
-       build-essential \
-       ca-certificates \
-       curl \
-       gdb \
-       git-core \
-       libcurl4-gnutls-dev \
-       libmysqlclient-dev \
-       libpq-dev \
-       libpcre3-dev \
-       libreadline-dev \
-       libsasl2-dev \
-       libsqlite3-dev \
-       libssl-dev \
-#       openjdk-8-jdk \ # TODO do we need this?
-       psmisc \
-       vim \
-       less \
-       tcl \
-       tmux \
-       tree \
-       zlib1g-dev \
+        apt-utils \
+          autoconf \
+          autotools-dev \
+          automake \
+          bison \
+          build-essential \
+          cmake \
+          curl \
+          gdb \
+          git-core \
+          google-mock \
+          less \
+          libcurl4-gnutls-dev \
+          libgtest-dev \
+          libmysqlclient-dev \
+          libpq-dev \
+          libpcre3-dev \
+          libreadline-dev \
+          libsasl2-dev \
+          libsqlite3-dev \
+          libssl-dev \
+          openjdk-8-jdk \
+          pkg-config \
+          psmisc \
+          ruby \
+          tcl \
+          tmux \
+          tree \
+          vim \
+          zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # gtest and gmock setup
