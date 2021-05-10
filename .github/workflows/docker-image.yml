@@ -24,8 +24,6 @@ jobs:
     - name: Build image and push to GitHub Packages
       uses: docker/build-push-action@v2
       with:
-        dockerfile: test/run_tests/Dockerfile_ubuntu
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-        registry: docker.pkg.github.com
+        file: test/run_tests/Dockerfile_ubuntu
         tags: ao_ubuntu
+        push: true
