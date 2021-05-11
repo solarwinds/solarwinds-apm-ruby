@@ -19,15 +19,15 @@ jobs:
       uses: docker/login-action@v1
       with:
         registry: ghcr.io
-        username: ${{ github.repository_owner }}
-        password: ${{ secrets.ghcr_TOKEN }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build and store image
       uses: docker/build-push-action@v1
       with:
         dockerfile: test/run_tests/Dockerfile_ubuntu
-        username: ${{github.actor}}
-        password: ${{secrets.GITHUB_TOKEN}}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
         registry: docker.pkg.github.com
         repository: appoptics/appoptics-apm-ruby/ao_ubuntu
 #        tag_with_sha: true
