@@ -36,5 +36,5 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         file: test/run_tests/Dockerfile_ubuntu
-        tags: ao_ubuntu:latest
+        tags: ghcr.io/appoptics/appoptics_apm-ruby/ao_ubuntu:latest
         push: true
