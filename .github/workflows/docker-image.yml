@@ -19,10 +19,10 @@ jobs:
 #      with:
 #        name: webpack artifacts
 #        path: public
-    - name: Build container image
+    - name: Build and store image
       uses: docker/build-push-action@v1
       with:
-        file: test/run_tests/Dockerfile_ubuntu
+        dockerfile: test/run_tests/Dockerfile_ubuntu
         username: ${{github.actor}}
         password: ${{secrets.GITHUB_TOKEN}}
         registry: docker.pkg.github.com
