@@ -7,23 +7,25 @@ on:
 
 jobs:
 
-  build:
+  build_push:
     name: Build docker images
-
     runs-on: ubuntu-latest
 
     steps:
-    - name: Login to GitHub Container Registry
-      uses: docker/login-action@v1
-      with:
-        registry: ghcr.io
-        username: ${{ github.repository_owner }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-
-#      run: docker build . --file test/run_tests/Dockerfile_ubuntu --tag ao_ubuntu
-    - name: Build image and push to GitHub Packages
-      uses: docker/build-push-action@v2
+    - name: Checkout
+      uses: actions/checkout@v1
+#    - name: Download built artifact
+#      uses: actions/download-artifact@main
+#      with:
+#        name: webpack artifacts
+#        path: public
+    - name: Build container image
+      uses: docker/build-push-action@v1
       with:
         file: test/run_tests/Dockerfile_ubuntu
-        tags: ao_ubuntu
-        push: true
+        username: ${{github.actor}}
+        password: ${{secrets.GITHUB_TOKEN}}
+        registry: docker.pkg.github.com
+        repository: appoptics/appoptics_apm/ao_ubuntu
+        tag_with_sha: true
+

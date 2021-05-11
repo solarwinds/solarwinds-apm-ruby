@@ -112,5 +112,4 @@ ENV APPOPTICS_TOKEN_BUCKET_RATE=10000
 # replicate stdout of tests to file in local log directory
 ENV TEST_RUNS_TO_FILE=true
 
-
 CMD /bin/bash
