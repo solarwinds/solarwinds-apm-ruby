@@ -76,7 +76,7 @@ RUN echo 'gem: --no-document' >> ~/.gemrc
 RUN curl -SL https://github.com/swig/swig/archive/refs/tags/v4.0.2.tar.gz \
     | tar xzC /tmp \
     && cd /tmp/swig-4.0.2 \
-    && ./autgen.sh && ./configure && make && make install \
+    && ./autogen.sh && ./configure && make && make install \
     && cd - \
     && rm -rf /tmp/swig-4.0.2
 

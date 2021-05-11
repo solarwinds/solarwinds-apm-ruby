@@ -59,7 +59,6 @@ RUN . ~/.profile \
 #    && rbenv install 2.6.5 \
 #    && rbenv install 2.7.0 \
     && rbenv install 3.0.0
-#    && rbenv install jruby-9.1.16.0
 
 # need to provide bundler 1.17.3 as well, because some gems require bundler < 2.0
 #RUN . ~/.profile && rbenv local 2.4.5 && gem install bundler -v 1.17.3
@@ -74,17 +73,9 @@ RUN echo 'gem: --no-document' >> ~/.gemrc
 RUN curl -SL https://github.com/swig/swig/archive/refs/tags/v4.0.2.tar.gz \
     | tar xzC /tmp \
     && cd /tmp/swig-4.0.2 \
-    && ./autgen.sh && ./configure && make && make install \
+    && ./autogen.sh && ./configure && make && make install \
     && cd - \
     && rm -rf /tmp/swig-4.0.2
-
-## waiting for swig 4.0.2 because of changes in Ruby 4.7.0,
-## in the meantime use github version
-#RUN git clone https://github.com/swig/swig.git \
-#    && cd swig \
-#    && ./autogen.sh \
-#    && ./configure && make && make install \
-#    && cd -
 
 # install redis-server version 4++
 RUN curl -SL http://download.redis.io/releases/redis-4.0.0.tar.gz | tar xzC /tmp \
