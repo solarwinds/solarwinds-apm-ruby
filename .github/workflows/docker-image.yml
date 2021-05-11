@@ -36,7 +36,7 @@ jobs:
 #        push: true
 
     - name: Build new Docker image
-      run: docker build -f ${{ env.dockerfile }} -t ${{ env.image }}
+      run: docker build -f ${{ env.dockerfile }} -t ${{ env.image }} .
 
     - name: Publish updated Docker image
       run: docker push ${{ env.image }}
