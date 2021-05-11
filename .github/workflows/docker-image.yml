@@ -8,14 +8,19 @@ on:
   workflow_dispatch:
 
 env:
-  image: ghcr.io/appoptics/appoptics-apm-ruby/ao_ubuntu:latest
-  dockerfile: test/run_tests/Dockerfile_ubuntu
+  GHRC: ghcr.io/appoptics/appoptics-apm-ruby/ao
+  DOCKERFILE: test/run_tests/Dockerfile
 
 jobs:
 
   build_push:
     name: Build docker images
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu, debian, centos, alpine]
 
     steps:
     - name: Checkout
@@ -36,7 +41,7 @@ jobs:
 #        push: true
 
     - name: Build new Docker image
-      run: docker build -f ${{ env.dockerfile }} -t ${{ env.image }} .
+      run: docker build -f ${{ env.DOCKERFILE }}_${{ matrix.os }} -t ${{ env.GHRC }}_${{ matrix.os }} .
 
     - name: Publish updated Docker image
-      run: docker push ${{ env.image }}
+      run: docker push ${{ env.GHRC }}_${{ matrix.os }}
