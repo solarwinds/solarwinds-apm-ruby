@@ -94,10 +94,32 @@ RUN curl -SL http://download.redis.io/releases/redis-4.0.0.tar.gz | tar xzC /tmp
 #    && su postgres -c "bash /tmp/config" \
 #    && rm -f /tmp/config
 
+#RUN apt-get update && \
+#	apt-get -y install memcached mysql-client libmysqlclient-dev
+
+#RUN groupadd -r memcached && useradd --no-log-init
+
+# install postgres and memcached
+RUN apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+       memcached \
+       postgresql \
+       postgresql-contrib \
+    && service postgresql start \
+    && echo "psql --command \"CREATE USER docker WITH SUPERUSER PASSWORD 'docker';\"" >> /tmp/config \
+    && echo "createdb -O docker travis_ci_test" >> /tmp/config \
+    && su postgres -c "bash /tmp/config" \
+    && rm -f /tmp/config
+
 RUN apt-get update && \
-	apt-get -y install memcached mysql-client libmysqlclient-dev
+	apt-get -y install mysql-client libmysqlclient-dev
 
-RUN groupadd -r memcached && useradd --no-log-init
+ENV PATH="/root/.rbenv/bin:/root/.rbenv/shims:$PATH"
+ENV RUBY_ENV=test
+ENV APPOPTICS_TOKEN_BUCKET_CAPACITY=10000
+ENV APPOPTICS_TOKEN_BUCKET_RATE=10000
 
+# replicate stdout of tests to file in local log directory
+ENV TEST_RUNS_TO_FILE=true
 
 CMD /bin/bash
