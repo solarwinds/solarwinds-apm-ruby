@@ -1,0 +1,27 @@
+name: Test on all Linux
+
+on:
+  push:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+
+  all_linux_test:
+    name: Test on all Linux
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu, debian, centos, alpine]
+
+    container:
+      image: appoptics-apm-ruby/ao_${{ matrix.os }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+
+    - name: just a shell command
+      run: echo "I am fine!"
