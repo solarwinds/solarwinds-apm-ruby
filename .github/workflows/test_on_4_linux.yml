@@ -17,7 +17,7 @@ jobs:
         os: [ubuntu, debian, centos, alpine]
 
     container:
-      image: appoptics-apm-ruby/ao_${{ matrix.os }}
+      image: ghcr.io/appoptics/appoptics-apm-ruby/ao_${{ matrix.os }}
 
     steps:
     - name: Checkout
