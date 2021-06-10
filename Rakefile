@@ -36,24 +36,24 @@ Rake::TestTask.new do |t|
 
     if Rails::VERSION::MAJOR == 5
       t.test_files = FileList["test/frameworks/rails#{Rails::VERSION::MAJOR}x_test.rb"] +
-        FileList["test/frameworks/rails#{Rails::VERSION::MAJOR}x_api_test.rb"]
+                     FileList["test/frameworks/rails#{Rails::VERSION::MAJOR}x_api_test.rb"]
     elsif Rails::VERSION::MAJOR == 6
       t.test_files = FileList['test/frameworks/rails5x_test.rb'] +
-        FileList['test/frameworks/rails5x_api_test.rb']
+                     FileList['test/frameworks/rails5x_api_test.rb']
     else
       t.test_files = FileList["test/frameworks/rails#{Rails::VERSION::MAJOR}x_test.rb"]
     end
 
   when /frameworks/
     t.test_files = FileList['test/frameworks/sinatra*_test.rb'] +
-      FileList['test/frameworks/padrino*_test.rb'] +
-      FileList['test/frameworks/grape*_test.rb']
+                   FileList['test/frameworks/padrino*_test.rb'] +
+                   FileList['test/frameworks/grape*_test.rb']
   when /libraries/
     t.test_files = FileList['test/support/*_test.rb'] +
-      FileList['test/reporter/*_test.rb'] +
-      FileList['test/instrumentation/*_test.rb'] +
-      FileList['test/profiling/*_test.rb'] -
-      ['test/instrumentation/twitter-cassandra_test.rb']
+                   FileList['test/reporter/*_test.rb'] +
+                   FileList['test/instrumentation/*_test.rb'] +
+                   FileList['test/profiling/*_test.rb'] -
+                   ['test/instrumentation/twitter-cassandra_test.rb']
   when /instrumentation_mocked/
     # WebMock is interfering with other tests, so these have to run separately
     t.test_files = FileList['test/mocked/*_test.rb']
@@ -61,12 +61,12 @@ Rake::TestTask.new do |t|
     t.test_files = FileList['test/noop/*_test.rb']
   when /unit/
     t.test_files = FileList['test/unit/*_test.rb'] +
-      FileList['test/unit/*/*_test.rb']
+                   FileList['test/unit/*/*_test.rb']
   end
 
   if defined?(JRUBY_VERSION)
     t.ruby_opts << ['-J-javaagent:/usr/local/tracelytics/tracelyticsagent.jar']
-  end
+    end
 end
 
 

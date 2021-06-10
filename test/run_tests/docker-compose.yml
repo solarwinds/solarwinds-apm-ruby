@@ -50,24 +50,11 @@ x-ao-shared: &ao-shared
   ports:
     - "3000"
   depends_on:
-    - ao-ruby-rabbitmq
-    - ao-ruby-mysql
-    - ao-ruby-mongo
-    - ao-ruby-postgres
+    - ao_ruby_wait
   links:
-    - ao-ruby-rabbitmq
-    - ao-ruby-mysql
-    - ao-ruby-mongo
-    - ao-ruby-postgres
+    - ao_ruby_wait
   stdin_open: true
   tty: true
-
-#  volumes:
-#    - ../../:/code/ruby-appoptics
-#    - /dev/null:/sys/fs/cgroup
-#       - ../../../graphql-ruby-clone/:/code/graphql-ruby
-#       - /Users/maiaengeli/workspace/repos/grpc:/grpc_ruby
-
 
 services:
   ruby_appoptics_ubuntu:
@@ -81,6 +68,7 @@ services:
     volumes:
       - ../../:/code/ruby-appoptics
       - ./.ruby_version_ubuntu:/code/ruby-appoptics/.ruby-version
+      # and for OBOE_WIP ...
       - ../../../oboe/liboboe:/code/oboe/liboboe
     #       - ../../../graphql-ruby-clone/:/code/graphql-ruby
     #       - /Users/maiaengeli/workspace/repos/grpc:/grpc_ruby
@@ -151,7 +139,6 @@ services:
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
       - MYSQL_ROOT_PASSWORD=admin
-
 
   ao-ruby-mongo:
     container_name: ao-ruby-mongo

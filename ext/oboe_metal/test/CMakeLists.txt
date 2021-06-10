@@ -16,7 +16,7 @@ include_directories(
   ../src/
   $ENV{RUBY_INC_DIR}
   $ENV{RUBY_INC_DIR}/x86_64-linux/
-  )
+)
 
 link_directories(
   /usr/lib/

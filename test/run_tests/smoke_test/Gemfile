@@ -1,8 +1,15 @@
 source 'https://rubygems.org'
 
 gem 'json'
+gem 'bson'
+# gem 'stackprof'
+# gem 'byebug'
 
 # Add appoptics agent from PackageCloud
-source 'https://e7a157ba14962984396983edf2cd291fe020ee728e9e6915:@packagecloud.io/solarwinds/appoptics-apm-ruby' do
-  gem 'appoptics_apm' , '4.12.1'#, path: '/code/ruby-appoptics/builds'
+source "https://packagecloud.io/solarwinds/appoptics-apm-ruby" do
+# source 'file:///code/ruby-appoptics/builds' do
+  gem 'appoptics_apm', '4.13.0.pre2'
 end
+
+# gem 'appoptics_apm', '~> 4.13.0'
+# gem 'appoptics_apm', :path => "/home/ubuntu/workspace/librato/ruby-appoptics"

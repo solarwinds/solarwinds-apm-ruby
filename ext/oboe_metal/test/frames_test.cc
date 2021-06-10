@@ -6,7 +6,10 @@
 
 #include "../src/profiling.h"
 #include "../src/frames.h"
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/AO-12790_profiling
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "ruby/debug.h"

@@ -17,9 +17,14 @@ RUN apt-get update \
        automake \
        bison \
        build-essential \
+       cmake \
        curl \
+       gdb \
        git-core \
+       google-mock \
+       less \
        libcurl4-gnutls-dev \
+       libgtest-dev \
        libmysqlclient-dev \
        libpq-dev \
        libpcre3-dev \
@@ -28,12 +33,13 @@ RUN apt-get update \
        libsqlite3-dev \
        libssl-dev \
        openjdk-8-jdk \
+       pkg-config \
        psmisc \
-       vim \
-       less \
+       ruby \
        tcl \
        tmux \
        tree \
+       vim \
        zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
@@ -43,6 +49,10 @@ RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -  \
 
 # install yarn
 RUN curl -o- -L https://yarnpkg.com/install.sh | bash
+
+# gtest and gmock setup
+RUN cd /usr/src/gtest && cmake CMakeLists.txt && make && cp *.a /usr/lib
+RUN cd /usr/src/gmock && cmake CMakeLists.txt && make && cp *.a /usr/lib && cd
 
 # rbenv setup
 # use rbenv-default-gems to automatically install bundler for each ruby version
@@ -60,17 +70,18 @@ RUN echo 'alias be="bundle exec"' >> ~/.profile
 # install rubies to build our gem against
 RUN . ~/.profile \
     && cd /root/.rbenv/plugins/ruby-build && git pull && cd - \
-#    && rbenv install 2.4.5 \
-#    && rbenv install 2.5.5 \
+    && rbenv install 2.4.5 \
+    && rbenv install 2.5.5 \
     && rbenv install 2.6.5 \
-#    && rbenv install 2.7.0 \
+    && rbenv install 2.7.0 \
     && rbenv install 3.0.0
+#    && rbenv install jruby-9.1.16.0
 
 # need to provide bundler 1.17.3 as well, because some gems require bundler < 2.0
-#RUN . ~/.profile && rbenv local 2.4.5 && gem install bundler -v 1.17.3
-#RUN . ~/.profile && rbenv local 2.5.5 && gem install bundler -v 1.17.3
+RUN . ~/.profile && rbenv local 2.4.5 && gem install bundler -v 1.17.3
+RUN . ~/.profile && rbenv local 2.5.5 && gem install bundler -v 1.17.3
 RUN . ~/.profile && rbenv local 2.6.5 && gem install bundler -v 1.17.3
-#RUN . ~/.profile && rbenv local 2.7.0 && gem install bundler -v 1.17.3
+RUN . ~/.profile && rbenv local 2.7.0 && gem install bundler -v 1.17.3
 RUN . ~/.profile && rbenv local 3.0.0 && gem install bundler -v 1.17.3
 
 RUN echo 'gem: --no-document' >> ~/.gemrc
@@ -79,7 +90,8 @@ RUN echo 'gem: --no-document' >> ~/.gemrc
 RUN curl -SL https://github.com/swig/swig/archive/refs/tags/v4.0.2.tar.gz \
     | tar xzC /tmp \
     && cd /tmp/swig-4.0.2 \
-    && ./autogen.sh && ./configure && make && make install \
+    && ./autogen.sh \
+    && ./configure && make && make install \
     && cd - \
     && rm -rf /tmp/swig-4.0.2
 
