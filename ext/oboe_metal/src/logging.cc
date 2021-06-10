@@ -3,26 +3,34 @@
 
 #include "logging.h"
 
-Event *Logging::createEvent(oboe_metadata_t* md, string &prof_op_id, bool entry_event) {
-    // startTrace does not add "Edge", we need to keep track of edges separately
-    // from the trace metadata for profiling
-    Event *event = Event::startTrace(md);
+const string Logging::profiling = "profiling";
+const string Logging::ruby = "ruby";
+const string Logging::entry = "entry";
+const string Logging::info = "info";
+const string Logging::exit = "exit";
+
+Event *Logging::createEvent(Metadata &md, string &prof_op_id, bool entry_event) {
+    // startTrace does not add "Edge", for profiling we need to keep track of edges
+    // separately from the main trace metadata
+
+    oboe_metadata_t *md_t = md.metadata();
+    Event *event = Event::startTrace(md_t);
 
     if (entry_event) {
-        event->addSpanRef(md);
+        event->addSpanRef(md_t);
     } else {
         event->addProfileEdge(prof_op_id);
-        event->addContextOpId(md);
+        event->addContextOpId(md_t);
     }
     prof_op_id.assign(event->opIdString());
 
     return event;
 }
 
-bool Logging::log_profile_entry(oboe_metadata_t* md, string &prof_op_id, pid_t tid, long interval) {
+bool Logging::log_profile_entry(Metadata &md, string &prof_op_id, pid_t tid, long interval) {
     Event *event = Logging::createEvent(md, prof_op_id, true);
-    event->addInfo((char *)"Label", "entry");
-    event->addInfo((char *)"Language", "ruby");
+    event->addInfo((char *)"Label", Logging::entry);
+    event->addInfo((char *)"Language", Logging::ruby);
     event->addInfo((char *)"TID", (long)tid);
     event->addInfo((char *)"Interval", interval);
 
@@ -33,10 +41,10 @@ bool Logging::log_profile_entry(oboe_metadata_t* md, string &prof_op_id, pid_t t
     return Logging::log_profile_event(event);
 }
 
-bool Logging::log_profile_exit(oboe_metadata_t *md, string &prof_op_id, pid_t tid,
+bool Logging::log_profile_exit(Metadata &md, string &prof_op_id, pid_t tid,
                                long *omitted, int num_omitted) {
     Event *event = Logging::createEvent(md, prof_op_id);
-    event->addInfo((char *)"Label", "exit");
+    event->addInfo((char *)"Label", Logging::exit);
     event->addInfo((char *)"TID", (long)tid);
     event->addInfo((char *)"SnapshotsOmitted", omitted, num_omitted);
 
@@ -47,7 +55,7 @@ bool Logging::log_profile_exit(oboe_metadata_t *md, string &prof_op_id, pid_t ti
     return Logging::log_profile_event(event);
 }
 
-bool Logging::log_profile_snapshot(oboe_metadata_t* md,
+bool Logging::log_profile_snapshot(Metadata &md,
                                    string &prof_op_id,
                                    long timestamp,
                                    std::vector<FrameData> const &new_frames,
@@ -59,7 +67,7 @@ bool Logging::log_profile_snapshot(oboe_metadata_t* md,
 
     Event *event = Logging::createEvent(md, prof_op_id);
     event->addInfo((char *)"Timestamp_u", timestamp);
-    event->addInfo((char *)"Label", "info");
+    event->addInfo((char *)"Label", Logging::info);
 
     event->addInfo((char *)"SnapshotsOmitted", omitted, num_omitted);
     event->addInfo((char *)"NewFrames", new_frames);
@@ -67,12 +75,11 @@ bool Logging::log_profile_snapshot(oboe_metadata_t* md,
     event->addInfo((char *)"FramesCount", total_frames);
     event->addInfo((char *)"TID", (long)tid);
 
-
     return Logging::log_profile_event(event);
 }
 
 bool Logging::log_profile_event(Event *event) {
-        event->addInfo((char *)"Spec", "profiling");
+        event->addInfo((char *)"Spec", Logging::profiling);
         event->addHostname();
         event->addInfo((char *)"PID", (long)AO_GETPID());
         event->addInfo((char *)"X-Trace", event->metadataString());

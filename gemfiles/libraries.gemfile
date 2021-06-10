@@ -21,6 +21,8 @@ gem 'dalli'
 gem 'excon'
 gem 'faraday'
 gem 'graphql', '~> 1.11.7' #, :path => "/code/graphql-ruby" # keep for local testing/debugging
+# gem 'graphql', '1.8.7' #, :path => "/code/graphql-ruby" # keep for local testing/debugging
+# gem 'em-http-request'
 gem 'httpclient'
 gem 'logging'
 gem 'lumberjack'

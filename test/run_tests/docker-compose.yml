@@ -49,11 +49,6 @@ x-ao-shared: &ao-shared
       max-size: "100m"
   ports:
     - "3000"
-#  volumes:
-#    - ../../:/code/ruby-appoptics
-#    - /dev/null:/sys/fs/cgroup
-#       - ../../../graphql-ruby-clone/:/code/graphql-ruby
-#       - /Users/maiaengeli/workspace/repos/grpc:/grpc_ruby
   depends_on:
     - ao-ruby-rabbitmq
     - ao-ruby-mysql
@@ -67,6 +62,13 @@ x-ao-shared: &ao-shared
   stdin_open: true
   tty: true
 
+#  volumes:
+#    - ../../:/code/ruby-appoptics
+#    - /dev/null:/sys/fs/cgroup
+#       - ../../../graphql-ruby-clone/:/code/graphql-ruby
+#       - /Users/maiaengeli/workspace/repos/grpc:/grpc_ruby
+
+
 services:
   ruby_appoptics_ubuntu:
     container_name: ruby_appoptics_ubuntu
@@ -79,6 +81,7 @@ services:
     volumes:
       - ../../:/code/ruby-appoptics
       - ./.ruby_version_ubuntu:/code/ruby-appoptics/.ruby-version
+      - ../../../oboe/liboboe:/code/oboe/liboboe
     #       - ../../../graphql-ruby-clone/:/code/graphql-ruby
     #       - /Users/maiaengeli/workspace/repos/grpc:/grpc_ruby
     environment:
@@ -95,6 +98,7 @@ services:
     <<: *ao-shared
     volumes:
       - ../../:/code/ruby-appoptics
+      - ../../../oboe/liboboe:/code/oboe/liboboe
       - ./.ruby_version_alpine:/code/ruby-appoptics/.ruby-version
     environment:
       <<: *ao-env
@@ -110,7 +114,7 @@ services:
     << : *ao-shared
     volumes:
       - ../../:/code/ruby-appoptics
-      - ../../../oboe/liboboe:/code/oboe
+      - ../../../oboe/liboboe:/code/oboe/liboboe
       - ./.ruby_version_debian:/code/ruby-appoptics/.ruby-version
     environment:
       << : *ao-env
@@ -126,6 +130,7 @@ services:
     << : *ao-shared
     volumes:
       - ../../:/code/ruby-appoptics
+      - ../../../oboe/liboboe:/code/oboe/liboboe
       - ./.ruby_version_centos:/code/ruby-appoptics/.ruby-version
       - ../../../../repos/rack-cache/:/rack-cache
     environment:

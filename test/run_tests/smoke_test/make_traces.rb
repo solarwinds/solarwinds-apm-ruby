@@ -2,22 +2,9 @@
 # All rights reserved.
 
 ###############################################################
-# SDK EXAMPLES
+# TEST CASES WITH SDK METHODS
 ###############################################################
-# The uses cases of the SDK include:
-# - tracing a piece of your own code
-# - tracing a method call of a gem that is not auto-instrumented
-#   by appoptics_apm
-#
-# SDK documentation:
-# https://rubydoc.info/gems/appoptics_apm/AppOpticsAPM/SDK
-
-###############################################################
-# Prerequisits
-# export APPOPTICS_SERVICE_KEY=<API token>:<service_name>
-# `bundle exec ruby sdk_examples.rb`
-# 5 traced requests will show up at https://my.appoptics.com/
-###############################################################
+# these are used by the GitHub action ... with traces showing up in staging
 
 require 'appoptics_apm'
 
@@ -41,7 +28,7 @@ end
 #
 # The argument is the name for the span
 
-AppOpticsAPM::SDK.trace(name) do
+AppOpticsAPM::SDK.trace("#{name}_no_show") do
   [9, 6, 12, 2, 7, 1, 9, 3, 4, 14, 5, 8].sort
 end
 
@@ -53,8 +40,8 @@ end
 # This method starts a trace.  It is handy for background jobs,
 # workers, or scripts, that are not part of a rack application
 
-AppOpticsAPM::SDK.start_trace("start_#{name}") do
-  AppOpticsAPM::SDK.trace("first_#{name}") do
+AppOpticsAPM::SDK.start_trace("#{name}_top") do
+  AppOpticsAPM::SDK.trace("#{name}_span") do
     [9, 6, 12, 2, 7, 1, 9, 3, 4, 14, 5, 8].sort
     AppOpticsAPM::SDK.log_info({ some: :fancy, hash: :to, send: 1 })
   end
@@ -64,11 +51,10 @@ end
 # START A TRACE AND PROFILE
 ###############################################################
 #
-# AppOpticsAPM::SDK.start_trace()
-# This method starts a trace.  It is handy for background jobs,
-# workers, or scripts, that are not part of a rack application
+# AppOpticsAPM::Profiling.run
+# This method adds profiling for the code executed in the block
 
-AppOpticsAPM::SDK.start_trace("start_#{name}") do
+AppOpticsAPM::SDK.start_trace("#{name}_profiling") do
   AppOpticsAPM::Profiling.run do
     10.times do
       [9, 6, 12, 2, 7, 1, 9, 3, 4, 14, 5, 8].sort
@@ -90,7 +76,7 @@ def do_raise
   raise StandardError.new("oops")
 end
 
-AppOpticsAPM::SDK.start_trace("exception_#{name}") do
+AppOpticsAPM::SDK.start_trace("#{name}_exception") do
   begin
     do_raise
   rescue => e
@@ -118,7 +104,7 @@ AppOpticsAPM::SDK.trace_method(ExampleModule,
                                { name: 'computation', backtrace: true },
                                { CustomKey: "some_info"})
 
-AppOpticsAPM::SDK.start_trace("method_#{name}") do
+AppOpticsAPM::SDK.start_trace("#{name}_method") do
   ExampleModule.do_sum(1, 2)
   ExampleModule.do_sum(3, 4)
 end
@@ -135,10 +121,7 @@ end
 
 class FakeController
   def create(params)
-    # @fake = fake.new(params.permit(:type, :title))
-    # @fake.save
-    AppOpticsAPM::SDK.set_transaction_name("tr_name_#{params[:name]}")
-    # redirect_to @fake
+    AppOpticsAPM::SDK.set_transaction_name("#{params[:name]}_transaction_name")
   end
 end
 
@@ -156,7 +139,7 @@ end
 
 AppOpticsAPM::Config[:log_traceId] = :always
 
-AppOpticsAPM::SDK.start_trace("log_trace_id_#{name}") do
+AppOpticsAPM::SDK.start_trace("#{name}_log_trace_id") do
   trace = AppOpticsAPM::SDK.current_trace
-  AppOpticsAPM.logger.warn "Logging the TraceId: #{trace.for_log}"
+  AppOpticsAPM.logger.warn "Find this TraceId in the logs: #{trace.for_log}"
 end

@@ -1,3 +1,6 @@
+# This file contains code for manual testing
+# some of it is commented out, but may come in handy at some point
+
 require 'prime'
 require 'appoptics_apm'
 # require 'bson'

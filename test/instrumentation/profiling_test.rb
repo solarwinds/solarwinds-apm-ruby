@@ -51,7 +51,7 @@ describe "Profiling: " do
 
     assert_equal 1, traces.select { |tr| tr['Label'] == 'entry' }.size, "no entry found #{traces.pretty_inspect}"
     assert traces.select { |tr| tr['Label'] == 'exit'}.size >= 1
-    assert_equal 1, traces.select { |tr| tr['Label'] == 'exit' }.size
+    assert_equal 1, traces.select { |tr| tr['Label'] == 'exit' }.size, "no exit found"
 
     tid = AppOpticsAPM::CProfiler.get_tid
 

@@ -37,6 +37,13 @@ RUN apt-get update \
        zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# install node (newer version than what apt-get would install)
+RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -  \
+    && apt-get install nodejs -y --no-install-recommends
+
+# install yarn
+RUN curl -o- -L https://yarnpkg.com/install.sh | bash
+
 # rbenv setup
 # use rbenv-default-gems to automatically install bundler for each ruby version
 RUN  git clone https://github.com/rbenv/rbenv.git ~/.rbenv \

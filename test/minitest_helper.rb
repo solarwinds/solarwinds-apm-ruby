@@ -98,36 +98,38 @@ AppOpticsAPM::Config[:sample_rate] = 1000000
 # puts %x{mysql -u root -e 'create database travis_ci_test;'}
 # puts %x{psql -c 'create database travis_ci_test;' -U postgres}
 
-# Our background Rack-app for http client testing
-if ENV['BUNDLE_GEMFILE'] && File.basename(ENV['BUNDLE_GEMFILE']) =~ /libraries|frameworks|instrumentation|noop/
-  require './test/servers/rackapp_8101'
-end
 
-# Conditionally load other background servers
-# depending on what we're testing
+# TODO uncomment !!!
+# # Our background Rack-app for http client testing
+# if ENV['BUNDLE_GEMFILE'] && File.basename(ENV['BUNDLE_GEMFILE']) =~ /libraries|frameworks|instrumentation|noop/
+#   require './test/servers/rackapp_8101'
+# end
 #
-case File.basename(ENV['BUNDLE_GEMFILE'])
-when /delayed_job/
-  require './test/servers/delayed_job'
-
-when /rails[56]/
-  require './test/servers/rails5x_8140'
-  sleep 1
-  require './test/servers/rails5x_api_8150'
-when /rails4/
-  require './test/servers/rails4x_8140'
-
-when /frameworks/
-when /libraries/
-  require 'rack/test'
-
-  # Load Sidekiq if TEST isn't defined or if it is, it calls
-  # out the sidekiq tests
-  # Background Sidekiq thread
-  unless (ENV.key?('TEST') && ENV['TEST'] =~ /sidekiq/) || (/benchmark/ =~ $0)
-    require './test/servers/sidekiq.rb'
-  end
-end
+# # Conditionally load other background servers
+# # depending on what we're testing
+# #
+# case File.basename(ENV['BUNDLE_GEMFILE'])
+# when /delayed_job/
+#   require './test/servers/delayed_job'
+#
+# when /rails[56]/
+#   require './test/servers/rails5x_8140'
+#   sleep 1
+#   require './test/servers/rails5x_api_8150'
+# when /rails4/
+#   require './test/servers/rails4x_8140'
+#
+# when /frameworks/
+# when /libraries/
+#   require 'rack/test'
+#
+#   # Load Sidekiq if TEST isn't defined or if it is, it calls
+#   # out the sidekiq tests
+#   # Background Sidekiq thread
+#   unless (ENV.key?('TEST') && ENV['TEST'] =~ /sidekiq/) || (/benchmark/ =~ $0)
+#     require './test/servers/sidekiq.rb'
+#   end
+# end
 
 
 ##

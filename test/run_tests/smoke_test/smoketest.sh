@@ -9,11 +9,11 @@ path=$(dirname "$0")
 export APPOPTICS_COLLECTOR=collector-stg.appoptics.com
 unset APPOPTICS_REPORTER
 unset APPOPTICS_FROM_S3
-export OBOE_WIP
+unset OBOE_WIP
 
 # bundler has a problem resolving the gem in packagecloud
 # when defining the gemfile via BUNDLE_GEMFILE
-# export BUNDLE_GEMFILE=$path/Gemfile
+# therefore there is a step to clean the gems between runs
 
 for version in 3.0.0 2.7.0 2.6.5 2.5.5 2.4.5
 do
@@ -29,7 +29,7 @@ do
   rm -f $path/GemFile.lock
   bundle update
 
-  bundle exec ruby $path/threads_for_profiling.rb
+  bundle exec ruby $path/make_traces.rb
 
 done
 

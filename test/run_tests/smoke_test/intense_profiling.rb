@@ -6,21 +6,21 @@ AppOpticsAPM::Config[:sample_rate] = 1000000 if defined? AppOpticsAPM
 def massive_fun(temps)
   aa = Array.new
   4.times do
-  5.times do
     5.times do
-      4.times do
-        temps.sort.reverse
-        aa << "it is too #{temps.shuffle!.first}"
-        aa.reverse.size
-        # puts "............................... #{aa.last} ......................."
-        aa.delete_if do |a|
-          a =~ /[l|r]/
+      5.times do
+        4.times do
+          temps.sort.reverse
+          aa << "it is too #{temps.shuffle!.first}"
+          aa.reverse.size
+          # puts "............................... #{aa.last} ......................."
+          aa.delete_if do |a|
+            a =~ /[l|r]/
+          end
+          # sleep 0.01
         end
-        # sleep 0.01
       end
     end
-  end
-  # sleep 0.01
+    # sleep 0.01
   end
 end
 
@@ -86,31 +86,56 @@ ENV['WITH_PROFILING']='true'
 puts "initial: #{`ps -o rss -p #{$$}`.lines.last}"
 # warmup
 start = Time.now
-AppOpticsAPM::SDK.start_trace("do_stuff") do
-  10_000.times do
-    if ENV['WITH_PROFILING'] == 'true'
-      AppOpticsAPM::Profiling.run do
-        Stuff.do_stuff
+th = []
+
+5.times do
+  fork do
+    3_000.times do
+      t = Thread.new do
+        AppOpticsAPM::SDK.start_trace("do_stuff") do
+          1_000.times do
+            if ENV['WITH_PROFILING'] == 'true'
+              AppOpticsAPM::Profiling.run do
+                Stuff.do_stuff
+              end
+            else
+              Stuff.do_stuff
+            end
+          end
+        end
       end
-    else
-      Stuff.do_stuff
+      th << t
     end
+    th.each { |t| t.join }
   end
+  pid = Process.wait
 end
+
 puts "warmup: #{`ps -o rss -p #{$$}`.lines.last}"
 puts "warmup time: #{Time.now - start}"
 
 start = Time.now
-AppOpticsAPM::SDK.start_trace("do_stuff") do
-  400_000.times do
-    if ENV['WITH_PROFILING'] == 'true'
-      AppOpticsAPM::Profiling.run do
-        Stuff.do_stuff
+5.times do
+  fork do
+    3_000.times do
+      t = Thread.new do
+        AppOpticsAPM::SDK.start_trace("do_stuff") do
+          4_000.times do
+            if ENV['WITH_PROFILING'] == 'true'
+              AppOpticsAPM::Profiling.run do
+                Stuff.do_stuff
+              end
+            else
+              Stuff.do_stuff
+            end
+          end
+        end
       end
-    else
-      Stuff.do_stuff
+      th << t
     end
-  end
+    th.each { |t| t.join }
+    end
+  pid = Process.wait
 end
 
 puts "final: #{`ps -o rss -p #{$$}`.lines.last}"

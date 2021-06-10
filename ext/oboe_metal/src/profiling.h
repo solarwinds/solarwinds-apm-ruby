@@ -1,34 +1,35 @@
+// Copyright (c) 2021 SolarWinds, LLC.
+// All rights reserved.
 
 #ifndef PROFILING_H
 #define PROFILING_H
 
 #include <ruby/ruby.h>
-#include <ruby/intern.h>
 #include <ruby/debug.h>
 #include <signal.h>
-#include <sys/time.h>
-#include <string>
+#include <time.h>
+
+#include <atomic>
+#include <functional>
 #include <unordered_map>
-#include <thread>
+#include <vector>
 
-#include "oboe.hpp"
+#include "frames.h"
+#include "logging.h"
+#include "oboe_api.hpp"
 
-#define FP_ENABLE true
-#include "function_profiler.hpp"
 
-#include <boost/thread/thread.hpp>
-#include <boost/lockfree/spsc_queue.hpp>
-// #include <boost/date_time/posix_time/posix_time.hpp>
-// #include <boost/atomic.hpp>
-
-oboe_metadata_t *md;
+using namespace std;
 
 #define BUF_SIZE 2048
 
-#define FP_ENABLE true
-#include "function_profiler.hpp"
 
-using namespace std;
+// these definitions are based on the assumption that there are no
+// frames with VALUE == 1 or VALUE == 2 in Ruby
+// profiling won't blow up if there are, because there is also a check to see
+// if the stack has size == 1 when assuming what these frames refer to
+#define PR_OTHER_THREAD 1
+#define PR_IN_GC 2
 
 #if !defined(AO_GETTID)
      #if defined(_WIN32)
@@ -42,39 +43,44 @@ using namespace std;
      #endif
 #endif
 
-typedef struct msg {
-   VALUE frames_buffer[BUF_SIZE];
-   int num;
-   pid_t tid;
-   long ts;
-   string xtrace;
-} msg_t;
 
 class Profiling {
    public:
-    static void profiler_record_frames(void *data);
+    static void create_sigaction();
+    static void create_timer();
+
+    static int try_catch_shutdown(std::function<int()>, const string& fun_name);
+    // The following are made available to Ruby and have to return VALUE
+    static VALUE profiling_run(VALUE self, VALUE rb_thread_val, VALUE interval);
+    static VALUE get_interval();
+    static VALUE set_interval(VALUE self, VALUE interval);
+    static VALUE getTid();
+
+   private:
+    static void profiling_start(pid_t tid);
+
+    // This is used via rb_ensure and therefore needs VALUE as a return type
+    static VALUE profiling_stop(pid_t tid);
+
+    static void profiler_signal_handler(int sigint,
+                                        siginfo_t* siginfo,
+                                        void* ucontext);
+    static void profiler_job_handler(void* data);
+    static void profiler_gc_handler(void* data);
+
     static void process_snapshot(VALUE* frames_buffer,
                                  int num,
                                  pid_t tid,
                                  long ts);
-    static void profiler_signal_handler(int sigint,
-                                        siginfo_t* siginfo,
-                                        void* ucontext);
-    static VALUE profiling_start(pid_t tid);
-    static VALUE profiling_stop(pid_t tid);
-    static VALUE profiling_run(VALUE self);
-    static VALUE profiling_running_p(VALUE self);
-    static VALUE get_interval(VALUE self);
-    static VALUE set_interval(int argc, VALUE* argv, VALUE self);
-   //  static VALUE set_app_root(int, VALUE*, VALUE);
+    static void profiler_record_frames();
+    static void profiler_record_gc();
+    static void send_omitted(pid_t tid, long ts);
+
+    // wrapper for exception handling
+    // This is used when catching an exception
+    static void shut_down();
 };
 
 extern "C" void Init_profiling(void);
-
-class Processing {
-   public:
-    static void consumer();
-    static void process(msg_t message);
-};
 
 #endif // PROFILING_H

@@ -10,12 +10,14 @@ using namespace std;
 
 extern "C" int oboe_gettimeofday(struct timeval *tv);
 
+
 class Logging {
    public:
-    static bool log_profile_entry(oboe_metadata_t* md, string &prof_op_id, pid_t tid, long interval);
-    static bool log_profile_exit(oboe_metadata_t *md, string &prof_op_id, pid_t tid,
+    static const string profiling, ruby, entry, info, exit;
+    static bool log_profile_entry(Metadata &md, string &prof_op_id, pid_t tid, long interval);
+    static bool log_profile_exit(Metadata &md, string &prof_op_id, pid_t tid,
                                  long *omitted, int num_omitted);
-    static bool log_profile_snapshot(oboe_metadata_t *md,
+    static bool log_profile_snapshot(Metadata &md,
                                      string &prof_op_id,
                                      long timestamp,
                                      std::vector<FrameData> const &new_frames,
@@ -26,7 +28,7 @@ class Logging {
                                      pid_t tid);
 
    private:
-    static Event *createEvent(oboe_metadata_t *md, string &prof_op_id, bool entry_event = false);
+    static Event *createEvent(Metadata &md, string &prof_op_id, bool entry_event = false);
     static bool log_profile_event(Event *event);
 };
 
