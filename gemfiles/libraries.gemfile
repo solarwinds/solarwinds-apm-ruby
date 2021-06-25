@@ -3,7 +3,7 @@ source "https://rubygems.org"
 # gem 'moped', '>= 2.0.7' # only test this in oldgems, it was last updated in 2015
 gem 'eventmachine', '< 1.2.0'
 gem 'em-synchrony'
-# gem 'em-http-request'
+gem 'em-http-request'
 gem 'rest-client'
 
 # doesn't install well on alpine, explained here:
