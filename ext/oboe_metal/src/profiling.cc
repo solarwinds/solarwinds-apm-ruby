@@ -44,6 +44,11 @@ typedef struct prof_data {
 
 unordered_map<pid_t, prof_data_t> prof_data_map;
 
+const string Profiling::string_job_handler = "Profiling::profiler_job_handler()";
+const string Profiling::string_gc_handler = "Profiling::profiler_gc_handler()";
+const string Profiling::string_signal_handler = "Profiling::profiler_signal_handler()";
+const string Profiling::string_stop = "Profiling::profiling_stop()";
+
 // for debugging only
 void print_prof_data_map() {
     pid_t tid = AO_GETTID;
@@ -191,7 +196,7 @@ void Profiling::profiler_job_handler(void *data) {
     try_catch_shutdown([&]() {
         Profiling::profiler_record_frames();
         return 0;  // block needs an int returned
-    }, "Profiling::profiler_job_handler()");
+    }, Profiling::string_job_handler);
 
     in_job_handler = false;
 }
@@ -205,26 +210,29 @@ void Profiling::profiler_gc_handler(void *data) {
     try_catch_shutdown([]() {
         Profiling::profiler_record_gc();
         return 0;  // block needs an int returned
-    }, "Profiling::profiler_gc_handler()");
+    }, Profiling::string_gc_handler);
 
     in_gc_handler = false;
 }
 
-void Profiling::profiler_signal_handler(int sigint, siginfo_t *siginfo, void *ucontext) {
+////////////////////////////////////////////////////////////////////////////////
+// THIS IS THE SIGNAL HANDLER FUNCTION
+// ONLY ASYNC-SAFE FUNCTIONS ALLOWED IN HERE (no exception handling !!!)
+////////////////////////////////////////////////////////////////////////////////
+extern "C" void profiler_signal_handler(int sigint, siginfo_t *siginfo, void *ucontext) {
     static std::atomic_bool in_signal_handler{false};
 
     // atomically replaces the value of the object, returns the value held previously
+    // also keeps in_signal_handler lock_free -> asyn-safe
     if (in_signal_handler.exchange(true)) return;
 
-     // TODO this may be problematic inside of signal handler
-     try_catch_shutdown([]() {
-        if (rb_during_gc()) {
-            rb_postponed_job_register(0, profiler_gc_handler, (void *)0);
-        } else {
-            rb_postponed_job_register(0, profiler_job_handler, (void *)0);
-        }
-         return 0;  // block needs an int returned
-     }, "Profiling::profiler_signal_handler()");
+    // the following two ruby c-functions are asyn safe
+    if (rb_during_gc())
+    {
+        rb_postponed_job_register(0, Profiling::profiler_gc_handler, (void *)0);
+    } else {
+        rb_postponed_job_register(0, Profiling::profiler_job_handler, (void *)0);
+    }
 
     in_signal_handler = false;
 }
@@ -280,7 +288,7 @@ VALUE Profiling::profiling_stop(pid_t tid) {
 
         prof_data_map[tid].running_p = false;
         return 0; // block needs an int returned
-    }, "Profiling::profiling_stop()");
+    }, Profiling::string_stop);
 
     return (result == 0) ? Qtrue : Qfalse;
 }
@@ -314,15 +322,15 @@ VALUE Profiling::profiling_run(VALUE self, VALUE rb_thread_val, VALUE interval) 
                   reinterpret_cast<VALUE (*)(...)>(profiling_stop), tid);
         return Qtrue;
     } catch (const std::exception &e) {
-        string msg = "Exception in Profiling::profiling_run, can't recover, profiling shutting down";
+        string msg = "Exception in Profiling::profiling_run(), can't recover, profiling shutting down";
         OBOE_DEBUG_LOG_ERROR(OBOE_MODULE_RUBY, e.what());
         OBOE_DEBUG_LOG_HIGH(OBOE_MODULE_RUBY, msg.c_str());
-        Profiling::shut_down();
+        shut_down();
         return Qfalse;
     } catch (...) {
-        string msg = "Exception in Profiling::profiling_run, can't recover, profiling shutting down";
+        string msg = "Exception in Profiling::profiling_run(), can't recover, profiling shutting down";
         OBOE_DEBUG_LOG_ERROR(OBOE_MODULE_RUBY, msg.c_str());
-        Profiling::shut_down();
+        shut_down();
         return Qfalse;
     }
 

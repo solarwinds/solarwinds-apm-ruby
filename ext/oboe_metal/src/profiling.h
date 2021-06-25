@@ -46,10 +46,17 @@ using namespace std;
 
 class Profiling {
    public:
+    static const string string_job_handler, string_gc_handler, string_signal_handler, string_stop;
+
     static void create_sigaction();
     static void create_timer();
 
     static int try_catch_shutdown(std::function<int()>, const string& fun_name);
+    static void profiler_job_handler(void* data);
+    static void profiler_gc_handler(void* data);
+    // This is used when catching an exception
+    static void shut_down();
+
     // The following are made available to Ruby and have to return VALUE
     static VALUE profiling_run(VALUE self, VALUE rb_thread_val, VALUE interval);
     static VALUE get_interval();
@@ -62,12 +69,6 @@ class Profiling {
     // This is used via rb_ensure and therefore needs VALUE as a return type
     static VALUE profiling_stop(pid_t tid);
 
-    static void profiler_signal_handler(int sigint,
-                                        siginfo_t* siginfo,
-                                        void* ucontext);
-    static void profiler_job_handler(void* data);
-    static void profiler_gc_handler(void* data);
-
     static void process_snapshot(VALUE* frames_buffer,
                                  int num,
                                  pid_t tid,
@@ -76,9 +77,6 @@ class Profiling {
     static void profiler_record_gc();
     static void send_omitted(pid_t tid, long ts);
 
-    // wrapper for exception handling
-    // This is used when catching an exception
-    static void shut_down();
 };
 
 extern "C" void Init_profiling(void);
