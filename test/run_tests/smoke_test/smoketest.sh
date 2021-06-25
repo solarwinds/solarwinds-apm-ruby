@@ -15,7 +15,7 @@ unset OBOE_WIP
 # when defining the gemfile via BUNDLE_GEMFILE
 # therefore there is a step to clean the gems between runs
 
-for version in 3.0.0 2.7.0 2.6.5 2.5.5 2.4.5
+for version in 3.0.1 2.7.3 2.6.7 2.5.8 2.4.10
 do
   printf "\n=== $version ===\n"
   rbenv local $version

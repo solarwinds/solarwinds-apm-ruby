@@ -15,14 +15,15 @@
 #
 # The options for -r, -g, and -e have to correspond to configurations in the travis.yml file
 ##
-
+dir=`pwd`
 export BUNDLE_ALLOW_BUNDLER_DEPENDENCY_CONFLICTS=true
+export OBOE_WIP=true
 # RUBY=`rbenv local`
 
 ## Read opts
 num=-1
 copy=0
-while getopts ":r:g:e:n:" opt; do
+while getopts ":r:g:e:n:c:" opt; do
   case ${opt} in
     r ) # process option a
       ruby=$OPTARG
@@ -55,6 +56,8 @@ The values for -r, -g, and -e have to correspond to configurations in the .travi
       ;;
   esac
 done
+
+cd /code/ruby-appoptics
 
 # version=`rbenv version`
 # set -- $version
@@ -124,14 +127,14 @@ do
     if [ "$pids" != "" ]; then kill $pids; fi
   else
     echo "Problem during gem install. Skipping tests for ${args[1]}"
-    rbenv local  2.5.5
+    rbenv local  2.5.8
     exit 1 # we are not continuing here to keep ctrl-c working as expected
   fi
 
   num=$((num-1))
   if [ "$num" -eq 0 ]; then
-    rbenv local 2.5.5
-    cd -
+    rbenv local 2.5.8
+    cd $dir
     exit
   fi
 done
@@ -145,4 +148,4 @@ if [ "$copy" -eq 1 ]; then
 fi
 
 rbenv local $RUBY
-cd -
+cd $dir

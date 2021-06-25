@@ -19,7 +19,7 @@ rm -f Gemfile.lock
 rm -f gemfiles/*.lock
 #rm -f .ruby-version
 
-#rbenv global 2.5.5
+#rbenv global 2.5.8
 #
 #echo "Installing gems ..."
 #bundle install # --quiet

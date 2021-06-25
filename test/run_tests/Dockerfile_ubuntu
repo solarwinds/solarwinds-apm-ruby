@@ -1,12 +1,16 @@
+# Dockerfile
 # Copyright (c) 2019 SolarWinds, LLC.
 # All rights reserved.
 
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 # docker build -f Dockerfile_ubuntu -t ruby_appoptics .
 
 # docker-compose run --service-ports ruby_appoptics_apm /code/ruby-appoptics/read_travis_yml.rb [true]
-# use true to start up conatiner and install oboe
+# use true to start up container and install oboe
+
+ENV TZ=America/Vancouver
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # install OS packages
 RUN apt-get update \
@@ -21,7 +25,6 @@ RUN apt-get update \
        curl \
        gdb \
        git-core \
-       google-mock \
        less \
        libcurl4-gnutls-dev \
        libgtest-dev \
@@ -44,15 +47,15 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # install node (newer version than what apt-get would install)
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -  \
-    && apt-get install nodejs -y --no-install-recommends
+#RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -  \
+#    && apt-get install nodejs -y --no-install-recommends
 
 # install yarn
-RUN curl -o- -L https://yarnpkg.com/install.sh | bash
+#RUN curl -o- -L https://yarnpkg.com/install.sh | bash
 
 # gtest and gmock setup
-RUN cd /usr/src/gtest && cmake CMakeLists.txt && make && cp *.a /usr/lib
-RUN cd /usr/src/gmock && cmake CMakeLists.txt && make && cp *.a /usr/lib && cd
+# RUN cd /usr/src/gtest && cmake CMakeLists.txt && make && cp *.a /usr/lib
+# RUN cd /usr/src/gmock && cmake CMakeLists.txt && make && cp *.a /usr/lib && cd
 
 # rbenv setup
 # use rbenv-default-gems to automatically install bundler for each ruby version
@@ -70,19 +73,19 @@ RUN echo 'alias be="bundle exec"' >> ~/.profile
 # install rubies to build our gem against
 RUN . ~/.profile \
     && cd /root/.rbenv/plugins/ruby-build && git pull && cd - \
-    && rbenv install 2.4.5 \
-    && rbenv install 2.5.5 \
-    && rbenv install 2.6.5 \
-    && rbenv install 2.7.0 \
-    && rbenv install 3.0.0
+    && rbenv install 2.4.10 \
+    && rbenv install 2.5.8 \
+    && rbenv install 2.6.7 \
+    && rbenv install 2.7.3 \
+    && rbenv install 3.0.1
 #    && rbenv install jruby-9.1.16.0
 
 # need to provide bundler 1.17.3 as well, because some gems require bundler < 2.0
-RUN . ~/.profile && rbenv local 2.4.5 && gem install bundler -v 1.17.3
-RUN . ~/.profile && rbenv local 2.5.5 && gem install bundler -v 1.17.3
-RUN . ~/.profile && rbenv local 2.6.5 && gem install bundler -v 1.17.3
-RUN . ~/.profile && rbenv local 2.7.0 && gem install bundler -v 1.17.3
-RUN . ~/.profile && rbenv local 3.0.0 && gem install bundler -v 1.17.3
+RUN . ~/.profile && rbenv local 2.4.10 && gem install bundler -v 1.17.3
+RUN . ~/.profile && rbenv local 2.5.8 && gem install bundler -v 1.17.3
+RUN . ~/.profile && rbenv local 2.6.7 && gem install bundler -v 1.17.3
+RUN . ~/.profile && rbenv local 2.7.3 && gem install bundler -v 1.17.3
+RUN . ~/.profile && rbenv local 3.0.1 && gem install bundler -v 1.17.3
 
 RUN echo 'gem: --no-document' >> ~/.gemrc
 
