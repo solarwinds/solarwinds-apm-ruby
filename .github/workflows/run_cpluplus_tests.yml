@@ -27,16 +27,18 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install cmake and gtests
+      - name: Install cmake
         run: |
           ls -lrt /usr/src
-          apt update && apt install  -y --no-install-recommends build-essential libgtest-dev google-mock cmake ruby
-          echo "list googletest:"
-          ls -lrt /usr/src/googletest/googletest
-          ls -lrt /usr/src/googletest/googlemock
-          cd /usr/src/googletest/googletest && cmake CMakeLists.txt && make && cp *.a /usr/lib
-          cd /usr/src/googletest/googlemock && cmake CMakeLists.txt && make && cp *.a /usr/lib
-          cp -r /usr/src/googletest/googlemock/include/gmock /usr/include/
+          apt update && apt install -y --no-install-recommends build-essential libgtest-dev ruby
+          curl -OL  https://github.com/Kitware/CMake/releases/download/v3.20.5/cmake-3.20.5-SHA-256.txt
+          curl -OL https://github.com/Kitware/CMake/releases/download/v3.20.5/cmake-3.20.5.tar.gz
+          sha256sum -c --ignore-missing cmake-3.20.5-SHA-256.txt
+          tar -zxvf cmake-3.20.5.tar.gz
+          cd cmake-3.20.5
+          ./bootstrap
+          make
+          make install
 
       - name: Install swig 4.0.2
         working-directory: .github/workflows/swig
