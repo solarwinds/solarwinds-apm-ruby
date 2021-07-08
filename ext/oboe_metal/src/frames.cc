@@ -3,6 +3,8 @@
 
 #include "frames.h"
 
+using namespace std;
+
 unordered_map<VALUE, FrameData> cached_frames;
 
 // in theory the mutex is not needed, because Ruby does not context switch

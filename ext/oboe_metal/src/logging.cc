@@ -3,6 +3,8 @@
 
 #include "logging.h"
 
+using namespace std;
+
 const string Logging::profiling = "profiling";
 const string Logging::ruby = "ruby";
 const string Logging::entry = "entry";

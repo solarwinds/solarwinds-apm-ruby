@@ -18,6 +18,8 @@
 
 #define TIMER_SIG SIGRTMAX        // the timer notification signal
 
+using namespace std;
+
 static atomic_bool running;
 atomic_bool profiling_shut_down;  // !! can't be static because of tests
 
@@ -27,8 +29,8 @@ static VALUE frames_buffer[BUF_SIZE];
 static int lines_buffer[BUF_SIZE];
 
 
-long configured_interval = 10;  // in milliseconds, initializing in case Ruby forgets to
-long current_interval = 10;
+static long configured_interval = 10;  // in milliseconds, initializing in case Ruby forgets to
+static long current_interval = 10;
 timer_t timerid;
 
 typedef struct prof_data {

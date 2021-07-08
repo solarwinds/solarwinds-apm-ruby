@@ -18,11 +18,7 @@
 #include "logging.h"
 #include "oboe_api.hpp"
 
-
-using namespace std;
-
 #define BUF_SIZE 2048
-
 
 // these definitions are based on the assumption that there are no
 // frames with VALUE == 1 or VALUE == 2 in Ruby
@@ -42,7 +38,6 @@ using namespace std;
         #endif
      #endif
 #endif
-
 
 class Profiling {
    public:
@@ -76,7 +71,6 @@ class Profiling {
     static void profiler_record_frames();
     static void profiler_record_gc();
     static void send_omitted(pid_t tid, long ts);
-
 };
 
 extern "C" void Init_profiling(void);

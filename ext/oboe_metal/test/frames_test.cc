@@ -7,7 +7,6 @@
 #include "../src/profiling.h"
 #include "../src/frames.h"
 #include "gtest/gtest.h"
-#include "gmock/gmock.h"
 #include "ruby/debug.h"
 #include "ruby/ruby.h"
 #include "test.h"
