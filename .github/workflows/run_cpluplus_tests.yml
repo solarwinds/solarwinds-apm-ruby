@@ -58,8 +58,9 @@ jobs:
       - name: Compile and run tests
         working-directory: ext/oboe_metal/test
         run: |
+          export TEST_DIR=`pwd`
           export RUBY_INC_DIR=$(ruby ruby_inc_dir.rb)
           export RUBY_PREFIX=$(ruby ruby_prefix.rb)
-          cmake CMakeLists.txt
-          make
-          ./runTests
+          cmake -S . -B build
+          cmake --build build
+          cd build && ctest
