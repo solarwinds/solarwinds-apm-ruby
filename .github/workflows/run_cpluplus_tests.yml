@@ -1,0 +1,66 @@
+# Copyright (c) 2021 SolarWinds, LLC.
+# All rights reserved.
+
+name: C++ Tests
+
+on: [push]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: [3.0, 2.7, 2.6, 2.5, 2.4]
+
+    container:
+      image: ruby:${{ matrix.ruby }}
+
+    name: ${{ matrix.ruby }} - c++
+
+    env:
+      APPOPTICS_REPORTER: file
+      APPOPTICS_COLLECTOR: /tmp/appoptics_traces.bson
+      APPOPTICS_REPORTER_FILE_SINGLE: false
+      APPOPTICS_FROM_S3: true
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install cmake
+        run: |
+          ls -lrt /usr/src
+          apt update && apt install -y --no-install-recommends build-essential libgtest-dev ruby
+          curl -OL  https://github.com/Kitware/CMake/releases/download/v3.20.5/cmake-3.20.5-SHA-256.txt
+          curl -OL https://github.com/Kitware/CMake/releases/download/v3.20.5/cmake-3.20.5.tar.gz
+          sha256sum -c --ignore-missing cmake-3.20.5-SHA-256.txt
+          tar -zxvf cmake-3.20.5.tar.gz
+          cd cmake-3.20.5
+          ./bootstrap
+          make
+          make install
+
+      - name: Install swig 4.0.2
+        working-directory: .github/workflows/swig
+        run: |
+          apt update && apt install -y --no-install-recommends bison
+          tar -xf swig-v4.0.2.tar.gz -C /tmp
+          cd /tmp/swig-4.0.2
+          ./autogen.sh && ./configure && make && make install
+          cd -
+
+      - name: Bundle & download c-files
+        run: |
+          gem install bundler
+          bundle install
+          bundle exec rake clean fetch compile
+
+      - name: Compile and run tests
+        working-directory: ext/oboe_metal/test
+        run: |
+          export TEST_DIR=`pwd`
+          export RUBY_INC_DIR=$(ruby ruby_inc_dir.rb)
+          export RUBY_PREFIX=$(ruby ruby_prefix.rb)
+          cmake -S . -B build
+          cmake --build build
+          cd build && ctest

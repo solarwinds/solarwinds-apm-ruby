@@ -8,6 +8,7 @@ gem 'rake', '>= 0.9.0'
 group :development, :test do
   gem 'byebug', '>= 8.0.0'
   gem 'irb', '>= 1.0.0' # if RUBY_VERSION >= '2.6.0'
+  gem 'memory_profiler'
 end
 
 gemspec

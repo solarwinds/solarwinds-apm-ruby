@@ -174,11 +174,12 @@ describe "AppOpticsAPM::Config" do
     _(AppOpticsAPM::Config[:verbose]).must_equal true
   end
 
-  it 'should have the correct instrumentation defaults' do
+  it 'should have the correct defaults' do
     # Reset AppOpticsAPM::Config to defaults
     AppOpticsAPM::Config.initialize
 
     AppOpticsAPM::Config[:debug_level] = 3
+    _(AppOpticsAPM::Config[:profiling]).must_equal :disabled
     _(AppOpticsAPM::Config[:verbose]).must_equal false
     _(AppOpticsAPM::Config[:tracing_mode]).must_equal :enabled
     _(AppOpticsAPM::Config[:log_traceId]).must_equal :never

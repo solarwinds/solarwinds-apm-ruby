@@ -80,26 +80,26 @@ module AppOpticsAPM
 
     def array_for_oboe
       [
-        @hostname_alias,
-        @debug_level,
-        @log_file_path,
-        @max_transactions,
-        @max_flush_wait_time,
-        @events_flush_interval,
-        @event_flush_batch_size,
+        @hostname_alias,         # 0
+        @debug_level,            # 1
+        @log_file_path,          # 2
+        @max_transactions,       # 3
+        @max_flush_wait_time,    # 4
+        @events_flush_interval,  # 5
+        @event_flush_batch_size, # 6
 
-        @reporter,
-        @host,
-        @service_key,
-        @trusted_path,
-        @buffer_size,
-        @trace_metrics,
-        @histogram_precision,
-        @token_bucket_capacity,
-        @token_bucket_rate,
-        @file_single,
-        @ec2_md_timeout,
-        @grpc_proxy
+        @reporter,               # 7
+        @host,                   # 8
+        @service_key,            # 9
+        @trusted_path,           #10
+        @buffer_size,            #11
+        @trace_metrics,          #12
+        @histogram_precision,    #13
+        @token_bucket_capacity,  #14
+        @token_bucket_rate,      #15
+        @file_single,            #16
+        @ec2_md_timeout,         #17
+        @grpc_proxy              #18
       ]
     end
 
@@ -155,7 +155,7 @@ module AppOpticsAPM
     end
 
     def validate_token(token)
-      if (token !~ /^[0-9a-fA-F]{64}|[0-9a-zA-Z_-]{71}$/) && ENV['APPOPTICS_COLLECTOR'] != "sslcollector:12222"
+      if (token !~ /^[0-9a-fA-F]{64}|[0-9a-zA-Z_-]{71}$/) && ENV['APPOPTICS_COLLECTOR'] !~ /java-collector:1222/
         masked = "#{token[0..3]}...#{token[-4..-1]}"
         AppOpticsAPM.logger.error "[appoptics_apm/oboe_options] APPOPTICS_SERVICE_KEY problem. API Token in wrong format. Masked token: #{masked}"
         return false
@@ -165,7 +165,7 @@ module AppOpticsAPM
     end
 
     def validate_transform_service_name(service_name)
-      service_name = 'test_ssl_collector' if ENV['APPOPTICS_COLLECTOR'] == "sslcollector:12222"
+      service_name = 'test_ssl_collector' if ENV['APPOPTICS_COLLECTOR'] =~ /java-collector:1222/
       if service_name.empty?
         AppOpticsAPM.logger.error "[appoptics_apm/oboe_options] APPOPTICS_SERVICE_KEY problem. Service Name is missing"
         return false

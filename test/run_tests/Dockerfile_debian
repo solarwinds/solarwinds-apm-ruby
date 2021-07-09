@@ -1,7 +1,4 @@
-# Copyright (c) 2019 SolarWinds, LLC.
-# All rights reserved.
-
-FROM debian:jessie
+FROM debian:buster
 
 # docker build -f Dockerfile_ubuntu -t ruby_appoptics .
 
@@ -11,32 +8,41 @@ FROM debian:jessie
 # install OS packages
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-       apt-utils \
-       autoconf \
-       autotools-dev \
-       automake \
-       bison \
-       build-essential \
-       ca-certificates \
-       curl \
-       git-core \
-       libcurl4-gnutls-dev \
-       libmysqlclient-dev \
-       libpq-dev \
-       libpcre3-dev \
-       libreadline-dev \
-       libsasl2-dev \
-       libsqlite3-dev \
-       libssl-dev \
-#       openjdk-8-jdk \ # TODO do we need this?
-       psmisc \
-       vim \
-       less \
-       tcl \
-       tmux \
-       tree \
-       zlib1g-dev \
+        apt-utils \
+          autoconf \
+          autotools-dev \
+          automake \
+          bison \
+          build-essential \
+          cmake \
+          curl \
+          gdb \
+          git-core \
+          google-mock \
+          less \
+          libcurl4-gnutls-dev \
+          libgtest-dev \
+          libmysqlclient-dev \
+          libpq-dev \
+          libpcre3-dev \
+          libreadline-dev \
+          libsasl2-dev \
+          libsqlite3-dev \
+          libssl-dev \
+          openjdk-8-jdk \
+          pkg-config \
+          psmisc \
+          ruby \
+          tcl \
+          tmux \
+          tree \
+          vim \
+          zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
+
+# gtest and gmock setup
+RUN cd /usr/src/gtest && cmake CMakeLists.txt && make && cp *.a /usr/lib
+RUN cd /usr/src/gmock && cmake CMakeLists.txt && make && cp *.a /usr/lib && cd
 
 # rbenv setup
 # use rbenv-default-gems to automatically install bundler for each ruby version
@@ -54,18 +60,18 @@ RUN echo 'alias be="bundle exec"' >> ~/.profile
 # install rubies to build our gem against
 RUN . ~/.profile \
     && cd /root/.rbenv/plugins/ruby-build && git pull && cd - \
-#    && rbenv install 2.4.5 \
-#    && rbenv install 2.5.5 \
-#    && rbenv install 2.6.5 \
-#    && rbenv install 2.7.0 \
-    && rbenv install 3.0.0
+#    && rbenv install 2.4.10 \
+#    && rbenv install 2.5.8 \
+#    && rbenv install 2.6.7 \
+#    && rbenv install 2.7.3 \
+    && rbenv install 3.0.1
 
 # need to provide bundler 1.17.3 as well, because some gems require bundler < 2.0
-#RUN . ~/.profile && rbenv local 2.4.5 && gem install bundler -v 1.17.3
-#RUN . ~/.profile && rbenv local 2.5.5 && gem install bundler -v 1.17.3
-#RUN . ~/.profile && rbenv local 2.6.5 && gem install bundler -v 1.17.3
-#RUN . ~/.profile && rbenv local 2.7.0 && gem install bundler -v 1.17.3
-RUN . ~/.profile && rbenv local 3.0.0 && gem install bundler -v 1.17.3
+#RUN . ~/.profile && rbenv local 2.4.10 && gem install bundler -v 1.17.3
+#RUN . ~/.profile && rbenv local 2.5.8 && gem install bundler -v 1.17.3
+#RUN . ~/.profile && rbenv local 2.6.7 && gem install bundler -v 1.17.3
+#RUN . ~/.profile && rbenv local 2.7.3 && gem install bundler -v 1.17.3
+RUN . ~/.profile && rbenv local 3.0.1 && gem install bundler -v 1.17.3
 
 RUN echo 'gem: --no-document' >> ~/.gemrc
 

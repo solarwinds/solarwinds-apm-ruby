@@ -98,14 +98,15 @@ AppOpticsAPM::Config[:sample_rate] = 1000000
 # puts %x{mysql -u root -e 'create database travis_ci_test;'}
 # puts %x{psql -c 'create database travis_ci_test;' -U postgres}
 
+
 # Our background Rack-app for http client testing
-unless File.basename(ENV['BUNDLE_GEMFILE']) =~ /unit/ || /benchmark/ =~ $0
+if ENV['BUNDLE_GEMFILE'] && File.basename(ENV['BUNDLE_GEMFILE']) =~ /libraries|frameworks|instrumentation|noop/
   require './test/servers/rackapp_8101'
 end
-
-# Conditionally load other background servers
-# depending on what we're testing
 #
+# # Conditionally load other background servers
+# # depending on what we're testing
+# #
 case File.basename(ENV['BUNDLE_GEMFILE'])
 when /delayed_job/
   require './test/servers/delayed_job'
@@ -135,9 +136,9 @@ end
 #
 # Truncates the trace output file to zero
 #
-def clear_all_traces
+def clear_all_traces(clear_context = true)
   if AppOpticsAPM.loaded && ENV['APPOPTICS_REPORTER'] == 'file'
-    AppOpticsAPM::Context.clear
+    AppOpticsAPM::Context.clear if clear_context
     AppOpticsAPM::Reporter.clear_all_traces
     sleep 0.2 # it seems like the docker file system needs a bit of time to clear the file
   end

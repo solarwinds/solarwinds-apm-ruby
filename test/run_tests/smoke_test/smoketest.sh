@@ -5,15 +5,17 @@
 
 path=$(dirname "$0")
 
+# assuming APPOPTICS_SERVICE_KEY is set
 export APPOPTICS_COLLECTOR=collector-stg.appoptics.com
 unset APPOPTICS_REPORTER
 unset APPOPTICS_FROM_S3
+unset OBOE_WIP
 
 # bundler has a problem resolving the gem in packagecloud
 # when defining the gemfile via BUNDLE_GEMFILE
-# export BUNDLE_GEMFILE=$path/Gemfile
+# therefore there is a step to clean the gems between runs
 
-for version in 2.7.0 2.6.5 2.5.5 2.4.5
+for version in 3.0.1 2.7.3 2.6.7 2.5.8 2.4.10
 do
   printf "\n=== $version ===\n"
   rbenv local $version

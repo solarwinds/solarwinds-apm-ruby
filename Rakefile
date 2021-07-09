@@ -36,24 +36,24 @@ Rake::TestTask.new do |t|
 
     if Rails::VERSION::MAJOR == 5
       t.test_files = FileList["test/frameworks/rails#{Rails::VERSION::MAJOR}x_test.rb"] +
-        FileList["test/frameworks/rails#{Rails::VERSION::MAJOR}x_api_test.rb"]
+                     FileList["test/frameworks/rails#{Rails::VERSION::MAJOR}x_api_test.rb"]
     elsif Rails::VERSION::MAJOR == 6
       t.test_files = FileList['test/frameworks/rails5x_test.rb'] +
-        FileList['test/frameworks/rails5x_api_test.rb']
+                     FileList['test/frameworks/rails5x_api_test.rb']
     else
       t.test_files = FileList["test/frameworks/rails#{Rails::VERSION::MAJOR}x_test.rb"]
     end
 
   when /frameworks/
     t.test_files = FileList['test/frameworks/sinatra*_test.rb'] +
-      FileList['test/frameworks/padrino*_test.rb'] +
-      FileList['test/frameworks/grape*_test.rb']
+                   FileList['test/frameworks/padrino*_test.rb'] +
+                   FileList['test/frameworks/grape*_test.rb']
   when /libraries/
     t.test_files = FileList['test/support/*_test.rb'] +
-      FileList['test/reporter/*_test.rb'] +
-      FileList['test/instrumentation/*_test.rb'] +
-      FileList['test/profiling/*_test.rb'] -
-      ['test/instrumentation/twitter-cassandra_test.rb']
+                   FileList['test/reporter/*_test.rb'] +
+                   FileList['test/instrumentation/*_test.rb'] +
+                   FileList['test/profiling/*_test.rb'] -
+                   ['test/instrumentation/twitter-cassandra_test.rb']
   when /instrumentation_mocked/
     # WebMock is interfering with other tests, so these have to run separately
     t.test_files = FileList['test/mocked/*_test.rb']
@@ -61,12 +61,12 @@ Rake::TestTask.new do |t|
     t.test_files = FileList['test/noop/*_test.rb']
   when /unit/
     t.test_files = FileList['test/unit/*_test.rb'] +
-      FileList['test/unit/*/*_test.rb']
+                   FileList['test/unit/*/*_test.rb']
   end
 
   if defined?(JRUBY_VERSION)
     t.ruby_opts << ['-J-javaagent:/usr/local/tracelytics/tracelyticsagent.jar']
-  end
+    end
 end
 
 
@@ -151,16 +151,17 @@ task :fetch_ext_deps do
 
   # oboe and bson header files
   FileUtils.mkdir_p(File.join(ext_src_dir, 'bson'))
-  files = %w(oboe_debug.h bson/bson.h bson/platform_hacks.h)
+  files = %w(bson/bson.h bson/platform_hacks.h)
 
   if ENV['OBOE_WIP']
     wip_src_dir = File.expand_path('../oboe/liboboe')
     FileUtils.cp(File.join(wip_src_dir, 'oboe_api.cpp'), ext_src_dir)
     FileUtils.cp(File.join(wip_src_dir, 'oboe_api.hpp'), ext_src_dir)
+    FileUtils.cp(File.join(wip_src_dir, 'oboe_debug.h'), ext_src_dir)
     FileUtils.cp(File.join(wip_src_dir, 'oboe.h'), ext_src_dir)
     FileUtils.cp(File.join(wip_src_dir, 'swig', 'oboe.i'), ext_src_dir)
   else
-    files += ['oboe.h', 'oboe_api.hpp', 'oboe_api.cpp', 'oboe.i']
+    files += ['oboe.h', 'oboe_api.hpp', 'oboe_api.cpp', 'oboe_debug.h', 'oboe.i']
   end
 
   files.each do |filename|
