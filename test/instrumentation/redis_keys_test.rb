@@ -4,6 +4,7 @@
 require 'minitest_helper'
 
 if defined?(::Redis)
+
   describe "Redis Keys" do
     attr_reader :entry_kvs, :exit_kvs, :redis, :redis_version
 
@@ -24,6 +25,11 @@ if defined?(::Redis)
       # These are standard entry/exit KVs that are passed up with all moped operations
       @entry_kvs ||= { 'Layer' => 'redis_test', 'Label' => 'entry' }
       @exit_kvs  ||= { 'Layer' => 'redis_test', 'Label' => 'exit' }
+      @exists_returns_integer = Redis.exists_returns_integer if defined? Redis.exists_returns_integer
+    end
+
+    after do
+      Redis.exists_returns_integer = @exists_returns_integer if defined? Redis.exists_returns_integer
     end
 
     it 'Stock Redis should be loaded, defined and ready' do
@@ -71,11 +77,47 @@ if defined?(::Redis)
       _(traces[2]['KVKey']).must_equal "del_test"
     end
 
-    it "should trace exists" do
+    it "should trace exists " do
+      Redis.exists_returns_integer = false if defined? Redis.exists_returns_integer
       @redis.setex("talking_heads", 60, "burning down the house")
+
 
       AppOpticsAPM::API.start_trace('redis_test', '', {}) do
         @it_exists = @redis.exists("talking_heads")
+      end
+
+      _(@it_exists).must_equal true
+
+      traces = get_all_traces
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "exists"
+      _(traces[2]['KVKey']).must_equal "talking_heads"
+    end
+
+    it "should trace exists" do
+      skip unless defined? Redis.exists_returns_integer
+      Redis.exists_returns_integer = true
+      @redis.setex("talking_heads", 60, "burning down the house")
+
+
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+        @it_exists = @redis.exists("talking_heads")
+      end
+
+      _(@it_exists).must_equal 1
+
+      traces = get_all_traces
+      _(traces.count).must_equal 4
+      _(traces[2]['KVOp']).must_equal "exists"
+      _(traces[2]['KVKey']).must_equal "talking_heads"
+    end
+
+    it "should trace exists?" do
+      skip unless defined? @redis.exists?
+      @redis.setex("talking_heads", 60, "burning down the house")
+
+      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+        @it_exists = @redis.exists?("talking_heads")
       end
 
       _(@it_exists).must_equal true
