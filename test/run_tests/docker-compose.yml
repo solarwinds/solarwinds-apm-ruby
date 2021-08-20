@@ -55,6 +55,7 @@ x-ao-shared: &ao-shared
     - ao_ruby_wait
   stdin_open: true
   tty: true
+  working_dir: /code/ruby-appoptics
 
 services:
   ruby_appoptics_ubuntu:

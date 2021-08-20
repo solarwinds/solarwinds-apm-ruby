@@ -4,11 +4,6 @@
 
 FROM ubuntu:18.04
 
-# docker build -f Dockerfile_ubuntu -t ruby_appoptics .
-
-# docker-compose run --service-ports ruby_appoptics_apm /code/ruby-appoptics/read_travis_yml.rb [true]
-# use true to start up container and install oboe
-
 ENV TZ=America/Vancouver
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
@@ -19,6 +14,7 @@ RUN apt-get update \
        autoconf \
        autotools-dev \
        automake \
+       bash \
        bison \
        build-essential \
        cmake \
@@ -27,7 +23,8 @@ RUN apt-get update \
        git-core \
        less \
        libcurl4-gnutls-dev \
-       libgtest-dev \
+#       libgtest-dev \
+       libmysqld-dev \
        libmysqlclient-dev \
        libpq-dev \
        libpcre3-dev \
@@ -35,6 +32,10 @@ RUN apt-get update \
        libsasl2-dev \
        libsqlite3-dev \
        libssl-dev \
+#       libssl1.0-dev \
+#       nodejs-dev \
+#       node-gyp \
+       nodejs \
        openjdk-8-jdk \
        pkg-config \
        psmisc \
@@ -46,16 +47,26 @@ RUN apt-get update \
        zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# install node (newer version than what apt-get would install)
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -  \
-    && apt-get install nodejs -y --no-install-recommends
+# apt now installs cmake version 3.16, which is sufficient
+# install cmake
+# never version that apt-get would install
+# https://github.com/Kitware/CMake/releases/download/v3.20.5/cmake-3.20.5.tar.gz
+#
+#RUN curl -OL  https://github.com/Kitware/CMake/releases/download/v3.20.5/cmake-3.20.5-SHA-256.txt \
+#   && curl -OL https://github.com/Kitware/CMake/releases/download/v3.20.5/cmake-3.20.5.tar.gz \
+#   && sha256sum -c --ignore-missing cmake-3.20.5-SHA-256.txt \
+#   && tar -zxvf cmake-3.20.5.tar.gz \
+#   && cd cmake-3.20.5 \
+#   && ./bootstrap \
+#   && make \
+#   && make install \
+#   && cd .. \
+#   && /bin/rm -r cmake-3.20.5
+
+
 
 # install yarn
 #RUN curl -o- -L https://yarnpkg.com/install.sh | bash
-
-# gtest and gmock setup
-# RUN cd /usr/src/gtest && cmake CMakeLists.txt && make && cp *.a /usr/lib
-# RUN cd /usr/src/gmock && cmake CMakeLists.txt && make && cp *.a /usr/lib && cd
 
 # rbenv setup
 # use rbenv-default-gems to automatically install bundler for each ruby version
@@ -75,17 +86,17 @@ RUN . ~/.profile \
     && cd /root/.rbenv/plugins/ruby-build && git pull && cd - \
     && rbenv install 2.4.10 \
     && rbenv install 2.5.8 \
-    && rbenv install 2.6.7 \
-    && rbenv install 2.7.3 \
-    && rbenv install 3.0.1
+    && rbenv install 2.6.8 \
+    && rbenv install 2.7.4 \
+    && rbenv install 3.0.2
 #    && rbenv install jruby-9.1.16.0
 
 # need to provide bundler 1.17.3 as well, because some gems require bundler < 2.0
 RUN . ~/.profile && rbenv local 2.4.10 && gem install bundler -v 1.17.3
 RUN . ~/.profile && rbenv local 2.5.8 && gem install bundler -v 1.17.3
-RUN . ~/.profile && rbenv local 2.6.7 && gem install bundler -v 1.17.3
-RUN . ~/.profile && rbenv local 2.7.3 && gem install bundler -v 1.17.3
-RUN . ~/.profile && rbenv local 3.0.1 && gem install bundler -v 1.17.3
+RUN . ~/.profile && rbenv local 2.6.8 && gem install bundler -v 1.17.3
+RUN . ~/.profile && rbenv local 2.7.4 && gem install bundler -v 1.17.3
+RUN . ~/.profile && rbenv local 3.0.2 && gem install bundler -v 1.17.3
 
 RUN echo 'gem: --no-document' >> ~/.gemrc
 
@@ -98,27 +109,33 @@ RUN curl -SL https://github.com/swig/swig/archive/refs/tags/v4.0.2.tar.gz \
     && cd - \
     && rm -rf /tmp/swig-4.0.2
 
-# install redis-server version 4++
-RUN curl -SL http://download.redis.io/releases/redis-4.0.0.tar.gz | tar xzC /tmp \
-    && cd /tmp/redis-4.0.0/ \
+# install redis-server
+RUN curl -SL https://download.redis.io/releases/redis-6.2.4.tar.gz | tar xzC /tmp \
+    && cd /tmp/redis-6.2.4/ \
     && make  && make install && cd -
 
 # install postgres and memcached
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-       memcached \
-       postgresql \
-       postgresql-contrib \
-    && service postgresql start \
-    && echo "psql --command \"CREATE USER docker WITH SUPERUSER PASSWORD 'docker';\"" >> /tmp/config \
-    && echo "createdb -O docker travis_ci_test" >> /tmp/config \
-    && su postgres -c "bash /tmp/config" \
-    && rm -f /tmp/config
+       memcached
+#       postgresql \
+#       postgresql-contrib \
+#    && service postgresql start \
+#    && echo "psql --command \"CREATE USER docker WITH SUPERUSER PASSWORD 'docker';\"" >> /tmp/config \
+#    && echo "createdb -O docker travis_ci_test" >> /tmp/config \
+#    && su postgres -c "bash /tmp/config" \
+#    && rm -f /tmp/config
 
 RUN apt-get update && \
 	apt-get -y install mysql-client libmysqlclient-dev
 
-ENV PATH="/root/.rbenv/bin:/root/.rbenv/shims:$PATH"
+
+# update node to current stable version
+# apt install npm doesn't work in the initial apt install run
+#RUN apt install -y --no-install-recommends npm && rm -rf /var/lib/apt/lists/*
+#RUN npm cache clean -f && npm install -g n && n stable
+
+ENV PATH="/usr/local/bin:/root/.rbenv/bin:/root/.rbenv/shims:$PATH"
 ENV RUBY_ENV=test
 ENV APPOPTICS_TOKEN_BUCKET_CAPACITY=10000
 ENV APPOPTICS_TOKEN_BUCKET_RATE=10000
