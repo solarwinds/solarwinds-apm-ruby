@@ -4,7 +4,7 @@ gem 'rails', '~> 5.2.3'
 gem 'sass-rails'
 gem 'uglifier'
 gem 'coffee-rails'
-gem 'therubyracer', platforms: :ruby
+# gem 'therubyracer', platforms: :ruby # not maintained anymore
 gem 'jquery-rails'
 gem 'turbolinks'
 gem 'jbuilder'
