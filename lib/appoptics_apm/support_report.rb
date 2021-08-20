@@ -25,7 +25,7 @@ module AppOpticsAPM
 
     AppOpticsAPM.logger.warn '********************************************************'
     AppOpticsAPM.logger.warn '* BEGIN AppOpticsAPM Support Report'
-    AppOpticsAPM.logger.warn '*   Please email the output of this report to support@appoptics.com'
+    AppOpticsAPM.logger.warn '*   Please email the output of this report to technicalsupport@solarwinds.com'
     AppOpticsAPM.logger.warn '********************************************************'
     AppOpticsAPM.logger.warn "Ruby: #{RUBY_DESCRIPTION}"
     AppOpticsAPM.logger.warn "$0: #{$0}"
@@ -108,7 +108,7 @@ module AppOpticsAPM
 
     AppOpticsAPM.logger.warn '********************************************************'
     AppOpticsAPM.logger.warn '* END AppOpticsAPM Support Report'
-    AppOpticsAPM.logger.warn '*   Support Email: support@appoptics.com'
+    AppOpticsAPM.logger.warn '*   Support Email: technicalsupport@solarwinds.com'
     AppOpticsAPM.logger.warn '*   Github: https://github.com/librato/ruby-appoptics'
     AppOpticsAPM.logger.warn '********************************************************'
 

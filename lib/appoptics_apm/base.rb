@@ -136,7 +136,7 @@ module AppOpticsAPMBase
   #
   def tracing_layer_op?(operation)
     unless AppOpticsAPM.layer_op.nil? || AppOpticsAPM.layer_op.is_a?(Array)
-      AppOpticsAPM.logger.error('[appopticsapm/logging] INTERNAL: layer_op should be nil or an array, please report to support@appoptics.com')
+      AppOpticsAPM.logger.error('[appopticsapm/logging] INTERNAL: layer_op should be nil or an array, please report to technicalsupport@solarwinds.com')
       return false
     end
 
