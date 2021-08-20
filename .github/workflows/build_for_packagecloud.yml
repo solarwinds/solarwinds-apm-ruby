@@ -55,14 +55,16 @@ jobs:
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
 
-      - name: Test install (give packagecloud 10 seconds to index)
-        working-directory: .github/workflows/
-        env:
-          APPOPTICS_SERVICE_KEY: ${{ secrets.APPOPTICS_SERVICE_KEY }}
-          APPOPTICS_COLLECTOR: ${{ secrets.APPOPTICS_COLLECTOR}}
-          APPOPTICS_FROM_S3: true
-        run: |
-          sleep 10
-          gem sources --add https://packagecloud.io/solarwinds/appoptics-apm-ruby/
-          gem install appoptics_apm --version ${{ steps.gemstep.outputs.GEM_VERSION }} --verbose
-          ruby ./scripts/test_install.rb
+# Run this test manually, github is having problems reading the index at packagecloud
+# TODO: AO-20355
+#      - name: Test install (give packagecloud 60 seconds to index)
+#        working-directory: .github/workflows/
+#        env:
+#          APPOPTICS_SERVICE_KEY: ${{ secrets.APPOPTICS_SERVICE_KEY }}
+#          APPOPTICS_COLLECTOR: ${{ secrets.APPOPTICS_COLLECTOR}}
+#          APPOPTICS_FROM_S3: true
+#        run: |
+#          sleep 60
+#          gem sources --add https://packagecloud.io/solarwinds/appoptics-apm-ruby
+#          gem install appoptics_apm --version ${{ steps.gemstep.outputs.GEM_VERSION }} --verbose
+#          ruby ./scripts/test_install.rb

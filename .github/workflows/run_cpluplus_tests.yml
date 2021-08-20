@@ -3,7 +3,10 @@
 
 name: C++ Tests
 
-on: [push]
+on:
+  push:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
 
 jobs:
   tests:
