@@ -6,14 +6,17 @@
 ##
 # This script sets up the environment for running the tests
 #
-# Many of the tests depend on other services like postgres, redis, memcached,
-# which will be started here.
+# Many of the tests depend on redis or memcached
+# these will be started here
 #
 # Further necessary services like mysql, rabbitmq, and mongo are setup through docker-compose
 ##
 
 dir=`pwd`
-cd /code/ruby-appoptics/
+
+# Because of github actions we now have to always run this from the
+# gem root directory
+# cd /code/ruby-appoptics
 
 rm -f Gemfile.lock
 rm -f gemfiles/*.lock
@@ -27,12 +30,23 @@ rm -f gemfiles/*.lock
 #bundle exec rake clean fetch compile
 
 echo "Starting services ..."
-## start postgres
-# runs in its own container now
-#service postgresql start
 
-## start redis with password
-redis-server --requirepass secret_pass &
+## Start redis with password
+
+## retry if this doesn't work immediately, `rm dump.rdb`
+redis_pass="${REDIS_PASSWORD:-secret_pass}"
+redis-server --requirepass $redis_pass --loglevel warning &
+attemps=3
+while [ $? -ne 0 ]; do
+  sleep 1
+  echo "retrying redis-server start up"
+  redis-server --requirepass $redis_pass &
+  attemps=$attemps-1
+  if [[ $attemps -eq 0 ]]; then
+    echo "couldn't start redis"
+    exit 1
+  fi
+done
 
 ## start memcached
 # starting it as service in docker is tricky for centos/alpine
@@ -55,11 +69,14 @@ fi
 # without influencing the test run
 if [ "$1" == "test" ]; then
   echo "Running tests ..."
-  cd test/run_tests
-  ./run_tests.sh -c
+  if [ "$2" == "copy" ]; then
+    test/run_tests/run_tests.sh -c
+  else
+    test/run_tests/run_tests.sh
+  fi
 else
   /bin/bash
 fi
 
-cd $dir
 # mysql -e 'drop database travis_ci_test;' -h$MYSQL_HOST -p$MYSQL_ROOT_PASSWORD
+cd $dir
