@@ -1,4 +1,4 @@
-FROM alpine:3.12
+FROM alpine:latest
 
 VOLUME [ "/sys/fs/cgroup" ]
 
@@ -6,58 +6,35 @@ VOLUME [ "/sys/fs/cgroup" ]
 RUN apk update
 
 # TODO I don't think grpc is needed, but grpc tests currently are SEGV in alpine
-# way too many packages, but at least one of the recenlty added :
-# coreutils
-# dpkg
-# gcc
-# gdbm
-# glib-dev
-# libffi
-# libxml
-# libxlst
-# libc
-#
-# is needed for rbenv to install ruby
 RUN apk add --upgrade \
       autoconf \
       automake \
       bash \
       bison \
       build-base \
-      cmake \
       curl \
       curl-dev \
       cyrus-sasl-dev \
-      coreutils \
-      dpkg-dev dpkg \
-      gcc \
       gcompat \
       gdb \
-      gdbm-dev \
       git \
-      glib-dev \
       grpc \
       less \
-      libffi-dev \
-      libxml2-dev \
-      libxslt-dev \
-      libc-dev \
       libpq \
       linux-headers \
       mariadb-dev \
       mysql-client \
-      nodejs \
       openjdk8 \
       openssl-dev \
       pcre \
       pcre-dev \
       postgresql-dev \
       readline-dev \
+      ruby-google-protobuf \
+      swig \
+      tmux \
       tree \
-      ttf-ubuntu-font-family \
-      tzdata \
       vim \
-      wkhtmltopdf \
       yaml \
       zlib-dev \
    && rm -rf /var/lib/apt/lists/*
@@ -77,27 +54,20 @@ RUN echo 'alias be="bundle exec"' >> ~/.profile
 
 # install rubies to build our gem against
 RUN source  ~/.profile \
-   && cd /root/.rbenv/plugins/ruby-build && git pull && cd - \
-    && rbenv install 2.4.10 \
-    && rbenv install 2.5.8 \
-    && rbenv install 2.6.8 \
-    && rbenv install 2.7.4 \
-    && rbenv install 3.0.2
+    && cd /root/.rbenv/plugins/ruby-build && git pull && cd - \
+    && rbenv install 2.4.10
+    && rbenv install 2.5.8 # \
+#   && rbenv install 2.6.7 \
+#   && rbenv install 2.7.3 \
+#   && rbenv install 3.0.1
    # && rbenv install jruby-9.0.5.0
 
 # need to provide bundler 1.17.3 as well, because some gems require bundler < 2.0
 RUN . ~/.profile && rbenv local 2.4.10 && gem install bundler -v 1.17.3
-RUN . ~/.profile && rbenv local 2.5.8 && gem install bundler -v 1.17.3
-RUN . ~/.profile && rbenv local 2.6.8 && gem install bundler -v 1.17.3
-RUN . ~/.profile && rbenv local 2.7.4 && gem install bundler -v 1.17.3
-RUN . ~/.profile && rbenv local 3.0.2 && gem install bundler -v 1.17.3
-
-# Alpine needs config.h symlinked into the default location for gtests
-RUN ln -s /root/.rbenv/versions/2.4.10/include/ruby-2.4.0/x86_64-linux-musl/ruby/config.h /root/.rbenv/versions/2.4.10/include/ruby-2.4.0/ruby/config.h
-RUN ln -s /root/.rbenv/versions/2.5.8/include/ruby-2.5.0/x86_64-linux-musl/ruby/config.h /root/.rbenv/versions/2.5.8/include/ruby-2.5.0/ruby/config.h
-RUN ln -s /root/.rbenv/versions/2.6.8/include/ruby-2.6.0/x86_64-linux-musl/ruby/config.h /root/.rbenv/versions/2.6.8/include/ruby-2.6.0/ruby/config.h
-RUN ln -s /root/.rbenv/versions/2.7.4/include/ruby-2.7.0/x86_64-linux-musl/ruby/config.h /root/.rbenv/versions/2.7.4/include/ruby-2.7.0/ruby/config.h
-RUN ln -s /root/.rbenv/versions/3.0.2/include/ruby-3.0.0/x86_64-linux-musl/ruby/config.h /root/.rbenv/versions/3.0.2/include/ruby-3.0.0/ruby/config.h
+#RUN . ~/.profile && rbenv local 2.5.8 && gem install bundler -v 1.17.3
+#RUN . ~/.profile && rbenv local 2.6.7 && gem install bundler -v 1.17.3
+#RUN . ~/.profile && rbenv local 2.7.3 && gem install bundler -v 1.17.3
+#RUN . ~/.profile && rbenv local 3.0.1 && gem install bundler -v 1.17.3
 
 RUN echo 'gem: --no-document' >> ~/.gemrc
 
@@ -106,10 +76,19 @@ RUN curl -SL https://github.com/swig/swig/archive/refs/tags/v4.0.2.tar.gz \
     | tar xzC /tmp \
     && cd /tmp/swig-4.0.2 \
     && ./autogen.sh && ./configure && make && make install \
-    && cd \
+    && cd - \
     && rm -rf /tmp/swig-4.0.2
 
+## waiting for swig 4.0.2 because of changes in Ruby 4.7.0,
+## in the meantime use github version
+#RUN git clone https://github.com/swig/swig.git \
+#    && cd swig \
+#    && ./autogen.sh \
+#    && ./configure && make && make install \
+#    && cd -
+
 RUN apk add --upgrade \
+      redis \
       memcached \
       openrc
 
@@ -120,21 +99,12 @@ RUN rc-update add memcached sysinit
 #RUN echo never > /sys/kernel/mm/transparent_hugepage/enabled
 #RUN echo never > /sys/kernel/mm/transparent_hugepage/defrag
 
-# install redis-server
-RUN curl -SL https://download.redis.io/releases/redis-6.2.4.tar.gz | tar xzC /tmp \
-    && cd /tmp/redis-6.2.4/ \
-    && make && make install && cd \
-    && rm -rf /tmp/redis-6.2.4/
-
 RUN apk add --update mysql-client mysql mariadb
 
-# postgres running in separate container and
-# this way of starting it doesn't seem to work anymore
-#RUN apk add --update postgresql postgresql-contrib
 #RUN service postgresql start \
 #   && echo "psql --command \"CREATE USER docker WITH SUPERUSER PASSWORD 'docker';\"" >> /tmp/config \
 #   && echo "createdb -O docker travis_ci_test" >> /tmp/config \
-#   && su postgres -c "bash /tmp/config"
+#   && su postgres -c "bash /tmp/config" \
 #   && rm -f /tmp/config
 
 ENV PATH="/root/.rbenv/bin:/root/.rbenv/shims:$PATH"
