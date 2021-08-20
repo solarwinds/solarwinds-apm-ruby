@@ -130,21 +130,6 @@ when /libraries/
   end
 end
 
-# Attempt to clean up the sidekiq processes at the end of tests
-MiniTest.after_run do
-  # for general Linux
-  unless `ps -aef | grep 'sidekiq' | grep APPOPTICS_GEM_TEST | grep -v grep`.empty?
-    AppOpticsAPM.logger.debug "[appoptics_apm/servers] Killing old sidekiq process:#{`ps aux | grep [s]idekiq`}."
-    cmd = "kill -9 `ps -aef | grep 'sidekiq' | grep APPOPTICS_GEM_TEST | grep -v grep | awk '{print $2}'`"
-    `#{cmd}`
-  end
-  # for Alpine
-  unless `ps -aef | grep 'sidekiq' | grep {ruby} | grep -v grep`.empty?
-    # AppOpticsAPM.logger.debug "[appoptics_apm/servers] Killing old sidekiq process:#{`ps aux | grep [s]idekiq`}."
-    cmd = "kill -9 `ps -aef | grep 'sidekiq' | grep {ruby} | grep -v grep | awk '{print $1}'`"
-    `#{cmd}`
-  end
-end
 
 ##
 # clear_all_traces
@@ -166,7 +151,7 @@ end
 #
 def get_all_traces
   if AppOpticsAPM.loaded && ENV['APPOPTICS_REPORTER'] =='file'
-    sleep 0.4
+    sleep 0.2
     AppOpticsAPM::Reporter.get_all_traces
   else
     []
