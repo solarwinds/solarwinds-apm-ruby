@@ -1,159 +1,27 @@
-# Copyright (c) 2021 SolarWinds, LLC.
-# All rights reserved.
-
-name: Run tests on different Linux OS
+name: Test on all Linux
 
 on:
   push:
-    paths-ignore:
-      - 'test/run_tests/Dockerfile_*'
-# Allows you to run this workflow manually from the Actions tab
+  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-
-env:
-  GHRC: ghcr.io/appoptics/appoptics-apm-ruby/apm_ruby
-  DOCKERFILE: test/run_tests/Dockerfile
 
 jobs:
 
-#-------------------------------------------------------------------------------
-# TODO: figure out how to build images first if necessary
-#
-# ********* this is not working because we don't have a    *************
-# ********* reference to the commit of the previous GH run *************
-#
-#  build_images:
-#    name: Build docker images if necessary
-#    runs-on: ubuntu-latest
-#
-#    strategy:
-#      fail-fast: true
-#      matrix:
-#        os: [ ubuntu, debian, centos, alpine ]
-#
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v2
-#
-#
-#  ##    comment out to get a debug session
-#  ##    only works with ubuntu and debian, because it uses apt:
-##      - name: tmate debugging session
-##        uses: mxschmitt/action-tmate@v3
-##        with:
-##          sudo: false
-#
-#      - name: check modified files
-#        id:   check_files
-#        run:  |
-#          git diff --name-only --diff-filter=ACMRT ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep Dockerfile_
-#          echo ::set-output name=check_dockerfiles::$?
-##          git diff --name-only HEAD^ HEAD | grep [D]ockerfile_
-##          echo ::set-output name=check_dockerfiles::$?
-#
-#      - name: ghcr.io login ... build and publish images if needed
-#        uses: docker/login-action@v1
-#        if: ${{ steps.check_files.outputs.check_dockerfiles == 0}}
-#        with:
-#          registry: ghcr.io
-#          username: ${{ github.actor }}
-#          password: ${{ secrets.GITHUB_TOKEN }}
-#
-#      - name: Build and publish new Docker image
-#        if: ${{ steps.check_files.outputs.check_dockerfiles == 0 }}
-#        run: |
-#          docker build -f ${{ env.DOCKERFILE }}_${{ matrix.os }} -t ${{ env.GHRC }}_${{ matrix.os }} .
-#          docker push ${{ env.GHRC }}_${{ matrix.os }}
-
-#-------------------------------------------------------------------------------
   all_linux_test:
-    name: ${{ matrix.os }} - ruby ${{ matrix.ruby }}
+    name: Test on all Linux
     runs-on: ubuntu-latest
-#    needs: build_images
 
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu, debian, centos, alpine]
-        ruby: ['3.0', '2.7', '2.6', '2.5', '2.4']
 
     container:
-#      maybe github.repository works
-       image: ghcr.io/${{ github.repository }}/apm_ruby_${{ matrix.os }}
-
-    env:
-      APPOPTICS_GEM_TEST: true
-      APPOPTICS_REPORTER: file
-      APPOPTICS_COLLECTOR: /tmp/appoptics_traces.bson
-      APPOPTICS_MONGO_SERVER: "mongo"
-      APPOPTICS_RABBITMQ_SERVER: "rabbitmq"
-      APPOPTICS_MEMCACHED_SERVER: "memcached"
-      APPOPTICS_REPORTER_FILE_SINGLE: false
-      APPOPTICS_FROM_S3: true
-      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-      MYSQL_ROOT_PASSWORD: "admin"
-      MYSQL_HOST: "mysql"
-      MYSQL_DATABASE: "travis_ci_test"
-      POSTGRES_DB: "travis_ci_test"
-      DOCKER_MYSQL_PASS: "admin"
-      DOCKER_PSQL_PASS: "postgres"
-      POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "postgres"
-      POSTGRES_HOST: "postgres"
-      REDIS_PASSWORD: "redis_pass"
-      TEST_RUNS_TO_FILE: "true"
-
-    services:
-      memcached:
-        image: memcached:latest
-        ports:
-          - 11211:11211
-        options: --health-cmd "timeout 5 bash -c 'cat < /dev/null > /dev/udp/127.0.0.1/11211'" --health-interval 10s --health-timeout 5s --health-retries 5
-      rabbitmq:
-        image: rabbitmq:latest
-        ports:
-          - 5672:5672
-        options: --health-cmd "rabbitmqctl node_health_check" --health-interval 10s --health-timeout 5s --health-retries 5
-      mongo:
-        image: mongo:latest
-        ports:
-          - 27017:27017
-        options: "--health-cmd \"mongo --quiet --eval 'quit(db.runCommand({ ping: 1 }).ok ? 0 : 2)'\" --health-interval 10s --health-timeout 5s --health-retries 5"
-      postgres:
-        image: postgres:10.8
-        env:
-          POSTGRES_DB: travis_ci_test
-        ports:
-          - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-      mysql:
-        image: mariadb:latest
-        env:
-          MYSQL_USER: user
-          MYSQL_PASSWORD: password
-          MYSQL_DATABASE: travis_ci_test
-          MYSQL_ROOT_PASSWORD: admin
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+      image: ghcr.io/appoptics/appoptics-apm-ruby/ao_${{ matrix.os }}
 
     steps:
-    - name: Checkout ${{ github.ref }}
-      uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v1
 
-    - name: print some info
-      run: |
-        user=`whoami`
-        pwd=`pwd`
-        echo "User: $user"
-        echo "Current dir: $pwd"
-        echo "Home dir: $HOME"
-        echo "Branch: ${GITHUB_REF#refs/*/}"
-
-    - name: ruby tests
-      run: |
-        export HOME=/root
-        test/run_tests/ruby_setup.sh
-        version=`rbenv versions --bare | grep ${{ matrix.ruby }}`
-        echo "testing with ruby version: $version"
-        test/run_tests/run_tests.sh -r $version
+    - name: just a shell command
+      run: echo "I am fine!"

@@ -3,10 +3,7 @@
 
 name: Ruby Tests
 
-on:
-#  push:
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+on: [push]
 
 jobs:
   tests:
@@ -140,7 +137,7 @@ jobs:
         run: |
           export PGPASSWORD=$POSTGRES_PASSWORD; psql -c 'create database travis_ci_test;' -U postgres -h $POSTGRES_HOST
           curl -SL http://download.redis.io/releases/redis-4.0.0.tar.gz | tar xzC /tmp && cd /tmp/redis-4.0.0/ && make && make install && cd -
-          redis-server --requirepass redis_pass --loglevel "warning" &
+          redis-server --requirepass redis_pass &
 
       - name: Bundle with 1.17.3
         if: matrix.gemfile == 'rails42' || matrix.gemfile == 'frameworks'
