@@ -15,7 +15,7 @@
 #
 # The options for -r, -g, and -e have to correspond to configurations in the travis.yml file
 ##
-dir=`pwd`
+dir=$(pwd)
 export BUNDLE_ALLOW_BUNDLER_DEPENDENCY_CONFLICTS=true
 
 # RUBY=`rbenv local`
@@ -62,14 +62,11 @@ done
 # gem root directory
 # cd /code/ruby-appoptics
 
-# version=`rbenv version`
-# set -- $version
-# RUBY=$1
 if [ "$copy" -eq 1 ]; then
     rm -rf /tmp/ruby-appoptics_test
     cp -r . /tmp/ruby-appoptics_test
 
-    cd /tmp/ruby-appoptics_test/
+    cd /tmp/ruby-appoptics_test/ || exit 1
 fi
 
 ## Read travis configuration
@@ -85,20 +82,20 @@ echo "logfile name: $TEST_RUNS_FILE_NAME"
 ## Setup and run tests
 for index in ${!input2[*]} ;
 do
-  args=(${input2[$index]})
+  args=("${input2[$index]}")
 
   if [[ "$gemfile" != "" && "$gemfile" != "${args[1]}" ]]; then continue; fi
   export BUNDLE_GEMFILE=${args[1]}
 #   echo ${args[1]}.lock
-  rm -f ${args[1]}.lock
+  rm -f "${args[1]}".lock
 
   if [[ "$env" != "" && "$env" != "${args[2]}" ]]; then continue; fi
-  export ${args[2]}
+  export "${args[2]}"
 
   if [[ "$ruby" != "" && "$ruby" != "${args[0]}" ]]; then continue; fi
-  if [[ "${args[0]}" != $current_ruby ]]; then
-    rbenv local ${args[0]}
-    current_ruby=${args[0]}
+  if [[ "${args[0]}" != "$current_ruby" ]]; then
+    rbenv local "${args[0]}"
+    current_ruby="${args[0]}"
     echo
     echo "Installing gems ... for $(ruby -v)"
     if [[ "$BUNDLE_GEMFILE" == *"gemfiles/frameworks.gemfile"* || "$BUNDLE_GEMFILE" == *"gemfiles/rails42.gemfile"* ]]
@@ -112,10 +109,10 @@ do
     # if this is running on alpine and using ruby 3++, we need to patch
     if [[ -r /etc/alpine-release && $current_ruby =~ ^3.* ]]; then
       # download and apply patch
-      cd /root/.rbenv/versions/$current_ruby/include/ruby-3.0.0/ruby/internal/
+      cd /root/.rbenv/versions/$current_ruby/include/ruby-3.0.0/ruby/internal/ || exit 1
       curl -sL https://bugs.ruby-lang.org/attachments/download/8821/ruby-ruby_nonempty_memcpy-musl-cxx.patch -o memory.patch
       patch -N memory.h memory.patch
-      cd -
+      cd - || exit 1
     fi
     bundle exec rake clean fetch compile
   else
@@ -138,8 +135,7 @@ do
     [[ $status -ne 0 ]] && echo "!!! Test suite failed - $exit_status !!!"
 
     # kill all sidekiq processes, they don't stop automatically and can add up if tests are run repeatedly
-    pids=`ps -ef | grep 'sidekiq' | grep -v grep | awk '{print $2}'`
-    [[ $pids != "" ]] && kill $pids
+    kill -9 $(pgrep -f sidekiq)
   else
     echo "Problem during gem install. Skipping tests for ${args[1]}"
     rbenv local  2.5.8
@@ -148,21 +144,16 @@ do
 
   num=$((num-1))
   if [ "$num" -eq 0 ]; then
-    rbenv local 2.5.8
-    cd $dir
-    exit 0
+    exit $exit_status
   fi
 done
 
 echo ""
 echo "--- SUMMARY ------------------------------"
-egrep '===|failures|FAIL|ERROR' $TEST_RUNS_FILE_NAME
+grep -E '===|failures|FAIL|ERROR' "$TEST_RUNS_FILE_NAME"
 
 if [ "$copy" -eq 1 ]; then
-    mv $TEST_RUNS_FILE_NAME $dir/log/
+    mv "$TEST_RUNS_FILE_NAME" "$dir"/log/
 fi
-
-rbenv local $RUBY
-cd $dir
 
 exit $exit_status
