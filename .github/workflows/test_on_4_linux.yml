@@ -1,7 +1,7 @@
 # Copyright (c) 2021 SolarWinds, LLC.
 # All rights reserved.
 
-name: Run tests on different Linux OS
+name: Run Ruby Tests on 4 Linux
 
 on:
   push:

@@ -12,8 +12,6 @@
 # Further necessary services like mysql, rabbitmq, and mongo are setup through docker-compose
 ##
 
-dir=`pwd`
-
 # Because of github actions we now have to always run this from the
 # gem root directory
 # cd /code/ruby-appoptics
@@ -77,6 +75,3 @@ if [ "$1" == "test" ]; then
 else
   /bin/bash
 fi
-
-# mysql -e 'drop database travis_ci_test;' -h$MYSQL_HOST -p$MYSQL_ROOT_PASSWORD
-cd $dir
