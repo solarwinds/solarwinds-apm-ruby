@@ -225,9 +225,12 @@ module AppOpticsAPM
         end
 
       elsif key == :profiling_interval
-        unless value.is_a?(Integer) && value > 0
-          @@config[:profiling_interval] = 10
+        if value.is_a?(Integer) && value > 0
+          value = [100, value].min
+        else
+          value = 10
         end
+        @@config[:profiling_interval] = value
         # CProfiler may not be loaded yet, the profiler will send the value
         # after it is loaded
         AppOpticsAPM::CProfiler.set_interval(value) if defined? AppOpticsAPM::CProfiler
@@ -269,8 +272,6 @@ module AppOpticsAPM
       end
     end
     # rubocop:enable Metrics/AbcSize, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
-
-
 
     def self.method_missing(sym, *args)
       class_var_name = "@@#{sym}"

@@ -139,11 +139,20 @@ describe "Rack: " do
     @rack = AppOpticsAPM::Rack.new(@app)
   end
 
+  module AppOpticsAPM
+    module Config
+      def self.delete(config)
+        @@config.delete(config)
+      end
+    end
+  end
+
   before do
     clear_all_traces
     @tr_mode = AppOpticsAPM::Config.tracing_mode
     @dnt = AppOpticsAPM::Config.dnt_compiled
     @tr_settings = AppOpticsAPM::Util.deep_dup(AppOpticsAPM::Config[:transaction_settings])
+    @profiling = AppOpticsAPM::Config[:profiling]
 
     @app = mock('app')
     def @app.call(_)
@@ -156,6 +165,7 @@ describe "Rack: " do
     AppOpticsAPM::Config[:tracing_mode] = @tr_mode
     AppOpticsAPM::Config[:dnt_compiled] = @dnt
     AppOpticsAPM::Config[:transaction_settings] = AppOpticsAPM::Util.deep_dup(@tr_settings)
+    AppOpticsAPM::Config[:profiling] = @profiling
   end
 
   # A and B implement the acceptance tests as outlined in the google doc
@@ -385,6 +395,41 @@ describe "Rack: " do
 
       AppOpticsAPM::XTrace.valid?(headers['X-Trace'])
       refute AppOpticsAPM::Context.isValid
+    end
+  end
+
+  describe 'G - ProfileSpans KV' do
+    it 'sets it to 1 if profiling is enabled' do
+      AppOpticsAPM::Config['profiling'] = :enabled
+      @rack.call({})
+      traces = get_all_traces
+
+      assert_equal 1, traces.last['ProfileSpans']
+    end
+
+    it 'sets it to -1 if profiling is disabled' do
+      AppOpticsAPM::Config['profiling'] = :disabled
+      @rack.call({})
+      traces = get_all_traces
+
+      assert_equal -1, traces.last['ProfileSpans']
+    end
+
+    it 'sets it to -1 if the profiling config is anything else than :enabled' do
+      AppOpticsAPM::Config['profiling'] = :boo
+      @rack.call({})
+      traces = get_all_traces
+
+      assert_equal -1, traces.last['ProfileSpans']
+    end
+
+    it 'sets it to -1 if there is not profiling config' do
+      AppOpticsAPM::Config.delete(:profiling)
+
+      @rack.call({})
+      traces = get_all_traces
+
+      assert_equal -1, traces.last['ProfileSpans']
     end
   end
 end

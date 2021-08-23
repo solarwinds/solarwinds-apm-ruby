@@ -17,6 +17,10 @@ describe "Profiling: " do
         num -= 1
         1 + recurse(num) + 1 # make sure it can't optimize tail recursion
       end
+
+      def sleep_a_bit(secs)
+        sleep secs
+      end
     end
   end
 
@@ -33,21 +37,20 @@ describe "Profiling: " do
     AppOpticsAPM::Config[:profiling_interval] = @profiling_interval_config
   end
 
-  it 'logs entry, snapshots, and exit' do
+  it 'check entry, edges, and exit' do
     AppOpticsAPM::Config[:profiling_interval] = 13
     xtrace_context = nil
     AppOpticsAPM::SDK.start_trace(:trace) do
       # it does not modify the tracing context
       xtrace_context = AppOpticsAPM::Context.toString
       AppOpticsAPM::Profiling.run do
-        sleep 0.2
+        TestMethods.sleep_a_bit(0.1)
       end
       assert_equal xtrace_context, AppOpticsAPM::Context.toString
     end
 
     traces = get_all_traces
     traces.select! { |tr| tr['Spec'] == "profiling" }
-    # assert_equal 3, traces.size, "traces size should be 3, actual: #{traces.size}, #{traces.pretty_inspect}"
 
     assert_equal 1, traces.select { |tr| tr['Label'] == 'entry' }.size, "no entry found #{traces.pretty_inspect}"
     assert traces.select { |tr| tr['Label'] == 'exit'}.size >= 1
@@ -61,22 +64,12 @@ describe "Profiling: " do
     assert_equal 'ruby', entry_trace['Language']
     assert_equal tid, entry_trace['TID']
 
+    # check an edge
     snapshot_trace = traces.find { |tr| tr['Label'] == 'info' }
     assert_equal AppOpticsAPM::XTrace.edge_id(xtrace_context), snapshot_trace['ContextOpId']
     assert_equal AppOpticsAPM::XTrace.edge_id(entry_trace['X-Trace']), snapshot_trace['Edge']
-    assert (15 < snapshot_trace['NewFrames'].size), "expected > 15 new frames, got #{snapshot_trace['NewFrames'].size}" # different number in travis
 
-    # grabbing the first frame that reports 'sleep
-    sleep_frame = snapshot_trace['NewFrames'].find { |fr| fr['M'] == 'sleep'}
-    assert sleep_frame
-    assert_equal 'Kernel', sleep_frame['C']
-
-    assert_equal 0, snapshot_trace['FramesExited']
-    assert (15 < snapshot_trace['FramesCount']) # different number in travis
-    assert_equal [], snapshot_trace['SnapshotsOmitted']
-    assert_equal tid, snapshot_trace['TID']
-
-    # check an edge
+    # check last edge
     snapshot_trace = traces.select { |tr| tr['Label'] == 'info' }.last
     exit_trace = traces.find { |tr| tr['Label'] == 'exit'}
     assert (exit_trace['SnapshotsOmitted'].size > 0), "no omitted snapshot found"
@@ -88,8 +81,8 @@ describe "Profiling: " do
     AppOpticsAPM::Config[:profiling_interval] = 1
     AppOpticsAPM::SDK.start_trace(:trace) do
       AppOpticsAPM::Profiling.run do
-        sleep 0.1
-        # use a predictable method, that doesn't call other methods
+        # use a predictable method
+        TestMethods.sleep_a_bit(0.1)
         # since it is recursive,
         # don't recurse too deeply, exploding the stack is a different test
         20.times do
@@ -107,7 +100,6 @@ describe "Profiling: " do
     assert_equal 'TestMethods', traces[0]['NewFrames'][0]['C']
     assert traces[0]['FramesExited'] >= 1
     assert (15 < traces[0]['FramesCount']) # different number in travis
-    assert traces[0]['SnapshotsOmitted'].size > 0
   end
 
   # VERY IMPORTANT TEST
@@ -150,19 +142,18 @@ describe "Profiling: " do
     traces.select! { |tr| tr['Spec'] == 'profiling' }
 
     num = 0
-    omitted_trace_num = 0
     traces.each do |tr|
       if tr['SnapshotsOmitted']
         num += tr['SnapshotsOmitted'].size
-        omitted_trace_num += 1
       end
+      num += 1
     end
-    assert (num >= 15), "Number of SnapshotsOmitted is only #{num} should be >= 15 , #{traces.pretty_inspect}"
+    assert (num >= 15), "Number of Traces+SnapshotsOmitted is only #{num} should be >= 15 , #{traces.pretty_inspect}"
 
     duration = traces.last['Timestamp_u'] - traces[0]['Timestamp_u']
-    average_interval = duration/(traces.size+num-omitted_trace_num)/1000
+    average_interval = (duration/(num-1))/1000.0
     assert (average_interval >= 9 && average_interval <= 11),
-           "average interval should be >= 9 and <= 11, actual #{average_interval}"
+           "average interval should be >= 9 and <= 11, actual #{average_interval}, #{num}, #{duration}\n#{traces.pretty_inspect}"
   end
 
   it 'profiles inside threads' do
