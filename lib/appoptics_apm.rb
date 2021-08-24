@@ -28,7 +28,7 @@ begin
       AppOpticsAPM.logger.warn "AppOptics warning: Platform #{RUBY_PLATFORM} not yet supported."
       AppOpticsAPM.logger.warn 'see: https://docs.appoptics.com/kb/apm_tracing/supported_platforms/'
       AppOpticsAPM.logger.warn 'Tracing disabled.'
-      AppOpticsAPM.logger.warn 'Contact support@appoptics.com if this is unexpected.'
+      AppOpticsAPM.logger.warn 'Contact technicalsupport@solarwinds.com if this is unexpected.'
       AppOpticsAPM.logger.warn '==================================================================='
     end
   rescue LoadError => e

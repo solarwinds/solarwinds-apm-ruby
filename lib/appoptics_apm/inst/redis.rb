@@ -76,8 +76,7 @@ module AppOpticsAPM
 
           kvs[:KVOp] = command[0]
           kvs[:RemoteHost] = @options[:host]
-
-          unless NO_KEY_OPS.include?(op) || (command[1].is_a?(Array) && command[1].count > 1)
+          unless NO_KEY_OPS.include?(op) || op == :del && command[1..-1].flatten.count > 1
             if command[1].is_a?(Array)
               kvs[:KVKey] = command[1].first
             else

@@ -3,6 +3,8 @@
 
 require "minitest_helper"
 require 'mocha/minitest'
+require 'fileutils'
+
 
 require_relative '../jobs/sidekiq/activejob_worker_job'
 require_relative '../servers/sidekiq_activejob.rb'
@@ -14,7 +16,25 @@ Sidekiq.configure_server do |config|
   end
 end
 
+
+
 describe "RailsSharedTests" do
+  # in alpine copy /usr/bin/wkhtmltopdf to the wkhtmltopdf-binary dir
+  # doing it here because it can't be done before the wkhtmltopdf gem is installed
+  @skip_wicked = false
+  if File.exist?('/etc/alpine-release') && File.exist?('/usr/bin/wkhtmltopdf')
+    ruby_version_min = RUBY_VERSION.gsub(/\.\d+$/, ".0")
+    wk_fullname = Gem.loaded_specs["wkhtmltopdf-binary"].full_name
+    alpine_version = File.open('/etc/alpine-release') { |f| f.readline }.strip
+    bin_path =  "/root/.rbenv/versions/#{RUBY_VERSION}/lib/ruby/gems/#{ruby_version_min}/gems/#{wk_fullname}/bin/wkhtmltopdf_alpine_#{alpine_version}_amd64"
+    unless File.exist?(bin_path)
+      puts "now I should copy wkhtmltopdf"
+      FileUtils.cp('/usr/bin/wkhtmltopdf', bin_path)
+    end
+  else
+    @skip_wicked = true
+  end
+
   before do
     clear_all_traces
     AppOpticsAPM.config_lock.synchronize {
@@ -221,6 +241,7 @@ describe "RailsSharedTests" do
   end
 
   it "traces pdfs from the 'wicked' controller" do
+    skip if @skip_wicked
     # fyi: wicked_pdf is not instrumented
     AppOpticsAPM::Config[:dnt_regexp] = ''
     AppOpticsAPM::Config[:action_controller][:collect_backtraces] = false
@@ -231,7 +252,6 @@ describe "RailsSharedTests" do
     r = Net::HTTP.get_response(uri)
 
     traces = get_all_traces
-
     assert_equal 6, traces.count
     valid_edges?(traces)
 

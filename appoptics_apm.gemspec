@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.license = "Apache-2.0"
 
   s.authors = ["Maia Engeli", "Peter Giacomo Lombardo", "Spiros Eliopoulos"]
-  s.email = %q{support@appoptics.com}
+  s.email = %q{technicalsupport@solarwinds.com}
   s.homepage = %q{https://www.appoptics.com/}
   s.summary = %q{AppOptics APM performance instrumentation gem for Ruby}
   s.description = <<-EOF

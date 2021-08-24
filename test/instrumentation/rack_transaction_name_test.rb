@@ -71,7 +71,7 @@ describe AppOpticsAPM::SDK do
 
     Time.stub(:now, Time.at(0)) do
       AppOpticsAPM::Span.expects(:createHttpSpan).with(name, url, nil, 0, 200, 'GET', 0).returns(name)
-      AppOpticsAPM::API.expects(:log_exit).with(:rack, :Status => 200, :TransactionName => name)
+      AppOpticsAPM::API.expects(:log_exit).with(:rack, :Status => 200, :TransactionName => name, :ProfileSpans => -1)
 
       get "/#{name}"
 
@@ -87,7 +87,7 @@ describe AppOpticsAPM::SDK do
 
     Time.stub(:now, Time.at(0)) do
       AppOpticsAPM::Span.expects(:createHttpSpan).with(nil, url, nil, 0, 200, 'GET', 0).returns("c.a")
-      AppOpticsAPM::API.expects(:log_exit).with(:rack, :Status => 200, :TransactionName => "c.a")
+      AppOpticsAPM::API.expects(:log_exit).with(:rack, :Status => 200, :TransactionName => "c.a", :ProfileSpans => -1)
 
       get "/#{name}"
     end
@@ -99,7 +99,7 @@ describe AppOpticsAPM::SDK do
 
     Time.stub(:now, Time.at(0)) do
       AppOpticsAPM::Span.expects(:createHttpSpan).with(name, url, nil, 0, 200, 'GET', 0).returns("other")
-      AppOpticsAPM::API.expects(:log_exit).with(:rack, :Status => 200, :TransactionName => "other")
+      AppOpticsAPM::API.expects(:log_exit).with(:rack, :Status => 200, :TransactionName => "other", :ProfileSpans => -1)
 
       get "/#{name}"
     end
@@ -127,7 +127,7 @@ describe AppOpticsAPM::SDK do
     AppOpticsAPM::API.set_transaction_name("another_name")
     Time.stub(:now, Time.at(0)) do
       AppOpticsAPM::Span.expects(:createHttpSpan).with(name, url, nil, 0, 200, 'GET', 0).returns(name)
-      AppOpticsAPM::API.expects(:log_exit).with(:rack, :Status => 200, :TransactionName => name)
+      AppOpticsAPM::API.expects(:log_exit).with(:rack, :Status => 200, :TransactionName => name, :ProfileSpans => -1)
 
       get "/#{name}"
     end
