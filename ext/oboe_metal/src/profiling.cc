@@ -222,13 +222,14 @@ void Profiling::profiler_gc_handler(void *data) {
 // ONLY ASYNC-SAFE FUNCTIONS ALLOWED IN HERE (no exception handling !!!)
 ////////////////////////////////////////////////////////////////////////////////
 extern "C" void profiler_signal_handler(int sigint, siginfo_t *siginfo, void *ucontext) {
+    if (!ruby_native_thread_p()) return;
     static std::atomic_bool in_signal_handler{false};
 
     // atomically replaces the value of the object, returns the value held previously
-    // also keeps in_signal_handler lock_free -> asyn-safe
+    // also keeps in_signal_handler lock_free -> async-safe
     if (in_signal_handler.exchange(true)) return;
 
-    // the following two ruby c-functions are asyn safe
+    // the following two ruby c-functions are async safe
     if (rb_during_gc())
     {
         rb_postponed_job_register(0, Profiling::profiler_gc_handler, (void *)0);
@@ -300,7 +301,7 @@ VALUE Profiling::set_interval(VALUE self, VALUE val) {
 
     configured_interval = FIX2INT(val);
 
-    return Qtrue;
+    return INT2FIX(configured_interval);
 }
 
 VALUE Profiling::get_interval() {
@@ -401,7 +402,7 @@ void Profiling::create_timer() {
 
     sev.sigev_value.sival_ptr = &timerid;
     sev.sigev_notify = SIGEV_SIGNAL; /* Notify via signal */
-    sev.sigev_signo = SIGRTMAX;      /* Notify using this signal */
+    sev.sigev_signo = TIMER_SIG;     /* Notify using this signal */
 
     if (timer_create(CLOCK_REALTIME, &sev, &timerid) == -1) {
         OBOE_DEBUG_LOG_ERROR(OBOE_MODULE_RUBY, "timer_create() failed");

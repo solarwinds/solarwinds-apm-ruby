@@ -72,6 +72,8 @@ module AppOpticsAPM
       # timeout for ec2 metadata
       @ec2_md_timeout = read_and_validate_ec2_md_timeout
       @grpc_proxy = read_and_validate_proxy
+      # hardcoded arg for lambda (lambda not supported yet)
+      # hardcoded arg for grpc hack
     end
 
     def re_init # for testing with changed ENV vars
@@ -99,7 +101,9 @@ module AppOpticsAPM
         @token_bucket_rate,      #15
         @file_single,            #16
         @ec2_md_timeout,         #17
-        @grpc_proxy              #18
+        @grpc_proxy,             #18
+        0,                       # arg for lambda
+        1                        # arg for grpc hack, hardcoded to include hack
       ]
     end
 
