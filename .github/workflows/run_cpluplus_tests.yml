@@ -5,6 +5,10 @@ name: C++ Tests
 
 on:
   push:
+    paths:
+      - ext/oboe_metal/src/*.h
+      - ext/oboe_metal/src/*.cc
+      - ext/oboe_metal/test/*
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 

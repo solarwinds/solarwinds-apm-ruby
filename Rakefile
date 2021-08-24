@@ -51,14 +51,15 @@ Rake::TestTask.new do |t|
   when /libraries/
     t.test_files = FileList['test/support/*_test.rb'] +
                    FileList['test/reporter/*_test.rb'] +
-                   FileList['test/instrumentation/*_test.rb'] +
-                   FileList['test/profiling/*_test.rb'] -
+                   FileList['test/instrumentation/*_test.rb'] -
                    ['test/instrumentation/twitter-cassandra_test.rb']
   when /instrumentation_mocked/
     # WebMock is interfering with other tests, so these have to run separately
     t.test_files = FileList['test/mocked/*_test.rb']
   when /noop/
     t.test_files = FileList['test/noop/*_test.rb']
+  when /profiling/
+    t.test_files = FileList['test/profiling/*_test.rb']
   when /unit/
     t.test_files = FileList['test/unit/*_test.rb'] +
                    FileList['test/unit/*/*_test.rb']
@@ -76,7 +77,7 @@ task :docker_tests, :environment do
   os = arg2 || 'ubuntu'
 
   Dir.chdir('test/run_tests')
-  exec("docker-compose down -v --remove-orphans && docker-compose run --service-ports --name ruby_appoptics_#{os} ruby_appoptics_#{os} /code/ruby-appoptics/test/run_tests/ruby_setup.sh test")
+  exec("docker-compose down -v --remove-orphans && docker-compose run --service-ports --name ruby_appoptics_#{os} ruby_appoptics_#{os} /code/ruby-appoptics/test/run_tests/ruby_setup.sh test copy")
 end
 
 task :docker_test => :docker_tests

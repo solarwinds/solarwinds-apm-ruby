@@ -140,3 +140,19 @@ AppOpticsAPM::SDK.start_trace('log_trace_id') do
   trace = AppOpticsAPM::SDK.current_trace
   AppOpticsAPM.logger.warn "Some log message #{trace.for_log}"
 end
+
+###############################################################
+# START A TRACE AND PROFILE
+###############################################################
+#
+# AppOpticsAPM::Profiling.run
+# This method adds profiling for the code executed in the block
+
+AppOpticsAPM::SDK.start_trace("#{name}_profiling") do
+  AppOpticsAPM::Profiling.run do
+    10.times do
+      [9, 6, 12, 2, 7, 1, 9, 3, 4, 14, 5, 8].sort
+      sleep 0.2
+    end
+  end
+end

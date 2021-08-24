@@ -40,10 +40,11 @@ if AppOpticsAPM.loaded
         options = AppOpticsAPM::XTraceOptions.new(env['HTTP_X_TRACE_OPTIONS'], env['HTTP_X_TRACE_OPTIONS_SIGNATURE'])
         xtrace = AppOpticsAPM::XTrace.valid?(env['HTTP_X_TRACE']) ? (env['HTTP_X_TRACE']) : nil
         settings = AppOpticsAPM::TransactionSettings.new(url, xtrace, options)
+        profile_spans = AppOpticsAPM::Config['profiling'] == :enabled ? 1 : -1
 
         response =
           propagate_xtrace(env, settings, xtrace) do
-            sample(env, settings, options) do
+            sample(env, settings, options, profile_spans) do
               AppOpticsAPM::Profiling.run do
                 AppOpticsAPM::TransactionMetrics.metrics(env, settings) do
                   @app.call(env)
@@ -126,7 +127,7 @@ if AppOpticsAPM.loaded
         [status, headers, response]
       end
 
-      def sample(env, settings, options)
+      def sample(env, settings, options, profile_spans)
         xtrace = env['HTTP_X_TRACE']
         if settings.do_sample
           begin
@@ -139,13 +140,17 @@ if AppOpticsAPM.loaded
             status, headers, response = yield
 
             AppOpticsAPM::API.log_exit(:rack, { Status: status,
-                                                TransactionName: AppOpticsAPM.transaction_name })
+                                                TransactionName: AppOpticsAPM.transaction_name,
+                                                ProfileSpans: profile_spans})
+
             [status, headers, response]
           rescue Exception => e
             # it is ok to rescue Exception here because we are reraising it (we just need a chance to log_end)
             AppOpticsAPM::API.log_exception(:rack, e)
             AppOpticsAPM::API.log_exit(:rack, { Status: status,
-                                                TransactionName: AppOpticsAPM.transaction_name })
+                                                TransactionName: AppOpticsAPM.transaction_name,
+                                                ProfileSpans: profile_spans
+                                              })
             raise
           end
         else
