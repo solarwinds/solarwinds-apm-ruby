@@ -90,7 +90,7 @@ do
   rm -f "${args[1]}".lock
 
   if [[ "$env" != "" && "$env" != "${args[2]}" ]]; then continue; fi
-  export "${args[2]}"
+  export ${args[2]}
 
   if [[ "$ruby" != "" && "$ruby" != "${args[0]}" ]]; then continue; fi
   if [[ "${args[0]}" != "$current_ruby" ]]; then
