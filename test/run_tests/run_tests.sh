@@ -82,20 +82,20 @@ echo "logfile name: $TEST_RUNS_FILE_NAME"
 ## Setup and run tests
 for index in ${!input2[*]} ;
 do
-  args=("${input2[$index]}")
+  args=(${input2[$index]})
 
   if [[ "$gemfile" != "" && "$gemfile" != "${args[1]}" ]]; then continue; fi
   export BUNDLE_GEMFILE=${args[1]}
 #   echo ${args[1]}.lock
-  rm -f "${args[1]}".lock
+  rm -f ${args[1]}.lock
 
   if [[ "$env" != "" && "$env" != "${args[2]}" ]]; then continue; fi
   export ${args[2]}
 
   if [[ "$ruby" != "" && "$ruby" != "${args[0]}" ]]; then continue; fi
-  if [[ "${args[0]}" != "$current_ruby" ]]; then
-    rbenv local "${args[0]}"
-    current_ruby="${args[0]}"
+  if [[ "${args[0]}" != $current_ruby ]]; then
+    rbenv local ${args[0]}
+    current_ruby=${args[0]}
     echo
     echo "Installing gems ... for $(ruby -v)"
     if [[ "$BUNDLE_GEMFILE" == *"gemfiles/frameworks.gemfile"* || "$BUNDLE_GEMFILE" == *"gemfiles/rails42.gemfile"* ]]
