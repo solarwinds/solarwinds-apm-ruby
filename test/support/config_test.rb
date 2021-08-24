@@ -395,4 +395,32 @@ describe "AppOpticsAPM::Config" do
     AppOpticsAPM::Config.expects(:load).with(@test_config_path).times(1)
     AppOpticsAPM::Config.load_config_file
   end
+
+  describe "profiling_interval configuration" do
+    before do
+      AppOpticsAPM::Config.load_config_file
+    end
+
+    it 'accepts the minimum value of 1' do
+      AppOpticsAPM::Config['profiling_interval'] = 1
+      _(AppOpticsAPM::Config.profiling_interval).must_equal 1
+    end
+
+    it 'accepts the maximum value of 100' do
+      AppOpticsAPM::Config['profiling_interval'] = 100
+      _(AppOpticsAPM::Config.profiling_interval).must_equal 100
+    end
+
+    it 'sets the default of 10 for invalid entries' do
+      AppOpticsAPM::Config['profiling_interval'] = -1
+
+      _(AppOpticsAPM::Config.profiling_interval).must_equal 10
+    end
+
+    it 'sets the maximum of 100 for values > 100' do
+      AppOpticsAPM::Config['profiling_interval'] = 1000000000000000000000000000000
+
+      _(AppOpticsAPM::Config.profiling_interval).must_equal 100
+    end
+  end
 end
