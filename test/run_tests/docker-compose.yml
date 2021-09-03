@@ -70,6 +70,7 @@ services:
       - ../../:/code/ruby-appoptics
       - ./.ruby_version_ubuntu:/code/ruby-appoptics/.ruby-version
       # and for OBOE_WIP ...
+      - ../../../oboe/factory-output:/code/oboe/factory-output
       - ../../../oboe/liboboe:/code/oboe/liboboe
     #       - ../../../graphql-ruby-clone/:/code/graphql-ruby
     #       - /Users/maiaengeli/workspace/repos/grpc:/grpc_ruby
@@ -87,6 +88,7 @@ services:
     <<: *ao-shared
     volumes:
       - ../../:/code/ruby-appoptics
+      - ../../../oboe/factory-output:/code/oboe/factory-output
       - ../../../oboe/liboboe:/code/oboe/liboboe
       - ./.ruby_version_alpine:/code/ruby-appoptics/.ruby-version
     environment:
@@ -103,6 +105,7 @@ services:
     << : *ao-shared
     volumes:
       - ../../:/code/ruby-appoptics
+      - ../../../oboe/factory-output:/code/oboe/factory-output
       - ../../../oboe/liboboe:/code/oboe/liboboe
       - ./.ruby_version_debian:/code/ruby-appoptics/.ruby-version
     environment:
@@ -119,6 +122,7 @@ services:
     << : *ao-shared
     volumes:
       - ../../:/code/ruby-appoptics
+      - ../../../oboe/factory-output:/code/oboe/factory-output
       - ../../../oboe/liboboe:/code/oboe/liboboe
       - ./.ruby_version_centos:/code/ruby-appoptics/.ruby-version
       - ../../../../repos/rack-cache/:/rack-cache

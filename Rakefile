@@ -154,7 +154,7 @@ task :fetch_ext_deps do
   FileUtils.mkdir_p(File.join(ext_src_dir, 'bson'))
   files = %w(bson/bson.h bson/platform_hacks.h)
 
-  if ENV['OBOE_WIP']
+  if ENV['OBOE_WIP'] || ENV['OBOE_LOCAL']
     wip_src_dir = File.expand_path('../oboe/liboboe')
     FileUtils.cp(File.join(wip_src_dir, 'oboe_api.cpp'), ext_src_dir)
     FileUtils.cp(File.join(wip_src_dir, 'oboe_api.hpp'), ext_src_dir)
@@ -184,27 +184,29 @@ task :fetch_ext_deps do
     end
   end
 
-  sha_files = ['liboboe-1.0-alpine-x86_64.so.0.0.0.sha256',
-               'liboboe-1.0-x86_64.so.0.0.0.sha256']
+  unless ENV['OBOE_LOCAL']
+    sha_files = ['liboboe-1.0-alpine-x86_64.so.0.0.0.sha256',
+                 'liboboe-1.0-x86_64.so.0.0.0.sha256']
 
-  sha_files.each do |filename|
-    remote_file = File.join(oboe_s3_dir, filename)
-    local_file = File.join(ext_lib_dir, filename)
+    sha_files.each do |filename|
+      remote_file = File.join(oboe_s3_dir, filename)
+      local_file = File.join(ext_lib_dir, filename)
 
-    puts "fetching #{remote_file}"
-    puts "      to #{local_file}"
+      puts "fetching #{remote_file}"
+      puts "      to #{local_file}"
 
-    if RUBY_VERSION < '2.5.0'
-      open(remote_file, 'rb') do |rf|
-        content = rf.read
-        File.open(local_file, 'wb') { |f| f.puts content }
-        puts "%%% #{filename} checksum: #{content.strip} %%%"
-      end
-    else
-      URI.open(remote_file, 'rb') do |rf|
-        content = rf.read
-        File.open(local_file, 'wb') { |f| f.puts content }
-        puts "%%% #{filename} checksum: #{content.strip} %%%"
+      if RUBY_VERSION < '2.5.0'
+        open(remote_file, 'rb') do |rf|
+          content = rf.read
+          File.open(local_file, 'wb') { |f| f.puts content }
+          puts "%%% #{filename} checksum: #{content.strip} %%%"
+        end
+      else
+        URI.open(remote_file, 'rb') do |rf|
+          content = rf.read
+          File.open(local_file, 'wb') { |f| f.puts content }
+          puts "%%% #{filename} checksum: #{content.strip} %%%"
+        end
       end
     end
   end
@@ -332,7 +334,11 @@ task :compile do
     so_file  = File.expand_path('ext/oboe_metal/libappoptics_apm.so')
 
     Dir.chdir ext_dir
-    cmd = [Gem.ruby, 'extconf.rb']
+    if ENV['OBOE_LOCAL']
+      cmd = [Gem.ruby, 'extconf_local.rb']
+    else
+      cmd = [Gem.ruby, 'extconf.rb']
+    end
     sh cmd.join(' ')
     sh '/usr/bin/env make'
 
