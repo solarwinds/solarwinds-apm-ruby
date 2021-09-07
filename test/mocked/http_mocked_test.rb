@@ -30,16 +30,16 @@ unless defined?(JRUBY_VERSION)
         Net::HTTP.start(uri.host, uri.port) do |http|
           xt = AppOpticsAPM::Context.toString
           request = Net::HTTP::Get.new(uri)
-          refute request['x-trace']
+          refute request['traceparent']
 
           res = http.request(request)
           # did we instrument?
           assert http.class.ancestors.include?(AppOpticsAPM::Inst::NetHttp)
 
-          assert request['x-trace']
+          assert request['traceparent']
           assert res['x-trace']
           assert AppOpticsAPM::XTrace.sampled?(res['x-trace'])
-          refute_equal xt, request['x-trace']
+          refute_equal xt, request['traceparent']
           refute_equal xt, res['x-trace']
         end
       end
@@ -55,16 +55,14 @@ unless defined?(JRUBY_VERSION)
             xt = AppOpticsAPM::Context.toString
 
             request = Net::HTTP::Get.new(uri)
-            refute request['x-trace']
-
+            refute request['traceparent']
             res = http.request(request) # Net::HTTPResponse object
             # did we instrument?
             assert http.class.ancestors.include?(AppOpticsAPM::Inst::NetHttp)
-
-            assert request['x-trace']
+            assert request['traceparent']
             assert res['x-trace']
             refute AppOpticsAPM::XTrace.sampled?(res.to_hash['x-trace'])
-            assert_equal xt, request['x-trace']
+            assert_equal xt, request['traceparent']
             assert_equal xt, res['x-trace']
           end
 
@@ -80,7 +78,7 @@ unless defined?(JRUBY_VERSION)
         res = http.request(request) # Net::HTTPResponse object
 
         assert http.class.ancestors.include?(AppOpticsAPM::Inst::NetHttp)
-        refute request['x-trace']
+        refute request['traceparent']
         # the result may have an x-trace from the outbound call and that is ok
       end
     end
@@ -95,7 +93,7 @@ unless defined?(JRUBY_VERSION)
             res = http.request(request) # Net::HTTPResponse object
             # did we instrument?
             assert http.class.ancestors.include?(AppOpticsAPM::Inst::NetHttp)
-            refute request['x-trace']
+            refute request['tracepearent']
             # the result should not have an x-trace
             refute res['x-trace']
           end
@@ -115,7 +113,7 @@ unless defined?(JRUBY_VERSION)
             res = http.request(request) # Net::HTTPResponse object
             # did we instrument?
             assert http.class.ancestors.include?(AppOpticsAPM::Inst::NetHttp)
-            refute request['x-trace']
+            refute request['traceparent']
             # the result should either not have an x-trace or
             refute res['x-trace']
           end
@@ -134,7 +132,7 @@ unless defined?(JRUBY_VERSION)
           res = http.request(request) # Net::HTTPResponse object
           # did we instrument?
           assert http.class.ancestors.include?(AppOpticsAPM::Inst::NetHttp)
-          assert request['x-trace']
+          assert request['traceparent']
           assert res['x-trace']
           assert_equal 'specialvalue', request['Custom']
         end

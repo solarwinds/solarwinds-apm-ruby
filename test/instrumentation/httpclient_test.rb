@@ -30,12 +30,15 @@ describe 'HTTPClientTest' do
 
   it 'sends event for a request' do
     AppOpticsAPM::API.start_trace('httpclient_tests') do
+      context = AppOpticsAPM::Context.toString
       clnt = HTTPClient.new
       response = clnt.get('http://127.0.0.1:8101/', :query => { :keyword => 'ruby', :lang => 'en' })
 
       # Validate returned xtrace
       assert response.headers.key?("X-Trace")
       assert AppOpticsAPM::XTrace.valid?(response.headers["X-Trace"])
+      assert_equal(AppOpticsAPM::XTrace.task_id(context),
+                   AppOpticsAPM::XTrace.task_id(response.headers["X-Trace"]))
     end
 
     traces = get_all_traces

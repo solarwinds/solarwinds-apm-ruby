@@ -62,7 +62,6 @@ module AppOpticsAPM
 
           # The core httpclient call
           response = do_request_without_appoptics(method, uri, query, body, header, &block)
-
           response_context = response.headers['X-Trace']
           kvs[:HTTPStatus] = response.status_code
 
@@ -90,13 +89,13 @@ module AppOpticsAPM
       end
 
       def do_get_stream_with_appoptics(req, proxy, conn)
-        AppOpticsAPM::Context.fromString(req.header['X-Trace'].first) unless req.header['X-Trace'].empty?
+        AppOpticsAPM::Context.fromString(req.header['traceparent'].first) unless req.header['traceparent'].empty?
         # Avoid cross host tracing for blacklisted domains
         uri = req.http_header.request_uri
         blacklisted = AppOpticsAPM::API.blacklisted?(uri.hostname)
 
         unless AppOpticsAPM.tracing?
-          req.header.delete('X-Trace') if blacklisted
+          req.header.delete('traceparent') if blacklisted
           return do_get_stream_without_appoptics(req, proxy, conn)
         end
 
@@ -113,7 +112,7 @@ module AppOpticsAPM
           kvs.clear
           kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:httpclient][:collect_backtraces]
 
-          blacklisted ? req.header.delete('X-Trace') : req_context = add_xtrace_header(req.header)
+          blacklisted ? req.header.delete('traceparent') : req_context = add_xtrace_header(req.header)
 
           # The core httpclient call
           result = do_get_stream_without_appoptics(req, proxy, conn)
@@ -125,7 +124,7 @@ module AppOpticsAPM
             response = conn.pop
           end
 
-          response_context = response.headers['X-Trace']
+          response_context = response.headers['traceparent']
           kvs[:HTTPStatus] = response.status_code
 
           # If we get a redirect, report the location header
@@ -155,12 +154,12 @@ module AppOpticsAPM
         return nil unless AppOpticsAPM::XTrace.valid?(req_context)
         # Be aware of various ways to call/use httpclient
         if headers.is_a?(Array)
-          headers.delete_if { |kv| kv[0] == 'X-Trace' }
-          headers.push ['X-Trace', req_context]
+          headers.delete_if { |kv| kv[0] == 'traceparent' }
+          headers.push ['traceparent', req_context]
         elsif headers.is_a?(Hash)
-          headers['X-Trace'] = req_context
+          headers['traceparent'] = req_context
         elsif headers.is_a? HTTP::Message::Headers
-          headers.set('X-Trace', req_context)
+          headers.set('traceparent', req_context)
         end
         req_context
       end

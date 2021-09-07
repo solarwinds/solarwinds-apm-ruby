@@ -32,7 +32,7 @@ if !defined?(JRUBY_VERSION)
       end
 
       assert_requested :get, "http://127.0.0.1:8101/", times: 1
-      refute_requested :get, "http://127.0.0.1:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*01$/}, times: 1
+      refute_requested :get, "http://127.0.0.1:8101/", headers: {'traceparent'=>/^2B[0-9,A-F]*01$/}, times: 1
       refute AppOpticsAPM::Context.isValid
     end
 
@@ -50,8 +50,8 @@ if !defined?(JRUBY_VERSION)
       end
 
       assert_requested :get, "http://127.0.0.12:8101/", times: 1
-      refute_requested :get, "http://127.0.0.12:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*00$/}, times: 1
-      refute_requested :get, "http://127.0.0.12:8101/", headers: {'X-Trace'=>/^2B0*$/}
+      refute_requested :get, "http://127.0.0.12:8101/", headers: {'traceparent'=>/^2B[0-9,A-F]*00$/}, times: 1
+      refute_requested :get, "http://127.0.0.12:8101/", headers: {'traceparent'=>/^2B0*$/}
       refute AppOpticsAPM::Context.isValid
     end
 
@@ -64,7 +64,7 @@ if !defined?(JRUBY_VERSION)
       conn.get
 
       assert_requested :get, "http://127.0.0.3:8101/", times: 1
-      refute_requested :get, "http://127.0.0.3:8101/", headers: {'X-Trace'=>/^.*$/}
+      refute_requested :get, "http://127.0.0.3:8101/", headers: {'traceparent'=>/^.*$/}
     end
 
     def test_blacklisted
@@ -81,7 +81,7 @@ if !defined?(JRUBY_VERSION)
       end
 
       assert_requested :get, "http://127.0.0.4:8101/", times: 1
-      refute_requested :get, "http://127.0.0.4:8101/", headers: {'X-Trace'=>/^.*$/}
+      refute_requested :get, "http://127.0.0.4:8101/", headers: {'traceparent'=>/^.*$/}
       refute AppOpticsAPM::Context.isValid
     end
 
@@ -98,7 +98,7 @@ if !defined?(JRUBY_VERSION)
       end
 
       assert_requested :get, "http://127.0.0.1:8101/", times: 1
-      assert_requested :get, "http://127.0.0.1:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*01$/}, times: 1
+      assert_requested :get, "http://127.0.0.1:8101/", headers: {'traceparent'=>/^2B[0-9,A-F]*01$/}, times: 1
       refute AppOpticsAPM::Context.isValid
     end
 
@@ -116,8 +116,8 @@ if !defined?(JRUBY_VERSION)
       end
 
       assert_requested :get, "http://127.0.0.12:8101/", times: 1
-      assert_requested :get, "http://127.0.0.12:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*00$/}, times: 1
-      assert_not_requested :get, "http://127.0.0.12:8101/", headers: {'X-Trace'=>/^2B0*$/}
+      assert_requested :get, "http://127.0.0.12:8101/", headers: {'traceparent'=>/^2B[0-9,A-F]*00$/}, times: 1
+      assert_not_requested :get, "http://127.0.0.12:8101/", headers: {'traceparent'=>/^2B0*$/}
       refute AppOpticsAPM::Context.isValid
     end
 
@@ -130,7 +130,7 @@ if !defined?(JRUBY_VERSION)
       conn.get
 
       assert_requested :get, "http://127.0.0.3:8101/", times: 1
-      assert_not_requested :get, "http://127.0.0.3:8101/", headers: {'X-Trace'=>/^.*$/}
+      assert_not_requested :get, "http://127.0.0.3:8101/", headers: {'traceparent'=>/^.*$/}
     end
 
     def test_blacklisted_patron
@@ -147,7 +147,7 @@ if !defined?(JRUBY_VERSION)
       end
 
       assert_requested :get, "http://127.0.0.4:8101/", times: 1
-      assert_not_requested :get, "http://127.0.0.4:8101/", headers: {'X-Trace'=>/^.*$/}
+      assert_not_requested :get, "http://127.0.0.4:8101/", headers: {'traceparent'=>/^.*$/}
       refute AppOpticsAPM::Context.isValid
     end
   end

@@ -198,28 +198,28 @@ describe "Rack: " do
 
     it '4 - sampling xtrace + :disabled transaction settings not matched' do
       check_01_111(
-        { 'HTTP_X_TRACE' => '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFA01' }
+        { 'HTTP_TRACEPARENT' => '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFA01' }
       )
     end
 
     it '5 - sampling xtrace + :disabled transaction settings matched' do
       check_00_000(
         { 'PATH_INFO' => '/long_job/',
-          'HTTP_X_TRACE' => '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFB01'
+          'HTTP_TRACEPARENT' => '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFB01'
         }
       )
     end
 
     it '6 - non-sampling xtrace + :disabled transaction settings not matched' do
       check_00_001(
-        { 'HTTP_X_TRACE' => '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFC00' }
+        { 'HTTP_TRACEPARENT' => '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFC00' }
       )
     end
 
     it '7 - non-sampling xtrace + :disabled transaction settings matched' do
       check_00_000(
         { 'PATH_INFO' => '/long_job/',
-          'HTTP_X_TRACE' => '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFD00'
+          'HTTP_TRACEPARENT' => '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFD00'
         }
       )
     end
@@ -255,28 +255,28 @@ describe "Rack: " do
 
     it '4 - sampling xtrace + :enabled  transaction settings not matching' do
       check_00_000(
-        { 'HTTP_X_TRACE' => '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFA01' }
+        { 'HTTP_TRACEPARENT' => '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFA01' }
       )
     end
 
     it '5 - sampling xtrace + :enabled transaction settings matching' do
       check_01_111(
         { 'PATH_INFO' => '/long_job/',
-          'HTTP_X_TRACE' => '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFB01'
+          'HTTP_TRACEPARENT' => '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFB01'
         }
       )
     end
 
     it '6 - non-sampling xtrace + :enabled transaction settings not matching' do
       check_00_000(
-        { 'HTTP_X_TRACE' => '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFC00' }
+        { 'HTTP_TRACEPARENT' => '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFC00' }
       )
     end
 
     it '7 - non-sampling xtrace + :enabled transaction settings matching' do
       check_00_001(
         { 'PATH_INFO' => '/long_job/',
-          'HTTP_X_TRACE' => '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFD00'
+          'HTTP_TRACEPARENT' => '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFD00'
         }
       )
     end

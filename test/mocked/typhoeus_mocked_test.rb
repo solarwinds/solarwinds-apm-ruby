@@ -26,8 +26,8 @@ unless defined?(JRUBY_VERSION)
         request = Typhoeus::Request.new("http://127.0.0.2:8101/", { :method=>:get })
         request.run
 
-        assert request.options[:headers]['X-Trace']
-        assert_match /^2B[0-9A-F]*01$/,request.options[:headers]['X-Trace']
+        assert request.options[:headers]['traceparent']
+        assert_match /^2B[0-9A-F]*01$/,request.options[:headers]['traceparent']
       end
 
       refute AppOpticsAPM::Context.isValid
@@ -40,9 +40,9 @@ unless defined?(JRUBY_VERSION)
           request = Typhoeus::Request.new("http://127.0.0.1:8101/", {:method=>:get})
           request.run
 
-          assert request.options[:headers]['X-Trace']
-          assert_match /^2B[0-9A-F]*00$/, request.options[:headers]['X-Trace']
-          refute_match /^2B0*$/, request.options[:headers]['X-Trace']
+          assert request.options[:headers]['traceparent']
+          assert_match /^2B[0-9A-F]*00$/, request.options[:headers]['traceparent']
+          refute_match /^2B0*$/, request.options[:headers]['traceparent']
         end
       end
       refute AppOpticsAPM::Context.isValid
@@ -52,7 +52,7 @@ unless defined?(JRUBY_VERSION)
       request = Typhoeus::Request.new("http://127.0.0.1:8101/", {:method=>:get})
       request.run
 
-      refute request.options[:headers]['X-Trace']
+      refute request.options[:headers]['traceparent']
       refute AppOpticsAPM::Context.isValid
     end
 
@@ -63,7 +63,7 @@ unless defined?(JRUBY_VERSION)
           request = Typhoeus::Request.new("http://127.0.0.1:8101/", {:method=>:get})
           request.run
 
-          refute request.options[:headers]['X-Trace']
+          refute request.options[:headers]['traceparent']
         end
       end
       refute AppOpticsAPM::Context.isValid
@@ -77,7 +77,7 @@ unless defined?(JRUBY_VERSION)
           request = Typhoeus::Request.new("http://127.0.0.1:8101/", {:method=>:get})
           request.run
 
-          refute request.options[:headers]['X-Trace']
+          refute request.options[:headers]['traceparent']
         end
       end
       refute AppOpticsAPM::Context.isValid
@@ -106,10 +106,10 @@ unless defined?(JRUBY_VERSION)
         hydra.queue(request_2)
         hydra.run
 
-        assert request_1.options[:headers]['X-Trace'], "There is an X-Trace header"
-        assert_match /^2B[0-9A-F]*01$/, request_1.options[:headers]['X-Trace']
-        assert request_2.options[:headers]['X-Trace'], "There is an X-Trace header"
-        assert_match /^2B[0-9A-F]*01$/, request_2.options[:headers]['X-Trace']
+        assert request_1.options[:headers]['traceparent'], "There is an traceparent header"
+        assert_match /^2B[0-9A-F]*01$/, request_1.options[:headers]['traceparent']
+        assert request_2.options[:headers]['traceparent'], "There is an traceparent header"
+        assert_match /^2B[0-9A-F]*01$/, request_2.options[:headers]['traceparent']
       end
       refute AppOpticsAPM::Context.isValid
     end
@@ -125,12 +125,12 @@ unless defined?(JRUBY_VERSION)
           hydra.queue(request_2)
           hydra.run
 
-          assert request_1.options[:headers]['X-Trace'], "There is an X-Trace header"
-          assert_match /^2B[0-9A-F]*00$/, request_1.options[:headers]['X-Trace']
-          refute_match /^2B0*$/, request_1.options[:headers]['X-Trace']
-          assert request_2.options[:headers]['X-Trace'], "There is an X-Trace header"
-          assert_match /^2B[0-9A-F]*00$/, request_2.options[:headers]['X-Trace']
-          refute_match /^2B0*$/, request_2.options[:headers]['X-Trace']
+          assert request_1.options[:headers]['traceparent'], "There is an traceparent header"
+          assert_match /^2B[0-9A-F]*00$/, request_1.options[:headers]['traceparent']
+          refute_match /^2B0*$/, request_1.options[:headers]['traceparent']
+          assert request_2.options[:headers]['traceparent'], "There is an traceparent header"
+          assert_match /^2B[0-9A-F]*00$/, request_2.options[:headers]['traceparent']
+          refute_match /^2B0*$/, request_2.options[:headers]['traceparent']
         end
       end
       refute AppOpticsAPM::Context.isValid
@@ -144,8 +144,8 @@ unless defined?(JRUBY_VERSION)
       hydra.queue(request_2)
       hydra.run
 
-      refute request_1.options[:headers]['X-Trace'], "There should not be an X-Trace header"
-      refute request_2.options[:headers]['X-Trace'], "There should not be an X-Trace header"
+      refute request_1.options[:headers]['traceparent'], "There should not be an traceparent header"
+      refute request_2.options[:headers]['traceparent'], "There should not be an traceparent header"
       refute AppOpticsAPM::Context.isValid
     end
 
@@ -160,8 +160,8 @@ unless defined?(JRUBY_VERSION)
           hydra.queue(request_2)
           hydra.run
 
-          refute request_1.options[:headers]['X-Trace'], "There should not be an X-Trace header"
-          refute request_2.options[:headers]['X-Trace'], "There should not be an X-Trace header"
+          refute request_1.options[:headers]['traceparent'], "There should not be an traceparent header"
+          refute request_2.options[:headers]['traceparent'], "There should not be an traceparent header"
         end
       end
       refute AppOpticsAPM::Context.isValid
@@ -179,8 +179,8 @@ unless defined?(JRUBY_VERSION)
           hydra.queue(request_2)
           hydra.run
 
-          refute request_1.options[:headers]['X-Trace'], "There should not be an X-Trace header"
-          refute request_2.options[:headers]['X-Trace'], "There should not be an X-Trace header"
+          refute request_1.options[:headers]['traceparent'], "There should not be an traceparent header"
+          refute request_2.options[:headers]['traceparent'], "There should not be an traceparent header"
         end
       end
       refute AppOpticsAPM::Context.isValid

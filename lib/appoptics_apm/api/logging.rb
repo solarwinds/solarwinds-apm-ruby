@@ -173,7 +173,7 @@ module AppOpticsAPM
       #
       #   AppOpticsAPM::API.log_entry(:layer_name, { :id => @user.id })
       #
-      # Returns an xtrace metadata string if we are tracing
+      # Returns an xtrace metadata string
       #
       def log_entry(layer, opts = {}, op = nil) #, event = nil)
         return AppOpticsAPM::Context.toString unless AppOpticsAPM.tracing?

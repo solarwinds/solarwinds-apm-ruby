@@ -23,7 +23,7 @@ if AppOpticsAPM::Config[:nethttp][:enabled]
               return resp
             else
               xtrace = AppOpticsAPM::Context.toString
-              args[0]['X-Trace'] = xtrace if AppOpticsAPM::XTrace.valid?(xtrace)
+              args[0]['traceparent'] = xtrace if AppOpticsAPM::XTrace.valid?(xtrace)
               return super
             end
           end
@@ -44,7 +44,7 @@ if AppOpticsAPM::Config[:nethttp][:enabled]
               opts[:Blacklisted] = true if blacklisted
               opts[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:nethttp][:collect_backtraces]
 
-              req['X-Trace'] = context unless blacklisted
+              req['traceparent'] = context unless blacklisted
             end
 
             begin

@@ -15,7 +15,7 @@ module AppOpticsAPM
         unless AppOpticsAPM.tracing?
           if remote_call && !blacklisted
             xtrace = AppOpticsAPM::Context.toString
-            @headers['X-Trace'] = xtrace if AppOpticsAPM::XTrace.valid?(xtrace)
+            @headers['traceparent'] = xtrace if AppOpticsAPM::XTrace.valid?(xtrace)
           end
           return run_request_without_appoptics(method, url, body, headers, &block)
         end
@@ -25,7 +25,7 @@ module AppOpticsAPM
           xtrace = nil
           if remote_call && !blacklisted
             xtrace = AppOpticsAPM::Context.toString
-            @headers['X-Trace'] = xtrace if AppOpticsAPM::XTrace.valid?(xtrace)
+            @headers['traceparent'] = xtrace if AppOpticsAPM::XTrace.valid?(xtrace)
           end
 
           result = run_request_without_appoptics(method, url, body, headers, &block)

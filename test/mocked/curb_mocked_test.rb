@@ -29,7 +29,7 @@ if !defined?(JRUBY_VERSION)
       end
 
       assert_requested :get, "http://127.0.0.9:8101/", times: 1
-      assert_requested :get, "http://127.0.0.9:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*01$/}, times: 1
+      assert_requested :get, "http://127.0.0.9:8101/", headers: {'traceparent'=>/^2B[0-9,A-F]*01$/}, times: 1
       refute AppOpticsAPM::Context.isValid
     end
 
@@ -44,8 +44,8 @@ if !defined?(JRUBY_VERSION)
       end
 
       assert_requested :get, "http://127.0.0.4:8101/", times: 1
-      assert_requested :get, "http://127.0.0.4:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*00$/}, times: 1
-      assert_not_requested :get, "http://127.0.0.4:8101/", headers: {'X-Trace'=>/^2B0*$/}
+      assert_requested :get, "http://127.0.0.4:8101/", headers: {'traceparent'=>/^2B[0-9,A-F]*00$/}, times: 1
+      assert_not_requested :get, "http://127.0.0.4:8101/", headers: {'traceparent'=>/^2B0*$/}
       refute AppOpticsAPM::Context.isValid
     end
 
@@ -55,7 +55,7 @@ if !defined?(JRUBY_VERSION)
       ::Curl.get("http://127.0.0.6:8101/")
 
       assert_requested :get, "http://127.0.0.6:8101/", times: 1
-      assert_not_requested :get, "http://127.0.0.6:8101/", headers: {'X-Trace'=>/^.*$/}
+      assert_not_requested :get, "http://127.0.0.6:8101/", headers: {'traceparent'=>/^.*$/}
     end
 
     def test_blacklisted
@@ -69,7 +69,7 @@ if !defined?(JRUBY_VERSION)
       end
 
       assert_requested :get, "http://127.0.0.2:8101/", times: 1
-      assert_not_requested :get, "http://127.0.0.2:8101/", headers: {'X-Trace'=>/^.*/}
+      assert_not_requested :get, "http://127.0.0.2:8101/", headers: {'traceparent'=>/^.*/}
       refute AppOpticsAPM::Context.isValid
     end
 
@@ -79,6 +79,7 @@ if !defined?(JRUBY_VERSION)
       Curl::Multi.expects(:http_without_appoptics).with do |url_confs, _multi_options|
         assert_equal 3, url_confs.size
         url_confs.each do |conf|
+          # TODO are we testing request or response here?
           refute conf[:headers] && conf[:headers]['X-Trace']
         end
         true
@@ -103,6 +104,7 @@ if !defined?(JRUBY_VERSION)
         assert_equal 3, url_confs.size
         url_confs.each do |conf|
           headers = conf[:headers] || {}
+          typhoeus_mocked_test.rb:uu
           assert headers['X-Trace']
           assert headers['Custom']
           assert_match /specialvalue/, headers['Custom']

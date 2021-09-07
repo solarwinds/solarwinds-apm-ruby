@@ -70,7 +70,7 @@ module AppOpticsAPM
         # then just return as we're tracing from parent
         # <tt>requests</tt>
         if !AppOpticsAPM.tracing? || params[:pipeline]
-          @data[:headers]['X-Trace'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid && !blacklisted
+          @data[:headers]['traceparent'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid && !blacklisted
           return request_without_appoptics(params, &block)
         end
 
@@ -84,7 +84,7 @@ module AppOpticsAPM
           kvs.clear
 
           req_context = AppOpticsAPM::Context.toString
-          @data[:headers]['X-Trace'] = req_context unless blacklisted
+          @data[:headers]['traceparent'] = req_context unless blacklisted
 
           # The core excon call
           response = request_without_appoptics(params, &block)

@@ -14,7 +14,7 @@ module AppOpticsAPM
         blacklisted = AppOpticsAPM::API.blacklisted?(url)
         unless AppOpticsAPM.tracing?
           context = AppOpticsAPM::Context.toString
-          options[:headers]['X-Trace'] = context if AppOpticsAPM::XTrace.valid?(context) && !blacklisted
+          options[:headers]['traceparent'] = context if AppOpticsAPM::XTrace.valid?(context) && !blacklisted
           return run_without_appoptics
         end
 
@@ -23,7 +23,7 @@ module AppOpticsAPM
 
           # Prepare X-Trace header handling
           context = AppOpticsAPM::Context.toString
-          options[:headers]['X-Trace'] = context unless blacklisted
+          options[:headers]['traceparent'] = context unless blacklisted
 
           kvs = {}
           kvs[:Spec] = 'rsc'
@@ -72,7 +72,7 @@ module AppOpticsAPM
           context = AppOpticsAPM::Context.toString
           queued_requests.map do |request|
             blacklisted = AppOpticsAPM::API.blacklisted?(request.base_url)
-            request.options[:headers]['X-Trace'] = context if AppOpticsAPM::XTrace.valid?(context) && !blacklisted
+            request.options[:headers]['traceparent'] = context if AppOpticsAPM::XTrace.valid?(context) && !blacklisted
           end
           return run_without_appoptics
         end
@@ -90,7 +90,7 @@ module AppOpticsAPM
         AppOpticsAPM::API.trace(:typhoeus_hydra, kvs) do
           queued_requests.map do |request|
             blacklisted = AppOpticsAPM::API.blacklisted?(request.base_url)
-            request.options[:headers]['X-Trace'] = AppOpticsAPM::Context.toString unless blacklisted
+            request.options[:headers]['traceparent'] = AppOpticsAPM::Context.toString unless blacklisted
           end
 
           run_without_appoptics

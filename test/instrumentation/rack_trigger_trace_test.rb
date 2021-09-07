@@ -400,10 +400,10 @@ describe "Rack Trigger Tracing " do
     end
   end
 
-  describe 'incoming x-trace' do
+  describe 'incoming traceparent' do
     it 'trigger-trace and sampling x-trace' do
       req_headers = { 'HTTP_X_TRACE_OPTIONS' => 'trigger-trace;pd-keys=lo:se,check-id:123;custom-foo=bar;bad-key',
-                      'HTTP_X_TRACE' => '2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F01' }
+                      'HTTP_TRACEPARENT' => '2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F01' }
 
       _, res_headers, _ = @rack.call(req_headers)
 
@@ -420,7 +420,7 @@ describe "Rack Trigger Tracing " do
 
     it 'no trigger-trace and sampling x-trace' do
       req_headers = { 'HTTP_X_TRACE_OPTIONS' => 'pd-keys=lo:se,check-id:123;custom-foo=bar;bad-key',
-                      'HTTP_X_TRACE' => '2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F01' }
+                      'HTTP_TRACEPARENT' => '2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F01' }
 
       _, res_headers, _ = @rack.call(req_headers)
 
@@ -437,7 +437,7 @@ describe "Rack Trigger Tracing " do
 
     it 'trigger-trace and non-sampling x-trace' do
       req_headers = { 'HTTP_X_TRACE_OPTIONS' => 'trigger-trace;pd-keys=lo:se,check-id:123;custom-foo=bar;bad-key',
-                      'HTTP_X_TRACE' => '2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00' }
+                      'HTTP_TRACEPARENT' => '2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00' }
 
       _, res_headers, _ = @rack.call(req_headers)
 
@@ -450,7 +450,7 @@ describe "Rack Trigger Tracing " do
 
     it 'trigger-trace and invalid x-trace' do
       req_headers = { 'HTTP_X_TRACE_OPTIONS' => 'trigger-trace;pd-keys=lo:se,check-id:123;custom-foo=bar;bad-key',
-                      'HTTP_X_TRACE' => '2B7435A9FE510AE4533414D425DADF4E180D2B4E00' }
+                      'HTTP_TRACEPARENT' => '2B7435A9FE510AE4533414D425DADF4E180D2B4E00' }
 
       _, res_headers, _ = @rack.call(req_headers)
 
@@ -467,7 +467,7 @@ describe "Rack Trigger Tracing " do
 
     it 'TODO no trigger-trace and non-sampling x-trace' do
       req_headers = { 'HTTP_X_TRACE_OPTIONS' => 'pd-keys=lo:se,check-id:123;custom-foo=bar;bad-key',
-                      'HTTP_X_TRACE' => '2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00' }
+                      'HTTP_TRACEPARENT' => '2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00' }
 
       _, res_headers, _ = @rack.call(req_headers)
 
