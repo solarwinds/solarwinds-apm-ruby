@@ -55,7 +55,7 @@ module AppOpticsAPM
         # If we're not tracing, just do a fast return.
         unless AppOpticsAPM.tracing?
           unless AppOpticsAPM::API.blacklisted?(URI(url).hostname)
-            self.headers['X-Trace'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid
+            self.headers['traceparent'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid
           end
           return self.send(method, args, &block)
         end
@@ -69,7 +69,7 @@ module AppOpticsAPM
 
           # The core curb call
           unless AppOpticsAPM::API.blacklisted?(URI(url).hostname)
-            self.headers['X-Trace'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid
+            self.headers['traceparent'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid
           end
           response = self.send(method, *args, &block)
 
@@ -85,7 +85,7 @@ module AppOpticsAPM
 
             response_context = response_headers['X-Trace']
             if response_context && !kvs[:blacklisted]
-              AppOpticsAPM::XTrace.continue_service_context(self.headers['X-Trace'], response_context)
+              AppOpticsAPM::XTrace.continue_service_context(self.headers['traceparent'], response_context)
             end
 
           response
@@ -121,7 +121,7 @@ module AppOpticsAPM
         # If we're not tracing, just do a fast return.
         if !AppOpticsAPM.tracing? || AppOpticsAPM.tracing_layer?(:curb)
           unless AppOpticsAPM::API.blacklisted?(URI(url).hostname)
-            self.headers['X-Trace'] = AppOpticsAPM::Context.toString() if AppOpticsAPM::Context.isValid
+            self.headers['traceparent'] = AppOpticsAPM::Context.toString() if AppOpticsAPM::Context.isValid
           end
           return http_post_without_appoptics(*args)
         end
@@ -141,7 +141,7 @@ module AppOpticsAPM
         # If we're not tracing, just do a fast return.
         if !AppOpticsAPM.tracing? || AppOpticsAPM.tracing_layer?(:curb)
           unless AppOpticsAPM::API.blacklisted?(URI(url).hostname)
-            self.headers['X-Trace'] = AppOpticsAPM::Context.toString() if AppOpticsAPM::Context.isValid
+            self.headers['traceparent'] = AppOpticsAPM::Context.toString() if AppOpticsAPM::Context.isValid
           end
           return http_put_without_appoptics(data)
         end
@@ -163,7 +163,7 @@ module AppOpticsAPM
         # we have to make sure we don't log again
         if !AppOpticsAPM.tracing? || AppOpticsAPM.tracing_layer?(:curb)
           unless AppOpticsAPM::API.blacklisted?(URI(url).hostname)
-            self.headers['X-Trace'] = AppOpticsAPM::Context.toString() if AppOpticsAPM::Context.isValid
+            self.headers['traceparent'] = AppOpticsAPM::Context.toString() if AppOpticsAPM::Context.isValid
           end
           return perform_without_appoptics(&block)
         end
@@ -190,7 +190,7 @@ module AppOpticsAPM
         # If we're not tracing, just do a fast return.
         unless AppOpticsAPM.tracing?
           unless AppOpticsAPM::API.blacklisted?(URI(url).hostname)
-            self.headers['X-Trace'] = AppOpticsAPM::Context.toString() if AppOpticsAPM::Context.isValid
+            self.headers['traceparent'] = AppOpticsAPM::Context.toString() if AppOpticsAPM::Context.isValid
           end
           return http_without_appoptics(verb)
         end
@@ -226,7 +226,7 @@ module AppOpticsAPM
           urls_with_config.each do |conf|
             unless AppOpticsAPM::API.blacklisted?(URI(conf[:url]).hostname)
               conf[:headers] ||= {}
-              conf[:headers]['X-Trace'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid
+              conf[:headers]['traceparent'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid
             end
           end
           return http_without_appoptics(urls_with_config, multi_options, &block)
@@ -241,7 +241,7 @@ module AppOpticsAPM
           urls_with_config.each do |conf|
             unless AppOpticsAPM::API.blacklisted?(URI(conf[:url]).hostname)
               conf[:headers] ||= {}
-              conf[:headers]['X-Trace'] = context if AppOpticsAPM::Context.isValid
+              conf[:headers]['traceparent'] = context if AppOpticsAPM::Context.isValid
             end
           end
 
@@ -250,7 +250,7 @@ module AppOpticsAPM
           http_without_appoptics(urls_with_config, multi_options) do |easy, response_code, method|
             # this is the only way we can access the headers, they are not exposed otherwise
             unless AppOpticsAPM::API.blacklisted?(URI(easy.url).hostname)
-              xtrace = easy.header_str.scan(/X-Trace: ([0-9A-F]*)/).map{ |m| m[0] }
+              xtrace = easy.header_str.scan(/traceparent: ([0-9A-F]*)/).map{ |m| m[0] }
               traces << xtrace[0] unless xtrace.empty?
             end
             block.call(easy, response_code, method) if block
@@ -293,7 +293,7 @@ module AppOpticsAPM
           self.requests.each do |request|
             request = request[1] if request.is_a?(Array)
             unless AppOpticsAPM::API.blacklisted?(URI(request.url).hostname)
-              request.headers['X-Trace'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid
+              request.headers['traceparent'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid
             end
           end
           return perform_without_appoptics(&block)
@@ -308,7 +308,7 @@ module AppOpticsAPM
           self.requests.each do |request|
             request = request[1] if request.is_a?(Array)
             unless AppOpticsAPM::API.blacklisted?(URI(request.url).hostname)
-              request.headers['X-Trace'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid
+              request.headers['traceparent'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid
             end
           end
 

@@ -80,7 +80,7 @@ if !defined?(JRUBY_VERSION)
         assert_equal 3, url_confs.size
         url_confs.each do |conf|
           # TODO are we testing request or response here?
-          refute conf[:headers] && conf[:headers]['X-Trace']
+          refute conf[:headers] && conf[:headers]['traceparent']
         end
         true
       end
@@ -104,11 +104,10 @@ if !defined?(JRUBY_VERSION)
         assert_equal 3, url_confs.size
         url_confs.each do |conf|
           headers = conf[:headers] || {}
-          typhoeus_mocked_test.rb:uu
-          assert headers['X-Trace']
+          assert headers['traceparent']
           assert headers['Custom']
           assert_match /specialvalue/, headers['Custom']
-          assert sampled?(headers['X-Trace'])
+          assert sampled?(headers['traceparent'])
         end
         true
       end
@@ -134,8 +133,8 @@ if !defined?(JRUBY_VERSION)
         assert_equal 3, url_confs.size
         url_confs.each do |conf|
           headers = conf[:headers] || {}
-          assert headers['X-Trace']
-          assert not_sampled?(headers['X-Trace'])
+          assert headers['traceparent']
+          assert not_sampled?(headers['traceparent'])
         end
         true
       end
@@ -176,7 +175,7 @@ if !defined?(JRUBY_VERSION)
       m.perform do
         m.requests.each do |request|
           request = request[1] if request.is_a?(Array)
-          refute request.headers && request.headers['X-Trace']
+          refute request.headers && request.headers['traceparent']
         end
       end
     end
@@ -202,9 +201,9 @@ if !defined?(JRUBY_VERSION)
         m.perform do
           m.requests.each do |request|
             request = request[1] if request.is_a?(Array)
-            assert request.headers['X-Trace']
+            assert request.headers['traceparent']
             assert request.headers['Custom']
-            assert sampled?(request.headers['X-Trace'])
+            assert sampled?(request.headers['traceparent'])
           end
         end
       end
@@ -233,9 +232,9 @@ if !defined?(JRUBY_VERSION)
           m.perform do
             m.requests.each do |request|
               request = request[1] if request.is_a?(Array)
-              assert request.headers['X-Trace']
-              assert not_sampled?(request.headers['X-Trace'])
-              refute_match /^2B0*$/, request.headers['X-Trace']
+              assert request.headers['traceparent']
+              assert not_sampled?(request.headers['traceparent'])
+              refute_match /^2B0*$/, request.headers['traceparent']
             end
           end
         end
@@ -271,9 +270,9 @@ if !defined?(JRUBY_VERSION)
       end
 
       assert curl.headers
-      assert curl.headers['X-Trace']
+      assert curl.headers['traceparent']
       assert curl.headers['Custom']
-      assert_match /^2B[0-9A-F]*01$/, curl.headers['X-Trace']
+      assert_match /^2B[0-9A-F]*01$/, curl.headers['traceparent']
       assert_match /specialvalue4/, curl.headers['Custom']
       refute AppOpticsAPM::Context.isValid
     end
@@ -289,9 +288,9 @@ if !defined?(JRUBY_VERSION)
       end
 
       assert curl.headers
-      assert curl.headers['X-Trace']
+      assert curl.headers['traceparent']
       assert curl.headers['Custom']
-      assert_match /^2B[0-9A-F]*01$/, curl.headers['X-Trace']
+      assert_match /^2B[0-9A-F]*01$/, curl.headers['traceparent']
       assert_match /specialvalue4/, curl.headers['Custom']
       refute AppOpticsAPM::Context.isValid
     end
@@ -307,9 +306,9 @@ if !defined?(JRUBY_VERSION)
       end
 
       assert curl.headers
-      assert curl.headers['X-Trace']
+      assert curl.headers['traceparent']
       assert curl.headers['Custom']
-      assert_match /^2B[0-9A-F]*01$/, curl.headers['X-Trace']
+      assert_match /^2B[0-9A-F]*01$/, curl.headers['traceparent']
       assert_match /specialvalue4/, curl.headers['Custom']
       refute AppOpticsAPM::Context.isValid
     end
