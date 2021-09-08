@@ -6,14 +6,22 @@ require 'minitest_helper'
 describe "TracingModeTest" do
   def setup
     @tm = AppOpticsAPM::Config[:tracing_mode]
-    AppOpticsAPM::Config[:tracing_mode] = :enabled
+    @config_url_disabled = AppOpticsAPM::Config[:url_disabled_regexps]
+    @config_url_enabled = AppOpticsAPM::Config[:url_enabled_regexps]
+
+    AppOpticsAPM::Config[:url_disabled_regexps] = nil
+    AppOpticsAPM::Config[:url_enabled_regexps] = nil
   end
 
   def teardown
-    AppOpticsAPM::Config[:tracing_mode] = @tm
+    AppOpticsAPM::Config[:tracing_mode] = @tmo
+    AppOpticsAPM::Config[:url_disabled_regexps] = @config_url_disabled
+    AppOpticsAPM::Config[:url_enabled_regexps] =  @config_url_enabled
   end
 
   def test_trace_when_enabled
+    AppOpticsAPM::Config[:tracing_mode] = :enabled
+
     AppOpticsAPM::API.start_trace(:test_enabled) do
       _(AppOpticsAPM.tracing?).must_equal true
     end
