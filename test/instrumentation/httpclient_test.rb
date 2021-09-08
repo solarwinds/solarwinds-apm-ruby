@@ -15,10 +15,15 @@ describe 'HTTPClientTest' do
 
   before do
     clear_all_traces
+    @tm = AppOpticsAPM::Config[:tracing_mode]
+    @sample_rate = AppOpticsAPM::Config[:sample_rate]
     AppOpticsAPM::Config[:tracing_mode] = :enabled
+    AppOpticsAPM::Config[:sample_rate] = 1000000
   end
 
   after do
+    AppOpticsAPM::Config[:tracing_mode] = @tm
+    AppOpticsAPM::Config[:sample_rate] = @sample_rate
     clear_all_traces
   end
 
