@@ -14,7 +14,7 @@ describe "TracingModeTest" do
   end
 
   def teardown
-    AppOpticsAPM::Config[:tracing_mode] = @tmo
+    AppOpticsAPM::Config[:tracing_mode] = @tm
     AppOpticsAPM::Config[:url_disabled_regexps] = @config_url_disabled
     AppOpticsAPM::Config[:url_enabled_regexps] =  @config_url_enabled
   end
