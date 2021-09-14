@@ -8,7 +8,7 @@ require 'sidekiq/cli'
 
 unless `ps -aef | grep 'sidekiq' | grep APPOPTICS_GEM_TEST | grep -v grep`.empty?
   AppOpticsAPM.logger.debug "[appoptics_apm/servers] Killing old sidekiq process:#{`ps aux | grep [s]idekiq`}."
-  cmd = "kill -9 `ps -aef | grep 'sidekiq' | grep APPOPTICS_GEM_TEST | grep -v grep | awk '{print $2}'`"
+  cmd = "pkill -9 -f sidekiq"
   `#{cmd}`
   sleep 1
 end
