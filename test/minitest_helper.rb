@@ -324,11 +324,11 @@ def assert_controller_action(test_action)
 end
 
 def not_sampled?(xtrace)
-  xtrace[59].to_i & 1 == 0
+  !sampled?(xtrace)
 end
 
 def sampled?(xtrace)
-  xtrace[59].to_i & 1 == 1
+  AppOpticsAPM::XTrace.sampled?(xtrace)
 end
 
 

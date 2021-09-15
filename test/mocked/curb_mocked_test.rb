@@ -7,7 +7,30 @@ if !defined?(JRUBY_VERSION)
   require 'webmock/minitest'
   require 'mocha/minitest'
 
+  # expose private method for trace_state verification
+  module AppOpticsAPM
+    module TraceState
+      class << self
+        def public_valid?(trace_state)
+          valid?(trace_state)
+        end
+      end
+    end
+  end
+
   class CurbMockedTest < Minitest::Test
+
+    def assert_trace_headers(headers)
+      # don't use transform_keys! it makes follow up assertions fail ;)
+      headers = headers.transform_keys(&:downcase)
+      assert headers['traceparent']
+      assert AppOpticsAPM::XTrace.valid?(headers['traceparent'])
+      assert headers['tracestate']
+      assert_match /#{APPOPTICS_TRACE_STATE_ID}=/, headers['tracestate']
+      assert AppOpticsAPM::TraceState.public_valid?(headers['tracestate'])
+      assert_equal AppOpticsAPM::XTrace.edge_id_flags(headers['traceparent']),
+                   AppOpticsAPM::TraceState.extract_id(headers['tracestate'])
+    end
 
     def setup
       AppOpticsAPM::Context.clear
@@ -21,19 +44,21 @@ if !defined?(JRUBY_VERSION)
       AppOpticsAPM::Config[:blacklist] = []
     end
 
-    def test_xtrace_tracing
+    def test_API_xtrace_tracing
       stub_request(:get, "http://127.0.0.9:8101/").to_return(status: 200, body: "", headers: {})
 
       AppOpticsAPM::API.start_trace('curb_tests') do
         ::Curl.get("http://127.0.0.9:8101/")
       end
 
-      assert_requested :get, "http://127.0.0.9:8101/", times: 1
-      assert_requested :get, "http://127.0.0.9:8101/", headers: {'traceparent'=>/^2B[0-9,A-F]*01$/}, times: 1
+      assert_requested(:get, "http://127.0.0.9:8101/", times: 1) do |req|
+        assert_trace_headers(req.headers)
+        assert sampled?(req.headers.transform_keys(&:downcase)['traceparent'])
+      end
       refute AppOpticsAPM::Context.isValid
     end
 
-    def test_xtrace_sample_rate_0
+    def test_API_xtrace_sample_rate_0
       stub_request(:get, "http://127.0.0.4:8101/").to_return(status: 200, body: "", headers: {})
 
       AppOpticsAPM.config_lock.synchronize do
@@ -43,22 +68,27 @@ if !defined?(JRUBY_VERSION)
         end
       end
 
-      assert_requested :get, "http://127.0.0.4:8101/", times: 1
-      assert_requested :get, "http://127.0.0.4:8101/", headers: {'traceparent'=>/^2B[0-9,A-F]*00$/}, times: 1
-      assert_not_requested :get, "http://127.0.0.4:8101/", headers: {'traceparent'=>/^2B0*$/}
+      assert_requested(:get, "http://127.0.0.4:8101/", times: 1) do |req|
+        assert_trace_headers(req.headers)
+        refute sampled?(req.headers.transform_keys(&:downcase)['traceparent'])
+      end
       refute AppOpticsAPM::Context.isValid
     end
 
-    def test_xtrace_no_trace
+    # TODO NH-2303 add test case with incoming trace headers
+    #  when we are not tracing those headers have to be preserved
+    def test_API_xtrace_no_trace
       stub_request(:get, "http://127.0.0.6:8101/").to_return(status: 200, body: "", headers: {})
 
       ::Curl.get("http://127.0.0.6:8101/")
 
-      assert_requested :get, "http://127.0.0.6:8101/", times: 1
-      assert_not_requested :get, "http://127.0.0.6:8101/", headers: {'traceparent'=>/^.*$/}
+      assert_requested(:get, "http://127.0.0.6:8101/", times: 1) do |req|
+        refute req.headers.transform_keys(&:downcase)['traceparent']
+        refute req.headers.transform_keys(&:downcase)['tracestate']
+      end
     end
 
-    def test_blacklisted
+    def test_API_blacklisted
       stub_request(:get, "http://127.0.0.2:8101/").to_return(status: 200, body: "", headers: {})
 
       AppOpticsAPM.config_lock.synchronize do
@@ -68,21 +98,26 @@ if !defined?(JRUBY_VERSION)
         end
       end
 
-      assert_requested :get, "http://127.0.0.2:8101/", times: 1
-      assert_not_requested :get, "http://127.0.0.2:8101/", headers: {'traceparent'=>/^.*/}
+      # TODO NH-2303 wait for final decision, but it is probably
+      #  correct to not add trace headers to denylisted hosts
+      assert_requested(:get, "http://127.0.0.2:8101/", times: 1) do |req|
+        refute req.headers.transform_keys(&:downcase)['traceparent']
+        refute req.headers.transform_keys(&:downcase)['tracestate']
+      end
       refute AppOpticsAPM::Context.isValid
     end
 
+    # TODO NH-2303 add test case with incoming trace headers
+    #  when we are not tracing those headers have to be preserved
     def test_multi_get_no_trace
       WebMock.disable!
 
       Curl::Multi.expects(:http_without_appoptics).with do |url_confs, _multi_options|
         assert_equal 3, url_confs.size
         url_confs.each do |conf|
-          # TODO are we testing request or response here?
-          refute conf[:headers] && conf[:headers]['traceparent']
+          refute conf[:headers] && conf[:headers].transform_keys(&:downcase)['traceparent']
+          refute conf[:headers].transform_keys(&:downcase)['tracestate']
         end
-        true
       end
 
       easy_options = {:follow_location => true}
@@ -104,16 +139,16 @@ if !defined?(JRUBY_VERSION)
         assert_equal 3, url_confs.size
         url_confs.each do |conf|
           headers = conf[:headers] || {}
-          assert headers['traceparent']
+          assert_trace_headers(headers)
+          assert sampled?(headers['traceparent'])
           assert headers['Custom']
           assert_match /specialvalue/, headers['Custom']
-          assert sampled?(headers['traceparent'])
         end
-        true
+        # true
       end
 
-      easy_options = {:follow_location => true, :headers => { 'Custom' => 'specialvalue' }}
-      multi_options = {:pipeline => false}
+      easy_options = { :follow_location => true, :headers => { 'Custom' => 'specialvalue' } }
+      multi_options = { :pipeline => false }
 
       urls = []
       urls << "http://127.0.0.7:8101/?one=1"
@@ -133,10 +168,10 @@ if !defined?(JRUBY_VERSION)
         assert_equal 3, url_confs.size
         url_confs.each do |conf|
           headers = conf[:headers] || {}
-          assert headers['traceparent']
-          assert not_sampled?(headers['traceparent'])
+          assert_trace_headers(headers)
+          refute sampled?(headers['traceparent'])
         end
-        true
+        # true
       end
 
       easy_options = {:follow_location => true}
@@ -156,6 +191,8 @@ if !defined?(JRUBY_VERSION)
       refute AppOpticsAPM::Context.isValid
     end
 
+    # TODO NH-2303 add test case with incoming trace headers
+    #  when we are not tracing those headers have to be preserved
     def test_multi_perform_no_trace
       WebMock.disable!
 
@@ -176,6 +213,7 @@ if !defined?(JRUBY_VERSION)
         m.requests.each do |request|
           request = request[1] if request.is_a?(Array)
           refute request.headers && request.headers['traceparent']
+          refute request.headers['tracestate']
         end
       end
     end
@@ -201,9 +239,8 @@ if !defined?(JRUBY_VERSION)
         m.perform do
           m.requests.each do |request|
             request = request[1] if request.is_a?(Array)
-            assert request.headers['traceparent']
             assert request.headers['Custom']
-            assert sampled?(request.headers['traceparent'])
+            assert_trace_headers(request.headers)
           end
         end
       end
@@ -232,9 +269,8 @@ if !defined?(JRUBY_VERSION)
           m.perform do
             m.requests.each do |request|
               request = request[1] if request.is_a?(Array)
-              assert request.headers['traceparent']
-              assert not_sampled?(request.headers['traceparent'])
-              refute_match /^2B0*$/, request.headers['traceparent']
+              assert_trace_headers(request.headers)
+              refute sampled?(request.headers.transform_keys(&:downcase)['traceparent'])
             end
           end
         end
@@ -245,7 +281,7 @@ if !defined?(JRUBY_VERSION)
     # preserve custom headers
     #
     # this calls Curl::Easy.http
-    def test_preserves_custom_headers_on_get
+    def test_Easy_preserves_custom_headers_on_get
       stub_request(:get, "http://127.0.0.6:8101/").to_return(status: 200, body: "", headers: {})
 
       AppOpticsAPM::API.start_trace('curb_tests') do
@@ -255,13 +291,29 @@ if !defined?(JRUBY_VERSION)
       end
 
       assert_requested :get, "http://127.0.0.6:8101/", headers: {'Custom'=>'specialvalue'}, times: 1
+      assert_requested(:get, "http://127.0.0.6:8101/") do |req|
+        assert_trace_headers(req.headers)
+        assert_equal 'specialvalue', req.headers['Custom']
+      end
+
       refute AppOpticsAPM::Context.isValid
     end
 
-    # The following test can't use WebMock because it interferes with our instrumentation
+    def test_API_curl_post
+      stub_request(:post, "http://127.0.0.6:8101/").to_return(status: 200, body: "", headers: {})
+
+      AppOpticsAPM::API.start_trace('curb_tests') do
+        Curl.post("http://127.0.0.6:8101/")
+      end
+
+      assert_requested(:post, "http://127.0.0.6:8101/") do |req|
+        assert_trace_headers(req.headers)
+      end
+    end
+
+    # The following tests can't use WebMock because it interferes with our instrumentation
     def test_preserves_custom_headers_on_http_put
       WebMock.disable!
-
       curl = Curl::Easy.new("http://127.0.0.1:8101/")
       curl.headers = { 'Custom' => 'specialvalue4' }
 
@@ -270,10 +322,11 @@ if !defined?(JRUBY_VERSION)
       end
 
       assert curl.headers
-      assert curl.headers['traceparent']
       assert curl.headers['Custom']
-      assert_match /^2B[0-9A-F]*01$/, curl.headers['traceparent']
       assert_match /specialvalue4/, curl.headers['Custom']
+
+      assert_trace_headers(curl.headers)
+
       refute AppOpticsAPM::Context.isValid
     end
 
@@ -288,10 +341,11 @@ if !defined?(JRUBY_VERSION)
       end
 
       assert curl.headers
-      assert curl.headers['traceparent']
       assert curl.headers['Custom']
-      assert_match /^2B[0-9A-F]*01$/, curl.headers['traceparent']
       assert_match /specialvalue4/, curl.headers['Custom']
+      assert_trace_headers(curl.headers)
+      assert sampled?(curl.headers['traceparent'])
+
       refute AppOpticsAPM::Context.isValid
     end
 
@@ -306,10 +360,11 @@ if !defined?(JRUBY_VERSION)
       end
 
       assert curl.headers
-      assert curl.headers['traceparent']
       assert curl.headers['Custom']
-      assert_match /^2B[0-9A-F]*01$/, curl.headers['traceparent']
       assert_match /specialvalue4/, curl.headers['Custom']
+      assert_trace_headers(curl.headers)
+      assert sampled?(curl.headers['traceparent'])
+
       refute AppOpticsAPM::Context.isValid
     end
 

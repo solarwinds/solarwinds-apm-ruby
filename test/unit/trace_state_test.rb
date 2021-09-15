@@ -5,7 +5,6 @@ require 'minitest_helper'
 
 describe "TraceStateTest" do
 
-  Minitest::Test.i_suck_and_my_tests_are_order_dependent!
   it "adds our member" do
     trace_state = "aa=123,bb=234,cc=567"
     trace_state2 = AppOpticsAPM::TraceState.add_parent_id(trace_state, '136DFAEBDF742362-01')
