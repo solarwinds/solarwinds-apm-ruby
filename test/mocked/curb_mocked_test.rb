@@ -18,6 +18,19 @@ if !defined?(JRUBY_VERSION)
     end
   end
 
+  # Ruby 2.4 doesn't have the transform_keys method
+  unless Hash.instance_methods.include?(:transform_keys)
+    class Hash
+      def transform_keys
+        new_hash = {}
+        self.each do |k,v|
+          new_hash[yield(k)] = v
+        end
+        new_hash
+      end
+    end
+  end
+
   class CurbMockedTest < Minitest::Test
 
     def assert_trace_headers(headers)
