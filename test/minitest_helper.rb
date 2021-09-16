@@ -246,18 +246,12 @@ def valid_edges?(traces, connected = true)
   traces[1..-1].reverse.each do  |t|
     if t.key?("Edge")
       unless has_edge?(t["Edge"], traces)
-        puts traces.pretty_inspect
         return false
       end
     end
   end
   if connected
-    if traces.map{ |tr| tr['Edge'] }.uniq.size == traces.size
-      return true
-    else
-      puts traces.pretty_inspect
-      return false
-    end
+    return traces.map{ |tr| tr['Edge'] }.uniq.size == traces.size
   end
   true
 end
