@@ -295,13 +295,13 @@ describe "Rack: " do
   # the following is a common situation for grape, which,
   # when instrumented, calls AppOpticsAPM::Rack#call 3 times
   describe 'D - with context and current layer is :rack' do
-    # it 'calls @app.call' do
-    #   @rack.app.expects(:call)
-    #
-    #   AppOpticsAPM::API.start_trace(:rack) do
-    #     @rack.call({})
-    #   end
-    # end
+    it 'calls @app.call' do
+      @rack.app.expects(:call)
+
+      AppOpticsAPM::API.start_trace(:rack) do
+        @rack.call({})
+      end
+    end
 
     it "does not sample, do metrics, nor return X-Trace header" do
       AppOpticsAPM::API.start_trace(:rack) do
