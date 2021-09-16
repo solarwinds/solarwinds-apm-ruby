@@ -125,7 +125,7 @@ when /libraries/
   # out the sidekiq tests
   # Background Sidekiq thread
   unless (ENV.key?('TEST') && ENV['TEST'] =~ /sidekiq/) || (/benchmark/ =~ $0)
-    # require './test/servers/sidekiq.rb'
+    require './test/servers/sidekiq.rb'
   end
 end
 
