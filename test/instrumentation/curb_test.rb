@@ -352,7 +352,7 @@ unless defined?(JRUBY_VERSION)
     end
 
     it 'without tracing class get' do
-      response = ::Curl.get('http://127.0.0.1:8101/?blah=1')
+      response = Curl.get('http://127.0.0.1:8101/?blah=1')
 
       assert response.headers['X-Trace'] == nil
       assert response.body_str == "Hello AppOpticsAPM!"

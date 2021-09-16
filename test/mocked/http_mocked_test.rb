@@ -19,9 +19,19 @@ unless defined?(JRUBY_VERSION)
       WebMock.allow_net_connect!
       WebMock.disable!
 
+      @sample_rate = AppOpticsAPM::Config[:sample_rate]
+      @tracing_mode = AppOpticsAPM::Config[:tracing_mode]
+      @blacklist = AppOpticsAPM::Config[:blacklist]
+
       AppOpticsAPM::Config[:sample_rate] = 1000000
       AppOpticsAPM::Config[:tracing_mode] = :enabled
       AppOpticsAPM::Config[:blacklist] = []
+    end
+
+    def teardown
+      AppOpticsAPM::Config[:sample_rate] = @sample_rate
+      AppOpticsAPM::Config[:tracing_mode] = @tracing_mode
+      AppOpticsAPM::Config[:blacklist] = @blacklist
     end
 
     def test_tracing_sampling
