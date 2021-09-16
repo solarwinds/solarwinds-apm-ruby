@@ -120,13 +120,12 @@ when /rails4/
 
 when /frameworks/
 when /libraries/
-  require 'rack/test'
 
   # Load Sidekiq if TEST isn't defined or if it is, it calls
   # out the sidekiq tests
   # Background Sidekiq thread
   unless (ENV.key?('TEST') && ENV['TEST'] =~ /sidekiq/) || (/benchmark/ =~ $0)
-    require './test/servers/sidekiq.rb'
+    # require './test/servers/sidekiq.rb'
   end
 end
 
@@ -247,12 +246,18 @@ def valid_edges?(traces, connected = true)
   traces[1..-1].reverse.each do  |t|
     if t.key?("Edge")
       unless has_edge?(t["Edge"], traces)
+        puts traces.pretty_inspect
         return false
       end
     end
   end
   if connected
-    return traces.map{ |tr| tr['Edge'] }.uniq.size == traces.size
+    if traces.map{ |tr| tr['Edge'] }.uniq.size == traces.size
+      return true
+    else
+      puts traces.pretty_inspect
+      return false
+    end
   end
   true
 end
