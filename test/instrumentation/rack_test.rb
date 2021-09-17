@@ -312,6 +312,7 @@ describe "Rack: " do
 
   describe 'E - when there is a context NOT from rack' do
 
+    # skipping, repetition of first test in D
     # it "should call the app's call method" do
     #   @rack.app.expects(:call)
     #
@@ -320,12 +321,12 @@ describe "Rack: " do
     #   end
     # end
 
-    # it 'should sample but not do metrics' do
-    #   AppOpticsAPM::API.start_trace(:other) do
-    #     check_w_context_01_110
-    #   end
-    # end
-    #
+    it 'should sample but not do metrics' do
+      AppOpticsAPM::API.start_trace(:other) do
+        check_w_context_01_110
+      end
+    end
+
     # it 'should log an error' do
     #   AppOpticsAPM::API.expects(:log_start)
     #   AppOpticsAPM::API.expects(:log_exception)
