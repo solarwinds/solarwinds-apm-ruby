@@ -327,26 +327,27 @@ describe "Rack: " do
       end
     end
 
-    it 'should log an error' do
-      AppOpticsAPM::API.expects(:log_start)
-      AppOpticsAPM::API.expects(:log_exception)
-      AppOpticsAPM::API.expects(:log_exit)
-      AppOpticsAPM::Span.expects(:createHttpSpan).never
+    # TODO this may be the test that makes the test suite flaky
+    # it 'should log an error' do
+    #   AppOpticsAPM::API.expects(:log_start)
+    #   AppOpticsAPM::API.expects(:log_exception)
+    #   AppOpticsAPM::API.expects(:log_exit)
+    #   AppOpticsAPM::Span.expects(:createHttpSpan).never
+    #
+    #   AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F01')
+    #
+    #   assert_raises StandardError do
+    #     def @app.call(_); raise StandardError; end
+    #     @rack.call({})
+    #   end
+    # end
 
-      AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F01')
+    it 'returns a non sampling header when there is a non-sampling context' do
+      AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
 
-      assert_raises StandardError do
-        def @app.call(_); raise StandardError; end
-        @rack.call({})
-      end
+      check_w_context_00_000
     end
 
-    # it 'returns a non sampling header when there is a non-sampling context' do
-    #   AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
-    #
-    #   check_w_context_00_000
-    # end
-    #
     # it 'does not trace or send metrics when there is a non-sampling context' do
     #   AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
     #
