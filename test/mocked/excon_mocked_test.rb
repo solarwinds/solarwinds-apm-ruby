@@ -51,8 +51,11 @@ if !defined?(JRUBY_VERSION)
         ::Excon.get("http://127.0.0.7:8101/")
       end
 
-      assert_requested :get, "http://127.0.0.7:8101/", times: 1
-      assert_requested :get, "http://127.0.0.7:8101/", headers: {'traceparent'=>/^2B[0-9,A-F]{56}01/}, times: 1
+      assert_requested(:get, "http://127.0.0.7:8101/") do |req|
+        assert_trace_headers(req.headers)
+        assert sampled?(req.headers['Traceparent'])
+      end
+
       refute AppOpticsAPM::Context.isValid
     end
 
@@ -66,9 +69,11 @@ if !defined?(JRUBY_VERSION)
         end
       end
 
-      assert_requested :get, "http://127.0.0.4:8101/", times: 1
-      assert_requested :get, "http://127.0.0.4:8101/", headers: {'traceparent'=>/^2B[0-9,A-F]*00$/}, times: 1
-      assert_not_requested :get, "http://127.0.0.4:8101/", headers: {'traceparent'=>/^2B0*$/}
+      assert_requested(:get, "http://127.0.0.4:8101/") do |req|
+        assert_trace_headers(req.headers)
+        refute sampled?(req.headers['Traceparent'])
+      end
+
       refute AppOpticsAPM::Context.isValid
     end
 
@@ -98,10 +103,15 @@ if !defined?(JRUBY_VERSION)
         connection.requests([{:method => :get}, {:method => :put}])
       end
 
-      assert_requested :get, "http://127.0.0.5:8101/", times: 1
-      assert_requested :put, "http://127.0.0.5:8101/", times: 1
-      assert_requested :get, "http://127.0.0.5:8101/", headers: {'traceparent'=>/^2B[0-9,A-F]*01$/}, times: 1
-      assert_requested :put, "http://127.0.0.5:8101/", headers: {'traceparent'=>/^2B[0-9,A-F]*01$/}, times: 1
+      assert_requested(:get, "http://127.0.0.5:8101/") do |req|
+        assert_trace_headers(req.headers)
+        assert sampled?(req.headers['Traceparent'])
+      end
+      assert_requested(:put, "http://127.0.0.5:8101/") do |req|
+        assert_trace_headers(req.headers)
+        assert sampled?(req.headers['Traceparent'])
+      end
+
       refute AppOpticsAPM::Context.isValid
     end
 
@@ -117,12 +127,15 @@ if !defined?(JRUBY_VERSION)
         end
       end
 
-      assert_requested :get, "http://127.0.0.2:8101/", times: 1
-      assert_requested :put, "http://127.0.0.2:8101/", times: 1
-      assert_requested :get, "http://127.0.0.2:8101/", headers: {'traceparent'=>/^2B[0-9,A-F]*00$/}, times: 1
-      assert_requested :put, "http://127.0.0.2:8101/", headers: {'traceparent'=>/^2B[0-9,A-F]*00$/}, times: 1
-      assert_not_requested :get, "http://127.0.0.2:8101/", headers: {'traceparent'=>/^2B0*$/}
-      assert_not_requested :put, "http://127.0.0.2:8101/", headers: {'traceparent'=>/^2B0*$/}
+      assert_requested(:get, "http://127.0.0.2:8101/") do |req|
+        assert_trace_headers(req.headers)
+        refute sampled?(req.headers['Traceparent'])
+      end
+      assert_requested(:put, "http://127.0.0.2:8101/") do |req|
+        assert_trace_headers(req.headers)
+        refute sampled?(req.headers['Traceparent'])
+      end
+
       refute AppOpticsAPM::Context.isValid
     end
 
@@ -166,7 +179,11 @@ if !defined?(JRUBY_VERSION)
         Excon.get('http://127.0.0.10:8101', headers: { 'Custom' => 'specialvalue' })
       end
 
-      assert_requested :get, "http://127.0.0.10:8101/", headers: {'Custom'=>'specialvalue'}, times: 1
+      assert_requested(:get, "http://127.0.0.10:8101/") do |req|
+        assert_trace_headers(req.headers)
+        assert_equal req.headers['Custom'], 'specialvalue'
+      end
+
       refute AppOpticsAPM::Context.isValid
     end
   end

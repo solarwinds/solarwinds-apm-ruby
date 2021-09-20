@@ -48,6 +48,14 @@ module AppOpticsAPM
         return kvs
       end
 
+      def add_trace_headers(headers, hostname)
+        if AppOpticsAPM::Context.isValid && !AppOpticsAPM::API.blacklisted?(hostname)
+          headers['traceparent'] = AppOpticsAPM::Context.toString
+          parent_id_flags = AppOpticsAPM::XTrace.edge_id_flags(headers['traceparent'])
+          headers['tracestate'] = AppOpticsAPM::TraceState.add_parent_id(headers['tracestate'], parent_id_flags)
+        end
+      end
+
       public
 
       def requests_with_appoptics(pipeline_params)
@@ -62,6 +70,7 @@ module AppOpticsAPM
       end
 
       def request_with_appoptics(params={}, &block)
+        add_trace_headers(@data[:headers], @data[:hostname] || @data[:host])
         # Avoid cross host tracing for blacklisted domains
         blacklisted = AppOpticsAPM::API.blacklisted?(@data[:hostname] || @data[:host])
 
@@ -70,7 +79,6 @@ module AppOpticsAPM
         # then just return as we're tracing from parent
         # <tt>requests</tt>
         if !AppOpticsAPM.tracing? || params[:pipeline]
-          @data[:headers]['traceparent'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid && !blacklisted
           return request_without_appoptics(params, &block)
         end
 
@@ -84,7 +92,6 @@ module AppOpticsAPM
           kvs.clear
 
           req_context = AppOpticsAPM::Context.toString
-          @data[:headers]['traceparent'] = req_context unless blacklisted
 
           # The core excon call
           response = request_without_appoptics(params, &block)

@@ -7,43 +7,7 @@ if !defined?(JRUBY_VERSION)
   require 'webmock/minitest'
   require 'mocha/minitest'
 
-  # expose private method for trace_state verification
-  module AppOpticsAPM
-    module TraceState
-      class << self
-        def public_valid?(trace_state)
-          valid?(trace_state)
-        end
-      end
-    end
-  end
-
-  # Ruby 2.4 doesn't have the transform_keys method
-  unless Hash.instance_methods.include?(:transform_keys)
-    class Hash
-      def transform_keys
-        new_hash = {}
-        self.each do |k,v|
-          new_hash[yield(k)] = v
-        end
-        new_hash
-      end
-    end
-  end
-
   class CurbMockedTest < Minitest::Test
-
-    def assert_trace_headers(headers)
-      # don't use transform_keys! it makes follow up assertions fail ;)
-      headers = headers.transform_keys(&:downcase)
-      assert headers['traceparent']
-      assert AppOpticsAPM::XTrace.valid?(headers['traceparent'])
-      assert headers['tracestate']
-      assert_match /#{APPOPTICS_TRACE_STATE_ID}=/, headers['tracestate']
-      assert AppOpticsAPM::TraceState.public_valid?(headers['tracestate'])
-      assert_equal AppOpticsAPM::XTrace.edge_id_flags(headers['traceparent']),
-                   AppOpticsAPM::TraceState.extract_id(headers['tracestate'])
-    end
 
     def setup
       AppOpticsAPM::Context.clear

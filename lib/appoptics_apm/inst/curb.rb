@@ -46,12 +46,10 @@ module AppOpticsAPM
       end
 
       def add_trace_headers(headers, hostname)
-        unless AppOpticsAPM::API.blacklisted?(hostname)
-          if AppOpticsAPM::Context.isValid
-            headers['traceparent'] = AppOpticsAPM::Context.toString
-            parent_id_flags = AppOpticsAPM::XTrace.edge_id_flags(headers['traceparent'])
-            headers['tracestate'] = AppOpticsAPM::TraceState.add_parent_id(headers['tracestate'], parent_id_flags)
-          end
+        if AppOpticsAPM::Context.isValid && !AppOpticsAPM::API.blacklisted?(hostname)
+          headers['traceparent'] = AppOpticsAPM::Context.toString
+          parent_id_flags = AppOpticsAPM::XTrace.edge_id_flags(headers['traceparent'])
+          headers['tracestate'] = AppOpticsAPM::TraceState.add_parent_id(headers['tracestate'], parent_id_flags)
         end
       end
       

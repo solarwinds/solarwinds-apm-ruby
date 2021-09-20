@@ -51,7 +51,7 @@ module AppOpticsAPM
       def id_valid?(parent_id)
         parent_id =~ /^[A-Fa-f0-9]{16}0[01]$/
         # TODO NH-2303 once we include dashes use the following
-        # parent_id =~ /^[A-Fa-f0-9]{16}0[01]$/
+        # parent_id =~ /^[A-Fa-f0-9]{16}-0[01]$/
       end
 
       # this method is only used in tests
