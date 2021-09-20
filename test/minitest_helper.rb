@@ -246,6 +246,7 @@ def valid_edges?(traces, connected = true)
   traces[1..-1].reverse.each do  |t|
     if t.key?("Edge")
       unless has_edge?(t["Edge"], traces)
+        puts AppOpticsAPM::Config[:transaction_settings].pretty_inspect
         puts traces.pretty_inspect
         return false
       end
@@ -255,6 +256,7 @@ def valid_edges?(traces, connected = true)
     if traces.map{ |tr| tr['Edge'] }.uniq.size == traces.size
       return true
     else
+      puts AppOpticsAPM::Config[:transaction_settings].pretty_inspect
       puts traces.pretty_inspect
       return false
     end
@@ -367,6 +369,43 @@ def print_edges(traces)
   traces.each do |trace|
     puts "EVENT: Edge: #{trace['Edge']} (#{trace['Label']}) \nnext Edge: #{trace['X-Trace'][42..-3]}\n"
   end
+end
+
+# Ruby 2.4 doesn't have the transform_keys method
+unless Hash.instance_methods.include?(:transform_keys)
+  class Hash
+    def transform_keys
+      new_hash = {}
+      self.each do |k,v|
+        new_hash[yield(k)] = v
+      end
+      new_hash
+    end
+  end
+end
+
+# expose private method for trace_state verification
+module AppOpticsAPM
+  module TraceState
+    class << self
+      def public_valid?(trace_state)
+        valid?(trace_state)
+      end
+    end
+  end
+end
+
+def assert_trace_headers(headers)
+  # don't use transform_keys! it makes follow up assertions fail ;)
+  # and it is not available in Ruby 2.4
+  headers = headers.transform_keys(&:downcase)
+  assert headers['traceparent'], "traceparent header missing"
+  assert AppOpticsAPM::XTrace.valid?(headers['traceparent']), "traceparent header not valid"
+  assert headers['tracestate'], "tracestate header missing"
+  assert_match /#{APPOPTICS_TRACE_STATE_ID}=/, headers['tracestate'], "tracestate header missing #{APPOPTICS_TRACE_STATE_ID}"
+  assert AppOpticsAPM::TraceState.public_valid?(headers['tracestate']), "tracestate header not valid"
+  assert_equal AppOpticsAPM::XTrace.edge_id_flags(headers['traceparent']),
+               AppOpticsAPM::TraceState.extract_id(headers['tracestate']), "edge_id and flags not matching"
 end
 
 if (File.basename(ENV['BUNDLE_GEMFILE']) =~ /^frameworks/) == 0
