@@ -4,6 +4,8 @@
 module AppOpticsAPM
   module Inst
     module ExconConnection
+      include AppOpticsAPM::W3CHeaders
+
       def self.included(klass)
         AppOpticsAPM::Util.method_alias(klass, :request, ::Excon::Connection)
         AppOpticsAPM::Util.method_alias(klass, :requests, ::Excon::Connection)
@@ -46,14 +48,6 @@ module AppOpticsAPM
         AppOpticsAPM.logger.debug e.backtrace.join('\n') if AppOpticsAPM::Config[:verbose]
       ensure
         return kvs
-      end
-
-      def add_trace_headers(headers, hostname)
-        if AppOpticsAPM::Context.isValid && !AppOpticsAPM::API.blacklisted?(hostname)
-          headers['traceparent'] = AppOpticsAPM::Context.toString
-          parent_id_flags = AppOpticsAPM::XTrace.edge_id_flags(headers['traceparent'])
-          headers['tracestate'] = AppOpticsAPM::TraceState.add_parent_id(headers['tracestate'], parent_id_flags)
-        end
       end
 
       public

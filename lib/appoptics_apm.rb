@@ -46,10 +46,7 @@ begin
 
   if AppOpticsAPM.loaded
     require 'appoptics_apm/instrumentation'
-    require 'appoptics_apm/support/profiling'
-    require 'appoptics_apm/support/trace_state'
-    require 'appoptics_apm/support/transaction_metrics'
-    require 'appoptics_apm/support/x_trace_options'
+    require 'appoptics_apm/support'
 
     # Frameworks
     require 'appoptics_apm/frameworks/rails'

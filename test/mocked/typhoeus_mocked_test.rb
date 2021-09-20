@@ -35,9 +35,7 @@ unless defined?(JRUBY_VERSION)
       AppOpticsAPM::API.start_trace('typhoeus_tests') do
         request = Typhoeus::Request.new("http://127.0.0.2:8101/", { :method=>:get })
         request.run
-
-        assert request.options[:headers]['traceparent']
-        assert_match /^2B[0-9A-F]*01$/,request.options[:headers]['traceparent']
+        assert_trace_headers(request.options[:headers])
       end
 
       refute AppOpticsAPM::Context.isValid
@@ -50,9 +48,9 @@ unless defined?(JRUBY_VERSION)
           request = Typhoeus::Request.new("http://127.0.0.1:8101/", {:method=>:get})
           request.run
 
+          assert_trace_headers(request.options[:headers])
           assert request.options[:headers]['traceparent']
-          assert_match /^2B[0-9A-F]*00$/, request.options[:headers]['traceparent']
-          refute_match /^2B0*$/, request.options[:headers]['traceparent']
+          refute sampled? request.options[:headers]['traceparent']
         end
       end
       refute AppOpticsAPM::Context.isValid
@@ -116,10 +114,10 @@ unless defined?(JRUBY_VERSION)
         hydra.queue(request_2)
         hydra.run
 
-        assert request_1.options[:headers]['traceparent'], "There is an traceparent header"
-        assert_match /^2B[0-9A-F]*01$/, request_1.options[:headers]['traceparent']
-        assert request_2.options[:headers]['traceparent'], "There is an traceparent header"
-        assert_match /^2B[0-9A-F]*01$/, request_2.options[:headers]['traceparent']
+        assert_trace_headers(request_1.options[:headers])
+        assert sampled? request_1.options[:headers]['traceparent']
+        assert_trace_headers(request_2.options[:headers])
+        assert sampled? request_2.options[:headers]['traceparent']
       end
       refute AppOpticsAPM::Context.isValid
     end
@@ -135,12 +133,10 @@ unless defined?(JRUBY_VERSION)
           hydra.queue(request_2)
           hydra.run
 
-          assert request_1.options[:headers]['traceparent'], "There is an traceparent header"
-          assert_match /^2B[0-9A-F]*00$/, request_1.options[:headers]['traceparent']
-          refute_match /^2B0*$/, request_1.options[:headers]['traceparent']
-          assert request_2.options[:headers]['traceparent'], "There is an traceparent header"
-          assert_match /^2B[0-9A-F]*00$/, request_2.options[:headers]['traceparent']
-          refute_match /^2B0*$/, request_2.options[:headers]['traceparent']
+          assert_trace_headers(request_1.options[:headers])
+          refute sampled? request_1.options[:headers]['traceparent']
+          assert_trace_headers(request_2.options[:headers])
+          refute sampled? request_2.options[:headers]['traceparent']
         end
       end
       refute AppOpticsAPM::Context.isValid

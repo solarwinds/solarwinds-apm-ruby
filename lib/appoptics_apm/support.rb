@@ -1,0 +1,6 @@
+require 'appoptics_apm/support/profiling'
+require 'appoptics_apm/support/trace_state'
+require 'appoptics_apm/support/transaction_metrics'
+require 'appoptics_apm/support/transaction_settings'
+require 'appoptics_apm/support/w3c_headers'
+require 'appoptics_apm/support/x_trace_options'
