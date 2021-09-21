@@ -4,11 +4,6 @@
 module AppOpticsAPM
   module Inst
     module HTTPClient
-      def self.included(klass)
-        AppOpticsAPM::Util.method_alias(klass, :do_request, ::HTTPClient)
-        AppOpticsAPM::Util.method_alias(klass, :do_request_async, ::HTTPClient)
-        AppOpticsAPM::Util.method_alias(klass, :do_get_stream, ::HTTPClient)
-      end
 
       def appoptics_collect(method, uri, query = nil)
         kvs = {}
@@ -37,14 +32,14 @@ module AppOpticsAPM
         return kvs
       end
 
-      def do_request_with_appoptics(method, uri, query, body, header, &block)
+      def do_request(method, uri, query, body, header, &block)
         # Avoid cross host tracing for blacklisted domains
         blacklisted = AppOpticsAPM::API.blacklisted?(uri.hostname)
 
         # If we're not tracing, just do a fast return.
         unless AppOpticsAPM.tracing?
-          add_xtrace_header(header) unless blacklisted
-          return do_request_without_appoptics(method, uri, query, body, header, &block)
+          add_trace_header(header) unless blacklisted
+          return super(method, uri, query, body, header, &block)
         end
 
         begin
@@ -58,10 +53,10 @@ module AppOpticsAPM
           kvs.clear
           kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:httpclient][:collect_backtraces]
 
-          req_context = add_xtrace_header(header) unless blacklisted
+          req_context = add_trace_header(header) unless blacklisted
 
           # The core httpclient call
-          response = do_request_without_appoptics(method, uri, query, body, header, &block)
+          response = super(method, uri, query, body, header, &block)
           response_context = response.headers['X-Trace']
           kvs[:HTTPStatus] = response.status_code
 
@@ -83,12 +78,12 @@ module AppOpticsAPM
         end
       end
 
-      def do_request_async_with_appoptics(method, uri, query, body, header)
-        add_xtrace_header(header)
-        do_request_async_without_appoptics(method, uri, query, body, header)
+      def do_request_async(method, uri, query, body, header)
+        add_trace_header(header) unless AppOpticsAPM::API.blacklisted?(uri.hostname)
+        super(method, uri, query, body, header)
       end
 
-      def do_get_stream_with_appoptics(req, proxy, conn)
+      def do_get_stream(req, proxy, conn)
         AppOpticsAPM::Context.fromString(req.header['traceparent'].first) unless req.header['traceparent'].empty?
         # Avoid cross host tracing for blacklisted domains
         uri = req.http_header.request_uri
@@ -96,11 +91,10 @@ module AppOpticsAPM
 
         unless AppOpticsAPM.tracing?
           req.header.delete('traceparent') if blacklisted
-          return do_get_stream_without_appoptics(req, proxy, conn)
+          return super(req, proxy, conn)
         end
 
         begin
-          response = nil
           req_context = nil
           method = req.http_header.request_method
 
@@ -112,10 +106,10 @@ module AppOpticsAPM
           kvs.clear
           kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:httpclient][:collect_backtraces]
 
-          blacklisted ? req.header.delete('traceparent') : req_context = add_xtrace_header(req.header)
+          blacklisted ? req.header.delete('traceparent') : req_context = add_trace_header(req.header)
 
           # The core httpclient call
-          result = do_get_stream_without_appoptics(req, proxy, conn)
+          result = super(req, proxy, conn)
 
           # Older HTTPClient < 2.6.0 returns HTTPClient::Connection
           if result.is_a?(::HTTP::Message)
@@ -149,19 +143,34 @@ module AppOpticsAPM
 
       private
 
-      def add_xtrace_header(headers)
-        req_context = AppOpticsAPM::Context.toString
-        return nil unless AppOpticsAPM::XTrace.valid?(req_context)
+      def add_trace_header(headers)
+        context = AppOpticsAPM::Context.toString
+        return nil unless AppOpticsAPM::XTrace.valid?(context)
+
+        parent_id_flags = AppOpticsAPM::XTrace.edge_id_flags(context)
+
         # Be aware of various ways to call/use httpclient
         if headers.is_a?(Array)
           headers.delete_if { |kv| kv[0] == 'traceparent' }
-          headers.push ['traceparent', req_context]
+          headers.push ['traceparent', context]
+          tracestate = []
+          headers.delete_if do |kv|
+            if kv[0] == 'tracestate'
+              tracestate = kv[0]
+              true
+            else
+              false
+            end
+          end
+          headers.push ['tracestate', AppOpticsAPM::TraceState.add_parent_id(tracestate, parent_id_flags)]
         elsif headers.is_a?(Hash)
-          headers['traceparent'] = req_context
+          headers['traceparent'] = context
+          headers['tracestate'] = AppOpticsAPM::TraceState.add_parent_id(headers['tracestate'], parent_id_flags)
         elsif headers.is_a? HTTP::Message::Headers
-          headers.set('traceparent', req_context)
+          headers.set('traceparent', context)
+          headers.set('tracestate', AppOpticsAPM::TraceState.add_parent_id(headers['tracestate'][0], parent_id_flags))
         end
-        req_context
+        context
       end
     end
   end
@@ -169,5 +178,5 @@ end
 
 if AppOpticsAPM::Config[:httpclient][:enabled] && defined?(HTTPClient)
   AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting httpclient' if AppOpticsAPM::Config[:verbose]
-  AppOpticsAPM::Util.send_include(HTTPClient, AppOpticsAPM::Inst::HTTPClient)
+  HTTPClient.prepend(AppOpticsAPM::Inst::HTTPClient)
 end

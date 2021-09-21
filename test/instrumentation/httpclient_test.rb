@@ -27,6 +27,10 @@ describe 'HTTPClientTest' do
     clear_all_traces
   end
 
+  it 'has AppOptics instrumentation' do
+    assert HTTPClient.ancestors.include?(AppOpticsAPM::Inst::HTTPClient)
+  end
+
   it 'identifies the version' do
     init_kvs = ::AppOpticsAPM::Util.build_init_report
     assert init_kvs.key?('Ruby.httpclient.Version')

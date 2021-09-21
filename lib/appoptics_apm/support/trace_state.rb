@@ -28,17 +28,21 @@ module AppOpticsAPM
 
       def to_hash(trace_state)
         return {} unless trace_state
-        h = {}
-        trace_state.split(/\s*,\s*/).each do |member|
-          next if member.empty? || !valid_member?(member)
-          a = member.strip.split('=')
-          if a.length == 2
-            # using ||= to make sure we keep the first occurrence
-            # if there are duplicates
-            h[a[0].strip] ||= a[1]
+        if trace_state.is_a?(String)
+          h = {}
+          trace_state.split(/\s*,\s*/).each do |member|
+            next if member.empty? || !valid_member?(member)
+            a = member.strip.split('=')
+            if a.length == 2
+              # using ||= to make sure we keep the first occurrence
+              # if there are duplicates
+              h[a[0].strip] ||= a[1]
+            end
           end
+          h
+        elsif trace_state.is_a?(Array)
+          Hash[*trace_state.flatten]
         end
-        h
       end
 
       def valid_member?(member)

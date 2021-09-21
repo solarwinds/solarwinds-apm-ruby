@@ -39,8 +39,10 @@ unless defined?(JRUBY_VERSION)
         clnt.get('http://127.0.0.1:8101/', nil, [['some_header', 'some_value'], ['some_header2', 'some_value2']])
       end
 
-      assert_requested :get, "http://127.0.0.1:8101/", times: 1
-      assert_requested :get, "http://127.0.0.1:8101/", headers: {'traceparent'=>/^2B[0-9,A-F]*01$/}, times: 1
+      assert_requested(:get, "http://127.0.0.1:8101/", times: 1) do |req|
+        assert_trace_headers(req.headers)
+        assert sampled?(req.headers['Traceparent']) || sampled?(req.headers['traceparent'])
+      end
       refute AppOpticsAPM::Context.isValid
     end
 
@@ -51,8 +53,10 @@ unless defined?(JRUBY_VERSION)
         clnt.get('http://127.0.0.6:8101/', nil, { 'some_header' => 'some_value', 'some_header2' => 'some_value2' })
       end
 
-      assert_requested :get, "http://127.0.0.6:8101/", times: 1
-      assert_requested :get, "http://127.0.0.6:8101/", headers: {'traceparent'=>/^2B[0-9,A-F]*01$/}, times: 1
+      assert_requested(:get, "http://127.0.0.6:8101/", times: 1) do |req|
+        assert_trace_headers(req.headers)
+        assert sampled?(req.headers['Traceparent']) || sampled?(req.headers['traceparent'])
+      end
       refute AppOpticsAPM::Context.isValid
     end
 
@@ -66,9 +70,10 @@ unless defined?(JRUBY_VERSION)
         end
       end
 
-      assert_requested :get, "http://127.0.0.2:8101/", times: 1
-      assert_requested :get, "http://127.0.0.2:8101/", headers: {'traceparent'=>/^2B[0-9,A-F]*00$/}, times: 1
-      assert_not_requested :get, "http://127.0.0.2:8101/", headers: {'traceparent'=>/^2B0*$/}
+      assert_requested(:get, "http://127.0.0.2:8101/", times: 1) do |req|
+        assert_trace_headers(req.headers)
+        refute sampled?(req.headers['Traceparent']) && sampled?(req.headers['traceparent'])
+      end
       refute AppOpticsAPM::Context.isValid
     end
 
@@ -78,7 +83,7 @@ unless defined?(JRUBY_VERSION)
       clnt.get('http://127.0.0.3:8101/')
 
       assert_requested :get, "http://127.0.0.3:8101/", times: 1
-      assert_not_requested :get, "http://127.0.0.3:8101/", headers: {'traceparent'=>/^.*$/}
+      assert_not_requested :get, "http://127.0.0.3:8101/", headers: {'Traceparent'=>/^.*$/}
     end
 
     def test_do_request_blacklisted
@@ -93,7 +98,7 @@ unless defined?(JRUBY_VERSION)
       end
 
       assert_requested :get, "http://127.0.0.4:8101/"
-      assert_not_requested :get, "http://127.0.0.4:8101/", headers: {'traceparent'=>/^.*$/}
+      assert_not_requested :get, "http://127.0.0.4:8101/", headers: {'Traceparent'=>/^.*$/}
       refute AppOpticsAPM::Context.isValid
     end
 
@@ -110,7 +115,7 @@ unless defined?(JRUBY_VERSION)
       end
 
       assert_requested :get, "http://127.0.0.5:8101/"
-      assert_not_requested :get, "http://127.0.0.5:8101/", headers: {'traceparent'=>/^.*$/}
+      assert_not_requested :get, "http://127.0.0.5:8101/", headers: {'Traceparent'=>/^.*$/}
       refute AppOpticsAPM::Context.isValid
     end
 
@@ -122,9 +127,10 @@ unless defined?(JRUBY_VERSION)
 
       Thread.expects(:new).yields   # continue without forking off a thread
 
-      HTTPClient.any_instance.expects(:do_get_stream_without_appoptics).with do |req, _, _|
-        'http://127.0.0.11:8101/' == req.header.request_uri.to_s &&
-            req.header['traceparent'].first =~ /^2B[0-9,A-F]*01$/
+      HTTPClient.any_instance.expects(:do_get_stream).with do |req, _, _|
+        assert_equal 'http://127.0.0.11:8101/', req.header.request_uri.to_s
+        assert_trace_headers(req.headers)
+        assert sampled?(req.headers['Traceparent']) || sampled?(req.headers['traceparent'])
       end
 
       AppOpticsAPM::API.start_trace('httpclient_test') do
@@ -139,9 +145,10 @@ unless defined?(JRUBY_VERSION)
 
       Thread.expects(:new).yields   # continue without forking off a thread
 
-      HTTPClient.any_instance.expects(:do_get_stream_without_appoptics).with do |req, _, _|
-        'http://127.0.0.16:8101/' == req.header.request_uri.to_s &&
-        req.header['traceparent'].first =~ /^2B[0-9,A-F]*01$/
+      HTTPClient.any_instance.expects(:do_get_stream).with do |req, _, _|
+        assert_equal 'http://127.0.0.16:8101/', req.header.request_uri.to_s
+        assert_trace_headers(req.headers)
+        assert sampled?(req.headers['Traceparent']) || sampled?(req.headers['traceparent'])
       end
 
       AppOpticsAPM::API.start_trace('httpclient_test') do
@@ -156,11 +163,10 @@ unless defined?(JRUBY_VERSION)
 
       Thread.expects(:new).yields   # continue without forking off a thread
 
-      HTTPClient.any_instance.expects(:do_get_stream_without_appoptics).with do |req, _, _|
-        # TODO NH-2303 new x-trace format
-        'http://127.0.0.12:8101/' == req.header.request_uri.to_s &&
-            req.header['traceparent'].first =~  /^2B[0-9,A-F]*00$/ &&
-            req.header['traceparent'].first !~ /^2B0*$/
+      HTTPClient.any_instance.expects(:do_get_stream).with do |req, _, _|
+        assert_equal 'http://127.0.0.12:8101/', req.header.request_uri.to_s
+        assert_trace_headers(req.headers)
+        refute sampled?(req.headers['Traceparent']) && sampled?(req.headers['traceparent'])
       end
 
       AppOpticsAPM.config_lock.synchronize do
@@ -178,9 +184,9 @@ unless defined?(JRUBY_VERSION)
 
       Thread.expects(:new).yields   # continue without forking off a thread
 
-      HTTPClient.any_instance.expects(:do_get_stream_without_appoptics).with do |req, _, _|
-        'http://127.0.0.13:8101/' == req.header.request_uri.to_s &&
-            req.header['traceparent'].empty?
+      HTTPClient.any_instance.expects(:do_get_stream).with do |req, _, _|
+        assert_equal 'http://127.0.0.13:8101/', req.header.request_uri.to_s
+        assert req.header['Traceparent'].empty?
       end
 
       clnt = HTTPClient.new
@@ -192,9 +198,9 @@ unless defined?(JRUBY_VERSION)
 
       Thread.expects(:new).yields   # continue without forking off a thread
 
-      HTTPClient.any_instance.expects(:do_get_stream_without_appoptics).with do |req, _, _|
-        'http://127.0.0.14:8101/' == req.header.request_uri.to_s &&
-            req.header['traceparent'].empty?
+      HTTPClient.any_instance.expects(:do_get_stream).with do |req, _, _|
+        assert_equal 'http://127.0.0.14:8101/', req.header.request_uri.to_s
+        assert req.header['Traceparent'].empty?
       end
 
       AppOpticsAPM.config_lock.synchronize do
@@ -212,9 +218,9 @@ unless defined?(JRUBY_VERSION)
 
       Thread.expects(:new).yields   # continue without forking off a thread
 
-      HTTPClient.any_instance.expects(:do_get_stream_without_appoptics).with do |req, _, _|
-        'http://127.0.0.15:8101/' == req.header.request_uri.to_s &&
-            req.header['traceparent'].empty?
+      HTTPClient.any_instance.expects(:do_get_stream).with do |req, _, _|
+        assert_equal 'http://127.0.0.15:8101/', req.header.request_uri.to_s
+        assert req.header['Traceparent'].empty?
       end
 
       AppOpticsAPM.config_lock.synchronize do
@@ -246,7 +252,7 @@ unless defined?(JRUBY_VERSION)
 
       Thread.expects(:new).yields   # continue without forking off a thread
 
-      HTTPClient.any_instance.expects(:do_get_stream_without_appoptics).with do |req, _, _|
+      HTTPClient.any_instance.expects(:do_get_stream).with do |req, _, _|
         assert req.headers['Custom'], "Custom header missing"
         assert_match(/^specialvalue$/, req.headers['Custom'] )
       end
