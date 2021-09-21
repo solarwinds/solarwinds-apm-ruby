@@ -117,7 +117,7 @@ module AppOpticsAPM
 
           # Make sure that we received back a valid X-Trace with the same task_id
           # and the sampling bit is set, otherwise it is a response from a non-sampling service
-          if AppOpticsAPM::XTrace.task_id(start_xtrace) == AppOpticsAPM::XTrace.task_id(end_xtrace) &&
+          if (AppOpticsAPM::XTrace.task_id(start_xtrace) == AppOpticsAPM::XTrace.task_id(end_xtrace)) &&
             AppOpticsAPM::XTrace.sampled?(end_xtrace)
             AppOpticsAPM::Context.fromString(end_xtrace)
           else
