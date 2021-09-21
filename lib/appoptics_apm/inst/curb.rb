@@ -8,6 +8,7 @@ module AppOpticsAPM
     # Curl::Easy and Curl::Multi.  This CurlUtility module is used as a common module
     # to be shared among both modules.
     module CurlUtility
+      include AppOpticsAPM::W3CHeaders
 
       private
       ##
@@ -45,14 +46,6 @@ module AppOpticsAPM
         return kvs
       end
 
-      def add_trace_headers(headers, hostname)
-        if AppOpticsAPM::Context.isValid && !AppOpticsAPM::API.blacklisted?(hostname)
-          headers['traceparent'] = AppOpticsAPM::Context.toString
-          parent_id_flags = AppOpticsAPM::XTrace.edge_id_flags(headers['traceparent'])
-          headers['tracestate'] = AppOpticsAPM::TraceState.add_parent_id(headers['tracestate'], parent_id_flags)
-        end
-      end
-      
       ##
       # trace_curb_method
       #
@@ -63,7 +56,10 @@ module AppOpticsAPM
       #
       def trace_curb_method(kvs, method, args, &block)
         # If we're not tracing, just do a fast return.
-        return self.send(method, args, &block) unless AppOpticsAPM.tracing?
+        unless AppOpticsAPM.tracing?
+          add_trace_headers(self.headers, URI(url).hostname)
+          return self.send(method, args, &block)
+        end
 
         begin
           kvs.merge! appoptics_collect
@@ -72,6 +68,7 @@ module AppOpticsAPM
           kvs.clear
 
           # The core curb call
+          add_trace_headers(self.headers, URI(url).hostname)
           response = self.send(method, *args, &block)
 
           kvs[:HTTPStatus] = response_code
@@ -119,9 +116,9 @@ module AppOpticsAPM
       # ::Curl::Easy.new.http_post wrapper
       #
       def http_post_with_appoptics(*args, &block)
-        add_trace_headers(self.headers, URI(url).hostname)
         # If we're not tracing, just do a fast return.
         if !AppOpticsAPM.tracing? || AppOpticsAPM.tracing_layer?(:curb)
+          add_trace_headers(self.headers, URI(url).hostname)
           return http_post_without_appoptics(*args)
         end
 
@@ -137,9 +134,9 @@ module AppOpticsAPM
       # ::Curl::Easy.new.http_put wrapper
       #
       def http_put_with_appoptics(*args, &block)
-        add_trace_headers(self.headers, URI(url).hostname)
         # If we're not tracing, just do a fast return.
         if !AppOpticsAPM.tracing? || AppOpticsAPM.tracing_layer?(:curb)
+          add_trace_headers(self.headers, URI(url).hostname)
           return http_put_without_appoptics(data)
         end
 
@@ -155,11 +152,11 @@ module AppOpticsAPM
       # ::Curl::Easy.new.perform wrapper
       #
       def perform_with_appoptics(&block)
-        add_trace_headers(self.headers, URI(url).hostname)
         # If we're not tracing, just do a fast return.
         # excluding curb layer: because the curb C code for easy.http calls perform,
         # we have to make sure we don't log again
         if !AppOpticsAPM.tracing? || AppOpticsAPM.tracing_layer?(:curb)
+          add_trace_headers(self.headers, URI(url).hostname)
           return perform_without_appoptics(&block)
         end
 
@@ -182,9 +179,11 @@ module AppOpticsAPM
       # ::Curl::Easy.new.http wrapper
       #
       def http_with_appoptics(verb, &block)
-        add_trace_headers(self.headers, URI(url).hostname)
-        # If we're not tracing, just do a fast return.
-        return http_without_appoptics(verb) unless AppOpticsAPM.tracing?
+        unless AppOpticsAPM.tracing?
+          add_trace_headers(self.headers, URI(url).hostname)
+          # If we're not tracing, just do a fast return.
+          return http_without_appoptics(verb)
+        end
 
         kvs = {}
         kvs[:HTTPMethod] = verb
@@ -212,12 +211,12 @@ module AppOpticsAPM
       # ::Curl::Multi.new.http wrapper
       #
       def http_with_appoptics(urls_with_config, multi_options={}, &block)
-        urls_with_config.each do |conf|
-          conf[:headers] ||= {}
-          add_trace_headers(conf[:headers], URI(conf[:url]).hostname)
-        end
-        # If we're not tracing, just do a fast return.
+         # If we're not tracing, just do a fast return.
         unless AppOpticsAPM.tracing?
+          urls_with_config.each do |conf|
+            conf[:headers] ||= {}
+            add_trace_headers(conf[:headers], URI(conf[:url]).hostname)
+          end
           return http_without_appoptics(urls_with_config, multi_options, &block)
         end
 
@@ -229,6 +228,10 @@ module AppOpticsAPM
           context = AppOpticsAPM::Context.toString
 
           traces = []
+          urls_with_config.each do |conf|
+            conf[:headers] ||= {}
+            add_trace_headers(conf[:headers], URI(conf[:url]).hostname)
+          end
           # The core curb call
           http_without_appoptics(urls_with_config, multi_options) do |easy, response_code, method|
             # this is the only way we can access the headers, they are not exposed otherwise
