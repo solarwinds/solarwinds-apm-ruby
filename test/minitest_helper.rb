@@ -246,8 +246,9 @@ def valid_edges?(traces, connected = true)
   traces[1..-1].reverse.each do  |t|
     if t.key?("Edge")
       unless has_edge?(t["Edge"], traces)
+        # TODO NH-2303 remove when done
         puts AppOpticsAPM::Config[:transaction_settings].pretty_inspect
-        puts traces.pretty_inspect
+        print_traces(traces, ['Edge'])
         return false
       end
     end
@@ -256,8 +257,9 @@ def valid_edges?(traces, connected = true)
     if traces.map{ |tr| tr['Edge'] }.uniq.size == traces.size
       return true
     else
+      # TODO NH-2303 remove when done
       puts AppOpticsAPM::Config[:transaction_settings].pretty_inspect
-      puts traces.pretty_inspect
+      print_traces(traces, ['Edge'])
       return false
     end
   end
