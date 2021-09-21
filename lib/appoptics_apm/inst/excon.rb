@@ -6,10 +6,10 @@ module AppOpticsAPM
     module ExconConnection
       include AppOpticsAPM::W3CHeaders
 
-      def self.included(klass)
-        AppOpticsAPM::Util.method_alias(klass, :request, ::Excon::Connection)
-        AppOpticsAPM::Util.method_alias(klass, :requests, ::Excon::Connection)
-      end
+      # def self.included(klass)
+      #   AppOpticsAPM::Util.method_alias(klass, :request, ::Excon::Connection)
+      #   AppOpticsAPM::Util.method_alias(klass, :requests, ::Excon::Connection)
+      # end
 
       private
 
@@ -52,19 +52,19 @@ module AppOpticsAPM
 
       public
 
-      def requests_with_appoptics(pipeline_params)
+      def requests(pipeline_params)
         responses = nil
         kvs = appoptics_collect(pipeline_params)
         AppOpticsAPM::API.trace(:excon, kvs) do
           kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:excon][:collect_backtraces]
-          responses = requests_without_appoptics(pipeline_params)
+          responses = super(pipeline_params)
           kvs[:HTTPStatuses] = responses.map { |r| r.status }.join(',')
         end
         responses
       end
 
-      def request_with_appoptics(params={}, &block)
-        add_trace_headers(@data[:headers], @data[:hostname] || @data[:host])
+      def request(params={}, &block)
+
         # Avoid cross host tracing for blacklisted domains
         blacklisted = AppOpticsAPM::API.blacklisted?(@data[:hostname] || @data[:host])
 
@@ -73,7 +73,8 @@ module AppOpticsAPM
         # then just return as we're tracing from parent
         # <tt>requests</tt>
         if !AppOpticsAPM.tracing? || params[:pipeline]
-          return request_without_appoptics(params, &block)
+          add_trace_headers(@data[:headers], @data[:hostname] || @data[:host])
+          return super(params, &block)
         end
 
         begin
@@ -88,7 +89,8 @@ module AppOpticsAPM
           req_context = AppOpticsAPM::Context.toString
 
           # The core excon call
-          response = request_without_appoptics(params, &block)
+          add_trace_headers(@data[:headers], @data[:hostname] || @data[:host])
+          response = super(params, &block)
 
           # excon only passes back a hash (datum) for HTTP pipelining...
           # In that case, we should never arrive here but for the OCD, double check
@@ -122,5 +124,6 @@ end
 
 if AppOpticsAPM::Config[:excon][:enabled] && defined?(Excon)
   AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting excon' if AppOpticsAPM::Config[:verbose]
-  AppOpticsAPM::Util.send_include(Excon::Connection, AppOpticsAPM::Inst::ExconConnection)
+  # AppOpticsAPM::Util.send_include(Excon::Connection, AppOpticsAPM::Inst::ExconConnection)
+  Excon::Connection.prepend(AppOpticsAPM::Inst::ExconConnection)
 end
