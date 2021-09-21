@@ -6,7 +6,7 @@ unless defined?(JRUBY_VERSION)
   require 'mocha/minitest'
   require 'net/http'
 
-  class HTTPMockedTest < Minitest::Test
+  class NetHTTPMockedTest < Minitest::Test
 
     # prepend HttpMock to check if appoptics is in the ancestors chain
     # resorting to this solution because a method instrumented by using :prepend
@@ -46,7 +46,8 @@ unless defined?(JRUBY_VERSION)
           # did we instrument?
           assert http.class.ancestors.include?(AppOpticsAPM::Inst::NetHttp)
 
-          assert request['traceparent']
+          # `to_hash` returns a hash with values as arrays
+          assert_trace_headers(request.to_hash.inject({}) { |h, (k, v)| h[k] = v[0]; h })
           assert res['x-trace']
           assert AppOpticsAPM::XTrace.sampled?(res['x-trace'])
           refute_equal xt, request['traceparent']
@@ -69,7 +70,9 @@ unless defined?(JRUBY_VERSION)
             res = http.request(request) # Net::HTTPResponse object
             # did we instrument?
             assert http.class.ancestors.include?(AppOpticsAPM::Inst::NetHttp)
-            assert request['traceparent']
+
+            # `to_hash` returns a hash with values as arrays
+            assert_trace_headers(request.to_hash.inject({}) { |h, (k, v)| h[k] = v[0]; h })
             assert res['x-trace']
             refute AppOpticsAPM::XTrace.sampled?(res.to_hash['x-trace'])
             assert_equal xt, request['traceparent']
@@ -103,7 +106,7 @@ unless defined?(JRUBY_VERSION)
             res = http.request(request) # Net::HTTPResponse object
             # did we instrument?
             assert http.class.ancestors.include?(AppOpticsAPM::Inst::NetHttp)
-            refute request['tracepearent']
+            refute request['traceparent']
             # the result should not have an x-trace
             refute res['x-trace']
           end
@@ -142,7 +145,9 @@ unless defined?(JRUBY_VERSION)
           res = http.request(request) # Net::HTTPResponse object
           # did we instrument?
           assert http.class.ancestors.include?(AppOpticsAPM::Inst::NetHttp)
-          assert request['traceparent']
+
+          # `to_hash` returns a hash with values as arrays
+          assert_trace_headers(request.to_hash.inject({}) { |h, (k, v)| h[k] = v[0]; h })
           assert res['x-trace']
           assert_equal 'specialvalue', request['Custom']
         end

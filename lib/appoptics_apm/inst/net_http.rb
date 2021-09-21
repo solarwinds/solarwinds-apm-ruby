@@ -7,6 +7,8 @@ if AppOpticsAPM::Config[:nethttp][:enabled]
   module AppOpticsAPM
     module Inst
       module NetHttp
+        include AppOpticsAPM::W3CHeaders
+
         # Net::HTTP.class_eval do
         # def request_with_appoptics(*args, &block)
         def request(*args, &block)
@@ -22,8 +24,7 @@ if AppOpticsAPM::Config[:nethttp][:enabled]
               resp.delete('X-Trace') # if resp['X-Trace']
               return resp
             else
-              xtrace = AppOpticsAPM::Context.toString
-              args[0]['traceparent'] = xtrace if AppOpticsAPM::XTrace.valid?(xtrace)
+              add_trace_headers(args[0], addr_port)
               return super
             end
           end
@@ -48,6 +49,7 @@ if AppOpticsAPM::Config[:nethttp][:enabled]
             end
 
             begin
+              add_trace_headers(args[0], addr_port)
               # The actual net::http call
               resp = super
               # Re-attach net::http edge unless blacklisted and is a valid X-Trace ID
