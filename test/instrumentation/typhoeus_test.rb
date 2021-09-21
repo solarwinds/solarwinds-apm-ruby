@@ -20,10 +20,9 @@ describe "Typhoeus" do
     _(defined?(::Typhoeus::Request::Operations)).wont_match nil
   end
 
-  it 'Typhoeus should have appoptics_apm methods defined' do
-    [ :run_with_appoptics ].each do |m|
-      _(::Typhoeus::Request::Operations.method_defined?(m)).must_equal true
-    end
+  it 'Typhoeus should have AppOptics instrumentation prepended' do
+    _(Typhoeus::Request.ancestors).must_include(AppOpticsAPM::Inst::TyphoeusRequestOps)
+    _(Typhoeus::Hydra.ancestors).must_include(AppOpticsAPM::Inst::TyphoeusHydraRunnable)
   end
 
   it 'should trace a typhoeus request' do

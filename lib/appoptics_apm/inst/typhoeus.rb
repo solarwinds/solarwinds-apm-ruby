@@ -8,8 +8,8 @@ module AppOpticsAPM
       include AppOpticsAPM::W3CHeaders
 
       def run
-        add_trace_headers(options[:headers], url)
         unless AppOpticsAPM.tracing?
+          add_trace_headers(options[:headers], url)
           return super
         end
 
@@ -23,13 +23,14 @@ module AppOpticsAPM
           kvs[:IsService] = 1
           kvs[:HTTPMethod] = AppOpticsAPM::Util.upcase(options[:method])
 
+          add_trace_headers(options[:headers], url)
           response = super
 
           # Re-attach edge unless it's blacklisted
           # or if we don't have a valid X-Trace header
           blacklisted = AppOpticsAPM::API.blacklisted?(url)
           unless blacklisted
-            xtrace = response.headers['traceparent']
+            xtrace = response.headers['X-Trace']
             AppOpticsAPM::XTrace.continue_service_context(context, xtrace)
           end
 
