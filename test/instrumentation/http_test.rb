@@ -21,7 +21,7 @@ describe "Net::HTTP"  do
   end
 
   it 'Net::HTTP should have AppOpticsAPM instrumentation' do
-    _(::Net::HTTP.ancestors.include?(AppopticsAPM::Inst::NetHttp)).must_equal true
+    _(::Net::HTTP.ancestors).must_include?(AppopticsAPM::Inst::NetHttp)
   end
 
   it "should trace a Net::HTTP request to an instr'd app" do

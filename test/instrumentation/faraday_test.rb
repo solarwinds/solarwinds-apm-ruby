@@ -19,10 +19,8 @@ describe "Faraday" do
     _(defined?(::Faraday)).wont_match nil
   end
 
-  it 'Faraday should have appoptics_apm methods defined' do
-    [ :run_request_with_appoptics ].each do |m|
-      _(::Faraday::Connection.method_defined?(m)).must_equal true
-    end
+  it 'Faraday should have AppOptics instrumentation prepended' do
+    _(Faraday::Connection.ancestors).must_include(AppOpticsAPM::Inst::FaradayConnection)
   end
 
   it "should trace cross-app request" do

@@ -12,7 +12,11 @@ describe 'ExconTest' do
     SinatraSimple
   end
 
-   it 'must_return_xtrace_header' do
+  it 'Excon should have AppOptics instrumentation prepended' do
+    _(Excon::Connection.ancestors).must_include(AppOpticsAPM::Inst::ExconConnection)
+  end
+
+  it 'must_return_xtrace_header' do
     skip if defined?(JRUBY_VERSION)
 
     clear_all_traces
