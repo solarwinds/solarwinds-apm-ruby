@@ -37,7 +37,9 @@ unless defined?(JRUBY_VERSION)
         RestClient::Resource.new('http://127.0.0.1:8101').get
       end
 
-      assert_requested :get, "http://127.0.0.1:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*01$/}, times: 1
+      assert_requested(:get, "http://127.0.0.1:8101/", times: 1) do |req|
+        assert_trace_headers(req.headers, true)
+      end
       refute AppOpticsAPM::Context.isValid
     end
 
@@ -51,8 +53,9 @@ unless defined?(JRUBY_VERSION)
         end
       end
 
-      assert_requested :get, "http://127.0.0.2:8101/", headers: {'X-Trace'=>/^2B[0-9,A-F]*00$/}, times: 1
-      assert_not_requested :get, "http://127.0.0.2:8101/", headers: {'X-Trace'=>/^2B0*$/}
+      assert_requested(:get, "http://127.0.0.2:8101/", times: 1) do |req|
+        assert_trace_headers(req.headers, false)
+      end
       refute AppOpticsAPM::Context.isValid
     end
 
