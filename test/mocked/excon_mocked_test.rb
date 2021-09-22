@@ -52,8 +52,7 @@ if !defined?(JRUBY_VERSION)
       end
 
       assert_requested(:get, "http://127.0.0.7:8101/") do |req|
-        assert_trace_headers(req.headers)
-        assert sampled?(req.headers['Traceparent'])
+        assert_trace_headers(req.headers, true)
       end
 
       refute AppOpticsAPM::Context.isValid
@@ -70,8 +69,7 @@ if !defined?(JRUBY_VERSION)
       end
 
       assert_requested(:get, "http://127.0.0.4:8101/") do |req|
-        assert_trace_headers(req.headers)
-        refute sampled?(req.headers['Traceparent'])
+        assert_trace_headers(req.headers, false)
       end
 
       refute AppOpticsAPM::Context.isValid
@@ -104,12 +102,10 @@ if !defined?(JRUBY_VERSION)
       end
 
       assert_requested(:get, "http://127.0.0.5:8101/") do |req|
-        assert_trace_headers(req.headers)
-        assert sampled?(req.headers['Traceparent'])
+        assert_trace_headers(req.headers, true)
       end
       assert_requested(:put, "http://127.0.0.5:8101/") do |req|
-        assert_trace_headers(req.headers)
-        assert sampled?(req.headers['Traceparent'])
+        assert_trace_headers(req.headers, true)
       end
 
       refute AppOpticsAPM::Context.isValid
@@ -128,12 +124,10 @@ if !defined?(JRUBY_VERSION)
       end
 
       assert_requested(:get, "http://127.0.0.2:8101/") do |req|
-        assert_trace_headers(req.headers)
-        refute sampled?(req.headers['Traceparent'])
+        assert_trace_headers(req.headers, false)
       end
       assert_requested(:put, "http://127.0.0.2:8101/") do |req|
-        assert_trace_headers(req.headers)
-        refute sampled?(req.headers['Traceparent'])
+        assert_trace_headers(req.headers, false)
       end
 
       refute AppOpticsAPM::Context.isValid

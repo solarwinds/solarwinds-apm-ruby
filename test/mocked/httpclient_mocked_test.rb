@@ -40,8 +40,7 @@ unless defined?(JRUBY_VERSION)
       end
 
       assert_requested(:get, "http://127.0.0.1:8101/", times: 1) do |req|
-        assert_trace_headers(req.headers)
-        assert sampled?(req.headers['Traceparent']) || sampled?(req.headers['traceparent'])
+        assert_trace_headers(req.headers, true)
       end
       refute AppOpticsAPM::Context.isValid
     end
@@ -54,8 +53,7 @@ unless defined?(JRUBY_VERSION)
       end
 
       assert_requested(:get, "http://127.0.0.6:8101/", times: 1) do |req|
-        assert_trace_headers(req.headers)
-        assert sampled?(req.headers['Traceparent']) || sampled?(req.headers['traceparent'])
+        assert_trace_headers(req.headers, true)
       end
       refute AppOpticsAPM::Context.isValid
     end
@@ -71,8 +69,7 @@ unless defined?(JRUBY_VERSION)
       end
 
       assert_requested(:get, "http://127.0.0.2:8101/", times: 1) do |req|
-        assert_trace_headers(req.headers)
-        refute sampled?(req.headers['Traceparent']) && sampled?(req.headers['traceparent'])
+        assert_trace_headers(req.headers, false)
       end
       refute AppOpticsAPM::Context.isValid
     end
@@ -129,8 +126,7 @@ unless defined?(JRUBY_VERSION)
 
       HTTPClient.any_instance.expects(:do_get_stream).with do |req, _, _|
         assert_equal 'http://127.0.0.11:8101/', req.header.request_uri.to_s
-        assert_trace_headers(req.headers)
-        assert sampled?(req.headers['Traceparent']) || sampled?(req.headers['traceparent'])
+        assert_trace_headers(req.headers, true)
       end
 
       AppOpticsAPM::API.start_trace('httpclient_test') do
@@ -147,8 +143,7 @@ unless defined?(JRUBY_VERSION)
 
       HTTPClient.any_instance.expects(:do_get_stream).with do |req, _, _|
         assert_equal 'http://127.0.0.16:8101/', req.header.request_uri.to_s
-        assert_trace_headers(req.headers)
-        assert sampled?(req.headers['Traceparent']) || sampled?(req.headers['traceparent'])
+        assert_trace_headers(req.headers, true)
       end
 
       AppOpticsAPM::API.start_trace('httpclient_test') do
@@ -165,8 +160,7 @@ unless defined?(JRUBY_VERSION)
 
       HTTPClient.any_instance.expects(:do_get_stream).with do |req, _, _|
         assert_equal 'http://127.0.0.12:8101/', req.header.request_uri.to_s
-        assert_trace_headers(req.headers)
-        refute sampled?(req.headers['Traceparent']) && sampled?(req.headers['traceparent'])
+        assert_trace_headers(req.headers, false)
       end
 
       AppOpticsAPM.config_lock.synchronize do

@@ -1,4 +1,4 @@
-# Copyright (c) 2016 SolarWinds, LLC.
+# Copyright (c) SolarWinds, LLC.
 # All rights reserved.
 
 if !defined?(JRUBY_VERSION)
@@ -39,8 +39,7 @@ if !defined?(JRUBY_VERSION)
       end
 
       assert_requested(:get, "http://127.0.0.9:8101/", times: 1) do |req|
-        assert_trace_headers(req.headers)
-        assert sampled?(req.headers.transform_keys(&:downcase)['traceparent'])
+        assert_trace_headers(req.headers, true)
       end
       refute AppOpticsAPM::Context.isValid
     end
@@ -56,8 +55,7 @@ if !defined?(JRUBY_VERSION)
       end
 
       assert_requested(:get, "http://127.0.0.4:8101/", times: 1) do |req|
-        assert_trace_headers(req.headers)
-        refute sampled?(req.headers.transform_keys(&:downcase)['traceparent'])
+        assert_trace_headers(req.headers, false)
       end
       refute AppOpticsAPM::Context.isValid
     end
@@ -126,8 +124,7 @@ if !defined?(JRUBY_VERSION)
         assert_equal 3, url_confs.size
         url_confs.each do |conf|
           headers = conf[:headers] || {}
-          assert_trace_headers(headers)
-          assert sampled?(headers['traceparent'])
+          assert_trace_headers(headers, true)
           assert headers['Custom']
           assert_match /specialvalue/, headers['Custom']
         end
@@ -155,8 +152,8 @@ if !defined?(JRUBY_VERSION)
         assert_equal 3, url_confs.size
         url_confs.each do |conf|
           headers = conf[:headers] || {}
-          assert_trace_headers(headers)
-          refute sampled?(headers['traceparent'])
+          assert_trace_headers(headers, false)
+          refute sampled?(headersdd['traceparent'])
         end
         # true
       end
@@ -256,8 +253,7 @@ if !defined?(JRUBY_VERSION)
           m.perform do
             m.requests.each do |request|
               request = request[1] if request.is_a?(Array)
-              assert_trace_headers(request.headers)
-              refute sampled?(request.headers.transform_keys(&:downcase)['traceparent'])
+              assert_trace_headers(request.headers, false)
             end
           end
         end
@@ -330,8 +326,7 @@ if !defined?(JRUBY_VERSION)
       assert curl.headers
       assert curl.headers['Custom']
       assert_match /specialvalue4/, curl.headers['Custom']
-      assert_trace_headers(curl.headers)
-      assert sampled?(curl.headers['traceparent'])
+      assert_trace_headers(curl.headers, true)
 
       refute AppOpticsAPM::Context.isValid
     end
@@ -349,8 +344,7 @@ if !defined?(JRUBY_VERSION)
       assert curl.headers
       assert curl.headers['Custom']
       assert_match /specialvalue4/, curl.headers['Custom']
-      assert_trace_headers(curl.headers)
-      assert sampled?(curl.headers['traceparent'])
+      assert_trace_headers(curl.headers, true)
 
       refute AppOpticsAPM::Context.isValid
     end

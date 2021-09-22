@@ -48,9 +48,7 @@ unless defined?(JRUBY_VERSION)
           request = Typhoeus::Request.new("http://127.0.0.1:8101/", {:method=>:get})
           request.run
 
-          assert_trace_headers(request.options[:headers])
-          assert request.options[:headers]['traceparent']
-          refute sampled? request.options[:headers]['traceparent']
+          assert_trace_headers(request.options[:headers], false)
         end
       end
       refute AppOpticsAPM::Context.isValid
@@ -114,10 +112,8 @@ unless defined?(JRUBY_VERSION)
         hydra.queue(request_2)
         hydra.run
 
-        assert_trace_headers(request_1.options[:headers])
-        assert sampled? request_1.options[:headers]['traceparent']
-        assert_trace_headers(request_2.options[:headers])
-        assert sampled? request_2.options[:headers]['traceparent']
+        assert_trace_headers(request_1.options[:headers], true)
+        assert_trace_headers(request_2.options[:headers], true)
       end
       refute AppOpticsAPM::Context.isValid
     end
@@ -133,10 +129,8 @@ unless defined?(JRUBY_VERSION)
           hydra.queue(request_2)
           hydra.run
 
-          assert_trace_headers(request_1.options[:headers])
-          refute sampled? request_1.options[:headers]['traceparent']
-          assert_trace_headers(request_2.options[:headers])
-          refute sampled? request_2.options[:headers]['traceparent']
+          assert_trace_headers(request_1.options[:headers], false)
+          assert_trace_headers(request_2.options[:headers], false)
         end
       end
       refute AppOpticsAPM::Context.isValid
