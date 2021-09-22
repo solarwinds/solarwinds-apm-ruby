@@ -397,12 +397,15 @@ module AppOpticsAPM
   end
 end
 
-def assert_trace_headers(headers)
+def assert_trace_headers(headers, sampled = nil)
   # don't use transform_keys! it makes follow up assertions fail ;)
   # and it is not available in Ruby 2.4
   headers = headers.transform_keys(&:downcase)
   assert headers['traceparent'], "traceparent header missing"
   assert AppOpticsAPM::XTrace.valid?(headers['traceparent']), "traceparent header not valid"
+  assert sampled?(headers['traceparent']), "traceparent should have sampled flag" if sampled
+  refute sampled?(headers['traceparent']), "traceparent should NOT have sampled flag" if sampled == false
+
   assert headers['tracestate'], "tracestate header missing"
   assert_match /#{APPOPTICS_TRACE_STATE_ID}=/, headers['tracestate'], "tracestate header missing #{APPOPTICS_TRACE_STATE_ID}"
   assert AppOpticsAPM::TraceState.public_valid?(headers['tracestate']), "tracestate header not valid"
