@@ -153,7 +153,7 @@ if !defined?(JRUBY_VERSION)
         url_confs.each do |conf|
           headers = conf[:headers] || {}
           assert_trace_headers(headers, false)
-          refute sampled?(headersdd['traceparent'])
+          refute sampled?(headers['traceparent'])
         end
         # true
       end

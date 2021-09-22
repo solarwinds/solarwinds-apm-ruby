@@ -17,10 +17,8 @@ describe "RestClient" do
     _(defined?(::RestClient)).wont_match nil
   end
 
-  it 'RestClient should have appoptics_apm methods defined' do
-    [ :execute_with_appoptics ].each do |m|
-      _(::RestClient::Request.method_defined?(m)).must_equal true
-    end
+  it 'RestClient should have AppOptics instrumentation prepended' do
+    assert RestClient::Request.ancestors.include?(AppOpticsAPM::Inst::RestClientRequest)
   end
 
   it "should report rest-client version in __Init" do
