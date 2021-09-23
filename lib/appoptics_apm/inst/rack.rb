@@ -38,7 +38,8 @@ if AppOpticsAPM.loaded
 
         url = env['PATH_INFO']
         options = AppOpticsAPM::XTraceOptions.new(env['HTTP_X_TRACE_OPTIONS'], env['HTTP_X_TRACE_OPTIONS_SIGNATURE'])
-        xtrace = AppOpticsAPM::XTrace.valid?(env['HTTP_TRACEPARENT']) ? (env['HTTP_TRACEPARENT']) : nil
+        trace_context = TraceContext.new(env['HTTP_TRACEPARENT'], env['HTTP_TRACESTATE'])
+        xtrace = trace_context.xtrace
         settings = AppOpticsAPM::TransactionSettings.new(url, xtrace, options)
         profile_spans = AppOpticsAPM::Config['profiling'] == :enabled ? 1 : -1
 

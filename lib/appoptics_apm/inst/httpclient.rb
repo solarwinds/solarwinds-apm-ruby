@@ -162,13 +162,13 @@ module AppOpticsAPM
               false
             end
           end
-          headers.push ['tracestate', AppOpticsAPM::TraceState.add_parent_id(tracestate, parent_id_flags)]
+          headers.push ['tracestate', AppOpticsAPM::TraceState.add_kv(tracestate, parent_id_flags)]
         elsif headers.is_a?(Hash)
           headers['traceparent'] = context
-          headers['tracestate'] = AppOpticsAPM::TraceState.add_parent_id(headers['tracestate'], parent_id_flags)
+          headers['tracestate'] = AppOpticsAPM::TraceState.add_kv(headers['tracestate'], parent_id_flags)
         elsif headers.is_a? HTTP::Message::Headers
           headers.set('traceparent', context)
-          headers.set('tracestate', AppOpticsAPM::TraceState.add_parent_id(headers['tracestate'][0], parent_id_flags))
+          headers.set('tracestate', AppOpticsAPM::TraceState.add_kv(headers['tracestate'][0], parent_id_flags))
         end
         context
       end

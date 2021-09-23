@@ -2,14 +2,16 @@
 # All rights reserved.
 
 module AppOpticsAPM
+
+  # test coverage through instrumentation_mocked and inst tests
   module TraceState
     class << self
 
-      def add_parent_id(trace_state, parent_id)
+      def add_kv(trace_state, value)
         h = to_hash(trace_state)
 
-        if id_valid?(parent_id)
-          result = { APPOPTICS_TRACE_STATE_ID => parent_id }
+        if value_valid?(value)
+          result = { APPOPTICS_TRACE_STATE_ID => value }
           result = result.merge(h) { |_k, v1, _v2| v1 }
         else
           result = h
@@ -18,10 +20,23 @@ module AppOpticsAPM
         result.map { |k,v| "#{k}=#{v}" }[0..31].join(",")
       end
 
-      def extract_id(trace_state)
+      def extract_sw_value(trace_state)
         h = to_hash(trace_state)
 
-        h[APPOPTICS_TRACE_STATE_ID]
+        value = h[APPOPTICS_TRACE_STATE_ID]
+        return value_valid?(value) ? value : nil
+      end
+
+      def extract_sw_parent_id_sampled(tracestate)
+        regex = /(?<parent_id>[A-Fa-f0-9]{16})(?<flags>[A-Fa-f0-9]{2})?$/.freeze
+
+        h = to_hash(tracestate)
+        value = h[APPOPTICS_TRACE_STATE_ID]
+        matches = regex.match(value)
+
+        return nil,nil if !matches || matches.length != 2 || matches.to_a.include?(nil)
+
+        [matches[:parent_id], (matches[:flags][1].to_i & 1) == 1]
       end
 
       private
@@ -46,19 +61,19 @@ module AppOpticsAPM
       end
 
       def valid_member?(member)
-        vendor = /[a-z][a-z0-9*\/_-]{0,255}/
-        tenant_vendor = /[a-z0-9][a-z0-9*\/_-]{0,240}@[a-z][a-z0-9*\/_-]{0,13}/
-        value = /[\x20-\x2B\x2D-\x3C\x3E-\x7E]{0,255}[\x21-\x2B\x2D-\x3C\x3E-\x7E]/
-        member =~ /(^#{tenant_vendor})|(^#{vendor})\s*=\s*#{value}$/
+        vendor = /[a-z][a-z0-9*\/_-]{0,255}/.freeze
+        tenant_vendor = /[a-z0-9][a-z0-9*\/_-]{0,240}@[a-z][a-z0-9*\/_-]{0,13}/.freeze
+        value = /[\x20-\x2B\x2D-\x3C\x3E-\x7E]{0,255}[\x21-\x2B\x2D-\x3C\x3E-\x7E]/.freeze
+        member =~ /(^#{tenant_vendor})|(^#{vendor})\s*=\s*#{value}$/.freeze
       end
 
-      def id_valid?(parent_id)
-        parent_id =~ /^[A-Fa-f0-9]{16}0[01]$/
+      # this validates the format of the value of our vendor entry
+      def value_valid?(value)
+        value =~ /^[A-Fa-f0-9]{16}0[01]$/.freeze
         # TODO NH-2303 once we include dashes use the following
         # parent_id =~ /^[A-Fa-f0-9]{16}-0[01]$/
       end
 
-      # this method is only used in tests
       def valid?(trace_state)
         vendor = /[a-z][a-z0-9*\/_-]{0,255}/
         tenant_vendor = /[a-z0-9][a-z0-9*\/_-]{0,240}@[a-z][a-z0-9*\/_-]{0,13}/
@@ -66,6 +81,8 @@ module AppOpticsAPM
         member = /(#{tenant_vendor})|(#{vendor})\s*=\s*#{value}/
         trace_state.strip =~ /^(#{member}\s*,\s*)*#{member}$/
       end
+
+
 
     end
   end
