@@ -410,7 +410,7 @@ def assert_trace_headers(headers, sampled = nil)
   assert_match /#{APPOPTICS_TRACE_STATE_ID}=/, headers['tracestate'], "tracestate header missing #{APPOPTICS_TRACE_STATE_ID}"
   assert AppOpticsAPM::TraceState.public_valid?(headers['tracestate']), "tracestate header not valid"
   assert_equal AppOpticsAPM::XTrace.edge_id_flags(headers['traceparent']),
-               AppOpticsAPM::TraceState.extract_id(headers['tracestate']), "edge_id and flags not matching"
+               AppOpticsAPM::TraceState.extract_sw_value(headers['tracestate']), "edge_id and flags not matching"
 end
 
 if (File.basename(ENV['BUNDLE_GEMFILE']) =~ /^frameworks/) == 0
