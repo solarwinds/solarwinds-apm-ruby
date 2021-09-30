@@ -55,4 +55,31 @@ describe 'AppOpticsAPMBase' do
     end
   end
 
+  describe 'thread local variables' do
+    it " AppOpticsAPM.trace_context instances are thread local" do
+      contexts = []
+      ths = []
+      2.times do |i|
+        ths << Thread.new do
+          parent = "2B#{(i+1).to_s*56}00"
+          state = "sw=#{(i+1).to_s*16}00"
+          AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(parent, state)
+
+          contexts[i] = [AppOpticsAPM.trace_context.xtrace,
+                         AppOpticsAPM.trace_context.tracestate,
+                         AppOpticsAPM.trace_context.sw_tracestate,
+                         AppOpticsAPM.trace_context.parent_id]
+        end
+      end
+      ths.each { |th| th.join }
+
+      assert contexts[0]
+      assert contexts[1]
+      refute_equal contexts[0][0], contexts[1][0]
+      refute_equal contexts[0][1], contexts[1][1]
+      refute_equal contexts[0][2], contexts[1][2]
+      refute_equal contexts[0][3], contexts[1][3]
+    end
+  end
+
 end

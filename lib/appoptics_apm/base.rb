@@ -36,10 +36,14 @@ module AppOpticsAPMBase
 
   attr_accessor :reporter
   attr_accessor :loaded
+
   thread_local :sample_source
   thread_local :sample_rate
   thread_local :layer
   thread_local :layer_op
+
+  # trace context is used to store incoming w3c trace information
+  thread_local :trace_context
 
   # transaction_name is used for custom transaction naming
   # It needs to be globally accessible, but is only set by the request processors of the different frameworks
@@ -66,14 +70,17 @@ module AppOpticsAPMBase
   # Occurs only on Jruby.  Indicates that Joboe (the java instrumentation)
   # has already started tracing before it hit the JRuby instrumentation.
   # It is used in Rack#call if there is a context when entering rack
+  # TODO not used?
   thread_local :has_incoming_context
 
   # Indicates the existence of a valid X-Trace request header
+  # TODO not used?
   thread_local :has_xtrace_header
 
   # This indicates that this trace was continued from
   # an incoming X-Trace request header or in the case
   # of JRuby, a trace already started by JAppOpticsAPM.
+  # TODO not used?
   thread_local :is_continued_trace
 
   ##
