@@ -130,7 +130,8 @@ class RackDNTTestApp < Minitest::Test
     AppOpticsAPM::Span.expects(:createHttpSpan).never
 
     xtrace = '2BE176BC800FE533EB7910F59C44F173BBF6ED7E07EFAAC4BEBB329CA801'
-    res = get "/lobster", {}, { 'HTTP_TRACEPARENT' => xtrace }
+    res = get "/lobster", {}, { 'HTTP_TRACEPARENT' => xtrace,
+                                'HTTP_TRACESTATE' => "sw=#{xtrace[-18..-1]}" }
 
     AppOpticsAPM::XTrace.unset_sampled(xtrace)
 

@@ -6,7 +6,28 @@ unless defined?(JRUBY_VERSION)
   require 'webmock/minitest'
   require 'mocha/minitest'
 
+  require 'rack/test'
+  require 'rack/lobster'
+  require 'appoptics_apm/inst/rack'
+
   class HTTPClientMockedTest < Minitest::Test
+
+    include Rack::Test::Methods
+
+    def app
+      @app = Rack::Builder.new {
+        # use Rack::CommonLogger
+        # use Rack::ShowExceptions
+        use AppOpticsAPM::Rack
+        map "/out" do
+          run Proc.new {
+            clnt = HTTPClient.new
+            clnt.get('http://127.0.0.1:8101/')
+            [200, {"Content-Type" => "text/html"}, ['Hello AppOpticsAPM!']]
+          }
+        end
+      }
+    end
 
     def setup
       AppOpticsAPM::Context.clear
@@ -257,5 +278,43 @@ unless defined?(JRUBY_VERSION)
       end
       refute AppOpticsAPM::Context.isValid
     end
+
+    ##### W3C tracestate propagation
+
+    def test_propagation_simple_trace_state
+      stub_request(:get, "http://127.0.0.1:8101/").to_return(status: 200, body: "propagate", headers: {})
+
+      task_id = 'A462ADE6CFE479081764CC476AA983351DC51B1B'
+      trace_id = "2B#{task_id}CB3468DA6F06EEFC01"
+      state = 'sw=CB3468DA6F06EEFC01'
+      get "/out", {}, { 'HTTP_TRACEPARENT' => trace_id,
+                        'HTTP_TRACESTATE'  => state }
+
+      assert_requested(:get, "http://127.0.0.1:8101/", times: 1) do |req|
+        assert_trace_headers(req.headers, true)
+        assert_equal task_id, AppOpticsAPM::XTrace.task_id(req.headers['Traceparent'])
+      end
+      refute AppOpticsAPM::Context.isValid
+    end
+
+    def test_propagation_multimember_trace_state
+      stub_request(:get, "http://127.0.0.1:8101/").to_return(status: 200, body: "propagate", headers: {})
+
+      task_id = 'A462ADE6CFE479081764CC476AA983351DC51B1B'
+      trace_id = "2B#{task_id}CB3468DA6F06EEFC01"
+      state = 'aa= 1234, sw=CB3468DA6F06EEFC01,%%cc=%%%45'
+      get "/out", {}, { 'HTTP_TRACEPARENT' => trace_id,
+                        'HTTP_TRACESTATE'  => state }
+
+      assert_requested(:get, "http://127.0.0.1:8101/", times: 1) do |req|
+        assert_trace_headers(req.headers, true)
+        assert_equal task_id, AppOpticsAPM::XTrace.task_id(req.headers['Traceparent'])
+        assert_equal "sw=#{AppOpticsAPM::XTrace.edge_id_flags(req.headers['Traceparent'])},aa= 1234",
+                     req.headers['Tracestate']
+
+      end
+      refute AppOpticsAPM::Context.isValid
+    end
+
   end
 end

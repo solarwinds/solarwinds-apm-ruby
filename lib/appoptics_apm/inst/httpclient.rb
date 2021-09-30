@@ -151,24 +151,15 @@ module AppOpticsAPM
 
         # Be aware of various ways to call/use httpclient
         if headers.is_a?(Array)
-          headers.delete_if { |kv| kv[0] == 'traceparent' }
+          headers.delete_if { |kv| kv[0] =~ /^([Tt]raceparent|[Tt]racestate)$/  }
           headers.push ['traceparent', context]
-          tracestate = []
-          headers.delete_if do |kv|
-            if kv[0] == 'tracestate'
-              tracestate = kv[0]
-              true
-            else
-              false
-            end
-          end
-          headers.push ['tracestate', AppOpticsAPM::TraceState.add_kv(tracestate, parent_id_flags)]
+          headers.push ['tracestate', AppOpticsAPM::TraceState.add_kv(AppOpticsAPM.trace_context&.tracestate, parent_id_flags)]
         elsif headers.is_a?(Hash)
           headers['traceparent'] = context
-          headers['tracestate'] = AppOpticsAPM::TraceState.add_kv(headers['tracestate'], parent_id_flags)
+          headers['tracestate'] = AppOpticsAPM::TraceState.add_kv(AppOpticsAPM.trace_context&.tracestate, parent_id_flags)
         elsif headers.is_a? HTTP::Message::Headers
           headers.set('traceparent', context)
-          headers.set('tracestate', AppOpticsAPM::TraceState.add_kv(headers['tracestate'][0], parent_id_flags))
+          headers.set('tracestate', AppOpticsAPM::TraceState.add_kv(AppOpticsAPM.trace_context&.tracestate, parent_id_flags))
         end
         context
       end

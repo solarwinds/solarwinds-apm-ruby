@@ -1,6 +1,14 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
+#####################################################
+# FYI:
+# Faraday only adds tracing when it is
+# not using an adapter that is instrumented
+#
+# otherwise we would get two spans for the same call
+#####################################################
+
 module AppOpticsAPM
   module Inst
     module FaradayConnection
@@ -8,7 +16,6 @@ module AppOpticsAPM
 
       def run_request(method, url, body, headers, &block)
         remote_call = remote_call?
-
         unless AppOpticsAPM.tracing?
           if remote_call
             add_trace_headers(@headers, @url_prefix ? @url_prefix.to_s : @host)
@@ -47,8 +54,6 @@ module AppOpticsAPM
           # or if we don't have a valid X-Trace header
           unless url_blacklisted?
             xtrace_new = result.headers['X-Trace']
-            puts xtrace_new
-            puts AppOpticsAPM::XTrace.edge_id(xtrace_new)
             AppOpticsAPM::XTrace.continue_service_context(xtrace, xtrace_new)
           end
 
