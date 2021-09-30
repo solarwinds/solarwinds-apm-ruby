@@ -38,8 +38,10 @@ if AppOpticsAPM.loaded
 
         url = env['PATH_INFO']
         options = AppOpticsAPM::XTraceOptions.new(env['HTTP_X_TRACE_OPTIONS'], env['HTTP_X_TRACE_OPTIONS_SIGNATURE'])
-        trace_context = TraceContext.new(env['HTTP_TRACEPARENT'], env['HTTP_TRACESTATE'])
-        xtrace = trace_context.xtrace
+
+        # store incoming information in a thread local variable
+        AppOpticsAPM.trace_context = TraceContext.new(env['HTTP_TRACEPARENT'], env['HTTP_TRACESTATE'])
+        xtrace = AppOpticsAPM.trace_context.xtrace
         settings = AppOpticsAPM::TransactionSettings.new(url, xtrace, options)
         profile_spans = AppOpticsAPM::Config['profiling'] == :enabled ? 1 : -1
 
@@ -129,12 +131,13 @@ if AppOpticsAPM.loaded
       end
 
       def sample(env, settings, options, profile_spans)
-        xtrace = env['HTTP_TRACEPARENT']
+        xtrace = AppOpticsAPM.trace_context.xtrace
         if settings.do_sample
           begin
             report_kvs = collect(env)
             settings.add_kvs(report_kvs)
             options&.add_kvs(report_kvs, settings)
+            AppOpticsAPM.trace_context&.add_kvs(report_kvs)
 
             AppOpticsAPM::API.log_start(:rack, xtrace, report_kvs, settings)
 
