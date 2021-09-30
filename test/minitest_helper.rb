@@ -124,7 +124,7 @@ when /libraries/
   # Load Sidekiq if TEST isn't defined or if it is, it calls
   # out the sidekiq tests
   # Background Sidekiq thread
-  unless (ENV.key?('TEST') && ENV['TEST'] =~ /sidekiq/) || (/benchmark/ =~ $0)
+  unless (ENV.key?('TEST') && ENV['TEST'] =~ /sidekiq/) || (/benchmark/ =~ $0) || ENV['NO_SIDEKIQ']
     require './test/servers/sidekiq.rb'
   end
 end
@@ -247,7 +247,6 @@ def valid_edges?(traces, connected = true)
     if t.key?("Edge")
       unless has_edge?(t["Edge"], traces)
         # TODO NH-2303 remove when done
-        puts AppOpticsAPM::Config[:transaction_settings].pretty_inspect
         print_traces(traces, ['Edge'])
         return false
       end
@@ -258,7 +257,6 @@ def valid_edges?(traces, connected = true)
       return true
     else
       # TODO NH-2303 remove when done
-      puts AppOpticsAPM::Config[:transaction_settings].pretty_inspect
       print_traces(traces, ['Edge'])
       return false
     end
