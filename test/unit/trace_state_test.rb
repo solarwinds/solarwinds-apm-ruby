@@ -155,7 +155,6 @@ describe "TraceStateTest" do
       trace_state2 = AppOpticsAPM::TraceState.validate_fix(trace_state)
 
       assert_equal(trace_state, trace_state2)
-
     end
 
     it "removes bad members" do
@@ -164,8 +163,91 @@ describe "TraceStateTest" do
       trace_state2 = AppOpticsAPM::TraceState.validate_fix(trace_state)
 
       assert_equal("aa=123,cc=567", trace_state2)
-
     end
+  end
+
+  describe 'add_kv enforce limits' do
+    it 'shortens tracestate if it becomes too long' do
+      id = '136DFAEBDF74236201'
+      trace_state1 = [*0..28].collect { |i| "a#{i}=abcdefijklmn" }.join(',')
+      trace_state2 =  "a29=abcdefijklmn"
+
+      trace_state3 = AppOpticsAPM::TraceState.add_kv("#{trace_state1},#{trace_state2}", id)
+      p
+      assert_equal "sw=#{id},#{trace_state1}", trace_state3
+    end
+
+    it 'does not remove entries if tracestate is 512 char long' do
+      id = '136DFAEBDF74236201'
+      trace_state1 = [*0..9].collect { |i| "a#{i}=abcdefijklmno" }.join(',')
+      large_entry = "bb=abcdefghijklmnopqrstuvwabcdefghijklmnopqrstuvwabcdefghijklmnopqrstuvwabcdefghijklmnopqrstuvwabcdefghijklmnopqrstuvwabcdefghijklmnopqrstuv"
+      trace_state2 = [*10..19].collect { |i| "a#{i}=abcdefijklmno" }.join(',')
+
+      trace_state3 = AppOpticsAPM::TraceState.add_kv("#{trace_state1},#{large_entry},#{trace_state2}", id)
+
+      assert_equal "sw=#{id},#{trace_state1},#{large_entry},#{trace_state2}", trace_state3
+    end
+
+    it 'removes entries longer than 128 chars first' do
+      id = '136DFAEBDF74236201'
+      trace_state1 = [*0..9].collect { |i| "a#{i}=abcdefijklmno" }.join(',')
+      many_chars = "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij"
+      large_entry = "#{many_chars}=#{many_chars}"
+      trace_state2 = [*10..19].collect { |i| "a#{i}=abcdefijklmno" }.join(',')
+
+      trace_state3 = AppOpticsAPM::TraceState.add_kv("#{trace_state1},#{large_entry},#{trace_state2}", id)
+
+      assert_equal "sw=#{id},#{trace_state1},#{trace_state2}", trace_state3
+    end
+
+    it 'does not remove an entry that is exactly 128 chars' do
+      id = '136DFAEBDF74236201'
+      trace_state1 = [*0..18].collect { |i| "a#{i}=abcdefijklmnop" }.join(',')
+      many_chars = "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabc"
+      large_entry = "#{many_chars}=#{many_chars}1"
+      trace_state2 = "a19=abcdefijklmnop"
+
+      trace_state3 = AppOpticsAPM::TraceState.add_kv("#{trace_state1},#{large_entry},#{trace_state2}", id)
+
+      assert_equal "sw=#{id},#{trace_state1},#{large_entry}", trace_state3
+    end
+
+    it 'removes an entry that is longer than 128 chars including the "=" sign' do
+      id = '136DFAEBDF74236201'
+      trace_state1 = [*0..18].collect { |i| "a#{i}=abcdefijklmnop" }.join(',')
+      many_chars = "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcd"
+      large_entry = "#{many_chars}=#{many_chars}"
+      trace_state2 = "a19=abcdefijklmnop"
+
+      trace_state3 = AppOpticsAPM::TraceState.add_kv("#{trace_state1},#{large_entry},#{trace_state2}", id)
+
+      assert_equal "sw=#{id},#{trace_state1},#{trace_state2}", trace_state3
+    end
+
+    it 'removes entries with keys longer than 128 chars first' do
+      id = '136DFAEBDF74236201'
+      trace_state1 = [*0..9].collect { |i| "a#{i}=abcdefijklmno" }.join(',')
+      large_entry = "aabcdefghijklmnopqrstuvwabcdefghijklmnopqrstuvwabcdefghijklmnopqrstuvwabcdefghijklmnopqrstuvwabcdefghijklmnopqrstuvwabcdefghijklmnopqrstuv=bb"
+      trace_state2 = [*10..19].collect { |i| "a#{i}=abcdefijklmno" }.join(',')
+
+      trace_state3 = AppOpticsAPM::TraceState.add_kv("#{trace_state1},#{large_entry},#{trace_state2}", id)
+
+      puts large_entry.size
+      puts "sw=#{id},#{trace_state1},#{large_entry},#{trace_state2}".size
+      assert_equal "sw=#{id},#{trace_state1},#{trace_state2}", trace_state3
+    end
+
+    it 'removes entries with values longer than 128 chars first' do
+      id = '136DFAEBDF74236201'
+      trace_state1 = [*0..9].collect { |i| "a#{i}=abcdefijklmno" }.join(',')
+      large_entry = "bb=aabcdefghijklmnopqrstuvwabcdefghijklmnopqrstuvwabcdefghijklmnopqrstuvwabcdefghijklmnopqrstuvwabcdefghijklmnopqrstuvwabcdefghijklmnopqrstuv"
+      trace_state2 = [*10..19].collect { |i| "a#{i}=abcdefijklmno" }.join(',')
+
+      trace_state3 = AppOpticsAPM::TraceState.add_kv("#{trace_state1},#{large_entry},#{trace_state2}", id)
+
+      assert_equal "sw=#{id},#{trace_state1},#{trace_state2}", trace_state3
+    end
+
   end
 end
 

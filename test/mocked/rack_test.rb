@@ -480,14 +480,14 @@ describe "Rack: " do
       assert_equal parent_id, traces[0]['SWParentID']
     end
 
-    it 'sets the kv when sw is not in the tracestate' do
+    it 'does not set the kv when sw is not in the tracestate' do
       task_id = '7435A9FE510AE4533414D425DADF4E180D2B4E36'
       @rack.call({ 'HTTP_TRACEPARENT' => "2B#{task_id}49E60702469DB05F01",
                    'HTTP_TRACESTATE' => "aa= 1234,xy=111" })
 
       traces = get_all_traces
 
-      assert_equal 'unknown', traces[0]['SWParentID']
+      refute traces[0]['SWParentID']
       assert_equal task_id, AppOpticsAPM::XTrace.task_id(traces[0]['X-Trace'])
     end
 
@@ -506,5 +506,27 @@ describe "Rack: " do
 
       refute traces[0]['SWParentID']
     end
+  end
+
+  describe 'I - sets a W3C-tracestate kw' do
+    it "adds tracestate if there is a tracestate" do
+      parent_id = '49E60702469DB05F'
+      state = "aa= 1234,sw=#{parent_id}01"
+      @rack.call({ 'HTTP_TRACEPARENT' => '2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00',
+                   'HTTP_TRACESTATE' => state })
+
+      traces = get_all_traces
+
+      assert_equal state, traces[0]['W3C_tracestate']
+    end
+
+    it "does not add tracestate if there is no tracestate" do
+      @rack.call({ 'HTTP_TRACEPARENT' => '2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00' })
+
+      traces = get_all_traces
+
+      refute traces[0]['W3C_tracestate']
+    end
+
   end
 end

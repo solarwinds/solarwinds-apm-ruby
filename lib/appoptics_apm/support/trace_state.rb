@@ -16,8 +16,14 @@ module AppOpticsAPM
         else
           result = h
         end
+
         # max number of members in tracestate is 32
-        result.map { |k,v| "#{k}=#{v}" }[0..31].join(",")
+        result_string = result.map { |k,v| "#{k}=#{v}" }[0..31].join(",")
+        if result_string.bytesize <= APPOPTICS_MAX_TRACESTATE_BYTES
+          result_string
+        else
+          reduce_size(result)
+        end
       end
 
       def extract_sw_value(trace_state)
@@ -29,7 +35,7 @@ module AppOpticsAPM
 
       def sw_tracestate(tracestate)
         # TODO NH-2303 switch when oboe w3c ready
-        # regex = /(?<parent_id>[A-Fa-f0-9]{16})(?<flags>[A-Fa-f0-9]{2})?$/.freeze
+        # regex = /^.*(sw=(?<sw_tracestate>(?<parent_id>[A-Fa-f0-9]{16})(?<flags>[A-Fa-f0-9]{2})))?$/.freeze
         regex = /^.*(sw=(?<sw_tracestate>(?<parent_id>[A-F0-9]{16})(?<flags>[A-F0-9]{2}))).*$/.freeze
 
         matches = regex.match(tracestate)
@@ -51,6 +57,7 @@ module AppOpticsAPM
 
       def validate_fix(trace_state)
         return nil unless trace_state && trace_state.is_a?(String)
+
 
         members = trace_state.split(/\s*,\s*/).keep_if do |member|
           valid_member?(member)
@@ -100,6 +107,17 @@ module AppOpticsAPM
         value = /[\x20-\x2B\x2D-\x3C\x3E-\x7E]{0,255}[\x21-\x2B\x2D-\x3C\x3E-\x7E]/
         member = /(#{tenant_vendor})|(#{vendor})\s*=\s*#{value}/
         trace_state.strip =~ /^(#{member}\s*,\s*)*#{member}$/
+      end
+
+      def reduce_size(result)
+        result.delete_if { |k,v| "#{k}=#{v}".size > 128 }
+        result_string = ""
+        result.each do |k,v|
+          entry = ",#{k}=#{v}"
+          return result_string[1..-1] if (result_string.bytesize + entry.bytesize) > APPOPTICS_MAX_TRACESTATE_BYTES+1
+          result_string << entry
+        end
+        result_string[1..-1]
       end
 
     end
