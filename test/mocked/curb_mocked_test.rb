@@ -374,15 +374,15 @@ if !defined?(JRUBY_VERSION)
     def test_propagation_simple_trace_state
       stub_request(:get, "http://127.0.0.1:8101/").to_return(status: 200, body: "propagate", headers: {})
 
-      task_id = 'A462ADE6CFE479081764CC476AA983351DC51B1B'
-      trace_id = "2B#{task_id}CB3468DA6F06EEFC01"
-      state = 'sw=CB3468DA6F06EEFC01'
+      task_id = 'a462ade6cfe479081764cc476aa98335'
+      trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
+      state = 'sw=cb3468da6f06eefc01'
       get "/out", {}, { 'HTTP_TRACEPARENT' => trace_id,
                         'HTTP_TRACESTATE'  => state }
 
       assert_requested(:get, "http://127.0.0.1:8101/", times: 1) do |req|
         assert_trace_headers(req.headers, true)
-        assert_equal task_id, AppOpticsAPM::XTrace.task_id(req.headers['Traceparent'])
+        assert_equal task_id, AppOpticsAPM::TraceParent.task_id(req.headers['Traceparent'])
       end
       refute AppOpticsAPM::Context.isValid
     end
@@ -390,16 +390,16 @@ if !defined?(JRUBY_VERSION)
     def test_propagation_multimember_trace_state
       stub_request(:get, "http://127.0.0.1:8101/").to_return(status: 200, body: "propagate", headers: {})
 
-      task_id = 'A462ADE6CFE479081764CC476AA983351DC51B1B'
-      trace_id = "2B#{task_id}CB3468DA6F06EEFC01"
-      state = 'aa= 1234, sw=CB3468DA6F06EEFC01,%%cc=%%%45'
+      task_id = 'a462ade6cfe479081764cc476aa98335'
+      trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
+      state = 'aa= 1234, sw=cb3468da6f06eefc01,%%cc=%%%45'
       get "/out", {}, { 'HTTP_TRACEPARENT' => trace_id,
                         'HTTP_TRACESTATE'  => state }
 
       assert_requested(:get, "http://127.0.0.1:8101/", times: 1) do |req|
         assert_trace_headers(req.headers, true)
-        assert_equal task_id, AppOpticsAPM::XTrace.task_id(req.headers['Traceparent'])
-        assert_equal "sw=#{AppOpticsAPM::XTrace.edge_id_flags(req.headers['Traceparent'])},aa= 1234",
+        assert_equal task_id, AppOpticsAPM::TraceParent.task_id(req.headers['Traceparent'])
+        assert_equal "sw=#{AppOpticsAPM::TraceParent.edge_id_flags(req.headers['Traceparent'])},aa= 1234",
                      req.headers['Tracestate']
 
       end

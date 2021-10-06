@@ -91,7 +91,6 @@ module AppOpticsAPM
       def edge_id_flags(xtrace)
         return nil unless AppOpticsAPM::XTrace.valid?(xtrace)
 
-        # TODO NH-2303 convert to recognize OT format when implemented
         xtrace[42..-1]
       rescue StandardError => e
         AppOpticsAPM.logger.debug "[appoptics_apm/xtrace] #{e.message}"

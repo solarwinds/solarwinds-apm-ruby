@@ -84,7 +84,10 @@ module AppOpticsAPM
       end
 
       def do_get_stream(req, proxy, conn)
-        AppOpticsAPM::Context.fromString(req.header['traceparent'].first) unless req.header['traceparent'].empty?
+        unless req.header['traceparent'].empty?
+          xtrace = AppOpticsAPM::TraceContext.w3c_to_ao_trace(req.header['traceparent'].first)
+          AppOpticsAPM::Context.fromString(xtrace)
+        end
         # Avoid cross host tracing for blacklisted domains
         uri = req.http_header.request_uri
         blacklisted = AppOpticsAPM::API.blacklisted?(uri.hostname)
@@ -147,18 +150,19 @@ module AppOpticsAPM
         context = AppOpticsAPM::Context.toString
         return nil unless AppOpticsAPM::XTrace.valid?(context)
 
-        parent_id_flags = AppOpticsAPM::XTrace.edge_id_flags(context)
+        trace = AppOpticsAPM::TraceContext.ao_to_w3c_trace(context)
+        parent_id_flags = AppOpticsAPM::TraceParent.edge_id_flags(trace)
 
         # Be aware of various ways to call/use httpclient
         if headers.is_a?(Array)
           headers.delete_if { |kv| kv[0] =~ /^([Tt]raceparent|[Tt]racestate)$/  }
-          headers.push ['traceparent', context]
+          headers.push ['traceparent', trace]
           headers.push ['tracestate', AppOpticsAPM::TraceState.add_kv(AppOpticsAPM.trace_context&.tracestate, parent_id_flags)]
         elsif headers.is_a?(Hash)
-          headers['traceparent'] = context
+          headers['traceparent'] = trace
           headers['tracestate'] = AppOpticsAPM::TraceState.add_kv(AppOpticsAPM.trace_context&.tracestate, parent_id_flags)
         elsif headers.is_a? HTTP::Message::Headers
-          headers.set('traceparent', context)
+          headers.set('traceparent', trace)
           headers.set('tracestate', AppOpticsAPM::TraceState.add_kv(AppOpticsAPM.trace_context&.tracestate, parent_id_flags))
         end
         context

@@ -277,6 +277,7 @@ module AppOpticsAPM
       # * +opts+ - A hash containing key/value pairs that will be reported along with this event
       def log_init(layer = :rack, opts = {})
         context = AppOpticsAPM::Metadata.makeRandom
+        context.padZeros
         return AppOpticsAPM::Context.toString unless context.isValid
 
         event = context.createEvent
@@ -348,10 +349,12 @@ module AppOpticsAPM
       def create_start_event(xtrace = nil)
         if AppOpticsAPM::XTrace.sampled?(xtrace)
           md = AppOpticsAPM::Metadata.fromString(xtrace)
+          md.padZeros
           AppOpticsAPM::Context.fromString(xtrace)
           md.createEvent
         else
           md = AppOpticsAPM::Metadata.makeRandom(true)
+          md.padZeros
           AppOpticsAPM::Context.set(md)
           AppOpticsAPM::Event.startTrace(md)
         end
@@ -369,6 +372,7 @@ module AppOpticsAPM
           # discard invalid incoming xtrace
           # create a new context, ensuring sample bit not set
           md = AppOpticsAPM::Metadata.makeRandom(false)
+          md.padZeros
           AppOpticsAPM::Context.fromString(md.toString)
         end
       end

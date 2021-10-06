@@ -117,7 +117,7 @@ if AppOpticsAPM.loaded
         if xtrace
           xtrace_local = xtrace.dup
           AppOpticsAPM::XTrace.unset_sampled(xtrace_local) unless settings.do_sample
-          env['HTTP_TRACEPARENT'] = xtrace_local
+          env['HTTP_TRACEPARENT'] = AppOpticsAPM::TraceContext.ao_to_w3c_trace(xtrace_local)
         end
 
         status, headers, response = yield
@@ -138,7 +138,6 @@ if AppOpticsAPM.loaded
             settings.add_kvs(report_kvs)
             options&.add_kvs(report_kvs, settings)
             AppOpticsAPM.trace_context&.add_kvs(report_kvs)
-
             AppOpticsAPM::API.log_start(:rack, xtrace, report_kvs, settings)
 
             status, headers, response = yield

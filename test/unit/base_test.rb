@@ -5,7 +5,6 @@ require 'minitest_helper'
 require 'mocha/minitest'
 
 describe 'AppOpticsAPMBase' do
-
   describe 'tracing_layer_op?' do
     after do
       AppOpticsAPM.layer_op = nil
@@ -56,14 +55,15 @@ describe 'AppOpticsAPMBase' do
   end
 
   describe 'thread local variables' do
-    it " AppOpticsAPM.trace_context instances are thread local" do
+    it "AppOpticsAPM.trace_context instances are thread local" do
       contexts = []
       ths = []
       2.times do |i|
         ths << Thread.new do
-          parent = "2B#{(i+1).to_s*56}00"
-          state = "sw=#{(i+1).to_s*16}00"
-          AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(parent, state)
+          trace_00 = "00-#{i}435a9fe510ae4533414d425dadf4e18-#{i}9e60702469db05f-00"
+          state_00 = "sw=#{i}9e60702469db05f-00"
+
+          AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_00, state_00)
 
           contexts[i] = [AppOpticsAPM.trace_context.xtrace,
                          AppOpticsAPM.trace_context.tracestate,
@@ -72,7 +72,6 @@ describe 'AppOpticsAPMBase' do
         end
       end
       ths.each { |th| th.join }
-
       assert contexts[0]
       assert contexts[1]
       refute_equal contexts[0][0], contexts[1][0]

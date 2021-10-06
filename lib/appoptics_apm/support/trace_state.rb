@@ -7,6 +7,8 @@ module AppOpticsAPM
   module TraceState
     class << self
 
+      # prepends our kv to trace_state string
+      # value has to be in W3C format
       def add_kv(trace_state, value)
         h = to_hash(trace_state)
 
@@ -34,9 +36,10 @@ module AppOpticsAPM
       end
 
       def sw_tracestate(tracestate)
-        # TODO NH-2303 switch when oboe w3c ready
-        # regex = /^.*(sw=(?<sw_tracestate>(?<parent_id>[A-Fa-f0-9]{16})(?<flags>[A-Fa-f0-9]{2})))?$/.freeze
-        regex = /^.*(sw=(?<sw_tracestate>(?<parent_id>[A-F0-9]{16})(?<flags>[A-F0-9]{2}))).*$/.freeze
+        regex = /^.*(sw=(?<sw_tracestate>(?<parent_id>[a-f0-9]{16})-(?<flags>[a-f0-9]{2}))).*$/.freeze
+        # TODO NH-2303
+        #  remove this, it matches the legacy ao format
+        # regex = /^.*(sw=(?<sw_tracestate>(?<parent_id>[A-F0-9]{16})(?<flags>[A-F0-9]{2}))).*$/.freeze
 
         matches = regex.match(tracestate)
         return nil, nil, nil unless matches
@@ -44,9 +47,10 @@ module AppOpticsAPM
       end
 
       def extract_sw_parent_id_sampled(tracestate)
-        # TODO NH-2303 switch when oboe w3c ready
-        # regex = /(?<parent_id>[A-Fa-f0-9]{16})(?<flags>[A-Fa-f0-9]{2})?$/.freeze
-        regex = /(?<parent_id>[A-F0-9]{16})(?<flags>[A-F0-9]{2})?$/.freeze
+        regex = /(?<parent_id>[a-f0-9]{16})-(?<flags>[a-f0-9]{2})?$/.freeze
+        # TODO NH-2303
+        #  remove this, it matches the legacy ao format
+        # regex = /(?<parent_id>[A-F0-9]{16})(?<flags>[A-F0-9]{2})?$/.freeze
         h = to_hash(tracestate)
         value = h[APPOPTICS_TRACE_STATE_ID]
         matches = regex.match(value)
@@ -57,7 +61,6 @@ module AppOpticsAPM
 
       def validate_fix(trace_state)
         return nil unless trace_state && trace_state.is_a?(String)
-
 
         members = trace_state.split(/\s*,\s*/).keep_if do |member|
           valid_member?(member)
@@ -96,9 +99,7 @@ module AppOpticsAPM
 
       # this validates the format of the value of our vendor entry
       def value_valid?(value)
-        value =~ /^[A-Fa-f0-9]{16}0[01]$/.freeze
-        # TODO NH-2303 once we include dashes use the following
-        # parent_id =~ /^[A-Fa-f0-9]{16}-0[01]$/
+        value =~ /^[a-f0-9]{16}-0[01]$/.freeze
       end
 
       def valid?(trace_state)

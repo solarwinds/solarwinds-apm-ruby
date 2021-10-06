@@ -198,46 +198,46 @@ describe "Rack: " do
 
     it '4 - sampling tracestate + :disabled transaction settings not matched' do
       check_01_111(
-        { 'HTTP_TRACEPARENT' => '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFA00',
-          'HTTP_TRACESTATE'  => 'sw=CB3468DA6F06EEFA01' }
+        { 'HTTP_TRACEPARENT' => '00-cfe479081764cc476aa983351dc51b1b-cb3468da6f06eefa-00',
+          'HTTP_TRACESTATE'  => 'sw=cb3468da6f06eefa-01' }
       )
     end
 
     it '5 - sampling tracestate + :disabled transaction settings matched' do
       check_00_000(
         { 'PATH_INFO' => '/long_job/',
-          'HTTP_TRACEPARENT' => '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFB00',
-          'HTTP_TRACESTATE'  => 'sw=CB3468DA6F06EEFB01' }
+          'HTTP_TRACEPARENT' => '00-cfe479081764cc476aa983351dc51b1b-cb3468da6f06eefb-00',
+          'HTTP_TRACESTATE'  => 'sw=cb3468da6f06eefb-01' }
       )
     end
 
     it '6 - non-sampling tracestate + :disabled transaction settings not matched' do
       check_00_001(
-        { 'HTTP_TRACEPARENT' => '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFC01',
-          'HTTP_TRACESTATE'  => 'sw=CB3468DA6F06EEFC00' }
+        { 'HTTP_TRACEPARENT' => '00-cfe479081764cc476aa983351dc51b1b-cb3468da6f06eefc-01',
+          'HTTP_TRACESTATE'  => 'sw=cb3468da6f06eefc-00' }
       )
     end
 
     it '7 - non-sampling tracestate + :disabled transaction settings matched' do
       check_00_000(
         { 'PATH_INFO' => '/long_job/',
-          'HTTP_TRACEPARENT' => '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFD01',
-          'HTTP_TRACESTATE'  => 'sw=CB3468DA6F06EEFD00' }
+          'HTTP_TRACEPARENT' => '00-cfe479081764cc476aa983351dc51b1b-cb3468da6f06eefd-01',
+          'HTTP_TRACESTATE'  => 'sw=cb3468da6f06eefd-00' }
       )
     end
 
     it '8 - invalid tracestate + :disabled transaction settings' do
       check_00_000(
         { 'PATH_INFO' => '/long_job/',
-          'HTTP_TRACEPARENT' => '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFB01',
-          'HTTP_TRACESTATE'  => '%____sw=CB3468DA6F06EEFB01' }
+          'HTTP_TRACEPARENT' => '00-cfe479081764cc476aa983351dc51b1b-cb3468da6f06eefb-01',
+          'HTTP_TRACESTATE'  => '%____sw=cb3468da6f06eefb-01' }
       )
     end
 
     it '9 - invalid tracestate + :enabled transaction settings' do
       check_01_111(
-        { 'HTTP_TRACEPARENT' => '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFB00',
-          'HTTP_TRACESTATE'  => '%____sw=CB3468DA6F06EEFB01' }
+        { 'HTTP_TRACEPARENT' => '00-cfe479081764cc476aa983351dc51b1b-cb3468da6f06eefb-00',
+          'HTTP_TRACESTATE'  => '%____sw=cb3468da6f06eefb-01' }
       )
     end
   end
@@ -272,46 +272,46 @@ describe "Rack: " do
 
     it '4 - sampling tracestate + :enabled transaction settings not matching' do
       check_00_000(
-        { 'HTTP_TRACEPARENT' => '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFA00',
-          'HTTP_TRACESTATE'  => 'sw=CB3468DA6F06EEFA01' }
+        { 'HTTP_TRACEPARENT' => '00-cfe479081764cc476aa983351dc51b1b-cb3468da6f06eefa-00',
+          'HTTP_TRACESTATE'  => 'sw=cb3468da6f06eefa-01' }
       )
     end
 
     it '5 - sampling tracestate + :enabled transaction settings matching' do
       check_01_111(
         { 'PATH_INFO' => '/long_job/',
-          'HTTP_TRACEPARENT' => '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFB00',
-          'HTTP_TRACESTATE'  => 'sw=CB3468DA6F06EEFB01' }
+          'HTTP_TRACEPARENT' => '00-cfe479081764cc476aa983351dc51b1b-cb3468da6f06eefb-00',
+          'HTTP_TRACESTATE'  => 'sw=cb3468da6f06eefb-01' }
       )
     end
 
     it '6 - non-sampling tracestate + :enabled transaction settings matching' do
       check_00_000(
-        { 'HTTP_TRACEPARENT' => '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFC01',
-          'HTTP_TRACESTATE'  => 'sw=CB3468DA6F06EEFC00' }
+        { 'HTTP_TRACEPARENT' => '00-cfe479081764cc476aa983351dc51b1b-cb3468da6f06eefc-01',
+          'HTTP_TRACESTATE'  => 'sw=cb3468da6f06eefc-00' }
       )
     end
 
     it '7 - non-sampling tracestate + :enabled transaction settings not matching' do
       check_00_001(
         { 'PATH_INFO' => '/long_job/',
-          'HTTP_TRACEPARENT' => '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFD01',
-          'HTTP_TRACESTATE'  => 'sw=CB3468DA6F06EEFD00' }
+          'HTTP_TRACEPARENT' => '00-cfe479081764cc476aa983351dc51b1b-cb3468da6f06eefd-01',
+          'HTTP_TRACESTATE'  => 'sw=cb3468da6f06eefd-00' }
       )
     end
 
     it '8 - invalid tracestate + :enabled transaction settings' do
       check_01_111(
         { 'PATH_INFO' => '/long_job/',
-          'HTTP_TRACEPARENT' => '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFB00',
-          'HTTP_TRACESTATE'  => '%____sw=CB3468DA6F06EEFB01' }
+          'HTTP_TRACEPARENT' => '00-cfe479081764cc476aa983351dc51b1b-cb3468da6f06eefb-00',
+          'HTTP_TRACESTATE'  => '%____sw=cb3468da6f06eefb-01' }
       )
     end
 
     it '9 - invalid tracestate + :disabled transaction settings' do
       check_00_000(
-        { 'HTTP_TRACEPARENT' => '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFB01',
-          'HTTP_TRACESTATE'  => '%____sw=CB3468DA6F06EEFB01' }
+        { 'HTTP_TRACEPARENT' => '00-cfe479081764cc476aa983351dc51b1b-cb3468da6f06eefb-01',
+          'HTTP_TRACESTATE'  => '%____sw=cb3468da6f06eefb-01' }
       )
     end
 
@@ -471,9 +471,9 @@ describe "Rack: " do
 
   describe 'H - sets a SWParentID kw' do
     it 'sets the kv for a tracestate when sw is not in first position' do
-      parent_id = '49E60702469DB05F'
-      @rack.call({ 'HTTP_TRACEPARENT' => '2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00',
-                   'HTTP_TRACESTATE' => "aa= 1234,sw=#{parent_id}01" })
+      parent_id = '49e60702469db05f'
+      @rack.call({ 'HTTP_TRACEPARENT' => '00-510ae4533414d425dadf4e180d2b4e36-49e60702469db05f-00',
+                   'HTTP_TRACESTATE' => "aa= 1234,sw=#{parent_id}-01" })
 
       traces = get_all_traces
 
@@ -481,14 +481,14 @@ describe "Rack: " do
     end
 
     it 'does not set the kv when sw is not in the tracestate' do
-      task_id = '7435A9FE510AE4533414D425DADF4E180D2B4E36'
-      @rack.call({ 'HTTP_TRACEPARENT' => "2B#{task_id}49E60702469DB05F01",
+      task_id = '510ae4533414d425dadf4e180d2b4e36'
+      @rack.call({ 'HTTP_TRACEPARENT' => "00-#{task_id}-49e60702469db05f-01",
                    'HTTP_TRACESTATE' => "aa= 1234,xy=111" })
 
       traces = get_all_traces
 
       refute traces[0]['SWParentID']
-      assert_equal task_id, AppOpticsAPM::XTrace.task_id(traces[0]['X-Trace'])
+      assert_equal "#{task_id.upcase}00000000", AppOpticsAPM::XTrace.task_id(traces[0]['X-Trace'])
     end
 
     it 'does not set the kv if there is no incoming context' do
@@ -499,8 +499,8 @@ describe "Rack: " do
     end
 
     it 'does not set the kv if traceparent is not valid' do
-      @rack.call({ 'HTTP_TRACEPARENT' => '35A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00',
-                   'HTTP_TRACESTATE' => "aa= 1234,sw=49E60702469DB05F01" })
+      @rack.call({ 'HTTP_TRACEPARENT' => '35a9533414d425dadf4e180d2b4e36-49e60702469db05f-00',
+                   'HTTP_TRACESTATE' => "aa= 1234,sw=49e60702469db05f-01" })
 
       traces = get_all_traces
 
@@ -510,9 +510,9 @@ describe "Rack: " do
 
   describe 'I - sets a W3C-tracestate kw' do
     it "adds tracestate if there is a tracestate" do
-      parent_id = '49E60702469DB05F'
-      state = "aa= 1234,sw=#{parent_id}01"
-      @rack.call({ 'HTTP_TRACEPARENT' => '2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00',
+      parent_id = '49e60702469db05f'
+      state = "aa= 1234,sw=#{parent_id}-01"
+      @rack.call({ 'HTTP_TRACEPARENT' => '00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-00',
                    'HTTP_TRACESTATE' => state })
 
       traces = get_all_traces
@@ -521,7 +521,7 @@ describe "Rack: " do
     end
 
     it "does not add tracestate if there is no tracestate" do
-      @rack.call({ 'HTTP_TRACEPARENT' => '2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00' })
+      @rack.call({ 'HTTP_TRACEPARENT' => '00-510ae4533414d425dadf4e180d2b4e36-49e60702469db05f-00' })
 
       traces = get_all_traces
 

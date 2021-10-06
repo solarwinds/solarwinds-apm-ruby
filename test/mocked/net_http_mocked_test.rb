@@ -90,7 +90,7 @@ unless defined?(JRUBY_VERSION)
           uri = URI('http://127.0.0.1:8101/?q=1')
           Net::HTTP.start(uri.host, uri.port) do |http|
             xt = AppOpticsAPM::Context.toString
-
+            trace = AppOpticsAPM::TraceContext.ao_to_w3c_trace(xt)
             request = Net::HTTP::Get.new(uri)
             refute request['traceparent']
             res = http.request(request) # Net::HTTPResponse object
@@ -101,7 +101,7 @@ unless defined?(JRUBY_VERSION)
             assert_trace_headers(request.to_hash.inject({}) { |h, (k, v)| h[k] = v[0]; h })
             assert res['x-trace']
             refute AppOpticsAPM::XTrace.sampled?(res.to_hash['x-trace'])
-            assert_equal xt, request['traceparent']
+            assert_equal trace, request['traceparent']
             assert_equal xt, res['x-trace']
           end
 
@@ -184,42 +184,38 @@ unless defined?(JRUBY_VERSION)
     ##### W3C tracestate propagation
 
     def test_propagation_simple_trace_state
-
-      task_id = 'A462ADE6CFE479081764CC476AA983351DC51B1B'
-      trace_id = "2B#{task_id}CB3468DA6F06EEFC01"
-      state = 'sw=CB3468DA6F06EEFC01'
+      task_id = 'a462ade6cfe479081764cc476aa9831b'
+      trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
+      state = 'sw=cb3468da6f06eefc01'
       res = get "/out", {}, { 'HTTP_TRACEPARENT' => trace_id,
                         'HTTP_TRACESTATE'  => state }
 
       # the request headers are returned in the body
-      # TODO NH-2303 fix regex for w3c format
-      regex =  /^([A-F0-9]{60})(.*)$/
+      regex =  /^([a-f0-9-]{55})(.*)$/
       matches = regex.match(res.body)
       headers = { 'Traceparent' => matches[1],
                   'Tracestate'  => matches[2] }
       assert_trace_headers(headers, true)
-      assert_equal task_id, AppOpticsAPM::XTrace.task_id(headers['Traceparent'])
+      assert_equal task_id, AppOpticsAPM::TraceParent.task_id(headers['Traceparent'])
 
       refute AppOpticsAPM::Context.isValid
     end
 
     def test_propagation_multimember_trace_state
-
-      task_id = 'A462ADE6CFE479081764CC476AA983351DC51B1B'
-      trace_id = "2B#{task_id}CB3468DA6F06EEFC01"
-      state = 'aa= 1234, sw=CB3468DA6F06EEFC01,%%cc=%%%45'
+      task_id = 'a462ade6cfe479081764cc476aa9831b'
+      trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
+      state = 'aa= 1234, sw=cb3468da6f06eefc01,%%cc=%%%45'
       res = get "/out", {}, { 'HTTP_TRACEPARENT' => trace_id,
                         'HTTP_TRACESTATE'  => state }
 
       # the request headers are returned in the body
-      # TODO NH-2303 fix regex for w3c format
-      regex =  /^([A-F0-9]{60})(.*)$/
+      regex =  /^([a-f0-9-]{55})(.*)$/
       matches = regex.match(res.body)
       headers = { 'Traceparent' => matches[1],
                   'Tracestate'  => matches[2] }
       assert_trace_headers(headers, true)
-      assert_equal task_id, AppOpticsAPM::XTrace.task_id(headers['Traceparent'])
-      assert_equal "sw=#{AppOpticsAPM::XTrace.edge_id_flags(headers['Traceparent'])},aa= 1234",
+      assert_equal task_id, AppOpticsAPM::TraceParent.task_id(headers['Traceparent'])
+      assert_equal "sw=#{AppOpticsAPM::TraceParent.edge_id_flags(headers['Traceparent'])},aa= 1234",
                    headers['Tracestate']
       refute AppOpticsAPM::Context.isValid
     end

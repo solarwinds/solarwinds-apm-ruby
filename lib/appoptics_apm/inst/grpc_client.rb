@@ -37,6 +37,7 @@ module AppOpticsAPM
       def server_streamer_with_appoptics(req, metadata: {}, &blk)
         @tags = grpc_tags('SERVER_STREAMING', metadata[:method] || metadata_to_send[:method])
         AppOpticsAPM::API.log_entry('grpc-client', @tags)
+        # TODO NH-2303 traceparent, tracestate
         metadata['x-trace'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid
 
         patch_receive_and_check_status # need to patch this so that log_exit can be called after the enum is consumed
@@ -112,6 +113,7 @@ module AppOpticsAPM
         end
       end
 
+      # this is used to continue the context when we receive the answer from the server
       def context_from_incoming
         if AppOpticsAPM::Context.isValid
           xtrace ||= @call.trailing_metadata['x-trace'] if @call.trailing_metadata && @call.trailing_metadata['x-trace']
