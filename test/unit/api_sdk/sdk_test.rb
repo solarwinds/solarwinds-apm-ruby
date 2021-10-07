@@ -5,13 +5,13 @@ require 'minitest_helper'
 require 'mocha/minitest'
 
 describe AppOpticsAPM::SDK do
-    @@trace_00 = '00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-00'
-    @@xtrace_00 = AppOpticsAPM::TraceContext.w3c_to_ao_trace(@@trace_00)
-
-    @@trace_01 = '00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-01'
-    @@xtrace_01 = AppOpticsAPM::TraceContext.w3c_to_ao_trace(@@trace_01)
 
   before do
+    @trace_00 = '00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-00'
+    @xtrace_00 = AppOpticsAPM::TraceContext.w3c_to_ao_trace(@trace_00)
+    @trace_01 = '00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-01'
+    @xtrace_01 = AppOpticsAPM::TraceContext.w3c_to_ao_trace(@trace_01)
+    
     AppOpticsAPM.config_lock.synchronize {
       @tm = AppOpticsAPM::Config[:tracing_mode]
       @sample_rate = AppOpticsAPM::Config[:sample_rate]
@@ -38,8 +38,9 @@ describe AppOpticsAPM::SDK do
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
   describe 'trace' do
+
     before do
-      AppOpticsAPM::Context.fromString(@@xtrace_01)
+      AppOpticsAPM::Context.fromString(@xtrace_01)
     end
 
     it 'should return the result from the block' do
@@ -59,7 +60,7 @@ describe AppOpticsAPM::SDK do
     end
 
     it 'should not log if we are not sampling' do
-      AppOpticsAPM::Context.fromString(@@xtrace_00)
+      AppOpticsAPM::Context.fromString(@xtrace_00)
       AppOpticsAPM::API.expects(:log_event).never
       result = AppOpticsAPM::SDK.trace(:test) { 42 }
       assert_equal 42, result
@@ -180,7 +181,7 @@ describe AppOpticsAPM::SDK do
     end
 
     it 'should not call log or metrics methods when there is a non-sampling context' do
-      AppOpticsAPM::Context.fromString(@@xtrace_00)
+      AppOpticsAPM::Context.fromString(@xtrace_00)
 
       AppOpticsAPM::API.expects(:log_event).never
       AppOpticsAPM::API.expects(:send_metrics).never
@@ -190,14 +191,14 @@ describe AppOpticsAPM::SDK do
     end
 
     it 'should return the result from the block when there is a sampling context' do
-      AppOpticsAPM::Context.fromString(@@xtrace_01)
+      AppOpticsAPM::Context.fromString(@xtrace_01)
 
       result = AppOpticsAPM::SDK.start_trace('test_01') { 42 }
       assert_equal 42, result
     end
 
     it 'should call trace and not call log_start when there is a sampling context' do
-      AppOpticsAPM::Context.fromString(@@xtrace_01)
+      AppOpticsAPM::Context.fromString(@xtrace_01)
 
       AppOpticsAPM::API.expects(:log_start).never
       AppOpticsAPM::API.expects(:send_metrics).never
@@ -208,7 +209,7 @@ describe AppOpticsAPM::SDK do
     end
 
     it 'should log the tags when there is a sampling context' do
-      AppOpticsAPM::Context.fromString(@@xtrace_01)
+      AppOpticsAPM::Context.fromString(@xtrace_01)
       tags = { 'Spec' => 'rsc', 'RemoteURL' => 'https://asdf.com:1234/resource?id=5', 'IsService' => true  }
 
       AppOpticsAPM::API.expects(:log_start).never
@@ -223,25 +224,25 @@ describe AppOpticsAPM::SDK do
       AppOpticsAPM::API.expects(:log_event).never
       AppOpticsAPM::API.expects(:send_metrics)
 
-      AppOpticsAPM::SDK.start_trace('test_01', @@xtrace_00) { 42 }
+      AppOpticsAPM::SDK.start_trace('test_01', @xtrace_00) { 42 }
     end
 
     it 'should send metrics when there is an incoming sampling context' do
       AppOpticsAPM::API.expects(:send_metrics)
 
-      AppOpticsAPM::SDK.start_trace('test_01', @@xtrace_01) { 42 }
+      AppOpticsAPM::SDK.start_trace('test_01', @xtrace_01) { 42 }
     end
 
     it 'should continue traces' do
       clear_all_traces
-      result = AppOpticsAPM::SDK.start_trace('test_01', @@xtrace_01) { 42 }
+      result = AppOpticsAPM::SDK.start_trace('test_01', @xtrace_01) { 42 }
 
       traces = get_all_traces
       assert_equal 42,              result
       assert_equal 2,               traces.size
       assert_equal 'entry',         traces[0]['Label']
       assert_equal 'exit',          traces[1]['Label']
-      assert_equal @@xtrace_01[42..-3],  traces[0]['Edge']
+      assert_equal @xtrace_01[42..-3],  traces[0]['Edge']
     end
 
     it 'should use the transaction name from opts' do
@@ -381,7 +382,7 @@ describe AppOpticsAPM::SDK do
 
     it 'should call trace and not call log_start when there is a sampling context' do
       target = { 'test' => true }
-      AppOpticsAPM::Context.fromString(@@xtrace_01)
+      AppOpticsAPM::Context.fromString(@xtrace_01)
 
       AppOpticsAPM::API.expects(:log_start).never
       AppOpticsAPM::Span.expects(:createSpan).never
@@ -393,7 +394,7 @@ describe AppOpticsAPM::SDK do
 
     it 'should call trace and not call log_start when there is a non-sampling context' do
       target = { :test => true }
-      AppOpticsAPM::Context.fromString(@@xtrace_00)
+      AppOpticsAPM::Context.fromString(@xtrace_00)
 
       AppOpticsAPM::API.expects(:log_start).never
       AppOpticsAPM::Span.expects(:createSpan).never
@@ -405,7 +406,7 @@ describe AppOpticsAPM::SDK do
 
     it 'should return the result from the block when there is a non-sampling context ttt' do
       target = { :test => true }
-      AppOpticsAPM::Context.fromString(@@xtrace_00)
+      AppOpticsAPM::Context.fromString(@xtrace_00)
 
       result = AppOpticsAPM::SDK.start_trace_with_target('test_01', nil, target) { 42 }
       assert_equal 42, result
@@ -653,12 +654,12 @@ describe AppOpticsAPM::SDK do
 
   describe 'tracing?' do
     it 'should return false if we are not tracing' do
-      AppOpticsAPM::Context.fromString(@@xtrace_00)
+      AppOpticsAPM::Context.fromString(@xtrace_00)
       refute AppOpticsAPM::SDK.tracing?
     end
 
     it 'should return true if we are tracing' do
-      AppOpticsAPM::Context.fromString(@@xtrace_01)
+      AppOpticsAPM::Context.fromString(@xtrace_01)
       assert AppOpticsAPM::SDK.tracing?
     end
 
