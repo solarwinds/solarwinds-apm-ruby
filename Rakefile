@@ -155,7 +155,8 @@ task :fetch_ext_deps do
   files = %w(bson/bson.h bson/platform_hacks.h)
 
   if ENV['OBOE_WIP'] || ENV['OBOE_LOCAL']
-    wip_src_dir = File.expand_path('../oboe/liboboe')
+    # wip_src_dir = File.expand_path('../oboe/liboboe')
+    wip_src_dir = File.expand_path('ext/oboe_metal/src_wip')
     FileUtils.cp(File.join(wip_src_dir, 'oboe_api.cpp'), ext_src_dir)
     FileUtils.cp(File.join(wip_src_dir, 'oboe_api.hpp'), ext_src_dir)
     FileUtils.cp(File.join(wip_src_dir, 'oboe_debug.h'), ext_src_dir)

@@ -90,6 +90,7 @@ jobs:
       APPOPTICS_MEMCACHED_SERVER: "memcached"
       APPOPTICS_REPORTER_FILE_SINGLE: false
       APPOPTICS_FROM_S3: true
+      OBOE_WIP: true
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
       MYSQL_ROOT_PASSWORD: "admin"
       MYSQL_HOST: "mysql"
