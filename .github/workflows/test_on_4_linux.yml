@@ -78,7 +78,6 @@ jobs:
         ruby: ['3.0', '2.7', '2.6', '2.5', '2.4']
 
     container:
-#      maybe github.repository works
        image: ghcr.io/${{ github.repository }}/apm_ruby_${{ matrix.os }}
 
     env:
@@ -90,7 +89,6 @@ jobs:
       APPOPTICS_MEMCACHED_SERVER: "memcached"
       APPOPTICS_REPORTER_FILE_SINGLE: false
       APPOPTICS_FROM_S3: true
-      OBOE_WIP: true
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
       MYSQL_ROOT_PASSWORD: "admin"
       MYSQL_HOST: "mysql"
