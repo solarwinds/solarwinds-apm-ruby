@@ -99,6 +99,7 @@ module AppOpticsAPM
       end
 
       def replace_edge_id(xtrace, edge_id)
+        return xtrace unless edge_id.is_a? String
         "#{xtrace[0..41]}#{edge_id.upcase}#{xtrace[-2..-1]}"
       end
 

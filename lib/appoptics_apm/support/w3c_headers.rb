@@ -23,8 +23,6 @@ module AppOpticsAPM
         parent_id_flags = AppOpticsAPM::TraceParent.edge_id_flags(headers['traceparent'])
         tracestate = AppOpticsAPM::trace_context&.tracestate
         headers['tracestate'] = AppOpticsAPM::TraceState.add_kv(tracestate, parent_id_flags)
-
-        puts "added w3c headers: #{headers['traceparent']} - #{headers['tracestate']}"
       end
     end
   end
