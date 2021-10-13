@@ -5,7 +5,7 @@ module AppOpticsAPM
 
   class TraceContext
 
-    attr_reader :xtrace, :traceparent, :tracestate, :sw_tracestate, :parent_id, :original_tracestate
+    attr_reader :xtrace, :parent_xtrace, :traceparent, :tracestate, :sw_tracestate, :parent_id, :original_tracestate
 
     class << self
       def w3c_to_ao_trace(traceparent)
@@ -19,7 +19,7 @@ module AppOpticsAPM
     end
 
     def initialize(traceparent=nil, tracestate=nil)
-      return unless traceparent && traceparent.is_a?(String)
+      return unless traceparent.is_a?(String)
 
       # TODO NH-2303
       #  currently storing xtrace in ao format, change when oboe is ready
@@ -36,19 +36,24 @@ module AppOpticsAPM
         if @tracestate
           @sw_tracestate, @parent_id, sampled = TraceState.sw_tracestate(@tracestate)
           @xtrace = XTrace.unset_sampled(@xtrace) if sampled == false
+          @parent_xtrace = AppOpticsAPM::XTrace.replace_edge_id(@xtrace, @parent_id)
         end
       else
         @xtrace = nil
       end
     end
 
-
     def add_kvs(kvs = {})
       if @xtrace
-        kvs['SWParentID'] = @parent_id if @parent_id
-        kvs['W3C_tracestate'] = @original_tracestate if @original_tracestate
+        kvs['sw.parent_id'] = @parent_id if @parent_id
+        kvs['sw.w3c.tracestate'] = @original_tracestate if @original_tracestate
       end
       kvs
+    end
+
+    # for debugging only
+    def to_s
+      "#{traceparent} - #{original_tracestate}"
     end
 
   end

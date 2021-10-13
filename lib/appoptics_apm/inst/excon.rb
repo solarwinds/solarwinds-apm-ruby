@@ -4,7 +4,7 @@
 module AppOpticsAPM
   module Inst
     module ExconConnection
-      include AppOpticsAPM::W3CHeaders
+      include AppOpticsAPM::TraceContextHeaders
 
       # def self.included(klass)
       #   AppOpticsAPM::Util.method_alias(klass, :request, ::Excon::Connection)
@@ -73,7 +73,7 @@ module AppOpticsAPM
         # then just return as we're tracing from parent
         # <tt>requests</tt>
         if !AppOpticsAPM.tracing? || params[:pipeline]
-          add_trace_headers(@data[:headers], @data[:hostname] || @data[:host])
+          add_tracecontext_headers(@data[:headers], @data[:hostname] || @data[:host])
           return super(params, &block)
         end
 
@@ -89,7 +89,7 @@ module AppOpticsAPM
           req_context = AppOpticsAPM::Context.toString
 
           # The core excon call
-          add_trace_headers(@data[:headers], @data[:hostname] || @data[:host])
+          add_tracecontext_headers(@data[:headers], @data[:hostname] || @data[:host])
           response = super(params, &block)
 
           # excon only passes back a hash (datum) for HTTP pipelining...

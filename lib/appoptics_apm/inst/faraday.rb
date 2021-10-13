@@ -12,13 +12,13 @@
 module AppOpticsAPM
   module Inst
     module FaradayConnection
-      include AppOpticsAPM::W3CHeaders
+      include AppOpticsAPM::TraceContextHeaders
 
       def run_request(method, url, body, headers, &block)
         remote_call = remote_call?
         unless AppOpticsAPM.tracing?
           if remote_call
-            add_trace_headers(@headers, @url_prefix ? @url_prefix.to_s : @host)
+            add_tracecontext_headers(@headers, @url_prefix ? @url_prefix.to_s : @host)
           end
           return super(method, url, body, headers, &block)
         end
@@ -28,7 +28,7 @@ module AppOpticsAPM
           xtrace = nil
           if remote_call
             xtrace = AppOpticsAPM::Context.toString
-            add_trace_headers(@headers, @url_prefix ? @url_prefix.to_s : @host)
+            add_tracecontext_headers(@headers, @url_prefix ? @url_prefix.to_s : @host)
           end
 
           result = super(method, url, body, headers, &block)

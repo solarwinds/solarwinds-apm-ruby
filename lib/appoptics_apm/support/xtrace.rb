@@ -97,6 +97,11 @@ module AppOpticsAPM
         AppOpticsAPM.logger.debug e.backtrace
         return nil
       end
+
+      def replace_edge_id(xtrace, edge_id)
+        "#{xtrace[0..41]}#{edge_id.upcase}#{xtrace[-2..-1]}"
+      end
+
       ##
       # continue_service_context
       #

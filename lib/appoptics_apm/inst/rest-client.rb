@@ -4,7 +4,7 @@
 module AppOpticsAPM
   module Inst
     module RestClientRequest
-      include AppOpticsAPM::W3CHeaders
+      include AppOpticsAPM::TraceContextHeaders
 
       ##
       # execute
@@ -13,7 +13,7 @@ module AppOpticsAPM
       #
       def execute(&block)
         unless AppOpticsAPM.tracing?
-          add_trace_headers(@processed_headers, url)
+          add_tracecontext_headers(@processed_headers, url)
           return super(&block)
         end
 
@@ -22,7 +22,7 @@ module AppOpticsAPM
           kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:rest_client][:collect_backtraces]
           AppOpticsAPM::API.log_entry('rest-client', kvs)
 
-          add_trace_headers(@processed_headers, url)
+          add_tracecontext_headers(@processed_headers, url)
 
           # The core rest-client call
           super(&block)

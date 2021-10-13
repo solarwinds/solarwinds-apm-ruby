@@ -131,7 +131,7 @@ if AppOpticsAPM.loaded
       end
 
       def sample(env, settings, options, profile_spans)
-        xtrace = AppOpticsAPM.trace_context.xtrace
+        xtrace = AppOpticsAPM.trace_context.parent_xtrace
         if settings.do_sample
           begin
             report_kvs = collect(env)

@@ -26,6 +26,9 @@ module AppOpticsAPM
         else
           reduce_size(result)
         end
+      rescue => e
+        puts e
+        puts AppOpticsAPM::API.backtrace
       end
 
       def extract_sw_value(trace_state)
@@ -119,6 +122,9 @@ module AppOpticsAPM
           result_string << entry
         end
         result_string[1..-1]
+      rescue => e
+        puts e
+        puts AppOpticsAPM::API.backtrace
       end
 
     end

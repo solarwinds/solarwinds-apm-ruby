@@ -5,11 +5,11 @@ class TyphoeusError < StandardError; end
 module AppOpticsAPM
   module Inst
     module TyphoeusRequestOps
-      include AppOpticsAPM::W3CHeaders
+      include AppOpticsAPM::TraceContextHeaders
 
       def run
         unless AppOpticsAPM.tracing?
-          add_trace_headers(options[:headers], url)
+          add_tracecontext_headers(options[:headers], url)
           return super
         end
 
@@ -23,7 +23,7 @@ module AppOpticsAPM
           kvs[:IsService] = 1
           kvs[:HTTPMethod] = AppOpticsAPM::Util.upcase(options[:method])
 
-          add_trace_headers(options[:headers], url)
+          add_tracecontext_headers(options[:headers], url)
           response = super
 
           # Re-attach edge unless it's blacklisted
@@ -58,12 +58,12 @@ module AppOpticsAPM
     end
 
     module TyphoeusHydraRunnable
-      include AppOpticsAPM::W3CHeaders
+      include AppOpticsAPM::TraceContextHeaders
 
       def run
         unless AppOpticsAPM.tracing?
           queued_requests.map do |request|
-            add_trace_headers(request.options[:headers], request.base_url)
+            add_tracecontext_headers(request.options[:headers], request.base_url)
           end
           return super
         end
@@ -80,7 +80,7 @@ module AppOpticsAPM
         # trace of the hydra run.
         AppOpticsAPM::API.trace(:typhoeus_hydra, kvs) do
           queued_requests.map do |request|
-            add_trace_headers(request.options[:headers], request.base_url)
+            add_tracecontext_headers(request.options[:headers], request.base_url)
           end
 
           super

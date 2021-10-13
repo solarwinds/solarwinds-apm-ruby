@@ -136,7 +136,7 @@ describe 'Trace Context' do
       context = AppOpticsAPM::TraceContext.new(parent, state)
       kvs = context.add_kvs
 
-      assert_equal state, kvs['W3C_tracestate']
+      assert_equal state, kvs['sw.w3c.tracestate']
     end
 
     it "does not add tracestate if there is no tracestate" do
@@ -145,27 +145,27 @@ describe 'Trace Context' do
       context = AppOpticsAPM::TraceContext.new(parent)
       kvs = context.add_kvs
 
-      refute kvs['W3C_tracestate']
+      refute kvs['sw.w3c.tracestate']
     end
 
-    it "adds SWParentID if there is an sw tracestate" do
+    it "adds sw.parent_id if there is an sw tracestate" do
       parent = '00-a462ade6cfe479081764cc476aa98335-cb3468da6f06eefc-01'
       state = ',,%%%,aa= we:::we , sw=cb3468da6f06eefc-01, %%%'
 
       context = AppOpticsAPM::TraceContext.new(parent, state)
       kvs = context.add_kvs
 
-      assert_equal 'cb3468da6f06eefc', kvs['SWParentID']
+      assert_equal 'cb3468da6f06eefc', kvs['sw.parent_id']
     end
 
-    it "does not add SWParentID if there is no sw tracestate" do
+    it "does not add sw.parent_id if there is no sw tracestate" do
       parent = '00-a462ade6cfe479081764cc476aa98335-cb3468da6f06eefc-01'
       state = ',,%%%,aa= we:::we , bb=cb3468da6f06eefc-01, %%%'
 
       context = AppOpticsAPM::TraceContext.new(parent, state)
       kvs = context.add_kvs
 
-      refute kvs['SWParentID']
+      refute kvs['sw.parent_id']
     end
 
   end

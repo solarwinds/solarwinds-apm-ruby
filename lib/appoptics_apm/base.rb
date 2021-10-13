@@ -72,7 +72,6 @@ module AppOpticsAPMBase
   # Occurs only on Jruby.  Indicates that Joboe (the java instrumentation)
   # has already started tracing before it hit the JRuby instrumentation.
   # It is used in Rack#call if there is a context when entering rack
-  # TODO not used?
   thread_local :has_incoming_context
 
   # Indicates the existence of a valid X-Trace request header
@@ -82,7 +81,6 @@ module AppOpticsAPMBase
   # This indicates that this trace was continued from
   # an incoming X-Trace request header or in the case
   # of JRuby, a trace already started by JAppOpticsAPM.
-  # TODO not used?
   thread_local :is_continued_trace
 
   ##
