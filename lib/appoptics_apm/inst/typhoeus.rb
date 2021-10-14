@@ -29,10 +29,6 @@ module AppOpticsAPM
           # Re-attach edge unless it's blacklisted
           # or if we don't have a valid X-Trace header
           blacklisted = AppOpticsAPM::API.blacklisted?(url)
-          unless blacklisted
-            xtrace = response.headers['X-Trace']
-            AppOpticsAPM::XTrace.continue_service_context(context, xtrace)
-          end
 
           if response.code == 0
             exception = TyphoeusError.new(response.return_message)

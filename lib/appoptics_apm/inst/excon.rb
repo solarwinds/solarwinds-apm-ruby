@@ -96,16 +96,11 @@ module AppOpticsAPM
           # In that case, we should never arrive here but for the OCD, double check
           # the datatype before trying to extract pertinent info
           if response.is_a?(Excon::Response)
-            response_context = response.headers['X-Trace']
             kvs[:HTTPStatus] = response.status
 
             # If we get a redirect, report the location header
             if ((300..308).to_a.include? response.status.to_i) && response.headers.key?('Location')
               kvs[:Location] = response.headers['Location']
-            end
-
-            if response_context && !blacklisted
-              AppOpticsAPM::XTrace.continue_service_context(req_context, response_context)
             end
           end
 

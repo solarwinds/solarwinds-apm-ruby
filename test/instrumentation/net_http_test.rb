@@ -36,7 +36,7 @@ describe "Net::HTTP"  do
 
     traces = get_all_traces
     _(traces.count).must_equal 6
-    _(valid_edges?(traces)).must_equal true
+    _(valid_edges?(traces, false)).must_equal true
     validate_outer_layers(traces, 'net-http_test')
 
     _(traces[1]['Layer']).must_equal 'net-http'
@@ -65,7 +65,7 @@ describe "Net::HTTP"  do
 
     traces = get_all_traces
     _(traces.count).must_equal 6
-    _(valid_edges?(traces)).must_equal true
+    _(valid_edges?(traces, false)).must_equal true
     validate_outer_layers(traces, 'net-http_test')
 
     _(traces[1]['Layer']).must_equal 'net-http'

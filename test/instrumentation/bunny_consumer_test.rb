@@ -93,7 +93,7 @@ require 'minitest_helper'
       _(traces.count).must_equal 6
 
       validate_outer_layers(traces, "rabbitmq-consumer")
-      assert valid_edges?(traces), "Invalid edge in traces"
+      assert valid_edges?(traces, false), "Invalid edge in traces"
 
       _(traces[1]['Layer']).must_equal "net-http"
       _(traces[1]['Label']).must_equal "entry"

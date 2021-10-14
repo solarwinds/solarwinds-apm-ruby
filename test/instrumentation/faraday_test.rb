@@ -35,7 +35,7 @@ describe "Faraday" do
     traces = get_all_traces
     _(traces.count).must_equal 8
 
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
     validate_outer_layers(traces, 'faraday_test')
 
     _(traces[1]['Layer']).must_equal 'faraday'
@@ -94,7 +94,7 @@ describe "Faraday" do
     traces = get_all_traces
     _(traces.count).must_equal 8
 
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
     validate_outer_layers(traces, 'faraday_test')
 
     _(traces[1]['Layer']).must_equal 'faraday'
@@ -120,7 +120,7 @@ describe "Faraday" do
     traces = get_all_traces
     _(traces.count).must_equal 8
 
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
     validate_outer_layers(traces, 'faraday_test')
 
     _(traces[1]['Layer']).must_equal 'faraday'
@@ -149,7 +149,7 @@ describe "Faraday" do
     traces = get_all_traces
     _(traces.count).must_equal 8
 
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
     validate_outer_layers(traces, 'faraday_test')
 
     _(traces[1]['Layer']).must_equal 'faraday'
@@ -185,7 +185,7 @@ describe "Faraday" do
     traces = get_all_traces
     _(traces.count).must_equal 8
 
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
     validate_outer_layers(traces, 'faraday_test')
 
     _(traces[1]['Layer']).must_equal 'faraday'
@@ -218,7 +218,7 @@ describe "Faraday" do
     traces = get_all_traces
     _(traces.count).must_equal 8
 
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
     validate_outer_layers(traces, 'faraday_test')
 
     _(traces[1]['Layer']).must_equal 'faraday'
@@ -252,7 +252,7 @@ describe "Faraday" do
     traces = get_all_traces
     _(traces.count).must_equal 6
 
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
     validate_outer_layers(traces, 'faraday_test')
 
     _(traces[1]['Layer']).must_equal 'faraday'

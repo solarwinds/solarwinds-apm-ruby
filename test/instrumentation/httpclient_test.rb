@@ -52,7 +52,7 @@ describe 'HTTPClientTest' do
 
     traces = get_all_traces
     assert_equal 6, traces.count
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
     validate_outer_layers(traces, "httpclient_tests")
 
     assert_equal 'rsc', traces[1]['Spec']
@@ -103,7 +103,7 @@ describe 'HTTPClientTest' do
     assert AppOpticsAPM::XTrace.valid?(xtrace)
 
     assert_equal 6, traces.count
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
     validate_outer_layers(traces, "httpclient_tests")
 
     assert_equal 'rsc', traces[1]['Spec']
@@ -132,7 +132,7 @@ describe 'HTTPClientTest' do
     assert AppOpticsAPM::XTrace.valid?(xtrace)
 
     assert_equal 6, traces.count
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
     validate_outer_layers(traces, "httpclient_tests")
 
     assert_equal 'rsc', traces[1]['Spec']
@@ -161,7 +161,7 @@ describe 'HTTPClientTest' do
     assert AppOpticsAPM::XTrace.valid?(xtrace)
 
     assert_equal 6, traces.count
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
     validate_outer_layers(traces, "httpclient_tests")
 
     assert_equal 'rsc', traces[1]['Spec']
@@ -224,7 +224,7 @@ describe 'HTTPClientTest' do
     traces = get_all_traces
 
     assert_equal 6, traces.count
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
     validate_outer_layers(traces, "httpclient_tests")
 
     assert_equal 'rsc', traces[1]['Spec']
@@ -296,7 +296,7 @@ describe 'HTTPClientTest' do
     assert AppOpticsAPM::XTrace.valid?(xtrace)
 
     assert_equal 6, traces.count
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
 
     assert_equal 'http://127.0.0.1:8101/?keyword=ruby&lang=en', traces[1]['RemoteURL']
 
@@ -321,7 +321,7 @@ describe 'HTTPClientTest' do
     assert AppOpticsAPM::XTrace.valid?(xtrace)
 
     assert_equal 6, traces.count
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
 
     assert_equal 'http://127.0.0.1:8101/', traces[1]['RemoteURL']
 

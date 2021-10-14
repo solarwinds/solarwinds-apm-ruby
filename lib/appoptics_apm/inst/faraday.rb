@@ -50,12 +50,6 @@ module AppOpticsAPM
           if remote_call
             kvs.merge!(rsc_kvs(url, method, result))
           end
-          # Re-attach edge unless it's blacklisted
-          # or if we don't have a valid X-Trace header
-          unless url_blacklisted?
-            xtrace_new = result.headers['X-Trace']
-            AppOpticsAPM::XTrace.continue_service_context(xtrace, xtrace_new)
-          end
 
           result
         rescue => e

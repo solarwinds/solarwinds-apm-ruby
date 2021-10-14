@@ -78,14 +78,6 @@ module AppOpticsAPM
             kvs[:Location] = headers["Location"]
           end
 
-          _, *response_headers = header_str.split(/[\r\n]+/).map(&:strip)
-          response_headers = Hash[response_headers.flat_map{ |s| s.scan(/^(\S+): (.+)/) }]
-
-          response_context = response_headers['X-Trace']
-          if response_context && !kvs[:blacklisted]
-            AppOpticsAPM::XTrace.continue_service_context(self.headers['traceparent'], response_context)
-          end
-
           response
         rescue => e
           AppOpticsAPM::API.log_exception(:curb, e)
@@ -233,15 +225,7 @@ module AppOpticsAPM
             add_tracecontext_headers(conf[:headers], URI(conf[:url]).hostname)
           end
           # The core curb call
-          http_without_appoptics(urls_with_config, multi_options) do |easy, response_code, method|
-            # this is the only way we can access the headers, they are not exposed otherwise
-            unless AppOpticsAPM::API.blacklisted?(URI(easy.url).hostname)
-              xtrace = easy.header_str.scan(/traceparent: ([0-9A-F]*)/).map{ |m| m[0] }
-              traces << xtrace[0] unless xtrace.empty?
-            end
-            block.call(easy, response_code, method) if block
-          end
-          AppOpticsAPM::XTrace.continue_service_context(context, traces.pop) unless traces.empty?
+          http_without_appoptics(urls_with_config, multi_options)
         rescue => e
           AppOpticsAPM::API.log_exception(:curb_multi, e)
           raise e

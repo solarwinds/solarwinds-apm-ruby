@@ -38,7 +38,7 @@ describe "RestClient" do
     traces = get_all_traces
     _(traces.count).must_equal 8
 
-    _(valid_edges?(traces)).must_equal true
+    _(valid_edges?(traces, false)).must_equal true
     validate_outer_layers(traces, 'rest_client_test')
 
     _(traces[1]['Layer']).must_equal 'rest-client'
@@ -72,7 +72,7 @@ describe "RestClient" do
     traces = get_all_traces
     _(traces.count).must_equal 8
 
-    _(valid_edges?(traces)).must_equal true
+    _(valid_edges?(traces, false)).must_equal true
     validate_outer_layers(traces, 'rest_client_test')
 
     _(traces[1]['Layer']).must_equal 'rest-client'
@@ -101,7 +101,7 @@ describe "RestClient" do
     traces = get_all_traces
     _(traces.count).must_equal 8
 
-    _(valid_edges?(traces)).must_equal true
+    _(valid_edges?(traces, false)).must_equal true
     validate_outer_layers(traces, 'rest_client_test')
 
     _(traces[1]['Layer']).must_equal 'rest-client'
@@ -131,7 +131,7 @@ describe "RestClient" do
     traces = get_all_traces
     _(traces.count).must_equal 8
 
-    _(valid_edges?(traces)).must_equal true
+    _(valid_edges?(traces, false)).must_equal true
     validate_outer_layers(traces, 'rest_client_test')
 
     _(traces[1]['Layer']).must_equal 'rest-client'
@@ -161,7 +161,7 @@ describe "RestClient" do
     traces = get_all_traces
     _(traces.count).must_equal 14
 
-    _(valid_edges?(traces)).must_equal true
+    _(valid_edges?(traces, false)).must_equal true
     validate_outer_layers(traces, 'rest_client_test')
 
     _(traces[1]['Layer']).must_equal 'rest-client'

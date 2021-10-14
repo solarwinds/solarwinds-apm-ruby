@@ -57,16 +57,11 @@ module AppOpticsAPM
 
           # The core httpclient call
           response = super(method, uri, query, body, header, &block)
-          response_context = response.headers['X-Trace']
           kvs[:HTTPStatus] = response.status_code
 
           # If we get a redirect, report the location header
           if ((300..308).to_a.include? response.status.to_i) && response.headers.key?('Location')
             kvs[:Location] = response.headers['Location']
-          end
-
-          if response_context && !blacklisted
-            AppOpticsAPM::XTrace.continue_service_context(req_context, response_context)
           end
 
           response
@@ -121,16 +116,11 @@ module AppOpticsAPM
             response = conn.pop
           end
 
-          response_context = response.headers['traceparent']
           kvs[:HTTPStatus] = response.status_code
 
           # If we get a redirect, report the location header
           if ((300..308).to_a.include? response.status.to_i) && response.headers.key?('Location')
             kvs[:Location] = response.headers['Location']
-          end
-
-          if response_context && !blacklisted
-            AppOpticsAPM::XTrace.continue_service_context(req_context, response_context)
           end
 
           # Older HTTPClient < 2.6.0 returns HTTPClient::Connection
