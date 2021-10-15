@@ -35,11 +35,10 @@ describe 'Trace Context' do
       parent    = '00-a462ade6cfe479081764cc476aa98335-cb3468da6f06eefc-00'
       parent_01 = '00-a462ade6cfe479081764cc476aa98335-cb3468da6f06eefc-01'
       state = 'cb3468da6f06eefc-01'
-
       context = AppOpticsAPM::TraceContext.new(parent, state)
 
       assert_equal parent_01, AppOpticsAPM::TraceContext.ao_to_w3c_trace(context.xtrace)
-      refute context.tracestate
+      assert context.tracestate
       refute context.sw_tracestate
       refute context.parent_id
     end
@@ -69,7 +68,7 @@ describe 'Trace Context' do
       context = AppOpticsAPM::TraceContext.new(parent, state)
 
       assert_equal parent, AppOpticsAPM::TraceContext.ao_to_w3c_trace(context.xtrace)
-      assert_equal 'aa= we:::we,bb=cb3468da6f06eefc-01', context.tracestate
+      assert_equal '%%%,aa= we:::we , bb=cb3468da6f06eefc-01, %%%', context.tracestate
       refute context.sw_tracestate
       refute context.parent_id
     end
@@ -81,7 +80,7 @@ describe 'Trace Context' do
       context = AppOpticsAPM::TraceContext.new(parent, state)
 
       assert_equal parent, AppOpticsAPM::TraceContext.ao_to_w3c_trace(context.xtrace)
-      assert_equal 'aa= we:::we,bb=cb3468da6f06eefc-01', context.tracestate
+      assert_equal ',,%%%,aa= we:::we , sw==123,bb=cb3468da6f06eefc-01, %%%', context.tracestate
       refute context.sw_tracestate
       refute context.parent_id
     end

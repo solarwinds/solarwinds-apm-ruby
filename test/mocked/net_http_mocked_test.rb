@@ -215,7 +215,7 @@ unless defined?(JRUBY_VERSION)
                   'Tracestate'  => matches[2] }
       assert_trace_headers(headers, true)
       assert_equal task_id, AppOpticsAPM::TraceParent.task_id(headers['Traceparent'])
-      assert_equal "sw=#{AppOpticsAPM::TraceParent.edge_id_flags(headers['Traceparent'])},aa= 1234",
+      assert_equal "sw=#{AppOpticsAPM::TraceParent.edge_id_flags(headers['Traceparent'])},aa= 1234,%%cc=%%%45",
                    headers['Tracestate']
       refute AppOpticsAPM::Context.isValid
     end

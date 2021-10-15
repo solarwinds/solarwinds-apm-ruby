@@ -5,7 +5,7 @@ module AppOpticsAPM
 
   class TraceContext
 
-    attr_reader :xtrace, :parent_xtrace, :traceparent, :tracestate, :sw_tracestate, :parent_id, :original_tracestate
+    attr_reader :xtrace, :parent_xtrace, :traceparent, :tracestate, :sw_tracestate, :parent_id
 
     class << self
       def w3c_to_ao_trace(traceparent)
@@ -25,16 +25,17 @@ module AppOpticsAPM
       #  currently storing xtrace in ao format, change when oboe is ready
       @xtrace = TraceContext.w3c_to_ao_trace(traceparent)
       if XTrace.valid?(@xtrace)
-        # a sampled xtrace currently provokes a roll-the-dice in oboe
-        # therefore we set all incoming xtrace to sampled
-        # regardless if they may be ours or not
+        # TODO remove set_sampled once oboe takes sampled arg for decision
+        #  a sampled xtrace currently provokes a roll-the-dice in oboe
+        #  therefore we set all incoming xtrace to sampled
+        #  regardless if they may be ours or not
         @xtrace = XTrace.set_sampled(@xtrace)
         @traceparent = traceparent
-        @original_tracestate = tracestate
+        @tracestate = tracestate
 
-        @tracestate = TraceState.validate_fix(tracestate)
         if @tracestate
           @sw_tracestate, @parent_id, sampled = TraceState.sw_tracestate(@tracestate)
+          # TODO remove unset_sampled once oboe takes sampled arg for decision
           @xtrace = XTrace.unset_sampled(@xtrace) if sampled == false
           @parent_xtrace = AppOpticsAPM::XTrace.replace_edge_id(@xtrace, @parent_id)
         end
@@ -43,10 +44,11 @@ module AppOpticsAPM
       end
     end
 
+    # these are event kvs, not headers
     def add_kvs(kvs = {})
       if @xtrace
         kvs['sw.parent_id'] = @parent_id if @parent_id
-        kvs['sw.w3c.tracestate'] = @original_tracestate if @original_tracestate
+        kvs['sw.w3c.tracestate'] = @tracestate if @tracestate
       end
       kvs
     end

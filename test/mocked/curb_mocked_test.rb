@@ -399,7 +399,7 @@ if !defined?(JRUBY_VERSION)
       assert_requested(:get, "http://127.0.0.1:8101/", times: 1) do |req|
         assert_trace_headers(req.headers, true)
         assert_equal task_id, AppOpticsAPM::TraceParent.task_id(req.headers['Traceparent'])
-        assert_equal "sw=#{AppOpticsAPM::TraceParent.edge_id_flags(req.headers['Traceparent'])},aa= 1234",
+        assert_equal "sw=#{AppOpticsAPM::TraceParent.edge_id_flags(req.headers['Traceparent'])},aa= 1234,%%cc=%%%45",
                      req.headers['Tracestate']
 
       end

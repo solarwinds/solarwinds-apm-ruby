@@ -384,15 +384,14 @@ unless Hash.instance_methods.include?(:transform_keys)
   end
 end
 
-# expose private method for trace_state verification
-module AppOpticsAPM
-  module TraceState
-    class << self
-      def public_valid?(trace_state)
-        valid?(trace_state)
-      end
-    end
-  end
+def sw_tracestate(tracestate)
+  matches = /^[,\s]*sw=(?<sw_value>[a-f0-9]{16}-0[01])/.match(tracestate)
+  matches && matches[:sw_value]
+end
+
+def sw_value(tracestate)
+  matches = /[,\s]*sw=(?<sw_value>[a-f0-9]{16}-0[01])/.match(tracestate)
+  matches && matches[:sw_value]
 end
 
 def assert_trace_headers(headers, sampled = nil)
@@ -405,10 +404,11 @@ def assert_trace_headers(headers, sampled = nil)
   refute AppOpticsAPM::TraceParent.sampled?(headers['traceparent']), "traceparent should NOT have sampled flag" if sampled == false
 
   assert headers['tracestate'], "tracestate header missing"
-  assert_match /#{APPOPTICS_TRACE_STATE_ID}=/, headers['tracestate'], "tracestate header missing #{APPOPTICS_TRACE_STATE_ID}"
-  assert AppOpticsAPM::TraceState.public_valid?(headers['tracestate']), "tracestate header not valid"
+  assert_match /#{APPOPTICS_TRACESTATE_ID}=/, headers['tracestate'], "tracestate header missing #{APPOPTICS_TRACESTATE_ID}"
+
+  assert sw_tracestate(headers['tracestate']), "tracestate header not starting with correct sw member"
   assert_equal AppOpticsAPM::TraceParent.edge_id_flags(headers['traceparent']),
-               AppOpticsAPM::TraceState.extract_sw_value(headers['tracestate']), "edge_id and flags not matching"
+               sw_value(headers['tracestate']), "edge_id and flags not matching"
 end
 
 if (File.basename(ENV['BUNDLE_GEMFILE']) =~ /^frameworks/) == 0
@@ -422,7 +422,6 @@ if (File.basename(ENV['BUNDLE_GEMFILE']) =~ /^frameworks/) == 0
     # Allow assertions in request context
     include MiniTest::Assertions
   end
-
 
   class MiniTest::Spec
     include Rack::Test::Methods
