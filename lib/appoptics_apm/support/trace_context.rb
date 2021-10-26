@@ -33,6 +33,8 @@ module AppOpticsAPM
           # TODO remove unset_sampled once oboe takes sampled arg for decision
           @xtrace = sampled == false ? XTrace.unset_sampled(@xtrace) : XTrace.set_sampled(@xtrace)
           @parent_xtrace = AppOpticsAPM::XTrace.replace_edge_id(@xtrace, @parent_id)
+        else
+          @xtrace = nil # we are not continuing a trace without a tracestate from us
         end
       else
         @xtrace = nil
