@@ -155,6 +155,7 @@ module AppOpticsAPM
       ensure
         # FIXME has_incoming_context commented out, it has importance for JRuby only but breaks Ruby tests
         AppOpticsAPM::Context.clear # unless AppOpticsAPM.has_incoming_context?
+        AppOpticsAPM.trace_context = nil
         AppOpticsAPM.transaction_name = nil
       end
 
