@@ -1,0 +1,47 @@
+--- oboe_api.cpp
++++ oboe_api.cpp
+@@ -18,6 +18,7 @@ Metadata::~Metadata() {
+     oboe_metadata_destroy(this);
+ }
+ 
++
+ Metadata *Metadata::makeRandom(bool sampled) {
+     oboe_metadata_t md;
+     oboe_metadata_init(&md);
+@@ -25,6 +26,8 @@ Metadata *Metadata::makeRandom(bool sampled) {
+ 
+     if (sampled) md.flags |= XTR_FLAGS_SAMPLED;
+ 
++    // oboe_metadata_pad_zeros(&md);
++
+     return new Metadata(&md);  // copies md
+ }
+ 
+@@ -43,9 +46,18 @@ bool Metadata::isSampled() {
+ Metadata *Metadata::fromString(std::string s) {
+     oboe_metadata_t md;
+     oboe_metadata_fromstr(&md, s.data(), s.size());
++
++    // oboe_metadata_pad_zeros(&md);
++
+     return new Metadata(&md);  // copies md
+ }
+ 
++void Metadata::padZeros() {
++    for (int i = 0; i < 4; i++) {
++        this->ids.task_id[i + 16] = 0;
++    }
++}
++
+ oboe_metadata_t *Metadata::metadata() {
+     return this;
+ }
+@@ -80,7 +92,7 @@ void Context::setDefaultSampleRate(int newRate) {
+ }
+ 
+ void Context::getDecisions(
+-    // this paramter list is too long, but other forms of sending info
++    // this parameter list is too long, but other forms of sending info
+     // between python/ruby and c++ would require extra roudn trips
+     // and may be less efficient.
+     // TODO: benchmark this assumption

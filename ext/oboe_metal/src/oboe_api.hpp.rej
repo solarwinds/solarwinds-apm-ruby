@@ -1,0 +1,10 @@
+--- oboe_api.hpp
++++ oboe_api.hpp
+@@ -59,6 +59,7 @@ class Metadata : private oboe_metadata_t {
+     static Metadata *makeRandom(bool sampled = true);
+     static Metadata *fromString(std::string s);
+ 
++    void padZeros();
+     oboe_metadata_t *metadata();
+ 
+ #ifdef SWIGJAVA
