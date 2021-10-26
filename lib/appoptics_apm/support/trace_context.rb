@@ -25,18 +25,13 @@ module AppOpticsAPM
       #  currently storing xtrace in ao format, change when oboe is ready
       @xtrace = TraceContext.w3c_to_ao_trace(traceparent)
       if XTrace.valid?(@xtrace)
-        # TODO remove set_sampled once oboe takes sampled arg for decision
-        #  a sampled xtrace currently provokes a roll-the-dice in oboe
-        #  therefore we set all incoming xtrace to sampled
-        #  regardless if they may be ours or not
-        @xtrace = XTrace.set_sampled(@xtrace)
         @traceparent = traceparent
         @tracestate = tracestate
 
         if @tracestate
           @sw_tracestate, @parent_id, sampled = TraceState.sw_tracestate(@tracestate)
           # TODO remove unset_sampled once oboe takes sampled arg for decision
-          @xtrace = XTrace.unset_sampled(@xtrace) if sampled == false
+          @xtrace = sampled == false ? XTrace.unset_sampled(@xtrace) : XTrace.set_sampled(@xtrace)
           @parent_xtrace = AppOpticsAPM::XTrace.replace_edge_id(@xtrace, @parent_id)
         end
       else
