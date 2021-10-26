@@ -69,11 +69,13 @@ module AppOpticsAPM
       end
 
       def run_server_method_with_appoptics(active_call, mth, inter_ctx)
+        AppOpticsAPM.trace_context = TraceContext.new(active_call.metadata['traceparent'], active_call.metadata['tracestate'])
         tags = grpc_tags(active_call, mth)
-        AppOpticsAPM::API.log_start('grpc-server', active_call.metadata['x-trace'], tags)
+        AppOpticsAPM.trace_context&.add_kvs(tags)
 
-        exit_event = AppOpticsAPM::Event.startTrace(AppOpticsAPM::Context.get)
-        active_call.merge_metadata_to_send({ 'x-trace' => exit_event.metadataString })
+        # TODO expand args for new oboe tracing decisions
+        AppOpticsAPM::API.log_start('grpc-server', AppOpticsAPM.trace_context&.xtrace, tags)
+
         begin
           AppOpticsAPM::API.send_metrics('grpc-server', tags) do
             run_server_method_without_appoptics(active_call, mth, inter_ctx)
@@ -86,8 +88,7 @@ module AppOpticsAPM
           tags['GRPCStatus'] ||= active_call.status ? AppOpticsAPM::GRPC::STATUSCODES[active_call.status.code].to_s : 'OK'
           tags['Backtrace'] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:grpc_server][:collect_backtraces]
 
-          exit_event.addEdge(AppOpticsAPM::Context.get)
-          AppOpticsAPM::API.log_end('grpc-server', tags, exit_event)
+          AppOpticsAPM::API.log_end('grpc-server', tags)
         end
       end
 

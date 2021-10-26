@@ -5,6 +5,8 @@ module AppOpticsAPM
   module GRPC
 
     module ActiveCall
+      include AppOpticsAPM::TraceContextHeaders
+
       if defined? ::GRPC
         StatusCodes = {}
         ::GRPC::Core::StatusCodes.constants.each { |code| StatusCodes[::GRPC::Core::StatusCodes.const_get(code)] = code }
@@ -35,19 +37,18 @@ module AppOpticsAPM
       end
 
       def server_streamer_with_appoptics(req, metadata: {}, &blk)
-        @tags = grpc_tags('SERVER_STREAMING', metadata[:method] || metadata_to_send[:method])
+        @tags = grpc_tags('SERVER_STREAMING', metadata['method'] || metadata_to_send['method'])
         AppOpticsAPM::API.log_entry('grpc-client', @tags)
-        # TODO NH-2303 traceparent, tracestate
-        metadata['x-trace'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid
+        add_tracecontext_headers(metadata)
 
         patch_receive_and_check_status # need to patch this so that log_exit can be called after the enum is consumed
 
+        puts metadata
         response = server_streamer_without_appoptics(req, metadata: metadata)
         block_given? ? response.each { |r| yield r } : response
       rescue => e
         # this check is needed because the exception may have been logged in patch_receive_and_check_status
         unless e.instance_variable_get(:@exn_logged)
-          context_from_incoming
           AppOpticsAPM::API.log_exception('grpc-client', e)
           AppOpticsAPM::API.log_exit('grpc-client', exit_tags(@tags))
         end
@@ -55,17 +56,17 @@ module AppOpticsAPM
       end
 
       def bidi_streamer_with_appoptics(req, metadata: {}, &blk)
-        @tags = grpc_tags('BIDI_STREAMING', metadata[:method] || metadata_to_send[:method])
+        @tags = grpc_tags('BIDI_STREAMING', metadata['method'] || metadata_to_send['method'])
         AppOpticsAPM::API.log_entry('grpc-client', @tags)
-        metadata['x-trace'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid
+        add_tracecontext_headers(metadata)
 
         patch_set_input_stream_done
 
+        puts metadata
         response = bidi_streamer_without_appoptics(req, metadata: metadata)
         block_given? ? response.each { |r| yield r } : response
       rescue => e
         unless e.instance_variable_get(:@exn_logged)
-          context_from_incoming
           AppOpticsAPM::API.log_exception('grpc-client', e)
           AppOpticsAPM::API.log_exit('grpc-client', exit_tags(@tags))
         end
@@ -75,24 +76,21 @@ module AppOpticsAPM
       private
 
       def unary_response(req, type: , metadata: , without:)
-        tags = grpc_tags(type, metadata[:method] || metadata_to_send[:method])
+        tags = grpc_tags(type, metadata['method'] || metadata_to_send['method'])
         AppOpticsAPM::SDK.trace('grpc-client', tags) do
-          metadata['x-trace'] = AppOpticsAPM::Context.toString  if AppOpticsAPM::Context.isValid
+          add_tracecontext_headers(metadata)
           begin
             send(without, req, metadata: metadata)
           ensure
             exit_tags(tags)
-            context_from_incoming
-          end
+            end
         end
       end
 
       def patch_receive_and_check_status
         def self.receive_and_check_status # need to patch this so that log_exit can be called after the enum is consumed
           super
-          context_from_incoming
         rescue => e
-          context_from_incoming
           AppOpticsAPM::API.log_exception('grpc-client', e)
           raise e
         ensure
@@ -104,21 +102,11 @@ module AppOpticsAPM
         # need to patch this instance method so that log_exit can be called after the enum is consumed
         def self.set_input_stream_done
           return if status.nil?
-          context_from_incoming
           if status.code > 0
             AppOpticsAPM::API.log_exception('grpc-client', $!)
           end
           AppOpticsAPM::API.log_exit('grpc-client', exit_tags(@tags))
           super
-        end
-      end
-
-      # this is used to continue the context when we receive the answer from the server
-      def context_from_incoming
-        if AppOpticsAPM::Context.isValid
-          xtrace ||= @call.trailing_metadata['x-trace'] if @call.trailing_metadata && @call.trailing_metadata['x-trace']
-          xtrace ||= @call.metadata['x-trace'] if @call.metadata && @call.metadata['x-trace']
-          AppOpticsAPM::Context.fromString(xtrace) if xtrace
         end
       end
 
@@ -147,7 +135,7 @@ if defined?(GRPC) && AppOpticsAPM::Config[:grpc_client][:enabled]
             return_op: false, parent: nil,
             credentials: nil, metadata: {}, &blk|
 
-          metadata[:method] = method
+          metadata['method'] = method
           return send("#{m}_without_appoptics", method, req, marshal, unmarshal, deadline: deadline,
                       return_op: return_op, parent: parent,
                       credentials: credentials, metadata: metadata, &blk)

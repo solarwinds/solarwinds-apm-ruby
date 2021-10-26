@@ -116,7 +116,7 @@ if defined? GRPC
         _(traces.size).must_equal 4
 
         assert_entry_exit(traces, 2)
-        assert valid_edges?(traces)
+        assert valid_edges?(traces, false)
 
         _(traces[0]['Spec']).must_equal            'rsc'
         _(traces[0]['RemoteURL']).must_equal       'grpc://localhost:50051/grpctest.TestService/unary'
@@ -151,6 +151,56 @@ if defined? GRPC
         end
       end
 
+      it 'should have kvs for W3C trace context for unary' do
+        other_state = 'aa=123'
+        AppOpticsAPM::SDK.start_trace(:test) do
+          # set up trace context
+          xtrace = AppOpticsAPM::Context.toString
+          trace_parent = AppOpticsAPM::TraceContext.ao_to_w3c_trace(xtrace)
+          parent_id_flags = AppOpticsAPM::TraceParent.edge_id_flags(trace_parent)
+          trace_state = AppOpticsAPM::TraceState.add_kv(other_state, parent_id_flags)
+          AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_parent, trace_state)
+          @stub.unary(@address_msg)
+        end
+
+        traces = get_all_traces
+        client_entry = traces.find { |tr| tr['Layer'] == 'grpc-client' && tr['Label'] == 'entry' }
+        server_entry = traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'entry' }
+
+        # check parent_id
+        _(server_entry['sw.parent_id']).must_equal AppOpticsAPM::XTrace.edge_id(client_entry['X-Trace']).downcase
+
+        # check trace_state
+        _(server_entry['sw.w3c.tracestate']).must_include other_state
+        _, parent_id, _ = AppOpticsAPM::TraceState.sw_tracestate(server_entry['sw.w3c.tracestate'])
+        _(parent_id).must_equal AppOpticsAPM::XTrace.edge_id(client_entry['X-Trace']).downcase
+      end
+
+      it 'unary should not trace if the w3c trace context is not tracing' do
+        # without an appoptics context
+        trace_parent = '00-d1169466cf4a7c3c82d07e745bb51f16-4209252012f594bf-01'
+        trace_state = 'sw=4209252012f594bf-00'
+        AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_parent, trace_state)
+
+        @stub.unary(@address_msg)
+        traces = get_all_traces
+        assert traces.empty?
+
+        # with a non-tracing appoptics context
+        AppOpticsAPM.trace_context = nil
+        AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
+
+        @stub.unary(@address_msg)
+        traces = get_all_traces
+        assert traces.empty?
+
+        # without the w3c header and no context it will always trace in testing
+        AppOpticsAPM::Context.clear
+        @stub.unary(@address_msg)
+        traces = get_all_traces
+        refute traces.empty?
+      end
+
       # Both: Client Application cancelled the request
       it 'should report CANCELLED for unary' do
         AppOpticsAPM::SDK.start_trace(:test) do
@@ -162,7 +212,7 @@ if defined? GRPC
 
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         if traces # no traces retrieved if sending them to the collector
-          assert valid_edges?(traces), "Edges aren't valid"
+          assert valid_edges?(traces, false), "Edges aren't valid"
           _(traces.size).must_equal 6
           assert_entry_exit(traces, 2)
 
@@ -185,7 +235,7 @@ if defined? GRPC
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         _(traces.size).must_equal 6
         assert_entry_exit(traces)
-        assert valid_edges?(traces)
+        assert valid_edges?(traces, false)
 
         _(traces[0]['Spec']).must_equal            'rsc'
         _(traces[0]['RemoteURL']).must_equal       'grpc://localhost:50051/grpctest.TestService/unary_long'
@@ -207,7 +257,7 @@ if defined? GRPC
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         _(traces.size).must_equal 3
         assert_entry_exit(traces, 1)
-        assert valid_edges?(traces)
+        assert valid_edges?(traces, false)
 
         _(traces[0]['GRPCMethodType']).must_equal  'UNARY'
         traces.select { |tr| tr['Label'] =~ /exit|entry'/}.each { |tr| _(tr['Backtrace']).must_be_nil }
@@ -227,7 +277,7 @@ if defined? GRPC
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         _(traces.size).must_equal 6
         assert_entry_exit(traces, 2)
-        assert valid_edges?(traces)
+        assert valid_edges?(traces, false)
 
         _(traces[0]['GRPCMethodType']).must_equal  'UNARY'
         traces.select { |tr| tr['Label'] =~ /exit|entry'/}.each { |tr| _(tr['Backtrace']).must_be_nil }
@@ -248,7 +298,7 @@ if defined? GRPC
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         _(traces.size).must_equal 6
         assert_entry_exit(traces, 2)
-        assert valid_edges?(traces)
+        assert valid_edges?(traces, false)
 
         _(traces[0]['GRPCMethodType']).must_equal  'UNARY'
         traces.select { |tr| tr['Label'] =~ /exit|entry/}.each { |tr| _(tr['Backtrace']).must_be_nil }
@@ -270,7 +320,7 @@ if defined? GRPC
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         _(traces.size).must_equal 6
         assert_entry_exit(traces, 2)
-        assert valid_edges?(traces)
+        assert valid_edges?(traces, false)
 
         _(traces[0]['GRPCMethodType']).must_equal  'UNARY'
         traces.select { |tr| tr['Label'] =~ /exit|entry'/}.each { |tr| _(tr['Backtrace']).must_be_nil }
@@ -294,7 +344,7 @@ if defined? GRPC
 
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         assert_entry_exit(traces, 2)
-        assert valid_edges?(traces)
+        assert valid_edges?(traces, false)
 
         _(traces.size).must_equal 4
         _(traces[0]['Spec']).must_equal            'rsc'
@@ -324,7 +374,7 @@ if defined? GRPC
 
           traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
           assert_entry_exit(traces, 2)
-          assert valid_edges?(traces)
+          assert valid_edges?(traces, false)
 
           _(traces.size).must_equal 4
           _(traces[0]['Spec']).must_equal            'rsc'
@@ -334,6 +384,56 @@ if defined? GRPC
           traces.select { |tr| tr['Label'] == 'entry'}.each { |tr| _(tr['Backtrace']).must_be_nil "Found extra backtrace!" }
           traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['Backtrace']).wont_be_nil "Backtrace missing!" }
         end
+      end
+
+      it 'should have kvs for W3C trace context for client_streaming' do
+        other_state = 'aa=123'
+        AppOpticsAPM::SDK.start_trace(:test) do
+          # set up trace context
+          xtrace = AppOpticsAPM::Context.toString
+          trace_parent = AppOpticsAPM::TraceContext.ao_to_w3c_trace(xtrace)
+          parent_id_flags = AppOpticsAPM::TraceParent.edge_id_flags(trace_parent)
+          trace_state = AppOpticsAPM::TraceState.add_kv(other_state, parent_id_flags)
+          AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_parent, trace_state)
+          @stub.client_stream([@phone_msg, @phone_msg])
+        end
+
+        traces = get_all_traces
+        client_entry = traces.find { |tr| tr['Layer'] == 'grpc-client' && tr['Label'] == 'entry' }
+        server_entry = traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'entry' }
+
+        # check parent_id
+        _(server_entry['sw.parent_id']).must_equal AppOpticsAPM::XTrace.edge_id(client_entry['X-Trace']).downcase
+
+        # check trace_state
+        _(server_entry['sw.w3c.tracestate']).must_include other_state
+        _, parent_id, _ = AppOpticsAPM::TraceState.sw_tracestate(server_entry['sw.w3c.tracestate'])
+        _(parent_id).must_equal AppOpticsAPM::XTrace.edge_id(client_entry['X-Trace']).downcase
+       end
+
+      it 'client_streaming should not trace if the w3c trace context is not tracing' do
+        # without an appoptics context
+        trace_parent = '00-d1169466cf4a7c3c82d07e745bb51f16-4209252012f594bf-01'
+        trace_state = 'sw=4209252012f594bf-00'
+        AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_parent, trace_state)
+
+        @stub.client_stream([@phone_msg, @phone_msg])
+        traces = get_all_traces
+        assert traces.empty?
+
+        # with a non-tracing appoptics context
+        AppOpticsAPM.trace_context = nil
+        AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
+
+        @stub.client_stream([@phone_msg, @phone_msg])
+        traces = get_all_traces
+        assert traces.empty?
+
+        # without the w3c header and no context it will always trace in testing
+        AppOpticsAPM::Context.clear
+        @stub.client_stream([@phone_msg, @phone_msg])
+        traces = get_all_traces
+        refute traces.empty?
       end
 
       it 'should report DEADLINE_EXCEEDED for client_streaming' do
@@ -438,7 +538,7 @@ if defined? GRPC
 
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         assert_entry_exit(traces, 2)
-        assert valid_edges?(traces)
+        assert valid_edges?(traces, false)
 
         _(traces.size).must_equal 4
         _(traces[0]['Spec']).must_equal            'rsc'
@@ -475,6 +575,60 @@ if defined? GRPC
         end
       end
 
+      it 'should have kvs for W3C trace context for server_streaming' do
+        other_state = 'aa=123'
+        AppOpticsAPM::SDK.start_trace(:test) do
+          # set up trace context
+          xtrace = AppOpticsAPM::Context.toString
+          trace_parent = AppOpticsAPM::TraceContext.ao_to_w3c_trace(xtrace)
+          parent_id_flags = AppOpticsAPM::TraceParent.edge_id_flags(trace_parent)
+          trace_state = AppOpticsAPM::TraceState.add_kv(other_state, parent_id_flags)
+          AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_parent, trace_state)
+          res = @stub.server_stream(Grpctest::AddressId.new(id: 2))
+          res.each { |_| }
+        end
+
+        traces = get_all_traces
+        client_entry = traces.find { |tr| tr['Layer'] == 'grpc-client' && tr['Label'] == 'entry' }
+        server_entry = traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'entry' }
+
+        # check parent_id
+        _(server_entry['sw.parent_id']).must_equal AppOpticsAPM::XTrace.edge_id(client_entry['X-Trace']).downcase
+
+        # check trace_state
+        _(server_entry['sw.w3c.tracestate']).must_include other_state
+        _, parent_id, _ = AppOpticsAPM::TraceState.sw_tracestate(server_entry['sw.w3c.tracestate'])
+        _(parent_id).must_equal AppOpticsAPM::XTrace.edge_id(client_entry['X-Trace']).downcase
+      end
+
+      it 'server_streaming should not trace if the w3c trace context is not tracing' do
+        # without an appoptics context
+        trace_parent = '00-d1169466cf4a7c3c82d07e745bb51f16-4209252012f594bf-01'
+        trace_state = 'sw=4209252012f594bf-00'
+        AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_parent, trace_state)
+
+        res = @stub.server_stream(Grpctest::AddressId.new(id: 2))
+        res.each { |_| }
+        traces = get_all_traces
+        assert traces.empty?
+
+        # with a non-tracing appoptics context
+        AppOpticsAPM.trace_context = nil
+        AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
+
+        res = @stub.server_stream(Grpctest::AddressId.new(id: 2))
+        res.each { |_| }
+        traces = get_all_traces
+        assert traces.empty?
+
+        # without the w3c header and no context it will always trace in testing
+        AppOpticsAPM::Context.clear
+        res = @stub.server_stream(Grpctest::AddressId.new(id: 2))
+        res.each { |_| }
+        traces = get_all_traces
+        refute traces.empty?
+      end
+
       it 'should report CANCEL for server_streaming with enumerator' do
         AppOpticsAPM::SDK.start_trace(:test) do
           res = @stub.server_stream_cancel(@null_msg)
@@ -486,7 +640,7 @@ if defined? GRPC
 
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         assert_entry_exit(traces, 2)
-        assert valid_edges?(traces)
+        assert valid_edges?(traces, false)
 
         _(traces.size).must_equal 6
         traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| _(tr['GRPCMethodType']).must_equal  'SERVER_STREAMING' }
@@ -504,7 +658,7 @@ if defined? GRPC
 
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         assert_entry_exit(traces, 2)
-        assert valid_edges?(traces)
+        assert valid_edges?(traces, false)
 
         _(traces.size).must_equal 6
         traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| _(tr['GRPCMethodType']).must_equal  'SERVER_STREAMING' }
@@ -542,7 +696,7 @@ if defined? GRPC
 
         _(traces.size).must_equal 6
         assert_entry_exit(traces, 2)
-        assert valid_edges?(traces)
+        assert valid_edges?(traces, false)
 
         traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| _(tr['GRPCMethodType']).must_equal  'SERVER_STREAMING' }
         traces.select { |tr| tr['Label'] == 'exit'}.each { |tr| _(tr['GRPCStatus']).must_equal 'UNKNOWN' }
@@ -559,7 +713,7 @@ if defined? GRPC
 
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         assert_entry_exit(traces, 2)
-        assert valid_edges?(traces)
+        assert valid_edges?(traces, false)
 
         _(traces.size).must_equal 6
         traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| _(tr['GRPCMethodType']).must_equal  'SERVER_STREAMING' }
@@ -582,7 +736,7 @@ if defined? GRPC
 
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         assert_entry_exit(traces, 2)
-        assert valid_edges?(traces)
+        assert valid_edges?(traces, false)
 
         _(traces.size).must_equal 4
         _(traces[0]['Spec']).must_equal            'rsc'
@@ -618,6 +772,56 @@ if defined? GRPC
         end
       end
 
+      it 'should have kvs for W3C trace context for server_streaming yield' do
+        other_state = 'aa=123'
+        AppOpticsAPM::SDK.start_trace(:test) do
+          # set up trace context
+          xtrace = AppOpticsAPM::Context.toString
+          trace_parent = AppOpticsAPM::TraceContext.ao_to_w3c_trace(xtrace)
+          parent_id_flags = AppOpticsAPM::TraceParent.edge_id_flags(trace_parent)
+          trace_state = AppOpticsAPM::TraceState.add_kv(other_state, parent_id_flags)
+          AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_parent, trace_state)
+          @stub.server_stream(Grpctest::AddressId.new(id: 2)) { |_| }
+        end
+
+        traces = get_all_traces
+        client_entry = traces.find { |tr| tr['Layer'] == 'grpc-client' && tr['Label'] == 'entry' }
+        server_entry = traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'entry' }
+
+        # check parent_id
+        _(server_entry['sw.parent_id']).must_equal AppOpticsAPM::XTrace.edge_id(client_entry['X-Trace']).downcase
+
+        # check trace_state
+        _(server_entry['sw.w3c.tracestate']).must_include other_state
+        _, parent_id, _ = AppOpticsAPM::TraceState.sw_tracestate(server_entry['sw.w3c.tracestate'])
+        _(parent_id).must_equal AppOpticsAPM::XTrace.edge_id(client_entry['X-Trace']).downcase
+      end
+
+      it 'server_streaming yield should not trace if the w3c trace context is not tracing' do
+        # without an appoptics context
+        trace_parent = '00-d1169466cf4a7c3c82d07e745bb51f16-4209252012f594bf-01'
+        trace_state = 'sw=4209252012f594bf-00'
+        AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_parent, trace_state)
+
+        @stub.server_stream(Grpctest::AddressId.new(id: 2)) { |_| }
+        traces = get_all_traces
+        assert traces.empty?
+
+        # with a non-tracing appoptics context
+        AppOpticsAPM.trace_context = nil
+        AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
+
+        @stub.server_stream(Grpctest::AddressId.new(id: 2)) { |_| }
+        traces = get_all_traces
+        assert traces.empty?
+
+        # without the w3c header and no context it will always trace in testing
+        AppOpticsAPM::Context.clear
+        @stub.server_stream(Grpctest::AddressId.new(id: 2)) { |_| }
+        traces = get_all_traces
+        refute traces.empty?
+      end
+
       it 'should report CANCEL for server_streaming using block' do
         begin
           AppOpticsAPM::SDK.start_trace(:test) do
@@ -628,7 +832,7 @@ if defined? GRPC
 
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         assert_entry_exit(traces, 2)
-        assert valid_edges?(traces)
+        assert valid_edges?(traces, false)
 
         _(traces.size).must_equal 6
         traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| _(tr['GRPCMethodType']).must_equal  'SERVER_STREAMING' }
@@ -645,7 +849,7 @@ if defined? GRPC
 
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         assert_entry_exit(traces, 2)
-        assert valid_edges?(traces)
+        assert valid_edges?(traces, false)
 
         _(traces.size).must_equal 6
         traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| _(tr['GRPCMethodType']).must_equal  'SERVER_STREAMING' }
@@ -681,7 +885,7 @@ if defined? GRPC
 
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         assert_entry_exit(traces, 2)
-        assert valid_edges?(traces)
+        assert valid_edges?(traces, false)
 
         _(traces.size).must_equal 6
         traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| _(tr['GRPCMethodType']).must_equal  'SERVER_STREAMING' }
@@ -698,7 +902,7 @@ if defined? GRPC
 
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         assert_entry_exit(traces, 2)
-        assert valid_edges?(traces)
+        assert valid_edges?(traces, false)
 
         _(traces.size).must_equal 6
         traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| _(tr['GRPCMethodType']).must_equal  'SERVER_STREAMING' }
@@ -721,7 +925,7 @@ if defined? GRPC
 
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         assert_entry_exit(traces, 2)
-        assert valid_edges?(traces)
+        assert valid_edges?(traces, false)
 
         _(traces.size).must_equal 4
         _(traces[0]['Spec']).must_equal            'rsc'
@@ -758,6 +962,60 @@ if defined? GRPC
         end
       end
 
+      it 'should have kvs for W3C trace context for bidi_streaming' do
+        other_state = 'aa=123'
+        AppOpticsAPM::SDK.start_trace(:test) do
+          # set up trace context
+          xtrace = AppOpticsAPM::Context.toString
+          trace_parent = AppOpticsAPM::TraceContext.ao_to_w3c_trace(xtrace)
+          parent_id_flags = AppOpticsAPM::TraceParent.edge_id_flags(trace_parent)
+          trace_state = AppOpticsAPM::TraceState.add_kv(other_state, parent_id_flags)
+          AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_parent, trace_state)
+          response = @stub.bidi_stream([@null_msg, @null_msg])
+          response.each { |_| }
+        end
+
+        traces = get_all_traces
+        client_entry = traces.find { |tr| tr['Layer'] == 'grpc-client' && tr['Label'] == 'entry' }
+        server_entry = traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'entry' }
+
+        # check parent_id
+        _(server_entry['sw.parent_id']).must_equal AppOpticsAPM::XTrace.edge_id(client_entry['X-Trace']).downcase
+
+        # check trace_state
+        _(server_entry['sw.w3c.tracestate']).must_include other_state
+        _, parent_id, _ = AppOpticsAPM::TraceState.sw_tracestate(server_entry['sw.w3c.tracestate'])
+        _(parent_id).must_equal AppOpticsAPM::XTrace.edge_id(client_entry['X-Trace']).downcase
+      end
+
+      it 'bidi_streaming should not trace if the w3c trace context is not tracing' do
+        # without an appoptics context
+        trace_parent = '00-d1169466cf4a7c3c82d07e745bb51f16-4209252012f594bf-01'
+        trace_state = 'sw=4209252012f594bf-00'
+        AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_parent, trace_state)
+
+        response = @stub.bidi_stream([@null_msg, @null_msg])
+        response.each { |_| }
+        traces = get_all_traces
+        assert traces.empty?
+
+        # with a non-tracing appoptics context
+        AppOpticsAPM.trace_context = nil
+        AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
+
+        response = @stub.bidi_stream([@null_msg, @null_msg])
+        response.each { |_| }
+        traces = get_all_traces
+        assert traces.empty?
+
+        # without the w3c header and no context it will always trace in testing
+        AppOpticsAPM::Context.clear
+        response = @stub.bidi_stream([@null_msg, @null_msg])
+        response.each { |_| }
+        traces = get_all_traces
+        refute traces.empty?
+      end
+
       it 'should report CANCEL for bidi_streaming with enumerator' do
         begin
           AppOpticsAPM::SDK.start_trace(:test) do
@@ -769,7 +1027,7 @@ if defined? GRPC
 
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         assert_entry_exit(traces, 2)
-        assert valid_edges?(traces)
+        assert valid_edges?(traces, false)
 
         _(traces.size).must_equal 6
         traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| _(tr['GRPCMethodType']).must_equal  'BIDI_STREAMING' }
@@ -787,7 +1045,7 @@ if defined? GRPC
 
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         assert_entry_exit(traces, 2)
-        assert valid_edges?(traces)
+        assert valid_edges?(traces, false)
 
         _(traces.size).must_equal 6
         traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| _(tr['GRPCMethodType']).must_equal  'BIDI_STREAMING' }
@@ -823,7 +1081,7 @@ if defined? GRPC
 
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         assert_entry_exit(traces, 2)
-        assert valid_edges?(traces)
+        assert valid_edges?(traces, false)
 
         _(traces.size).must_equal 6
         traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| _(tr['GRPCMethodType']).must_equal  'BIDI_STREAMING' }
@@ -842,7 +1100,7 @@ if defined? GRPC
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
 
         assert_entry_exit(traces, 2)
-        assert valid_edges?(traces)
+        assert valid_edges?(traces, false)
 
         _(traces.size).must_equal 6
         traces.select { |tr| tr['Label'] == 'entry' }.each { |tr| _(tr['GRPCMethodType']).must_equal  'BIDI_STREAMING' }
@@ -867,7 +1125,7 @@ if defined? GRPC
 
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         assert_entry_exit(traces, 2)
-        assert valid_edges?(traces)
+        assert valid_edges?(traces, false)
 
         _(traces.size).must_equal 4
         _(traces[0]['Spec']).must_equal            'rsc'
@@ -903,6 +1161,56 @@ if defined? GRPC
         end
       end
 
+      it 'THIS should have kvs for W3C trace context for bidi_streaming yield' do
+        other_state = 'aa=123'
+        AppOpticsAPM::SDK.start_trace(:test) do
+          # set up trace context
+          xtrace = AppOpticsAPM::Context.toString
+          trace_parent = AppOpticsAPM::TraceContext.ao_to_w3c_trace(xtrace)
+          parent_id_flags = AppOpticsAPM::TraceParent.edge_id_flags(trace_parent)
+          trace_state = AppOpticsAPM::TraceState.add_kv(other_state, parent_id_flags)
+          AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_parent, trace_state)
+          @stub.bidi_stream([@null_msg, @null_msg]) { |_| }
+        end
+
+        traces = get_all_traces
+        client_entry = traces.find { |tr| tr['Layer'] == 'grpc-client' && tr['Label'] == 'entry' }
+        server_entry = traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'entry' }
+
+        # check parent_id
+        _(server_entry['sw.parent_id']).must_equal AppOpticsAPM::XTrace.edge_id(client_entry['X-Trace']).downcase
+
+        # check trace_state
+        _(server_entry['sw.w3c.tracestate']).must_include other_state
+        _, parent_id, _ = AppOpticsAPM::TraceState.sw_tracestate(server_entry['sw.w3c.tracestate'])
+        _(parent_id).must_equal AppOpticsAPM::XTrace.edge_id(client_entry['X-Trace']).downcase
+      end
+
+      it 'THIS bidi_streaming yield should not trace if the w3c trace context is not tracing' do
+        # without an appoptics context
+        trace_parent = '00-d1169466cf4a7c3c82d07e745bb51f16-4209252012f594bf-01'
+        trace_state = 'sw=4209252012f594bf-00'
+        AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_parent, trace_state)
+
+        @stub.bidi_stream([@null_msg, @null_msg]) { |_| }
+        traces = get_all_traces
+        assert traces.empty?
+
+        # with a non-tracing appoptics context
+        AppOpticsAPM.trace_context = nil
+        AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
+
+        @stub.bidi_stream([@null_msg, @null_msg]) { |_| }
+        traces = get_all_traces
+        assert traces.empty?
+
+        # without the w3c header and no context it will always trace in testing
+        AppOpticsAPM::Context.clear
+        @stub.bidi_stream([@null_msg, @null_msg]) { |_| }
+        traces = get_all_traces
+        refute traces.empty?
+      end
+
       it 'should report CANCEL for bidi_streaming using block' do
         begin
           AppOpticsAPM::SDK.start_trace(:test) do
@@ -913,7 +1221,7 @@ if defined? GRPC
 
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         assert_entry_exit(traces, 2)
-        assert valid_edges?(traces)
+        assert valid_edges?(traces, false)
 
         _(traces.size).must_equal 6
         traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| _(tr['GRPCMethodType']).must_equal  'BIDI_STREAMING' }
@@ -930,7 +1238,7 @@ if defined? GRPC
 
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         assert_entry_exit(traces, 2)
-        assert valid_edges?(traces)
+        assert valid_edges?(traces, false)
 
         _(traces.size).must_equal 6
         traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| _(tr['GRPCMethodType']).must_equal  'BIDI_STREAMING' }
@@ -964,7 +1272,7 @@ if defined? GRPC
 
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         assert_entry_exit(traces, 2)
-        assert valid_edges?(traces)
+        assert valid_edges?(traces, false)
 
         _(traces.size).must_equal 6
         traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| _(tr['GRPCMethodType']).must_equal  'BIDI_STREAMING' }
@@ -981,7 +1289,7 @@ if defined? GRPC
 
         traces = get_all_traces.delete_if { |tr| tr['Layer'] == 'test'}
         assert_entry_exit(traces, 2)
-        assert valid_edges?(traces)
+        assert valid_edges?(traces, false)
 
         _(traces.size).must_equal 6
         traces.select { |tr| tr['Label'] =~ /entry|exit/ }.each { |tr| _(tr['GRPCMethodType']).must_equal  'BIDI_STREAMING' }
@@ -1091,9 +1399,18 @@ if defined? GRPC
 
         assert_entry_exit(traces, nil, false)
 
-        groups = traces_group(traces)
-        pairs = groups.map { |arr| arr.select { |a| a['Label'] == 'exit' } }
-        pairs.each { |pair| assert_same_status(pair) }
+        # find all the exception statuses
+        statuses = traces.select { |tr| tr['GRPCStatus'] }.map { |tr|  [tr['GRPCStatus'],tr['Layer']] }.group_by { |ele| ele.first }
+        statuses.delete('RESOURCE_EXHAUSTED') # this may not happen and it would only be reported in the client trace
+
+        # make sure we got them all
+        assert_equal ["CANCELLED", "DEADLINE_EXCEEDED", "UNIMPLEMENTED", "UNKNOWN"], statuses.keys.sort
+
+        # make sure we have a client and a server exception status for each, except RESOURCE_EXHAUSTED
+        result = statuses.find do |_, v|
+          v.select { |ele| ele[1] == 'grpc-server'}.count != v.select { |ele| ele[1] == 'grpc-client'}.count
+        end
+        refute result
       end
 
       def traces_group(traces)
