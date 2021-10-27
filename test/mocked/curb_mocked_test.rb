@@ -49,6 +49,8 @@ if !defined?(JRUBY_VERSION)
       AppOpticsAPM::Config[:sample_rate] = @sample_rate
       AppOpticsAPM::Config[:tracing_mode] = @tracing_mode
       AppOpticsAPM::Config[:blacklist] = @blacklist
+
+      AppOpticsAPM.trace_context = nil
     end
 
     def test_API_xtrace_tracing
@@ -80,6 +82,7 @@ if !defined?(JRUBY_VERSION)
       refute AppOpticsAPM::Context.isValid
     end
 
+
     # TODO NH-2303 add test case with incoming trace headers
     #  when we are not tracing those headers have to be preserved
     def test_API_xtrace_no_trace
@@ -94,6 +97,7 @@ if !defined?(JRUBY_VERSION)
     end
 
     def test_API_blacklisted
+      skip # skipping this because we are getting rid of blacklisting soon
       stub_request(:get, "http://127.0.0.2:8101/").to_return(status: 200, body: "", headers: {})
 
       AppOpticsAPM.config_lock.synchronize do
@@ -105,9 +109,10 @@ if !defined?(JRUBY_VERSION)
 
       # TODO NH-2303 wait for final decision, but it is probably
       #  correct to not add trace headers to denylisted hosts
+      #  addendum: we are getting rid of black/denylisting
       assert_requested(:get, "http://127.0.0.2:8101/", times: 1) do |req|
-        refute req.headers.transform_keys(&:downcase)['traceparent']
-        refute req.headers.transform_keys(&:downcase)['tracestate']
+        assert req.headers.transform_keys(&:downcase)['traceparent']
+        assert req.headers.transform_keys(&:downcase)['tracestate']
       end
       refute AppOpticsAPM::Context.isValid
     end
@@ -371,41 +376,92 @@ if !defined?(JRUBY_VERSION)
 
     ##### W3C tracestate propagation
 
-    def test_propagation_simple_trace_state
-      stub_request(:get, "http://127.0.0.1:8101/").to_return(status: 200, body: "propagate", headers: {})
+    def test_w3c_propagation_simple_trace_state
+      WebMock.disable!
 
       task_id = 'a462ade6cfe479081764cc476aa98335'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
       state = 'sw=cb3468da6f06eefc01'
-      get "/out", {}, { 'HTTP_TRACEPARENT' => trace_id,
-                        'HTTP_TRACESTATE'  => state }
+      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
 
-      assert_requested(:get, "http://127.0.0.1:8101/", times: 1) do |req|
-        assert_trace_headers(req.headers, true)
-        assert_equal task_id, AppOpticsAPM::TraceParent.task_id(req.headers['Traceparent'])
+      curl = Curl::Easy.new("http://127.0.0.1:8101/")
+      AppOpticsAPM::API.start_trace('curb_tests', AppOpticsAPM.trace_context.xtrace) do
+        curl.perform
       end
+
+      assert_trace_headers(curl.headers, true)
+      assert_equal task_id, AppOpticsAPM::TraceParent.task_id(curl.headers['traceparent'])
+
       refute AppOpticsAPM::Context.isValid
     end
 
-    def test_propagation_multimember_trace_state
-      stub_request(:get, "http://127.0.0.1:8101/").to_return(status: 200, body: "propagate", headers: {})
+    def test_w3c_propagation_simple_trace_state_not_tracing
+      WebMock.disable!
+      AppOpticsAPM::Config[:tracing_mode] = :disabled
+
+      trace_id = '00-a462ade6cfe479081764cc476aa98335-cb3468da6f06eefc-01'
+      state = 'aa=1234'
+      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
+
+      curl = Curl::Easy.new("http://127.0.0.1:8101/")
+      curl.perform
+
+      assert_equal trace_id, curl.headers['traceparent']
+      assert_equal state, curl.headers['tracestate']
+
+      refute AppOpticsAPM::Context.isValid
+    end
+
+    def test_w3c_propagation_multimember_trace_state
+      WebMock.disable!
 
       task_id = 'a462ade6cfe479081764cc476aa98335'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
       state = 'aa= 1234, sw=cb3468da6f06eefc01,%%cc=%%%45'
-      get "/out", {}, { 'HTTP_TRACEPARENT' => trace_id,
-                        'HTTP_TRACESTATE'  => state }
+      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
 
-      assert_requested(:get, "http://127.0.0.1:8101/", times: 1) do |req|
-        assert_trace_headers(req.headers, true)
-        assert_equal task_id, AppOpticsAPM::TraceParent.task_id(req.headers['Traceparent'])
-        assert_equal "sw=#{AppOpticsAPM::TraceParent.edge_id_flags(req.headers['Traceparent'])},aa= 1234,%%cc=%%%45",
-                     req.headers['Tracestate']
-
+      curl = Curl::Easy.new("http://127.0.0.1:8101/")
+      AppOpticsAPM::API.start_trace('curb_tests', AppOpticsAPM.trace_context.xtrace) do
+        curl.perform
       end
+
+      assert_trace_headers(curl.headers, true)
+      assert_equal task_id, AppOpticsAPM::TraceParent.task_id(curl.headers['traceparent'])
+      assert_equal "sw=#{AppOpticsAPM::TraceParent.edge_id_flags(curl.headers['traceparent'])},aa= 1234,%%cc=%%%45",
+                   curl.headers['tracestate']
+
       refute AppOpticsAPM::Context.isValid
     end
 
+    def test_multi_perform_w3c_propagation_not_tracing
+      WebMock.disable!
+      AppOpticsAPM::Config[:tracing_mode] = :disabled
+
+      trace_id = '00-a462ade6cfe479081764cc476aa98335-cb3468da6f06eefc-01'
+      state = 'aa=1234'
+      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
+
+      urls = []
+      urls << "http://127.0.0.1:8101/?one=1"
+      urls << "http://127.0.0.1:8101/?two=2"
+      urls << "http://127.0.0.1:8101/?three=3"
+
+      m = Curl::Multi.new
+      urls.each do |url|
+        cu = Curl::Easy.new(url) do |curl|
+          curl.follow_location = true
+        end
+        m.add cu
+      end
+
+      m.perform do
+        m.requests.each do |request|
+          request = request[1] if request.is_a?(Array)
+          assert_equal trace_id, request.headers['traceparent']
+          assert_equal state, request.headers['tracestate']
+        end
+      end
+    end
   end
 end
 

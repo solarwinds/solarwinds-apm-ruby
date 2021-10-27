@@ -64,7 +64,6 @@ module AppOpticsAPM
       end
 
       def request(params={}, &block)
-
         # Avoid cross host tracing for blacklisted domains
         blacklisted = AppOpticsAPM::API.blacklisted?(@data[:hostname] || @data[:host])
 

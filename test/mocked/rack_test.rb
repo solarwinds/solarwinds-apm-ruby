@@ -166,6 +166,8 @@ describe "Rack: " do
     AppOpticsAPM::Config[:dnt_compiled] = @dnt
     AppOpticsAPM::Config[:transaction_settings] = AppOpticsAPM::Util.deep_dup(@tr_settings)
     AppOpticsAPM::Config[:profiling] = @profiling
+
+    AppOpticsAPM.trace_context = nil
   end
 
   # A and B implement the acceptance tests as outlined in the google doc

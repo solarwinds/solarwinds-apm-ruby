@@ -50,6 +50,8 @@ unless defined?(JRUBY_VERSION)
       AppOpticsAPM::Config[:sample_rate] = @sample_rate
       AppOpticsAPM::Config[:tracing_mode] = @tracing_mode
       AppOpticsAPM::Config[:blacklist] = @blacklist
+
+      AppOpticsAPM.trace_context = nil
     end
 
     ############# Typhoeus::Request ##############################################
@@ -167,8 +169,8 @@ unless defined?(JRUBY_VERSION)
       hydra.queue(request_2)
       hydra.run
 
-      refute request_1.options[:headers]['traceparent'], "There should not be an traceparent header"
-      refute request_2.options[:headers]['traceparent'], "There should not be an traceparent header"
+      refute request_1.options[:headers]['traceparent'], "There should not be an traceparent header, #{request_1.options[:headers]['traceparent']}"
+      refute request_2.options[:headers]['traceparent'], "There should not be an traceparent header, #{request_2.options[:headers]['traceparent']}"
       refute AppOpticsAPM::Context.isValid
     end
 
@@ -229,16 +231,32 @@ unless defined?(JRUBY_VERSION)
       task_id = 'a462ade6cfe479081764cc476aa9831b'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
       state = 'sw=cb3468da6f06eefc-01'
-      res = get "/out", {}, { 'HTTP_TRACEPARENT' => trace_id,
-                              'HTTP_TRACESTATE'  => state }
+      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
 
-      # the request headers are returned in the body
-      regex =  /^([a-f0-9-]{55})(.*)$/
-      matches = regex.match(res.body)
-      headers = { 'Traceparent' => matches[1],
-                  'Tracestate'  => matches[2] }
-      assert_trace_headers(headers, true)
-      assert_equal task_id, AppOpticsAPM::TraceParent.task_id(headers['Traceparent'])
+      request = Typhoeus::Request.new("http://127.0.0.1:8101/", {:method=>:get})
+      AppOpticsAPM::API.start_trace('typhoeus_tests', AppOpticsAPM.trace_context.xtrace) do
+        request.run
+      end
+
+      assert_trace_headers(request.options[:headers], true)
+      assert_equal task_id, AppOpticsAPM::TraceParent.task_id(request.options[:headers]['traceparent'])
+
+      refute AppOpticsAPM::Context.isValid
+    end
+
+    def test_propagation_simple_trace_state_not_tracing
+      AppOpticsAPM::Config[:tracing_mode] = :disabled
+
+      task_id = 'a462ade6cfe479081764cc476aa9831b'
+      trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
+      state = 'sw=cb3468da6f06eefc-01'
+      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
+
+      request = Typhoeus::Request.new("http://127.0.0.1:8101/", {:method=>:get})
+      request.run
+
+      assert_equal trace_id, request.options[:headers]['traceparent']
+      assert_equal state, request.options[:headers]['tracestate']
 
       refute AppOpticsAPM::Context.isValid
     end
@@ -247,22 +265,44 @@ unless defined?(JRUBY_VERSION)
       task_id = 'a462ade6cfe479081764cc476aa9831b'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
       state = 'aa= 1234, sw=cb3468da6f06eefc-01,%%cc=%%%45'
-      res = get "/out", {}, { 'HTTP_TRACEPARENT' => trace_id,
-                              'HTTP_TRACESTATE'  => state }
+      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
 
-      # the request headers are returned in the body
-      regex =  /^([a-f0-9-]{55})(.*)$/
-      matches = regex.match(res.body)
-      headers = { 'Traceparent' => matches[1],
-                  'Tracestate'  => matches[2] }
-      assert_trace_headers(headers, true)
-      assert_equal task_id, AppOpticsAPM::TraceParent.task_id(headers['Traceparent'])
-      assert_equal "sw=#{AppOpticsAPM::TraceParent.edge_id_flags(headers['Traceparent'])},aa= 1234,%%cc=%%%45",
-                   headers['Tracestate']
+      request = Typhoeus::Request.new("http://127.0.0.1:8101/", {:method=>:get})
+      AppOpticsAPM::API.start_trace('typhoeus_tests', AppOpticsAPM.trace_context.xtrace) do
+        request.run
+      end
+
+      assert_trace_headers(request.options[:headers], true)
+      assert_equal task_id, AppOpticsAPM::TraceParent.task_id(request.options[:headers]['traceparent'])
+      assert_equal "sw=#{AppOpticsAPM::TraceParent.edge_id_flags(request.options[:headers]['traceparent'])},aa= 1234,%%cc=%%%45",
+                   request.options[:headers]['tracestate']
 
       refute AppOpticsAPM::Context.isValid
     end
 
+    def test_propagation_hydra_tracing_not_sampling
+      AppOpticsAPM::Config[:tracing_mode] = :disabled
+
+      task_id = 'a462ade6cfe479081764cc476aa9831b'
+      trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
+      state = 'aa= 1234, sw=cb3468da6f06eefc-01,%%cc=%%%45'
+      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
+
+      hydra = Typhoeus::Hydra.hydra
+      request_1 = Typhoeus::Request.new("http://127.0.0.2:8101/", {:method=>:get})
+      request_2 = Typhoeus::Request.new("http://127.0.0.2:8101/counting_sheep", {:method=>:get})
+      hydra.queue(request_1)
+      hydra.queue(request_2)
+      hydra.run
+
+      assert_equal trace_id, request_1.options[:headers]['traceparent']
+      assert_equal state, request_1.options[:headers]['tracestate']
+
+      assert_equal trace_id, request_2.options[:headers]['traceparent']
+      assert_equal state, request_2.options[:headers]['tracestate']
+
+      refute AppOpticsAPM::Context.isValid
+    end
 
   end
 end
