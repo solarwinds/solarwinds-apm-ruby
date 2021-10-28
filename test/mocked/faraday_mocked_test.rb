@@ -213,6 +213,7 @@ if !defined?(JRUBY_VERSION)
 
         assert_trace_headers(conn.headers, true)
         assert_equal task_id, AppOpticsAPM::TraceParent.task_id(conn.headers['traceparent'])
+        refute_equal state, conn.headers['tracestate']
       end
 
       refute AppOpticsAPM::Context.isValid

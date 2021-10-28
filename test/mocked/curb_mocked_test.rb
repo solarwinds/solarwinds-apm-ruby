@@ -7,27 +7,7 @@ if !defined?(JRUBY_VERSION)
   require 'webmock/minitest'
   require 'mocha/minitest'
 
-  require 'rack/test'
-  require 'rack/lobster'
-  require 'appoptics_apm/inst/rack'
-
   class CurbMockedTest < Minitest::Test
-
-    include Rack::Test::Methods
-
-    def app
-      @app = Rack::Builder.new {
-        # use Rack::CommonLogger
-        # use Rack::ShowExceptions
-        use AppOpticsAPM::Rack
-        map "/out" do
-          run Proc.new {
-            Curl.get("http://127.0.0.1:8101/")
-            [200, {"Content-Type" => "text/html"}, ['Hello AppOpticsAPM!']]
-          }
-        end
-      }
-    end
 
     def setup
       AppOpticsAPM::Context.clear
@@ -391,6 +371,7 @@ if !defined?(JRUBY_VERSION)
 
       assert_trace_headers(curl.headers, true)
       assert_equal task_id, AppOpticsAPM::TraceParent.task_id(curl.headers['traceparent'])
+      refute_equal state, curl.headers['tracestate']
 
       refute AppOpticsAPM::Context.isValid
     end

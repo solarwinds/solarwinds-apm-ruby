@@ -147,6 +147,7 @@ unless defined?(JRUBY_VERSION)
 
         assert_trace_headers(res.request.processed_headers, true)
         assert_equal task_id, AppOpticsAPM::TraceParent.task_id(res.request.processed_headers['traceparent'])
+        refute_equal state, res.request.processed_headers['tracestate']
       end
 
       refute AppOpticsAPM::Context.isValid

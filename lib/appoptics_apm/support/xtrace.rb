@@ -117,6 +117,7 @@ module AppOpticsAPM
       # +finish+ is the context returned to us (as an HTTP response header
       # if that be the case)
       #
+      # TODO remove, not needed anymore with w3c tracecontext and relaxed event edges rules
       def continue_service_context(start_xtrace, end_xtrace)
         if AppOpticsAPM::XTrace.valid?(end_xtrace) && AppOpticsAPM.tracing?
 

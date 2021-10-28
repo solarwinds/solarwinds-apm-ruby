@@ -200,6 +200,7 @@ unless defined?(JRUBY_VERSION)
 
           assert_trace_headers(headers, true)
           assert_equal task_id, AppOpticsAPM::TraceParent.task_id(headers['traceparent'])
+          refute_equal state, headers['tracestate']
         end
       end
 

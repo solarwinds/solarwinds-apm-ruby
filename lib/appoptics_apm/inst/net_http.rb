@@ -44,8 +44,6 @@ if AppOpticsAPM::Config[:nethttp][:enabled]
               opts[:HTTPMethod] = req.method
               opts[:Blacklisted] = true if blacklisted
               opts[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:nethttp][:collect_backtraces]
-
-              req['traceparent'] = context unless blacklisted
             end
 
             begin

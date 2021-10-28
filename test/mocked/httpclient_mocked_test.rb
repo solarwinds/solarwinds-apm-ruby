@@ -299,6 +299,7 @@ unless defined?(JRUBY_VERSION)
       assert_requested(:get, "http://127.0.0.1:8101/", times: 1) do |req|
         assert_trace_headers(req.headers, true)
         assert_equal task_id, AppOpticsAPM::TraceParent.task_id(req.headers['Traceparent'])
+        refute_equal state, req.headers['Tracestate']
       end
 
       refute AppOpticsAPM::Context.isValid

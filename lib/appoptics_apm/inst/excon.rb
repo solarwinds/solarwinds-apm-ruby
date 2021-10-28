@@ -6,11 +6,6 @@ module AppOpticsAPM
     module ExconConnection
       include AppOpticsAPM::TraceContextHeaders
 
-      # def self.included(klass)
-      #   AppOpticsAPM::Util.method_alias(klass, :request, ::Excon::Connection)
-      #   AppOpticsAPM::Util.method_alias(klass, :requests, ::Excon::Connection)
-      # end
-
       private
 
       def appoptics_collect(params)
@@ -118,6 +113,5 @@ end
 
 if AppOpticsAPM::Config[:excon][:enabled] && defined?(Excon)
   AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting excon' if AppOpticsAPM::Config[:verbose]
-  # AppOpticsAPM::Util.send_include(Excon::Connection, AppOpticsAPM::Inst::ExconConnection)
   Excon::Connection.prepend(AppOpticsAPM::Inst::ExconConnection)
 end
