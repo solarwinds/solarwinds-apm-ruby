@@ -103,34 +103,6 @@ module AppOpticsAPM
         "#{xtrace[0..41]}#{edge_id.upcase}#{xtrace[-2..-1]}"
       end
 
-      ##
-      # continue_service_context
-      #
-      # In the case of service calls such as external HTTP requests, we
-      # pass along X-Trace headers so that request context can be maintained
-      # across servers and applications.
-      #
-      # Remote requests can return a X-Trace header in which case we want
-      # to pickup and continue the context in most cases.
-      #
-      # +start+ is the context just before the outgoing request
-      # +finish+ is the context returned to us (as an HTTP response header
-      # if that be the case)
-      #
-      # TODO remove, not needed anymore with w3c tracecontext and relaxed event edges rules
-      def continue_service_context(start_xtrace, end_xtrace)
-        if AppOpticsAPM::XTrace.valid?(end_xtrace) && AppOpticsAPM.tracing?
-
-          # Make sure that we received back a valid X-Trace with the same task_id
-          # and the sampling bit is set, otherwise it is a response from a non-sampling service
-          if (AppOpticsAPM::XTrace.task_id(start_xtrace) == AppOpticsAPM::XTrace.task_id(end_xtrace)) &&
-            AppOpticsAPM::XTrace.sampled?(end_xtrace)
-            AppOpticsAPM::Context.fromString(end_xtrace)
-          else
-            AppOpticsAPM.logger.debug "[XTrace] Sampling flag unset or mismatched start and finish ids:\n#{start_xtrace}\n#{end_xtrace}"
-          end
-        end
-      end
     end
   end
 end
