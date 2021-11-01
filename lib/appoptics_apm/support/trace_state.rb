@@ -21,7 +21,7 @@ module AppOpticsAPM
         result
       end
 
-     # extract the 'sw' tracestate member
+      # extract the 'sw' tracestate member
       def sw_tracestate(tracestate)
         regex = /^.*(sw=(?<sw_tracestate>(?<parent_id>[a-f0-9]{16})-(?<flags>[a-f0-9]{2}))).*$/.freeze
 
@@ -44,12 +44,16 @@ module AppOpticsAPM
       end
 
       def reduce_size(tracestate)
+        size = tracestate.bytesize
         members = tracestate.split(',').reverse
-        while members != members.delete_if { |m| m.bytesize > 128 }
+
+        large_members = members.select { |m| m.bytesize > APPOPTICS_MAX_TRACESTATE_MEMBER_BYTES }
+        while large_members[0] && size > APPOPTICS_MAX_TRACESTATE_BYTES
+          size -= large_members[0].bytesize + 1  # add 1 for comma
+          members.delete(large_members.shift)
         end
 
         tracestate = members.reverse.join(',')
-
         until tracestate.bytesize <= APPOPTICS_MAX_TRACESTATE_BYTES do
           tracestate.gsub!(/,[^,]*$/, '')
         end

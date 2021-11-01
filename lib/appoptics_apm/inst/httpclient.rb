@@ -104,7 +104,12 @@ module AppOpticsAPM
           kvs.clear
           kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:httpclient][:collect_backtraces]
 
-          blacklisted ? req.header.delete('traceparent') : add_trace_header(req.header)
+          if blacklisted
+            req.header.delete('traceparent')
+            req.header.delete('tracestate')
+          else
+            add_trace_header(req.header)
+          end
 
           # The core httpclient call
           result = super(req, proxy, conn)

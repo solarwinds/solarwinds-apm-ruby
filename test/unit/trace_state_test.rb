@@ -178,4 +178,3 @@ describe "TraceStateTest" do
 
   end
 end
-
