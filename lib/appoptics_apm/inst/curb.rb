@@ -52,8 +52,6 @@ module AppOpticsAPM
       # An agnostic method that will profile any Curl::Easy method (and optional args and block)
       # that you throw at it.
       #
-      # It does not add 'traceparent' nor 'tracestate' headers
-      #
       def trace_curb_method(kvs, method, args, &block)
         # If we're not tracing, just do a fast return.
         unless AppOpticsAPM.tracing?
@@ -203,7 +201,7 @@ module AppOpticsAPM
       # ::Curl::Multi.new.http wrapper
       #
       def http_with_appoptics(urls_with_config, multi_options={}, &block)
-         # If we're not tracing, just do a fast return.
+        # If we're not tracing, just do a fast return.
         unless AppOpticsAPM.tracing?
           urls_with_config.each do |conf|
             conf[:headers] ||= {}

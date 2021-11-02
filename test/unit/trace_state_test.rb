@@ -130,6 +130,19 @@ describe "TraceStateTest" do
       assert_equal "sw=#{id},#{trace_state1},#{trace_state2}", trace_state3
     end
 
+    it 'only removes one entry longer than 128 chars' do
+      id = '136dfaebdf742362-01'
+      trace_state1 = [*0..9].collect { |i| "a#{i}=abcdefijklmno" }.join(',')
+      many_chars1 = "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcd"
+      large_entry1 = "#{many_chars1}=#{many_chars1}"
+      trace_state2 = [*10..19].collect { |i| "a#{i}=abcdefijklmno" }.join(',')
+      many_chars2 = "bcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcda"
+      large_entry2 = "#{many_chars2}=#{many_chars2}"
+      trace_state3 = AppOpticsAPM::TraceState.add_kv("#{trace_state1},#{large_entry1},#{trace_state2},#{large_entry2}", id)
+
+      assert_equal "sw=#{id},#{trace_state1},#{large_entry1},#{trace_state2}", trace_state3
+    end
+
     it 'does not remove an entry that is exactly 128 chars' do
       id = '136dfaebdf742362-01'
       trace_state1 = [*0..18].collect { |i| "a#{i}=abcdefijklmnop" }.join(',')
@@ -178,4 +191,3 @@ describe "TraceStateTest" do
 
   end
 end
-

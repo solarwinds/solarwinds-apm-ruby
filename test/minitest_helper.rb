@@ -22,6 +22,7 @@ require 'minitest/reporters'
 require 'minitest'
 require 'minitest/focus'
 require 'minitest/debugger' if ENV['DEBUG']
+require 'minitest/hooks/default'  # adds after(:all)
 
 
 # write to a file as well as STDOUT (comes in handy with docker runs)
@@ -121,9 +122,10 @@ when /rails4/
 when /frameworks/
 when /libraries/
 
-  # Load Sidekiq if TEST isn't defined or if it is, it calls
-  # out the sidekiq tests
-  # Background Sidekiq thread
+  # Load Sidekiq for libaries tests
+  # use `export NO_SIDEKIQ=true` to stop sidekiq from loading
+  # when running individual test files
+  # starting sidekiq slows down the startup and doesn't shut down properly
   unless (ENV.key?('TEST') && ENV['TEST'] =~ /sidekiq/) || (/benchmark/ =~ $0) || ENV['NO_SIDEKIQ']
     require './test/servers/sidekiq.rb'
   end
@@ -384,18 +386,21 @@ unless Hash.instance_methods.include?(:transform_keys)
   end
 end
 
+# this checks if `sw=...` is at the beginning of tracestate and returns the value
 def sw_tracestate(tracestate)
   matches = /^[,\s]*sw=(?<sw_value>[a-f0-9]{16}-0[01])/.match(tracestate)
   matches && matches[:sw_value]
 end
 
+# this extracts the sw value anywhere within tracestate
 def sw_value(tracestate)
   matches = /[,\s]*sw=(?<sw_value>[a-f0-9]{16}-0[01])/.match(tracestate)
   matches && matches[:sw_value]
 end
 
 def assert_trace_headers(headers, sampled = nil)
-  # don't use transform_keys! it makes follow up assertions fail ;)
+  # don't use transform_keys! (the one with the bang!)
+  # it makes follow up assertions fail
   # and it is not available in Ruby 2.4
   headers = headers.transform_keys(&:downcase)
   assert headers['traceparent'], "traceparent header missing"

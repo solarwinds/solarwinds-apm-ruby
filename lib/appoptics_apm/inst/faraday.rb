@@ -25,9 +25,7 @@ module AppOpticsAPM
 
         begin
           AppOpticsAPM::API.log_entry(:faraday)
-          xtrace = nil
           if remote_call
-            xtrace = AppOpticsAPM::Context.toString
             add_tracecontext_headers(@headers, @url_prefix ? @url_prefix.to_s : @host)
           end
 

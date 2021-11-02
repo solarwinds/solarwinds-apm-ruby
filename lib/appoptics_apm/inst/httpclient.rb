@@ -53,7 +53,7 @@ module AppOpticsAPM
           kvs.clear
           kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:httpclient][:collect_backtraces]
 
-          req_context = add_trace_header(header) unless blacklisted
+          add_trace_header(header) unless blacklisted
 
           # The core httpclient call
           response = super(method, uri, query, body, header, &block)
@@ -104,7 +104,12 @@ module AppOpticsAPM
           kvs.clear
           kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:httpclient][:collect_backtraces]
 
-          blacklisted ? req.header.delete('traceparent') : req_context = add_trace_header(req.header)
+          if blacklisted
+            req.header.delete('traceparent')
+            req.header.delete('tracestate')
+          else
+            add_trace_header(req.header)
+          end
 
           # The core httpclient call
           result = super(req, proxy, conn)
@@ -137,26 +142,37 @@ module AppOpticsAPM
       private
 
       def add_trace_header(headers)
-        context = AppOpticsAPM::Context.toString
-        return nil unless AppOpticsAPM::XTrace.valid?(context)
-
-        trace = AppOpticsAPM::TraceContext.ao_to_w3c_trace(context)
-        parent_id_flags = AppOpticsAPM::TraceParent.edge_id_flags(trace)
+        traceparent, tracestate = w3c_context
 
         # Be aware of various ways to call/use httpclient
         if headers.is_a?(Array)
           headers.delete_if { |kv| kv[0] =~ /^([Tt]raceparent|[Tt]racestate)$/ }
-          headers.push ['traceparent', trace]
-          headers.push ['tracestate', AppOpticsAPM::TraceState.add_kv(AppOpticsAPM.trace_context&.tracestate, parent_id_flags)]
+          headers.push ['traceparent', traceparent] if traceparent
+          headers.push ['tracestate', tracestate] if tracestate
         elsif headers.is_a?(Hash)
-          headers['traceparent'] = trace
-          headers['tracestate'] = AppOpticsAPM::TraceState.add_kv(AppOpticsAPM.trace_context&.tracestate, parent_id_flags)
+          headers['traceparent'] = traceparent if traceparent
+          headers['tracestate'] = tracestate  if tracestate
         elsif headers.is_a? HTTP::Message::Headers
-          headers.set('traceparent', trace)
-          headers.set('tracestate', AppOpticsAPM::TraceState.add_kv(AppOpticsAPM.trace_context&.tracestate, parent_id_flags))
+          headers.set('traceparent', traceparent) if traceparent
+          headers.set('tracestate', tracestate) if tracestate
         end
-        context
       end
+
+      def w3c_context
+        context = AppOpticsAPM::Context.toString
+
+        if AppOpticsAPM::XTrace.valid?(context)
+          traceparent = AppOpticsAPM::TraceContext.ao_to_w3c_trace(context)
+          parent_id_flags = AppOpticsAPM::TraceParent.edge_id_flags(traceparent)
+          tracestate = AppOpticsAPM::TraceState.add_kv(AppOpticsAPM.trace_context&.tracestate, parent_id_flags)
+          return [traceparent, tracestate]
+        elsif AppOpticsAPM.trace_context && AppOpticsAPM.trace_context.traceparent
+          return [AppOpticsAPM.trace_context.traceparent, AppOpticsAPM.trace_context.tracestate]
+        end
+
+        [nil, nil]
+      end
+
     end
   end
 end
