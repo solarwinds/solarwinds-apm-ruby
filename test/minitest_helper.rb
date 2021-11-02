@@ -22,6 +22,7 @@ require 'minitest/reporters'
 require 'minitest'
 require 'minitest/focus'
 require 'minitest/debugger' if ENV['DEBUG']
+require 'minitest/hooks/default'  # adds after(:all)
 
 
 # write to a file as well as STDOUT (comes in handy with docker runs)

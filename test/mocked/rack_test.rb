@@ -170,6 +170,10 @@ describe "Rack: " do
     AppOpticsAPM.trace_context = nil
   end
 
+  after(:all) do
+    WebMock.disable!
+  end
+
   # A and B implement the acceptance tests as outlined in the google doc
   describe 'A - tracing mode :enabled' do
     before do
