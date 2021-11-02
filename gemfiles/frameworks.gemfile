@@ -1,6 +1,12 @@
 source "https://rubygems.org"
 
-gem 'dalli'
+
+if RUBY_VERSION < '2.5'
+  gem 'dalli', '< 3.0.0'
+else
+  gem 'dalli'
+end
+
 gem 'grape'
 gem 'rack' # , '~> 2.0.8'
 
