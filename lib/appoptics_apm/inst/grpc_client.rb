@@ -43,7 +43,6 @@ module AppOpticsAPM
 
         patch_receive_and_check_status # need to patch this so that log_exit can be called after the enum is consumed
 
-        puts metadata
         response = server_streamer_without_appoptics(req, metadata: metadata)
         block_given? ? response.each { |r| yield r } : response
       rescue => e
@@ -62,7 +61,6 @@ module AppOpticsAPM
 
         patch_set_input_stream_done
 
-        puts metadata
         response = bidi_streamer_without_appoptics(req, metadata: metadata)
         block_given? ? response.each { |r| yield r } : response
       rescue => e
