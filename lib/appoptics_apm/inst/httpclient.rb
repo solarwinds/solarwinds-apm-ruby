@@ -85,6 +85,7 @@ module AppOpticsAPM
         begin
           method = req.http_header.request_method
 
+          uri = req.http_header.request_uri
           kvs = appoptics_collect(method, uri)
           kvs[:Async] = 1
 

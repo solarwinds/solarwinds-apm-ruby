@@ -73,7 +73,7 @@ module AppOpticsAPM
 
       private
 
-      def unary_response(req, type: , metadata: , without:)
+      def unary_response(req, type:, metadata:, without:)
         tags = grpc_tags(type, metadata['method'] || metadata_to_send['method'])
         AppOpticsAPM::SDK.trace('grpc-client', tags) do
           add_tracecontext_headers(metadata)
@@ -81,7 +81,7 @@ module AppOpticsAPM
             send(without, req, metadata: metadata)
           ensure
             exit_tags(tags)
-            end
+          end
         end
       end
 
@@ -130,8 +130,8 @@ if defined?(GRPC) && AppOpticsAPM::Config[:grpc_client][:enabled]
     class ClientStub
       GRPC_ClientStub_ops.reject { |m| !method_defined?(m) }.each do |m|
         define_method("#{m}_with_appoptics") do |method, req, marshal, unmarshal, deadline: nil,
-            return_op: false, parent: nil,
-            credentials: nil, metadata: {}, &blk|
+          return_op: false, parent: nil,
+          credentials: nil, metadata: {}, &blk|
 
           metadata['method'] = method
           return send("#{m}_without_appoptics", method, req, marshal, unmarshal, deadline: deadline,

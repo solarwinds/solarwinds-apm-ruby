@@ -208,7 +208,7 @@ describe "AppOpticsAPM::Config" do
 
     # Verify the number of individual instrumentations ...
     instrumentation = AppOpticsAPM::Config.instrumentation
-    _(instrumentation.count).must_equal 32
+    _(instrumentation.count).must_equal 33
 
     # ... and make sure they are enabled by default
     instrumentation.each do |key|
