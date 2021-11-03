@@ -59,15 +59,12 @@ module AppOpticsAPM
       end
 
       def request(params={}, &block)
-        # Avoid cross host tracing for blacklisted domains
-        blacklisted = AppOpticsAPM::API.blacklisted?(@data[:hostname] || @data[:host])
-
         # If we're not tracing, just do a fast return.
         # If making HTTP pipeline requests (ordered batched)
         # then just return as we're tracing from parent
         # <tt>requests</tt>
         if !AppOpticsAPM.tracing? || params[:pipeline]
-          add_tracecontext_headers(@data[:headers], @data[:hostname] || @data[:host])
+          add_tracecontext_headers(@data[:headers])
           return super(params, &block)
         end
 
@@ -75,7 +72,6 @@ module AppOpticsAPM
           response_context = nil
 
           kvs = appoptics_collect(params)
-          kvs[:Blacklisted] = true if blacklisted
 
           AppOpticsAPM::API.log_entry(:excon, kvs)
           kvs.clear
@@ -83,7 +79,7 @@ module AppOpticsAPM
           req_context = AppOpticsAPM::Context.toString
 
           # The core excon call
-          add_tracecontext_headers(@data[:headers], @data[:hostname] || @data[:host])
+          add_tracecontext_headers(@data[:headers])
           response = super(params, &block)
 
           # excon only passes back a hash (datum) for HTTP pipelining...

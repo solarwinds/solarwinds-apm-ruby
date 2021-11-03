@@ -18,7 +18,7 @@ module AppOpticsAPM
         remote_call = remote_call?
         unless AppOpticsAPM.tracing?
           if remote_call
-            add_tracecontext_headers(@headers, @url_prefix ? @url_prefix.to_s : @host)
+            add_tracecontext_headers(@headers)
           end
           return super(method, url, body, headers, &block)
         end
@@ -26,7 +26,7 @@ module AppOpticsAPM
         begin
           AppOpticsAPM::API.log_entry(:faraday)
           if remote_call
-            add_tracecontext_headers(@headers, @url_prefix ? @url_prefix.to_s : @host)
+            add_tracecontext_headers(@headers)
           end
 
           result = super(method, url, body, headers, &block)
@@ -60,11 +60,6 @@ module AppOpticsAPM
 
       private
 
-      def url_blacklisted?
-        url = @url_prefix ? @url_prefix.to_s : @host
-        AppOpticsAPM::API.blacklisted?(url)
-      end
-
       # This is only considered a remote service call if the middleware/adapter is not instrumented
       def remote_call?
         if @builder.method(:adapter).parameters.find { |ele| ele[0] == :req }
@@ -79,7 +74,6 @@ module AppOpticsAPM
                 :IsService => 1,
                 :HTTPMethod => method.upcase,
                 :HTTPStatus => result.status, }
-        kvs[:Blacklisted] = true if url_blacklisted?
         kvs[:RemoteURL] = result.env.to_hash[:url].to_s
         kvs[:RemoteURL].split('?').first unless AppOpticsAPM::Config[:faraday][:log_args]
 

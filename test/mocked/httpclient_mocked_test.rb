@@ -38,17 +38,14 @@ unless defined?(JRUBY_VERSION)
 
       @sample_rate = AppOpticsAPM::Config[:sample_rate]
       @tracing_mode = AppOpticsAPM::Config[:tracing_mode]
-      @blacklist = AppOpticsAPM::Config[:blacklist]
 
       AppOpticsAPM::Config[:sample_rate] = 1000000
       AppOpticsAPM::Config[:tracing_mode] = :enabled
-      AppOpticsAPM::Config[:blacklist] = []
     end
 
     def teardown
       AppOpticsAPM::Config[:sample_rate] = @sample_rate
       AppOpticsAPM::Config[:tracing_mode] = @tracing_mode
-      AppOpticsAPM::Config[:blacklist] = @blacklist
 
       AppOpticsAPM.trace_context = nil
     end
@@ -104,39 +101,6 @@ unless defined?(JRUBY_VERSION)
 
       assert_requested :get, "http://127.0.0.3:8101/", times: 1
       assert_not_requested :get, "http://127.0.0.3:8101/", headers: {'Traceparent'=>/^.*$/}
-    end
-
-    def test_do_request_blacklisted
-      stub_request(:get, "http://127.0.0.4:8101/")
-
-      AppOpticsAPM.config_lock.synchronize do
-        AppOpticsAPM::Config.blacklist << '127.0.0.4'
-        AppOpticsAPM::API.start_trace('httpclient_tests') do
-          clnt = HTTPClient.new
-          clnt.get('http://127.0.0.4:8101/')
-        end
-      end
-
-      assert_requested :get, "http://127.0.0.4:8101/"
-      assert_not_requested :get, "http://127.0.0.4:8101/", headers: {'Traceparent'=>/^.*$/}
-      refute AppOpticsAPM::Context.isValid
-    end
-
-    def test_do_request_not_sampling_blacklisted
-      stub_request(:get, "http://127.0.0.5:8101/")
-
-      AppOpticsAPM.config_lock.synchronize do
-        AppOpticsAPM::Config[:sample_rate] = 0
-        AppOpticsAPM::Config.blacklist << '127.0.0.5'
-        AppOpticsAPM::API.start_trace('httpclient_tests') do
-          clnt = HTTPClient.new
-          clnt.get('http://127.0.0.5:8101/')
-        end
-      end
-
-      assert_requested :get, "http://127.0.0.5:8101/"
-      assert_not_requested :get, "http://127.0.0.5:8101/", headers: {'Traceparent'=>/^.*$/}
-      refute AppOpticsAPM::Context.isValid
     end
 
     #====== ASYNC REQUEST ================================================
@@ -208,47 +172,6 @@ unless defined?(JRUBY_VERSION)
 
       clnt = HTTPClient.new
       clnt.get_async('http://127.0.0.13:8101/')
-    end
-
-    def test_async_blacklisted
-      WebMock.disable!
-
-      Thread.expects(:new).yields   # continue without forking off a thread
-
-      HTTPClient.any_instance.expects(:do_get_stream).with do |req, _, _|
-        assert_equal 'http://127.0.0.14:8101/', req.header.request_uri.to_s
-        assert req.header['Traceparent'].empty?
-      end
-
-      AppOpticsAPM.config_lock.synchronize do
-        AppOpticsAPM::Config.blacklist << '127.0.0.14'
-        AppOpticsAPM::API.start_trace('httpclient_tests') do
-          clnt = HTTPClient.new
-          clnt.get_async('http://127.0.0.14:8101/')
-        end
-      end
-      refute AppOpticsAPM::Context.isValid
-    end
-
-    def test_async_not_sampling_blacklisted
-      WebMock.disable!
-
-      Thread.expects(:new).yields   # continue without forking off a thread
-
-      HTTPClient.any_instance.expects(:do_get_stream).with do |req, _, _|
-        assert_equal 'http://127.0.0.15:8101/', req.header.request_uri.to_s
-        assert req.header['Traceparent'].empty?
-      end
-
-      AppOpticsAPM.config_lock.synchronize do
-        AppOpticsAPM::Config[:sample_rate] = 0
-        AppOpticsAPM::Config.blacklist << '127.0.0.15'
-        AppOpticsAPM::API.start_trace('httpclient_tests') do
-          clnt = HTTPClient.new
-          clnt.get_async('http://127.0.0.15:8101/')
-        end
-      end
-      refute AppOpticsAPM::Context.isValid
     end
 
     # ========== make sure headers are preserved =============================

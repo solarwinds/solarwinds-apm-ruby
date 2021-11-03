@@ -47,17 +47,14 @@ unless defined?(JRUBY_VERSION)
 
       @sample_rate = AppOpticsAPM::Config[:sample_rate]
       @tracing_mode = AppOpticsAPM::Config[:tracing_mode]
-      @blacklist = AppOpticsAPM::Config[:blacklist]
 
       AppOpticsAPM::Config[:sample_rate] = 1000000
       AppOpticsAPM::Config[:tracing_mode] = :enabled
-      AppOpticsAPM::Config[:blacklist] = []
     end
 
     def teardown
       AppOpticsAPM::Config[:sample_rate] = @sample_rate
       AppOpticsAPM::Config[:tracing_mode] = @tracing_mode
-      AppOpticsAPM::Config[:blacklist] = @blacklist
 
       AppOpticsAPM.trace_context = nil
     end
@@ -122,45 +119,6 @@ unless defined?(JRUBY_VERSION)
         refute request['traceparent']
         # the result may have an x-trace from the outbound call and that is ok
       end
-    end
-
-    def test_blacklisted
-      AppOpticsAPM.config_lock.synchronize do
-        AppOpticsAPM::Config.blacklist << '127.0.0.1'
-        AppOpticsAPM::API.start_trace('Net::HTTP_tests') do
-          uri = URI('http://127.0.0.1:8101/?q=1')
-          Net::HTTP.start(uri.host, uri.port) do |http|
-            request = Net::HTTP::Get.new(uri)
-            res = http.request(request) # Net::HTTPResponse object
-            # did we instrument?
-            assert http.class.ancestors.include?(AppOpticsAPM::Inst::NetHttp)
-            refute request['traceparent']
-            # the result should not have an x-trace
-            refute res['x-trace']
-          end
-        end
-      end
-      refute AppOpticsAPM::Context.isValid
-    end
-
-    def test_not_sampling_blacklisted
-      AppOpticsAPM.config_lock.synchronize do
-        AppOpticsAPM::Config[:sample_rate] = 0
-        AppOpticsAPM::Config.blacklist << '127.0.0.1'
-        AppOpticsAPM::API.start_trace('Net::HTTP_tests') do
-          uri = URI('http://127.0.0.1:8101/?q=1')
-          Net::HTTP.start(uri.host, uri.port) do |http|
-            request = Net::HTTP::Get.new(uri)
-            res = http.request(request) # Net::HTTPResponse object
-            # did we instrument?
-            assert http.class.ancestors.include?(AppOpticsAPM::Inst::NetHttp)
-            refute request['traceparent']
-            # the result should either not have an x-trace or
-            refute res['x-trace']
-          end
-        end
-      end
-      refute AppOpticsAPM::Context.isValid
     end
 
     # ========== make sure request headers are preserved =============================

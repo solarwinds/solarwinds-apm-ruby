@@ -200,7 +200,6 @@ describe "AppOpticsAPM::Config" do
     _(AppOpticsAPM::Config[:transaction_settings].is_a?(Hash)).must_equal true
     _(AppOpticsAPM::Config[:transaction_settings]).must_equal({ url: [] })
 
-    _(AppOpticsAPM::Config[:blacklist].is_a?(Array)).must_equal true
     _(AppOpticsAPM::Config[:report_rescued_errors]).must_equal false
     _(AppOpticsAPM::Config[:ec2_metadata_timeout]).must_equal 1000
 
@@ -209,7 +208,7 @@ describe "AppOpticsAPM::Config" do
 
     # Verify the number of individual instrumentations ...
     instrumentation = AppOpticsAPM::Config.instrumentation
-    _(instrumentation.count).must_equal 33
+    _(instrumentation.count).must_equal 32
 
     # ... and make sure they are enabled by default
     instrumentation.each do |key|

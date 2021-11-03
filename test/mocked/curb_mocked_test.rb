@@ -18,17 +18,14 @@ if !defined?(JRUBY_VERSION)
 
       @sample_rate = AppOpticsAPM::Config[:sample_rate]
       @tracing_mode = AppOpticsAPM::Config[:tracing_mode]
-      @blacklist = AppOpticsAPM::Config[:blacklist]
 
       AppOpticsAPM::Config[:sample_rate] = 1000000
       AppOpticsAPM::Config[:tracing_mode] = :enabled
-      AppOpticsAPM::Config[:blacklist] = []
     end
 
     def teardown
       AppOpticsAPM::Config[:sample_rate] = @sample_rate
       AppOpticsAPM::Config[:tracing_mode] = @tracing_mode
-      AppOpticsAPM::Config[:blacklist] = @blacklist
 
       AppOpticsAPM.trace_context = nil
     end
@@ -74,27 +71,6 @@ if !defined?(JRUBY_VERSION)
         refute req.headers.transform_keys(&:downcase)['traceparent']
         refute req.headers.transform_keys(&:downcase)['tracestate']
       end
-    end
-
-    def test_API_blacklisted
-      skip # skipping this because we are getting rid of blacklisting soon
-      stub_request(:get, "http://127.0.0.2:8101/").to_return(status: 200, body: "", headers: {})
-
-      AppOpticsAPM.config_lock.synchronize do
-        AppOpticsAPM::Config.blacklist << '127.0.0.2'
-        AppOpticsAPM::API.start_trace('curb_test') do
-          ::Curl.get("http://127.0.0.2:8101/")
-        end
-      end
-
-      # TODO NH-2303 wait for final decision, but it is probably
-      #  correct to not add trace headers to denylisted hosts
-      #  addendum: we are getting rid of black/denylisting
-      assert_requested(:get, "http://127.0.0.2:8101/", times: 1) do |req|
-        assert req.headers.transform_keys(&:downcase)['traceparent']
-        assert req.headers.transform_keys(&:downcase)['tracestate']
-      end
-      refute AppOpticsAPM::Context.isValid
     end
 
     # TODO NH-2303 add test case with incoming trace headers

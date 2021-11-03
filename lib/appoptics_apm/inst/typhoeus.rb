@@ -9,7 +9,7 @@ module AppOpticsAPM
 
       def run
         unless AppOpticsAPM.tracing?
-          add_tracecontext_headers(options[:headers], url)
+          add_tracecontext_headers(options[:headers])
           return super
         end
 
@@ -23,12 +23,8 @@ module AppOpticsAPM
           kvs[:IsService] = 1
           kvs[:HTTPMethod] = AppOpticsAPM::Util.upcase(options[:method])
 
-          add_tracecontext_headers(options[:headers], url)
+          add_tracecontext_headers(options[:headers])
           response = super
-
-          # Re-attach edge unless it's blacklisted
-          # or if we don't have a valid X-Trace header
-          blacklisted = AppOpticsAPM::API.blacklisted?(url)
 
           if response.code == 0
             exception = TyphoeusError.new(response.return_message)
@@ -41,7 +37,6 @@ module AppOpticsAPM
           # Conditionally log query params
           uri = URI(response.effective_url)
           kvs[:RemoteURL] = AppOpticsAPM::Config[:typhoeus][:log_args] ? uri.to_s : uri.to_s.split('?').first
-          kvs[:Blacklisted] = true if blacklisted
 
           response
         rescue => e
@@ -59,7 +54,7 @@ module AppOpticsAPM
       def run
         unless AppOpticsAPM.tracing?
           queued_requests.map do |request|
-            add_tracecontext_headers(request.options[:headers], request.base_url)
+            add_tracecontext_headers(request.options[:headers])
           end
           return super
         end
@@ -76,7 +71,7 @@ module AppOpticsAPM
         # trace of the hydra run.
         AppOpticsAPM::API.trace(:typhoeus_hydra, kvs) do
           queued_requests.map do |request|
-            add_tracecontext_headers(request.options[:headers], request.base_url)
+            add_tracecontext_headers(request.options[:headers])
           end
 
           super

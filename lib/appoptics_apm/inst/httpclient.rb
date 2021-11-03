@@ -33,27 +33,20 @@ module AppOpticsAPM
       end
 
       def do_request(method, uri, query, body, header, &block)
-        # Avoid cross host tracing for blacklisted domains
-        blacklisted = AppOpticsAPM::API.blacklisted?(uri.hostname)
-
         # If we're not tracing, just do a fast return.
         unless AppOpticsAPM.tracing?
-          add_trace_header(header) unless blacklisted
+          add_trace_header(header)
           return super(method, uri, query, body, header, &block)
         end
 
         begin
-          req_context = nil
-          response_context = nil
-
           kvs = appoptics_collect(method, uri, query)
-          kvs[:Blacklisted] = true if blacklisted
 
           AppOpticsAPM::API.log_entry(:httpclient, kvs)
           kvs.clear
           kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:httpclient][:collect_backtraces]
 
-          add_trace_header(header) unless blacklisted
+          add_trace_header(header)
 
           # The core httpclient call
           response = super(method, uri, query, body, header, &block)
@@ -74,42 +67,32 @@ module AppOpticsAPM
       end
 
       def do_request_async(method, uri, query, body, header)
-        add_trace_header(header) unless AppOpticsAPM::API.blacklisted?(uri.hostname)
+        add_trace_header(header)
         super(method, uri, query, body, header)
       end
 
       def do_get_stream(req, proxy, conn)
         unless req.header['traceparent'].empty?
+          # TODO where is the req header coming from? does this need to go through tracing decision?
           xtrace = AppOpticsAPM::TraceContext.w3c_to_ao_trace(req.header['traceparent'].first)
           AppOpticsAPM::Context.fromString(xtrace)
         end
-        # Avoid cross host tracing for blacklisted domains
-        uri = req.http_header.request_uri
-        blacklisted = AppOpticsAPM::API.blacklisted?(uri.hostname)
 
         unless AppOpticsAPM.tracing?
-          req.header.delete('traceparent') if blacklisted
           return super(req, proxy, conn)
         end
 
         begin
-          req_context = nil
           method = req.http_header.request_method
 
           kvs = appoptics_collect(method, uri)
-          kvs[:Blacklisted] = true if blacklisted
           kvs[:Async] = 1
 
           AppOpticsAPM::API.log_entry(:httpclient, kvs)
           kvs.clear
           kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:httpclient][:collect_backtraces]
 
-          if blacklisted
-            req.header.delete('traceparent')
-            req.header.delete('tracestate')
-          else
-            add_trace_header(req.header)
-          end
+          add_trace_header(req.header)
 
           # The core httpclient call
           result = super(req, proxy, conn)
