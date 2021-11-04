@@ -4,10 +4,7 @@
 module AppOpticsAPM
   module Inst
     module ExconConnection
-      def self.included(klass)
-        AppOpticsAPM::Util.method_alias(klass, :request, ::Excon::Connection)
-        AppOpticsAPM::Util.method_alias(klass, :requests, ::Excon::Connection)
-      end
+      include AppOpticsAPM::TraceContextHeaders
 
       private
 
@@ -50,18 +47,18 @@ module AppOpticsAPM
 
       public
 
-      def requests_with_appoptics(pipeline_params)
+      def requests(pipeline_params)
         responses = nil
         kvs = appoptics_collect(pipeline_params)
         AppOpticsAPM::API.trace(:excon, kvs) do
           kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:excon][:collect_backtraces]
-          responses = requests_without_appoptics(pipeline_params)
+          responses = super(pipeline_params)
           kvs[:HTTPStatuses] = responses.map { |r| r.status }.join(',')
         end
         responses
       end
 
-      def request_with_appoptics(params={}, &block)
+      def request(params={}, &block)
         # Avoid cross host tracing for blacklisted domains
         blacklisted = AppOpticsAPM::API.blacklisted?(@data[:hostname] || @data[:host])
 
@@ -70,8 +67,8 @@ module AppOpticsAPM
         # then just return as we're tracing from parent
         # <tt>requests</tt>
         if !AppOpticsAPM.tracing? || params[:pipeline]
-          @data[:headers]['X-Trace'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid && !blacklisted
-          return request_without_appoptics(params, &block)
+          add_tracecontext_headers(@data[:headers], @data[:hostname] || @data[:host])
+          return super(params, &block)
         end
 
         begin
@@ -84,25 +81,20 @@ module AppOpticsAPM
           kvs.clear
 
           req_context = AppOpticsAPM::Context.toString
-          @data[:headers]['X-Trace'] = req_context unless blacklisted
 
           # The core excon call
-          response = request_without_appoptics(params, &block)
+          add_tracecontext_headers(@data[:headers], @data[:hostname] || @data[:host])
+          response = super(params, &block)
 
           # excon only passes back a hash (datum) for HTTP pipelining...
           # In that case, we should never arrive here but for the OCD, double check
           # the datatype before trying to extract pertinent info
           if response.is_a?(Excon::Response)
-            response_context = response.headers['X-Trace']
             kvs[:HTTPStatus] = response.status
 
             # If we get a redirect, report the location header
             if ((300..308).to_a.include? response.status.to_i) && response.headers.key?('Location')
               kvs[:Location] = response.headers['Location']
-            end
-
-            if response_context && !blacklisted
-              AppOpticsAPM::XTrace.continue_service_context(req_context, response_context)
             end
           end
 
@@ -121,5 +113,5 @@ end
 
 if AppOpticsAPM::Config[:excon][:enabled] && defined?(Excon)
   AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting excon' if AppOpticsAPM::Config[:verbose]
-  AppOpticsAPM::Util.send_include(Excon::Connection, AppOpticsAPM::Inst::ExconConnection)
+  Excon::Connection.prepend(AppOpticsAPM::Inst::ExconConnection)
 end

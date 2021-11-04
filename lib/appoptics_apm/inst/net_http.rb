@@ -7,6 +7,8 @@ if AppOpticsAPM::Config[:nethttp][:enabled]
   module AppOpticsAPM
     module Inst
       module NetHttp
+        include AppOpticsAPM::TraceContextHeaders
+
         # Net::HTTP.class_eval do
         # def request_with_appoptics(*args, &block)
         def request(*args, &block)
@@ -22,8 +24,7 @@ if AppOpticsAPM::Config[:nethttp][:enabled]
               resp.delete('X-Trace') # if resp['X-Trace']
               return resp
             else
-              xtrace = AppOpticsAPM::Context.toString
-              args[0]['X-Trace'] = xtrace if AppOpticsAPM::XTrace.valid?(xtrace)
+              add_tracecontext_headers(args[0], addr_port)
               return super
             end
           end
@@ -43,21 +44,16 @@ if AppOpticsAPM::Config[:nethttp][:enabled]
               opts[:HTTPMethod] = req.method
               opts[:Blacklisted] = true if blacklisted
               opts[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:nethttp][:collect_backtraces]
-
-              req['X-Trace'] = context unless blacklisted
             end
 
             begin
+              add_tracecontext_headers(args[0], addr_port)
               # The actual net::http call
               resp = super
-              # Re-attach net::http edge unless blacklisted and is a valid X-Trace ID
-              xtrace = resp.get_fields('X-Trace')
+
               if blacklisted
                 # we don't want the x-trace if it is from a blacklisted address
                 resp.delete('X-Trace') # if xtrace
-              else
-                xtrace = xtrace[0] if xtrace && xtrace.is_a?(Array)
-                AppOpticsAPM::XTrace.continue_service_context(context, xtrace)
               end
 
               opts[:HTTPStatus] = resp.code

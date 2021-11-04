@@ -20,10 +20,9 @@ describe "Typhoeus" do
     _(defined?(::Typhoeus::Request::Operations)).wont_match nil
   end
 
-  it 'Typhoeus should have appoptics_apm methods defined' do
-    [ :run_with_appoptics ].each do |m|
-      _(::Typhoeus::Request::Operations.method_defined?(m)).must_equal true
-    end
+  it 'Typhoeus should have AppOptics instrumentation prepended' do
+    _(Typhoeus::Request.ancestors).must_include(AppOpticsAPM::Inst::TyphoeusRequestOps)
+    _(Typhoeus::Hydra.ancestors).must_include(AppOpticsAPM::Inst::TyphoeusHydraRunnable)
   end
 
   it 'should trace a typhoeus request' do
@@ -34,7 +33,7 @@ describe "Typhoeus" do
     traces = get_all_traces
     _(traces.count).must_equal 6
 
-    _(valid_edges?(traces)).must_equal true
+    _(valid_edges?(traces, false)).must_equal true
     validate_outer_layers(traces, 'typhoeus_test')
 
     _(traces[1]['Layer']).must_equal 'typhoeus'
@@ -81,7 +80,7 @@ describe "Typhoeus" do
     traces = get_all_traces
     _(traces.count).must_equal 6
 
-    _(valid_edges?(traces)).must_equal true
+    _(valid_edges?(traces, false)).must_equal true
     validate_outer_layers(traces, 'typhoeus_test')
 
     _(traces[1]['Layer']).must_equal 'typhoeus'
@@ -105,7 +104,7 @@ describe "Typhoeus" do
     traces = get_all_traces
     _(traces.count).must_equal 6
 
-    _(valid_edges?(traces)).must_equal true
+    _(valid_edges?(traces, false)).must_equal true
     validate_outer_layers(traces, 'typhoeus_test')
 
     _(traces[1]['Layer']).must_equal 'typhoeus'
@@ -128,7 +127,7 @@ describe "Typhoeus" do
     traces = get_all_traces
     _(traces.count).must_equal 6
 
-    _(valid_edges?(traces)).must_equal true
+    _(valid_edges?(traces, false)).must_equal true
     validate_outer_layers(traces, 'typhoeus_test')
 
     _(traces[1]['Layer']).must_equal 'typhoeus'
@@ -151,7 +150,7 @@ describe "Typhoeus" do
     traces = get_all_traces
     _(traces.count).must_equal 6
 
-    _(valid_edges?(traces)).must_equal true
+    _(valid_edges?(traces, false)).must_equal true
     validate_outer_layers(traces, 'typhoeus_test')
 
     _(traces[1]['Layer']).must_equal 'typhoeus'
@@ -174,7 +173,7 @@ describe "Typhoeus" do
     traces = get_all_traces
     _(traces.count).must_equal 6
 
-    _(valid_edges?(traces)).must_equal true
+    _(valid_edges?(traces, false)).must_equal true
     validate_outer_layers(traces, 'typhoeus_test')
 
     _(traces[1]['Layer']).must_equal 'typhoeus'
@@ -214,7 +213,6 @@ describe "Typhoeus" do
     _(traces[3]['Label']).must_equal 'exit'
     _(traces[3]['Spec']).must_equal 'rsc'
     _(traces[3]['IsService']).must_equal 1
-    puts traces[3]['RemoteURL']
     _(traces[3]['RemoteURL'].casecmp('http://thisdomaindoesntexisthopefully.asdf/products/appoptics_apm/')).must_equal 0
     _(traces[3]['HTTPMethod']).must_equal 'GET'
     _(traces[3]['HTTPStatus']).must_equal 0

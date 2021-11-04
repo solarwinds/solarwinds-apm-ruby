@@ -4,22 +4,17 @@
 module AppOpticsAPM
   module Inst
     module RestClientRequest
-      def self.included(klass)
-        AppOpticsAPM::Util.method_alias(klass, :execute, ::RestClient::Request)
-      end
+      include AppOpticsAPM::TraceContextHeaders
 
       ##
-      # execute_with_appoptics
+      # execute
       #
       # The wrapper method for RestClient::Request.execute
       #
-      def execute_with_appoptics(&block)
-        blacklisted = AppOpticsAPM::API.blacklisted?(url)
-
+      def execute(&block)
         unless AppOpticsAPM.tracing?
-          xtrace = AppOpticsAPM::Context.toString
-          @processed_headers['X-Trace'] = AppOpticsAPM::Context.toString if AppOpticsAPM::XTrace.valid?(xtrace) && !blacklisted
-          return execute_without_appoptics(&block)
+          add_tracecontext_headers(@processed_headers, url)
+          return super(&block)
         end
 
         begin
@@ -27,10 +22,10 @@ module AppOpticsAPM
           kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:rest_client][:collect_backtraces]
           AppOpticsAPM::API.log_entry('rest-client', kvs)
 
-          @processed_headers['X-Trace'] = AppOpticsAPM::Context.toString unless blacklisted
+          add_tracecontext_headers(@processed_headers, url)
 
           # The core rest-client call
-          execute_without_appoptics(&block)
+          super(&block)
         rescue => e
           AppOpticsAPM::API.log_exception('rest-client', e)
           raise e
@@ -44,5 +39,5 @@ end
 
 if defined?(RestClient) && AppOpticsAPM::Config[:rest_client][:enabled]
   AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting rest-client' if AppOpticsAPM::Config[:verbose]
-  AppOpticsAPM::Util.send_include(RestClient::Request, AppOpticsAPM::Inst::RestClientRequest)
+  RestClient::Request.prepend(AppOpticsAPM::Inst::RestClientRequest)
 end

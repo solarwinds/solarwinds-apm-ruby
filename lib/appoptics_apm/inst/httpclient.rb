@@ -4,11 +4,6 @@
 module AppOpticsAPM
   module Inst
     module HTTPClient
-      def self.included(klass)
-        AppOpticsAPM::Util.method_alias(klass, :do_request, ::HTTPClient)
-        AppOpticsAPM::Util.method_alias(klass, :do_request_async, ::HTTPClient)
-        AppOpticsAPM::Util.method_alias(klass, :do_get_stream, ::HTTPClient)
-      end
 
       def appoptics_collect(method, uri, query = nil)
         kvs = {}
@@ -37,14 +32,14 @@ module AppOpticsAPM
         return kvs
       end
 
-      def do_request_with_appoptics(method, uri, query, body, header, &block)
+      def do_request(method, uri, query, body, header, &block)
         # Avoid cross host tracing for blacklisted domains
         blacklisted = AppOpticsAPM::API.blacklisted?(uri.hostname)
 
         # If we're not tracing, just do a fast return.
         unless AppOpticsAPM.tracing?
-          add_xtrace_header(header) unless blacklisted
-          return do_request_without_appoptics(method, uri, query, body, header, &block)
+          add_trace_header(header) unless blacklisted
+          return super(method, uri, query, body, header, &block)
         end
 
         begin
@@ -58,21 +53,15 @@ module AppOpticsAPM
           kvs.clear
           kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:httpclient][:collect_backtraces]
 
-          req_context = add_xtrace_header(header) unless blacklisted
+          add_trace_header(header) unless blacklisted
 
           # The core httpclient call
-          response = do_request_without_appoptics(method, uri, query, body, header, &block)
-
-          response_context = response.headers['X-Trace']
+          response = super(method, uri, query, body, header, &block)
           kvs[:HTTPStatus] = response.status_code
 
           # If we get a redirect, report the location header
           if ((300..308).to_a.include? response.status.to_i) && response.headers.key?('Location')
             kvs[:Location] = response.headers['Location']
-          end
-
-          if response_context && !blacklisted
-            AppOpticsAPM::XTrace.continue_service_context(req_context, response_context)
           end
 
           response
@@ -84,24 +73,26 @@ module AppOpticsAPM
         end
       end
 
-      def do_request_async_with_appoptics(method, uri, query, body, header)
-        add_xtrace_header(header)
-        do_request_async_without_appoptics(method, uri, query, body, header)
+      def do_request_async(method, uri, query, body, header)
+        add_trace_header(header) unless AppOpticsAPM::API.blacklisted?(uri.hostname)
+        super(method, uri, query, body, header)
       end
 
-      def do_get_stream_with_appoptics(req, proxy, conn)
-        AppOpticsAPM::Context.fromString(req.header['X-Trace'].first) unless req.header['X-Trace'].empty?
+      def do_get_stream(req, proxy, conn)
+        unless req.header['traceparent'].empty?
+          xtrace = AppOpticsAPM::TraceContext.w3c_to_ao_trace(req.header['traceparent'].first)
+          AppOpticsAPM::Context.fromString(xtrace)
+        end
         # Avoid cross host tracing for blacklisted domains
         uri = req.http_header.request_uri
         blacklisted = AppOpticsAPM::API.blacklisted?(uri.hostname)
 
         unless AppOpticsAPM.tracing?
-          req.header.delete('X-Trace') if blacklisted
-          return do_get_stream_without_appoptics(req, proxy, conn)
+          req.header.delete('traceparent') if blacklisted
+          return super(req, proxy, conn)
         end
 
         begin
-          response = nil
           req_context = nil
           method = req.http_header.request_method
 
@@ -113,10 +104,15 @@ module AppOpticsAPM
           kvs.clear
           kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:httpclient][:collect_backtraces]
 
-          blacklisted ? req.header.delete('X-Trace') : req_context = add_xtrace_header(req.header)
+          if blacklisted
+            req.header.delete('traceparent')
+            req.header.delete('tracestate')
+          else
+            add_trace_header(req.header)
+          end
 
           # The core httpclient call
-          result = do_get_stream_without_appoptics(req, proxy, conn)
+          result = super(req, proxy, conn)
 
           # Older HTTPClient < 2.6.0 returns HTTPClient::Connection
           if result.is_a?(::HTTP::Message)
@@ -125,16 +121,11 @@ module AppOpticsAPM
             response = conn.pop
           end
 
-          response_context = response.headers['X-Trace']
           kvs[:HTTPStatus] = response.status_code
 
           # If we get a redirect, report the location header
           if ((300..308).to_a.include? response.status.to_i) && response.headers.key?('Location')
             kvs[:Location] = response.headers['Location']
-          end
-
-          if response_context && !blacklisted
-            AppOpticsAPM::XTrace.continue_service_context(req_context, response_context)
           end
 
           # Older HTTPClient < 2.6.0 returns HTTPClient::Connection
@@ -150,25 +141,43 @@ module AppOpticsAPM
 
       private
 
-      def add_xtrace_header(headers)
-        req_context = AppOpticsAPM::Context.toString
-        return nil unless AppOpticsAPM::XTrace.valid?(req_context)
+      def add_trace_header(headers)
+        traceparent, tracestate = w3c_context
+
         # Be aware of various ways to call/use httpclient
         if headers.is_a?(Array)
-          headers.delete_if { |kv| kv[0] == 'X-Trace' }
-          headers.push ['X-Trace', req_context]
+          headers.delete_if { |kv| kv[0] =~ /^([Tt]raceparent|[Tt]racestate)$/ }
+          headers.push ['traceparent', traceparent] if traceparent
+          headers.push ['tracestate', tracestate] if tracestate
         elsif headers.is_a?(Hash)
-          headers['X-Trace'] = req_context
+          headers['traceparent'] = traceparent if traceparent
+          headers['tracestate'] = tracestate  if tracestate
         elsif headers.is_a? HTTP::Message::Headers
-          headers.set('X-Trace', req_context)
+          headers.set('traceparent', traceparent) if traceparent
+          headers.set('tracestate', tracestate) if tracestate
         end
-        req_context
       end
+
+      def w3c_context
+        context = AppOpticsAPM::Context.toString
+
+        if AppOpticsAPM::XTrace.valid?(context)
+          traceparent = AppOpticsAPM::TraceContext.ao_to_w3c_trace(context)
+          parent_id_flags = AppOpticsAPM::TraceParent.edge_id_flags(traceparent)
+          tracestate = AppOpticsAPM::TraceState.add_kv(AppOpticsAPM.trace_context&.tracestate, parent_id_flags)
+          return [traceparent, tracestate]
+        elsif AppOpticsAPM.trace_context && AppOpticsAPM.trace_context.traceparent
+          return [AppOpticsAPM.trace_context.traceparent, AppOpticsAPM.trace_context.tracestate]
+        end
+
+        [nil, nil]
+      end
+
     end
   end
 end
 
 if AppOpticsAPM::Config[:httpclient][:enabled] && defined?(HTTPClient)
   AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting httpclient' if AppOpticsAPM::Config[:verbose]
-  AppOpticsAPM::Util.send_include(HTTPClient, AppOpticsAPM::Inst::HTTPClient)
+  HTTPClient.prepend(AppOpticsAPM::Inst::HTTPClient)
 end

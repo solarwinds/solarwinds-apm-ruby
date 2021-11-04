@@ -15,11 +15,20 @@ describe 'HTTPClientTest' do
 
   before do
     clear_all_traces
+    @tm = AppOpticsAPM::Config[:tracing_mode]
+    @sample_rate = AppOpticsAPM::Config[:sample_rate]
     AppOpticsAPM::Config[:tracing_mode] = :enabled
+    AppOpticsAPM::Config[:sample_rate] = 1000000
   end
 
   after do
+    AppOpticsAPM::Config[:tracing_mode] = @tm
+    AppOpticsAPM::Config[:sample_rate] = @sample_rate
     clear_all_traces
+  end
+
+  it 'has AppOptics instrumentation' do
+    assert HTTPClient.ancestors.include?(AppOpticsAPM::Inst::HTTPClient)
   end
 
   it 'identifies the version' do
@@ -30,17 +39,20 @@ describe 'HTTPClientTest' do
 
   it 'sends event for a request' do
     AppOpticsAPM::API.start_trace('httpclient_tests') do
+      context = AppOpticsAPM::Context.toString
       clnt = HTTPClient.new
       response = clnt.get('http://127.0.0.1:8101/', :query => { :keyword => 'ruby', :lang => 'en' })
 
       # Validate returned xtrace
       assert response.headers.key?("X-Trace")
       assert AppOpticsAPM::XTrace.valid?(response.headers["X-Trace"])
+      assert_equal(AppOpticsAPM::XTrace.task_id(context),
+                   AppOpticsAPM::XTrace.task_id(response.headers["X-Trace"]))
     end
 
     traces = get_all_traces
     assert_equal 6, traces.count
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
     validate_outer_layers(traces, "httpclient_tests")
 
     assert_equal 'rsc', traces[1]['Spec']
@@ -91,7 +103,7 @@ describe 'HTTPClientTest' do
     assert AppOpticsAPM::XTrace.valid?(xtrace)
 
     assert_equal 6, traces.count
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
     validate_outer_layers(traces, "httpclient_tests")
 
     assert_equal 'rsc', traces[1]['Spec']
@@ -120,7 +132,7 @@ describe 'HTTPClientTest' do
     assert AppOpticsAPM::XTrace.valid?(xtrace)
 
     assert_equal 6, traces.count
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
     validate_outer_layers(traces, "httpclient_tests")
 
     assert_equal 'rsc', traces[1]['Spec']
@@ -149,7 +161,7 @@ describe 'HTTPClientTest' do
     assert AppOpticsAPM::XTrace.valid?(xtrace)
 
     assert_equal 6, traces.count
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
     validate_outer_layers(traces, "httpclient_tests")
 
     assert_equal 'rsc', traces[1]['Spec']
@@ -212,7 +224,7 @@ describe 'HTTPClientTest' do
     traces = get_all_traces
 
     assert_equal 6, traces.count
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
     validate_outer_layers(traces, "httpclient_tests")
 
     assert_equal 'rsc', traces[1]['Spec']
@@ -284,7 +296,7 @@ describe 'HTTPClientTest' do
     assert AppOpticsAPM::XTrace.valid?(xtrace)
 
     assert_equal 6, traces.count
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
 
     assert_equal 'http://127.0.0.1:8101/?keyword=ruby&lang=en', traces[1]['RemoteURL']
 
@@ -309,7 +321,7 @@ describe 'HTTPClientTest' do
     assert AppOpticsAPM::XTrace.valid?(xtrace)
 
     assert_equal 6, traces.count
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
 
     assert_equal 'http://127.0.0.1:8101/', traces[1]['RemoteURL']
 

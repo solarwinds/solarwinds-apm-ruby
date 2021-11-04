@@ -121,12 +121,12 @@ when /rails4/
 
 when /frameworks/
 when /libraries/
-  require 'rack/test'
 
-  # Load Sidekiq if TEST isn't defined or if it is, it calls
-  # out the sidekiq tests
-  # Background Sidekiq thread
-  unless (ENV.key?('TEST') && ENV['TEST'] =~ /sidekiq/) || (/benchmark/ =~ $0)
+  # Load Sidekiq for libaries tests
+  # use `export NO_SIDEKIQ=true` to stop sidekiq from loading
+  # when running individual test files
+  # starting sidekiq slows down the startup and doesn't shut down properly
+  unless (ENV.key?('TEST') && ENV['TEST'] =~ /sidekiq/) || (/benchmark/ =~ $0) || ENV['NO_SIDEKIQ']
     require './test/servers/sidekiq.rb'
   end
 end
@@ -248,12 +248,20 @@ def valid_edges?(traces, connected = true)
   traces[1..-1].reverse.each do  |t|
     if t.key?("Edge")
       unless has_edge?(t["Edge"], traces)
+        # TODO NH-2303 remove when done
+        print_traces(traces, ['Edge'])
         return false
       end
     end
   end
   if connected
-    return traces.map{ |tr| tr['Edge'] }.uniq.size == traces.size
+    if traces.map{ |tr| tr['Edge'] }.uniq.size == traces.size
+      return true
+    else
+      # TODO NH-2303 remove when done
+      print_traces(traces, ['Edge'])
+      return false
+    end
   end
   true
 end
@@ -325,11 +333,11 @@ def assert_controller_action(test_action)
 end
 
 def not_sampled?(xtrace)
-  xtrace[59].to_i & 1 == 0
+  !sampled?(xtrace)
 end
 
 def sampled?(xtrace)
-  xtrace[59].to_i & 1 == 1
+  AppOpticsAPM::XTrace.sampled?(xtrace)
 end
 
 
@@ -365,6 +373,49 @@ def print_edges(traces)
   end
 end
 
+# Ruby 2.4 doesn't have the transform_keys method
+unless Hash.instance_methods.include?(:transform_keys)
+  class Hash
+    def transform_keys
+      new_hash = {}
+      self.each do |k,v|
+        new_hash[yield(k)] = v
+      end
+      new_hash
+    end
+  end
+end
+
+# this checks if `sw=...` is at the beginning of tracestate and returns the value
+def sw_tracestate(tracestate)
+  matches = /^[,\s]*sw=(?<sw_value>[a-f0-9]{16}-0[01])/.match(tracestate)
+  matches && matches[:sw_value]
+end
+
+# this extracts the sw value anywhere within tracestate
+def sw_value(tracestate)
+  matches = /[,\s]*sw=(?<sw_value>[a-f0-9]{16}-0[01])/.match(tracestate)
+  matches && matches[:sw_value]
+end
+
+def assert_trace_headers(headers, sampled = nil)
+  # don't use transform_keys! (the one with the bang!)
+  # it makes follow up assertions fail
+  # and it is not available in Ruby 2.4
+  headers = headers.transform_keys(&:downcase)
+  assert headers['traceparent'], "traceparent header missing"
+  assert AppOpticsAPM::TraceParent.valid?(headers['traceparent']), "traceparent header not valid"
+  assert AppOpticsAPM::TraceParent.sampled?(headers['traceparent']), "traceparent should have sampled flag" if sampled
+  refute AppOpticsAPM::TraceParent.sampled?(headers['traceparent']), "traceparent should NOT have sampled flag" if sampled == false
+
+  assert headers['tracestate'], "tracestate header missing"
+  assert_match /#{APPOPTICS_TRACESTATE_ID}=/, headers['tracestate'], "tracestate header missing #{APPOPTICS_TRACESTATE_ID}"
+
+  assert sw_tracestate(headers['tracestate']), "tracestate header not starting with correct sw member"
+  assert_equal AppOpticsAPM::TraceParent.edge_id_flags(headers['traceparent']),
+               sw_value(headers['tracestate']), "edge_id and flags not matching"
+end
+
 if (File.basename(ENV['BUNDLE_GEMFILE']) =~ /^frameworks/) == 0
   require "sinatra"
   ##
@@ -376,7 +427,6 @@ if (File.basename(ENV['BUNDLE_GEMFILE']) =~ /^frameworks/) == 0
     # Allow assertions in request context
     include MiniTest::Assertions
   end
-
 
   class MiniTest::Spec
     include Rack::Test::Methods

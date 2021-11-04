@@ -211,6 +211,15 @@ task :fetch_ext_deps do
     end
   end
 
+  api_hpp_patch = File.join(ext_src_dir, 'api_hpp.patch')
+  api_cpp_patch = File.join(ext_src_dir, 'api_cpp.patch')
+  if File.exist?(api_hpp_patch)
+    `patch -N #{File.join(ext_src_dir, 'oboe_api.hpp')} #{api_hpp_patch}`
+  end
+  if File.exist?(api_cpp_patch)
+    `patch -N #{File.join(ext_src_dir, 'oboe_api.cpp')} #{api_cpp_patch}`
+  end
+
   FileUtils.cd(ext_src_dir) do
     system('swig -c++ -ruby -module oboe_metal -o oboe_swig_wrap.cc oboe.i')
     FileUtils.rm('oboe.i')

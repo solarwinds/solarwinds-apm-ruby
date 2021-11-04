@@ -21,7 +21,7 @@ describe "Net::HTTP"  do
   end
 
   it 'Net::HTTP should have AppOpticsAPM instrumentation' do
-    _(::Net::HTTP.ancestors.include?(AppopticsAPM::Inst::NetHttp)).must_equal true
+    _(::Net::HTTP.ancestors).must_include(AppopticsAPM::Inst::NetHttp)
   end
 
   it "should trace a Net::HTTP request to an instr'd app" do
@@ -36,7 +36,7 @@ describe "Net::HTTP"  do
 
     traces = get_all_traces
     _(traces.count).must_equal 6
-    _(valid_edges?(traces)).must_equal true
+    _(valid_edges?(traces, false)).must_equal true
     validate_outer_layers(traces, 'net-http_test')
 
     _(traces[1]['Layer']).must_equal 'net-http'
@@ -65,7 +65,7 @@ describe "Net::HTTP"  do
 
     traces = get_all_traces
     _(traces.count).must_equal 6
-    _(valid_edges?(traces)).must_equal true
+    _(valid_edges?(traces, false)).must_equal true
     validate_outer_layers(traces, 'net-http_test')
 
     _(traces[1]['Layer']).must_equal 'net-http'

@@ -104,6 +104,7 @@ int Frames::remove_garbage(VALUE *frames_buffer, int num) {
         return 1;
 
     // TODO decide what to do with <cfunc> frames in Ruby 3
+    // ____ AO-20269
 
     // 1) ignore top frames where the line number is 0
     // does that mean there is no line number???

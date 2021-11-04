@@ -12,7 +12,11 @@ describe 'ExconTest' do
     SinatraSimple
   end
 
-   it 'must_return_xtrace_header' do
+  it 'Excon should have AppOptics instrumentation prepended' do
+    _(Excon::Connection.ancestors).must_include(AppOpticsAPM::Inst::ExconConnection)
+  end
+
+  it 'must_return_xtrace_header' do
     skip if defined?(JRUBY_VERSION)
 
     clear_all_traces
@@ -39,7 +43,7 @@ describe 'ExconTest' do
     traces = get_all_traces
     assert_equal 6, traces.count
     validate_outer_layers(traces, "excon_tests")
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
 
     assert_equal 'rsc',                    traces[1]['Spec']
     assert_equal 1,                        traces[1]['IsService']
@@ -66,7 +70,7 @@ describe 'ExconTest' do
     traces = get_all_traces
     assert_equal 6, traces.count
     validate_outer_layers(traces, "excon_tests")
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
 
     assert_equal 'rsc',                           traces[1]['Spec']
     assert_equal 1,                               traces[1]['IsService']
@@ -115,7 +119,7 @@ describe 'ExconTest' do
     traces = get_all_traces
     assert_equal 14, traces.count
     validate_outer_layers(traces, "excon_tests")
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
 
     assert_equal 'rsc',                    traces[1]['Spec']
     assert_equal 1,                        traces[1]['IsService']
@@ -209,7 +213,7 @@ describe 'ExconTest' do
 
     traces = get_all_traces
     validate_outer_layers(traces, "excon_tests")
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
 
     assert_equal 6, traces.count
     assert_equal 'http://127.0.0.1:8101/', traces[1]['RemoteURL']
@@ -229,7 +233,7 @@ describe 'ExconTest' do
 
     traces = get_all_traces
     validate_outer_layers(traces, "excon_tests")
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
 
     assert_equal 6, traces.count
     assert_equal 'http://127.0.0.1:8101/?blah=1', traces[1]['RemoteURL']
@@ -249,7 +253,7 @@ describe 'ExconTest' do
 
     traces = get_all_traces
     validate_outer_layers(traces, "excon_tests")
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
 
     assert_equal 6, traces.count
     assert_equal 'http://127.0.0.1:8101/?blah=1', traces[1]['RemoteURL']

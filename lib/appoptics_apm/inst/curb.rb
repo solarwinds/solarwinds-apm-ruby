@@ -8,6 +8,7 @@ module AppOpticsAPM
     # Curl::Easy and Curl::Multi.  This CurlUtility module is used as a common module
     # to be shared among both modules.
     module CurlUtility
+      include AppOpticsAPM::TraceContextHeaders
 
       private
       ##
@@ -44,7 +45,7 @@ module AppOpticsAPM
       ensure
         return kvs
       end
-      
+
       ##
       # trace_curb_method
       #
@@ -54,39 +55,26 @@ module AppOpticsAPM
       def trace_curb_method(kvs, method, args, &block)
         # If we're not tracing, just do a fast return.
         unless AppOpticsAPM.tracing?
-          unless AppOpticsAPM::API.blacklisted?(URI(url).hostname)
-            self.headers['X-Trace'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid
-          end
+          add_tracecontext_headers(self.headers, URI(url).hostname)
           return self.send(method, args, &block)
         end
 
         begin
-          response_context = nil
           kvs.merge! appoptics_collect
 
           AppOpticsAPM::API.log_entry(:curb, kvs)
           kvs.clear
 
           # The core curb call
-          unless AppOpticsAPM::API.blacklisted?(URI(url).hostname)
-            self.headers['X-Trace'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid
-          end
+          add_tracecontext_headers(self.headers, URI(url).hostname)
           response = self.send(method, *args, &block)
 
-            kvs[:HTTPStatus] = response_code
+          kvs[:HTTPStatus] = response_code
 
-            # If we get a redirect, report the location header
-            if ((300..308).to_a.include? response_code) && headers.key?("Location")
-              kvs[:Location] = headers["Location"]
-            end
-
-            _, *response_headers = header_str.split(/[\r\n]+/).map(&:strip)
-            response_headers = Hash[response_headers.flat_map{ |s| s.scan(/^(\S+): (.+)/) }]
-
-            response_context = response_headers['X-Trace']
-            if response_context && !kvs[:blacklisted]
-              AppOpticsAPM::XTrace.continue_service_context(self.headers['X-Trace'], response_context)
-            end
+          # If we get a redirect, report the location header
+          if ((300..308).to_a.include? response_code) && headers.key?("Location")
+            kvs[:Location] = headers["Location"]
+          end
 
           response
         rescue => e
@@ -120,9 +108,7 @@ module AppOpticsAPM
       def http_post_with_appoptics(*args, &block)
         # If we're not tracing, just do a fast return.
         if !AppOpticsAPM.tracing? || AppOpticsAPM.tracing_layer?(:curb)
-          unless AppOpticsAPM::API.blacklisted?(URI(url).hostname)
-            self.headers['X-Trace'] = AppOpticsAPM::Context.toString() if AppOpticsAPM::Context.isValid
-          end
+          add_tracecontext_headers(self.headers, URI(url).hostname)
           return http_post_without_appoptics(*args)
         end
 
@@ -140,9 +126,7 @@ module AppOpticsAPM
       def http_put_with_appoptics(*args, &block)
         # If we're not tracing, just do a fast return.
         if !AppOpticsAPM.tracing? || AppOpticsAPM.tracing_layer?(:curb)
-          unless AppOpticsAPM::API.blacklisted?(URI(url).hostname)
-            self.headers['X-Trace'] = AppOpticsAPM::Context.toString() if AppOpticsAPM::Context.isValid
-          end
+          add_tracecontext_headers(self.headers, URI(url).hostname)
           return http_put_without_appoptics(data)
         end
 
@@ -162,9 +146,7 @@ module AppOpticsAPM
         # excluding curb layer: because the curb C code for easy.http calls perform,
         # we have to make sure we don't log again
         if !AppOpticsAPM.tracing? || AppOpticsAPM.tracing_layer?(:curb)
-          unless AppOpticsAPM::API.blacklisted?(URI(url).hostname)
-            self.headers['X-Trace'] = AppOpticsAPM::Context.toString() if AppOpticsAPM::Context.isValid
-          end
+          add_tracecontext_headers(self.headers, URI(url).hostname)
           return perform_without_appoptics(&block)
         end
 
@@ -187,11 +169,9 @@ module AppOpticsAPM
       # ::Curl::Easy.new.http wrapper
       #
       def http_with_appoptics(verb, &block)
-        # If we're not tracing, just do a fast return.
         unless AppOpticsAPM.tracing?
-          unless AppOpticsAPM::API.blacklisted?(URI(url).hostname)
-            self.headers['X-Trace'] = AppOpticsAPM::Context.toString() if AppOpticsAPM::Context.isValid
-          end
+          add_tracecontext_headers(self.headers, URI(url).hostname)
+          # If we're not tracing, just do a fast return.
           return http_without_appoptics(verb)
         end
 
@@ -224,10 +204,8 @@ module AppOpticsAPM
         # If we're not tracing, just do a fast return.
         unless AppOpticsAPM.tracing?
           urls_with_config.each do |conf|
-            unless AppOpticsAPM::API.blacklisted?(URI(conf[:url]).hostname)
-              conf[:headers] ||= {}
-              conf[:headers]['X-Trace'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid
-            end
+            conf[:headers] ||= {}
+            add_tracecontext_headers(conf[:headers], URI(conf[:url]).hostname)
           end
           return http_without_appoptics(urls_with_config, multi_options, &block)
         end
@@ -238,24 +216,14 @@ module AppOpticsAPM
 
           AppOpticsAPM::API.log_entry(:curb_multi, kvs)
           context = AppOpticsAPM::Context.toString
-          urls_with_config.each do |conf|
-            unless AppOpticsAPM::API.blacklisted?(URI(conf[:url]).hostname)
-              conf[:headers] ||= {}
-              conf[:headers]['X-Trace'] = context if AppOpticsAPM::Context.isValid
-            end
-          end
 
           traces = []
-          # The core curb call
-          http_without_appoptics(urls_with_config, multi_options) do |easy, response_code, method|
-            # this is the only way we can access the headers, they are not exposed otherwise
-            unless AppOpticsAPM::API.blacklisted?(URI(easy.url).hostname)
-              xtrace = easy.header_str.scan(/X-Trace: ([0-9A-F]*)/).map{ |m| m[0] }
-              traces << xtrace[0] unless xtrace.empty?
-            end
-            block.call(easy, response_code, method) if block
+          urls_with_config.each do |conf|
+            conf[:headers] ||= {}
+            add_tracecontext_headers(conf[:headers], URI(conf[:url]).hostname)
           end
-          AppOpticsAPM::XTrace.continue_service_context(context, traces.pop) unless traces.empty?
+          # The core curb call
+          http_without_appoptics(urls_with_config, multi_options)
         rescue => e
           AppOpticsAPM::API.log_exception(:curb_multi, e)
           raise e
@@ -288,14 +256,12 @@ module AppOpticsAPM
       # Be aware: this method is also called from the c-implementation
       #
       def perform_with_appoptics(&block)
+        self.requests.each do |request|
+          request = request[1] if request.is_a?(Array)
+          add_tracecontext_headers(request.headers, URI(request.url).hostname)
+        end
         # If we're not tracing or we're already tracing curb, just do a fast return.
         if !AppOpticsAPM.tracing? || [:curb, :curb_multi].include?(AppOpticsAPM.layer)
-          self.requests.each do |request|
-            request = request[1] if request.is_a?(Array)
-            unless AppOpticsAPM::API.blacklisted?(URI(request.url).hostname)
-              request.headers['X-Trace'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid
-            end
-          end
           return perform_without_appoptics(&block)
         end
 
@@ -304,13 +270,6 @@ module AppOpticsAPM
           kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:curb][:collect_backtraces]
 
           AppOpticsAPM::API.log_entry(:curb_multi, kvs)
-
-          self.requests.each do |request|
-            request = request[1] if request.is_a?(Array)
-            unless AppOpticsAPM::API.blacklisted?(URI(request.url).hostname)
-              request.headers['X-Trace'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid
-            end
-          end
 
           perform_without_appoptics(&block)
         rescue => e

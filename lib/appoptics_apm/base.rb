@@ -21,6 +21,12 @@ SAMPLE_SOURCE_MASK = 0b1111000000000000000000000000
 # ZERO_SAMPLE_RATE_MASK   = 0b1111000000000000000000000000
 # ZERO_SAMPLE_SOURCE_MASK = 0b0000111111111111111111111111
 
+# w3c trace context related global constants
+# see: https://www.w3.org/TR/trace-context/#tracestate-limits
+APPOPTICS_TRACESTATE_ID = 'sw'.freeze
+APPOPTICS_MAX_TRACESTATE_BYTES = 512
+APPOPTICS_MAX_TRACESTATE_MEMBER_BYTES = 128
+
 # APPOPTICS_STR_BLANK = ''.freeze
 APPOPTICS_STR_LAYER = 'Layer'.freeze
 APPOPTICS_STR_LABEL = 'Label'.freeze
@@ -34,10 +40,14 @@ module AppOpticsAPMBase
 
   attr_accessor :reporter
   attr_accessor :loaded
+
   thread_local :sample_source
   thread_local :sample_rate
   thread_local :layer
   thread_local :layer_op
+
+  # trace context is used to store incoming w3c trace information
+  thread_local :trace_context
 
   # transaction_name is used for custom transaction naming
   # It needs to be globally accessible, but is only set by the request processors of the different frameworks
@@ -67,6 +77,7 @@ module AppOpticsAPMBase
   thread_local :has_incoming_context
 
   # Indicates the existence of a valid X-Trace request header
+  # TODO not used?
   thread_local :has_xtrace_header
 
   # This indicates that this trace was continued from

@@ -129,12 +129,11 @@ class RackDNTTestApp < Minitest::Test
     AppOpticsAPM::Config[:transaction_settings] = { url: [{ extensions: ['ter'] }] }
     AppOpticsAPM::Span.expects(:createHttpSpan).never
 
-    xtrace = '2BE176BC800FE533EB7910F59C44F173BBF6ED7E07EFAAC4BEBB329CA801'
-    res = get "/lobster", {}, { 'HTTP_X_TRACE' => xtrace }
+    trace = '00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-01'
+    res = get "/lobster", {}, { 'HTTP_TRACEPARENT' => trace,
+                                'HTTP_TRACESTATE' => "sw=49e60702469db05f-01" }
 
-    AppOpticsAPM::XTrace.unset_sampled(xtrace)
-
-    assert_equal xtrace, res.header['X-Trace']
+    assert_equal "#{trace[0..-2]}0", AppOpticsAPM::TraceContext.ao_to_w3c_trace(res.header['X-Trace'])
     traces = get_all_traces
     assert traces.empty?
 

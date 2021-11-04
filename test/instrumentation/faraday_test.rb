@@ -19,10 +19,8 @@ describe "Faraday" do
     _(defined?(::Faraday)).wont_match nil
   end
 
-  it 'Faraday should have appoptics_apm methods defined' do
-    [ :run_request_with_appoptics ].each do |m|
-      _(::Faraday::Connection.method_defined?(m)).must_equal true
-    end
+  it 'Faraday should have AppOptics instrumentation prepended' do
+    _(Faraday::Connection.ancestors).must_include(AppOpticsAPM::Inst::FaradayConnection)
   end
 
   it "should trace cross-app request" do
@@ -37,7 +35,7 @@ describe "Faraday" do
     traces = get_all_traces
     _(traces.count).must_equal 8
 
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
     validate_outer_layers(traces, 'faraday_test')
 
     _(traces[1]['Layer']).must_equal 'faraday'
@@ -96,7 +94,7 @@ describe "Faraday" do
     traces = get_all_traces
     _(traces.count).must_equal 8
 
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
     validate_outer_layers(traces, 'faraday_test')
 
     _(traces[1]['Layer']).must_equal 'faraday'
@@ -122,7 +120,7 @@ describe "Faraday" do
     traces = get_all_traces
     _(traces.count).must_equal 8
 
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
     validate_outer_layers(traces, 'faraday_test')
 
     _(traces[1]['Layer']).must_equal 'faraday'
@@ -151,7 +149,7 @@ describe "Faraday" do
     traces = get_all_traces
     _(traces.count).must_equal 8
 
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
     validate_outer_layers(traces, 'faraday_test')
 
     _(traces[1]['Layer']).must_equal 'faraday'
@@ -187,7 +185,7 @@ describe "Faraday" do
     traces = get_all_traces
     _(traces.count).must_equal 8
 
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
     validate_outer_layers(traces, 'faraday_test')
 
     _(traces[1]['Layer']).must_equal 'faraday'
@@ -220,7 +218,7 @@ describe "Faraday" do
     traces = get_all_traces
     _(traces.count).must_equal 8
 
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
     validate_outer_layers(traces, 'faraday_test')
 
     _(traces[1]['Layer']).must_equal 'faraday'
@@ -254,7 +252,7 @@ describe "Faraday" do
     traces = get_all_traces
     _(traces.count).must_equal 6
 
-    assert valid_edges?(traces), "Invalid edge in traces"
+    assert valid_edges?(traces, false), "Invalid edge in traces"
     validate_outer_layers(traces, 'faraday_test')
 
     _(traces[1]['Layer']).must_equal 'faraday'

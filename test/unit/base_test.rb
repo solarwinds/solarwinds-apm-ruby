@@ -5,7 +5,6 @@ require 'minitest_helper'
 require 'mocha/minitest'
 
 describe 'AppOpticsAPMBase' do
-
   describe 'tracing_layer_op?' do
     after do
       AppOpticsAPM.layer_op = nil
@@ -52,6 +51,33 @@ describe 'AppOpticsAPMBase' do
     it 'should return false when op is not in layer_op' do
       AppOpticsAPM.layer_op = [:one, :two]
       refute AppOpticsAPM.tracing_layer_op?('three')
+    end
+  end
+
+  describe 'thread local variables' do
+    it "AppOpticsAPM.trace_context instances are thread local" do
+      contexts = []
+      ths = []
+      2.times do |i|
+        ths << Thread.new do
+          trace_00 = "00-#{i}435a9fe510ae4533414d425dadf4e18-#{i}9e60702469db05f-00"
+          state_00 = "sw=#{i}9e60702469db05f-00"
+
+          AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_00, state_00)
+
+          contexts[i] = [AppOpticsAPM.trace_context.xtrace,
+                         AppOpticsAPM.trace_context.tracestate,
+                         AppOpticsAPM.trace_context.sw_tracestate,
+                         AppOpticsAPM.trace_context.parent_id]
+        end
+      end
+      ths.each { |th| th.join }
+      assert contexts[0]
+      assert contexts[1]
+      refute_equal contexts[0][0], contexts[1][0]
+      refute_equal contexts[0][1], contexts[1][1]
+      refute_equal contexts[0][2], contexts[1][2]
+      refute_equal contexts[0][3], contexts[1][3]
     end
   end
 

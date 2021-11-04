@@ -7,7 +7,6 @@ begin
   require 'appoptics_apm/thread_local'
   require 'appoptics_apm/logger'
   require 'appoptics_apm/util'
-  require 'appoptics_apm/xtrace'
   require 'appoptics_apm/support_report'
   require 'appoptics_apm/base'
   AppOpticsAPM.loaded = false
@@ -46,9 +45,7 @@ begin
 
   if AppOpticsAPM.loaded
     require 'appoptics_apm/instrumentation'
-    require 'appoptics_apm/support/profiling'
-    require 'appoptics_apm/support/transaction_metrics'
-    require 'appoptics_apm/support/x_trace_options'
+    require 'appoptics_apm/support'
 
     # Frameworks
     require 'appoptics_apm/frameworks/rails'
@@ -64,6 +61,7 @@ begin
     require 'appoptics_apm/noop/context'
     require 'appoptics_apm/noop/metadata'
     require 'appoptics_apm/noop/profiling'
+    require 'appoptics_apm/support/xtrace'
   end
 
   # Load Ruby module last.  If there is no framework detected,

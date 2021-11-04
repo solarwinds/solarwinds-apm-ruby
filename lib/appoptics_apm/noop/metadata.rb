@@ -21,5 +21,9 @@ module AppOpticsAPM
     def isValid
       false
     end
+
+    def padZeros
+      nil
+    end
   end
 end

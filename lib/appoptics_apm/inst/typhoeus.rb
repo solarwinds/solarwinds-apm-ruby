@@ -5,39 +5,30 @@ class TyphoeusError < StandardError; end
 module AppOpticsAPM
   module Inst
     module TyphoeusRequestOps
+      include AppOpticsAPM::TraceContextHeaders
 
-      def self.included(klass)
-        AppOpticsAPM::Util.method_alias(klass, :run, ::Typhoeus::Request::Operations)
-      end
-
-      def run_with_appoptics
-        blacklisted = AppOpticsAPM::API.blacklisted?(url)
+      def run
         unless AppOpticsAPM.tracing?
-          context = AppOpticsAPM::Context.toString
-          options[:headers]['X-Trace'] = context if AppOpticsAPM::XTrace.valid?(context) && !blacklisted
-          return run_without_appoptics
+          add_tracecontext_headers(options[:headers], url)
+          return super
         end
 
         begin
           AppOpticsAPM::API.log_entry(:typhoeus)
 
-          # Prepare X-Trace header handling
           context = AppOpticsAPM::Context.toString
-          options[:headers]['X-Trace'] = context unless blacklisted
 
           kvs = {}
           kvs[:Spec] = 'rsc'
           kvs[:IsService] = 1
           kvs[:HTTPMethod] = AppOpticsAPM::Util.upcase(options[:method])
 
-          response = run_without_appoptics
+          add_tracecontext_headers(options[:headers], url)
+          response = super
 
           # Re-attach edge unless it's blacklisted
           # or if we don't have a valid X-Trace header
-          unless blacklisted
-            xtrace = response.headers['X-Trace']
-            AppOpticsAPM::XTrace.continue_service_context(context, xtrace)
-          end
+          blacklisted = AppOpticsAPM::API.blacklisted?(url)
 
           if response.code == 0
             exception = TyphoeusError.new(response.return_message)
@@ -63,18 +54,14 @@ module AppOpticsAPM
     end
 
     module TyphoeusHydraRunnable
-      def self.included(klass)
-        AppOpticsAPM::Util.method_alias(klass, :run, ::Typhoeus::Hydra)
-      end
+      include AppOpticsAPM::TraceContextHeaders
 
-      def run_with_appoptics
+      def run
         unless AppOpticsAPM.tracing?
-          context = AppOpticsAPM::Context.toString
           queued_requests.map do |request|
-            blacklisted = AppOpticsAPM::API.blacklisted?(request.base_url)
-            request.options[:headers]['X-Trace'] = context if AppOpticsAPM::XTrace.valid?(context) && !blacklisted
+            add_tracecontext_headers(request.options[:headers], request.base_url)
           end
-          return run_without_appoptics
+          return super
         end
 
         kvs = {}
@@ -89,11 +76,10 @@ module AppOpticsAPM
         # trace of the hydra run.
         AppOpticsAPM::API.trace(:typhoeus_hydra, kvs) do
           queued_requests.map do |request|
-            blacklisted = AppOpticsAPM::API.blacklisted?(request.base_url)
-            request.options[:headers]['X-Trace'] = AppOpticsAPM::Context.toString unless blacklisted
+            add_tracecontext_headers(request.options[:headers], request.base_url)
           end
 
-          run_without_appoptics
+          super
         end
       end
     end
@@ -103,6 +89,7 @@ end
 
 if defined?(Typhoeus) && AppOpticsAPM::Config[:typhoeus][:enabled]
   AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting typhoeus' if AppOpticsAPM::Config[:verbose]
-  AppOpticsAPM::Util.send_include(Typhoeus::Request::Operations, AppOpticsAPM::Inst::TyphoeusRequestOps)
-  AppOpticsAPM::Util.send_include(Typhoeus::Hydra, AppOpticsAPM::Inst::TyphoeusHydraRunnable)
+
+  Typhoeus::Request.prepend(AppOpticsAPM::Inst::TyphoeusRequestOps)
+  Typhoeus::Hydra.prepend(AppOpticsAPM::Inst::TyphoeusHydraRunnable)
 end

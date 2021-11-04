@@ -85,21 +85,5 @@ describe '::XTrace' do
     _(edge_id).must_equal "30E209453259B2D6"
     _(edge_id.length).must_equal 16
   end
-
-  it 'continue_service_context' do
-    AppOpticsAPM::Context.fromString('2B77970F82332FFFFFFFFFFFFFFFFFFF3E8AFA2C6730E209453259B2D601')
-
-    start  = "2B77970F82332EE22FF04C249FCBA8F63E8AFA2C6730E209453259B2D601"
-    finish = "2B77970F82332EE22FF04C249FCBA8F63E8AFA2C6730E2FFFFFFFFFFFF01"
-    AppOpticsAPM::XTrace.continue_service_context(start, finish)
-
-    _(AppOpticsAPM::Context.toString).must_equal(finish)
-
-    # task_id doesn't match
-    finish_2 = "2B77970F82332EE22FF04C249FCBA8F63E8AFA2AAAAAAAFFFFFFFFFFFF01"
-    AppOpticsAPM::XTrace.continue_service_context(start, finish_2)
-
-    _(AppOpticsAPM::Context.toString).must_equal(finish)
-  end
 end
 
