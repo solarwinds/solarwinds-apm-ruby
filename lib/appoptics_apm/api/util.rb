@@ -46,28 +46,6 @@ module AppOpticsAPM
         backtrace[0, 180] + ['...[snip]...'] + backtrace[backtrace.size - 20, 20]
       end
 
-      # Internal: Check if a host is blacklisted from tracing
-      #
-      # addr_port - the addr_port from Net::HTTP although this method
-      # can be used from any component in reality
-      #
-      # Returns a boolean on blacklisted state
-      def blacklisted?(addr_port)
-        return false unless AppOpticsAPM::Config.blacklist
-
-        # Ensure that the blacklist is an array
-        unless AppOpticsAPM::Config.blacklist.is_a?(Array)
-          val = AppOpticsAPM::Config[:blacklist]
-          AppOpticsAPM::Config[:blacklist] = [val.to_s]
-        end
-
-        AppOpticsAPM::Config.blacklist.each do |h|
-          return true if addr_port.to_s.match(h.to_s)
-        end
-
-        false
-      end
-
       # Internal: Pretty print a list of arguments for reporting
       #
       # args - the list of arguments to work on

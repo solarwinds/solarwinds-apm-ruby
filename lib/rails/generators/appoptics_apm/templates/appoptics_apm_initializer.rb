@@ -260,19 +260,6 @@ if defined?(AppOpticsAPM::Config)
   }
 
   #
-  # Blacklist urls
-  #
-  # This configuration is used by outbound calls. If the call
-  # goes to a blacklisted url then we won't add any
-  # tracing information to the headers.
-  #
-  # The list has to an array of strings, even if only one url is blacklisted
-  #
-  # Example: AppOpticsAPM::Config[:blacklist] = ['google.com']
-  #
-  AppOpticsAPM::Config[:blacklist] = []
-
-  #
   # Rails Exception Logging
   #
   # In Rails, raised exceptions with rescue handlers via

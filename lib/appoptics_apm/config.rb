@@ -210,6 +210,9 @@ module AppOpticsAPM
       elsif key == :action_blacklist
         AppOpticsAPM.logger.warn "[appoptics_apm/config] :action_blacklist has been deprecated and no longer functions."
 
+      elsif key == :blacklist
+        AppOpticsAPM.logger.warn "[appoptics_apm/config] :blacklist has been deprecated and no longer functions."
+
       elsif key == :dnt_regexp
         if value.nil? || value == ''
           @@config[:dnt_compiled] = nil

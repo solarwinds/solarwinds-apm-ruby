@@ -12,27 +12,16 @@ if AppOpticsAPM::Config[:nethttp][:enabled]
         # Net::HTTP.class_eval do
         # def request_with_appoptics(*args, &block)
         def request(*args, &block)
-          # Avoid cross host tracing for blacklisted domains
-          blacklisted = AppOpticsAPM::API.blacklisted?(addr_port)
-
           # If we're not tracing, just do a fast return. Since
           # net/http.request calls itself, only trace
           # once the http session has been started.
           if !AppOpticsAPM.tracing? || !started?
-            if blacklisted # if the other site is blacklisted, we don't want to leak its X-trace
-              resp = super
-              resp.delete('X-Trace') # if resp['X-Trace']
-              return resp
-            else
-              add_tracecontext_headers(args[0], addr_port)
-              return super
-            end
+            add_tracecontext_headers(args[0])
+            return super
           end
 
           opts = {}
           AppOpticsAPM::API.trace(:'net-http', opts) do
-            context = AppOpticsAPM::Context.toString
-
             # Collect KVs to report in the exit event
             if args.respond_to?(:first) && args.first
               req = args.first
@@ -42,19 +31,13 @@ if AppOpticsAPM::Config[:nethttp][:enabled]
               opts[:RemoteURL] = "#{use_ssl? ? 'https' : 'http'}://#{addr_port}"
               opts[:RemoteURL] << (AppOpticsAPM::Config[:nethttp][:log_args] ? req.path : req.path.split('?').first)
               opts[:HTTPMethod] = req.method
-              opts[:Blacklisted] = true if blacklisted
               opts[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:nethttp][:collect_backtraces]
             end
 
             begin
-              add_tracecontext_headers(args[0], addr_port)
+              add_tracecontext_headers(args[0])
               # The actual net::http call
               resp = super
-
-              if blacklisted
-                # we don't want the x-trace if it is from a blacklisted address
-                resp.delete('X-Trace') # if xtrace
-              end
 
               opts[:HTTPStatus] = resp.code
 

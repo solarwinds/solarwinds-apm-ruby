@@ -200,7 +200,6 @@ describe "AppOpticsAPM::Config" do
     _(AppOpticsAPM::Config[:transaction_settings].is_a?(Hash)).must_equal true
     _(AppOpticsAPM::Config[:transaction_settings]).must_equal({ url: [] })
 
-    _(AppOpticsAPM::Config[:blacklist].is_a?(Array)).must_equal true
     _(AppOpticsAPM::Config[:report_rescued_errors]).must_equal false
     _(AppOpticsAPM::Config[:ec2_metadata_timeout]).must_equal 1000
 

@@ -37,17 +37,14 @@ unless defined?(JRUBY_VERSION)
 
       @sample_rate = AppOpticsAPM::Config[:sample_rate]
       @tracing_mode = AppOpticsAPM::Config[:tracing_mode]
-      @blacklist = AppOpticsAPM::Config[:blacklist]
 
       AppOpticsAPM::Config[:sample_rate] = 1000000
       AppOpticsAPM::Config[:tracing_mode] = :enabled
-      AppOpticsAPM::Config[:blacklist] = []
     end
 
     def teardown
       AppOpticsAPM::Config[:sample_rate] = @sample_rate
       AppOpticsAPM::Config[:tracing_mode] = @tracing_mode
-      AppOpticsAPM::Config[:blacklist] = @blacklist
 
       AppOpticsAPM.trace_context = nil
     end
@@ -88,37 +85,6 @@ unless defined?(JRUBY_VERSION)
 
       assert_requested :get, "http://127.0.0.3:8101/", times: 1
       assert_not_requested :get, "http://127.0.0.3:8101/", headers: {'X-Trace'=>/^.*$/}
-    end
-
-    def test_blacklisted
-      stub_request(:get, "http://127.0.0.4:8101/").to_return(status: 200, body: "", headers: {})
-
-      AppOpticsAPM.config_lock.synchronize do
-        AppOpticsAPM::Config.blacklist << '127.0.0.4'
-        AppOpticsAPM::API.start_trace('rest_client_tests') do
-          RestClient::Resource.new('http://127.0.0.4:8101').get
-        end
-      end
-
-      assert_requested :get, "http://127.0.0.4:8101/", times: 1
-      assert_not_requested :get, "http://127.0.0.4:8101/", headers: {'X-Trace'=>/^.*$/}
-      refute AppOpticsAPM::Context.isValid
-    end
-
-    def test_not_sampling_blacklisted
-      stub_request(:get, "http://127.0.0.5:8101/").to_return(status: 200, body: "", headers: {})
-
-      AppOpticsAPM.config_lock.synchronize do
-        AppOpticsAPM::Config[:sample_rate] = 0
-        AppOpticsAPM::Config.blacklist << '127.0.0.5'
-        AppOpticsAPM::API.start_trace('rest_client_tests') do
-          RestClient::Resource.new('http://127.0.0.5:8101').get
-        end
-      end
-
-      assert_requested :get, "http://127.0.0.5:8101/", times: 1
-      assert_not_requested :get, "http://127.0.0.5:8101/", headers: {'X-Trace'=>/^.*$/}
-      refute AppOpticsAPM::Context.isValid
     end
 
     def test_preserves_custom_headers

@@ -39,17 +39,14 @@ unless defined?(JRUBY_VERSION)
 
       @sample_rate = AppOpticsAPM::Config[:sample_rate]
       @tracing_mode = AppOpticsAPM::Config[:tracing_mode]
-      @blacklist = AppOpticsAPM::Config[:blacklist]
 
       AppOpticsAPM::Config[:sample_rate] = 1000000
       AppOpticsAPM::Config[:tracing_mode] = :enabled
-      AppOpticsAPM::Config[:blacklist] = []
     end
 
     def teardown
       AppOpticsAPM::Config[:sample_rate] = @sample_rate
       AppOpticsAPM::Config[:tracing_mode] = @tracing_mode
-      AppOpticsAPM::Config[:blacklist] = @blacklist
 
       AppOpticsAPM.trace_context = nil
     end
@@ -84,33 +81,6 @@ unless defined?(JRUBY_VERSION)
       request.run
 
       refute request.options[:headers]['traceparent']
-      refute AppOpticsAPM::Context.isValid
-    end
-
-    def test_blacklisted
-      AppOpticsAPM.config_lock.synchronize do
-        AppOpticsAPM::Config.blacklist << '127.0.0.1'
-        AppOpticsAPM::API.start_trace('typhoeus_tests') do
-          request = Typhoeus::Request.new("http://127.0.0.1:8101/", {:method=>:get})
-          request.run
-
-          refute request.options[:headers]['traceparent']
-        end
-      end
-      refute AppOpticsAPM::Context.isValid
-    end
-
-    def test_not_sampling_blacklisted
-      AppOpticsAPM.config_lock.synchronize do
-        AppOpticsAPM::Config[:sample_rate] = 0
-        AppOpticsAPM::Config.blacklist << '127.0.0.1'
-        AppOpticsAPM::API.start_trace('typhoeus_tests') do
-          request = Typhoeus::Request.new("http://127.0.0.1:8101/", {:method=>:get})
-          request.run
-
-          refute request.options[:headers]['traceparent']
-        end
-      end
       refute AppOpticsAPM::Context.isValid
     end
 
@@ -173,44 +143,6 @@ unless defined?(JRUBY_VERSION)
       refute request_2.options[:headers]['traceparent'], "There should not be an traceparent header, #{request_2.options[:headers]['traceparent']}"
       refute AppOpticsAPM::Context.isValid
     end
-
-    def test_hydra_blacklisted
-      AppOpticsAPM.config_lock.synchronize do
-        AppOpticsAPM::Config.blacklist << '127.0.0.2'
-        AppOpticsAPM::API.start_trace('typhoeus_tests') do
-          hydra = Typhoeus::Hydra.hydra
-          request_1 = Typhoeus::Request.new("http://127.0.0.2:8101/", {:method=>:get})
-          request_2 = Typhoeus::Request.new("http://127.0.0.2:8101/counting_sheep", {:method=>:get})
-          hydra.queue(request_1)
-          hydra.queue(request_2)
-          hydra.run
-
-          refute request_1.options[:headers]['traceparent'], "There should not be an traceparent header"
-          refute request_2.options[:headers]['traceparent'], "There should not be an traceparent header"
-        end
-      end
-      refute AppOpticsAPM::Context.isValid
-    end
-
-    def test_hydra_not_sampling_blacklisted
-      AppOpticsAPM.config_lock.synchronize do
-        AppOpticsAPM::Config[:sample_rate] = 0
-        AppOpticsAPM::Config.blacklist << '127.0.0.2'
-        AppOpticsAPM::API.start_trace('typhoeus_tests') do
-          hydra = Typhoeus::Hydra.hydra
-          request_1 = Typhoeus::Request.new("http://127.0.0.2:8101/", {:method=>:get})
-          request_2 = Typhoeus::Request.new("http://127.0.0.2:8101/counting_sheep", {:method=>:get})
-          hydra.queue(request_1)
-          hydra.queue(request_2)
-          hydra.run
-
-          refute request_1.options[:headers]['traceparent'], "There should not be an traceparent header"
-          refute request_2.options[:headers]['traceparent'], "There should not be an traceparent header"
-        end
-      end
-      refute AppOpticsAPM::Context.isValid
-    end
-
 
     def test_hydra_preserves_custom_headers
       AppOpticsAPM::API.start_trace('typhoeus_tests') do

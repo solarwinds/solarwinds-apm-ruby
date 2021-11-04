@@ -38,17 +38,14 @@ if !defined?(JRUBY_VERSION)
 
       @sample_rate = AppOpticsAPM::Config[:sample_rate]
       @tracing_mode = AppOpticsAPM::Config[:tracing_mode]
-      @blacklist = AppOpticsAPM::Config[:blacklist]
 
       AppOpticsAPM::Config[:sample_rate] = 1000000
       AppOpticsAPM::Config[:tracing_mode] = :enabled
-      AppOpticsAPM::Config[:blacklist] = []
     end
 
     def teardown
       AppOpticsAPM::Config[:sample_rate] = @sample_rate
       AppOpticsAPM::Config[:tracing_mode] = @tracing_mode
-      AppOpticsAPM::Config[:blacklist] = @blacklist
 
       AppOpticsAPM.trace_context = nil
     end
@@ -94,21 +91,6 @@ if !defined?(JRUBY_VERSION)
         assert_trace_headers(req.headers, false)
       end
 
-      refute AppOpticsAPM::Context.isValid
-    end
-
-    def test_xtrace_tracing_blacklisted
-      stub_request(:get, "http://127.0.0.3:8101/").to_return(status: 200, body: "", headers: {})
-
-      AppOpticsAPM.config_lock.synchronize do
-        AppOpticsAPM::Config.blacklist << '127.0.0.3'
-        AppOpticsAPM::API.start_trace('excon_tests') do
-          ::Excon.get("http://127.0.0.3:8101/")
-        end
-      end
-
-      assert_requested :get, "http://127.0.0.3:8101/", times: 1
-      assert_not_requested :get, "http://127.0.0.3:8101/", headers: {'traceparent'=>/.*/}
       refute AppOpticsAPM::Context.isValid
     end
 
@@ -166,25 +148,6 @@ if !defined?(JRUBY_VERSION)
       assert_requested :put, "http://127.0.0.8:8101/", times: 1
       assert_not_requested :get, "http://127.0.0.8:8101/", headers: {'traceparent'=>/^.*$/}
       assert_not_requested :put, "http://127.0.0.8:8101/", headers: {'traceparent'=>/^.*$/}
-    end
-
-    def test_xtrace_pipelined_tracing_blacklisted
-      stub_request(:get, "http://127.0.0.9:8101/").to_return(status: 200, body: "", headers: {})
-      stub_request(:put, "http://127.0.0.9:8101/").to_return(status: 200, body: "", headers: {})
-
-      AppOpticsAPM.config_lock.synchronize do
-        AppOpticsAPM::Config.blacklist << '127.0.0.9'
-        AppOpticsAPM::API.start_trace('excon_tests') do
-          connection = ::Excon.new('http://127.0.0.9:8101/')
-          connection.requests([{:method => :get}, {:method => :put}])
-        end
-      end
-
-      assert_requested :get, "http://127.0.0.9:8101/", times: 1
-      assert_requested :put, "http://127.0.0.9:8101/", times: 1
-      assert_not_requested :get, "http://127.9.0.8:8101/", headers: {'traceparent'=>/^.*$/}
-      assert_not_requested :put, "http://127.9.0.8:8101/", headers: {'traceparent'=>/^.*$/}
-      refute AppOpticsAPM::Context.isValid
     end
 
     # ========== excon make sure headers are preserved =============================
