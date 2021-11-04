@@ -57,10 +57,16 @@ if AppOpticsAPM.loaded
           end || [500, {}, nil]
         options.add_response_header(response[1], settings)
 
-        AppOpticsAPM::Context.clear unless incoming
+        unless incoming
+          AppOpticsAPM::Context.clear
+          AppOpticsAPM.trace_context = nil
+        end
         response
       rescue
-        AppOpticsAPM::Context.clear unless incoming
+        unless incoming
+          AppOpticsAPM::Context.clear
+          AppOpticsAPM.trace_context = nil
+        end
         raise
         # can't use ensure for Context.clearing, because the Grape middleware
         # needs the context in case of an error, it is somewhat convoluted ...
