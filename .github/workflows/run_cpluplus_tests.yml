@@ -4,7 +4,6 @@
 name: C++ Tests
 
 on:
-  pull_request:
   push:
     paths:
       - ext/oboe_metal/src/*.h

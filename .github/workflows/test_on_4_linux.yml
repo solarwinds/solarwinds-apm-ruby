@@ -4,7 +4,6 @@
 name: Run Ruby Tests on 4 Linux
 
 on:
-  pull_request:
   push:
     paths-ignore:
       - 'test/run_tests/Dockerfile_*'
