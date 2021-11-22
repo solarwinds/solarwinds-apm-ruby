@@ -24,7 +24,7 @@ if defined?(::Redis)
 
       # These are standard entry/exit KVs that are passed up with all moped operations
       @entry_kvs ||= { 'Layer' => 'redis_test', 'Label' => 'entry' }
-      @exit_kvs  ||= { 'Layer' => 'redis_test', 'Label' => 'exit' }
+      @exit_kvs ||= { 'Layer' => 'redis_test', 'Label' => 'exit' }
       @exists_returns_integer = Redis.exists_returns_integer if defined? Redis.exists_returns_integer
     end
 
@@ -39,7 +39,7 @@ if defined?(::Redis)
     it "should trace del" do
       @redis.setex("del_test", 60, "blah")
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.del("del_test")
       end
 
@@ -52,7 +52,7 @@ if defined?(::Redis)
     it "should trace del of multiple keys" do
       @redis.setex("del_test", 60, "blah")
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.del(["del_test", "noexist", "maybe"])
       end
 
@@ -67,7 +67,7 @@ if defined?(::Redis)
 
       @redis.setex("dump_test", 60, "blah")
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.dump("del_test")
       end
 
@@ -81,8 +81,7 @@ if defined?(::Redis)
       Redis.exists_returns_integer = false if defined? Redis.exists_returns_integer
       @redis.setex("talking_heads", 60, "burning down the house")
 
-
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @it_exists = @redis.exists("talking_heads")
       end
 
@@ -99,8 +98,7 @@ if defined?(::Redis)
       Redis.exists_returns_integer = true
       @redis.setex("talking_heads", 60, "burning down the house")
 
-
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @it_exists = @redis.exists("talking_heads")
       end
 
@@ -116,7 +114,7 @@ if defined?(::Redis)
       skip unless defined? @redis.exists?
       @redis.setex("talking_heads", 60, "burning down the house")
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @it_exists = @redis.exists?("talking_heads")
       end
 
@@ -131,7 +129,7 @@ if defined?(::Redis)
     it "should trace expire" do
       @redis.set("expire_please", "burning down the house")
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.expire("expire_please", 120)
       end
 
@@ -144,7 +142,7 @@ if defined?(::Redis)
     it "should trace expireat" do
       @redis.set("expireat_please", "burning down the house")
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.expireat("expireat_please", Time.now.to_i)
       end
 
@@ -155,7 +153,7 @@ if defined?(::Redis)
     end
 
     it "should trace keys" do
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.keys("del*")
       end
 
@@ -168,7 +166,7 @@ if defined?(::Redis)
     it "should trace basic move" do
       @redis.set("piano", Time.now)
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.move("piano", 1)
       end
 
@@ -184,7 +182,7 @@ if defined?(::Redis)
 
       @redis.setex("mine", 60, "blah")
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.persist("mine")
       end
 
@@ -199,7 +197,7 @@ if defined?(::Redis)
 
       @redis.set("sand", "blah")
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @rv = @redis.pexpire("sand", 8000)
       end
 
@@ -217,7 +215,7 @@ if defined?(::Redis)
 
       @redis.set("sand", "blah")
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @rv = @redis.pexpireat("sand", 8000)
       end
 
@@ -235,7 +233,7 @@ if defined?(::Redis)
 
       @redis.setex("sand", 120, "blah")
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.pttl("sand")
       end
 
@@ -246,7 +244,7 @@ if defined?(::Redis)
     end
 
     it "should trace randomkey" do
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.randomkey()
       end
 
@@ -258,7 +256,7 @@ if defined?(::Redis)
     it "should trace rename" do
       @redis.setex("sand", 120, "blah")
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.rename("sand", "sandy")
       end
 
@@ -272,7 +270,7 @@ if defined?(::Redis)
     it "should trace renamenx" do
       @redis.setex("sand", 120, "blah")
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.renamenx("sand", "sandy")
       end
 
@@ -290,7 +288,7 @@ if defined?(::Redis)
       x = @redis.dump("qubit")
       @redis.del "blue"
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.restore("blue", 0, x)
       end
 
@@ -309,7 +307,7 @@ if defined?(::Redis)
       @redis.rpush("penguin", "three")
       @redis.rpush("penguin", "four")
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.sort("penguin", :order => "desc alpha", :store => "target")
       end
 
@@ -324,7 +322,7 @@ if defined?(::Redis)
 
       @redis.setex("sand", 120, "blah")
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.ttl("sand")
       end
 
@@ -339,7 +337,7 @@ if defined?(::Redis)
 
       @redis.setex("sand", 120, "blah")
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.type("sand")
       end
 
@@ -352,7 +350,7 @@ if defined?(::Redis)
     it "should trace scan" do
       min_server_version(2.8)
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.scan(0)
       end
 

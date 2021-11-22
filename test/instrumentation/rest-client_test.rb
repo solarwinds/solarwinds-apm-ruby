@@ -31,7 +31,7 @@ describe "RestClient" do
   it "should trace a request to an instr'd app" do
     response = nil
 
-    AppOpticsAPM::API.start_trace('rest_client_test') do
+    AppOpticsAPM::SDK.start_trace('rest_client_test') do
       response = RestClient.get 'http://127.0.0.1:8101/'
     end
 
@@ -59,13 +59,13 @@ describe "RestClient" do
     _(traces[6]['Label']).must_equal 'exit'
 
     _(response.headers.key?(:x_trace)).wont_equal nil
-    xtrace = response.headers[:x_trace]
+    tracestring = response.headers[:x_trace]
 
-    _(AppOpticsAPM::XTrace.valid?(xtrace)).must_equal true
+    _(AppOpticsAPM::TraceString.valid?(tracestring)).must_equal true
   end
 
   it 'should trace a raw GET request' do
-    AppOpticsAPM::API.start_trace('rest_client_test') do
+    AppOpticsAPM::SDK.start_trace('rest_client_test') do
       RestClient.get 'http://127.0.0.1:8101/?a=1'
     end
 
@@ -94,7 +94,7 @@ describe "RestClient" do
   end
 
   it 'should trace a raw POST request' do
-    AppOpticsAPM::API.start_trace('rest_client_test') do
+    AppOpticsAPM::SDK.start_trace('rest_client_test') do
       RestClient.post 'http://127.0.0.1:8101/', :param1 => 'one', :nested => { :param2 => 'two' }
     end
 
@@ -123,7 +123,7 @@ describe "RestClient" do
   end
 
   it 'should trace a ActiveResource style GET request' do
-    AppOpticsAPM::API.start_trace('rest_client_test') do
+    AppOpticsAPM::SDK.start_trace('rest_client_test') do
       resource = RestClient::Resource.new 'http://127.0.0.1:8101/?a=1'
       resource.get
     end
@@ -153,7 +153,7 @@ describe "RestClient" do
   end
 
   it 'should trace requests with redirects' do
-    AppOpticsAPM::API.start_trace('rest_client_test') do
+    AppOpticsAPM::SDK.start_trace('rest_client_test') do
       resource = RestClient::Resource.new 'http://127.0.0.1:8101/redirectme?redirect_test'
       response = resource.get
     end
@@ -200,7 +200,7 @@ describe "RestClient" do
   end
 
   it 'should trace and capture raised exceptions' do
-    AppOpticsAPM::API.start_trace('rest_client_test') do
+    AppOpticsAPM::SDK.start_trace('rest_client_test') do
       begin
         RestClient.get 'http://s6KTgaz7636z/resource'
       rescue
@@ -234,8 +234,8 @@ describe "RestClient" do
   it 'should obey :collect_backtraces setting when true' do
     AppOpticsAPM::Config[:rest_client][:collect_backtraces] = true
 
-    AppOpticsAPM::API.start_trace('rest_client_test') do
-      RestClient.get('http://127.0.0.1:8101/', {:a => 1})
+    AppOpticsAPM::SDK.start_trace('rest_client_test') do
+      RestClient.get('http://127.0.0.1:8101/', { :a => 1 })
     end
 
     traces = get_all_traces
@@ -245,8 +245,8 @@ describe "RestClient" do
   it 'should obey :collect_backtraces setting when false' do
     AppOpticsAPM::Config[:rest_client][:collect_backtraces] = false
 
-    AppOpticsAPM::API.start_trace('rest_client_test') do
-      RestClient.get('http://127.0.0.1:8101/', {:a => 1})
+    AppOpticsAPM::SDK.start_trace('rest_client_test') do
+      RestClient.get('http://127.0.0.1:8101/', { :a => 1 })
     end
 
     traces = get_all_traces

@@ -33,7 +33,7 @@ if !defined?(JRUBY_VERSION)
     def test_API_xtrace_tracing
       stub_request(:get, "http://127.0.0.9:8101/").to_return(status: 200, body: "", headers: {})
 
-      AppOpticsAPM::API.start_trace('curb_tests') do
+      AppOpticsAPM::SDK.start_trace('curb_tests') do
         ::Curl.get("http://127.0.0.9:8101/")
       end
 
@@ -48,7 +48,7 @@ if !defined?(JRUBY_VERSION)
 
       AppOpticsAPM.config_lock.synchronize do
         AppOpticsAPM::Config[:sample_rate] = 0
-        AppOpticsAPM::API.start_trace('curb_tests') do
+        AppOpticsAPM::SDK.start_trace('curb_tests') do
           ::Curl.get("http://127.0.0.4:8101/")
         end
       end
@@ -58,7 +58,6 @@ if !defined?(JRUBY_VERSION)
       end
       refute AppOpticsAPM::Context.isValid
     end
-
 
     # TODO NH-2303 add test case with incoming trace headers
     #  when we are not tracing those headers have to be preserved
@@ -86,8 +85,8 @@ if !defined?(JRUBY_VERSION)
         end
       end
 
-      easy_options = {:follow_location => true}
-      multi_options = {:pipeline => false}
+      easy_options = { :follow_location => true }
+      multi_options = { :pipeline => false }
 
       urls = []
       urls << "http://127.0.0.7:8101/?one=1"
@@ -120,7 +119,7 @@ if !defined?(JRUBY_VERSION)
       urls << "http://127.0.0.7:8101/?two=2"
       urls << "http://127.0.0.7:8101/?three=3"
 
-      AppOpticsAPM::API.start_trace('curb_tests') do
+      AppOpticsAPM::SDK.start_trace('curb_tests') do
         Curl::Multi.get(urls, easy_options, multi_options)
       end
       refute AppOpticsAPM::Context.isValid
@@ -139,8 +138,8 @@ if !defined?(JRUBY_VERSION)
         # true
       end
 
-      easy_options = {:follow_location => true}
-      multi_options = {:pipeline => false}
+      easy_options = { :follow_location => true }
+      multi_options = { :pipeline => false }
 
       urls = []
       urls << "http://127.0.0.7:8101/?one=1"
@@ -149,7 +148,7 @@ if !defined?(JRUBY_VERSION)
 
       AppOpticsAPM.config_lock.synchronize do
         AppOpticsAPM::Config[:sample_rate] = 0
-        AppOpticsAPM::API.start_trace('curb_tests') do
+        AppOpticsAPM::SDK.start_trace('curb_tests') do
           Curl::Multi.get(urls, easy_options, multi_options)
         end
       end
@@ -191,7 +190,7 @@ if !defined?(JRUBY_VERSION)
       urls << "http://127.0.0.1:8101/?two=2"
       urls << "http://127.0.0.1:8101/?three=3"
 
-      AppOpticsAPM::API.start_trace('curb_tests') do
+      AppOpticsAPM::SDK.start_trace('curb_tests') do
         m = Curl::Multi.new
         urls.each do |url|
           cu = Curl::Easy.new(url) do |curl|
@@ -222,7 +221,7 @@ if !defined?(JRUBY_VERSION)
 
       AppOpticsAPM.config_lock.synchronize do
         AppOpticsAPM::Config[:sample_rate] = 0
-        AppOpticsAPM::API.start_trace('curb_tests') do
+        AppOpticsAPM::SDK.start_trace('curb_tests') do
           m = Curl::Multi.new
           urls.each do |url|
             cu = Curl::Easy.new(url) do |curl|
@@ -248,13 +247,13 @@ if !defined?(JRUBY_VERSION)
     def test_Easy_preserves_custom_headers_on_get
       stub_request(:get, "http://127.0.0.6:8101/").to_return(status: 200, body: "", headers: {})
 
-      AppOpticsAPM::API.start_trace('curb_tests') do
+      AppOpticsAPM::SDK.start_trace('curb_tests') do
         Curl.get("http://127.0.0.6:8101/") do |curl|
           curl.headers = { 'Custom' => 'specialvalue' }
         end
       end
 
-      assert_requested :get, "http://127.0.0.6:8101/", headers: {'Custom'=>'specialvalue'}, times: 1
+      assert_requested :get, "http://127.0.0.6:8101/", headers: { 'Custom' => 'specialvalue' }, times: 1
       assert_requested(:get, "http://127.0.0.6:8101/") do |req|
         assert_trace_headers(req.headers)
         assert_equal 'specialvalue', req.headers['Custom']
@@ -266,7 +265,7 @@ if !defined?(JRUBY_VERSION)
     def test_API_curl_post
       stub_request(:post, "http://127.0.0.6:8101/").to_return(status: 200, body: "", headers: {})
 
-      AppOpticsAPM::API.start_trace('curb_tests') do
+      AppOpticsAPM::SDK.start_trace('curb_tests') do
         Curl.post("http://127.0.0.6:8101/")
       end
 
@@ -281,7 +280,7 @@ if !defined?(JRUBY_VERSION)
       curl = Curl::Easy.new("http://127.0.0.1:8101/")
       curl.headers = { 'Custom' => 'specialvalue4' }
 
-      AppOpticsAPM::API.start_trace('curb_tests') do
+      AppOpticsAPM::SDK.start_trace('curb_tests') do
         curl.http_put nil
       end
 
@@ -300,7 +299,7 @@ if !defined?(JRUBY_VERSION)
       curl = Curl::Easy.new("http://127.0.0.1:8101/")
       curl.headers = { 'Custom' => 'specialvalue4' }
 
-      AppOpticsAPM::API.start_trace('curb_tests') do
+      AppOpticsAPM::SDK.start_trace('curb_tests') do
         curl.http_post
       end
 
@@ -318,7 +317,7 @@ if !defined?(JRUBY_VERSION)
       curl = Curl::Easy.new("http://127.0.0.1:8101/")
       curl.headers = { 'Custom' => 'specialvalue4' }
 
-      AppOpticsAPM::API.start_trace('curb_tests') do
+      AppOpticsAPM::SDK.start_trace('curb_tests') do
         curl.perform
       end
 
@@ -337,16 +336,16 @@ if !defined?(JRUBY_VERSION)
 
       task_id = 'a462ade6cfe479081764cc476aa98335'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
-      state = 'sw=cb3468da6f06eefc01'
+      state = 'sw=cb3468da6f06eefc-01'
       AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
 
       curl = Curl::Easy.new("http://127.0.0.1:8101/")
-      AppOpticsAPM::API.start_trace('curb_tests', AppOpticsAPM.trace_context.xtrace) do
+      AppOpticsAPM::SDK.start_trace('curb_tests') do
         curl.perform
       end
 
       assert_trace_headers(curl.headers, true)
-      assert_equal task_id, AppOpticsAPM::TraceParent.task_id(curl.headers['traceparent'])
+      assert_equal task_id, AppOpticsAPM::TraceString.trace_id(curl.headers['traceparent'])
       refute_equal state, curl.headers['tracestate']
 
       refute AppOpticsAPM::Context.isValid
@@ -374,17 +373,17 @@ if !defined?(JRUBY_VERSION)
 
       task_id = 'a462ade6cfe479081764cc476aa98335'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
-      state = 'aa= 1234, sw=cb3468da6f06eefc01,%%cc=%%%45'
+      state = 'aa= 1234, sw=cb3468da6f06eefc-01,%%cc=%%%45'
       AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
 
       curl = Curl::Easy.new("http://127.0.0.1:8101/")
-      AppOpticsAPM::API.start_trace('curb_tests', AppOpticsAPM.trace_context.xtrace) do
+      AppOpticsAPM::SDK.start_trace('curb_tests') do
         curl.perform
       end
 
       assert_trace_headers(curl.headers, true)
-      assert_equal task_id, AppOpticsAPM::TraceParent.task_id(curl.headers['traceparent'])
-      assert_equal "sw=#{AppOpticsAPM::TraceParent.edge_id_flags(curl.headers['traceparent'])},aa= 1234,%%cc=%%%45",
+      assert_equal task_id, AppOpticsAPM::TraceString.trace_id(curl.headers['traceparent'])
+      assert_equal "sw=#{AppOpticsAPM::TraceString.span_id_flags(curl.headers['traceparent'])},aa= 1234,%%cc=%%%45",
                    curl.headers['tracestate']
 
       refute AppOpticsAPM::Context.isValid

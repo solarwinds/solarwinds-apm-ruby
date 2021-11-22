@@ -36,7 +36,7 @@ if defined?(::Padrino)
 
       # Validate the existence of the response header
       _(r.headers.key?('X-Trace')).must_equal true
-      _(r.headers['X-Trace']).must_equal traces[5]['X-Trace']
+      _(r.headers['X-Trace']).must_equal traces[5]['sw.trace_context']
     end
 
     it "should log an error on exception" do
@@ -56,7 +56,7 @@ if defined?(::Padrino)
 
       _(traces[2]['Layer']).must_equal "padrino"
 
-      error_traces = traces.select{ |trace| trace['Label'] == 'error' }
+      error_traces = traces.select { |trace| trace['Label'] == 'error' }
       _(error_traces.size).must_equal 1
 
       error_trace = error_traces[0]
@@ -76,7 +76,6 @@ if defined?(::Padrino)
 
       layer_doesnt_have_key(traces, 'padrino', 'Backtrace')
     end
-
 
     it "should report controller.action" do
       @app = SimpleDemo

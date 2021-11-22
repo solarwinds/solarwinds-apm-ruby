@@ -4,7 +4,7 @@
 require 'minitest_helper'
 require 'net/http'
 
-describe "Net::HTTP"  do
+describe "Net::HTTP" do
   before do
     clear_all_traces
     @collect_backtraces = AppOpticsAPM::Config[:nethttp][:collect_backtraces]
@@ -25,7 +25,7 @@ describe "Net::HTTP"  do
   end
 
   it "should trace a Net::HTTP request to an instr'd app" do
-    AppOpticsAPM::API.start_trace('net-http_test', '', {}) do
+    AppOpticsAPM::SDK.start_trace('net-http_test', {}) do
       uri = URI('http://127.0.0.1:8101/?q=1')
       http = Net::HTTP.new(uri.host, uri.port)
       request = Net::HTTP::Get.new(uri.request_uri)
@@ -57,7 +57,7 @@ describe "Net::HTTP"  do
   end
 
   it "should trace a GET request" do
-    AppOpticsAPM::API.start_trace('net-http_test', '', {}) do
+    AppOpticsAPM::SDK.start_trace('net-http_test', {}) do
       uri = URI('http://127.0.0.1:8101/')
       http = Net::HTTP.new(uri.host, uri.port)
       http.get('/?q=1').read_body
@@ -78,7 +78,7 @@ describe "Net::HTTP"  do
   end
 
   it "should trace a GET request to an uninstrumented app" do
-    AppOpticsAPM::API.start_trace('net-http_test', '', {}) do
+    AppOpticsAPM::SDK.start_trace('net-http_test', {}) do
       uri = URI('http://127.0.0.1:8110/')
       http = Net::HTTP.new(uri.host, uri.port)
       http.get('/?q=1').read_body
@@ -101,7 +101,7 @@ describe "Net::HTTP"  do
   it "should obey :log_args setting when true" do
     AppOpticsAPM::Config[:nethttp][:log_args] = true
 
-    AppOpticsAPM::API.start_trace('nethttp_test', '', {}) do
+    AppOpticsAPM::SDK.start_trace('nethttp_test', {}) do
       uri = URI('http://127.0.0.1:8101/')
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = false
@@ -115,7 +115,7 @@ describe "Net::HTTP"  do
   it "should obey :log_args setting when false" do
     AppOpticsAPM::Config[:nethttp][:log_args] = false
 
-    AppOpticsAPM::API.start_trace('nethttp_test', '', {}) do
+    AppOpticsAPM::SDK.start_trace('nethttp_test', {}) do
       uri = URI('http://127.0.0.1:8101/')
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = false
@@ -129,7 +129,7 @@ describe "Net::HTTP"  do
   it "should obey :collect_backtraces setting when true" do
     AppOpticsAPM::Config[:nethttp][:collect_backtraces] = true
 
-    AppOpticsAPM::API.start_trace('nethttp_test', '', {}) do
+    AppOpticsAPM::SDK.start_trace('nethttp_test', {}) do
       uri = URI('http://127.0.0.1:8101/')
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = false
@@ -143,7 +143,7 @@ describe "Net::HTTP"  do
   it "should obey :collect_backtraces setting when false" do
     AppOpticsAPM::Config[:nethttp][:collect_backtraces] = false
 
-    AppOpticsAPM::API.start_trace('nethttp_test', '', {}) do
+    AppOpticsAPM::SDK.start_trace('nethttp_test', {}) do
       uri = URI('http://127.0.0.1:8101/')
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = false

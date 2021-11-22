@@ -15,7 +15,7 @@ describe 'AppOpticsAPMBase' do
     end
 
     it 'should return false for op that cannot be symbolized' do
-      refute AppOpticsAPM.tracing_layer_op?([1,2])
+      refute AppOpticsAPM.tracing_layer_op?([1, 2])
     end
 
     it 'should return false when layer_op is nil' do
@@ -23,9 +23,9 @@ describe 'AppOpticsAPMBase' do
       refute AppOpticsAPM.tracing_layer_op?('whoot?')
     end
 
-     it 'should return false when layer_op is empty' do
-       AppOpticsAPM.layer_op = []
-       refute AppOpticsAPM.tracing_layer_op?('well?')
+    it 'should return false when layer_op is empty' do
+      AppOpticsAPM.layer_op = []
+      refute AppOpticsAPM.tracing_layer_op?('well?')
     end
 
     # this should be prevented otherwise, but how?
@@ -37,10 +37,10 @@ describe 'AppOpticsAPMBase' do
     end
 
     it 'should return true when op is last in layer_op' do
-       AppOpticsAPM.layer_op = [:one]
-       assert AppOpticsAPM.tracing_layer_op?('one')
-       AppOpticsAPM.layer_op = [:one, :two]
-       assert AppOpticsAPM.tracing_layer_op?('two')
+      AppOpticsAPM.layer_op = [:one]
+      assert AppOpticsAPM.tracing_layer_op?('one')
+      AppOpticsAPM.layer_op = [:one, :two]
+      assert AppOpticsAPM.tracing_layer_op?('two')
     end
 
     it 'should return false when op is not last in layer_op' do
@@ -65,10 +65,9 @@ describe 'AppOpticsAPMBase' do
 
           AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_00, state_00)
 
-          contexts[i] = [AppOpticsAPM.trace_context.xtrace,
+          contexts[i] = [AppOpticsAPM.trace_context.traceparent,
                          AppOpticsAPM.trace_context.tracestate,
-                         AppOpticsAPM.trace_context.sw_tracestate,
-                         AppOpticsAPM.trace_context.parent_id]
+                         AppOpticsAPM.trace_context.sw_member_value]
         end
       end
       ths.each { |th| th.join }
@@ -77,7 +76,6 @@ describe 'AppOpticsAPMBase' do
       refute_equal contexts[0][0], contexts[1][0]
       refute_equal contexts[0][1], contexts[1][1]
       refute_equal contexts[0][2], contexts[1][2]
-      refute_equal contexts[0][3], contexts[1][3]
     end
   end
 

@@ -23,7 +23,7 @@ if !defined?(JRUBY_VERSION)
         map "/out" do
           run Proc.new {
             Excon.get("http://127.0.0.1:8101/")
-            [200, {"Content-Type" => "text/html"}, ['Hello AppOpticsAPM!']]
+            [200, { "Content-Type" => "text/html" }, ['Hello AppOpticsAPM!']]
           }
         end
       }
@@ -60,13 +60,13 @@ if !defined?(JRUBY_VERSION)
       end
 
       assert_requested :get, "http://127.0.0.6:8101/", times: 1
-      assert_not_requested :get, "http://127.0.0.6:8101/", headers: {'traceparent'=>/^.*$/}
+      assert_not_requested :get, "http://127.0.0.6:8101/", headers: { 'traceparent' => /^.*$/ }
     end
 
     def test_xtrace_tracing
       stub_request(:get, "http://127.0.0.7:8101/").to_return(status: 200, body: "", headers: {})
 
-      AppOpticsAPM::API.start_trace('excon_tests') do
+      AppOpticsAPM::SDK.start_trace('excon_tests') do
         ::Excon.get("http://127.0.0.7:8101/")
       end
 
@@ -82,7 +82,7 @@ if !defined?(JRUBY_VERSION)
 
       AppOpticsAPM.config_lock.synchronize do
         AppOpticsAPM::Config[:sample_rate] = 0
-        AppOpticsAPM::API.start_trace('excon_test') do
+        AppOpticsAPM::SDK.start_trace('excon_test') do
           ::Excon.get("http://127.0.0.4:8101/")
         end
       end
@@ -100,9 +100,9 @@ if !defined?(JRUBY_VERSION)
       stub_request(:get, "http://127.0.0.5:8101/").to_return(status: 200, body: "", headers: {})
       stub_request(:put, "http://127.0.0.5:8101/").to_return(status: 200, body: "", headers: {})
 
-      AppOpticsAPM::API.start_trace('excon_tests') do
+      AppOpticsAPM::SDK.start_trace('excon_tests') do
         connection = ::Excon.new('http://127.0.0.5:8101/')
-        connection.requests([{:method => :get}, {:method => :put}])
+        connection.requests([{ :method => :get }, { :method => :put }])
       end
 
       assert_requested(:get, "http://127.0.0.5:8101/") do |req|
@@ -121,9 +121,9 @@ if !defined?(JRUBY_VERSION)
 
       AppOpticsAPM.config_lock.synchronize do
         AppOpticsAPM::Config[:sample_rate] = 0
-        AppOpticsAPM::API.start_trace('excon_tests') do
+        AppOpticsAPM::SDK.start_trace('excon_tests') do
           connection = ::Excon.new('http://127.0.0.2:8101/')
-          connection.requests([{:method => :get}, {:method => :put}])
+          connection.requests([{ :method => :get }, { :method => :put }])
         end
       end
 
@@ -142,19 +142,19 @@ if !defined?(JRUBY_VERSION)
       stub_request(:put, "http://127.0.0.8:8101/").to_return(status: 200, body: "", headers: {})
 
       connection = ::Excon.new('http://127.0.0.8:8101/')
-      connection.requests([{:method => :get}, {:method => :put}])
+      connection.requests([{ :method => :get }, { :method => :put }])
 
       assert_requested :get, "http://127.0.0.8:8101/", times: 1
       assert_requested :put, "http://127.0.0.8:8101/", times: 1
-      assert_not_requested :get, "http://127.0.0.8:8101/", headers: {'traceparent'=>/^.*$/}
-      assert_not_requested :put, "http://127.0.0.8:8101/", headers: {'traceparent'=>/^.*$/}
+      assert_not_requested :get, "http://127.0.0.8:8101/", headers: { 'traceparent' => /^.*$/ }
+      assert_not_requested :put, "http://127.0.0.8:8101/", headers: { 'traceparent' => /^.*$/ }
     end
 
     # ========== excon make sure headers are preserved =============================
     def test_preserves_custom_headers
       stub_request(:get, "http://127.0.0.10:8101/").to_return(status: 200, body: "", headers: {})
 
-      AppOpticsAPM::API.start_trace('excon_tests') do
+      AppOpticsAPM::SDK.start_trace('excon_tests') do
         Excon.get('http://127.0.0.10:8101', headers: { 'Custom' => 'specialvalue' })
       end
 
@@ -176,11 +176,11 @@ if !defined?(JRUBY_VERSION)
       state = 'sw=cb3468da6f06eefc-01'
       AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
 
-      AppOpticsAPM::API.start_trace('excon_tests', AppOpticsAPM.trace_context.xtrace) do
+      AppOpticsAPM::SDK.start_trace('excon_tests') do
         conn = Excon.new('http://127.0.0.1:8101')
         conn.get
         assert_trace_headers(conn.data[:headers], true)
-        assert_equal task_id, AppOpticsAPM::TraceParent.task_id(conn.data[:headers]['traceparent'])
+        assert_equal task_id, AppOpticsAPM::TraceString.trace_id(conn.data[:headers]['traceparent'])
         refute_equal state, conn.data[:headers]['tracestate']
       end
 
@@ -212,13 +212,13 @@ if !defined?(JRUBY_VERSION)
       state = 'aa= 1234, sw=cb3468da6f06eefc-01,%%cc=%%%45'
       AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
 
-      AppOpticsAPM::API.start_trace('excon_tests', AppOpticsAPM.trace_context.xtrace) do
+      AppOpticsAPM::SDK.start_trace('excon_tests') do
         conn = Excon.new('http://127.0.0.1:8101')
         conn.get
 
         assert_trace_headers(conn.data[:headers], true)
-        assert_equal task_id, AppOpticsAPM::TraceParent.task_id(conn.data[:headers]['traceparent'])
-        assert_equal "sw=#{AppOpticsAPM::TraceParent.edge_id_flags(conn.data[:headers]['traceparent'])},aa= 1234,%%cc=%%%45",
+        assert_equal task_id, AppOpticsAPM::TraceString.trace_id(conn.data[:headers]['traceparent'])
+        assert_equal "sw=#{AppOpticsAPM::TraceString.span_id_flags(conn.data[:headers]['traceparent'])},aa= 1234,%%cc=%%%45",
                      conn.data[:headers]['tracestate']
       end
 
@@ -250,13 +250,13 @@ if !defined?(JRUBY_VERSION)
       state = 'aa= 1234, sw=cb3468da6f06eefc-01,%%cc=%%%45'
       AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
 
-      AppOpticsAPM::API.start_trace('excon_tests', AppOpticsAPM.trace_context.xtrace) do
+      AppOpticsAPM::SDK.start_trace('excon_tests') do
         conn = Excon.new('http://127.0.0.1:8101')
-        conn.requests([{:method => :get}, {:method => :put}])
+        conn.requests([{ :method => :get }, { :method => :put }])
 
         assert_trace_headers(conn.data[:headers], true)
-        assert_equal task_id, AppOpticsAPM::TraceParent.task_id(conn.data[:headers]['traceparent'])
-        assert_equal "sw=#{AppOpticsAPM::TraceParent.edge_id_flags(conn.data[:headers]['traceparent'])},aa= 1234,%%cc=%%%45",
+        assert_equal task_id, AppOpticsAPM::TraceString.trace_id(conn.data[:headers]['traceparent'])
+        assert_equal "sw=#{AppOpticsAPM::TraceString.span_id_flags(conn.data[:headers]['traceparent'])},aa= 1234,%%cc=%%%45",
                      conn.data[:headers]['tracestate']
       end
 
@@ -272,7 +272,7 @@ if !defined?(JRUBY_VERSION)
       AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
 
       conn = Excon.new('http://127.0.0.1:8101')
-      conn.requests([{:method => :get}, {:method => :put}])
+      conn.requests([{ :method => :get }, { :method => :put }])
 
       assert_equal trace_id, conn.data[:headers]['traceparent']
       assert_equal state, conn.data[:headers]['tracestate']

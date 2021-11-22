@@ -5,21 +5,8 @@
 APPOPTICS_TRACE_DISABLED   = 0
 APPOPTICS_TRACE_ENABLED  = 1
 
-# OBOE_SAMPLE_RATE_SOURCE_FILE                   = 1
-# OBOE_SAMPLE_RATE_SOURCE_DEFAULT                = 2
-# OBOE_SAMPLE_RATE_SOURCE_OBOE                   = 3
-# OBOE_SAMPLE_RATE_SOURCE_LAST_OBOE              = 4
-# OBOE_SAMPLE_RATE_SOURCE_DEFAULT_MISCONFIGURED  = 5
-# OBOE_SAMPLE_RATE_SOURCE_OBOE_DEFAULT           = 6
-
-# Masks for bitwise ops
-# ZERO_MASK = 0b0000000000000000000000000000
-
 SAMPLE_RATE_MASK   = 0b0000111111111111111111111111
 SAMPLE_SOURCE_MASK = 0b1111000000000000000000000000
-
-# ZERO_SAMPLE_RATE_MASK   = 0b1111000000000000000000000000
-# ZERO_SAMPLE_SOURCE_MASK = 0b0000111111111111111111111111
 
 # w3c trace context related global constants
 # see: https://www.w3.org/TR/trace-context/#tracestate-limits
@@ -27,7 +14,6 @@ APPOPTICS_TRACESTATE_ID = 'sw'.freeze
 APPOPTICS_MAX_TRACESTATE_BYTES = 512
 APPOPTICS_MAX_TRACESTATE_MEMBER_BYTES = 128
 
-# APPOPTICS_STR_BLANK = ''.freeze
 APPOPTICS_STR_LAYER = 'Layer'.freeze
 APPOPTICS_STR_LABEL = 'Label'.freeze
 
@@ -115,8 +101,8 @@ module AppOpticsAPMBase
   # been already started by the Java instrumentation (Joboe)
   # in which case we don't want to do this.
   #
-  def pickup_context?(xtrace)
-    return false unless AppOpticsAPM::XTrace.valid?(xtrace)
+  def pickup_context?(tracestring)
+    return false unless AppOpticsAPM::TraceString.valid?(tracestring)
 
     if defined?(JRUBY_VERSION) && AppOpticsAPM.tracing?
       return false

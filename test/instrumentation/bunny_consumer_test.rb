@@ -37,7 +37,7 @@ require 'minitest_helper'
         http.get('/?q=1').read_body
       end
 
-      AppOpticsAPM::API.start_trace('bunny_consume_test') do
+      AppOpticsAPM::SDK.start_trace('bunny_consume_test') do
         @exchange.publish("The Tortoise and the Hare", :routing_key => @queue.name, :app_id => "msg_app", :type => :generic)
       end
 
@@ -174,7 +174,7 @@ require 'minitest_helper'
         http.get('/?q=1').read_body
       end
 
-      AppOpticsAPM::API.start_trace('bunny_consume_test') do
+      AppOpticsAPM::SDK.start_trace('bunny_consume_test') do
         @exchange.publish("The Tortoise and the Hare", :message_id => "1234", :routing_key => @queue.name, :app_id => "msg_app", :type => :generic)
       end
 

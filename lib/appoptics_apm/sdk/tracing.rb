@@ -106,7 +106,6 @@ module AppOpticsAPM
         end
       end
 
-
       # Collect metrics and start tracing a given block of code.
       #
       # This will start a trace depending on configuration and probability, detect any exceptions
@@ -118,7 +117,6 @@ module AppOpticsAPM
       # === Arguments:
       #
       # * +span+   - Name for the span to be used as label in the trace view.
-      # * +xtrace+ - (optional) incoming X-Trace identifier to be continued.
       # * +opts+   - (optional) hash containing key/value pairs that will be reported with this span.
       #   The value of :TransactionName will set the transaction_name.
       #
@@ -137,8 +135,8 @@ module AppOpticsAPM
       # === Returns:
       # * The result of the block.
       #
-      def start_trace(span, xtrace = nil, opts = {})
-        start_trace_with_target(span, xtrace, {}, opts) { yield }
+      def start_trace(span, opts = {})
+        start_trace_with_target(span, {}, opts) { yield }
       end
 
       # Collect metrics, trace a given block of code, and assign trace info to target.
@@ -152,7 +150,6 @@ module AppOpticsAPM
       #
       # === Arguments:
       # * +span+   - The span the block of code belongs to.
-      # * +xtrace+ - (optional) incoming X-Trace identifier to be continued.
       # * +target+ - (optional) has to respond to #[]=, The target object in which to place the trace information.
       # * +opts+   - (optional) hash containing key/value pairs that will be reported with this span.
       #
@@ -171,7 +168,7 @@ module AppOpticsAPM
       # === Returns:
       # * The result of the block.
       #
-      def start_trace_with_target(span, xtrace, target, opts = {})
+      def start_trace_with_target(span, target, opts = {})
         return yield unless AppOpticsAPM.loaded
 
         if AppOpticsAPM::Context.isValid # not an entry span!
@@ -183,7 +180,7 @@ module AppOpticsAPM
         # :TransactionName and 'TransactionName' need to be removed from opts
         AppOpticsAPM.transaction_name = opts.delete('TransactionName') || opts.delete(:TransactionName)
 
-        AppOpticsAPM::API.log_start(span, xtrace, opts)
+        AppOpticsAPM::API.log_start(span, opts)
         opts[:Backtrace] && opts.delete(:Backtrace) # to avoid sending backtrace twice (faster to check presence here)
 
         # AppOpticsAPM::Event.startTrace creates an Event without an Edge
@@ -197,8 +194,8 @@ module AppOpticsAPM
         rescue Exception => e
           AppOpticsAPM::API.log_exception(span, e)
           exit_evt.addEdge(AppOpticsAPM::Context.get)
-          xtrace = AppOpticsAPM::API.log_end(span, opts, exit_evt)
-          e.instance_variable_set(:@xtrace, xtrace)
+          trace_parent = AppOpticsAPM::API.log_end(span, opts, exit_evt)
+          e.instance_variable_set(:@tracestring, trace_parent)
           raise
         end
 
@@ -369,7 +366,6 @@ module AppOpticsAPM
         end
         AppOpticsAPM.transaction_name
       end
-
 
       # Get the currently set custom transaction name.
       #

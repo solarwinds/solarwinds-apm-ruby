@@ -24,19 +24,19 @@ require 'minitest/focus'
 require 'minitest/debugger' if ENV['DEBUG']
 require 'minitest/hooks/default'  # adds after(:all)
 
-
 # write to a file as well as STDOUT (comes in handy with docker runs)
 # This approach preserves the coloring of pass fail, which the cli
 # `./run_tests.sh 2>&1 | tee -a test/docker_test.log` does not
 if ENV['TEST_RUNS_TO_FILE']
-  FileUtils.mkdir_p('log')  # create if it doesn't exist
+  FileUtils.mkdir_p('log') # create if it doesn't exist
   if ENV['TEST_RUNS_FILE_NAME']
     $out_file = File.new(ENV['TEST_RUNS_FILE_NAME'], 'a')
   else
-     $out_file = File.new("log/test_direct_runs_#{Time.now.strftime("%Y%m%d_%H_%M")}.log", 'a')
+    $out_file = File.new("log/test_direct_runs_#{Time.now.strftime("%Y%m%d_%H_%M")}.log", 'a')
   end
   $out_file.sync = true
   $stdout.sync = true
+
   def $stdout.write(string)
     $out_file.write(string)
     super
@@ -98,7 +98,6 @@ AppOpticsAPM::Config[:sample_rate] = 1000000
 # puts "Pre-creating test databases"
 # puts %x{mysql -u root -e 'create database travis_ci_test;'}
 # puts %x{psql -c 'create database travis_ci_test;' -U postgres}
-
 
 # Our background Rack-app for http client testing
 if ENV['BUNDLE_GEMFILE'] && File.basename(ENV['BUNDLE_GEMFILE']) =~ /libraries|frameworks|instrumentation|noop/
@@ -166,7 +165,7 @@ end
 # Retrieves all traces written to the trace file
 #
 def get_all_traces
-  if AppOpticsAPM.loaded && ENV['APPOPTICS_REPORTER'] =='file'
+  if AppOpticsAPM.loaded && ENV['APPOPTICS_REPORTER'] == 'file'
     sleep 0.4
     AppOpticsAPM::Reporter.get_all_traces
   else
@@ -208,7 +207,7 @@ end
 #
 def has_edge?(edge, traces)
   traces.each do |t|
-    if AppOpticsAPM::XTrace.edge_id(t["X-Trace"]) == edge
+    if AppOpticsAPM::TraceString.span_id(t["sw.trace_context"]) == edge
       return true
     end
   end
@@ -216,13 +215,13 @@ def has_edge?(edge, traces)
   false
 end
 
-def assert_entry_exit(traces, num = nil, check_task_id=true)
-  if check_task_id
-    task_id = traces[0]['X-Trace'][0..8]
-    refute traces.find{ |tr| tr['X-Trace'][0..8] != task_id }, "task ids not matching"
+def assert_entry_exit(traces, num = nil, check_trace_id = true)
+  if check_trace_id
+    trace_id = AppOpticsAPM::TraceString.trace_id(traces[0]['sw.trace_context'])
+    refute traces.find { |tr| AppOpticsAPM::TraceString.trace_id(tr['sw.trace_context']) != trace_id }, "trace ids not matching"
   end
-  num_entries = traces.select { |tr| tr ['Label'] == 'entry'}.size
-  num_exits = traces.select { |tr| tr ['Label'] == 'exit'}.size
+  num_entries = traces.select { |tr| tr ['Label'] == 'entry' }.size
+  num_exits = traces.select { |tr| tr ['Label'] == 'exit' }.size
   if num && num > 0
     _(num_entries).must_equal num, "incorrect number of entry spans"
     _(num_exits).must_equal num, "incorrect number of exit spans"
@@ -245,21 +244,24 @@ end
 #
 def valid_edges?(traces, connected = true)
   return true unless traces.is_a?(Array) && traces.count > 1 # so that in case the traces are sent to the collector, tests will fail but not barf
-  traces[1..-1].reverse.each do  |t|
-    if t.key?("Edge")
-      unless has_edge?(t["Edge"], traces)
-        # TODO NH-2303 remove when done
-        print_traces(traces, ['Edge'])
+  traces[1..-1].reverse.each do |t|
+    if t.key?("sw.parent_span_id")
+      unless has_edge?(t["sw.parent_span_id"], traces)
+        puts "edge missing for #{t["sw.parent_span_id"]}"
+        # TODO NH-2303 maybe remove when done
+        print_traces(traces[1..-1])
         return false
       end
     end
   end
   if connected
-    if traces.map{ |tr| tr['Edge'] }.uniq.size == traces.size
+    if traces.map { |tr| tr['sw.parent_span_id'] }.uniq.size == traces.size
       return true
     else
-      # TODO NH-2303 remove when done
-      print_traces(traces, ['Edge'])
+      # TODO NH-2303 maybe remove when done
+      puts "number of unique sw.parent_span_ids: #{traces.map { |tr| tr['sw.parent_span_id'] }.uniq.size}"
+      puts "number of traces: traces.size"
+      print_traces(traces)
       return false
     end
   end
@@ -332,14 +334,13 @@ def assert_controller_action(test_action)
   end
 end
 
-def not_sampled?(xtrace)
-  !sampled?(xtrace)
+def not_sampled?(tracestring)
+  !sampled?(tracestring)
 end
 
-def sampled?(xtrace)
-  AppOpticsAPM::XTrace.sampled?(xtrace)
+def sampled?(tracestring)
+  AppOpticsAPM::TraceString.sampled?(tracestring)
 end
-
 
 #########################            ###            ###            ###            ###            ###
 ### DEBUGGING HELPERS ###
@@ -356,9 +357,10 @@ def print_traces(traces, more_keys = [])
   traces.each do |trace|
     indent += '  ' if trace["Label"] == "entry"
 
-    puts "#{indent}X-Trace: #{trace["X-Trace"]}"
     puts "#{indent}Label:   #{trace["Label"]}"
     puts "#{indent}Layer:   #{trace["Layer"]}"
+    puts "#{indent}sw.trace_context: #{trace["sw.trace_context"]}"
+    puts "#{indent}sw.parent_span_id: #{trace["sw.parent_span_id"]}"
 
     more_keys.each { |key| puts "#{indent}#{key}:   #{trace[key]}" if trace[key] }
 
@@ -378,7 +380,7 @@ unless Hash.instance_methods.include?(:transform_keys)
   class Hash
     def transform_keys
       new_hash = {}
-      self.each do |k,v|
+      self.each do |k, v|
         new_hash[yield(k)] = v
       end
       new_hash
@@ -404,15 +406,15 @@ def assert_trace_headers(headers, sampled = nil)
   # and it is not available in Ruby 2.4
   headers = headers.transform_keys(&:downcase)
   assert headers['traceparent'], "traceparent header missing"
-  assert AppOpticsAPM::TraceParent.valid?(headers['traceparent']), "traceparent header not valid"
-  assert AppOpticsAPM::TraceParent.sampled?(headers['traceparent']), "traceparent should have sampled flag" if sampled
-  refute AppOpticsAPM::TraceParent.sampled?(headers['traceparent']), "traceparent should NOT have sampled flag" if sampled == false
+  assert AppOpticsAPM::TraceString.valid?(headers['traceparent']), "traceparent header not valid"
+  assert AppOpticsAPM::TraceString.sampled?(headers['traceparent']), "traceparent should have sampled flag" if sampled
+  refute AppOpticsAPM::TraceString.sampled?(headers['traceparent']), "traceparent should NOT have sampled flag" if sampled == false
 
   assert headers['tracestate'], "tracestate header missing"
   assert_match /#{APPOPTICS_TRACESTATE_ID}=/, headers['tracestate'], "tracestate header missing #{APPOPTICS_TRACESTATE_ID}"
 
   assert sw_tracestate(headers['tracestate']), "tracestate header not starting with correct sw member"
-  assert_equal AppOpticsAPM::TraceParent.edge_id_flags(headers['traceparent']),
+  assert_equal AppOpticsAPM::TraceString.span_id_flags(headers['traceparent']),
                sw_value(headers['tracestate']), "edge_id and flags not matching"
 end
 
@@ -434,7 +436,7 @@ if (File.basename(ENV['BUNDLE_GEMFILE']) =~ /^frameworks/) == 0
     # Sets up a Sinatra::Base subclass defined with the block
     # given. Used in setup or individual spec methods to establish
     # the application.
-    def mock_app(base=Padrino::Application, &block)
+    def mock_app(base = Padrino::Application, &block)
       @app = Sinatra.new(base, &block)
     end
 

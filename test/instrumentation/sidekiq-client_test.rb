@@ -19,6 +19,7 @@ unless defined?(JRUBY_VERSION)
     def setup
       clear_all_traces
       AppOpticsAPM::Context.clear
+      AppOpticsAPM.trace_context = nil
       @collect_backtraces = AppOpticsAPM::Config[:sidekiqclient][:collect_backtraces]
       @log_args = AppOpticsAPM::Config[:sidekiqclient][:log_args]
       @tracing_mode = AppOpticsAPM::Config[:tracing_mode]
@@ -40,14 +41,18 @@ unless defined?(JRUBY_VERSION)
 
     def test_enqueue
       # Queue up a job to be run
-      jid, xtrace = ::AppOpticsAPM::API.start_trace(:enqueue_test) do
-        Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
+      jid = ::AppOpticsAPM::SDK.start_trace(:enqueue_test) do
+        result = Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
+        assert AppOpticsAPM::TraceString.valid?(AppOpticsAPM::Context.toString)
+        result
       end
 
       # Allow the job to be run
       sleep 3
 
       traces = get_all_traces
+
+      puts "MsgID: #{traces[1]['MsgID']}"
       assert_equal 16, refined_trace_count(traces)
       assert valid_edges?(traces, false), "Invalid edge in traces"
 
@@ -65,9 +70,6 @@ unless defined?(JRUBY_VERSION)
 
       assert_equal 'sidekiq-client',       traces[2]['Layer']
       assert_equal 'exit',                 traces[2]['Label']
-
-      assert_match /^2B[0-9A-F]{56}0[01]$/, xtrace
-      refute_match /^2B0{56}0[01]$/, xtrace
     end
 
     def test_collect_backtraces_default_value
@@ -82,7 +84,7 @@ unless defined?(JRUBY_VERSION)
       AppOpticsAPM::Config[:sidekiqclient][:collect_backtraces] = false
 
       # Queue up a job to be run
-      ::AppOpticsAPM::API.start_trace(:enqueue_test) do
+      AppOpticsAPM::SDK.start_trace(:enqueue_test) do
         Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
       end
 
@@ -92,15 +94,15 @@ unless defined?(JRUBY_VERSION)
       traces = get_all_traces
       assert_equal 16, refined_trace_count(traces)
       assert valid_edges?(traces, false), "Invalid edge in traces"
-      assert_equal 'sidekiq-client',   traces[1]['Layer']
-      assert_equal false,              traces[1].key?('Backtrace')
+      assert_equal 'sidekiq-client', traces[1]['Layer']
+      assert_equal false, traces[1].key?('Backtrace')
     end
 
     def test_obey_collect_backtraces_when_true
       AppOpticsAPM::Config[:sidekiqclient][:collect_backtraces] = true
 
       # Queue up a job to be run
-      ::AppOpticsAPM::API.start_trace(:enqueue_test) do
+      AppOpticsAPM::SDK.start_trace(:enqueue_test) do
         Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
       end
 
@@ -110,15 +112,15 @@ unless defined?(JRUBY_VERSION)
       traces = get_all_traces
       assert_equal 16, refined_trace_count(traces)
       assert valid_edges?(traces, false), "Invalid edge in traces"
-      assert_equal 'sidekiq-client',   traces[1]['Layer']
-      assert_equal true,               traces[1].key?('Backtrace')
+      assert_equal 'sidekiq-client', traces[1]['Layer']
+      assert_equal true, traces[1].key?('Backtrace')
     end
 
     def test_obey_log_args_when_false
       AppOpticsAPM::Config[:sidekiqclient][:log_args] = false
 
       # Queue up a job to be run
-      ::AppOpticsAPM::API.start_trace(:enqueue_test) do
+      AppOpticsAPM::SDK.start_trace(:enqueue_test) do
         Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
       end
 
@@ -135,7 +137,7 @@ unless defined?(JRUBY_VERSION)
       AppOpticsAPM::Config[:sidekiqclient][:log_args] = true
 
       # Queue up a job to be run
-      ::AppOpticsAPM::API.start_trace(:enqueue_test) do
+      AppOpticsAPM::SDK.start_trace(:enqueue_test) do
         Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
       end
 
@@ -145,15 +147,16 @@ unless defined?(JRUBY_VERSION)
       traces = get_all_traces
       assert_equal 16, refined_trace_count(traces)
       assert valid_edges?(traces, false), "Invalid edge in traces"
-      assert_equal true,         traces[1].key?('Args')
-      assert_equal '[1, 2, 3]',  traces[1]['Args']
+      assert_equal true, traces[1].key?('Args')
+      assert_equal '[1, 2, 3]', traces[1]['Args']
     end
 
     def test_dont_log_when_not_sampling
       AppOpticsAPM::Config[:sidekiqclient][:log_args] = true
       AppOpticsAPM::Config[:tracing_mode] = :disabled
+      AppOpticsAPM::Config[:sidekiqclient][:collect_backtraces] = false
 
-      ::AppOpticsAPM::API.start_trace(:enqueue_test) do
+      AppOpticsAPM::SDK.start_trace(:enqueue_test) do
         Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
       end
 

@@ -1,7 +1,6 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
-
 require "minitest_helper"
 require "mocha/minitest"
 require File.expand_path(File.dirname(__FILE__) + '/apps/sinatra_simple')
@@ -36,7 +35,7 @@ describe Sinatra do
 
     # Validate the existence of the response header
     _(r.headers.key?('X-Trace')).must_equal true
-    _(r.headers['X-Trace']).must_equal traces[5]['X-Trace']
+    _(r.headers['X-Trace']).must_equal traces[5]['sw.trace_context']
   end
 
   it "should log an error on exception" do
@@ -58,7 +57,7 @@ describe Sinatra do
 
     _(traces[1]['Layer']).must_equal "sinatra"
 
-    error_traces = traces.select{ |trace| trace['Label'] == 'error' }
+    error_traces = traces.select { |trace| trace['Label'] == 'error' }
     _(error_traces.size).must_equal 1
 
     error_trace = error_traces[0]
@@ -175,7 +174,7 @@ describe Sinatra do
 
       _(r.body).must_match /Hello, friend/
 
-      _(test_action).must_match  "SinatraSimple.GET \\/hello\\/([\\w]+)", test_action
+      _(test_action).must_match "SinatraSimple.GET \\/hello\\/([\\w]+)", test_action
       assert_equal "http://example.org/hello/friend", test_url
       assert_equal 200, test_status
       assert_equal "GET", test_method

@@ -9,7 +9,7 @@ unless defined?(JRUBY_VERSION)
   Resque.redis = Redis.new(:host => ENV['REDIS_HOST'] || ENV['APPOPTICS_REDIS_SERVER'] || '127.0.0.1',
                            :password => ENV['REDIS_PASSWORD'] || 'secret_pass')
 
-  Resque.enqueue(ResqueRemoteCallWorkerJob)  # calling this here once to avoid other calls having an auth span
+  Resque.enqueue(ResqueRemoteCallWorkerJob) # calling this here once to avoid other calls having an auth span
 
   describe 'ResqueClient' do
     before do
@@ -23,8 +23,8 @@ unless defined?(JRUBY_VERSION)
       AppOpticsAPM::Config[:resqueclient][:log_args] = @log_args
     end
 
-     it 'appoptics_methods_defined' do
-      [ :enqueue, :enqueue_to, :dequeue ].each do |m|
+    it 'appoptics_methods_defined' do
+      [:enqueue, :enqueue_to, :dequeue].each do |m|
         assert_equal true, ::Resque.method_defined?("#{m}_with_appoptics")
       end
 
@@ -37,8 +37,8 @@ unless defined?(JRUBY_VERSION)
       assert_equal true, Resque.enqueue(ResqueRemoteCallWorkerJob, 1, 2, "3"), "not tracing; enqueue extra params"
     end
 
-     it 'enqueue' do
-      AppOpticsAPM::API.start_trace('resque-client_test', '', {}) do
+    it 'enqueue' do
+      AppOpticsAPM::SDK.start_trace('resque-client_test', {}) do
         Resque.enqueue(ResqueRemoteCallWorkerJob)
       end
 
@@ -57,8 +57,8 @@ unless defined?(JRUBY_VERSION)
       assert_equal "exit",                       traces[4]['Label'], "exit event label"
     end
 
-     it 'dequeue' do
-      AppOpticsAPM::API.start_trace('resque-client_test', '', {}) do
+    it 'dequeue' do
+      AppOpticsAPM::SDK.start_trace('resque-client_test', {}) do
         Resque.dequeue(ResqueRemoteCallWorkerJob, { :generate => :moped })
       end
 
@@ -77,19 +77,19 @@ unless defined?(JRUBY_VERSION)
       assert_equal "exit",                        traces[4]['Label'], "exit event label"
     end
 
-     it 'collect_backtraces_default_value' do
+    it 'collect_backtraces_default_value' do
       assert_equal AppOpticsAPM::Config[:resqueclient][:collect_backtraces], true, "default backtrace collection"
     end
 
-     it 'log_args_default_value' do
+    it 'log_args_default_value' do
       assert_equal AppOpticsAPM::Config[:resqueclient][:log_args], true, "log_args default "
     end
 
-     it 'obey_collect_backtraces_when_false' do
+    it 'obey_collect_backtraces_when_false' do
       AppOpticsAPM::Config[:resqueclient][:collect_backtraces] = false
 
       # Queue up a job to be run
-      ::AppOpticsAPM::API.start_trace('resque-client_test') do
+      AppOpticsAPM::SDK.start_trace('resque-client_test') do
         Resque.enqueue(ResqueRemoteCallWorkerJob, [1, 2, 3])
       end
 
@@ -98,7 +98,7 @@ unless defined?(JRUBY_VERSION)
       assert_equal 6, traces.count, "trace count"
       validate_outer_layers(traces, 'resque-client_test')
 
-      assert_equal false,           traces[1].key?('Backtrace')
+      assert_equal false, traces[1].key?('Backtrace')
 
       assert_equal "resque-client",              traces[1]['Layer'], "entry event layer name"
       assert_equal "entry",                      traces[1]['Label'], "entry event label"
@@ -110,11 +110,11 @@ unless defined?(JRUBY_VERSION)
       assert_equal "exit",                       traces[4]['Label'], "exit event label"
     end
 
-     it 'obey_collect_backtraces_when_true' do
+    it 'obey_collect_backtraces_when_true' do
       AppOpticsAPM::Config[:resqueclient][:collect_backtraces] = true
 
       # Queue up a job to be run
-      ::AppOpticsAPM::API.start_trace('resque-client_test') do
+      AppOpticsAPM::SDK.start_trace('resque-client_test') do
         Resque.enqueue(ResqueRemoteCallWorkerJob, [1, 2, 3])
       end
 
@@ -123,7 +123,7 @@ unless defined?(JRUBY_VERSION)
       assert_equal 6, traces.count, "trace count"
       validate_outer_layers(traces, 'resque-client_test')
 
-      assert_equal true,           traces[1].key?('Backtrace')
+      assert_equal true, traces[1].key?('Backtrace')
 
       assert_equal "resque-client",              traces[1]['Layer'], "entry event layer name"
       assert_equal "entry",                      traces[1]['Label'], "entry event label"
@@ -135,11 +135,11 @@ unless defined?(JRUBY_VERSION)
       assert_equal "exit",                       traces[4]['Label'], "exit event label"
     end
 
-     it 'obey_log_args_when_false' do
+    it 'obey_log_args_when_false' do
       AppOpticsAPM::Config[:resqueclient][:log_args] = false
 
       # Queue up a job to be run
-      ::AppOpticsAPM::API.start_trace('resque-client_test') do
+      AppOpticsAPM::SDK.start_trace('resque-client_test') do
         Resque.enqueue(ResqueRemoteCallWorkerJob, [1, 2, 3])
       end
 
@@ -148,7 +148,7 @@ unless defined?(JRUBY_VERSION)
       assert_equal 6, traces.count, "trace count"
       validate_outer_layers(traces, 'resque-client_test')
 
-      assert_equal false,           traces[1].key?('Args')
+      assert_equal false, traces[1].key?('Args')
 
       assert_equal "resque-client",              traces[1]['Layer'], "entry event layer name"
       assert_equal "entry",                      traces[1]['Label'], "entry event label"
@@ -160,11 +160,11 @@ unless defined?(JRUBY_VERSION)
       assert_equal "exit",                       traces[4]['Label'], "exit event label"
     end
 
-     it 'obey_log_args_when_true' do
+    it 'obey_log_args_when_true' do
       AppOpticsAPM::Config[:resqueclient][:log_args] = true
 
       # Queue up a job to be run
-      ::AppOpticsAPM::API.start_trace('resque-client_test') do
+      AppOpticsAPM::SDK.start_trace('resque-client_test') do
         Resque.enqueue(ResqueRemoteCallWorkerJob, 1, 2, 3)
       end
 
@@ -173,8 +173,8 @@ unless defined?(JRUBY_VERSION)
       assert_equal 6, traces.count, "trace count"
       validate_outer_layers(traces, 'resque-client_test')
 
-      assert_equal true,            traces[1].key?('Args')
-      assert_equal "[1,2,3]",     traces[1]['Args']
+      assert_equal true, traces[1].key?('Args')
+      assert_equal "[1,2,3]", traces[1]['Args']
 
       assert_equal "resque-client",              traces[1]['Layer'], "entry event layer name"
       assert_equal "entry",                      traces[1]['Label'], "entry event label"

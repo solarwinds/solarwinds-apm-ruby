@@ -16,16 +16,15 @@ module AppOpticsAPM
     #
     def add_tracecontext_headers(headers)
       if AppOpticsAPM::Context.isValid
-        xtrace = AppOpticsAPM::Context.toString
-        headers['traceparent'] = AppOpticsAPM::TraceContext.ao_to_w3c_trace(xtrace)
-        parent_id_flags = AppOpticsAPM::TraceParent.edge_id_flags(headers['traceparent'])
+        headers['traceparent'] = AppOpticsAPM::Context.toString
+        parent_id_flags = AppOpticsAPM::TraceString.span_id_flags(headers['traceparent'])
         tracestate = AppOpticsAPM.trace_context&.tracestate
-        headers['tracestate'] = AppOpticsAPM::TraceState.add_kv(tracestate, parent_id_flags)
+        headers['tracestate'] = AppOpticsAPM::TraceState.add_sw_member(tracestate, parent_id_flags)
       else
         # make sure we propagate an incoming trace_context even if we don't trace
         if AppOpticsAPM.trace_context
           headers['traceparent'] = AppOpticsAPM.trace_context.traceparent
-          headers['tracestate']  = AppOpticsAPM.trace_context.tracestate
+          headers['tracestate'] = AppOpticsAPM.trace_context.tracestate
         end
       end
     end

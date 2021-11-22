@@ -147,7 +147,7 @@ services:
 
   ao-ruby-mongo:
     container_name: ao-ruby-mongo
-    image: mongo:3.4
+    image: mongo:5
 
   ao-ruby-postgres:
     container_name: ao-ruby-postgres

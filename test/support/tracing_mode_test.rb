@@ -22,7 +22,7 @@ describe "TracingModeTest" do
   def test_trace_when_enabled
     AppOpticsAPM::Config[:tracing_mode] = :enabled
 
-    AppOpticsAPM::API.start_trace(:test_enabled) do
+    AppOpticsAPM::SDK.start_trace(:test_enabled) do
       _(AppOpticsAPM.tracing?).must_equal true
     end
   end
@@ -30,11 +30,11 @@ describe "TracingModeTest" do
   def test_dont_trace_when_disabled
     AppOpticsAPM::Config[:tracing_mode] = :disabled
 
-    AppOpticsAPM::API.start_trace(:test_disabled) do
+    AppOpticsAPM::SDK.start_trace(:test_disabled) do
       _(AppOpticsAPM.tracing?).must_equal false
     end
 
-    AppOpticsAPM::API.start_trace('asdf') do
+    AppOpticsAPM::SDK.start_trace('asdf') do
       _(AppOpticsAPM.tracing?).must_equal false
     end
   end

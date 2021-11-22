@@ -21,11 +21,11 @@ module AppOpticsAPM
 
       def grpc_tags(active_call, mth)
         tags = {
-            'Spec' => 'grpc_server',
-            'URL' => active_call.metadata['method'],
-            'Controller' => mth.owner.to_s,
-            'Action' => mth.name.to_s,
-            'HTTP-Host' => active_call.peer
+          'Spec' => 'grpc_server',
+          'URL' => active_call.metadata['method'],
+          'Controller' => mth.owner.to_s,
+          'Action' => mth.name.to_s,
+          'HTTP-Host' => active_call.peer
         }
 
         if request_response?
@@ -34,7 +34,8 @@ module AppOpticsAPM
           tags['GRPCMethodType'] = 'CLIENT_STREAMING'
         elsif server_streamer?
           tags['GRPCMethodType'] = 'SERVER_STREAMING'
-        else  # is a bidi_stream
+        else
+          # is a bidi_stream
           tags['GRPCMethodType'] = 'BIDI_STREAMING'
         end
 
@@ -74,7 +75,7 @@ module AppOpticsAPM
         AppOpticsAPM.trace_context&.add_kvs(tags)
 
         # TODO expand args for new oboe tracing decisions
-        AppOpticsAPM::API.log_start('grpc-server', AppOpticsAPM.trace_context&.xtrace, tags)
+        AppOpticsAPM::API.log_start('grpc-server', tags)
 
         begin
           AppOpticsAPM::API.send_metrics('grpc-server', tags) do
@@ -102,9 +103,9 @@ module AppOpticsAPM
             if e.class == ::GRPC::Core::OutOfTime
               active_call.merge_metadata_to_send({ 'grpc_status' => 'DEADLINE_EXCEEDED' })
             elsif e.respond_to?(:code)
-              active_call.merge_metadata_to_send({ 'grpc_status' =>  AppOpticsAPM::GRPC::STATUSCODES[e.code].to_s })
+              active_call.merge_metadata_to_send({ 'grpc_status' => AppOpticsAPM::GRPC::STATUSCODES[e.code].to_s })
             else
-              active_call.merge_metadata_to_send({ 'grpc_status' =>  'UNKNOWN' })
+              active_call.merge_metadata_to_send({ 'grpc_status' => 'UNKNOWN' })
             end
           end
         end

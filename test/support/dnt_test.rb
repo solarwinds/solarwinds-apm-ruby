@@ -65,7 +65,7 @@ class RackDNTTestApp < Minitest::Test
   def test_do_not_trace_static_assets_with_multiple_params
     get "/assets/static_asset.png?body=&head="
 
-   traces = get_all_traces
+    traces = get_all_traces
     assert traces.empty?
 
     assert_equal 404, last_response.status
@@ -94,7 +94,7 @@ class RackDNTTestApp < Minitest::Test
     AppOpticsAPM::Config[:transaction_settings] = { url: [] }
 
     # TODO make this test more unit
-    AppOpticsAPM::Context.expects(:getDecisions).returns([1, 1, 1000, 1, 0, -1,1000,1000, '', '', 0]).once
+    AppOpticsAPM::Context.expects(:getDecisions).returns([1, 1, 1000, 1, 0, -1, 1000, 1000, '', '', 0]).once
     AppOpticsAPM::Span.expects(:createHttpSpan).returns("the_transaction_name").once
 
     get "/lobster"
@@ -133,7 +133,7 @@ class RackDNTTestApp < Minitest::Test
     res = get "/lobster", {}, { 'HTTP_TRACEPARENT' => trace,
                                 'HTTP_TRACESTATE' => "sw=49e60702469db05f-01" }
 
-    assert_equal "#{trace[0..-2]}0", AppOpticsAPM::TraceContext.ao_to_w3c_trace(res.header['X-Trace'])
+    assert_equal "#{trace[0..-2]}0", res.header['X-Trace']
     traces = get_all_traces
     assert traces.empty?
 

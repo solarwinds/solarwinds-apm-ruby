@@ -7,6 +7,7 @@ module AppOpticsAPM
   module SDK
 
     module CurrentTrace
+      # TODO - further refactoring needed for w3c log injection
 
       # Creates an instance of {TraceId} with instance methods {TraceId#id}, {TraceId#for_log}
       # and {TraceId#hash_for_log}.
@@ -14,9 +15,9 @@ module AppOpticsAPM
       # === Example:
       #
       #   trace = AppOpticsAPM::SDK.current_trace
-      #   trace.id             # '7435A9FE510AE4533414D425DADF4E180D2B4E36-0'
-      #   trace.for_log        # 'ao.traceId=7435A9FE510AE4533414D425DADF4E180D2B4E36-0' or '' depends on Config
-      #   trace.hash_for_log   # { ao: { traceId: '7435A9FE510AE4533414D425DADF4E180D2B4E36-0 } }  or {} depends on Config
+      #   trace.id             # '7435a9fe510ae4533414d425dadf4e36-0'
+      #   trace.for_log        # 'ao.traceId=7435a9fe510ae4533414d425dadf4e36-0' or '' depends on Config
+      #   trace.hash_for_log   # { ao: { traceId: '7435a9fe510ae4533414d425dadf4e36-0 } }  or {} depends on Config
       #
       # Configure traceId injection with lograge:
       #
@@ -28,19 +29,19 @@ module AppOpticsAPM
         TraceId.new
       end
 
-      # @attr id the current traceId, it looks like: '7435A9FE510AE4533414D425DADF4E180D2B4E36-0'
+      # @attr id the current traceId, it looks like: '7435a9fe510ae4533414d425dadf4e36-0'
       #          and ends in '-1' if the request is sampled and '-0' otherwise.
-      #          Results in '0000000000000000000000000000000000000000-0'
+      #          Results in '00000000000000000000000000000000-0'
       #          if the CurrentTrace instance was created outside of the context
       #          of a request.
       class TraceId
         attr_reader :id
 
         def initialize
-          @xtrace = AppOpticsAPM::Context.toString
-          task_id = AppOpticsAPM::XTrace.task_id(@xtrace)
-          sampled = AppOpticsAPM::XTrace.sampled?(@xtrace)
-          @id = "#{task_id}-#{sampled ? 1 : 0}"
+          @tracestring = AppOpticsAPM::Context.toString
+          trace_id = AppOpticsAPM::TraceString.trace_id(@tracestring)
+          sampled = AppOpticsAPM::TraceString.sampled?(@tracestring)
+          @id = "#{trace_id}-#{sampled ? 1 : 0}"
         end
 
         # for_log returns a string in the format 'traceId=<current_trace.id>' or ''.
@@ -61,11 +62,11 @@ module AppOpticsAPM
           when :never, nil
             false
           when :always
-            AppOpticsAPM::XTrace.ok?(@xtrace)
+            AppOpticsAPM::TraceString.ok?(@tracestring)
           when :traced
-            AppOpticsAPM::XTrace.valid?(@xtrace)
+            AppOpticsAPM::TraceString.valid?(@tracestring)
           when :sampled
-            AppOpticsAPM::XTrace.sampled?(@xtrace)
+            AppOpticsAPM::TraceString.sampled?(@tracestring)
           end
         end
       end

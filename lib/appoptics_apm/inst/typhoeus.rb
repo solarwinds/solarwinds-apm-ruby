@@ -69,7 +69,7 @@ module AppOpticsAPM
         # FIXME: Until we figure out a strategy to deal with libcurl internal
         # threading and Ethon's use of easy handles, here we just do a simple
         # trace of the hydra run.
-        AppOpticsAPM::API.trace(:typhoeus_hydra, kvs) do
+        AppOpticsAPM::SDK.trace(:typhoeus_hydra, kvs) do
           queued_requests.map do |request|
             add_tracecontext_headers(request.options[:headers])
           end

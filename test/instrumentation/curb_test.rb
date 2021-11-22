@@ -58,7 +58,7 @@ unless defined?(JRUBY_VERSION)
     it 'class_get_request' do
       response = nil
 
-      AppOpticsAPM::API.start_trace('curb_tests') do
+      AppOpticsAPM::SDK.start_trace('curb_tests') do
         response = Curl.get('http://127.0.0.1:8101/')
       end
 
@@ -72,7 +72,7 @@ unless defined?(JRUBY_VERSION)
     it 'class delete request' do
       response = nil
 
-      AppOpticsAPM::API.start_trace('curb_tests') do
+      AppOpticsAPM::SDK.start_trace('curb_tests') do
         response = Curl.delete('http://127.0.0.1:8101/?curb_delete_test', :id => 1)
       end
 
@@ -86,7 +86,7 @@ unless defined?(JRUBY_VERSION)
     it 'class post request' do
       response = nil
 
-      AppOpticsAPM::API.start_trace('curb_tests') do
+      AppOpticsAPM::SDK.start_trace('curb_tests') do
         response = Curl.post('http://127.0.0.1:8101/')
       end
 
@@ -100,7 +100,7 @@ unless defined?(JRUBY_VERSION)
     it 'easy class perform' do
       response = nil
 
-      AppOpticsAPM::API.start_trace('curb_tests') do
+      AppOpticsAPM::SDK.start_trace('curb_tests') do
         response = Curl::Easy.perform("http://127.0.0.1:8101/")
       end
 
@@ -115,7 +115,7 @@ unless defined?(JRUBY_VERSION)
     it 'easy http head' do
       c = nil
 
-      AppOpticsAPM::API.start_trace('curb_tests') do
+      AppOpticsAPM::SDK.start_trace('curb_tests') do
         c = Curl::Easy.new("http://127.0.0.1:8101/")
         c.http_head
       end
@@ -130,7 +130,7 @@ unless defined?(JRUBY_VERSION)
     it 'easy http put' do
       c = nil
 
-      AppOpticsAPM::API.start_trace('curb_tests') do
+      AppOpticsAPM::SDK.start_trace('curb_tests') do
         c = Curl::Easy.new("http://127.0.0.1:8101/")
         c.http_put(:id => 1)
       end
@@ -145,7 +145,7 @@ unless defined?(JRUBY_VERSION)
     it 'easy http post' do
       c = nil
 
-      AppOpticsAPM::API.start_trace('curb_tests') do
+      AppOpticsAPM::SDK.start_trace('curb_tests') do
         url = "http://127.0.0.1:8101/"
         c = Curl::Easy.new(url)
         c.http_post(url, :id => 1)
@@ -161,7 +161,7 @@ unless defined?(JRUBY_VERSION)
     it 'class_ etch with_ lock' do
       response = nil
 
-      AppOpticsAPM::API.start_trace('curb_tests') do
+      AppOpticsAPM::SDK.start_trace('curb_tests') do
         response = Curl::Easy.perform("http://127.0.0.1:8101/") do |curl|
           curl.headers["User-Agent"] = "AppOpticsAPM 2000"
         end
@@ -180,16 +180,16 @@ unless defined?(JRUBY_VERSION)
 
     it 'multi basic get' do
       responses = nil
-      easy_options = {:follow_location => true}
-      multi_options = {:pipeline => false}
+      easy_options = { :follow_location => true }
+      multi_options = { :pipeline => false }
 
       urls = []
       urls << "http://127.0.0.1:8101/?one=1"
       urls << "http://127.0.0.1:8101/?two=2"
       urls << "http://127.0.0.1:8101/?three=3"
 
-      AppOpticsAPM::API.start_trace('curb_tests') do
-        responses = Curl::Multi.get(urls, easy_options, multi_options) do |easy|
+      AppOpticsAPM::SDK.start_trace('curb_tests') do
+        Curl::Multi.get(urls, easy_options, multi_options) do |easy|
           nil
         end
       end
@@ -205,15 +205,15 @@ unless defined?(JRUBY_VERSION)
     end
 
     it 'multi basic post' do
-      easy_options = {:follow_location => true, :multipart_form_post => true}
-      multi_options = {:pipeline => true}
+      easy_options = { :follow_location => true, :multipart_form_post => true }
+      multi_options = { :pipeline => true }
 
       urls = []
       urls << { :url => "http://127.0.0.1:8101/1", :post_fields => { :id => 1 } }
       urls << { :url => "http://127.0.0.1:8101/2", :post_fields => { :id => 2 } }
       urls << { :url => "http://127.0.0.1:8101/3", :post_fields => { :id => 3 } }
 
-      AppOpticsAPM::API.start_trace('curb_tests') do
+      AppOpticsAPM::SDK.start_trace('curb_tests') do
         Curl::Multi.post(urls, easy_options, multi_options) do |easy|
           nil
         end
@@ -230,15 +230,15 @@ unless defined?(JRUBY_VERSION)
     end
 
     it 'multi basic get pipeline' do
-      easy_options = {:follow_location => true}
-      multi_options = {:pipeline => true}
+      easy_options = { :follow_location => true }
+      multi_options = { :pipeline => true }
 
       urls = []
       urls << "http://127.0.0.1:8101/?one=1"
       urls << "http://127.0.0.1:8101/?two=2"
       urls << "http://127.0.0.1:8101/?three=3"
 
-      AppOpticsAPM::API.start_trace('curb_tests') do
+      AppOpticsAPM::SDK.start_trace('curb_tests') do
         Curl::Multi.get(urls, easy_options, multi_options) do |easy|
           nil
         end
@@ -262,7 +262,7 @@ unless defined?(JRUBY_VERSION)
       urls << "http://127.0.0.1:8101/?two=2"
       urls << "http://127.0.0.1:8101/?three=3"
 
-      AppOpticsAPM::API.start_trace('curb_tests') do
+      AppOpticsAPM::SDK.start_trace('curb_tests') do
         m = Curl::Multi.new
         urls.each do |url|
           responses[url] = ""
@@ -289,7 +289,7 @@ unless defined?(JRUBY_VERSION)
 
     it 'requests with errors' do
       begin
-        AppOpticsAPM::API.start_trace('curb_tests') do
+        AppOpticsAPM::SDK.start_trace('curb_tests') do
           Curl.get('http://asfjalkfjlajfljkaljf/')
         end
       rescue
@@ -325,7 +325,7 @@ unless defined?(JRUBY_VERSION)
       AppOpticsAPM.config_lock.synchronize {
         AppOpticsAPM::Config[:curb][:log_args] = false
 
-        AppOpticsAPM::API.start_trace('curb_tests') do
+        AppOpticsAPM::SDK.start_trace('curb_tests') do
           Curl.get('http://127.0.0.1:8101/?blah=1')
         end
       }
@@ -341,7 +341,7 @@ unless defined?(JRUBY_VERSION)
       AppOpticsAPM.config_lock.synchronize {
         AppOpticsAPM::Config[:curb][:log_args] = true
 
-        AppOpticsAPM::API.start_trace('curb_tests') do
+        AppOpticsAPM::SDK.start_trace('curb_tests') do
           Curl.get('http://127.0.0.1:8101/?blah=1')
         end
       }
@@ -374,7 +374,7 @@ unless defined?(JRUBY_VERSION)
         AppOpticsAPM::Config[:curb][:collect_backtraces] = true
         sleep 1
 
-        AppOpticsAPM::API.start_trace('curb_test') do
+        AppOpticsAPM::SDK.start_trace('curb_test') do
           Curl.get("http://127.0.0.1:8101/")
         end
       }
@@ -389,7 +389,7 @@ unless defined?(JRUBY_VERSION)
       AppOpticsAPM.config_lock.synchronize {
         AppOpticsAPM::Config[:curb][:collect_backtraces] = false
 
-        AppOpticsAPM::API.start_trace('curb_test') do
+        AppOpticsAPM::SDK.start_trace('curb_test') do
           Curl.get("http://127.0.0.1:8101/")
         end
       }

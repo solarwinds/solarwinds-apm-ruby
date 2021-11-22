@@ -35,7 +35,7 @@ if !defined?(JRUBY_VERSION)
               faraday.adapter :patron
             end
             conn.get
-            [200, {"Content-Type" => "text/html"}, ['Hello AppOpticsAPM!']]
+            [200, { "Content-Type" => "text/html" }, ['Hello AppOpticsAPM!']]
           }
         end
       }
@@ -60,20 +60,21 @@ if !defined?(JRUBY_VERSION)
       AppOpticsAPM::Config[:tracing_mode] = @tracing_mode
 
       AppOpticsAPM.trace_context = nil
+      clear_all_traces
     end
 
     def test_tracing_sampling
       stub_request(:get, "http://127.0.0.1:8101/")
 
-      AppOpticsAPM::API.start_trace('faraday_test') do
+      AppOpticsAPM::SDK.start_trace('faraday_test') do
         conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
-          faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
+          faraday.adapter Faraday.default_adapter # make requests with Net::HTTP
         end
         conn.get
       end
 
       assert_requested :get, "http://127.0.0.1:8101/", times: 1
-      refute_requested :get, "http://127.0.0.1:8101/", headers: {'traceparent'=>/^.*$/}
+      refute_requested :get, "http://127.0.0.1:8101/", headers: { 'traceparent' => /^.*$/ }
       refute AppOpticsAPM::Context.isValid
     end
 
@@ -82,16 +83,16 @@ if !defined?(JRUBY_VERSION)
 
       AppOpticsAPM.config_lock.synchronize do
         AppOpticsAPM::Config[:sample_rate] = 0
-        AppOpticsAPM::API.start_trace('faraday_test') do
+        AppOpticsAPM::SDK.start_trace('faraday_test') do
           conn = Faraday.new(:url => 'http://127.0.0.12:8101') do |faraday|
-            faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
+            faraday.adapter Faraday.default_adapter # make requests with Net::HTTP
           end
           conn.get
         end
       end
 
       assert_requested :get, "http://127.0.0.12:8101/", times: 1
-      refute_requested :get, "http://127.0.0.12:8101/", headers: {'traceparent'=>/^.*$/}
+      refute_requested :get, "http://127.0.0.12:8101/", headers: { 'traceparent' => /^.*$/ }
       refute AppOpticsAPM::Context.isValid
     end
 
@@ -99,12 +100,12 @@ if !defined?(JRUBY_VERSION)
       stub_request(:get, "http://127.0.0.3:8101/")
 
       conn = Faraday.new(:url => 'http://127.0.0.3:8101') do |faraday|
-        faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
+        faraday.adapter Faraday.default_adapter # make requests with Net::HTTP
       end
       conn.get
 
       assert_requested :get, "http://127.0.0.3:8101/", times: 1
-      refute_requested :get, "http://127.0.0.3:8101/", headers: {'Traceparent'=>/^.*$/}
+      refute_requested :get, "http://127.0.0.3:8101/", headers: { 'Traceparent' => /^.*$/ }
     end
 
     ##### with uninstrumented middleware #####
@@ -112,7 +113,7 @@ if !defined?(JRUBY_VERSION)
     def test_tracing_sampling_patron
       stub_request(:get, "http://127.0.0.1:8101/")
 
-      AppOpticsAPM::API.start_trace('faraday_test') do
+      AppOpticsAPM::SDK.start_trace('faraday_test') do
         conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
           faraday.adapter :patron # use an uninstrumented middleware
         end
@@ -130,7 +131,7 @@ if !defined?(JRUBY_VERSION)
 
       AppOpticsAPM.config_lock.synchronize do
         AppOpticsAPM::Config[:sample_rate] = 0
-        AppOpticsAPM::API.start_trace('faraday_test') do
+        AppOpticsAPM::SDK.start_trace('faraday_test') do
           conn = Faraday.new(:url => 'http://127.0.0.12:8101') do |faraday|
             faraday.adapter :patron # use an uninstrumented middleware
           end
@@ -153,7 +154,7 @@ if !defined?(JRUBY_VERSION)
       conn.get
 
       assert_requested :get, "http://127.0.0.3:8101/", times: 1
-      assert_not_requested :get, "http://127.0.0.3:8101/", headers: {'Traceparent'=>/^.*$/}
+      assert_not_requested :get, "http://127.0.0.3:8101/", headers: { 'Traceparent' => /^.*$/ }
     end
 
     ##### W3C tracestate propagation
@@ -161,25 +162,24 @@ if !defined?(JRUBY_VERSION)
     def test_propagation_simple_trace_state
       WebMock.disable!
 
-      task_id = 'a462ade6cfe479081764cc476aa98335'
-      trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
-      state = 'sw=cb3468da6f06eefc01'
-      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
+      trace_id = 'a462ade6cfe479081764cc476aa98335'
+      tracestring = "00-#{trace_id}-cb3468da6f06eefc-01"
+      state = 'sw=cb3468da6f06eefc-01'
+      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(tracestring, state)
 
-      AppOpticsAPM::API.start_trace('faraday_tests', AppOpticsAPM.trace_context.xtrace) do
+      AppOpticsAPM::SDK.start_trace('faraday_tests') do
         conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
-          faraday.adapter :patron  # use an uninstrumented middleware
+          faraday.adapter :patron # use an uninstrumented middleware
         end
         conn.get
 
         assert_trace_headers(conn.headers, true)
-        assert_equal task_id, AppOpticsAPM::TraceParent.task_id(conn.headers['traceparent'])
+        assert_equal trace_id, AppOpticsAPM::TraceString.trace_id(conn.headers['traceparent'])
         refute_equal state, conn.headers['tracestate']
       end
 
       refute AppOpticsAPM::Context.isValid
     end
-
 
     def test_propagation_simple_trace_state_not_tracing
       WebMock.disable!
@@ -190,7 +190,7 @@ if !defined?(JRUBY_VERSION)
       AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
 
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
-        faraday.adapter :patron  # use an uninstrumented middleware
+        faraday.adapter :patron # use an uninstrumented middleware
       end
       conn.get
 
@@ -208,15 +208,15 @@ if !defined?(JRUBY_VERSION)
       state = 'aa= 1234, sw=cb3468da6f06eefc-01,%%cc=%%%45'
       AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
 
-      AppOpticsAPM::API.start_trace('faraday_tests', AppOpticsAPM.trace_context.xtrace) do
+      AppOpticsAPM::SDK.start_trace('faraday_tests') do
         conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
-          faraday.adapter :patron  # use an uninstrumented middleware
+          faraday.adapter :patron # use an uninstrumented middleware
         end
         conn.get
 
         assert_trace_headers(conn.headers, true)
-        assert_equal task_id, AppOpticsAPM::TraceParent.task_id(conn.headers['traceparent'])
-        assert_equal "sw=#{AppOpticsAPM::TraceParent.edge_id_flags(conn.headers['traceparent'])},aa= 1234,%%cc=%%%45",
+        assert_equal task_id, AppOpticsAPM::TraceString.trace_id(conn.headers['traceparent'])
+        assert_equal "sw=#{AppOpticsAPM::TraceString.span_id_flags(conn.headers['traceparent'])},aa= 1234,%%cc=%%%45",
                      conn.headers['tracestate']
       end
 
@@ -232,7 +232,7 @@ if !defined?(JRUBY_VERSION)
       AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
 
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
-        faraday.adapter :patron  # use an uninstrumented middleware
+        faraday.adapter :patron # use an uninstrumented middleware
       end
       conn.get
 

@@ -61,7 +61,7 @@ begin
     require 'appoptics_apm/noop/context'
     require 'appoptics_apm/noop/metadata'
     require 'appoptics_apm/noop/profiling'
-    require 'appoptics_apm/support/xtrace'
+    require 'appoptics_apm/support/trace_string'
   end
 
   # Load Ruby module last.  If there is no framework detected,

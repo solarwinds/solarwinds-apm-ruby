@@ -2,9 +2,9 @@
 # All rights reserved.
 
 # unless defined?(JRUBY_VERSION)
-  require 'minitest_helper'
-  require 'appoptics_apm/inst/rack'
-  require File.expand_path(File.dirname(__FILE__) + '../../frameworks/apps/sinatra_simple')
+require 'minitest_helper'
+require 'appoptics_apm/inst/rack'
+require File.expand_path(File.dirname(__FILE__) + '../../frameworks/apps/sinatra_simple')
 
 describe 'HTTPClientTest' do
   include Rack::Test::Methods
@@ -38,16 +38,16 @@ describe 'HTTPClientTest' do
   end
 
   it 'sends event for a request' do
-    AppOpticsAPM::API.start_trace('httpclient_tests') do
+    AppOpticsAPM::SDK.start_trace('httpclient_tests') do
       context = AppOpticsAPM::Context.toString
       clnt = HTTPClient.new
       response = clnt.get('http://127.0.0.1:8101/', :query => { :keyword => 'ruby', :lang => 'en' })
 
-      # Validate returned xtrace
+      # Validate returned tracestring
       assert response.headers.key?("X-Trace")
-      assert AppOpticsAPM::XTrace.valid?(response.headers["X-Trace"])
-      assert_equal(AppOpticsAPM::XTrace.task_id(context),
-                   AppOpticsAPM::XTrace.task_id(response.headers["X-Trace"]))
+      assert AppOpticsAPM::TraceString.valid?(response.headers["X-Trace"])
+      assert_equal(AppOpticsAPM::TraceString.trace_id(context),
+                   AppOpticsAPM::TraceString.trace_id(response.headers["X-Trace"]))
     end
 
     traces = get_all_traces
@@ -67,7 +67,7 @@ describe 'HTTPClientTest' do
   end
 
   it 'works with a request to an uninstrumented app' do
-    AppOpticsAPM::API.start_trace('httpclient_tests') do
+    AppOpticsAPM::SDK.start_trace('httpclient_tests') do
       clnt = HTTPClient.new
       response = clnt.get('http://127.0.0.1:8110/', :query => { :keyword => 'ruby', :lang => 'en' })
       refute response.headers.key?("X-Trace")
@@ -92,15 +92,15 @@ describe 'HTTPClientTest' do
   it 'works with a header hash' do
     response = nil
 
-    AppOpticsAPM::API.start_trace('httpclient_tests') do
+    AppOpticsAPM::SDK.start_trace('httpclient_tests') do
       clnt = HTTPClient.new
       response = clnt.get('http://127.0.0.1:8101/', nil, { "SOAPAction" => "HelloWorld" })
     end
 
     traces = get_all_traces
-    xtrace = response.headers['X-Trace']
-    assert xtrace
-    assert AppOpticsAPM::XTrace.valid?(xtrace)
+    tracestring = response.headers['X-Trace']
+    assert tracestring
+    assert AppOpticsAPM::TraceString.valid?(tracestring)
 
     assert_equal 6, traces.count
     assert valid_edges?(traces, false), "Invalid edge in traces"
@@ -120,16 +120,16 @@ describe 'HTTPClientTest' do
   it 'works with a header array' do
     response = nil
 
-    AppOpticsAPM::API.start_trace('httpclient_tests') do
+    AppOpticsAPM::SDK.start_trace('httpclient_tests') do
       clnt = HTTPClient.new
       response = clnt.get('http://127.0.0.1:8101/', nil, [["Accept", "text/plain"], ["Accept", "text/html"]])
     end
 
     traces = get_all_traces
 
-    xtrace = response.headers['X-Trace']
-    assert xtrace
-    assert AppOpticsAPM::XTrace.valid?(xtrace)
+    tracestring = response.headers['X-Trace']
+    assert tracestring
+    assert AppOpticsAPM::TraceString.valid?(tracestring)
 
     assert_equal 6, traces.count
     assert valid_edges?(traces, false), "Invalid edge in traces"
@@ -149,16 +149,16 @@ describe 'HTTPClientTest' do
   it 'works for a post request' do
     response = nil
 
-    AppOpticsAPM::API.start_trace('httpclient_tests') do
+    AppOpticsAPM::SDK.start_trace('httpclient_tests') do
       clnt = HTTPClient.new
       response = clnt.post('http://127.0.0.1:8101/')
     end
 
     traces = get_all_traces
 
-    xtrace = response.headers['X-Trace']
-    assert xtrace
-    assert AppOpticsAPM::XTrace.valid?(xtrace)
+    tracestring = response.headers['X-Trace']
+    assert tracestring
+    assert AppOpticsAPM::TraceString.valid?(tracestring)
 
     assert_equal 6, traces.count
     assert valid_edges?(traces, false), "Invalid edge in traces"
@@ -178,7 +178,7 @@ describe 'HTTPClientTest' do
   it 'works with an async get' do
     conn = nil
 
-    AppOpticsAPM::API.start_trace('httpclient_tests') do
+    AppOpticsAPM::SDK.start_trace('httpclient_tests') do
       clnt = HTTPClient.new
       conn = clnt.get_async('http://127.0.0.1:8101/?blah=1')
     end
@@ -212,14 +212,14 @@ describe 'HTTPClientTest' do
   it 'works for cross app tracing' do
     response = nil
 
-    AppOpticsAPM::API.start_trace('httpclient_tests') do
+    AppOpticsAPM::SDK.start_trace('httpclient_tests') do
       clnt = HTTPClient.new
       response = clnt.get('http://127.0.0.1:8101/', :query => { :keyword => 'ruby', :lang => 'en' })
     end
 
-    xtrace = response.headers['X-Trace']
-    assert xtrace
-    assert AppOpticsAPM::XTrace.valid?(xtrace)
+    tracestring = response.headers['X-Trace']
+    assert tracestring
+    assert AppOpticsAPM::TraceString.valid?(tracestring)
 
     traces = get_all_traces
 
@@ -246,7 +246,7 @@ describe 'HTTPClientTest' do
   it 'works when there are errors' do
     result = nil
     begin
-      AppOpticsAPM::API.start_trace('httpclient_tests') do
+      AppOpticsAPM::SDK.start_trace('httpclient_tests') do
         clnt = HTTPClient.new
         clnt.get('http://asfjalkfjlajfljkaljf/')
       end
@@ -284,16 +284,16 @@ describe 'HTTPClientTest' do
 
     response = nil
 
-    AppOpticsAPM::API.start_trace('httpclient_tests') do
+    AppOpticsAPM::SDK.start_trace('httpclient_tests') do
       clnt = HTTPClient.new
       response = clnt.get('http://127.0.0.1:8101/', :query => { :keyword => 'ruby', :lang => 'en' })
     end
 
     traces = get_all_traces
 
-    xtrace = response.headers['X-Trace']
-    assert xtrace
-    assert AppOpticsAPM::XTrace.valid?(xtrace)
+    tracestring = response.headers['X-Trace']
+    assert tracestring
+    assert AppOpticsAPM::TraceString.valid?(tracestring)
 
     assert_equal 6, traces.count
     assert valid_edges?(traces, false), "Invalid edge in traces"
@@ -309,16 +309,16 @@ describe 'HTTPClientTest' do
 
     response = nil
 
-    AppOpticsAPM::API.start_trace('httpclient_tests') do
+    AppOpticsAPM::SDK.start_trace('httpclient_tests') do
       clnt = HTTPClient.new
       response = clnt.get('http://127.0.0.1:8101/', :query => { :keyword => 'ruby', :lang => 'en' })
     end
 
     traces = get_all_traces
 
-    xtrace = response.headers['X-Trace']
-    assert xtrace
-    assert AppOpticsAPM::XTrace.valid?(xtrace)
+    tracestring = response.headers['X-Trace']
+    assert tracestring
+    assert AppOpticsAPM::TraceString.valid?(tracestring)
 
     assert_equal 6, traces.count
     assert valid_edges?(traces, false), "Invalid edge in traces"

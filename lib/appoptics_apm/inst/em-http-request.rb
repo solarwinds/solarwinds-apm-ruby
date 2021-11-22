@@ -33,7 +33,7 @@ module AppOpticsAPM
 
         def parse_response_header_with_appoptics(*args, &block)
           report_kvs = {}
-          xtrace = nil
+          tracestring = nil
 
           begin
             report_kvs[:HTTPStatus] = args[2]
@@ -46,19 +46,19 @@ module AppOpticsAPM
 
           headers = args[0]
           context = AppOpticsAPM::Context.toString
-          task_id = AppOpticsAPM::XTrace.task_id(context)
+          trace_id = AppOpticsAPM::TraceString.trace_id(context)
 
           if headers.is_a?(Hash) && headers.key?('X-Trace')
-            xtrace = headers['X-Trace']
+            tracestring = headers['X-Trace']
           end
 
-          if AppOpticsAPM::XTrace.valid?(xtrace) && AppOpticsAPM.tracing?
+          if AppOpticsAPM::TraceString.valid?(tracestring) && AppOpticsAPM.tracing?
 
             # Assure that we received back a valid X-Trace with the same task_id
-            if task_id == AppOpticsAPM::XTrace.task_id(xtrace)
-              AppOpticsAPM::Context.fromString(xtrace)
+            if trace_id == AppOpticsAPM::TraceString.trace_id(tracestring)
+              AppOpticsAPM::Context.fromString(tracestring)
             else
-              AppOpticsAPM.logger.debug "[appoptics_apm/em-http] Mismatched returned X-Trace ID : #{xtrace}"
+              AppOpticsAPM.logger.debug "[appoptics_apm/em-http] Mismatched returned X-Trace ID : #{tracestring}"
             end
           end
         ensure

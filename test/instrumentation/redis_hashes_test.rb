@@ -35,7 +35,7 @@ if defined?(::Redis)
 
       @redis.hset("whale", "color", "blue")
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.hdel("whale", "color")
       end
 
@@ -53,7 +53,7 @@ if defined?(::Redis)
       @redis.hset("whale", "size", "big")
       @redis.hset("whale", "eyes", "green")
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.hdel("whale", ["color", "eyes"])
       end
 
@@ -69,7 +69,7 @@ if defined?(::Redis)
 
       @redis.hset("whale", "color", "blue")
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.hexists("whale", "color")
       end
 
@@ -85,7 +85,7 @@ if defined?(::Redis)
 
       @redis.hset("whale", "color", "blue")
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.hget("whale", "color")
         @redis.hget("whale", "noexist")
       end
@@ -104,7 +104,7 @@ if defined?(::Redis)
 
       @redis.hset("whale", "color", "blue")
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.hgetall("whale")
       end
 
@@ -119,7 +119,7 @@ if defined?(::Redis)
 
       @redis.hset("whale", "age", 32)
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.hincrby("whale", "age", 1)
       end
 
@@ -136,7 +136,7 @@ if defined?(::Redis)
 
       @redis.hset("whale", "age", 32)
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.hincrbyfloat("whale", "age", 1.3)
       end
 
@@ -153,7 +153,7 @@ if defined?(::Redis)
 
       @redis.hset("whale", "age", 32)
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.hkeys("whale")
       end
 
@@ -168,7 +168,7 @@ if defined?(::Redis)
 
       @redis.hset("whale", "age", 32)
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.hlen("whale")
       end
 
@@ -185,7 +185,7 @@ if defined?(::Redis)
       @redis.hset("whale", "size", "big")
       @redis.hset("whale", "eyes", "green")
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.hmget("whale", "color", "size", "blah", "brown")
       end
 
@@ -204,7 +204,7 @@ if defined?(::Redis)
       @redis.hset("whale", "size", "big")
       @redis.hset("whale", "eyes", "green")
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.hmset("whale", ["color", "red", "size", "very big"])
       end
 
@@ -217,7 +217,7 @@ if defined?(::Redis)
     it "should trace hset" do
       min_server_version(2.0)
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.hset("whale", "eyes", "green")
       end
 
@@ -230,7 +230,7 @@ if defined?(::Redis)
     it "should trace hsetnx" do
       min_server_version(2.0)
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.hsetnx("whale", "eyes", "green")
       end
 
@@ -243,7 +243,7 @@ if defined?(::Redis)
     it "should trace hvals" do
       min_server_version(2.0)
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.hvals("whale")
       end
 
@@ -256,7 +256,7 @@ if defined?(::Redis)
     it "should trace hscan" do
       min_server_version(2.8)
 
-      AppOpticsAPM::API.start_trace('redis_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
         @redis.hscan("whale", 0)
       end
 
