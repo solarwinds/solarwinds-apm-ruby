@@ -104,7 +104,7 @@ if defined?(::Rails)
 
       # Validate the existence of the response header
       _(r.header.key?('X-Trace')).must_equal true
-      _(r.header['X-Trace']).must_equal traces[5]['X-Trace']
+      _(r.header['X-Trace']).must_equal traces[5]['sw.trace_context']
     end
 
     # Different behavior in Rails >= 5.2.0
@@ -158,7 +158,7 @@ if defined?(::Rails)
 
       # Validate the existence of the response header
       _(r.header.key?('X-Trace')).must_equal true
-      _(r.header['X-Trace']).must_equal traces[11]['X-Trace']
+      _(r.header['X-Trace']).must_equal traces[11]['sw.trace_context']
     end
 
     # Different behavior in Rails >= 5.2.0
@@ -204,7 +204,7 @@ if defined?(::Rails)
 
       # Validate the existence of the response header
       _(r.header.key?('X-Trace')).must_equal true
-      _(r.header['X-Trace']).must_equal traces[11]['X-Trace']
+      _(r.header['X-Trace']).must_equal traces[11]['sw.trace_context']
     end
 
     # Different behavior in Rails >= 5.2.0
@@ -253,10 +253,8 @@ if defined?(::Rails)
 
       # Validate the existence of the response header
       _(r.header.key?('X-Trace')).must_equal true
-      _(r.header['X-Trace']).must_equal traces[11]['X-Trace']
+      _(r.header['X-Trace']).must_equal traces[11]['sw.trace_context']
     end
-
-
 
     it "should trace a request to a rails metal stack" do
 
@@ -289,7 +287,7 @@ if defined?(::Rails)
 
       # Validate the existence of the response header
       _(r.header.key?('X-Trace')).must_equal true
-      _(r.header['X-Trace']).must_equal traces[3]['X-Trace']
+      _(r.header['X-Trace']).must_equal traces[3]['sw.trace_context']
     end
 
     it "should collect backtraces when true" do
@@ -333,7 +331,7 @@ if defined?(::Rails)
 
       # Validate the existence of the response header
       _(r.header.key?('X-Trace')).must_equal true
-      _(r.header['X-Trace']).must_equal traces[5]['X-Trace']
+      _(r.header['X-Trace']).must_equal traces[5]['sw.trace_context']
     end
 
     it "should NOT collect backtraces when false" do
@@ -377,7 +375,7 @@ if defined?(::Rails)
 
       # Validate the existence of the response header
       _(r.header.key?('X-Trace')).must_equal true
-      _(r.header['X-Trace']).must_equal traces[5]['X-Trace']
+      _(r.header['X-Trace']).must_equal traces[5]['sw.trace_context']
     end
 
     it 'should log one exception and create unbroken traces when there is an exception' do
@@ -391,7 +389,7 @@ if defined?(::Rails)
       _(traces.select{ |trace| trace['Label'] == 'entry' }.count).must_equal 2
       _(traces.select{ |trace| trace['Label'] == 'exit'  }.count).must_equal 2
 
-      error_trace = traces.find{ |trace| trace['Label'] == 'error' }
+      error_trace = traces.find { |trace| trace['Label'] == 'error' }
       _(error_trace['Spec']).must_equal 'error'
       _(error_trace.key?('ErrorClass')).must_equal true
       _(error_trace.key?('ErrorMsg')).must_equal true

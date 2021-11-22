@@ -43,11 +43,11 @@ module AppOpticsAPM
       # AppOpticsAPM.set_tracing_mode(AppOpticsAPM::Config[:tracing_mode].to_sym)
 
       # Continue the trace from the enqueue side?
-      if args[1].is_a?(Hash) && AppOpticsAPM::XTrace.valid?(args[1]['SourceTrace'])
+      if args[1].is_a?(Hash) && AppOpticsAPM::TraceString.valid?(args[1]['SourceTrace'])
         report_kvs[:SourceTrace] = args[1]['SourceTrace']
       end
 
-      AppOpticsAPM::SDK.start_trace(:'sidekiq-worker', nil, report_kvs) do
+      AppOpticsAPM::SDK.start_trace(:'sidekiq-worker', report_kvs) do
         yield
       end
     end

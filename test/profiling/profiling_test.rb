@@ -7,7 +7,7 @@ describe "Profiling: " do
         return if num == 0
 
         num -= 1
-        sleep 0.1 if  num % sleep_every == 0
+        sleep 0.1 if num % sleep_every == 0
         recurse_with_sleep(num, sleep_every)
       end
 
@@ -53,27 +53,27 @@ describe "Profiling: " do
     traces.select! { |tr| tr['Spec'] == "profiling" }
 
     assert_equal 1, traces.select { |tr| tr['Label'] == 'entry' }.size, "no entry found #{traces.pretty_inspect}"
-    assert traces.select { |tr| tr['Label'] == 'exit'}.size >= 1
+    assert traces.select { |tr| tr['Label'] == 'exit' }.size >= 1
     assert_equal 1, traces.select { |tr| tr['Label'] == 'exit' }.size, "no exit found"
 
     tid = AppOpticsAPM::CProfiler.get_tid
 
-    entry_trace = traces.find { |tr| tr['Label'] == 'entry'}
-    assert_equal AppOpticsAPM::XTrace.edge_id(xtrace_context), entry_trace['SpanRef']
+    entry_trace = traces.find { |tr| tr['Label'] == 'entry' }
+    assert_equal AppOpticsAPM::TraceString.span_id(xtrace_context), entry_trace['SpanRef']
     assert_equal 13, entry_trace['Interval']
     assert_equal 'ruby', entry_trace['Language']
     assert_equal tid, entry_trace['TID']
 
     # check an edge
     snapshot_trace = traces.find { |tr| tr['Label'] == 'info' }
-    assert_equal AppOpticsAPM::XTrace.edge_id(xtrace_context), snapshot_trace['ContextOpId']
-    assert_equal AppOpticsAPM::XTrace.edge_id(entry_trace['X-Trace']), snapshot_trace['Edge']
+    assert_equal AppOpticsAPM::TraceString.span_id(xtrace_context), snapshot_trace['ContextOpId']
+    assert_equal AppOpticsAPM::TraceString.span_id(entry_trace['X-Trace']), snapshot_trace['Edge']
 
     # check last edge
     snapshot_trace = traces.select { |tr| tr['Label'] == 'info' }.last
-    exit_trace = traces.find { |tr| tr['Label'] == 'exit'}
+    exit_trace = traces.find { |tr| tr['Label'] == 'exit' }
     assert (exit_trace['SnapshotsOmitted'].size > 0), "no omitted snapshot found"
-    assert_equal AppOpticsAPM::XTrace.edge_id(snapshot_trace['X-Trace']), exit_trace['Edge']
+    assert_equal AppOpticsAPM::TraceString.span_id(snapshot_trace['X-Trace']), exit_trace['Edge']
     assert_equal tid, exit_trace['TID']
   end
 
@@ -151,7 +151,7 @@ describe "Profiling: " do
     assert (num >= 15), "Number of Traces+SnapshotsOmitted is only #{num} should be >= 15 , #{traces.pretty_inspect}"
 
     duration = traces.last['Timestamp_u'] - traces[0]['Timestamp_u']
-    average_interval = (duration/(num-1))/1000.0
+    average_interval = (duration / (num - 1)) / 1000.0
     assert (average_interval >= 9 && average_interval <= 11),
            "average interval should be >= 9 and <= 11, actual #{average_interval}, #{num}, #{duration}\n#{traces.pretty_inspect}"
   end

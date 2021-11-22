@@ -41,12 +41,14 @@ if AppOpticsAPM.loaded
 
         # store incoming information in a thread local variable
         AppOpticsAPM.trace_context = TraceContext.new(env['HTTP_TRACEPARENT'], env['HTTP_TRACESTATE'])
-        xtrace = AppOpticsAPM.trace_context.xtrace
-        settings = AppOpticsAPM::TransactionSettings.new(url, xtrace, options)
+        tracestring = AppOpticsAPM.trace_context.tracestring
+        sw_member_value = AppOpticsAPM.trace_context.sw_member_value
+        settings = AppOpticsAPM::TransactionSettings.new(url, tracestring, sw_member_value, options)
+
         profile_spans = AppOpticsAPM::Config['profiling'] == :enabled ? 1 : -1
 
         response =
-          propagate_xtrace(env, settings, xtrace) do
+          propagate_tracecontext(env, settings) do
             sample(env, settings, options, profile_spans) do
               AppOpticsAPM::Profiling.run do
                 AppOpticsAPM::TransactionMetrics.metrics(env, settings) do
@@ -117,40 +119,50 @@ if AppOpticsAPM.loaded
         report_kvs
       end
 
-      def propagate_xtrace(env, settings, xtrace)
+      def propagate_tracecontext(env, settings)
         return yield unless settings.do_propagate
 
-        if xtrace
-          xtrace_local = xtrace.dup
-          AppOpticsAPM::XTrace.unset_sampled(xtrace_local) unless settings.do_sample
-          env['HTTP_TRACEPARENT'] = AppOpticsAPM::TraceContext.ao_to_w3c_trace(xtrace_local)
+        # TODO find out why we used to update/add the request HTTP_X_TRACE header
+        #  maybe to update the tracing decision for the actual rack call
+        if AppOpticsAPM.trace_context&.tracestring
+          # creating a dup because we are modifying it when setting/unsetting the sampling bit
+          tracestring_dup = AppOpticsAPM.trace_context.tracestring.dup
+          if settings.do_sample
+            AppOpticsAPM::TraceString.set_sampled(tracestring_dup)
+          else
+            AppOpticsAPM::TraceString.unset_sampled(tracestring_dup)
+          end
+          env['HTTP_TRACEPARENT'] = tracestring_dup
+          env['HTTP_TRACESTATE'] = AppOpticsAPM::TraceState.add_sw_member(
+            AppOpticsAPM.trace_context&.tracestate,
+            AppOpticsAPM::TraceString.span_id_flags(tracestring_dup)
+          )
         end
 
         status, headers, response = yield
 
+        # TODO this will be finalized when we have a spec for w3c response headers
         headers ||= {}
         headers['X-Trace'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid
-        headers['X-Trace'] ||= xtrace if xtrace
-        headers['X-Trace'] && AppOpticsAPM::XTrace.unset_sampled(headers['X-Trace']) unless settings.do_sample
 
         [status, headers, response]
       end
 
       def sample(env, settings, options, profile_spans)
-        xtrace = AppOpticsAPM.trace_context.parent_xtrace
         if settings.do_sample
           begin
             report_kvs = collect(env)
             settings.add_kvs(report_kvs)
             options&.add_kvs(report_kvs, settings)
             AppOpticsAPM.trace_context&.add_kvs(report_kvs)
-            AppOpticsAPM::API.log_start(:rack, xtrace, report_kvs, settings)
+
+            AppOpticsAPM::API.log_start(:rack, report_kvs, settings)
 
             status, headers, response = yield
 
             AppOpticsAPM::API.log_exit(:rack, { Status: status,
                                                 TransactionName: AppOpticsAPM.transaction_name,
-                                                ProfileSpans: profile_spans})
+                                                ProfileSpans: profile_spans })
 
             [status, headers, response]
           rescue Exception => e
@@ -163,7 +175,7 @@ if AppOpticsAPM.loaded
             raise
           end
         else
-          AppOpticsAPM::API.create_nontracing_context(xtrace)
+          AppOpticsAPM::API.create_nontracing_context(AppOpticsAPM.trace_context.tracestring)
           yield
         end
       end

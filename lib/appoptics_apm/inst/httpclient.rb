@@ -68,17 +68,19 @@ module AppOpticsAPM
 
       def do_request_async(method, uri, query, body, header)
         add_trace_header(header)
+        # added headers because this calls `do_get_stream` in a new thread
+        # threads do not inherit thread local variables like AppOpticsAPM.trace_context
         super(method, uri, query, body, header)
       end
 
       def do_get_stream(req, proxy, conn)
-        unless req.header['traceparent'].empty?
-          # TODO where is the req header coming from? does this need to go through tracing decision?
-          xtrace = AppOpticsAPM::TraceContext.w3c_to_ao_trace(req.header['traceparent'].first)
-          AppOpticsAPM::Context.fromString(xtrace)
-        end
-
-        unless AppOpticsAPM.tracing?
+        # called from `do_request_async` in a new thread
+        # threads do not inherit thread local variables
+        # therefore we use headers to continue context
+        w3c_headers = get_trace_headers(req.headers)
+        AppOpticsAPM.trace_context = TraceContext.new(*w3c_headers)
+        unless AppOpticsAPM::TraceString.sampled?(AppOpticsAPM.trace_context.tracestring)
+          # trace headers already included
           return super(req, proxy, conn)
         end
 
@@ -89,6 +91,7 @@ module AppOpticsAPM
           kvs = appoptics_collect(method, uri)
           kvs[:Async] = 1
 
+          AppOpticsAPM::Context.fromString(AppOpticsAPM.trace_context.tracestring)
           AppOpticsAPM::API.log_entry(:httpclient, kvs)
           kvs.clear
           kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:httpclient][:collect_backtraces]
@@ -125,36 +128,46 @@ module AppOpticsAPM
 
       private
 
-      def add_trace_header(headers)
-        traceparent, tracestate = w3c_context
+      def get_trace_headers(headers)
+        if headers.is_a?(Array)
+          traceparent = headers.find { |ele| ele.first =~ /[Tt]raceparent/ }
+          tracestate = headers.find { |ele| ele.first =~ /[Tt]racestate/ }
+          return [traceparent, tracestate]
+        elsif headers.is_a?(Hash)
+          return [headers['traceparent'], headers['tracestate']]
+        elsif headers.is_a? HTTP::Message::Headers
+          return [headers['traceparent'].first, headers['tracestate'].first]
+        end
+        [nil, nil]
+      end
 
+      def add_trace_header(headers)
+        tracestring, tracestate = w3c_context
         # Be aware of various ways to call/use httpclient
         if headers.is_a?(Array)
           headers.delete_if { |kv| kv[0] =~ /^([Tt]raceparent|[Tt]racestate)$/ }
-          headers.push ['traceparent', traceparent] if traceparent
+          headers.push ['traceparent', tracestring] if tracestring
           headers.push ['tracestate', tracestate] if tracestate
         elsif headers.is_a?(Hash)
-          headers['traceparent'] = traceparent if traceparent
-          headers['tracestate'] = tracestate  if tracestate
+          headers['traceparent'] = tracestring if tracestring
+          headers['tracestate'] = tracestate if tracestate
         elsif headers.is_a? HTTP::Message::Headers
-          headers.set('traceparent', traceparent) if traceparent
+          headers.set('traceparent', tracestring) if tracestring
           headers.set('tracestate', tracestate) if tracestate
         end
       end
 
+      # !! this is a private method, only used in add_trace_header above
       def w3c_context
-        context = AppOpticsAPM::Context.toString
+        tracestring = AppOpticsAPM::Context.toString
 
-        if AppOpticsAPM::XTrace.valid?(context)
-          traceparent = AppOpticsAPM::TraceContext.ao_to_w3c_trace(context)
-          parent_id_flags = AppOpticsAPM::TraceParent.edge_id_flags(traceparent)
-          tracestate = AppOpticsAPM::TraceState.add_kv(AppOpticsAPM.trace_context&.tracestate, parent_id_flags)
-          return [traceparent, tracestate]
-        elsif AppOpticsAPM.trace_context && AppOpticsAPM.trace_context.traceparent
-          return [AppOpticsAPM.trace_context.traceparent, AppOpticsAPM.trace_context.tracestate]
+        unless AppOpticsAPM::TraceString.valid?(tracestring)
+          return [AppOpticsAPM.trace_context&.traceparent, AppOpticsAPM.trace_context&.tracestate]
         end
 
-        [nil, nil]
+        parent_id_flags = AppOpticsAPM::TraceString.span_id_flags(tracestring)
+        tracestate = AppOpticsAPM::TraceState.add_sw_member(AppOpticsAPM.trace_context&.tracestate, parent_id_flags)
+        [tracestring, tracestate]
       end
 
     end

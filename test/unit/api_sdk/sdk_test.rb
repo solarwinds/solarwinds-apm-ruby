@@ -8,10 +8,8 @@ describe AppOpticsAPM::SDK do
 
   before do
     @trace_00 = '00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-00'
-    @xtrace_00 = AppOpticsAPM::TraceContext.w3c_to_ao_trace(@trace_00)
     @trace_01 = '00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-01'
-    @xtrace_01 = AppOpticsAPM::TraceContext.w3c_to_ao_trace(@trace_01)
-    
+
     AppOpticsAPM.config_lock.synchronize {
       @tm = AppOpticsAPM::Config[:tracing_mode]
       @sample_rate = AppOpticsAPM::Config[:sample_rate]
@@ -40,7 +38,7 @@ describe AppOpticsAPM::SDK do
   describe 'trace' do
 
     before do
-      AppOpticsAPM::Context.fromString(@xtrace_01)
+      AppOpticsAPM::Context.fromString(@trace_01)
     end
 
     it 'should return the result from the block' do
@@ -60,7 +58,7 @@ describe AppOpticsAPM::SDK do
     end
 
     it 'should not log if we are not sampling' do
-      AppOpticsAPM::Context.fromString(@xtrace_00)
+      AppOpticsAPM::Context.fromString(@trace_00)
       AppOpticsAPM::API.expects(:log_event).never
       result = AppOpticsAPM::SDK.trace(:test) { 42 }
       assert_equal 42, result
@@ -134,7 +132,7 @@ describe AppOpticsAPM::SDK do
       def computation_with_appoptics(n)
         AppOpticsAPM::SDK.trace('computation', { :number => n }, :comp) do
           return n if n == 0
-          n + computation_with_appoptics(n-1)
+          n + computation_with_appoptics(n - 1)
         end
       end
 
@@ -145,10 +143,10 @@ describe AppOpticsAPM::SDK do
     end
   end
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
   describe 'start_trace single invocation' do
     it 'should log when sampling' do
-      AppOpticsAPM::API.expects(:log_start).with('test_01', nil, {})
+      AppOpticsAPM::API.expects(:log_start).with('test_01', {})
       AppOpticsAPM::API.expects(:log_end).with('test_01', has_entry(:TransactionName => 'custom-test_01'), instance_of(Oboe_metal::Event))
 
       result = AppOpticsAPM::SDK.start_trace('test_01') { 42 }
@@ -181,7 +179,7 @@ describe AppOpticsAPM::SDK do
     end
 
     it 'should not call log or metrics methods when there is a non-sampling context' do
-      AppOpticsAPM::Context.fromString(@xtrace_00)
+      AppOpticsAPM::Context.fromString(@trace_00)
 
       AppOpticsAPM::API.expects(:log_event).never
       AppOpticsAPM::API.expects(:send_metrics).never
@@ -191,14 +189,14 @@ describe AppOpticsAPM::SDK do
     end
 
     it 'should return the result from the block when there is a sampling context' do
-      AppOpticsAPM::Context.fromString(@xtrace_01)
+      AppOpticsAPM::Context.fromString(@trace_01)
 
       result = AppOpticsAPM::SDK.start_trace('test_01') { 42 }
       assert_equal 42, result
     end
 
     it 'should call trace and not call log_start when there is a sampling context' do
-      AppOpticsAPM::Context.fromString(@xtrace_01)
+      AppOpticsAPM::Context.fromString(@trace_01)
 
       AppOpticsAPM::API.expects(:log_start).never
       AppOpticsAPM::API.expects(:send_metrics).never
@@ -209,40 +207,48 @@ describe AppOpticsAPM::SDK do
     end
 
     it 'should log the tags when there is a sampling context' do
-      AppOpticsAPM::Context.fromString(@xtrace_01)
-      tags = { 'Spec' => 'rsc', 'RemoteURL' => 'https://asdf.com:1234/resource?id=5', 'IsService' => true  }
+      AppOpticsAPM::Context.fromString(@trace_01)
+      tags = { 'Spec' => 'rsc', 'RemoteURL' => 'https://asdf.com:1234/resource?id=5', 'IsService' => true }
 
       AppOpticsAPM::API.expects(:log_start).never
       AppOpticsAPM::API.expects(:send_metrics).never
       AppOpticsAPM::API.expects(:log_end).never
       AppOpticsAPM::SDK.expects(:trace).with('test_01', tags)
 
-      AppOpticsAPM::SDK.start_trace('test_01', nil, tags) { 42 }
+      AppOpticsAPM::SDK.start_trace('test_01', tags) { 42 }
     end
 
     it 'should do metrics and not logging when there is an incoming non-sampling context' do
       AppOpticsAPM::API.expects(:log_event).never
       AppOpticsAPM::API.expects(:send_metrics)
 
-      AppOpticsAPM::SDK.start_trace('test_01', @xtrace_00) { 42 }
+      AppopticsAPM.trace_context = AppOpticsAPM::TraceContext.new(@trace_01, 'sw=123468dadadadada-00')
+
+      AppOpticsAPM::SDK.start_trace('test_01') { 42 }
     end
 
     it 'should send metrics when there is an incoming sampling context' do
       AppOpticsAPM::API.expects(:send_metrics)
 
-      AppOpticsAPM::SDK.start_trace('test_01', @xtrace_01) { 42 }
+      AppopticsAPM.trace_context = AppOpticsAPM::TraceContext.new(@trace_01, 'sw=123468dadadadada-01')
+
+      AppOpticsAPM::SDK.start_trace('test_01') { 42 }
     end
 
     it 'should continue traces' do
       clear_all_traces
-      result = AppOpticsAPM::SDK.start_trace('test_01', @xtrace_01) { 42 }
+
+      AppopticsAPM.trace_context = AppOpticsAPM::TraceContext.new(@trace_01, 'sw=123468dadadadada-01')
+      result = AppOpticsAPM::SDK.start_trace('test_01') { 42 }
 
       traces = get_all_traces
-      assert_equal 42,              result
-      assert_equal 2,               traces.size
-      assert_equal 'entry',         traces[0]['Label']
-      assert_equal 'exit',          traces[1]['Label']
-      assert_equal @xtrace_01[42..-3],  traces[0]['Edge']
+      assert_equal 42, result
+      assert_equal 2, traces.size
+      assert_equal 'entry', traces[0]['Label']
+      assert_equal 'exit', traces[1]['Label']
+
+      assert_equal AppOpticsAPM::TraceString.trace_id(@trace_01), AppOpticsAPM::TraceString.trace_id(traces[0]['sw.trace_context'])
+      assert_equal '123468dadadadada', traces[0]['sw.parent_span_id'].downcase
     end
 
     it 'should use the transaction name from opts' do
@@ -251,7 +257,7 @@ describe AppOpticsAPM::SDK do
       AppOpticsAPM::Span.expects(:createSpan).with('this_name', nil, 0, 0).returns('domain/this_name')
       AppOpticsAPM::API.expects(:log_event).with('test_01', :exit, anything, has_entry(:TransactionName => 'domain/this_name'))
 
-      result = AppOpticsAPM::SDK.start_trace('test_01', nil, :TransactionName => 'this_name') { 42 }
+      result = AppOpticsAPM::SDK.start_trace('test_01', :TransactionName => 'this_name') { 42 }
       assert_equal 42, result
     end
 
@@ -261,7 +267,7 @@ describe AppOpticsAPM::SDK do
       AppOpticsAPM::Span.expects(:createSpan).with('custom_name_this_one', nil, 0, 0).returns('domain/custom_name_this_one')
       AppOpticsAPM::API.expects(:log_event).with('test_01', :exit, anything, has_entry(:TransactionName => 'domain/custom_name_this_one'))
       sleep 0.1
-      AppOpticsAPM::SDK.start_trace('test_01', nil, :TransactionName => 'custom_name') do
+      AppOpticsAPM::SDK.start_trace('test_01', :TransactionName => 'custom_name') do
         AppOpticsApm::SDK.set_transaction_name('custom_name_this_one')
       end
     end
@@ -292,7 +298,7 @@ describe AppOpticsAPM::SDK do
     end
   end
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
   describe 'start_trace nested invocation' do
     it 'should call send_metrics only once' do
@@ -314,8 +320,8 @@ describe AppOpticsAPM::SDK do
       Time.expects(:now).returns(Time.at(0)).twice
       AppOpticsAPM::Span.expects(:createSpan).with('custom_name', nil, 0, 0)
 
-      AppOpticsAPM::SDK.start_trace('test_01', nil, :TransactionName => 'custom_name') do
-        AppOpticsAPM::SDK.start_trace('test_02', nil, :TransactionName => 'custom_name_02') { 42 }
+      AppOpticsAPM::SDK.start_trace('test_01', :TransactionName => 'custom_name') do
+        AppOpticsAPM::SDK.start_trace('test_02', :TransactionName => 'custom_name_02') { 42 }
       end
     end
 
@@ -324,7 +330,7 @@ describe AppOpticsAPM::SDK do
       AppOpticsAPM::Span.expects(:createSpan).with('custom-test_01', nil, 0, 0)
 
       AppOpticsAPM::SDK.start_trace('test_01') do
-        AppOpticsAPM::SDK.start_trace('test_02', nil, :TransactionName => 'custom_name_02') { 42 }
+        AppOpticsAPM::SDK.start_trace('test_02', :TransactionName => 'custom_name_02') { 42 }
       end
     end
 
@@ -333,15 +339,15 @@ describe AppOpticsAPM::SDK do
       AppOpticsAPM::Span.expects(:createSpan).with('actually_this_one', nil, 0, 0)
       AppOpticsAPM::Span.expects(:createSpan).with('actually_this_one_as_well', nil, 0, 0)
 
-      AppOpticsAPM::SDK.start_trace('test_01', nil, :TransactionName => 'custom_name') do
+      AppOpticsAPM::SDK.start_trace('test_01', :TransactionName => 'custom_name') do
         AppOpticsAPM::SDK.set_transaction_name('this_one')
-        AppOpticsAPM::SDK.start_trace('test_02', nil, :TransactionName => 'custom_name_02') do
+        AppOpticsAPM::SDK.start_trace('test_02', :TransactionName => 'custom_name_02') do
           AppOpticsAPM::SDK.set_transaction_name('actually_this_one')
         end
       end
 
-      AppOpticsAPM::SDK.start_trace('test_01', nil, :TransactionName => 'custom_name') do
-        AppOpticsAPM::SDK.start_trace('test_02', nil, :TransactionName => 'custom_name_02') do
+      AppOpticsAPM::SDK.start_trace('test_01', :TransactionName => 'custom_name') do
+        AppOpticsAPM::SDK.start_trace('test_02', :TransactionName => 'custom_name_02') do
           AppOpticsAPM::SDK.set_transaction_name('this_one')
         end
         AppOpticsAPM::SDK.set_transaction_name('actually_this_one_as_well')
@@ -370,45 +376,45 @@ describe AppOpticsAPM::SDK do
 
   end
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
   describe 'start_trace_with_target' do
-    it 'should assign an xtrace to target' do
+    it 'should assign an X-Trace header to target' do
       target = {}
-      AppOpticsAPM::SDK.start_trace_with_target('test_01', nil, target) {}
+      AppOpticsAPM::SDK.start_trace_with_target('test_01', target) {}
 
-      assert AppOpticsAPM::XTrace.valid?(target['X-Trace'])
+      assert AppOpticsAPM::TraceString.valid?(target['X-Trace'])
     end
 
     it 'should call trace and not call log_start when there is a sampling context' do
       target = { 'test' => true }
-      AppOpticsAPM::Context.fromString(@xtrace_01)
+      AppOpticsAPM::Context.fromString(@trace_01)
 
       AppOpticsAPM::API.expects(:log_start).never
       AppOpticsAPM::Span.expects(:createSpan).never
       AppOpticsAPM::API.expects(:log_end).never
       AppOpticsAPM::SDK.expects(:trace).with('test_01', instance_of(Hash))
 
-      AppOpticsAPM::SDK.start_trace_with_target('test_01', nil, target) {}
+      AppOpticsAPM::SDK.start_trace_with_target('test_01', target) {}
     end
 
     it 'should call trace and not call log_start when there is a non-sampling context' do
       target = { :test => true }
-      AppOpticsAPM::Context.fromString(@xtrace_00)
+      AppOpticsAPM::Context.fromString(@trace_00)
 
       AppOpticsAPM::API.expects(:log_start).never
       AppOpticsAPM::Span.expects(:createSpan).never
       AppOpticsAPM::API.expects(:log_end).never
       AppOpticsAPM::SDK.expects(:trace).with('test_01', instance_of(Hash))
 
-      AppOpticsAPM::SDK.start_trace_with_target('test_01', nil, target) { 42 }
+      AppOpticsAPM::SDK.start_trace_with_target('test_01', target) { 42 }
     end
 
     it 'should return the result from the block when there is a non-sampling context ttt' do
       target = { :test => true }
-      AppOpticsAPM::Context.fromString(@xtrace_00)
+      AppOpticsAPM::Context.fromString(@trace_00)
 
-      result = AppOpticsAPM::SDK.start_trace_with_target('test_01', nil, target) { 42 }
+      result = AppOpticsAPM::SDK.start_trace_with_target('test_01', target) { 42 }
       assert_equal 42, result
     end
   end
@@ -430,7 +436,7 @@ describe AppOpticsAPM::SDK do
 
       AppOpticsAPM::SDK.trace_method(self.class, :to_be_traced)
 
-      AppOpticsAPM::SDK.start_trace('trace_test_01')  do
+      AppOpticsAPM::SDK.start_trace('trace_test_01') do
         result = to_be_traced(3, 5)
         _(result).must_equal 8
       end
@@ -453,7 +459,7 @@ describe AppOpticsAPM::SDK do
 
       AppOpticsAPM::SDK.trace_method(self.class, :to_be_traced_with_block)
 
-      AppOpticsAPM::SDK.start_trace('trace_test_01')  do
+      AppOpticsAPM::SDK.start_trace('trace_test_01') do
         result = to_be_traced_with_block(3, 5) { 8 }
         _(result).must_equal 16
       end
@@ -472,7 +478,7 @@ describe AppOpticsAPM::SDK do
 
       AppOpticsAPM::SDK.trace_method(self.class, :to_be_traced_2, { name: 'i_am_traced', backtrace: true })
 
-      AppOpticsAPM::SDK.start_trace('trace_test_01')  do
+      AppOpticsAPM::SDK.start_trace('trace_test_01') do
         to_be_traced_2
       end
 
@@ -506,8 +512,8 @@ describe AppOpticsAPM::SDK do
 
       AppOpticsAPM::SDK.trace_method(::TopTest, :to_be_traced_4)
 
-      AppOpticsAPM::SDK.start_trace('trace_test_01')  do
-        result = ::TopTest.to_be_traced_4(5,7)
+      AppOpticsAPM::SDK.start_trace('trace_test_01') do
+        result = ::TopTest.to_be_traced_4(5, 7)
         _(result).must_equal 12
       end
 
@@ -530,8 +536,8 @@ describe AppOpticsAPM::SDK do
 
       AppOpticsAPM::SDK.trace_method(::TopTest, :to_be_traced_with_block_2)
 
-      AppOpticsAPM::SDK.start_trace('trace_test_01')  do
-        result = ::TopTest.to_be_traced_with_block_2(5,7) { 12 }
+      AppOpticsAPM::SDK.start_trace('trace_test_01') do
+        result = ::TopTest.to_be_traced_with_block_2(5, 7) { 12 }
         _(result).must_equal 24
       end
 
@@ -551,7 +557,7 @@ describe AppOpticsAPM::SDK do
 
       AppOpticsAPM::SDK.trace_method(::TopTest, :to_be_traced_5, { name: 'i_am_traced', backtrace: true })
 
-      AppOpticsAPM::SDK.start_trace('trace_test_01')  do
+      AppOpticsAPM::SDK.start_trace('trace_test_01') do
         ::TopTest.to_be_traced_5
       end
 
@@ -591,8 +597,8 @@ describe AppOpticsAPM::SDK do
     end
 
     it 'SDK should log exceptions' do
-      AppOpticsAPM::SDK.start_trace('test_01')  do
-        AppOpticsAPM::SDK.log_exception( StandardError.new, { the: 'exception' })
+      AppOpticsAPM::SDK.start_trace('test_01') do
+        AppOpticsAPM::SDK.log_exception(StandardError.new, { the: 'exception' })
       end
 
       traces = get_all_traces
@@ -603,8 +609,8 @@ describe AppOpticsAPM::SDK do
     end
 
     it 'SDK should log info' do
-      AppOpticsAPM::SDK.start_trace('test_01')  do
-        AppOpticsAPM::SDK.log_info( { the: 'information' })
+      AppOpticsAPM::SDK.start_trace('test_01') do
+        AppOpticsAPM::SDK.log_info({ the: 'information' })
       end
 
       traces = get_all_traces
@@ -654,12 +660,12 @@ describe AppOpticsAPM::SDK do
 
   describe 'tracing?' do
     it 'should return false if we are not tracing' do
-      AppOpticsAPM::Context.fromString(@xtrace_00)
+      AppOpticsAPM::Context.fromString(@trace_00)
       refute AppOpticsAPM::SDK.tracing?
     end
 
     it 'should return true if we are tracing' do
-      AppOpticsAPM::Context.fromString(@xtrace_01)
+      AppOpticsAPM::Context.fromString(@trace_01)
       assert AppOpticsAPM::SDK.tracing?
     end
 

@@ -26,7 +26,7 @@ class DelayedJobClientTest < Minitest::Test
     w = Widget.new(:name => 'blah', :description => 'This is a wonderful widget.')
     w.save
 
-    AppOpticsAPM::API.start_trace('dj_delay') do
+    AppOpticsAPM::SDK.start_trace('dj_delay') do
       w.delay.do_work(1, 2, 3)
     end
 
@@ -64,7 +64,7 @@ class DelayedJobClientTest < Minitest::Test
     w = Widget.new(:name => 'blah', :description => 'This is a wonderful widget.')
     w.save
 
-    AppOpticsAPM::API.start_trace('dj_delay') do
+    AppOpticsAPM::SDK.start_trace('dj_delay') do
       w.delay.do_work(1, 2, 3)
     end
 
@@ -82,7 +82,7 @@ class DelayedJobClientTest < Minitest::Test
     w = Widget.new(:name => 'blah', :description => 'This is a wonderful widget.')
     w.save
 
-    AppOpticsAPM::API.start_trace('dj_delay') do
+    AppOpticsAPM::SDK.start_trace('dj_delay') do
       w.delay.do_work(1, 2, 3)
     end
 

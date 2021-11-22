@@ -46,7 +46,7 @@ if defined?(Delayed)
                   report_kvs[:Queue] = job.queue if job.queue
                   report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:delayed_jobclient][:collect_backtraces]
 
-                  AppOpticsAPM::API.trace(:'delayed_job-client', report_kvs) do
+                  AppOpticsAPM::SDK.trace(:'delayed_job-client', report_kvs) do
                     block.call(job)
                   end
                 end
@@ -73,7 +73,7 @@ if defined?(Delayed)
                   AppOpticsAPM.logger.warn "[appoptics_apm/warning] inst/delayed_job.rb: #{e.message}"
                 end
 
-                AppOpticsAPM::SDK.start_trace(:'delayed_job-worker', nil, report_kvs) do
+                AppOpticsAPM::SDK.start_trace(:'delayed_job-worker', report_kvs) do
                   result = block.call(worker, job)
                   AppOpticsAPM::API.log_exception(:'delayed_job-worker', job.error) if job.error
                   result

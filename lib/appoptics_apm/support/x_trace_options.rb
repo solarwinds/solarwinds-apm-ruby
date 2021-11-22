@@ -1,13 +1,16 @@
 # Copyright (c) 2019 SolarWinds, LLC.
 # All rights reserved.
 
-
 module AppOpticsAPM
   class XTraceOptions
 
     attr_reader :options, :signature, :trigger_trace, :timestamp
     attr_reader :pd_keys, :custom_kvs, :ignored # used in tests
+    
     ##
+    # use by Trigger Tracing
+    # TODO - refactor for w3c when ticket ready
+    #
     # Params:
     # +options+ : An X-Trace-Options @options string
     # +signature+ : hmac signature to pass on for verification
@@ -75,7 +78,7 @@ module AppOpticsAPM
         end
       end
       unless @ignored.empty?
-        msg = "[appoptics_apm/x-trace-options] Some keys were ignored: #{@ignored.join(',' )}"
+        msg = "[appoptics_apm/x-trace-options] Some keys were ignored: #{@ignored.join(',')}"
         AppOpticsAPM.logger.info(msg)
       end
     end
@@ -95,7 +98,7 @@ module AppOpticsAPM
       response << "auth=#{settings.auth_msg}" if @signature
       if settings.auth_ok?
         if @trigger_trace
-          trigger_msg = settings.xtrace && settings.type == 0 ? 'ignored' : settings.status_msg
+          trigger_msg = settings.tracestring && settings.type == 0 ? 'ignored' : settings.status_msg
         else
           trigger_msg = 'not-requested'
         end

@@ -62,7 +62,7 @@ describe 'TransactionSettingsTest' do
       ] }
 
       _(AppOpticsAPM::Config[:url_disabled_regexps]).must_equal [Regexp.new(/.*lobster.*/),
-                                                              Regexp.new(/.*shrimp*/)]
+                                                                 Regexp.new(/.*shrimp*/)]
     end
 
     it 'ignores faulty regexps' do
@@ -73,7 +73,7 @@ describe 'TransactionSettingsTest' do
       ] }
 
       _(AppOpticsAPM::Config[:url_disabled_regexps]).must_equal [Regexp.new(/.*lobster.*/),
-                                                              Regexp.new(/.*shrimp*/)]
+                                                                 Regexp.new(/.*shrimp*/)]
     end
 
     it 'applies url_opts' do
@@ -97,7 +97,7 @@ describe 'TransactionSettingsTest' do
         { regexp: 'shrimp', opts: Regexp::IGNORECASE }
       ] }
       _(AppOpticsAPM::Config[:url_disabled_regexps]).must_equal [Regexp.new(/lobster/x),
-                                                              Regexp.new(/shrimp/i)]
+                                                                 Regexp.new(/shrimp/i)]
     end
 
     it 'converts a list of extensions into a regex' do
@@ -164,7 +164,7 @@ describe 'TransactionSettingsTest' do
     it 'sends the sample_rate and tracing_mode' do
       AppOpticsAPM::Config[:tracing_mode] = :disabled
       AppOpticsAPM::Config[:sample_rate] = 123456
-      AppOpticsAPM::Context.expects(:getDecisions).with(nil, AO_TRACING_DISABLED, 123456).returns([0,0,0,0,0,0,0,0,'','',0]).once
+      AppOpticsAPM::Context.expects(:getDecisions).with(nil, nil, AO_TRACING_DISABLED, 123456).returns([0, 0, 0, 0, 0, 0, 0, 0, '', '', 0]).once
 
       AppOpticsAPM::TransactionSettings.new('')
     end

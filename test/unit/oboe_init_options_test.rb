@@ -13,7 +13,7 @@ describe 'OboeInitOptions' do
   end
 
   after do
-    @env.each { |k,v| ENV[k] = v }
+    @env.each { |k, v| ENV[k] = v }
     AppOpticsAPM::OboeInitOptions.instance.re_init
     AppOpticsAPM.logger.level = @log_level
   end
@@ -44,7 +44,7 @@ describe 'OboeInitOptions' do
     AppOpticsAPM::OboeInitOptions.instance.re_init
     options = AppOpticsAPM::OboeInitOptions.instance.array_for_oboe
 
-    _(options.size).must_equal 21
+    _(options.size).must_equal 22
     _(options[0]).must_equal 'string_4'
     _(options[1]).must_equal 2
     _(options[2]).must_equal 'string_5'
@@ -85,7 +85,7 @@ describe 'OboeInitOptions' do
     AppOpticsAPM::OboeInitOptions.instance.re_init
     options = AppOpticsAPM::OboeInitOptions.instance.array_for_oboe
 
-    _(options.size).must_equal 21
+    _(options.size).must_equal 22
 
     _(options[0]).must_equal 'string_0'
     _(options[1]).must_equal 0
@@ -113,7 +113,7 @@ describe 'OboeInitOptions' do
     AppOpticsAPM::OboeInitOptions.instance.re_init
     options = AppOpticsAPM::OboeInitOptions.instance.array_for_oboe
 
-    _(options.size).must_equal 21
+    _(options.size).must_equal 22
 
     _(options[0]).must_equal 'string_0'
     _(options[1]).must_equal 1
@@ -272,7 +272,6 @@ describe 'OboeInitOptions' do
     ENV['APPOPTICS_EC2_METADATA_TIMEOUT'] = '3001'
     AppOpticsAPM::OboeInitOptions.instance.re_init
     _(AppOpticsAPM::OboeInitOptions.instance.ec2_md_timeout).must_equal 1000
-
 
     ENV['APPOPTICS_EC2_METADATA_TIMEOUT'] = 'qoieurqopityeoritbweortmvoiu'
     AppOpticsAPM::OboeInitOptions.instance.re_init

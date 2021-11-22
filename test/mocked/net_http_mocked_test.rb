@@ -25,9 +25,9 @@ unless defined?(JRUBY_VERSION)
             Net::HTTP.start(uri.host, uri.port) do |http|
               req = Net::HTTP::Get.new(uri)
               http.request(req)
-            [200,
-             {"Content-Type" => "text/html"},
-             [req['traceparent'], req['tracestate']]]
+              [200,
+               { "Content-Type" => "text/html" },
+               [req['traceparent'], req['tracestate']]]
             end
           }
         end
@@ -57,10 +57,12 @@ unless defined?(JRUBY_VERSION)
       AppOpticsAPM::Config[:tracing_mode] = @tracing_mode
 
       AppOpticsAPM.trace_context = nil
+
+      clear_all_traces
     end
 
     def test_tracing_sampling
-      AppOpticsAPM::API.start_trace('net_http_test') do
+      AppOpticsAPM::SDK.start_trace('net_http_test') do
         uri = URI('http://127.0.0.1:8101/?q=1')
         Net::HTTP.start(uri.host, uri.port) do |http|
           xt = AppOpticsAPM::Context.toString
@@ -74,7 +76,7 @@ unless defined?(JRUBY_VERSION)
           # `to_hash` returns a hash with values as arrays
           assert_trace_headers(request.to_hash.inject({}) { |h, (k, v)| h[k] = v[0]; h })
           assert res['x-trace']
-          assert AppOpticsAPM::XTrace.sampled?(res['x-trace'])
+          assert AppOpticsAPM::TraceString.sampled?(res['x-trace'])
           refute_equal xt, request['traceparent']
           refute_equal xt, res['x-trace']
         end
@@ -85,11 +87,10 @@ unless defined?(JRUBY_VERSION)
     def test_tracing_not_sampling
       AppOpticsAPM.config_lock.synchronize do
         AppOpticsAPM::Config[:sample_rate] = 0
-        AppOpticsAPM::API.start_trace('Net::HTTP_test') do
+        AppOpticsAPM::SDK.start_trace('Net::HTTP_test') do
           uri = URI('http://127.0.0.1:8101/?q=1')
           Net::HTTP.start(uri.host, uri.port) do |http|
-            xt = AppOpticsAPM::Context.toString
-            trace = AppOpticsAPM::TraceContext.ao_to_w3c_trace(xt)
+            trace = AppOpticsAPM::Context.toString
             request = Net::HTTP::Get.new(uri)
             refute request['traceparent']
             res = http.request(request) # Net::HTTPResponse object
@@ -99,9 +100,9 @@ unless defined?(JRUBY_VERSION)
             # `to_hash` returns a hash with values as arrays
             assert_trace_headers(request.to_hash.inject({}) { |h, (k, v)| h[k] = v[0]; h })
             assert res['x-trace']
-            refute AppOpticsAPM::XTrace.sampled?(res.to_hash['x-trace'])
+            refute AppOpticsAPM::TraceString.sampled?(res['x-trace'])
             assert_equal trace, request['traceparent']
-            assert_equal xt, res['x-trace']
+            assert_equal trace, res['x-trace']
           end
 
         end
@@ -123,7 +124,7 @@ unless defined?(JRUBY_VERSION)
 
     # ========== make sure request headers are preserved =============================
     def test_preserves_custom_headers
-      AppOpticsAPM::API.start_trace('Net::HTTP_tests') do
+      AppOpticsAPM::SDK.start_trace('Net::HTTP_tests') do
         uri = URI('http://127.0.0.1:8101/?q=1')
         Net::HTTP.start(uri.host, uri.port) do |http|
           request = Net::HTTP::Get.new(uri)
@@ -146,10 +147,10 @@ unless defined?(JRUBY_VERSION)
     def test_propagation_simple_trace_state
       task_id = 'a462ade6cfe479081764cc476aa98335'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
-      state = 'sw=cb3468da6f06eefc01'
+      state = 'sw=cb3468da6f06eefc-01'
       AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
 
-      AppOpticsAPM::API.start_trace('net_http_test', AppOpticsAPM.trace_context.xtrace) do
+      AppOpticsAPM::SDK.start_trace('net_http_test') do
         uri = URI('http://127.0.0.1:8101/?q=1')
         Net::HTTP.start(uri.host, uri.port) do |http|
           request = Net::HTTP::Get.new(uri)
@@ -157,7 +158,7 @@ unless defined?(JRUBY_VERSION)
           headers = request.each_header.to_h
 
           assert_trace_headers(headers, true)
-          assert_equal task_id, AppOpticsAPM::TraceParent.task_id(headers['traceparent'])
+          assert_equal task_id, AppOpticsAPM::TraceString.trace_id(headers['traceparent'])
           refute_equal state, headers['tracestate']
         end
       end
@@ -168,7 +169,7 @@ unless defined?(JRUBY_VERSION)
     def test_propagation_simple_trace_state_not_tracing
       task_id = 'a462ade6cfe479081764cc476aa98335'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
-      state = 'sw=cb3468da6f06eefc01'
+      state = 'sw=cb3468da6f06eefc-01'
       AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
 
       uri = URI('http://127.0.0.1:8101/?q=1')
@@ -187,10 +188,10 @@ unless defined?(JRUBY_VERSION)
     def test_propagation_multimember_trace_state
       task_id = 'a462ade6cfe479081764cc476aa98335'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
-      state = 'aa= 1234, sw=cb3468da6f06eefc01,%%cc=%%%45'
+      state = 'aa= 1234, sw=cb3468da6f06eefc-01,%%cc=%%%45'
       AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
 
-      AppOpticsAPM::API.start_trace('net_http_test', AppOpticsAPM.trace_context.xtrace) do
+      AppOpticsAPM::SDK.start_trace('net_http_test') do
         uri = URI('http://127.0.0.1:8101/?q=1')
         Net::HTTP.start(uri.host, uri.port) do |http|
           request = Net::HTTP::Get.new(uri)
@@ -198,8 +199,8 @@ unless defined?(JRUBY_VERSION)
           headers = request.each_header.to_h
 
           assert_trace_headers(headers, true)
-          assert_equal task_id, AppOpticsAPM::TraceParent.task_id(headers['traceparent'])
-          assert_equal "sw=#{AppOpticsAPM::TraceParent.edge_id_flags(headers['traceparent'])},aa= 1234,%%cc=%%%45",
+          assert_equal task_id, AppOpticsAPM::TraceString.trace_id(headers['traceparent'])
+          assert_equal "sw=#{AppOpticsAPM::TraceString.span_id_flags(headers['traceparent'])},aa= 1234,%%cc=%%%45",
                        headers['tracestate']
         end
       end

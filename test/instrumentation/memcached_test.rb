@@ -44,7 +44,7 @@ unless defined?(JRUBY_VERSION)
     end
 
     it "should trace set" do
-      AppOpticsAPM::API.start_trace('memcached_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('memcached_test', {}) do
         @mc.set('testKey', 'blah')
       end
 
@@ -62,7 +62,7 @@ unless defined?(JRUBY_VERSION)
     it "should trace get" do
       @mc.set('testKey', 'blah')
 
-      AppOpticsAPM::API.start_trace('memcached_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('memcached_test', {}) do
         @mc.get('testKey')
       end
 
@@ -78,7 +78,7 @@ unless defined?(JRUBY_VERSION)
     end
 
     it "should trace get_multi" do
-      AppOpticsAPM::API.start_trace('memcached_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('memcached_test', {}) do
         @mc.get_multi(['one', 'two', 'three', 'four', 'five', 'six'])
       end
 
@@ -97,7 +97,7 @@ unless defined?(JRUBY_VERSION)
 
     it "should trace add" do
       @mc.delete('testAdd')
-      AppOpticsAPM::API.start_trace('memcached_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('memcached_test', {}) do
         @mc.add('testAdd', 'x', 1200)
       end
 
@@ -114,7 +114,7 @@ unless defined?(JRUBY_VERSION)
 
     it "should trace append" do
       @mc.set('rawKey', "Peanut Butter ", 600, :raw => true)
-      AppOpticsAPM::API.start_trace('memcached_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('memcached_test', {}) do
         @mc.append('rawKey', "Jelly")
       end
 
@@ -132,7 +132,7 @@ unless defined?(JRUBY_VERSION)
     it "should trace decr" do
       @mc.set('some_key_counter', "100", 0, false)
 
-      AppOpticsAPM::API.start_trace('memcached_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('memcached_test', {}) do
         @mc.decr('some_key_counter', 1)
       end
 
@@ -150,7 +150,7 @@ unless defined?(JRUBY_VERSION)
     it "should trace increment" do
       @mc.set('some_key_counter', "100", 0, false)
 
-      AppOpticsAPM::API.start_trace('memcached_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('memcached_test', {}) do
         @mc.incr("some_key_counter", 1)
       end
 
@@ -167,7 +167,7 @@ unless defined?(JRUBY_VERSION)
 
     it "should trace replace" do
       @mc.set('some_key', 'blah')
-      AppOpticsAPM::API.start_trace('memcached_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('memcached_test', {}) do
         @mc.replace("some_key", "woop")
       end
 
@@ -184,7 +184,7 @@ unless defined?(JRUBY_VERSION)
 
     it "should trace delete" do
       @mc.set('some_key', 'blah')
-      AppOpticsAPM::API.start_trace('memcached_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('memcached_test', {}) do
         @mc.delete("some_key")
       end
 
@@ -202,7 +202,7 @@ unless defined?(JRUBY_VERSION)
     it "should properly log errors" do
       @mc.set('testKey', 'x', 1200)
 
-      AppOpticsAPM::API.start_trace('memcached_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('memcached_test', {}) do
         @mc.add('testKey', 'x', 1200)
       end
 
@@ -220,18 +220,18 @@ unless defined?(JRUBY_VERSION)
     it "should obey :collect_backtraces setting when true" do
       AppOpticsAPM::Config[:memcached][:collect_backtraces] = true
 
-      AppOpticsAPM::API.start_trace('memcached_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('memcached_test', {}) do
         @mc.set('some_key', 1)
       end
 
       traces = get_all_traces
-      traces.find { |tr| tr['Layer'] == 'memcache' && tr['Label'] == 'exit'}.has_key?('Backtrace')
+      traces.find { |tr| tr['Layer'] == 'memcache' && tr['Label'] == 'exit' }.has_key?('Backtrace')
     end
 
     it "should obey :collect_backtraces setting when false" do
       AppOpticsAPM::Config[:memcached][:collect_backtraces] = false
 
-      AppOpticsAPM::API.start_trace('memcached_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('memcached_test', {}) do
         @mc.set('some_key', 1)
       end
 

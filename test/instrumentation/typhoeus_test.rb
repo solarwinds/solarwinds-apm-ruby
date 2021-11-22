@@ -26,7 +26,7 @@ describe "Typhoeus" do
   end
 
   it 'should trace a typhoeus request' do
-    AppOpticsAPM::API.start_trace('typhoeus_test') do
+    AppOpticsAPM::SDK.start_trace('typhoeus_test') do
       Typhoeus.get("http://127.0.0.1:8101/")
     end
 
@@ -49,7 +49,7 @@ describe "Typhoeus" do
   end
 
   it 'should trace a typhoeus request to an uninstrumented app' do
-    AppOpticsAPM::API.start_trace('typhoeus_test') do
+    AppOpticsAPM::SDK.start_trace('typhoeus_test') do
       Typhoeus.get("http://127.0.0.1:8110/?blah=1")
     end
 
@@ -72,9 +72,9 @@ describe "Typhoeus" do
   end
 
   it 'should trace a typhoeus POST request' do
-    AppOpticsAPM::API.start_trace('typhoeus_test') do
+    AppOpticsAPM::SDK.start_trace('typhoeus_test') do
       Typhoeus.post("http://127.0.0.1:8101/",
-                    :body => { :key => "appoptics-ruby-fake", :content => "appoptics-ruby repo test suite"})
+                    :body => { :key => "appoptics-ruby-fake", :content => "appoptics-ruby repo test suite" })
     end
 
     traces = get_all_traces
@@ -96,9 +96,9 @@ describe "Typhoeus" do
   end
 
   it 'should trace a typhoeus PUT request' do
-    AppOpticsAPM::API.start_trace('typhoeus_test') do
+    AppOpticsAPM::SDK.start_trace('typhoeus_test') do
       Typhoeus.put("http://127.0.0.1:8101/",
-                   :body => { :key => "appoptics-ruby-fake", :content => "appoptics-ruby repo test suite"})
+                   :body => { :key => "appoptics-ruby-fake", :content => "appoptics-ruby repo test suite" })
     end
 
     traces = get_all_traces
@@ -120,7 +120,7 @@ describe "Typhoeus" do
   end
 
   it 'should trace a typhoeus DELETE request' do
-    AppOpticsAPM::API.start_trace('typhoeus_test') do
+    AppOpticsAPM::SDK.start_trace('typhoeus_test') do
       Typhoeus.delete("http://127.0.0.1:8101/")
     end
 
@@ -143,7 +143,7 @@ describe "Typhoeus" do
   end
 
   it 'should trace a typhoeus HEAD request' do
-    AppOpticsAPM::API.start_trace('typhoeus_test') do
+    AppOpticsAPM::SDK.start_trace('typhoeus_test') do
       Typhoeus.head("http://127.0.0.1:8101/")
     end
 
@@ -166,7 +166,7 @@ describe "Typhoeus" do
   end
 
   it 'should trace a typhoeus GET request to an instr\'d app' do
-    AppOpticsAPM::API.start_trace('typhoeus_test') do
+    AppOpticsAPM::SDK.start_trace('typhoeus_test') do
       Typhoeus.get("http://127.0.0.1:8101/")
     end
 
@@ -189,7 +189,7 @@ describe "Typhoeus" do
   end
 
   it 'should trace a typhoeus GET request with DNS error' do
-    AppOpticsAPM::API.start_trace('typhoeus_test') do
+    AppOpticsAPM::SDK.start_trace('typhoeus_test') do
       Typhoeus.get("http://thisdomaindoesntexisthopefully.asdf/products/appoptics_apm/")
     end
 
@@ -219,7 +219,7 @@ describe "Typhoeus" do
   end
 
   it 'should trace parallel typhoeus requests' do
-    AppOpticsAPM::API.start_trace('typhoeus_test') do
+    AppOpticsAPM::SDK.start_trace('typhoeus_test') do
       hydra = Typhoeus::Hydra.hydra
 
       first_request  = Typhoeus::Request.new("http://127.0.0.1:8101/products/appoptics_apm/")
@@ -250,7 +250,7 @@ describe "Typhoeus" do
   it 'should obey :log_args setting when true' do
     AppOpticsAPM::Config[:typhoeus][:log_args] = true
 
-    AppOpticsAPM::API.start_trace('typhoeus_test') do
+    AppOpticsAPM::SDK.start_trace('typhoeus_test') do
       Typhoeus.get("http://127.0.0.1:8101/?blah=1")
     end
 
@@ -262,7 +262,7 @@ describe "Typhoeus" do
   it 'should obey :log_args setting when false' do
     AppOpticsAPM::Config[:typhoeus][:log_args] = false
 
-    AppOpticsAPM::API.start_trace('typhoeus_test') do
+    AppOpticsAPM::SDK.start_trace('typhoeus_test') do
       Typhoeus.get("http://127.0.0.1:8101/?blah=1")
     end
 
@@ -274,7 +274,7 @@ describe "Typhoeus" do
   it 'should obey :collect_backtraces setting when true' do
     AppOpticsAPM::Config[:typhoeus][:collect_backtraces] = true
 
-    AppOpticsAPM::API.start_trace('typhoeus_test') do
+    AppOpticsAPM::SDK.start_trace('typhoeus_test') do
       Typhoeus.get("http://127.0.0.1:8101/?blah=1")
     end
 
@@ -286,7 +286,7 @@ describe "Typhoeus" do
   it 'should obey :collect_backtraces setting when false' do
     AppOpticsAPM::Config[:typhoeus][:collect_backtraces] = false
 
-    AppOpticsAPM::API.start_trace('typhoeus_test') do
+    AppOpticsAPM::SDK.start_trace('typhoeus_test') do
       Typhoeus.get("http://127.0.0.1:8101/")
     end
 

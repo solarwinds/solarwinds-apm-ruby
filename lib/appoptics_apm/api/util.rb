@@ -19,7 +19,7 @@ module AppOpticsAPM
       #
       # Return a boolean indicating whether or not key is reserved.
       def valid_key?(key)
-        ![:Label, :Layer, :Edge, :Timestamp, :Timestamp_u].include?(key.to_sym)
+        ![:Label, :Layer, :Timestamp, :Timestamp_u].include?(key.to_sym)
       end
 
       # Internal: Get the current backtrace.

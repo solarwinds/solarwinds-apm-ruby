@@ -45,7 +45,7 @@ module AppOpticsAPM
         if AppOpticsAPM.tracing?
           report_kvs = extract_trace_details(:enqueue, klass, args)
 
-          AppOpticsAPM::API.trace(:'resque-client', report_kvs, :enqueue) do
+          AppOpticsAPM::SDK.trace(:'resque-client', report_kvs, :enqueue) do
             enqueue_without_appoptics(klass, *args)
           end
         else
@@ -58,7 +58,7 @@ module AppOpticsAPM
           report_kvs = extract_trace_details(:enqueue_to, klass, args)
           report_kvs[:Queue] = queue.to_s if queue
 
-          AppOpticsAPM::API.trace(:'resque-client', report_kvs) do
+          AppOpticsAPM::SDK.trace(:'resque-client', report_kvs) do
             enqueue_to_without_appoptics(queue, klass, *args)
           end
         else
@@ -70,7 +70,7 @@ module AppOpticsAPM
         if AppOpticsAPM.tracing?
           report_kvs = extract_trace_details(:dequeue, klass, args)
 
-          AppOpticsAPM::API.trace(:'resque-client', report_kvs) do
+          AppOpticsAPM::SDK.trace(:'resque-client', report_kvs) do
             dequeue_without_appoptics(klass, *args)
           end
         else

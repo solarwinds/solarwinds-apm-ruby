@@ -21,7 +21,7 @@ if AppOpticsAPM::Config[:nethttp][:enabled]
           end
 
           opts = {}
-          AppOpticsAPM::API.trace(:'net-http', opts) do
+          AppOpticsAPM::SDK.trace(:'net-http', opts) do
             # Collect KVs to report in the exit event
             if args.respond_to?(:first) && args.first
               req = args.first
@@ -46,7 +46,7 @@ if AppOpticsAPM::Config[:nethttp][:enabled]
                 opts[:Location] = resp.header["Location"]
               end
 
-              next resp
+              resp
             end
           end
         end

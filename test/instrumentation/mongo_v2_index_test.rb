@@ -11,7 +11,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     before do
       clear_all_traces
 
-      @client = Mongo::Client.new([ ENV['APPOPTICS_MONGO_SERVER'] ], :database => "appoptics_apm-#{ENV['RACK_ENV']}")
+      @client = Mongo::Client.new([ENV['APPOPTICS_MONGO_SERVER']], :database => "appoptics_apm-#{ENV['RACK_ENV']}")
       if Mongo::VERSION < '2.2'
         Mongo::Logger.logger.level = Logger::INFO
       else
@@ -43,7 +43,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       coll = @db[:test_collection]
       coll.indexes.drop_all
 
-      AppOpticsAPM::API.start_trace('mongo_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('mongo_test', {}) do
         coll.indexes.create_one({ :name => 1 })
       end
 
@@ -63,9 +63,9 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       coll = @db[:test_collection]
       coll.indexes.drop_all
 
-      AppOpticsAPM::API.start_trace('mongo_test', '', {}) do
-        coll.indexes.create_many([ { :key => {:asdf => 1}, :unique => false },
-                                   { :key => {:age => -1}, :background => true} ])
+      AppOpticsAPM::SDK.start_trace('mongo_test', {}) do
+        coll.indexes.create_many([{ :key => { :asdf => 1 }, :unique => false },
+                                  { :key => { :age => -1 }, :background => true }])
       end
 
       traces = get_all_traces
@@ -84,7 +84,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       coll = @db[:test_collection]
       coll.indexes.create_one({ :name => 1 })
 
-      AppOpticsAPM::API.start_trace('mongo_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('mongo_test', {}) do
         coll.indexes.drop_one('name_1')
       end
 
@@ -104,7 +104,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       coll = @db[:test_collection]
       coll.indexes.create_one({ :name => 1 })
 
-      AppOpticsAPM::API.start_trace('mongo_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('mongo_test', {}) do
         coll.indexes.drop_all
       end
 

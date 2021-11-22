@@ -16,6 +16,5 @@ module AppOpticsAPM
 
     extend AppOpticsAPM::SDK::Tracing
     extend AppOpticsAPM::SDK::CustomMetrics
-    extend AppOpticsAPM::API::Tracing
   end
 end

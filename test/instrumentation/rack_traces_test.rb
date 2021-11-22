@@ -23,7 +23,7 @@ describe "RackTestApp" do
       map "/the_exception" do
         run Proc.new {
           raise StandardError
-          [500, {"Content-Type" => "text/html"}, ['Hello AppOpticsAPM!']]
+          [500, { "Content-Type" => "text/html" }, ['Hello AppOpticsAPM!']]
         }
 
       end
@@ -41,7 +41,7 @@ describe "RackTestApp" do
 
   after do
     AppOpticsAPM::Config[:rack][:collect_backtraces] = @bt
-    AppOpticsAPM::Config[:rack][:log_args] =  @log_args
+    AppOpticsAPM::Config[:rack][:log_args] = @log_args
     AppOpticsAPM::Config[:tracing_mode] = :enabled
     AppOpticsAPM::Config[:sample_rate] = @sr
   end
@@ -84,9 +84,9 @@ describe "RackTestApp" do
 
   def test_must_return_xtrace_header
     get "/lobster"
-    xtrace = last_response['X-Trace']
-    assert xtrace
-    assert AppOpticsAPM::XTrace.valid?(xtrace)
+    tracestring = last_response['X-Trace']
+    assert tracestring
+    assert AppOpticsAPM::TraceString.valid?(tracestring)
   end
 
   def test_log_args_when_false
@@ -97,9 +97,9 @@ describe "RackTestApp" do
     traces = get_all_traces
     refute traces.empty?, "No traces recorded"
 
-    xtrace = last_response['X-Trace']
-    assert xtrace
-    assert AppOpticsAPM::XTrace.valid?(xtrace)
+    tracestring = last_response['X-Trace']
+    assert tracestring
+    assert AppOpticsAPM::TraceString.valid?(tracestring)
 
     _(traces[0]['URL']).must_equal "/lobster"
   end
@@ -112,9 +112,9 @@ describe "RackTestApp" do
     traces = get_all_traces
     refute traces.empty?, "No traces recorded"
 
-    xtrace = last_response['X-Trace']
-    assert xtrace
-    assert AppOpticsAPM::XTrace.valid?(xtrace)
+    tracestring = last_response['X-Trace']
+    assert tracestring
+    assert AppOpticsAPM::TraceString.valid?(tracestring)
 
     _(traces[0]['URL']).must_equal "/lobster?blah=1"
   end
@@ -160,7 +160,7 @@ describe "RackTestApp" do
   # the status returned by @app.call(env) is usually an integer, but there are cases where it is a string
   # encountered by this app: https://github.com/librato/api which proxies requests "through to a java service by rack"
   def test_status_can_be_a_string
-    Rack::URLMap.any_instance.expects(:call).returns(["200", {"Content-Length"=>"592"}, "the body"])
+    Rack::URLMap.any_instance.expects(:call).returns(["200", { "Content-Length" => "592" }, "the body"])
 
     result = get '/lobster'
 

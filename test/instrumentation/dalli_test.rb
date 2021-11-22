@@ -21,13 +21,13 @@ describe "Dalli" do
   end
 
   it 'should have appoptics_apm methods defined' do
-    [ :perform_with_appoptics, :get_multi_with_appoptics].each do |m|
+    [:perform_with_appoptics, :get_multi_with_appoptics].each do |m|
       _(::Dalli::Client.method_defined?(m)).must_equal true
     end
   end
 
   it 'should trace set' do
-    AppOpticsAPM::API.start_trace('dalli_test', '', {}) do
+    AppOpticsAPM::SDK.start_trace('dalli_test', {}) do
       @dc.set('some_key', 1234)
     end
 
@@ -44,7 +44,7 @@ describe "Dalli" do
   end
 
   it 'should trace get' do
-    AppOpticsAPM::API.start_trace('dalli_test', '', {}) do
+    AppOpticsAPM::SDK.start_trace('dalli_test', {}) do
       @dc.get('some_key')
     end
 
@@ -61,7 +61,7 @@ describe "Dalli" do
   end
 
   it 'should trace get_multi' do
-    AppOpticsAPM::API.start_trace('dalli_test', '', {}) do
+    AppOpticsAPM::SDK.start_trace('dalli_test', {}) do
       @dc.get_multi([:one, :two, :three, :four, :five, :six])
     end
 
@@ -80,7 +80,7 @@ describe "Dalli" do
   it "should trace increment" do
     @dc.incr("dalli_key_counter", 1, nil, 0)
 
-    AppOpticsAPM::API.start_trace('dalli_test', '', {}) do
+    AppOpticsAPM::SDK.start_trace('dalli_test', {}) do
       @dc.incr("dalli_key_counter")
     end
 
@@ -98,7 +98,7 @@ describe "Dalli" do
   it "should trace decrement" do
     @dc.incr("dalli_key_counter", 1, nil, 0)
 
-    AppOpticsAPM::API.start_trace('dalli_test', '', {}) do
+    AppOpticsAPM::SDK.start_trace('dalli_test', {}) do
       @dc.decr("dalli_key_counter")
     end
 
@@ -116,7 +116,7 @@ describe "Dalli" do
   it "should trace replace" do
     @dc.set('some_key', 1)
 
-    AppOpticsAPM::API.start_trace('dalli_test', '', {}) do
+    AppOpticsAPM::SDK.start_trace('dalli_test', {}) do
       @dc.replace("some_key", "woop")
     end
 
@@ -134,7 +134,7 @@ describe "Dalli" do
   it "should trace delete" do
     @dc.set('some_key', 1)
 
-    AppOpticsAPM::API.start_trace('dalli_test', '', {}) do
+    AppOpticsAPM::SDK.start_trace('dalli_test', {}) do
       @dc.delete("some_key")
     end
 
@@ -152,7 +152,7 @@ describe "Dalli" do
     @dc.set('some_key', 1)
     AppOpticsAPM::Config[:dalli][:collect_backtraces] = true
 
-    AppOpticsAPM::API.start_trace('dalli_test', '', {}) do
+    AppOpticsAPM::SDK.start_trace('dalli_test', {}) do
       @dc.get('some_key')
     end
 
@@ -163,7 +163,7 @@ describe "Dalli" do
   it "should obey :collect_backtraces setting when false" do
     AppOpticsAPM::Config[:dalli][:collect_backtraces] = false
 
-    AppOpticsAPM::API.start_trace('dalli_test', '', {}) do
+    AppOpticsAPM::SDK.start_trace('dalli_test', {}) do
       @dc.get('some_key')
     end
 

@@ -96,7 +96,7 @@ if defined?(::Rails)
 
       # Validate the existence of the response header
       _(r.header.key?('X-Trace')).must_equal true
-      _(r.header['X-Trace']).must_equal traces[5]['X-Trace']
+      _(r.header['X-Trace']).must_equal traces[5]['sw.trace_context']
     end
 
     it "should capture errors" do
@@ -138,7 +138,7 @@ if defined?(::Rails)
 
       # Validate the existence of the response header
       _(r.header.key?('X-Trace')).must_equal true
-      _(r.header['X-Trace']).must_equal traces[4]['X-Trace']
+      _(r.header['X-Trace']).must_equal traces[4]['sw.trace_context']
     end
 
     it "should collect backtraces when true" do
@@ -182,7 +182,7 @@ if defined?(::Rails)
 
       # Validate the existence of the response header
       _(r.header.key?('X-Trace')).must_equal true
-      _(r.header['X-Trace']).must_equal traces[5]['X-Trace']
+      _(r.header['X-Trace']).must_equal traces[5]['sw.trace_context']
     end
 
     it "should NOT collect backtraces when false" do
@@ -226,7 +226,7 @@ if defined?(::Rails)
 
       # Validate the existence of the response header
       _(r.header.key?('X-Trace')).must_equal true
-      _(r.header['X-Trace']).must_equal traces[5]['X-Trace']
+      _(r.header['X-Trace']).must_equal traces[5]['sw.trace_context']
     end
 
     require_relative "rails_shared_tests"
