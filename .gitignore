@@ -25,11 +25,9 @@ ext/oboe_metal/src/bson/
 ext/oboe_metal/src/oboe_api.cpp
 ext/oboe_metal/src/oboe.h
 ext/oboe_metal/src/oboe_api.hpp
-ext/oboe_metal/src/oboe_api.cpp.rej
-ext/oboe_metal/src/oboe_api.hpp.rej
 ext/oboe_metal/src/oboe_debug.h
 ext/oboe_metal/src/oboe_swig_wrap.cc
-ext/oboe_metal/src/VERSION_latest
+/ext/oboe_metal/src/VERSION_latest
 ext/oboe_metal/test/build/
 ext/oboe_metal/test/MakeFile
 gemfiles/*.lock
