@@ -94,18 +94,7 @@ class NoopTest < Minitest::Test
   # ===== Make sure the methods we document as SDK don't barf in noop mode ==================
 
   def test_api_start_trace_doesnt_barf
-    AppOpticsAPM::API.start_trace('noop_test')  do
-      AppOpticsAPM::API.trace('blah_block') do
-        "this block should not be traced"
-      end
-    end
-
-    traces = get_all_traces
-    assert_equal 0, traces.count, "generate no traces"
-  end
-
-  def test_sdk_start_trace_doesnt_barf
-    AppOpticsAPM::SDK.start_trace('noop_test')  do
+    AppOpticsAPM::SDK.start_trace('noop_test') do
       AppOpticsAPM::SDK.trace('blah_block') do
         "this block should not be traced"
       end
@@ -115,9 +104,19 @@ class NoopTest < Minitest::Test
     assert_equal 0, traces.count, "generate no traces"
   end
 
+  def test_sdk_start_trace_doesnt_barf
+    AppOpticsAPM::SDK.start_trace('noop_test') do
+      AppOpticsAPM::SDK.trace('blah_block') do
+        "this block should not be traced"
+      end
+    end
+
+    traces = get_all_traces
+    assert_equal 0, traces.count, "generate no traces"
+  end
 
   def test_trace_doesnt_barf
-    AppOpticsAPM::API.trace('noop_test')  do
+    AppOpticsAPM::SDK.trace('noop_test') do
       "this block should not be traced"
     end
 
@@ -136,35 +135,22 @@ class NoopTest < Minitest::Test
     assert_equal 0, traces.count, "generate no traces"
   end
 
-  def test_legacy_profile_method_doesnt_barf
-    AppOpticsAPM.logger.expects(:warn) # we are expecting a deprecation warning
-
-    AppOpticsAPM::API.profile_method(ArrayTest, :sort)
-
-    x = ArrayTest.new
-    x.push(1).push(3).push(2)
-    assert_equal [1, 2, 3], x.sort
-
-    traces = get_all_traces
-    assert_equal 0, traces.count, "generate no traces"
-  end
-
   def test_log_info_doesnt_barf
-    AppOpticsAPM::API.log_info(nil, {:ok => :yeah })
+    AppOpticsAPM::API.log_info(nil, { :ok => :yeah })
 
     traces = get_all_traces
     assert_equal 0, traces.count, "generate no traces"
   end
 
   def test_log_init_doesnt_barf
-    AppOpticsAPM::API.log_init(nil, {:ok => :yeah })
+    AppOpticsAPM::API.log_init(nil, { :ok => :yeah })
 
     traces = get_all_traces
     assert_equal 0, traces.count, "generate no traces"
   end
 
   def test_log_end_doesnt_barf
-    AppOpticsAPM::API.log_end(nil, {:ok => :yeah })
+    AppOpticsAPM::API.log_end(nil, { :ok => :yeah })
 
     traces = get_all_traces
     assert_equal 0, traces.count, "generate no traces"
@@ -184,7 +170,7 @@ class NoopTest < Minitest::Test
     trace = AppOpticsAPM::SDK.current_trace
 
     assert trace.id, 'it should return a trace id when in noop'
-    assert_equal '0000000000000000000000000000000000000000-0', trace.id
+    assert_equal '00000000000000000000000000000000-0', trace.id
   end
 
   def test_current_trace_for_log_doesnt_barf

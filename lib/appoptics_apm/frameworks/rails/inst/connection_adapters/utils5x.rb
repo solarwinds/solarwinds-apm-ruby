@@ -34,8 +34,8 @@ module AppOpticsAPM
             end
 
             if config
-              opts[:Database]   = config[:database] if config.key?(:database)
-              opts[:RemoteHost] = config[:host]     if config.key?(:host)
+              opts[:Database] = config[:database] if config.key?(:database)
+              opts[:RemoteHost] = config[:host] if config.key?(:host)
               adapter_name = config[:adapter]
 
               case adapter_name
@@ -65,7 +65,7 @@ module AppOpticsAPM
           if AppOpticsAPM.tracing? && !AppOpticsAPM.tracing_layer_op?(:ar_started) && !ignore_payload?(name)
 
             opts = extract_trace_details(sql, name, binds)
-            AppOpticsAPM::API.trace('activerecord', opts) do
+            AppOpticsAPM::SDK.trace('activerecord', opts) do
               exec_query_without_appoptics(sql, name, binds)
             end
           else
@@ -77,7 +77,7 @@ module AppOpticsAPM
           if AppOpticsAPM.tracing? && !ignore_payload?(name)
 
             opts = extract_trace_details(sql, name, binds)
-            AppOpticsAPM::API.trace('activerecord', opts, :ar_started) do
+            AppOpticsAPM::SDK.trace('activerecord', opts, :ar_started) do
               exec_insert_without_appoptics(sql, name, binds, *args)
             end
           else
@@ -89,7 +89,7 @@ module AppOpticsAPM
           if AppOpticsAPM.tracing? && !ignore_payload?(name)
 
             opts = extract_trace_details(sql, name, binds)
-            AppOpticsAPM::API.trace('activerecord', opts, :ar_started) do
+            AppOpticsAPM::SDK.trace('activerecord', opts, :ar_started) do
               exec_delete_without_appoptics(sql, name, binds)
             end
           else
@@ -101,7 +101,7 @@ module AppOpticsAPM
           if AppOpticsAPM.tracing? && !ignore_payload?(name)
 
             opts = extract_trace_details(sql, name, binds)
-            AppOpticsAPM::API.trace('activerecord', opts, :ar_started) do
+            AppOpticsAPM::SDK.trace('activerecord', opts, :ar_started) do
               exec_update_without_appoptics(sql, name, binds)
             end
           else

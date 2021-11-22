@@ -102,7 +102,7 @@ if defined?(::Rails)
 
       # Validate the existence of the response header
       _(r.header.key?('X-Trace')).must_equal true
-      _(r.header['X-Trace']).must_equal traces[5]['X-Trace']
+      _(r.header['X-Trace']).must_equal traces[5]['sw.trace_context']
     end
 
     it "should trace rails postgres db calls" do
@@ -162,7 +162,7 @@ if defined?(::Rails)
 
       # Validate the existence of the response header
       _(r.header.key?('X-Trace')).must_equal true
-      _(r.header['X-Trace']).must_equal traces[11]['X-Trace']
+      _(r.header['X-Trace']).must_equal traces[11]['sw.trace_context']
     end
 
     it "should trace rails mysql db calls" do
@@ -239,7 +239,7 @@ if defined?(::Rails)
       _(traces[12]['Label']).must_equal "entry"
 
       # Validate the existence of the response header
-      _(r['X-Trace']).must_equal traces[15]['X-Trace']
+      _(r['X-Trace']).must_equal traces[15]['sw.trace_context']
     end
 
     it "should trace rails mysql db calls with sanitize sql" do
@@ -316,7 +316,7 @@ if defined?(::Rails)
       _(traces[12]['Label']).must_equal "entry"
 
       # Validate the existence of the response header
-      _(r['X-Trace']).must_equal traces[15]['X-Trace']
+      _(r['X-Trace']).must_equal traces[15]['sw.trace_context']
     end
 
     it "should trace rails mysql2 db calls" do
@@ -374,7 +374,7 @@ if defined?(::Rails)
       _(traces[7]['Label']).must_equal "exit"
 
       # Validate the existence of the response header
-      _(r['X-Trace']).must_equal traces[11]['X-Trace']
+      _(r['X-Trace']).must_equal traces[11]['sw.trace_context']
     end
 
     it "should trace rails mysql2 db calls with santize sql" do
@@ -430,7 +430,7 @@ if defined?(::Rails)
       _(traces[7]['Label']).must_equal "exit"
 
       # Validate the existence of the response header
-      _(r['X-Trace']).must_equal traces[11]['X-Trace']
+      _(r['X-Trace']).must_equal traces[11]['sw.trace_context']
     end
 
     it "should trace a request to a rails metal stack" do
@@ -461,7 +461,7 @@ if defined?(::Rails)
       _(traces[3]['Label']).must_equal "exit"
 
       # Validate the existence of the response header
-      _(r['X-Trace']).must_equal traces[3]['X-Trace']
+      _(r['X-Trace']).must_equal traces[3]['sw.trace_context']
     end
 
     it "should collect backtraces when true" do
@@ -504,7 +504,7 @@ if defined?(::Rails)
       _(traces[5]['Label']).must_equal "exit"
 
       # Validate the existence of the response header
-      _(r['X-Trace']).must_equal traces[5]['X-Trace']
+      _(r['X-Trace']).must_equal traces[5]['sw.trace_context']
     end
 
     it "should NOT collect backtraces when false" do
@@ -547,7 +547,7 @@ if defined?(::Rails)
       _(traces[5]['Label']).must_equal "exit"
 
       # Validate the existence of the response header
-      _(r['X-Trace']).must_equal traces[5]['X-Trace']
+      _(r['X-Trace']).must_equal traces[5]['sw.trace_context']
     end
 
     it "should NOT trace when tracing is set to :disabled" do

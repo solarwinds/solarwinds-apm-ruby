@@ -5,18 +5,15 @@ require "minitest_helper"
 require 'mocha/minitest'
 require 'fileutils'
 
-
 require_relative '../jobs/sidekiq/activejob_worker_job'
 require_relative '../servers/sidekiq_activejob.rb'
 
 Sidekiq.configure_server do |config|
-    config.redis = { :password => ENV['REDIS_PASSWORD'] || 'secret_pass'}
+  config.redis = { :password => ENV['REDIS_PASSWORD'] || 'secret_pass' }
   if ENV.key?('REDIS_HOST')
     config.redis << { :url => "redis://#{ENV['REDIS_HOST']}:6379" }
   end
 end
-
-
 
 describe "RailsSharedTests" do
   # in alpine copy /usr/bin/wkhtmltopdf to the wkhtmltopdf-binary dir
@@ -26,9 +23,8 @@ describe "RailsSharedTests" do
     ruby_version_min = RUBY_VERSION.gsub(/\.\d+$/, ".0")
     wk_fullname = Gem.loaded_specs["wkhtmltopdf-binary"].full_name
     alpine_version = File.open('/etc/alpine-release') { |f| f.readline }.strip
-    bin_path =  "/root/.rbenv/versions/#{RUBY_VERSION}/lib/ruby/gems/#{ruby_version_min}/gems/#{wk_fullname}/bin/wkhtmltopdf_alpine_#{alpine_version}_amd64"
+    bin_path = "/root/.rbenv/versions/#{RUBY_VERSION}/lib/ruby/gems/#{ruby_version_min}/gems/#{wk_fullname}/bin/wkhtmltopdf_alpine_#{alpine_version}_amd64"
     unless File.exist?(bin_path)
-      puts "now I should copy wkhtmltopdf"
       FileUtils.cp('/usr/bin/wkhtmltopdf', bin_path)
     end
   else
@@ -82,8 +78,8 @@ describe "RailsSharedTests" do
 
   it "should NOT trace when there is no context" do
     response_headers = HelloController.action("world").call(
-        "REQUEST_METHOD" => "GET",
-        "rack.input" => -> {}
+      "REQUEST_METHOD" => "GET",
+      "rack.input" => -> {}
     )[1]
 
     _(response_headers.key?('X-Trace')).must_equal false
@@ -197,7 +193,7 @@ describe "RailsSharedTests" do
 
   it "should use wrapped class for ActiveJobs" do
     skip unless defined?(ActiveJob)
-    AppOpticsAPM::API.start_trace('test_trace') do
+    AppOpticsAPM::SDK.start_trace('test_trace') do
       ActiveJobWorkerJob.perform_later
     end
 

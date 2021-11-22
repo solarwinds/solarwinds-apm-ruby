@@ -5,6 +5,10 @@ module AppOpticsAPM
   class Profiling
 
     def self.run
+      # TODO
+      #  add back at some point but for now NH is not ready for profiling
+      AppOpticsAPM::Config.profiling = :disabled
+
       # allow enabling and disabling and setting interval interactively
       return yield unless AppOpticsAPM::Config.profiling == :enabled && AppOpticsAPM.tracing?
 

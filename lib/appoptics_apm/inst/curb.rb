@@ -225,7 +225,7 @@ module AppOpticsAPM
           AppOpticsAPM::API.log_exception(:curb_multi, e)
           raise e
         ensure
-          AppOpticsAPM::API.log_multi_exit(:curb_multi, traces)
+          AppOpticsAPM::API.log_exit(:curb_multi)
         end
       end
     end

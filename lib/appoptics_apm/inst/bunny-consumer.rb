@@ -12,15 +12,15 @@ module AppOpticsAPM
         kvs = {}
         kvs[:Spec] = :job
         kvs[:Flavor] = :rabbitmq
-        kvs[:RemoteHost]  = @channel.connection.host
-        kvs[:RemotePort]  = @channel.connection.port.to_i
+        kvs[:RemoteHost] = @channel.connection.host
+        kvs[:RemotePort] = @channel.connection.port.to_i
         kvs[:VirtualHost] = @channel.connection.vhost
 
         mp = args[1]
         kvs[:RoutingKey] = args[0].routing_key if args[0].routing_key
-        kvs[:MsgID]      = args[1].message_id  if mp.message_id
-        kvs[:AppID]      = args[1].app_id      if mp.app_id
-        kvs[:Priority]   = args[1].priority    if mp.priority
+        kvs[:MsgID] = args[1].message_id if mp.message_id
+        kvs[:AppID] = args[1].app_id if mp.app_id
+        kvs[:Priority] = args[1].priority if mp.priority
 
         if @queue.respond_to?(:name)
           kvs[:Queue] = @queue.name
@@ -75,7 +75,7 @@ module AppOpticsAPM
           headers.delete('SourceTrace')
         end
 
-        AppOpticsAPM::SDK.start_trace(:'rabbitmq-consumer', nil, report_kvs) do
+        AppOpticsAPM::SDK.start_trace(:'rabbitmq-consumer', report_kvs) do
           call_without_appoptics(*args)
         end
       end

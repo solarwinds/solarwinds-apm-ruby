@@ -20,7 +20,7 @@ module AppOpticsAPM
                 opts[:RemoteHost] = rhost if rhost
               end
 
-              AppOpticsAPM::API.trace(:memcache, opts) do
+              AppOpticsAPM::SDK.trace(:memcache, opts) do
                 result = send("#{m}_without_appoptics", *args)
 
                 opts[:KVHit] = memcache_hit?(result) if m == :get && args.length && args[0].class == String
@@ -55,7 +55,7 @@ module AppOpticsAPM
           layer_kvs = {}
           layer_kvs[:KVOp] = :get_multi
 
-          AppOpticsAPM::API.trace(:memcache, layer_kvs || {}, :get_multi) do
+          AppOpticsAPM::SDK.trace(:memcache, layer_kvs || {}, :get_multi) do
             layer_kvs[:KVKeyCount] = keys.flatten.length
 
             values = get_multi_without_appoptics(keys, raw)

@@ -23,14 +23,14 @@ unless defined?(JRUBY_VERSION)
       clear_all_traces
     end
 
-     it 'publish_default_exchange' do
+    it 'publish_default_exchange' do
       @conn = Bunny.new(@connection_params)
       @conn.start
       @ch = @conn.create_channel
       @queue = @ch.queue("tv.ruby.test")
-      @exchange  = @ch.default_exchange
+      @exchange = @ch.default_exchange
 
-      AppOpticsAPM::API.start_trace('bunny_tests') do
+      AppOpticsAPM::SDK.start_trace('bunny_tests') do
         @exchange.publish("The Tortoise and the Hare", :routing_key => @queue.name)
       end
 
@@ -57,13 +57,13 @@ unless defined?(JRUBY_VERSION)
       @conn.close
     end
 
-     it 'publish_fanout_exchange' do
+    it 'publish_fanout_exchange' do
       @conn = Bunny.new(@connection_params)
       @conn.start
       @ch = @conn.create_channel
       @exchange = @ch.fanout("tv.ruby.fanout.tests")
 
-      AppOpticsAPM::API.start_trace('bunny_tests') do
+      AppOpticsAPM::SDK.start_trace('bunny_tests') do
         @exchange.publish("The Tortoise and the Hare in the fanout exchange.", :routing_key => 'tv.ruby.test').publish("And another...")
       end
 
@@ -102,14 +102,14 @@ unless defined?(JRUBY_VERSION)
       @conn.close
     end
 
-     it 'publish_topic_exchange' do
+    it 'publish_topic_exchange' do
       @conn = Bunny.new(@connection_params)
       @conn.start
       @ch = @conn.create_channel
       @exchange = @ch.topic("tv.ruby.topic.tests", :auto_delete => true)
 
-      AppOpticsAPM::API.start_trace('bunny_tests') do
-        @exchange.publish("The Tortoise and the Hare in the topic exchange.", :routing_key => 'tv.ruby.test.1').publish("And another...", :routing_key => 'tv.ruby.test.2' )
+      AppOpticsAPM::SDK.start_trace('bunny_tests') do
+        @exchange.publish("The Tortoise and the Hare in the topic exchange.", :routing_key => 'tv.ruby.test.1').publish("And another...", :routing_key => 'tv.ruby.test.2')
       end
 
       traces = get_all_traces
@@ -147,13 +147,13 @@ unless defined?(JRUBY_VERSION)
       @conn.close
     end
 
-     it 'publish_error_handling' do
+    it 'publish_error_handling' do
       @conn = Bunny.new(@connection_params)
       @conn.start
       @ch = @conn.create_channel
 
       begin
-        AppOpticsAPM::API.start_trace('bunny_tests') do
+        AppOpticsAPM::SDK.start_trace('bunny_tests') do
           @ch = @conn.create_channel
           @ch.queue("bunny.tests.queues.auto-delete", auto_delete: true, durable: false)
           @ch.queue_declare("bunny.tests.queues.auto-delete", auto_delete: false, durable: true)
@@ -181,7 +181,7 @@ unless defined?(JRUBY_VERSION)
       @conn.close
     end
 
-     it 'delete_exchange' do
+    it 'delete_exchange' do
       @conn = Bunny.new(@connection_params)
       @conn.start
       @ch = @conn.create_channel
@@ -191,7 +191,7 @@ unless defined?(JRUBY_VERSION)
       @ch.confirm_select
       @exchange.publish("", :routing_key => 'tv.ruby.test')
 
-      AppOpticsAPM::API.start_trace('bunny_tests') do
+      AppOpticsAPM::SDK.start_trace('bunny_tests') do
         @exchange.delete
       end
 
@@ -210,7 +210,7 @@ unless defined?(JRUBY_VERSION)
       _(traces[2]['VirtualHost']).must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
     end
 
-     it 'wait_for_confirms' do
+    it 'wait_for_confirms' do
       @conn = Bunny.new(@connection_params)
       @conn.start
       @ch = @conn.create_channel
@@ -219,7 +219,7 @@ unless defined?(JRUBY_VERSION)
 
       @ch.confirm_select
 
-      AppOpticsAPM::API.start_trace('bunny_tests') do
+      AppOpticsAPM::SDK.start_trace('bunny_tests') do
         1000.times do
           @exchange.publish("", :routing_key => 'tv.ruby.test')
         end
@@ -228,7 +228,7 @@ unless defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
-      assert_equal 2004,traces.count
+      assert_equal 2004, traces.count
 
       validate_outer_layers(traces, "bunny_tests")
 
@@ -255,13 +255,13 @@ unless defined?(JRUBY_VERSION)
       @conn.close
     end
 
-     it 'channel_queue' do
+    it 'channel_queue' do
       @conn = Bunny.new(@connection_params)
       @conn.start
       @ch = @conn.create_channel
       @exchange = @ch.fanout("tv.queue.test")
 
-      AppOpticsAPM::API.start_trace('bunny_tests') do
+      AppOpticsAPM::SDK.start_trace('bunny_tests') do
         @queue = @ch.queue("blah", :exclusive => true).bind(@exchange)
       end
 
@@ -279,7 +279,7 @@ unless defined?(JRUBY_VERSION)
       _(traces[2]['VirtualHost']).must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
     end
 
-     it 'backtrace_config_true' do
+    it 'backtrace_config_true' do
       bt = AppOpticsAPM::Config[:bunnyclient][:collect_backtraces]
       AppOpticsAPM::Config[:bunnyclient][:collect_backtraces] = true
 
@@ -287,9 +287,9 @@ unless defined?(JRUBY_VERSION)
       @conn.start
       @ch = @conn.create_channel
       @queue = @ch.queue("tv.ruby.test")
-      @exchange  = @ch.default_exchange
+      @exchange = @ch.default_exchange
 
-      AppOpticsAPM::API.start_trace('bunny_tests') do
+      AppOpticsAPM::SDK.start_trace('bunny_tests') do
         @exchange.publish("The Tortoise and the Hare", :routing_key => @queue.name)
       end
 

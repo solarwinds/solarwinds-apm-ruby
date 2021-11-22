@@ -10,18 +10,19 @@ describe "Rack: " do
   ##
   # HELPER METHODS
   #
-  # method name = <name>_<xtrace_flags>_<expectations for start/exit/HttpSpan>
+  # method name = <name>_<tracestring_flags>_<expectations for start/exit/HttpSpan>
   def check_01_111(env = {})
 
     _, headers, _ = @rack.call(env)
-    assert AppOpticsAPM::XTrace.valid?(headers['X-Trace']), 'X-Trace in headers not valid'
-    assert AppOpticsAPM::XTrace.sampled?(headers['X-Trace']), 'X-Trace in headers must be sampled'
+    assert AppOpticsAPM::TraceString.valid?(headers['X-Trace']), 'X-Trace in headers not valid'
+    assert AppOpticsAPM::TraceString.sampled?(headers['X-Trace']), 'X-Trace in headers must be sampled'
     refute AppOpticsAPM::Context.isValid, 'Context after call should not be valid'
 
     traces = get_all_traces
+    pretty traces
 
     assert_equal 2, traces.size
-    assert_equal headers['X-Trace'], traces[1]['X-Trace']
+    assert_equal headers['X-Trace'], traces[1]['sw.trace_context']
 
     AppOpticsAPM::API.expects(:log_start).once
     AppOpticsAPM::API.expects(:log_exit).once
@@ -32,8 +33,8 @@ describe "Rack: " do
   def check_00_000(env = {})
 
     _, headers, _ = @rack.call(env)
-    assert AppOpticsAPM::XTrace.valid?(headers['X-Trace']), 'X-Trace in headers not valid'
-    refute AppOpticsAPM::XTrace.sampled?(headers['X-Trace']), 'X-Trace in headers should NOT be sampled'
+    assert AppOpticsAPM::TraceString.valid?(headers['X-Trace']), 'X-Trace in headers not valid'
+    refute AppOpticsAPM::TraceString.sampled?(headers['X-Trace']), 'X-Trace in headers should NOT be sampled'
     refute AppOpticsAPM::Context.isValid, 'Context after call should not be valid'
 
     traces = get_all_traces
@@ -48,8 +49,8 @@ describe "Rack: " do
   def check_00_001(env = {})
 
     _, headers, _ = @rack.call(env)
-    assert AppOpticsAPM::XTrace.valid?(headers['X-Trace']), 'X-Trace in headers not valid'
-    refute AppOpticsAPM::XTrace.sampled?(headers['X-Trace']), 'X-Trace in headers should NOT be sampled'
+    assert AppOpticsAPM::TraceString.valid?(headers['X-Trace']), 'X-Trace in headers not valid'
+    refute AppOpticsAPM::TraceString.sampled?(headers['X-Trace']), 'X-Trace in headers should NOT be sampled'
     refute AppOpticsAPM::Context.isValid, 'Context after call should not be valid'
 
     traces = get_all_traces
@@ -87,13 +88,13 @@ describe "Rack: " do
     AppOpticsAPM::Reporter.clear_all_traces if ENV['APPOPTICS_REPORTER'] == 'file'
 
     _, headers, _ = @rack.call(env)
-    assert AppOpticsAPM::XTrace.valid?(headers['X-Trace']), 'X-Trace in headers not valid'
-    assert AppOpticsAPM::XTrace.sampled?(headers['X-Trace']), 'X-Trace in headers must be sampled'
+    assert AppOpticsAPM::TraceString.valid?(headers['X-Trace']), 'X-Trace in headers not valid'
+    assert AppOpticsAPM::TraceString.sampled?(headers['X-Trace']), 'X-Trace in headers must be sampled'
     assert AppOpticsAPM::Context.isValid, 'Context after call should be valid'
 
     traces = get_all_traces
     assert_equal 2, traces.size
-    assert_equal headers['X-Trace'], traces[1]['X-Trace']
+    assert_equal headers['X-Trace'], traces[1]['sw.trace_context']
 
     AppOpticsAPM::API.expects(:log_start).once
     AppOpticsAPM::API.expects(:log_exit).once
@@ -105,8 +106,8 @@ describe "Rack: " do
     AppOpticsAPM::Reporter.clear_all_traces if ENV['APPOPTICS_REPORTER'] == 'file'
 
     _, headers, _ = @rack.call(env)
-    assert AppOpticsAPM::XTrace.valid?(headers['X-Trace']), 'X-Trace in headers not valid'
-    refute AppOpticsAPM::XTrace.sampled?(headers['X-Trace']), 'X-Trace in headers must be sampled'
+    assert AppOpticsAPM::TraceString.valid?(headers['X-Trace']), 'X-Trace in headers not valid'
+    refute AppOpticsAPM::TraceString.sampled?(headers['X-Trace']), 'X-Trace in headers must be sampled'
     assert AppOpticsAPM::Context.isValid, 'Context after call should be valid'
 
     traces = get_all_traces
@@ -153,12 +154,20 @@ describe "Rack: " do
     @dnt = AppOpticsAPM::Config.dnt_compiled
     @tr_settings = AppOpticsAPM::Util.deep_dup(AppOpticsAPM::Config[:transaction_settings])
     @profiling = AppOpticsAPM::Config[:profiling]
+    @backtrace = AppOpticsAPM::Config[:rack][:collect_backtraces]
+
+    AppOpticsAPM::Config[:rack][:collect_backtraces] = false
 
     @app = mock('app')
+
     def @app.call(_)
       [200, {}, "response"]
     end
+
     @rack = AppOpticsAPM::Rack.new(@app)
+
+    @trace_00 = '00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-00'
+    @trace_01 = '00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-01'
   end
 
   after do
@@ -166,6 +175,7 @@ describe "Rack: " do
     AppOpticsAPM::Config[:dnt_compiled] = @dnt
     AppOpticsAPM::Config[:transaction_settings] = AppOpticsAPM::Util.deep_dup(@tr_settings)
     AppOpticsAPM::Config[:profiling] = @profiling
+    AppOpticsAPM::Config[:rack][:collect_backtraces] = @backtrace
 
     AppOpticsAPM.trace_context = nil
   end
@@ -205,7 +215,7 @@ describe "Rack: " do
     it '4 - sampling tracestate + :disabled transaction settings not matched' do
       check_01_111(
         { 'HTTP_TRACEPARENT' => '00-cfe479081764cc476aa983351dc51b1b-cb3468da6f06eefa-00',
-          'HTTP_TRACESTATE'  => 'sw=cb3468da6f06eefa-01' }
+          'HTTP_TRACESTATE' => 'sw=cb3468da6f06eefa-01' }
       )
     end
 
@@ -213,14 +223,14 @@ describe "Rack: " do
       check_00_000(
         { 'PATH_INFO' => '/long_job/',
           'HTTP_TRACEPARENT' => '00-cfe479081764cc476aa983351dc51b1b-cb3468da6f06eefb-00',
-          'HTTP_TRACESTATE'  => 'sw=cb3468da6f06eefb-01' }
+          'HTTP_TRACESTATE' => 'sw=cb3468da6f06eefb-01' }
       )
     end
 
     it '6 - non-sampling tracestate + :disabled transaction settings not matched' do
       check_00_001(
         { 'HTTP_TRACEPARENT' => '00-cfe479081764cc476aa983351dc51b1b-cb3468da6f06eefc-01',
-          'HTTP_TRACESTATE'  => 'sw=cb3468da6f06eefc-00' }
+          'HTTP_TRACESTATE' => 'sw=cb3468da6f06eefc-00' }
       )
     end
 
@@ -228,7 +238,7 @@ describe "Rack: " do
       check_00_000(
         { 'PATH_INFO' => '/long_job/',
           'HTTP_TRACEPARENT' => '00-cfe479081764cc476aa983351dc51b1b-cb3468da6f06eefd-01',
-          'HTTP_TRACESTATE'  => 'sw=cb3468da6f06eefd-00' }
+          'HTTP_TRACESTATE' => 'sw=cb3468da6f06eefd-00' }
       )
     end
 
@@ -236,14 +246,14 @@ describe "Rack: " do
       check_00_000(
         { 'PATH_INFO' => '/long_job/',
           'HTTP_TRACEPARENT' => '00-cfe479081764cc476aa983351dc51b1b-cb3468da6f06eefb-01',
-          'HTTP_TRACESTATE'  => '%____sw=cb3468da6f06eefb-01' }
+          'HTTP_TRACESTATE' => '%____sw=cb3468da6f06eefb-01' }
       )
     end
 
     it '9 - invalid tracestate + :enabled transaction settings' do
       check_01_111(
         { 'HTTP_TRACEPARENT' => '00-cfe479081764cc476aa983351dc51b1b-cb3468da6f06eefb-00',
-          'HTTP_TRACESTATE'  => '%____sw=cb3468da6f06eefb-01' }
+          'HTTP_TRACESTATE' => '%____sw=cb3468da6f06eefb-01' }
       )
     end
   end
@@ -279,7 +289,7 @@ describe "Rack: " do
     it '4 - sampling tracestate + :enabled transaction settings not matching' do
       check_00_000(
         { 'HTTP_TRACEPARENT' => '00-cfe479081764cc476aa983351dc51b1b-cb3468da6f06eefa-00',
-          'HTTP_TRACESTATE'  => 'sw=cb3468da6f06eefa-01' }
+          'HTTP_TRACESTATE' => 'sw=cb3468da6f06eefa-01' }
       )
     end
 
@@ -287,14 +297,14 @@ describe "Rack: " do
       check_01_111(
         { 'PATH_INFO' => '/long_job/',
           'HTTP_TRACEPARENT' => '00-cfe479081764cc476aa983351dc51b1b-cb3468da6f06eefb-00',
-          'HTTP_TRACESTATE'  => 'sw=cb3468da6f06eefb-01' }
+          'HTTP_TRACESTATE' => 'sw=cb3468da6f06eefb-01' }
       )
     end
 
     it '6 - non-sampling tracestate + :enabled transaction settings matching' do
       check_00_000(
         { 'HTTP_TRACEPARENT' => '00-cfe479081764cc476aa983351dc51b1b-cb3468da6f06eefc-01',
-          'HTTP_TRACESTATE'  => 'sw=cb3468da6f06eefc-00' }
+          'HTTP_TRACESTATE' => 'sw=cb3468da6f06eefc-00' }
       )
     end
 
@@ -302,7 +312,7 @@ describe "Rack: " do
       check_00_001(
         { 'PATH_INFO' => '/long_job/',
           'HTTP_TRACEPARENT' => '00-cfe479081764cc476aa983351dc51b1b-cb3468da6f06eefd-01',
-          'HTTP_TRACESTATE'  => 'sw=cb3468da6f06eefd-00' }
+          'HTTP_TRACESTATE' => 'sw=cb3468da6f06eefd-00' }
       )
     end
 
@@ -310,14 +320,14 @@ describe "Rack: " do
       check_01_111(
         { 'PATH_INFO' => '/long_job/',
           'HTTP_TRACEPARENT' => '00-cfe479081764cc476aa983351dc51b1b-cb3468da6f06eefb-00',
-          'HTTP_TRACESTATE'  => '%____sw=cb3468da6f06eefb-01' }
+          'HTTP_TRACESTATE' => '%____sw=cb3468da6f06eefb-01' }
       )
     end
 
     it '9 - invalid tracestate + :disabled transaction settings' do
       check_00_000(
         { 'HTTP_TRACEPARENT' => '00-cfe479081764cc476aa983351dc51b1b-cb3468da6f06eefb-01',
-          'HTTP_TRACESTATE'  => '%____sw=cb3468da6f06eefb-01' }
+          'HTTP_TRACESTATE' => '%____sw=cb3468da6f06eefb-01' }
       )
     end
 
@@ -339,13 +349,13 @@ describe "Rack: " do
     it 'calls @app.call' do
       @rack.app.expects(:call)
 
-      AppOpticsAPM::API.start_trace(:rack) do
+      AppOpticsAPM::SDK.start_trace(:rack) do
         @rack.call({})
       end
     end
 
     it "does not sample, do metrics, nor return X-Trace header" do
-      AppOpticsAPM::API.start_trace(:rack) do
+      AppOpticsAPM::SDK.start_trace(:rack) do
         check_w_context_none_000
       end
     end
@@ -357,13 +367,13 @@ describe "Rack: " do
     # it "should call the app's call method" do
     #   @rack.app.expects(:call)
     #
-    #   AppOpticsAPM::API.start_trace(:other) do
+    #   AppOpticsAPM::SDK.start_trace(:other) do
     #     @rack.call({})
     #   end
     # end
 
     it 'should sample but not do metrics' do
-      AppOpticsAPM::API.start_trace(:other) do
+      AppOpticsAPM::SDK.start_trace(:other) do
         check_w_context_01_110
       end
     end
@@ -374,7 +384,7 @@ describe "Rack: " do
       AppOpticsAPM::API.expects(:log_exit)
       AppOpticsAPM::Span.expects(:createHttpSpan).never
 
-      AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F01')
+      AppOpticsAPM::Context.fromString('00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-01')
 
       assert_raises StandardError do
         def @app.call(_); raise StandardError; end
@@ -383,13 +393,13 @@ describe "Rack: " do
     end
 
     it 'returns a non sampling header when there is a non-sampling context' do
-      AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
+      AppOpticsAPM::Context.fromString('00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-00')
 
       check_w_context_00_000
     end
 
     it 'does not trace or send metrics when there is a non-sampling context' do
-      AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
+      AppOpticsAPM::Context.fromString('00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-00')
 
       AppOpticsAPM::API.expects(:log_start).never
       AppOpticsAPM::Span.expects(:createHttpSpan).never
@@ -408,8 +418,8 @@ describe "Rack: " do
       _, headers_1, _ = @rack.call({})
       _, headers_2, _ = @rack.call({ 'PATH_INFO' => '/blablabla/test' })
 
-      AppOpticsAPM::XTrace.valid?(headers_1['X-Trace'])
-      AppOpticsAPM::XTrace.valid?(headers_2['X-Trace'])
+      AppOpticsAPM::TraceString.valid?(headers_1['X-Trace'])
+      AppOpticsAPM::TraceString.valid?(headers_2['X-Trace'])
       refute AppOpticsAPM::Context.isValid
     end
 
@@ -435,7 +445,7 @@ describe "Rack: " do
 
       _, headers, _ = @rack.call({ 'PATH_INFO' => '/blablabla/test' })
 
-      AppOpticsAPM::XTrace.valid?(headers['X-Trace'])
+      AppOpticsAPM::TraceString.valid?(headers['X-Trace'])
       refute AppOpticsAPM::Context.isValid
     end
   end
@@ -487,14 +497,15 @@ describe "Rack: " do
     end
 
     it 'does not set the kv when sw is not in the tracestate' do
-      task_id = '510ae4533414d425dadf4e180d2b4e36'
-      @rack.call({ 'HTTP_TRACEPARENT' => "00-#{task_id}-49e60702469db05f-01",
-                   'HTTP_TRACESTATE' => "aa= 1234,xy=111" })
+      trace_id = '510ae4533414d425dadf4e180d2b4e36'
+      span_id = '49e60702469db05f'
+      @rack.call({ 'HTTP_TRACEPARENT' => "00-#{trace_id}-#{span_id}-01",
+                   'HTTP_TRACESTATE' => "aa= 1234,xy=111i" })
 
       traces = get_all_traces
 
       refute traces[0]['sw.parent_id']
-      assert_equal "#{task_id.upcase}00000000", AppOpticsAPM::XTrace.task_id(traces[0]['X-Trace'])
+      assert_equal trace_id, AppOpticsAPM::TraceString.trace_id(traces[0]['sw.trace_context'])
     end
 
     it 'does not set the kv if there is no incoming context' do

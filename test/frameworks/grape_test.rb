@@ -41,7 +41,7 @@ if defined?(::Grape)
 
       # Validate the existence of the response header
       _(r.headers.key?('X-Trace')).must_equal true
-      _(r.headers['X-Trace']).must_equal traces[3]['X-Trace']
+      _(r.headers['X-Trace']).must_equal traces[3]['sw.trace_context']
     end
 
     it "should trace a request to a nested grape stack" do
@@ -65,7 +65,7 @@ if defined?(::Grape)
 
       # Validate the existence of the response header
       _(r.headers.key?('X-Trace')).must_equal true
-      _(r.headers['X-Trace']).must_equal traces[3]['X-Trace']
+      _(r.headers['X-Trace']).must_equal traces[3]['sw.trace_context']
     end
 
     it "should trace an error in a nested grape stack" do
@@ -100,9 +100,8 @@ if defined?(::Grape)
 
       # Validate the existence of the response header
       _(res.headers.key?('X-Trace')).must_equal true
-      _(res.headers['X-Trace']).must_equal traces[4]['X-Trace']
+      _(res.headers['X-Trace']).must_equal traces[4]['sw.trace_context']
     end
-
 
     it "should trace a request with an exception" do
       @app = GrapeSimple

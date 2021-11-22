@@ -8,7 +8,7 @@ module AppOpticsAPM
   class OboeInitOptions
     include Singleton
 
-    attr_reader :reporter, :host, :service_name, :ec2_md_timeout, :grpc_proxy  # exposing these mainly for testing
+    attr_reader :reporter, :host, :service_name, :ec2_md_timeout, :grpc_proxy # exposing these mainly for testing
 
     # TODO decide if these globals are useful when testing
     # OBOE_HOSTNAME_ALIAS = 0
@@ -74,6 +74,7 @@ module AppOpticsAPM
       @grpc_proxy = read_and_validate_proxy
       # hardcoded arg for lambda (lambda not supported yet)
       # hardcoded arg for grpc hack
+      # hardcoded arg for trace id format to use w3c format
     end
 
     def re_init # for testing with changed ENV vars
@@ -102,8 +103,9 @@ module AppOpticsAPM
         @file_single,            #16
         @ec2_md_timeout,         #17
         @grpc_proxy,             #18
-        0,                       # arg for lambda
-        1                        # arg for grpc hack, hardcoded to include hack
+        0,                       #19 arg for lambda (no lambda for ruby yet)
+        1,                       #20 arg for grpc hack, hardcoded to include hack
+        1                        #21 arg for trace id format to use w3c format
       ]
     end
 

@@ -19,29 +19,25 @@ describe AppOpticsAPM::API::Logging do
     end
 
     it 'logs if there is a sampling context' do
-      xtrace = '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFA01'
-      AppOpticsAPM::Context.fromString(xtrace)
+      md = AppOpticsAPM::Metadata.makeRandom(true)
+      AppOpticsAPM::Context.set(md)
+
       AppOpticsAPM::API.expects(:log_event)
 
       AppOpticsAPM::API.log_start(:test_sampling_context)
 
       assert AppOpticsAPM.tracing?
-      taskId_01 = AppOpticsAPM::XTrace.task_id(xtrace)
-      taskId_02 = AppOpticsAPM::XTrace.task_id(AppOpticsAPM::Context.toString)
-      assert_equal taskId_01, taskId_02, 'Task Id is not matching'
     end
 
     it 'does not log if there is a non-sampling context ' do
-      xtrace = '2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFA00'
-      AppOpticsAPM::Context.fromString(xtrace)
+      md = AppOpticsAPM::Metadata.makeRandom(false)
+      AppOpticsAPM::Context.set(md)
+
       AppOpticsAPM::API.expects(:log_event).never
 
       AppOpticsAPM::API.log_start(:test_non_sampling_context)
 
       refute AppOpticsAPM.tracing?
-      taskId_01 = AppOpticsAPM::XTrace.task_id(xtrace)
-      taskId_02 = AppOpticsAPM::XTrace.task_id(AppOpticsAPM::Context.toString)
-      assert_equal taskId_01, taskId_02, 'Task Id is not matching'
     end
 
     it 'creates settings if none are provided' do
@@ -79,7 +75,8 @@ describe AppOpticsAPM::API::Logging do
 
   describe "when there is a non-sampling context" do
     before do
-      AppOpticsAPM::Context.fromString('2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFA00')
+      md = AppOpticsAPM::Metadata.makeRandom(false)
+      AppOpticsAPM::Context.set(md)
     end
 
     it "log should not log an event" do
@@ -111,16 +108,12 @@ describe AppOpticsAPM::API::Logging do
       AppOpticsAPM::API.expects(:log_event).never
       AppOpticsAPM::API.log_exit(:test)
     end
-
-    it "log_multi_exit should not log an event" do
-      AppOpticsAPM::API.expects(:log_event).never
-      AppOpticsAPM::API.log_multi_exit(:test, [])
-    end
   end
 
   describe "when we are sampling" do
     before do
-      AppOpticsAPM::Context.fromString('2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFA01')
+      md = AppOpticsAPM::Metadata.makeRandom(true)
+      AppOpticsAPM::Context.set(md)
     end
 
     it "log should log an event" do
@@ -143,7 +136,6 @@ describe AppOpticsAPM::API::Logging do
 
       AppOpticsAPM::API.log_exception(:test_0, exception)
       AppOpticsAPM::API.log_exception(:test_1, exception)
-
     end
 
     it "log_end should log an event" do
@@ -164,11 +156,6 @@ describe AppOpticsAPM::API::Logging do
     it "log_exit should log an event" do
       AppOpticsAPM::API.expects(:log_event)
       AppOpticsAPM::API.log_exit(:test)
-    end
-
-    it "log_multi_exit should log an event" do
-      AppOpticsAPM::API.expects(:log_event)
-      AppOpticsAPM::API.log_multi_exit(:test, [])
     end
   end
 
@@ -206,16 +193,12 @@ describe AppOpticsAPM::API::Logging do
       AppOpticsAPM::API.expects(:log_event).never
       AppOpticsAPM::API.log_exit(:test)
     end
-
-    it "log_multi_exit should not log an event" do
-      AppOpticsAPM::API.expects(:log_event).never
-      AppOpticsAPM::API.log_multi_exit(:test, [])
-    end
   end
 
   describe "when we use the op parameter" do
     before do
-      AppOpticsAPM::Context.fromString('2BA462ADE6CFE479081764CC476AA983351DC51B1BCB3468DA6F06EEFA01')
+      md = AppOpticsAPM::Metadata.makeRandom(true)
+      AppOpticsAPM::Context.set(md)
       AppOpticsAPM.layer_op = nil
     end
 

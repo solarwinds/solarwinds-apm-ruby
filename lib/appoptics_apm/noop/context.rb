@@ -11,17 +11,16 @@ module AppOpticsAPM
 
     ##
     # noop version of :toString
-    # toString would return the current context (xtrace) as string
+    # toString would return the current trace context as string
     #
     def self.toString
-      '2B0000000000000000000000000000000000000000000000000000000000'
+      '00-00000000000000000000000000000000-0000000000000000-00'
     end
 
     ##
     # noop version of :clear
     #
     def self.clear
-
     end
   end
 end

@@ -56,7 +56,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
     it "should obey :collect_backtraces setting when true" do
       AppOpticsAPM::Config[:sequel][:collect_backtraces] = true
 
-      AppOpticsAPM::API.start_trace('sequel_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('sequel_test', {}) do
         PG_DB.run('select 1')
       end
 
@@ -67,7 +67,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
     it "should obey :collect_backtraces setting when false" do
       AppOpticsAPM::Config[:sequel][:collect_backtraces] = false
 
-      AppOpticsAPM::API.start_trace('sequel_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('sequel_test', {}) do
         PG_DB.run('select 1')
       end
 
@@ -77,7 +77,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
     it 'should trace PG_DB.run insert' do
       AppOpticsAPM::Config[:sanitize_sql] = false
-      AppOpticsAPM::API.start_trace('sequel_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('sequel_test', {}) do
         PG_DB.run("insert into items (name, price) values ('blah', '12')")
       end
 
@@ -94,7 +94,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
     it 'should trace PG_DB.run select' do
       AppOpticsAPM::Config[:sanitize_sql] = false
-      AppOpticsAPM::API.start_trace('sequel_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('sequel_test', {}) do
         PG_DB.run("select 1")
       end
 
@@ -116,7 +116,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       # random lookup (random due to random test order)
       PG_DB.primary_key(:items)
 
-      AppOpticsAPM::API.start_trace('sequel_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('sequel_test', {}) do
         items.insert(:name => 'abc', :price => 2.514)
         items.count
       end
@@ -131,9 +131,9 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       # SQL column/value order can vary between Ruby and gem versions
       # Use must_include to test against one or the other
       _([
-       "INSERT INTO \"items\" (\"price\", \"name\") VALUES (2.514, 'abc') RETURNING \"id\"",
-       "INSERT INTO \"items\" (\"name\", \"price\") VALUES ('abc', 2.514) RETURNING \"id\""
-      ]).must_include traces[1]['Query']
+          "INSERT INTO \"items\" (\"price\", \"name\") VALUES (2.514, 'abc') RETURNING \"id\"",
+          "INSERT INTO \"items\" (\"name\", \"price\") VALUES ('abc', 2.514) RETURNING \"id\""
+        ]).must_include traces[1]['Query']
 
       _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       _(traces[2]['Layer']).must_equal "sequel"
@@ -149,7 +149,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       # random lookup (random due to random test order)
       PG_DB.primary_key(:items)
 
-      AppOpticsAPM::API.start_trace('sequel_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('sequel_test', {}) do
         items.insert(:name => 'abc', :price => 2.514461383352462)
       end
 
@@ -163,9 +163,9 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       # SQL column/value order can vary between Ruby and gem versions
       # Use must_include to test against one or the other
       _([
-        "INSERT INTO \"items\" (\"price\", \"name\") VALUES (?, ?) RETURNING \"id\"",
-        "INSERT INTO \"items\" (\"name\", \"price\") VALUES (?, ?) RETURNING \"id\""
-      ]).must_include traces[1]['Query']
+          "INSERT INTO \"items\" (\"price\", \"name\") VALUES (?, ?) RETURNING \"id\"",
+          "INSERT INTO \"items\" (\"name\", \"price\") VALUES (?, ?) RETURNING \"id\""
+        ]).must_include traces[1]['Query']
 
       _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
@@ -176,7 +176,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       items = PG_DB[:items]
       items.count
 
-      AppOpticsAPM::API.start_trace('sequel_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('sequel_test', {}) do
         items.filter(:name => 'abc').all
       end
 
@@ -195,7 +195,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       # Drop the table if it already exists
       PG_DB.drop_table(:fake) if PG_DB.table_exists?(:fake)
 
-      AppOpticsAPM::API.start_trace('sequel_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('sequel_test', {}) do
         PG_DB.create_table :fake do
           primary_key :id
           String :name
@@ -218,7 +218,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       # Drop the table if it already exists
       PG_DB.drop_table(:fake) if PG_DB.table_exists?(:fake)
 
-      AppOpticsAPM::API.start_trace('sequel_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('sequel_test', {}) do
         PG_DB.create_table :fake do
           primary_key :id
           String :name
@@ -239,7 +239,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
     it 'should capture and report exceptions' do
       begin
-        AppOpticsAPM::API.start_trace('sequel_test', '', {}) do
+        AppOpticsAPM::SDK.start_trace('sequel_test', {}) do
           PG_DB.run("this is bad sql")
         end
       rescue
@@ -270,10 +270,10 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       items = PG_DB[:items]
       items.count
 
-      AppOpticsAPM::API.start_trace('sequel_test', '', {}) do
-        ds = items.where(:name=>:$n)
-        ds.call(:select, :n=>'abc')
-        ds.call(:delete, :n=>'cba')
+      AppOpticsAPM::SDK.start_trace('sequel_test', {}) do
+        ds = items.where(:name => :$n)
+        ds.call(:select, :n => 'abc')
+        ds.call(:delete, :n => 'cba')
       end
 
       traces = get_all_traces
@@ -291,11 +291,11 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
     it 'should trace prepared statements' do
       AppOpticsAPM::Config[:sanitize_sql] = false
-      ds = PG_DB[:items].filter(:name=>:$n)
+      ds = PG_DB[:items].filter(:name => :$n)
       ps = ds.prepare(:select, :select_by_name)
 
-      AppOpticsAPM::API.start_trace('sequel_test', '', {}) do
-        ps.call(:n=>'abc')
+      AppOpticsAPM::SDK.start_trace('sequel_test', {}) do
+        ps.call(:n => 'abc')
       end
 
       traces = get_all_traces
@@ -313,11 +313,11 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
     it 'should trace prep\'d stmnts and obey query privacy' do
       AppOpticsAPM::Config[:sanitize_sql] = true
-      ds = PG_DB[:items].filter(:name=>:$n)
+      ds = PG_DB[:items].filter(:name => :$n)
       ps = ds.prepare(:select, :select_by_name)
 
-      AppOpticsAPM::API.start_trace('sequel_test', '', {}) do
-        ps.call(:n=>'abc')
+      AppOpticsAPM::SDK.start_trace('sequel_test', {}) do
+        ps.call(:n => 'abc')
       end
 
       traces = get_all_traces

@@ -48,7 +48,7 @@ module AppOpticsAPM
 
         report_kvs = extract_trace_details(:insert, column_family, key, hash, options)
 
-        AppOpticsAPM::API.trace(:cassandra, report_kvs) do
+        AppOpticsAPM::SDK.trace(:cassandra, report_kvs) do
           insert_without_appoptics(column_family, key, hash, options = {})
         end
       end
@@ -60,7 +60,7 @@ module AppOpticsAPM
 
         report_kvs = extract_trace_details(:remove, column_family, key, columns_and_options)
 
-        AppOpticsAPM::API.trace(:cassandra, report_kvs) do
+        AppOpticsAPM::SDK.trace(:cassandra, report_kvs) do
           send :remove_without_appoptics, *args
         end
       end
@@ -72,7 +72,7 @@ module AppOpticsAPM
 
         report_kvs = extract_trace_details(:count_columns, column_family, key, columns_and_options)
 
-        AppOpticsAPM::API.trace(:cassandra, report_kvs) do
+        AppOpticsAPM::SDK.trace(:cassandra, report_kvs) do
           send :count_columns_without_appoptics, *args
         end
       end
@@ -83,7 +83,7 @@ module AppOpticsAPM
         if AppOpticsAPM.tracing? && !AppOpticsAPM.tracing_layer_op?(:multi_get_columns)
           report_kvs = extract_trace_details(:get_columns, column_family, key, columns_and_options)
 
-          AppOpticsAPM::API.trace(:cassandra, report_kvs) do
+          AppOpticsAPM::SDK.trace(:cassandra, report_kvs) do
             send :get_columns_without_appoptics, *args
           end
         else
@@ -98,7 +98,7 @@ module AppOpticsAPM
 
         report_kvs = extract_trace_details(:multi_get_columns, column_family, key, columns_and_options)
 
-        AppOpticsAPM::API.trace(:cassandra, report_kvs, :multi_get_columns) do
+        AppOpticsAPM::SDK.trace(:cassandra, report_kvs, :multi_get_columns) do
           send :multi_get_columns_without_appoptics, *args
         end
       end
@@ -110,7 +110,7 @@ module AppOpticsAPM
 
         report_kvs = extract_trace_details(:get, column_family, key, columns_and_options)
 
-        AppOpticsAPM::API.trace(:cassandra, report_kvs, :get) do
+        AppOpticsAPM::SDK.trace(:cassandra, report_kvs, :get) do
           send :get_without_appoptics, *args
         end
       end
@@ -121,7 +121,7 @@ module AppOpticsAPM
         if AppOpticsAPM.tracing? && !AppOpticsAPM.tracing_layer_op?(:get)
           report_kvs = extract_trace_details(:multi_get, column_family, key, columns_and_options)
 
-          AppOpticsAPM::API.trace(:cassandra, report_kvs) do
+          AppOpticsAPM::SDK.trace(:cassandra, report_kvs) do
             send :multi_get_without_appoptics, *args
           end
         else
@@ -136,7 +136,7 @@ module AppOpticsAPM
 
         report_kvs = extract_trace_details(:exists?, column_family, key, columns_and_options)
 
-        AppOpticsAPM::API.trace(:cassandra, report_kvs) do
+        AppOpticsAPM::SDK.trace(:cassandra, report_kvs) do
           send :exists_without_appoptics?, *args
         end
       end
@@ -145,7 +145,7 @@ module AppOpticsAPM
         if AppOpticsAPM.tracing? && !AppOpticsAPM.tracing_layer_op?(:get_range_batch)
           report_kvs = extract_trace_details(:get_range_single, column_family, nil, nil)
 
-          AppOpticsAPM::API.trace(:cassandra, report_kvs) do
+          AppOpticsAPM::SDK.trace(:cassandra, report_kvs) do
             get_range_single_without_appoptics(column_family, options)
           end
         else
@@ -158,7 +158,7 @@ module AppOpticsAPM
 
         report_kvs = extract_trace_details(:get_range_batch, column_family, nil, nil)
 
-        AppOpticsAPM::API.trace(:cassandra, report_kvs, :get_range_batch) do
+        AppOpticsAPM::SDK.trace(:cassandra, report_kvs, :get_range_batch) do
           get_range_batch_without_appoptics(column_family, options)
         end
       end
@@ -170,7 +170,7 @@ module AppOpticsAPM
 
         report_kvs = extract_trace_details(:get_indexed_slices, column_family, nil, columns_and_options)
 
-        AppOpticsAPM::API.trace(:cassandra, report_kvs) do
+        AppOpticsAPM::SDK.trace(:cassandra, report_kvs) do
           send :get_indexed_slices_without_appoptics, *args
         end
       end
@@ -189,7 +189,7 @@ module AppOpticsAPM
           AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
         end
 
-        AppOpticsAPM::API.trace(:cassandra, report_kvs) do
+        AppOpticsAPM::SDK.trace(:cassandra, report_kvs) do
           create_index_without_appoptics(keyspace, column_family, column_name, validation_class)
         end
       end
@@ -205,7 +205,7 @@ module AppOpticsAPM
           AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
         end
 
-        AppOpticsAPM::API.trace(:cassandra, report_kvs) do
+        AppOpticsAPM::SDK.trace(:cassandra, report_kvs) do
           drop_index_without_appoptics(keyspace, column_family, column_name)
         end
       end
@@ -220,7 +220,7 @@ module AppOpticsAPM
           AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
         end
 
-        AppOpticsAPM::API.trace(:cassandra, report_kvs) do
+        AppOpticsAPM::SDK.trace(:cassandra, report_kvs) do
           add_column_family_without_appoptics(cf_def)
         end
       end
@@ -230,7 +230,7 @@ module AppOpticsAPM
 
         report_kvs = extract_trace_details(:drop_column_family, column_family, nil, nil)
 
-        AppOpticsAPM::API.trace(:cassandra, report_kvs) do
+        AppOpticsAPM::SDK.trace(:cassandra, report_kvs) do
           drop_column_family_without_appoptics(column_family)
         end
       end
@@ -241,7 +241,7 @@ module AppOpticsAPM
         report_kvs = extract_trace_details(:add_keyspace, nil, nil, nil)
         report_kvs[:Name] = ks_def.name rescue ''
 
-        AppOpticsAPM::API.trace(:cassandra, report_kvs) do
+        AppOpticsAPM::SDK.trace(:cassandra, report_kvs) do
           add_keyspace_without_appoptics(ks_def)
         end
       end
@@ -252,7 +252,7 @@ module AppOpticsAPM
         report_kvs = extract_trace_details(:drop_keyspace, nil, nil, nil)
         report_kvs[:Name] = keyspace.to_s rescue ''
 
-        AppOpticsAPM::API.trace(:cassandra, report_kvs) do
+        AppOpticsAPM::SDK.trace(:cassandra, report_kvs) do
           drop_keyspace_without_appoptics(keyspace)
         end
       end
@@ -278,7 +278,8 @@ if defined?(Cassandra) && Cassandra.is_a?(Class) && AppOpticsAPM::Config[:cassan
       if method_defined?(m)
         class_eval "alias #{m}_without_appoptics #{m}"
         class_eval "alias #{m} #{m}_with_appoptics"
-      else AppOpticsAPM.logger.warn "[appoptics_apm/loading] Couldn't properly instrument Cassandra (#{m}).  Partial traces may occur."
+      else
+        AppOpticsAPM.logger.warn "[appoptics_apm/loading] Couldn't properly instrument Cassandra (#{m}).  Partial traces may occur."
       end
     end
 
@@ -286,9 +287,11 @@ if defined?(Cassandra) && Cassandra.is_a?(Class) && AppOpticsAPM::Config[:cassan
     if method_defined?(:exists?)
       alias exists_without_appoptics? exists?
       alias exists? exists_with_appoptics?
-    else AppOpticsAPM.logger.warn '[appoptics_apm/loading] Couldn\'t properly instrument Cassandra (exists?).  Partial traces may occur.'
+    else
+      AppOpticsAPM.logger.warn '[appoptics_apm/loading] Couldn\'t properly instrument Cassandra (exists?).  Partial traces may occur.'
     end
   end # class Cassandra
+
 end
 
 

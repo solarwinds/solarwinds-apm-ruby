@@ -22,7 +22,7 @@ unless defined?(JRUBY_VERSION)
         map "/out" do
           run Proc.new {
             RestClient::Resource.new('http://127.0.0.1:8101').get
-            [200, {"Content-Type" => "text/html"}, ['Hello AppOpticsAPM!']]
+            [200, { "Content-Type" => "text/html" }, ['Hello AppOpticsAPM!']]
           }
         end
       }
@@ -52,7 +52,7 @@ unless defined?(JRUBY_VERSION)
     def test_tracing_sampling
       stub_request(:get, "http://127.0.0.1:8101/").to_return(status: 200, body: "", headers: {})
 
-      AppOpticsAPM::API.start_trace('rest_client_tests') do
+      AppOpticsAPM::SDK.start_trace('rest_client_tests') do
         RestClient::Resource.new('http://127.0.0.1:8101').get
       end
 
@@ -67,7 +67,7 @@ unless defined?(JRUBY_VERSION)
 
       AppOpticsAPM.config_lock.synchronize do
         AppOpticsAPM::Config[:sample_rate] = 0
-        AppOpticsAPM::API.start_trace('rest_client_tests') do
+        AppOpticsAPM::SDK.start_trace('rest_client_tests') do
           RestClient::Resource.new('http://127.0.0.2:8101').get
         end
       end
@@ -84,17 +84,17 @@ unless defined?(JRUBY_VERSION)
       RestClient::Resource.new('http://127.0.0.3:8101').get
 
       assert_requested :get, "http://127.0.0.3:8101/", times: 1
-      assert_not_requested :get, "http://127.0.0.3:8101/", headers: {'X-Trace'=>/^.*$/}
+      assert_not_requested :get, "http://127.0.0.3:8101/", headers: { 'X-Trace' => /^.*$/ }
     end
 
     def test_preserves_custom_headers
       stub_request(:get, "http://127.0.0.6:8101/").to_return(status: 200, body: "", headers: {})
 
-      AppOpticsAPM::API.start_trace('rest_client_tests') do
+      AppOpticsAPM::SDK.start_trace('rest_client_tests') do
         RestClient::Resource.new('http://127.0.0.6:8101', headers: { 'Custom' => 'specialvalue' }).get
       end
 
-      assert_requested :get, "http://127.0.0.6:8101/", headers: {'Custom'=>'specialvalue'}, times: 1
+      assert_requested :get, "http://127.0.0.6:8101/", headers: { 'Custom' => 'specialvalue' }, times: 1
       refute AppOpticsAPM::Context.isValid
     end
 
@@ -105,14 +105,14 @@ unless defined?(JRUBY_VERSION)
 
       task_id = 'a462ade6cfe479081764cc476aa98335'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
-      state = 'sw=cb3468da6f06eefc01'
+      state = 'sw=cb3468da6f06eefc-01'
       AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
 
-      AppOpticsAPM::API.start_trace('restclient_tests', AppOpticsAPM.trace_context.xtrace) do
+      AppOpticsAPM::SDK.start_trace('restclient_tests') do
         res = RestClient::Resource.new('http://127.0.0.1:8101').get
 
         assert_trace_headers(res.request.processed_headers, true)
-        assert_equal task_id, AppOpticsAPM::TraceParent.task_id(res.request.processed_headers['traceparent'])
+        assert_equal task_id, AppOpticsAPM::TraceString.trace_id(res.request.processed_headers['traceparent'])
         refute_equal state, res.request.processed_headers['tracestate']
       end
 
@@ -140,14 +140,14 @@ unless defined?(JRUBY_VERSION)
 
       task_id = 'a462ade6cfe479081764cc476aa98335'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
-      state = 'aa= 1234, sw=cb3468da6f06eefc01,%%cc=%%%45'
+      state = 'aa= 1234, sw=cb3468da6f06eefc-01,%%cc=%%%45'
       AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
 
-      AppOpticsAPM::API.start_trace('restclient_tests', AppOpticsAPM.trace_context.xtrace) do
+      AppOpticsAPM::SDK.start_trace('restclient_tests') do
         res = RestClient::Resource.new('http://127.0.0.1:8101').get
         assert_trace_headers(res.request.processed_headers, true)
-        assert_equal task_id, AppOpticsAPM::TraceParent.task_id(res.request.processed_headers['traceparent'])
-        assert_equal "sw=#{AppOpticsAPM::TraceParent.edge_id_flags(res.request.processed_headers['traceparent'])},aa= 1234,%%cc=%%%45",
+        assert_equal task_id, AppOpticsAPM::TraceString.trace_id(res.request.processed_headers['traceparent'])
+        assert_equal "sw=#{AppOpticsAPM::TraceString.span_id_flags(res.request.processed_headers['traceparent'])},aa= 1234,%%cc=%%%45",
                      res.request.processed_headers['tracestate']
       end
 
@@ -159,7 +159,7 @@ unless defined?(JRUBY_VERSION)
 
       task_id = 'a462ade6cfe479081764cc476aa98335'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
-      state = 'aa= 1234, sw=cb3468da6f06eefc01,%%cc=%%%45'
+      state = 'aa= 1234, sw=cb3468da6f06eefc-01,%%cc=%%%45'
       AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
 
       res = RestClient::Resource.new('http://127.0.0.1:8101').get

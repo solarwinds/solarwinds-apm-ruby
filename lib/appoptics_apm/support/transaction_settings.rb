@@ -17,14 +17,14 @@ module AppOpticsAPM
   class TransactionSettings
 
     attr_accessor :do_sample, :do_metrics
-    attr_reader   :auth_msg, :do_propagate, :status_msg, :type, :source, :rate, :xtrace
-                  #, :status
+    attr_reader   :auth_msg, :do_propagate, :status_msg, :type, :source, :rate, :tracestring, :sw_member_value
 
-    def initialize(url = '', xtrace = nil, options = nil)
+    def initialize(url = '', tracestring = nil, sw_member_value = nil, options = nil)
       @do_metrics = false
       @do_sample = false
       @do_propagate = true
-      @xtrace = xtrace
+      @tracestring = tracestring
+      @sw_member_value = sw_member_value
       tracing_mode = AO_TRACING_ENABLED
 
       if AppOpticsAPM::Context.isValid
@@ -43,7 +43,7 @@ module AppOpticsAPM
         tracing_mode = AO_TRACING_DISABLED
       end
 
-      args = [@xtrace]
+      args = [@tracestring, @sw_member_value]
       args << tracing_mode
       args << (AppOpticsAPM::Config[:sample_rate] || OBOE_SETTINGS_UNSET)
 
@@ -155,7 +155,6 @@ module AppOpticsAPM
         false
       end
 
-
       def compile_url_settings(settings)
         if !settings.is_a?(Array) || settings.empty?
           reset_url_regexps
@@ -194,7 +193,7 @@ module AppOpticsAPM
             nil
           end
         end
-        regexps.keep_if { |v| !v.nil?}
+        regexps.keep_if { |v| !v.nil? }
         regexps.empty? ? nil : regexps
       end
 
@@ -205,7 +204,7 @@ module AppOpticsAPM
             !v[:extensions].empty?
         end
         extensions = extensions.map { |v| v[:extensions] }.flatten
-        extensions.keep_if { |v| v.is_a?(String)}
+        extensions.keep_if { |v| v.is_a?(String) }
 
         extensions.empty? ? nil : Regexp.new("(#{Regexp.union(extensions).source})(\\?.+){0,1}$")
       end

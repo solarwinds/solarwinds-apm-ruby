@@ -44,10 +44,10 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
 
       # These are standard entry/exit KVs that are passed up with all mongo operations
       @entry_kvs = {
-          'Layer' => 'cassandra',
-          'Label' => 'entry',
-          'RemoteHost' => ENV['APPOPTICS_CASSANDRA_SERVER'].split(':')[0],
-          'RemotePort' => ENV['APPOPTICS_CASSANDRA_SERVER'].split(':')[1] }
+        'Layer' => 'cassandra',
+        'Label' => 'entry',
+        'RemoteHost' => ENV['APPOPTICS_CASSANDRA_SERVER'].split(':')[0],
+        'RemotePort' => ENV['APPOPTICS_CASSANDRA_SERVER'].split(':')[1] }
 
       @exit_kvs = { 'Layer' => 'cassandra', 'Label' => 'exit' }
       @collect_backtraces = AppOpticsAPM::Config[:cassandra][:collect_backtraces]
@@ -63,10 +63,10 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
     end
 
     it 'Cassandra should have appoptics_apm methods defined' do
-      [ :insert, :remove, :count_columns, :get_columns, :multi_get_columns, :get,
-        :multi_get, :get_range_single, :get_range_batch, :get_indexed_slices,
-        :create_index, :drop_index, :add_column_family, :drop_column_family,
-        :add_keyspace, :drop_keyspace ].each do |m|
+      [:insert, :remove, :count_columns, :get_columns, :multi_get_columns, :get,
+       :multi_get, :get_range_single, :get_range_batch, :get_indexed_slices,
+       :create_index, :drop_index, :add_column_family, :drop_column_family,
+       :add_keyspace, :drop_keyspace].each do |m|
         _(::Cassandra.method_defined?("#{m}_with_appoptics")).must_equal true
       end
       # Special 'exists?' case
@@ -75,8 +75,8 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
 
     it 'shouldn\'t break when NOT tracing' do
       begin
-        user = {'screen_name' => 'larry', "blah" => "ok"}
-        @client.insert(:Users, '5', user, { :ttl => 600, :consistency => 1})
+        user = { 'screen_name' => 'larry', "blah" => "ok" }
+        @client.insert(:Users, '5', user, { :ttl => 600, :consistency => 1 })
         @client.remove(:Users, '5', 'blah')
         @client.count_columns(:Statuses, '12', :count => 50)
         @client.get_columns(:Statuses, '12', ['body'])
@@ -84,13 +84,13 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
         @client.get(:Statuses, '12', :reversed => true)
         @client.get_range_keys(:Statuses, :key_count => 4)
         @client.create_index(@ks_name, 'Statuses', 'x', 'LongType')
-        expressions   =  [
-            { :column_name => 'x',
-              :value => [0,20].pack("NN"),
-              :comparison => "=="},
-            { :column_name => 'non_indexed',
-              :value => [5].pack("N*"),
-              :comparison => ">"} ]
+        expressions = [
+          { :column_name => 'x',
+            :value => [0, 20].pack("NN"),
+            :comparison => "==" },
+          { :column_name => 'non_indexed',
+            :value => [5].pack("N*"),
+            :comparison => ">" }]
         @client.get_indexed_slices(:Statuses, expressions).length
         @client.exists?(:Statuses, '12')
         @client.exists?(:Statuses, '12', 'body')
@@ -106,9 +106,9 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
     end
 
     it 'should trace insert' do
-      AppOpticsAPM::API.start_trace('cassandra_test', '', {}) do
-        user = {'screen_name' => 'larry', "blah" => "ok"}
-        @client.insert(:Users, '5', user, { :ttl => 600, :consistency => 1})
+      AppOpticsAPM::SDK.start_trace('cassandra_test', {}) do
+        user = { 'screen_name' => 'larry', "blah" => "ok" }
+        @client.insert(:Users, '5', user, { :ttl => 600, :consistency => 1 })
       end
 
       traces = get_all_traces
@@ -127,7 +127,7 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
     end
 
     it 'should trace remove' do
-      AppOpticsAPM::API.start_trace('cassandra_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('cassandra_test', {}) do
         @client.remove(:Users, '5', 'blah')
       end
 
@@ -145,9 +145,9 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
     end
 
     it 'should trace count_columns' do
-      @client.insert(:Statuses, '12', {'body' => 'v1', 'user' => 'v2'})
+      @client.insert(:Statuses, '12', { 'body' => 'v1', 'user' => 'v2' })
 
-      AppOpticsAPM::API.start_trace('cassandra_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('cassandra_test', {}) do
         @client.count_columns(:Statuses, '12', :count => 50)
       end
 
@@ -166,7 +166,7 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
     end
 
     it 'should trace get_columns' do
-      AppOpticsAPM::API.start_trace('cassandra_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('cassandra_test', {}) do
         @client.get_columns(:Statuses, '12', ['body'])
       end
 
@@ -184,7 +184,7 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
     end
 
     it 'should trace multi_get_columns' do
-      AppOpticsAPM::API.start_trace('cassandra_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('cassandra_test', {}) do
         @client.multi_get_columns(:Users, ['12', '5'], ['body'])
       end
 
@@ -202,7 +202,7 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
     end
 
     it 'should trace get' do
-      AppOpticsAPM::API.start_trace('cassandra_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('cassandra_test', {}) do
         @client.get(:Statuses, '12', :reversed => true)
       end
 
@@ -221,7 +221,7 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
     end
 
     it 'should trace exists?' do
-      AppOpticsAPM::API.start_trace('cassandra_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('cassandra_test', {}) do
         @client.exists?(:Statuses, '12')
         @client.exists?(:Statuses, '12', 'body')
       end
@@ -245,7 +245,7 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
     end
 
     it 'should trace get_range_keys' do
-      AppOpticsAPM::API.start_trace('cassandra_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('cassandra_test', {}) do
         @client.get_range_keys(:Statuses, :key_count => 4)
       end
 
@@ -262,7 +262,7 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
     end
 
     it 'should trace create_index' do
-      AppOpticsAPM::API.start_trace('cassandra_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('cassandra_test', {}) do
         @client.create_index(@ks_name, 'Statuses', 'column_name', 'LongType')
       end
 
@@ -288,7 +288,7 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
       # Prep
       @client.create_index(@ks_name, 'Statuses', 'column_name', 'LongType')
 
-      AppOpticsAPM::API.start_trace('cassandra_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('cassandra_test', {}) do
         @client.drop_index(@ks_name, 'Statuses', 'column_name')
       end
 
@@ -308,14 +308,14 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
 
     it 'should trace get_indexed_slices' do
       @client.create_index(@ks_name, 'Statuses', 'x', 'LongType')
-      AppOpticsAPM::API.start_trace('cassandra_test', '', {}) do
-        expressions   =  [
-            { :column_name => 'x',
-              :value => [0,20].pack("NN"),
-              :comparison => "=="},
-            { :column_name => 'non_indexed',
-              :value => [5].pack("N*"),
-              :comparison => ">"} ]
+      AppOpticsAPM::SDK.start_trace('cassandra_test', {}) do
+        expressions = [
+          { :column_name => 'x',
+            :value => [0, 20].pack("NN"),
+            :comparison => "==" },
+          { :column_name => 'non_indexed',
+            :value => [5].pack("N*"),
+            :comparison => ">" }]
         @client.get_indexed_slices(:Statuses, expressions).length
       end
 
@@ -332,10 +332,10 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
     end
 
     it 'should trace add and remove of column family' do
-      cf_name = (0...10).map{ ('a'..'z').to_a[rand(26)] }.join
+      cf_name = (0...10).map { ('a'..'z').to_a[rand(26)] }.join
       cf_def = CassandraThrift::CfDef.new(:keyspace => @ks_name, :name => cf_name)
 
-      AppOpticsAPM::API.start_trace('cassandra_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('cassandra_test', {}) do
         @client.add_column_family(cf_def)
         @client.drop_column_family(cf_name)
       end
@@ -356,13 +356,13 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
     end
 
     it 'should trace adding a keyspace' do
-      ks_name = (0...10).map{ ('a'..'z').to_a[rand(26)] }.join
+      ks_name = (0...10).map { ('a'..'z').to_a[rand(26)] }.join
       ks_def = CassandraThrift::KsDef.new(:name => ks_name,
                                           :strategy_class => "org.apache.cassandra.locator.SimpleStrategy",
                                           :strategy_options => { 'replication_factor' => '2' },
                                           :cf_defs => [])
 
-      AppOpticsAPM::API.start_trace('cassandra_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('cassandra_test', {}) do
         @client.add_keyspace(ks_def)
         @client.keyspace = ks_name
       end
@@ -380,7 +380,7 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
     end
 
     it 'should trace the removal of a keyspace' do
-      AppOpticsAPM::API.start_trace('cassandra_test', '', {}) do
+      AppOpticsAPM::SDK.start_trace('cassandra_test', {}) do
         @client.drop_keyspace(@ks_name)
       end
 
@@ -399,9 +399,9 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
     it "should obey :collect_backtraces setting when true" do
       AppOpticsAPM::Config[:cassandra][:collect_backtraces] = true
 
-      AppOpticsAPM::API.start_trace('cassandra_test', '', {}) do
-        user = {'screen_name' => 'larry', "blah" => "ok"}
-        @client.insert(:Users, '5', user, { :ttl => 600, :consistency => 1})
+      AppOpticsAPM::SDK.start_trace('cassandra_test', {}) do
+        user = { 'screen_name' => 'larry', "blah" => "ok" }
+        @client.insert(:Users, '5', user, { :ttl => 600, :consistency => 1 })
       end
 
       traces = get_all_traces
@@ -411,9 +411,9 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
     it "should obey :collect_backtraces setting when false" do
       AppOpticsAPM::Config[:cassandra][:collect_backtraces] = false
 
-      AppOpticsAPM::API.start_trace('cassandra_test', '', {}) do
-        user = {'screen_name' => 'larry', "blah" => "ok"}
-        @client.insert(:Users, '5', user, { :ttl => 600, :consistency => 1})
+      AppOpticsAPM::SDK.start_trace('cassandra_test', {}) do
+        user = { 'screen_name' => 'larry', "blah" => "ok" }
+        @client.insert(:Users, '5', user, { :ttl => 600, :consistency => 1 })
       end
 
       traces = get_all_traces

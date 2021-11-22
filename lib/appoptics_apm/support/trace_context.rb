@@ -5,54 +5,28 @@ module AppOpticsAPM
 
   class TraceContext
 
-    attr_reader :xtrace, :parent_xtrace, :traceparent, :tracestate, :sw_tracestate, :parent_id
+    attr_reader :traceparent, :tracestate, :tracestring, :sw_member_value
 
-    class << self
-      def w3c_to_ao_trace(traceparent)
-        parts = traceparent.split('-')
-        "2B#{parts[1]}00000000#{parts[2]}#{parts[3]}".upcase
+    def initialize(traceparent = nil, tracestate = nil)
+      # we won't propagate this context if the traceparent is invalid
+      return unless traceparent.is_a?(String) && AppOpticsAPM::TraceString.valid?(traceparent)
+
+      @traceparent = traceparent
+      @tracestate = tracestate
+
+      if @tracestate
+        @sw_member_value = TraceState.sw_member_value(@tracestate)
+        @tracestring = AppOpticsAPM::TraceString.replace_span_id_flags(@traceparent, @sw_member_value) if @sw_member_value
       end
 
-      def ao_to_w3c_trace(xtrace)
-        "00-#{xtrace[2..33]}-#{xtrace[42..57]}-#{xtrace[-2..-1]}".downcase
-      end
-    end
-
-    def initialize(traceparent=nil, tracestate=nil)
-      return unless traceparent.is_a?(String)
-
-      # TODO NH-2303
-      #  currently storing xtrace in ao format, change when oboe is ready
-      @xtrace = TraceContext.w3c_to_ao_trace(traceparent)
-      if XTrace.valid?(@xtrace)
-        @traceparent = traceparent
-        @tracestate = tracestate
-
-        if @tracestate
-          @sw_tracestate, @parent_id, sampled = TraceState.sw_tracestate(@tracestate)
-          # TODO remove unset_sampled once oboe takes sampled arg for decision
-          @xtrace = sampled == false ? XTrace.unset_sampled(@xtrace) : XTrace.set_sampled(@xtrace)
-          @parent_xtrace = AppOpticsAPM::XTrace.replace_edge_id(@xtrace, @parent_id)
-        else
-          @xtrace = nil # we are not continuing a trace without a tracestate from us
-        end
-      else
-        @xtrace = nil
-      end
+      @tracestring ||= @traceparent
     end
 
     # these are event kvs, not headers
     def add_kvs(kvs = {})
-      if @xtrace
-        kvs['sw.parent_id'] = @parent_id if @parent_id
-        kvs['sw.w3c.tracestate'] = @tracestate if @tracestate
-      end
+      kvs['sw.parent_id'] = @sw_member_value[0...-3] if @sw_member_value
+      kvs['sw.w3c.tracestate'] = @tracestate if @tracestate
       kvs
-    end
-
-    # for debugging only
-    def to_s
-      "#{traceparent} - #{original_tracestate}"
     end
 
   end

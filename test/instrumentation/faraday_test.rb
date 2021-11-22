@@ -24,9 +24,9 @@ describe "Faraday" do
   end
 
   it "should trace cross-app request" do
-    AppOpticsAPM::API.start_trace('faraday_test') do
+    AppOpticsAPM::SDK.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
-        faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
+        faraday.adapter Faraday.default_adapter # make requests with Net::HTTP
       end
       response = conn.get '/games?q=1'
       _(response.headers["x-trace"]).wont_match nil
@@ -54,9 +54,9 @@ describe "Faraday" do
   end
 
   it "should trace UNINSTRUMENTED cross-app request" do
-    AppOpticsAPM::API.start_trace('faraday_test') do
+    AppOpticsAPM::SDK.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8110') do |faraday|
-        faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
+        faraday.adapter Faraday.default_adapter # make requests with Net::HTTP
       end
       response = conn.get '/games?q=1'
       _(response.headers["x-trace"]).wont_match nil
@@ -84,9 +84,9 @@ describe "Faraday" do
   end
 
   it 'should trace a Faraday request' do
-    AppOpticsAPM::API.start_trace('faraday_test') do
+    AppOpticsAPM::SDK.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
-        faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
+        faraday.adapter Faraday.default_adapter # make requests with Net::HTTP
       end
       conn.get '/?q=ruby_test_suite'
     end
@@ -113,8 +113,8 @@ describe "Faraday" do
   end
 
   it 'should trace a Faraday class style request' do
-    AppOpticsAPM::API.start_trace('faraday_test') do
-      Faraday.get('http://127.0.0.1:8101/', {:a => 1})
+    AppOpticsAPM::SDK.start_trace('faraday_test') do
+      Faraday.get('http://127.0.0.1:8101/', { :a => 1 })
     end
 
     traces = get_all_traces
@@ -139,7 +139,7 @@ describe "Faraday" do
   end
 
   it 'should trace a Faraday with the excon adapter' do
-    AppOpticsAPM::API.start_trace('faraday_test') do
+    AppOpticsAPM::SDK.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
         faraday.adapter :excon
       end
@@ -175,7 +175,7 @@ describe "Faraday" do
   end
 
   it 'should trace a Faraday with the httpclient adapter' do
-    AppOpticsAPM::API.start_trace('faraday_test') do
+    AppOpticsAPM::SDK.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
         faraday.adapter :httpclient
       end
@@ -208,7 +208,7 @@ describe "Faraday" do
   end
 
   it 'should trace a Faraday with the typhoeus adapter' do
-    AppOpticsAPM::API.start_trace('faraday_test') do
+    AppOpticsAPM::SDK.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
         faraday.adapter :typhoeus
       end
@@ -242,7 +242,7 @@ describe "Faraday" do
 
   it 'should trace a Faraday with the UNINSTRUMENTED patron adapter' do
     AppOpticsAPM::Config[:faraday][:log_args] = true
-    AppOpticsAPM::API.start_trace('faraday_test') do
+    AppOpticsAPM::SDK.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
         faraday.adapter :patron
       end
@@ -277,7 +277,7 @@ describe "Faraday" do
 
   it 'should trace a Faraday with the UNINSTRUMENTED patron adapter to UNINSTRUMENTED rack' do
     AppOpticsAPM::Config[:faraday][:log_args] = true
-    AppOpticsAPM::API.start_trace('faraday_test') do
+    AppOpticsAPM::SDK.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8110') do |faraday|
         faraday.adapter :patron
       end
@@ -306,9 +306,9 @@ describe "Faraday" do
   it 'should obey :collect_backtraces setting when true' do
     AppOpticsAPM::Config[:faraday][:collect_backtraces] = true
 
-    AppOpticsAPM::API.start_trace('faraday_test') do
+    AppOpticsAPM::SDK.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
-        faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
+        faraday.adapter Faraday.default_adapter # make requests with Net::HTTP
       end
       conn.get '/?q=ruby_test_suite'
     end
@@ -320,9 +320,9 @@ describe "Faraday" do
   it 'should obey :collect_backtraces setting when false' do
     AppOpticsAPM::Config[:faraday][:collect_backtraces] = false
 
-    AppOpticsAPM::API.start_trace('faraday_test') do
+    AppOpticsAPM::SDK.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
-        faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
+        faraday.adapter Faraday.default_adapter # make requests with Net::HTTP
       end
       conn.get '/?q=ruby_test_suite'
     end

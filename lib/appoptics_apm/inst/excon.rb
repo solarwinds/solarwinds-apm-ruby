@@ -50,7 +50,7 @@ module AppOpticsAPM
       def requests(pipeline_params)
         responses = nil
         kvs = appoptics_collect(pipeline_params)
-        AppOpticsAPM::API.trace(:excon, kvs) do
+        AppOpticsAPM::SDK.trace(:excon, kvs) do
           kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:excon][:collect_backtraces]
           responses = super(pipeline_params)
           kvs[:HTTPStatuses] = responses.map { |r| r.status }.join(',')
@@ -58,7 +58,7 @@ module AppOpticsAPM
         responses
       end
 
-      def request(params={}, &block)
+      def request(params = {}, &block)
         # If we're not tracing, just do a fast return.
         # If making HTTP pipeline requests (ordered batched)
         # then just return as we're tracing from parent

@@ -36,7 +36,7 @@ module AppOpticsAPM
         report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:grape][:collect_backtraces]
 
         env['appoptics_apm.controller'] = report_kvs[:Controller]
-        env['appoptics_apm.action']     = report_kvs[:Action]
+        env['appoptics_apm.action'] = report_kvs[:Action]
 
         AppOpticsAPM::API.log_entry('grape', report_kvs)
 
@@ -56,10 +56,9 @@ module AppOpticsAPM
           response = error_response_without_appoptics(error)
           status, headers, _body = response.finish
 
-          xtrace = AppOpticsAPM::Context.toString
+          tracestring = AppOpticsAPM::Context.toString
 
           if AppOpticsAPM.tracing?
-
             # Since Grape uses throw/catch and not Exceptions, we have to create an exception here
             exception = GrapeError.new(error[:message] ? error[:message] : "No message given.")
             exception.set_backtrace(AppOpticsAPM::API.backtrace)
@@ -69,12 +68,13 @@ module AppOpticsAPM
             # Since calls to error() are handled similar to abort in Grape.  We
             # manually log the rack exit here since the original code won't
             # be returned to
-            xtrace = AppOpticsAPM::API.log_end('rack', :Status => status)
+            tracestring = AppOpticsAPM::API.log_end('rack', :Status => status)
           end
 
-          if headers && AppOpticsAPM::XTrace.valid?(xtrace)
+          if headers && AppOpticsAPM::TraceString.valid?(tracestring)
             unless defined?(JRUBY_VERSION) && AppOpticsAPM.is_continued_trace?
-              headers['X-Trace'] = xtrace if headers.is_a?(Hash)
+              # this will change later, w3c outgoing headers have not been standardized yet
+              headers['X-Trace'] = tracestring if headers.is_a?(Hash)
             end
           end
 
@@ -92,7 +92,7 @@ if AppOpticsAPM::Config[:grape][:enabled] && defined?(Grape)
 
   AppOpticsAPM::Inst.load_instrumentation
 
-  AppOpticsAPM::Util.send_extend(Grape::API,                AppOpticsAPM::Grape::API)
-  AppOpticsAPM::Util.send_include(Grape::Endpoint,          AppOpticsAPM::Grape::Endpoint)
+  AppOpticsAPM::Util.send_extend(Grape::API, AppOpticsAPM::Grape::API)
+  AppOpticsAPM::Util.send_include(Grape::Endpoint, AppOpticsAPM::Grape::Endpoint)
   AppOpticsAPM::Util.send_include(Grape::Middleware::Error, AppOpticsAPM::Grape::Middleware::Error)
 end

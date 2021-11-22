@@ -20,10 +20,10 @@ unless defined?(JRUBY_VERSION)
         use AppOpticsAPM::Rack
         map "/out" do
           run Proc.new {
-            req = Typhoeus::Request.new("http://127.0.0.2:8101/", { :method=>:get })
+            req = Typhoeus::Request.new("http://127.0.0.2:8101/", { :method => :get })
             req.run
             [200,
-             {"Content-Type" => "text/html"},
+             { "Content-Type" => "text/html" },
              [req.options[:headers]['traceparent'], req.options[:headers]['tracestate']]]
           }
         end
@@ -54,8 +54,8 @@ unless defined?(JRUBY_VERSION)
     ############# Typhoeus::Request ##############################################
 
     def test_tracing_sampling
-      AppOpticsAPM::API.start_trace('typhoeus_tests') do
-        request = Typhoeus::Request.new("http://127.0.0.2:8101/", { :method=>:get })
+      AppOpticsAPM::SDK.start_trace('typhoeus_tests') do
+        request = Typhoeus::Request.new("http://127.0.0.2:8101/", { :method => :get })
         request.run
         assert_trace_headers(request.options[:headers])
       end
@@ -66,8 +66,8 @@ unless defined?(JRUBY_VERSION)
     def test_tracing_not_sampling
       AppOpticsAPM.config_lock.synchronize do
         AppOpticsAPM::Config[:sample_rate] = 0
-        AppOpticsAPM::API.start_trace('typhoeus_tests') do
-          request = Typhoeus::Request.new("http://127.0.0.1:8101/", {:method=>:get})
+        AppOpticsAPM::SDK.start_trace('typhoeus_tests') do
+          request = Typhoeus::Request.new("http://127.0.0.1:8101/", { :method => :get })
           request.run
 
           assert_trace_headers(request.options[:headers], false)
@@ -77,7 +77,7 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_no_xtrace
-      request = Typhoeus::Request.new("http://127.0.0.1:8101/", {:method=>:get})
+      request = Typhoeus::Request.new("http://127.0.0.1:8101/", { :method => :get })
       request.run
 
       refute request.options[:headers]['traceparent']
@@ -85,7 +85,7 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_preserves_custom_headers
-      AppOpticsAPM::API.start_trace('typhoeus_tests') do
+      AppOpticsAPM::SDK.start_trace('typhoeus_tests') do
         request = Typhoeus::Request.new('http://127.0.0.6:8101', headers: { 'Custom' => 'specialvalue' }, :method => :get)
         request.run
 
@@ -95,14 +95,13 @@ unless defined?(JRUBY_VERSION)
       refute AppOpticsAPM::Context.isValid
     end
 
-
     ############# Typhoeus::Hydra ##############################################
 
     def test_hydra_tracing_sampling
-      AppOpticsAPM::API.start_trace('typhoeus_tests') do
+      AppOpticsAPM::SDK.start_trace('typhoeus_tests') do
         hydra = Typhoeus::Hydra.hydra
-        request_1 = Typhoeus::Request.new("http://127.0.0.2:8101/", {:method=>:get})
-        request_2 = Typhoeus::Request.new("http://127.0.0.2:8101/counting_sheep", {:method=>:get})
+        request_1 = Typhoeus::Request.new("http://127.0.0.2:8101/", { :method => :get })
+        request_2 = Typhoeus::Request.new("http://127.0.0.2:8101/counting_sheep", { :method => :get })
         hydra.queue(request_1)
         hydra.queue(request_2)
         hydra.run
@@ -116,10 +115,10 @@ unless defined?(JRUBY_VERSION)
     def test_hydra_tracing_not_sampling
       AppOpticsAPM.config_lock.synchronize do
         AppOpticsAPM::Config[:sample_rate] = 0
-        AppOpticsAPM::API.start_trace('typhoeus_tests') do
+        AppOpticsAPM::SDK.start_trace('typhoeus_tests') do
           hydra = Typhoeus::Hydra.hydra
-          request_1 = Typhoeus::Request.new("http://127.0.0.2:8101/", {:method=>:get})
-          request_2 = Typhoeus::Request.new("http://127.0.0.2:8101/counting_sheep", {:method=>:get})
+          request_1 = Typhoeus::Request.new("http://127.0.0.2:8101/", { :method => :get })
+          request_2 = Typhoeus::Request.new("http://127.0.0.2:8101/counting_sheep", { :method => :get })
           hydra.queue(request_1)
           hydra.queue(request_2)
           hydra.run
@@ -133,8 +132,8 @@ unless defined?(JRUBY_VERSION)
 
     def test_hydra_no_xtrace
       hydra = Typhoeus::Hydra.hydra
-      request_1 = Typhoeus::Request.new("http://127.0.0.2:8101/", {:method=>:get})
-      request_2 = Typhoeus::Request.new("http://127.0.0.2:8101/counting_sheep", {:method=>:get})
+      request_1 = Typhoeus::Request.new("http://127.0.0.2:8101/", { :method => :get })
+      request_2 = Typhoeus::Request.new("http://127.0.0.2:8101/counting_sheep", { :method => :get })
       hydra.queue(request_1)
       hydra.queue(request_2)
       hydra.run
@@ -145,7 +144,7 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_hydra_preserves_custom_headers
-      AppOpticsAPM::API.start_trace('typhoeus_tests') do
+      AppOpticsAPM::SDK.start_trace('typhoeus_tests') do
         hydra = Typhoeus::Hydra.hydra
         request = Typhoeus::Request.new('http://127.0.0.6:8101', headers: { 'Custom' => 'specialvalue' }, :method => :get)
         hydra.queue(request)
@@ -165,13 +164,13 @@ unless defined?(JRUBY_VERSION)
       state = 'sw=cb3468da6f06eefc-01'
       AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
 
-      request = Typhoeus::Request.new("http://127.0.0.1:8101/", {:method=>:get})
-      AppOpticsAPM::API.start_trace('typhoeus_tests', AppOpticsAPM.trace_context.xtrace) do
+      request = Typhoeus::Request.new("http://127.0.0.1:8101/", { :method => :get })
+      AppOpticsAPM::SDK.start_trace('typhoeus_tests') do
         request.run
       end
 
       assert_trace_headers(request.options[:headers], true)
-      assert_equal task_id, AppOpticsAPM::TraceParent.task_id(request.options[:headers]['traceparent'])
+      assert_equal task_id, AppOpticsAPM::TraceString.trace_id(request.options[:headers]['traceparent'])
       refute_equal state, request.options[:headers]['tracestate']
 
       refute AppOpticsAPM::Context.isValid
@@ -185,7 +184,7 @@ unless defined?(JRUBY_VERSION)
       state = 'sw=cb3468da6f06eefc-01'
       AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
 
-      request = Typhoeus::Request.new("http://127.0.0.1:8101/", {:method=>:get})
+      request = Typhoeus::Request.new("http://127.0.0.1:8101/", { :method => :get })
       request.run
 
       assert_equal trace_id, request.options[:headers]['traceparent']
@@ -200,14 +199,14 @@ unless defined?(JRUBY_VERSION)
       state = 'aa= 1234, sw=cb3468da6f06eefc-01,%%cc=%%%45'
       AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
 
-      request = Typhoeus::Request.new("http://127.0.0.1:8101/", {:method=>:get})
-      AppOpticsAPM::API.start_trace('typhoeus_tests', AppOpticsAPM.trace_context.xtrace) do
+      request = Typhoeus::Request.new("http://127.0.0.1:8101/", { :method => :get })
+      AppOpticsAPM::SDK.start_trace('typhoeus_tests') do
         request.run
       end
 
       assert_trace_headers(request.options[:headers], true)
-      assert_equal task_id, AppOpticsAPM::TraceParent.task_id(request.options[:headers]['traceparent'])
-      assert_equal "sw=#{AppOpticsAPM::TraceParent.edge_id_flags(request.options[:headers]['traceparent'])},aa= 1234,%%cc=%%%45",
+      assert_equal task_id, AppOpticsAPM::TraceString.trace_id(request.options[:headers]['traceparent'])
+      assert_equal "sw=#{AppOpticsAPM::TraceString.span_id_flags(request.options[:headers]['traceparent'])},aa= 1234,%%cc=%%%45",
                    request.options[:headers]['tracestate']
 
       refute AppOpticsAPM::Context.isValid
@@ -222,8 +221,8 @@ unless defined?(JRUBY_VERSION)
       AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
 
       hydra = Typhoeus::Hydra.hydra
-      request_1 = Typhoeus::Request.new("http://127.0.0.2:8101/", {:method=>:get})
-      request_2 = Typhoeus::Request.new("http://127.0.0.2:8101/counting_sheep", {:method=>:get})
+      request_1 = Typhoeus::Request.new("http://127.0.0.2:8101/", { :method => :get })
+      request_2 = Typhoeus::Request.new("http://127.0.0.2:8101/counting_sheep", { :method => :get })
       hydra.queue(request_1)
       hydra.queue(request_2)
       hydra.run
