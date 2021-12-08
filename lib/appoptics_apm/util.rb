@@ -274,7 +274,7 @@ module AppOpticsAPM
           platform_info['Ruby.AppOptics.Version']       = AppOpticsAPM::Version::STRING
 
           # oboe not loaded yet, can't use oboe_api function to read oboe VERSION
-          clib_version_file = File.join(Gem::Specification.find_by_name('appoptics_apm').gem_dir, 'ext', 'oboe_metal', 'src', 'VERSION')
+          clib_version_file = File.join(Gem::Specification.find_by_name('solarwinds_apm').gem_dir, 'ext', 'oboe_metal', 'src', 'VERSION')
           platform_info['Ruby.AppOpticsExtension.Version'] = File.read(clib_version_file).strip
           platform_info['RubyHeroku.AppOpticsAPM.Version'] = AppOpticsAPMHeroku::Version::STRING if defined?(AppOpticsAPMHeroku)
           platform_info['Ruby.TraceMode.Version']          = AppOpticsAPM::Config[:tracing_mode]

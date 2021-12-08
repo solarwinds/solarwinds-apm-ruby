@@ -6,7 +6,7 @@
 ###############################################################
 # these are used by the GitHub action ... with traces showing up in staging
 
-require 'appoptics_apm'
+require 'solarwinds_apm'
 
 name = ENV['HOSTNAME'] || 'no_name'
 

@@ -1,4 +1,4 @@
-require 'appoptics_apm'
+require 'solarwinds_apm'
 
 module Measurements
   def request(*args, &block)

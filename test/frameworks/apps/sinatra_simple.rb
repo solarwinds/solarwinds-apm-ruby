@@ -4,7 +4,7 @@
 require 'sinatra'
 require "rack/cache"
 require "dalli"
-require 'appoptics_apm'
+require 'solarwinds_apm'
 
 use Rack::Cache,
     metastore:   "memcached://#{ENV['APPOPTICS_MEMCACHED_SERVER'] || 'localhost'}:11211",

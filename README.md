@@ -75,7 +75,7 @@ You can instrument your Sinatra application by adding the following code to your
 ```ruby
 # If you're not using Bundler.require.  Make sure this is done
 # after the Sinatra require directive.
-require 'appoptics_apm'
+require 'solarwinds_apm'
 ```
 
 Make sure that the appoptics_apm gem is loaded _after_ Sinatra either by listing `gem 'appoptics_apm'` after Sinatra in 
@@ -109,7 +109,7 @@ You can instrument your Grape application by adding the following code to your `
 ```ruby
     # If you're not using Bundler.require.  Make sure this is done
     # after the Grape require directive.
-    require 'appoptics_apm'
+    require 'solarwinds_apm'
 
     ...
 
@@ -119,7 +119,7 @@ You can instrument your Grape application by adding the following code to your `
 ```
 
 Make sure that the appoptics gem is loaded _after_ Grape either by listing `gem 'appoptics_apm'` after Grape in your 
-Gemfile or calling the `require 'appoptics_apm'` directive after Grape is loaded.
+Gemfile or calling the `require 'solarwinds_apm'` directive after Grape is loaded.
 
 You must explicitly tell your Grape application to use AppOpticsAPM::Rack for tracing to occur.
 
@@ -134,7 +134,7 @@ require 'bundler'
 
 Bundler.require
 
-require 'appoptics_apm'
+require 'solarwinds_apm'
 ```
 
 You can add even more visibility into any part of your application or scripts by adding custom instrumentation.  
@@ -182,7 +182,7 @@ Bundler.require
 
 # Make sure appoptics_apm is at the bottom of your Gemfile.
 # This is likely redundant but just in case.
-require 'appoptics_apm'
+require 'solarwinds_apm'
  
 
 # Tracing mode can be :enabled or :disabled
@@ -262,7 +262,7 @@ The appoptics gem uses a standard gem layout.  Here are the notable directories.
 The appoptics gem is built with the standard `gem build` command passing in the gemspec:
 
 ```bash
-gem build appoptics_apm.gemspec
+gem build solarwinds_apm.gemspec
 ```
 
 ## Writing Custom Instrumentation

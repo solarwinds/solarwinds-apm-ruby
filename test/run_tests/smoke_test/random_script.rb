@@ -1,4 +1,4 @@
-require 'appoptics_apm'
+require 'solarwinds_apm'
 
 AppOpticsAPM::Config[:sample_rate] = 1000000 if defined? AppOpticsAPM
 

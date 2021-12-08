@@ -2,7 +2,7 @@ $:.push File.expand_path("../lib", __FILE__)
 require "appoptics_apm/version"
 
 Gem::Specification.new do |s|
-  s.name = %q{appoptics_apm}
+  s.name = %q{solarwinds_apm}
   s.version = AppOpticsAPM::Version::STRING
   s.date = Time.now.strftime('%Y-%m-%d')
 

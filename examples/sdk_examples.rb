@@ -19,7 +19,7 @@
 # 5 traced requests will show up at https://my.appoptics.com/
 ###############################################################
 
-require 'appoptics_apm'
+require 'solarwinds_apm'
 
 unless AppOpticsAPM::SDK.appoptics_ready?(10_000)
   puts "aborting!!! Agent not ready after 10 seconds"

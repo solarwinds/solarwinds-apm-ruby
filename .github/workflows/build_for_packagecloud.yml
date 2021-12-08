@@ -14,10 +14,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set up Ruby 2.6 and bundle
+      - name: Set up Ruby 2.7 and bundle
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.6
+          ruby-version: 2.7
 
       - name: Install gems
         run: |
@@ -51,7 +51,7 @@ jobs:
         # we are going to fail if republishing is attempted
         run: |
           gem install package_cloud
-          package_cloud push solarwinds/appoptics-apm-ruby *.gem
+          package_cloud push solarwinds/solarwinds-apm-ruby *.gem
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
 
@@ -65,6 +65,6 @@ jobs:
 #          APPOPTICS_FROM_S3: true
 #        run: |
 #          sleep 60
-#          gem sources --add https://packagecloud.io/solarwinds/appoptics-apm-ruby
-#          gem install appoptics_apm --version ${{ steps.gemstep.outputs.GEM_VERSION }} --verbose
+#          gem sources --add https://packagecloud.io/solarwinds/solarwinds-apm-ruby
+#          gem install solarwinds_apm --version ${{ steps.gemstep.outputs.GEM_VERSION }} --verbose
 #          ruby ./scripts/test_install.rb
