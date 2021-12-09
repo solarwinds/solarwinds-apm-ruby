@@ -144,9 +144,9 @@ module AppOpticsAPM
     def read_and_validate_service_key
       return '' unless @reporter == 'ssl'
 
-      service_key = ENV['APPOPTICS_SERVICE_KEY'] || AppOpticsAPM::Config[:service_key]
+      service_key = ENV['SOLARWINDS_SERVICE_KEY'] || AppOpticsAPM::Config[:service_key]
       unless service_key
-        AppOpticsAPM.logger.error "[appoptics_apm/oboe_options] APPOPTICS_SERVICE_KEY not configured."
+        AppOpticsAPM.logger.error "[appoptics_apm/oboe_options] SOLARWINDS_SERVICE_KEY not configured."
         return ''
       end
 
@@ -163,7 +163,7 @@ module AppOpticsAPM
     def validate_token(token)
       if (token !~ /^[0-9a-zA-Z_-]{71}$/) && ENV['APPOPTICS_COLLECTOR'] !~ /java-collector:1222/
         masked = "#{token[0..3]}...#{token[-4..-1]}"
-        AppOpticsAPM.logger.error "[appoptics_apm/oboe_options] APPOPTICS_SERVICE_KEY problem. API Token in wrong format. Masked token: #{masked}"
+        AppOpticsAPM.logger.error "[appoptics_apm/oboe_options] SOLARWINDS_SERVICE_KEY problem. API Token in wrong format. Masked token: #{masked}"
         return false
       end
 
@@ -173,7 +173,7 @@ module AppOpticsAPM
     def validate_transform_service_name(service_name)
       service_name = 'test_ssl_collector' if ENV['APPOPTICS_COLLECTOR'] =~ /java-collector:1222/
       if service_name.empty?
-        AppOpticsAPM.logger.error "[appoptics_apm/oboe_options] APPOPTICS_SERVICE_KEY problem. Service Name is missing"
+        AppOpticsAPM.logger.error "[appoptics_apm/oboe_options] SOLARWINDS_SERVICE_KEY problem. Service Name is missing"
         return false
       end
 
@@ -183,7 +183,7 @@ module AppOpticsAPM
       name = name[0..254]
 
       if name != service_name
-        AppOpticsAPM.logger.warn "[appoptics_apm/oboe_options] APPOPTICS_SERVICE_KEY problem. Service Name transformed from #{service_name} to #{name}"
+        AppOpticsAPM.logger.warn "[appoptics_apm/oboe_options] SOLARWINDS_SERVICE_KEY problem. Service Name transformed from #{service_name} to #{name}"
         service_name = name
       end
       @service_name = service_name # instance variable used in testing

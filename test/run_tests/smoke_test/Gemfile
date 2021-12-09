@@ -6,9 +6,9 @@ gem 'bson'
 # gem 'byebug'
 
 # Add appoptics agent from PackageCloud
-source "https://packagecloud.io/solarwinds/appoptics-apm-ruby" do
+source "https://packagecloud.io/solarwinds/solarwinds-apm-ruby" do
 # source 'file:///code/ruby-appoptics/builds' do
-  gem 'appoptics_apm', '4.13.0.pre2'
+  gem 'solarwinds_apm' #, '4.13.0.pre2'
 end
 
 # gem 'appoptics_apm', '~> 4.13.0'

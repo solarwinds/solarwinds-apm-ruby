@@ -40,7 +40,7 @@ jobs:
       - name: Build Gem
         id: gemstep
         run:  |
-          gem build appoptics_apm.gemspec
+          gem build solarwinds_apm.gemspec
           echo `shasum -a256 *.gem`
           echo "::set-output name=GEM_VERSION::`ruby -e 'require "./lib/appoptics_apm/version"; puts AppOpticsAPM::Version::STRING'`"
           cat ext/oboe_metal/src/VERSION

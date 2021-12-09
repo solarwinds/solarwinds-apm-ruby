@@ -9,7 +9,7 @@ Set an environment variable for the current path:
 export TEST_DIR=`pwd`
 ```
 
-Every time the ruby version changes the appoptics_apm gem needs to be 
+Every time the ruby version changes the solarwinds_apm gem needs to be 
 re-installed or its c++-code recompiled and relinked
 
 These environment variables need to be set every time the ruby version is set:

@@ -7,7 +7,7 @@
 # The uses cases of the SDK include:
 # - tracing a piece of your own code
 # - tracing a method call of a gem that is not auto-instrumented
-#   by appoptics_apm
+#   by solarwinds_apm
 #
 # SDK documentation:
 # https://rubydoc.info/gems/appoptics_apm/AppOpticsAPM/SDK
@@ -130,14 +130,14 @@ end
 # LOG INJECTION OF TRACE_ID
 ###############################################################
 #
-# AppOpticsAPM::SDK.current_trace
+# AppOpticsAPM::SDK.current_trace_info
 # This method creates an object with the current trace ID and
 # helper methods to add the ID to logs for cross-referencing.
 
 AppOpticsAPM::Config[:log_traceId] = :always
 
 AppOpticsAPM::SDK.start_trace('log_trace_id') do
-  trace = AppOpticsAPM::SDK.current_trace
+  trace = AppOpticsAPM::SDK.current_trace_info
   AppOpticsAPM.logger.warn "Some log message #{trace.for_log}"
 end
 

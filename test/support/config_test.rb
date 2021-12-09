@@ -30,13 +30,13 @@ describe "AppOpticsAPM::Config" do
     @log_level = AppOpticsAPM.logger.level
 
     @env_config = ENV['APPOPTICS_APM_CONFIG_RUBY']
-    @env_key = ENV['APPOPTICS_SERVICE_KEY']
+    @env_key = ENV['SOLARWINDS_SERVICE_KEY']
     @env_alias = ENV['APPOPTICS_HOSTNAME_ALIAS']
     @env_debug = ENV['APPOPTICS_DEBUG_LEVEL']
     @env_verbose = ENV['APPOPTICS_GEM_VERBOSE']
 
     ENV.delete('APPOPTICS_APM_CONFIG_RUBY')
-    ENV.delete('APPOPTICS_SERVICE_KEY')
+    ENV.delete('SOLARWINDS_SERVICE_KEY')
     ENV.delete('APPOPTICS_HOSTNAME_ALIAS')
     ENV.delete('APPOPTICS_DEBUG_LEVEL')
     ENV.delete('APPOPTICS_GEM_VERBOSE')
@@ -52,13 +52,13 @@ describe "AppOpticsAPM::Config" do
   after do
     $VERBOSE = @verbose
     ENV.delete('APPOPTICS_APM_CONFIG_RUBY')
-    ENV.delete('APPOPTICS_SERVICE_KEY')
+    ENV.delete('SOLARWINDS_SERVICE_KEY')
     ENV.delete('APPOPTICS_HOSTNAME_ALIAS')
     ENV.delete('APPOPTICS_DEBUG_LEVEL')
     ENV.delete('APPOPTICS_GEM_VERBOSE')
 
     ENV['APPOPTICS_APM_CONFIG_RUBY'] = @env_config  if @env_config
-    ENV['APPOPTICS_SERVICE_KEY']     = @env_key     if @env_key
+    ENV['SOLARWINDS_SERVICE_KEY']     = @env_key     if @env_key
     ENV['APPOPTICS_HOSTNAME_ALIAS']  = @env_alias   if @env_alias
     ENV['APPOPTICS_DEBUG_LEVEL']     = @env_debug   if @env_debug
     ENV['APPOPTICS_GEM_VERBOSE']     = @env_verbose if @env_verbose
@@ -90,7 +90,7 @@ describe "AppOpticsAPM::Config" do
     ENV['APPOPTICS_APM_CONFIG_RUBY'] = @default_config_path
     AppOpticsAPM::Config.load_config_file
 
-    _(ENV['APPOPTICS_SERVICE_KEY']).must_be_nil
+    _(ENV['SOLARWINDS_SERVICE_KEY']).must_be_nil
     _(AppOpticsAPM::Config[:service_key]).must_equal '11111111-1111-1111-1111-111111111111:the_service_name'
 
     _(ENV['APPOPTICS_HOSTNAME_ALIAS']).must_be_nil
@@ -106,7 +106,7 @@ describe "AppOpticsAPM::Config" do
   end
 
   it 'should NOT override env vars with config file settings' do
-    ENV['APPOPTICS_SERVICE_KEY'] = '22222222-2222-2222-2222-222222222222:the_service_name'
+    ENV['SOLARWINDS_SERVICE_KEY'] = '22222222-2222-2222-2222-222222222222:the_service_name'
     ENV['APPOPTICS_HOSTNAME_ALIAS'] = 'my_other_service'
     ENV['APPOPTICS_DEBUG_LEVEL'] = '2'
     ENV['APPOPTICS_GEM_VERBOSE'] = 'TRUE'
@@ -120,7 +120,7 @@ describe "AppOpticsAPM::Config" do
     ENV['APPOPTICS_APM_CONFIG_RUBY'] = @default_config_path
     AppOpticsAPM::Config.load_config_file
 
-    _(ENV['APPOPTICS_SERVICE_KEY']).must_equal '22222222-2222-2222-2222-222222222222:the_service_name'
+    _(ENV['SOLARWINDS_SERVICE_KEY']).must_equal '22222222-2222-2222-2222-222222222222:the_service_name'
     _(ENV['APPOPTICS_HOSTNAME_ALIAS']).must_equal 'my_other_service'
     _(ENV['APPOPTICS_DEBUG_LEVEL']).must_equal '2'
     _(AppOpticsAPM.logger.level).must_equal Logger::WARN

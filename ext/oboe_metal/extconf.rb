@@ -68,7 +68,7 @@ while retries > 0
     # with the `--verbose` flag
     if clib_checksum != checksum
       $stderr.puts '== ERROR ================================================================='
-      $stderr.puts 'Checksum Verification failed for the c-extension of the appoptics_apm gem'
+      $stderr.puts 'Checksum Verification failed for the c-extension of the solarwinds_apm gem'
       $stderr.puts 'Installation cannot continue'
       $stderr.puts "\nChecksum packaged with gem:   #{checksum}"
       $stderr.puts "Checksum calculated from lib: #{clib_checksum}"
@@ -84,8 +84,8 @@ while retries > 0
     retries -= 1
     if retries == 0
       $stderr.puts '== ERROR =========================================================='
-      $stderr.puts 'Download of the c-extension for the appoptics_apm gem failed.'
-      $stderr.puts 'appoptics_apm will not instrument the code. No tracing will occur.'
+      $stderr.puts 'Download of the c-extension for the solarwinds_apm gem failed.'
+      $stderr.puts 'solarwinds_apm will not instrument the code. No tracing will occur.'
       $stderr.puts 'Contact technicalsupport@solarwinds.com if the problem persists.'
       $stderr.puts "error: #{ao_item}\n#{e.message}"
       $stderr.puts '==================================================================='

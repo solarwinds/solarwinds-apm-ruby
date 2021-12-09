@@ -93,11 +93,11 @@ jobs:
       - name: Download new Rubygem from rubygems.org and test
         working-directory: .github/workflows/
         env:
-          APPOPTICS_SERVICE_KEY: ${{ secrets.APPOPTICS_SERVICE_KEY }}
+          SOLARWINDS_SERVICE_KEY: ${{ secrets.APPOPTICS_SERVICE_KEY }}
           APPOPTICS_COLLECTOR: ${{ secrets.APPOPTICS_COLLECTOR}}
         run: |
           sleep 1
-          gem install appoptics_apm --version ${{ steps.build.outputs.gem_version }}
+          gem install solarwinds_apm --version ${{ steps.build.outputs.gem_version }}
           ruby ./scripts/test_install.rb
 
 

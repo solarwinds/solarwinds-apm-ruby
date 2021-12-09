@@ -6,9 +6,9 @@ module AppOpticsAPM
   # The current version of the gem.  Used mainly by
   # solarwinds_apm.gemspec during gem build process
   module Version
-    MAJOR = 4 # breaking,
-    MINOR = 13 # feature,
-    PATCH = 0  # fix => BFF
+    MAJOR = 5 # breaking,
+    MINOR = 0 # feature,
+    PATCH = 0 # fix => BFF
     PRE   = nil
 
     STRING = [MAJOR, MINOR, PATCH, PRE].compact.join('.')
