@@ -1,6 +1,6 @@
 # Welcome to the AppOpticsAPM Ruby Gem
 
-The appoptics_apm gem provides [AppOptics APM](https://www.appoptics.com/) performance instrumentation for Ruby.
+The solarwinds_apm gem provides [AppOptics APM](https://www.appoptics.com/) performance instrumentation for Ruby.
 
 ![Ruby AppOpticsAPM](https://docs.appoptics.com/_images/ruby_trace_smaller.png)
 
@@ -27,23 +27,23 @@ It requires an [AppOptics](https://www.appoptics.com/) account to view metrics. 
 _Before installing the gem below, make sure that you have the 
 [dependencies](http://docs.appoptics.com/kb/apm_tracing/ruby/install#dependencies) installed on your host first._
 
-The appoptics_apm gem is [available on Rubygems](https://rubygems.org/gems/appoptics_apm) and can be installed with:
+The solarwinds_apm gem is [available on Rubygems](https://rubygems.org/gems/solarwinds_apm) and can be installed with:
 
 ```bash
-gem install appoptics_apm
+gem install solarwinds_apm
 ```
 
 or added to **the end** of your Gemfile and running `bundle install`:
 
 ```ruby
-gem 'appoptics_apm'
+gem 'solarwinds_apm'
 ```
 
 # Running
 
-Make sure to set `APPOPTICS_SERVICE_KEY` in the environment from where the app or service is run, e.g:
+Make sure to set `SOLARWINDS_SERVICE_KEY` in the environment from where the app or service is run, e.g:
 ```
-export APPOPTICS_SERVICE_KEY=795fb4947d15275d208c49cfd2412d4a5bf38742045b47236c94c4fe5f5b17c7:<your_app_name>
+export SOLARWINDS_SERVICE_KEY=795fb4947d15275d208c49cfd2412d4a5bf38742045b47236c94c4fe5f5b17c7:<your_app_name>
 ```
 
 ## Rails
@@ -55,7 +55,7 @@ detect Rails and instrument on stack initialization.
 
 ### The Install Generator
 
-The appoptics_apm gem provides a Rails generator used to seed an initializer where you can configure and control 
+The solarwinds_apm gem provides a Rails generator used to seed an initializer where you can configure and control 
 `tracing_mode` and [other options](http://docs.appoptics.com/kb/apm_tracing/ruby/configure).
 
 To run the install generator run:
@@ -75,19 +75,19 @@ You can instrument your Sinatra application by adding the following code to your
 ```ruby
 # If you're not using Bundler.require.  Make sure this is done
 # after the Sinatra require directive.
-require 'appoptics_apm'
+require 'solarwinds_apm'
 ```
 
-Make sure that the appoptics_apm gem is loaded _after_ Sinatra either by listing `gem 'appoptics_apm'` after Sinatra in 
-your Gemfile or calling the `require 'appoptics_gem'` directive after Sinatra is loaded.
+Make sure that the solarwinds_apm gem is loaded _after_ Sinatra either by listing `gem 'solarwinds_apm'` after Sinatra in 
+your Gemfile or calling the `require 'solarwinds_gem'` directive after Sinatra is loaded.
 
-With this, the appoptics_apm gem will automatically detect Sinatra on boot and instrument key components.
+With this, the solarwinds_apm gem will automatically detect Sinatra on boot and instrument key components.
 
 ## Padrino
 
 ![Padrino](https://docs.appoptics.com/_images/padrino.svg)
 
-As long as the appoptics_apm gem is in your `Gemfile` (inserted after the `gem 'padrino'` directive) and you are calling 
+As long as the solarwinds_apm gem is in your `Gemfile` (inserted after the `gem 'padrino'` directive) and you are calling 
 `Bundler.require`, the appoptics_apm gem will automatically instrument Padrino applications.
 
 If you need to set `AppOpticsAPM::Config` values on stack boot, you can do so by adding the following
@@ -109,7 +109,7 @@ You can instrument your Grape application by adding the following code to your `
 ```ruby
     # If you're not using Bundler.require.  Make sure this is done
     # after the Grape require directive.
-    require 'appoptics_apm'
+    require 'solarwinds_apm'
 
     ...
 
@@ -118,15 +118,15 @@ You can instrument your Grape application by adding the following code to your `
     end
 ```
 
-Make sure that the appoptics gem is loaded _after_ Grape either by listing `gem 'appoptics_apm'` after Grape in your 
-Gemfile or calling the `require 'appoptics_apm'` directive after Grape is loaded.
+Make sure that the solarwinds gem is loaded _after_ Grape either by listing `gem 'solarwinds_apm'` after Grape in your 
+Gemfile or calling the `require 'solarwinds_apm'` directive after Grape is loaded.
 
 You must explicitly tell your Grape application to use AppOpticsAPM::Rack for tracing to occur.
 
 
 # SDK for Custom Tracing 
 
-The appoptics_apm gem has the ability to instrument any arbitrary Ruby application or script.
+The solarwinds_apm gem has the ability to instrument any arbitrary Ruby application or script.
 
 ```ruby
 require 'rubygems'
@@ -134,7 +134,7 @@ require 'bundler'
 
 Bundler.require
 
-require 'appoptics_apm'
+require 'solarwinds_apm'
 ```
 
 You can add even more visibility into any part of your application or scripts by adding custom instrumentation.  
@@ -182,7 +182,7 @@ Bundler.require
 
 # Make sure appoptics_apm is at the bottom of your Gemfile.
 # This is likely redundant but just in case.
-require 'appoptics_apm'
+require 'solarwinds_apm'
  
 
 # Tracing mode can be :enabled or :disabled
@@ -262,7 +262,7 @@ The appoptics gem uses a standard gem layout.  Here are the notable directories.
 The appoptics gem is built with the standard `gem build` command passing in the gemspec:
 
 ```bash
-gem build appoptics_apm.gemspec
+gem build solarwinds_apm.gemspec
 ```
 
 ## Writing Custom Instrumentation

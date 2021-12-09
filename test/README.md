@@ -30,7 +30,7 @@ The following are prerequisites which will be satisfied automatically when
 using the provided Docker test setup.
 
 ### Linux
-The appoptics_apm gem only runs on Linux because the c-library that
+The solarwinds_apm gem only runs on Linux because the c-library that
 sends data to the collector is only available on Linux.
 
 Therefore the tests need to run in Linux and debugging needs to be

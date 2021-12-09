@@ -21,7 +21,7 @@ describe 'OboeInitOptions' do
   it 'sets all options from ENV vars' do
     ENV.delete('APPOPTICS_GEM_TEST')
 
-    ENV['APPOPTICS_SERVICE_KEY'] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:test_app'
+    ENV['SOLARWINDS_SERVICE_KEY'] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:test_app'
     ENV['APPOPTICS_REPORTER'] = 'ssl'
     ENV['APPOPTICS_COLLECTOR'] = 'string_2'
     ENV['APPOPTICS_TRUSTEDPATH'] = 'string_3'
@@ -72,7 +72,7 @@ describe 'OboeInitOptions' do
 
     ENV.delete('APPOPTICS_HOSTNAME_ALIAS')
     ENV.delete('APPOPTICS_DEBUG_LEVEL')
-    ENV.delete('APPOPTICS_SERVICE_KEY')
+    ENV.delete('SOLARWINDS_SERVICE_KEY')
     ENV.delete('APPOPTICS_EC2_METADATA_TIMEOUT')
     ENV.delete('APPOPTICS_PROXY')
 
@@ -100,7 +100,7 @@ describe 'OboeInitOptions' do
 
     ENV['APPOPTICS_HOSTNAME_ALIAS'] = 'string_0'
     ENV['APPOPTICS_DEBUG_LEVEL'] = '1'
-    ENV['APPOPTICS_SERVICE_KEY'] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:test_app'
+    ENV['SOLARWINDS_SERVICE_KEY'] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:test_app'
     ENV['APPOPTICS_EC2_METADATA_TIMEOUT'] = '1212'
     ENV['APPOPTICS_PROXY'] = 'http://the.proxy:2222'
 
@@ -125,12 +125,12 @@ describe 'OboeInitOptions' do
   it 'checks the service_key for ssl' do
     ENV.delete('APPOPTICS_GEM_TEST')
     ENV['APPOPTICS_REPORTER'] = 'ssl'
-    ENV['APPOPTICS_SERVICE_KEY'] = 'string_0'
+    ENV['SOLARWINDS_SERVICE_KEY'] = 'string_0'
 
     AppOpticsAPM::OboeInitOptions.instance.re_init
     _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
 
-    ENV['APPOPTICS_SERVICE_KEY'] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:test_app'
+    ENV['SOLARWINDS_SERVICE_KEY'] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:test_app'
 
     AppOpticsAPM::OboeInitOptions.instance.re_init
     _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
@@ -139,7 +139,7 @@ describe 'OboeInitOptions' do
   it 'returns true for the service_key check for other reporters' do
     ENV.delete('APPOPTICS_GEM_TEST')
     ENV['APPOPTICS_REPORTER'] = 'udp'
-    ENV['APPOPTICS_SERVICE_KEY'] = 'string_0'
+    ENV['SOLARWINDS_SERVICE_KEY'] = 'string_0'
 
     AppOpticsAPM::OboeInitOptions.instance.re_init
     _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
@@ -158,7 +158,7 @@ describe 'OboeInitOptions' do
   it 'validates the service key' do
     ENV.delete('APPOPTICS_GEM_TEST')
     ENV['APPOPTICS_REPORTER'] = 'ssl'
-    ENV['APPOPTICS_SERVICE_KEY'] = nil
+    ENV['SOLARWINDS_SERVICE_KEY'] = nil
     AppOpticsAPM::Config[:service_key] = nil
 
     AppOpticsAPM::OboeInitOptions.instance.re_init
@@ -180,27 +180,27 @@ describe 'OboeInitOptions' do
     AppOpticsAPM::OboeInitOptions.instance.re_init
     _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
 
-    ENV['APPOPTICS_SERVICE_KEY'] = 'blabla'
+    ENV['SOLARWINDS_SERVICE_KEY'] = 'blabla'
     AppOpticsAPM::OboeInitOptions.instance.re_init
     _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
 
-    ENV['APPOPTICS_SERVICE_KEY'] = nil
+    ENV['SOLARWINDS_SERVICE_KEY'] = nil
     AppOpticsAPM::OboeInitOptions.instance.re_init
     _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
 
-    ENV['APPOPTICS_SERVICE_KEY'] = '22222222-2222-2222-2222-222222222222:service'
+    ENV['SOLARWINDS_SERVICE_KEY'] = '22222222-2222-2222-2222-222222222222:service'
     AppOpticsAPM::OboeInitOptions.instance.re_init
     _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
 
-    ENV['APPOPTICS_SERVICE_KEY'] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq'
+    ENV['SOLARWINDS_SERVICE_KEY'] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq'
     AppOpticsAPM::OboeInitOptions.instance.re_init
     _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
 
-    ENV['APPOPTICS_SERVICE_KEY'] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:'
+    ENV['SOLARWINDS_SERVICE_KEY'] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:'
     AppOpticsAPM::OboeInitOptions.instance.re_init
     _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
 
-    ENV['APPOPTICS_SERVICE_KEY'] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:service'
+    ENV['SOLARWINDS_SERVICE_KEY'] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:service'
     AppOpticsAPM::OboeInitOptions.instance.re_init
     _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
   end
@@ -208,7 +208,7 @@ describe 'OboeInitOptions' do
   it 'removes invalid characters from the service name' do
     ENV.delete('APPOPTICS_GEM_TEST')
     ENV['APPOPTICS_REPORTER'] = 'ssl'
-    ENV['APPOPTICS_SERVICE_KEY'] = 'f7B-kZXtk1sxaJGkv-wew1244444444444444444444444IptKFVPRv0o8keDro9QbKioW4:service#####.:-_0'
+    ENV['SOLARWINDS_SERVICE_KEY'] = 'f7B-kZXtk1sxaJGkv-wew1244444444444444444444444IptKFVPRv0o8keDro9QbKioW4:service#####.:-_0'
 
     AppOpticsAPM::OboeInitOptions.instance.re_init
     _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
@@ -218,7 +218,7 @@ describe 'OboeInitOptions' do
   it 'transforms the service name to lower case' do
     ENV.delete('APPOPTICS_GEM_TEST')
     ENV['APPOPTICS_REPORTER'] = 'ssl'
-    ENV['APPOPTICS_SERVICE_KEY'] = 'f7B-kZXtk1sxaJGkv-wew1244444444444444444444444IptKFVPRv0o8keDro9QbKioW4:SERVICE#####.:-_0'
+    ENV['SOLARWINDS_SERVICE_KEY'] = 'f7B-kZXtk1sxaJGkv-wew1244444444444444444444444IptKFVPRv0o8keDro9QbKioW4:SERVICE#####.:-_0'
 
     AppOpticsAPM::OboeInitOptions.instance.re_init
     _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
@@ -228,7 +228,7 @@ describe 'OboeInitOptions' do
   it 'shortens the service name to 255 characters' do
     ENV.delete('APPOPTICS_GEM_TEST')
     ENV['APPOPTICS_REPORTER'] = 'ssl'
-    ENV['APPOPTICS_SERVICE_KEY'] = "f7B-kZXtk1sxaJGkv-wew1244444444444444444444444IptKFVPRv0o8keDro9QbKioW4:SERV#_#{'1234567890' * 26}"
+    ENV['SOLARWINDS_SERVICE_KEY'] = "f7B-kZXtk1sxaJGkv-wew1244444444444444444444444IptKFVPRv0o8keDro9QbKioW4:SERV#_#{'1234567890' * 26}"
 
     AppOpticsAPM::OboeInitOptions.instance.re_init
     _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true

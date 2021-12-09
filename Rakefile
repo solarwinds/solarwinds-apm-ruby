@@ -321,7 +321,7 @@ desc "Build and publish to Rubygems"
 # !!! publishing requires gem >=3.0.5 !!!
 # Don't run with Ruby versions < 2.7 they have gem < 3.0.5
 task :build_and_publish_gem do
-  gemspec_file = 'appoptics_apm.gemspec'
+  gemspec_file = 'solarwinds_apm.gemspec'
   gemspec = Gem::Specification.load(gemspec_file)
   gem_file = gemspec.full_name + '.gem'
 

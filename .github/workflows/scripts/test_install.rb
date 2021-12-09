@@ -7,7 +7,7 @@
 # - APPOPTICS_SERVICE_KEY
 # - APPOPTICS_COLLECTOR (optional if the key is for production)
 
-require 'appoptics_apm'
+require 'solarwinds_apm'
 AppOpticsAPM.support_report
 exit 1 unless AppOpticsAPM.reporter
 

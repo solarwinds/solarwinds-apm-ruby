@@ -2,14 +2,14 @@
 
 ## Environment Variables
 
-The following environment variables are detected by the appoptics_apm gem and affect how the gem functions.
+The following environment variables are detected by the solarwinds_apm gem and affect how the gem functions.
 
 ### General
 
 Name | Description | Default
 ---- | ----------- | -------
-`APPOPTICS_SERVICE_KEY` | API token + service name combination, mandatory for metrics and traces to show in my.appoptics.com | 
-`IGNORE_APPOPTICS_WARNING` | tells the appoptics_apm gem to __not__ output the _missing AppOpticsAPM libraries_ message on stack initialization | `false`
+`SOLARWINDS_SERVICE_KEY` | API token + service name combination, mandatory for metrics and traces to show in my.appoptics.com |
+`IGNORE_APPOPTICS_WARNING` | tells the solarwinds_apm gem to __not__ output the _missing AppOpticsAPM libraries_ message on stack initialization | `false`
 `APPOPTICS_GEM_VERBOSE` | sets the verbose flag (`AppOpticsAPM::Config[:verbose]`) early in the gem loading process which may output valuable information | `false`
 `APPOPTICS_CUUID` | Allows specifying the customer ID via environment variable to override/bypass the value in `/etc/tracelytics.conf` | `nil`
 
@@ -28,6 +28,6 @@ Name | Description | Default
 
 ## AppOpticsAPM::Config
 
-`AppOpticsAPM::Config` is a nested hash used by the appoptics_apm gem to store preferences and switches.
+`AppOpticsAPM::Config` is a nested hash used by the solarwinds_apm gem to store preferences and switches.
 
 See [this Rails generator template file](https://github.com/librato/ruby-appoptics/blob/master/lib/rails/generators/appoptics_apm/templates/appoptics_initializer.rb) for documentation on all of the supported values.

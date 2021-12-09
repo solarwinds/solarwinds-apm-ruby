@@ -9,7 +9,7 @@ ENV['BUNDLE_GEMFILE'] = Dir.pwd + "/gemfiles/libraries.gemfile"
 
 require 'rubygems'
 require 'bundler/setup'
-require 'appoptics_apm'
+require 'solarwinds_apm'
 
 require_relative '../jobs/sidekiq/activejob_worker_job.rb'
 

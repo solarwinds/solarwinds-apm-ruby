@@ -8,7 +8,7 @@ PADRINO_ROOT = File.dirname(__FILE__) unless defined? PADRINO_ROOT
 #
 # require 'rubygems'
 # require 'padrino-core'
-# require 'appoptics_apm'
+# require 'solarwinds_apm'
 #
 
 class SimpleDemo < Padrino::Application
