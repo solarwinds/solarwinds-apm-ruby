@@ -128,14 +128,15 @@ if defined?(AppOpticsAPM::Config)
   # Common Ruby and Rails loggers are auto-instrumented, so that they can include
   # the current Trace ID in log messages.
   #
-  # The added string will look like: "ao.traceId=7435A9FE510AE4533414D425DADF4E180D2B4E36-0"
-  # It ends in '-1' if the request is sampled and in '-0' otherwise.
+  # The added string will look like:
+  # "trace_id=7435a9fe510ae4533414d425dadf4e18 span_id=49e60702469db05f trace_flags=00"
   #
   # The following options are available:
   # :never    (default)
   # :sampled  only include the Trace ID of sampled requests
   # :traced   include the Trace ID for all traced requests
-  # :always   always add a Trace ID, it will be '0000000000000000000000000000000000000000-0'
+  # :always   always add a Trace ID, it will be
+  #           "trace_id=00000000000000000000000000000000 span_id=0000000000000000 trace_flags=00"
   #           when there is no tracing context.
   #
   AppOpticsAPM::Config[:log_traceId] = :never

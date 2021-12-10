@@ -133,13 +133,13 @@ end
 # LOG INJECTION OF TRACE_ID
 ###############################################################
 #
-# AppOpticsAPM::SDK.current_trace
+# AppOpticsAPM::SDK.current_trace_info
 # This method creates an object with the current trace ID and
 # helper methods to add the ID to logs for cross-referencing.
 
 AppOpticsAPM::Config[:log_traceId] = :always
 
 AppOpticsAPM::SDK.start_trace("#{name}_log_trace_id") do
-  trace = AppOpticsAPM::SDK.current_trace
-  AppOpticsAPM.logger.warn "Find this TraceId in the logs: #{trace.for_log}"
+  trace = AppOpticsAPM::SDK.current_trace_info
+  AppOpticsAPM.logger.warn "Find this TraceInfo in the logs: #{trace.for_log}"
 end

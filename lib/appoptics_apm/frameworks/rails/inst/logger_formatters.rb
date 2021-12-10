@@ -6,7 +6,7 @@ if AppOpticsAPM.loaded && defined?(ActiveSupport::Logger::SimpleFormatter)
     class Logger
       class SimpleFormatter
         # even though SimpleFormatter inherits from Logger,
-        # this will not append traceId twice,
+        # this will not append trace info twice,
         # because SimpleFormatter#call does not call super
         prepend AppOpticsAPM::Logger::Formatter
       end

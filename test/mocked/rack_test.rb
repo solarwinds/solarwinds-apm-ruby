@@ -19,7 +19,6 @@ describe "Rack: " do
     refute AppOpticsAPM::Context.isValid, 'Context after call should not be valid'
 
     traces = get_all_traces
-    pretty traces
 
     assert_equal 2, traces.size
     assert_equal headers['X-Trace'], traces[1]['sw.trace_context']
