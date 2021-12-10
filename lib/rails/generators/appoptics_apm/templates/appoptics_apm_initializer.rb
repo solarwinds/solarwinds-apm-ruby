@@ -130,7 +130,6 @@ if defined?(AppOpticsAPM::Config)
   #
   # The added string will look like:
   # "trace_id=7435a9fe510ae4533414d425dadf4e18 span_id=49e60702469db05f trace_flags=00"
-  # It ends in '-1' if the request is sampled and in '-0' otherwise.
   #
   # The following options are available:
   # :never    (default)
