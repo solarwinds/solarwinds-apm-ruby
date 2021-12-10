@@ -17,10 +17,10 @@ module AppOpticsAPM
       private
 
       def insert_trace_id(msg)
-        return msg if msg =~ /ao(=>{:|\.){1}traceId/
+        return msg if msg =~ /trace_id=/
 
-        current_trace = AppOpticsAPM::SDK.current_trace
-        if current_trace.log?
+        current_trace = AppOpticsAPM::SDK.current_trace_info
+        if current_trace.do_log
           case msg
           when ::String
             msg = msg.strip.empty? ? msg : insert_before_empty_lines(msg, current_trace.for_log)

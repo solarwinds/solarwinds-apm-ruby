@@ -1,7 +1,7 @@
 # Welcome to the AppOpticsAPM Ruby Gem
 
 
-The appoptics_apm gem provides automatic tracing and metrics for Ruby applications. 
+The solarwinds_apm gem provides automatic tracing and metrics for Ruby applications. 
 It requires an AppOptics account: sign up for a free trial at https://www.appoptics.com.
 
 ![ruby_trace](https://docs.appoptics.com/_images/ruby_trace.png)
@@ -11,7 +11,7 @@ https://docs.appoptics.com/kb/apm_tracing/ruby
 
 ## Getting started
 The gem instruments the ruby language and ruby on rails frameworks. It is hosted on RubyGems, making installation as 
-simple as: `gem install appoptics_apm`.
+simple as: `gem install solarwinds_apm`.
 
 Our ruby extension gets detailed insights out-of-the-box without any code modification. 
 For a list of instrumented gems and components see https://docs.appoptics.com/kb/apm_tracing/ruby/support-matrix

@@ -161,20 +161,22 @@ class NoopTest < Minitest::Test
   end
 
   def test_current_trace_doesnt_barf
-    trace = AppOpticsAPM::SDK.current_trace
+    trace = AppOpticsAPM::SDK.current_trace_info
 
     assert trace, 'it should return a trace when in noop'
   end
 
   def test_current_trace_traceid_doesnt_barf
-    trace = AppOpticsAPM::SDK.current_trace
+    trace = AppOpticsAPM::SDK.current_trace_info
 
-    assert trace.id, 'it should return a trace id when in noop'
-    assert_equal '00000000000000000000000000000000-0', trace.id
+    assert trace.trace_id, 'it should return a trace id when in noop'
+    assert_equal '00000000000000000000000000000000', trace.trace_id
+    assert_equal '0000000000000000', trace.span_id
+    assert_equal '00', trace.trace_flags
   end
 
   def test_current_trace_for_log_doesnt_barf
-    trace = AppOpticsAPM::SDK.current_trace
+    trace = AppOpticsAPM::SDK.current_trace_info
 
     assert trace.for_log, 'it should create a log string when in noop'
     assert_equal '', trace.for_log

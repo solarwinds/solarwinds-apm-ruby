@@ -12,18 +12,17 @@ module AppOpticsAPM
 
     class << self
 
+      def split(tracestring)
+        matches = REGEXP.match(tracestring)
+
+        matches
+      end
+
       # un-initialized (all 0 trace-id) tracestrings are not valid
       def valid?(tracestring)
         matches = REGEXP.match(tracestring)
 
         matches && matches[:trace_id] != ("0" * 32)
-      end
-
-      # un-initialized (all 0 trace-id) tracestrings are ok (used for log injection)
-      def ok?(tracestring)
-        matches = REGEXP.match(tracestring)
-
-        matches
       end
 
       def sampled?(tracestring)

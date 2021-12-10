@@ -31,7 +31,7 @@ end
 describe "Lograge " do
   # lograge takes care of formatting controller logs, it isn't a logger per se
   # these tests check that the recommended config works
-  # Lograge,custom_options = ->(_) { AppOpticsAPM::SDK.current_trace.hash_for_log }
+  # Lograge.custom_options = ->(_) { AppOpticsAPM::SDK.current_trace_info.hash_for_log }
   # and that no double traceIds are added
 
   let(:log_output) { StringIO.new }
@@ -67,10 +67,10 @@ describe "Lograge " do
 
   before do
     Lograge.logger = logger
-    Lograge.formatter = ->(data) { data.to_s }
+    Lograge.formatter = Lograge::Formatters::KeyValue.new
 
-    Lograge.custom_options = lambda do |event|
-      AppOpticsAPM::SDK.current_trace.hash_for_log
+    Lograge.custom_options = lambda do |_event|
+      AppOpticsAPM::SDK.current_trace_info.hash_for_log
     end
   end
 

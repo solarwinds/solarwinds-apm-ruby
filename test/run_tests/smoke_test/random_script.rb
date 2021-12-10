@@ -76,7 +76,7 @@ AppOpticsAPM::SDK.start_trace("parent_#{oboe_source}") do
   AppOpticsAPM::SDK.trace("parent_waitall") do
     Rainbow.paint
     puts Process.waitall
-    puts "TraceId: #{AppOpticsAPM::SDK.current_trace.id[0..-3]}"
+    puts "trace_id: #{AppOpticsAPM::SDK.current_trace_info.trace_id}"
   end
 end
 
