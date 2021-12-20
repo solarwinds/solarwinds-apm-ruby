@@ -49,7 +49,7 @@ module GraphQL
 
         transaction_name(kvs[:InboundQuery]) if kvs[:InboundQuery] && layer == 'graphql.execute'
 
-        ::AppOpticsAPM::SDK.trace(layer, kvs) do
+        ::AppOpticsAPM::SDK.trace(layer, kvs: kvs) do
           kvs.clear # we don't have to send them twice
           yield
         end

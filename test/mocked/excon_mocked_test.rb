@@ -174,9 +174,9 @@ if !defined?(JRUBY_VERSION)
       task_id = 'a462ade6cfe479081764cc476aa98335'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
       state = 'sw=cb3468da6f06eefc-01'
-      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
+      headers = { traceparent: trace_id, tracestate: state }
 
-      AppOpticsAPM::SDK.start_trace('excon_tests') do
+      AppOpticsAPM::SDK.start_trace('excon_tests', headers: headers) do
         conn = Excon.new('http://127.0.0.1:8101')
         conn.get
         assert_trace_headers(conn.data[:headers], true)
@@ -193,7 +193,8 @@ if !defined?(JRUBY_VERSION)
       task_id = 'a462ade6cfe479081764cc476aa98335'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
       state = 'sw=cb3468da6f06eefc-01'
-      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
+      headers = { traceparent: trace_id, tracestate: state }
+      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(headers)
 
       conn = Excon.new('http://127.0.0.1:8101')
       conn.get
@@ -210,9 +211,9 @@ if !defined?(JRUBY_VERSION)
       task_id = 'a462ade6cfe479081764cc476aa98335'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
       state = 'aa= 1234, sw=cb3468da6f06eefc-01,%%cc=%%%45'
-      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
+      headers = { traceparent: trace_id, tracestate: state }
 
-      AppOpticsAPM::SDK.start_trace('excon_tests') do
+      AppOpticsAPM::SDK.start_trace('excon_tests', headers: headers) do
         conn = Excon.new('http://127.0.0.1:8101')
         conn.get
 
@@ -231,7 +232,8 @@ if !defined?(JRUBY_VERSION)
       task_id = 'a462ade6cfe479081764cc476aa98335'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
       state = 'aa= 1234, sw=cb3468da6f06eefc-01,%%cc=%%%45'
-      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
+      headers = { traceparent: trace_id, tracestate: state }
+      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(headers)
 
       conn = Excon.new('http://127.0.0.1:8101')
       conn.get
@@ -248,9 +250,9 @@ if !defined?(JRUBY_VERSION)
       task_id = 'a462ade6cfe479081764cc476aa98335'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
       state = 'aa= 1234, sw=cb3468da6f06eefc-01,%%cc=%%%45'
-      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
+      headers = { traceparent: trace_id, tracestate: state }
 
-      AppOpticsAPM::SDK.start_trace('excon_tests') do
+      AppOpticsAPM::SDK.start_trace('excon_tests', headers: headers) do
         conn = Excon.new('http://127.0.0.1:8101')
         conn.requests([{ :method => :get }, { :method => :put }])
 
@@ -269,7 +271,8 @@ if !defined?(JRUBY_VERSION)
       task_id = 'a462ade6cfe479081764cc476aa98335'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
       state = 'aa= 1234, sw=cb3468da6f06eefc-01,%%cc=%%%45'
-      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
+      headers = { traceparent: trace_id, tracestate: state }
+      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(headers)
 
       conn = Excon.new('http://127.0.0.1:8101')
       conn.requests([{ :method => :get }, { :method => :put }])

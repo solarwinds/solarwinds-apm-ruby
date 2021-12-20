@@ -158,9 +158,9 @@ if defined? GRPC
         # set up trace context
         other_state = 'aa=123'
         trace_state = AppOpticsAPM::TraceState.add_sw_member(other_state, '20a6f5ed4113e661-01')
-        AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(@trace_00, trace_state)
+        headers = { traceparent: @trace_00, tracestate: trace_state }
 
-        AppOpticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test, headers: headers) do
           @stub.unary(@address_msg)
         end
 
@@ -182,7 +182,8 @@ if defined? GRPC
         # with a non-tracing appoptics context
         trace_parent = '00-d1169466cf4a7c3c82d07e745bb51f16-4209252012f594bf-01'
         trace_state = 'sw=4209252012f594bf-00'
-        AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_parent, trace_state)
+        headers = { traceparent: trace_parent, tracestate: trace_state }
+        AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(headers)
 
         @stub.unary(@address_msg)
         traces = get_all_traces
@@ -385,9 +386,9 @@ if defined? GRPC
         # set up trace context
         other_state = 'aa=123'
         trace_state = AppOpticsAPM::TraceState.add_sw_member(other_state, '20a6f5ed4113e661-01')
-        AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(@trace_00, trace_state)
+        headers = { traceparent: @trace_00, tracestate: trace_state }
 
-        AppOpticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test, headers: headers) do
           @stub.client_stream([@phone_msg, @phone_msg])
         end
 
@@ -409,7 +410,8 @@ if defined? GRPC
         # with a non-tracing appoptics context
         trace_parent = '00-d1169466cf4a7c3c82d07e745bb51f16-4209252012f594bf-01'
         trace_state = 'sw=4209252012f594bf-00'
-        AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_parent, trace_state)
+        headers = { traceparent: trace_parent, tracestate: trace_state }
+        AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(headers)
 
         @stub.client_stream([@phone_msg, @phone_msg])
         traces = get_all_traces
@@ -566,9 +568,9 @@ if defined? GRPC
         # set up trace context
         other_state = 'aa=123'
         trace_state = AppOpticsAPM::TraceState.add_sw_member(other_state, '20a6f5ed4113e661-01')
-        AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(@trace_00, trace_state)
+        headers = { traceparent: @trace_00, tracestate: trace_state }
 
-        AppOpticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test, headers: headers) do
           res = @stub.server_stream(Grpctest::AddressId.new(id: 2))
           res.each { |_| }
         end
@@ -591,7 +593,8 @@ if defined? GRPC
         # with a non-tracing appoptics context
         trace_parent = '00-d1169466cf4a7c3c82d07e745bb51f16-4209252012f594bf-00'
         trace_state = 'sw=4209252012f594bf-00'
-        AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_parent, trace_state)
+        headers = { traceparent: trace_parent, tracestate: trace_state }
+        AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(headers)
 
         res = @stub.server_stream(Grpctest::AddressId.new(id: 2))
         res.each { |_| }
@@ -754,9 +757,9 @@ if defined? GRPC
         # set up trace context
         other_state = 'aa=123'
         trace_state = AppOpticsAPM::TraceState.add_sw_member(other_state, '20a6f5ed4113e661-01')
-        AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(@trace_00, trace_state)
+        headers = { traceparent: @trace_00, tracestate: trace_state }
 
-        AppOpticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test, headers: headers) do
           @stub.server_stream(Grpctest::AddressId.new(id: 2)) { |_| }
         end
 
@@ -778,7 +781,8 @@ if defined? GRPC
         # with a non-tracing appoptics context
         trace_parent = '00-d1169466cf4a7c3c82d07e745bb51f16-4209252012f594bf-00'
         trace_state = 'sw=4209252012f594bf-00'
-        AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_parent, trace_state)
+        headers = { traceparent: trace_parent, tracestate: trace_state }
+        AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(headers)
 
         @stub.server_stream(Grpctest::AddressId.new(id: 2)) { |_| }
         traces = get_all_traces
@@ -936,9 +940,9 @@ if defined? GRPC
         # set up trace context
         other_state = 'aa=123'
         trace_state = AppOpticsAPM::TraceState.add_sw_member(other_state, '20a6f5ed4113e661-01')
-        AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(@trace_00, trace_state)
+        headers = { traceparent: @trace_00, tracestate: trace_state }
 
-        AppOpticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test, headers: headers) do
           response = @stub.bidi_stream([@null_msg, @null_msg])
           response.each { |_| }
         end
@@ -961,7 +965,8 @@ if defined? GRPC
         # with a non-tracing appoptics context
         trace_parent = '00-d1169466cf4a7c3c82d07e745bb51f16-4209252012f594bf-00'
         trace_state = 'sw=4209252012f594bf-00'
-        AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_parent, trace_state)
+        headers = { traceparent: trace_parent, tracestate: trace_state }
+        AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(headers)
 
         response = @stub.bidi_stream([@null_msg, @null_msg])
         response.each { |_| }
@@ -1126,9 +1131,9 @@ if defined? GRPC
         # set up trace context
         other_state = 'aa=123'
         trace_state = AppOpticsAPM::TraceState.add_sw_member(other_state, '20a6f5ed4113e661-01')
-        AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(@trace_00, trace_state)
+        headers = { traceparent: @trace_00, tracestate: trace_state }
 
-        AppOpticsAPM::SDK.start_trace(:test) do
+        AppOpticsAPM::SDK.start_trace(:test, headers: headers) do
           @stub.bidi_stream([@null_msg, @null_msg]) { |_| }
         end
 
@@ -1150,7 +1155,8 @@ if defined? GRPC
         # with a non-tracing appoptics context
         trace_parent = '00-d1169466cf4a7c3c82d07e745bb51f16-4209252012f594bf-00'
         trace_state = 'sw=4209252012f594bf-00'
-        AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_parent, trace_state)
+        headers = { traceparent: trace_parent, tracestate: trace_state }
+        AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(headers)
 
         @stub.bidi_stream([@null_msg, @null_msg]) { |_| }
         traces = get_all_traces

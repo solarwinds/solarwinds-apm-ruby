@@ -60,7 +60,7 @@ if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && AppO
               AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
             end
 
-            AppOpticsAPM::SDK.trace(:mongo, report_kvs) do
+            AppOpticsAPM::SDK.trace(:mongo, kvs: report_kvs) do
               report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:mongo][:collect_backtraces]
               send("#{m}_without_appoptics", *args)
             end
@@ -103,7 +103,7 @@ if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && AppO
               AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
             end
 
-            AppOpticsAPM::SDK.trace(:mongo, report_kvs) do
+            AppOpticsAPM::SDK.trace(:mongo, kvs: report_kvs) do
               report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:mongo][:collect_backtraces]
               send("#{m}_without_appoptics", *args)
             end
@@ -167,7 +167,7 @@ if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && AppO
               AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
             end
 
-            AppOpticsAPM::SDK.trace(:mongo, report_kvs) do
+            AppOpticsAPM::SDK.trace(:mongo, kvs: report_kvs) do
               report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:mongo][:collect_backtraces]
               send("#{m}_without_appoptics", *args)
             end
@@ -208,7 +208,7 @@ if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && AppO
               AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
             end
 
-            AppOpticsAPM::SDK.trace(:mongo, report_kvs) do
+            AppOpticsAPM::SDK.trace(:mongo, kvs: report_kvs) do
               report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:mongo][:collect_backtraces]
               send("#{m}_without_appoptics", *args, &blk)
             end
@@ -231,7 +231,7 @@ if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && AppO
               AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
             end
 
-            AppOpticsAPM::SDK.trace(:mongo, report_kvs) do
+            AppOpticsAPM::SDK.trace(:mongo, kvs: report_kvs) do
               report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:mongo][:collect_backtraces]
               send("#{m}_without_appoptics", *args)
             end

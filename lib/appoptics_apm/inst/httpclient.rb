@@ -78,7 +78,7 @@ module AppOpticsAPM
         # threads do not inherit thread local variables
         # therefore we use headers to continue context
         w3c_headers = get_trace_headers(req.headers)
-        AppOpticsAPM.trace_context = TraceContext.new(*w3c_headers)
+        AppOpticsAPM.trace_context = TraceContext.new(w3c_headers)
         unless AppOpticsAPM::TraceString.sampled?(AppOpticsAPM.trace_context.tracestring)
           # trace headers already included
           return super(req, proxy, conn)
@@ -132,13 +132,14 @@ module AppOpticsAPM
         if headers.is_a?(Array)
           traceparent = headers.find { |ele| ele.first =~ /[Tt]raceparent/ }
           tracestate = headers.find { |ele| ele.first =~ /[Tt]racestate/ }
-          return [traceparent, tracestate]
+          return { traceparent: traceparent, tracestate: tracestate }
         elsif headers.is_a?(Hash)
-          return [headers['traceparent'], headers['tracestate']]
+          return { traceparent: headers['traceparent'], tracestate: headers['tracestate'] }
         elsif headers.is_a? HTTP::Message::Headers
-          return [headers['traceparent'].first, headers['tracestate'].first]
+          return { traceparent: headers['traceparent'].first,
+                   tracestate: headers['tracestate'].first }
         end
-        [nil, nil]
+        {}
       end
 
       def add_trace_header(headers)

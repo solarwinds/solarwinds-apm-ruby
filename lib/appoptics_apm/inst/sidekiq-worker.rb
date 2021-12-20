@@ -47,7 +47,7 @@ module AppOpticsAPM
         report_kvs[:SourceTrace] = args[1]['SourceTrace']
       end
 
-      AppOpticsAPM::SDK.start_trace(:'sidekiq-worker', report_kvs) do
+      AppOpticsAPM::SDK.start_trace(:'sidekiq-worker', kvs: report_kvs) do
         yield
       end
     end

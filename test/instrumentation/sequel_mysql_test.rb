@@ -56,7 +56,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < '2.4')
     it "should obey :collect_backtraces setting when true" do
       AppOpticsAPM::Config[:sequel][:collect_backtraces] = true
 
-      AppOpticsAPM::SDK.start_trace('sequel_test', {}) do
+      AppOpticsAPM::SDK.start_trace('sequel_test') do
         MYSQL_DB.run('select 1')
       end
 
@@ -67,7 +67,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < '2.4')
     it "should obey :collect_backtraces setting when false" do
       AppOpticsAPM::Config[:sequel][:collect_backtraces] = false
 
-      AppOpticsAPM::SDK.start_trace('sequel_test', {}) do
+      AppOpticsAPM::SDK.start_trace('sequel_test') do
         MYSQL_DB.run('select 1')
       end
 
@@ -77,7 +77,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < '2.4')
 
     it 'should trace MYSQL_DB.run insert' do
       AppOpticsAPM::Config[:sanitize_sql] = false
-      AppOpticsAPM::SDK.start_trace('sequel_test', {}) do
+      AppOpticsAPM::SDK.start_trace('sequel_test') do
         MYSQL_DB.run("insert into items (name, price) values ('blah', '12')")
       end
 
@@ -94,7 +94,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < '2.4')
 
     it 'should trace MYSQL_DB.run select' do
       AppOpticsAPM::Config[:sanitize_sql] = false
-      AppOpticsAPM::SDK.start_trace('sequel_test', {}) do
+      AppOpticsAPM::SDK.start_trace('sequel_test') do
         MYSQL_DB.run("select 1")
       end
 
@@ -114,7 +114,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < '2.4')
       items = MYSQL_DB[:items]
       items.count
 
-      AppOpticsAPM::SDK.start_trace('sequel_test', {}) do
+      AppOpticsAPM::SDK.start_trace('sequel_test') do
         items.insert(:name => 'abc', :price => 2.514)
         items.count
       end
@@ -145,7 +145,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < '2.4')
       items = MYSQL_DB[:items]
       items.count
 
-      AppOpticsAPM::SDK.start_trace('sequel_test', {}) do
+      AppOpticsAPM::SDK.start_trace('sequel_test') do
         items.insert(:name => 'abc', :price => 2.514461383352462)
       end
 
@@ -172,7 +172,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < '2.4')
       items = MYSQL_DB[:items]
       items.count
 
-      AppOpticsAPM::SDK.start_trace('sequel_test', {}) do
+      AppOpticsAPM::SDK.start_trace('sequel_test') do
         items.filter(:name => 'abc').all
       end
 
@@ -192,7 +192,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < '2.4')
       # Drop the table if it already exists
       MYSQL_DB.drop_table(:fake) if MYSQL_DB.table_exists?(:fake)
 
-      AppOpticsAPM::SDK.start_trace('sequel_test', {}) do
+      AppOpticsAPM::SDK.start_trace('sequel_test') do
         MYSQL_DB.create_table :fake do
           primary_key :id
           String :name
@@ -216,7 +216,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < '2.4')
       # Drop the table if it already exists
       MYSQL_DB.drop_table(:fake) if MYSQL_DB.table_exists?(:fake)
 
-      AppOpticsAPM::SDK.start_trace('sequel_test', {}) do
+      AppOpticsAPM::SDK.start_trace('sequel_test') do
         MYSQL_DB.create_table :fake do
           primary_key :id
           String :name
@@ -237,7 +237,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < '2.4')
 
     it 'should capture and report exceptions' do
       begin
-        AppOpticsAPM::SDK.start_trace('sequel_test', {}) do
+        AppOpticsAPM::SDK.start_trace('sequel_test') do
           MYSQL_DB.run("this is bad sql")
         end
       rescue
@@ -269,7 +269,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < '2.4')
       items = MYSQL_DB[:items]
       items.count
 
-      AppOpticsAPM::SDK.start_trace('sequel_test', {}) do
+      AppOpticsAPM::SDK.start_trace('sequel_test') do
         ds = items.where(:name => :$n)
         ds.call(:select, :n => 'abc')
         ds.call(:delete, :n => 'cba')
@@ -293,7 +293,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < '2.4')
       ds = MYSQL_DB[:items].filter(:name => :$n)
       ps = ds.prepare(:select, :select_by_name)
 
-      AppOpticsAPM::SDK.start_trace('sequel_test', {}) do
+      AppOpticsAPM::SDK.start_trace('sequel_test') do
         ps.call(:n => 'abc')
       end
 
@@ -315,7 +315,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < '2.4')
       ds = MYSQL_DB[:items].filter(:name => :$n)
       ps = ds.prepare(:select, :select_by_name)
 
-      AppOpticsAPM::SDK.start_trace('sequel_test', {}) do
+      AppOpticsAPM::SDK.start_trace('sequel_test') do
         ps.call(:n => 'abc')
       end
 

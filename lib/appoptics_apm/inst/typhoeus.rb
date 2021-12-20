@@ -5,7 +5,7 @@ class TyphoeusError < StandardError; end
 module AppOpticsAPM
   module Inst
     module TyphoeusRequestOps
-      include AppOpticsAPM::TraceContextHeaders
+      include AppOpticsAPM::SDK::TraceContextHeaders
 
       def run
         unless AppOpticsAPM.tracing?
@@ -49,7 +49,7 @@ module AppOpticsAPM
     end
 
     module TyphoeusHydraRunnable
-      include AppOpticsAPM::TraceContextHeaders
+      include AppOpticsAPM::SDK::TraceContextHeaders
 
       def run
         unless AppOpticsAPM.tracing?
@@ -69,7 +69,7 @@ module AppOpticsAPM
         # FIXME: Until we figure out a strategy to deal with libcurl internal
         # threading and Ethon's use of easy handles, here we just do a simple
         # trace of the hydra run.
-        AppOpticsAPM::SDK.trace(:typhoeus_hydra, kvs) do
+        AppOpticsAPM::SDK.trace(:typhoeus_hydra, kvs: kvs) do
           queued_requests.map do |request|
             add_tracecontext_headers(request.options[:headers])
           end

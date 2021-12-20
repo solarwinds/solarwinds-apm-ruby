@@ -106,9 +106,9 @@ unless defined?(JRUBY_VERSION)
       task_id = 'a462ade6cfe479081764cc476aa98335'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
       state = 'sw=cb3468da6f06eefc-01'
-      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
+      headers = { traceparent: trace_id, tracestate: state }
 
-      AppOpticsAPM::SDK.start_trace('restclient_tests') do
+      AppOpticsAPM::SDK.start_trace('restclient_tests', headers: headers) do
         res = RestClient::Resource.new('http://127.0.0.1:8101').get
 
         assert_trace_headers(res.request.processed_headers, true)
@@ -125,7 +125,8 @@ unless defined?(JRUBY_VERSION)
 
       trace_id = '00-a462ade6cfe479081764cc476aa98335-cb3468da6f06eefc-01'
       state = 'aa=1234'
-      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
+      headers = { traceparent: trace_id, tracestate: state }
+      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(headers)
 
       res = RestClient::Resource.new('http://127.0.0.1:8101').get
 
@@ -141,9 +142,9 @@ unless defined?(JRUBY_VERSION)
       task_id = 'a462ade6cfe479081764cc476aa98335'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
       state = 'aa= 1234, sw=cb3468da6f06eefc-01,%%cc=%%%45'
-      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
+      headers = { traceparent: trace_id, tracestate: state }
 
-      AppOpticsAPM::SDK.start_trace('restclient_tests') do
+      AppOpticsAPM::SDK.start_trace('restclient_tests', headers: headers) do
         res = RestClient::Resource.new('http://127.0.0.1:8101').get
         assert_trace_headers(res.request.processed_headers, true)
         assert_equal task_id, AppOpticsAPM::TraceString.trace_id(res.request.processed_headers['traceparent'])
@@ -160,7 +161,8 @@ unless defined?(JRUBY_VERSION)
       task_id = 'a462ade6cfe479081764cc476aa98335'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
       state = 'aa= 1234, sw=cb3468da6f06eefc-01,%%cc=%%%45'
-      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
+      headers = { traceparent: trace_id, tracestate: state }
+      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(headers)
 
       res = RestClient::Resource.new('http://127.0.0.1:8101').get
       assert_equal trace_id, res.request.processed_headers['traceparent']

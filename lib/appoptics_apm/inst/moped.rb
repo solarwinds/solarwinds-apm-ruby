@@ -75,7 +75,7 @@ module AppOpticsAPM
             AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
           end
 
-          AppOpticsAPM::SDK.trace(:mongo, report_kvs) do
+          AppOpticsAPM::SDK.trace(:mongo, kvs: report_kvs) do
             command_without_appoptics(command)
           end
         else
@@ -88,7 +88,7 @@ module AppOpticsAPM
 
         report_kvs = extract_trace_details(:drop_database)
 
-        AppOpticsAPM::SDK.trace(:mongo, report_kvs) do
+        AppOpticsAPM::SDK.trace(:mongo, kvs: report_kvs) do
           drop_without_appoptics
         end
       end
@@ -139,7 +139,7 @@ module AppOpticsAPM
           AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
         end
 
-        AppOpticsAPM::API.trace(:mongo, report_kvs, :create_index) do
+        AppOpticsAPM::API.trace(:mongo, kvs: report_kvs, protect_op: :create_index) do
           create_without_appoptics(key, options = {})
         end
       end
@@ -156,7 +156,7 @@ module AppOpticsAPM
           AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
         end
 
-        AppOpticsAPM::SDK.trace(:mongo, report_kvs) do
+        AppOpticsAPM::SDK.trace(:mongo, kvs: report_kvs) do
           drop_without_appoptics(key)
         end
       end
@@ -200,7 +200,7 @@ module AppOpticsAPM
           AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
         end
 
-        AppOpticsAPM::SDK.trace(:mongo, report_kvs) do
+        AppOpticsAPM::SDK.trace(:mongo, kvs: report_kvs) do
           count_without_appoptics
         end
       end
@@ -216,7 +216,7 @@ module AppOpticsAPM
           AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
         end
 
-        AppOpticsAPM::SDK.trace(:mongo, report_kvs) do
+        AppOpticsAPM::SDK.trace(:mongo, kvs: report_kvs) do
           sort_without_appoptics(sort)
         end
       end
@@ -231,7 +231,7 @@ module AppOpticsAPM
             AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
           end
 
-          AppOpticsAPM::SDK.trace(:mongo, report_kvs) do
+          AppOpticsAPM::SDK.trace(:mongo, kvs: report_kvs) do
             limit_without_appoptics(limit)
           end
         else
@@ -250,7 +250,7 @@ module AppOpticsAPM
           AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
         end
 
-        AppOpticsAPM::SDK.trace(:mongo, report_kvs) do
+        AppOpticsAPM::SDK.trace(:mongo, kvs: report_kvs) do
           distinct_without_appoptics(key)
         end
       end
@@ -265,7 +265,7 @@ module AppOpticsAPM
             AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
           end
 
-          AppOpticsAPM::SDK.trace(:mongo, report_kvs) do
+          AppOpticsAPM::SDK.trace(:mongo, kvs: report_kvs) do
             update_without_appoptics(change, flags)
           end
         else
@@ -283,7 +283,7 @@ module AppOpticsAPM
           AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
         end
 
-        AppOpticsAPM::SDK.trace(:mongo, report_kvs, :update_all) do
+        AppOpticsAPM::SDK.trace(:mongo, kvs: report_kvs, protect_op: :update_all) do
           update_all_without_appoptics(change)
         end
       end
@@ -299,7 +299,7 @@ module AppOpticsAPM
           AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
         end
 
-        AppOpticsAPM::SDK.trace(:mongo, report_kvs, :upsert) do
+        AppOpticsAPM::SDK.trace(:mongo, kvs: report_kvs, protect_op: :upsert) do
           upsert_without_appoptics(change)
         end
       end
@@ -314,7 +314,7 @@ module AppOpticsAPM
           AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
         end
 
-        AppOpticsAPM::SDK.trace(:mongo, report_kvs, :explain) do
+        AppOpticsAPM::SDK.trace(:mongo, kvs: report_kvs, protect_op: :explain) do
           explain_without_appoptics
         end
       end
@@ -331,7 +331,7 @@ module AppOpticsAPM
           AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
         end
 
-        AppOpticsAPM::SDK.trace(:mongo, report_kvs) do
+        AppOpticsAPM::SDK.trace(:mongo, kvs: report_kvs) do
           modify_without_appoptics(change, options)
         end
       end
@@ -346,7 +346,7 @@ module AppOpticsAPM
           AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
         end
 
-        AppOpticsAPM::SDK.trace(:mongo, report_kvs) do
+        AppOpticsAPM::SDK.trace(:mongo, kvs: report_kvs) do
           remove_without_appoptics
         end
       end
@@ -361,7 +361,7 @@ module AppOpticsAPM
           AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
         end
 
-        AppOpticsAPM::SDK.trace(:mongo, report_kvs) do
+        AppOpticsAPM::SDK.trace(:mongo, kvs: report_kvs) do
           remove_all_without_appoptics
         end
       end
@@ -401,7 +401,7 @@ module AppOpticsAPM
         # with other mongo implementations
         report_kvs = extract_trace_details(:drop_collection)
 
-        AppOpticsAPM::SDK.trace(:mongo, report_kvs) do
+        AppOpticsAPM::SDK.trace(:mongo, kvs: report_kvs) do
           drop_without_appoptics
         end
       end
@@ -416,7 +416,7 @@ module AppOpticsAPM
           AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}"
         end
 
-        AppOpticsAPM::SDK.trace(:mongo, report_kvs) do
+        AppOpticsAPM::SDK.trace(:mongo, kvs: report_kvs) do
           find_without_appoptics(selector)
         end
       end
@@ -426,7 +426,7 @@ module AppOpticsAPM
 
         report_kvs = extract_trace_details(:indexes)
 
-        AppOpticsAPM::SDK.trace(:mongo, report_kvs) do
+        AppOpticsAPM::SDK.trace(:mongo, kvs: report_kvs) do
           indexes_without_appoptics
         end
       end
@@ -435,7 +435,7 @@ module AppOpticsAPM
         if AppOpticsAPM.tracing? && !AppOpticsAPM.tracing_layer_op?(:create_index)
           report_kvs = extract_trace_details(:insert)
 
-          AppOpticsAPM::SDK.trace(:mongo, report_kvs) do
+          AppOpticsAPM::SDK.trace(:mongo, kvs: report_kvs) do
             insert_without_appoptics(documents, flags)
           end
         else
@@ -449,7 +449,7 @@ module AppOpticsAPM
         report_kvs = extract_trace_details(:aggregate)
         report_kvs[:Query] = pipeline
 
-        AppOpticsAPM::SDK.trace(:mongo, report_kvs) do
+        AppOpticsAPM::SDK.trace(:mongo, kvs: report_kvs) do
           aggregate_without_appoptics(pipeline)
         end
       end

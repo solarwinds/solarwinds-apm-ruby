@@ -5,7 +5,7 @@ module AppOpticsAPM
   module GRPC
 
     module ActiveCall
-      include AppOpticsAPM::TraceContextHeaders
+      include AppOpticsAPM::SDK::TraceContextHeaders
 
       if defined? ::GRPC
         StatusCodes = {}
@@ -75,7 +75,7 @@ module AppOpticsAPM
 
       def unary_response(req, type:, metadata:, without:)
         tags = grpc_tags(type, metadata['method'] || metadata_to_send['method'])
-        AppOpticsAPM::SDK.trace('grpc-client', tags) do
+        AppOpticsAPM::SDK.trace('grpc-client', kvs: tags) do
           add_tracecontext_headers(metadata)
           begin
             send(without, req, metadata: metadata)

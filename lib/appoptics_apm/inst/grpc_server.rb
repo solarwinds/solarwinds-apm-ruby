@@ -70,12 +70,9 @@ module AppOpticsAPM
       end
 
       def run_server_method_with_appoptics(active_call, mth, inter_ctx)
-        AppOpticsAPM.trace_context = TraceContext.new(active_call.metadata['traceparent'], active_call.metadata['tracestate'])
         tags = grpc_tags(active_call, mth)
-        AppOpticsAPM.trace_context&.add_kvs(tags)
 
-        # TODO expand args for new oboe tracing decisions
-        AppOpticsAPM::API.log_start('grpc-server', tags)
+        AppOpticsAPM::API.log_start('grpc-server', tags, active_call.metadata)
 
         begin
           AppOpticsAPM::API.send_metrics('grpc-server', tags) do

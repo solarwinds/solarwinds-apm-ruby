@@ -47,7 +47,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     it "should trace collection creation" do
       r = nil
       collection = @db[:temp_collection]
-      AppOpticsAPM::SDK.start_trace('mongo_test', {}) do
+      AppOpticsAPM::SDK.start_trace('mongo_test') do
         r = collection.create
       end
 
@@ -79,7 +79,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
         collection.create
       end
 
-      AppOpticsAPM::SDK.start_trace('mongo_test', {}) do
+      AppOpticsAPM::SDK.start_trace('mongo_test') do
         r = collection.drop
       end
 
@@ -107,7 +107,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       collection.create
 
       begin
-        AppOpticsAPM::SDK.start_trace('mongo_test', {}) do
+        AppOpticsAPM::SDK.start_trace('mongo_test') do
           collection.create
         end
       rescue
@@ -137,7 +137,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       r = nil
       collection = @db[:tv_collection]
 
-      AppOpticsAPM::SDK.start_trace('mongo_test', {}) do
+      AppOpticsAPM::SDK.start_trace('mongo_test') do
         r = collection.insert_one({ name => 'Rabel Lasen' })
       end
 
@@ -164,7 +164,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       r = nil
       collection = @db[:tv_collection]
 
-      AppOpticsAPM::SDK.start_trace('mongo_test', {}) do
+      AppOpticsAPM::SDK.start_trace('mongo_test') do
         r = collection.insert_many([
                                      { :name => 'Rabel Lasen' },
                                      { :name => 'Louval Raiden' }])
@@ -197,7 +197,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       doc = { "name" => "MyName", "type" => "MyType", "count" => 1, "info" => { "x" => 203, "y" => '102' } }
       coll.insert_one(doc)
 
-      AppOpticsAPM::SDK.start_trace('mongo_test', {}) do
+      AppOpticsAPM::SDK.start_trace('mongo_test') do
         r = coll.find(:name => "MyName", :limit => 1)
       end
 
@@ -225,7 +225,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       doc = { "name" => "MyName", "type" => "MyType", "count" => 1, "info" => { "x" => 203, "y" => '102' } }
       coll.insert_one(doc)
 
-      AppOpticsAPM::SDK.start_trace('mongo_test', {}) do
+      AppOpticsAPM::SDK.start_trace('mongo_test') do
         r = coll.find_one_and_delete(:name => "MyName")
       end
 
@@ -253,7 +253,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       doc = { "name" => "MyName", "type" => "MyType", "count" => 1, "info" => { "x" => 203, "y" => '102' } }
       coll.insert_one(doc)
 
-      AppOpticsAPM::SDK.start_trace('mongo_test', {}) do
+      AppOpticsAPM::SDK.start_trace('mongo_test') do
         r = coll.find_one_and_update({ :name => 'MyName' }, { "$set" => { :name => 'test1' } }, :return_document => :after)
       end
 
@@ -281,7 +281,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       doc = { "name" => "MyName", "type" => "MyType", "count" => 1, "info" => { "x" => 203, "y" => '102' } }
       coll.insert_one(doc)
 
-      AppOpticsAPM::SDK.start_trace('mongo_test', {}) do
+      AppOpticsAPM::SDK.start_trace('mongo_test') do
         r = coll.find_one_and_replace({ :name => 'MyName' }, { "$set" => { :name => 'test1' } }, :return_document => :after)
       end
 
@@ -309,7 +309,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       doc = { "name" => "MyName", "type" => "MyType", "count" => 1, "info" => { "x" => 203, "y" => '102' } }
       coll.insert_one(doc)
 
-      AppOpticsAPM::SDK.start_trace('mongo_test', {}) do
+      AppOpticsAPM::SDK.start_trace('mongo_test') do
         r = coll.update_one({ :name => 'MyName' }, { "$set" => { :name => 'test1' } }, :return_document => :after)
       end
 
@@ -337,7 +337,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       doc = { "name" => "MyName", "type" => "MyType", "count" => 1, "info" => { "x" => 203, "y" => '102' } }
       coll.insert_one(doc)
 
-      AppOpticsAPM::SDK.start_trace('mongo_test', {}) do
+      AppOpticsAPM::SDK.start_trace('mongo_test') do
         r = coll.update_many({ :name => 'MyName' }, { "$set" => { :name => 'test1' } }, :return_document => :after)
       end
 
@@ -365,7 +365,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       doc = { "name" => "MyName", "type" => "MyType", "count" => 1, "info" => { "x" => 203, "y" => '102' } }
       coll.insert_one(doc)
 
-      AppOpticsAPM::SDK.start_trace('mongo_test', {}) do
+      AppOpticsAPM::SDK.start_trace('mongo_test') do
         r = coll.delete_one({ :name => 'MyName' })
       end
 
@@ -393,7 +393,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       doc = { "name" => "MyName", "type" => "MyType", "count" => 1, "info" => { "x" => 203, "y" => '102' } }
       coll.insert_one(doc)
 
-      AppOpticsAPM::SDK.start_trace('mongo_test', {}) do
+      AppOpticsAPM::SDK.start_trace('mongo_test') do
         r = coll.delete_many({ :name => 'MyName' })
       end
 
@@ -421,7 +421,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       doc = { "name" => "MyName", "type" => "MyType", "count" => 1, "info" => { "x" => 203, "y" => '102' } }
       coll.insert_one(doc)
 
-      AppOpticsAPM::SDK.start_trace('mongo_test', {}) do
+      AppOpticsAPM::SDK.start_trace('mongo_test') do
         r = coll.replace_one({ :name => 'test' }, { :name => 'test1' })
       end
 
@@ -445,7 +445,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       coll = @db[:test_collection]
       r = nil
 
-      AppOpticsAPM::SDK.start_trace('mongo_test', {}) do
+      AppOpticsAPM::SDK.start_trace('mongo_test') do
         r = coll.count({ :name => 'MyName' })
       end
 
@@ -469,7 +469,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       coll = @db[:test_collection]
       r = nil
 
-      AppOpticsAPM::SDK.start_trace('mongo_test', {}) do
+      AppOpticsAPM::SDK.start_trace('mongo_test') do
         r = coll.distinct('name', { :name => 'MyName' })
       end
 
@@ -493,7 +493,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       coll = @db[:test_collection]
       r = nil
 
-      AppOpticsAPM::SDK.start_trace('mongo_test', {}) do
+      AppOpticsAPM::SDK.start_trace('mongo_test') do
         r = coll.aggregate([{ "$group" => { "_id" => "$city", "tpop" => { "$sum" => "$pop" } } }])
       end
 
@@ -516,7 +516,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       coll = @db[:test_collection]
       r = nil
 
-      AppOpticsAPM::SDK.start_trace('mongo_test', {}) do
+      AppOpticsAPM::SDK.start_trace('mongo_test') do
         r = coll.bulk_write([{ :insert_one => { :x => 1 } },
                              { :insert_one => { :x => 3 } }],
                             :ordered => true)
@@ -547,7 +547,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
 
       coll = @db[:test_collection]
 
-      AppOpticsAPM::SDK.start_trace('mongo_test', {}) do
+      AppOpticsAPM::SDK.start_trace('mongo_test') do
         doc = { "name" => "MyName", "type" => "MyType", "count" => 1, "info" => { "x" => 203, "y" => '102' } }
         coll.insert_one(doc)
       end
@@ -561,7 +561,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
 
       coll = @db[:test_collection]
 
-      AppOpticsAPM::SDK.start_trace('mongo_test', {}) do
+      AppOpticsAPM::SDK.start_trace('mongo_test') do
         doc = { "name" => "MyName", "type" => "MyType", "count" => 1, "info" => { "x" => 203, "y" => '102' } }
         coll.insert_one(doc)
       end

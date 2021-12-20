@@ -1,5 +1,8 @@
 source "https://rubygems.org"
 
+# TODO remove once this once load error is solved for activesupport 7
+# ...xml_mini.rb:184:in `current_thread_backend': uninitialized constant ActiveSupport::XmlMini::IsolatedExecutionState (NameError)
+gem 'activesupport', '< 7.0.0'
 
 if RUBY_VERSION < '2.5'
   gem 'dalli', '< 3.0.0'

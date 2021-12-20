@@ -167,7 +167,7 @@ end
 #
 def get_all_traces
   if AppOpticsAPM.loaded && ENV['APPOPTICS_REPORTER'] == 'file'
-    sleep 0.4
+    sleep 0.5
     AppOpticsAPM::Reporter.get_all_traces
   else
     []

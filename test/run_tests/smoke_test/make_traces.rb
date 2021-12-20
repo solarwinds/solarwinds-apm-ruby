@@ -101,8 +101,8 @@ end
 
 AppOpticsAPM::SDK.trace_method(ExampleModule,
                                :do_sum,
-                               { name: 'computation', backtrace: true },
-                               { CustomKey: "some_info"})
+                               config: { name: 'computation', backtrace: true },
+                               kvs: { CustomKey: "some_info"})
 
 AppOpticsAPM::SDK.start_trace("#{name}_method") do
   ExampleModule.do_sum(1, 2)

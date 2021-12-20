@@ -8,7 +8,7 @@ module AppOpticsAPM
     # Curl::Easy and Curl::Multi.  This CurlUtility module is used as a common module
     # to be shared among both modules.
     module CurlUtility
-      include AppOpticsAPM::TraceContextHeaders
+      include AppOpticsAPM::SDK::TraceContextHeaders
 
       private
       ##

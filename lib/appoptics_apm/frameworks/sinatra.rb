@@ -61,7 +61,7 @@ module AppOpticsAPM
           report_kvs[:engine] = engine
           report_kvs[:template] = data
 
-          AppOpticsAPM::SDK.trace(:sinatra_render, report_kvs, :sinatra_render) do
+          AppOpticsAPM::SDK.trace(:sinatra_render, kvs: report_kvs, protect_op: :sinatra_render) do
             report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:sinatra][:collect_backtraces]
             render_without_appoptics(engine, data, options, locals, &block)
           end

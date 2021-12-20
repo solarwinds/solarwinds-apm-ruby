@@ -38,7 +38,7 @@ unless defined?(JRUBY_VERSION)
     end
 
     it 'enqueue' do
-      AppOpticsAPM::SDK.start_trace('resque-client_test', {}) do
+      AppOpticsAPM::SDK.start_trace('resque-client_test') do
         Resque.enqueue(ResqueRemoteCallWorkerJob)
       end
 
@@ -58,7 +58,7 @@ unless defined?(JRUBY_VERSION)
     end
 
     it 'dequeue' do
-      AppOpticsAPM::SDK.start_trace('resque-client_test', {}) do
+      AppOpticsAPM::SDK.start_trace('resque-client_test') do
         Resque.dequeue(ResqueRemoteCallWorkerJob, { :generate => :moped })
       end
 

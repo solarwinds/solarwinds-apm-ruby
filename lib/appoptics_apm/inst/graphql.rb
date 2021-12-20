@@ -19,7 +19,7 @@ if defined?(GraphQL::Tracing) && !(AppOpticsAPM::Config[:graphql][:enabled] == f
       # AppOpticsTracing in the graphql gem may be a different version than the
       # one defined here, we want to use the newer one
       redefine = true
-      this_version = Gem::Version.new('1.0.0')
+      this_version = Gem::Version.new('1.1.0')
 
       if defined?(GraphQL::Tracing::AppOpticsTracing)
         if this_version > GraphQL::Tracing::AppOpticsTracing.version
@@ -28,6 +28,9 @@ if defined?(GraphQL::Tracing) && !(AppOpticsAPM::Config[:graphql][:enabled] == f
           redefine = false
         end
       end
+
+      # TODO remove redefine for rebranded nighthawk
+      #  there will be no code in the graphql gem for it
 
       if redefine
         #-----------------------------------------------------------------------------#
@@ -42,8 +45,9 @@ if defined?(GraphQL::Tracing) && !(AppOpticsAPM::Config[:graphql][:enabled] == f
           # with the version provided in the graphql gem, so that the newer
           # version of the class can be used
 
+          # TODO remove for rebranded nighthawk
           def self.version
-            Gem::Version.new('1.0.0')
+            Gem::Version.new('1.1.0')
           end
 
           self.platform_keys = {
@@ -66,14 +70,22 @@ if defined?(GraphQL::Tracing) && !(AppOpticsAPM::Config[:graphql][:enabled] == f
 
             transaction_name(kvs[:InboundQuery]) if kvs[:InboundQuery] && layer == 'graphql.execute'
 
-            ::AppOpticsAPM::SDK.trace(layer, kvs) do
+            ::AppOpticsAPM::SDK.trace(layer, kvs: kvs) do
               kvs.clear # we don't have to send them twice
               yield
             end
           end
 
           def platform_field_key(type, field)
-            "graphql.#{type.name}.#{field.name}"
+            "graphql.#{type.graphql_name}.#{field.name}"
+          end
+
+          def platform_authorized_key(type)
+            "graphql.#{type.graphql_name}.authorized"
+          end
+
+          def platform_resolve_type_key(type)
+            "graphql.#{type.graphql_name}.resolve_type"
           end
 
           private
@@ -112,20 +124,22 @@ if defined?(GraphQL::Tracing) && !(AppOpticsAPM::Config[:graphql][:enabled] == f
 
           # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
           def metadata(data, layer)
-            data.keys.map do |key|
+            kvs = data.keys.map do |key|
               case key
               when :context
-                graphql_context(data[key], layer)
+                graphql_context(data[:context], layer)
               when :query
-                graphql_query(data[key])
+                graphql_query(data[:query])
               when :query_string
-                graphql_query_string(data[key])
+                graphql_query_string(data[:query_string])
               when :multiplex
-                graphql_multiplex(data[key])
+                graphql_multiplex(data[:multiplex])
               else
-                [key, data[key]]
+                [key, data[key]] unless key == :path # we get the path from context
               end
-            end.flatten.each_slice(2).to_h.merge(Spec: 'graphql')
+            end
+
+            kvs.compact.flatten.each_slice(2).to_h.merge(Spec: 'graphql')
           end
           # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
@@ -166,7 +180,7 @@ if defined?(GraphQL::Tracing) && !(AppOpticsAPM::Config[:graphql][:enabled] == f
             return unless query
 
             # remove arguments
-            query.gsub(/"[^"]*"/, '"?"')                 # strings
+            query.gsub(/"[^"]*"/, '"?"')              # strings
               .gsub(/-?[0-9]*\.?[0-9]+e?[0-9]*/, '?') # ints + floats
               .gsub(/\[[^\]]*\]/, '[?]')              # arrays
           end

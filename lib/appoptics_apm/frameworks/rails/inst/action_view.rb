@@ -19,7 +19,7 @@ if defined?(ActionView::Base) && AppOpticsAPM::Config[:action_view][:enabled]
           rescue => e
             AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
           end
-          AppOpticsAPM::SDK.trace(:partial, entry_kvs) do
+          AppOpticsAPM::SDK.trace(:partial, kvs: entry_kvs) do
             entry_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:action_view][:collect_backtraces]
             render_partial_template_without_appoptics(*args)
           end
@@ -37,7 +37,7 @@ if defined?(ActionView::Base) && AppOpticsAPM::Config[:action_view][:enabled]
           rescue => e
             AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
           end
-          AppOpticsAPM::SDK.trace(:collection, entry_kvs) do
+          AppOpticsAPM::SDK.trace(:collection, kvs: entry_kvs) do
             entry_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:action_view][:collect_backtraces]
             render_collection_without_appoptics(*args)
           end
@@ -58,7 +58,7 @@ if defined?(ActionView::Base) && AppOpticsAPM::Config[:action_view][:enabled]
             AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
           end
 
-          AppOpticsAPM::SDK.trace('partial', entry_kvs) do
+          AppOpticsAPM::SDK.trace('partial', kvs: entry_kvs) do
             entry_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:action_view][:collect_backtraces]
             render_partial_without_appoptics(*args)
           end
@@ -74,7 +74,7 @@ if defined?(ActionView::Base) && AppOpticsAPM::Config[:action_view][:enabled]
             AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
           end
 
-          AppOpticsAPM::SDK.trace('collection', entry_kvs) do
+          AppOpticsAPM::SDK.trace('collection', kvs: entry_kvs) do
             entry_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:action_view][:collect_backtraces]
             render_collection_without_appoptics(*args)
           end

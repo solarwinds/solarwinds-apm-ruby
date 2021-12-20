@@ -7,23 +7,23 @@ module AppOpticsAPM
       module Utils
 
         def extract_trace_details(sql, name = nil, binds = [])
-          opts = {}
+          kvs = {}
 
           begin
             if AppOpticsAPM::Config[:sanitize_sql]
               # Sanitize SQL and don't report binds
-              opts[:Query] = AppOpticsAPM::Util.sanitize_sql(sql)
+              kvs[:Query] = AppOpticsAPM::Util.sanitize_sql(sql)
             else
               # Report raw SQL and any binds if they exist
-              opts[:Query] = sql.to_s
+              kvs[:Query] = sql.to_s
               if binds && !binds.empty?
-                opts[:QueryArgs] = binds.map(&:value)
+                kvs[:QueryArgs] = binds.map(&:value)
               end
             end
 
-            opts[:Name] = name.to_s if name
+            kvs[:Name] = name.to_s if name
             if AppOpticsAPM::Config[:active_record] && AppOpticsAPM::Config[:active_record][:collect_backtraces]
-              opts[:Backtrace] = AppOpticsAPM::API.backtrace
+              kvs[:Backtrace] = AppOpticsAPM::API.backtrace
             end
 
             if ActiveRecord::Base.method_defined?(:connection_db_config)
@@ -34,15 +34,15 @@ module AppOpticsAPM
             end
 
             if config
-              opts[:Database] = config[:database] if config.key?(:database)
-              opts[:RemoteHost] = config[:host] if config.key?(:host)
+              kvs[:Database] = config[:database] if config.key?(:database)
+              kvs[:RemoteHost] = config[:host] if config.key?(:host)
               adapter_name = config[:adapter]
 
               case adapter_name
               when /mysql/i
-                opts[:Flavor] = 'mysql'
+                kvs[:Flavor] = 'mysql'
               when /^postgres|^postgis/i
-                opts[:Flavor] = 'postgresql'
+                kvs[:Flavor] = 'postgresql'
               end
             end
           rescue StandardError => e
@@ -50,7 +50,7 @@ module AppOpticsAPM
             AppOpticsAPM.logger.debug e.backtrace.join('\n')
           end
 
-          opts
+          kvs
         end
 
         # We don't want to trace framework caches.  Only instrument SQL that
@@ -64,8 +64,8 @@ module AppOpticsAPM
         def exec_query_with_appoptics(sql, name = nil, binds = [], prepare: false)
           if AppOpticsAPM.tracing? && !AppOpticsAPM.tracing_layer_op?(:ar_started) && !ignore_payload?(name)
 
-            opts = extract_trace_details(sql, name, binds)
-            AppOpticsAPM::SDK.trace('activerecord', opts) do
+            kvs = extract_trace_details(sql, name, binds)
+            AppOpticsAPM::SDK.trace('activerecord', kvs: kvs) do
               exec_query_without_appoptics(sql, name, binds)
             end
           else
@@ -76,8 +76,8 @@ module AppOpticsAPM
         def exec_insert_with_appoptics(sql, name = nil, binds = [], *args)
           if AppOpticsAPM.tracing? && !ignore_payload?(name)
 
-            opts = extract_trace_details(sql, name, binds)
-            AppOpticsAPM::SDK.trace('activerecord', opts, :ar_started) do
+            kvs = extract_trace_details(sql, name, binds)
+            AppOpticsAPM::SDK.trace('activerecord', kvs: kvs, protect_op: :ar_started) do
               exec_insert_without_appoptics(sql, name, binds, *args)
             end
           else
@@ -88,8 +88,8 @@ module AppOpticsAPM
         def exec_delete_with_appoptics(sql, name = nil, binds = [])
           if AppOpticsAPM.tracing? && !ignore_payload?(name)
 
-            opts = extract_trace_details(sql, name, binds)
-            AppOpticsAPM::SDK.trace('activerecord', opts, :ar_started) do
+            kvs = extract_trace_details(sql, name, binds)
+            AppOpticsAPM::SDK.trace('activerecord', kvs: kvs, protect_op: :ar_started) do
               exec_delete_without_appoptics(sql, name, binds)
             end
           else
@@ -100,8 +100,8 @@ module AppOpticsAPM
         def exec_update_with_appoptics(sql, name = nil, binds = [])
           if AppOpticsAPM.tracing? && !ignore_payload?(name)
 
-            opts = extract_trace_details(sql, name, binds)
-            AppOpticsAPM::SDK.trace('activerecord', opts, :ar_started) do
+            kvs = extract_trace_details(sql, name, binds)
+            AppOpticsAPM::SDK.trace('activerecord', kvs: kvs, protect_op: :ar_started) do
               exec_update_without_appoptics(sql, name, binds)
             end
           else

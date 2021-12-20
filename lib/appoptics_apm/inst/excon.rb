@@ -4,7 +4,7 @@
 module AppOpticsAPM
   module Inst
     module ExconConnection
-      include AppOpticsAPM::TraceContextHeaders
+      include AppOpticsAPM::SDK::TraceContextHeaders
 
       private
 
@@ -50,7 +50,7 @@ module AppOpticsAPM
       def requests(pipeline_params)
         responses = nil
         kvs = appoptics_collect(pipeline_params)
-        AppOpticsAPM::SDK.trace(:excon, kvs) do
+        AppOpticsAPM::SDK.trace(:excon, kvs: kvs) do
           kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:excon][:collect_backtraces]
           responses = super(pipeline_params)
           kvs[:HTTPStatuses] = responses.map { |r| r.status }.join(',')

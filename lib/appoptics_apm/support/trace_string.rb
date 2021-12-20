@@ -70,8 +70,12 @@ module AppOpticsAPM
       end
 
       # !!! garbage in garbage out !!!
-      # method is only used in TraceContext, where span_id_flags get checked
+      # span_id_flag are not checked for validity
+      # method is only used in TraceContext, where span_id_flags arg
+      # is created and is either valid or nil
       def replace_span_id_flags(tracestring, span_id_flags)
+        return tracestring unless span_id_flags
+
         matches = REGEXP.match(tracestring)
 
         "#{matches[:version]}-#{matches[:trace_id]}-#{span_id_flags}"

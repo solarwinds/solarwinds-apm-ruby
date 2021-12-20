@@ -154,7 +154,7 @@ layer_name = 'subsystemX'
 report_kvs = {}
 report_kvs[:mykey] = @client.id
 
-AppOpticsAPM::SDK.trace(layer_name, report_kvs) do
+AppOpticsAPM::SDK.trace(layer_name, kvs: report_kvs) do
   # the block of code to be traced
 end
 ```
@@ -201,7 +201,7 @@ report_kvs = {}
 report_kvs[:command_line_params] = ARGV.to_s
 report_kvs[:user_id] = `whoami`
  
-AppOpticsAPM::SDK.start_trace('my_background_job', nil, report_kvs ) do
+AppOpticsAPM::SDK.start_trace('my_background_job', kvs: report_kvs) do
   #
   # Initialization code
   #
@@ -213,7 +213,7 @@ AppOpticsAPM::SDK.start_trace('my_background_job', nil, report_kvs ) do
     # work for each task.  In the traces dashboard this will show 
     # up as a large 'my_background_job' parent layer with many 
     # child 'task' layers.
-    AppOpticsAPM::SDK.trace('task', { :task_id => t.id }) do
+    AppOpticsAPM::SDK.trace('task', kvs: { :task_id => t.id }) do
       t.perform
     end
   end
@@ -305,7 +305,7 @@ module AppOpticsAPM
           opts[:KVOp] = op
           opts[:KVKey] = key
  
-          AppOpticsAPM::SDK.trace('memcache', opts || {}) do
+          AppOpticsAPM::SDK.trace('memcache', kvs: opts) do
             result = perform_without_appoptics(*all_args, &blk)
             if op == :get and key.class == String
                 AppOpticsAPM::API.log_info('memcache', { :KVHit => memcache_hit?(result) })

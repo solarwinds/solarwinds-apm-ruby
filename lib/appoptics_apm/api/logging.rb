@@ -31,7 +31,7 @@ module AppOpticsAPM
       #
       # * +layer+ - The layer the reported event belongs to
       # * +label+ - The label for the reported event. See SDK documentation for reserved labels and usage.
-      # * +opts+  - A hash containing key/value pairs that will be reported along with this event (optional).
+      # * +kvs+  - A hash containing key/value pairs that will be reported along with this event (optional).
       # * +event+ - An event to be used instead of generating a new one (see also start_trace_with_target)
       #
       # ==== Example
@@ -41,11 +41,11 @@ module AppOpticsAPM
       #   AppOpticsAPM::API.log('logical_layer', 'exit')
       #
       # Returns nothing.
-      def log(layer, label, opts = {}, event = nil)
+      def log(layer, label, kvs = {}, event = nil)
         return AppOpticsAPM::Context.toString unless AppOpticsAPM.tracing?
 
         event ||= AppOpticsAPM::Context.createEvent
-        log_event(layer, label, event, opts)
+        log_event(layer, label, event, kvs)
       end
 
       ##
@@ -55,7 +55,7 @@ module AppOpticsAPM
       #
       # * +layer+ - The layer the reported event belongs to
       # * +exception+ - The exception to report, responds to :message and :backtrace(optional)
-      # * +opts+ - Custom params if you want to log extra information
+      # * +kvs+ - Custom params if you want to log extra information
       #
       # ==== Example
       #
@@ -67,7 +67,7 @@ module AppOpticsAPM
       #   end
       #
       # Returns nothing.
-      def log_exception(layer, exception, opts = {})
+      def log_exception(layer, exception, kvs = {})
         return AppOpticsAPM::Context.toString if !AppOpticsAPM.tracing? || exception.instance_variable_get(:@exn_logged)
 
         unless exception
@@ -76,16 +76,16 @@ module AppOpticsAPM
         end
 
         exception.message << exception.class.name if exception.message.length < 4
-        opts.merge!(:Spec => 'error',
+        kvs.merge!(:Spec => 'error',
                     :ErrorClass => exception.class.name,
                     :ErrorMsg => exception.message)
 
         if exception.respond_to?(:backtrace) && exception.backtrace
-          opts.merge!(:Backtrace => exception.backtrace.join("\r\n"))
+          kvs.merge!(:Backtrace => exception.backtrace.join("\r\n"))
         end
 
         exception.instance_variable_set(:@exn_logged, true)
-        log(layer, :error, opts)
+        log(layer, :error, kvs)
       end
 
       ##
@@ -96,8 +96,10 @@ module AppOpticsAPM
       # ==== Arguments
       #
       # * +layer+ - The layer the reported event belongs to
-      # * +opts+ - A hash containing key/value pairs that will be reported along with this event (optional).
+      # * +kvs+ - A hash containing key/value pairs that will be reported along with this event (optional).
+      # * +headers+ - the request headers, they may contain w3c trace_context data
       # * +settings+ - An instance of TransactionSettings
+      # * +url+ - String of the current url, it may be configured to be excluded from tracing
       #
       # ==== Example
       #
@@ -105,26 +107,26 @@ module AppOpticsAPM
       #
       # Returns a metadata string if we are tracing
       #
-      def log_start(layer, opts = {}, settings = nil)
+      def log_start(layer, kvs = {}, headers = {}, settings = nil, url = nil)
         return unless AppOpticsAPM.loaded
 
         # check if tracing decision is already in effect and a Context created
-        return log_entry(layer, opts) if AppOpticsAPM::Context.isValid
+        return log_entry(layer, kvs) if AppOpticsAPM::Context.isValid
 
         # This is a bit ugly, but here is the best place to reset the layer_op thread local var.
         AppOpticsAPM.layer_op = nil
 
-        tracestring = AppOpticsAPM.trace_context&.tracestring
-        sw_member_value = AppOpticsAPM.trace_context&.sw_member_value
-        settings ||= AppOpticsAPM::TransactionSettings.new(nil, tracestring, sw_member_value)
+        settings ||= AppOpticsAPM::TransactionSettings.new(url, headers)
+        AppOpticsAPM.trace_context.add_kvs(kvs)
+        tracestring = AppOpticsAPM.trace_context.tracestring
 
         if settings.do_sample
-          opts[:SampleRate]        = settings.rate
-          opts[:SampleSource]      = settings.source
+          kvs[:SampleRate]        = settings.rate
+          kvs[:SampleSource]      = settings.source
 
           AppOpticsAPM::TraceString.set_sampled(tracestring) if tracestring
           event = create_start_event(tracestring)
-          log_event(layer, :entry, event, opts)
+          log_event(layer, :entry, event, kvs)
         else
           create_nontracing_context(tracestring)
           AppOpticsAPM::Context.toString
@@ -137,7 +139,7 @@ module AppOpticsAPM
       # ==== Arguments
       #
       # * +layer+ - The layer the reported event belongs to
-      # * +opts+ - A hash containing key/value pairs that will be reported along with this event (optional).
+      # * +kvs+ - A hash containing key/value pairs that will be reported along with this event (optional).
       #
       # ==== Example
       #
@@ -145,11 +147,11 @@ module AppOpticsAPM
       #
       # Returns a metadata string if we are tracing
       #
-      def log_end(layer, opts = {}, event = nil)
+      def log_end(layer, kvs = {}, event = nil)
         return AppOpticsAPM::Context.toString unless AppOpticsAPM.tracing?
 
         event ||= AppOpticsAPM::Context.createEvent
-        log_event(layer, :exit, event, opts)
+        log_event(layer, :exit, event, kvs)
       ensure
         # FIXME has_incoming_context commented out, it has importance for JRuby only but breaks Ruby tests
         AppOpticsAPM::Context.clear # unless AppOpticsAPM.has_incoming_context?
@@ -165,7 +167,7 @@ module AppOpticsAPM
       # ==== Arguments
       #
       # * +layer+ - The layer the reported event belongs to
-      # * +opts+ - A hash containing key/value pairs that will be reported along with this event (optional).
+      # * +kvs+ - A hash containing key/value pairs that will be reported along with this event (optional).
       # * +op+ - To identify the current operation being traced.  Used to avoid double tracing recursive calls.
       #
       # ==== Example
@@ -174,7 +176,7 @@ module AppOpticsAPM
       #
       # Returns a metadata string
       #
-      def log_entry(layer, opts = {}, op = nil)
+      def log_entry(layer, kvs = {}, op = nil)
         return AppOpticsAPM::Context.toString unless AppOpticsAPM.tracing?
 
         if op
@@ -185,7 +187,7 @@ module AppOpticsAPM
         end
 
         event ||= AppOpticsAPM::Context.createEvent
-        log_event(layer, :entry, event, opts)
+        log_event(layer, :entry, event, kvs)
       end
 
       ##
@@ -196,7 +198,7 @@ module AppOpticsAPM
       # ==== Arguments
       #
       # * +layer+ - The layer the reported event belongs to
-      # * +opts+ - A hash containing key/value pairs that will be reported along with this event (optional).
+      # * +kvs+ - A hash containing key/value pairs that will be reported along with this event (optional).
       #
       # ==== Example
       #
@@ -204,11 +206,11 @@ module AppOpticsAPM
       #
       # Returns a metadata string if we are tracing
       #
-      def log_info(layer, opts = {})
+      def log_info(layer, kvs = {})
         return AppOpticsAPM::Context.toString unless AppOpticsAPM.tracing?
 
-        opts[:Spec] = 'info'
-        log_event(layer, :info, AppOpticsAPM::Context.createEvent, opts)
+        kvs[:Spec] = 'info'
+        log_event(layer, :info, AppOpticsAPM::Context.createEvent, kvs)
       end
 
       ##
@@ -219,7 +221,7 @@ module AppOpticsAPM
       # ==== Arguments
       #
       # * +layer+ - The layer the reported event belongs to
-      # * +opts+  - A hash containing key/value pairs that will be reported along with this event (optional).
+      # * +kvs+  - A hash containing key/value pairs that will be reported along with this event (optional).
       # * +op+    - Used to avoid double tracing recursive calls, needs to be the same in +log_exit+ that corresponds to a
       #   +log_entry+
       #
@@ -228,7 +230,7 @@ module AppOpticsAPM
       #   AppOpticsAPM::API.log_exit(:layer_name, { :id => @user.id })
       #
       # Returns a metadata string  if we are tracing
-      def log_exit(layer, opts = {}, op = nil)
+      def log_exit(layer, kvs = {}, op = nil)
         return AppOpticsAPM::Context.toString unless AppOpticsAPM.tracing?
 
         if op
@@ -241,7 +243,7 @@ module AppOpticsAPM
           return AppOpticsAPM::Context.toString if AppOpticsAPM.layer_op&.last == op.to_sym
         end
 
-        log_event(layer, :exit, AppOpticsAPM::Context.createEvent, opts)
+        log_event(layer, :exit, AppOpticsAPM::Context.createEvent, kvs)
       end
 
       ##
@@ -251,15 +253,15 @@ module AppOpticsAPM
       # ==== Arguments
       #
       # * +layer+ - The layer the reported event belongs to
-      # * +opts+ - A hash containing key/value pairs that will be reported along with this event
-      def log_init(layer = :rack, opts = {})
+      # * +kvs+ - A hash containing key/value pairs that will be reported along with this event
+      def log_init(layer = :rack, kvs = {})
         context = AppOpticsAPM::Metadata.makeRandom
         return AppOpticsAPM::Context.toString unless context.isValid
 
         event = context.createEvent
         event.addInfo(APPOPTICS_STR_LAYER, layer.to_s)
         event.addInfo(APPOPTICS_STR_LABEL, 'single')
-        opts.each do |k, v|
+        kvs.each do |k, v|
           event.addInfo(k, v.to_s)
         end
 
@@ -279,7 +281,7 @@ module AppOpticsAPM
       # * +layer+ - The layer the reported event belongs to
       # * +label+ - The label for the reported event.  See API documentation for reserved labels and usage.
       # * +event+ - The pre-existing AppOpticsAPM context event.  See AppOpticsAPM::Context.createEvent
-      # * +opts+ - A hash containing key/value pairs that will be reported along with this event (optional).
+      # * +kvs+ - A hash containing key/value pairs that will be reported along with this event (optional).
       #
       # ==== Example
       #
@@ -290,14 +292,14 @@ module AppOpticsAPM
       #   exit_event.addEdge(entry.getMetadata)
       #   AppOpticsAPM::API.log_event(:layer_name, 'exit',  exit_event, { :id => @user.id })
       #
-      def log_event(layer, label, event, opts = {})
+      def log_event(layer, label, event, kvs = {})
         event.addInfo(APPOPTICS_STR_LAYER, layer.to_s.freeze) if layer
         event.addInfo(APPOPTICS_STR_LABEL, label.to_s.freeze)
 
         AppOpticsAPM.layer = layer.to_sym if label == :entry
         AppOpticsAPM.layer = nil          if label == :exit
 
-        opts.each do |k, v|
+        kvs.each do |k, v|
           value = nil
 
           next unless valid_key? k
@@ -316,7 +318,7 @@ module AppOpticsAPM
             AppOpticsAPM.logger.debug "[appoptics_apm/debug] Couldn't add event KV: #{k} => #{v.class}"
             AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{e.message}"
           end
-        end if !opts.nil? && opts.any?
+        end if !kvs.nil? && kvs.any?
 
         AppOpticsAPM::Reporter.sendReport(event)
         AppOpticsAPM::Context.toString
