@@ -8,7 +8,7 @@ module AppOpticsAPM
     attr_reader :traceparent, :tracestate, :tracestring, :sw_member_value
 
     def initialize(headers = {})
-      return if headers.empty?
+      return if headers.nil? || headers.empty?
 
       # we won't propagate this context if the traceparent is invalid
       traceparent, tracestate = ingest(headers)
