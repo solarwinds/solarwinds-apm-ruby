@@ -18,31 +18,31 @@ describe 'XTraceOptionsTest' do
       _(options.custom_kvs).must_be_empty
       _(options.ignored).must_be_instance_of Array
       _(options.ignored).must_be_empty
-      _(options.pd_keys).must_be_nil
+      _(options.sw_keys).must_be_nil
     end
 
     it 'processes a correctly formatted string' do
       headers =
-        'trigger-trace;custom-something=value_thing; custom-OtherThing=other val;pd-keys=029734wr70:9wqj21,0d9j1'
+        'trigger-trace;custom-something=value_thing; custom-OtherThing=other val;sw-keys=029734wr70:9wqj21,0d9j1'
 
       options = AppOpticsAPM::XTraceOptions.new(headers)
 
       _(options.trigger_trace).must_equal true
       _(options.custom_kvs['custom-OtherThing']).must_equal 'other val'
       _(options.custom_kvs['custom-something']).must_equal 'value_thing'
-      _(options.pd_keys).must_equal '029734wr70:9wqj21,0d9j1'
+      _(options.sw_keys).must_equal '029734wr70:9wqj21,0d9j1'
     end
 
     it 'removes leading/trailing spaces' do
       headers =
-        'custom-something=value; custom-OtherThing = other val ;pd-keys=029734wr70:9wqj21,0d9j1'
+        'custom-something=value; custom-OtherThing = other val ;sw-keys=029734wr70:9wqj21,0d9j1'
 
       options = AppOpticsAPM::XTraceOptions.new(headers)
 
       _(options.trigger_trace).must_equal false
       _(options.custom_kvs['custom-OtherThing']).must_equal 'other val'
       _(options.custom_kvs['custom-something']).must_equal 'value'
-      _(options.pd_keys).must_equal '029734wr70:9wqj21,0d9j1'
+      _(options.sw_keys).must_equal '029734wr70:9wqj21,0d9j1'
     end
 
     it 'reports and logs ignored options' do
@@ -71,15 +71,15 @@ describe 'XTraceOptionsTest' do
     it 'keeps the value of the first repeated key' do
       headers = %w(trigger-trace
                    custom-something=keep_this_otherval
-                   pd-keys=keep_this
-                   pd-keys=029734wr70:9wqj21,0d9j1
+                   sw-keys=keep_this
+                   sw-keys=029734wr70:9wqj21,0d9j1
                    custom-something=otherval).join(';')
 
       AppOpticsAPM.logger.expects(:info).twice
 
       options = AppOpticsAPM::XTraceOptions.new(headers)
 
-      _(options.pd_keys).must_equal 'keep_this'
+      _(options.sw_keys).must_equal 'keep_this'
       _(options.custom_kvs['custom-something']).must_equal 'keep_this_otherval'
     end
 
@@ -106,37 +106,37 @@ describe 'XTraceOptionsTest' do
     it 'does its best with a badly formatted header with empty key' do
       headers = %w(;trigger-trace
                    custom-something=value_thing).join(';')
-      headers << ';pd-keys=029734wr70:9wqj21,0d9j1;1;;;2;3;4;5;=abc=and_now?;='
+      headers << ';sw-keys=029734wr70:9wqj21,0d9j1;1;;;2;3;4;5;=abc=and_now?;='
 
       AppOpticsAPM.logger.expects(:info).once
 
       options = AppOpticsAPM::XTraceOptions.new(headers)
 
       _(options.trigger_trace).must_equal true
-      _(options.pd_keys).must_equal '029734wr70:9wqj21,0d9j1'
+      _(options.sw_keys).must_equal '029734wr70:9wqj21,0d9j1'
       _(options.custom_kvs['custom-something']).must_equal 'value_thing'
       _(options.ignored.sort).must_equal ["1", "2", "3", "4", "5", "", ""].sort
     end
 
     it 'ignores sequential ";;;"' do
-      headers = 'custom-something=value_thing;pd-keys=02973r70;;;;custom-key=val'
+      headers = 'custom-something=value_thing;sw-keys=02973r70;;;;custom-key=val'
 
       options = AppOpticsAPM::XTraceOptions.new(headers)
 
       _(options.custom_kvs['custom-something']).must_equal 'value_thing'
       _(options.custom_kvs['custom-key']).must_equal 'val'
-      _(options.pd_keys).must_equal '02973r70'
+      _(options.sw_keys).must_equal '02973r70'
     end
 
     it 'doesn\'t allow spaces in keys' do
-      headers = 'trigger-trace;custom- something=value_thing;pd-keys=02973r70;;;;custom-k ey=val;custom-goodkey=good'
+      headers = 'trigger-trace;custom- something=value_thing;sw-keys=02973r70;;;;custom-k ey=val;custom-goodkey=good'
 
       AppOpticsAPM.logger.expects(:info).once
 
       options = AppOpticsAPM::XTraceOptions.new(headers)
 
       _(options.custom_kvs['custom-goodkey']).must_equal 'good'
-      _(options.pd_keys).must_equal '02973r70'
+      _(options.sw_keys).must_equal '02973r70'
       _(options.ignored.sort).must_equal ["custom- something", "custom-k ey"].sort
     end
   end

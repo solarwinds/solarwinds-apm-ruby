@@ -5,7 +5,7 @@ module AppOpticsAPM
   class XTraceOptions
 
     attr_reader :options, :signature, :trigger_trace, :timestamp
-    attr_reader :pd_keys, :custom_kvs, :ignored # used in tests
+    attr_reader :sw_keys, :custom_kvs, :ignored # used in tests
     
     ##
     # use by Trigger Tracing
@@ -38,7 +38,7 @@ module AppOpticsAPM
       @signature = signature.dup
       @trigger_trace = false
       @custom_kvs = {}
-      @pd_keys = nil
+      @sw_keys = nil
       @ignored = []
       @timestamp = 0
 
@@ -55,11 +55,11 @@ module AppOpticsAPM
           else
             @trigger_trace = true
           end
-        when 'pd-keys'
-          if @pd_keys
+        when 'sw-keys'
+          if @sw_keys
             AppOpticsAPM.logger.info "[appoptics_apm/x-trace-options] Duplicate key: #{k[0]}"
           else
-            @pd_keys = k[1].strip
+            @sw_keys = k[1].strip
           end
         when /^custom-[^\s]*$/
           if @custom_kvs[k[0]]
@@ -87,7 +87,7 @@ module AppOpticsAPM
       return unless settings.auth_ok?
 
       @custom_kvs.each { |k,v| kvs[k] = v } unless @custom_kvs.empty?
-      kvs['PDKeys'] = @pd_keys if @pd_keys
+      kvs['SWKeys'] = @sw_keys if @sw_keys
       kvs['TriggeredTrace'] = true if settings.triggered_trace?
     end
 

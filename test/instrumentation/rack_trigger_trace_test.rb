@@ -120,8 +120,8 @@ describe "Rack Trigger Tracing " do
       end
     end
 
-    it 'triggers a trace and reports PDKeys' do
-      req_headers = { 'HTTP_X_TRACE_OPTIONS' => 'trigger-trace;pd-keys=lo:se,check-id:123' }
+    it 'triggers a trace and reports SWKeys' do
+      req_headers = { 'HTTP_X_TRACE_OPTIONS' => 'trigger-trace;sw-keys=lo:se,check-id:123' }
 
       _, res_headers, _ = @rack.call(req_headers)
 
@@ -131,12 +131,12 @@ describe "Rack Trigger Tracing " do
       if ENV['APPOPTICS_REPORTER'] =='file'
         refute traces.empty?
         assert_equal 'true', traces[0]['TriggeredTrace']
-        assert_equal 'lo:se,check-id:123', traces[0]['PDKeys']
+        assert_equal 'lo:se,check-id:123', traces[0]['SWKeys']
       end
     end
 
     it 'triggers a trace and reports and ignores kvs' do
-      req_headers = { 'HTTP_X_TRACE_OPTIONS' => 'trigger-trace;pd-keys=lo:se,check-id:123;custom-foo=bar;not-valid-option=no-foo' }
+      req_headers = { 'HTTP_X_TRACE_OPTIONS' => 'trigger-trace;sw-keys=lo:se,check-id:123;custom-foo=bar;not-valid-option=no-foo' }
 
       _, res_headers, _ = @rack.call(req_headers)
 
@@ -146,7 +146,7 @@ describe "Rack Trigger Tracing " do
       if ENV['APPOPTICS_REPORTER'] =='file'
         refute traces.empty?
         assert_equal 'true', traces[0]['TriggeredTrace']
-        assert_equal 'lo:se,check-id:123', traces[0]['PDKeys']
+        assert_equal 'lo:se,check-id:123', traces[0]['SWKeys']
         assert_equal 'bar', traces[0]['custom-foo']
       end
     end
@@ -189,7 +189,7 @@ describe "Rack Trigger Tracing " do
     end
 
     it 'triggers a trace and reports and ignores kvs' do
-      options = "trigger-trace;pd-keys=lo:se,check-id:123;custom-foo=bar;not-valid-option=no-foo;ts=#{Time.now.to_i}"
+      options = "trigger-trace;sw-keys=lo:se,check-id:123;custom-foo=bar;not-valid-option=no-foo;ts=#{Time.now.to_i}"
       signature = create_signature(options)
       req_headers = { 'HTTP_X_TRACE_OPTIONS' => options,
                       'HTTP_X_TRACE_OPTIONS_SIGNATURE' => signature
@@ -205,7 +205,7 @@ describe "Rack Trigger Tracing " do
       if ENV['APPOPTICS_REPORTER'] =='file'
         refute traces.empty?
         assert_equal 'true', traces[0]['TriggeredTrace']
-        assert_equal 'lo:se,check-id:123', traces[0]['PDKeys']
+        assert_equal 'lo:se,check-id:123', traces[0]['SWKeys']
         assert_equal 'bar', traces[0]['custom-foo']
       end
     end
@@ -242,7 +242,7 @@ describe "Rack Trigger Tracing " do
     end
 
     it 'bad timestamp with complex options header' do
-      options = "trigger-trace;pd-keys=lo:se,check-id:123;custom-foo=bar;not-valid-option=no-foo;ts=12345"
+      options = "trigger-trace;sw-keys=lo:se,check-id:123;custom-foo=bar;not-valid-option=no-foo;ts=12345"
       signature = create_signature(options)
       req_headers = { 'HTTP_X_TRACE_OPTIONS' => options,
                       'HTTP_X_TRACE_OPTIONS_SIGNATURE' => signature
@@ -316,7 +316,7 @@ describe "Rack Trigger Tracing " do
 
   describe 'not requested' do
     it 'adds response and kvs to normal trace' do
-      req_headers = { 'HTTP_X_TRACE_OPTIONS' => 'pd-keys=lo:se,check-id:123;custom-foo=bar' }
+      req_headers = { 'HTTP_X_TRACE_OPTIONS' => 'sw-keys=lo:se,check-id:123;custom-foo=bar' }
 
       _, res_headers, _ = @rack.call(req_headers)
 
@@ -327,12 +327,12 @@ describe "Rack Trigger Tracing " do
         refute traces.empty?
 
         assert_equal 'bar', traces[0]['custom-foo']
-        assert_equal 'lo:se,check-id:123', traces[0]['PDKeys']
+        assert_equal 'lo:se,check-id:123', traces[0]['SWKeys']
       end
     end
 
     it 'adds ignored trigger-trace key' do
-      req_headers = { 'HTTP_X_TRACE_OPTIONS' => 'trigger-trace=1;pd-keys=lo:se,check-id:123;custom-foo=bar' }
+      req_headers = { 'HTTP_X_TRACE_OPTIONS' => 'trigger-trace=1;sw-keys=lo:se,check-id:123;custom-foo=bar' }
 
       _, res_headers, _ = @rack.call(req_headers)
 
@@ -344,7 +344,7 @@ describe "Rack Trigger Tracing " do
         refute traces.empty?, "There should be traces"
 
         assert_equal 'bar', traces[0]['custom-foo']
-        assert_equal 'lo:se,check-id:123', traces[0]['PDKeys']
+        assert_equal 'lo:se,check-id:123', traces[0]['SWKeys']
       end
     end
 
@@ -402,7 +402,7 @@ describe "Rack Trigger Tracing " do
 
   describe 'incoming traceparent' do
     it 'trigger-trace and sampling x-trace' do
-      req_headers = { 'HTTP_X_TRACE_OPTIONS' => 'trigger-trace;pd-keys=lo:se,check-id:123;custom-foo=bar;bad-key',
+      req_headers = { 'HTTP_X_TRACE_OPTIONS' => 'trigger-trace;sw-keys=lo:se,check-id:123;custom-foo=bar;bad-key',
                       'HTTP_TRACEPARENT' => '00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-01',
                       'HTTP_TRACESTATE' => 'sw=49e60702469db05f-01' }
 
@@ -414,13 +414,13 @@ describe "Rack Trigger Tracing " do
       traces = get_all_traces
       if ENV['APPOPTICS_REPORTER'] =='file'
         refute traces.empty?, "There should be traces"
-        assert_equal 'lo:se,check-id:123', traces[0]['PDKeys']
+        assert_equal 'lo:se,check-id:123', traces[0]['SWKeys']
         assert_equal 'bar', traces[0]['custom-foo']
       end
     end
 
     it 'no trigger-trace and sampling x-trace' do
-      req_headers = { 'HTTP_X_TRACE_OPTIONS' => 'pd-keys=lo:se,check-id:123;custom-foo=bar;bad-key',
+      req_headers = { 'HTTP_X_TRACE_OPTIONS' => 'sw-keys=lo:se,check-id:123;custom-foo=bar;bad-key',
                       'HTTP_TRACEPARENT' => '00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-01',
                       'HTTP_TRACESTATE' => 'sw=49e60702469db05f-01' }
 
@@ -432,13 +432,13 @@ describe "Rack Trigger Tracing " do
       traces = get_all_traces
       if ENV['APPOPTICS_REPORTER'] =='file'
         refute traces.empty?, "There should be traces"
-        assert_equal 'lo:se,check-id:123', traces[0]['PDKeys']
+        assert_equal 'lo:se,check-id:123', traces[0]['SWKeys']
         assert_equal 'bar', traces[0]['custom-foo']
       end
     end
 
     it 'trigger-trace and non-sampling x-trace' do
-      req_headers = { 'HTTP_X_TRACE_OPTIONS' => 'trigger-trace;pd-keys=lo:se,check-id:123;custom-foo=bar;bad-key',
+      req_headers = { 'HTTP_X_TRACE_OPTIONS' => 'trigger-trace;sw-keys=lo:se,check-id:123;custom-foo=bar;bad-key',
                       'HTTP_TRACEPARENT' => '00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-00',
                       'HTTP_TRACESTATE' => 'sw=49e60702469db05f-00' }
 
@@ -452,7 +452,7 @@ describe "Rack Trigger Tracing " do
     end
 
     it 'trigger-trace and invalid x-trace' do
-      req_headers = { 'HTTP_X_TRACE_OPTIONS' => 'trigger-trace;pd-keys=lo:se,check-id:123;custom-foo=bar;bad-key',
+      req_headers = { 'HTTP_X_TRACE_OPTIONS' => 'trigger-trace;sw-keys=lo:se,check-id:123;custom-foo=bar;bad-key',
                       'HTTP_TRACEPARENT' => '00-7435a9fe510ae4f4e18-49e60702469db05f-00',
                       'HTTP_TRACESTATE' => 'sw=49e60702469db05f-00' }
 
@@ -464,13 +464,13 @@ describe "Rack Trigger Tracing " do
       traces = get_all_traces
       if ENV['APPOPTICS_REPORTER'] =='file'
         refute traces.empty?, "There should be traces"
-        assert_equal 'lo:se,check-id:123', traces[0]['PDKeys']
+        assert_equal 'lo:se,check-id:123', traces[0]['SWKeys']
         assert_equal 'bar', traces[0]['custom-foo']
       end
     end
 
     it 'TODO no trigger-trace and non-sampling x-trace' do
-      req_headers = { 'HTTP_X_TRACE_OPTIONS' => 'pd-keys=lo:se,check-id:123;custom-foo=bar;bad-key',
+      req_headers = { 'HTTP_X_TRACE_OPTIONS' => 'sw-keys=lo:se,check-id:123;custom-foo=bar;bad-key',
                       'HTTP_TRACEPARENT' => '00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-00',
                       'HTTP_TRACESTATE' => 'sw=49e60702469db05f-00' }
 
@@ -488,7 +488,7 @@ describe "Rack Trigger Tracing " do
   describe 'crazy loop' do
     it 'receives a different signature' do
       skip # this is a setup to test changing collector settings on the fly
-      options = "trigger-trace;pd-keys=lo:se,check-id:123;custom-foo=bar;ts=#{Time.now.to_i}"
+      options = "trigger-trace;sw-keys=lo:se,check-id:123;custom-foo=bar;ts=#{Time.now.to_i}"
       signature = create_signature(options)
       req_headers = { 'HTTP_X_TRACE_OPTIONS' => options,
                       'HTTP_X_TRACE_OPTIONS_SIGNATURE' => signature
