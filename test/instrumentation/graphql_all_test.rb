@@ -138,9 +138,9 @@ describe GraphQL::Tracing::AppOpticsTracing do
 
     keys = GraphQL::Tracing::AppOpticsTracing::PREP_KEYS.dup
     traces.each do |tr|
-      if tr[:Layer] == 'graphql.prep' && tr[:Label] == 'entry'
-        assert tr[:Key], 'failure: no :Key in the KVs in the graphql.prep span'
-        keys = keys.delete(tr[:Key])
+      if tr['Layer'] == 'graphql.prep' && tr['Label'] == 'entry'
+        assert tr['Key'], 'failure: no "Key" in the KVs in the graphql.prep span'
+        keys = keys.delete(tr['Key'])
       end
     end
     # The following applies that all the prep events are used
@@ -149,12 +149,12 @@ describe GraphQL::Tracing::AppOpticsTracing do
     assert_empty keys
 
     tr_01 = traces[1]
-    assert_equal "graphql.prep", tr_01[:Layer]
-    assert_equal "entry", tr_01[:Label]
-    assert_equal "graphql", tr_01[:Spec]
-    assert_equal "query MyInt { int }", tr_01[:InboundQuery], "failure: InboundQuery not matching"
+    assert_equal "graphql.prep", tr_01['Layer']
+    assert_equal "entry", tr_01['Label']
+    assert_equal "graphql", tr_01['Spec']
+    assert_equal "query MyInt { int }", tr_01['InboundQuery'], "failure: InboundQuery not matching"
 
-    assert_equal "graphql.query.MyInt", traces.last[:TransactionName], "failure: TransactionName not matching"
+    assert_equal "graphql.query.MyInt", traces.last['TransactionName'], "failure: TransactionName not matching"
   end
 
 # rubocop:disable Lint/AmbiguousBlockAssociation
@@ -177,13 +177,13 @@ describe GraphQL::Tracing::AppOpticsTracing do
     traces = get_all_traces
     assert valid_edges?(traces, true), 'failed: edges not valid'
 
-    assert traces.find { |tr| tr[:InboundQuery] == query.gsub(/abc/, '?') }
-    assert traces.find { |tr| tr[:Layer] == 'graphql.MyQuery.company' && tr[:Label] == 'entry' }
-    assert traces.find { |tr| tr[:Layer] == 'graphql.MyQuery.company' && tr[:Label] == 'exit' }
-    assert traces.find { |tr| tr[:Layer] == 'graphql.Company.founder' && tr[:Label] == 'entry' }
-    assert traces.find { |tr| tr[:Layer] == 'graphql.Company.founder' && tr[:Label] == 'exit' }
-    assert traces.find { |tr| tr[:Layer] == 'graphql.Company.owner' && tr[:Label] == 'entry' }
-    assert traces.find { |tr| tr[:Layer] == 'graphql.Company.owner' && tr[:Label] == 'exit' }
+    assert traces.find { |tr| tr['InboundQuery'] == query.gsub(/abc/, '?') }
+    assert traces.find { |tr| tr['Layer'] == 'graphql.MyQuery.company' && tr['Label'] == 'entry' }
+    assert traces.find { |tr| tr['Layer'] == 'graphql.MyQuery.company' && tr['Label'] == 'exit' }
+    assert traces.find { |tr| tr['Layer'] == 'graphql.Company.founder' && tr['Label'] == 'entry' }
+    assert traces.find { |tr| tr['Layer'] == 'graphql.Company.founder' && tr['Label'] == 'exit' }
+    assert traces.find { |tr| tr['Layer'] == 'graphql.Company.owner' && tr['Label'] == 'entry' }
+    assert traces.find { |tr| tr['Layer'] == 'graphql.Company.owner' && tr['Label'] == 'exit' }
   end
 
   it 'traces a mutation' do
@@ -201,8 +201,8 @@ describe GraphQL::Tracing::AppOpticsTracing do
     traces = get_all_traces
     assert valid_edges?(traces, true), 'failed: edges not valid'
 
-    assert traces.find { |tr| tr[:Layer] == 'graphql.MyMutation.createCompany' && tr[:Label] == 'entry' }
-    assert traces.find { |tr| tr[:Layer] == 'graphql.MyMutation.createCompany' && tr[:Label] == 'exit' }
+    assert traces.find { |tr| tr['Layer'] == 'graphql.MyMutation.createCompany' && tr['Label'] == 'entry' }
+    assert traces.find { |tr| tr['Layer'] == 'graphql.MyMutation.createCompany' && tr['Label'] == 'exit' }
   end
 # rubocop:enable Lint/AmbiguousBlockAssociation
 
@@ -225,7 +225,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
     traces = get_all_traces
     assert valid_edges?(traces, true), 'failed: edges not valid'
 
-    error_tr = traces.find { |tr| tr[:Label] == 'error' && tr[:ErrorMsg] }
+    error_tr = traces.find { |tr| tr['Label'] == 'error' && tr['ErrorMsg'] }
 
     assert error_tr, 'failed: No Error event was logged with the trace'
   end
@@ -251,9 +251,9 @@ describe GraphQL::Tracing::AppOpticsTracing do
 
         traces = get_all_traces
         traces.each do |tr|
-          if tr[:InboundQuery]
-            refute_match 'abc', tr[:InboundQuery]
-            refute_match 'yes please', tr[:InboundQuery]
+          if tr['InboundQuery']
+            refute_match 'abc', tr['InboundQuery']
+            refute_match 'yes please', tr['InboundQuery']
           end
         end
       end
@@ -267,9 +267,9 @@ describe GraphQL::Tracing::AppOpticsTracing do
 
         traces = get_all_traces
         traces.each do |tr|
-          if tr[:InboundQuery]
-            assert_match 'abc', tr[:InboundQuery]
-            assert_match 'yes please', tr[:InboundQuery]
+          if tr['InboundQuery']
+            assert_match 'abc', tr['InboundQuery']
+            assert_match 'yes please', tr['InboundQuery']
           end
         end
       end
@@ -283,7 +283,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
 
         traces = get_all_traces
         traces.each do |tr|
-          refute_match '#', tr[:InboundQuery] if tr[:InboundQuery]
+          refute_match '#', tr['InboundQuery'] if tr['InboundQuery']
         end
       end
     end
@@ -296,7 +296,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
 
         traces = get_all_traces
         traces.each do |tr|
-          assert_match '#', tr[:InboundQuery] if tr[:InboundQuery]
+          assert_match '#', tr['InboundQuery'] if tr['InboundQuery']
         end
       end
     end
@@ -308,7 +308,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
       end
 
       trace = get_all_traces.last
-      assert_equal "graphql.query.MyLetQuery", trace[:TransactionName]
+      assert_equal "graphql.query.MyLetQuery", trace['TransactionName']
     end
 
     it 'does not set a graphql transaction name if transaction_name is FALSE' do
@@ -318,7 +318,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
       end
 
       trace = get_all_traces.last
-      assert_equal "custom-graphql_test", trace[:TransactionName]
+      assert_equal "custom-graphql_test", trace['TransactionName']
     end
 
     it 'sets the type in the transaction name to query if it was omitted' do
@@ -328,7 +328,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
         AppOpticsTest::MySchema.execute(query_short)
       end
       trace = get_all_traces.last
-      assert_equal "graphql.query.company", trace[:TransactionName]
+      assert_equal "graphql.query.company", trace['TransactionName']
     end
 
     it 'does not create traces if graphql is not enabled' do
@@ -376,11 +376,11 @@ describe GraphQL::Tracing::AppOpticsTracing do
 
       traces = get_all_traces
 
-      exec_trace = traces.find { |tr| tr[:Layer] == 'graphql.execute' && tr[:Operations] }
+      exec_trace = traces.find { |tr| tr['Layer'] == 'graphql.execute' && tr['Operations'] }
       assert_equal 'MyFirstCompany, MySecondCompany, MyThirdCompany',
-                   exec_trace[:Operations]
+                   exec_trace['Operations']
       assert_equal 'graphql.multiplex.MyFirstCompany.MySecondCompany.MyThirdCompany',
-                   traces.last[:TransactionName]
+                   traces.last['TransactionName']
     end
 
     it 'truncates long transaction names' do
@@ -417,33 +417,33 @@ describe GraphQL::Tracing::AppOpticsTracing do
 
       traces = get_all_traces
       assert_equal 'graphql.multiplex.MyFirstCompanyMyFirstCompanyMyFirstCompanyMyFirstCompany.MySecondCompanyMySecondCompanyMySecondCompanyMySecondCompany.MyThirdCompanyMyThirdCompanyMyThirdCompanyMyThirdCompany.MyThirdCompanyMyForthCompanyMyForthCompanyMyForthCompanyMyF...',
-                   traces.last[:TransactionName]
+                   traces.last['TransactionName']
     end
   end
 
-  describe 'loading' do
-    # in these 2 tests we are simulating the fact that the
-    # GraphQL::Tracing::AppOpticsTracing class
-    # from the graphql gem will be loaded first
-    it 'uses the newer version of AppOpticsTracing from the appoptics_apm gem' do
-        load 'test/instrumentation/graphql/appoptics_tracing_older.rb'
-        load 'lib/appoptics_apm/inst/graphql.rb'
-
-        assert_match 'lib/appoptics_apm/inst/graphql.rb',
-                     GraphQL::Tracing::AppOpticsTracing.new.method(:metadata).source_location[0]
-        assert_match 'lib/appoptics_apm/inst/graphql.rb',
-                     GraphQL::Tracing::AppOpticsTracing.new.method(:platform_trace).source_location[0]
-    end
-
-    it 'uses the newer version of AppOpticsTracing from the graphql gem' do
-        load 'test/instrumentation/graphql/appoptics_tracing_newer.rb'
-        load 'lib/appoptics_apm/inst/graphql.rb'
-
-        assert_match 'graphql/appoptics_tracing_newer.rb',
-                     GraphQL::Tracing::AppOpticsTracing.new.method(:metadata).source_location[0]
-        assert_match 'graphql/appoptics_tracing_newer.rb',
-                     GraphQL::Tracing::AppOpticsTracing.new.method(:platform_trace).source_location[0]
-    end
-
-  end
+  # describe 'loading' do
+  #   # in these 2 tests we are simulating the fact that the
+  #   # GraphQL::Tracing::AppOpticsTracing class
+  #   # from the graphql gem will be loaded first
+  #   it 'uses the newer version of AppOpticsTracing from the appoptics_apm gem' do
+  #       load 'test/instrumentation/graphql/appoptics_tracing_older.rb'
+  #       load 'lib/appoptics_apm/inst/graphql.rb'
+  #
+  #       assert_match 'lib/appoptics_apm/inst/graphql.rb',
+  #                    GraphQL::Tracing::AppOpticsTracing.new.method(:metadata).source_location[0]
+  #       assert_match 'lib/appoptics_apm/inst/graphql.rb',
+  #                    GraphQL::Tracing::AppOpticsTracing.new.method(:platform_trace).source_location[0]
+  #   end
+  #
+  #   it 'uses the newer version of AppOpticsTracing from the graphql gem' do
+  #       load 'test/instrumentation/graphql/appoptics_tracing_newer.rb'
+  #       load 'lib/appoptics_apm/inst/graphql.rb'
+  #
+  #       assert_match 'graphql/appoptics_tracing_newer.rb',
+  #                    GraphQL::Tracing::AppOpticsTracing.new.method(:metadata).source_location[0]
+  #       assert_match 'graphql/appoptics_tracing_newer.rb',
+  #                    GraphQL::Tracing::AppOpticsTracing.new.method(:platform_trace).source_location[0]
+  #   end
+  #
+  # end
 end

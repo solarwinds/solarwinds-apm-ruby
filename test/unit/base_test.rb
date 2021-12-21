@@ -62,8 +62,8 @@ describe 'AppOpticsAPMBase' do
         ths << Thread.new do
           trace_00 = "00-#{i}435a9fe510ae4533414d425dadf4e18-#{i}9e60702469db05f-00"
           state_00 = "sw=#{i}9e60702469db05f-00"
-
-          AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_00, state_00)
+          headers = { traceparent: trace_00, tracestate: state_00 }
+          AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(headers)
 
           contexts[i] = [AppOpticsAPM.trace_context.traceparent,
                          AppOpticsAPM.trace_context.tracestate,

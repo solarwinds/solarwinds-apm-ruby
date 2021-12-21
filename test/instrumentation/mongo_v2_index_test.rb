@@ -43,7 +43,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       coll = @db[:test_collection]
       coll.indexes.drop_all
 
-      AppOpticsAPM::SDK.start_trace('mongo_test', {}) do
+      AppOpticsAPM::SDK.start_trace('mongo_test') do
         coll.indexes.create_one({ :name => 1 })
       end
 
@@ -63,7 +63,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       coll = @db[:test_collection]
       coll.indexes.drop_all
 
-      AppOpticsAPM::SDK.start_trace('mongo_test', {}) do
+      AppOpticsAPM::SDK.start_trace('mongo_test') do
         coll.indexes.create_many([{ :key => { :asdf => 1 }, :unique => false },
                                   { :key => { :age => -1 }, :background => true }])
       end
@@ -84,7 +84,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       coll = @db[:test_collection]
       coll.indexes.create_one({ :name => 1 })
 
-      AppOpticsAPM::SDK.start_trace('mongo_test', {}) do
+      AppOpticsAPM::SDK.start_trace('mongo_test') do
         coll.indexes.drop_one('name_1')
       end
 
@@ -104,7 +104,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       coll = @db[:test_collection]
       coll.indexes.create_one({ :name => 1 })
 
-      AppOpticsAPM::SDK.start_trace('mongo_test', {}) do
+      AppOpticsAPM::SDK.start_trace('mongo_test') do
         coll.indexes.drop_all
       end
 

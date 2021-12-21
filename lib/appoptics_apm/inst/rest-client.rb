@@ -4,7 +4,7 @@
 module AppOpticsAPM
   module Inst
     module RestClientRequest
-      include AppOpticsAPM::TraceContextHeaders
+      include AppOpticsAPM::SDK::TraceContextHeaders
 
       ##
       # execute

@@ -34,7 +34,7 @@ module AppOpticsAPM
         end
 
         if AppOpticsAPM.tracing? && !AppOpticsAPM.tracing_layer_op?(:get_multi)
-          AppOpticsAPM::SDK.trace(:memcache, report_kvs) do
+          AppOpticsAPM::SDK.trace(:memcache, kvs: report_kvs) do
             result = perform_without_appoptics(*all_args, &blk)
 
             # Clear the hash for a potential info event
@@ -66,7 +66,7 @@ module AppOpticsAPM
 
         info_kvs[:KVOp] = :get_multi
         info_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:dalli][:collect_backtraces]
-        AppOpticsAPM::SDK.trace(:memcache, info_kvs, :get_multi) do
+        AppOpticsAPM::SDK.trace(:memcache, kvs: info_kvs, protect_op: :get_multi) do
           values = get_multi_without_appoptics(*keys)
 
           info_kvs[:KVHitCount] = values.length

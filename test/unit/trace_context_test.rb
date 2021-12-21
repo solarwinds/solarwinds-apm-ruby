@@ -11,8 +11,8 @@ describe 'Trace Context' do
       parent = '00-a462ade6cfe479081764cc476aa98335-cb3468da6f06eefc-01'
       state = 'aa=1,sw=123468dadadadada-01'
 
-      context = AppOpticsAPM::TraceContext.new(parent, state)
-
+      context = AppOpticsAPM::TraceContext.new({ traceparent: parent,
+                                                 tracestate: state })
       assert_equal parent, context.traceparent
       assert_equal state, context.tracestate
 
@@ -24,7 +24,8 @@ describe 'Trace Context' do
       parent = '00-a462ade6cfe479081764cc476aa98335-cb3468da6f06eefc-'
       state = 'aa=1,sw=123468dadadadada-01'
 
-      context = AppOpticsAPM::TraceContext.new(parent, state)
+      context = AppOpticsAPM::TraceContext.new({ traceparent: parent,
+                                                 tracestate: state })
 
       refute context.traceparent
       refute context.tracestate
@@ -34,8 +35,9 @@ describe 'Trace Context' do
     it "tracestring and traceparent are the same when tracestate is invalid" do
       parent_00 = '00-a462ade6cfe479081764cc476aa98335-cb3468da6f06eefc-00'
       state = '123468dadadadada-01'
-      context = AppOpticsAPM::TraceContext.new(parent_00, state)
 
+      context = AppOpticsAPM::TraceContext.new({ traceparent: parent_00,
+                                                 tracestate: state })
       assert context.tracestate
       assert_equal context.traceparent, context.tracestring
       refute context.sw_member_value
@@ -45,7 +47,8 @@ describe 'Trace Context' do
       parent = '00-a462ade6cfe479081764cc476aa98335-cb3468da6f06eefc-01'
       state = 'sw=123468dadadadada-01'
 
-      context = AppOpticsAPM::TraceContext.new(parent, state)
+      context = AppOpticsAPM::TraceContext.new({ traceparent: parent,
+                                                 tracestate: state })
 
       assert_equal '123468dadadadada-01', context.sw_member_value
     end
@@ -54,7 +57,8 @@ describe 'Trace Context' do
       parent = '00-a462ade6cfe479081764cc476aa98335-cb3468da6f06eefc-01'
       state = '%%%,aa= we:::we , sw=123468dadadadada-01, %%%'
 
-      context = AppOpticsAPM::TraceContext.new(parent, state)
+      context = AppOpticsAPM::TraceContext.new({ traceparent: parent,
+                                                 tracestate: state })
 
       assert_equal '123468dadadadada-01', context.sw_member_value
     end
@@ -63,7 +67,8 @@ describe 'Trace Context' do
       parent = '00-a462ade6cfe479081764cc476aa98335-cb3468da6f06eefc-01'
       state = '%%%,aa= we:::we , bb=123468dadadadada-01, %%%'
 
-      context = AppOpticsAPM::TraceContext.new(parent, state)
+      context = AppOpticsAPM::TraceContext.new({ traceparent: parent,
+                                                 tracestate: state })
 
       assert_equal parent, context.traceparent
       assert_equal '%%%,aa= we:::we , bb=123468dadadadada-01, %%%', context.tracestate
@@ -74,7 +79,8 @@ describe 'Trace Context' do
       parent = '00-a462ade6cfe479081764cc476aa98335-cb3468da6f06eefc-01'
       state = ',,%%%,aa= we:::we , sw==123,bb=123468dadadadada-01, %%%'
 
-      context = AppOpticsAPM::TraceContext.new(parent, state)
+      context = AppOpticsAPM::TraceContext.new({ traceparent: parent,
+                                                 tracestate: state })
 
       assert_equal parent, context.traceparent
       assert_equal ',,%%%,aa= we:::we , sw==123,bb=123468dadadadada-01, %%%', context.tracestate
@@ -86,7 +92,8 @@ describe 'Trace Context' do
       parent = '00-a462ade6cfe479081764cc476aa98335-cb3468da6f06eefc-01'
       state = '%%%,aa= we:::we , sw=123468dadadadada-00, %%%'
 
-      context = AppOpticsAPM::TraceContext.new(parent, state)
+      context = AppOpticsAPM::TraceContext.new({ traceparent: parent,
+                                                 tracestate: state })
 
       assert_equal '00-a462ade6cfe479081764cc476aa98335-123468dadadadada-00',
                    context.tracestring
@@ -96,7 +103,8 @@ describe 'Trace Context' do
       parent = '00-a462ade6cfe479081764cc476aa98335-cb3468da6f06eefc-01'
       state = 'aa=1,sw=123468dadadadada-01'
 
-      context = AppOpticsAPM::TraceContext.new(parent, state)
+      context = AppOpticsAPM::TraceContext.new({ traceparent: parent,
+                                                 tracestate: state })
 
       assert_equal '123468dadadadada-01', context.sw_member_value
     end
@@ -105,7 +113,8 @@ describe 'Trace Context' do
       parent = '00-a462ade6cfe479081764cc476aa98335-cb3468da6f06eefc-01'
       state = 'aa=1,bb=123468dadadadada-01'
 
-      context = AppOpticsAPM::TraceContext.new(parent, state)
+      context = AppOpticsAPM::TraceContext.new({ traceparent: parent,
+                                                 tracestate: state })
 
       refute context.sw_member_value
     end
@@ -118,7 +127,8 @@ describe 'Trace Context' do
       parent = '00-a462ade6cfe479081764cc476aa98335-cb3468da6f06eefc-01'
       state = ',,%%%,aa= we:::we , sw==123,bb=123468dadadadada-01, %%%'
 
-      context = AppOpticsAPM::TraceContext.new(parent, state)
+      context = AppOpticsAPM::TraceContext.new({ traceparent: parent,
+                                                 tracestate: state })
       kvs = context.add_kvs
 
       assert_equal state, kvs['sw.w3c.tracestate']
@@ -127,7 +137,7 @@ describe 'Trace Context' do
     it "does not add tracestate if there is no tracestate" do
       parent = '00-a462ade6cfe479081764cc476aa98335-cb3468da6f06eefc-01'
 
-      context = AppOpticsAPM::TraceContext.new(parent)
+      context = AppOpticsAPM::TraceContext.new({ traceparent: parent })
       kvs = context.add_kvs
 
       refute kvs['sw.w3c.tracestate']
@@ -137,7 +147,8 @@ describe 'Trace Context' do
       parent = '00-a462ade6cfe479081764cc476aa98335-cb3468da6f06eefc-01'
       state = ',,%%%,aa= we:::we , sw=123468dadadadada-01, %%%'
 
-      context = AppOpticsAPM::TraceContext.new(parent, state)
+      context = AppOpticsAPM::TraceContext.new({ traceparent: parent,
+                                                 tracestate: state })
       kvs = context.add_kvs
 
       assert_equal '123468dadadadada', kvs['sw.parent_id']
@@ -147,7 +158,8 @@ describe 'Trace Context' do
       parent = '00-a462ade6cfe479081764cc476aa98335-cb3468da6f06eefc-01'
       state = ',,%%%,aa= we:::we , bb=123468dadadadada-01, %%%'
 
-      context = AppOpticsAPM::TraceContext.new(parent, state)
+      context = AppOpticsAPM::TraceContext.new({ traceparent: parent,
+                                                 tracestate: state })
       kvs = context.add_kvs
 
       refute kvs['sw.parent_id']

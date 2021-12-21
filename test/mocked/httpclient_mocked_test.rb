@@ -212,9 +212,9 @@ unless defined?(JRUBY_VERSION)
       task_id = 'a462ade6cfe479081764cc476aa9831b'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
       state = 'sw=cb3468da6f06eefc-01'
-      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
+      headers = { traceparent: trace_id, tracestate: state }
 
-      AppOpticsAPM::SDK.start_trace('httpclient_tests') do
+      AppOpticsAPM::SDK.start_trace('httpclient_tests', headers: headers) do
         clnt = HTTPClient.new
         clnt.get('http://127.0.0.1:8101/')
       end
@@ -234,7 +234,8 @@ unless defined?(JRUBY_VERSION)
       task_id = 'a462ade6cfe479081764cc476aa9831b'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
       state = 'sw=cb3468da6f06eefc-01'
-      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
+      headers = { traceparent: trace_id, tracestate: state }
+      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(headers)
 
       clnt = HTTPClient.new
       clnt.get('http://127.0.0.1:8101/')
@@ -255,14 +256,14 @@ unless defined?(JRUBY_VERSION)
       task_id = 'a462ade6cfe479081764cc476aa9831b'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
       state = 'aa= 1234, sw=cb3468da6f06eefc-01,%%cc=%%%45'
-      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
+      headers = { traceparent: trace_id, tracestate: state }
 
       HTTPClient.any_instance.expects(:do_get_stream).with do |req, _, _|
         assert_trace_headers(req.headers, true)
         assert_equal task_id, AppOpticsAPM::TraceString.trace_id(req.headers['traceparent'])
       end
 
-      AppOpticsAPM::SDK.start_trace('httpclient_tests') do
+      AppOpticsAPM::SDK.start_trace('httpclient_tests', headers: headers) do
         clnt = HTTPClient.new
         clnt.get_async('http://127.0.0.1:8101/')
       end
@@ -278,7 +279,8 @@ unless defined?(JRUBY_VERSION)
       task_id = 'a462ade6cfe479081764cc476aa9831b'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
       state = 'aa= 1234, sw=cb3468da6f06eefc-01,%%cc=%%%45'
-      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
+      headers = { traceparent: trace_id, tracestate: state }
+      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(headers)
 
       HTTPClient.any_instance.expects(:do_get_stream).with do |req, _, _|
         assert_equal trace_id, req.headers['traceparent']

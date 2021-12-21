@@ -77,9 +77,9 @@ describe AppOpticsAPM::SDK do
       AppOpticsAPM::API.expects(:log_event).with(:test, :entry, anything, anything).once
       AppOpticsAPM::API.expects(:log_event).with(:test, :exit, anything, anything).once
 
-      AppOpticsAPM::SDK.trace(:test, {}, 'test') do
-        AppOpticsAPM::SDK.trace(:test, {}, 'test') do
-          AppOpticsAPM::SDK.trace(:test, {}, 'test') {}
+      AppOpticsAPM::SDK.trace(:test, protect_op: 'test') do
+        AppOpticsAPM::SDK.trace(:test, protect_op: 'test') do
+          AppOpticsAPM::SDK.trace(:test, protect_op: 'test') {}
         end
       end
 
@@ -90,19 +90,19 @@ describe AppOpticsAPM::SDK do
       AppOpticsAPM::API.expects(:log_event).with(:test, :entry, anything, anything).times(3)
       AppOpticsAPM::API.expects(:log_event).with(:test, :exit, anything, anything).times(3)
 
-      AppOpticsAPM::SDK.trace(:test, {}, 'test') {}
-      AppOpticsAPM::SDK.trace(:test, {}, 'test') {}
-      AppOpticsAPM::SDK.trace(:test, {}, 'test') {}
+      AppOpticsAPM::SDK.trace(:test, protect_op: 'test') {}
+      AppOpticsAPM::SDK.trace(:test, protect_op: 'test') {}
+      AppOpticsAPM::SDK.trace(:test, protect_op: 'test') {}
     end
 
     it "should work with nested and sequential calls and an op param" do
       AppOpticsAPM::API.expects(:log_event).with(:test, :entry, anything, anything).once
       AppOpticsAPM::API.expects(:log_event).with(:test, :exit, anything, anything).once
 
-      AppOpticsAPM::SDK.trace(:test, {}, 'test') do
-        AppOpticsAPM::SDK.trace(:test, {}, 'test') {}
-        AppOpticsAPM::SDK.trace(:test, {}, 'test') {}
-        AppOpticsAPM::SDK.trace(:test, {}, 'test') {}
+      AppOpticsAPM::SDK.trace(:test, protect_op: 'test') do
+        AppOpticsAPM::SDK.trace(:test, protect_op: 'test') {}
+        AppOpticsAPM::SDK.trace(:test, protect_op: 'test') {}
+        AppOpticsAPM::SDK.trace(:test, protect_op: 'test') {}
       end
     end
 
@@ -110,10 +110,10 @@ describe AppOpticsAPM::SDK do
       AppOpticsAPM::API.expects(:log_event).with(:test, :entry, anything, anything).times(3)
       AppOpticsAPM::API.expects(:log_event).with(:test, :exit, anything, anything).times(3)
 
-      AppOpticsAPM::SDK.trace(:test, {}, 'test') do
-        AppOpticsAPM::SDK.trace(:test, {}, 'test_2') {}
-        AppOpticsAPM::SDK.trace(:test, {}, 'test') {}
-        AppOpticsAPM::SDK.trace(:test, {}, 'test_2') {}
+      AppOpticsAPM::SDK.trace(:test, protect_op: 'test') do
+        AppOpticsAPM::SDK.trace(:test, protect_op: 'test_2') {}
+        AppOpticsAPM::SDK.trace(:test, protect_op: 'test') {}
+        AppOpticsAPM::SDK.trace(:test, protect_op: 'test_2') {}
       end
     end
 
@@ -121,16 +121,16 @@ describe AppOpticsAPM::SDK do
       AppOpticsAPM::API.expects(:log_event).with(:test, :entry, anything, anything).times(3)
       AppOpticsAPM::API.expects(:log_event).with(:test, :exit, anything, anything).times(3)
 
-      AppOpticsAPM::SDK.trace(:test, {}, 'test') do
-        AppOpticsAPM::SDK.trace(:test, {}, 'test_2') do
-          AppOpticsAPM::SDK.trace(:test, {}, 'test') {}
+      AppOpticsAPM::SDK.trace(:test, protect_op: 'test') do
+        AppOpticsAPM::SDK.trace(:test, protect_op: 'test_2') do
+          AppOpticsAPM::SDK.trace(:test, protect_op: 'test') {}
         end
       end
     end
 
     it 'should do the right thing in the recursive example' do
       def computation_with_appoptics(n)
-        AppOpticsAPM::SDK.trace('computation', { :number => n }, :comp) do
+        AppOpticsAPM::SDK.trace('computation', kvs: { :number => n }, protect_op: :comp) do
           return n if n == 0
           n + computation_with_appoptics(n - 1)
         end
@@ -146,7 +146,7 @@ describe AppOpticsAPM::SDK do
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
   describe 'start_trace single invocation' do
     it 'should log when sampling' do
-      AppOpticsAPM::API.expects(:log_start).with('test_01', {})
+      AppOpticsAPM::API.expects(:log_start).with('test_01', {}, {})
       AppOpticsAPM::API.expects(:log_end).with('test_01', has_entry(:TransactionName => 'custom-test_01'), instance_of(Oboe_metal::Event))
 
       result = AppOpticsAPM::SDK.start_trace('test_01') { 42 }
@@ -201,7 +201,7 @@ describe AppOpticsAPM::SDK do
       AppOpticsAPM::API.expects(:log_start).never
       AppOpticsAPM::API.expects(:send_metrics).never
       AppOpticsAPM::API.expects(:log_end).never
-      AppOpticsAPM::SDK.expects(:trace).with('test_01', optionally(instance_of(Hash)))
+      AppOpticsAPM::SDK.expects(:trace).with('test_01', kvs: {})
 
       AppOpticsAPM::SDK.start_trace('test_01') { 42 }
     end
@@ -213,33 +213,31 @@ describe AppOpticsAPM::SDK do
       AppOpticsAPM::API.expects(:log_start).never
       AppOpticsAPM::API.expects(:send_metrics).never
       AppOpticsAPM::API.expects(:log_end).never
-      AppOpticsAPM::SDK.expects(:trace).with('test_01', tags)
+      AppOpticsAPM::SDK.expects(:trace).with('test_01', kvs: tags)
 
-      AppOpticsAPM::SDK.start_trace('test_01', tags) { 42 }
+      AppOpticsAPM::SDK.start_trace('test_01', kvs: tags) { 42 }
     end
 
     it 'should do metrics and not logging when there is an incoming non-sampling context' do
       AppOpticsAPM::API.expects(:log_event).never
       AppOpticsAPM::API.expects(:send_metrics)
 
-      AppopticsAPM.trace_context = AppOpticsAPM::TraceContext.new(@trace_01, 'sw=123468dadadadada-00')
-
-      AppOpticsAPM::SDK.start_trace('test_01') { 42 }
+      headers = { traceparent: @trace_01, tracestate: 'sw=123468dadadadada-00' }
+      AppOpticsAPM::SDK.start_trace('test_01', headers: headers) { 42 }
     end
 
     it 'should send metrics when there is an incoming sampling context' do
       AppOpticsAPM::API.expects(:send_metrics)
 
-      AppopticsAPM.trace_context = AppOpticsAPM::TraceContext.new(@trace_01, 'sw=123468dadadadada-01')
-
-      AppOpticsAPM::SDK.start_trace('test_01') { 42 }
+      headers = { traceparent: @trace_01, tracestate: 'sw=123468dadadadada-01' }
+      AppOpticsAPM::SDK.start_trace('test_01', headers: headers) { 42 }
     end
 
     it 'should continue traces' do
       clear_all_traces
 
-      AppopticsAPM.trace_context = AppOpticsAPM::TraceContext.new(@trace_01, 'sw=123468dadadadada-01')
-      result = AppOpticsAPM::SDK.start_trace('test_01') { 42 }
+      headers = { traceparent: @trace_01, tracestate: 'sw=123468dadadadada-01' }
+      result = AppOpticsAPM::SDK.start_trace('test_01', headers: headers) { 42 }
 
       traces = get_all_traces
       assert_equal 42, result
@@ -257,7 +255,7 @@ describe AppOpticsAPM::SDK do
       AppOpticsAPM::Span.expects(:createSpan).with('this_name', nil, 0, 0).returns('domain/this_name')
       AppOpticsAPM::API.expects(:log_event).with('test_01', :exit, anything, has_entry(:TransactionName => 'domain/this_name'))
 
-      result = AppOpticsAPM::SDK.start_trace('test_01', :TransactionName => 'this_name') { 42 }
+      result = AppOpticsAPM::SDK.start_trace('test_01', kvs: { :TransactionName => 'this_name' }) { 42 }
       assert_equal 42, result
     end
 
@@ -267,7 +265,7 @@ describe AppOpticsAPM::SDK do
       AppOpticsAPM::Span.expects(:createSpan).with('custom_name_this_one', nil, 0, 0).returns('domain/custom_name_this_one')
       AppOpticsAPM::API.expects(:log_event).with('test_01', :exit, anything, has_entry(:TransactionName => 'domain/custom_name_this_one'))
       sleep 0.1
-      AppOpticsAPM::SDK.start_trace('test_01', :TransactionName => 'custom_name') do
+      AppOpticsAPM::SDK.start_trace('test_01', kvs: { :TransactionName => 'custom_name' }) do
         AppOpticsApm::SDK.set_transaction_name('custom_name_this_one')
       end
     end
@@ -320,8 +318,8 @@ describe AppOpticsAPM::SDK do
       Time.expects(:now).returns(Time.at(0)).twice
       AppOpticsAPM::Span.expects(:createSpan).with('custom_name', nil, 0, 0)
 
-      AppOpticsAPM::SDK.start_trace('test_01', :TransactionName => 'custom_name') do
-        AppOpticsAPM::SDK.start_trace('test_02', :TransactionName => 'custom_name_02') { 42 }
+      AppOpticsAPM::SDK.start_trace('test_01', kvs: { :TransactionName => 'custom_name' }) do
+        AppOpticsAPM::SDK.start_trace('test_02', kvs: { :TransactionName => 'custom_name_02' }) { 42 }
       end
     end
 
@@ -330,7 +328,7 @@ describe AppOpticsAPM::SDK do
       AppOpticsAPM::Span.expects(:createSpan).with('custom-test_01', nil, 0, 0)
 
       AppOpticsAPM::SDK.start_trace('test_01') do
-        AppOpticsAPM::SDK.start_trace('test_02', :TransactionName => 'custom_name_02') { 42 }
+        AppOpticsAPM::SDK.start_trace('test_02', kvs: { :TransactionName => 'custom_name_02' }) { 42 }
       end
     end
 
@@ -339,15 +337,15 @@ describe AppOpticsAPM::SDK do
       AppOpticsAPM::Span.expects(:createSpan).with('actually_this_one', nil, 0, 0)
       AppOpticsAPM::Span.expects(:createSpan).with('actually_this_one_as_well', nil, 0, 0)
 
-      AppOpticsAPM::SDK.start_trace('test_01', :TransactionName => 'custom_name') do
+      AppOpticsAPM::SDK.start_trace('test_01', kvs: { :TransactionName => 'custom_name' }) do
         AppOpticsAPM::SDK.set_transaction_name('this_one')
-        AppOpticsAPM::SDK.start_trace('test_02', :TransactionName => 'custom_name_02') do
+        AppOpticsAPM::SDK.start_trace('test_02', kvs: { :TransactionName => 'custom_name_02' }) do
           AppOpticsAPM::SDK.set_transaction_name('actually_this_one')
         end
       end
 
-      AppOpticsAPM::SDK.start_trace('test_01', :TransactionName => 'custom_name') do
-        AppOpticsAPM::SDK.start_trace('test_02', :TransactionName => 'custom_name_02') do
+      AppOpticsAPM::SDK.start_trace('test_01', kvs: { :TransactionName => 'custom_name' }) do
+        AppOpticsAPM::SDK.start_trace('test_02', kvs: { :TransactionName => 'custom_name_02' }) do
           AppOpticsAPM::SDK.set_transaction_name('this_one')
         end
         AppOpticsAPM::SDK.set_transaction_name('actually_this_one_as_well')
@@ -381,7 +379,7 @@ describe AppOpticsAPM::SDK do
   describe 'start_trace_with_target' do
     it 'should assign an X-Trace header to target' do
       target = {}
-      AppOpticsAPM::SDK.start_trace_with_target('test_01', target) {}
+      AppOpticsAPM::SDK.start_trace_with_target('test_01', target: target) {}
 
       assert AppOpticsAPM::TraceString.valid?(target['X-Trace'])
     end
@@ -393,9 +391,9 @@ describe AppOpticsAPM::SDK do
       AppOpticsAPM::API.expects(:log_start).never
       AppOpticsAPM::Span.expects(:createSpan).never
       AppOpticsAPM::API.expects(:log_end).never
-      AppOpticsAPM::SDK.expects(:trace).with('test_01', instance_of(Hash))
+      AppOpticsAPM::SDK.expects(:trace).with('test_01', kvs: {})
 
-      AppOpticsAPM::SDK.start_trace_with_target('test_01', target) {}
+      AppOpticsAPM::SDK.start_trace_with_target('test_01', target: target) {}
     end
 
     it 'should call trace and not call log_start when there is a non-sampling context' do
@@ -405,16 +403,16 @@ describe AppOpticsAPM::SDK do
       AppOpticsAPM::API.expects(:log_start).never
       AppOpticsAPM::Span.expects(:createSpan).never
       AppOpticsAPM::API.expects(:log_end).never
-      AppOpticsAPM::SDK.expects(:trace).with('test_01', instance_of(Hash))
+      AppOpticsAPM::SDK.expects(:trace).with('test_01', kvs: {})
 
-      AppOpticsAPM::SDK.start_trace_with_target('test_01', target) { 42 }
+      AppOpticsAPM::SDK.start_trace_with_target('test_01', target: target) { 42 }
     end
 
     it 'should return the result from the block when there is a non-sampling context ttt' do
       target = { :test => true }
       AppOpticsAPM::Context.fromString(@trace_00)
 
-      result = AppOpticsAPM::SDK.start_trace_with_target('test_01', target) { 42 }
+      result = AppOpticsAPM::SDK.start_trace_with_target('test_01', target: target) { 42 }
       assert_equal 42, result
     end
   end
@@ -476,7 +474,7 @@ describe AppOpticsAPM::SDK do
         1 + 1
       end
 
-      AppOpticsAPM::SDK.trace_method(self.class, :to_be_traced_2, { name: 'i_am_traced', backtrace: true })
+      AppOpticsAPM::SDK.trace_method(self.class, :to_be_traced_2, config: { name: 'i_am_traced', backtrace: true })
 
       AppOpticsAPM::SDK.start_trace('trace_test_01') do
         to_be_traced_2
@@ -555,7 +553,7 @@ describe AppOpticsAPM::SDK do
         end
       end
 
-      AppOpticsAPM::SDK.trace_method(::TopTest, :to_be_traced_5, { name: 'i_am_traced', backtrace: true })
+      AppOpticsAPM::SDK.trace_method(::TopTest, :to_be_traced_5, config: { name: 'i_am_traced', backtrace: true })
 
       AppOpticsAPM::SDK.start_trace('trace_test_01') do
         ::TopTest.to_be_traced_5

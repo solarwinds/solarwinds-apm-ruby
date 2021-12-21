@@ -29,7 +29,7 @@ if defined?(::Redis)
     it "should trace sadd" do
       min_server_version(1.0)
 
-      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test') do
         @redis.sadd("shrimp", "fried")
       end
 
@@ -48,7 +48,7 @@ if defined?(::Redis)
       @redis.sadd("mother sauces", "hollandaise")
       @redis.sadd("mother sauces", "classic tomate")
 
-      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test') do
         @redis.scard("mother sauces")
       end
 
@@ -67,7 +67,7 @@ if defined?(::Redis)
       @redis.sadd("ab", "a")
       @redis.sadd("ab", "b")
 
-      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test') do
         @redis.sdiff("abc", "ab")
       end
 
@@ -86,7 +86,7 @@ if defined?(::Redis)
       @redis.sadd("ab", "a")
       @redis.sadd("ab", "b")
 
-      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test') do
         @redis.sdiffstore("dest", "abc", "ab")
       end
 
@@ -105,7 +105,7 @@ if defined?(::Redis)
       @redis.sadd("ab", "a")
       @redis.sadd("ab", "b")
 
-      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test') do
         @redis.sinter("abc", "ab")
       end
 
@@ -124,7 +124,7 @@ if defined?(::Redis)
       @redis.sadd("ab", "a")
       @redis.sadd("ab", "b")
 
-      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test') do
         @redis.sinterstore("dest", "abc", "ab")
       end
 
@@ -145,7 +145,7 @@ if defined?(::Redis)
       @redis.sadd("fibonacci", "5")
       @redis.sadd("fibonacci", "8")
 
-      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test') do
         @redis.sismember("fibonacci", "5")
       end
 
@@ -164,7 +164,7 @@ if defined?(::Redis)
       @redis.sadd("fibonacci", "2")
       @redis.sadd("fibonacci", "3")
 
-      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test') do
         @redis.smembers("fibonacci")
       end
 
@@ -181,7 +181,7 @@ if defined?(::Redis)
       @redis.sadd("numbers", "2")
       @redis.sadd("alpha", "two")
 
-      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test') do
         @redis.smove("alpha", "numbers", "two")
       end
 
@@ -199,7 +199,7 @@ if defined?(::Redis)
       @redis.sadd("fibonacci", "1")
       @redis.sadd("fibonacci", "1")
 
-      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test') do
         @redis.spop("fibonacci")
       end
 
@@ -216,7 +216,7 @@ if defined?(::Redis)
       @redis.sadd("fibonacci", "1")
       @redis.sadd("fibonacci", "1")
 
-      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test') do
         @redis.srandmember("fibonacci")
       end
 
@@ -233,7 +233,7 @@ if defined?(::Redis)
       @redis.sadd("fibonacci", "1")
       @redis.sadd("fibonacci", "1")
 
-      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test') do
         @redis.srem("fibonacci", "0")
       end
 
@@ -250,7 +250,7 @@ if defined?(::Redis)
       @redis.sadd("group1", "curly")
       @redis.sadd("group2", "larry")
 
-      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test') do
         @redis.sunion("group1", "group2")
       end
 
@@ -267,7 +267,7 @@ if defined?(::Redis)
       @redis.sadd("group1", "curly")
       @redis.sadd("group2", "larry")
 
-      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test') do
         @redis.sunionstore("dest", "group1", "group2")
       end
 
@@ -284,7 +284,7 @@ if defined?(::Redis)
       @redis.sadd("group1", "moe")
       @redis.sadd("group1", "curly")
 
-      AppOpticsAPM::SDK.start_trace('redis_test', {}) do
+      AppOpticsAPM::SDK.start_trace('redis_test') do
         @redis.sscan("group1", 1)
       end
 

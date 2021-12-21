@@ -41,6 +41,8 @@ module AppOpticsAPM
     end
 
     module BunnyChannel
+      include AppOpticsAPM::SDK::TraceContextHeaders
+
       def self.included(klass)
         AppOpticsAPM::Util.method_alias(klass, :basic_publish,     ::Bunny::Channel)
         AppOpticsAPM::Util.method_alias(klass, :queue,             ::Bunny::Channel)
@@ -85,6 +87,7 @@ module AppOpticsAPM
           # Pass the tracing context as a header
           opts[:headers] ||= {}
           opts[:headers][:SourceTrace] = AppOpticsAPM::Context.toString if AppOpticsAPM.tracing?
+          add_tracecontext_headers(opts[:headers])
 
           basic_publish_without_appoptics(payload, exchange, routing_key, opts)
         rescue => e

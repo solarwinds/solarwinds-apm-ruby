@@ -12,7 +12,7 @@ module AppOpticsAPM
     # These two methods guarantee proper nesting of traces, handling of the tracing context, as well as avoiding
     # broken traces in case of exceptions.
     #
-    # Some optional keys that can be used in the +opts+ hash:
+    # Some optional keys that can be used in the +kvs+ hash:
     # * +:Controller+
     # * +:Action+
     # * +:HTTP-Host+
@@ -46,7 +46,7 @@ module AppOpticsAPM
     #       report_kvs[:Action] = :CouponEmailer
     #
     #       # Start tracing this job with start_trace
-    #       AppOpticsAPM::SDK.start_trace('starling', nil, report_kvs) do
+    #       AppOpticsAPM::SDK.start_trace('monthly_coupons', kvs: report_kvs) do
     #         monthly = MonthlyEmail.new(:CouponEmailer)
     #
     #         # Trace a sub-component of this trace
@@ -70,14 +70,14 @@ module AppOpticsAPM
       # Also detects any exceptions thrown by the block and report errors.
       #
       # === Arguments:
-      # * +:span+       - The span the block of code belongs to.
-      # * +:opts+       - (optional) A hash containing key/value pairs that will be reported along with the first event of this span.
-      # * +:protect_op+ - (optional) The operation being traced.  Used to avoid double tracing operations that call each other.
+      # * +name+        - Name for the span to be used as label in the trace view.
+      # * +kvs:+        - (optional) A hash containing key/value pairs that will be reported along with the first event of this span.
+      # * +protect_op:+ - (optional) The operation being traced.  Used to avoid double tracing operations that call each other.
       #
       # === Example:
       #
       #   def computation_with_appoptics(n)
-      #     AppOpticsAPM::SDK.trace('computation', { :number => n }, :computation) do
+      #     AppOpticsAPM::SDK.trace('computation', kvs: { :number => n }, protect_op: :computation) do
       #       return n if n == 0
       #       n + computation_with_appoptics(n-1)
       #     end
@@ -88,21 +88,21 @@ module AppOpticsAPM
       # === Returns:
       # * The result of the block.
       #
-      def trace(span, opts = {}, protect_op = nil)
+      def trace(name, kvs: {}, protect_op: nil)
         return yield if !AppOpticsAPM.loaded || !AppOpticsAPM.tracing? || AppOpticsAPM.tracing_layer_op?(protect_op)
 
-        opts.delete(:TransactionName)
-        opts.delete('TransactionName')
+        kvs.delete(:TransactionName)
+        kvs.delete('TransactionName')
 
-        AppOpticsAPM::API.log_entry(span, opts, protect_op)
-        opts[:Backtrace] && opts.delete(:Backtrace) # to avoid sending backtrace twice (faster to check presence here)
+        AppOpticsAPM::API.log_entry(name, kvs, protect_op)
+        kvs[:Backtrace] && kvs.delete(:Backtrace) # to avoid sending backtrace twice (faster to check presence here)
         begin
           yield
         rescue Exception => e
-          AppOpticsAPM::API.log_exception(span, e)
+          AppOpticsAPM::API.log_exception(name, e)
           raise
         ensure
-          AppOpticsAPM::API.log_exit(span, opts, protect_op)
+          AppOpticsAPM::API.log_exit(name, kvs, protect_op)
         end
       end
 
@@ -116,9 +116,10 @@ module AppOpticsAPM
       #
       # === Arguments:
       #
-      # * +span+   - Name for the span to be used as label in the trace view.
-      # * +opts+   - (optional) hash containing key/value pairs that will be reported with this span.
-      #   The value of :TransactionName will set the transaction_name.
+      # * +name+   - Name for the span to be used as label in the trace view.
+      # * +kvs:+    - (optional) hash containing key/value pairs that will be reported with this span.
+      #              The value of :TransactionName entry will set the transaction_name.
+      # * +headers:+ - hash containing incoming headers to extract w3c trace context
       #
       # === Example:
       #
@@ -127,7 +128,7 @@ module AppOpticsAPM
       #   end
       #
       #   def handle_request_with_appoptics(request, response)
-      #     AppOpticsAPM::SDK.start_trace('custom_trace', nil, :TransactionName => 'handle_request') do
+      #     AppOpticsAPM::SDK.start_trace('custom_trace', kvs: { :TransactionName => 'handle_request' }) do
       #       handle_request(request, response)
       #     end
       #   end
@@ -135,8 +136,8 @@ module AppOpticsAPM
       # === Returns:
       # * The result of the block.
       #
-      def start_trace(span, opts = {})
-        start_trace_with_target(span, {}, opts) { yield }
+      def start_trace(name, kvs: {}, headers: {})
+        start_trace_with_target(name, target: {}, kvs: kvs, headers: headers) { yield }
       end
 
       # Collect metrics, trace a given block of code, and assign trace info to target.
@@ -149,9 +150,10 @@ module AppOpticsAPM
       # work is done, and before any headers are sent back to the client.
       #
       # === Arguments:
-      # * +span+   - The span the block of code belongs to.
-      # * +target+ - (optional) has to respond to #[]=, The target object in which to place the trace information.
-      # * +opts+   - (optional) hash containing key/value pairs that will be reported with this span.
+      # * +name+   - Name for the span to be used as label in the trace view.
+      # * +target:+ - (optional) has to respond to #[]=, The target object in which to place the trace information.
+      # * +kvs:+    - (optional) Hash containing key/value pairs that will be reported with this span.
+      # * +headers:+ - (optional) Hash containing incoming headers to extract w3c trace context
       #
       # === Example:
       #
@@ -160,7 +162,7 @@ module AppOpticsAPM
       #   end
       #
       #   def handle_request_with_appoptics(request, response)
-      #     AppOpticsAPM::SDK.start_trace_with_target('rails', request['X-Trace'], response) do
+      #     AppOpticsAPM::SDK.start_trace_with_target('rails', headers: request.headers, target: response) do
       #       handle_request(request, response)
       #     end
       #   end
@@ -168,39 +170,39 @@ module AppOpticsAPM
       # === Returns:
       # * The result of the block.
       #
-      def start_trace_with_target(span, target, opts = {})
+      def start_trace_with_target(name, target: {}, kvs: {}, headers: {})
         return yield unless AppOpticsAPM.loaded
 
         if AppOpticsAPM::Context.isValid # not an entry span!
-          result = trace(span, opts) { yield }
+          result = trace(name, kvs: kvs) { yield }
           target['X-Trace'] = AppOpticsAPM::Context.toString
           return result
         end
 
-        # :TransactionName and 'TransactionName' need to be removed from opts
-        AppOpticsAPM.transaction_name = opts.delete('TransactionName') || opts.delete(:TransactionName)
+        # :TransactionName and 'TransactionName' need to be removed from kvs
+        AppOpticsAPM.transaction_name = kvs.delete('TransactionName') || kvs.delete(:TransactionName)
 
-        AppOpticsAPM::API.log_start(span, opts)
-        opts[:Backtrace] && opts.delete(:Backtrace) # to avoid sending backtrace twice (faster to check presence here)
+        AppOpticsAPM::API.log_start(name, kvs, headers)
+        kvs[:Backtrace] && kvs.delete(:Backtrace) # to avoid sending backtrace twice (faster to check presence here)
 
         # AppOpticsAPM::Event.startTrace creates an Event without an Edge
         exit_evt = AppOpticsAPM::Event.startTrace(AppOpticsAPM::Context.get)
 
         result = begin
-          AppOpticsAPM::API.send_metrics(span, opts) do
+          AppOpticsAPM::API.send_metrics(name, kvs) do
             target['X-Trace'] = AppOpticsAPM::EventUtil.metadataString(exit_evt)
             yield
           end
         rescue Exception => e
-          AppOpticsAPM::API.log_exception(span, e)
+          AppOpticsAPM::API.log_exception(name, e)
           exit_evt.addEdge(AppOpticsAPM::Context.get)
-          trace_parent = AppOpticsAPM::API.log_end(span, opts, exit_evt)
+          trace_parent = AppOpticsAPM::API.log_end(name, kvs, exit_evt)
           e.instance_variable_set(:@tracestring, trace_parent)
           raise
         end
 
         exit_evt.addEdge(AppOpticsAPM::Context.get)
-        AppOpticsAPM::API.log_end(span, opts, exit_evt)
+        AppOpticsAPM::API.log_end(name, kvs, exit_evt)
 
         result
       end
@@ -220,10 +222,10 @@ module AppOpticsAPM
       # === Arguments:
       # * +klass+  - The module/class the method belongs to.
       # * +method+ - The method name as symbol
-      # * +config+   - (optional) possible keys are:
+      # * +config:+   - (optional) possible keys are:
       #              :name the name of the span (default: the method name)
       #              :backtrace true/false (default: false) if true the backtrace will be added to the space
-      # * +opts+    - (optional) hash containing key/value pairs that will be reported with this span.
+      # * +kvs:+     - (optional) hash containing key/value pairs that will be reported with this span.
       #
       # === Example:
       #
@@ -233,9 +235,12 @@ module AppOpticsAPM
       #     end
       #   end
       #
-      #  AppOpticsAPM::SDK.trace_method(ExampleModule, :do_sum, {name: 'computation', backtrace: true}, { CustomKey: "some_info"})
+      #  AppOpticsAPM::SDK.trace_method(ExampleModule,
+      #                                 :do_sum,
+      #                                 config: {name: 'computation', backtrace: true},
+      #                                 kvs: { CustomKey: "some_info"})
       #
-      def trace_method(klass, method, config = {}, opts = {})
+      def trace_method(klass, method, config: {}, kvs: {})
         # If we're on an unsupported platform (ahem Mac), just act
         # like we did something to nicely play the no-op part.
         return true unless AppOpticsAPM.loaded
@@ -276,7 +281,7 @@ module AppOpticsAPM
           return false
         end
 
-        report_kvs = opts.dup
+        report_kvs = kvs.dup
         if defined?(::AbstractController::Base) && klass.ancestors.include?(::AbstractController::Base)
           report_kvs[:Controller] = klass.to_s
           report_kvs[:Action] = method.to_s
@@ -286,7 +291,7 @@ module AppOpticsAPM
         end
         backtrace = config[:backtrace]
 
-        span = config[:name] || method
+        name = config[:name] || method
         if instance_method
           klass.class_eval do
             define_method(with_appoptics) do |*args, &block|
@@ -296,7 +301,7 @@ module AppOpticsAPM
                 request.env['appoptics_apm.action'] = report_kvs[:Action]
               end
 
-              AppOpticsAPM::SDK.trace(span, report_kvs) do
+              AppOpticsAPM::SDK.trace(name, kvs: report_kvs) do
                 report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if backtrace
                 send(without_appoptics, *args, &block)
               end
@@ -307,7 +312,7 @@ module AppOpticsAPM
           end
         elsif class_method
           klass.define_singleton_method(with_appoptics) do |*args, &block|
-            AppOpticsAPM::SDK.trace(span, report_kvs) do
+            AppOpticsAPM::SDK.trace(name, kvs: report_kvs) do
               report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if backtrace
               send(without_appoptics, *args, &block)
             end
@@ -380,14 +385,13 @@ module AppOpticsAPM
 
       # Determine if this transaction is being traced.
       #
-      # Tracing puts some extra load on a system, therefor not all transaction are traced.
+      # Tracing puts some extra load on a system, therefore not all transaction are traced.
       # The +tracing?+ method helps to determine this so that extra work can be avoided when not tracing.
       #
       # === Example:
       #
-      #   kvs = expensive_info_gathering_method  if AppOpticsAPM::SDK.tracing?
-      #   AppOpticsAPM::SDK.trace('some_span', kvs) do
-      #     # this may not create a trace every time it runs
+      #   kvs = expensive_info_gathering_method if AppOpticsAPM::SDK.tracing?
+      #   AppOpticsAPM::SDK.trace('some_span', kvs: kvs) do
       #     db_request
       #   end
       #

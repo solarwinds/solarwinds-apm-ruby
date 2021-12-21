@@ -12,7 +12,7 @@
 module AppOpticsAPM
   module Inst
     module FaradayConnection
-      include AppOpticsAPM::TraceContextHeaders
+      include AppOpticsAPM::SDK::TraceContextHeaders
 
       def run_request(method, url, body, headers, &block)
         remote_call = remote_call?
@@ -25,7 +25,7 @@ module AppOpticsAPM
 
         begin
           AppOpticsAPM::API.log_entry(:faraday)
-          if remote_call
+          if remote_call # nothing else is instrumented that could add the w3c context
             add_tracecontext_headers(@headers)
           end
 

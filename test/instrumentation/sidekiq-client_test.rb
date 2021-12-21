@@ -52,7 +52,6 @@ unless defined?(JRUBY_VERSION)
 
       traces = get_all_traces
 
-      puts "MsgID: #{traces[1]['MsgID']}"
       assert_equal 16, refined_trace_count(traces)
       assert valid_edges?(traces, false), "Invalid edge in traces"
 

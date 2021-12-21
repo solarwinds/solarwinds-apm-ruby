@@ -7,7 +7,7 @@ if AppOpticsAPM::Config[:nethttp][:enabled]
   module AppOpticsAPM
     module Inst
       module NetHttp
-        include AppOpticsAPM::TraceContextHeaders
+        include AppOpticsAPM::SDK::TraceContextHeaders
 
         # Net::HTTP.class_eval do
         # def request_with_appoptics(*args, &block)
@@ -20,18 +20,18 @@ if AppOpticsAPM::Config[:nethttp][:enabled]
             return super
           end
 
-          opts = {}
-          AppOpticsAPM::SDK.trace(:'net-http', opts) do
+          kvs = {}
+          AppOpticsAPM::SDK.trace(:'net-http', kvs: kvs) do
             # Collect KVs to report in the exit event
             if args.respond_to?(:first) && args.first
               req = args.first
 
-              opts[:Spec] = 'rsc'
-              opts[:IsService] = 1
-              opts[:RemoteURL] = "#{use_ssl? ? 'https' : 'http'}://#{addr_port}"
-              opts[:RemoteURL] << (AppOpticsAPM::Config[:nethttp][:log_args] ? req.path : req.path.split('?').first)
-              opts[:HTTPMethod] = req.method
-              opts[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:nethttp][:collect_backtraces]
+              kvs[:Spec] = 'rsc'
+              kvs[:IsService] = 1
+              kvs[:RemoteURL] = "#{use_ssl? ? 'https' : 'http'}://#{addr_port}"
+              kvs[:RemoteURL] << (AppOpticsAPM::Config[:nethttp][:log_args] ? req.path : req.path.split('?').first)
+              kvs[:HTTPMethod] = req.method
+              kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:nethttp][:collect_backtraces]
             end
 
             begin
@@ -39,11 +39,11 @@ if AppOpticsAPM::Config[:nethttp][:enabled]
               # The actual net::http call
               resp = super
 
-              opts[:HTTPStatus] = resp.code
+              kvs[:HTTPStatus] = resp.code
 
               # If we get a redirect, report the location header
               if ((300..308).to_a.include? resp.code.to_i) && resp.header["Location"]
-                opts[:Location] = resp.header["Location"]
+                kvs[:Location] = resp.header["Location"]
               end
 
               resp

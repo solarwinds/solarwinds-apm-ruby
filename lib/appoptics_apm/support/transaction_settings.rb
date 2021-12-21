@@ -19,12 +19,14 @@ module AppOpticsAPM
     attr_accessor :do_sample, :do_metrics
     attr_reader   :auth_msg, :do_propagate, :status_msg, :type, :source, :rate, :tracestring, :sw_member_value
 
-    def initialize(url = '', tracestring = nil, sw_member_value = nil, options = nil)
+    def initialize(url = '', headers = {}, options = nil)
       @do_metrics = false
       @do_sample = false
       @do_propagate = true
-      @tracestring = tracestring
-      @sw_member_value = sw_member_value
+
+      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(headers)
+      @tracestring = AppOpticsAPM.trace_context.tracestring
+      @sw_member_value = AppOpticsAPM.trace_context.sw_member_value
       tracing_mode = AO_TRACING_ENABLED
 
       if AppOpticsAPM::Context.isValid

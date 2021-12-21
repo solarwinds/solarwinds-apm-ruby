@@ -40,10 +40,7 @@ if AppOpticsAPM.loaded
         options = AppOpticsAPM::XTraceOptions.new(env['HTTP_X_TRACE_OPTIONS'], env['HTTP_X_TRACE_OPTIONS_SIGNATURE'])
 
         # store incoming information in a thread local variable
-        AppOpticsAPM.trace_context = TraceContext.new(env['HTTP_TRACEPARENT'], env['HTTP_TRACESTATE'])
-        tracestring = AppOpticsAPM.trace_context.tracestring
-        sw_member_value = AppOpticsAPM.trace_context.sw_member_value
-        settings = AppOpticsAPM::TransactionSettings.new(url, tracestring, sw_member_value, options)
+        settings = AppOpticsAPM::TransactionSettings.new(url, env, options)
 
         profile_spans = AppOpticsAPM::Config['profiling'] == :enabled ? 1 : -1
 
@@ -119,11 +116,16 @@ if AppOpticsAPM.loaded
         report_kvs
       end
 
+      # this adds x-trace info to the request and return header
+      # if it is not a request for an asset (defined in config file as 'dnt')
       def propagate_tracecontext(env, settings)
         return yield unless settings.do_propagate
 
         # TODO find out why we used to update/add the request HTTP_X_TRACE header
         #  maybe to update the tracing decision for the actual rack call
+        #  which may be passed to a different thread
+
+        # TODO add test coverage for this
         if AppOpticsAPM.trace_context&.tracestring
           # creating a dup because we are modifying it when setting/unsetting the sampling bit
           tracestring_dup = AppOpticsAPM.trace_context.tracestring.dup
@@ -154,9 +156,8 @@ if AppOpticsAPM.loaded
             report_kvs = collect(env)
             settings.add_kvs(report_kvs)
             options&.add_kvs(report_kvs, settings)
-            AppOpticsAPM.trace_context&.add_kvs(report_kvs)
 
-            AppOpticsAPM::API.log_start(:rack, report_kvs, settings)
+            AppOpticsAPM::API.log_start(:rack, report_kvs, env, settings)
 
             status, headers, response = yield
 

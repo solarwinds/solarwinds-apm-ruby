@@ -28,7 +28,7 @@ if AppOpticsAPM::Config[:em_http_request] && AppOpticsAPM::Config[:em_http_reque
     end
 
     it 'should trace request' do
-      AppOpticsAPM::SDK.start_trace('em-http-request_test', {}) do
+      AppOpticsAPM::SDK.start_trace('em-http-request_test') do
         EventMachine.run do
           http = EventMachine::HttpRequest.new('http://appneta.com/').get
           http.callback do
@@ -56,7 +56,7 @@ if AppOpticsAPM::Config[:em_http_request] && AppOpticsAPM::Config[:em_http_reque
     end
 
     it 'should log errors on exception' do
-      AppOpticsAPM::SDK.start_trace('em-http-request_test', {}) do
+      AppOpticsAPM::SDK.start_trace('em-http-request_test') do
         EventMachine.run do
           http = EventMachine::HttpRequest.new('http://appneta.com/').get
           http.callback do
@@ -86,7 +86,7 @@ if AppOpticsAPM::Config[:em_http_request] && AppOpticsAPM::Config[:em_http_reque
     it "should obey :collect_backtraces setting when true" do
       AppOpticsAPM::Config[:em_http_request][:collect_backtraces] = true
 
-      AppOpticsAPM::SDK.start_trace('em-http-request_test', {}) do
+      AppOpticsAPM::SDK.start_trace('em-http-request_test') do
         EventMachine.run do
           http = EventMachine::HttpRequest.new('http://appneta.com/').get
           http.callback do
@@ -102,7 +102,7 @@ if AppOpticsAPM::Config[:em_http_request] && AppOpticsAPM::Config[:em_http_reque
     it "should obey :collect_backtraces setting when false" do
       AppOpticsAPM::Config[:em_http_request][:collect_backtraces] = false
 
-      AppOpticsAPM::SDK.start_trace('em-http-request_test', {}) do
+      AppOpticsAPM::SDK.start_trace('em-http-request_test') do
         EventMachine.run do
           http = EventMachine::HttpRequest.new('http://appneta.com/').get
           http.callback do

@@ -1,6 +1,7 @@
 --no-private
 --readme yardoc_frontpage.md
 lib/appoptics_apm/sdk/logging.rb
+lib/appoptics_apm/sdk/trace_context_headers.rb
 lib/appoptics_apm/sdk/tracing.rb
 lib/appoptics_apm/sdk/custom_metrics.rb
 lib/appoptics_apm/sdk/current_trace_info.rb

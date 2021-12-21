@@ -74,7 +74,7 @@ if defined?(::Moped)
     end
 
     it 'should trace command' do
-      AppOpticsAPM::SDK.start_trace('moped_test', {}) do
+      AppOpticsAPM::SDK.start_trace('moped_test') do
         command = {}
         command[:mapreduce] = "users"
         command[:map] = "function() { emit(this.name, 1); }"
@@ -98,7 +98,7 @@ if defined?(::Moped)
     end
 
     it 'should trace drop_collection' do
-      AppOpticsAPM::SDK.start_trace('moped_test', {}) do
+      AppOpticsAPM::SDK.start_trace('moped_test') do
         @users.drop
         @session.drop
       end
@@ -121,7 +121,7 @@ if defined?(::Moped)
     end
 
     it 'should trace create_index, indexes and drop_indexes' do
-      AppOpticsAPM::SDK.start_trace('moped_test', {}) do
+      AppOpticsAPM::SDK.start_trace('moped_test') do
         @users.indexes.create({ :name => 1 }, { :unique => true })
         @users.indexes.drop
       end
@@ -158,7 +158,7 @@ if defined?(::Moped)
     end
 
     it 'should trace find and count' do
-      AppOpticsAPM::SDK.start_trace('moped_test', {}) do
+      AppOpticsAPM::SDK.start_trace('moped_test') do
         @users.find.count
       end
 
@@ -181,7 +181,7 @@ if defined?(::Moped)
     end
 
     it 'should trace find and sort' do
-      AppOpticsAPM::SDK.start_trace('moped_test', {}) do
+      AppOpticsAPM::SDK.start_trace('moped_test') do
         @users.find(:name => "Mary").sort(:city => 1, :created_at => -1)
       end
 
@@ -206,7 +206,7 @@ if defined?(::Moped)
     end
 
     it 'should trace find with limit' do
-      AppOpticsAPM::SDK.start_trace('moped_test', {}) do
+      AppOpticsAPM::SDK.start_trace('moped_test') do
         @users.find(:name => "Mary").limit(1)
       end
 
@@ -231,7 +231,7 @@ if defined?(::Moped)
     end
 
     it 'should trace find with distinct' do
-      AppOpticsAPM::SDK.start_trace('moped_test', {}) do
+      AppOpticsAPM::SDK.start_trace('moped_test') do
         @users.find(:name => "Mary").distinct(:city)
       end
 
@@ -263,7 +263,7 @@ if defined?(::Moped)
       tool_count = @users.find(:name => "Tool").count
       _(tool_count).must_equal 0
 
-      AppOpticsAPM::SDK.start_trace('moped_test', {}) do
+      AppOpticsAPM::SDK.start_trace('moped_test') do
         old_attrs = { :name => "Mary" }
         new_attrs = { :name => "Tool" }
         @users.find(old_attrs).update({ '$set' => new_attrs }, { :multi => true })
@@ -297,7 +297,7 @@ if defined?(::Moped)
     end
 
     it 'should trace find and update_all' do
-      AppOpticsAPM::SDK.start_trace('moped_test', {}) do
+      AppOpticsAPM::SDK.start_trace('moped_test') do
         @users.find(:name => "Mary").update_all({ :name => "Tool" })
       end
 
@@ -322,7 +322,7 @@ if defined?(::Moped)
     end
 
     it 'should trace find and upsert' do
-      AppOpticsAPM::SDK.start_trace('moped_test', {}) do
+      AppOpticsAPM::SDK.start_trace('moped_test') do
         @users.find(:name => "Tool").upsert({ :name => "Mary" })
       end
 
@@ -348,7 +348,7 @@ if defined?(::Moped)
     end
 
     it 'should trace find and explain' do
-      AppOpticsAPM::SDK.start_trace('moped_test', {}) do
+      AppOpticsAPM::SDK.start_trace('moped_test') do
         @users.find(:name => "Mary").explain
       end
 
@@ -373,7 +373,7 @@ if defined?(::Moped)
     end
 
     it 'should trace 3 types of find and modify calls' do
-      AppOpticsAPM::SDK.start_trace('moped_test', {}) do
+      AppOpticsAPM::SDK.start_trace('moped_test') do
         @users.find(:likes => 1).modify({ "$set" => { :name => "Tool" } }, :upsert => true)
         @users.find.modify({ "$inc" => { :likes => 1 } }, :new => true)
         @users.find.modify({ :query => {} }, :remove => true)
@@ -419,7 +419,7 @@ if defined?(::Moped)
     end
 
     it 'should trace remove' do
-      AppOpticsAPM::SDK.start_trace('moped_test', {}) do
+      AppOpticsAPM::SDK.start_trace('moped_test') do
         @users.find(:name => "Tool").remove
       end
 
@@ -444,7 +444,7 @@ if defined?(::Moped)
     end
 
     it 'should trace remove_all' do
-      AppOpticsAPM::SDK.start_trace('moped_test', {}) do
+      AppOpticsAPM::SDK.start_trace('moped_test') do
         @users.find(:name => "Mary").remove_all
       end
 
@@ -472,7 +472,7 @@ if defined?(::Moped)
       # moped is not developed since 2015, and
       # aggregate is not working with MongoDB >= 4.0
       skip
-      AppOpticsAPM::SDK.start_trace('moped_test', {}) do
+      AppOpticsAPM::SDK.start_trace('moped_test') do
         @users.aggregate(
           { '$match' => { :name => "Mary" } },
           { '$group' => { "_id" => "$name" } }
@@ -495,7 +495,7 @@ if defined?(::Moped)
     it "should obey :collect_backtraces setting when true" do
       AppOpticsAPM::Config[:moped][:collect_backtraces] = true
 
-      AppOpticsAPM::SDK.start_trace('moped_test', {}) do
+      AppOpticsAPM::SDK.start_trace('moped_test') do
         @users.find(:name => "Mary").limit(1)
       end
 
@@ -506,7 +506,7 @@ if defined?(::Moped)
     it "should obey :collect_backtraces setting when false" do
       AppOpticsAPM::Config[:moped][:collect_backtraces] = false
 
-      AppOpticsAPM::SDK.start_trace('moped_test', {}) do
+      AppOpticsAPM::SDK.start_trace('moped_test') do
         @users.find(:name => "Mary").limit(1)
       end
 

@@ -497,8 +497,6 @@ describe "Rack Trigger Tracing " do
       15.times do
         _, res_headers, _ = @rack.call(req_headers)
 
-        puts "-------------------------- #{res_headers['X-Trace-Options-Response']} --------------------------"
-
         sleep 7
       end
     end

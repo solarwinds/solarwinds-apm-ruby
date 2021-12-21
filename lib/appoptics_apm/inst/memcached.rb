@@ -12,19 +12,19 @@ module AppOpticsAPM
         cls.class_eval do
           MEMCACHE_OPS.reject { |m| !method_defined?(m) }.each do |m|
             define_method("#{m}_with_appoptics") do |*args|
-              opts = { :KVOp => m }
+              kvs = { :KVOp => m }
 
               if args.length && !args[0].is_a?(Array)
-                opts[:KVKey] = args[0].to_s
+                kvs[:KVKey] = args[0].to_s
                 rhost = remote_host(args[0].to_s)
-                opts[:RemoteHost] = rhost if rhost
+                kvs[:RemoteHost] = rhost if rhost
               end
 
-              AppOpticsAPM::SDK.trace(:memcache, opts) do
+              AppOpticsAPM::SDK.trace(:memcache, kvs: kvs) do
                 result = send("#{m}_without_appoptics", *args)
 
-                opts[:KVHit] = memcache_hit?(result) if m == :get && args.length && args[0].class == String
-                opts[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:memcached][:collect_backtraces]
+                kvs[:KVHit] = memcache_hit?(result) if m == :get && args.length && args[0].class == String
+                kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:memcached][:collect_backtraces]
 
                 result
               end
@@ -55,7 +55,7 @@ module AppOpticsAPM
           layer_kvs = {}
           layer_kvs[:KVOp] = :get_multi
 
-          AppOpticsAPM::SDK.trace(:memcache, layer_kvs || {}, :get_multi) do
+          AppOpticsAPM::SDK.trace(:memcache, kvs: layer_kvs, protect_op: :get_multi) do
             layer_kvs[:KVKeyCount] = keys.flatten.length
 
             values = get_multi_without_appoptics(keys, raw)

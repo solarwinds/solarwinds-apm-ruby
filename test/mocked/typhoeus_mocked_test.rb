@@ -162,10 +162,11 @@ unless defined?(JRUBY_VERSION)
       task_id = 'a462ade6cfe479081764cc476aa9831b'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
       state = 'sw=cb3468da6f06eefc-01'
-      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
+      headers = { traceparent: trace_id, tracestate: state }
+      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(headers)
 
       request = Typhoeus::Request.new("http://127.0.0.1:8101/", { :method => :get })
-      AppOpticsAPM::SDK.start_trace('typhoeus_tests') do
+      AppOpticsAPM::SDK.start_trace('typhoeus_tests', headers: headers) do
         request.run
       end
 
@@ -182,7 +183,8 @@ unless defined?(JRUBY_VERSION)
       task_id = 'a462ade6cfe479081764cc476aa9831b'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
       state = 'sw=cb3468da6f06eefc-01'
-      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
+      headers = { traceparent: trace_id, tracestate: state }
+      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(headers)
 
       request = Typhoeus::Request.new("http://127.0.0.1:8101/", { :method => :get })
       request.run
@@ -197,10 +199,10 @@ unless defined?(JRUBY_VERSION)
       task_id = 'a462ade6cfe479081764cc476aa9831b'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
       state = 'aa= 1234, sw=cb3468da6f06eefc-01,%%cc=%%%45'
-      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
+      headers = { traceparent: trace_id, tracestate: state }
 
       request = Typhoeus::Request.new("http://127.0.0.1:8101/", { :method => :get })
-      AppOpticsAPM::SDK.start_trace('typhoeus_tests') do
+      AppOpticsAPM::SDK.start_trace('typhoeus_tests', headers: headers) do
         request.run
       end
 
@@ -218,7 +220,8 @@ unless defined?(JRUBY_VERSION)
       task_id = 'a462ade6cfe479081764cc476aa9831b'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
       state = 'aa= 1234, sw=cb3468da6f06eefc-01,%%cc=%%%45'
-      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
+      headers = { traceparent: trace_id, tracestate: state }
+      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(headers)
 
       hydra = Typhoeus::Hydra.hydra
       request_1 = Typhoeus::Request.new("http://127.0.0.2:8101/", { :method => :get })

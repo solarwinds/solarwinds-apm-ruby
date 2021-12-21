@@ -337,10 +337,10 @@ if !defined?(JRUBY_VERSION)
       task_id = 'a462ade6cfe479081764cc476aa98335'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
       state = 'sw=cb3468da6f06eefc-01'
-      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
+      headers = { traceparent: trace_id, tracestate: state}
 
       curl = Curl::Easy.new("http://127.0.0.1:8101/")
-      AppOpticsAPM::SDK.start_trace('curb_tests') do
+      AppOpticsAPM::SDK.start_trace('curb_tests', headers: headers) do
         curl.perform
       end
 
@@ -357,7 +357,8 @@ if !defined?(JRUBY_VERSION)
 
       trace_id = '00-a462ade6cfe479081764cc476aa98335-cb3468da6f06eefc-01'
       state = 'aa=1234'
-      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
+      headers = { traceparent: trace_id, tracestate: state }
+      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(headers)
 
       curl = Curl::Easy.new("http://127.0.0.1:8101/")
       curl.perform
@@ -374,10 +375,10 @@ if !defined?(JRUBY_VERSION)
       task_id = 'a462ade6cfe479081764cc476aa98335'
       trace_id = "00-#{task_id}-cb3468da6f06eefc-01"
       state = 'aa= 1234, sw=cb3468da6f06eefc-01,%%cc=%%%45'
-      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
+      headers = { traceparent: trace_id, tracestate: state }
 
       curl = Curl::Easy.new("http://127.0.0.1:8101/")
-      AppOpticsAPM::SDK.start_trace('curb_tests') do
+      AppOpticsAPM::SDK.start_trace('curb_tests', headers: headers) do
         curl.perform
       end
 
@@ -395,7 +396,8 @@ if !defined?(JRUBY_VERSION)
 
       trace_id = '00-a462ade6cfe479081764cc476aa98335-cb3468da6f06eefc-01'
       state = 'aa=1234'
-      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(trace_id, state)
+      headers = { traceparent: trace_id, tracestate: state }
+      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(headers)
 
       urls = []
       urls << "http://127.0.0.1:8101/?one=1"
