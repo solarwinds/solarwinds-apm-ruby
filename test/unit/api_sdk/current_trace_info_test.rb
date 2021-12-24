@@ -196,5 +196,75 @@ describe AppOpticsAPM::SDK do
         assert_equal({}, trace.hash_for_log)
       end
     end
+
+    describe 'for_sql' do
+      before do
+        @trace_id = rand(10 ** 32).to_s.rjust(32,'0')
+        @span_id = rand(10 ** 16).to_s.rjust(16,'0')
+        @tracestring_01 = "00-#{@trace_id}-#{@span_id}-01"
+        @tracestring_00 = "00-#{@trace_id}-#{@span_id}-00"
+
+        @sql =  "SELECT `users`.* FROM `users` WHERE (mobile IN ('234 234 234') AND email IN ('a_b_c@hotmail.co.uk'))"
+
+        @log_traceid = AppOpticsAPM::Config[:log_traceId]
+        AppOpticsAPM::Config[:log_traceId] = :always
+      end
+
+      after do
+        AppOpticsAPM::Config[:log_traceId] = @log_traceid
+      end
+
+      # when log_traceId is :always
+      # (adds "/* trace-id: {traceId} */ " even when trace_id is '00000000000000000000000000000000' )
+      it 'adds the trace id when :always' do
+        AppOpticsAPM::Context.fromString(@tracestring_01)
+        result = AppOpticsAPM::SDK.current_trace_info.for_sql
+        assert_equal "/* trace-id: #{@trace_id} */ ", result
+
+        AppOpticsAPM::Context.clear
+        result = AppOpticsAPM::SDK.current_trace_info.for_sql
+        assert_equal "/* trace-id: 00000000000000000000000000000000 */ ", result
+      end
+
+      # when log_traceId is :never (sql is not modified)
+      it 'does not add the trace id when :never' do
+        AppOpticsAPM::Config[:log_traceId] = :never
+
+        AppOpticsAPM::Context.fromString(@tracestring_01)
+        result = AppOpticsAPM::SDK.current_trace_info.for_sql
+        assert_equal '', result
+      end
+
+      # when log_traceId is :traced (2 cases: none, valid)
+      it '2 cases when :traced' do
+        AppOpticsAPM::Config[:log_traceId] = :traced
+
+        AppOpticsAPM::Context.fromString(@tracestring_01)
+        result = AppOpticsAPM::SDK.current_trace_info.for_sql
+        assert_equal "/* trace-id: #{@trace_id} */ ", result
+
+        AppOpticsAPM::Context.clear
+        result = AppOpticsAPM::SDK.current_trace_info.for_sql
+        assert_equal '', result
+      end
+
+      # when log_traceId is :sampled (3 cases: none, not sampled, sampled)
+      it '2 cases when :sampled' do
+        AppOpticsAPM::Config[:log_traceId] = :sampled
+
+        AppOpticsAPM::Context.fromString(@tracestring_01)
+        result = AppOpticsAPM::SDK.current_trace_info.for_sql
+        assert_equal "/* trace-id: #{@trace_id} */ ", result
+
+        AppOpticsAPM::Context.fromString(@tracestring_00)
+        result = AppOpticsAPM::SDK.current_trace_info.for_sql
+        assert_equal '', result
+
+        AppOpticsAPM::Context.clear
+        result = AppOpticsAPM::SDK.current_trace_info.for_sql
+        assert_equal '', result
+      end
+
+    end
   end
 end

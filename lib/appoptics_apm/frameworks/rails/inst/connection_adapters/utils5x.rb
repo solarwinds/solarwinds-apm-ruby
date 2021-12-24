@@ -6,7 +6,51 @@ module AppOpticsAPM
     module ConnectionAdapters
       module Utils
 
-        def extract_trace_details(sql, name = nil, binds = [])
+        def exec_query_with_appoptics(*args, **args2)
+          trace_wrap(*args) do |args|
+            exec_query_without_appoptics(*args, **args2)
+          end
+        end
+
+        # need to instrument them all
+        def exec_insert_with_appoptics(*args)
+          trace_wrap(*args) do |args|
+            exec_insert_without_appoptics(*args)
+          end
+        end
+
+        def exec_delete_with_appoptics(*args)
+          trace_wrap(*args) do |args|
+            exec_delete_without_appoptics(*args)
+          end
+        end
+
+        def exec_update_with_appoptics(*args)
+          trace_wrap(*args) do |args|
+            exec_update_without_appoptics(*args)
+          end
+        end
+
+        private
+
+        def trace_wrap(*args)
+          sql, name, binds, _ = args
+
+          # trace_id may or may not be added depending on setting and context
+          # even if we are not tracing
+          args[0] = AppOpticsAPM::Util.add_trace_id_to_sql(sql)
+          if AppOpticsAPM.tracing? && !ignore_payload?(name)
+            kvs = extract_trace_details(sql, name, binds)
+            # use protect_op to avoid double tracing in mysql2
+            AppOpticsAPM::SDK.trace('activerecord', kvs: kvs, protect_op: :ar_started) do
+              yield args
+            end
+          else
+            yield args
+          end
+        end
+
+        def extract_trace_details(sql, name = nil, binds = [], _)
           kvs = {}
 
           begin
@@ -52,61 +96,14 @@ module AppOpticsAPM
           kvs
         end
 
-        # We don't want to trace framework caches.  Only instrument SQL that
-        # directly hits the database.
+        # We don't want to trace framework caches.
+        # Only instrument SQL that directly hits the database.
         def ignore_payload?(name)
           %w(SCHEMA EXPLAIN CACHE).include?(name.to_s) ||
             (name && name.to_sym == :skip_logging) ||
             name == 'ActiveRecord::SchemaMigration Load'
         end
 
-        def exec_query_with_appoptics(sql, name = nil, binds = [], prepare: false)
-          if AppOpticsAPM.tracing? && !AppOpticsAPM.tracing_layer_op?(:ar_started) && !ignore_payload?(name)
-
-            kvs = extract_trace_details(sql, name, binds)
-            AppOpticsAPM::SDK.trace('activerecord', kvs: kvs) do
-              exec_query_without_appoptics(sql, name, binds)
-            end
-          else
-            exec_query_without_appoptics(sql, name, binds)
-          end
-        end
-
-        def exec_insert_with_appoptics(sql, name = nil, binds = [], *args)
-          if AppOpticsAPM.tracing? && !ignore_payload?(name)
-
-            kvs = extract_trace_details(sql, name, binds)
-            AppOpticsAPM::SDK.trace('activerecord', kvs: kvs, protect_op: :ar_started) do
-              exec_insert_without_appoptics(sql, name, binds, *args)
-            end
-          else
-            exec_insert_without_appoptics(sql, name, binds, *args)
-          end
-        end
-
-        def exec_delete_with_appoptics(sql, name = nil, binds = [])
-          if AppOpticsAPM.tracing? && !ignore_payload?(name)
-
-            kvs = extract_trace_details(sql, name, binds)
-            AppOpticsAPM::SDK.trace('activerecord', kvs: kvs, protect_op: :ar_started) do
-              exec_delete_without_appoptics(sql, name, binds)
-            end
-          else
-            exec_delete_without_appoptics(sql, name, binds)
-          end
-        end
-
-        def exec_update_with_appoptics(sql, name = nil, binds = [])
-          if AppOpticsAPM.tracing? && !ignore_payload?(name)
-
-            kvs = extract_trace_details(sql, name, binds)
-            AppOpticsAPM::SDK.trace('activerecord', kvs: kvs, protect_op: :ar_started) do
-              exec_update_without_appoptics(sql, name, binds)
-            end
-          else
-            exec_update_without_appoptics(sql, name, binds)
-          end
-        end
       end # Utils
     end
   end

@@ -14,12 +14,17 @@ describe "Rails CRUD Tests" do
       @ac_backtrace = AppOpticsAPM::Config[:action_controller][:collect_backtraces]
       @ar_backtrace = AppOpticsAPM::Config[:active_record][:collect_backtraces]
       @rack_backtrace = AppOpticsAPM::Config[:rack][:collect_backtraces]
+      @log_traceid = AppOpticsAPM::Config[:log_traceId]
 
       AppOpticsAPM::Config[:sanitize_sql] = false
       AppOpticsAPM::Config[:action_controller][:collect_backtraces] = false
       AppOpticsAPM::Config[:active_record][:collect_backtraces] = false
       AppOpticsAPM::Config[:rack][:collect_backtraces] = false
+      AppOpticsAPM::Config[:log_traceId] = :always
     }
+
+    @log_traceid_regex = /\/\*\s*trace-id:\s*[0-9a-f]{32}\s*\*\/\s*/
+    clear_query_log
   end
 
   after do
@@ -30,7 +35,11 @@ describe "Rails CRUD Tests" do
       AppOpticsAPM::Config[:action_controller][:collect_backtraces] = @ac_backtrace
       AppOpticsAPM::Config[:active_record][:collect_backtraces] = @ar_backtrace
       AppOpticsAPM::Config[:rack][:collect_backtraces] = @rack_backtrace
+      AppOpticsAPM::Config[:log_traceId] = @log_traceid
     }
+
+    clear_all_traces
+    clear_query_log
   end
 
   it "should trace CREATE correctly" do
@@ -55,7 +64,9 @@ describe "Rails CRUD Tests" do
       _(ar_traces.count).must_equal 1
     end
 
-    _(traces.select { |trace| trace['Query'] =~ /^INSERT/ }.count).must_equal 2
+    _(traces.select { |trace| trace['Query'] =~ /INSERT/ }.count).must_equal 2
+
+    assert query_logged?(/Widget Create.*#{@log_traceid_regex}/), "Logged query didn't match what we're looking for"
   end
 
   it "should trace READ correctly" do
@@ -73,7 +84,10 @@ describe "Rails CRUD Tests" do
 
     traces.select! { |trace| trace['Label'] == 'entry' && trace['Layer'] == 'activerecord' }
     _(traces.count).must_equal 1
-    _(traces[0]['Query']).must_match /^SELECT/
+    _(traces[0]['Query']).must_match /SELECT/
+
+    assert query_logged?(/Widget Create.*#{@log_traceid_regex}/), "Logged query didn't match what we're looking for"
+    assert query_logged?(/Widget Load.*#{@log_traceid_regex}/), "Logged query didn't match what we're looking for"
   end
 
   it "should trace UPDATE correctly" do
@@ -98,8 +112,12 @@ describe "Rails CRUD Tests" do
       _(traces.count).must_equal 2
     end
 
-    _(traces.select { |trace| trace['Query'] =~ /^SELECT/ }.count).must_equal 1
-    _(traces.select { |trace| trace['Query'] =~ /^UPDATE/ }.count).must_equal 1
+    _(traces.select { |trace| trace['Query'] =~ /SELECT/ }.count).must_equal 1
+    _(traces.select { |trace| trace['Query'] =~ /UPDATE/ }.count).must_equal 1
+
+    assert query_logged?(/Widget Create.*#{@log_traceid_regex}/), "Logged query didn't match what we're looking for"
+    assert query_logged?(/Widget Load.*#{@log_traceid_regex}/), "Logged query didn't match what we're looking for"
+    assert query_logged?(/Widget Update.*#{@log_traceid_regex}/), "Logged query didn't match what we're looking for"
   end
 
   it "should trace DELETE correctly" do
@@ -117,7 +135,10 @@ describe "Rails CRUD Tests" do
 
     traces.select! { |trace| trace['Label'] == 'entry' && trace['Layer'] == 'activerecord' }
     _(traces.count).must_equal 1
-    _(traces[0]['Query']).must_match /^DELETE/
+    _(traces[0]['Query']).must_match /DELETE/
+
+    assert query_logged?(/Widget Create.*#{@log_traceid_regex}/), "Logged query didn't match what we're looking for"
+    assert query_logged?(/Widget Destroy.*#{@log_traceid_regex}/), "Logged query didn't match what we're looking for"
   end
 end
 

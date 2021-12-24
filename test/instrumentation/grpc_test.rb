@@ -98,6 +98,11 @@ if defined? GRPC
       clear_all_traces
     end
 
+    after do
+      AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = false
+      clear_all_traces
+    end
+
     after(:all) do
       AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = @bt_client
       stop_server

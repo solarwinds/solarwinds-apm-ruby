@@ -104,11 +104,5 @@ RUN apt-get update \
     && rm -f /tmp/config
 
 ENV PATH="/root/.rbenv/bin:/root/.rbenv/shims:$PATH"
-ENV RUBY_ENV=test
-ENV APPOPTICS_TOKEN_BUCKET_CAPACITY=10000
-ENV APPOPTICS_TOKEN_BUCKET_RATE=10000
-
-# replicate stdout of tests to file in local log directory
-ENV TEST_RUNS_TO_FILE=true
 
 CMD /bin/bash

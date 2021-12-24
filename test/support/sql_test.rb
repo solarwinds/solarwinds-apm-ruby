@@ -69,3 +69,65 @@ describe 'SQLSanitizeTest' do
   end
 end
 
+describe 'AddTraceId' do
+
+  before do
+    @trace_id = rand(10 ** 32).to_s.rjust(32,'0')
+    @span_id = rand(10 ** 16).to_s.rjust(16,'0')
+    @tracestring_01 = "00-#{@trace_id}-#{@span_id}-01"
+    @tracestring_00 = "00-#{@trace_id}-#{@span_id}-00"
+
+    @sql =  "SELECT `users`.* FROM `users` WHERE (mobile IN ('234 234 234') AND email IN ('a_b_c@hotmail.co.uk'))"
+
+    @log_traceid = AppOpticsAPM::Config[:log_traceId]
+    AppOpticsAPM::Config[:log_traceId] = :always
+  end
+
+  after do
+    AppOpticsAPM::Config[:log_traceId] = @log_traceid
+  end
+
+  it 'prepends a trace-id comment' do
+    AppOpticsAPM::Context.fromString(@tracestring_01)
+    result = AppOpticsAPM::Util.add_trace_id_to_sql(@sql)
+    assert_equal "/* trace-id: #{@trace_id} */ #{@sql}", result
+  end
+
+  # when there is already a comment in the sql (add as usual, there can be multiple comments)
+  it 'adds a trace-id comment even if there already is one' do
+    AppOpticsAPM::Context.fromString(@tracestring_01)
+    sql = "/* some other comment */ #{@sql}"
+    result = AppOpticsAPM::Util.add_trace_id_to_sql(sql)
+    assert_equal "/* trace-id: #{@trace_id} */ #{sql}", result
+  end
+
+  # when there is already a traceId in the sql (replace because we want the most current one, don't duplicate)
+  it 'replaces a trace-id comment' do
+    AppOpticsAPM::Context.fromString(@tracestring_01)
+    sql = "/* trace-id: 29340134768738961033150415366475 */ #{@sql}"
+    result = AppOpticsAPM::Util.add_trace_id_to_sql(sql)
+    assert_equal "/* trace-id: #{@trace_id} */ #{@sql}", result
+
+    # even when the spaces are screwed
+    sql = "/*  trace-id:29340134768738961033150415366475  */ #{@sql}"
+    result = AppOpticsAPM::Util.add_trace_id_to_sql(sql)
+    assert_equal "/* trace-id: #{@trace_id} */ #{@sql}", result
+  end
+
+  # when there is already a traceId in the sql and log_trace_id is false (remove, current state dictates behavior)
+  it 'removes a trace-id comment' do
+    AppOpticsAPM::Config[:log_traceId] = :never
+    AppOpticsAPM::Context.fromString(@tracestring_01)
+    sql = "/* trace-id: 29340134768738961033150415366475 */ #{@sql}"
+    result = AppOpticsAPM::Util.add_trace_id_to_sql(sql)
+    assert_equal @sql, result
+
+    # even when the spaces are screwed
+    sql = "/*  trace-id:29340134768738961033150415366475  */ #{@sql}"
+    result = AppOpticsAPM::Util.add_trace_id_to_sql(sql)
+    assert_equal @sql, result
+  end
+
+
+end
+

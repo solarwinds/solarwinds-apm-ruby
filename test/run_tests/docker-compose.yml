@@ -35,6 +35,7 @@ x-ao-env: &ao-env
   POSTGRES_PASSWORD: "docker"
   POSTGRES_USER: "docker"
   POSTGRES_HOST: "ao-ruby-postgres"
+  QUERY_LOG_FILE: "/tmp/appoptics_query_logs.txt"
   RUBY_ENV: "test"
   TEST_RUNS_TO_FILE: "true"
 #    - SIMPLECOV_COVERAGE=true

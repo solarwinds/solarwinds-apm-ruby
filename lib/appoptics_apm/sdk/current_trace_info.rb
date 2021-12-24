@@ -63,6 +63,10 @@ module AppOpticsAPM
                                        trace_flags: @trace_flags } : {}
         end
 
+        def for_sql
+          @for_sql ||= do_log ? "/* trace-id: #{@trace_id} */ " : ''
+        end
+
         private
 
         #    if true the trace info should be added to the log message

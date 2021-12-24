@@ -146,7 +146,7 @@ module AppOpticsAPM
       ##
       # sanitize_sql
       #
-      # Used to remove query literals from SQL.  Used by all
+      # Remove query literals from SQL. Used by all
       # DB adapter instrumentation.
       #
       # The regular expression passed to String.gsub is configurable
@@ -158,6 +158,25 @@ module AppOpticsAPM
 
         regexp = Regexp.new(AppOpticsAPM::Config[:sanitize_sql_regexp], AppOpticsAPM::Config[:sanitize_sql_opts])
         sql.gsub(/\\\'/,'').gsub(regexp, '?')
+      end
+
+      ##
+      # add_trace_id_to_sql
+      #
+      # returns the sql with "/* trace-id=#{@trace_id} /*" prepended
+      #
+      def add_trace_id_to_sql(sql)
+        sql = remove_trace_id_from_sql(sql)
+        "#{AppOpticsAPM::SDK.current_trace_info.for_sql}#{sql}"
+      end
+
+      ##
+      # remove_trace_id_from_sql
+      #
+      # returns the sql without any "/* trace-id=#{@trace_id} /*" comments
+      #
+      def remove_trace_id_from_sql(sql)
+        sql.gsub(/\/\*\s*trace-id:\s*[0-9a-f]{32}\s*\*\/\s*/, '')
       end
 
       ##
