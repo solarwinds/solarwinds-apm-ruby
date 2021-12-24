@@ -40,7 +40,7 @@ module AppOpticsAPM
           # even if we are not tracing
           args[0] = AppOpticsAPM::Util.add_trace_id_to_sql(sql)
           if AppOpticsAPM.tracing? && !ignore_payload?(name)
-            kvs = extract_trace_details(sql, name, binds)
+            kvs = extract_trace_details(sql, name, binds || [])
             # use protect_op to avoid double tracing in mysql2
             AppOpticsAPM::SDK.trace('activerecord', kvs: kvs, protect_op: :ar_started) do
               yield args
@@ -50,7 +50,7 @@ module AppOpticsAPM
           end
         end
 
-        def extract_trace_details(sql, name = nil, binds = [], _)
+        def extract_trace_details(sql, name = nil, binds = [])
           kvs = {}
 
           begin

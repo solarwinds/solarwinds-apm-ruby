@@ -66,7 +66,7 @@ describe "Rails CRUD Tests" do
 
     _(traces.select { |trace| trace['Query'] =~ /INSERT/ }.count).must_equal 2
 
-    assert query_logged?(/Widget Create.*#{@log_traceid_regex}/), "Logged query didn't match what we're looking for"
+    assert query_logged?(/#{@log_traceid_regex}\s*INSERT/), "Logged query didn't match what we're looking for"
   end
 
   it "should trace READ correctly" do
@@ -86,8 +86,8 @@ describe "Rails CRUD Tests" do
     _(traces.count).must_equal 1
     _(traces[0]['Query']).must_match /SELECT/
 
-    assert query_logged?(/Widget Create.*#{@log_traceid_regex}/), "Logged query didn't match what we're looking for"
-    assert query_logged?(/Widget Load.*#{@log_traceid_regex}/), "Logged query didn't match what we're looking for"
+    assert query_logged?(/#{@log_traceid_regex}\s*INSERT/), "Logged query didn't match what we're looking for"
+    assert query_logged?(/#{@log_traceid_regex}\s*SELECT/), "Logged query didn't match what we're looking for"
   end
 
   it "should trace UPDATE correctly" do
@@ -115,9 +115,9 @@ describe "Rails CRUD Tests" do
     _(traces.select { |trace| trace['Query'] =~ /SELECT/ }.count).must_equal 1
     _(traces.select { |trace| trace['Query'] =~ /UPDATE/ }.count).must_equal 1
 
-    assert query_logged?(/Widget Create.*#{@log_traceid_regex}/), "Logged query didn't match what we're looking for"
-    assert query_logged?(/Widget Load.*#{@log_traceid_regex}/), "Logged query didn't match what we're looking for"
-    assert query_logged?(/Widget Update.*#{@log_traceid_regex}/), "Logged query didn't match what we're looking for"
+    assert query_logged?(/#{@log_traceid_regex}\s*INSERT/), "Logged query didn't match what we're looking for"
+    assert query_logged?(/#{@log_traceid_regex}\s*SELECT/), "Logged query didn't match what we're looking for"
+    assert query_logged?(/#{@log_traceid_regex}\s*UPDATE/), "Logged query didn't match what we're looking for"
   end
 
   it "should trace DELETE correctly" do
@@ -137,8 +137,8 @@ describe "Rails CRUD Tests" do
     _(traces.count).must_equal 1
     _(traces[0]['Query']).must_match /DELETE/
 
-    assert query_logged?(/Widget Create.*#{@log_traceid_regex}/), "Logged query didn't match what we're looking for"
-    assert query_logged?(/Widget Destroy.*#{@log_traceid_regex}/), "Logged query didn't match what we're looking for"
+    assert query_logged?(/#{@log_traceid_regex}\s*INSERT/), "Logged query didn't match what we're looking for"
+    assert query_logged?(/#{@log_traceid_regex}\s*DELETE/), "Logged query didn't match what we're looking for"
   end
 end
 
