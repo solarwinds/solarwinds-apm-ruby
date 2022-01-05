@@ -20,7 +20,6 @@ gem 'curb'
 gem 'dalli'
 
 gem 'excon'
-<<<<<<< HEAD
 gem 'faraday', '~> 1.0'
 
 # next versions of faraday will need these seperate adapter gems
@@ -28,9 +27,6 @@ gem 'faraday', '~> 1.0'
 # gem 'faraday-httpclient'
 # gem 'faraday-patron'
 
-=======
-gem 'faraday', '< 2.0.0' # TODO fix faraday instrumentation for 2.0.0
->>>>>>> d56e6a94 (limit faraday version (instrumentation needs to be updated for 2.0.0))
 gem 'graphql', '~> 1.12.0' # TODO fix graphql instrumentation for graphql 1.13++
 gem 'httpclient'
 gem 'logging'
