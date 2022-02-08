@@ -16,6 +16,7 @@ end if ENV["SIMPLECOV_COVERAGE"]
 
 require 'rubygems'
 require 'bundler/setup'
+require 'fileutils'
 require 'minitest/spec'
 require 'minitest/autorun'
 require 'minitest/reporters'
@@ -171,6 +172,28 @@ def get_all_traces
     AppOpticsAPM::Reporter.get_all_traces
   else
     []
+  end
+end
+
+##
+# read the ActiveRecord logfile and match it with regex
+# use case: test if trace-id has been injected in query
+#
+# `clear_query_log` before next test
+def query_logged?(regex)
+  File.open(ENV['QUERY_LOG_FILE']).read() =~ regex
+end
+
+##
+# clear the ActiveRecord logfile, but don't remove it
+# create if it doesn't exist
+#
+def clear_query_log
+  ENV['QUERY_LOG_FILE'] ||= '/tmp/query_log.txt'
+  if File.exist?(ENV['QUERY_LOG_FILE'])
+    File.truncate(ENV['QUERY_LOG_FILE'], 0)
+  else
+    FileUtils.touch(ENV['QUERY_LOG_FILE'])
   end
 end
 

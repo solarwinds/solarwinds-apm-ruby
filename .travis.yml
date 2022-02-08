@@ -1,3 +1,7 @@
+# Do not remove this file
+# (even though we are not using travis anymore)
+# it is used a test matrix when running tests on the dev's machine
+
 language: ruby
 
 cache:
@@ -10,6 +14,7 @@ env:
   - DBTYPE=mysql2
 
 rvm:
+  - 3.1.0
   - 3.0.2
   - 2.7.4
   - 2.6.8
@@ -24,7 +29,8 @@ gemfile:
   - gemfiles/instrumentation_mocked.gemfile
   - gemfiles/instrumentation_mocked_oldgems.gemfile
   - gemfiles/frameworks.gemfile
-  - gemfiles/rails60.gemfile
+  - gemfiles/rails70.gemfile
+  - gemfiles/rails61.gemfile
   - gemfiles/rails52.gemfile
   - gemfiles/rails42.gemfile
   - gemfiles/delayed_job.gemfile
@@ -42,7 +48,9 @@ matrix:
     - rvm: 2.6.8
       gemfile: gemfiles/rails42.gemfile
     - rvm: 2.4.10
-      gemfile: gemfiles/rails60.gemfile
+      gemfile: gemfiles/rails70.gemfile
+    - rvm: 2.4.10
+      gemfile: gemfiles/rails61.gemfile
     - rvm: 2.4.10  # excluding because of new sprockets version (4.0.0)
       gemfile: gemfiles/rails52.gemfile
 

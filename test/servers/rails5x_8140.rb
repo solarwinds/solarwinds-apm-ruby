@@ -11,6 +11,10 @@ require "action_controller" # require more rails if needed
 require 'rack/handler/puma'
 require File.expand_path(File.dirname(__FILE__) + '/../models/widget')
 
+ENV['QUERY_LOG_FILE'] ||= '/tmp/query_log.txt'
+ActiveRecord::Base.logger = Logger.new(ENV['QUERY_LOG_FILE'])
+ActiveRecord::Base.logger.level = Logger::DEBUG
+
 class ApplicationController < ActionController::Base
   before_action :set_view_path
 
@@ -68,6 +72,7 @@ class Rails50MetalStack < Rails::Application
   config.secret_key_base = "2048671-96803948"
   # config.active_record.sqlite3 = {} # deal with https://github.com/rails/rails/issues/37048
   config.assets.enabled = false
+  config.colorize_logging = false
 end
 
 #################################################

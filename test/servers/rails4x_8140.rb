@@ -10,6 +10,10 @@ require "action_controller/railtie"
 require 'rack/handler/puma'
 require File.expand_path(File.dirname(__FILE__) + '/../models/widget')
 
+ENV['QUERY_LOG_FILE'] ||= '/tmp/query_log.txt'
+ActiveRecord::Base.logger = Logger.new(ENV['QUERY_LOG_FILE'])
+ActiveRecord::Base.logger.level = Logger::DEBUG
+
 class ApplicationController < ActionController::Base
   before_action :set_view_path
 
@@ -64,6 +68,7 @@ class Rails40MetalStack < Rails::Application
   config.middleware.delete "ActionDispatch::BestStandardsSupport"
   config.secret_token = "49830489qkuweoiuoqwehisuakshdjksadhaisdy78o34y138974xyqp9rmye8yypiokeuioqwzyoiuxftoyqiuxrhm3iou1hrzmjk"
   config.secret_key_base = "2048671-96803948"
+  config.colorize_logging = false
 end
 
 #################################################
