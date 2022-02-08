@@ -8,9 +8,12 @@ require 'appoptics_apm/frameworks/rails/inst/connection_adapters/postgresql'
 if AppOpticsAPM::Config[:active_record][:enabled] && !defined?(JRUBY_VERSION)
   begin
     AppOpticsAPM::Config[:verbose]
-    adapter = ActiveRecord::Base.respond_to?(:connection_db_config) ?
-                            ActiveRecord::Base.connection_db_config[:adapter] :
-                            ActiveRecord::Base.connection_config.adapter
+    adapter = if ActiveRecord::Base.respond_to?(:connection_db_config)
+                ActiveRecord::Base.connection_db_config.adapter
+              else
+                ActiveRecord::Base.connection_config[:adapter]
+              end
+
 
     if Rails::VERSION::MAJOR < 5
       require 'appoptics_apm/frameworks/rails/inst/connection_adapters/utils'
