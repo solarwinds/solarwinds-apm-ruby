@@ -19,7 +19,6 @@ rvm:
   - 2.7.5
   - 2.6.9
   - 2.5.9
-  - 2.4.10
 #  - ruby-head
 #  - jruby-9.0.5.0
 
@@ -32,29 +31,21 @@ gemfile:
   - gemfiles/rails70.gemfile
   - gemfiles/rails61.gemfile
   - gemfiles/rails52.gemfile
-  - gemfiles/rails42.gemfile
   - gemfiles/delayed_job.gemfile
   - gemfiles/noop.gemfile
 #  - gemfiles/profiling.gemfile
 
 matrix:
   exclude:
-    - rvm: 3.0.3
-      gemfile: gemfiles/rails42.gemfile
+    - rvm: 3.1.0
+      gemfile: gemfiles/rails52.gemfile
     - rvm: 3.0.3
       gemfile: gemfiles/rails52.gemfile
-    - rvm: 2.7.5
-      gemfile: gemfiles/rails42.gemfile
-    - rvm: 2.6.9
-      gemfile: gemfiles/rails70.gemfile
+
     - rvm: 2.6.9
       gemfile: gemfiles/rails70.gemfile
     - rvm: 2.5.9
       gemfile: gemfiles/rails70.gemfile
-    - rvm: 2.4.10
-      gemfile: gemfiles/rails61.gemfile
-    - rvm: 2.4.10
-      gemfile: gemfiles/rails52.gemfile
 
     - gemfile: gemfiles/unit.gemfile
       env: DBTYPE=mysql2

@@ -14,35 +14,29 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: [3.0, 2.7, 2.6, 2.5, 2.4]
+        ruby: [3.1, 3.0, 2.7, 2.6, 2.5]
         gemfile:
           - libraries
           - unit
           - instrumentation_mocked
           - instrumentation_mocked_oldgems
           - frameworks
+          - rails70
           - rails61
           - rails60
           - rails52
-          - rails42
           - delayed_job
           - noop
         dbtype: [postgresql, mysql2]
         exclude:
-          - ruby: 3.0
+          - ruby: 3.1
             gemfile: rails52
           - ruby: 3.0
-            gemfile: rails42
-          - ruby: 2.7
-            gemfile: rails42
+            gemfile: rails52
           - ruby: 2.6
-            gemfile: rails42
-          - ruby: 2.4
-            gemfile: rails61
-          - ruby: 2.4
-            gemfile: rails60
-          - ruby: 2.4  # excluding because of new sprockets version (4.0.0)
-            gemfile: rails52
+            gemfile: rails70
+          - ruby: 2.5
+            gemfile: rails70
 
           - gemfile: unit
             dbtype: mysql2
@@ -139,14 +133,7 @@ jobs:
           curl -SL http://download.redis.io/releases/redis-4.0.0.tar.gz | tar xzC /tmp && cd /tmp/redis-4.0.0/ && make && make install && cd -
           redis-server --requirepass redis_pass --loglevel "warning" &
 
-      - name: Bundle with 1.17.3
-        if: matrix.gemfile == 'rails42' || matrix.gemfile == 'frameworks'
-        run: |
-          gem install bundler:1.17.3
-          export BUNDLE_GEMFILE=gemfiles/${{ matrix.gemfile }}.gemfile
-          bundle _1.17.3_ install --jobs 4 --retry 3
       - name: Bundle
-        if: matrix.gemfile != 'rails42' && matrix.gemfile != 'frameworks'
         run: |
           gem install bundler
           export BUNDLE_GEMFILE=gemfiles/${{ matrix.gemfile }}.gemfile

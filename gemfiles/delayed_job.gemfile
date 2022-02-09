@@ -10,7 +10,7 @@ else
   gem "delayed_job_active_record"
 end
 
-gem "rails" # , "~> 4.2.5"
+gem "rails"
 
 eval(File.read(File.join(File.dirname(__FILE__), 'test_gems.gemfile')))
 

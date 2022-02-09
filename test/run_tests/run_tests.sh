@@ -97,15 +97,8 @@ do
     rbenv local ${args[0]}
     current_ruby=${args[0]}
     echo
-    echo "Installing gems ... for $(ruby -v)"
-    if [[ "$BUNDLE_GEMFILE" == *"gemfiles/frameworks.gemfile"* || "$BUNDLE_GEMFILE" == *"gemfiles/rails42.gemfile"* ]]
-    then
-      echo "*** using bundler 1.17.3 with $BUNDLE_GEMFILE ***"
-      bundle _1.17.3_ update # --quiet
-    else
-      echo "*** using default bundler with $BUNDLE_GEMFILE ***"
-      bundle update # --quiet
-    fi
+    echo "*** installing gems in $BUNDLE_GEMFILE ***"
+    bundle update # --quiet
     # if this is running on alpine and using ruby 3++, we need to patch
     if [[ -r /etc/alpine-release && $current_ruby =~ ^3.* ]]; then
       # download and apply patch
@@ -117,15 +110,8 @@ do
     bundle exec rake clean fetch compile
   else
     echo
-    echo "Installing gems ... for $(ruby -v)"
-    if [[ "$BUNDLE_GEMFILE" == *"gemfiles/frameworks.gemfile"* || "$BUNDLE_GEMFILE" == *"gemfiles/rails42.gemfile"* ]]
-    then
-      echo "*** using bundler 1.17.3 with $BUNDLE_GEMFILE ***"
-      bundle _1.17.3_ update # --quiet
-    else
-      echo "*** using default bundler with $BUNDLE_GEMFILE ***"
-      bundle update # --quiet
-    fi
+    echo "*** installing gems in $BUNDLE_GEMFILE ***"
+    bundle update # --quiet
   fi
 
   if [ "$?" -eq 0 ]; then
