@@ -100,12 +100,20 @@ do
     echo "*** installing gems in $BUNDLE_GEMFILE ***"
     bundle update # --quiet
     # if this is running on alpine and using ruby 3++, we need to patch
-    if [[ -r /etc/alpine-release && $current_ruby =~ ^3.* ]]; then
+    if [[ -r /etc/alpine-release ]]; then
+      if [[ $current_ruby =~ ^3.0.* ]]; then
       # download and apply patch
       cd /root/.rbenv/versions/$current_ruby/include/ruby-3.0.0/ruby/internal/ || exit 1
       curl -sL https://bugs.ruby-lang.org/attachments/download/8821/ruby-ruby_nonempty_memcpy-musl-cxx.patch -o memory.patch
       patch -N memory.h memory.patch
       cd - || exit 1
+      elif [[ $current_ruby =~ ^3.1.* ]]; then
+        # download and apply patch
+        cd /root/.rbenv/versions/$current_ruby/include/ruby-3.1.0/ruby/internal/ || exit 1
+        curl -sL https://bugs.ruby-lang.org/attachments/download/8821/ruby-ruby_nonempty_memcpy-musl-cxx.patch -o memory.patch
+        patch -N memory.h memory.patch
+        cd - || exit 1
+      fi
     fi
     bundle exec rake clean fetch compile
   else
@@ -118,7 +126,7 @@ do
     bundle exec rake test
     status=$?
     [[ $status -gt $exit_status ]] && exit_status=$status
-    [[ $status -ne 0 ]] && echo "!!! Test suite failed - $exit_status !!!"
+    [[ $status -ne 0 ]] && echo "!!! Test suite failed - $exit_status - $BUNDLE_GEMFILE !!!"
 
     # kill all sidekiq processes, they don't stop automatically and can add up if tests are run repeatedly
     kill -9 $(pgrep -f sidekiq)
