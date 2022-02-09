@@ -4,7 +4,13 @@ gem 'rest-client'
 
 gem 'curb'
 gem 'excon'
-gem 'faraday'
+gem 'faraday', '~> 1.0'
+
+# next versions of faraday will need these seperate adapter gems
+# gem 'faraday-excon'
+# gem 'faraday-httpclient'
+# gem 'faraday-patron'
+
 gem 'httpclient'
 gem 'typhoeus'
 gem 'patron' # not instrumented, to test non-instrumented faraday adapter
