@@ -154,5 +154,6 @@ jobs:
         export HOME=/root
         test/run_tests/ruby_setup.sh
         version=`rbenv versions --bare | grep ${{ matrix.ruby }}`
+        rbenv global $version
         echo "testing with ruby version: $version"
         test/run_tests/run_tests.sh -r $version
