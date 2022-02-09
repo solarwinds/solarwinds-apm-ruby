@@ -79,18 +79,18 @@ RUN echo 'alias be="bundle exec"' >> ~/.profile
 RUN source  ~/.profile \
    && cd /root/.rbenv/plugins/ruby-build && git pull && cd - \
     && rbenv install 2.4.10 \
-    && rbenv install 2.5.8 \
-    && rbenv install 2.6.8 \
-    && rbenv install 2.7.4 \
-    && rbenv install 3.0.2
+    && rbenv install 2.5.9 \
+    && rbenv install 2.6.9 \
+    && rbenv install 2.7.5 \
+    && rbenv install 3.0.3
    # && rbenv install jruby-9.0.5.0
 
-# need to provide bundler 1.17.3 as well, because some gems require bundler < 2.0
-RUN . ~/.profile && rbenv local 2.4.10 && gem install bundler -v 1.17.3
-RUN . ~/.profile && rbenv local 2.5.8 && gem install bundler -v 1.17.3
-RUN . ~/.profile && rbenv local 2.6.8 && gem install bundler -v 1.17.3
-RUN . ~/.profile && rbenv local 2.7.4 && gem install bundler -v 1.17.3
-RUN . ~/.profile && rbenv local 3.0.2 && gem install bundler -v 1.17.3
+## need to provide bundler 1.17.3 as well, because some gems require bundler < 2.0
+#RUN . ~/.profile && rbenv local 2.4.10 && gem install bundler -v 1.17.3
+#RUN . ~/.profile && rbenv local 2.5.8 && gem install bundler -v 1.17.3
+#RUN . ~/.profile && rbenv local 2.6.8 && gem install bundler -v 1.17.3
+#RUN . ~/.profile && rbenv local 2.7.4 && gem install bundler -v 1.17.3
+#RUN . ~/.profile && rbenv local 3.0.2 && gem install bundler -v 1.17.3
 
 # Alpine needs config.h symlinked into the default location for gtests
 RUN ln -s /root/.rbenv/versions/2.4.10/include/ruby-2.4.0/x86_64-linux-musl/ruby/config.h /root/.rbenv/versions/2.4.10/include/ruby-2.4.0/ruby/config.h
