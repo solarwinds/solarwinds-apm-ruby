@@ -138,7 +138,7 @@ do
     kill -9 $(pgrep -f sidekiq)
   else
     echo "Problem during gem install. Skipping tests for ${args[1]}"
-    rbenv local  2.5.8
+    rbenv local  2.7.5
     exit 1 # we are not continuing here to keep ctrl-c working as expected
   fi
 

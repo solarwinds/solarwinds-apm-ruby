@@ -88,7 +88,8 @@ RUN . ~/.profile \
     && rbenv install 2.5.9 \
     && rbenv install 2.6.9 \
     && rbenv install 2.7.5 \
-    && rbenv install 3.0.3
+    && rbenv install 3.0.3 \
+    && rbenv install 3.1.0
 #    && rbenv install jruby-9.1.16.0
 
 # need to provide bundler 1.17.3 as well, because some gems require bundler < 2.0

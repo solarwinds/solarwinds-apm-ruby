@@ -8,8 +8,8 @@ inspired by: https://dev.to/wataash/how-to-create-and-debug-ruby-gem-with-c-nati
 rbenv is your friend ;) -k means keep sources
 
 ```
-rbenv install -k 2.6.3
-rbenv shell 2.6.3
+rbenv install -k 2.7.5
+rbenv shell 2.7.5
 
 # check that ruby is debuggable
 type ruby           # => ruby is /home/wsh/.rbenv/shims/ruby
