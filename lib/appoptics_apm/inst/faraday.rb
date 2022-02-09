@@ -87,6 +87,10 @@ if defined?(Faraday) && AppOpticsAPM::Config[:faraday][:enabled]
   AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting faraday' if AppOpticsAPM::Config[:verbose]
   Faraday::Connection.prepend(AppOpticsAPM::Inst::FaradayConnection)
 
-  APPOPTICS_INSTR_ADAPTERS = ["Faraday::Adapter::NetHttp", "Faraday::Adapter::Excon", "Faraday::Adapter::Typhoeus"]
-  APPOPTICS_INSTR_ADAPTERS << "Faraday::Adapter::HTTPClient" if defined?Faraday::Adapter::HTTPClient
+  APPOPTICS_INSTR_ADAPTERS = [] # ["Faraday::Adapter::NetHttp", "Faraday::Adapter::Excon", "Faraday::Adapter::Typhoeus"]
+
+  APPOPTICS_INSTR_ADAPTERS << "Faraday::Adapter::Typhoeus" if defined? Faraday::Adapter::Typhoeus
+  APPOPTICS_INSTR_ADAPTERS << "Faraday::Adapter::NetHttp" if defined? Faraday::Adapter::NetHttp
+  APPOPTICS_INSTR_ADAPTERS << "Faraday::Adapter::Excon" if defined? Faraday::Adapter::Excon
+  APPOPTICS_INSTR_ADAPTERS << "Faraday::Adapter::HTTPClient" if defined? Faraday::Adapter::HTTPClient
 end
