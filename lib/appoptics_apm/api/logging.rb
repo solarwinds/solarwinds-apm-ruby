@@ -22,7 +22,6 @@ module AppOpticsAPM
     # avoid broken traces.
     module Logging
       @@ints_or_nil = [Integer, Float, NilClass, String]
-      @@ints_or_nil << Fixnum unless RUBY_VERSION >= '2.4'
 
       ##
       # Public: Report an event in an active trace.
