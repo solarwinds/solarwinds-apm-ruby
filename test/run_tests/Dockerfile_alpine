@@ -94,10 +94,10 @@ RUN source  ~/.profile \
 
 # Alpine needs config.h symlinked into the default location for gtests
 RUN ln -s /root/.rbenv/versions/2.4.10/include/ruby-2.4.0/x86_64-linux-musl/ruby/config.h /root/.rbenv/versions/2.4.10/include/ruby-2.4.0/ruby/config.h
-RUN ln -s /root/.rbenv/versions/2.5.9/include/ruby-2.5.0/x86_64-linux-musl/ruby/config.h /root/.rbenv/versions/2.5.8/include/ruby-2.5.0/ruby/config.h
-RUN ln -s /root/.rbenv/versions/2.6.9/include/ruby-2.6.0/x86_64-linux-musl/ruby/config.h /root/.rbenv/versions/2.6.8/include/ruby-2.6.0/ruby/config.h
-RUN ln -s /root/.rbenv/versions/2.7.5/include/ruby-2.7.0/x86_64-linux-musl/ruby/config.h /root/.rbenv/versions/2.7.4/include/ruby-2.7.0/ruby/config.h
-RUN ln -s /root/.rbenv/versions/3.0.3/include/ruby-3.0.0/x86_64-linux-musl/ruby/config.h /root/.rbenv/versions/3.0.2/include/ruby-3.0.0/ruby/config.h
+RUN ln -s /root/.rbenv/versions/2.5.9/include/ruby-2.5.0/x86_64-linux-musl/ruby/config.h /root/.rbenv/versions/2.5.9/include/ruby-2.5.0/ruby/config.h
+RUN ln -s /root/.rbenv/versions/2.6.9/include/ruby-2.6.0/x86_64-linux-musl/ruby/config.h /root/.rbenv/versions/2.6.9/include/ruby-2.6.0/ruby/config.h
+RUN ln -s /root/.rbenv/versions/2.7.5/include/ruby-2.7.0/x86_64-linux-musl/ruby/config.h /root/.rbenv/versions/2.7.5/include/ruby-2.7.0/ruby/config.h
+RUN ln -s /root/.rbenv/versions/3.0.3/include/ruby-3.0.0/x86_64-linux-musl/ruby/config.h /root/.rbenv/versions/3.0.3/include/ruby-3.0.0/ruby/config.h
 
 RUN echo 'gem: --no-document' >> ~/.gemrc
 
