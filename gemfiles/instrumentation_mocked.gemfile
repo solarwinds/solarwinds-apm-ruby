@@ -7,7 +7,7 @@ gem 'excon'
 gem 'faraday', '~> 1.0'
 
 # next versions of faraday will need these seperate adapter gems
-# gem 'faraday-excon'
+# gem 'faraday-excon'  # if still buggy use: gem "faraday-excon", github: "lostisland/faraday-excon"
 # gem 'faraday-httpclient'
 # gem 'faraday-patron'
 

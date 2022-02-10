@@ -17,17 +17,13 @@ end
 gem 'bunny'
 gem 'curb'
 
-if RUBY_VERSION < '2.5'
-  gem 'dalli', '< 3.0.0'
-else
-  gem 'dalli'
-end
+gem 'dalli'
 
 gem 'excon'
 gem 'faraday', '~> 1.0'
 
 # next versions of faraday will need these seperate adapter gems
-# gem 'faraday-excon'
+# gem 'faraday-excon' # if still buggy use: gem "faraday-excon", github: "lostisland/faraday-excon"
 # gem 'faraday-httpclient'
 # gem 'faraday-patron'
 
