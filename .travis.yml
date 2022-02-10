@@ -28,7 +28,7 @@ gemfile:
   - gemfiles/instrumentation_mocked.gemfile
   - gemfiles/instrumentation_mocked_oldgems.gemfile
   - gemfiles/frameworks.gemfile
-  - gemfiles/rails70.gemfile
+  #  - gemfiles/rails70.gemfile
   - gemfiles/rails61.gemfile
   - gemfiles/rails52.gemfile
   - gemfiles/delayed_job.gemfile
@@ -42,10 +42,10 @@ matrix:
     - rvm: 3.0.3
       gemfile: gemfiles/rails52.gemfile
 
-    - rvm: 2.6.9
-      gemfile: gemfiles/rails70.gemfile
-    - rvm: 2.5.9
-      gemfile: gemfiles/rails70.gemfile
+#    - rvm: 2.6.9
+#      gemfile: gemfiles/rails70.gemfile
+#    - rvm: 2.5.9
+#      gemfile: gemfiles/rails70.gemfile
 
     - gemfile: gemfiles/unit.gemfile
       env: DBTYPE=mysql2

@@ -21,7 +21,7 @@ jobs:
           - instrumentation_mocked
           - instrumentation_mocked_oldgems
           - frameworks
-          - rails70
+#          - rails70
           - rails61
           - rails60
           - rails52
@@ -33,10 +33,10 @@ jobs:
             gemfile: rails52
           - ruby: 3.0
             gemfile: rails52
-          - ruby: 2.6
-            gemfile: rails70
-          - ruby: 2.5
-            gemfile: rails70
+#          - ruby: 2.6
+#            gemfile: rails70
+#          - ruby: 2.5
+#            gemfile: rails70
 
           - gemfile: unit
             dbtype: mysql2
