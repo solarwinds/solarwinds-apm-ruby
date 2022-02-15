@@ -41,11 +41,10 @@ matrix:
       gemfile: gemfiles/rails52.gemfile
     - rvm: 3.0.3
       gemfile: gemfiles/rails52.gemfile
-
-#    - rvm: 2.6.9
-#      gemfile: gemfiles/rails70.gemfile
-#    - rvm: 2.5.9
-#      gemfile: gemfiles/rails70.gemfile
+    - rvm: 2.6.9
+      gemfile: gemfiles/rails70.gemfile
+    - rvm: 2.5.9
+      gemfile: gemfiles/rails70.gemfile
 
     - gemfile: gemfiles/unit.gemfile
       env: DBTYPE=mysql2
