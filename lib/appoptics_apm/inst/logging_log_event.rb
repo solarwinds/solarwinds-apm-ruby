@@ -20,9 +20,5 @@ module AppOpticsAPM
 end
 
 if AppOpticsAPM.loaded && defined?(Logging::LogEvent)
-  module Logging
-    class LogEvent
-      prepend AppOpticsAPM::Logging::LogEvent
-    end
-  end
+  Logging::LogEvent.send(:prepend, AppOpticsAPM::Logging::LogEvent)
 end

@@ -111,17 +111,10 @@ end
 case File.basename(ENV['BUNDLE_GEMFILE'])
 when /delayed_job/
   require './test/servers/delayed_job'
-
-when /rails[56]/
+when /rails/
   require './test/servers/rails5x_8140'
-  sleep 1
-  require './test/servers/rails5x_api_8150'
-when /rails4/
-  require './test/servers/rails4x_8140'
-
 when /frameworks/
 when /libraries/
-
   # Load Sidekiq for libaries tests
   # use `export NO_SIDEKIQ=true` to stop sidekiq from loading
   # when running individual test files

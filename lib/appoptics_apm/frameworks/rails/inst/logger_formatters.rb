@@ -2,26 +2,13 @@
 # All rights reserved.
 
 if AppOpticsAPM.loaded && defined?(ActiveSupport::Logger::SimpleFormatter)
-  module ActiveSupport
-    class Logger
-      class SimpleFormatter
-        # even though SimpleFormatter inherits from Logger,
-        # this will not append trace info twice,
-        # because SimpleFormatter#call does not call super
-        prepend AppOpticsAPM::Logger::Formatter
-      end
-    end
-  end
+  # even though SimpleFormatter inherits from Logger,
+  # this will not append trace info twice,
+  # because SimpleFormatter#call does not call super
+  ActiveSupport::Logger::SimpleFormatter.send(:prepend, AppOpticsAPM::Logger::Formatter)
 end
 
 
 if AppOpticsAPM.loaded && defined?(ActiveSupport::TaggedLogging::Formatter)
-  module ActiveSupport
-    module TaggedLogging
-      module Formatter
-        # TODO figure out ancestors situation
-        prepend AppOpticsAPM::Logger::Formatter
-      end
-    end
-  end
+  ActiveSupport::TaggedLogging::Formatter.send(:prepend, AppOpticsAPM::Logger::Formatter)
 end

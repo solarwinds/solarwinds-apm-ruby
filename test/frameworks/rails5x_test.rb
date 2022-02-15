@@ -400,6 +400,7 @@ if defined?(::Rails)
     it 'should only log one exception, when it gets raised recursively' do
       skip
     end
+
   end
 
   require_relative "rails_shared_tests"
