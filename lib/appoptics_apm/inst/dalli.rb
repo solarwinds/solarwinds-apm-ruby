@@ -60,7 +60,7 @@ module AppOpticsAPM
           info_kvs[:KVKeyCount] = keys.flatten.length
           info_kvs[:KVKeyCount] = (info_kvs[:KVKeyCount] - 1) if keys.last.is_a?(Hash) || keys.last.nil?
 
-          servers = @servers || @normalized_servers # name change since Dalli 3.2.0
+          servers = @servers || @normalized_servers # name change since Dalli 3.2.1
           if servers.is_a?(Array) && !servers.empty?
             info_kvs[:RemoteHost] = servers.join(", ")
           end
