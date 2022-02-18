@@ -5,7 +5,14 @@ FROM centos:7
 
 # install OS packages
 RUN yum update -y \
-    && yum install -y epel-release
+    && yum install -y epel-release \
+    && yum install -y centos-release-scl \
+    && yum install -y llvm-toolset-7.0 \
+    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-x86_64/postgresql14-libs-14.1-1PGDG.rhel7.x86_64.rpm \
+    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-x86_64/postgresql14-14.1-1PGDG.rhel7.x86_64.rpm \
+    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-x86_64/postgresql14-devel-14.1-1PGDG.rhel7.x86_64.rpm
+RUN ln -s  /usr/pgsql-14/bin/pg_config /usr/local/bin/pg_config
+
 RUN yum groupinstall 'Development Tools' -y \
     && yum install -y \
        autoconf \
@@ -17,19 +24,23 @@ RUN yum groupinstall 'Development Tools' -y \
        cmake \
        cyrus-sasl-devel \
        cyrus-sasl-plain \
+       fontconfig \
        gdb \
        git-core \
        less \
        libcurl-devel \
+       libjpeg \
+       libpng \
        libpq-devel \
 #       libcurl4-gnutls-dev \
 #       libmysqlclient-dev \
-#       libpq-dev \
 #       libpcre3-dev \
 #       libreadline-dev \
 #       libsasl2-dev \
 #       libssl-dev \
 #       openjdk-8-jdk \
+       libXrender \
+       libXext \
        nodejs \
        openssl-devel \
        pcre \
@@ -42,6 +53,10 @@ RUN yum groupinstall 'Development Tools' -y \
        vim \
        zlib-devel \
     && rm -rf /var/lib/apt/lists/*
+
+#yum install fontconfig libXrender libXext
+#
+
 
 # update node to current stable version
 # RUN npm cache clean -f && npm install -g n && n stable
