@@ -19,6 +19,7 @@ rvm:
   - 2.7.5
   - 2.6.9
   - 2.5.9
+#  - ruby-head
 #  - jruby-9.0.5.0
 
 gemfile:
