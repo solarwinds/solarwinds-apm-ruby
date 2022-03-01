@@ -1,21 +1,20 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
-require 'appoptics_apm/frameworks/rails/inst/connection_adapters/mysql'
 require 'appoptics_apm/frameworks/rails/inst/connection_adapters/mysql2'
 require 'appoptics_apm/frameworks/rails/inst/connection_adapters/postgresql'
 
-if AppOpticsAPM::Config[:active_record][:enabled] && !defined?(JRUBY_VERSION) && Rails::VERSION::MAJOR <= 6
+if AppOpticsAPM::Config[:active_record][:enabled] && !defined?(JRUBY_VERSION)
   begin
-    adapter = ActiveRecord::Base.connection_config[:adapter]
+    AppOpticsAPM::Config[:verbose]
+    adapter = if ActiveRecord::Base.respond_to?(:connection_db_config)
+                ActiveRecord::Base.connection_db_config.adapter
+              else
+                ActiveRecord::Base.connection_config[:adapter]
+              end
 
-    if Rails::VERSION::MAJOR < 5
-      require 'appoptics_apm/frameworks/rails/inst/connection_adapters/utils'
-    elsif Rails::VERSION::MAJOR >= 5
-      require 'appoptics_apm/frameworks/rails/inst/connection_adapters/utils5x'
-    end
+    require 'appoptics_apm/frameworks/rails/inst/connection_adapters/utils5x'
 
-    AppOpticsAPM::Inst::ConnectionAdapters::FlavorInitializers.mysql      if adapter == 'mysql'
     AppOpticsAPM::Inst::ConnectionAdapters::FlavorInitializers.mysql2     if adapter == 'mysql2'
     AppOpticsAPM::Inst::ConnectionAdapters::FlavorInitializers.postgresql if adapter =~ /postgresql|postgis/i
 

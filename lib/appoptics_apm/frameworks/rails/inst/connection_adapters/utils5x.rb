@@ -26,8 +26,7 @@ module AppOpticsAPM
               kvs[:Backtrace] = AppOpticsAPM::API.backtrace
             end
 
-            if ActiveRecord::Base.method_defined?(:connection_db_config)
-              # Rails 6.1++ deprecates connection_config
+            if ActiveRecord::Base.respond_to?(:connection_db_config)
               config = ActiveRecord::Base.connection_db_config.configuration_hash
             else
               config = ActiveRecord::Base.connection_config

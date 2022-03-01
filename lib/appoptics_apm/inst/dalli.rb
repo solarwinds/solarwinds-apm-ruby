@@ -29,8 +29,10 @@ module AppOpticsAPM
         report_kvs = {}
         report_kvs[:KVOp] = op
         report_kvs[:KVKey] = key
-        if @servers.is_a?(Array) && !@servers.empty?
-          report_kvs[:RemoteHost] = @servers.join(", ")
+
+        servers = @servers || @normalized_servers # name change since Dall 3.2.0
+        if servers.is_a?(Array) && !servers.empty?
+          report_kvs[:RemoteHost] = servers.join(", ")
         end
 
         if AppOpticsAPM.tracing? && !AppOpticsAPM.tracing_layer_op?(:get_multi)
@@ -57,8 +59,10 @@ module AppOpticsAPM
         begin
           info_kvs[:KVKeyCount] = keys.flatten.length
           info_kvs[:KVKeyCount] = (info_kvs[:KVKeyCount] - 1) if keys.last.is_a?(Hash) || keys.last.nil?
-          if @servers.is_a?(Array) && !@servers.empty?
-            info_kvs[:RemoteHost] = @servers.join(", ")
+
+          servers = @servers || @normalized_servers # name change since Dalli 3.2.1
+          if servers.is_a?(Array) && !servers.empty?
+            info_kvs[:RemoteHost] = servers.join(", ")
           end
         rescue => e
           AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]

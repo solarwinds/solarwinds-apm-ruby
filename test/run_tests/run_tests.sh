@@ -97,48 +97,42 @@ do
     rbenv local ${args[0]}
     current_ruby=${args[0]}
     echo
-    echo "Installing gems ... for $(ruby -v)"
-    if [[ "$BUNDLE_GEMFILE" == *"gemfiles/frameworks.gemfile"* || "$BUNDLE_GEMFILE" == *"gemfiles/rails42.gemfile"* ]]
-    then
-      echo "*** using bundler 1.17.3 with $BUNDLE_GEMFILE ***"
-      bundle _1.17.3_ update # --quiet
-    else
-      echo "*** using default bundler with $BUNDLE_GEMFILE ***"
-      bundle update # --quiet
-    fi
+    echo "*** installing gems in $BUNDLE_GEMFILE ***"
+    bundle update # --quiet
     # if this is running on alpine and using ruby 3++, we need to patch
-    if [[ -r /etc/alpine-release && $current_ruby =~ ^3.* ]]; then
+    if [[ -r /etc/alpine-release ]]; then
+      if [[ $current_ruby =~ ^3.0.* ]]; then
       # download and apply patch
       cd /root/.rbenv/versions/$current_ruby/include/ruby-3.0.0/ruby/internal/ || exit 1
       curl -sL https://bugs.ruby-lang.org/attachments/download/8821/ruby-ruby_nonempty_memcpy-musl-cxx.patch -o memory.patch
       patch -N memory.h memory.patch
       cd - || exit 1
+      elif [[ $current_ruby =~ ^3.1.* ]]; then
+        # download and apply patch
+        cd /root/.rbenv/versions/$current_ruby/include/ruby-3.1.0/ruby/internal/ || exit 1
+        curl -sL https://bugs.ruby-lang.org/attachments/download/8821/ruby-ruby_nonempty_memcpy-musl-cxx.patch -o memory.patch
+        patch -N memory.h memory.patch
+        cd - || exit 1
+      fi
     fi
     bundle exec rake clean fetch compile
   else
     echo
-    echo "Installing gems ... for $(ruby -v)"
-    if [[ "$BUNDLE_GEMFILE" == *"gemfiles/frameworks.gemfile"* || "$BUNDLE_GEMFILE" == *"gemfiles/rails42.gemfile"* ]]
-    then
-      echo "*** using bundler 1.17.3 with $BUNDLE_GEMFILE ***"
-      bundle _1.17.3_ update # --quiet
-    else
-      echo "*** using default bundler with $BUNDLE_GEMFILE ***"
-      bundle update # --quiet
-    fi
+    echo "*** installing gems in $BUNDLE_GEMFILE ***"
+    bundle update # --quiet
   fi
 
   if [ "$?" -eq 0 ]; then
     bundle exec rake test
     status=$?
     [[ $status -gt $exit_status ]] && exit_status=$status
-    [[ $status -ne 0 ]] && echo "!!! Test suite failed - $exit_status !!!"
+    [[ $status -ne 0 ]] && echo "!!! Test suite failed - $exit_status - $BUNDLE_GEMFILE !!!"
 
     # kill all sidekiq processes, they don't stop automatically and can add up if tests are run repeatedly
     kill -9 $(pgrep -f sidekiq)
   else
     echo "Problem during gem install. Skipping tests for ${args[1]}"
-    rbenv local  2.5.8
+    rbenv local  2.7.5
     exit 1 # we are not continuing here to keep ctrl-c working as expected
   fi
 

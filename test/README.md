@@ -117,12 +117,12 @@ env and use `ruby -I test`
 
 One test from suite:
 ```bash
-run_tests/run_tests.sh -r 2.5.8 -g gemfiles/frameworks.gemfile -n 1
+run_tests/run_tests.sh -r 2.7.5 -g gemfiles/frameworks.gemfile -n 1
 ```
 
 One file:
 ```bash
-rbenv global 2.4.10
+rbenv global 2.7.5
 export BUNDLE_GEMFILE=gemfiles/delayed_job.gemfile
 export DBTYPE=mysql2       # optional, defaults to postgresql
 bundle
@@ -131,7 +131,7 @@ bundle exec ruby -I test queues/delayed_job-client_test.rb
 
 A specific test:
 ```bash
-rbenv global 2.5.8
+rbenv global 2.7.5
 export BUNDLE_GEMFILE=gemfiles/libraries.gemfile
 export DBTYPE=mysql2
 bundle

@@ -1,3 +1,7 @@
+# Do not remove this file
+# (even though we are not using travis anymore)
+# it is used a test matrix when running tests on the dev's machine
+
 language: ruby
 
 cache:
@@ -10,11 +14,11 @@ env:
   - DBTYPE=mysql2
 
 rvm:
-  - 3.0.2
-  - 2.7.4
-  - 2.6.8
-  - 2.5.8
-  - 2.4.10
+  - 3.1.0
+  - 3.0.3
+  - 2.7.5
+  - 2.6.9
+  - 2.5.9
 #  - ruby-head
 #  - jruby-9.0.5.0
 
@@ -24,27 +28,23 @@ gemfile:
   - gemfiles/instrumentation_mocked.gemfile
   - gemfiles/instrumentation_mocked_oldgems.gemfile
   - gemfiles/frameworks.gemfile
-  - gemfiles/rails60.gemfile
+  - gemfiles/rails70.gemfile
+  - gemfiles/rails61.gemfile
   - gemfiles/rails52.gemfile
-  - gemfiles/rails42.gemfile
   - gemfiles/delayed_job.gemfile
   - gemfiles/noop.gemfile
 #  - gemfiles/profiling.gemfile
 
 matrix:
   exclude:
-    - rvm: 3.0.2
-      gemfile: gemfiles/rails42.gemfile
-    - rvm: 3.0.2
+    - rvm: 3.1.0
       gemfile: gemfiles/rails52.gemfile
-    - rvm: 2.7.4
-      gemfile: gemfiles/rails42.gemfile
-    - rvm: 2.6.8
-      gemfile: gemfiles/rails42.gemfile
-    - rvm: 2.4.10
-      gemfile: gemfiles/rails60.gemfile
-    - rvm: 2.4.10  # excluding because of new sprockets version (4.0.0)
+    - rvm: 3.0.3
       gemfile: gemfiles/rails52.gemfile
+    - rvm: 2.6.9
+      gemfile: gemfiles/rails70.gemfile
+    - rvm: 2.5.9
+      gemfile: gemfiles/rails70.gemfile
 
     - gemfile: gemfiles/unit.gemfile
       env: DBTYPE=mysql2
@@ -64,67 +64,3 @@ matrix:
       env: DBTYPE=mysql2
   allow_failures:
     - rvm: ruby-head
-
-# FIXME: No cassandra tests for now
-# ____   Figure out if this is still an issue when reviving cassandra
-# Attempt Travis/Cassandra fix re: https://github.com/travis-ci/travis-ci/issues/1484
-# Updated Cassandra: https://github.com/travis-ci/travis-ci/issues/1650
-
-# the following is not working anymore on travis
-# commenting it out as per AO-13532 as we currently don't have instrumentation
-# for cassandra
-#before_install:
-#  - sudo service cassandra stop
-#  - sudo sh -c "echo 'JVM_OPTS=\"\${JVM_OPTS} -Djava.net.preferIPv4Stack=false\"' >> /etc/cassandra/cassandra-env.sh"
-#  - echo "127.0.0.1 localhost"  | sudo tee /etc/hosts
-#  - echo "127.0.0.1 " `hostname` | sudo tee -a /etc/hosts
-#  - sudo service cassandra start
-
-install:
-  - curl -LO http://kent.dl.sourceforge.net/project/swig/swig/swig-4.0.2/swig-4.0.2.tar.gz
-  - tar xzf swig-4.0.2.tar.gz
-  - pushd swig-4.0.2
-  - ./configure && make && sudo make install
-  - popd
-
-# use swig from git in case fixes haven't been released
-#  - git clone https://github.com/swig/swig.git
-#  - pushd swig
-#  - ./autogen.sh
-#  - ./configure && make && sudo make install
-#  - popd
-
-before_script:
-  - export APPOPTICS_GEM_TEST=true
-  - export APPOPTICS_REPORTER=file
-  - export APPOPTICS_COLLECTOR=/tmp/appoptics_traces.bson
-  - export APPOPTICS_REPORTER_FILE_SINGLE=false
-#  - export APPOPTICS_TOKEN_BUCKET_CAPACITY=1000
-#  - export APPOPTICS_TOKEN_BUCKET_RATE=1000
-  - export APPOPTICS_FROM_S3=true
-#  - export OBOE_WIP=true
-#  - export OBOE_VERSION=10.0.1
-
-#  - bundle update --jobs=3 --retry=3
-  - ./.travis/bundle.sh
-  - bundle exec rake distclean fetch compile
-  - psql -c 'create database travis_ci_test;' -U postgres
-  - mysql -e 'create database travis_ci_test;'
-  - redis-server --requirepass secret_pass &
-  - sleep 10
-
-script: "bundle exec rake test"
-
-services:
-  - mongodb
-  - memcached
-  - mysql
-#  - cassandra
-  - postgresql
-#  - redis-server
-  - rabbitmq
-
-addons:
-  apt:
-    packages:
-      - rabbitmq-server

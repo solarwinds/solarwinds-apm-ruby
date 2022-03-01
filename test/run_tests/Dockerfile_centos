@@ -1,31 +1,46 @@
-FROM centos:latest
+FROM centos:7
+
+#RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Linux-* &&\
+#    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-Linux-*
 
 # install OS packages
 RUN yum update -y \
-    && yum groupinstall 'Development Tools' -y \
+    && yum install -y epel-release \
+    && yum install -y centos-release-scl \
+    && yum install -y llvm-toolset-7.0 \
+    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-x86_64/postgresql14-libs-14.1-1PGDG.rhel7.x86_64.rpm \
+    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-x86_64/postgresql14-14.1-1PGDG.rhel7.x86_64.rpm \
+    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-x86_64/postgresql14-devel-14.1-1PGDG.rhel7.x86_64.rpm
+RUN ln -s  /usr/pgsql-14/bin/pg_config /usr/local/bin/pg_config
+
+RUN yum groupinstall 'Development Tools' -y \
     && yum install -y \
-#       autoconf \
+       autoconf \
 #       autotools-dev \
-#       automake \
+       automake \
 #       bison \
        bzip2 \
 #       curl \
        cmake \
        cyrus-sasl-devel \
        cyrus-sasl-plain \
+       fontconfig \
        gdb \
        git-core \
        less \
        libcurl-devel \
+       libjpeg \
+       libpng \
        libpq-devel \
 #       libcurl4-gnutls-dev \
 #       libmysqlclient-dev \
-#       libpq-dev \
 #       libpcre3-dev \
 #       libreadline-dev \
 #       libsasl2-dev \
 #       libssl-dev \
 #       openjdk-8-jdk \
+       libXrender \
+       libXext \
        nodejs \
        openssl-devel \
        pcre \
@@ -39,8 +54,12 @@ RUN yum update -y \
        zlib-devel \
     && rm -rf /var/lib/apt/lists/*
 
+#yum install fontconfig libXrender libXext
+#
+
+
 # update node to current stable version
-RUN npm cache clean -f && npm install -g n && n stable
+# RUN npm cache clean -f && npm install -g n && n stable
 
 # rbenv setup
 # use rbenv-default-gems to automatically install bundler for each ruby version
@@ -58,18 +77,12 @@ RUN echo 'alias be="bundle exec"' >> ~/.profile
 # install rubies to build our gem against
 RUN . ~/.profile \
     && cd /root/.rbenv/plugins/ruby-build && git pull && cd - \
-    && rbenv install 2.4.10 \
-    && rbenv install 2.5.8 \
-    && rbenv install 2.6.8 \
-    && rbenv install 2.7.4 \
-    && rbenv install 3.0.2
+    && rbenv install 2.5.9 \
+    && rbenv install 2.6.9 \
+    && rbenv install 2.7.5 \
+    && rbenv install 3.0.3 \
+    && rbenv install 3.1.0
 
- # need to provide bundler 1.17.3 as well, because some gems require bundler < 2.0
-RUN . ~/.profile && rbenv local 2.4.10 && gem install bundler -v 1.17.3
-RUN . ~/.profile && rbenv local 2.5.8 && gem install bundler -v 1.17.3
-RUN . ~/.profile && rbenv local 2.6.8 && gem install bundler -v 1.17.3
-RUN . ~/.profile && rbenv local 2.7.4 && gem install bundler -v 1.17.3
-RUN . ~/.profile && rbenv local 3.0.2 && gem install bundler -v 1.17.3
 RUN echo 'gem: --no-document' >> ~/.gemrc
 
 # install swig 4.0.2

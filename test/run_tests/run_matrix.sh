@@ -34,11 +34,10 @@ EOM
 ## specific gem and versions
 test_gem="graphql"
 test_file_path="test/instrumentation/graphql_test.rb"
-#declare -a test_gem_versions=("1.27.0" "1.20.0" "1.13.0" "1.6.0")
 declare -a test_gem_versions=("1.7.4" "1.7.7" "1.7.14" "1.8.0" "1.8.17" "1.9.0" "1.9.19" "1.10.0" "1.10.1" "1.10.2")
 
 ## ruby versions
-declare -a ruby_versions=("3.0.1" "2.7.3" "2.6.7" "2.5.8" "2.4.10")
+declare -a ruby_versions=("3.1.0" "3.0.3" "2.7.5" "2.6.9" "2.5.9")
 
 ## Setup and run tests
 for i in "${test_gem_versions[@]}"

@@ -207,6 +207,8 @@ describe "Faraday" do
     _(traces[6]['Middleware']).must_equal '[Faraday::Adapter::HTTPClient]'
   end
 
+  # TODO remove this test for faraday > 1
+  #  no more typhoeus adapter
   it 'should trace a Faraday with the typhoeus adapter' do
     AppOpticsAPM::SDK.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|

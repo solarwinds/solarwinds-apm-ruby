@@ -1,6 +1,10 @@
 source "https://rubygems.org"
 
-gem 'graphql'
+if RUBY_VERSION < '2.6'
+  gem 'graphql', '< 1.13.0'
+else
+  gem 'graphql'
+end
 
 eval(File.read(File.join(File.dirname(__FILE__), 'test_gems.gemfile')))
 gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')

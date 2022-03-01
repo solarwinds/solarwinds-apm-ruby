@@ -22,44 +22,13 @@ if defined?(::Rails)
         AppOpticsAPM::Config[:tracing_mode] = @tm
         AppOpticsAPM::Config[:sample_rate] = @sample_rate
       }
-
-      uri = URI.parse('http://127.0.0.1:8140/widgets/delete_all')
-      _ = Net::HTTP.get_response(uri)
     end
 
-    it "should create a span for a partial" do
-      uri = URI.parse('http://127.0.0.1:8140/hello/with_partial')
 
-      _ = Net::HTTP.get_response(uri)
-
-      traces = get_all_traces
-      _(traces.count).must_equal 8
-
-      _(traces[3]['Layer']).must_equal "partial"
-      _(traces[3]['Label']).must_equal "entry"
-      _(traces[3]['Partial']).must_equal "hello/_somepartial"
-      _(traces[4]['Layer']).must_equal "partial"
-      _(traces[4]['Label']).must_equal "exit"
-    end
-
-    it "should create a span for a collection" do
-      uri = URI.parse('http://127.0.0.1:8140/widgets')
-
-      _ = Net::HTTP.get_response(uri)
-
-      traces = get_all_traces
-      _(traces.count).must_equal 16
-
-      collection_events = traces.select { |tr| tr['Layer'] == 'collection' }
-      _(collection_events.size).must_equal 2
-
-      _(collection_events[0]['Label']).must_equal "entry"
-      _(collection_events[0]['Partial']).must_equal "hello/_widget"
-      _(collection_events[1]['Label']).must_equal "exit"
-    end
+    #====================== API server calls ==================================
 
     it "should trace a request to a rails api stack" do
-      uri = URI.parse('http://127.0.0.1:8150/monkey/hello')
+      uri = URI.parse('http://127.0.0.1:8140/monkey/hello')
       r = Net::HTTP.get_response(uri)
 
       traces = get_all_traces
@@ -100,7 +69,7 @@ if defined?(::Rails)
     end
 
     it "should capture errors" do
-      uri = URI.parse('http://127.0.0.1:8150/monkey/error')
+      uri = URI.parse('http://127.0.0.1:8140/monkey/error')
       r = Net::HTTP.get_response(uri)
 
       traces = get_all_traces
@@ -144,7 +113,7 @@ if defined?(::Rails)
     it "should collect backtraces when true" do
       AppOpticsAPM::Config[:action_controller_api][:collect_backtraces] = true
 
-      uri = URI.parse('http://127.0.0.1:8150/monkey/hello')
+      uri = URI.parse('http://127.0.0.1:8140/monkey/hello')
       r = Net::HTTP.get_response(uri)
 
       traces = get_all_traces
@@ -188,7 +157,7 @@ if defined?(::Rails)
     it "should NOT collect backtraces when false" do
       AppOpticsAPM::Config[:action_controller_api][:collect_backtraces] = false
 
-      uri = URI.parse('http://127.0.0.1:8150/monkey/hello')
+      uri = URI.parse('http://127.0.0.1:8140/monkey/hello')
       r = Net::HTTP.get_response(uri)
 
       traces = get_all_traces
@@ -229,6 +198,5 @@ if defined?(::Rails)
       _(r.header['X-Trace']).must_equal traces[5]['sw.trace_context']
     end
 
-    require_relative "rails_shared_tests"
   end
 end

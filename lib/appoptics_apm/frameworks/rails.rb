@@ -6,7 +6,7 @@ require_relative '../../../lib/appoptics_apm/inst/logger_formatter'
 module AppOpticsAPM
   module Rails
     module Helpers
-      extend ActiveSupport::Concern if defined?(::Rails) and ::Rails::VERSION::MAJOR > 2
+      extend ActiveSupport::Concern if defined?(::Rails)
 
       # Deprecated
       # no usages

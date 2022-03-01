@@ -57,7 +57,7 @@ retries = 3
 success = false
 while retries > 0
   begin
-    download = RUBY_VERSION < '2.5.0' ? open(ao_item, 'rb') : URI.open(ao_item, 'rb')
+    download = URI.open(ao_item, 'rb')
     IO.copy_stream(download, clib)
 
     clib_checksum = Digest::SHA256.file(clib).hexdigest

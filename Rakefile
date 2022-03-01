@@ -31,19 +31,8 @@ Rake::TestTask.new do |t|
     require 'delayed/tasks'
     t.test_files = FileList['test/queues/delayed_job*_test.rb']
   when /rails/
-    # Pre-load rails to get the major version number
-    require 'rails'
-
-    if Rails::VERSION::MAJOR == 5
-      t.test_files = FileList["test/frameworks/rails#{Rails::VERSION::MAJOR}x_test.rb"] +
-                     FileList["test/frameworks/rails#{Rails::VERSION::MAJOR}x_api_test.rb"]
-    elsif Rails::VERSION::MAJOR == 6
-      t.test_files = FileList['test/frameworks/rails5x_test.rb'] +
-                     FileList['test/frameworks/rails5x_api_test.rb']
-    else
-      t.test_files = FileList["test/frameworks/rails#{Rails::VERSION::MAJOR}x_test.rb"]
-    end
-
+    t.test_files = FileList['test/frameworks/rails5x_test.rb'] +
+                   FileList['test/frameworks/rails5x_api_test.rb']
   when /frameworks/
     t.test_files = FileList['test/frameworks/sinatra*_test.rb'] +
                    FileList['test/frameworks/padrino*_test.rb'] +
@@ -132,21 +121,11 @@ task :fetch_ext_deps do
   # inform when there is a newer oboe version
   remote_file = File.join("https://rc-files-t2.s3-us-west-2.amazonaws.com/c-lib/latest", 'VERSION')
   local_file  = File.join(ext_src_dir, 'VERSION_latest')
-  if RUBY_VERSION < '2.5.0'
-    open(remote_file, 'rb') do |rf|
-      content = rf.read
-      File.open(local_file, 'wb') { |f| f.puts content }
-      unless content.strip == oboe_version
-        puts "FYI: latest C-Lib VERSION: #{content.strip} !"
-      end
-    end
-  else
-    URI.open(remote_file, 'rb') do |rf|
-      content = rf.read
-      File.open(local_file, 'wb') { |f| f.puts content }
-      unless content.strip == oboe_version
-        puts "FYI: latest C-Lib VERSION: #{content.strip} !"
-      end
+  URI.open(remote_file, 'rb') do |rf|
+    content = rf.read
+    File.open(local_file, 'wb') { |f| f.puts content }
+    unless content.strip == oboe_version
+      puts "FYI: latest C-Lib VERSION: #{content.strip} !"
     end
   end
 
@@ -171,16 +150,9 @@ task :fetch_ext_deps do
 
     puts "fetching #{remote_file}"
     puts "      to #{local_file}"
-    if RUBY_VERSION < '2.5.0'
-      open(remote_file, 'rb') do |rf|
-        content = rf.read
-        File.open(local_file, 'wb') { |f| f.puts content }
-      end
-    else
-      URI.open(remote_file, 'rb') do |rf|
-        content = rf.read
-        File.open(local_file, 'wb') { |f| f.puts content }
-      end
+    URI.open(remote_file, 'rb') do |rf|
+      content = rf.read
+      File.open(local_file, 'wb') { |f| f.puts content }
     end
   end
 
@@ -195,18 +167,10 @@ task :fetch_ext_deps do
       puts "fetching #{remote_file}"
       puts "      to #{local_file}"
 
-      if RUBY_VERSION < '2.5.0'
-        open(remote_file, 'rb') do |rf|
-          content = rf.read
-          File.open(local_file, 'wb') { |f| f.puts content }
-          puts "%%% #{filename} checksum: #{content.strip} %%%"
-        end
-      else
-        URI.open(remote_file, 'rb') do |rf|
-          content = rf.read
-          File.open(local_file, 'wb') { |f| f.puts content }
-          puts "%%% #{filename} checksum: #{content.strip} %%%"
-        end
+      URI.open(remote_file, 'rb') do |rf|
+        content = rf.read
+        File.open(local_file, 'wb') { |f| f.puts content }
+        puts "%%% #{filename} checksum: #{content.strip} %%%"
       end
     end
   end

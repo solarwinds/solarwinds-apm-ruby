@@ -9,7 +9,14 @@ require "rails/all"
 require "active_record"
 require "action_controller" # require more rails if needed
 require 'rack/handler/puma'
+require "rails/command"
+require "rails/commands/server/server_command"
+
 require File.expand_path(File.dirname(__FILE__) + '/../models/widget')
+
+ENV['QUERY_LOG_FILE'] ||= '/tmp/query_log.txt'
+ActiveRecord::Base.logger = Logger.new(ENV['QUERY_LOG_FILE'])
+ActiveRecord::Base.logger.level = Logger::DEBUG
 
 class ApplicationController < ActionController::Base
   before_action :set_view_path
@@ -57,17 +64,22 @@ class Rails50MetalStack < Rails::Application
     get "/widgets/:id"       => "widgets#show"
     put "/widgets/:id"       => "widgets#update"
     delete "/widgets/:id"    => "widgets#destroy"
+    get "/monkey/hello" => "monkey#hello"
+    get "/monkey/error" => "monkey#error"
   end
 
+  config.active_record.legacy_connection_handling = false if ::Rails::VERSION::MAJOR > 5
+  config.cache_classes = true
   config.cache_classes = true
   config.eager_load = false
   config.active_support.deprecation = :stderr
   config.middleware.delete Rack::Lock
   config.middleware.delete ActionDispatch::Flash
-  config.secret_token = "49837489qkuweoiuoqwehisuakshdjksadhaisdy78o34y138974xyqp9rmye8yrpiokeuioqwzyoiuxftoyqiuxrhm3iou1hrzmjk"
+  # config.secret_token = "49837489qkuweoiuoqwehisuakshdjksadhaisdy78o34y138974xyqp9rmye8yrpiokeuioqwzyoiuxftoyqiuxrhm3iou1hrzmjk"
   config.secret_key_base = "2048671-96803948"
   # config.active_record.sqlite3 = {} # deal with https://github.com/rails/rails/issues/37048
-  config.assets.enabled = false
+  # config.assets.enabled = false
+  config.colorize_logging = false
 end
 
 #################################################
@@ -180,6 +192,16 @@ class WidgetsController < ApplicationController
 
 end
 
+class MonkeyController < ActionController::API
+  def hello
+    render :plain => {:Response => "Hello API!"}.to_json, content_type: 'application/json'
+  end
+
+  def error
+    raise "Rails API fake error from controller"
+  end
+end
+
 class FerroController < ActionController::Metal
   include AbstractController::Rendering
 
@@ -195,7 +217,8 @@ AppOpticsAPM::SDK.trace_method(FerroController, :world)
 Rails50MetalStack.initialize!
 
 Thread.new do
-  Rack::Handler::Puma.run(Rails50MetalStack.to_app, :Host => '127.0.0.1', :Port => 8140)
+  # Rack::Handler::Puma.run(Rails50MetalStack.to_app, :Host => '127.0.0.1', :Port => 8140)
+  Rails::Server.new(app: Rails50MetalStack, :Host => '127.0.0.1', :Port => 8140).start
 end
 
 sleep(2)

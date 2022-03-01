@@ -42,9 +42,5 @@ module AppOpticsAPM
 end
 
 if AppOpticsAPM.loaded
-  class Logger
-    class Formatter
-      prepend AppOpticsAPM::Logger::Formatter
-    end
-  end
+  Logger::Formatter.send(:prepend, AppOpticsAPM::Logger::Formatter)
 end
