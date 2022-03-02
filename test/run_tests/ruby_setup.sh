@@ -47,8 +47,8 @@ else
   /usr/bin/memcached -m 64 -p 11211 -u memcached &
 fi
 
-## we also want to use this file to setup the env without running the tests
-# so that we a console from which we can run single test files or tests
+## we also want to use this file to setup the env for running
+# single test files or individual tests
 #
 # if we run in `test` mode there is an option make a copy of the files
 # so the original can be edited without influencing the test run

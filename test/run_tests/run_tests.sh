@@ -22,10 +22,11 @@
 # gem root directory
 #
 # Caveat: The runs cannot or only partially be interrupted with control-c
+#         It is faster to use kill from a different shell
 ##
 
 ##
-# Setting up the default rubies, gemfiles and database types
+# Set up the default rubies, gemfiles and database types
 #
 # !!! When changing or adding ruby versions, the versions have to be
 # updated in the docker images as well, locally and in github !!!
@@ -48,10 +49,12 @@ gemfiles=(
 dbtypes=("mysql2" "postgresql")
 
 # TODO think about storing and resetting after the tests:
-#  - BUNDLE_GEMFILE in the env
+#  - BUNDLE_GEMFILE in the env (there may be none)
 #  - the current ruby version (which is tricky, because it may not have been set by rbenv)
 
 dir=$(pwd)
+# the following is sometimes needed when there are new gem versions with
+# dependency conflicts
 # export BUNDLE_ALLOW_BUNDLER_DEPENDENCY_CONFLICTS=true
 
 exit_status=-1
@@ -68,7 +71,7 @@ while getopts ":r:g:d:n:c:" opt; do
       gemfiles=($OPTARG)
       ;;
     d )
-      env=($OPTARG)
+      dbtypes=($OPTARG)
       ;;
     n )
       num=$OPTARG
