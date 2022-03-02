@@ -112,15 +112,15 @@ for ruby in ${rubies[@]} ; do
   rbenv local $ruby
   # if this is running on alpine and using ruby 3++, we need to patch
   if [[ -r /etc/alpine-release ]]; then
-    if [[ $current_ruby =~ ^3.0.* ]]; then
-    # download and apply patch
-    cd /root/.rbenv/versions/$current_ruby/include/ruby-3.0.0/ruby/internal/ || exit 1
-    curl -sL https://bugs.ruby-lang.org/attachments/download/8821/ruby-ruby_nonempty_memcpy-musl-cxx.patch -o memory.patch
-    patch -N memory.h memory.patch
-    cd - || exit 1
-    elif [[ $current_ruby =~ ^3.1.* ]]; then
+    if [[ $ruby =~ ^3.0.* ]]; then
       # download and apply patch
-      cd /root/.rbenv/versions/$current_ruby/include/ruby-3.1.0/ruby/internal/ || exit 1
+      cd /root/.rbenv/versions/$ruby/include/ruby-3.0.0/ruby/internal/ || exit 1
+      curl -sL https://bugs.ruby-lang.org/attachments/download/8821/ruby-ruby_nonempty_memcpy-musl-cxx.patch -o memory.patch
+      patch -N memory.h memory.patch
+      cd - || exit 1
+    elif [[ $ruby =~ ^3.1.* ]]; then
+      # download and apply patch
+      cd /root/.rbenv/versions/$ruby/include/ruby-3.1.0/ruby/internal/ || exit 1
       curl -sL https://bugs.ruby-lang.org/attachments/download/8821/ruby-ruby_nonempty_memcpy-musl-cxx.patch -o memory.patch
       patch -N memory.h memory.patch
       cd - || exit 1
