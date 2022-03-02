@@ -97,8 +97,8 @@ AppOpticsAPM::Config[:sample_rate] = 1000000
 
 # Pre-create test databases (see also .travis.yml)
 # puts "Pre-creating test databases"
-# puts %x{mysql -u root -e 'create database travis_ci_test;'}
-# puts %x{psql -c 'create database travis_ci_test;' -U postgres}
+# puts %x{mysql -u root -e 'create database test_db;'}
+# puts %x{psql -c 'create database test_db;' -U postgres}
 
 # Our background Rack-app for http client testing
 if ENV['BUNDLE_GEMFILE'] && File.basename(ENV['BUNDLE_GEMFILE']) =~ /libraries|frameworks|instrumentation|noop/

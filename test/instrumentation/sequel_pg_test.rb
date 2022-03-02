@@ -24,7 +24,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       @entry_kvs = {
         'Layer' => 'sequel',
         'Label' => 'entry',
-        'Database' => 'travis_ci_test',
+        'Database' => 'test_db',
         'RemoteHost' => ENV['POSTGRES_HOST'] || '127.0.0.1',
         'RemotePort' => 5432 }
 

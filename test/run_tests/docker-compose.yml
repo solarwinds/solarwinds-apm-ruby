@@ -153,7 +153,7 @@ services:
     container_name: ao-ruby-postgres
     image: postgres:latest
     environment:
-      POSTGRES_DB: "travis_ci_test"
+      POSTGRES_DB: "test_db"
       POSTGRES_USER: "docker"
       POSTGRES_PASSWORD: "docker"
     volumes:

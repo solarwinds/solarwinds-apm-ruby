@@ -71,8 +71,8 @@ jobs:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
       MYSQL_ROOT_PASSWORD: "admin"
       MYSQL_HOST: "mysql"
-      MYSQL_DATABASE: "travis_ci_test"
-      POSTGRES_DB: "travis_ci_test"
+      MYSQL_DATABASE: "test_db"
+      POSTGRES_DB: "test_db"
       DOCKER_MYSQL_PASS: "admin"
       DOCKER_PSQL_PASS: "postgres"
       POSTGRES_USER: "postgres"
@@ -107,7 +107,7 @@ jobs:
         env:
           MYSQL_USER: user
           MYSQL_PASSWORD: password
-          MYSQL_DATABASE: travis_ci_test
+          MYSQL_DATABASE: test_db
           MYSQL_ROOT_PASSWORD: admin
         ports:
           - 3306:3306
@@ -129,7 +129,7 @@ jobs:
 
       - name: Initialize services
         run: |
-          export PGPASSWORD=$POSTGRES_PASSWORD; psql -c 'create database travis_ci_test;' -U postgres -h $POSTGRES_HOST
+          export PGPASSWORD=$POSTGRES_PASSWORD; psql -c 'create database test_db;' -U postgres -h $POSTGRES_HOST
           curl -SL http://download.redis.io/releases/redis-4.0.0.tar.gz | tar xzC /tmp && cd /tmp/redis-4.0.0/ && make && make install && cd -
           redis-server --requirepass redis_pass --loglevel "warning" &
 

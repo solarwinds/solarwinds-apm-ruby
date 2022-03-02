@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2019 SolarWinds, LLC.
+# Copyright (c) SolarWinds, LLC.
 # All rights reserved.
 
 ##
@@ -12,26 +12,18 @@
 # Further necessary services like mysql, rabbitmq, and mongo are setup through docker-compose
 ##
 
-# Because of github actions we now have to always run this from the
-# gem root directory
-# cd /code/ruby-appoptics
+# !!! Because of github actions we now have to always run this script from the
+# gem root directory !!!
 
 rm -f Gemfile.lock
 rm -f gemfiles/*.lock
-#rm -f .ruby-version
-
-# rbenv global 2.7.5
-#
-#echo "Installing gems ..."
-#bundle install # --quiet
-#
-#bundle exec rake clean fetch compile
 
 echo "Starting services ..."
 
 ## Start redis with password
 
-## retry if this doesn't work immediately, `rm dump.rdb`
+## 2 retries if this doesn't work immediately
+# sometimes `rm dump.rdb` helps
 redis_pass="${REDIS_PASSWORD:-secret_pass}"
 redis-server --requirepass $redis_pass --loglevel warning &
 attemps=3
@@ -47,24 +39,19 @@ while [ $? -ne 0 ]; do
 done
 
 ## start memcached
-# starting it as service in docker is tricky for centos/alpine
+# ideally we would start it as service,
+# but it is tricky for centos/alpine docker containers
 if [[ $(getent passwd memcached) = "" ]]; then
   /usr/bin/memcached -m 64 -p 11211 -u memcache &
 else
   /usr/bin/memcached -m 64 -p 11211 -u memcached &
 fi
-#service memcached start
 
-## add table for tests in mysql
-# sorry for the warning about providing the password on the commandline
-# changed to using init.sql
+## we also want to use this file to setup the env for running
+# single test files or individual tests
 #
-# mysql -e 'create database travis_ci_test;' -h$MYSQL_HOST -p$MYSQL_ROOT_PASSWORD
-
-
-## we also want to use this file to setup the env without running the tests
-# if we run the tests we make a copy of the tiles so that they can be edited
-# without influencing the test run
+# if we run in `test` mode there is an option make a copy of the files
+# so the original can be edited without influencing the test run
 if [ "$1" == "test" ]; then
   echo "Running tests ..."
   if [ "$2" == "copy" ]; then

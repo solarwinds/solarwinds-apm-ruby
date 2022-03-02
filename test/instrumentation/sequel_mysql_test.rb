@@ -24,7 +24,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION) && (RUBY_VERSION < '2.4')
       @entry_kvs = {
         'Layer' => 'sequel',
         'Label' => 'entry',
-        'Database' => 'travis_ci_test',
+        'Database' => 'test_db',
         'RemoteHost' => ENV.key?('DOCKER_MYSQL_PASS') ? 'mysql' : '127.0.0.1',
         'RemotePort' => 3306 }
 
