@@ -8,11 +8,11 @@ class ResqueDBWorkerJob
     return unless defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
     if ENV.key?('TRAVIS_MYSQL_PASS')
-      @db = Sequel.connect("mysql2://root:#{ENV['TRAVIS_MYSQL_PASS']}@127.0.0.1:3306/travis_ci_test")
+      @db = Sequel.connect("mysql2://root:#{ENV['TRAVIS_MYSQL_PASS']}@127.0.0.1:3306/test_db")
     elsif ENV.key?('DOCKER_MYSQL_PASS')
-      @db = Sequel.connect("mysql2://root:#{ENV['DOCKER_MYSQL_PASS']}@#{ENV['MYSQL_HOST']}:3306/travis_ci_test")
+      @db = Sequel.connect("mysql2://root:#{ENV['DOCKER_MYSQL_PASS']}@#{ENV['MYSQL_HOST']}:3306/test_db")
     else
-      @db = Sequel.connect('mysql2://root@127.0.0.1:3306/travis_ci_test')
+      @db = Sequel.connect('mysql2://root@127.0.0.1:3306/test_db')
     end
 
     unless @db.table_exists?(:items)

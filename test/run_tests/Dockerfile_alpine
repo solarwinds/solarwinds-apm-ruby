@@ -126,7 +126,7 @@ RUN apk add --update mysql-client mysql mariadb
 #RUN apk add --update postgresql postgresql-contrib
 #RUN service postgresql start \
 #   && echo "psql --command \"CREATE USER docker WITH SUPERUSER PASSWORD 'docker';\"" >> /tmp/config \
-#   && echo "createdb -O docker travis_ci_test" >> /tmp/config \
+#   && echo "createdb -O docker test_db" >> /tmp/config \
 #   && su postgres -c "bash /tmp/config"
 #   && rm -f /tmp/config
 

@@ -92,8 +92,8 @@ jobs:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
       MYSQL_ROOT_PASSWORD: "admin"
       MYSQL_HOST: "mysql"
-      MYSQL_DATABASE: "travis_ci_test"
-      POSTGRES_DB: "travis_ci_test"
+      MYSQL_DATABASE: "test_db"
+      POSTGRES_DB: "test_db"
       DOCKER_MYSQL_PASS: "admin"
       DOCKER_PSQL_PASS: "postgres"
       POSTGRES_USER: "postgres"
@@ -121,7 +121,7 @@ jobs:
       postgres:
         image: postgres:10.8
         env:
-          POSTGRES_DB: travis_ci_test
+          POSTGRES_DB: test_db
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
@@ -130,7 +130,7 @@ jobs:
         env:
           MYSQL_USER: user
           MYSQL_PASSWORD: password
-          MYSQL_DATABASE: travis_ci_test
+          MYSQL_DATABASE: test_db
           MYSQL_ROOT_PASSWORD: admin
         ports:
           - 3306:3306
