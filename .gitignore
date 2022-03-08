@@ -12,7 +12,7 @@
 .ruby-version
 .trusted_paths/
 .yardoc/
-app/
+/app/
 builds/
 config/
 coverage/
