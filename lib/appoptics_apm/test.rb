@@ -67,25 +67,26 @@ module AppOpticsAPM
       # there is no method exposed (afaik) to set prepared_statements
       # interactively
       def set_postgresql_rails_config
+        # need to use string keys otherwise the output is not readable by Rails 5
         config = {
-          adapter: "postgresql",
-          username: ENV.key?('POSTGRES_USER') ? ENV['POSTGRES_USER'] : "postgres",
-          password: ENV.key?('POSTGRES_PASSWORD') ? ENV['POSTGRES_PASSWORD'] : "postgres",
-          database: "test_db",
-          host: ENV.key?('POSTGRES_HOST') ? ENV['POSTGRES_HOST'] : '127.0.0.1',
-          port: ENV.key?('POSTGRES_PORT') ? ENV['POSTGRES_PORT'] : 5432,
-          statement_limit: 5
+          'adapter'  => "postgresql",
+          'username' =>  ENV.key?('POSTGRES_USER') ? ENV['POSTGRES_USER'] : "postgres",
+          'password' =>  ENV.key?('POSTGRES_PASSWORD') ? ENV['POSTGRES_PASSWORD'] : "postgres",
+          'database' =>  "test_db",
+          'host'     =>  ENV.key?('POSTGRES_HOST') ? ENV['POSTGRES_HOST'] : '127.0.0.1',
+          'port'     =>  ENV.key?('POSTGRES_PORT') ? ENV['POSTGRES_PORT'] : 5432,
+          'statement_limit' =>  5
         }
 
         if ENV.key?('TEST_PREPARED_STATEMENT')
-          config[:prepared_statements] = ENV['TEST_PREPARED_STATEMENT'] == 'true' ? true : false
+          config['prepared_statements'] = ENV['TEST_PREPARED_STATEMENT'] == 'true' ? true : false
         else
-          config[:prepared_statements] = false
+          config['prepared_statements'] = false
         end
 
         env_config = {
-          default: config,
-          test: config
+          'default' => config,
+          'test' => config
         }
 
         FileUtils.mkdir_p('config')
@@ -132,24 +133,24 @@ module AppOpticsAPM
       # interactively
       def set_mysql2_rails_config
         config = {
-            adapter: "mysql2",
-            username: "root",
-            database: "test_db",
-            port: 3306
+          'adapter' => "mysql2",
+          'username' => "root",
+          'database' => "test_db",
+          'port' => 3306
         }
 
         config[:password] = ENV['DOCKER_MYSQL_PASS'] if ENV.key?('DOCKER_MYSQL_PASS')
         config[:host] = ENV.key?('MYSQL_HOST') ? ENV['MYSQL_HOST'] : '127.0.0.1'
 
         if ENV.key?('TEST_PREPARED_STATEMENT')
-          config[:prepared_statements] = ENV['TEST_PREPARED_STATEMENT'] == 'true' ? true : false
+          config['prepared_statements'] = ENV['TEST_PREPARED_STATEMENT'] == 'true' ? true : false
         else
-          config[:prepared_statements] = false
+          config['prepared_statements'] = false
         end
 
         env_config = {
-          default: config,
-          test: config
+          'default' => config,
+          'test' => config
         }
 
         FileUtils.mkdir_p('config')
