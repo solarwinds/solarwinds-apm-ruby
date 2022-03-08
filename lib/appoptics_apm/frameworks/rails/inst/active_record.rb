@@ -1,4 +1,4 @@
-# Copyright (c) 2016 SolarWinds, LLC.
+# Copyright (c) SolarWinds, LLC.
 # All rights reserved.
 
 require 'appoptics_apm/frameworks/rails/inst/connection_adapters/mysql2'

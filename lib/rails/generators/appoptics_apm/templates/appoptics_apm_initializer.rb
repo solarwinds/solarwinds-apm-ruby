@@ -142,14 +142,21 @@ if defined?(AppOpticsAPM::Config)
   AppOpticsAPM::Config[:log_traceId] = :never
 
   #
-  # Prepend Domain to Transaction Name
+  # Trace Context in Queries (sql only)
   #
-  # If this is set to `true` transaction names will be composed as
-  # `my.host.com/controller.action` instead of `controller.action`.
-  # This configuration applies to all transaction names, whether deduced by the
-  # instrumentation or implicitly set.
+  # Configure to add the trace context to sql queries so that queries and
+  # transactions can be linked in the SolarWinds dashboard
   #
-  AppOpticsAPM::Config[:transaction_name][:prepend_domain] = false
+  # This option can add a small overhead for queries that use prepared
+  # statements as those statements will be recompiled whenever the trace context
+  # is added (about 10% of the requests)
+  #
+  # the options are:
+  # - true   (default) no trace context is added
+  # - false  the tracecontext is added as comment to the start of the query, e.g:
+  #          "/*traceparent='00-268748089f148899e29fc5711aca7760-7c6c704dcbba6682-01'*/SELECT `widgets`.* FROM `widgets` WHERE ..."
+  #
+  AppOpticsAPM::Config[:tag_sql] = false
 
   #
   # Sanitize SQL Statements
@@ -161,6 +168,16 @@ if defined?(AppOpticsAPM::Config)
   AppOpticsAPM::Config[:sanitize_sql] = true
   AppOpticsAPM::Config[:sanitize_sql_regexp] = '(\'[^\']*\'|\d*\.\d+|\d+|NULL)'
   AppOpticsAPM::Config[:sanitize_sql_opts]   = Regexp::IGNORECASE
+
+  #
+  # Prepend Domain to Transaction Name
+  #
+  # If this is set to `true` transaction names will be composed as
+  # `my.host.com/controller.action` instead of `controller.action`.
+  # This configuration applies to all transaction names, whether deduced by the
+  # instrumentation or implicitly set.
+  #
+  AppOpticsAPM::Config[:transaction_name][:prepend_domain] = false
 
   #
   # Do Not Trace - DNT

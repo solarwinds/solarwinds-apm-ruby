@@ -56,7 +56,7 @@ Rake::TestTask.new do |t|
 
   if defined?(JRUBY_VERSION)
     t.ruby_opts << ['-J-javaagent:/usr/local/tracelytics/tracelyticsagent.jar']
-    end
+  end
 end
 
 

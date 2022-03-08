@@ -38,7 +38,7 @@ module AppOpticsAPM
 
           # trace_id may or may not be added depending on setting and context
           # even if we are not tracing
-          args[0] = AppOpticsAPM::Util.add_trace_id_to_sql(sql)
+          args[0] = AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql)
           if AppOpticsAPM.tracing? && !ignore_payload?(name)
             kvs = extract_trace_details(sql, name, binds || [])
             # use protect_op to avoid double tracing in mysql2

@@ -126,8 +126,7 @@ if defined?(::Rails)
       _(traces[2]['Layer']).must_equal "activerecord"
       _(traces[2]['Label']).must_equal "entry"
       _(traces[2]['Flavor']).must_equal "postgresql"
-      _(traces[2]['Query']).must_equal "INSERT INTO \"widgets\" (\"name\", \"description\", \"created_at\", \"updated_at\") VALUES ($?, $?, $?, $?) RETURNING \"id\""
-      _(traces[2]['Name']).must_equal Rails.version < '5.2.0' ? "SQL" : "Widget Create"
+       _(traces[2]['Name']).must_equal Rails.version < '5.2.0' ? "SQL" : "Widget Create"
       _(traces[2].key?('Backtrace')).must_equal false
 
       _(traces[3]['Layer']).must_equal "activerecord"
@@ -136,8 +135,6 @@ if defined?(::Rails)
       _(traces[4]['Layer']).must_equal "activerecord"
       _(traces[4]['Label']).must_equal "entry"
       _(traces[4]['Flavor']).must_equal "postgresql"
-      # using match because there is a 1 space difference between Rails 5 and Rails 6
-      _(traces[4]['Query']).must_match /SELECT\s{1,2}\"widgets\".* FROM \"widgets\" WHERE \"widgets\".\"name\" = \$\? ORDER BY \"widgets\".\"id\" ASC LIMIT \$\?/
       _(traces[4]['Name']).must_equal "Widget Load"
       _(traces[4].key?('Backtrace')).must_equal false
       _(traces[4].key?('QueryArgs')).must_equal false
@@ -148,13 +145,24 @@ if defined?(::Rails)
       _(traces[6]['Layer']).must_equal "activerecord"
       _(traces[6]['Label']).must_equal "entry"
       _(traces[6]['Flavor']).must_equal "postgresql"
-      _(traces[6]['Query']).must_equal "DELETE FROM \"widgets\" WHERE \"widgets\".\"id\" = $?"
       _(traces[6]['Name']).must_equal Rails.version < '5.2.0' ? "SQL" : "Widget Destroy"
       _(traces[6].key?('Backtrace')).must_equal false
       _(traces[6].key?('QueryArgs')).must_equal false
 
       _(traces[7]['Layer']).must_equal "activerecord"
       _(traces[7]['Label']).must_equal "exit"
+
+      if ActiveRecord::Base.connection.prepared_statements
+        _(traces[2]['Query']).must_equal "INSERT INTO \"widgets\" (\"name\", \"description\", \"created_at\", \"updated_at\") VALUES ($?, $?, $?, $?) RETURNING \"id\""
+        # using match because there is a 1 space difference between Rails 5 and Rails 6
+        _(traces[4]['Query']).must_match /SELECT\s{1,2}\"widgets\".* FROM \"widgets\" WHERE \"widgets\".\"name\" = \$\? ORDER BY \"widgets\".\"id\" ASC LIMIT \$\?/
+        _(traces[6]['Query']).must_equal "DELETE FROM \"widgets\" WHERE \"widgets\".\"id\" = $?"
+      else
+        _(traces[2]['Query']).must_equal "INSERT INTO \"widgets\" (\"name\", \"description\", \"created_at\", \"updated_at\") VALUES (?, ?, ?, ?) RETURNING \"id\""
+        # using match because there is a 1 space difference between Rails 5 and Rails 6
+        _(traces[4]['Query']).must_match /SELECT\s{1,2}\"widgets\".* FROM \"widgets\" WHERE \"widgets\".\"name\" = \? ORDER BY \"widgets\".\"id\" ASC LIMIT \?/
+        _(traces[6]['Query']).must_equal "DELETE FROM \"widgets\" WHERE \"widgets\".\"id\" = ?"
+      end
 
       # Validate the existence of the response header
       _(r.header.key?('X-Trace')).must_equal true
@@ -168,7 +176,7 @@ if defined?(::Rails)
     it "should trace rails mysql2 db calls" do
       # Skip for JRuby since the java instrumentation
       # handles DB instrumentation for JRuby
-      skip if defined?(JRUBY_VERSION) || ENV['DBTYPE'] != 'mysql2'
+      skip if defined?(JRUBY_VERSION) || ENV['DBTYPE'] != 'mysql'
 
       AppOpticsAPM::Config[:sanitize_sql] = false
 
@@ -189,18 +197,27 @@ if defined?(::Rails)
       _(entry_traces[2]['Layer']).must_equal "activerecord"
       _(entry_traces[2]['Flavor']).must_equal "mysql"
       entry_traces[2]['Query'].gsub!(/\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d/, 'the_date')
-      _(entry_traces[2]['Query']).must_equal "INSERT INTO `widgets` (`name`, `description`, `created_at`, `updated_at`) VALUES ('blah', 'This is an amazing widget.', 'the_date', 'the_date')"
+
+      if ActiveRecord::Base.connection.prepared_statements
+        _(entry_traces[2]['Query']).must_equal "INSERT INTO `widgets` (`name`, `description`, `created_at`, `updated_at`) VALUES (?, ?, ?, ?)"
+        _(entry_traces[2].key?('QueryArgs')).must_equal true
+        _(entry_traces[3]['Query']).must_match /SELECT\s{1,2}`widgets`.* FROM `widgets` WHERE `widgets`.`name` = \? ORDER BY `widgets`.`id` ASC LIMIT \?/
+        _(entry_traces[3].key?('QueryArgs')).must_equal true
+      else
+        _(entry_traces[2]['Query']).must_equal "INSERT INTO `widgets` (`name`, `description`, `created_at`, `updated_at`) VALUES ('blah', 'This is an amazing widget.', 'the_date', 'the_date')"
+        _(entry_traces[2].key?('QueryArgs')).must_equal Rails.version < '5.2.0' ? true : false
+        _(entry_traces[3]['Query']).must_match /SELECT\s{1,2}`widgets`.* FROM `widgets` WHERE `widgets`.`name` = 'blah' ORDER BY `widgets`.`id` ASC LIMIT 1/
+        _(entry_traces[3].key?('QueryArgs')).must_equal Rails.version < '5.2.0' ? true : false
+      end
+
       _(entry_traces[2]['Name']).must_equal Rails.version < '5.2.0' ? "SQL" : "Widget Create"
       _(entry_traces[2].key?('Backtrace')).must_equal false
-      _(entry_traces[2].key?('QueryArgs')).must_equal Rails.version < '5.2.0' ? true : false
 
       _(entry_traces[3]['Layer']).must_equal "activerecord"
       _(entry_traces[3]['Flavor']).must_equal "mysql"
       # using match because there is a 1 space difference between Rails 5 and Rails 6
-      _(entry_traces[3]['Query']).must_match /SELECT\s{1,2}`widgets`.* FROM `widgets` WHERE `widgets`.`name` = 'blah' ORDER BY `widgets`.`id` ASC LIMIT 1/
       _(entry_traces[3]['Name']).must_equal "Widget Load"
       _(entry_traces[3].key?('Backtrace')).must_equal false
-      _(entry_traces[3].key?('QueryArgs')).must_equal Rails.version < '5.2.0' ? true : false
 
       # Validate the existence of the response header
       _(r.header.key?('X-Trace')).must_equal true
@@ -212,7 +229,7 @@ if defined?(::Rails)
     it "should trace rails mysql2 db calls with sanitize sql" do
       # Skip for JRuby since the java instrumentation
       # handles DB instrumentation for JRuby
-      skip if defined?(JRUBY_VERSION) || ENV['DBTYPE'] != 'mysql2'
+      skip if defined?(JRUBY_VERSION) || ENV['DBTYPE'] != 'mysql'
 
       AppOpticsAPM::Config[:sanitize_sql] = true
 

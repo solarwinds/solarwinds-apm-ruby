@@ -13,8 +13,11 @@
 # This script offers the following options:
 # -r ruby-version   - restrict the tests to run with this ruby version
 # -g gemfile        - restrict the tests to the ones associated with this gemfile (path from gem-root)
-# -d database type  - restrict to one of 'mysql2' or 'postgresql' for rails tests
+# -d database type  - restrict to one of 'mysql' or 'postgresql' for rails tests
+# -p prepared statements - 0 or 1 to enable/disable prepared statements in rails
 # -n num            - run only the first num tests, -n1 is useful for debugging a new test setup
+# -c copy           - run tests with a copy of the code, so that edits don't interfere
+#
 # Rails 7 tests run only with Ruby >= 2.7.x
 # Rails 5 tests run only with Ruby <= 2.5.x
 #
@@ -30,6 +33,7 @@
 #
 # !!! When changing or adding ruby versions, the versions have to be
 # updated in the docker images as well, locally and in github !!!
+##
 rubies=("3.1.0" "3.0.3" "2.7.5" "2.6.9" "2.5.9")
 
 gemfiles=(
@@ -43,10 +47,11 @@ gemfiles=(
   "gemfiles/rails52.gemfile"
   "gemfiles/delayed_job.gemfile"
   "gemfiles/noop.gemfile"
-# 'gemfiles/profiling.gemfile"
+# "gemfiles/profiling.gemfile"
 )
 
-dbtypes=("mysql2" "postgresql")
+dbtypes=("mysql" "postgresql")
+prep_stmts=(0 1)
 
 # TODO think about storing and resetting after the tests:
 #  - BUNDLE_GEMFILE in the env (there may be none)
@@ -59,10 +64,12 @@ dir=$(pwd)
 
 exit_status=-1
 
-## Read opts
+##
+# Read opts
+##
 num=-1
 copy=0
-while getopts ":r:g:d:n:c:" opt; do
+while getopts ":r:g:d:p:n:c:" opt; do
   case ${opt} in
     r ) # process option a
       rubies=($OPTARG)
@@ -73,6 +80,14 @@ while getopts ":r:g:d:n:c:" opt; do
     d )
       dbtypes=($OPTARG)
       ;;
+    p )
+      if ! [[ $OPTARG =~ ^[01]$ ]] ; then
+        echo "Error: prepared statements option must be 0 or 1"
+        exit 1
+      else
+        prep_stmts=($OPTARG)
+      fi
+      ;;
     n )
       num=$OPTARG
       ;;
@@ -80,13 +95,14 @@ while getopts ":r:g:d:n:c:" opt; do
       copy=1
       ;;
     \? ) echo "
-Usage: $0 [-r ruby-version] [-g gemfile] [-d database type] [-n num-tests]
+Usage: $0 [-r ruby-version] [-g gemfile] [-d database type] [-p prepared_statements] [-n num-tests] [-c copy files]
 
-     -r ruby-version   - restrict the tests to run with this ruby version
-     -g gemfile        - restrict the tests to the ones associated with this gemfile (path from gem-root)
-     -d database type  - restrict to either 'mysql2' or 'postgresql' for rails tests
-     -n num            - run only the first num tests, -n1 is useful when debugging
-     -c copy           - run tests with a copy of the code, so that edits don't interfere
+     -r ruby-version        - restrict the tests to run with this ruby version
+     -g gemfile             - restrict the tests to the ones associated with this gemfile (path from gem-root)
+     -d database type       - restrict to restrict to one of 'mysql' or 'postgresql' for rails tests
+     -p prepared statements - 0 or 1 to enable/disable prepared statements in rails
+     -n num                 - run only the first num tests, -n1 is useful when debugging
+     -c copy                - run tests with a copy of the code, so that edits don't interfere
 
 Rails 7 tests run with Ruby >= 2.7.x
 Rails 5 tests run with Ruby <= 2.5.x
@@ -96,21 +112,25 @@ Rails 5 tests run with Ruby <= 2.5.x
   esac
 done
 
-
-
+##
+# setup files and env vars
+##
 if [ "$copy" -eq 1 ]; then
     rm -rf /tmp/ruby-appoptics_test
     cp -r . /tmp/ruby-appoptics_test
 
     cd /tmp/ruby-appoptics_test/ || exit 1
 fi
+rm -f gemfiles/*.lock
 
 time=$(date "+%Y%m%d_%H%M")
 export TEST_RUNS_FILE_NAME="log/testrun_"$time".log"
 echo "logfile name: $TEST_RUNS_FILE_NAME"
 
+##
 # loop through rubies, gemfiles, and database types to
 # set up and run tests
+##
 for ruby in ${rubies[@]} ; do
   rbenv local $ruby
   # if this is running on alpine and using ruby 3++, we need to patch
@@ -159,30 +179,41 @@ for ruby in ${rubies[@]} ; do
     # run only the rails tests with all databases
     if [[ $gemfile =~ .*rails.* ]] ; then
       dbs=(${dbtypes[*]})
+      preps=(${prep_stmts[*]})
     else
       dbs=(${dbtypes[0]})
+      preps=(${prep_stmts[0]})
     fi
 
     for dbtype in ${dbs[@]} ; do
-      echo "Current database type $dbtype"
+#      echo "Current database type $dbtype"
       export DBTYPE=$dbtype
 
-      # and here we are finally running the tests!!!
-      bundle exec rake test
-      status=$?
-      [[ $status -gt $exit_status ]] && exit_status=$status
-      [[ $status -ne 0 ]] && echo "!!! Test suite failed for $gemfile with Ruby $ruby !!!"
-
-      # kill all sidekiq processes
-      # they don't stop automatically and can add up
-      kill -9 $(pgrep -f sidekiq)
-
-      if $num ; then
-        num=$((num-1))
-        if [ "$num" -eq 0 ]; then
-          exit $exit_status
+      for prep_stmt in ${preps[@]} ; do
+#        echo "Using prepared statements: $prep_stmt"
+        if [ $prep_stmt = '0' ]; then
+          export TEST_PREPARED_STATEMENT=false
+        elif [ $prep_stmt = '1' ]; then
+          export TEST_PREPARED_STATEMENT=true
         fi
-      fi
+
+        # and here we are finally running the tests!!!
+        bundle exec rake test
+        status=$?
+        [[ $status -gt $exit_status ]] && exit_status=$status
+        [[ $status -ne 0 ]] && echo "!!! Test suite failed for $gemfile with Ruby $ruby !!!"
+
+        # kill all sidekiq processes
+        # they don't stop automatically and can add up
+        kill -9 $(pgrep -f sidekiq)
+
+        if $num ; then
+          num=$((num-1))
+          if [ "$num" -eq 0 ]; then
+            exit $exit_status
+          fi
+        fi
+      done
     done
   done
 done

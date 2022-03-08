@@ -27,7 +27,7 @@ jobs:
           - rails52
           - delayed_job
           - noop
-        dbtype: [postgresql, mysql2]
+        dbtype: [postgresql, mysql]
         exclude:
           - ruby: 3.1
             gemfile: rails52
@@ -39,19 +39,19 @@ jobs:
             gemfile: rails70
 
           - gemfile: unit
-            dbtype: mysql2
+            dbtype: mysql
           - gemfile: noop
-            dbtype: mysql2
+            dbtype: mysql
           - gemfile: libraries
-            dbtype: mysql2
+            dbtype: mysql
           - gemfile: instrumentation_mocked
-            dbtype: mysql2
+            dbtype: mysql
           - gemfile: instrumentation_mocked_oldgems
-            dbtype: mysql2
+            dbtype: mysql
           - gemfile: frameworks
-            dbtype: mysql2
+            dbtype: mysql
           - gemfile: delayed_job
-            dbtype: mysql2
+            dbtype: mysql
 
     container:
       image:  ruby:${{ matrix.ruby }}

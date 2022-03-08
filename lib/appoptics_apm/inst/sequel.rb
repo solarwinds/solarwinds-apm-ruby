@@ -24,6 +24,7 @@ module AppOpticsAPM
         end
 
         if ::Sequel::VERSION > '4.36.0' && !sql.is_a?(String)
+          # TODO check if this is true for all sql
           # In 4.37.0, sql was converted to a prepared statement object
           sql = sql.prepared_sql unless sql.is_a?(Symbol)
         end

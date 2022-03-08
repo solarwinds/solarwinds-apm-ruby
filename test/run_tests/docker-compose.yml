@@ -73,6 +73,7 @@ services:
       # and for OBOE_WIP ...
       - ../../../oboe/factory-output:/code/oboe/factory-output
       - ../../../oboe/liboboe:/code/oboe/liboboe
+#      - ../../../opentelemetry-exporter-solarwinds:/code/opentelemetry-exporter-solarwinds
     #       - ../../../graphql-ruby-clone/:/code/graphql-ruby
     #       - /Users/maiaengeli/workspace/repos/grpc:/grpc_ruby
     environment:
@@ -159,6 +160,9 @@ services:
       POSTGRES_PASSWORD: "docker"
     volumes:
       - ./postgres_init.sh:/docker-entrypoint-initdb.d/init-user-db.sh
+      - ./postgresql.conf:/postgresql.conf
+      - ../../log/postgresql:/var/log/postgresql
+    command: postgres -c config_file=/postgresql.conf
 
   ao_ruby_wait:
     container_name: ao_ruby_wait

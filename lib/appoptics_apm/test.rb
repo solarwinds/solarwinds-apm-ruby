@@ -60,6 +60,40 @@ module AppOpticsAPM
           ENV['DATABASE_URL'] = 'postgresql://postgres@127.0.0.1:5432/test_db'
         end
       end
+
+      ##
+      # To configure Rails to enable or disable prepared statements
+      # we need to do it using the database.yml file
+      # there is no method exposed (afaik) to set prepared_statements
+      # interactively
+      def set_postgresql_rails_config
+        config = {
+          adapter: "postgresql",
+          username: ENV.key?('POSTGRES_USER') ? ENV['POSTGRES_USER'] : "postgres",
+          password: ENV.key?('POSTGRES_PASSWORD') ? ENV['POSTGRES_PASSWORD'] : "postgres",
+          database: "test_db",
+          host: ENV.key?('POSTGRES_HOST') ? ENV['POSTGRES_HOST'] : '127.0.0.1',
+          port: ENV.key?('POSTGRES_PORT') ? ENV['POSTGRES_PORT'] : 5432,
+          statement_limit: 5
+        }
+
+        if ENV.key?('TEST_PREPARED_STATEMENT')
+          config[:prepared_statements] = ENV['TEST_PREPARED_STATEMENT'] == 'true' ? true : false
+        else
+          config[:prepared_statements] = false
+        end
+
+        env_config = {
+          default: config,
+          test: config
+        }
+
+        FileUtils.mkdir_p('config')
+        File.open("config/database.yml","w") do |file|
+          file.write env_config.to_yaml
+        end
+        config
+      end
       ##
       # set_mysql_env
       #
@@ -89,6 +123,40 @@ module AppOpticsAPM
         else
           ENV['DATABASE_URL'] = 'mysql2://root@127.0.0.1:3306/test_db'
         end
+      end
+
+      ##
+      # To configure Rails to enable or disable prepared statements
+      # we need to do it using the database.yml file
+      # there is no method exposed (afaik) to set prepared_statements
+      # interactively
+      def set_mysql2_rails_config
+        config = {
+            adapter: "mysql2",
+            username: "root",
+            database: "test_db",
+            port: 3306
+        }
+
+        config[:password] = ENV['DOCKER_MYSQL_PASS'] if ENV.key?('DOCKER_MYSQL_PASS')
+        config[:host] = ENV.key?('MYSQL_HOST') ? ENV['MYSQL_HOST'] : '127.0.0.1'
+
+        if ENV.key?('TEST_PREPARED_STATEMENT')
+          config[:prepared_statements] = ENV['TEST_PREPARED_STATEMENT'] == 'true' ? true : false
+        else
+          config[:prepared_statements] = false
+        end
+
+        env_config = {
+          default: config,
+          test: config
+        }
+
+        FileUtils.mkdir_p('config')
+        File.open("config/database.yml","w") do |file|
+          file.write env_config.to_yaml
+        end
+        config
       end
     end
   end

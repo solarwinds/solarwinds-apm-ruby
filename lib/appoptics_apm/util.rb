@@ -161,25 +161,6 @@ module AppOpticsAPM
       end
 
       ##
-      # add_trace_id_to_sql
-      #
-      # returns the sql with "/* trace-id=#{@trace_id} /*" prepended
-      #
-      def add_trace_id_to_sql(sql)
-        sql = remove_trace_id_from_sql(sql)
-        "#{AppOpticsAPM::SDK.current_trace_info.for_sql}#{sql}"
-      end
-
-      ##
-      # remove_trace_id_from_sql
-      #
-      # returns the sql without any "/* trace-id=#{@trace_id} /*" comments
-      #
-      def remove_trace_id_from_sql(sql)
-        sql.gsub(/\/\*\s*trace-id:\s*[0-9a-f]{32}\s*\*\/\s*/, '')
-      end
-
-      ##
       # deep_dup
       #
       # deep duplicate of array or hash

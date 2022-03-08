@@ -10,9 +10,11 @@
 .irb_history
 .irbrc
 .ruby-version
+.trusted_paths/
 .yardoc/
 app/
 builds/
+config/
 coverage/
 doc/
 ext/oboe_metal/*.o
