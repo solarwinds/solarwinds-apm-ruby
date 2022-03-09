@@ -34,15 +34,16 @@ module AppOpticsAPM
       # @attr span_id
       # @attr trace_flags
       class TraceInfo
-        attr_reader :trace_id, :span_id, :trace_flags, :do_log
+        attr_reader :tracestring, :trace_id, :span_id, :trace_flags, :do_log
 
         SQL_REGEX=/\/\*\s*traceparent=.*\*\/\s*/.freeze
         private_constant :SQL_REGEX
 
         def initialize
-          @tracestring = AppOpticsAPM::Context.toString
-          parts = AppOpticsAPM::TraceString.split(@tracestring)
+          tracestring = AppOpticsAPM::Context.toString
+          parts = AppOpticsAPM::TraceString.split(tracestring)
 
+          @tracestring = parts[:tracestring]
           @trace_id = parts[:trace_id]
           @span_id = parts[:span_id]
           @trace_flags = parts[:flags]
