@@ -1,5 +1,5 @@
 ##
-# Copyright (c) 2016 SolarWinds, LLC.
+# Copyright (c) SolarWinds, LLC.
 # All rights reserved.
 
 #  This is a Rails stack that launches on a background
@@ -30,17 +30,16 @@ end
 
 AppOpticsAPM.logger.info "[appoptics_apm/info] Starting background utility rails app on localhost:8140."
 
-if ENV['DBTYPE'] == 'mysql2'
-  AppOpticsAPM::Test.set_mysql2_env
+if ENV['DBTYPE'] == 'mysql'
+  config = AppOpticsAPM::Test.set_mysql2_rails_config
 elsif ENV['DBTYPE'] =~ /postgres/
-  AppOpticsAPM::Test.set_postgresql_env
+  config = AppOpticsAPM::Test.set_postgresql_rails_config
 else
   AppOpticsAPM.logger.warn "[appoptics_apm/rails] Unidentified DBTYPE: #{ENV['DBTYPE']}"
   AppOpticsAPM.logger.debug "[appoptics_apm/rails] Defaulting to postgres DB for background Rails server."
-  AppOpticsAPM::Test.set_postgresql_env
+  config = AppOpticsAPM::Test.set_postgresql_rails_config
 end
-
-ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
+ActiveRecord::Base.establish_connection(config)
 
 unless ActiveRecord::Base.connection.table_exists? 'widgets'
   ActiveRecord::Migration.run(CreateWidgets)
@@ -64,12 +63,12 @@ class Rails50MetalStack < Rails::Application
     get "/widgets/:id"       => "widgets#show"
     put "/widgets/:id"       => "widgets#update"
     delete "/widgets/:id"    => "widgets#destroy"
+
     get "/monkey/hello" => "monkey#hello"
     get "/monkey/error" => "monkey#error"
   end
 
   config.active_record.legacy_connection_handling = false if ::Rails::VERSION::MAJOR > 5
-  config.cache_classes = true
   config.cache_classes = true
   config.eager_load = false
   config.active_support.deprecation = :stderr
@@ -78,7 +77,7 @@ class Rails50MetalStack < Rails::Application
   # config.secret_token = "49837489qkuweoiuoqwehisuakshdjksadhaisdy78o34y138974xyqp9rmye8yrpiokeuioqwzyoiuxftoyqiuxrhm3iou1hrzmjk"
   config.secret_key_base = "2048671-96803948"
   # config.active_record.sqlite3 = {} # deal with https://github.com/rails/rails/issues/37048
-  # config.assets.enabled = false
+  config.assets.enabled = false
   config.colorize_logging = false
 end
 
@@ -214,6 +213,7 @@ AppOpticsAPM::SDK.trace_method(FerroController, :world)
 
 # this is a stupid solution for not having any assets
 `mkdir -p app/assets/config && echo '{}' > app/assets/config/manifest.js`
+
 Rails50MetalStack.initialize!
 
 Thread.new do

@@ -70,7 +70,7 @@ module MiniTest
 end
 
 # Print out a headline in with the settings used in the test run
-puts "\n\033[1m=== TEST RUN: #{RUBY_VERSION} #{File.basename(ENV['BUNDLE_GEMFILE'])} #{ENV['DBTYPE']} #{Time.now.strftime("%Y-%m-%d %H:%M")} ===\033[0m\n"
+puts "\n\033[1m=== TEST RUN: #{RUBY_VERSION} #{File.basename(ENV['BUNDLE_GEMFILE'])} #{ENV['DBTYPE']} #{ENV['TEST_PREPARED_STATEMENT']} #{Time.now.strftime("%Y-%m-%d %H:%M")} ===\033[0m\n"
 
 ENV['RACK_ENV'] = 'test'
 # The following should be set in docker, so that tests can use different reporters

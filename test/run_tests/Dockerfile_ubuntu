@@ -129,11 +129,5 @@ RUN apt-get update && \
 #RUN npm cache clean -f && npm install -g n && n stable
 
 ENV PATH="/usr/local/bin:/root/.rbenv/bin:/root/.rbenv/shims:$PATH"
-ENV RUBY_ENV=test
-ENV APPOPTICS_TOKEN_BUCKET_CAPACITY=10000
-ENV APPOPTICS_TOKEN_BUCKET_RATE=10000
-
-# replicate stdout of tests to file in local log directory
-ENV TEST_RUNS_TO_FILE=true
 
 CMD /bin/bash

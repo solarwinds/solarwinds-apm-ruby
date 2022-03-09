@@ -6,7 +6,12 @@ require 'minitest_helper'
 describe 'SQLSanitizeTest' do 
 
   before do
+    @sanitize = AppOpticsAPM::Config[:sanitize_sql]
     AppOpticsAPM::Config[:sanitize_sql] = false
+  end
+
+  after do
+    AppOpticsAPM::Config[:sanitize_sql] = @sanitize
   end
 
   it 'sanitizes an insert list' do
@@ -67,5 +72,71 @@ describe 'SQLSanitizeTest' do
     result = AppOpticsAPM::Util.sanitize_sql(sql)
     _(result).must_equal "SELECT `assets`.* FROM `assets` WHERE `assets`.`type` IN ('Picture') AND (updated_at >= '2015-07-08 19:22:00') AND (updated_at <= '2015-07-08 19:23:00') LIMIT 31 OFFSET 0"
   end
+end
+
+describe 'AddTraceId' do
+
+  before do
+    @sanitize = AppOpticsAPM::Config[:sanitize_sql]
+    @tag_sql = AppOpticsAPM::Config[:tag_sql]
+
+    AppOpticsAPM::Config[:sanitize_sql] = false
+    AppOpticsAPM::Config[:tag_sql] = true
+
+    @trace_id = rand(10 ** 32).to_s.rjust(32,'0')
+    @span_id = rand(10 ** 16).to_s.rjust(16,'0')
+    @tracestring_01 = "00-#{@trace_id}-#{@span_id}-01"
+    @tracestring_00 = "00-#{@trace_id}-#{@span_id}-00"
+
+    @sql =  "SELECT `users`.* FROM `users` WHERE (mobile IN ('234 234 234') AND email IN ('a_b_c@hotmail.co.uk'))"
+  end
+
+  after do
+    AppOpticsAPM::Config[:sanitize_sql] = @sanitize
+    AppOpticsAPM::Config[:tag_sql] = @tag_sql
+  end
+
+  it 'prepends a traceparent comment' do
+    AppOpticsAPM::Context.fromString(@tracestring_01)
+    result = AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(@sql)
+    assert_equal "/*traceparent='#{@tracestring_01}'*/#{@sql}", result
+  end
+
+  # when there is already a comment in the sql (add as usual, there can be multiple comments)
+  it 'adds a traceparent comment even if there already is one' do
+    AppOpticsAPM::Context.fromString(@tracestring_01)
+    sql = "/* some other comment */ #{@sql}"
+    result = AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql)
+    assert_equal "/*traceparent='#{@tracestring_01}'*/#{sql}", result
+  end
+
+  # when there is already a traceId in the sql (replace because we want the most current one, don't duplicate)
+  it 'replaces a traceparent comment' do
+    AppOpticsAPM::Context.fromString(@tracestring_01)
+    sql = "/*traceparent='29340134768738961033150415366475'*/#{@sql}"
+    result = AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql)
+    assert_equal "/*traceparent='#{@tracestring_01}'*/#{@sql}", result
+
+    # even when the spaces are screwed
+    sql = "/*  traceparent='29340134768738961033150415366475'   */ #{@sql}"
+    result = AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql)
+    assert_equal "/*traceparent='#{@tracestring_01}'*/#{@sql}", result
+  end
+
+  # when there is already a traceId in the sql and log_trace_id is false
+  it 'removes a traceparent comment' do
+    AppOpticsAPM::Config[:tag_sql] = false
+    AppOpticsAPM::Context.fromString(@tracestring_01)
+    sql = "/*traceparent='00-47025032634215427585581736961337-7795518899964771-01'*/#{@sql}"
+    result = AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql)
+    assert_equal @sql, result
+
+    # even when the spaces are screwed
+    sql = "/*  traceparent= '00-47025032634215427585581736961337-7795518899964771-01'  */ #{@sql}"
+    result = AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql)
+    assert_equal @sql, result
+  end
+
+
 end
 

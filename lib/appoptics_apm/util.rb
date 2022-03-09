@@ -146,7 +146,7 @@ module AppOpticsAPM
       ##
       # sanitize_sql
       #
-      # Used to remove query literals from SQL.  Used by all
+      # Remove query literals from SQL. Used by all
       # DB adapter instrumentation.
       #
       # The regular expression passed to String.gsub is configurable

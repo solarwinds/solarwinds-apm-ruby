@@ -99,6 +99,7 @@ jobs:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
       POSTGRES_HOST: "postgres"
+      QUERY_LOG_FILE: "/tmp/appoptics_query_logs.txt"
       REDIS_PASSWORD: "redis_pass"
       TEST_RUNS_TO_FILE: "true"
 

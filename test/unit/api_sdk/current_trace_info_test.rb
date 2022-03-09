@@ -196,5 +196,54 @@ describe AppOpticsAPM::SDK do
         assert_equal({}, trace.hash_for_log)
       end
     end
+
+    describe 'for_sql' do
+      before do
+        @sanitize = AppOpticsAPM::Config[:sanitize_sql]
+        @tag_sql = AppOpticsAPM::Config[:tag_sql]
+
+        AppOpticsAPM::Config[:sanitize_sql] = false
+        AppOpticsAPM::Config[:tag_sql] = true
+
+        @trace_id = rand(10 ** 32).to_s.rjust(32,'0')
+        @span_id = rand(10 ** 16).to_s.rjust(16,'0')
+        @tracestring_01 = "00-#{@trace_id}-#{@span_id}-01"
+        @tracestring_00 = "00-#{@trace_id}-#{@span_id}-00"
+
+        @sql =  "SELECT `users`.* FROM `users` WHERE (mobile IN ('234 234 234') AND email IN ('a_b_c@hotmail.co.uk'))"
+      end
+
+      after do
+        AppOpticsAPM::Config[:sanitize_sql] = @sanitize
+        AppOpticsAPM::Config[:tag_sql] = @tag_sql
+      end
+
+      it 'adds the trace id when tag_sql is true' do
+        AppOpticsAPM::Context.fromString(@tracestring_01)
+        result = AppOpticsAPM::SDK.current_trace_info.for_sql
+        assert_equal "/*traceparent='#{@tracestring_01}'*/", result
+
+        AppOpticsAPM::Context.clear
+        result = AppOpticsAPM::SDK.current_trace_info.for_sql
+        assert_equal '', result
+      end
+
+      # when log_traceId is :never (sql is not modified)
+      it 'does not add the trace id when tag_sql is false' do
+        AppOpticsAPM::Config[:tag_sql] = false
+
+        AppOpticsAPM::Context.fromString(@tracestring_01)
+        result = AppOpticsAPM::SDK.current_trace_info.for_sql
+        assert_equal '', result
+      end
+
+      # when log_traceId is :traced (2 cases: none, valid)
+      it 'does not add unsampled trace id' do
+
+        AppOpticsAPM::Context.fromString(@tracestring_00)
+        result = AppOpticsAPM::SDK.current_trace_info.for_sql
+        assert_equal '', result
+      end
+    end
   end
 end

@@ -25,6 +25,7 @@ module AppOpticsAPM
       #       AppOpticsAPM::SDK.current_trace_info.hash_for_log
       #    end
       #
+
       def current_trace_info
         TraceInfo.new
       end
@@ -33,17 +34,22 @@ module AppOpticsAPM
       # @attr span_id
       # @attr trace_flags
       class TraceInfo
-        attr_reader :trace_id, :span_id, :trace_flags, :do_log
+        attr_reader :tracestring, :trace_id, :span_id, :trace_flags, :do_log
+
+        SQL_REGEX=/\/\*\s*traceparent=.*\*\/\s*/.freeze
+        private_constant :SQL_REGEX
 
         def initialize
-          @tracestring = AppOpticsAPM::Context.toString
-          parts = AppOpticsAPM::TraceString.split(@tracestring)
+          tracestring = AppOpticsAPM::Context.toString
+          parts = AppOpticsAPM::TraceString.split(tracestring)
 
+          @tracestring = parts[:tracestring]
           @trace_id = parts[:trace_id]
           @span_id = parts[:span_id]
           @trace_flags = parts[:flags]
 
-          @do_log = log?
+          @do_log = log? # true if the tracecontext should be added to logs
+          @do_sql = sql? # true if the tracecontext should be added to sql
         end
 
         # for_log returns a string in the format
@@ -54,18 +60,32 @@ module AppOpticsAPM
         # :sampled, :traced, or :always.
         #
         def for_log
-          @for_log ||= do_log ? "trace_id=#{@trace_id} span_id=#{@span_id} trace_flags=#{@trace_flags}" : ''
+          @for_log ||= @do_log ? "trace_id=#{@trace_id} span_id=#{@span_id} trace_flags=#{@trace_flags}" : ''
         end
 
         def hash_for_log
-          @hash_for_log ||= do_log ? { trace_id: @trace_id,
+          @hash_for_log ||= @do_log ? { trace_id: @trace_id,
                                        span_id: @span_id,
                                        trace_flags: @trace_flags } : {}
         end
 
+        def for_sql
+          @for_sql ||= @do_sql ? "/*traceparent='#{@tracestring}'*/" : ''
+        end
+
+        ##
+        # add_traceparent_to_sql
+        #
+        # returns the sql with "/*traceparent='#{@trace_id}'*/" prepended
+        #
+        def add_traceparent_to_sql(sql)
+          sql = sql.gsub(SQL_REGEX, '') # remove if it was added before
+          "#{AppOpticsAPM::SDK.current_trace_info.for_sql}#{sql}"
+        end
+
         private
 
-        #    if true the trace info should be added to the log message
+        # if true the trace info should be added to the log message
         def log?
           case AppOpticsAPM::Config[:log_traceId]
           when :never, nil
@@ -81,6 +101,13 @@ module AppOpticsAPM
             AppOpticsAPM::TraceString.sampled?(@tracestring)
           end
         end
+
+        # if true the trace info should be added to the log message
+        def sql?
+           AppOpticsAPM::Config[:tag_sql] &&
+             AppOpticsAPM::TraceString.sampled?(@tracestring)
+        end
+
       end
 
     end

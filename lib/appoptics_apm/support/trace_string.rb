@@ -7,7 +7,7 @@ module AppOpticsAPM
     # https://www.w3.org/TR/trace-context/#traceparent-header
 
     # Regexp copied from Ruby OT trace_string.rb
-    REGEXP = /^(?<version>[a-f0-9]{2})-(?<trace_id>[a-f0-9]{32})-(?<span_id>[a-f0-9]{16})-(?<flags>[a-f0-9]{2})$/.freeze
+    REGEXP = /^(?<tracestring>(?<version>[a-f0-9]{2})-(?<trace_id>[a-f0-9]{32})-(?<span_id>[a-f0-9]{16})-(?<flags>[a-f0-9]{2}))$/.freeze
     private_constant :REGEXP
 
     class << self
@@ -43,7 +43,7 @@ module AppOpticsAPM
         matches && matches[:span_id]
       end
 
-      # Extract and return the span_id and flags of an X-Trace ID
+      # Extract and return the span_id and flags
       def span_id_flags(tracestring)
         matches = REGEXP.match(tracestring)
 
@@ -51,22 +51,24 @@ module AppOpticsAPM
       end
 
       def set_sampled(tracestring)
-        return unless tracestring
+        return unless REGEXP.match(tracestring)
 
         last = tracestring[-2..-1].hex | 0x00000001
         last = last.to_s(16).rjust(2, '0')
 
         tracestring[-2..-1] = last
+        tracestring
       end
 
       def unset_sampled(tracestring)
-        return unless tracestring
+        return unless REGEXP.match(tracestring)
 
         # shift left and right to set last bit to zero
         last = tracestring[-2..-1].hex >> 1 << 1
         last = last.to_s(16).rjust(2, '0')
 
         tracestring[-2..-1] = last
+        tracestring
       end
 
       # !!! garbage in garbage out !!!
@@ -74,7 +76,8 @@ module AppOpticsAPM
       # method is only used in TraceContext, where span_id_flags arg
       # is created and is either valid or nil
       def replace_span_id_flags(tracestring, span_id_flags)
-        return tracestring unless span_id_flags
+        return unless REGEXP.match(tracestring)
+        return tracestring unless span_id_flags =~ /^[a-f0-9]{16}-[a-f0-9]{2}$/
 
         matches = REGEXP.match(tracestring)
 
