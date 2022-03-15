@@ -81,6 +81,45 @@ module AppOpticsAPM
       ensure
         AppOpticsAPM::API.log_exit(:sequel)
       end
+
+      def add_traceparent(sql)
+        # check if works needs to be done before messing with the
+        # queries and prepared statements
+        if AppOpticsAPM.tracing? && AppOpticsAPM::Config[:tag_sql]
+          case sql
+          when String
+            return AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql)
+          when Symbol
+            # TODO does not work for pstgresql
+            ps = prepared_statement(sql)
+            new_ps = add_traceparent_to_ps(ps)
+            set_prepared_statement(sql, new_ps)
+            return sql # related query may have been modified
+          when ::Sequel::Dataset::ArgumentMapper
+            new_sql = add_traceparent_to_ps(sql)
+            return new_sql # related query may have been modified
+          end
+        end
+        sql
+      end
+
+      # this method uses some non-api methods partially copied from
+      # `execute_prepared_statement` in `mysql2.rb`
+      # and `prepare` in `prepared_statements.rb` in the sequel gem
+      def add_traceparent_to_ps(ps)
+        sql = ps.prepared_sql
+        new_sql = AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql)
+
+        unless new_sql == sql
+          new_ps = ps.clone(:prepared_sql=>new_sql, :sql=>new_sql)
+          puts new_ps.prepared_sql
+          return new_ps
+        else
+          puts "no traceparent added"
+        end
+
+        ps # no change, no trace context added
+      end
     end
 
     module SequelDatabase
@@ -94,17 +133,14 @@ module AppOpticsAPM
       end
 
       def run_with_appoptics(sql, opts = ::Sequel::OPTS)
-        if AppOpticsAPM.tracing?
-          kvs = extract_trace_details(sql, opts)
-          AppOpticsAPM::API.log_entry(:sequel, kvs)
-        end
+        kvs = {}
+        kvs = extract_trace_details(sql, opts) if AppOpticsAPM.tracing?
+        AppOpticsAPM::SDK.trace(:sequel, kvs: kvs) do
+          puts "in run: sql is a #{sql.class}, ArgumentMapper? #{sql.is_a?(::Sequel::Dataset::ArgumentMapper)}"
 
-        run_without_appoptics(sql, opts)
-      rescue => e
-        AppOpticsAPM::API.log_exception(:sequel, e)
-        raise e
-      ensure
-        AppOpticsAPM::API.log_exit(:sequel)
+          new_sql = add_traceparent(sql)
+          run_without_appoptics(new_sql, opts)
+        end
       end
 
       def execute_ddl_with_appoptics(sql, opts = ::Sequel::OPTS, &block)
@@ -131,6 +167,26 @@ module AppOpticsAPM
         exec_with_appoptics(:execute_insert_without_appoptics, sql, opts, &block)
       end
     end # module SequelDatabase
+
+    module MySQLSequelDatabase
+      include AppOpticsAPM::Inst::Sequel
+
+      def self.included(klass)
+        AppOpticsAPM::Util.method_alias(klass, :execute, ::Sequel::MySQL::MysqlMysql2::DatabaseMethods)
+      end
+
+      def execute_with_appoptics(*args, &block)
+        kvs = {}
+        kvs = extract_trace_details(args[0], args[1]) if AppOpticsAPM.tracing?
+        AppOpticsAPM::SDK.trace(:sequel, kvs: kvs) do
+          puts "in mysql execute: sql is a #{args[0].class}, ArgumentMapper? #{args[0].is_a?(::Sequel::Dataset::ArgumentMapper)}"
+
+          new_sql = add_traceparent(args[0])
+          args[0] = new_sql
+          execute_without_appoptics(*args, &block)
+        end
+      end
+    end
 
     module SequelDataset
       include AppOpticsAPM::Inst::Sequel
@@ -175,5 +231,8 @@ if AppOpticsAPM::Config[:sequel][:enabled]
     AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting sequel' if AppOpticsAPM::Config[:verbose]
     AppOpticsAPM::Util.send_include(::Sequel::Database, AppOpticsAPM::Inst::SequelDatabase)
     AppOpticsAPM::Util.send_include(::Sequel::Dataset, AppOpticsAPM::Inst::SequelDataset)
+    # TODO this is temporary, we need to instrument `require`, see NH-9711
+    require 'sequel/adapters/mysql2'
+    AppOpticsAPM::Util.send_include(::Sequel::MySQL::MysqlMysql2::DatabaseMethods, AppOpticsAPM::Inst::MySQLSequelDatabase)
   end
 end

@@ -8,13 +8,17 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
   AppOpticsAPM::Test.set_mysql2_env
   MYSQL2_DB = Sequel.connect(ENV['DATABASE_URL'])
+  ENV['QUERY_LOG_FILE'] ||= '/tmp/query_log.txt'
+  MYSQL2_DB.logger = Logger.new(ENV['QUERY_LOG_FILE'])
 
-  unless MYSQL2_DB.table_exists?(:items)
-    MYSQL2_DB.create_table :items do
-      primary_key :id
-      String :name
-      Float :price
-    end
+  if MYSQL2_DB.table_exists?(:items)
+    MYSQL2_DB.drop_table(:items)
+  end
+
+  MYSQL2_DB.create_table :items do
+    primary_key :id
+    String :name
+    Float :price
   end
 
   describe "Sequel (mysql2)" do
@@ -340,6 +344,8 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
       validate_event_keys(traces[1], @entry_kvs)
 
+      # TODO retire check for 4.36.0 at some point
+      #      sequel 4.36.0 July 2016, sequel 4.37.0 August 2016
       if ::Sequel::VERSION > '4.36.0'
         _(traces[1]['Query']).must_equal "SELECT * FROM `items` WHERE (`name` = ?)"
       else

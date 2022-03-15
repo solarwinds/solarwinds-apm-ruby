@@ -36,8 +36,6 @@ module AppOpticsAPM
         def trace_wrap(*args)
           sql, name, binds, _ = args
 
-          # trace_id may or may not be added depending on setting and context
-          # even if we are not tracing
           args[0] = AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql)
           if AppOpticsAPM.tracing? && !ignore_payload?(name)
             kvs = extract_trace_details(sql, name, binds || [])

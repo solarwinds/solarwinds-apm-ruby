@@ -102,7 +102,7 @@ module AppOpticsAPM
           end
         end
 
-        # if true the trace info should be added to the log message
+        # if true the trace info should be added to the sql query
         def sql?
            AppOpticsAPM::Config[:tag_sql] &&
              AppOpticsAPM::TraceString.sampled?(@tracestring)
