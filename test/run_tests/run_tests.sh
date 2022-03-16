@@ -133,6 +133,7 @@ echo "logfile name: $TEST_RUNS_FILE_NAME"
 ##
 for ruby in ${rubies[@]} ; do
   rbenv local $ruby
+  # TODO this patching should be moved to ruby_setup.sh
   # if this is running on alpine and using ruby 3++, we need to patch
   if [[ -r /etc/alpine-release ]]; then
     if [[ $ruby =~ ^3.0.* ]]; then

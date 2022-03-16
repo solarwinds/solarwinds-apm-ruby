@@ -11,14 +11,15 @@ module AppOpticsAPM
     #
     module Sequel
       ##
-      # extract_trace_details
+      # assign_kvs
       #
       # Given SQL and the options hash, this method extracts the interesting
       # bits for reporting to the AppOptics dashboard.
       #
-      def extract_trace_details(sql, opts)
-        kvs = {}
-
+      # kvs is a hash and we are taking advantage of using it by reference to
+      # assign kvs to the exit event (important for trace injection)
+      #
+      def assign_kvs(sql, opts, kvs)
         if !sql.is_a?(String)
           kvs[:IsPreparedStatement] = true
         end
@@ -58,8 +59,6 @@ module AppOpticsAPM
         kvs[:Flavor]     = db_opts[:adapter]
       rescue => e
         AppOpticsAPM.logger.debug "[appoptics_apm/debug Error capturing Sequel KVs: #{e.message}" if AppOpticsAPM::Config[:verbose]
-      ensure
-        return kvs
       end
 
       ##
@@ -69,28 +68,29 @@ module AppOpticsAPM
       # original method call
       #
       def exec_with_appoptics(method, sql, opts = ::Sequel::OPTS, &block)
-        if AppOpticsAPM.tracing?
-          kvs = extract_trace_details(sql, opts)
-          AppOpticsAPM::API.log_entry(:sequel, kvs)
-        end
+        kvs = {}
+        AppOpticsAPM::SDK.trace(:sequel, kvs: kvs) do
+          # puts "in exec_with_appoptics: sql is a #{sql.class}, Symbol? #{sql.is_a?(Symbol)} ArgumentMapper? #{sql.is_a?(::Sequel::Dataset::ArgumentMapper)}"
+          puts "in exec_with_appoptics: self is a #{self.class}"
 
-        send(method, sql, opts, &block)
-      rescue => e
-        AppOpticsAPM::API.log_exception(:sequel, e)
-        raise e
-      ensure
-        AppOpticsAPM::API.log_exit(:sequel)
+          new_sql = add_traceparent(sql)
+          assign_kvs(new_sql, opts, kvs) if AppOpticsAPM.tracing?
+          send(method, new_sql, opts, &block)
+        end
       end
 
       def add_traceparent(sql)
+        # puts "............. in add_traceparent: sql is a #{sql.class}"
         # check if works needs to be done before messing with the
         # queries and prepared statements
         if AppOpticsAPM.tracing? && AppOpticsAPM::Config[:tag_sql]
+          # require 'byebug'
+          # byebug
           case sql
           when String
             return AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql)
-          when Symbol
-            # TODO does not work for pstgresql
+          when Symbol # && self.is_a?(::Sequel::Mysql2::Database)
+            # TODO this does not work for postgresql
             ps = prepared_statement(sql)
             new_ps = add_traceparent_to_ps(ps)
             set_prepared_statement(sql, new_ps)
@@ -112,10 +112,7 @@ module AppOpticsAPM
 
         unless new_sql == sql
           new_ps = ps.clone(:prepared_sql=>new_sql, :sql=>new_sql)
-          puts new_ps.prepared_sql
           return new_ps
-        else
-          puts "no traceparent added"
         end
 
         ps # no change, no trace context added
@@ -134,11 +131,11 @@ module AppOpticsAPM
 
       def run_with_appoptics(sql, opts = ::Sequel::OPTS)
         kvs = {}
-        kvs = extract_trace_details(sql, opts) if AppOpticsAPM.tracing?
         AppOpticsAPM::SDK.trace(:sequel, kvs: kvs) do
-          puts "in run: sql is a #{sql.class}, ArgumentMapper? #{sql.is_a?(::Sequel::Dataset::ArgumentMapper)}"
+          puts "in run_with_appoptics: sql is a #{sql.class}, ArgumentMapper? #{sql.is_a?(::Sequel::Dataset::ArgumentMapper)}"
 
           new_sql = add_traceparent(sql)
+          kvs = assign_kvs(new_sql, opts, kvs) if AppOpticsAPM.tracing?
           run_without_appoptics(new_sql, opts)
         end
       end
@@ -176,15 +173,43 @@ module AppOpticsAPM
       end
 
       def execute_with_appoptics(*args, &block)
+        # if this is called via a dataset it is already being traced
+        return execute_without_appoptics(*args, &block) if AppOpticsAPM.tracing_layer?(:sequel)
+
         kvs = {}
-        kvs = extract_trace_details(args[0], args[1]) if AppOpticsAPM.tracing?
         AppOpticsAPM::SDK.trace(:sequel, kvs: kvs) do
-          puts "in mysql execute: sql is a #{args[0].class}, ArgumentMapper? #{args[0].is_a?(::Sequel::Dataset::ArgumentMapper)}"
+          #   puts "in mysql execute: sql is a #{args[0].class}, ArgumentMapper? #{args[0].is_a?(::Sequel::Dataset::ArgumentMapper)}"
+          puts "%%%%%% in mysql execute: self is a #{self.class}"
+          puts "#{args[0]}"
 
           new_sql = add_traceparent(args[0])
           args[0] = new_sql
+          kvs = assign_kvs(args[0], args[1], kvs) if AppOpticsAPM.tracing?
           execute_without_appoptics(*args, &block)
         end
+      end
+    end
+
+    module PGSequelDatabase
+      include AppOpticsAPM::Inst::Sequel
+
+      def self.included(klass)
+        AppOpticsAPM::Util.method_alias(klass, :execute, ::Sequel::Postgres::Database)
+      end
+
+      def execute_with_appoptics(*args, &block)
+        return execute_without_appoptics(*args, &block) if AppOpticsAPM.tracing_layer?(:sequel)
+
+        kvs = {}
+        # AppOpticsAPM::SDK.trace(:sequel, kvs: kvs) do
+        puts "###### in pg execute: sql is a #{args[0].class}" unless args[0].is_a?(String)
+        puts "$$$$$$$$$$ in pg execute self is a #{self.class}"
+
+        # new_sql = add_traceparent(args[0])
+        # args[0] = new_sql
+        kvs = assign_kvs(args[0], args[1], kvs) if AppOpticsAPM.tracing?
+        execute_without_appoptics(*args, &block)
+        # end
       end
     end
 
@@ -231,8 +256,11 @@ if AppOpticsAPM::Config[:sequel][:enabled]
     AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting sequel' if AppOpticsAPM::Config[:verbose]
     AppOpticsAPM::Util.send_include(::Sequel::Database, AppOpticsAPM::Inst::SequelDatabase)
     AppOpticsAPM::Util.send_include(::Sequel::Dataset, AppOpticsAPM::Inst::SequelDataset)
+
     # TODO this is temporary, we need to instrument `require`, see NH-9711
     require 'sequel/adapters/mysql2'
     AppOpticsAPM::Util.send_include(::Sequel::MySQL::MysqlMysql2::DatabaseMethods, AppOpticsAPM::Inst::MySQLSequelDatabase)
+    require 'sequel/adapters/postgres'
+    AppOpticsAPM::Util.send_include(::Sequel::Postgres::Database, AppOpticsAPM::Inst::PGSequelDatabase)
   end
 end
