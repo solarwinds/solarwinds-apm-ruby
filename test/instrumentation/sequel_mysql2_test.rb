@@ -441,7 +441,6 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
     it "adds trace context to a stored procedure" do
       trace_id = ''
-      MYSQL2_DB.execute('DROP PROCEDURE test_sproc')
       MYSQL2_DB.execute_ddl('CREATE PROCEDURE test_sproc() BEGIN DELETE FROM items; END')
 
       AppOpticsAPM::SDK.start_trace('sequel_test') do
