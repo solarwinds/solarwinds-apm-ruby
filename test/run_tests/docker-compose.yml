@@ -73,7 +73,8 @@ services:
       # and for OBOE_WIP ...
       - ../../../oboe/factory-output:/code/oboe/factory-output
       - ../../../oboe/liboboe:/code/oboe/liboboe
-#      - ../../../opentelemetry-exporter-solarwinds:/code/opentelemetry-exporter-solarwinds
+      - ../../../../repos/sequel:/code/sequel
+    #       - ../../../opentelemetry-exporter-solarwinds:/code/opentelemetry-exporter-solarwinds
     #       - ../../../graphql-ruby-clone/:/code/graphql-ruby
     #       - /Users/maiaengeli/workspace/repos/grpc:/grpc_ruby
     environment:
@@ -93,6 +94,7 @@ services:
       - ../../../oboe/factory-output:/code/oboe/factory-output
       - ../../../oboe/liboboe:/code/oboe/liboboe
       - ./.ruby_version_alpine:/code/ruby-appoptics/.ruby-version
+      - ../../../../repos/sequel:/code/sequel
     environment:
       <<: *ao-env
       APPOPTICS_HOSTNAME_ALIAS: "AO_RUBY_ALPINE"
@@ -140,9 +142,9 @@ services:
   ao-ruby-mysql:
     container_name: ao-ruby-mysql
     image: mysql:5.7.33
-    command: --init-file /data/application/init.sql
+    command: --init-file /data/application/mysql_init.sql
     volumes:
-      - ./init.sql:/data/application/init.sql
+      - ./mysql_init.sql:/data/application/mysql_init.sql
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
       - MYSQL_ROOT_PASSWORD=admin
