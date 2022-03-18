@@ -20,7 +20,7 @@ module AppOpticsAPM
       # assign kvs to the exit event (important for trace injection)
       #
       def assign_kvs(sql, opts, kvs)
-        if !sql.is_a?(String)
+        unless sql.is_a?(String)
           kvs[:IsPreparedStatement] = true
         end
 
@@ -35,11 +35,12 @@ module AppOpticsAPM
           if sql.is_a?(Symbol)
             kvs[:Query] = sql
           else
+            sql = AppOpticsAPM::Util.remove_traceparent(sql)
             kvs[:Query] = AppOpticsAPM::Util.sanitize_sql(sql)
           end
         else
           # Report raw SQL and any binds if they exist
-          kvs[:Query] = sql.to_s
+          kvs[:Query] = AppOpticsAPM::Util.remove_traceparent(sql.to_s)
           kvs[:QueryArgs] = opts[:arguments] if opts.is_a?(Hash) && opts.key?(:arguments)
         end
 

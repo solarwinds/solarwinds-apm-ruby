@@ -388,7 +388,15 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
       traces = get_all_traces
       assert_match log_traceid_regex(trace_id), traces[2]['QueryTag']
+      refute_match /traceparent/, traces[2]['Query']
       assert query_logged?(/#{log_traceid_regex(trace_id)}SELECT/), "Logged query didn't match what we're looking for"
+
+      # to make sure future me doesn't rely on sanitize to remove traceparent
+      AppOpticsAPM::Config[:sanitize_sql] = false
+      AppOpticsAPM::SDK.start_trace('sequel_test') do
+        items.count
+      end
+      refute_match /traceparent/, traces[2]['Query']
     end
 
     it 'adds trace context to sql string via DB' do
@@ -400,6 +408,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       end
       traces = get_all_traces
       assert_match log_traceid_regex(trace_id), traces[2]['QueryTag']
+      refute_match /traceparent/, traces[2]['Query']
       assert query_logged?(/#{log_traceid_regex(trace_id)}SELECT/), "Logged query didn't match what we're looking for"
     end
 
@@ -414,6 +423,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       end
       traces = get_all_traces
       assert_match log_traceid_regex(trace_id), traces[2]['QueryTag']
+      refute_match /traceparent/, traces[2]['Query']
       assert query_logged?(/#{log_traceid_regex(trace_id)}SELECT/), "Logged query didn't match what we're looking for"
     end
 
@@ -428,6 +438,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       end
       traces = get_all_traces
       assert_match log_traceid_regex(trace_id), traces[2]['QueryTag']
+      refute_match /traceparent/, traces[2]['Query']
       assert query_logged?(/#{log_traceid_regex(trace_id)}SELECT/), "Logged query didn't match what we're looking for"
     end
 
@@ -440,6 +451,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       end
       traces = get_all_traces
       assert_match log_traceid_regex(trace_id), traces[2]['QueryTag']
+      refute_match /traceparent/, traces[2]['Query']
       assert query_logged?(/#{log_traceid_regex(trace_id)}CALL/), "Logged query didn't match what we're looking for"
 
       PG_DB.execute('DROP PROCEDURE test_sproc')

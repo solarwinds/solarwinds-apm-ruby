@@ -49,47 +49,44 @@ module AppOpticsAPM
         end
 
         def assign_kvs(sql, kvs, name = nil, binds = [])
-          begin
-            if AppOpticsAPM::Config[:sanitize_sql]
-              # Sanitize SQL and don't report binds
-              kvs[:Query] = AppOpticsAPM::Util.sanitize_sql(sql)
-            else
-              # Report raw SQL and any binds if they exist
-              kvs[:Query] = sql.to_s
-              if binds && !binds.empty?
-                kvs[:QueryArgs] = binds.map(&:value)
-              end
+          sql = AppOpticsAPM::Util.remove_traceparent(sql.to_s)
+          if AppOpticsAPM::Config[:sanitize_sql]
+            # Sanitize SQL and don't report binds
+            kvs[:Query] = AppOpticsAPM::Util.sanitize_sql(sql)
+          else
+            # Report raw SQL or name of statement and any binds if they exist
+            kvs[:Query] = sql
+            if binds && !binds.empty?
+              kvs[:QueryArgs] = binds.map(&:value)
             end
-
-            kvs[:Name] = name.to_s if name
-            if AppOpticsAPM::Config[:active_record] && AppOpticsAPM::Config[:active_record][:collect_backtraces]
-              kvs[:Backtrace] = AppOpticsAPM::API.backtrace
-            end
-
-            if ActiveRecord::Base.respond_to?(:connection_db_config)
-              config = ActiveRecord::Base.connection_db_config.configuration_hash
-            else
-              config = ActiveRecord::Base.connection_config
-            end
-
-            if config
-              kvs[:Database] = config[:database] if config.key?(:database)
-              kvs[:RemoteHost] = config[:host] if config.key?(:host)
-              adapter_name = config[:adapter]
-
-              case adapter_name
-              when /mysql/i
-                kvs[:Flavor] = 'mysql'
-              when /^postgres|^postgis/i
-                kvs[:Flavor] = 'postgresql'
-              end
-            end
-          rescue StandardError => e
-            AppOpticsAPM.logger.debug "[appoptics_apm/rails] Exception raised capturing ActiveRecord KVs: #{e.inspect}"
-            AppOpticsAPM.logger.debug e.backtrace.join('\n')
           end
 
-          kvs
+          kvs[:Name] = name.to_s if name
+          if AppOpticsAPM::Config[:active_record] && AppOpticsAPM::Config[:active_record][:collect_backtraces]
+            kvs[:Backtrace] = AppOpticsAPM::API.backtrace
+          end
+
+          if ActiveRecord::Base.respond_to?(:connection_db_config)
+            config = ActiveRecord::Base.connection_db_config.configuration_hash
+          else
+            config = ActiveRecord::Base.connection_config
+          end
+
+          if config
+            kvs[:Database] = config[:database] if config.key?(:database)
+            kvs[:RemoteHost] = config[:host] if config.key?(:host)
+            adapter_name = config[:adapter]
+
+            case adapter_name
+            when /mysql/i
+              kvs[:Flavor] = 'mysql'
+            when /^postgres|^postgis/i
+              kvs[:Flavor] = 'postgresql'
+            end
+          end
+        rescue StandardError => e
+          AppOpticsAPM.logger.debug "[appoptics_apm/rails] Exception raised capturing ActiveRecord KVs: #{e.inspect}"
+          AppOpticsAPM.logger.debug e.backtrace.join('\n')
         end
 
         # We don't want to trace framework caches.
