@@ -126,7 +126,7 @@ end
 
 # Attempt to clean up the sidekiq processes at the end of tests
 MiniTest.after_run do
-    system("pkill -9 -f sidekiq")
+    system("pkill -f sidekiq")
 end
 
 ##
