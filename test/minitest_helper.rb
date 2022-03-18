@@ -115,28 +115,12 @@ when /rails/
   require './test/servers/rails5x_8140'
 when /frameworks/
 when /libraries/
-  # Load Sidekiq for libaries tests
+  # Load Sidekiq for libraries tests
   # use `export NO_SIDEKIQ=true` to stop sidekiq from loading
   # when running individual test files
   # starting sidekiq slows down the startup and doesn't shut down properly
   unless (ENV.key?('TEST') && ENV['TEST'] =~ /sidekiq/) || (/benchmark/ =~ $0) || ENV['NO_SIDEKIQ']
     require './test/servers/sidekiq.rb'
-  end
-end
-
-# Attempt to clean up the sidekiq processes at the end of tests
-MiniTest.after_run do
-  # for general Linux
-  unless `ps -aef | grep 'sidekiq' | grep APPOPTICS_GEM_TEST | grep -v grep`.empty?
-    AppOpticsAPM.logger.debug "[appoptics_apm/servers] Killing old sidekiq process:#{`ps aux | grep [s]idekiq`}."
-    cmd = "kill -9 `ps -aef | grep 'sidekiq' | grep APPOPTICS_GEM_TEST | grep -v grep | awk '{print $2}'`"
-    `#{cmd}`
-  end
-  # for Alpine
-  unless `ps -aef | grep 'sidekiq' | grep {ruby} | grep -v grep`.empty?
-    # AppOpticsAPM.logger.debug "[appoptics_apm/servers] Killing old sidekiq process:#{`ps aux | grep [s]idekiq`}."
-    cmd = "kill -9 `ps -aef | grep 'sidekiq' | grep {ruby} | grep -v grep | awk '{print $1}'`"
-    `#{cmd}`
   end
 end
 
