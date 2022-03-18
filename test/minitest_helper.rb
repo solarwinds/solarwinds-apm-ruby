@@ -124,6 +124,11 @@ when /libraries/
   end
 end
 
+# Attempt to clean up the sidekiq processes at the end of tests
+MiniTest.after_run do
+  system("pkill -f sidekiq  || echo 0")
+end
+
 ##
 # clear_all_traces
 #
