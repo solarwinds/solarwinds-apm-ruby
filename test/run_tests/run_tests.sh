@@ -206,7 +206,7 @@ for ruby in ${rubies[@]} ; do
 
         # kill all sidekiq processes
         # they don't stop automatically and can add up
-        kill -9 $(pgrep -f sidekiq)
+        pkill -9 -f sidekiq
 
         if $num ; then
           num=$((num-1))
