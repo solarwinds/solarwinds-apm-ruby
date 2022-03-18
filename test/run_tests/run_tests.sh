@@ -208,11 +208,9 @@ for ruby in ${rubies[@]} ; do
         # they don't stop automatically and can add up
         pkill -9 -f sidekiq
 
-        if $num ; then
-          num=$((num-1))
-          if [ "$num" -eq 0 ]; then
-            exit $exit_status
-          fi
+        num=$((num-1))
+        if [ "$num" -eq 0 ]; then
+          exit $exit_status
         fi
       done
     done
