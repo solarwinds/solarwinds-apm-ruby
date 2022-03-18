@@ -128,8 +128,8 @@ end
 MiniTest.after_run do
   # for general Linux
     AppOpticsAPM.logger.debug "[appoptics_apm/servers] Killing old sidekiq process:#{`ps aux | grep [s]idekiq`}."
-    cmd = "pkill -9 -f sidekiq"
-    `#{cmd}`
+    `pkill -9 -f sidekiq`
+  true # return true, because the above command does not exit with 0
 end
 
 ##

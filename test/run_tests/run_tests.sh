@@ -15,7 +15,6 @@
 # -g gemfile        - restrict the tests to the ones associated with this gemfile (path from gem-root)
 # -d database type  - restrict to one of 'mysql' or 'postgresql' for rails tests
 # -p prepared statements - 0 or 1 to enable/disable prepared statements in rails
-# -n num            - run only the first num tests, -n1 is useful for debugging a new test setup
 # -c copy           - run tests with a copy of the code, so that edits don't interfere
 #
 # Rails 7 tests run only with Ruby >= 2.7.x
@@ -67,7 +66,6 @@ exit_status=-1
 ##
 # Read opts
 ##
-num=-1
 copy=0
 while getopts ":r:g:d:p:n:c:" opt; do
   case ${opt} in
@@ -88,20 +86,16 @@ while getopts ":r:g:d:p:n:c:" opt; do
         prep_stmts=($OPTARG)
       fi
       ;;
-    n )
-      num=$OPTARG
-      ;;
     c )
       copy=1
       ;;
     \? ) echo "
-Usage: $0 [-r ruby-version] [-g gemfile] [-d database type] [-p prepared_statements] [-n num-tests] [-c copy files]
+Usage: $0 [-r ruby-version] [-g gemfile] [-d database type] [-p prepared_statements] [-c copy files]
 
      -r ruby-version        - restrict the tests to run with this ruby version
      -g gemfile             - restrict the tests to the ones associated with this gemfile (path from gem-root)
      -d database type       - restrict to restrict to one of 'mysql' or 'postgresql' for rails tests
      -p prepared statements - 0 or 1 to enable/disable prepared statements in rails
-     -n num                 - run only the first num tests, -n1 is useful when debugging
      -c copy                - run tests with a copy of the code, so that edits don't interfere
 
 Rails 7 tests run with Ruby >= 2.7.x
@@ -208,10 +202,6 @@ for ruby in ${rubies[@]} ; do
         # they don't stop automatically and can add up
         pkill -9 -f sidekiq
 
-        num=$((num-1))
-        if [ "$num" -eq 0 ]; then
-          exit $exit_status
-        fi
       done
     done
   done
