@@ -127,17 +127,9 @@ end
 # Attempt to clean up the sidekiq processes at the end of tests
 MiniTest.after_run do
   # for general Linux
-  unless `ps -aef | grep 'sidekiq' | grep APPOPTICS_GEM_TEST | grep -v grep`.empty?
     AppOpticsAPM.logger.debug "[appoptics_apm/servers] Killing old sidekiq process:#{`ps aux | grep [s]idekiq`}."
-    cmd = "kill -9 `ps -aef | grep 'sidekiq' | grep APPOPTICS_GEM_TEST | grep -v grep | awk '{print $2}'`"
+    cmd = "pkill -9 -f sidekiq"
     `#{cmd}`
-  end
-  # for Alpine
-  unless `ps -aef | grep 'sidekiq' | grep {ruby} | grep -v grep`.empty?
-    # AppOpticsAPM.logger.debug "[appoptics_apm/servers] Killing old sidekiq process:#{`ps aux | grep [s]idekiq`}."
-    cmd = "kill -9 `ps -aef | grep 'sidekiq' | grep {ruby} | grep -v grep | awk '{print $1}'`"
-    `#{cmd}`
-  end
 end
 
 ##
@@ -175,6 +167,10 @@ end
 # `clear_query_log` before next test
 def query_logged?(regex)
   File.open(ENV['QUERY_LOG_FILE']).read() =~ regex
+end
+
+def print_query_log
+  puts File.open(ENV['QUERY_LOG_FILE']).read()
 end
 
 ##

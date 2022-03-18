@@ -37,7 +37,6 @@ module AppOpticsAPM
         attr_reader :tracestring, :trace_id, :span_id, :trace_flags, :do_log
 
         SQL_REGEX=/\/\*\s*traceparent=.*\*\/\s*/.freeze
-        private_constant :SQL_REGEX
 
         def initialize
           tracestring = AppOpticsAPM::Context.toString
@@ -76,11 +75,17 @@ module AppOpticsAPM
         ##
         # add_traceparent_to_sql
         #
-        # returns the sql with "/*traceparent='#{@trace_id}'*/" prepended
+        # returns the sql with "/*traceparent='#{@tracestring}'*/" prepended
         #
-        def add_traceparent_to_sql(sql)
+        def add_traceparent_to_sql(sql, kvs)
           sql = sql.gsub(SQL_REGEX, '') # remove if it was added before
-          "#{AppOpticsAPM::SDK.current_trace_info.for_sql}#{sql}"
+
+          unless for_sql.empty?
+            kvs[:QueryTag] = for_sql
+            return "#{for_sql}#{sql}"
+          end
+
+          sql
         end
 
         private

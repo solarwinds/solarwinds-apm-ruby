@@ -294,7 +294,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       validate_event_keys(traces[2], @exit_kvs)
     end
 
-    it 'THIS should trace prepared statements' do
+    it 'should trace prepared statements' do
       AppOpticsAPM::Config[:sanitize_sql] = false
       ds = PG_DB[:items].filter(:name => :$n)
       ps = ds.prepare(:select, :select_by_name)
@@ -316,7 +316,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       validate_event_keys(traces[2], @exit_kvs)
     end
 
-    it 'THIS should trace prep\'d stmnts and obey query privacy' do
+    it 'should trace prep\'d stmnts and obey query privacy' do
       AppOpticsAPM::Config[:sanitize_sql] = true
       ds = PG_DB[:items].filter(:name => :$n)
       ps = ds.prepare(:select, :select_by_name)
@@ -345,7 +345,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
     /\/\*traceparent='00-#{trace_id}-[0-9a-z]{16}-[01]{2}'\*\//
   end
 
-  describe "Sequel postgresql trace context in query" do
+  describe "Sequel postgresql trace context in query and it does not get sanitized" do
     
     before do
       if PG_DB.table_exists?(:items)
@@ -358,18 +358,27 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       end
 
       @tag_sql = AppOpticsAPM::Config[:tag_sql]
+      @sanitize = AppOpticsAPM::Config[:sanitize_sql]
+      @backtraces = AppOpticsAPM::Config[:sequel][:collect_backtraces]
+
       AppOpticsAPM::Config[:tag_sql] = true
+      AppOpticsAPM::Config[:sanitize_sql] = true
+      AppOpticsAPM::Config[:sequel][:collect_backtraces] = false
+
       clear_all_traces
       clear_query_log
     end
 
     after do
       AppOpticsAPM::Config[:tag_sql] = @tag_sql
+      AppOpticsAPM::Config[:sanitize_sql] = @sanitize
+      AppOpticsAPM::Config[:sequel][:collect_backtraces] = @backtraces
+
       clear_all_traces
       clear_query_log
     end
 
-    it 'THIS adds trace context to sql string' do
+    it 'adds trace context to sql string via Dataset' do
       items = PG_DB[:items]
       trace_id = ''
 
@@ -377,10 +386,25 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
         trace_id = AppOpticsAPM::TraceString.trace_id(AppOpticsAPM::Context.toString)
         items.count
       end
+
+      traces = get_all_traces
+      assert_match log_traceid_regex(trace_id), traces[2]['QueryTag']
       assert query_logged?(/#{log_traceid_regex(trace_id)}SELECT/), "Logged query didn't match what we're looking for"
     end
 
-    it 'THIS adds trace context to query represented by a symbol' do
+    it 'adds trace context to sql string via DB' do
+      trace_id = ''
+
+      AppOpticsAPM::SDK.start_trace('sequel_test') do
+        trace_id = AppOpticsAPM::TraceString.trace_id(AppOpticsAPM::Context.toString)
+        PG_DB << 'SELECT count(*) AS "count" FROM "items"'
+      end
+      traces = get_all_traces
+      assert_match log_traceid_regex(trace_id), traces[2]['QueryTag']
+      assert query_logged?(/#{log_traceid_regex(trace_id)}SELECT/), "Logged query didn't match what we're looking for"
+    end
+
+    it 'adds trace context to statement represented by a symbol via DB' do
       ds = PG_DB[:items].filter(:name => :$n)
       ds.prepare(:select, :select_by_name)
       trace_id = ''
@@ -389,12 +413,12 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
         trace_id = AppOpticsAPM::TraceString.trace_id(AppOpticsAPM::Context.toString)
         PG_DB.execute(:select_by_name, { arguments: ['abc'] })
       end
-      # TODO assert query_logged?(/#{log_traceid_regex(trace_id)}SELECT/), "Logged query didn't match what we're looking for"
+      traces = get_all_traces
+      assert_match log_traceid_regex(trace_id), traces[2]['QueryTag']
+      assert query_logged?(/#{log_traceid_regex(trace_id)}SELECT/), "Logged query didn't match what we're looking for"
     end
 
-    it 'THISTHIS adds trace context to ArgumentMapper aka Dataset' do
-      skip
-      # TODO fix add trace context
+    it 'adds trace context to statement represented by symbol via Dataset' do
       ds = PG_DB[:items].filter(:name => :$n)
       ps = ds.prepare(:select, :select_by_name_2)
       trace_id = ''
@@ -403,19 +427,22 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
         trace_id = AppOpticsAPM::TraceString.trace_id(AppOpticsAPM::Context.toString)
         ps.call(:n => 'abc')
       end
+      traces = get_all_traces
+      assert_match log_traceid_regex(trace_id), traces[2]['QueryTag']
       assert query_logged?(/#{log_traceid_regex(trace_id)}SELECT/), "Logged query didn't match what we're looking for"
     end
 
-    it "THIS adds trace context to a stored procedure" do
-      skip
-      # TODO fix stored procedure creation
+    it "adds trace context to a stored procedure" do
       trace_id = ''
-      PG_DB.execute_ddl('CREATE PROCEDURE test_sproc() BEGIN DELETE FROM items; END')
+      PG_DB.execute_ddl('CREATE OR REPLACE PROCEDURE test_sproc() AS $$ DELETE FROM items; $$ LANGUAGE SQL')
       AppOpticsAPM::SDK.start_trace('sequel_test') do
         trace_id = AppOpticsAPM::TraceString.trace_id(AppOpticsAPM::Context.toString)
-        PG_DB.call_sproc(:test_sproc)
+        PG_DB.call_procedure(:test_sproc)
       end
+      traces = get_all_traces
+      assert_match log_traceid_regex(trace_id), traces[2]['QueryTag']
       assert query_logged?(/#{log_traceid_regex(trace_id)}CALL/), "Logged query didn't match what we're looking for"
+
       PG_DB.execute('DROP PROCEDURE test_sproc')
     end
   end

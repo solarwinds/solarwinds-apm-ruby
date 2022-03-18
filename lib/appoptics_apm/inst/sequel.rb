@@ -70,33 +70,34 @@ module AppOpticsAPM
       def exec_with_appoptics(method, sql, opts = ::Sequel::OPTS, &block)
         kvs = {}
         AppOpticsAPM::SDK.trace(:sequel, kvs: kvs) do
-          # puts "in exec_with_appoptics: sql is a #{sql.class}, Symbol? #{sql.is_a?(Symbol)} ArgumentMapper? #{sql.is_a?(::Sequel::Dataset::ArgumentMapper)}"
-          puts "in exec_with_appoptics: self is a #{self.class}"
-
-          new_sql = add_traceparent(sql)
+          # puts "in exec_with_appoptics: self is a #{self.class}" if AppOpticsAPM.tracing?
+          new_sql = add_traceparent(sql, kvs)
           assign_kvs(new_sql, opts, kvs) if AppOpticsAPM.tracing?
           send(method, new_sql, opts, &block)
         end
       end
 
-      def add_traceparent(sql)
-        # puts "............. in add_traceparent: sql is a #{sql.class}"
+      def add_traceparent(sql, kvs)
         # check if works needs to be done before messing with the
         # queries and prepared statements
         if AppOpticsAPM.tracing? && AppOpticsAPM::Config[:tag_sql]
-          # require 'byebug'
-          # byebug
           case sql
           when String
-            return AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql)
-          when Symbol # && self.is_a?(::Sequel::Mysql2::Database)
-            # TODO this does not work for postgresql
-            ps = prepared_statement(sql)
-            new_ps = add_traceparent_to_ps(ps)
-            set_prepared_statement(sql, new_ps)
-            return sql # related query may have been modified
-          when ::Sequel::Dataset::ArgumentMapper
-            new_sql = add_traceparent_to_ps(sql)
+            return AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql, kvs)
+          when Symbol
+            if defined?(prepared_statement) # for mysql2
+              ps = prepared_statement(sql)
+              new_ps = add_traceparent_to_ps(ps, kvs)
+              set_prepared_statement(sql, new_ps)
+              return sql # related query may have been modified
+            elsif self.is_a?(::Sequel::Dataset) # for postgresql
+              ps = self
+              new_ps = add_traceparent_to_ps(ps, kvs)
+              self.db.set_prepared_statement(sql, new_ps)
+              return sql
+            end
+          when ::Sequel::Dataset::ArgumentMapper # for mysql2
+            new_sql = add_traceparent_to_ps(sql, kvs)
             return new_sql # related query may have been modified
           end
         end
@@ -106,9 +107,9 @@ module AppOpticsAPM
       # this method uses some non-api methods partially copied from
       # `execute_prepared_statement` in `mysql2.rb`
       # and `prepare` in `prepared_statements.rb` in the sequel gem
-      def add_traceparent_to_ps(ps)
+      def add_traceparent_to_ps(ps, kvs)
         sql = ps.prepared_sql
-        new_sql = AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql)
+        new_sql = AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql, kvs)
 
         unless new_sql == sql
           new_ps = ps.clone(:prepared_sql=>new_sql, :sql=>new_sql)
@@ -132,10 +133,9 @@ module AppOpticsAPM
       def run_with_appoptics(sql, opts = ::Sequel::OPTS)
         kvs = {}
         AppOpticsAPM::SDK.trace(:sequel, kvs: kvs) do
-          puts "in run_with_appoptics: sql is a #{sql.class}, ArgumentMapper? #{sql.is_a?(::Sequel::Dataset::ArgumentMapper)}"
-
-          new_sql = add_traceparent(sql)
-          kvs = assign_kvs(new_sql, opts, kvs) if AppOpticsAPM.tracing?
+          # puts "in run_with_appoptics: self is a #{self.class}" if AppOpticsAPM.tracing?
+          new_sql = add_traceparent(sql, kvs)
+          assign_kvs(new_sql, opts, kvs) if AppOpticsAPM.tracing?
           run_without_appoptics(new_sql, opts)
         end
       end
@@ -178,13 +178,10 @@ module AppOpticsAPM
 
         kvs = {}
         AppOpticsAPM::SDK.trace(:sequel, kvs: kvs) do
-          #   puts "in mysql execute: sql is a #{args[0].class}, ArgumentMapper? #{args[0].is_a?(::Sequel::Dataset::ArgumentMapper)}"
-          puts "%%%%%% in mysql execute: self is a #{self.class}"
-          puts "#{args[0]}"
-
-          new_sql = add_traceparent(args[0])
+          # puts "in mysql execute_with_appoptics: self is a #{self.class}" if AppOpticsAPM.tracing?
+          new_sql = add_traceparent(args[0], kvs)
           args[0] = new_sql
-          kvs = assign_kvs(args[0], args[1], kvs) if AppOpticsAPM.tracing?
+          assign_kvs(args[0], args[1], kvs) if AppOpticsAPM.tracing?
           execute_without_appoptics(*args, &block)
         end
       end
@@ -201,15 +198,13 @@ module AppOpticsAPM
         return execute_without_appoptics(*args, &block) if AppOpticsAPM.tracing_layer?(:sequel)
 
         kvs = {}
-        # AppOpticsAPM::SDK.trace(:sequel, kvs: kvs) do
-        puts "###### in pg execute: sql is a #{args[0].class}" unless args[0].is_a?(String)
-        puts "$$$$$$$$$$ in pg execute self is a #{self.class}"
-
-        # new_sql = add_traceparent(args[0])
-        # args[0] = new_sql
-        kvs = assign_kvs(args[0], args[1], kvs) if AppOpticsAPM.tracing?
-        execute_without_appoptics(*args, &block)
-        # end
+        AppOpticsAPM::SDK.trace(:sequel, kvs: kvs) do
+          # puts "in pg execute_with_appoptics self is a #{self.class}" if AppOpticsAPM.tracing?
+          new_sql = add_traceparent(args[0], kvs)
+          args[0] = new_sql
+          assign_kvs(args[0], args[1], kvs) if AppOpticsAPM.tracing?
+          execute_without_appoptics(*args, &block)
+        end
       end
     end
 

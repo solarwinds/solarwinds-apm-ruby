@@ -400,7 +400,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       clear_query_log
     end
 
-    it 'adds trace context to sql string' do
+    it 'adds trace context to sql string via Dataset' do
       items = MYSQL2_DB[:items]
       trace_id = ''
 
@@ -408,10 +408,24 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
         trace_id = AppOpticsAPM::TraceString.trace_id(AppOpticsAPM::Context.toString)
         items.count
       end
+      traces = get_all_traces
+      assert_match log_traceid_regex(trace_id), traces[2]['QueryTag']
       assert query_logged?(/#{log_traceid_regex(trace_id)}SELECT/), "Logged query didn't match what we're looking for"
     end
 
-    it 'adds trace context to query represented by a symbol' do
+    it 'adds trace context to sql string via DB' do
+      trace_id = ''
+
+      AppOpticsAPM::SDK.start_trace('sequel_test') do
+        trace_id = AppOpticsAPM::TraceString.trace_id(AppOpticsAPM::Context.toString)
+        MYSQL2_DB << 'SELECT count(*) AS "count" FROM items'
+      end
+      traces = get_all_traces
+      assert_match log_traceid_regex(trace_id), traces[2]['QueryTag']
+      assert query_logged?(/#{log_traceid_regex(trace_id)}SELECT/), "Logged query didn't match what we're looking for"
+    end
+
+    it 'adds trace context to query represented by a symbol via DB' do
       AppOpticsAPM::Config[:sanitize_sql] = false
       ds = MYSQL2_DB[:items].filter(:name => :$n)
       ds.prepare(:select, :select_by_name)
@@ -423,7 +437,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       end
 
       traces = get_all_traces
-
+      assert_match log_traceid_regex(trace_id), traces[2]['QueryTag']
       assert query_logged?(/#{log_traceid_regex(trace_id)}SELECT/), "Logged query didn't match what we're looking for"
     end
 
@@ -436,6 +450,8 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
         trace_id = AppOpticsAPM::TraceString.trace_id(AppOpticsAPM::Context.toString)
         ps.call(:n => 'abc')
       end
+      traces = get_all_traces
+      assert_match log_traceid_regex(trace_id), traces[2]['QueryTag']
       assert query_logged?(/#{log_traceid_regex(trace_id)}SELECT/), "Logged query didn't match what we're looking for"
     end
 
@@ -447,6 +463,8 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
         trace_id = AppOpticsAPM::TraceString.trace_id(AppOpticsAPM::Context.toString)
         MYSQL2_DB.call_sproc(:test_sproc)
       end
+      traces = get_all_traces
+      assert_match log_traceid_regex(trace_id), traces[2]['QueryTag']
       assert query_logged?(/#{log_traceid_regex(trace_id)}CALL/), "Logged query didn't match what we're looking for"
 
       MYSQL2_DB.execute('DROP PROCEDURE test_sproc')
