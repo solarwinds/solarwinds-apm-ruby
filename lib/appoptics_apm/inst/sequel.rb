@@ -71,7 +71,6 @@ module AppOpticsAPM
       def exec_with_appoptics(method, sql, opts = ::Sequel::OPTS, &block)
         kvs = {}
         AppOpticsAPM::SDK.trace(:sequel, kvs: kvs) do
-          # puts "in exec_with_appoptics: self is a #{self.class}" if AppOpticsAPM.tracing?
           new_sql = add_traceparent(sql, kvs)
           assign_kvs(new_sql, opts, kvs) if AppOpticsAPM.tracing?
           send(method, new_sql, opts, &block)
@@ -132,7 +131,6 @@ module AppOpticsAPM
       def run_with_appoptics(sql, opts = ::Sequel::OPTS)
         kvs = {}
         AppOpticsAPM::SDK.trace(:sequel, kvs: kvs) do
-          # puts "in run_with_appoptics: self is a #{self.class}" if AppOpticsAPM.tracing?
           new_sql = add_traceparent(sql, kvs)
           assign_kvs(new_sql, opts, kvs) if AppOpticsAPM.tracing?
           run_without_appoptics(new_sql, opts)
@@ -164,8 +162,6 @@ module AppOpticsAPM
       end
     end # module SequelDatabase
 
-
-    # TODO the following modules could be combined into one
     module AdapterDatabase
       include AppOpticsAPM::Inst::Sequel
 
@@ -184,7 +180,6 @@ module AppOpticsAPM
 
         kvs = {}
         AppOpticsAPM::SDK.trace(:sequel, kvs: kvs) do
-          # puts "in adapter db included execute_with_appoptics: self is a #{self.class}" if AppOpticsAPM.tracing?
           new_sql = add_traceparent(args[0], kvs)
           args[0] = new_sql
           assign_kvs(args[0], args[1], kvs) if AppOpticsAPM.tracing?

@@ -76,6 +76,7 @@ module AppOpticsAPM
         # add_traceparent_to_sql
         #
         # returns the sql with "/*traceparent='#{@tracestring}'*/" prepended
+        # and adds the QueryTag kv to kvs
         #
         def add_traceparent_to_sql(sql, kvs)
           sql = sql.gsub(SQL_REGEX, '') # remove if it was added before
