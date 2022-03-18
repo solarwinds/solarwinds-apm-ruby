@@ -86,6 +86,7 @@ module AppOpticsAPM
 
         env_config = {
           'default' => config,
+          'development' => config,
           'test' => config
         }
 

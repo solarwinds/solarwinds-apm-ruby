@@ -35,10 +35,10 @@ module AppOpticsAPM
 
         def trace_wrap(*args)
           sql, name, binds, _ = args
-
-          args[0] = AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql)
+          kvs = {}
+          args[0] = AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql, kvs)
           if AppOpticsAPM.tracing? && !ignore_payload?(name)
-            kvs = extract_trace_details(sql, name, binds || [])
+            assign_kvs(sql, kvs, name, binds || [])
             # use protect_op to avoid double tracing in mysql2
             AppOpticsAPM::SDK.trace('activerecord', kvs: kvs, protect_op: :ar_started) do
               yield args
@@ -48,9 +48,7 @@ module AppOpticsAPM
           end
         end
 
-        def extract_trace_details(sql, name = nil, binds = [])
-          kvs = {}
-
+        def assign_kvs(sql, kvs, name = nil, binds = [])
           begin
             if AppOpticsAPM::Config[:sanitize_sql]
               # Sanitize SQL and don't report binds

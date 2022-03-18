@@ -98,28 +98,31 @@ describe 'AddTraceId' do
 
   it 'prepends a traceparent comment' do
     AppOpticsAPM::Context.fromString(@tracestring_01)
-    result = AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(@sql)
+    kvs = {}
+    result = AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(@sql, kvs)
     assert_equal "/*traceparent='#{@tracestring_01}'*/#{@sql}", result
   end
 
   # when there is already a comment in the sql (add as usual, there can be multiple comments)
   it 'adds a traceparent comment even if there already is one' do
     AppOpticsAPM::Context.fromString(@tracestring_01)
+    kvs = {}
     sql = "/* some other comment */ #{@sql}"
-    result = AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql)
+    result = AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql, kvs)
     assert_equal "/*traceparent='#{@tracestring_01}'*/#{sql}", result
   end
 
   # when there is already a traceId in the sql (replace because we want the most current one, don't duplicate)
   it 'replaces a traceparent comment' do
     AppOpticsAPM::Context.fromString(@tracestring_01)
+    kvs = {}
     sql = "/*traceparent='29340134768738961033150415366475'*/#{@sql}"
-    result = AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql)
+    result = AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql, kvs)
     assert_equal "/*traceparent='#{@tracestring_01}'*/#{@sql}", result
 
     # even when the spaces are screwed
     sql = "/*  traceparent='29340134768738961033150415366475'   */ #{@sql}"
-    result = AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql)
+    result = AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql, kvs)
     assert_equal "/*traceparent='#{@tracestring_01}'*/#{@sql}", result
   end
 
@@ -127,13 +130,14 @@ describe 'AddTraceId' do
   it 'removes a traceparent comment' do
     AppOpticsAPM::Config[:tag_sql] = false
     AppOpticsAPM::Context.fromString(@tracestring_01)
+    kvs = {}
     sql = "/*traceparent='00-47025032634215427585581736961337-7795518899964771-01'*/#{@sql}"
-    result = AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql)
+    result = AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql, kvs)
     assert_equal @sql, result
 
     # even when the spaces are screwed
     sql = "/*  traceparent= '00-47025032634215427585581736961337-7795518899964771-01'  */ #{@sql}"
-    result = AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql)
+    result = AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql, kvs)
     assert_equal @sql, result
   end
 

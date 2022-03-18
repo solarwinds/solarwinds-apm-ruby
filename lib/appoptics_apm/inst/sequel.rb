@@ -78,30 +78,28 @@ module AppOpticsAPM
       end
 
       def add_traceparent(sql, kvs)
-        # check if works needs to be done before messing with the
-        # queries and prepared statements
-        if AppOpticsAPM.tracing? && AppOpticsAPM::Config[:tag_sql]
-          case sql
-          when String
-            return AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql, kvs)
-          when Symbol
-            if defined?(prepared_statement) # for mysql2
-              ps = prepared_statement(sql)
-              new_ps = add_traceparent_to_ps(ps, kvs)
-              set_prepared_statement(sql, new_ps)
-              return sql # related query may have been modified
-            elsif self.is_a?(::Sequel::Dataset) # for postgresql
-              ps = self
-              new_ps = add_traceparent_to_ps(ps, kvs)
-              self.db.set_prepared_statement(sql, new_ps)
-              return sql
-            end
-          when ::Sequel::Dataset::ArgumentMapper # for mysql2
-            new_sql = add_traceparent_to_ps(sql, kvs)
-            return new_sql # related query may have been modified
+        return sql unless AppOpticsAPM.tracing? && AppOpticsAPM::Config[:tag_sql]
+
+        case sql
+        when String
+          return AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql, kvs)
+        when Symbol
+          if defined?(prepared_statement) # for mysql2
+            ps = prepared_statement(sql)
+            new_ps = add_traceparent_to_ps(ps, kvs)
+            set_prepared_statement(sql, new_ps)
+            return sql # related query may have been modified
+          elsif self.is_a?(::Sequel::Dataset) # for postgresql
+            ps = self
+            new_ps = add_traceparent_to_ps(ps, kvs)
+            self.db.set_prepared_statement(sql, new_ps)
+            return sql
           end
+        when ::Sequel::Dataset::ArgumentMapper # for mysql2
+          new_sql = add_traceparent_to_ps(sql, kvs)
+          return new_sql # related query may have been modified
         end
-        sql
+        sql # return original when none of the cases match
       end
 
       # this method uses some non-api methods partially copied from
@@ -165,11 +163,18 @@ module AppOpticsAPM
       end
     end # module SequelDatabase
 
-    module MySQLSequelDatabase
+
+    # TODO the following modules could be combined into one
+    module AdapterDatabase
       include AppOpticsAPM::Inst::Sequel
 
       def self.included(klass)
-        AppOpticsAPM::Util.method_alias(klass, :execute, ::Sequel::MySQL::MysqlMysql2::DatabaseMethods)
+        if defined?(::Sequel::MySQL::MysqlMysql2::DatabaseMethods)
+          AppOpticsAPM::Util.method_alias(klass, :execute, ::Sequel::MySQL::MysqlMysql2::DatabaseMethods)
+        end
+        if defined?(::Sequel::Postgres::Database)
+          AppOpticsAPM::Util.method_alias(klass, :execute, ::Sequel::Postgres::Database)
+        end
       end
 
       def execute_with_appoptics(*args, &block)
@@ -178,28 +183,7 @@ module AppOpticsAPM
 
         kvs = {}
         AppOpticsAPM::SDK.trace(:sequel, kvs: kvs) do
-          # puts "in mysql execute_with_appoptics: self is a #{self.class}" if AppOpticsAPM.tracing?
-          new_sql = add_traceparent(args[0], kvs)
-          args[0] = new_sql
-          assign_kvs(args[0], args[1], kvs) if AppOpticsAPM.tracing?
-          execute_without_appoptics(*args, &block)
-        end
-      end
-    end
-
-    module PGSequelDatabase
-      include AppOpticsAPM::Inst::Sequel
-
-      def self.included(klass)
-        AppOpticsAPM::Util.method_alias(klass, :execute, ::Sequel::Postgres::Database)
-      end
-
-      def execute_with_appoptics(*args, &block)
-        return execute_without_appoptics(*args, &block) if AppOpticsAPM.tracing_layer?(:sequel)
-
-        kvs = {}
-        AppOpticsAPM::SDK.trace(:sequel, kvs: kvs) do
-          # puts "in pg execute_with_appoptics self is a #{self.class}" if AppOpticsAPM.tracing?
+          # puts "in adapter db included execute_with_appoptics: self is a #{self.class}" if AppOpticsAPM.tracing?
           new_sql = add_traceparent(args[0], kvs)
           args[0] = new_sql
           assign_kvs(args[0], args[1], kvs) if AppOpticsAPM.tracing?
@@ -254,8 +238,8 @@ if AppOpticsAPM::Config[:sequel][:enabled]
 
     # TODO this is temporary, we need to instrument `require`, see NH-9711
     require 'sequel/adapters/mysql2'
-    AppOpticsAPM::Util.send_include(::Sequel::MySQL::MysqlMysql2::DatabaseMethods, AppOpticsAPM::Inst::MySQLSequelDatabase)
+    AppOpticsAPM::Util.send_include(::Sequel::MySQL::MysqlMysql2::DatabaseMethods, AppOpticsAPM::Inst::AdapterDatabase)
     require 'sequel/adapters/postgres'
-    AppOpticsAPM::Util.send_include(::Sequel::Postgres::Database, AppOpticsAPM::Inst::PGSequelDatabase)
+    AppOpticsAPM::Util.send_include(::Sequel::Postgres::Database, AppOpticsAPM::Inst::AdapterDatabase)
   end
 end

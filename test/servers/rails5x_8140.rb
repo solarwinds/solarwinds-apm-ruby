@@ -77,7 +77,7 @@ class Rails50MetalStack < Rails::Application
   # config.secret_token = "49837489qkuweoiuoqwehisuakshdjksadhaisdy78o34y138974xyqp9rmye8yrpiokeuioqwzyoiuxftoyqiuxrhm3iou1hrzmjk"
   config.secret_key_base = "2048671-96803948"
   # config.active_record.sqlite3 = {} # deal with https://github.com/rails/rails/issues/37048
-  config.assets.enabled = false
+  # config.assets.enabled = false
   config.colorize_logging = false
 end
 

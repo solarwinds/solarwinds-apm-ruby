@@ -9,7 +9,6 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
   PG_DB = Sequel.connect(ENV['DATABASE_URL'])
   ENV['QUERY_LOG_FILE'] ||= '/tmp/query_log.txt'
   PG_DB.logger = Logger.new(ENV['QUERY_LOG_FILE'])
-  # PG_DB.loggers << Logger.new($stdout)
 
   if PG_DB.table_exists?(:items)
     PG_DB.drop_table(:items)
