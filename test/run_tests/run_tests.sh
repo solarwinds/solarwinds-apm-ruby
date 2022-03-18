@@ -197,11 +197,6 @@ for ruby in ${rubies[@]} ; do
         status=$?
         [[ $status -gt $exit_status ]] && exit_status=$status
         [[ $status -ne 0 ]] && echo "!!! Test suite failed for $gemfile with Ruby $ruby !!!"
-
-        # kill all sidekiq processes
-        # they don't stop automatically and can add up
-        pkill -9 -f sidekiq
-
       done
     done
   done

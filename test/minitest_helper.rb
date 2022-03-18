@@ -126,10 +126,7 @@ end
 
 # Attempt to clean up the sidekiq processes at the end of tests
 MiniTest.after_run do
-  # for general Linux
-    AppOpticsAPM.logger.debug "[appoptics_apm/servers] Killing old sidekiq process:#{`ps aux | grep [s]idekiq`}."
-    `pkill -9 -f sidekiq`
-  true # return true, because the above command does not exit with 0
+    exec("pkill -9 -f sidekiq")
 end
 
 ##
