@@ -13,17 +13,17 @@ class DelayedJobWorkerTest < Minitest::Test
     Delayed::Job.delete_all
 
     clear_all_traces
-    @collect_backtraces = AppOpticsAPM::Config[:delayed_jobworker][:collect_backtraces]
-    # @log_args = AppOpticsAPM::Config[:delayed_jobworker][:log_args] # there is no code using AppOpticsAPM::Config[:delayed_jobworker][:log_args]
+    @collect_backtraces = SolarWindsAPM::Config[:delayed_jobworker][:collect_backtraces]
+    # @log_args = SolarWindsAPM::Config[:delayed_jobworker][:log_args] # there is no code using SolarWindsAPM::Config[:delayed_jobworker][:log_args]
   end
 
   def teardown
-    AppOpticsAPM::Config[:delayed_jobworker][:collect_backtraces] = @collect_backtraces
-    # AppOpticsAPM::Config[:delayed_jobworker][:log_args] = @log_args # there is no code using AppOpticsAPM::Config[:delayed_jobworker][:log_args]
+    SolarWindsAPM::Config[:delayed_jobworker][:collect_backtraces] = @collect_backtraces
+    # SolarWindsAPM::Config[:delayed_jobworker][:log_args] = @log_args # there is no code using SolarWindsAPM::Config[:delayed_jobworker][:log_args]
   end
 
   def test_reports_version_init
-    init_kvs = ::AppOpticsAPM::Util.build_init_report
+    init_kvs = ::SolarWindsAPM::Util.build_init_report
     assert init_kvs.key?('Ruby.delayed_job.Version')
     assert_equal Gem.loaded_specs['delayed_job'].version.to_s, init_kvs['Ruby.delayed_job.Version']
   end
@@ -85,11 +85,11 @@ class DelayedJobWorkerTest < Minitest::Test
   end
 
   def test_collect_backtraces_default_value
-    assert_equal false, AppOpticsAPM::Config[:delayed_jobworker][:collect_backtraces], "default backtrace collection"
+    assert_equal false, SolarWindsAPM::Config[:delayed_jobworker][:collect_backtraces], "default backtrace collection"
   end
 
   def test_log_args_default_value
-    skip # TODO: there is no code checking AppOpticsAPM::Config[:delayed_jobworker][:log_args]
-    assert_equal true, AppOpticsAPM::Config[:delayed_jobworker][:log_args], "test log_args on by default "
+    skip # TODO: there is no code checking SolarWindsAPM::Config[:delayed_jobworker][:log_args]
+    assert_equal true, SolarWindsAPM::Config[:delayed_jobworker][:log_args], "test log_args on by default "
   end
 end

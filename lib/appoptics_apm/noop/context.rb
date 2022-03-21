@@ -2,11 +2,11 @@
 # All rights reserved.
 
 ####
-# noop version of AppOpticsAPM::Context
+# noop version of SolarWindsAPM::Context
 #
 #
 
-module AppOpticsAPM
+module SolarWindsAPM
   module Context
 
     ##

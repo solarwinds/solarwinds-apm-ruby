@@ -8,19 +8,19 @@ if defined?(::Rails)
   describe "Rails5xAPI" do
     before do
       clear_all_traces
-      AppOpticsAPM.config_lock.synchronize {
-        @tm = AppOpticsAPM::Config[:tracing_mode]
-        @collect_backtraces = AppOpticsAPM::Config[:action_controller_api][:collect_backtraces]
-        @sample_rate = AppOpticsAPM::Config[:sample_rate]
+      SolarWindsAPM.config_lock.synchronize {
+        @tm = SolarWindsAPM::Config[:tracing_mode]
+        @collect_backtraces = SolarWindsAPM::Config[:action_controller_api][:collect_backtraces]
+        @sample_rate = SolarWindsAPM::Config[:sample_rate]
       }
       ENV['DBTYPE'] = "postgresql" unless ENV['DBTYPE']
     end
 
     after do
-      AppOpticsAPM.config_lock.synchronize {
-        AppOpticsAPM::Config[:action_controller_api][:collect_backtraces] = @collect_backtraces
-        AppOpticsAPM::Config[:tracing_mode] = @tm
-        AppOpticsAPM::Config[:sample_rate] = @sample_rate
+      SolarWindsAPM.config_lock.synchronize {
+        SolarWindsAPM::Config[:action_controller_api][:collect_backtraces] = @collect_backtraces
+        SolarWindsAPM::Config[:tracing_mode] = @tm
+        SolarWindsAPM::Config[:sample_rate] = @sample_rate
       }
     end
 
@@ -111,7 +111,7 @@ if defined?(::Rails)
     end
 
     it "should collect backtraces when true" do
-      AppOpticsAPM::Config[:action_controller_api][:collect_backtraces] = true
+      SolarWindsAPM::Config[:action_controller_api][:collect_backtraces] = true
 
       uri = URI.parse('http://127.0.0.1:8140/monkey/hello')
       r = Net::HTTP.get_response(uri)
@@ -155,7 +155,7 @@ if defined?(::Rails)
     end
 
     it "should NOT collect backtraces when false" do
-      AppOpticsAPM::Config[:action_controller_api][:collect_backtraces] = false
+      SolarWindsAPM::Config[:action_controller_api][:collect_backtraces] = false
 
       uri = URI.parse('http://127.0.0.1:8140/monkey/hello')
       r = Net::HTTP.get_response(uri)

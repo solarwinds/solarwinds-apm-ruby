@@ -3,7 +3,7 @@
 
 require_relative 'logger_formatter'
 
-if AppOpticsAPM.loaded && defined?(Lumberjack::Formatter)
-  Lumberjack::Formatter.send(:prepend, AppOpticsAPM::Logger::Formatter)
+if SolarWindsAPM.loaded && defined?(Lumberjack::Formatter)
+  Lumberjack::Formatter.send(:prepend, SolarWindsAPM::Logger::Formatter)
 end
 

@@ -33,30 +33,30 @@ describe "RailsSharedTests" do
 
   before do
     clear_all_traces
-    AppOpticsAPM.config_lock.synchronize {
-      @tm = AppOpticsAPM::Config[:tracing_mode]
-      @sample_rate = AppOpticsAPM::Config[:sample_rate]
-      @dnt_regexp = AppOpticsAPM::Config[:dnt_regexp]
-      @ac_bt = AppOpticsAPM::Config[:action_controller][:collect_backtraces]
-      @av_bt = AppOpticsAPM::Config[:action_view][:collect_backtraces]
-      @rack_bt = AppOpticsAPM::Config[:rack][:collect_backtraces]
+    SolarWindsAPM.config_lock.synchronize {
+      @tm = SolarWindsAPM::Config[:tracing_mode]
+      @sample_rate = SolarWindsAPM::Config[:sample_rate]
+      @dnt_regexp = SolarWindsAPM::Config[:dnt_regexp]
+      @ac_bt = SolarWindsAPM::Config[:action_controller][:collect_backtraces]
+      @av_bt = SolarWindsAPM::Config[:action_view][:collect_backtraces]
+      @rack_bt = SolarWindsAPM::Config[:rack][:collect_backtraces]
     }
   end
 
   after do
-    AppOpticsAPM.config_lock.synchronize {
-      AppOpticsAPM::Config[:tracing_mode] = @tm
-      AppOpticsAPM::Config[:sample_rate] = @sample_rate
-      AppOpticsAPM::Config[:dnt_regexp] = @dnt_regexp
-      AppOpticsAPM::Config[:action_controller][:collect_backtraces] = @ac_bt
-      AppOpticsAPM::Config[:action_view][:collect_backtraces] = @av_bt
-      AppOpticsAPM::Config[:rack][:collect_backtraces] = @rack_bt
+    SolarWindsAPM.config_lock.synchronize {
+      SolarWindsAPM::Config[:tracing_mode] = @tm
+      SolarWindsAPM::Config[:sample_rate] = @sample_rate
+      SolarWindsAPM::Config[:dnt_regexp] = @dnt_regexp
+      SolarWindsAPM::Config[:action_controller][:collect_backtraces] = @ac_bt
+      SolarWindsAPM::Config[:action_view][:collect_backtraces] = @av_bt
+      SolarWindsAPM::Config[:rack][:collect_backtraces] = @rack_bt
     }
   end
 
   it "should NOT trace when tracing is set to :disabled" do
-    AppOpticsAPM.config_lock.synchronize do
-      AppOpticsAPM::Config[:tracing_mode] = :disabled
+    SolarWindsAPM.config_lock.synchronize do
+      SolarWindsAPM::Config[:tracing_mode] = :disabled
       uri = URI.parse('http://127.0.0.1:8140/hello/world')
       r = Net::HTTP.get_response(uri)
 
@@ -66,8 +66,8 @@ describe "RailsSharedTests" do
   end
 
   it "should NOT trace when sample_rate is 0" do
-    AppOpticsAPM.config_lock.synchronize do
-      AppOpticsAPM::Config[:sample_rate] = 0
+    SolarWindsAPM.config_lock.synchronize do
+      SolarWindsAPM::Config[:sample_rate] = 0
       uri = URI.parse('http://127.0.0.1:8140/hello/world')
       r = Net::HTTP.get_response(uri)
 
@@ -91,7 +91,7 @@ describe "RailsSharedTests" do
   it "should send inbound metrics" do
     test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
 
-    AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
+    SolarWindsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
       test_action = action
       test_url = url
       test_status = status
@@ -113,9 +113,9 @@ describe "RailsSharedTests" do
 
   it "should NOT send inbound metrics when tracing_mode is :disabled" do
     test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-    AppOpticsAPM.config_lock.synchronize do
-      AppOpticsAPM::Config[:tracing_mode] = :disabled
-      AppOpticsAPM::Span.expects(:createHttpSpan).never
+    SolarWindsAPM.config_lock.synchronize do
+      SolarWindsAPM::Config[:tracing_mode] = :disabled
+      SolarWindsAPM::Span.expects(:createHttpSpan).never
 
       uri = URI.parse('http://127.0.0.1:8140/hello/world')
       Net::HTTP.get_response(uri)
@@ -125,7 +125,7 @@ describe "RailsSharedTests" do
   it "should send metrics for 500 errors" do
     test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
 
-    AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
+    SolarWindsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
       test_action = action
       test_url = url
       test_status = status
@@ -148,7 +148,7 @@ describe "RailsSharedTests" do
   it "should find the controller action for a route with a parameter" do
     test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
 
-    AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
+    SolarWindsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
       test_action = action
       test_url = url
       test_status = status
@@ -171,7 +171,7 @@ describe "RailsSharedTests" do
   it "should find controller action in the metal stack" do
     test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
 
-    AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
+    SolarWindsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
       test_action = action
       test_url = url
       test_status = status
@@ -193,7 +193,7 @@ describe "RailsSharedTests" do
 
   it "should use wrapped class for ActiveJobs" do
     skip unless defined?(ActiveJob)
-    AppOpticsAPM::SDK.start_trace('test_trace') do
+    SolarWindsAPM::SDK.start_trace('test_trace') do
       ActiveJobWorkerJob.perform_later
     end
 
@@ -223,9 +223,9 @@ describe "RailsSharedTests" do
   end
 
   it "traces html from the 'wicked' controller" do
-    AppOpticsAPM::Config[:action_controller][:collect_backtraces] = false
-    AppOpticsAPM::Config[:action_view][:collect_backtraces] = false
-    AppOpticsAPM::Config[:rack][:collect_backtraces] = false
+    SolarWindsAPM::Config[:action_controller][:collect_backtraces] = false
+    SolarWindsAPM::Config[:action_view][:collect_backtraces] = false
+    SolarWindsAPM::Config[:rack][:collect_backtraces] = false
     uri = URI.parse('http://127.0.0.1:8140/wicked')
     r = Net::HTTP.get_response(uri)
 
@@ -239,10 +239,10 @@ describe "RailsSharedTests" do
   it "traces pdfs from the 'wicked' controller" do
     skip if @skip_wicked
     # fyi: wicked_pdf is not instrumented
-    AppOpticsAPM::Config[:dnt_regexp] = ''
-    AppOpticsAPM::Config[:action_controller][:collect_backtraces] = false
-    AppOpticsAPM::Config[:action_view][:collect_backtraces] = false
-    AppOpticsAPM::Config[:rack][:collect_backtraces] = false
+    SolarWindsAPM::Config[:dnt_regexp] = ''
+    SolarWindsAPM::Config[:action_controller][:collect_backtraces] = false
+    SolarWindsAPM::Config[:action_view][:collect_backtraces] = false
+    SolarWindsAPM::Config[:rack][:collect_backtraces] = false
 
     uri = URI.parse('http://127.0.0.1:8140/wicked.pdf')
     r = Net::HTTP.get_response(uri)

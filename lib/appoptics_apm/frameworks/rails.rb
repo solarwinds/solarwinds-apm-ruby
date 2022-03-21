@@ -3,7 +3,7 @@
 
 require_relative '../../../lib/appoptics_apm/inst/logger_formatter'
 
-module AppOpticsAPM
+module SolarWindsAPM
   module Rails
     module Helpers
       extend ActiveSupport::Concern if defined?(::Rails)
@@ -11,21 +11,21 @@ module AppOpticsAPM
       # Deprecated
       # no usages
       def appoptics_rum_header
-        AppOpticsAPM.logger.warn '[appoptics_apm/warn] Note that appoptics_rum_header is deprecated.  It is now a no-op and should be removed from your application code.'
+        SolarWindsAPM.logger.warn '[appoptics_apm/warn] Note that appoptics_rum_header is deprecated.  It is now a no-op and should be removed from your application code.'
         return ''
       end
       alias_method :oboe_rum_header, :appoptics_rum_header
 
       # Deprecated
       def appoptics_rum_footer
-        AppOpticsAPM.logger.warn '[appoptics_apm/warn] Note that appoptics_rum_footer is deprecated.  It is now a no-op and should be removed from your application code.'
+        SolarWindsAPM.logger.warn '[appoptics_apm/warn] Note that appoptics_rum_footer is deprecated.  It is now a no-op and should be removed from your application code.'
         return ''
       end
       alias_method :oboe_rum_footer, :appoptics_rum_footer
     end # Helpers
 
     def self.load_initializer
-      # Force load the AppOpticsAPM Rails initializer if there is one
+      # Force load the SolarWindsAPM Rails initializer if there is one
       # Prefer appoptics_apm.rb but give priority to the legacy tracelytics.rb if it exists
       if ::Rails::VERSION::MAJOR > 2
         rails_root = ::Rails.root.to_s
@@ -53,47 +53,47 @@ module AppOpticsAPM
       require 'appoptics_apm/frameworks/rails/inst/active_record'
       require 'appoptics_apm/frameworks/rails/inst/logger_formatters'
 
-      AppOpticsAPM.logger.info "[appoptics_apm/rails] AppOpticsAPM gem #{AppOpticsAPM::Version::STRING} successfully loaded."
+      SolarWindsAPM.logger.info "[appoptics_apm/rails] SolarWindsAPM gem #{SolarWindsAPM::Version::STRING} successfully loaded."
     end
 
     def self.include_helpers
       # TBD: This would make the helpers available to controllers which is occasionally desired.
       # ActiveSupport.on_load(:action_controller) do
-      #   include AppOpticsAPM::Rails::Helpers
+      #   include SolarWindsAPM::Rails::Helpers
       # end
       ActiveSupport.on_load(:action_view) do
-        include AppOpticsAPM::Rails::Helpers
+        include SolarWindsAPM::Rails::Helpers
       end
     end
   end # Rails
-end # AppOpticsAPM
+end # SolarWindsAPM
 
 if defined?(::Rails)
   require 'appoptics_apm/inst/rack'
 
-  module AppOpticsAPM
+  module SolarWindsAPM
     class Railtie < ::Rails::Railtie
       initializer 'appoptics_apm.helpers' do
-        AppOpticsAPM::Rails.include_helpers
+        SolarWindsAPM::Rails.include_helpers
       end
 
       initializer 'appoptics_apm.controller', before: 'wicked_pdf.register' do
-        AppOpticsAPM::Rails.load_instrumentation
+        SolarWindsAPM::Rails.load_instrumentation
       end
 
       initializer 'appoptics_apm.rack' do |app|
-        AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting rack' if AppOpticsAPM::Config[:verbose]
-        app.config.middleware.insert 0, AppOpticsAPM::Rack
+        SolarWindsAPM.logger.info '[appoptics_apm/loading] Instrumenting rack' if SolarWindsAPM::Config[:verbose]
+        app.config.middleware.insert 0, SolarWindsAPM::Rack
       end
 
       config.after_initialize do
-        AppOpticsAPM.logger = ::Rails.logger if ::Rails.logger && !ENV.key?('APPOPTICS_GEM_TEST')
+        SolarWindsAPM.logger = ::Rails.logger if ::Rails.logger && !ENV.key?('APPOPTICS_GEM_TEST')
 
-        AppOpticsAPM::Inst.load_instrumentation
-        # AppOpticsAPM::Rails.load_instrumentation
+        SolarWindsAPM::Inst.load_instrumentation
+        # SolarWindsAPM::Rails.load_instrumentation
 
         # Report __Init after fork when in Heroku
-        AppOpticsAPM::API.report_init unless AppOpticsAPM.heroku?
+        SolarWindsAPM::API.report_init unless SolarWindsAPM.heroku?
       end
     end
   end

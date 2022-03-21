@@ -9,14 +9,14 @@
 # otherwise we would get two spans for the same call
 #####################################################
 
-module AppOpticsAPM
+module SolarWindsAPM
   module Inst
     module FaradayConnection
-      include AppOpticsAPM::SDK::TraceContextHeaders
+      include SolarWindsAPM::SDK::TraceContextHeaders
 
       def run_request(method, url, body, headers, &block)
         remote_call = remote_call?
-        unless AppOpticsAPM.tracing?
+        unless SolarWindsAPM.tracing?
           if remote_call
             add_tracecontext_headers(@headers)
           end
@@ -24,7 +24,7 @@ module AppOpticsAPM
         end
 
         begin
-          AppOpticsAPM::API.log_entry(:faraday)
+          SolarWindsAPM::API.log_entry(:faraday)
           if remote_call # nothing else is instrumented that could add the w3c context
             add_tracecontext_headers(@headers)
           end
@@ -41,7 +41,7 @@ module AppOpticsAPM
           else
             kvs[:Middleware] = [@builder.adapter] + @builder.handlers
           end
-          kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:faraday][:collect_backtraces]
+          kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:faraday][:collect_backtraces]
 
           # Only send service KVs if we're not using an adapter
           # Otherwise, the adapter instrumentation will send the service KVs
@@ -51,10 +51,10 @@ module AppOpticsAPM
 
           result
         rescue => e
-          AppOpticsAPM::API.log_exception(:faraday, e)
+          SolarWindsAPM::API.log_exception(:faraday, e)
           raise e
         ensure
-          AppOpticsAPM::API.log_exit(:faraday, kvs)
+          SolarWindsAPM::API.log_exit(:faraday, kvs)
         end
       end
 
@@ -75,7 +75,7 @@ module AppOpticsAPM
                 :HTTPMethod => method.upcase,
                 :HTTPStatus => result.status, }
         kvs[:RemoteURL] = result.env.to_hash[:url].to_s
-        kvs[:RemoteURL].split('?').first unless AppOpticsAPM::Config[:faraday][:log_args]
+        kvs[:RemoteURL].split('?').first unless SolarWindsAPM::Config[:faraday][:log_args]
 
         kvs
       end
@@ -83,9 +83,9 @@ module AppOpticsAPM
   end
 end
 
-if defined?(Faraday) && AppOpticsAPM::Config[:faraday][:enabled]
-  AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting faraday' if AppOpticsAPM::Config[:verbose]
-  Faraday::Connection.prepend(AppOpticsAPM::Inst::FaradayConnection)
+if defined?(Faraday) && SolarWindsAPM::Config[:faraday][:enabled]
+  SolarWindsAPM.logger.info '[appoptics_apm/loading] Instrumenting faraday' if SolarWindsAPM::Config[:verbose]
+  Faraday::Connection.prepend(SolarWindsAPM::Inst::FaradayConnection)
 
   APPOPTICS_INSTR_ADAPTERS = [] # ["Faraday::Adapter::NetHttp", "Faraday::Adapter::Excon", "Faraday::Adapter::Typhoeus"]
 

@@ -3,12 +3,12 @@
 
 require 'logger'
 
-module AppOpticsAPM
+module SolarWindsAPM
   module Logger
     module Formatter
 
       def call(severity, time, progname, msg)
-        return super if AppOpticsAPM::Config[:log_traceId] == :never
+        return super if SolarWindsAPM::Config[:log_traceId] == :never
 
         msg = insert_trace_id(msg)
         super
@@ -19,7 +19,7 @@ module AppOpticsAPM
       def insert_trace_id(msg)
         return msg if msg =~ /trace_id=/
 
-        current_trace = AppOpticsAPM::SDK.current_trace_info
+        current_trace = SolarWindsAPM::SDK.current_trace_info
         if current_trace.do_log
           case msg
           when ::String
@@ -41,6 +41,6 @@ module AppOpticsAPM
   end
 end
 
-if AppOpticsAPM.loaded
-  Logger::Formatter.send(:prepend, AppOpticsAPM::Logger::Formatter)
+if SolarWindsAPM.loaded
+  Logger::Formatter.send(:prepend, SolarWindsAPM::Logger::Formatter)
 end

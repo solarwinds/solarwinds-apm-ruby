@@ -4,12 +4,12 @@
 require 'uri'
 require 'cgi'
 
-if AppOpticsAPM.loaded
-  module AppOpticsAPM
+if SolarWindsAPM.loaded
+  module SolarWindsAPM
     ##
-    # AppOpticsAPM::Rack
+    # SolarWindsAPM::Rack
     #
-    # The AppOpticsAPM::Rack middleware used to sample a subset of incoming
+    # The SolarWindsAPM::Rack middleware used to sample a subset of incoming
     # requests for instrumentation and reporting.  Tracing context can
     # be received here (via the X-Trace HTTP header) or initiated here
     # based on configured tracing mode.
@@ -31,24 +31,24 @@ if AppOpticsAPM.loaded
         # In the case of nested Ruby apps such as Grape inside of Rails
         # or Grape inside of Grape, each app has it's own instance
         # of rack middleware. We want to avoid tracing rack more than once
-        return @app.call(env) if AppOpticsAPM.tracing? && AppOpticsAPM.layer == :rack
+        return @app.call(env) if SolarWindsAPM.tracing? && SolarWindsAPM.layer == :rack
 
-        incoming = AppOpticsAPM::Context.isValid
-        AppOpticsAPM.transaction_name = nil
+        incoming = SolarWindsAPM::Context.isValid
+        SolarWindsAPM.transaction_name = nil
 
         url = env['PATH_INFO']
-        options = AppOpticsAPM::XTraceOptions.new(env['HTTP_X_TRACE_OPTIONS'], env['HTTP_X_TRACE_OPTIONS_SIGNATURE'])
+        options = SolarWindsAPM::XTraceOptions.new(env['HTTP_X_TRACE_OPTIONS'], env['HTTP_X_TRACE_OPTIONS_SIGNATURE'])
 
         # store incoming information in a thread local variable
-        settings = AppOpticsAPM::TransactionSettings.new(url, env, options)
+        settings = SolarWindsAPM::TransactionSettings.new(url, env, options)
 
-        profile_spans = AppOpticsAPM::Config['profiling'] == :enabled ? 1 : -1
+        profile_spans = SolarWindsAPM::Config['profiling'] == :enabled ? 1 : -1
 
         response =
           propagate_tracecontext(env, settings) do
             sample(env, settings, options, profile_spans) do
-              AppOpticsAPM::Profiling.run do
-                AppOpticsAPM::TransactionMetrics.metrics(env, settings) do
+              SolarWindsAPM::Profiling.run do
+                SolarWindsAPM::TransactionMetrics.metrics(env, settings) do
                   @app.call(env)
                 end
               end
@@ -57,14 +57,14 @@ if AppOpticsAPM.loaded
         options.add_response_header(response[1], settings)
 
         unless incoming
-          AppOpticsAPM::Context.clear
-          AppOpticsAPM.trace_context = nil
+          SolarWindsAPM::Context.clear
+          SolarWindsAPM.trace_context = nil
         end
         response
       rescue
         unless incoming
-          AppOpticsAPM::Context.clear
-          AppOpticsAPM.trace_context = nil
+          SolarWindsAPM::Context.clear
+          SolarWindsAPM.trace_context = nil
         end
         raise
         # can't use ensure for Context.clearing, because the Grape middleware
@@ -89,12 +89,12 @@ if AppOpticsAPM.loaded
           report_kvs[:AJAX]             = true if req.xhr?
           report_kvs[:ClientIP]         = req.ip
 
-          if AppOpticsAPM::Config[:rack][:log_args]
+          if SolarWindsAPM::Config[:rack][:log_args]
             report_kvs[:'Query-String'] = ::CGI.unescape(req.query_string) unless req.query_string.empty?
           end
 
-          report_kvs[:URL] = AppOpticsAPM::Config[:rack][:log_args] ? ::CGI.unescape(req.fullpath) : ::CGI.unescape(req.path)
-          report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:rack][:collect_backtraces]
+          report_kvs[:URL] = SolarWindsAPM::Config[:rack][:log_args] ? ::CGI.unescape(req.fullpath) : ::CGI.unescape(req.path)
+          report_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:rack][:collect_backtraces]
 
           # Report any request queue'ing headers.  Report as 'Request-Start' or the summed Queue-Time
           report_kvs[:'Request-Start']     = env['HTTP_X_REQUEST_START']    if env.key?('HTTP_X_REQUEST_START')
@@ -106,12 +106,12 @@ if AppOpticsAPM.loaded
           report_kvs[:'Forwarded-Proto']   = env['HTTP_X_FORWARDED_PROTO']  if env.key?('HTTP_X_FORWARDED_PROTO')
           report_kvs[:'Forwarded-Port']    = env['HTTP_X_FORWARDED_PORT']   if env.key?('HTTP_X_FORWARDED_PORT')
 
-          report_kvs[:'Ruby.AppOptics.Version'] = AppOpticsAPM::Version::STRING
+          report_kvs[:'Ruby.AppOptics.Version'] = SolarWindsAPM::Version::STRING
           report_kvs[:ProcessID]         = Process.pid
           report_kvs[:ThreadID]          = Thread.current.to_s[/0x\w*/]
         rescue StandardError => e
           # Discard any potential exceptions. Debug log and report whatever we can.
-          AppOpticsAPM.logger.debug "[appoptics_apm/debug] Rack KV collection error: #{e.inspect}"
+          SolarWindsAPM.logger.debug "[appoptics_apm/debug] Rack KV collection error: #{e.inspect}"
         end
         report_kvs
       end
@@ -126,18 +126,18 @@ if AppOpticsAPM.loaded
         #  which may be passed to a different thread
 
         # TODO add test coverage for this
-        if AppOpticsAPM.trace_context&.tracestring
+        if SolarWindsAPM.trace_context&.tracestring
           # creating a dup because we are modifying it when setting/unsetting the sampling bit
-          tracestring_dup = AppOpticsAPM.trace_context.tracestring.dup
+          tracestring_dup = SolarWindsAPM.trace_context.tracestring.dup
           if settings.do_sample
-            AppOpticsAPM::TraceString.set_sampled(tracestring_dup)
+            SolarWindsAPM::TraceString.set_sampled(tracestring_dup)
           else
-            AppOpticsAPM::TraceString.unset_sampled(tracestring_dup)
+            SolarWindsAPM::TraceString.unset_sampled(tracestring_dup)
           end
           env['HTTP_TRACEPARENT'] = tracestring_dup
-          env['HTTP_TRACESTATE'] = AppOpticsAPM::TraceState.add_sw_member(
-            AppOpticsAPM.trace_context&.tracestate,
-            AppOpticsAPM::TraceString.span_id_flags(tracestring_dup)
+          env['HTTP_TRACESTATE'] = SolarWindsAPM::TraceState.add_sw_member(
+            SolarWindsAPM.trace_context&.tracestate,
+            SolarWindsAPM::TraceString.span_id_flags(tracestring_dup)
           )
         end
 
@@ -145,7 +145,7 @@ if AppOpticsAPM.loaded
 
         # TODO this will be finalized when we have a spec for w3c response headers
         headers ||= {}
-        headers['X-Trace'] = AppOpticsAPM::Context.toString if AppOpticsAPM::Context.isValid
+        headers['X-Trace'] = SolarWindsAPM::Context.toString if SolarWindsAPM::Context.isValid
 
         [status, headers, response]
       end
@@ -157,26 +157,26 @@ if AppOpticsAPM.loaded
             settings.add_kvs(report_kvs)
             options&.add_kvs(report_kvs, settings)
 
-            AppOpticsAPM::API.log_start(:rack, report_kvs, env, settings)
+            SolarWindsAPM::API.log_start(:rack, report_kvs, env, settings)
 
             status, headers, response = yield
 
-            AppOpticsAPM::API.log_exit(:rack, { Status: status,
-                                                TransactionName: AppOpticsAPM.transaction_name,
+            SolarWindsAPM::API.log_exit(:rack, { Status: status,
+                                                TransactionName: SolarWindsAPM.transaction_name,
                                                 ProfileSpans: profile_spans })
 
             [status, headers, response]
           rescue Exception => e
             # it is ok to rescue Exception here because we are reraising it (we just need a chance to log_end)
-            AppOpticsAPM::API.log_exception(:rack, e)
-            AppOpticsAPM::API.log_exit(:rack, { Status: status,
-                                                TransactionName: AppOpticsAPM.transaction_name,
+            SolarWindsAPM::API.log_exception(:rack, e)
+            SolarWindsAPM::API.log_exit(:rack, { Status: status,
+                                                TransactionName: SolarWindsAPM.transaction_name,
                                                 ProfileSpans: profile_spans
                                               })
             raise
           end
         else
-          AppOpticsAPM::API.create_nontracing_context(AppOpticsAPM.trace_context.tracestring)
+          SolarWindsAPM::API.create_nontracing_context(SolarWindsAPM.trace_context.tracestring)
           yield
         end
       end
@@ -184,7 +184,7 @@ if AppOpticsAPM.loaded
     end
   end
 else
-  module AppOpticsAPM
+  module SolarWindsAPM
     class Rack
       attr_reader :app
 

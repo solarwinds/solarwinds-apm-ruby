@@ -33,11 +33,11 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
         'RemoteHost' => ENV['APPOPTICS_MONGO_SERVER'] }
 
       @exit_kvs = { 'Layer' => 'mongo', 'Label' => 'exit' }
-      @collect_backtraces = AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      @collect_backtraces = SolarWindsAPM::Config[:mongo][:collect_backtraces]
     end
 
     after do
-      AppOpticsAPM::Config[:mongo][:collect_backtraces] = @collect_backtraces
+      SolarWindsAPM::Config[:mongo][:collect_backtraces] = @collect_backtraces
 
       if @db.collection_names.include?("temp_collection")
         @db[:temp_collection].drop
@@ -47,7 +47,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     it "should trace collection creation" do
       r = nil
       collection = @db[:temp_collection]
-      AppOpticsAPM::SDK.start_trace('mongo_test') do
+      SolarWindsAPM::SDK.start_trace('mongo_test') do
         r = collection.create
       end
 
@@ -67,7 +67,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
 
       _(traces[1]['QueryOp']).must_equal "create"
       _(traces[1]['New_Collection_Name']).must_equal "temp_collection"
-      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1].has_key?('Backtrace')).must_equal SolarWindsAPM::Config[:mongo][:collect_backtraces]
     end
 
     it "should trace drop_collection" do
@@ -79,7 +79,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
         collection.create
       end
 
-      AppOpticsAPM::SDK.start_trace('mongo_test') do
+      SolarWindsAPM::SDK.start_trace('mongo_test') do
         r = collection.drop
       end
 
@@ -99,7 +99,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
 
       _(traces[1]['QueryOp']).must_equal "drop"
       _(traces[1]['Collection']).must_equal "deleteme_collection"
-      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1].has_key?('Backtrace')).must_equal SolarWindsAPM::Config[:mongo][:collect_backtraces]
     end
 
     it "should capture collection creation errors" do
@@ -107,7 +107,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       collection.create
 
       begin
-        AppOpticsAPM::SDK.start_trace('mongo_test') do
+        SolarWindsAPM::SDK.start_trace('mongo_test') do
           collection.create
         end
       rescue
@@ -122,7 +122,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
 
       _(traces[1]['QueryOp']).must_equal "create"
       _(traces[1]['New_Collection_Name']).must_equal "temp_collection"
-      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1].has_key?('Backtrace')).must_equal SolarWindsAPM::Config[:mongo][:collect_backtraces]
 
       _(traces[2]['Layer']).must_equal "mongo"
       _(traces[2]['Spec']).must_equal "error"
@@ -137,7 +137,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       r = nil
       collection = @db[:tv_collection]
 
-      AppOpticsAPM::SDK.start_trace('mongo_test') do
+      SolarWindsAPM::SDK.start_trace('mongo_test') do
         r = collection.insert_one({ name => 'Rabel Lasen' })
       end
 
@@ -157,14 +157,14 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
 
       _(traces[1]['QueryOp']).must_equal "insert_one"
       _(traces[1]['Collection']).must_equal "tv_collection"
-      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1].has_key?('Backtrace')).must_equal SolarWindsAPM::Config[:mongo][:collect_backtraces]
     end
 
     it "should trace insert_many" do
       r = nil
       collection = @db[:tv_collection]
 
-      AppOpticsAPM::SDK.start_trace('mongo_test') do
+      SolarWindsAPM::SDK.start_trace('mongo_test') do
         r = collection.insert_many([
                                      { :name => 'Rabel Lasen' },
                                      { :name => 'Louval Raiden' }])
@@ -186,7 +186,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
 
       _(traces[1]['QueryOp']).must_equal "insert_many"
       _(traces[1]['Collection']).must_equal "tv_collection"
-      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1].has_key?('Backtrace')).must_equal SolarWindsAPM::Config[:mongo][:collect_backtraces]
     end
 
     it "should trace find" do
@@ -197,7 +197,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       doc = { "name" => "MyName", "type" => "MyType", "count" => 1, "info" => { "x" => 203, "y" => '102' } }
       coll.insert_one(doc)
 
-      AppOpticsAPM::SDK.start_trace('mongo_test') do
+      SolarWindsAPM::SDK.start_trace('mongo_test') do
         r = coll.find(:name => "MyName", :limit => 1)
       end
 
@@ -211,7 +211,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       _(r).must_be_instance_of Mongo::Collection::View
 
       _(traces[1]['Collection']).must_equal "test_collection"
-      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1].has_key?('Backtrace')).must_equal SolarWindsAPM::Config[:mongo][:collect_backtraces]
       _(traces[1]['QueryOp']).must_equal "find"
       _(traces[1]['Query']).must_equal "{\"name\":\"MyName\",\"limit\":1}"
       _(traces[1].has_key?('Query')).must_equal true
@@ -225,7 +225,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       doc = { "name" => "MyName", "type" => "MyType", "count" => 1, "info" => { "x" => 203, "y" => '102' } }
       coll.insert_one(doc)
 
-      AppOpticsAPM::SDK.start_trace('mongo_test') do
+      SolarWindsAPM::SDK.start_trace('mongo_test') do
         r = coll.find_one_and_delete(:name => "MyName")
       end
 
@@ -239,7 +239,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       _(r).must_be_instance_of BSON::Document
 
       _(traces[1]['Collection']).must_equal "test_collection"
-      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1].has_key?('Backtrace')).must_equal SolarWindsAPM::Config[:mongo][:collect_backtraces]
       _(traces[1]['QueryOp']).must_equal "find_one_and_delete"
       _(traces[1]['Query']).must_equal "{\"name\":\"MyName\"}"
       _(traces[1].has_key?('Query')).must_equal true
@@ -253,7 +253,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       doc = { "name" => "MyName", "type" => "MyType", "count" => 1, "info" => { "x" => 203, "y" => '102' } }
       coll.insert_one(doc)
 
-      AppOpticsAPM::SDK.start_trace('mongo_test') do
+      SolarWindsAPM::SDK.start_trace('mongo_test') do
         r = coll.find_one_and_update({ :name => 'MyName' }, { "$set" => { :name => 'test1' } }, :return_document => :after)
       end
 
@@ -267,7 +267,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       _(r).must_be_instance_of BSON::Document
 
       _(traces[1]['Collection']).must_equal "test_collection"
-      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1].has_key?('Backtrace')).must_equal SolarWindsAPM::Config[:mongo][:collect_backtraces]
       _(traces[1]['QueryOp']).must_equal "find_one_and_update"
       _(traces[1]['Query']).must_equal "{\"name\":\"MyName\"}"
       _(traces[1].has_key?('Query')).must_equal true
@@ -281,7 +281,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       doc = { "name" => "MyName", "type" => "MyType", "count" => 1, "info" => { "x" => 203, "y" => '102' } }
       coll.insert_one(doc)
 
-      AppOpticsAPM::SDK.start_trace('mongo_test') do
+      SolarWindsAPM::SDK.start_trace('mongo_test') do
         r = coll.find_one_and_replace({ :name => 'MyName' }, { "$set" => { :name => 'test1' } }, :return_document => :after)
       end
 
@@ -295,7 +295,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       _(r).must_be_instance_of BSON::Document
 
       _(traces[1]['Collection']).must_equal "test_collection"
-      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1].has_key?('Backtrace')).must_equal SolarWindsAPM::Config[:mongo][:collect_backtraces]
       _(traces[1]['QueryOp']).must_equal "find_one_and_replace"
       _(traces[1]['Query']).must_equal "{\"name\":\"MyName\"}"
       _(traces[1].has_key?('Query')).must_equal true
@@ -309,7 +309,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       doc = { "name" => "MyName", "type" => "MyType", "count" => 1, "info" => { "x" => 203, "y" => '102' } }
       coll.insert_one(doc)
 
-      AppOpticsAPM::SDK.start_trace('mongo_test') do
+      SolarWindsAPM::SDK.start_trace('mongo_test') do
         r = coll.update_one({ :name => 'MyName' }, { "$set" => { :name => 'test1' } }, :return_document => :after)
       end
 
@@ -323,7 +323,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       _(r.class.ancestors.include?(Mongo::Operation::Result)).must_equal true
 
       _(traces[1]['Collection']).must_equal "test_collection"
-      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1].has_key?('Backtrace')).must_equal SolarWindsAPM::Config[:mongo][:collect_backtraces]
       _(traces[1]['QueryOp']).must_equal "update_one"
       _(traces[1]['Query']).must_equal "{\"name\":\"MyName\"}"
       _(traces[1].has_key?('Query')).must_equal true
@@ -337,7 +337,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       doc = { "name" => "MyName", "type" => "MyType", "count" => 1, "info" => { "x" => 203, "y" => '102' } }
       coll.insert_one(doc)
 
-      AppOpticsAPM::SDK.start_trace('mongo_test') do
+      SolarWindsAPM::SDK.start_trace('mongo_test') do
         r = coll.update_many({ :name => 'MyName' }, { "$set" => { :name => 'test1' } }, :return_document => :after)
       end
 
@@ -351,7 +351,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       _(r.class.ancestors.include?(Mongo::Operation::Result)).must_equal true
 
       _(traces[1]['Collection']).must_equal "test_collection"
-      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1].has_key?('Backtrace')).must_equal SolarWindsAPM::Config[:mongo][:collect_backtraces]
       _(traces[1]['QueryOp']).must_equal "update_many"
       _(traces[1]['Query']).must_equal "{\"name\":\"MyName\"}"
       _(traces[1].has_key?('Query')).must_equal true
@@ -365,7 +365,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       doc = { "name" => "MyName", "type" => "MyType", "count" => 1, "info" => { "x" => 203, "y" => '102' } }
       coll.insert_one(doc)
 
-      AppOpticsAPM::SDK.start_trace('mongo_test') do
+      SolarWindsAPM::SDK.start_trace('mongo_test') do
         r = coll.delete_one({ :name => 'MyName' })
       end
 
@@ -379,7 +379,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       _(r.class.ancestors.include?(Mongo::Operation::Result)).must_equal true
 
       _(traces[1]['Collection']).must_equal "test_collection"
-      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1].has_key?('Backtrace')).must_equal SolarWindsAPM::Config[:mongo][:collect_backtraces]
       _(traces[1]['QueryOp']).must_equal "delete_one"
       _(traces[1]['Query']).must_equal "{\"name\":\"MyName\"}"
       _(traces[1].has_key?('Query')).must_equal true
@@ -393,7 +393,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       doc = { "name" => "MyName", "type" => "MyType", "count" => 1, "info" => { "x" => 203, "y" => '102' } }
       coll.insert_one(doc)
 
-      AppOpticsAPM::SDK.start_trace('mongo_test') do
+      SolarWindsAPM::SDK.start_trace('mongo_test') do
         r = coll.delete_many({ :name => 'MyName' })
       end
 
@@ -407,7 +407,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       _(r.class.ancestors.include?(Mongo::Operation::Result)).must_equal true
 
       _(traces[1]['Collection']).must_equal "test_collection"
-      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1].has_key?('Backtrace')).must_equal SolarWindsAPM::Config[:mongo][:collect_backtraces]
       _(traces[1]['QueryOp']).must_equal "delete_many"
       _(traces[1]['Query']).must_equal "{\"name\":\"MyName\"}"
       _(traces[1].has_key?('Query')).must_equal true
@@ -421,7 +421,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       doc = { "name" => "MyName", "type" => "MyType", "count" => 1, "info" => { "x" => 203, "y" => '102' } }
       coll.insert_one(doc)
 
-      AppOpticsAPM::SDK.start_trace('mongo_test') do
+      SolarWindsAPM::SDK.start_trace('mongo_test') do
         r = coll.replace_one({ :name => 'test' }, { :name => 'test1' })
       end
 
@@ -435,7 +435,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       _(r.class.ancestors.include?(Mongo::Operation::Result)).must_equal true
 
       _(traces[1]['Collection']).must_equal "test_collection"
-      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1].has_key?('Backtrace')).must_equal SolarWindsAPM::Config[:mongo][:collect_backtraces]
       _(traces[1]['QueryOp']).must_equal "replace_one"
       _(traces[1]['Query']).must_equal "{\"name\":\"test\"}"
       _(traces[1].has_key?('Query')).must_equal true
@@ -445,7 +445,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       coll = @db[:test_collection]
       r = nil
 
-      AppOpticsAPM::SDK.start_trace('mongo_test') do
+      SolarWindsAPM::SDK.start_trace('mongo_test') do
         r = coll.count({ :name => 'MyName' })
       end
 
@@ -459,7 +459,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       _(r.is_a?(Numeric)).must_equal true
 
       _(traces[1]['Collection']).must_equal "test_collection"
-      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1].has_key?('Backtrace')).must_equal SolarWindsAPM::Config[:mongo][:collect_backtraces]
       _(traces[1]['QueryOp']).must_equal "count"
       _(traces[1]['Query']).must_equal "{\"name\":\"MyName\"}"
       _(traces[1].has_key?('Query')).must_equal true
@@ -469,7 +469,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       coll = @db[:test_collection]
       r = nil
 
-      AppOpticsAPM::SDK.start_trace('mongo_test') do
+      SolarWindsAPM::SDK.start_trace('mongo_test') do
         r = coll.distinct('name', { :name => 'MyName' })
       end
 
@@ -483,7 +483,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       _(r.is_a?(Array)).must_equal true
 
       _(traces[1]['Collection']).must_equal "test_collection"
-      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1].has_key?('Backtrace')).must_equal SolarWindsAPM::Config[:mongo][:collect_backtraces]
       _(traces[1]['QueryOp']).must_equal "distinct"
       _(traces[1]['Query']).must_equal "{\"name\":\"MyName\"}"
       _(traces[1].has_key?('Query')).must_equal true
@@ -493,7 +493,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       coll = @db[:test_collection]
       r = nil
 
-      AppOpticsAPM::SDK.start_trace('mongo_test') do
+      SolarWindsAPM::SDK.start_trace('mongo_test') do
         r = coll.aggregate([{ "$group" => { "_id" => "$city", "tpop" => { "$sum" => "$pop" } } }])
       end
 
@@ -507,7 +507,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       _(r).must_be_instance_of Mongo::Collection::View::Aggregation
 
       _(traces[1]['Collection']).must_equal "test_collection"
-      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1].has_key?('Backtrace')).must_equal SolarWindsAPM::Config[:mongo][:collect_backtraces]
       _(traces[1]['QueryOp']).must_equal "aggregate"
       _(traces[1].key?('Query')).must_equal false
     end
@@ -516,7 +516,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       coll = @db[:test_collection]
       r = nil
 
-      AppOpticsAPM::SDK.start_trace('mongo_test') do
+      SolarWindsAPM::SDK.start_trace('mongo_test') do
         r = coll.bulk_write([{ :insert_one => { :x => 1 } },
                              { :insert_one => { :x => 3 } }],
                             :ordered => true)
@@ -537,17 +537,17 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       _(traces[1]['Collection']).must_equal "test_collection"
-      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:mongo][:collect_backtraces]
+      _(traces[1].has_key?('Backtrace')).must_equal SolarWindsAPM::Config[:mongo][:collect_backtraces]
       _(traces[1]['QueryOp']).must_equal "bulk_write"
       _(traces[1].key?('Query')).must_equal false
     end
 
     it "should obey :collect_backtraces setting when true" do
-      AppOpticsAPM::Config[:mongo][:collect_backtraces] = true
+      SolarWindsAPM::Config[:mongo][:collect_backtraces] = true
 
       coll = @db[:test_collection]
 
-      AppOpticsAPM::SDK.start_trace('mongo_test') do
+      SolarWindsAPM::SDK.start_trace('mongo_test') do
         doc = { "name" => "MyName", "type" => "MyType", "count" => 1, "info" => { "x" => 203, "y" => '102' } }
         coll.insert_one(doc)
       end
@@ -557,11 +557,11 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     end
 
     it "should obey :collect_backtraces setting when false" do
-      AppOpticsAPM::Config[:mongo][:collect_backtraces] = false
+      SolarWindsAPM::Config[:mongo][:collect_backtraces] = false
 
       coll = @db[:test_collection]
 
-      AppOpticsAPM::SDK.start_trace('mongo_test') do
+      SolarWindsAPM::SDK.start_trace('mongo_test') do
         doc = { "name" => "MyName", "type" => "MyType", "count" => 1, "info" => { "x" => 203, "y" => '102' } }
         coll.insert_one(doc)
       end

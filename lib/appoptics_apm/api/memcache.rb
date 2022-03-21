@@ -5,7 +5,7 @@
 
 # TODO remove Memcache from API and into some Util module to be included in Modules that need
 # ____ these methods
-module AppOpticsAPM
+module SolarWindsAPM
   module API
     ##
     # Utility methods for the Memcache instrumentation

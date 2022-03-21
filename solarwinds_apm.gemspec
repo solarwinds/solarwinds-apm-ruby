@@ -3,7 +3,7 @@ require "appoptics_apm/version"
 
 Gem::Specification.new do |s|
   s.name = %q{solarwinds_apm}
-  s.version = AppOpticsAPM::Version::STRING
+  s.version = SolarWindsAPM::Version::STRING
   s.date = Time.now.strftime('%Y-%m-%d')
 
   s.license = "Apache-2.0"

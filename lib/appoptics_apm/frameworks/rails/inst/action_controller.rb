@@ -1,7 +1,7 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
-module AppOpticsAPM
+module SolarWindsAPM
   module Inst
     #
     # RailsBase
@@ -28,7 +28,7 @@ module AppOpticsAPM
         end
         has_handler
       rescue => e
-        AppOpticsAPM.logger.debug "[appoptics_apm/debug] Error searching Rails handlers: #{e.message}"
+        SolarWindsAPM.logger.debug "[appoptics_apm/debug] Error searching Rails handlers: #{e.message}"
         return false
       end
 
@@ -38,14 +38,14 @@ module AppOpticsAPM
       # Determines whether we should log a raised exception to the
       # AppOptics dashboard.  This is determined by whether the exception
       # has a rescue handler setup and the value of
-      # AppOpticsAPM::Config[:report_rescued_errors]
+      # SolarWindsAPM::Config[:report_rescued_errors]
       #
       def log_rails_error?(exception)
         # As it's perculating up through the layers...  make sure that
         # we only report it once.
         return false if exception.instance_variable_get(:@exn_logged)
 
-        return false if has_handler?(exception) && !AppOpticsAPM::Config[:report_rescued_errors]
+        return false if has_handler?(exception) && !SolarWindsAPM::Config[:report_rescued_errors]
 
         true
       end
@@ -56,15 +56,15 @@ module AppOpticsAPM
       #
       # This can't use the SDK trace() method because of the log_rails_error?(e) condition
       def trace(layer)
-        return yield unless AppOpticsAPM.tracing?
+        return yield unless SolarWindsAPM.tracing?
         begin
-          AppOpticsAPM::API.log_entry(layer)
+          SolarWindsAPM::API.log_entry(layer)
           yield
         rescue Exception => e
-          AppOpticsAPM::API.log_exception(layer, e) if log_rails_error?(e)
+          SolarWindsAPM::API.log_exception(layer, e) if log_rails_error?(e)
           raise
         ensure
-          AppOpticsAPM::API.log_exit(layer)
+          SolarWindsAPM::API.log_exit(layer)
         end
       end
 
@@ -84,17 +84,17 @@ module AppOpticsAPM
 end
 
 # ActionController::Base
-if defined?(ActionController::Base) && AppOpticsAPM::Config[:action_controller][:enabled]
-  AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting actioncontroller' if AppOpticsAPM::Config[:verbose]
+if defined?(ActionController::Base) && SolarWindsAPM::Config[:action_controller][:enabled]
+  SolarWindsAPM.logger.info '[appoptics_apm/loading] Instrumenting actioncontroller' if SolarWindsAPM::Config[:verbose]
   require "appoptics_apm/frameworks/rails/inst/action_controller5"
-  ActionController::Base.send(:prepend, ::AppOpticsAPM::Inst::ActionController)
+  ActionController::Base.send(:prepend, ::SolarWindsAPM::Inst::ActionController)
 end
 
 # ActionController::API
-if defined?(ActionController::API) && AppOpticsAPM::Config[:action_controller_api][:enabled]
-  AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting actioncontroller api' if AppOpticsAPM::Config[:verbose]
+if defined?(ActionController::API) && SolarWindsAPM::Config[:action_controller_api][:enabled]
+  SolarWindsAPM.logger.info '[appoptics_apm/loading] Instrumenting actioncontroller api' if SolarWindsAPM::Config[:verbose]
   require "appoptics_apm/frameworks/rails/inst/action_controller_api"
-  ActionController::API.send(:prepend, ::AppOpticsAPM::Inst::ActionControllerAPI)
+  ActionController::API.send(:prepend, ::SolarWindsAPM::Inst::ActionControllerAPI)
 end
 
 # vim:set expandtab:tabstop=2

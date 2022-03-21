@@ -5,7 +5,7 @@
 
 require 'pp'
 
-module AppOpticsAPM
+module SolarWindsAPM
   module API
     ##
     # General utility methods for the gem

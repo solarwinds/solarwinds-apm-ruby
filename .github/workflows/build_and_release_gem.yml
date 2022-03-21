@@ -56,7 +56,7 @@ jobs:
           checksum=`shasum -a256 *.gem | awk '{print $1;}'`
           echo "checksum: $checksum"
           echo ::set-output name=checksum::$checksum
-          echo ::set-output name=gem_version::`ruby -e 'require "./lib/appoptics_apm/version"; puts AppOpticsAPM::Version::STRING'`
+          echo ::set-output name=gem_version::`ruby -e 'require "./lib/appoptics_apm/version"; puts SolarWindsAPM::Version::STRING'`
 
       - name: Get checksum from Rubygems
         id: checksum

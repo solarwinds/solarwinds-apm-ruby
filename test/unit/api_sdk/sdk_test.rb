@@ -4,33 +4,33 @@
 require 'minitest_helper'
 require 'mocha/minitest'
 
-describe AppOpticsAPM::SDK do
+describe SolarWindsAPM::SDK do
 
   before do
     @trace_00 = '00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-00'
     @trace_01 = '00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-01'
 
-    AppOpticsAPM.config_lock.synchronize {
-      @tm = AppOpticsAPM::Config[:tracing_mode]
-      @sample_rate = AppOpticsAPM::Config[:sample_rate]
+    SolarWindsAPM.config_lock.synchronize {
+      @tm = SolarWindsAPM::Config[:tracing_mode]
+      @sample_rate = SolarWindsAPM::Config[:sample_rate]
     }
-    AppOpticsAPM::Config[:tracing_mode] = :enabled
-    AppOpticsAPM::Config[:sample_rate] = 1000000
+    SolarWindsAPM::Config[:tracing_mode] = :enabled
+    SolarWindsAPM::Config[:sample_rate] = 1000000
 
     # clean up because a test from a previous test files may not
-    AppOpticsAPM.layer = nil
-    AppOpticsAPM::Context.clear
+    SolarWindsAPM.layer = nil
+    SolarWindsAPM::Context.clear
   end
 
   after do
-    AppOpticsAPM.config_lock.synchronize {
-      AppOpticsAPM::Config[:tracing_mode] = @tm
-      AppOpticsAPM::Config[:sample_rate] = @sample_rate
+    SolarWindsAPM.config_lock.synchronize {
+      SolarWindsAPM::Config[:tracing_mode] = @tm
+      SolarWindsAPM::Config[:sample_rate] = @sample_rate
     }
 
     # need to do this, because we are stubbing log_end, which takes care of cleaning up
-    AppOpticsAPM.layer = nil
-    AppOpticsAPM::Context.clear
+    SolarWindsAPM.layer = nil
+    SolarWindsAPM::Context.clear
   end
 
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -38,106 +38,106 @@ describe AppOpticsAPM::SDK do
   describe 'trace' do
 
     before do
-      AppOpticsAPM::Context.fromString(@trace_01)
+      SolarWindsAPM::Context.fromString(@trace_01)
     end
 
     it 'should return the result from the block' do
-      result = AppOpticsAPM::SDK.trace('test_01') { 42 }
+      result = SolarWindsAPM::SDK.trace('test_01') { 42 }
       assert_equal 42, result
     end
 
     it 'should log an entry, exception, and exit there is an exception' do
-      AppOpticsAPM::API.expects(:log_entry)
-      AppOpticsAPM::API.expects(:log_exception)
-      AppOpticsAPM::API.expects(:log_exit)
+      SolarWindsAPM::API.expects(:log_entry)
+      SolarWindsAPM::API.expects(:log_exception)
+      SolarWindsAPM::API.expects(:log_exit)
 
       begin
-        AppOpticsAPM::SDK.trace(:test) { raise StandardError }
+        SolarWindsAPM::SDK.trace(:test) { raise StandardError }
       rescue
       end
     end
 
     it 'should not log if we are not sampling' do
-      AppOpticsAPM::Context.fromString(@trace_00)
-      AppOpticsAPM::API.expects(:log_event).never
-      result = AppOpticsAPM::SDK.trace(:test) { 42 }
+      SolarWindsAPM::Context.fromString(@trace_00)
+      SolarWindsAPM::API.expects(:log_event).never
+      result = SolarWindsAPM::SDK.trace(:test) { 42 }
       assert_equal 42, result
     end
 
     it "should work without request_op parameter" do
-      AppOpticsAPM::API.expects(:log_entry).twice
-      AppOpticsAPM::API.expects(:log_exit).twice
-      AppOpticsAPM::SDK.trace(:test) do
-        AppOpticsAPM::SDK.trace(:test) {}
+      SolarWindsAPM::API.expects(:log_entry).twice
+      SolarWindsAPM::API.expects(:log_exit).twice
+      SolarWindsAPM::SDK.trace(:test) do
+        SolarWindsAPM::SDK.trace(:test) {}
       end
     end
 
     it "should respect the request_op parameter" do
       # can't stub :log_entry, because it has the logic to record with the request_op parameter
-      AppOpticsAPM::API.expects(:log_event).with(:test, :entry, anything, anything).once
-      AppOpticsAPM::API.expects(:log_event).with(:test, :exit, anything, anything).once
+      SolarWindsAPM::API.expects(:log_event).with(:test, :entry, anything, anything).once
+      SolarWindsAPM::API.expects(:log_event).with(:test, :exit, anything, anything).once
 
-      AppOpticsAPM::SDK.trace(:test, protect_op: 'test') do
-        AppOpticsAPM::SDK.trace(:test, protect_op: 'test') do
-          AppOpticsAPM::SDK.trace(:test, protect_op: 'test') {}
+      SolarWindsAPM::SDK.trace(:test, protect_op: 'test') do
+        SolarWindsAPM::SDK.trace(:test, protect_op: 'test') do
+          SolarWindsAPM::SDK.trace(:test, protect_op: 'test') {}
         end
       end
 
-      assert AppOpticsAPM.layer_op.empty? || AppOpticsAPM.layer_op.nil?
+      assert SolarWindsAPM.layer_op.empty? || SolarWindsAPM.layer_op.nil?
     end
 
     it "should work with sequential calls and an op paramter" do
-      AppOpticsAPM::API.expects(:log_event).with(:test, :entry, anything, anything).times(3)
-      AppOpticsAPM::API.expects(:log_event).with(:test, :exit, anything, anything).times(3)
+      SolarWindsAPM::API.expects(:log_event).with(:test, :entry, anything, anything).times(3)
+      SolarWindsAPM::API.expects(:log_event).with(:test, :exit, anything, anything).times(3)
 
-      AppOpticsAPM::SDK.trace(:test, protect_op: 'test') {}
-      AppOpticsAPM::SDK.trace(:test, protect_op: 'test') {}
-      AppOpticsAPM::SDK.trace(:test, protect_op: 'test') {}
+      SolarWindsAPM::SDK.trace(:test, protect_op: 'test') {}
+      SolarWindsAPM::SDK.trace(:test, protect_op: 'test') {}
+      SolarWindsAPM::SDK.trace(:test, protect_op: 'test') {}
     end
 
     it "should work with nested and sequential calls and an op param" do
-      AppOpticsAPM::API.expects(:log_event).with(:test, :entry, anything, anything).once
-      AppOpticsAPM::API.expects(:log_event).with(:test, :exit, anything, anything).once
+      SolarWindsAPM::API.expects(:log_event).with(:test, :entry, anything, anything).once
+      SolarWindsAPM::API.expects(:log_event).with(:test, :exit, anything, anything).once
 
-      AppOpticsAPM::SDK.trace(:test, protect_op: 'test') do
-        AppOpticsAPM::SDK.trace(:test, protect_op: 'test') {}
-        AppOpticsAPM::SDK.trace(:test, protect_op: 'test') {}
-        AppOpticsAPM::SDK.trace(:test, protect_op: 'test') {}
+      SolarWindsAPM::SDK.trace(:test, protect_op: 'test') do
+        SolarWindsAPM::SDK.trace(:test, protect_op: 'test') {}
+        SolarWindsAPM::SDK.trace(:test, protect_op: 'test') {}
+        SolarWindsAPM::SDK.trace(:test, protect_op: 'test') {}
       end
     end
 
     it "should create spans for different ops" do
-      AppOpticsAPM::API.expects(:log_event).with(:test, :entry, anything, anything).times(3)
-      AppOpticsAPM::API.expects(:log_event).with(:test, :exit, anything, anything).times(3)
+      SolarWindsAPM::API.expects(:log_event).with(:test, :entry, anything, anything).times(3)
+      SolarWindsAPM::API.expects(:log_event).with(:test, :exit, anything, anything).times(3)
 
-      AppOpticsAPM::SDK.trace(:test, protect_op: 'test') do
-        AppOpticsAPM::SDK.trace(:test, protect_op: 'test_2') {}
-        AppOpticsAPM::SDK.trace(:test, protect_op: 'test') {}
-        AppOpticsAPM::SDK.trace(:test, protect_op: 'test_2') {}
+      SolarWindsAPM::SDK.trace(:test, protect_op: 'test') do
+        SolarWindsAPM::SDK.trace(:test, protect_op: 'test_2') {}
+        SolarWindsAPM::SDK.trace(:test, protect_op: 'test') {}
+        SolarWindsAPM::SDK.trace(:test, protect_op: 'test_2') {}
       end
     end
 
     it "should create a span if the ops are not sequential" do
-      AppOpticsAPM::API.expects(:log_event).with(:test, :entry, anything, anything).times(3)
-      AppOpticsAPM::API.expects(:log_event).with(:test, :exit, anything, anything).times(3)
+      SolarWindsAPM::API.expects(:log_event).with(:test, :entry, anything, anything).times(3)
+      SolarWindsAPM::API.expects(:log_event).with(:test, :exit, anything, anything).times(3)
 
-      AppOpticsAPM::SDK.trace(:test, protect_op: 'test') do
-        AppOpticsAPM::SDK.trace(:test, protect_op: 'test_2') do
-          AppOpticsAPM::SDK.trace(:test, protect_op: 'test') {}
+      SolarWindsAPM::SDK.trace(:test, protect_op: 'test') do
+        SolarWindsAPM::SDK.trace(:test, protect_op: 'test_2') do
+          SolarWindsAPM::SDK.trace(:test, protect_op: 'test') {}
         end
       end
     end
 
     it 'should do the right thing in the recursive example' do
       def computation_with_appoptics(n)
-        AppOpticsAPM::SDK.trace('computation', kvs: { :number => n }, protect_op: :comp) do
+        SolarWindsAPM::SDK.trace('computation', kvs: { :number => n }, protect_op: :comp) do
           return n if n == 0
           n + computation_with_appoptics(n - 1)
         end
       end
 
-      AppOpticsAPM::API.expects(:log_event).with('computation', :entry, anything, anything).once
-      AppOpticsAPM::API.expects(:log_event).with('computation', :exit, anything, anything).once
+      SolarWindsAPM::API.expects(:log_event).with('computation', :entry, anything, anything).once
+      SolarWindsAPM::API.expects(:log_event).with('computation', :exit, anything, anything).once
 
       computation_with_appoptics(3)
     end
@@ -146,98 +146,98 @@ describe AppOpticsAPM::SDK do
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
   describe 'start_trace single invocation' do
     it 'should log when sampling' do
-      AppOpticsAPM::API.expects(:log_start).with('test_01', {}, {})
-      AppOpticsAPM::API.expects(:log_end).with('test_01', has_entry(:TransactionName => 'custom-test_01'), instance_of(Oboe_metal::Event))
+      SolarWindsAPM::API.expects(:log_start).with('test_01', {}, {})
+      SolarWindsAPM::API.expects(:log_end).with('test_01', has_entry(:TransactionName => 'custom-test_01'), instance_of(Oboe_metal::Event))
 
-      result = AppOpticsAPM::SDK.start_trace('test_01') { 42 }
+      result = SolarWindsAPM::SDK.start_trace('test_01') { 42 }
       assert_equal 42, result
     end
 
     it 'should send metrics when sampling' do
-      AppOpticsAPM::API.expects(:send_metrics).with('test_01', optionally(instance_of(Hash)))
+      SolarWindsAPM::API.expects(:send_metrics).with('test_01', optionally(instance_of(Hash)))
 
-      AppOpticsAPM::SDK.start_trace('test_01') {}
+      SolarWindsAPM::SDK.start_trace('test_01') {}
     end
 
     it 'should not log when NOT sampling' do
-      AppOpticsAPM.config_lock.synchronize do
-        AppOpticsAPM::Config[:tracing_mode] = :disabled
+      SolarWindsAPM.config_lock.synchronize do
+        SolarWindsAPM::Config[:tracing_mode] = :disabled
       end
-      AppOpticsAPM::API.expects(:log_event).never
+      SolarWindsAPM::API.expects(:log_event).never
 
-      result = AppOpticsAPM::SDK.start_trace('test_01') { 42 }
+      result = SolarWindsAPM::SDK.start_trace('test_01') { 42 }
       assert_equal 42, result
     end
 
     it 'should send metrics when NOT sampling' do
-      AppOpticsAPM.config_lock.synchronize {
-        AppOpticsAPM::Config[:tracing_mode] = :disabled
+      SolarWindsAPM.config_lock.synchronize {
+        SolarWindsAPM::Config[:tracing_mode] = :disabled
       }
-      AppOpticsAPM::API.expects(:send_metrics)
+      SolarWindsAPM::API.expects(:send_metrics)
 
-      AppOpticsAPM::SDK.start_trace('test_01') { 42 }
+      SolarWindsAPM::SDK.start_trace('test_01') { 42 }
     end
 
     it 'should not call log or metrics methods when there is a non-sampling context' do
-      AppOpticsAPM::Context.fromString(@trace_00)
+      SolarWindsAPM::Context.fromString(@trace_00)
 
-      AppOpticsAPM::API.expects(:log_event).never
-      AppOpticsAPM::API.expects(:send_metrics).never
+      SolarWindsAPM::API.expects(:log_event).never
+      SolarWindsAPM::API.expects(:send_metrics).never
 
-      result = AppOpticsAPM::SDK.start_trace('test_01') { 42 }
+      result = SolarWindsAPM::SDK.start_trace('test_01') { 42 }
       assert_equal 42, result
     end
 
     it 'should return the result from the block when there is a sampling context' do
-      AppOpticsAPM::Context.fromString(@trace_01)
+      SolarWindsAPM::Context.fromString(@trace_01)
 
-      result = AppOpticsAPM::SDK.start_trace('test_01') { 42 }
+      result = SolarWindsAPM::SDK.start_trace('test_01') { 42 }
       assert_equal 42, result
     end
 
     it 'should call trace and not call log_start when there is a sampling context' do
-      AppOpticsAPM::Context.fromString(@trace_01)
+      SolarWindsAPM::Context.fromString(@trace_01)
 
-      AppOpticsAPM::API.expects(:log_start).never
-      AppOpticsAPM::API.expects(:send_metrics).never
-      AppOpticsAPM::API.expects(:log_end).never
-      AppOpticsAPM::SDK.expects(:trace).with('test_01', kvs: {})
+      SolarWindsAPM::API.expects(:log_start).never
+      SolarWindsAPM::API.expects(:send_metrics).never
+      SolarWindsAPM::API.expects(:log_end).never
+      SolarWindsAPM::SDK.expects(:trace).with('test_01', kvs: {})
 
-      AppOpticsAPM::SDK.start_trace('test_01') { 42 }
+      SolarWindsAPM::SDK.start_trace('test_01') { 42 }
     end
 
     it 'should log the tags when there is a sampling context' do
-      AppOpticsAPM::Context.fromString(@trace_01)
+      SolarWindsAPM::Context.fromString(@trace_01)
       tags = { 'Spec' => 'rsc', 'RemoteURL' => 'https://asdf.com:1234/resource?id=5', 'IsService' => true }
 
-      AppOpticsAPM::API.expects(:log_start).never
-      AppOpticsAPM::API.expects(:send_metrics).never
-      AppOpticsAPM::API.expects(:log_end).never
-      AppOpticsAPM::SDK.expects(:trace).with('test_01', kvs: tags)
+      SolarWindsAPM::API.expects(:log_start).never
+      SolarWindsAPM::API.expects(:send_metrics).never
+      SolarWindsAPM::API.expects(:log_end).never
+      SolarWindsAPM::SDK.expects(:trace).with('test_01', kvs: tags)
 
-      AppOpticsAPM::SDK.start_trace('test_01', kvs: tags) { 42 }
+      SolarWindsAPM::SDK.start_trace('test_01', kvs: tags) { 42 }
     end
 
     it 'should do metrics and not logging when there is an incoming non-sampling context' do
-      AppOpticsAPM::API.expects(:log_event).never
-      AppOpticsAPM::API.expects(:send_metrics)
+      SolarWindsAPM::API.expects(:log_event).never
+      SolarWindsAPM::API.expects(:send_metrics)
 
       headers = { traceparent: @trace_01, tracestate: 'sw=123468dadadadada-00' }
-      AppOpticsAPM::SDK.start_trace('test_01', headers: headers) { 42 }
+      SolarWindsAPM::SDK.start_trace('test_01', headers: headers) { 42 }
     end
 
     it 'should send metrics when there is an incoming sampling context' do
-      AppOpticsAPM::API.expects(:send_metrics)
+      SolarWindsAPM::API.expects(:send_metrics)
 
       headers = { traceparent: @trace_01, tracestate: 'sw=123468dadadadada-01' }
-      AppOpticsAPM::SDK.start_trace('test_01', headers: headers) { 42 }
+      SolarWindsAPM::SDK.start_trace('test_01', headers: headers) { 42 }
     end
 
     it 'should continue traces' do
       clear_all_traces
 
       headers = { traceparent: @trace_01, tracestate: 'sw=123468dadadadada-01' }
-      result = AppOpticsAPM::SDK.start_trace('test_01', headers: headers) { 42 }
+      result = SolarWindsAPM::SDK.start_trace('test_01', headers: headers) { 42 }
 
       traces = get_all_traces
       assert_equal 42, result
@@ -245,37 +245,37 @@ describe AppOpticsAPM::SDK do
       assert_equal 'entry', traces[0]['Label']
       assert_equal 'exit', traces[1]['Label']
 
-      assert_equal AppOpticsAPM::TraceString.trace_id(@trace_01), AppOpticsAPM::TraceString.trace_id(traces[0]['sw.trace_context'])
+      assert_equal SolarWindsAPM::TraceString.trace_id(@trace_01), SolarWindsAPM::TraceString.trace_id(traces[0]['sw.trace_context'])
       assert_equal '123468dadadadada', traces[0]['sw.parent_span_id'].downcase
     end
 
     it 'should use the transaction name from opts' do
       Time.expects(:now).returns(Time.at(0)).twice
-      AppOpticsAPM::API.expects(:log_event).with('test_01', :entry, anything, Not(has_entry(:TransactionName => 'domain/this_name')))
-      AppOpticsAPM::Span.expects(:createSpan).with('this_name', nil, 0, 0).returns('domain/this_name')
-      AppOpticsAPM::API.expects(:log_event).with('test_01', :exit, anything, has_entry(:TransactionName => 'domain/this_name'))
+      SolarWindsAPM::API.expects(:log_event).with('test_01', :entry, anything, Not(has_entry(:TransactionName => 'domain/this_name')))
+      SolarWindsAPM::Span.expects(:createSpan).with('this_name', nil, 0, 0).returns('domain/this_name')
+      SolarWindsAPM::API.expects(:log_event).with('test_01', :exit, anything, has_entry(:TransactionName => 'domain/this_name'))
 
-      result = AppOpticsAPM::SDK.start_trace('test_01', kvs: { :TransactionName => 'this_name' }) { 42 }
+      result = SolarWindsAPM::SDK.start_trace('test_01', kvs: { :TransactionName => 'this_name' }) { 42 }
       assert_equal 42, result
     end
 
     it 'should overwrite the transaction name from opts' do
       Time.expects(:now).returns(Time.at(0)).twice
-      AppOpticsAPM::API.expects(:log_event).with('test_01', :entry, anything, anything)
-      AppOpticsAPM::Span.expects(:createSpan).with('custom_name_this_one', nil, 0, 0).returns('domain/custom_name_this_one')
-      AppOpticsAPM::API.expects(:log_event).with('test_01', :exit, anything, has_entry(:TransactionName => 'domain/custom_name_this_one'))
+      SolarWindsAPM::API.expects(:log_event).with('test_01', :entry, anything, anything)
+      SolarWindsAPM::Span.expects(:createSpan).with('custom_name_this_one', nil, 0, 0).returns('domain/custom_name_this_one')
+      SolarWindsAPM::API.expects(:log_event).with('test_01', :exit, anything, has_entry(:TransactionName => 'domain/custom_name_this_one'))
       sleep 0.1
-      AppOpticsAPM::SDK.start_trace('test_01', kvs: { :TransactionName => 'custom_name' }) do
-        AppOpticsApm::SDK.set_transaction_name('custom_name_this_one')
+      SolarWindsAPM::SDK.start_trace('test_01', kvs: { :TransactionName => 'custom_name' }) do
+        SolarWindsAPM::SDK.set_transaction_name('custom_name_this_one')
       end
     end
 
     it 'should call createSpan and log_end in case of an exception' do
       Time.expects(:now).returns(Time.at(0)).twice
-      AppOpticsAPM::Span.expects(:createSpan).with('custom-test_01', nil, 0, 0).returns('domain/custom-test_01')
-      AppOpticsAPM::API.expects(:log_end).with('test_01', has_entry(:TransactionName => 'domain/custom-test_01'), instance_of(Oboe_metal::Event))
+      SolarWindsAPM::Span.expects(:createSpan).with('custom-test_01', nil, 0, 0).returns('domain/custom-test_01')
+      SolarWindsAPM::API.expects(:log_end).with('test_01', has_entry(:TransactionName => 'domain/custom-test_01'), instance_of(Oboe_metal::Event))
       begin
-        AppOpticsAPM::SDK.start_trace('test_01') do
+        SolarWindsAPM::SDK.start_trace('test_01') do
           raise StandardError
         end
       rescue StandardError
@@ -283,11 +283,11 @@ describe AppOpticsAPM::SDK do
     end
 
     it 'should report duration correctly when there is an exception' do
-      AppOpticsAPM::API.expects(:log_exception).once
-      AppOpticsAPM::Span.expects(:createSpan).with('custom-test_01', nil, 42000000, 0)
+      SolarWindsAPM::API.expects(:log_exception).once
+      SolarWindsAPM::Span.expects(:createSpan).with('custom-test_01', nil, 42000000, 0)
       Time.expects(:now).returns(Time.at(0))
       begin
-        AppOpticsAPM::SDK.start_trace('test_01') do
+        SolarWindsAPM::SDK.start_trace('test_01') do
           Time.expects(:now).returns(Time.at(42))
           raise StandardError
         end
@@ -300,71 +300,71 @@ describe AppOpticsAPM::SDK do
 
   describe 'start_trace nested invocation' do
     it 'should call send_metrics only once' do
-      AppOpticsAPM::API.expects(:send_metrics).once
+      SolarWindsAPM::API.expects(:send_metrics).once
       sleep 0.1
-      AppOpticsAPM::SDK.start_trace('test_01') do
-        AppOpticsAPM::SDK.start_trace('test_02') { sleep 0.1 }
+      SolarWindsAPM::SDK.start_trace('test_01') do
+        SolarWindsAPM::SDK.start_trace('test_02') { sleep 0.1 }
       end
     end
 
     it 'should use the outer layer name' do
-      AppOpticsAPM::API.expects(:log_end).with('test_01', has_entry(:TransactionName => 'custom-test_01'), instance_of(Oboe_metal::Event))
-      AppOpticsAPM::SDK.start_trace('test_01') do
-        AppOpticsAPM::SDK.start_trace('test_02') { 42 }
+      SolarWindsAPM::API.expects(:log_end).with('test_01', has_entry(:TransactionName => 'custom-test_01'), instance_of(Oboe_metal::Event))
+      SolarWindsAPM::SDK.start_trace('test_01') do
+        SolarWindsAPM::SDK.start_trace('test_02') { 42 }
       end
     end
 
     it 'should use the opts from the first call to start_trace for transaction name' do
       Time.expects(:now).returns(Time.at(0)).twice
-      AppOpticsAPM::Span.expects(:createSpan).with('custom_name', nil, 0, 0)
+      SolarWindsAPM::Span.expects(:createSpan).with('custom_name', nil, 0, 0)
 
-      AppOpticsAPM::SDK.start_trace('test_01', kvs: { :TransactionName => 'custom_name' }) do
-        AppOpticsAPM::SDK.start_trace('test_02', kvs: { :TransactionName => 'custom_name_02' }) { 42 }
+      SolarWindsAPM::SDK.start_trace('test_01', kvs: { :TransactionName => 'custom_name' }) do
+        SolarWindsAPM::SDK.start_trace('test_02', kvs: { :TransactionName => 'custom_name_02' }) { 42 }
       end
     end
 
     it 'should NOT use the opts from the second call to start_trace for transaction name' do
       Time.expects(:now).returns(Time.at(0)).twice
-      AppOpticsAPM::Span.expects(:createSpan).with('custom-test_01', nil, 0, 0)
+      SolarWindsAPM::Span.expects(:createSpan).with('custom-test_01', nil, 0, 0)
 
-      AppOpticsAPM::SDK.start_trace('test_01') do
-        AppOpticsAPM::SDK.start_trace('test_02', kvs: { :TransactionName => 'custom_name_02' }) { 42 }
+      SolarWindsAPM::SDK.start_trace('test_01') do
+        SolarWindsAPM::SDK.start_trace('test_02', kvs: { :TransactionName => 'custom_name_02' }) { 42 }
       end
     end
 
     it 'should use the last assigned transaction name' do
       Time.expects(:now).returns(Time.at(0)).times(4)
-      AppOpticsAPM::Span.expects(:createSpan).with('actually_this_one', nil, 0, 0)
-      AppOpticsAPM::Span.expects(:createSpan).with('actually_this_one_as_well', nil, 0, 0)
+      SolarWindsAPM::Span.expects(:createSpan).with('actually_this_one', nil, 0, 0)
+      SolarWindsAPM::Span.expects(:createSpan).with('actually_this_one_as_well', nil, 0, 0)
 
-      AppOpticsAPM::SDK.start_trace('test_01', kvs: { :TransactionName => 'custom_name' }) do
-        AppOpticsAPM::SDK.set_transaction_name('this_one')
-        AppOpticsAPM::SDK.start_trace('test_02', kvs: { :TransactionName => 'custom_name_02' }) do
-          AppOpticsAPM::SDK.set_transaction_name('actually_this_one')
+      SolarWindsAPM::SDK.start_trace('test_01', kvs: { :TransactionName => 'custom_name' }) do
+        SolarWindsAPM::SDK.set_transaction_name('this_one')
+        SolarWindsAPM::SDK.start_trace('test_02', kvs: { :TransactionName => 'custom_name_02' }) do
+          SolarWindsAPM::SDK.set_transaction_name('actually_this_one')
         end
       end
 
-      AppOpticsAPM::SDK.start_trace('test_01', kvs: { :TransactionName => 'custom_name' }) do
-        AppOpticsAPM::SDK.start_trace('test_02', kvs: { :TransactionName => 'custom_name_02' }) do
-          AppOpticsAPM::SDK.set_transaction_name('this_one')
+      SolarWindsAPM::SDK.start_trace('test_01', kvs: { :TransactionName => 'custom_name' }) do
+        SolarWindsAPM::SDK.start_trace('test_02', kvs: { :TransactionName => 'custom_name_02' }) do
+          SolarWindsAPM::SDK.set_transaction_name('this_one')
         end
-        AppOpticsAPM::SDK.set_transaction_name('actually_this_one_as_well')
+        SolarWindsAPM::SDK.set_transaction_name('actually_this_one_as_well')
       end
     end
 
     it 'should return the result from the inner block' do
-      result = AppOpticsAPM::SDK.start_trace('test_01') do
-        AppOpticsAPM::SDK.start_trace('test_02') { 42 }
+      result = SolarWindsAPM::SDK.start_trace('test_01') do
+        SolarWindsAPM::SDK.start_trace('test_02') { 42 }
       end
 
       assert_equal 42, result
     end
 
     it 'should use the outer layer name in case of an exception' do
-      AppOpticsAPM::API.expects(:log_end).with('test_01', has_entry(:TransactionName => 'custom-test_01'), instance_of(Oboe_metal::Event))
+      SolarWindsAPM::API.expects(:log_end).with('test_01', has_entry(:TransactionName => 'custom-test_01'), instance_of(Oboe_metal::Event))
       begin
-        AppOpticsAPM::SDK.start_trace('test_01') do
-          AppOpticsAPM::SDK.start_trace('test_02') do
+        SolarWindsAPM::SDK.start_trace('test_01') do
+          SolarWindsAPM::SDK.start_trace('test_02') do
             raise StandardError
           end
         end
@@ -379,40 +379,40 @@ describe AppOpticsAPM::SDK do
   describe 'start_trace_with_target' do
     it 'should assign an X-Trace header to target' do
       target = {}
-      AppOpticsAPM::SDK.start_trace_with_target('test_01', target: target) {}
+      SolarWindsAPM::SDK.start_trace_with_target('test_01', target: target) {}
 
-      assert AppOpticsAPM::TraceString.valid?(target['X-Trace'])
+      assert SolarWindsAPM::TraceString.valid?(target['X-Trace'])
     end
 
     it 'should call trace and not call log_start when there is a sampling context' do
       target = { 'test' => true }
-      AppOpticsAPM::Context.fromString(@trace_01)
+      SolarWindsAPM::Context.fromString(@trace_01)
 
-      AppOpticsAPM::API.expects(:log_start).never
-      AppOpticsAPM::Span.expects(:createSpan).never
-      AppOpticsAPM::API.expects(:log_end).never
-      AppOpticsAPM::SDK.expects(:trace).with('test_01', kvs: {})
+      SolarWindsAPM::API.expects(:log_start).never
+      SolarWindsAPM::Span.expects(:createSpan).never
+      SolarWindsAPM::API.expects(:log_end).never
+      SolarWindsAPM::SDK.expects(:trace).with('test_01', kvs: {})
 
-      AppOpticsAPM::SDK.start_trace_with_target('test_01', target: target) {}
+      SolarWindsAPM::SDK.start_trace_with_target('test_01', target: target) {}
     end
 
     it 'should call trace and not call log_start when there is a non-sampling context' do
       target = { :test => true }
-      AppOpticsAPM::Context.fromString(@trace_00)
+      SolarWindsAPM::Context.fromString(@trace_00)
 
-      AppOpticsAPM::API.expects(:log_start).never
-      AppOpticsAPM::Span.expects(:createSpan).never
-      AppOpticsAPM::API.expects(:log_end).never
-      AppOpticsAPM::SDK.expects(:trace).with('test_01', kvs: {})
+      SolarWindsAPM::API.expects(:log_start).never
+      SolarWindsAPM::Span.expects(:createSpan).never
+      SolarWindsAPM::API.expects(:log_end).never
+      SolarWindsAPM::SDK.expects(:trace).with('test_01', kvs: {})
 
-      AppOpticsAPM::SDK.start_trace_with_target('test_01', target: target) { 42 }
+      SolarWindsAPM::SDK.start_trace_with_target('test_01', target: target) { 42 }
     end
 
     it 'should return the result from the block when there is a non-sampling context ttt' do
       target = { :test => true }
-      AppOpticsAPM::Context.fromString(@trace_00)
+      SolarWindsAPM::Context.fromString(@trace_00)
 
-      result = AppOpticsAPM::SDK.start_trace_with_target('test_01', target: target) { 42 }
+      result = SolarWindsAPM::SDK.start_trace_with_target('test_01', target: target) { 42 }
       assert_equal 42, result
     end
   end
@@ -424,7 +424,7 @@ describe AppOpticsAPM::SDK do
 
     after do
       clear_all_traces
-      AppOpticsAPM::Context.clear
+      SolarWindsAPM::Context.clear
     end
 
     it 'traces an instance method' do
@@ -432,9 +432,9 @@ describe AppOpticsAPM::SDK do
         a + b
       end
 
-      AppOpticsAPM::SDK.trace_method(self.class, :to_be_traced)
+      SolarWindsAPM::SDK.trace_method(self.class, :to_be_traced)
 
-      AppOpticsAPM::SDK.start_trace('trace_test_01') do
+      SolarWindsAPM::SDK.start_trace('trace_test_01') do
         result = to_be_traced(3, 5)
         _(result).must_equal 8
       end
@@ -444,7 +444,7 @@ describe AppOpticsAPM::SDK do
 
       _(traces[1]['Label']).must_equal 'entry'
       _(traces[1]['Layer']).must_equal 'to_be_traced'
-      _(traces[1]['Class']).must_equal 'AppOpticsAPM::SDK::TraceMethod'
+      _(traces[1]['Class']).must_equal 'SolarWindsAPM::SDK::TraceMethod'
       _(traces[1]['MethodName']).must_equal 'to_be_traced'
 
     end
@@ -455,9 +455,9 @@ describe AppOpticsAPM::SDK do
         a + b + c
       end
 
-      AppOpticsAPM::SDK.trace_method(self.class, :to_be_traced_with_block)
+      SolarWindsAPM::SDK.trace_method(self.class, :to_be_traced_with_block)
 
-      AppOpticsAPM::SDK.start_trace('trace_test_01') do
+      SolarWindsAPM::SDK.start_trace('trace_test_01') do
         result = to_be_traced_with_block(3, 5) { 8 }
         _(result).must_equal 16
       end
@@ -474,9 +474,9 @@ describe AppOpticsAPM::SDK do
         1 + 1
       end
 
-      AppOpticsAPM::SDK.trace_method(self.class, :to_be_traced_2, config: { name: 'i_am_traced', backtrace: true })
+      SolarWindsAPM::SDK.trace_method(self.class, :to_be_traced_2, config: { name: 'i_am_traced', backtrace: true })
 
-      AppOpticsAPM::SDK.start_trace('trace_test_01') do
+      SolarWindsAPM::SDK.start_trace('trace_test_01') do
         to_be_traced_2
       end
 
@@ -485,20 +485,20 @@ describe AppOpticsAPM::SDK do
 
       _(traces[1]['Label']).must_equal 'entry'
       _(traces[1]['Layer']).must_equal 'i_am_traced'
-      _(traces[1]['Class']).must_equal 'AppOpticsAPM::SDK::TraceMethod'
+      _(traces[1]['Class']).must_equal 'SolarWindsAPM::SDK::TraceMethod'
       _(traces[1]['MethodName']).must_equal 'to_be_traced_2'
       _(traces[2]['Backtrace']).wont_be_nil
     end
 
     it 'warns if we try to instrument an instance method twice' do
-      AppOpticsAPM.logger.expects(:warn).with(regexp_matches(/already instrumented/))
+      SolarWindsAPM.logger.expects(:warn).with(regexp_matches(/already instrumented/))
 
       def to_be_traced_3
         1 + 1
       end
 
-      AppOpticsAPM::SDK.trace_method(self.class, :to_be_traced_3)
-      AppOpticsAPM::SDK.trace_method(self.class, :to_be_traced_3)
+      SolarWindsAPM::SDK.trace_method(self.class, :to_be_traced_3)
+      SolarWindsAPM::SDK.trace_method(self.class, :to_be_traced_3)
     end
 
     it 'traces a class method' do
@@ -508,9 +508,9 @@ describe AppOpticsAPM::SDK do
         end
       end
 
-      AppOpticsAPM::SDK.trace_method(::TopTest, :to_be_traced_4)
+      SolarWindsAPM::SDK.trace_method(::TopTest, :to_be_traced_4)
 
-      AppOpticsAPM::SDK.start_trace('trace_test_01') do
+      SolarWindsAPM::SDK.start_trace('trace_test_01') do
         result = ::TopTest.to_be_traced_4(5, 7)
         _(result).must_equal 12
       end
@@ -532,9 +532,9 @@ describe AppOpticsAPM::SDK do
         end
       end
 
-      AppOpticsAPM::SDK.trace_method(::TopTest, :to_be_traced_with_block_2)
+      SolarWindsAPM::SDK.trace_method(::TopTest, :to_be_traced_with_block_2)
 
-      AppOpticsAPM::SDK.start_trace('trace_test_01') do
+      SolarWindsAPM::SDK.start_trace('trace_test_01') do
         result = ::TopTest.to_be_traced_with_block_2(5, 7) { 12 }
         _(result).must_equal 24
       end
@@ -553,9 +553,9 @@ describe AppOpticsAPM::SDK do
         end
       end
 
-      AppOpticsAPM::SDK.trace_method(::TopTest, :to_be_traced_5, config: { name: 'i_am_traced', backtrace: true })
+      SolarWindsAPM::SDK.trace_method(::TopTest, :to_be_traced_5, config: { name: 'i_am_traced', backtrace: true })
 
-      AppOpticsAPM::SDK.start_trace('trace_test_01') do
+      SolarWindsAPM::SDK.start_trace('trace_test_01') do
         ::TopTest.to_be_traced_5
       end
 
@@ -570,7 +570,7 @@ describe AppOpticsAPM::SDK do
     end
 
     it 'warns if we try to instrument a class method twice' do
-      AppOpticsAPM.logger.expects(:warn).with(regexp_matches(/already instrumented/))
+      SolarWindsAPM.logger.expects(:warn).with(regexp_matches(/already instrumented/))
 
       module ::TopTest
         def self.to_be_traced_6
@@ -578,8 +578,8 @@ describe AppOpticsAPM::SDK do
         end
       end
 
-      AppOpticsAPM::SDK.trace_method(::TopTest, :to_be_traced_6)
-      AppOpticsAPM::SDK.trace_method(::TopTest, :to_be_traced_6)
+      SolarWindsAPM::SDK.trace_method(::TopTest, :to_be_traced_6)
+      SolarWindsAPM::SDK.trace_method(::TopTest, :to_be_traced_6)
     end
 
   end
@@ -591,12 +591,12 @@ describe AppOpticsAPM::SDK do
 
     after do
       clear_all_traces
-      AppOpticsAPM::Context.clear
+      SolarWindsAPM::Context.clear
     end
 
     it 'SDK should log exceptions' do
-      AppOpticsAPM::SDK.start_trace('test_01') do
-        AppOpticsAPM::SDK.log_exception(StandardError.new, { the: 'exception' })
+      SolarWindsAPM::SDK.start_trace('test_01') do
+        SolarWindsAPM::SDK.log_exception(StandardError.new, { the: 'exception' })
       end
 
       traces = get_all_traces
@@ -607,8 +607,8 @@ describe AppOpticsAPM::SDK do
     end
 
     it 'SDK should log info' do
-      AppOpticsAPM::SDK.start_trace('test_01') do
-        AppOpticsAPM::SDK.log_info({ the: 'information' })
+      SolarWindsAPM::SDK.start_trace('test_01') do
+        SolarWindsAPM::SDK.log_info({ the: 'information' })
       end
 
       traces = get_all_traces
@@ -622,82 +622,82 @@ describe AppOpticsAPM::SDK do
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
   describe 'set_transaction_name' do
     it 'should not set the transaction name if the arg is not a string or an empty string' do
-      AppOpticsAPM.transaction_name = nil
+      SolarWindsAPM.transaction_name = nil
 
-      AppOpticsAPM::SDK.set_transaction_name(123)
-      assert_nil AppOpticsAPM.transaction_name
+      SolarWindsAPM::SDK.set_transaction_name(123)
+      assert_nil SolarWindsAPM.transaction_name
 
-      AppOpticsAPM::SDK.set_transaction_name('')
-      assert_nil AppOpticsAPM.transaction_name
+      SolarWindsAPM::SDK.set_transaction_name('')
+      assert_nil SolarWindsAPM.transaction_name
 
-      AppOpticsAPM::SDK.set_transaction_name(String.new)
-      assert_nil AppOpticsAPM.transaction_name
+      SolarWindsAPM::SDK.set_transaction_name(String.new)
+      assert_nil SolarWindsAPM.transaction_name
 
-      AppOpticsAPM::SDK.set_transaction_name(false)
-      assert_nil AppOpticsAPM.transaction_name
+      SolarWindsAPM::SDK.set_transaction_name(false)
+      assert_nil SolarWindsAPM.transaction_name
     end
 
     it 'should return the previous name, if a non-valid one is given' do
-      AppOpticsAPM::SDK.set_transaction_name("this is the one")
+      SolarWindsAPM::SDK.set_transaction_name("this is the one")
 
-      AppOpticsAPM::SDK.set_transaction_name(123)
-      assert_equal "this is the one", AppOpticsAPM.transaction_name
+      SolarWindsAPM::SDK.set_transaction_name(123)
+      assert_equal "this is the one", SolarWindsAPM.transaction_name
 
-      AppOpticsAPM::SDK.set_transaction_name('')
-      assert_equal "this is the one", AppOpticsAPM.transaction_name
+      SolarWindsAPM::SDK.set_transaction_name('')
+      assert_equal "this is the one", SolarWindsAPM.transaction_name
 
-      AppOpticsAPM::SDK.set_transaction_name(String.new)
-      assert_equal "this is the one", AppOpticsAPM.transaction_name
+      SolarWindsAPM::SDK.set_transaction_name(String.new)
+      assert_equal "this is the one", SolarWindsAPM.transaction_name
 
-      AppOpticsAPM::SDK.set_transaction_name(false)
-      assert_equal "this is the one", AppOpticsAPM.transaction_name
+      SolarWindsAPM::SDK.set_transaction_name(false)
+      assert_equal "this is the one", SolarWindsAPM.transaction_name
 
-      AppOpticsAPM.transaction_name = nil
+      SolarWindsAPM.transaction_name = nil
     end
   end
 
   describe 'tracing?' do
     it 'should return false if we are not tracing' do
-      AppOpticsAPM::Context.fromString(@trace_00)
-      refute AppOpticsAPM::SDK.tracing?
+      SolarWindsAPM::Context.fromString(@trace_00)
+      refute SolarWindsAPM::SDK.tracing?
     end
 
     it 'should return true if we are tracing' do
-      AppOpticsAPM::Context.fromString(@trace_01)
-      assert AppOpticsAPM::SDK.tracing?
+      SolarWindsAPM::Context.fromString(@trace_01)
+      assert SolarWindsAPM::SDK.tracing?
     end
 
     it 'should return false if the context is invalid' do
-      AppOpticsAPM::Context.fromString('2BB05F01')
+      SolarWindsAPM::Context.fromString('2BB05F01')
       sleep 0.1
-      refute AppOpticsAPM::SDK.tracing?
+      refute SolarWindsAPM::SDK.tracing?
     end
   end
 
   describe 'appoptics_ready?' do
     it 'should return true if it can connect' do
-      AppOpticsAPM::Context.expects(:isReady).with(10_000).returns(1)
-      assert AppOpticsAPM::SDK.appoptics_ready?(10_000)
+      SolarWindsAPM::Context.expects(:isReady).with(10_000).returns(1)
+      assert SolarWindsAPM::SDK.appoptics_ready?(10_000)
     end
 
     it 'should work with no arg' do
-      AppOpticsAPM::Context.expects(:isReady).returns(1)
-      assert AppOpticsAPM::SDK.appoptics_ready?
+      SolarWindsAPM::Context.expects(:isReady).returns(1)
+      assert SolarWindsAPM::SDK.appoptics_ready?
     end
 
     it 'should return false if it cannot connect' do
-      AppOpticsAPM::Context.expects(:isReady).returns(2)
-      refute AppOpticsAPM::SDK.appoptics_ready?
+      SolarWindsAPM::Context.expects(:isReady).returns(2)
+      refute SolarWindsAPM::SDK.appoptics_ready?
     end
   end
 
   describe 'createSpan' do
     # Let's test the return value of createSpan a bit too
     it 'should return a transaction name' do
-      assert_equal 'my_name', AppOpticsAPM::Span.createSpan('my_name', nil, 0, 0)
-      assert_equal 'unknown', AppOpticsAPM::Span.createSpan(nil, nil, 0, 0)
-      assert_equal 'unknown', AppOpticsAPM::Span.createSpan('', nil, 0, 0)
-      assert_equal 'domain/my_name', AppOpticsAPM::Span.createSpan('my_name', 'domain', 0, 0)
+      assert_equal 'my_name', SolarWindsAPM::Span.createSpan('my_name', nil, 0, 0)
+      assert_equal 'unknown', SolarWindsAPM::Span.createSpan(nil, nil, 0, 0)
+      assert_equal 'unknown', SolarWindsAPM::Span.createSpan('', nil, 0, 0)
+      assert_equal 'domain/my_name', SolarWindsAPM::Span.createSpan('my_name', 'domain', 0, 0)
     end
   end
 end

@@ -1,7 +1,7 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
-module AppOpticsAPM
+module SolarWindsAPM
   class SidekiqWorker
     def collect_kvs(args)
       begin
@@ -17,8 +17,8 @@ module AppOpticsAPM
         report_kvs[:Retry]      = msg['retry']
         report_kvs[:JobName]    = msg['wrapped'] || msg['class']
         report_kvs[:MsgID]      = msg['jid']
-        report_kvs[:Args]       = msg['args'].to_s[0..1024] if AppOpticsAPM::Config[:sidekiqworker][:log_args]
-        report_kvs[:Backtrace]  = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:sidekiqworker][:collect_backtraces]
+        report_kvs[:Args]       = msg['args'].to_s[0..1024] if SolarWindsAPM::Config[:sidekiqworker][:log_args]
+        report_kvs[:Backtrace]  = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:sidekiqworker][:collect_backtraces]
 
         # Webserver Spec KVs
         report_kvs[:'HTTP-Host'] = Socket.gethostname
@@ -26,7 +26,7 @@ module AppOpticsAPM
         report_kvs[:Action] = msg['wrapped'] || msg['class']
         report_kvs[:URL] = "/sidekiq/#{queue}/#{msg['wrapped'] || msg['class']}"
       rescue => e
-        AppOpticsAPM.logger.warn "[appoptics_apm/sidekiq] Non-fatal error capturing KVs: #{e.message}"
+        SolarWindsAPM.logger.warn "[appoptics_apm/sidekiq] Non-fatal error capturing KVs: #{e.message}"
       end
       report_kvs
     end
@@ -40,27 +40,27 @@ module AppOpticsAPM
       # are being lost.  So we re-set the tracing mode to assure
       # we sample as desired.  Setting the tracing mode will re-update
       # the liboboe settings.
-      # AppOpticsAPM.set_tracing_mode(AppOpticsAPM::Config[:tracing_mode].to_sym)
+      # SolarWindsAPM.set_tracing_mode(SolarWindsAPM::Config[:tracing_mode].to_sym)
 
       # Continue the trace from the enqueue side?
-      if args[1].is_a?(Hash) && AppOpticsAPM::TraceString.valid?(args[1]['SourceTrace'])
+      if args[1].is_a?(Hash) && SolarWindsAPM::TraceString.valid?(args[1]['SourceTrace'])
         report_kvs[:SourceTrace] = args[1]['SourceTrace']
       end
 
-      AppOpticsAPM::SDK.start_trace(:'sidekiq-worker', kvs: report_kvs) do
+      SolarWindsAPM::SDK.start_trace(:'sidekiq-worker', kvs: report_kvs) do
         yield
       end
     end
   end
 end
 
-if defined?(Sidekiq) && AppOpticsAPM::Config[:sidekiqworker][:enabled]
-  AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting sidekiq worker' if AppOpticsAPM::Config[:verbose]
+if defined?(Sidekiq) && SolarWindsAPM::Config[:sidekiqworker][:enabled]
+  SolarWindsAPM.logger.info '[appoptics_apm/loading] Instrumenting sidekiq worker' if SolarWindsAPM::Config[:verbose]
 
   Sidekiq.configure_server do |config|
     config.server_middleware do |chain|
-      AppOpticsAPM.logger.info '[appoptics_apm/loading] Adding Sidekiq worker middleware' if AppOpticsAPM::Config[:verbose]
-      chain.add AppOpticsAPM::SidekiqWorker
+      SolarWindsAPM.logger.info '[appoptics_apm/loading] Adding Sidekiq worker middleware' if SolarWindsAPM::Config[:verbose]
+      chain.add SolarWindsAPM::SidekiqWorker
     end
   end
 end

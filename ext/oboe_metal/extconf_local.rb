@@ -23,7 +23,7 @@ ext_dir = File.expand_path(File.dirname(__FILE__))
 # Check if we're running in JRuby
 jruby = defined?(JRUBY_VERSION) ? true : false
 # Set the mkmf lib paths so we have no issues linking to
-# the AppOpticsAPM libs.
+# the SolarWindsAPM libs.
 ao_lib_dir = File.join(ext_dir, 'lib')
 ao_path = '../../../oboe/factory-output'
 ao_clib = "liboboe-1.0-x86_64.so.0.0.0"
@@ -32,7 +32,7 @@ clib = File.join(ao_lib_dir, ao_clib)
 
 FileUtils.cp(ao_item, clib)
 
-# Create relative symlinks for the AppOpticsAPM library
+# Create relative symlinks for the SolarWindsAPM library
 Dir.chdir(ao_lib_dir) do
   File.symlink(ao_clib, 'liboboe.so')
   File.symlink(ao_clib, 'liboboe-1.0.so.0')

@@ -1,7 +1,7 @@
 # Copyright (c) 2018 SolarWinds, LLC.
 # All rights reserved.
 
-module AppOpticsAPM
+module SolarWindsAPM
   ##
   # This module sends the duration of the call and
   # sets the transaction_name
@@ -22,14 +22,14 @@ module AppOpticsAPM
           begin
             status, headers, response = yield
 
-            AppOpticsAPM.transaction_name = send_metrics(env, req, url, start, status)
+            SolarWindsAPM.transaction_name = send_metrics(env, req, url, start, status)
           rescue
-            AppOpticsAPM.transaction_name = send_metrics(env, req, url, start, status || '500')
+            SolarWindsAPM.transaction_name = send_metrics(env, req, url, start, status || '500')
             raise
           end
         else
           status, headers, response = yield
-          AppOpticsAPM.transaction_name = "#{domain(req)}#{transaction_name(env)}" if settings.do_sample
+          SolarWindsAPM.transaction_name = "#{domain(req)}#{transaction_name(env)}" if settings.do_sample
         end
 
         [status, headers, response]
@@ -44,18 +44,18 @@ module AppOpticsAPM
         error = status.between?(500,599) ? 1 : 0
         duration =(1000 * 1000 * (Time.now - start)).round(0)
         method = req.request_method
-        # AppOpticsAPM.logger.warn "%%% Sending metrics: #{name}, #{url}, #{status} %%%"
-        AppOpticsAPM::Span.createHttpSpan(name, url, domain(req), duration, status, method, error) || ''
+        # SolarWindsAPM.logger.warn "%%% Sending metrics: #{name}, #{url}, #{status} %%%"
+        SolarWindsAPM::Span.createHttpSpan(name, url, domain(req), duration, status, method, error) || ''
       end
 
       def domain(req)
-        if AppOpticsAPM::Config['transaction_name']['prepend_domain']
+        if SolarWindsAPM::Config['transaction_name']['prepend_domain']
           [80, 443].include?(req.port) ? req.host : "#{req.host}:#{req.port}"
         end
       end
 
       def transaction_name(env)
-        return AppOpticsAPM.transaction_name  if AppOpticsAPM.transaction_name
+        return SolarWindsAPM.transaction_name  if SolarWindsAPM.transaction_name
 
         if env['appoptics_apm.controller'] && env['appoptics_apm.action']
           [env['appoptics_apm.controller'], env['appoptics_apm.action']].join('.')

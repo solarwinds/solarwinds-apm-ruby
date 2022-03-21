@@ -14,7 +14,7 @@ describe "RackTestApp" do
     @app = Rack::Builder.new {
       use Rack::CommonLogger
       use Rack::ShowExceptions
-      use AppOpticsAPM::Rack
+      use SolarWindsAPM::Rack
       map "/lobster" do
         use Rack::Lint
         run Rack::Lobster.new
@@ -23,7 +23,7 @@ describe "RackTestApp" do
       map "/the_exception" do
         run Proc.new {
           raise StandardError
-          [500, { "Content-Type" => "text/html" }, ['Hello AppOpticsAPM!']]
+          [500, { "Content-Type" => "text/html" }, ['Hello SolarWindsAPM!']]
         }
 
       end
@@ -31,19 +31,19 @@ describe "RackTestApp" do
   end
 
   before do
-    @bt = AppOpticsAPM::Config[:rack][:collect_backtraces]
-    @log_args = AppOpticsAPM::Config[:rack][:log_args]
-    @sr = AppOpticsAPM::Config[:sample_rate]
+    @bt = SolarWindsAPM::Config[:rack][:collect_backtraces]
+    @log_args = SolarWindsAPM::Config[:rack][:log_args]
+    @sr = SolarWindsAPM::Config[:sample_rate]
     clear_all_traces
-    AppOpticsAPM::Config[:sample_rate] = 1_000_000
-    AppOpticsAPM::Config[:tracing_mode] = :enabled
+    SolarWindsAPM::Config[:sample_rate] = 1_000_000
+    SolarWindsAPM::Config[:tracing_mode] = :enabled
   end
 
   after do
-    AppOpticsAPM::Config[:rack][:collect_backtraces] = @bt
-    AppOpticsAPM::Config[:rack][:log_args] = @log_args
-    AppOpticsAPM::Config[:tracing_mode] = :enabled
-    AppOpticsAPM::Config[:sample_rate] = @sr
+    SolarWindsAPM::Config[:rack][:collect_backtraces] = @bt
+    SolarWindsAPM::Config[:rack][:log_args] = @log_args
+    SolarWindsAPM::Config[:tracing_mode] = :enabled
+    SolarWindsAPM::Config[:sample_rate] = @sr
   end
 
   def test_get_the_lobster
@@ -86,11 +86,11 @@ describe "RackTestApp" do
     get "/lobster"
     tracestring = last_response['X-Trace']
     assert tracestring
-    assert AppOpticsAPM::TraceString.valid?(tracestring)
+    assert SolarWindsAPM::TraceString.valid?(tracestring)
   end
 
   def test_log_args_when_false
-    AppOpticsAPM::Config[:rack][:log_args] = false
+    SolarWindsAPM::Config[:rack][:log_args] = false
 
     get "/lobster?blah=1"
 
@@ -99,13 +99,13 @@ describe "RackTestApp" do
 
     tracestring = last_response['X-Trace']
     assert tracestring
-    assert AppOpticsAPM::TraceString.valid?(tracestring)
+    assert SolarWindsAPM::TraceString.valid?(tracestring)
 
     _(traces[0]['URL']).must_equal "/lobster"
   end
 
   def test_log_args_when_true
-    AppOpticsAPM::Config[:rack][:log_args] = true
+    SolarWindsAPM::Config[:rack][:log_args] = true
 
     get "/lobster?blah=1"
 
@@ -114,13 +114,13 @@ describe "RackTestApp" do
 
     tracestring = last_response['X-Trace']
     assert tracestring
-    assert AppOpticsAPM::TraceString.valid?(tracestring)
+    assert SolarWindsAPM::TraceString.valid?(tracestring)
 
     _(traces[0]['URL']).must_equal "/lobster?blah=1"
   end
 
   def test_has_header_when_not_tracing
-    AppOpticsAPM::Config[:sample_rate] = 0
+    SolarWindsAPM::Config[:sample_rate] = 0
 
     get "/lobster?blah=1"
 
@@ -134,7 +134,7 @@ describe "RackTestApp" do
   def test_sends_path_in_http_span_when_no_controller
     test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
 
-    AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
+    SolarWindsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
       test_action = action
       test_url = url
       test_status = status
@@ -152,7 +152,7 @@ describe "RackTestApp" do
   end
 
   def test_does_not_send_http_span_for_static_assets
-    AppOpticsAPM::Span.expects(:createHttpSpan).never
+    SolarWindsAPM::Span.expects(:createHttpSpan).never
 
     get "/assets/static_asset.png"
   end
@@ -181,7 +181,7 @@ describe "RackTestApp" do
   end
 
   def test_without_backtrace
-    AppOpticsAPM::Config[:rack][:collect_backtraces] = false
+    SolarWindsAPM::Config[:rack][:collect_backtraces] = false
     get '/lobster'
 
     traces = get_all_traces
@@ -195,15 +195,15 @@ describe "RackTestApp" do
   ##########################################
 
   def test_sends_metrics_if_do_metrics
-    AppOpticsAPM::TransactionSettings.any_instance.expects(:do_metrics).returns(true).at_least_once
-    AppOpticsAPM::Span.expects(:createHttpSpan).once
+    SolarWindsAPM::TransactionSettings.any_instance.expects(:do_metrics).returns(true).at_least_once
+    SolarWindsAPM::Span.expects(:createHttpSpan).once
 
     get '/lobster'
   end
 
   def test_samples_if_do_sample
-    AppOpticsAPM::TransactionSettings.any_instance.expects(:do_sample).returns(true).at_least_once
-    AppOpticsAPM::API.expects(:log_event).twice
+    SolarWindsAPM::TransactionSettings.any_instance.expects(:do_sample).returns(true).at_least_once
+    SolarWindsAPM::API.expects(:log_event).twice
 
     get '/lobster'
   end

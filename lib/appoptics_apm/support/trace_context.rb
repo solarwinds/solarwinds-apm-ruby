@@ -1,7 +1,7 @@
 # Copyright (c) SolarWinds, LLC.
 # All rights reserved.
 
-module AppOpticsAPM
+module SolarWindsAPM
 
   class TraceContext
 
@@ -12,14 +12,14 @@ module AppOpticsAPM
 
       # we won't propagate this context if the traceparent is invalid
       traceparent, tracestate = ingest(headers)
-      return unless traceparent.is_a?(String) && AppOpticsAPM::TraceString.valid?(traceparent)
+      return unless traceparent.is_a?(String) && SolarWindsAPM::TraceString.valid?(traceparent)
 
       @traceparent = traceparent
       @tracestate = tracestate
 
       if @tracestate
         @sw_member_value = TraceState.sw_member_value(@tracestate)
-        @tracestring = AppOpticsAPM::TraceString.replace_span_id_flags(@traceparent, @sw_member_value)
+        @tracestring = SolarWindsAPM::TraceString.replace_span_id_flags(@traceparent, @sw_member_value)
       end
 
       @tracestring ||= @traceparent

@@ -1,6 +1,6 @@
 require 'solarwinds_apm'
 
-AppOpticsAPM::Config[:sample_rate] = 1000000 if defined? AppOpticsAPM
+SolarWindsAPM::Config[:sample_rate] = 1000000 if defined? SolarWindsAPM
 
 class Rainbow
   def self.paint
@@ -33,13 +33,13 @@ class Rainbow
   end
 end
 
-AppOpticsAPM::Config.profiling = :enabled if defined? AppOpticsAPM
-AppOpticsAPM::Config[:profiling_interval] = 5 if defined? AppOpticsAPM
+SolarWindsAPM::Config.profiling = :enabled if defined? SolarWindsAPM
+SolarWindsAPM::Config[:profiling_interval] = 5 if defined? SolarWindsAPM
 
-unless AppOpticsAPM::SDK.appoptics_ready?(10_000)
+unless SolarWindsAPM::SDK.appoptics_ready?(10_000)
   puts "aborting!!! Agent not ready after 10 seconds"
   exit false
-end if defined? AppOpticsAPM
+end if defined? SolarWindsAPM
 
 ENV['WITH_PROFILING']='true'
 
@@ -48,16 +48,16 @@ puts "initial: #{`ps -o rss -p #{$$}`.lines.last}"
 start = Time.now
 
 oboe_source = ENV['OBOE_LOCAL'] ? "oboe_from_branch" : "oboe_from_s3"
-AppOpticsAPM::SDK.start_trace("parent_#{oboe_source}") do
+SolarWindsAPM::SDK.start_trace("parent_#{oboe_source}") do
   pids = []
   5.times do
     pids << fork do
-      AppOpticsAPM::SDK.start_trace("child_process") do
+      SolarWindsAPM::SDK.start_trace("child_process") do
         th = []
         3.times do
           th << Thread.new do
             if ENV['WITH_PROFILING'] == 'true'
-              AppOpticsAPM::Profiling.run do
+              SolarWindsAPM::Profiling.run do
                 400.times do
                   Rainbow.paint
                 end
@@ -73,10 +73,10 @@ AppOpticsAPM::SDK.start_trace("parent_#{oboe_source}") do
       end
     end
   end
-  AppOpticsAPM::SDK.trace("parent_waitall") do
+  SolarWindsAPM::SDK.trace("parent_waitall") do
     Rainbow.paint
     puts Process.waitall
-    puts "trace_id: #{AppOpticsAPM::SDK.current_trace_info.trace_id}"
+    puts "trace_id: #{SolarWindsAPM::SDK.current_trace_info.trace_id}"
   end
 end
 

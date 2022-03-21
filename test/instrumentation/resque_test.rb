@@ -14,13 +14,13 @@ unless defined?(JRUBY_VERSION)
   describe 'ResqueClient' do
     before do
       clear_all_traces
-      @collect_backtraces = AppOpticsAPM::Config[:resqueclient][:collect_backtraces]
-      @log_args = AppOpticsAPM::Config[:resqueclient][:log_args]
+      @collect_backtraces = SolarWindsAPM::Config[:resqueclient][:collect_backtraces]
+      @log_args = SolarWindsAPM::Config[:resqueclient][:log_args]
     end
 
     after do
-      AppOpticsAPM::Config[:resqueclient][:collect_backtraces] = @collect_backtraces
-      AppOpticsAPM::Config[:resqueclient][:log_args] = @log_args
+      SolarWindsAPM::Config[:resqueclient][:collect_backtraces] = @collect_backtraces
+      SolarWindsAPM::Config[:resqueclient][:log_args] = @log_args
     end
 
     it 'appoptics_methods_defined' do
@@ -38,7 +38,7 @@ unless defined?(JRUBY_VERSION)
     end
 
     it 'enqueue' do
-      AppOpticsAPM::SDK.start_trace('resque-client_test') do
+      SolarWindsAPM::SDK.start_trace('resque-client_test') do
         Resque.enqueue(ResqueRemoteCallWorkerJob)
       end
 
@@ -58,7 +58,7 @@ unless defined?(JRUBY_VERSION)
     end
 
     it 'dequeue' do
-      AppOpticsAPM::SDK.start_trace('resque-client_test') do
+      SolarWindsAPM::SDK.start_trace('resque-client_test') do
         Resque.dequeue(ResqueRemoteCallWorkerJob, { :generate => :moped })
       end
 
@@ -78,18 +78,18 @@ unless defined?(JRUBY_VERSION)
     end
 
     it 'collect_backtraces_default_value' do
-      assert_equal AppOpticsAPM::Config[:resqueclient][:collect_backtraces], true, "default backtrace collection"
+      assert_equal SolarWindsAPM::Config[:resqueclient][:collect_backtraces], true, "default backtrace collection"
     end
 
     it 'log_args_default_value' do
-      assert_equal AppOpticsAPM::Config[:resqueclient][:log_args], true, "log_args default "
+      assert_equal SolarWindsAPM::Config[:resqueclient][:log_args], true, "log_args default "
     end
 
     it 'obey_collect_backtraces_when_false' do
-      AppOpticsAPM::Config[:resqueclient][:collect_backtraces] = false
+      SolarWindsAPM::Config[:resqueclient][:collect_backtraces] = false
 
       # Queue up a job to be run
-      AppOpticsAPM::SDK.start_trace('resque-client_test') do
+      SolarWindsAPM::SDK.start_trace('resque-client_test') do
         Resque.enqueue(ResqueRemoteCallWorkerJob, [1, 2, 3])
       end
 
@@ -111,10 +111,10 @@ unless defined?(JRUBY_VERSION)
     end
 
     it 'obey_collect_backtraces_when_true' do
-      AppOpticsAPM::Config[:resqueclient][:collect_backtraces] = true
+      SolarWindsAPM::Config[:resqueclient][:collect_backtraces] = true
 
       # Queue up a job to be run
-      AppOpticsAPM::SDK.start_trace('resque-client_test') do
+      SolarWindsAPM::SDK.start_trace('resque-client_test') do
         Resque.enqueue(ResqueRemoteCallWorkerJob, [1, 2, 3])
       end
 
@@ -136,10 +136,10 @@ unless defined?(JRUBY_VERSION)
     end
 
     it 'obey_log_args_when_false' do
-      AppOpticsAPM::Config[:resqueclient][:log_args] = false
+      SolarWindsAPM::Config[:resqueclient][:log_args] = false
 
       # Queue up a job to be run
-      AppOpticsAPM::SDK.start_trace('resque-client_test') do
+      SolarWindsAPM::SDK.start_trace('resque-client_test') do
         Resque.enqueue(ResqueRemoteCallWorkerJob, [1, 2, 3])
       end
 
@@ -161,10 +161,10 @@ unless defined?(JRUBY_VERSION)
     end
 
     it 'obey_log_args_when_true' do
-      AppOpticsAPM::Config[:resqueclient][:log_args] = true
+      SolarWindsAPM::Config[:resqueclient][:log_args] = true
 
       # Queue up a job to be run
-      AppOpticsAPM::SDK.start_trace('resque-client_test') do
+      SolarWindsAPM::SDK.start_trace('resque-client_test') do
         Resque.enqueue(ResqueRemoteCallWorkerJob, 1, 2, 3)
       end
 

@@ -1,13 +1,13 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
-module AppOpticsAPM
+module SolarWindsAPM
   module Inst
     module Memcached
-      include AppOpticsAPM::API::Memcache
+      include SolarWindsAPM::API::Memcache
 
       def self.included(cls)
-        AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting memcached' if AppOpticsAPM::Config[:verbose]
+        SolarWindsAPM.logger.info '[appoptics_apm/loading] Instrumenting memcached' if SolarWindsAPM::Config[:verbose]
 
         cls.class_eval do
           MEMCACHE_OPS.reject { |m| !method_defined?(m) }.each do |m|
@@ -20,11 +20,11 @@ module AppOpticsAPM
                 kvs[:RemoteHost] = rhost if rhost
               end
 
-              AppOpticsAPM::SDK.trace(:memcache, kvs: kvs) do
+              SolarWindsAPM::SDK.trace(:memcache, kvs: kvs) do
                 result = send("#{m}_without_appoptics", *args)
 
                 kvs[:KVHit] = memcache_hit?(result) if m == :get && args.length && args[0].class == String
-                kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:memcached][:collect_backtraces]
+                kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:memcached][:collect_backtraces]
 
                 result
               end
@@ -44,24 +44,24 @@ module AppOpticsAPM
           if ::Memcached::Rails.method_defined? :get_multi
             alias get_multi_without_appoptics get_multi
             alias get_multi get_multi_with_appoptics
-          elsif AppOpticsAPM::Config[:verbose]
-            AppOpticsAPM.logger.warn '[appoptics_apm/loading] Couldn\'t properly instrument Memcached.  Partial traces may occur.'
+          elsif SolarWindsAPM::Config[:verbose]
+            SolarWindsAPM.logger.warn '[appoptics_apm/loading] Couldn\'t properly instrument Memcached.  Partial traces may occur.'
           end
         end
       end
 
       def get_multi_with_appoptics(keys, raw = false)
-        if AppOpticsAPM.tracing?
+        if SolarWindsAPM.tracing?
           layer_kvs = {}
           layer_kvs[:KVOp] = :get_multi
 
-          AppOpticsAPM::SDK.trace(:memcache, kvs: layer_kvs, protect_op: :get_multi) do
+          SolarWindsAPM::SDK.trace(:memcache, kvs: layer_kvs, protect_op: :get_multi) do
             layer_kvs[:KVKeyCount] = keys.flatten.length
 
             values = get_multi_without_appoptics(keys, raw)
 
             layer_kvs[:KVHitCount] = values.length
-            layer_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:memcached][:collect_backtraces]
+            layer_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:memcached][:collect_backtraces]
 
             values
           end
@@ -71,16 +71,16 @@ module AppOpticsAPM
       end
     end # module MemcachedRails
   end # module Inst
-end # module AppOpticsAPM
+end # module SolarWindsAPM
 
-if defined?(Memcached) && AppOpticsAPM::Config[:memcached][:enabled]
+if defined?(Memcached) && SolarWindsAPM::Config[:memcached][:enabled]
   Memcached.class_eval do
-    include AppOpticsAPM::Inst::Memcached
+    include SolarWindsAPM::Inst::Memcached
   end
 
   if defined?(Memcached::Rails)
     Memcached::Rails.class_eval do
-      include AppOpticsAPM::Inst::MemcachedRails
+      include SolarWindsAPM::Inst::MemcachedRails
     end
   end
 end

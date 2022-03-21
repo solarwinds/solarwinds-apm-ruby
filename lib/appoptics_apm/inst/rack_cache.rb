@@ -1,7 +1,7 @@
 # Copyright (c) 2020 SolarWinds, LLC.
 # All rights reserved.
 
-module AppOpticsAPM
+module SolarWindsAPM
   module RackCacheContext
 
     ###
@@ -29,7 +29,7 @@ module AppOpticsAPM
   end
 end
 
-if AppOpticsAPM::Config[:rack_cache][:transaction_name] && defined?(Rack::Cache::Context)
-  AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting rack_cache' if AppOpticsAPM::Config[:verbose]
-  Rack::Cache::Context.send(:prepend, ::AppOpticsAPM::RackCacheContext)
+if SolarWindsAPM::Config[:rack_cache][:transaction_name] && defined?(Rack::Cache::Context)
+  SolarWindsAPM.logger.info '[appoptics_apm/loading] Instrumenting rack_cache' if SolarWindsAPM::Config[:verbose]
+  Rack::Cache::Context.send(:prepend, ::SolarWindsAPM::RackCacheContext)
 end

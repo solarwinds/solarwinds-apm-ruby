@@ -1,11 +1,11 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
-module AppOpticsAPM
+module SolarWindsAPM
   module Inst
     module BunnyConsumer
       def self.included(klass)
-        AppOpticsAPM::Util.method_alias(klass, :call, ::Bunny::Consumer)
+        SolarWindsAPM::Util.method_alias(klass, :call, ::Bunny::Consumer)
       end
 
       def collect_consumer_kvs(args)
@@ -29,15 +29,15 @@ module AppOpticsAPM
         end
 
         # Report configurable Controller/Action KVs
-        # See AppOpticsAPM::Config[:bunnyconsumer] in lib/appoptics_apm/config.rb
+        # See SolarWindsAPM::Config[:bunnyconsumer] in lib/appoptics_apm/config.rb
         # Used for dashboard trace filtering
-        controller_key = AppOpticsAPM::Config[:bunnyconsumer][:controller]
+        controller_key = SolarWindsAPM::Config[:bunnyconsumer][:controller]
         if mp.respond_to?(controller_key)
           value = mp.method(controller_key).call
           kvs[:Controller] = value if value
         end
 
-        action_key = AppOpticsAPM::Config[:bunnyconsumer][:action]
+        action_key = SolarWindsAPM::Config[:bunnyconsumer][:action]
         if mp.respond_to?(action_key)
           value = mp.method(action_key).call
           kvs[:Action] = value if value
@@ -49,15 +49,15 @@ module AppOpticsAPM
           kvs[:URL] = "/bunny/consumer"
         end
 
-        if AppOpticsAPM::Config[:bunnyconsumer][:log_args] && @arguments
+        if SolarWindsAPM::Config[:bunnyconsumer][:log_args] && @arguments
           kvs[:Args] = @arguments.to_s
         end
 
-        kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:bunnyconsumer][:collect_backtraces]
+        kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:bunnyconsumer][:collect_backtraces]
 
         kvs
       rescue => e
-        AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
+        SolarWindsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if SolarWindsAPM::Config[:verbose]
       ensure
         return kvs
       end
@@ -75,7 +75,7 @@ module AppOpticsAPM
           headers.delete('SourceTrace')
         end
 
-        AppOpticsAPM::SDK.start_trace(:'rabbitmq-consumer', kvs: report_kvs, headers: headers) do
+        SolarWindsAPM::SDK.start_trace(:'rabbitmq-consumer', kvs: report_kvs, headers: headers) do
           call_without_appoptics(*args)
         end
       end
@@ -83,7 +83,7 @@ module AppOpticsAPM
   end
 end
 
-if AppOpticsAPM::Config[:bunnyconsumer][:enabled] && defined?(Bunny)
-  AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting bunny consumer' if AppOpticsAPM::Config[:verbose]
-  AppOpticsAPM::Util.send_include(Bunny::Consumer, AppOpticsAPM::Inst::BunnyConsumer)
+if SolarWindsAPM::Config[:bunnyconsumer][:enabled] && defined?(Bunny)
+  SolarWindsAPM.logger.info '[appoptics_apm/loading] Instrumenting bunny consumer' if SolarWindsAPM::Config[:verbose]
+  SolarWindsAPM::Util.send_include(Bunny::Consumer, SolarWindsAPM::Inst::BunnyConsumer)
 end

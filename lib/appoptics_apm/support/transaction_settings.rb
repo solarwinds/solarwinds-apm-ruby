@@ -10,7 +10,7 @@ AO_TRACING_DECISIONS_OK = 0
 
 OBOE_SETTINGS_UNSET = -1
 
-module AppOpticsAPM
+module SolarWindsAPM
   ##
   # This module helps with setting up the transaction filters and applying them
   #
@@ -24,13 +24,13 @@ module AppOpticsAPM
       @do_sample = false
       @do_propagate = true
 
-      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(headers)
-      @tracestring = AppOpticsAPM.trace_context.tracestring
-      @sw_member_value = AppOpticsAPM.trace_context.sw_member_value
+      SolarWindsAPM.trace_context = SolarWindsAPM::TraceContext.new(headers)
+      @tracestring = SolarWindsAPM.trace_context.tracestring
+      @sw_member_value = SolarWindsAPM.trace_context.sw_member_value
       tracing_mode = AO_TRACING_ENABLED
 
-      if AppOpticsAPM::Context.isValid
-        @do_sample = AppOpticsAPM.tracing?
+      if SolarWindsAPM::Context.isValid
+        @do_sample = SolarWindsAPM.tracing?
         return
       end
 
@@ -47,7 +47,7 @@ module AppOpticsAPM
 
       args = [@tracestring, @sw_member_value]
       args << tracing_mode
-      args << (AppOpticsAPM::Config[:sample_rate] || OBOE_SETTINGS_UNSET)
+      args << (SolarWindsAPM::Config[:sample_rate] || OBOE_SETTINGS_UNSET)
 
       if options && (options.options || options.signature)
         args << (options.trigger_trace ? 1 : 0)
@@ -58,10 +58,10 @@ module AppOpticsAPM
       end
 
       metrics, sample, @rate, @source, @bucket_rate, @bucket_cap, @type, @auth, @status_msg, @auth_msg, @status =
-        AppOpticsAPM::Context.getDecisions(*args)
+        SolarWindsAPM::Context.getDecisions(*args)
 
       if @status > AO_TRACING_DECISIONS_OK
-        AppOpticsAPM.logger.warn "[appoptics-apm/sample] Problem getting the sampling decisions: #{@status_msg} code: #{@status}"
+        SolarWindsAPM.logger.warn "[appoptics-apm/sample] Problem getting the sampling decisions: #{@status_msg} code: #{@status}"
       end
 
       @do_metrics = metrics > 0
@@ -91,8 +91,8 @@ module AppOpticsAPM
     ##
     # check the config setting for :tracing_mode
     def tracing_mode_disabled?
-      AppOpticsAPM::Config[:tracing_mode] &&
-        [:disabled, :never].include?(AppOpticsAPM::Config[:tracing_mode])
+      SolarWindsAPM::Config[:tracing_mode] &&
+        [:disabled, :never].include?(SolarWindsAPM::Config[:tracing_mode])
     end
 
     ##
@@ -102,11 +102,11 @@ module AppOpticsAPM
     # regexps to exclude it from metrics and traces
     #
     def tracing_enabled?(url)
-      return false unless AppOpticsAPM::Config[:url_enabled_regexps].is_a? Array
+      return false unless SolarWindsAPM::Config[:url_enabled_regexps].is_a? Array
       # once we only support Ruby >= 2.4.0 use `match?` instead of `=~`
-      return AppOpticsAPM::Config[:url_enabled_regexps].any? { |regex| regex =~ url }
+      return SolarWindsAPM::Config[:url_enabled_regexps].any? { |regex| regex =~ url }
     rescue => e
-      AppOpticsAPM.logger.warn "[AppOpticsAPM/filter] Could not apply :enabled filter to path. #{e.inspect}"
+      SolarWindsAPM.logger.warn "[SolarWindsAPM/filter] Could not apply :enabled filter to path. #{e.inspect}"
       true
     end
 
@@ -117,17 +117,17 @@ module AppOpticsAPM
     # regexps to exclude it from metrics and traces
     #
     def tracing_disabled?(url)
-      return false unless AppOpticsAPM::Config[:url_disabled_regexps].is_a? Array
+      return false unless SolarWindsAPM::Config[:url_disabled_regexps].is_a? Array
       # once we only support Ruby >= 2.4.0 use `match?` instead of `=~`
-      return AppOpticsAPM::Config[:url_disabled_regexps].any? { |regex| regex =~ url }
+      return SolarWindsAPM::Config[:url_disabled_regexps].any? { |regex| regex =~ url }
     rescue => e
-      AppOpticsAPM.logger.warn "[AppOpticsAPM/filter] Could not apply :disabled filter to path. #{e.inspect}"
+      SolarWindsAPM.logger.warn "[SolarWindsAPM/filter] Could not apply :disabled filter to path. #{e.inspect}"
       false
     end
 
     def trigger_tracing_mode_disabled?
-      AppOpticsAPM::Config[:trigger_tracing_mode] &&
-        AppOpticsAPM::Config[:trigger_tracing_mode] == :disabled
+      SolarWindsAPM::Config[:trigger_tracing_mode] &&
+        SolarWindsAPM::Config[:trigger_tracing_mode] == :disabled
     end
 
     ##
@@ -136,11 +136,11 @@ module AppOpticsAPM
     # Given a path, this method determines whether it is a static asset
     #
     def asset?(path)
-      return false unless AppOpticsAPM::Config[:dnt_compiled]
+      return false unless SolarWindsAPM::Config[:dnt_compiled]
       # once we only support Ruby >= 2.4.0 use `match?` instead of `=~`
-      return AppOpticsAPM::Config[:dnt_compiled] =~ path
+      return SolarWindsAPM::Config[:dnt_compiled] =~ path
     rescue => e
-      AppOpticsAPM.logger.warn "[AppOpticsAPM/filter] Could not apply do-not-trace filter to path. #{e.inspect}"
+      SolarWindsAPM.logger.warn "[SolarWindsAPM/filter] Could not apply do-not-trace filter to path. #{e.inspect}"
       false
     end
 
@@ -149,11 +149,11 @@ module AppOpticsAPM
     class << self
 
       def asset?(path)
-        return false unless AppOpticsAPM::Config[:dnt_compiled]
+        return false unless SolarWindsAPM::Config[:dnt_compiled]
         # once we only support Ruby >= 2.4.0 use `match?` instead of `=~`
-        return AppOpticsAPM::Config[:dnt_compiled] =~ path
+        return SolarWindsAPM::Config[:dnt_compiled] =~ path
       rescue => e
-        AppOpticsAPM.logger.warn "[AppOpticsAPM/filter] Could not apply do-not-trace filter to path. #{e.inspect}"
+        SolarWindsAPM.logger.warn "[SolarWindsAPM/filter] Could not apply do-not-trace filter to path. #{e.inspect}"
         false
       end
 
@@ -167,8 +167,8 @@ module AppOpticsAPM
         disabled = settings.select { |v| !v.has_key?(:tracing) || v[:tracing] == :disabled }
         enabled = settings.select { |v| v[:tracing] == :enabled }
 
-        AppOpticsAPM::Config[:url_enabled_regexps] = compile_regexp(enabled)
-        AppOpticsAPM::Config[:url_disabled_regexps] = compile_regexp(disabled)
+        SolarWindsAPM::Config[:url_enabled_regexps] = compile_regexp(enabled)
+        SolarWindsAPM::Config[:url_disabled_regexps] = compile_regexp(disabled)
       end
 
       def compile_regexp(settings)
@@ -191,7 +191,7 @@ module AppOpticsAPM
           begin
             v[:regexp].is_a?(String) ? Regexp.new(v[:regexp], v[:opts]) : Regexp.new(v[:regexp])
           rescue
-            AppOpticsAPM.logger.warn "[appoptics_apm/config] Problem compiling transaction_settings item #{v}, will ignore."
+            SolarWindsAPM.logger.warn "[appoptics_apm/config] Problem compiling transaction_settings item #{v}, will ignore."
             nil
           end
         end
@@ -212,8 +212,8 @@ module AppOpticsAPM
       end
 
       def reset_url_regexps
-        AppOpticsAPM::Config[:url_enabled_regexps] = nil
-        AppOpticsAPM::Config[:url_disabled_regexps] = nil
+        SolarWindsAPM::Config[:url_enabled_regexps] = nil
+        SolarWindsAPM::Config[:url_disabled_regexps] = nil
       end
     end
   end

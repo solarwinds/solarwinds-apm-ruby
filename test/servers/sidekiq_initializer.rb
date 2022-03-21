@@ -25,10 +25,10 @@ ENV["APPOPTICS_GEM_TEST"] = "true"
 
 Bundler.require(:default, :test)
 
-# Configure AppOpticsAPM
-AppOpticsAPM::Config[:tracing_mode] = :enabled
-AppOpticsAPM::Config[:sample_rate] = 1000000
-# AppOpticsAPM.logger.level = Logger::DEBUG
-AppOpticsAPM.logger.level = Logger::FATAL
+# Configure SolarWindsAPM
+SolarWindsAPM::Config[:tracing_mode] = :enabled
+SolarWindsAPM::Config[:sample_rate] = 1000000
+# SolarWindsAPM.logger.level = Logger::DEBUG
+SolarWindsAPM.logger.level = Logger::FATAL
 
 sleep 10

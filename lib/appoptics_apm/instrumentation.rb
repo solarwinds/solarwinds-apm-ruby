@@ -1,7 +1,7 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
-module AppOpticsAPM
+module SolarWindsAPM
   ##
   # The Inst module holds all of the instrumentation extensions for various
   # libraries such as Redis, Dalli and Resque.
@@ -13,8 +13,8 @@ module AppOpticsAPM
         begin
           require f
         rescue => e
-          AppOpticsAPM.logger.error "[appoptics_apm/loading] Error loading instrumentation file '#{f}' : #{e}"
-          AppOpticsAPM.logger.debug "[appoptics_apm/loading] #{e.backtrace.first}"
+          SolarWindsAPM.logger.error "[appoptics_apm/loading] Error loading instrumentation file '#{f}' : #{e}"
+          SolarWindsAPM.logger.debug "[appoptics_apm/loading] #{e.backtrace.first}"
         end
       end
     end

@@ -8,11 +8,11 @@ describe "Dalli" do
     clear_all_traces
     @server = "#{ENV['APPOPTICS_MEMCACHED_SERVER'] || '127.0.0.1'}:11211"
     @dc = Dalli::Client.new(@server)
-    @collect_backtraces = AppOpticsAPM::Config[:dalli][:collect_backtraces]
+    @collect_backtraces = SolarWindsAPM::Config[:dalli][:collect_backtraces]
   end
 
   after do
-    AppOpticsAPM::Config[:dalli][:collect_backtraces] = @collect_backtraces
+    SolarWindsAPM::Config[:dalli][:collect_backtraces] = @collect_backtraces
   end
 
   it 'Stock Dalli should be loaded, defined and ready' do
@@ -27,7 +27,7 @@ describe "Dalli" do
   end
 
   it 'should trace set' do
-    AppOpticsAPM::SDK.start_trace('dalli_test') do
+    SolarWindsAPM::SDK.start_trace('dalli_test') do
       @dc.set('some_key', 1234)
     end
 
@@ -44,7 +44,7 @@ describe "Dalli" do
   end
 
   it 'should trace get' do
-    AppOpticsAPM::SDK.start_trace('dalli_test') do
+    SolarWindsAPM::SDK.start_trace('dalli_test') do
       @dc.get('some_key')
     end
 
@@ -61,7 +61,7 @@ describe "Dalli" do
   end
 
   it 'should trace get_multi' do
-    AppOpticsAPM::SDK.start_trace('dalli_test') do
+    SolarWindsAPM::SDK.start_trace('dalli_test') do
       @dc.get_multi([:one, :two, :three, :four, :five, :six])
     end
 
@@ -80,7 +80,7 @@ describe "Dalli" do
   it "should trace increment" do
     @dc.incr("dalli_key_counter", 1, nil, 0)
 
-    AppOpticsAPM::SDK.start_trace('dalli_test') do
+    SolarWindsAPM::SDK.start_trace('dalli_test') do
       @dc.incr("dalli_key_counter")
     end
 
@@ -98,7 +98,7 @@ describe "Dalli" do
   it "should trace decrement" do
     @dc.incr("dalli_key_counter", 1, nil, 0)
 
-    AppOpticsAPM::SDK.start_trace('dalli_test') do
+    SolarWindsAPM::SDK.start_trace('dalli_test') do
       @dc.decr("dalli_key_counter")
     end
 
@@ -116,7 +116,7 @@ describe "Dalli" do
   it "should trace replace" do
     @dc.set('some_key', 1)
 
-    AppOpticsAPM::SDK.start_trace('dalli_test') do
+    SolarWindsAPM::SDK.start_trace('dalli_test') do
       @dc.replace("some_key", "woop")
     end
 
@@ -134,7 +134,7 @@ describe "Dalli" do
   it "should trace delete" do
     @dc.set('some_key', 1)
 
-    AppOpticsAPM::SDK.start_trace('dalli_test') do
+    SolarWindsAPM::SDK.start_trace('dalli_test') do
       @dc.delete("some_key")
     end
 
@@ -150,9 +150,9 @@ describe "Dalli" do
 
   it "should obey :collect_backtraces setting when true" do
     @dc.set('some_key', 1)
-    AppOpticsAPM::Config[:dalli][:collect_backtraces] = true
+    SolarWindsAPM::Config[:dalli][:collect_backtraces] = true
 
-    AppOpticsAPM::SDK.start_trace('dalli_test') do
+    SolarWindsAPM::SDK.start_trace('dalli_test') do
       @dc.get('some_key')
     end
 
@@ -161,9 +161,9 @@ describe "Dalli" do
   end
 
   it "should obey :collect_backtraces setting when false" do
-    AppOpticsAPM::Config[:dalli][:collect_backtraces] = false
+    SolarWindsAPM::Config[:dalli][:collect_backtraces] = false
 
-    AppOpticsAPM::SDK.start_trace('dalli_test') do
+    SolarWindsAPM::SDK.start_trace('dalli_test') do
       @dc.get('some_key')
     end
 

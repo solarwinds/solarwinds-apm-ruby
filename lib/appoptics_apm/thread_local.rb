@@ -1,13 +1,13 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
-module AppOpticsAPM
+module SolarWindsAPM
   ##
-  # Provides thread local storage for AppOpticsAPM.
+  # Provides thread local storage for SolarWindsAPM.
   #
   # Example usage:
-  # module AppOpticsAPMBase
-  #   extend AppOpticsAPM::ThreadLocal
+  # module SolarWindsAPMBase
+  #   extend SolarWindsAPM::ThreadLocal
   #   thread_local :layer_op
   # end
   module ThreadLocal

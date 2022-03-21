@@ -10,12 +10,12 @@ rescue LoadError
   class Set; end # :nodoc:
 end
 
-module AppOpticsAPM
+module SolarWindsAPM
   module API
     ##
     # This modules provides the X-Trace logging facilities.
     #
-    # These are the lower level methods, please see AppOpticsAPM::SDK
+    # These are the lower level methods, please see SolarWindsAPM::SDK
     # for the higher level methods
     #
     # If using these directly make sure to always match a start/end and entry/exit to
@@ -35,15 +35,15 @@ module AppOpticsAPM
       #
       # ==== Example
       #
-      #   AppOpticsAPM::API.log('logical_layer', 'entry')
-      #   AppOpticsAPM::API.log('logical_layer', 'info', { :list_length => 20 })
-      #   AppOpticsAPM::API.log('logical_layer', 'exit')
+      #   SolarWindsAPM::API.log('logical_layer', 'entry')
+      #   SolarWindsAPM::API.log('logical_layer', 'info', { :list_length => 20 })
+      #   SolarWindsAPM::API.log('logical_layer', 'exit')
       #
       # Returns nothing.
       def log(layer, label, kvs = {}, event = nil)
-        return AppOpticsAPM::Context.toString unless AppOpticsAPM.tracing?
+        return SolarWindsAPM::Context.toString unless SolarWindsAPM.tracing?
 
-        event ||= AppOpticsAPM::Context.createEvent
+        event ||= SolarWindsAPM::Context.createEvent
         log_event(layer, label, event, kvs)
       end
 
@@ -61,17 +61,17 @@ module AppOpticsAPM
       #   begin
       #     my_iffy_method
       #   rescue Exception => e
-      #     AppOpticsAPM::API.log_exception('rails', e, { user: user_id })
+      #     SolarWindsAPM::API.log_exception('rails', e, { user: user_id })
       #     raise
       #   end
       #
       # Returns nothing.
       def log_exception(layer, exception, kvs = {})
-        return AppOpticsAPM::Context.toString if !AppOpticsAPM.tracing? || exception.instance_variable_get(:@exn_logged)
+        return SolarWindsAPM::Context.toString if !SolarWindsAPM.tracing? || exception.instance_variable_get(:@exn_logged)
 
         unless exception
-          AppOpticsAPM.logger.debug '[appoptics_apm/debug] log_exception called with nil exception'
-          return AppOpticsAPM::Context.toString
+          SolarWindsAPM.logger.debug '[appoptics_apm/debug] log_exception called with nil exception'
+          return SolarWindsAPM::Context.toString
         end
 
         exception.message << exception.class.name if exception.message.length < 4
@@ -102,33 +102,33 @@ module AppOpticsAPM
       #
       # ==== Example
       #
-      #   AppOpticsAPM::API.log_start(:layer_name, { :id => @user.id })
+      #   SolarWindsAPM::API.log_start(:layer_name, { :id => @user.id })
       #
       # Returns a metadata string if we are tracing
       #
       def log_start(layer, kvs = {}, headers = {}, settings = nil, url = nil)
-        return unless AppOpticsAPM.loaded
+        return unless SolarWindsAPM.loaded
 
         # check if tracing decision is already in effect and a Context created
-        return log_entry(layer, kvs) if AppOpticsAPM::Context.isValid
+        return log_entry(layer, kvs) if SolarWindsAPM::Context.isValid
 
         # This is a bit ugly, but here is the best place to reset the layer_op thread local var.
-        AppOpticsAPM.layer_op = nil
+        SolarWindsAPM.layer_op = nil
 
-        settings ||= AppOpticsAPM::TransactionSettings.new(url, headers)
-        AppOpticsAPM.trace_context.add_kvs(kvs)
-        tracestring = AppOpticsAPM.trace_context.tracestring
+        settings ||= SolarWindsAPM::TransactionSettings.new(url, headers)
+        SolarWindsAPM.trace_context.add_kvs(kvs)
+        tracestring = SolarWindsAPM.trace_context.tracestring
 
         if settings.do_sample
           kvs[:SampleRate]        = settings.rate
           kvs[:SampleSource]      = settings.source
 
-          AppOpticsAPM::TraceString.set_sampled(tracestring) if tracestring
+          SolarWindsAPM::TraceString.set_sampled(tracestring) if tracestring
           event = create_start_event(tracestring)
           log_event(layer, :entry, event, kvs)
         else
           create_nontracing_context(tracestring)
-          AppOpticsAPM::Context.toString
+          SolarWindsAPM::Context.toString
         end
       end
 
@@ -142,20 +142,20 @@ module AppOpticsAPM
       #
       # ==== Example
       #
-      #   AppOpticsAPM::API.log_end(:layer_name, { :id => @user.id })
+      #   SolarWindsAPM::API.log_end(:layer_name, { :id => @user.id })
       #
       # Returns a metadata string if we are tracing
       #
       def log_end(layer, kvs = {}, event = nil)
-        return AppOpticsAPM::Context.toString unless AppOpticsAPM.tracing?
+        return SolarWindsAPM::Context.toString unless SolarWindsAPM.tracing?
 
-        event ||= AppOpticsAPM::Context.createEvent
+        event ||= SolarWindsAPM::Context.createEvent
         log_event(layer, :exit, event, kvs)
       ensure
         # FIXME has_incoming_context commented out, it has importance for JRuby only but breaks Ruby tests
-        AppOpticsAPM::Context.clear # unless AppOpticsAPM.has_incoming_context?
-        AppOpticsAPM.trace_context = nil
-        AppOpticsAPM.transaction_name = nil
+        SolarWindsAPM::Context.clear # unless SolarWindsAPM.has_incoming_context?
+        SolarWindsAPM.trace_context = nil
+        SolarWindsAPM.transaction_name = nil
       end
 
       ##
@@ -171,21 +171,21 @@ module AppOpticsAPM
       #
       # ==== Example
       #
-      #   AppOpticsAPM::API.log_entry(:layer_name, { :id => @user.id })
+      #   SolarWindsAPM::API.log_entry(:layer_name, { :id => @user.id })
       #
       # Returns a metadata string
       #
       def log_entry(layer, kvs = {}, op = nil)
-        return AppOpticsAPM::Context.toString unless AppOpticsAPM.tracing?
+        return SolarWindsAPM::Context.toString unless SolarWindsAPM.tracing?
 
         if op
           # check if re-entry but also add op to list for log_exit
-          re_entry = AppOpticsAPM.layer_op&.last == op.to_sym
-          AppOpticsAPM.layer_op = (AppOpticsAPM.layer_op || []) << op.to_sym
-          return AppOpticsAPM::Context.toString if re_entry
+          re_entry = SolarWindsAPM.layer_op&.last == op.to_sym
+          SolarWindsAPM.layer_op = (SolarWindsAPM.layer_op || []) << op.to_sym
+          return SolarWindsAPM::Context.toString if re_entry
         end
 
-        event ||= AppOpticsAPM::Context.createEvent
+        event ||= SolarWindsAPM::Context.createEvent
         log_event(layer, :entry, event, kvs)
       end
 
@@ -201,15 +201,15 @@ module AppOpticsAPM
       #
       # ==== Example
       #
-      #   AppOpticsAPM::API.log_info(:layer_name, { :id => @user.id })
+      #   SolarWindsAPM::API.log_info(:layer_name, { :id => @user.id })
       #
       # Returns a metadata string if we are tracing
       #
       def log_info(layer, kvs = {})
-        return AppOpticsAPM::Context.toString unless AppOpticsAPM.tracing?
+        return SolarWindsAPM::Context.toString unless SolarWindsAPM.tracing?
 
         kvs[:Spec] = 'info'
-        log_event(layer, :info, AppOpticsAPM::Context.createEvent, kvs)
+        log_event(layer, :info, SolarWindsAPM::Context.createEvent, kvs)
       end
 
       ##
@@ -226,23 +226,23 @@ module AppOpticsAPM
       #
       # ==== Example
       #
-      #   AppOpticsAPM::API.log_exit(:layer_name, { :id => @user.id })
+      #   SolarWindsAPM::API.log_exit(:layer_name, { :id => @user.id })
       #
       # Returns a metadata string  if we are tracing
       def log_exit(layer, kvs = {}, op = nil)
-        return AppOpticsAPM::Context.toString unless AppOpticsAPM.tracing?
+        return SolarWindsAPM::Context.toString unless SolarWindsAPM.tracing?
 
         if op
-          if AppOpticsAPM.layer_op&.last == op.to_sym
-            AppOpticsAPM.layer_op.pop
+          if SolarWindsAPM.layer_op&.last == op.to_sym
+            SolarWindsAPM.layer_op.pop
           else
-            AppOpticsAPM.logger.warn "[ruby/logging] op parameter of exit event doesn't correspond to an entry event op"
+            SolarWindsAPM.logger.warn "[ruby/logging] op parameter of exit event doesn't correspond to an entry event op"
           end
           # check if the next op is the same, don't log event if so
-          return AppOpticsAPM::Context.toString if AppOpticsAPM.layer_op&.last == op.to_sym
+          return SolarWindsAPM::Context.toString if SolarWindsAPM.layer_op&.last == op.to_sym
         end
 
-        log_event(layer, :exit, AppOpticsAPM::Context.createEvent, kvs)
+        log_event(layer, :exit, SolarWindsAPM::Context.createEvent, kvs)
       end
 
       ##
@@ -254,8 +254,8 @@ module AppOpticsAPM
       # * +layer+ - The layer the reported event belongs to
       # * +kvs+ - A hash containing key/value pairs that will be reported along with this event
       def log_init(layer = :rack, kvs = {})
-        context = AppOpticsAPM::Metadata.makeRandom
-        return AppOpticsAPM::Context.toString unless context.isValid
+        context = SolarWindsAPM::Metadata.makeRandom
+        return SolarWindsAPM::Context.toString unless context.isValid
 
         event = context.createEvent
         event.addInfo(APPOPTICS_STR_LAYER, layer.to_s)
@@ -264,8 +264,8 @@ module AppOpticsAPM
           event.addInfo(k, v.to_s)
         end
 
-        AppOpticsAPM::Reporter.sendStatus(event, context)
-        AppOpticsAPM::Context.toString
+        SolarWindsAPM::Reporter.sendStatus(event, context)
+        SolarWindsAPM::Context.toString
       end
 
       private
@@ -279,24 +279,24 @@ module AppOpticsAPM
       #
       # * +layer+ - The layer the reported event belongs to
       # * +label+ - The label for the reported event.  See API documentation for reserved labels and usage.
-      # * +event+ - The pre-existing AppOpticsAPM context event.  See AppOpticsAPM::Context.createEvent
+      # * +event+ - The pre-existing SolarWindsAPM context event.  See SolarWindsAPM::Context.createEvent
       # * +kvs+ - A hash containing key/value pairs that will be reported along with this event (optional).
       #
       # ==== Example
       #
-      #   entry = AppOpticsAPM::Context.createEvent
-      #   AppOpticsAPM::API.log_event(:layer_name, 'entry',  entry_event, { :id => @user.id })
+      #   entry = SolarWindsAPM::Context.createEvent
+      #   SolarWindsAPM::API.log_event(:layer_name, 'entry',  entry_event, { :id => @user.id })
       #
-      #   exit_event = AppOpticsAPM::Context.createEvent
+      #   exit_event = SolarWindsAPM::Context.createEvent
       #   exit_event.addEdge(entry.getMetadata)
-      #   AppOpticsAPM::API.log_event(:layer_name, 'exit',  exit_event, { :id => @user.id })
+      #   SolarWindsAPM::API.log_event(:layer_name, 'exit',  exit_event, { :id => @user.id })
       #
       def log_event(layer, label, event, kvs = {})
         event.addInfo(APPOPTICS_STR_LAYER, layer.to_s.freeze) if layer
         event.addInfo(APPOPTICS_STR_LABEL, label.to_s.freeze)
 
-        AppOpticsAPM.layer = layer.to_sym if label == :entry
-        AppOpticsAPM.layer = nil          if label == :exit
+        SolarWindsAPM.layer = layer.to_sym if label == :entry
+        SolarWindsAPM.layer = nil          if label == :exit
 
         kvs.each do |k, v|
           value = nil
@@ -314,40 +314,40 @@ module AppOpticsAPM
           begin
             event.addInfo(k.to_s, value)
           rescue ArgumentError => e
-            AppOpticsAPM.logger.debug "[appoptics_apm/debug] Couldn't add event KV: #{k} => #{v.class}"
-            AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{e.message}"
+            SolarWindsAPM.logger.debug "[appoptics_apm/debug] Couldn't add event KV: #{k} => #{v.class}"
+            SolarWindsAPM.logger.debug "[appoptics_apm/debug] #{e.message}"
           end
         end if !kvs.nil? && kvs.any?
 
-        AppOpticsAPM::Reporter.sendReport(event)
-        AppOpticsAPM::Context.toString
+        SolarWindsAPM::Reporter.sendReport(event)
+        SolarWindsAPM::Context.toString
       end
 
       def create_start_event(tracestring = nil)
-        if AppOpticsAPM::TraceString.sampled?(tracestring)
-          md = AppOpticsAPM::Metadata.fromString(tracestring)
-          AppOpticsAPM::Context.fromString(tracestring)
+        if SolarWindsAPM::TraceString.sampled?(tracestring)
+          md = SolarWindsAPM::Metadata.fromString(tracestring)
+          SolarWindsAPM::Context.fromString(tracestring)
           md.createEvent
         else
-          md = AppOpticsAPM::Metadata.makeRandom(true)
-          AppOpticsAPM::Context.set(md)
-          AppOpticsAPM::Event.startTrace(md)
+          md = SolarWindsAPM::Metadata.makeRandom(true)
+          SolarWindsAPM::Context.set(md)
+          SolarWindsAPM::Event.startTrace(md)
         end
       end
 
       public
 
       def create_nontracing_context(tracestring)
-        if AppOpticsAPM::TraceString.valid?(tracestring)
+        if SolarWindsAPM::TraceString.valid?(tracestring)
           # continue valid incoming tracestring
           # use it for current context, ensuring sample bit is not set
-          AppOpticsAPM::TraceString.unset_sampled(tracestring)
-          AppOpticsAPM::Context.fromString(tracestring)
+          SolarWindsAPM::TraceString.unset_sampled(tracestring)
+          SolarWindsAPM::Context.fromString(tracestring)
         else
           # discard invalid incoming tracestring
           # create a new context, ensuring sample bit not set
-          md = AppOpticsAPM::Metadata.makeRandom(false)
-          AppOpticsAPM::Context.fromString(md.toString)
+          md = SolarWindsAPM::Metadata.makeRandom(false)
+          SolarWindsAPM::Context.fromString(md.toString)
         end
       end
 

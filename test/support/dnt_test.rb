@@ -14,7 +14,7 @@ class RackDNTTestApp < Minitest::Test
     @app = Rack::Builder.new {
       use Rack::CommonLogger
       use Rack::ShowExceptions
-      use AppOpticsAPM::Rack
+      use SolarWindsAPM::Rack
       map "/lobster" do
         use Rack::Lint
         run Rack::Lobster.new
@@ -24,19 +24,19 @@ class RackDNTTestApp < Minitest::Test
 
   def setup
     clear_all_traces
-    @dnt_regexp = AppOpticsAPM::Config[:dnt_regexp]
-    @dnt_compiled = AppOpticsAPM::Config[:dnt_compiled]
-    @tr_map = AppOpticsAPM::Util.deep_dup(AppOpticsAPM::Config[:transaction_settings])
+    @dnt_regexp = SolarWindsAPM::Config[:dnt_regexp]
+    @dnt_compiled = SolarWindsAPM::Config[:dnt_compiled]
+    @tr_map = SolarWindsAPM::Util.deep_dup(SolarWindsAPM::Config[:transaction_settings])
   end
 
   def teardown
-    AppOpticsAPM::Config[:dnt_regexp] = @dnt_regexp
-    AppOpticsAPM::Config[:dnt_compiled] = @dnt_compiled
-    AppOpticsAPM::Config[:transaction_settings] = AppOpticsAPM::Util.deep_dup(@tr_map)
+    SolarWindsAPM::Config[:dnt_regexp] = @dnt_regexp
+    SolarWindsAPM::Config[:dnt_compiled] = @dnt_compiled
+    SolarWindsAPM::Config[:transaction_settings] = SolarWindsAPM::Util.deep_dup(@tr_map)
   end
 
   def test_custom_do_not_trace
-    AppOpticsAPM::Config[:dnt_regexp] = "lobster$"
+    SolarWindsAPM::Config[:dnt_regexp] = "lobster$"
 
     get "/lobster"
 
@@ -73,7 +73,7 @@ class RackDNTTestApp < Minitest::Test
 
   def test_complex_do_not_trace
     # Do not trace .js files _except for_ show.js
-    AppOpticsAPM::Config[:dnt_regexp] = "(\.js$)(?<!show.js)"
+    SolarWindsAPM::Config[:dnt_regexp] = "(\.js$)(?<!show.js)"
 
     # First: We shouldn't trace general .js files
     get "/javascripts/application.js"
@@ -91,11 +91,11 @@ class RackDNTTestApp < Minitest::Test
   end
 
   def test_empty_transaction_settings
-    AppOpticsAPM::Config[:transaction_settings] = { url: [] }
+    SolarWindsAPM::Config[:transaction_settings] = { url: [] }
 
     # TODO make this test more unit
-    AppOpticsAPM::Context.expects(:getDecisions).returns([1, 1, 1000, 1, 0, -1, 1000, 1000, '', '', 0]).once
-    AppOpticsAPM::Span.expects(:createHttpSpan).returns("the_transaction_name").once
+    SolarWindsAPM::Context.expects(:getDecisions).returns([1, 1, 1000, 1, 0, -1, 1000, 1000, '', '', 0]).once
+    SolarWindsAPM::Span.expects(:createHttpSpan).returns("the_transaction_name").once
 
     get "/lobster"
 
@@ -104,20 +104,20 @@ class RackDNTTestApp < Minitest::Test
   end
 
   def test_transaction_settings_regexp
-    AppOpticsAPM::Config[:transaction_settings] = { url: [{ regexp: /.*LOB.*/i }] }
-    AppOpticsAPM::Span.expects(:createHttpSpan).never
+    SolarWindsAPM::Config[:transaction_settings] = { url: [{ regexp: /.*LOB.*/i }] }
+    SolarWindsAPM::Span.expects(:createHttpSpan).never
 
     get "/lobster"
 
     traces = get_all_traces
     assert traces.empty?
 
-    refute AppOpticsAPM::Context.isValid
+    refute SolarWindsAPM::Context.isValid
   end
 
   def test_transaction_settings_extensions
-    AppOpticsAPM::Config[:transaction_settings] = { url: [{ extensions: ['ter'] }] }
-    AppOpticsAPM::Span.expects(:createHttpSpan).never
+    SolarWindsAPM::Config[:transaction_settings] = { url: [{ extensions: ['ter'] }] }
+    SolarWindsAPM::Span.expects(:createHttpSpan).never
 
     get "/lobster"
 
@@ -126,8 +126,8 @@ class RackDNTTestApp < Minitest::Test
   end
 
   def test_transaction_settings_with_x_trace
-    AppOpticsAPM::Config[:transaction_settings] = { url: [{ extensions: ['ter'] }] }
-    AppOpticsAPM::Span.expects(:createHttpSpan).never
+    SolarWindsAPM::Config[:transaction_settings] = { url: [{ extensions: ['ter'] }] }
+    SolarWindsAPM::Span.expects(:createHttpSpan).never
 
     trace = '00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-01'
     res = get "/lobster", {}, { 'HTTP_TRACEPARENT' => trace,
@@ -137,7 +137,7 @@ class RackDNTTestApp < Minitest::Test
     traces = get_all_traces
     assert traces.empty?
 
-    refute AppOpticsAPM::Context.isValid
+    refute SolarWindsAPM::Context.isValid
   end
 end
 

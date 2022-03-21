@@ -6,8 +6,8 @@ require 'thread'
 # Disable docs and Camelcase warns since we're implementing
 # an interface here.  See OboeBase for details.
 # rubocop:disable Style/Documentation, Naming/MethodName
-module AppOpticsAPM
-  extend AppOpticsAPMBase
+module SolarWindsAPM
+  extend SolarWindsAPMBase
   include Oboe_metal
 
   class Reporter
@@ -15,21 +15,21 @@ module AppOpticsAPM
       ##
       # start
       #
-      # Start the AppOpticsAPM Reporter
+      # Start the SolarWindsAPM Reporter
       #
       def start
-        AppOpticsAPM.loaded = false unless AppOpticsAPM::OboeInitOptions.instance.service_key_ok?
-        return unless AppOpticsAPM.loaded
+        SolarWindsAPM.loaded = false unless SolarWindsAPM::OboeInitOptions.instance.service_key_ok?
+        return unless SolarWindsAPM.loaded
 
         begin
-          options = AppOpticsAPM::OboeInitOptions.instance.array_for_oboe # creates an array with the options in the right order
+          options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe # creates an array with the options in the right order
 
-          AppOpticsAPM.reporter = Oboe_metal::Reporter.new(*options)
+          SolarWindsAPM.reporter = Oboe_metal::Reporter.new(*options)
 
           # Only report __Init from here if we are not instrumenting a framework.
           # Otherwise, frameworks will handle reporting __Init after full initialization
           unless defined?(::Rails) || defined?(::Sinatra) || defined?(::Padrino) || defined?(::Grape)
-            AppOpticsAPM::API.report_init
+            SolarWindsAPM::API.report_init
           end
 
         rescue => e
@@ -45,7 +45,7 @@ module AppOpticsAPM
       # Send the report for the given event
       #
       def sendReport(evt)
-        AppOpticsAPM.reporter.sendReport(evt)
+        SolarWindsAPM.reporter.sendReport(evt)
       end
 
       ##
@@ -54,7 +54,7 @@ module AppOpticsAPM
       # Send the report for the given event
       #
       def sendStatus(evt, context = nil)
-        AppOpticsAPM.reporter.sendStatus(evt, context)
+        SolarWindsAPM.reporter.sendStatus(evt, context)
       end
 
       ##
@@ -63,7 +63,7 @@ module AppOpticsAPM
       # Truncates the trace output file to zero
       #
       def clear_all_traces
-        File.truncate(AppOpticsAPM::OboeInitOptions.instance.host, 0)
+        File.truncate(SolarWindsAPM::OboeInitOptions.instance.host, 0)
       end
 
       ##
@@ -72,7 +72,7 @@ module AppOpticsAPM
       # Retrieves all traces written to the trace file
       #
       def get_all_traces
-        io = File.open(AppOpticsAPM::OboeInitOptions.instance.host, 'r')
+        io = File.open(SolarWindsAPM::OboeInitOptions.instance.host, 'r')
         contents = io.readlines(nil)
         io.close
 
@@ -116,57 +116,57 @@ module AppOpticsAPM
   class << self
     # def sample?(opts = {})
     #   # Return false if no-op mode
-    #   return false unless AppOpticsAPM.loaded
+    #   return false unless SolarWindsAPM.loaded
     #
     #   # Assure defaults since SWIG enforces Strings
     #   xtrace  = opts[:xtrace]     ? opts[:xtrace].to_s.strip       : APPOPTICS_STR_BLANK
     #
     #   # the first arg has changed to be the service name, blank means to use the default (from the service key)
-    #   rv = AppOpticsAPM::Context.sampleRequest(APPOPTICS_STR_BLANK, xtrace)
+    #   rv = SolarWindsAPM::Context.sampleRequest(APPOPTICS_STR_BLANK, xtrace)
     #
     #   if rv == 0
-    #     AppOpticsAPM.sample_rate = -1
-    #     AppOpticsAPM.sample_source = -1
+    #     SolarWindsAPM.sample_rate = -1
+    #     SolarWindsAPM.sample_source = -1
     #     false
     #   else
     #     # liboboe version > 1.3.1 returning a bit masked integer with SampleRate and
     #     # source embedded
-    #     AppOpticsAPM.sample_rate = (rv & SAMPLE_RATE_MASK)
-    #     AppOpticsAPM.sample_source = (rv & SAMPLE_SOURCE_MASK) >> 24
+    #     SolarWindsAPM.sample_rate = (rv & SAMPLE_RATE_MASK)
+    #     SolarWindsAPM.sample_source = (rv & SAMPLE_SOURCE_MASK) >> 24
     #     true
     #   end
     # rescue StandardError => e
-    #   AppOpticsAPM.logger.debug "[oboe/error] sample? error: #{e.inspect}"
+    #   SolarWindsAPM.logger.debug "[oboe/error] sample? error: #{e.inspect}"
     #   false
     # end
 
     # def set_tracing_mode(mode)
-    #   return unless AppOpticsAPM.loaded
+    #   return unless SolarWindsAPM.loaded
     #
     #   value = mode.to_sym
     #
     #   case value
     #   when :disabled, :never
-    #     AppOpticsAPM::Context.setTracingMode(APPOPTICS_TRACE_DISABLED)
+    #     SolarWindsAPM::Context.setTracingMode(APPOPTICS_TRACE_DISABLED)
     #
     #   when :enabled, :always
-    #     AppOpticsAPM::Context.setTracingMode(APPOPTICS_TRACE_ENABLED)
+    #     SolarWindsAPM::Context.setTracingMode(APPOPTICS_TRACE_ENABLED)
     #
     #   else
-    #     AppOpticsAPM.logger.fatal "[oboe/error] Invalid tracing mode set: #{mode}"
-    #     AppOpticsAPM::Context.setTracingMode(APPOPTICS_TRACE_DISABLED)
+    #     SolarWindsAPM.logger.fatal "[oboe/error] Invalid tracing mode set: #{mode}"
+    #     SolarWindsAPM::Context.setTracingMode(APPOPTICS_TRACE_DISABLED)
     #   end
     # end
 
     def set_sample_rate(rate)
-      return unless AppOpticsAPM.loaded
+      return unless SolarWindsAPM.loaded
 
       # Update liboboe with the new SampleRate value
-      AppOpticsAPM::Context.setDefaultSampleRate(rate.to_i)
+      SolarWindsAPM::Context.setDefaultSampleRate(rate.to_i)
     end
   end
 end
 # rubocop:enable Style/Documentation
 
-AppOpticsAPM.loaded = true
-AppOpticsAPM.config_lock = Mutex.new
+SolarWindsAPM.loaded = true
+SolarWindsAPM.config_lock = Mutex.new

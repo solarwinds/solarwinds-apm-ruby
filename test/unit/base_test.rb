@@ -4,58 +4,58 @@
 require 'minitest_helper'
 require 'mocha/minitest'
 
-describe 'AppOpticsAPMBase' do
+describe 'SolarWindsAPMBase' do
   describe 'tracing_layer_op?' do
     after do
-      AppOpticsAPM.layer_op = nil
+      SolarWindsAPM.layer_op = nil
     end
 
     it 'should return false for nil op' do
-      refute AppOpticsAPM.tracing_layer_op?(nil)
+      refute SolarWindsAPM.tracing_layer_op?(nil)
     end
 
     it 'should return false for op that cannot be symbolized' do
-      refute AppOpticsAPM.tracing_layer_op?([1, 2])
+      refute SolarWindsAPM.tracing_layer_op?([1, 2])
     end
 
     it 'should return false when layer_op is nil' do
-      AppOpticsAPM.layer_op = nil
-      refute AppOpticsAPM.tracing_layer_op?('whoot?')
+      SolarWindsAPM.layer_op = nil
+      refute SolarWindsAPM.tracing_layer_op?('whoot?')
     end
 
     it 'should return false when layer_op is empty' do
-      AppOpticsAPM.layer_op = []
-      refute AppOpticsAPM.tracing_layer_op?('well?')
+      SolarWindsAPM.layer_op = []
+      refute SolarWindsAPM.tracing_layer_op?('well?')
     end
 
     # this should be prevented otherwise, but how?
     # also layer_op should only contain symbols!
     it 'should log an error and return false when layer_op is not an array' do
-      AppOpticsAPM.logger.expects(:error)
-      AppOpticsAPM.layer_op = 'I should no be a string'
-      refute AppOpticsAPM.tracing_layer_op?(nil)
+      SolarWindsAPM.logger.expects(:error)
+      SolarWindsAPM.layer_op = 'I should no be a string'
+      refute SolarWindsAPM.tracing_layer_op?(nil)
     end
 
     it 'should return true when op is last in layer_op' do
-      AppOpticsAPM.layer_op = [:one]
-      assert AppOpticsAPM.tracing_layer_op?('one')
-      AppOpticsAPM.layer_op = [:one, :two]
-      assert AppOpticsAPM.tracing_layer_op?('two')
+      SolarWindsAPM.layer_op = [:one]
+      assert SolarWindsAPM.tracing_layer_op?('one')
+      SolarWindsAPM.layer_op = [:one, :two]
+      assert SolarWindsAPM.tracing_layer_op?('two')
     end
 
     it 'should return false when op is not last in layer_op' do
-      AppOpticsAPM.layer_op = [:one, :two]
-      refute AppOpticsAPM.tracing_layer_op?('one')
+      SolarWindsAPM.layer_op = [:one, :two]
+      refute SolarWindsAPM.tracing_layer_op?('one')
     end
 
     it 'should return false when op is not in layer_op' do
-      AppOpticsAPM.layer_op = [:one, :two]
-      refute AppOpticsAPM.tracing_layer_op?('three')
+      SolarWindsAPM.layer_op = [:one, :two]
+      refute SolarWindsAPM.tracing_layer_op?('three')
     end
   end
 
   describe 'thread local variables' do
-    it "AppOpticsAPM.trace_context instances are thread local" do
+    it "SolarWindsAPM.trace_context instances are thread local" do
       contexts = []
       ths = []
       2.times do |i|
@@ -63,11 +63,11 @@ describe 'AppOpticsAPMBase' do
           trace_00 = "00-#{i}435a9fe510ae4533414d425dadf4e18-#{i}9e60702469db05f-00"
           state_00 = "sw=#{i}9e60702469db05f-00"
           headers = { traceparent: trace_00, tracestate: state_00 }
-          AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(headers)
+          SolarWindsAPM.trace_context = SolarWindsAPM::TraceContext.new(headers)
 
-          contexts[i] = [AppOpticsAPM.trace_context.traceparent,
-                         AppOpticsAPM.trace_context.tracestate,
-                         AppOpticsAPM.trace_context.sw_member_value]
+          contexts[i] = [SolarWindsAPM.trace_context.traceparent,
+                         SolarWindsAPM.trace_context.tracestate,
+                         SolarWindsAPM.trace_context.sw_member_value]
         end
       end
       ths.each { |th| th.join }

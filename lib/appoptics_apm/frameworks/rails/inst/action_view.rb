@@ -1,11 +1,11 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
-if defined?(ActionView::Base) && AppOpticsAPM::Config[:action_view][:enabled]
+if defined?(ActionView::Base) && SolarWindsAPM::Config[:action_view][:enabled]
 
   if Rails::VERSION::MAJOR >= 4
 
-    AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting actionview' if AppOpticsAPM::Config[:verbose]
+    SolarWindsAPM.logger.info '[appoptics_apm/loading] Instrumenting actionview' if SolarWindsAPM::Config[:verbose]
     if ActionView.version >= Gem::Version.new('6.1.0') # the methods changed in this version
 
       ActionView::PartialRenderer.class_eval do
@@ -17,10 +17,10 @@ if defined?(ActionView::Base) && AppOpticsAPM::Config[:action_view][:enabled]
           begin
             entry_kvs[:Partial] = template.virtual_path
           rescue => e
-            AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
+            SolarWindsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if SolarWindsAPM::Config[:verbose]
           end
-          AppOpticsAPM::SDK.trace(:partial, kvs: entry_kvs) do
-            entry_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:action_view][:collect_backtraces]
+          SolarWindsAPM::SDK.trace(:partial, kvs: entry_kvs) do
+            entry_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:action_view][:collect_backtraces]
             render_partial_template_without_appoptics(*args)
           end
         end
@@ -35,10 +35,10 @@ if defined?(ActionView::Base) && AppOpticsAPM::Config[:action_view][:enabled]
           begin
             entry_kvs[:Partial] = template.virtual_path
           rescue => e
-            AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
+            SolarWindsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if SolarWindsAPM::Config[:verbose]
           end
-          AppOpticsAPM::SDK.trace(:collection, kvs: entry_kvs) do
-            entry_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:action_view][:collect_backtraces]
+          SolarWindsAPM::SDK.trace(:collection, kvs: entry_kvs) do
+            entry_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:action_view][:collect_backtraces]
             render_collection_without_appoptics(*args)
           end
         end
@@ -53,13 +53,13 @@ if defined?(ActionView::Base) && AppOpticsAPM::Config[:action_view][:enabled]
           entry_kvs = {}
           begin
             entry_kvs[:Partial] = template.virtual_path
-            # entry_kvs[:Partial] = AppOpticsAPM::Util.prettify(@options[:partial]) if @options.is_a?(Hash)
+            # entry_kvs[:Partial] = SolarWindsAPM::Util.prettify(@options[:partial]) if @options.is_a?(Hash)
           rescue => e
-            AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
+            SolarWindsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if SolarWindsAPM::Config[:verbose]
           end
 
-          AppOpticsAPM::SDK.trace('partial', kvs: entry_kvs) do
-            entry_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:action_view][:collect_backtraces]
+          SolarWindsAPM::SDK.trace('partial', kvs: entry_kvs) do
+            entry_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:action_view][:collect_backtraces]
             render_partial_without_appoptics(*args)
           end
         end
@@ -71,11 +71,11 @@ if defined?(ActionView::Base) && AppOpticsAPM::Config[:action_view][:enabled]
           begin
             entry_kvs[:Partial] = template.virtual_path
           rescue => e
-            AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
+            SolarWindsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if SolarWindsAPM::Config[:verbose]
           end
 
-          AppOpticsAPM::SDK.trace('collection', kvs: entry_kvs) do
-            entry_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:action_view][:collect_backtraces]
+          SolarWindsAPM::SDK.trace('collection', kvs: entry_kvs) do
+            entry_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:action_view][:collect_backtraces]
             render_collection_without_appoptics(*args)
           end
         end

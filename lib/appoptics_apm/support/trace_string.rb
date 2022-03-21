@@ -1,7 +1,7 @@
 # Copyright (c) SolarWinds, LLC.
 # All rights reserved.
 
-module AppOpticsAPM
+module SolarWindsAPM
   module TraceString
     # This module processes and queries strings of the format defined in
     # https://www.w3.org/TR/trace-context/#traceparent-header

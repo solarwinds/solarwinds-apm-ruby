@@ -3,7 +3,7 @@
 # All rights reserved.
 #++
 
-module AppOpticsAPM
+module SolarWindsAPM
   module SDK
 
     module CurrentTraceInfo
@@ -13,7 +13,7 @@ module AppOpticsAPM
       #
       # === Example:
       #
-      #   trace = AppOpticsAPM::SDK.current_trace_info
+      #   trace = SolarWindsAPM::SDK.current_trace_info
       #   trace.for_log        # 'trace_id=7435a9fe510ae4533414d425dadf4e18 span_id=49e60702469db05f trace_flags=01' or '' depends on Config
       #   trace.hash_for_log   # { trace_id: '7435a9fe510ae4533414d425dadf4e18',
       #                            span_id: '49e60702469db05f',
@@ -22,7 +22,7 @@ module AppOpticsAPM
       # Configure trace info injection with lograge:
       #
       #    Lograge.custom_options = lambda do |event|
-      #       AppOpticsAPM::SDK.current_trace_info.hash_for_log
+      #       SolarWindsAPM::SDK.current_trace_info.hash_for_log
       #    end
       #
 
@@ -39,8 +39,8 @@ module AppOpticsAPM
         SQL_REGEX=/\/\*\s*traceparent=.*\*\/\s*/.freeze
 
         def initialize
-          tracestring = AppOpticsAPM::Context.toString
-          parts = AppOpticsAPM::TraceString.split(tracestring)
+          tracestring = SolarWindsAPM::Context.toString
+          parts = SolarWindsAPM::TraceString.split(tracestring)
 
           @tracestring = parts[:tracestring]
           @trace_id = parts[:trace_id]
@@ -55,7 +55,7 @@ module AppOpticsAPM
         # 'trace_id=<trace_id> span_id=<span_id> trace_flags=<trace_flags>' or ''.
         #
         # An empty string is returned depending on the setting for
-        # <tt>AppOpticsAPM::Config[:log_traceId]</tt>, which can be :never,
+        # <tt>SolarWindsAPM::Config[:log_traceId]</tt>, which can be :never,
         # :sampled, :traced, or :always.
         #
         def for_log
@@ -93,25 +93,25 @@ module AppOpticsAPM
 
         # if true the trace info should be added to the log message
         def log?
-          case AppOpticsAPM::Config[:log_traceId]
+          case SolarWindsAPM::Config[:log_traceId]
           when :never, nil
             false
           when :always
             # there is no way @tracestring is not ok
             # it may be all 0s, but that is ok
-            # AppOpticsAPM::TraceString.ok?(@tracestring)
+            # SolarWindsAPM::TraceString.ok?(@tracestring)
             true
           when :traced
-            AppOpticsAPM::TraceString.valid?(@tracestring)
+            SolarWindsAPM::TraceString.valid?(@tracestring)
           when :sampled
-            AppOpticsAPM::TraceString.sampled?(@tracestring)
+            SolarWindsAPM::TraceString.sampled?(@tracestring)
           end
         end
 
         # if true the trace info should be added to the sql query
         def sql?
-           AppOpticsAPM::Config[:tag_sql] &&
-             AppOpticsAPM::TraceString.sampled?(@tracestring)
+           SolarWindsAPM::Config[:tag_sql] &&
+             SolarWindsAPM::TraceString.sampled?(@tracestring)
         end
 
       end

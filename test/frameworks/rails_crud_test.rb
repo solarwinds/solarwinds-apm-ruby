@@ -7,21 +7,21 @@ require 'mocha/minitest'
 describe "Rails CRUD Tests" do
 
   before do
-    AppOpticsAPM.config_lock.synchronize {
-      @tm = AppOpticsAPM::Config[:tracing_mode]
-      @sample_rate = AppOpticsAPM::Config[:sample_rate]
-      @sanitize = AppOpticsAPM::Config[:sanitize_sql]
-      @ac_backtrace = AppOpticsAPM::Config[:action_controller][:collect_backtraces]
-      @ar_backtrace = AppOpticsAPM::Config[:active_record][:collect_backtraces]
-      @rack_backtrace = AppOpticsAPM::Config[:rack][:collect_backtraces]
-      @log_traceid = AppOpticsAPM::Config[:log_traceId]
-      @tag_sql = AppOpticsAPM::Config[:tag_sql]
+    SolarWindsAPM.config_lock.synchronize {
+      @tm = SolarWindsAPM::Config[:tracing_mode]
+      @sample_rate = SolarWindsAPM::Config[:sample_rate]
+      @sanitize = SolarWindsAPM::Config[:sanitize_sql]
+      @ac_backtrace = SolarWindsAPM::Config[:action_controller][:collect_backtraces]
+      @ar_backtrace = SolarWindsAPM::Config[:active_record][:collect_backtraces]
+      @rack_backtrace = SolarWindsAPM::Config[:rack][:collect_backtraces]
+      @log_traceid = SolarWindsAPM::Config[:log_traceId]
+      @tag_sql = SolarWindsAPM::Config[:tag_sql]
 
-      AppOpticsAPM::Config[:sanitize_sql] = false
-      AppOpticsAPM::Config[:action_controller][:collect_backtraces] = false
-      AppOpticsAPM::Config[:active_record][:collect_backtraces] = false
-      AppOpticsAPM::Config[:rack][:collect_backtraces] = false
-      AppOpticsAPM::Config[:log_traceId] = :never
+      SolarWindsAPM::Config[:sanitize_sql] = false
+      SolarWindsAPM::Config[:action_controller][:collect_backtraces] = false
+      SolarWindsAPM::Config[:active_record][:collect_backtraces] = false
+      SolarWindsAPM::Config[:rack][:collect_backtraces] = false
+      SolarWindsAPM::Config[:log_traceId] = :never
     }
 
     @widget = JSON.parse(create_widget.body)
@@ -29,19 +29,19 @@ describe "Rails CRUD Tests" do
     @log_traceid_regex = /\/\*traceparent='[0-9a-f-]{55}'\*\//.freeze
     clear_all_traces
     clear_query_log
-    AppOpticsAPM::Config[:tag_sql] = true
+    SolarWindsAPM::Config[:tag_sql] = true
   end
 
   after do
-    AppOpticsAPM.config_lock.synchronize {
-      AppOpticsAPM::Config[:tracing_mode] = @tm
-      AppOpticsAPM::Config[:sample_rate] = @sample_rate
-      AppOpticsAPM::Config[:sanitize_sql] = @sanitize
-      AppOpticsAPM::Config[:action_controller][:collect_backtraces] = @ac_backtrace
-      AppOpticsAPM::Config[:active_record][:collect_backtraces] = @ar_backtrace
-      AppOpticsAPM::Config[:rack][:collect_backtraces] = @rack_backtrace
-      AppOpticsAPM::Config[:log_traceId] = @log_traceid
-      AppOpticsAPM::Config[:tag_sql] = @tag_sql
+    SolarWindsAPM.config_lock.synchronize {
+      SolarWindsAPM::Config[:tracing_mode] = @tm
+      SolarWindsAPM::Config[:sample_rate] = @sample_rate
+      SolarWindsAPM::Config[:sanitize_sql] = @sanitize
+      SolarWindsAPM::Config[:action_controller][:collect_backtraces] = @ac_backtrace
+      SolarWindsAPM::Config[:active_record][:collect_backtraces] = @ar_backtrace
+      SolarWindsAPM::Config[:rack][:collect_backtraces] = @rack_backtrace
+      SolarWindsAPM::Config[:log_traceId] = @log_traceid
+      SolarWindsAPM::Config[:tag_sql] = @tag_sql
     }
 
     clear_all_traces

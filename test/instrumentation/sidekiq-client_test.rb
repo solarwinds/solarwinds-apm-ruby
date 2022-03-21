@@ -18,17 +18,17 @@ unless defined?(JRUBY_VERSION)
   class SidekiqClientTest < Minitest::Test
     def setup
       clear_all_traces
-      AppOpticsAPM::Context.clear
-      AppOpticsAPM.trace_context = nil
-      @collect_backtraces = AppOpticsAPM::Config[:sidekiqclient][:collect_backtraces]
-      @log_args = AppOpticsAPM::Config[:sidekiqclient][:log_args]
-      @tracing_mode = AppOpticsAPM::Config[:tracing_mode]
+      SolarWindsAPM::Context.clear
+      SolarWindsAPM.trace_context = nil
+      @collect_backtraces = SolarWindsAPM::Config[:sidekiqclient][:collect_backtraces]
+      @log_args = SolarWindsAPM::Config[:sidekiqclient][:log_args]
+      @tracing_mode = SolarWindsAPM::Config[:tracing_mode]
     end
 
     def teardown
-      AppOpticsAPM::Config[:sidekiqclient][:collect_backtraces] = @collect_backtraces
-      AppOpticsAPM::Config[:sidekiqclient][:log_args] = @log_args
-      AppOpticsAPM::Config[:tracing_mode] = @tracing_mode
+      SolarWindsAPM::Config[:sidekiqclient][:collect_backtraces] = @collect_backtraces
+      SolarWindsAPM::Config[:sidekiqclient][:log_args] = @log_args
+      SolarWindsAPM::Config[:tracing_mode] = @tracing_mode
     end
 
     def refined_trace_count(traces)
@@ -41,9 +41,9 @@ unless defined?(JRUBY_VERSION)
 
     def test_enqueue
       # Queue up a job to be run
-      jid = ::AppOpticsAPM::SDK.start_trace(:enqueue_test) do
+      jid = ::SolarWindsAPM::SDK.start_trace(:enqueue_test) do
         result = Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
-        assert AppOpticsAPM::TraceString.valid?(AppOpticsAPM::Context.toString)
+        assert SolarWindsAPM::TraceString.valid?(SolarWindsAPM::Context.toString)
         result
       end
 
@@ -72,18 +72,18 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_collect_backtraces_default_value
-      assert_equal AppOpticsAPM::Config[:sidekiqclient][:collect_backtraces], false, "default backtrace collection"
+      assert_equal SolarWindsAPM::Config[:sidekiqclient][:collect_backtraces], false, "default backtrace collection"
     end
 
     def test_log_args_default_value
-      assert_equal AppOpticsAPM::Config[:sidekiqclient][:log_args], true, "log_args default "
+      assert_equal SolarWindsAPM::Config[:sidekiqclient][:log_args], true, "log_args default "
     end
 
     def test_obey_collect_backtraces_when_false
-      AppOpticsAPM::Config[:sidekiqclient][:collect_backtraces] = false
+      SolarWindsAPM::Config[:sidekiqclient][:collect_backtraces] = false
 
       # Queue up a job to be run
-      AppOpticsAPM::SDK.start_trace(:enqueue_test) do
+      SolarWindsAPM::SDK.start_trace(:enqueue_test) do
         Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
       end
 
@@ -98,10 +98,10 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_obey_collect_backtraces_when_true
-      AppOpticsAPM::Config[:sidekiqclient][:collect_backtraces] = true
+      SolarWindsAPM::Config[:sidekiqclient][:collect_backtraces] = true
 
       # Queue up a job to be run
-      AppOpticsAPM::SDK.start_trace(:enqueue_test) do
+      SolarWindsAPM::SDK.start_trace(:enqueue_test) do
         Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
       end
 
@@ -116,10 +116,10 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_obey_log_args_when_false
-      AppOpticsAPM::Config[:sidekiqclient][:log_args] = false
+      SolarWindsAPM::Config[:sidekiqclient][:log_args] = false
 
       # Queue up a job to be run
-      AppOpticsAPM::SDK.start_trace(:enqueue_test) do
+      SolarWindsAPM::SDK.start_trace(:enqueue_test) do
         Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
       end
 
@@ -133,10 +133,10 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_obey_log_args_when_true
-      AppOpticsAPM::Config[:sidekiqclient][:log_args] = true
+      SolarWindsAPM::Config[:sidekiqclient][:log_args] = true
 
       # Queue up a job to be run
-      AppOpticsAPM::SDK.start_trace(:enqueue_test) do
+      SolarWindsAPM::SDK.start_trace(:enqueue_test) do
         Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
       end
 
@@ -151,18 +151,18 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_dont_log_when_not_sampling
-      AppOpticsAPM::Config[:sidekiqclient][:log_args] = true
-      AppOpticsAPM::Config[:tracing_mode] = :disabled
-      AppOpticsAPM::Config[:sidekiqclient][:collect_backtraces] = false
+      SolarWindsAPM::Config[:sidekiqclient][:log_args] = true
+      SolarWindsAPM::Config[:tracing_mode] = :disabled
+      SolarWindsAPM::Config[:sidekiqclient][:collect_backtraces] = false
 
-      AppOpticsAPM::SDK.start_trace(:enqueue_test) do
+      SolarWindsAPM::SDK.start_trace(:enqueue_test) do
         Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
       end
 
       sleep 3
       traces = get_all_traces
 
-      # FIXME: the sidekiq worker is not respecting the AppOpticsAPM::Config[:tracing_mode] = :disabled setting
+      # FIXME: the sidekiq worker is not respecting the SolarWindsAPM::Config[:tracing_mode] = :disabled setting
       # ____ instead of no traces we are getting 17, that is 4 less than we would get with tracing
       # assert_equal 0, traces.count
       assert_equal 12, refined_trace_count(traces)

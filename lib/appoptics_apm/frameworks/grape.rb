@@ -3,23 +3,23 @@
 #
 class GrapeError < StandardError; end
 
-module AppOpticsAPM
+module SolarWindsAPM
   module Grape
     module API
       def self.extended(klass)
-        AppOpticsAPM::Util.class_method_alias(klass, :inherited, ::Grape::API)
+        SolarWindsAPM::Util.class_method_alias(klass, :inherited, ::Grape::API)
       end
 
       def inherited_with_appoptics(subclass)
         inherited_without_appoptics(subclass)
 
-        subclass.use AppOpticsAPM::Rack
+        subclass.use SolarWindsAPM::Rack
       end
     end
 
     module Endpoint
       def self.included(klass)
-        AppOpticsAPM::Util.method_alias(klass, :run, ::Grape::Endpoint)
+        SolarWindsAPM::Util.method_alias(klass, :run, ::Grape::Endpoint)
       end
 
       def run_with_appoptics(*args)
@@ -33,46 +33,46 @@ module AppOpticsAPM
           else
             args.empty? ? env['PATH_INFO'] : args[0]['PATH_INFO']
           end
-        report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:grape][:collect_backtraces]
+        report_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:grape][:collect_backtraces]
 
         env['appoptics_apm.controller'] = report_kvs[:Controller]
         env['appoptics_apm.action'] = report_kvs[:Action]
 
-        AppOpticsAPM::API.log_entry('grape', report_kvs)
+        SolarWindsAPM::API.log_entry('grape', report_kvs)
 
         run_without_appoptics(*args)
       ensure
-        AppOpticsAPM::API.log_exit('grape')
+        SolarWindsAPM::API.log_exit('grape')
       end
     end
 
     module Middleware
       module Error
         def self.included(klass)
-          AppOpticsAPM::Util.method_alias(klass, :error_response, ::Grape::Middleware::Error)
+          SolarWindsAPM::Util.method_alias(klass, :error_response, ::Grape::Middleware::Error)
         end
 
         def error_response_with_appoptics(error = {})
           response = error_response_without_appoptics(error)
           status, headers, _body = response.finish
 
-          tracestring = AppOpticsAPM::Context.toString
+          tracestring = SolarWindsAPM::Context.toString
 
-          if AppOpticsAPM.tracing?
+          if SolarWindsAPM.tracing?
             # Since Grape uses throw/catch and not Exceptions, we have to create an exception here
             exception = GrapeError.new(error[:message] ? error[:message] : "No message given.")
-            exception.set_backtrace(AppOpticsAPM::API.backtrace)
+            exception.set_backtrace(SolarWindsAPM::API.backtrace)
 
-            AppOpticsAPM::API.log_exception('rack', exception)
+            SolarWindsAPM::API.log_exception('rack', exception)
 
             # Since calls to error() are handled similar to abort in Grape.  We
             # manually log the rack exit here since the original code won't
             # be returned to
-            tracestring = AppOpticsAPM::API.log_end('rack', :Status => status)
+            tracestring = SolarWindsAPM::API.log_end('rack', :Status => status)
           end
 
-          if headers && AppOpticsAPM::TraceString.valid?(tracestring)
-            unless defined?(JRUBY_VERSION) && AppOpticsAPM.is_continued_trace?
+          if headers && SolarWindsAPM::TraceString.valid?(tracestring)
+            unless defined?(JRUBY_VERSION) && SolarWindsAPM.is_continued_trace?
               # this will change later, w3c outgoing headers have not been standardized yet
               headers['X-Trace'] = tracestring if headers.is_a?(Hash)
             end
@@ -85,14 +85,14 @@ module AppOpticsAPM
   end
 end
 
-if AppOpticsAPM::Config[:grape][:enabled] && defined?(Grape)
+if SolarWindsAPM::Config[:grape][:enabled] && defined?(Grape)
   require 'appoptics_apm/inst/rack'
 
-  AppOpticsAPM.logger.info "[appoptics_apm/loading] Instrumenting Grape" if AppOpticsAPM::Config[:verbose]
+  SolarWindsAPM.logger.info "[appoptics_apm/loading] Instrumenting Grape" if SolarWindsAPM::Config[:verbose]
 
-  AppOpticsAPM::Inst.load_instrumentation
+  SolarWindsAPM::Inst.load_instrumentation
 
-  AppOpticsAPM::Util.send_extend(Grape::API, AppOpticsAPM::Grape::API)
-  AppOpticsAPM::Util.send_include(Grape::Endpoint, AppOpticsAPM::Grape::Endpoint)
-  AppOpticsAPM::Util.send_include(Grape::Middleware::Error, AppOpticsAPM::Grape::Middleware::Error)
+  SolarWindsAPM::Util.send_extend(Grape::API, SolarWindsAPM::Grape::API)
+  SolarWindsAPM::Util.send_include(Grape::Endpoint, SolarWindsAPM::Grape::Endpoint)
+  SolarWindsAPM::Util.send_include(Grape::Middleware::Error, SolarWindsAPM::Grape::Middleware::Error)
 end

@@ -3,7 +3,7 @@
 
 require 'digest/sha1'
 
-module AppOpticsAPM
+module SolarWindsAPM
   module Util
     ##
     # This module was used solely for the deprecated RUM ID calculation
@@ -50,16 +50,16 @@ module AppOpticsAPM
       begin
         require 'appoptics_apm/api'
       rescue LoadError => e
-        AppOpticsAPM.logger.fatal "[appoptics_apm/error] Couldn't load api: #{e.message}"
+        SolarWindsAPM.logger.fatal "[appoptics_apm/error] Couldn't load api: #{e.message}"
       end
     end
   end
 end
 
-AppOpticsAPM::Loading.require_api
+SolarWindsAPM::Loading.require_api
 
 # Auto-start the Reporter unless we are running Unicorn on Heroku
 # In that case, we start the reporters after fork
-unless AppOpticsAPM.heroku? && AppOpticsAPM.forking_webserver?
-  AppOpticsAPM::Reporter.start if AppOpticsAPM.loaded
+unless SolarWindsAPM.heroku? && SolarWindsAPM.forking_webserver?
+  SolarWindsAPM::Reporter.start if SolarWindsAPM.loaded
 end

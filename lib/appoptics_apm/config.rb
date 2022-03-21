@@ -3,12 +3,12 @@
 
 require_relative 'support/transaction_settings'
 
-module AppOpticsAPM
+module SolarWindsAPM
   ##
   # This module exposes a nested configuration hash that can be used to
   # configure and/or modify the functionality of the appoptics_apm gem.
   #
-  # Use AppOpticsAPM::Config.show to view the entire nested hash.
+  # Use SolarWindsAPM::Config.show to view the entire nested hash.
   #
   module Config
     @@config = {}
@@ -57,7 +57,7 @@ module AppOpticsAPM
         elsif File.exist?(File.join(ENV['APPOPTICS_APM_CONFIG_RUBY'], 'appoptics_apm_config.rb'))
           config_files << File.join(ENV['APPOPTICS_APM_CONFIG_RUBY'], 'appoptics_apm_config.rb')
         else
-          AppOpticsAPM.logger.warn "[appoptics_apm/config] Could not find the configuration file set by the APPOPTICS_APM_CONFIG_RUBY environment variable:  #{ENV['APPOPTICS_APM_CONFIG_RUBY']}"
+          SolarWindsAPM.logger.warn "[appoptics_apm/config] Could not find the configuration file set by the APPOPTICS_APM_CONFIG_RUBY environment variable:  #{ENV['APPOPTICS_APM_CONFIG_RUBY']}"
         end
       end
 
@@ -67,7 +67,7 @@ module AppOpticsAPM
 
       unless config_files.empty? # we use the defaults from the template if there are no config files
         if config_files.size > 1
-          AppOpticsAPM.logger.warn [
+          SolarWindsAPM.logger.warn [
                                      '[appoptics_apm/config] Multiple configuration files configured, using the first one listed: ',
                                      config_files.join(', ')
                                    ].join(' ')
@@ -75,30 +75,30 @@ module AppOpticsAPM
         load(config_files[0])
       end
 
-      # sets AppOpticsAPM::Config[:debug_level], AppOpticsAPM.logger.level
+      # sets SolarWindsAPM::Config[:debug_level], SolarWindsAPM.logger.level
       set_log_level
 
       # the verbose setting is only relevant for ruby, ENV['APPOPTICS_GEM_VERBOSE'] overrides
       if ENV.key?('APPOPTICS_GEM_VERBOSE')
-        AppOpticsAPM::Config[:verbose] = ENV['APPOPTICS_GEM_VERBOSE'].downcase == 'true'
+        SolarWindsAPM::Config[:verbose] = ENV['APPOPTICS_GEM_VERBOSE'].downcase == 'true'
       end
     end
 
     def self.set_log_level
-      unless (-1..6).include?(AppOpticsAPM::Config[:debug_level])
-        AppOpticsAPM::Config[:debug_level] = 3
+      unless (-1..6).include?(SolarWindsAPM::Config[:debug_level])
+        SolarWindsAPM::Config[:debug_level] = 3
       end
 
       # let's find and use the equivalent debug level for ruby
-      debug_level = (ENV['APPOPTICS_DEBUG_LEVEL'] || AppOpticsAPM::Config[:debug_level] || 3).to_i
+      debug_level = (ENV['APPOPTICS_DEBUG_LEVEL'] || SolarWindsAPM::Config[:debug_level] || 3).to_i
       if debug_level < 0
         # there should be no logging if APPOPTICS_DEBUG_LEVEL == -1
         # In Ruby level 5 is UNKNOWN and it can log, but level 6 is quiet
-        AppOpticsAPM.logger.level = 6
+        SolarWindsAPM.logger.level = 6
       else
-        AppOpticsAPM.logger.level = [4 - debug_level, 0].max
+        SolarWindsAPM.logger.level = [4 - debug_level, 0].max
       end
-      AppOpticsAPM::Config[:debug_level] = debug_level
+      SolarWindsAPM::Config[:debug_level] = debug_level
     end
 
     ##
@@ -108,31 +108,31 @@ module AppOpticsAPM
     # to create an output similar to the content of the config file
     #
     def self.print_config
-      AppOpticsAPM.logger.warn "# General configurations"
+      SolarWindsAPM.logger.warn "# General configurations"
       non_instrumentation = @@config.keys - @@instrumentation
       non_instrumentation.each do |config|
-        AppOpticsAPM.logger.warn "AppOpticsAPM::Config[:#{config}] = #{@@config[config]}"
+        SolarWindsAPM.logger.warn "SolarWindsAPM::Config[:#{config}] = #{@@config[config]}"
       end
 
-      AppOpticsAPM.logger.warn "\n# Instrumentation specific configurations"
-      AppOpticsAPM.logger.warn "# Enabled/Disabled Instrumentation"
+      SolarWindsAPM.logger.warn "\n# Instrumentation specific configurations"
+      SolarWindsAPM.logger.warn "# Enabled/Disabled Instrumentation"
       @@instrumentation.each do |config|
-        AppOpticsAPM.logger.warn "AppOpticsAPM::Config[:#{config}][:enabled] = #{@@config[config][:enabled]}"
+        SolarWindsAPM.logger.warn "SolarWindsAPM::Config[:#{config}][:enabled] = #{@@config[config][:enabled]}"
       end
 
-      AppOpticsAPM.logger.warn "\n# Enabled/Disabled Backtrace Collection"
+      SolarWindsAPM.logger.warn "\n# Enabled/Disabled Backtrace Collection"
       @@instrumentation.each do |config|
-        AppOpticsAPM.logger.warn "AppOpticsAPM::Config[:#{config}][:collect_backtraces] = #{@@config[config][:collect_backtraces]}"
+        SolarWindsAPM.logger.warn "SolarWindsAPM::Config[:#{config}][:collect_backtraces] = #{@@config[config][:collect_backtraces]}"
       end
 
-      AppOpticsAPM.logger.warn "\n# Logging of outgoing HTTP query args"
+      SolarWindsAPM.logger.warn "\n# Logging of outgoing HTTP query args"
       @@instrumentation.each do |config|
-        AppOpticsAPM.logger.warn "AppOpticsAPM::Config[:#{config}][:log_args] = #{@@config[config][:log_args] || false}"
+        SolarWindsAPM.logger.warn "SolarWindsAPM::Config[:#{config}][:log_args] = #{@@config[config][:log_args] || false}"
       end
 
-      AppOpticsAPM.logger.warn "\n# Bunny Controller and Action"
-      AppOpticsAPM.logger.warn "AppOpticsAPM::Config[:bunnyconsumer][:controller] = #{@@config[:bunnyconsumer][:controller].inspect}"
-      AppOpticsAPM.logger.warn "AppOpticsAPM::Config[:bunnyconsumer][:action] = #{@@config[:bunnyconsumer][:action].inspect}"
+      SolarWindsAPM.logger.warn "\n# Bunny Controller and Action"
+      SolarWindsAPM.logger.warn "SolarWindsAPM::Config[:bunnyconsumer][:controller] = #{@@config[:bunnyconsumer][:controller].inspect}"
+      SolarWindsAPM.logger.warn "SolarWindsAPM::Config[:bunnyconsumer][:action] = #{@@config[:bunnyconsumer][:action].inspect}"
       nil
     end
 
@@ -166,8 +166,8 @@ module AppOpticsAPM
 
     def self.[](key)
       if key == :resque
-        AppOpticsAPM.logger.warn '[appoptics_apm/warn] :resque config is deprecated.  It is now split into :resqueclient and :resqueworker.'
-        AppOpticsAPM.logger.warn "[appoptics_apm/warn] Called from #{Kernel.caller[0]}"
+        SolarWindsAPM.logger.warn '[appoptics_apm/warn] :resque config is deprecated.  It is now split into :resqueclient and :resqueworker.'
+        SolarWindsAPM.logger.warn "[appoptics_apm/warn] Called from #{Kernel.caller[0]}"
       end
 
       @@config[key.to_sym]
@@ -185,12 +185,12 @@ module AppOpticsAPM
       @@config[key] = value
 
       if key == :sampling_rate
-        AppOpticsAPM.logger.warn '[appoptics_apm/config] sampling_rate is not a supported setting for AppOpticsAPM::Config.  ' \
+        SolarWindsAPM.logger.warn '[appoptics_apm/config] sampling_rate is not a supported setting for SolarWindsAPM::Config.  ' \
                                  'Please use :sample_rate.'
 
       elsif key == :sample_rate
         unless value.is_a?(Integer) || value.is_a?(Float)
-          AppOpticsAPM.logger.warn "[appoptics_apm/config] :sample_rate must be a number between 0 and 1000000 (1m) " \
+          SolarWindsAPM.logger.warn "[appoptics_apm/config] :sample_rate must be a number between 0 and 1000000 (1m) " \
                                    "(provided: #{value}), corrected to 0"
           value = 0
         end
@@ -199,32 +199,32 @@ module AppOpticsAPM
         unless value.between?(0, 1e6)
           value_1 = value
           value = value_1 < 0 ? 0 : 1_000_000
-          AppOpticsAPM.logger.warn "[appoptics_apm/config] :sample_rate must be between 0 and 1000000 (1m) " \
+          SolarWindsAPM.logger.warn "[appoptics_apm/config] :sample_rate must be between 0 and 1000000 (1m) " \
                                    "(provided: #{value_1}), corrected to #{value}"
         end
 
         # Assure value is an integer
         @@config[key.to_sym] = value.to_i
-        AppOpticsAPM.set_sample_rate(value) if AppOpticsAPM.loaded
+        SolarWindsAPM.set_sample_rate(value) if SolarWindsAPM.loaded
 
       elsif key == :action_blacklist
-        AppOpticsAPM.logger.warn "[appoptics_apm/config] :action_blacklist has been deprecated and no longer functions."
+        SolarWindsAPM.logger.warn "[appoptics_apm/config] :action_blacklist has been deprecated and no longer functions."
 
       elsif key == :blacklist
-        AppOpticsAPM.logger.warn "[appoptics_apm/config] :blacklist has been deprecated and no longer functions."
+        SolarWindsAPM.logger.warn "[appoptics_apm/config] :blacklist has been deprecated and no longer functions."
 
       elsif key == :dnt_regexp
         if value.nil? || value == ''
           @@config[:dnt_compiled] = nil
         else
           @@config[:dnt_compiled] =
-            Regexp.new(AppOpticsAPM::Config[:dnt_regexp], AppOpticsAPM::Config[:dnt_opts] || nil)
+            Regexp.new(SolarWindsAPM::Config[:dnt_regexp], SolarWindsAPM::Config[:dnt_opts] || nil)
         end
 
       elsif key == :dnt_opts
-        if AppOpticsAPM::Config[:dnt_regexp] && AppOpticsAPM::Config[:dnt_regexp] != ''
+        if SolarWindsAPM::Config[:dnt_regexp] && SolarWindsAPM::Config[:dnt_regexp] != ''
           @@config[:dnt_compiled] =
-            Regexp.new(AppOpticsAPM::Config[:dnt_regexp], AppOpticsAPM::Config[:dnt_opts] || nil)
+            Regexp.new(SolarWindsAPM::Config[:dnt_regexp], SolarWindsAPM::Config[:dnt_opts] || nil)
         end
 
       elsif key == :profiling_interval
@@ -236,18 +236,18 @@ module AppOpticsAPM
         @@config[:profiling_interval] = value
         # CProfiler may not be loaded yet, the profiler will send the value
         # after it is loaded
-        AppOpticsAPM::CProfiler.set_interval(value) if defined? AppOpticsAPM::CProfiler
+        SolarWindsAPM::CProfiler.set_interval(value) if defined? SolarWindsAPM::CProfiler
 
       elsif key == :transaction_settings
         if value.is_a?(Hash)
-          AppOpticsAPM::TransactionSettings.compile_url_settings(value[:url])
+          SolarWindsAPM::TransactionSettings.compile_url_settings(value[:url])
         else
-          AppOpticsAPM::TransactionSettings.reset_url_regexps
+          SolarWindsAPM::TransactionSettings.reset_url_regexps
         end
 
       elsif key == :resque
-        AppOpticsAPM.logger.warn "[appoptics_apm/config] :resque config is deprecated.  It is now split into :resqueclient and :resqueworker."
-        AppOpticsAPM.logger.warn "[appoptics_apm/config] Called from #{Kernel.caller[0]}"
+        SolarWindsAPM.logger.warn "[appoptics_apm/config] :resque config is deprecated.  It is now split into :resqueclient and :resqueworker."
+        SolarWindsAPM.logger.warn "[appoptics_apm/config] Called from #{Kernel.caller[0]}"
 
       elsif key == :include_url_query_params # DEPRECATED
         # Obey the global flag and update all of the per instrumentation
@@ -264,7 +264,7 @@ module AppOpticsAPM
       elsif key == :tracing_mode
       #   CAN'T DO `set_tracing_mode` ANYMORE, ALL TRACING COMMUNICATION TO OBOE
       #   IS NOW HANDLED BY TransactionSettings
-      #   AppOpticsAPM.set_tracing_mode(value.to_sym) if AppOpticsAPM.loaded
+      #   SolarWindsAPM.set_tracing_mode(value.to_sym) if SolarWindsAPM.loaded
 
         # Make sure that the mode is stored as a symbol
         @@config[key.to_sym] = value.to_sym
@@ -299,4 +299,4 @@ module AppOpticsAPM
   end
 end
 
-AppOpticsAPM::Config.initialize
+SolarWindsAPM::Config.initialize

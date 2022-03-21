@@ -13,7 +13,7 @@
 # ____  what is in the graphql gem and vice-versa
 
 
-if defined?(GraphQL::Tracing) && !(AppOpticsAPM::Config[:graphql][:enabled] == false)
+if defined?(GraphQL::Tracing) && !(SolarWindsAPM::Config[:graphql][:enabled] == false)
   module GraphQL
     module Tracing
       # AppOpticsTracing in the graphql gem may be a different version than the
@@ -62,7 +62,7 @@ if defined?(GraphQL::Tracing) && !(AppOpticsAPM::Config[:graphql][:enabled] == f
           }
 
           def platform_trace(platform_key, _key, data)
-            return yield if !defined?(AppOpticsAPM) || gql_config[:enabled] == false
+            return yield if !defined?(SolarWindsAPM) || gql_config[:enabled] == false
 
             layer = span_name(platform_key)
             kvs = metadata(data, layer)
@@ -70,7 +70,7 @@ if defined?(GraphQL::Tracing) && !(AppOpticsAPM::Config[:graphql][:enabled] == f
 
             transaction_name(kvs[:InboundQuery]) if kvs[:InboundQuery] && layer == 'graphql.execute'
 
-            ::AppOpticsAPM::SDK.trace(layer, kvs: kvs) do
+            ::SolarWindsAPM::SDK.trace(layer, kvs: kvs) do
               kvs.clear # we don't have to send them twice
               yield
             end
@@ -91,28 +91,28 @@ if defined?(GraphQL::Tracing) && !(AppOpticsAPM::Config[:graphql][:enabled] == f
           private
 
           def gql_config
-            ::AppOpticsAPM::Config[:graphql] ||= {}
+            ::SolarWindsAPM::Config[:graphql] ||= {}
           end
 
           def transaction_name(query)
             return if gql_config[:transaction_name] == false ||
-              ::AppOpticsAPM::SDK.get_transaction_name
+              ::SolarWindsAPM::SDK.get_transaction_name
 
             split_query = query.strip.split(/\W+/, 3)
             split_query[0] = 'query' if split_query[0].empty?
             name = "graphql.#{split_query[0..1].join('.')}"
 
-            ::AppOpticsAPM::SDK.set_transaction_name(name)
+            ::SolarWindsAPM::SDK.set_transaction_name(name)
           end
 
           def multiplex_transaction_name(names)
             return if gql_config[:transaction_name] == false ||
-              ::AppOpticsAPM::SDK.get_transaction_name
+              ::SolarWindsAPM::SDK.get_transaction_name
 
             name = "graphql.multiplex.#{names.join('.')}"
             name = "#{name[0..251]}..." if name.length > 254
 
-            ::AppOpticsAPM::SDK.set_transaction_name(name)
+            ::SolarWindsAPM::SDK.set_transaction_name(name)
           end
 
           def span_name(key)
@@ -145,7 +145,7 @@ if defined?(GraphQL::Tracing) && !(AppOpticsAPM::Config[:graphql][:enabled] == f
 
           def graphql_context(context, layer)
             context.errors && context.errors.each do |err|
-              AppOpticsAPM::API.log_exception(layer, err)
+              SolarWindsAPM::API.log_exception(layer, err)
             end
 
             [[:Path, context.path.join('.')]]
@@ -196,7 +196,7 @@ if defined?(GraphQL::Tracing) && !(AppOpticsAPM::Config[:graphql][:enabled] == f
     end
   end
 
-  module AppOpticsAPM
+  module SolarWindsAPM
     module GraphQLSchemaPrepend
       def use(plugin, **options)
         # super unless GraphQL::Schema.plugins.find { |pl| pl[0].to_s == plugin.to_s }
@@ -215,7 +215,7 @@ if defined?(GraphQL::Tracing) && !(AppOpticsAPM::Config[:graphql][:enabled] == f
     module GraphQLErrorPrepend
       def initialize(*args)
         super
-        bt = AppOpticsAPM::API.backtrace(1)
+        bt = SolarWindsAPM::API.backtrace(1)
         set_backtrace(bt) unless self.backtrace
       end
     end
@@ -235,20 +235,20 @@ if defined?(GraphQL::Tracing) && !(AppOpticsAPM::Config[:graphql][:enabled] == f
   end
 
   if Gem.loaded_specs['graphql'] && Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
-    AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting GraphQL' if AppOpticsAPM::Config[:verbose]
+    SolarWindsAPM.logger.info '[appoptics_apm/loading] Instrumenting GraphQL' if SolarWindsAPM::Config[:verbose]
     if defined?(GraphQL::Schema)
-      GraphQL::Schema.singleton_class.prepend(AppOpticsAPM::GraphQLSchemaPrepend)
+      GraphQL::Schema.singleton_class.prepend(SolarWindsAPM::GraphQLSchemaPrepend)
     end
 
     # rubocop:disable Style/IfUnlessModifier
     if defined?(GraphQL::Error)
-      GraphQL::Error.prepend(AppOpticsAPM::GraphQLErrorPrepend)
+      GraphQL::Error.prepend(SolarWindsAPM::GraphQLErrorPrepend)
     end
     # rubocop:enable Style/IfUnlessModifier
   elsif Gem.loaded_specs['graphql'] && Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.7.4')
-    AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting GraphQL' if AppOpticsAPM::Config[:verbose]
+    SolarWindsAPM.logger.info '[appoptics_apm/loading] Instrumenting GraphQL' if SolarWindsAPM::Config[:verbose]
     if defined?(GraphQL::Schema)
-      GraphQL::Schema.prepend(AppOpticsAPM::GraphQLSchemaPrepend17)
+      GraphQL::Schema.prepend(SolarWindsAPM::GraphQLSchemaPrepend17)
     end
   end
 end

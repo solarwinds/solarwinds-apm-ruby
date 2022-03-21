@@ -8,27 +8,27 @@ if defined?(::Rails)
   describe "Rails5x" do
     before do
       clear_all_traces
-      AppOpticsAPM.config_lock.synchronize {
-        @tm = AppOpticsAPM::Config[:tracing_mode]
-        @collect_backtraces = AppOpticsAPM::Config[:action_controller][:collect_backtraces]
-        @collect_ar_backtraces = AppOpticsAPM::Config[:active_record][:collect_backtraces]
-        @sample_rate = AppOpticsAPM::Config[:sample_rate]
-        @sanitize_sql = AppOpticsAPM::Config[:sanitize_sql]
+      SolarWindsAPM.config_lock.synchronize {
+        @tm = SolarWindsAPM::Config[:tracing_mode]
+        @collect_backtraces = SolarWindsAPM::Config[:action_controller][:collect_backtraces]
+        @collect_ar_backtraces = SolarWindsAPM::Config[:active_record][:collect_backtraces]
+        @sample_rate = SolarWindsAPM::Config[:sample_rate]
+        @sanitize_sql = SolarWindsAPM::Config[:sanitize_sql]
 
-        AppOpticsAPM::Config[:action_controller][:collect_backtraces] = false
-        AppOpticsAPM::Config[:active_record][:collect_backtraces] = false
-        AppOpticsAPM::Config[:rack][:collect_backtraces] = false
+        SolarWindsAPM::Config[:action_controller][:collect_backtraces] = false
+        SolarWindsAPM::Config[:active_record][:collect_backtraces] = false
+        SolarWindsAPM::Config[:rack][:collect_backtraces] = false
       }
       ENV['DBTYPE'] = "postgresql" unless ENV['DBTYPE']
     end
 
     after do
-      AppOpticsAPM.config_lock.synchronize {
-        AppOpticsAPM::Config[:action_controller][:collect_backtraces] = @collect_backtraces
-        AppOpticsAPM::Config[:active_record][:collect_backtraces] = @collect_ar_backtraces
-        AppOpticsAPM::Config[:tracing_mode] = @tm
-        AppOpticsAPM::Config[:sample_rate] = @sample_rate
-        AppOpticsAPM::Config[:sanitize_sql] = @sanitize_sql
+      SolarWindsAPM.config_lock.synchronize {
+        SolarWindsAPM::Config[:action_controller][:collect_backtraces] = @collect_backtraces
+        SolarWindsAPM::Config[:active_record][:collect_backtraces] = @collect_ar_backtraces
+        SolarWindsAPM::Config[:tracing_mode] = @tm
+        SolarWindsAPM::Config[:sample_rate] = @sample_rate
+        SolarWindsAPM::Config[:sanitize_sql] = @sanitize_sql
       }
 
       uri = URI.parse('http://127.0.0.1:8140/widgets/delete_all')
@@ -178,7 +178,7 @@ if defined?(::Rails)
       # handles DB instrumentation for JRuby
       skip if defined?(JRUBY_VERSION) || ENV['DBTYPE'] != 'mysql'
 
-      AppOpticsAPM::Config[:sanitize_sql] = false
+      SolarWindsAPM::Config[:sanitize_sql] = false
 
       uri = URI.parse('http://127.0.0.1:8140/hello/db')
       r = Net::HTTP.get_response(uri)
@@ -231,7 +231,7 @@ if defined?(::Rails)
       # handles DB instrumentation for JRuby
       skip if defined?(JRUBY_VERSION) || ENV['DBTYPE'] != 'mysql'
 
-      AppOpticsAPM::Config[:sanitize_sql] = true
+      SolarWindsAPM::Config[:sanitize_sql] = true
 
       uri = URI.parse('http://127.0.0.1:8140/hello/db')
       r = Net::HTTP.get_response(uri)
@@ -308,7 +308,7 @@ if defined?(::Rails)
     end
 
     it "should collect backtraces when true" do
-      AppOpticsAPM::Config[:action_controller][:collect_backtraces] = true
+      SolarWindsAPM::Config[:action_controller][:collect_backtraces] = true
 
       uri = URI.parse('http://127.0.0.1:8140/hello/world')
       r = Net::HTTP.get_response(uri)
@@ -352,7 +352,7 @@ if defined?(::Rails)
     end
 
     it "should NOT collect backtraces when false" do
-      AppOpticsAPM::Config[:action_controller][:collect_backtraces] = false
+      SolarWindsAPM::Config[:action_controller][:collect_backtraces] = false
 
       uri = URI.parse('http://127.0.0.1:8140/hello/world')
       r = Net::HTTP.get_response(uri)
@@ -396,7 +396,7 @@ if defined?(::Rails)
     end
 
     it 'should log one exception and create unbroken traces when there is an exception' do
-      AppOpticsAPM::Config[:report_rescued_errors] = true
+      SolarWindsAPM::Config[:report_rescued_errors] = true
       uri = URI.parse('http://127.0.0.1:8140/hello/error')
       r = Net::HTTP.get_response(uri)
 

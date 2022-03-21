@@ -18,8 +18,8 @@ if defined? GRPC
   #     LOGGER
   #   end
   #
-  #   AppOpticsAPM.logger.level = Logger::DEBUG
-  #   LOGGER = AppOpticsAPM.logger
+  #   SolarWindsAPM.logger.level = Logger::DEBUG
+  #   LOGGER = SolarWindsAPM.logger
   # end
 
   describe 'GRPC' do
@@ -27,8 +27,8 @@ if defined? GRPC
     def start_server
       @pool_size = 6
 
-      server_bt = AppOpticsAPM::Config[:grpc_server][:collect_backtraces]
-      AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = false
+      server_bt = SolarWindsAPM::Config[:grpc_server][:collect_backtraces]
+      SolarWindsAPM::Config[:grpc_server][:collect_backtraces] = false
 
       @server = GRPC::RpcServer.new(pool_size: @pool_size)
       @server.add_http2_port("0.0.0.0:50051", :this_port_is_insecure)
@@ -41,7 +41,7 @@ if defined? GRPC
         end
       end
       sleep 0.2
-      AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = server_bt
+      SolarWindsAPM::Config[:grpc_server][:collect_backtraces] = server_bt
     end
 
     def stop_server
@@ -51,8 +51,8 @@ if defined? GRPC
     end
 
     def server_with_backtraces
-      server_bt = AppOpticsAPM::Config[:grpc_server][:collect_backtraces]
-      AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = true
+      server_bt = SolarWindsAPM::Config[:grpc_server][:collect_backtraces]
+      SolarWindsAPM::Config[:grpc_server][:collect_backtraces] = true
 
       server = GRPC::RpcServer.new(pool_size: 2)
       server.add_http2_port("0.0.0.0:50052", :this_port_is_insecure)
@@ -70,13 +70,13 @@ if defined? GRPC
 
       server.stop
       server_thread.join
-      AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = server_bt
+      SolarWindsAPM::Config[:grpc_server][:collect_backtraces] = server_bt
     end
 
     before(:all) do
-      @bt_client = AppOpticsAPM::Config[:grpc_client][:collect_backtraces]
+      @bt_client = SolarWindsAPM::Config[:grpc_client][:collect_backtraces]
 
-      AppOpticsAPM::Config[:grpc_server][:collect_backtraces] = false
+      SolarWindsAPM::Config[:grpc_server][:collect_backtraces] = false
       start_server
 
       @null_msg = Grpctest::NullMessage.new
@@ -94,28 +94,28 @@ if defined? GRPC
     end
 
     before do
-      AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = false
+      SolarWindsAPM::Config[:grpc_client][:collect_backtraces] = false
       clear_all_traces
     end
 
     after do
-      AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = false
+      SolarWindsAPM::Config[:grpc_client][:collect_backtraces] = false
       clear_all_traces
     end
 
     after(:all) do
-      AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = @bt_client
+      SolarWindsAPM::Config[:grpc_client][:collect_backtraces] = @bt_client
       stop_server
     end
 
-    unless ['file', 'udp'].include?(ENV['APPOPTICS_REPORTER']) || AppOpticsAPM::SDK.appoptics_ready?(10_000)
+    unless ['file', 'udp'].include?(ENV['APPOPTICS_REPORTER']) || SolarWindsAPM::SDK.appoptics_ready?(10_000)
       puts "aborting!!! Agent not ready after 10 seconds"
       exit false
     end
 
     describe 'UNARY' do
       it 'should collect traces for unary' do
-        AppOpticsAPM::SDK.start_trace(:test) do
+        SolarWindsAPM::SDK.start_trace(:test) do
           res = @stub.unary(@address_msg)
         end
 
@@ -144,10 +144,10 @@ if defined? GRPC
       end
 
       it 'should include backtraces for unary if configured' do
-        AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = true
+        SolarWindsAPM::Config[:grpc_client][:collect_backtraces] = true
 
         server_with_backtraces do |stub|
-          AppOpticsAPM::SDK.start_trace(:test) do
+          SolarWindsAPM::SDK.start_trace(:test) do
             stub.unary(@address_msg)
           end
 
@@ -162,10 +162,10 @@ if defined? GRPC
       it 'should have kvs for W3C trace context for unary' do
         # set up trace context
         other_state = 'aa=123'
-        trace_state = AppOpticsAPM::TraceState.add_sw_member(other_state, '20a6f5ed4113e661-01')
+        trace_state = SolarWindsAPM::TraceState.add_sw_member(other_state, '20a6f5ed4113e661-01')
         headers = { traceparent: @trace_00, tracestate: trace_state }
 
-        AppOpticsAPM::SDK.start_trace(:test, headers: headers) do
+        SolarWindsAPM::SDK.start_trace(:test, headers: headers) do
           @stub.unary(@address_msg)
         end
 
@@ -175,12 +175,12 @@ if defined? GRPC
 
         # check tracestate_parent_id
         assert_equal server_entry['sw.tracestate_parent_id'],
-                     AppOpticsAPM::TraceString.span_id(client_entry['sw.trace_context']).downcase
+                     SolarWindsAPM::TraceString.span_id(client_entry['sw.trace_context']).downcase
 
         # check trace_state
         assert_includes server_entry['sw.w3c.tracestate'], other_state
-        assert_equal AppOpticsAPM::TraceString.span_id_flags(client_entry['sw.trace_context']),
-                     AppOpticsAPM::TraceState.sw_member_value(server_entry['sw.w3c.tracestate'])
+        assert_equal SolarWindsAPM::TraceString.span_id_flags(client_entry['sw.trace_context']),
+                     SolarWindsAPM::TraceState.sw_member_value(server_entry['sw.w3c.tracestate'])
       end
 
       it 'unary should not trace if the w3c trace context is not tracing' do
@@ -188,15 +188,15 @@ if defined? GRPC
         trace_parent = '00-d1169466cf4a7c3c82d07e745bb51f16-4209252012f594bf-01'
         trace_state = 'sw=4209252012f594bf-00'
         headers = { traceparent: trace_parent, tracestate: trace_state }
-        AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(headers)
+        SolarWindsAPM.trace_context = SolarWindsAPM::TraceContext.new(headers)
 
         @stub.unary(@address_msg)
         traces = get_all_traces
         assert traces.empty?
 
         # without the w3c header and no context it will always trace in testing
-        AppOpticsAPM.trace_context = nil
-        AppOpticsAPM::Context.clear
+        SolarWindsAPM.trace_context = nil
+        SolarWindsAPM::Context.clear
         @stub.unary(@address_msg)
         traces = get_all_traces
         refute traces.empty?
@@ -204,7 +204,7 @@ if defined? GRPC
 
       # Both: Client Application cancelled the request
       it 'should report CANCELLED for unary' do
-        AppOpticsAPM::SDK.start_trace(:test) do
+        SolarWindsAPM::SDK.start_trace(:test) do
           begin
             @stub.unary_cancel(@null_msg)
           rescue => _
@@ -225,9 +225,9 @@ if defined? GRPC
 
       # Both: Deadline expires before server returns status
       it 'should report DEADLINE_EXCEEDED for unary' do
-        AppOpticsAPM::SDK.start_trace(:test) do
+        SolarWindsAPM::SDK.start_trace(:test) do
           begin
-            AppOpticsAPM::SDK.set_transaction_name('unary_deadline_exceeded')
+            SolarWindsAPM::SDK.set_transaction_name('unary_deadline_exceeded')
             @stub.unary_long(@address_msg)
           rescue => _
           end
@@ -248,7 +248,7 @@ if defined? GRPC
       # Client: Some data transmitted (e.g., request metadata written to TCP connection) before connection breaks
       # Server(not tested): Server shutting down
       it 'should report UNAVAILABLE for unary' do
-        AppOpticsAPM::SDK.start_trace(:test) do
+        SolarWindsAPM::SDK.start_trace(:test) do
           begin
             @unavailable.unary_unknown(@address_msg)
           rescue => _
@@ -268,7 +268,7 @@ if defined? GRPC
       # Client: Error parsing returned status
       # Server: Application throws an exception (r something othe th returning a Status code to terminate an RPC)
       it 'should report UNKNOWN for unary' do
-        AppOpticsAPM::SDK.start_trace(:test) do
+        SolarWindsAPM::SDK.start_trace(:test) do
           begin
             @stub.unary_unknown(@address_msg)
           rescue => _
@@ -289,7 +289,7 @@ if defined? GRPC
       # Server: Method not found, compression not supported*, or request cardinality violation (streaming)*
       # * not tested
       it 'should report UNIMPLEMENTED for unary' do
-        AppOpticsAPM::SDK.start_trace(:test) do
+        SolarWindsAPM::SDK.start_trace(:test) do
           begin
             @stub.unary_unimplemented(@null_msg)
           rescue => _
@@ -311,7 +311,7 @@ if defined? GRPC
       # * not tested
       it 'should report INTERNAL for unary' do
         skip # hard to provoke
-        AppOpticsAPM::SDK.start_trace(:test) do
+        SolarWindsAPM::SDK.start_trace(:test) do
           begin
             @secure.unary_2(@null_msg)
           rescue => _
@@ -339,7 +339,7 @@ if defined? GRPC
 
     describe 'CLIENT_STREAMING' do
       it 'should collect traces for client_streaming' do
-        AppOpticsAPM::SDK.start_trace(:test) do
+        SolarWindsAPM::SDK.start_trace(:test) do
           @stub.client_stream([@phone_msg, @phone_msg])
         end
 
@@ -366,10 +366,10 @@ if defined? GRPC
       end
 
       it 'should include backtraces for client_streaming if configured' do
-        AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = true
+        SolarWindsAPM::Config[:grpc_client][:collect_backtraces] = true
 
         server_with_backtraces do |stub|
-          AppOpticsAPM::SDK.start_trace(:test) do
+          SolarWindsAPM::SDK.start_trace(:test) do
             stub.client_stream([@phone_msg, @phone_msg])
           end
 
@@ -390,10 +390,10 @@ if defined? GRPC
       it 'should have kvs for W3C trace context for client_streaming' do
         # set up trace context
         other_state = 'aa=123'
-        trace_state = AppOpticsAPM::TraceState.add_sw_member(other_state, '20a6f5ed4113e661-01')
+        trace_state = SolarWindsAPM::TraceState.add_sw_member(other_state, '20a6f5ed4113e661-01')
         headers = { traceparent: @trace_00, tracestate: trace_state }
 
-        AppOpticsAPM::SDK.start_trace(:test, headers: headers) do
+        SolarWindsAPM::SDK.start_trace(:test, headers: headers) do
           @stub.client_stream([@phone_msg, @phone_msg])
         end
 
@@ -403,12 +403,12 @@ if defined? GRPC
 
         # check tracestate_parent_id
         assert_equal server_entry['sw.tracestate_parent_id'],
-                     AppOpticsAPM::TraceString.span_id(client_entry['sw.trace_context']).downcase
+                     SolarWindsAPM::TraceString.span_id(client_entry['sw.trace_context']).downcase
 
         # check trace_state
         assert_includes server_entry['sw.w3c.tracestate'], other_state
-        assert_equal AppOpticsAPM::TraceString.span_id_flags(client_entry['sw.trace_context']),
-                     AppOpticsAPM::TraceState.sw_member_value(server_entry['sw.w3c.tracestate'])
+        assert_equal SolarWindsAPM::TraceString.span_id_flags(client_entry['sw.trace_context']),
+                     SolarWindsAPM::TraceState.sw_member_value(server_entry['sw.w3c.tracestate'])
       end
 
       it 'client_streaming should not trace if the w3c trace context is not tracing' do
@@ -416,15 +416,15 @@ if defined? GRPC
         trace_parent = '00-d1169466cf4a7c3c82d07e745bb51f16-4209252012f594bf-01'
         trace_state = 'sw=4209252012f594bf-00'
         headers = { traceparent: trace_parent, tracestate: trace_state }
-        AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(headers)
+        SolarWindsAPM.trace_context = SolarWindsAPM::TraceContext.new(headers)
 
         @stub.client_stream([@phone_msg, @phone_msg])
         traces = get_all_traces
         assert traces.empty?
 
         # without the w3c trace context and no context it will always trace in testing
-        AppOpticsAPM.trace_context = nil
-        AppOpticsAPM::Context.clear
+        SolarWindsAPM.trace_context = nil
+        SolarWindsAPM::Context.clear
         @stub.client_stream([@phone_msg, @phone_msg])
         traces = get_all_traces
         refute traces.empty?
@@ -432,7 +432,7 @@ if defined? GRPC
 
       it 'should report DEADLINE_EXCEEDED for client_streaming' do
         begin
-          AppOpticsAPM::SDK.start_trace(:test) do
+          SolarWindsAPM::SDK.start_trace(:test) do
             @no_time.client_stream_long(Array.new(5, @phone_msg))
           end
         rescue => _
@@ -450,7 +450,7 @@ if defined? GRPC
 
       it 'should report CANCELLED for client_streaming' do
         begin
-          AppOpticsAPM::SDK.start_trace(:test) do
+          SolarWindsAPM::SDK.start_trace(:test) do
             @stub.client_stream_cancel([@null_msg, @null_msg])
           end
         rescue => _
@@ -467,7 +467,7 @@ if defined? GRPC
 
       it 'should report UNAVAILABLE for client_streaming' do
         begin
-          AppOpticsAPM::SDK.start_trace(:test) do
+          SolarWindsAPM::SDK.start_trace(:test) do
             @unavailable.client_stream([@phone_msg, @phone_msg])
           end
         rescue => _
@@ -484,7 +484,7 @@ if defined? GRPC
 
       it 'should report UNKNOWN for client_streaming' do
         begin
-          AppOpticsAPM::SDK.start_trace(:test) do
+          SolarWindsAPM::SDK.start_trace(:test) do
             @stub.client_stream_unknown([@address_msg, @address_msg])
           end
         rescue => _
@@ -501,7 +501,7 @@ if defined? GRPC
 
       it 'should report UNIMPLEMENTED for client_streaming' do
         begin
-          AppOpticsAPM::SDK.start_trace(:test) do
+          SolarWindsAPM::SDK.start_trace(:test) do
             @stub.client_stream_unimplemented([@phone_msg, @phone_msg])
           end
         rescue => _
@@ -525,7 +525,7 @@ if defined? GRPC
 
     describe 'SERVER_STREAMING return Enumerator' do
       it 'should collect traces for server_streaming returning enumerator' do
-        AppOpticsAPM::SDK.start_trace(:test) do
+        SolarWindsAPM::SDK.start_trace(:test) do
           res = @stub.server_stream(Grpctest::AddressId.new(id: 2))
           res.each { |_| }
         end
@@ -553,10 +553,10 @@ if defined? GRPC
       end
 
       it 'should add backtraces for server_streaming with enumerator if configured' do
-        AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = true
+        SolarWindsAPM::Config[:grpc_client][:collect_backtraces] = true
 
         server_with_backtraces do |stub|
-          AppOpticsAPM::SDK.start_trace(:test) do
+          SolarWindsAPM::SDK.start_trace(:test) do
             res = stub.server_stream(Grpctest::AddressId.new(id: 2))
             res.each { |_| }
           end
@@ -572,10 +572,10 @@ if defined? GRPC
       it 'should have kvs for W3C trace context for server_streaming' do
         # set up trace context
         other_state = 'aa=123'
-        trace_state = AppOpticsAPM::TraceState.add_sw_member(other_state, '20a6f5ed4113e661-01')
+        trace_state = SolarWindsAPM::TraceState.add_sw_member(other_state, '20a6f5ed4113e661-01')
         headers = { traceparent: @trace_00, tracestate: trace_state }
 
-        AppOpticsAPM::SDK.start_trace(:test, headers: headers) do
+        SolarWindsAPM::SDK.start_trace(:test, headers: headers) do
           res = @stub.server_stream(Grpctest::AddressId.new(id: 2))
           res.each { |_| }
         end
@@ -586,12 +586,12 @@ if defined? GRPC
 
         # check tracestate_parent_id
         assert_equal server_entry['sw.tracestate_parent_id'],
-                     AppOpticsAPM::TraceString.span_id(client_entry['sw.trace_context']).downcase
+                     SolarWindsAPM::TraceString.span_id(client_entry['sw.trace_context']).downcase
 
         # check trace_state
         assert_includes server_entry['sw.w3c.tracestate'], other_state
-        assert_equal AppOpticsAPM::TraceString.span_id_flags(client_entry['sw.trace_context']),
-                     AppOpticsAPM::TraceState.sw_member_value(server_entry['sw.w3c.tracestate'])
+        assert_equal SolarWindsAPM::TraceString.span_id_flags(client_entry['sw.trace_context']),
+                     SolarWindsAPM::TraceState.sw_member_value(server_entry['sw.w3c.tracestate'])
       end
 
       it 'server_streaming should not trace if the w3c trace context is not tracing' do
@@ -599,7 +599,7 @@ if defined? GRPC
         trace_parent = '00-d1169466cf4a7c3c82d07e745bb51f16-4209252012f594bf-00'
         trace_state = 'sw=4209252012f594bf-00'
         headers = { traceparent: trace_parent, tracestate: trace_state }
-        AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(headers)
+        SolarWindsAPM.trace_context = SolarWindsAPM::TraceContext.new(headers)
 
         res = @stub.server_stream(Grpctest::AddressId.new(id: 2))
         res.each { |_| }
@@ -607,8 +607,8 @@ if defined? GRPC
         assert traces.empty?
 
         # without the w3c header and no context it will always trace in testing
-        AppOpticsAPM.trace_context = nil
-        AppOpticsAPM::Context.clear
+        SolarWindsAPM.trace_context = nil
+        SolarWindsAPM::Context.clear
         res = @stub.server_stream(Grpctest::AddressId.new(id: 2))
         res.each { |_| }
         traces = get_all_traces
@@ -616,7 +616,7 @@ if defined? GRPC
       end
 
       it 'should report CANCEL for server_streaming with enumerator' do
-        AppOpticsAPM::SDK.start_trace(:test) do
+        SolarWindsAPM::SDK.start_trace(:test) do
           res = @stub.server_stream_cancel(@null_msg)
           begin
             res.each { |_| }
@@ -634,7 +634,7 @@ if defined? GRPC
       end
 
       it 'should report DEADLINE_EXCEEDED for server_streaming with enumerator' do
-        AppOpticsAPM::SDK.start_trace(:test) do
+        SolarWindsAPM::SDK.start_trace(:test) do
           begin
             res = @no_time.server_stream_long(@null_msg)
             res.each { |_| }
@@ -653,7 +653,7 @@ if defined? GRPC
 
       it 'should report UNAVAILABLE for server_streaming with enumerator' do
         begin
-          AppOpticsAPM::SDK.start_trace(:test) do
+          SolarWindsAPM::SDK.start_trace(:test) do
             res = @unavailable.server_stream(@null_msg)
             res.each { |_| }
           end
@@ -671,7 +671,7 @@ if defined? GRPC
 
       it 'should report UNKNOWN for server_streaming with enumerator' do
         begin
-          AppOpticsAPM::SDK.start_trace(:test) do
+          SolarWindsAPM::SDK.start_trace(:test) do
             res = @stub.server_stream_unknown(@address_msg)
             res.each { |_| }
           end
@@ -690,7 +690,7 @@ if defined? GRPC
 
       it 'should report UNIMPLEMENTED for server_streaming with enumerator' do
         begin
-          AppOpticsAPM::SDK.start_trace(:test) do
+          SolarWindsAPM::SDK.start_trace(:test) do
             res = @stub.server_stream_unimplemented(@null_msg)
             res.each { |_| }
           end
@@ -716,7 +716,7 @@ if defined? GRPC
 
     describe 'SERVER_STREAMING yield' do
       it 'should collect traces for server_streaming using block' do
-        AppOpticsAPM::SDK.start_trace(:test) do
+        SolarWindsAPM::SDK.start_trace(:test) do
           @stub.server_stream(Grpctest::AddressId.new(id: 2)) { |_| }
         end
 
@@ -743,10 +743,10 @@ if defined? GRPC
       end
 
       it 'should add backtraces for server_streaming using block if configured' do
-        AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = true
+        SolarWindsAPM::Config[:grpc_client][:collect_backtraces] = true
 
         server_with_backtraces do |stub|
-          AppOpticsAPM::SDK.start_trace(:test) do
+          SolarWindsAPM::SDK.start_trace(:test) do
             stub.server_stream(Grpctest::AddressId.new(id: 2)) { |_| }
           end
 
@@ -761,10 +761,10 @@ if defined? GRPC
       it 'should have kvs for W3C trace context for server_streaming yield' do
         # set up trace context
         other_state = 'aa=123'
-        trace_state = AppOpticsAPM::TraceState.add_sw_member(other_state, '20a6f5ed4113e661-01')
+        trace_state = SolarWindsAPM::TraceState.add_sw_member(other_state, '20a6f5ed4113e661-01')
         headers = { traceparent: @trace_00, tracestate: trace_state }
 
-        AppOpticsAPM::SDK.start_trace(:test, headers: headers) do
+        SolarWindsAPM::SDK.start_trace(:test, headers: headers) do
           @stub.server_stream(Grpctest::AddressId.new(id: 2)) { |_| }
         end
 
@@ -774,12 +774,12 @@ if defined? GRPC
 
         # check tracestate_parent_id
         assert_equal server_entry['sw.tracestate_parent_id'],
-                     AppOpticsAPM::TraceString.span_id(client_entry['sw.trace_context']).downcase
+                     SolarWindsAPM::TraceString.span_id(client_entry['sw.trace_context']).downcase
 
         # check trace_state
         assert_includes server_entry['sw.w3c.tracestate'], other_state
-        assert_equal AppOpticsAPM::TraceString.span_id_flags(client_entry['sw.trace_context']),
-                     AppOpticsAPM::TraceState.sw_member_value(server_entry['sw.w3c.tracestate'])
+        assert_equal SolarWindsAPM::TraceString.span_id_flags(client_entry['sw.trace_context']),
+                     SolarWindsAPM::TraceState.sw_member_value(server_entry['sw.w3c.tracestate'])
       end
 
       it 'server_streaming yield should not trace if the w3c trace context is not tracing' do
@@ -787,15 +787,15 @@ if defined? GRPC
         trace_parent = '00-d1169466cf4a7c3c82d07e745bb51f16-4209252012f594bf-00'
         trace_state = 'sw=4209252012f594bf-00'
         headers = { traceparent: trace_parent, tracestate: trace_state }
-        AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(headers)
+        SolarWindsAPM.trace_context = SolarWindsAPM::TraceContext.new(headers)
 
         @stub.server_stream(Grpctest::AddressId.new(id: 2)) { |_| }
         traces = get_all_traces
         assert traces.empty?
 
         # without the w3c header and no context it will always trace in testing
-        AppOpticsAPM.trace_context = nil
-        AppOpticsAPM::Context.clear
+        SolarWindsAPM.trace_context = nil
+        SolarWindsAPM::Context.clear
         @stub.server_stream(Grpctest::AddressId.new(id: 2)) { |_| }
         traces = get_all_traces
         refute traces.empty?
@@ -803,7 +803,7 @@ if defined? GRPC
 
       it 'should report CANCEL for server_streaming using block' do
         begin
-          AppOpticsAPM::SDK.start_trace(:test) do
+          SolarWindsAPM::SDK.start_trace(:test) do
             @stub.server_stream_cancel(@null_msg) { |_| }
           end
         rescue => _
@@ -820,7 +820,7 @@ if defined? GRPC
 
       it 'should report DEADLINE_EXCEEDED for server_streaming using block' do
         begin
-          AppOpticsAPM::SDK.start_trace(:test) do
+          SolarWindsAPM::SDK.start_trace(:test) do
             @no_time.server_stream_long(@null_msg) { |_| }
           end
         rescue => _
@@ -838,7 +838,7 @@ if defined? GRPC
 
       it 'should report UNAVAILABLE for server_streaming using block' do
         begin
-          AppOpticsAPM::SDK.start_trace(:test) do
+          SolarWindsAPM::SDK.start_trace(:test) do
             res = @unavailable.server_stream(@null_msg) { |_| }
           end
         rescue => _
@@ -855,7 +855,7 @@ if defined? GRPC
 
       it 'should report UNKNOWN for server_streaming using block' do
         begin
-          AppOpticsAPM::SDK.start_trace(:test) do
+          SolarWindsAPM::SDK.start_trace(:test) do
             res = @stub.server_stream_unknown(@address_msg)
             res.each { |_| }
           end
@@ -873,7 +873,7 @@ if defined? GRPC
 
       it 'should report UNIMPLEMENTED for server_streaming using block' do
         begin
-          AppOpticsAPM::SDK.start_trace(:test) do
+          SolarWindsAPM::SDK.start_trace(:test) do
             res = @stub.server_stream_unimplemented(@null_msg) { |_| }
           end
         rescue => _
@@ -897,7 +897,7 @@ if defined? GRPC
 
     describe 'BIDI_STREAMING return Enumerator' do
       it 'should collect traces for for bidi_streaming with enumerator' do
-        AppOpticsAPM::SDK.start_trace(:test) do
+        SolarWindsAPM::SDK.start_trace(:test) do
           response = @stub.bidi_stream([@null_msg, @null_msg])
           response.each { |_| }
         end
@@ -925,10 +925,10 @@ if defined? GRPC
       end
 
       it 'should add backtraces for bidi_streaming with enumerator if configured' do
-        AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = true
+        SolarWindsAPM::Config[:grpc_client][:collect_backtraces] = true
 
         server_with_backtraces do |stub|
-          AppOpticsAPM::SDK.start_trace(:test) do
+          SolarWindsAPM::SDK.start_trace(:test) do
             response = stub.bidi_stream([@null_msg, @null_msg])
             response.each { |_| }
           end
@@ -944,10 +944,10 @@ if defined? GRPC
       it 'should have kvs for W3C trace context for bidi_streaming' do
         # set up trace context
         other_state = 'aa=123'
-        trace_state = AppOpticsAPM::TraceState.add_sw_member(other_state, '20a6f5ed4113e661-01')
+        trace_state = SolarWindsAPM::TraceState.add_sw_member(other_state, '20a6f5ed4113e661-01')
         headers = { traceparent: @trace_00, tracestate: trace_state }
 
-        AppOpticsAPM::SDK.start_trace(:test, headers: headers) do
+        SolarWindsAPM::SDK.start_trace(:test, headers: headers) do
           response = @stub.bidi_stream([@null_msg, @null_msg])
           response.each { |_| }
         end
@@ -958,12 +958,12 @@ if defined? GRPC
 
         # check tracestate_parent_id
         assert_equal server_entry['sw.tracestate_parent_id'],
-                     AppOpticsAPM::TraceString.span_id(client_entry['sw.trace_context']).downcase
+                     SolarWindsAPM::TraceString.span_id(client_entry['sw.trace_context']).downcase
 
         # check trace_state
         assert_includes server_entry['sw.w3c.tracestate'], other_state
-        assert_equal AppOpticsAPM::TraceString.span_id_flags(client_entry['sw.trace_context']),
-                     AppOpticsAPM::TraceState.sw_member_value(server_entry['sw.w3c.tracestate'])
+        assert_equal SolarWindsAPM::TraceString.span_id_flags(client_entry['sw.trace_context']),
+                     SolarWindsAPM::TraceState.sw_member_value(server_entry['sw.w3c.tracestate'])
       end
 
       it 'bidi_streaming should not trace if the w3c trace context is not tracing' do
@@ -971,7 +971,7 @@ if defined? GRPC
         trace_parent = '00-d1169466cf4a7c3c82d07e745bb51f16-4209252012f594bf-00'
         trace_state = 'sw=4209252012f594bf-00'
         headers = { traceparent: trace_parent, tracestate: trace_state }
-        AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(headers)
+        SolarWindsAPM.trace_context = SolarWindsAPM::TraceContext.new(headers)
 
         response = @stub.bidi_stream([@null_msg, @null_msg])
         response.each { |_| }
@@ -979,8 +979,8 @@ if defined? GRPC
         assert traces.empty?
 
         # without the w3c header and no context it will always trace in testing
-        AppOpticsAPM.trace_context = nil
-        AppOpticsAPM::Context.clear
+        SolarWindsAPM.trace_context = nil
+        SolarWindsAPM::Context.clear
         response = @stub.bidi_stream([@null_msg, @null_msg])
         response.each { |_| }
         traces = get_all_traces
@@ -989,7 +989,7 @@ if defined? GRPC
 
       it 'should report CANCEL for bidi_streaming with enumerator' do
         begin
-          AppOpticsAPM::SDK.start_trace(:test) do
+          SolarWindsAPM::SDK.start_trace(:test) do
             response = @stub.bidi_stream_cancel([@null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg])
             response.each { |_| }
           end
@@ -1007,7 +1007,7 @@ if defined? GRPC
 
       it 'should report DEADLINE_EXCEEDED for bidi_streaming with enumerator' do
         begin
-          AppOpticsAPM::SDK.start_trace(:test) do
+          SolarWindsAPM::SDK.start_trace(:test) do
             response = @no_time.bidi_stream_long([@null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg])
             response.each { |_| }
           end
@@ -1025,7 +1025,7 @@ if defined? GRPC
 
       it 'should report UNAVAILABLE for bidi_streaming with enumerator' do
         begin
-          AppOpticsAPM::SDK.start_trace(:test) do
+          SolarWindsAPM::SDK.start_trace(:test) do
             response = @unavailable.bidi_stream([@null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg])
             response.each { |_| }
           end
@@ -1043,7 +1043,7 @@ if defined? GRPC
 
       it 'should report UNKNOWN for bidi_streaming with enumerator' do
         begin
-          AppOpticsAPM::SDK.start_trace(:test) do
+          SolarWindsAPM::SDK.start_trace(:test) do
             response = @stub.bidi_stream_unknown([@null_msg, @null_msg])
             response.each { |_| }
           end
@@ -1061,7 +1061,7 @@ if defined? GRPC
 
       it 'should report UNIMPLEMENTED for bidi_streaming with enumerator' do
         begin
-          AppOpticsAPM::SDK.start_trace(:test) do
+          SolarWindsAPM::SDK.start_trace(:test) do
             response = @stub.bidi_stream_unimplemented([@null_msg, @null_msg])
             response.each { |_| }
           end
@@ -1090,7 +1090,7 @@ if defined? GRPC
 
     describe 'BIDI_STREAMING yield' do
       it 'should collect traces for bidi_streaming using block' do
-        AppOpticsAPM::SDK.start_trace(:test) do
+        SolarWindsAPM::SDK.start_trace(:test) do
           @stub.bidi_stream([@null_msg, @null_msg]) { |_| }
         end
 
@@ -1117,10 +1117,10 @@ if defined? GRPC
       end
 
       it 'should add backtraces for bidi_streaming using block if configured' do
-        AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = true
+        SolarWindsAPM::Config[:grpc_client][:collect_backtraces] = true
 
         server_with_backtraces do |stub|
-          AppOpticsAPM::SDK.start_trace(:test) do
+          SolarWindsAPM::SDK.start_trace(:test) do
             stub.bidi_stream([@phone_msg, @phone_msg]) { |_| }
           end
 
@@ -1135,10 +1135,10 @@ if defined? GRPC
       it 'should have kvs for W3C trace context for bidi_streaming yield' do
         # set up trace context
         other_state = 'aa=123'
-        trace_state = AppOpticsAPM::TraceState.add_sw_member(other_state, '20a6f5ed4113e661-01')
+        trace_state = SolarWindsAPM::TraceState.add_sw_member(other_state, '20a6f5ed4113e661-01')
         headers = { traceparent: @trace_00, tracestate: trace_state }
 
-        AppOpticsAPM::SDK.start_trace(:test, headers: headers) do
+        SolarWindsAPM::SDK.start_trace(:test, headers: headers) do
           @stub.bidi_stream([@null_msg, @null_msg]) { |_| }
         end
 
@@ -1148,12 +1148,12 @@ if defined? GRPC
 
         # check tracestate_parent_id
         assert_equal server_entry['sw.tracestate_parent_id'],
-                     AppOpticsAPM::TraceString.span_id(client_entry['sw.trace_context']).downcase
+                     SolarWindsAPM::TraceString.span_id(client_entry['sw.trace_context']).downcase
 
         # check trace_state
         assert_includes server_entry['sw.w3c.tracestate'], other_state
-        assert_equal AppOpticsAPM::TraceString.span_id_flags(client_entry['sw.trace_context']),
-                     AppOpticsAPM::TraceState.sw_member_value(server_entry['sw.w3c.tracestate'])
+        assert_equal SolarWindsAPM::TraceString.span_id_flags(client_entry['sw.trace_context']),
+                     SolarWindsAPM::TraceState.sw_member_value(server_entry['sw.w3c.tracestate'])
       end
 
       it 'bidi_streaming yield should not trace if the w3c trace context is not tracing' do
@@ -1161,15 +1161,15 @@ if defined? GRPC
         trace_parent = '00-d1169466cf4a7c3c82d07e745bb51f16-4209252012f594bf-00'
         trace_state = 'sw=4209252012f594bf-00'
         headers = { traceparent: trace_parent, tracestate: trace_state }
-        AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(headers)
+        SolarWindsAPM.trace_context = SolarWindsAPM::TraceContext.new(headers)
 
         @stub.bidi_stream([@null_msg, @null_msg]) { |_| }
         traces = get_all_traces
         assert traces.empty?
 
         # without the w3c header and no context it will always trace in testing
-        AppOpticsAPM.trace_context = nil
-        AppOpticsAPM::Context.clear
+        SolarWindsAPM.trace_context = nil
+        SolarWindsAPM::Context.clear
         @stub.bidi_stream([@null_msg, @null_msg]) { |_| }
         traces = get_all_traces
         refute traces.empty?
@@ -1177,7 +1177,7 @@ if defined? GRPC
 
       it 'should report CANCEL for bidi_streaming using block' do
         begin
-          AppOpticsAPM::SDK.start_trace(:test) do
+          SolarWindsAPM::SDK.start_trace(:test) do
             @stub.bidi_stream_cancel([@null_msg, @null_msg]) { |_| }
           end
         rescue => _
@@ -1194,7 +1194,7 @@ if defined? GRPC
 
       it 'should report DEADLINE_EXCEEDED for bidi_streaming using block' do
         begin
-          AppOpticsAPM::SDK.start_trace(:test) do
+          SolarWindsAPM::SDK.start_trace(:test) do
             @no_time.bidi_stream_long([@null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg]) { |_| }
           end
         rescue => _
@@ -1211,7 +1211,7 @@ if defined? GRPC
 
       it 'should report UNAVAILABLE for bidi_streaming using block' do
         begin
-          AppOpticsAPM::SDK.start_trace(:test) do
+          SolarWindsAPM::SDK.start_trace(:test) do
             @unavailable.bidi_stream([@null_msg, @null_msg, @null_msg, @null_msg, @null_msg, @null_msg]) { |_| }
           end
         rescue => _
@@ -1228,7 +1228,7 @@ if defined? GRPC
 
       it 'should report UNKNOWN for bidi_streaming using block' do
         begin
-          AppOpticsAPM::SDK.start_trace(:test) do
+          SolarWindsAPM::SDK.start_trace(:test) do
             @stub.bidi_stream_unknown([@null_msg, @null_msg]) { |_| }
           end
         rescue => _
@@ -1245,7 +1245,7 @@ if defined? GRPC
 
       it 'should report UNIMPLEMENTED for bidi_streaming using block' do
         begin
-          AppOpticsAPM::SDK.start_trace(:test) do
+          SolarWindsAPM::SDK.start_trace(:test) do
             @stub.bidi_stream_unimplemented([@null_msg, @null_msg]) { |_| }
           end
         rescue => _
@@ -1275,7 +1275,7 @@ if defined? GRPC
         @count.times do
           threads << Thread.new do
             begin
-              AppOpticsAPM::SDK.start_trace(:test) do
+              SolarWindsAPM::SDK.start_trace(:test) do
                 @stub.bidi_stream(Array.new(200, @phone_msg)) { |_| }
               end
             rescue => _
@@ -1298,7 +1298,7 @@ if defined? GRPC
         @count.times do
           threads << Thread.new do
             begin
-              AppOpticsAPM::SDK.start_trace(:test) do
+              SolarWindsAPM::SDK.start_trace(:test) do
                 @stub.bidi_stream_cancel(Array.new(200, @phone_msg)) { |_| }
               end
             rescue => _
@@ -1318,12 +1318,12 @@ if defined? GRPC
       end
 
       it "should work when stressed bidi is unavailable" do
-        AppOpticsAPM::Config[:grpc_client][:collect_backtraces] = true
+        SolarWindsAPM::Config[:grpc_client][:collect_backtraces] = true
         threads = []
         @count.times do
           threads << Thread.new do
             begin
-              AppOpticsAPM::SDK.start_trace(:test) do
+              SolarWindsAPM::SDK.start_trace(:test) do
                 @unavailable.bidi_stream(Array.new(200, @phone_msg)) { |_| }
               end
             rescue => _
@@ -1347,7 +1347,7 @@ if defined? GRPC
         (3*@count).times do
           threads << Thread.new do
             begin
-              AppOpticsAPM::SDK.start_trace(:test) do
+              SolarWindsAPM::SDK.start_trace(:test) do
                 @stub.bidi_stream_varying(Array.new(20, @phone_msg)) { |_| }
               end
             rescue => _

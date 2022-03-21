@@ -1,19 +1,19 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
-module AppOpticsAPM
+module SolarWindsAPM
   module Inst
     module Dalli
-      include AppOpticsAPM::API::Memcache
+      include SolarWindsAPM::API::Memcache
 
       def self.included(cls)
         cls.class_eval do
-          AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting memcache (dalli)' if AppOpticsAPM::Config[:verbose]
+          SolarWindsAPM.logger.info '[appoptics_apm/loading] Instrumenting memcache (dalli)' if SolarWindsAPM::Config[:verbose]
           if ::Dalli::Client.private_method_defined? :perform
             alias perform_without_appoptics perform
             alias perform perform_with_appoptics
           else
-            AppOpticsAPM.logger.warn '[appoptics_apm/loading] Couldn\'t properly instrument Memcache (Dalli).  Partial traces may occur.'
+            SolarWindsAPM.logger.warn '[appoptics_apm/loading] Couldn\'t properly instrument Memcache (Dalli).  Partial traces may occur.'
           end
 
           if ::Dalli::Client.method_defined? :get_multi
@@ -35,14 +35,14 @@ module AppOpticsAPM
           report_kvs[:RemoteHost] = servers.join(", ")
         end
 
-        if AppOpticsAPM.tracing? && !AppOpticsAPM.tracing_layer_op?(:get_multi)
-          AppOpticsAPM::SDK.trace(:memcache, kvs: report_kvs) do
+        if SolarWindsAPM.tracing? && !SolarWindsAPM.tracing_layer_op?(:get_multi)
+          SolarWindsAPM::SDK.trace(:memcache, kvs: report_kvs) do
             result = perform_without_appoptics(*all_args, &blk)
 
             # Clear the hash for a potential info event
             report_kvs.clear
             report_kvs[:KVHit] = memcache_hit?(result) if op == :get && key.class == String
-            report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:dalli][:collect_backtraces]
+            report_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:dalli][:collect_backtraces]
 
             result
           end
@@ -52,7 +52,7 @@ module AppOpticsAPM
       end
 
       def get_multi_with_appoptics(*keys)
-        return get_multi_without_appoptics(*keys) unless AppOpticsAPM.tracing?
+        return get_multi_without_appoptics(*keys) unless SolarWindsAPM.tracing?
 
         info_kvs = {}
 
@@ -65,12 +65,12 @@ module AppOpticsAPM
             info_kvs[:RemoteHost] = servers.join(", ")
           end
         rescue => e
-          AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
+          SolarWindsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if SolarWindsAPM::Config[:verbose]
         end
 
         info_kvs[:KVOp] = :get_multi
-        info_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:dalli][:collect_backtraces]
-        AppOpticsAPM::SDK.trace(:memcache, kvs: info_kvs, protect_op: :get_multi) do
+        info_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:dalli][:collect_backtraces]
+        SolarWindsAPM::SDK.trace(:memcache, kvs: info_kvs, protect_op: :get_multi) do
           values = get_multi_without_appoptics(*keys)
 
           info_kvs[:KVHitCount] = values.length
@@ -82,8 +82,8 @@ module AppOpticsAPM
   end
 end
 
-if defined?(Dalli) && AppOpticsAPM::Config[:dalli][:enabled]
+if defined?(Dalli) && SolarWindsAPM::Config[:dalli][:enabled]
   ::Dalli::Client.module_eval do
-    include AppOpticsAPM::Inst::Dalli
+    include SolarWindsAPM::Inst::Dalli
   end
 end

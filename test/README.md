@@ -1,4 +1,4 @@
-# README for the AppOpticsAPM Test Suite
+# README for the SolarWindsAPM Test Suite
 
   * [Prerequisites](#prerequisites)
     * [Linux](#linux)
