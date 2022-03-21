@@ -7,18 +7,18 @@ require 'minitest_helper'
   describe 'BunnyConsumerTest' do
     before do
       # Support specific environment variables to support remote rabbitmq servers
-      ENV['APPOPTICS_RABBITMQ_SERVER'] = "127.0.0.1"      unless ENV['APPOPTICS_RABBITMQ_SERVER']
-      ENV['APPOPTICS_RABBITMQ_PORT'] = "5672"             unless ENV['APPOPTICS_RABBITMQ_PORT']
-      ENV['APPOPTICS_RABBITMQ_USERNAME'] = "guest"        unless ENV['APPOPTICS_RABBITMQ_USERNAME']
-      ENV['APPOPTICS_RABBITMQ_PASSWORD'] = "guest"        unless ENV['APPOPTICS_RABBITMQ_PASSWORD']
-      ENV['APPOPTICS_RABBITMQ_VHOST'] = "/"               unless ENV['APPOPTICS_RABBITMQ_VHOST']
+      ENV['RABBITMQ_SERVER'] = "127.0.0.1"      unless ENV['RABBITMQ_SERVER']
+      ENV['RABBITMQ_PORT'] = "5672"             unless ENV['RABBITMQ_PORT']
+      ENV['RABBITMQ_USERNAME'] = "guest"        unless ENV['RABBITMQ_USERNAME']
+      ENV['RABBITMQ_PASSWORD'] = "guest"        unless ENV['RABBITMQ_PASSWORD']
+      ENV['RABBITMQ_VHOST'] = "/"               unless ENV['RABBITMQ_VHOST']
 
       @connection_params = {}
-      @connection_params[:host]   = ENV['APPOPTICS_RABBITMQ_SERVER']
-      @connection_params[:port]   = ENV['APPOPTICS_RABBITMQ_PORT']
-      @connection_params[:vhost]  = ENV['APPOPTICS_RABBITMQ_VHOST']
-      @connection_params[:user]   = ENV['APPOPTICS_RABBITMQ_USERNAME']
-      @connection_params[:pass]   = ENV['APPOPTICS_RABBITMQ_PASSWORD']
+      @connection_params[:host]   = ENV['RABBITMQ_SERVER']
+      @connection_params[:port]   = ENV['RABBITMQ_PORT']
+      @connection_params[:vhost]  = ENV['RABBITMQ_VHOST']
+      @connection_params[:user]   = ENV['RABBITMQ_USERNAME']
+      @connection_params[:pass]   = ENV['RABBITMQ_PASSWORD']
 
       clear_all_traces
     end

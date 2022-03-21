@@ -7,8 +7,8 @@ require "dalli"
 require 'solarwinds_apm'
 
 use Rack::Cache,
-    metastore:   "memcached://#{ENV['APPOPTICS_MEMCACHED_SERVER'] || 'localhost'}:11211",
-    entitystore: "memcached://#{ENV['APPOPTICS_MEMCACHED_SERVER'] || 'localhost'}:11211"
+    metastore:   "memcached://#{ENV['MEMCACHED_SERVER'] || 'localhost'}:11211",
+    entitystore: "memcached://#{ENV['MEMCACHED_SERVER'] || 'localhost'}:11211"
 
 class SinatraSimple < Sinatra::Base
   set :reload, true

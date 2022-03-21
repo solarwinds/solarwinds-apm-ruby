@@ -6,7 +6,7 @@ require 'minitest_helper'
 describe "Dalli" do
   before do
     clear_all_traces
-    @server = "#{ENV['APPOPTICS_MEMCACHED_SERVER'] || '127.0.0.1'}:11211"
+    @server = "#{ENV['MEMCACHED_SERVER'] || '127.0.0.1'}:11211"
     @dc = Dalli::Client.new(@server)
     @collect_backtraces = SolarWindsAPM::Config[:dalli][:collect_backtraces]
   end
