@@ -488,15 +488,15 @@ describe "Rack: " do
     end
   end
 
-  describe 'H - sets a sw.parent_id kw' do
+  describe 'H - sets a sw.tracestate_parent_id kw' do
     it 'sets the kv for a tracestate when sw is not in first position' do
-      parent_id = '49e60702469db05f'
+      tracestate_parent_id = '49e60702469db05f'
       @rack.call({ 'HTTP_TRACEPARENT' => '00-510ae4533414d425dadf4e180d2b4e36-49e60702469db05f-00',
-                   'HTTP_TRACESTATE' => "aa= 1234,sw=#{parent_id}-01" })
+                   'HTTP_TRACESTATE' => "aa= 1234,sw=#{tracestate_parent_id}-01" })
 
       traces = get_all_traces
 
-      assert_equal parent_id, traces[0]['sw.parent_id']
+      assert_equal tracestate_parent_id, traces[0]['sw.tracestate_parent_id']
     end
 
     it 'does not set the kv when sw is not in the tracestate' do
@@ -507,7 +507,7 @@ describe "Rack: " do
 
       traces = get_all_traces
 
-      refute traces[0]['sw.parent_id']
+      refute traces[0]['sw.tracestate_parent_id']
       assert_equal trace_id, AppOpticsAPM::TraceString.trace_id(traces[0]['sw.trace_context'])
     end
 
@@ -515,7 +515,7 @@ describe "Rack: " do
       @rack.call({})
       traces = get_all_traces
 
-      refute traces[0]['sw.parent_id']
+      refute traces[0]['sw.tracestate_parent_id']
     end
 
     it 'does not set the kv if traceparent is not valid' do
@@ -524,14 +524,14 @@ describe "Rack: " do
 
       traces = get_all_traces
 
-      refute traces[0]['sw.parent_id']
+      refute traces[0]['sw.tracestate_parent_id']
     end
   end
 
   describe 'I - sets a W3C-tracestate kw' do
     it "adds tracestate if there is a tracestate" do
-      parent_id = '49e60702469db05f'
-      state = "aa= 1234,sw=#{parent_id}-01"
+      tracestate_parent_id = '49e60702469db05f'
+      state = "aa= 1234,sw=#{tracestate_parent_id}-01"
       @rack.call({ 'HTTP_TRACEPARENT' => '00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-00',
                    'HTTP_TRACESTATE' => state })
 

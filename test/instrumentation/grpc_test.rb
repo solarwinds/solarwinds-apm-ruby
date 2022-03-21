@@ -173,8 +173,8 @@ if defined? GRPC
         client_entry = traces.find { |tr| tr['Layer'] == 'grpc-client' && tr['Label'] == 'entry' }
         server_entry = traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'entry' }
 
-        # check parent_id
-        assert_equal server_entry['sw.parent_id'],
+        # check tracestate_parent_id
+        assert_equal server_entry['sw.tracestate_parent_id'],
                      AppOpticsAPM::TraceString.span_id(client_entry['sw.trace_context']).downcase
 
         # check trace_state
@@ -401,8 +401,8 @@ if defined? GRPC
         client_entry = traces.find { |tr| tr['Layer'] == 'grpc-client' && tr['Label'] == 'entry' }
         server_entry = traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'entry' }
 
-        # check parent_id
-        assert_equal server_entry['sw.parent_id'],
+        # check tracestate_parent_id
+        assert_equal server_entry['sw.tracestate_parent_id'],
                      AppOpticsAPM::TraceString.span_id(client_entry['sw.trace_context']).downcase
 
         # check trace_state
@@ -584,8 +584,8 @@ if defined? GRPC
         client_entry = traces.find { |tr| tr['Layer'] == 'grpc-client' && tr['Label'] == 'entry' }
         server_entry = traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'entry' }
 
-        # check parent_id
-        assert_equal server_entry['sw.parent_id'],
+        # check tracestate_parent_id
+        assert_equal server_entry['sw.tracestate_parent_id'],
                      AppOpticsAPM::TraceString.span_id(client_entry['sw.trace_context']).downcase
 
         # check trace_state
@@ -772,8 +772,8 @@ if defined? GRPC
         client_entry = traces.find { |tr| tr['Layer'] == 'grpc-client' && tr['Label'] == 'entry' }
         server_entry = traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'entry' }
 
-        # check parent_id
-        assert_equal server_entry['sw.parent_id'],
+        # check tracestate_parent_id
+        assert_equal server_entry['sw.tracestate_parent_id'],
                      AppOpticsAPM::TraceString.span_id(client_entry['sw.trace_context']).downcase
 
         # check trace_state
@@ -956,8 +956,8 @@ if defined? GRPC
         client_entry = traces.find { |tr| tr['Layer'] == 'grpc-client' && tr['Label'] == 'entry' }
         server_entry = traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'entry' }
 
-        # check parent_id
-        assert_equal server_entry['sw.parent_id'],
+        # check tracestate_parent_id
+        assert_equal server_entry['sw.tracestate_parent_id'],
                      AppOpticsAPM::TraceString.span_id(client_entry['sw.trace_context']).downcase
 
         # check trace_state
@@ -1146,8 +1146,8 @@ if defined? GRPC
         client_entry = traces.find { |tr| tr['Layer'] == 'grpc-client' && tr['Label'] == 'entry' }
         server_entry = traces.find { |tr| tr['Layer'] == 'grpc-server' && tr['Label'] == 'entry' }
 
-        # check parent_id
-        assert_equal server_entry['sw.parent_id'],
+        # check tracestate_parent_id
+        assert_equal server_entry['sw.tracestate_parent_id'],
                      AppOpticsAPM::TraceString.span_id(client_entry['sw.trace_context']).downcase
 
         # check trace_state
