@@ -156,8 +156,17 @@ module AppOpticsAPM
       def sanitize_sql(sql)
         return sql unless AppOpticsAPM::Config[:sanitize_sql]
 
-        regexp = Regexp.new(AppOpticsAPM::Config[:sanitize_sql_regexp], AppOpticsAPM::Config[:sanitize_sql_opts])
-        sql.gsub(/\\\'/,'').gsub(regexp, '?')
+        @@regexp ||= Regexp.new(AppOpticsAPM::Config[:sanitize_sql_regexp], AppOpticsAPM::Config[:sanitize_sql_opts]).freeze
+        sql.gsub(/\\\'/,'').gsub(@@regexp, '?')
+      end
+
+      ##
+      # remove_traceparent
+      #
+      # Remove trace context injection
+      #
+      def remove_traceparent(sql)
+        sql.gsub(AppOpticsAPM::SDK::CurrentTraceInfo::TraceInfo::SQL_REGEX, '')
       end
 
       ##

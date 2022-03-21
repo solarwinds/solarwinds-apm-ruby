@@ -7,13 +7,16 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
   AppOpticsAPM::Test.set_postgresql_env
   PG_DB = Sequel.connect(ENV['DATABASE_URL'])
+  ENV['QUERY_LOG_FILE'] ||= '/tmp/query_log.txt'
+  PG_DB.logger = Logger.new(ENV['QUERY_LOG_FILE'])
 
-  unless PG_DB.table_exists?(:items)
-    PG_DB.create_table :items do
-      primary_key :id
-      String :name
-      Float :price
-    end
+  if PG_DB.table_exists?(:items)
+    PG_DB.drop_table(:items)
+  end
+  PG_DB.create_table :items do
+    primary_key :id
+    String :name
+    Float :price
   end
 
   describe "Sequel (postgres)" do
@@ -23,12 +26,13 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       # These are standard entry/exit KVs that are passed up with all sequel operations
       @entry_kvs = {
         'Layer' => 'sequel',
-        'Label' => 'entry',
-        'Database' => 'test_db',
-        'RemoteHost' => ENV['POSTGRES_HOST'] || '127.0.0.1',
-        'RemotePort' => 5432 }
+        'Label' => 'entry' }
 
-      @exit_kvs = { 'Layer' => 'sequel', 'Label' => 'exit' }
+      @exit_kvs = { 'Layer' => 'sequel',
+                    'Label' => 'exit',
+                    'Database' => 'test_db',
+                    'RemoteHost' => ENV['POSTGRES_HOST'] || '127.0.0.1',
+                    'RemotePort' => 5432 }
       @collect_backtraces = AppOpticsAPM::Config[:sequel][:collect_backtraces]
       @sanitize_sql = AppOpticsAPM::Config[:sanitize_sql]
     end
@@ -87,8 +91,8 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      _(traces[1]['Query']).must_equal "insert into items (name, price) values ('blah', '12')"
-      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
+      _(traces[2]['Query']).must_equal "insert into items (name, price) values ('blah', '12')"
+      _(traces[2].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -104,8 +108,8 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      _(traces[1]['Query']).must_equal "select 1"
-      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
+      _(traces[2]['Query']).must_equal "select 1"
+      _(traces[2].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -133,12 +137,12 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       _([
           "INSERT INTO \"items\" (\"price\", \"name\") VALUES (2.514, 'abc') RETURNING \"id\"",
           "INSERT INTO \"items\" (\"name\", \"price\") VALUES ('abc', 2.514) RETURNING \"id\""
-        ]).must_include traces[1]['Query']
+        ]).must_include traces[2]['Query']
 
-      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
+      _(traces[2].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       _(traces[2]['Layer']).must_equal "sequel"
       _(traces[2]['Label']).must_equal "exit"
-      _(traces[3]['Query'].downcase).must_equal "select count(*) as \"count\" from \"items\" limit 1"
+      _(traces[4]['Query'].downcase).must_equal "select count(*) as \"count\" from \"items\" limit 1"
       validate_event_keys(traces[4], @exit_kvs)
     end
 
@@ -165,9 +169,9 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       _([
           "INSERT INTO \"items\" (\"price\", \"name\") VALUES (?, ?) RETURNING \"id\"",
           "INSERT INTO \"items\" (\"name\", \"price\") VALUES (?, ?) RETURNING \"id\""
-        ]).must_include traces[1]['Query']
+        ]).must_include traces[2]['Query']
 
-      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
+      _(traces[2].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -186,8 +190,8 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      _(traces[1]['Query']).must_equal "SELECT * FROM \"items\" WHERE (\"name\" = 'abc')"
-      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
+      _(traces[2]['Query']).must_equal "SELECT * FROM \"items\" WHERE (\"name\" = 'abc')"
+      _(traces[2].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -209,8 +213,8 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      _(traces[1]['Query']).must_match /CREATE TABLE "fake" \("id" .* PRIMARY KEY, "name" text, "price" double precision\)/
-      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
+      _(traces[2]['Query']).must_match /CREATE TABLE "fake" \("id" .* PRIMARY KEY, "name" text, "price" double precision\)/
+      _(traces[2].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -232,8 +236,8 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      _(traces[1]['Query']).must_match /CREATE TABLE "fake" \("id" .* PRIMARY KEY, "name" text, "price" double precision\)/
-      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
+      _(traces[2]['Query']).must_match /CREATE TABLE "fake" \("id" .* PRIMARY KEY, "name" text, "price" double precision\)/
+      _(traces[2].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -252,8 +256,8 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      _(traces[1]['Query']).must_equal "this is bad sql"
-      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
+      _(traces[3]['Query']).must_equal "this is bad sql"
+      _(traces[3].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       _(traces[2]['Layer']).must_equal "sequel"
       _(traces[2]['Spec']).must_equal "error"
       _(traces[2]['Label']).must_equal "error"
@@ -282,10 +286,10 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      _(traces[1]['Query']).must_equal "SELECT * FROM \"items\" WHERE (\"name\" = $1)"
-      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
-      _(traces[3]['Query']).must_equal "DELETE FROM \"items\" WHERE (\"name\" = $1)"
-      _(traces[3].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
+      _(traces[2]['Query']).must_equal "SELECT * FROM \"items\" WHERE (\"name\" = $1)"
+      _(traces[2].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
+      _(traces[4]['Query']).must_equal "DELETE FROM \"items\" WHERE (\"name\" = $1)"
+      _(traces[4].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -304,10 +308,10 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      _(traces[1]['Query']).must_equal "select_by_name"
-      _(traces[1]['QueryArgs']).must_equal "[\"abc\"]"
-      _(traces[1]['IsPreparedStatement']).must_equal "true"
-      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
+      _(traces[2]['Query']).must_equal "select_by_name"
+      _(traces[2]['QueryArgs']).must_equal "[\"abc\"]"
+      _(traces[2]['IsPreparedStatement']).must_equal "true"
+      _(traces[2].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
 
@@ -326,11 +330,132 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
-      _(traces[1]['Query']).must_equal "select_by_name"
-      _(traces[1]['QueryArgs']).must_be_nil
-      _(traces[1]['IsPreparedStatement']).must_equal "true"
-      _(traces[1].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
+      _(traces[2]['Query']).must_equal "select_by_name"
+      _(traces[2]['QueryArgs']).must_be_nil
+      _(traces[2]['IsPreparedStatement']).must_equal "true"
+      _(traces[2].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:sequel][:collect_backtraces]
       validate_event_keys(traces[2], @exit_kvs)
     end
   end
+
+  ## trace id in query #########################################################
+
+  def log_traceid_regex(trace_id)
+    /\/\*traceparent='00-#{trace_id}-[0-9a-z]{16}-[01]{2}'\*\//
+  end
+
+  describe "Sequel postgresql trace context in query and it does not get sanitized" do
+    
+    before do
+      if PG_DB.table_exists?(:items)
+        PG_DB.drop_table(:items)
+      end
+      PG_DB.create_table :items do
+        primary_key :id
+        String :name
+        Float :price
+      end
+
+      @tag_sql = AppOpticsAPM::Config[:tag_sql]
+      @sanitize = AppOpticsAPM::Config[:sanitize_sql]
+      @backtraces = AppOpticsAPM::Config[:sequel][:collect_backtraces]
+
+      AppOpticsAPM::Config[:tag_sql] = true
+      AppOpticsAPM::Config[:sanitize_sql] = true
+      AppOpticsAPM::Config[:sequel][:collect_backtraces] = false
+
+      clear_all_traces
+      clear_query_log
+    end
+
+    after do
+      AppOpticsAPM::Config[:tag_sql] = @tag_sql
+      AppOpticsAPM::Config[:sanitize_sql] = @sanitize
+      AppOpticsAPM::Config[:sequel][:collect_backtraces] = @backtraces
+
+      clear_all_traces
+      clear_query_log
+    end
+
+    it 'adds trace context to sql string via Dataset' do
+      items = PG_DB[:items]
+      trace_id = ''
+
+      AppOpticsAPM::SDK.start_trace('sequel_test') do
+        trace_id = AppOpticsAPM::TraceString.trace_id(AppOpticsAPM::Context.toString)
+        items.count
+      end
+
+      traces = get_all_traces
+      assert_match log_traceid_regex(trace_id), traces[2]['QueryTag']
+      refute_match /traceparent/, traces[2]['Query']
+      assert query_logged?(/#{log_traceid_regex(trace_id)}SELECT/), "Logged query didn't match what we're looking for"
+
+      # to make sure future me doesn't rely on sanitize to remove traceparent
+      AppOpticsAPM::Config[:sanitize_sql] = false
+      AppOpticsAPM::SDK.start_trace('sequel_test') do
+        items.count
+      end
+      refute_match /traceparent/, traces[2]['Query']
+    end
+
+    it 'adds trace context to sql string via DB' do
+      trace_id = ''
+
+      AppOpticsAPM::SDK.start_trace('sequel_test') do
+        trace_id = AppOpticsAPM::TraceString.trace_id(AppOpticsAPM::Context.toString)
+        PG_DB << 'SELECT count(*) AS "count" FROM "items"'
+      end
+      traces = get_all_traces
+      assert_match log_traceid_regex(trace_id), traces[2]['QueryTag']
+      refute_match /traceparent/, traces[2]['Query']
+      assert query_logged?(/#{log_traceid_regex(trace_id)}SELECT/), "Logged query didn't match what we're looking for"
+    end
+
+    it 'adds trace context to statement represented by a symbol via DB' do
+      ds = PG_DB[:items].filter(:name => :$n)
+      ds.prepare(:select, :select_by_name)
+      trace_id = ''
+
+      AppOpticsAPM::SDK.start_trace('sequel_test') do
+        trace_id = AppOpticsAPM::TraceString.trace_id(AppOpticsAPM::Context.toString)
+        PG_DB.execute(:select_by_name, { arguments: ['abc'] })
+      end
+      traces = get_all_traces
+      assert_match log_traceid_regex(trace_id), traces[2]['QueryTag']
+      refute_match /traceparent/, traces[2]['Query']
+      assert query_logged?(/#{log_traceid_regex(trace_id)}SELECT/), "Logged query didn't match what we're looking for"
+    end
+
+    it 'adds trace context to statement represented by symbol via Dataset' do
+      ds = PG_DB[:items].filter(:name => :$n)
+      ps = ds.prepare(:select, :select_by_name_2)
+      trace_id = ''
+
+      AppOpticsAPM::SDK.start_trace('sequel_test') do
+        trace_id = AppOpticsAPM::TraceString.trace_id(AppOpticsAPM::Context.toString)
+        ps.call(:n => 'abc')
+      end
+      traces = get_all_traces
+      assert_match log_traceid_regex(trace_id), traces[2]['QueryTag']
+      refute_match /traceparent/, traces[2]['Query']
+      assert query_logged?(/#{log_traceid_regex(trace_id)}SELECT/), "Logged query didn't match what we're looking for"
+    end
+
+    it "adds trace context to a stored procedure" do
+      trace_id = ''
+      PG_DB.execute_ddl('CREATE OR REPLACE PROCEDURE test_sproc() AS $$ DELETE FROM items; $$ LANGUAGE SQL')
+      AppOpticsAPM::SDK.start_trace('sequel_test') do
+        trace_id = AppOpticsAPM::TraceString.trace_id(AppOpticsAPM::Context.toString)
+        PG_DB.call_procedure(:test_sproc)
+      end
+      traces = get_all_traces
+      assert_match log_traceid_regex(trace_id), traces[2]['QueryTag']
+      refute_match /traceparent/, traces[2]['Query']
+      assert query_logged?(/#{log_traceid_regex(trace_id)}CALL/), "Logged query didn't match what we're looking for"
+
+      PG_DB.execute('DROP PROCEDURE test_sproc')
+    end
+  end
+  
 end

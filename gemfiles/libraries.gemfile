@@ -36,6 +36,10 @@ gem 'mongo', '>= 2.11.3'
 gem 'patron' # not instrumented, included to test a non-instrumented faraday adapter
 gem 'redis'
 gem 'resque' unless defined?(JRUBY_VERSION)
+
+# TODO
+# remove use of local copy of sequel gem
+# gem 'sequel', path: '/code/sequel/'
 gem 'sequel'
 gem 'sidekiq'
 gem 'typhoeus'

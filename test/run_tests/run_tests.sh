@@ -15,7 +15,6 @@
 # -g gemfile        - restrict the tests to the ones associated with this gemfile (path from gem-root)
 # -d database type  - restrict to one of 'mysql' or 'postgresql' for rails tests
 # -p prepared statements - 0 or 1 to enable/disable prepared statements in rails
-# -n num            - run only the first num tests, -n1 is useful for debugging a new test setup
 # -c copy           - run tests with a copy of the code, so that edits don't interfere
 #
 # Rails 7 tests run only with Ruby >= 2.7.x
@@ -67,7 +66,6 @@ exit_status=-1
 ##
 # Read opts
 ##
-num=-1
 copy=0
 while getopts ":r:g:d:p:n:c:" opt; do
   case ${opt} in
@@ -88,20 +86,16 @@ while getopts ":r:g:d:p:n:c:" opt; do
         prep_stmts=($OPTARG)
       fi
       ;;
-    n )
-      num=$OPTARG
-      ;;
     c )
       copy=1
       ;;
     \? ) echo "
-Usage: $0 [-r ruby-version] [-g gemfile] [-d database type] [-p prepared_statements] [-n num-tests] [-c copy files]
+Usage: $0 [-r ruby-version] [-g gemfile] [-d database type] [-p prepared_statements] [-c copy files]
 
      -r ruby-version        - restrict the tests to run with this ruby version
      -g gemfile             - restrict the tests to the ones associated with this gemfile (path from gem-root)
      -d database type       - restrict to restrict to one of 'mysql' or 'postgresql' for rails tests
      -p prepared statements - 0 or 1 to enable/disable prepared statements in rails
-     -n num                 - run only the first num tests, -n1 is useful when debugging
      -c copy                - run tests with a copy of the code, so that edits don't interfere
 
 Rails 7 tests run with Ruby >= 2.7.x
@@ -133,6 +127,7 @@ echo "logfile name: $TEST_RUNS_FILE_NAME"
 ##
 for ruby in ${rubies[@]} ; do
   rbenv local $ruby
+  # TODO this patching should be moved to ruby_setup.sh
   # if this is running on alpine and using ruby 3++, we need to patch
   if [[ -r /etc/alpine-release ]]; then
     if [[ $ruby =~ ^3.0.* ]]; then
@@ -203,16 +198,7 @@ for ruby in ${rubies[@]} ; do
         [[ $status -gt $exit_status ]] && exit_status=$status
         [[ $status -ne 0 ]] && echo "!!! Test suite failed for $gemfile with Ruby $ruby !!!"
 
-        # kill all sidekiq processes
-        # they don't stop automatically and can add up
-        kill -9 $(pgrep -f sidekiq)
-
-        if $num ; then
-          num=$((num-1))
-          if [ "$num" -eq 0 ]; then
-            exit $exit_status
-          fi
-        fi
+        pkill -f sidekiq
       done
     done
   done
