@@ -1,11 +1,11 @@
 # Copyright (c) 2018 SolarWinds, LLC.
 # All rights reserved.
 
-module AppOpticsAPM
+module SolarWindsAPM
   module GRPC
 
     module ActiveCall
-      include AppOpticsAPM::SDK::TraceContextHeaders
+      include SolarWindsAPM::SDK::TraceContextHeaders
 
       if defined? ::GRPC
         StatusCodes = {}
@@ -13,10 +13,10 @@ module AppOpticsAPM
       end
 
       def self.included(klass)
-        AppOpticsAPM::Util.method_alias(klass, :request_response, ::GRPC::ActiveCall)
-        AppOpticsAPM::Util.method_alias(klass, :client_streamer, ::GRPC::ActiveCall)
-        AppOpticsAPM::Util.method_alias(klass, :server_streamer, ::GRPC::ActiveCall)
-        AppOpticsAPM::Util.method_alias(klass, :bidi_streamer, ::GRPC::ActiveCall)
+        SolarWindsAPM::Util.method_alias(klass, :request_response, ::GRPC::ActiveCall)
+        SolarWindsAPM::Util.method_alias(klass, :client_streamer, ::GRPC::ActiveCall)
+        SolarWindsAPM::Util.method_alias(klass, :server_streamer, ::GRPC::ActiveCall)
+        SolarWindsAPM::Util.method_alias(klass, :bidi_streamer, ::GRPC::ActiveCall)
       end
 
       def grpc_tags(method_type, method)
@@ -38,7 +38,7 @@ module AppOpticsAPM
 
       def server_streamer_with_appoptics(req, metadata: {}, &blk)
         @tags = grpc_tags('SERVER_STREAMING', metadata['method'] || metadata_to_send['method'])
-        AppOpticsAPM::API.log_entry('grpc-client', @tags)
+        SolarWindsAPM::API.log_entry('grpc-client', @tags)
         add_tracecontext_headers(metadata)
 
         patch_receive_and_check_status # need to patch this so that log_exit can be called after the enum is consumed
@@ -48,15 +48,15 @@ module AppOpticsAPM
       rescue => e
         # this check is needed because the exception may have been logged in patch_receive_and_check_status
         unless e.instance_variable_get(:@exn_logged)
-          AppOpticsAPM::API.log_exception('grpc-client', e)
-          AppOpticsAPM::API.log_exit('grpc-client', exit_tags(@tags))
+          SolarWindsAPM::API.log_exception('grpc-client', e)
+          SolarWindsAPM::API.log_exit('grpc-client', exit_tags(@tags))
         end
         raise e
       end
 
       def bidi_streamer_with_appoptics(req, metadata: {}, &blk)
         @tags = grpc_tags('BIDI_STREAMING', metadata['method'] || metadata_to_send['method'])
-        AppOpticsAPM::API.log_entry('grpc-client', @tags)
+        SolarWindsAPM::API.log_entry('grpc-client', @tags)
         add_tracecontext_headers(metadata)
 
         patch_set_input_stream_done
@@ -65,8 +65,8 @@ module AppOpticsAPM
         block_given? ? response.each { |r| yield r } : response
       rescue => e
         unless e.instance_variable_get(:@exn_logged)
-          AppOpticsAPM::API.log_exception('grpc-client', e)
-          AppOpticsAPM::API.log_exit('grpc-client', exit_tags(@tags))
+          SolarWindsAPM::API.log_exception('grpc-client', e)
+          SolarWindsAPM::API.log_exit('grpc-client', exit_tags(@tags))
         end
         raise e
       end
@@ -75,7 +75,7 @@ module AppOpticsAPM
 
       def unary_response(req, type:, metadata:, without:)
         tags = grpc_tags(type, metadata['method'] || metadata_to_send['method'])
-        AppOpticsAPM::SDK.trace('grpc-client', kvs: tags) do
+        SolarWindsAPM::SDK.trace('grpc-client', kvs: tags) do
           add_tracecontext_headers(metadata)
           begin
             send(without, req, metadata: metadata)
@@ -89,10 +89,10 @@ module AppOpticsAPM
         def self.receive_and_check_status # need to patch this so that log_exit can be called after the enum is consumed
           super
         rescue => e
-          AppOpticsAPM::API.log_exception('grpc-client', e)
+          SolarWindsAPM::API.log_exception('grpc-client', e)
           raise e
         ensure
-          AppOpticsAPM::API.log_exit('grpc-client', exit_tags(@tags))
+          SolarWindsAPM::API.log_exit('grpc-client', exit_tags(@tags))
         end
       end
 
@@ -101,9 +101,9 @@ module AppOpticsAPM
         def self.set_input_stream_done
           return if status.nil?
           if status.code > 0
-            AppOpticsAPM::API.log_exception('grpc-client', $!)
+            SolarWindsAPM::API.log_exception('grpc-client', $!)
           end
-          AppOpticsAPM::API.log_exit('grpc-client', exit_tags(@tags))
+          SolarWindsAPM::API.log_exit('grpc-client', exit_tags(@tags))
           super
         end
       end
@@ -111,7 +111,7 @@ module AppOpticsAPM
       def exit_tags(tags)
         # we need to translate the status.code, it is not the status.details we want, they are not matching 1:1
         tags['GRPCStatus'] ||= @call.status ? StatusCodes[@call.status.code].to_s : 'UNKNOWN'
-        tags['Backtrace'] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:grpc_client][:collect_backtraces]
+        tags['Backtrace'] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:grpc_client][:collect_backtraces]
         tags
       end
     end
@@ -119,11 +119,11 @@ module AppOpticsAPM
   end
 end
 
-if defined?(GRPC) && AppOpticsAPM::Config[:grpc_client][:enabled]
-  AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting GRPC' if AppOpticsAPM::Config[:verbose]
+if defined?(GRPC) && SolarWindsAPM::Config[:grpc_client][:enabled]
+  SolarWindsAPM.logger.info '[appoptics_apm/loading] Instrumenting GRPC' if SolarWindsAPM::Config[:verbose]
 
   # Client side is instrumented in ActiveCall and ClientStub
-  AppOpticsAPM::Util.send_include(GRPC::ActiveCall, AppOpticsAPM::GRPC::ActiveCall)
+  SolarWindsAPM::Util.send_include(GRPC::ActiveCall, SolarWindsAPM::GRPC::ActiveCall)
 
   GRPC_ClientStub_ops = [:request_response, :client_streamer, :server_streamer, :bidi_streamer]
   module GRPC
@@ -139,7 +139,7 @@ if defined?(GRPC) && AppOpticsAPM::Config[:grpc_client][:enabled]
                       credentials: credentials, metadata: metadata, &blk)
         end
 
-        AppOpticsAPM::Util.method_alias(GRPC::ClientStub, m)
+        SolarWindsAPM::Util.method_alias(GRPC::ClientStub, m)
       end
 
     end

@@ -14,42 +14,42 @@ Benchmark.ips do |x|
   x.config(:time => 10, :warmup => 2)
 
   # x.report('tracing_f') do
-  #   AppOpticsAPM.loaded = false
-  #   AppOpticsAPM::Config[:tracing_mode] = 'never'
-  #   AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
+  #   SolarWindsAPM.loaded = false
+  #   SolarWindsAPM::Config[:tracing_mode] = 'never'
+  #   SolarWindsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
   #   n.times do
-  #     AppOpticsAPM.tracing?
+  #     SolarWindsAPM.tracing?
   #   end
   # end
   # x.report('tracing_n') do
-  #   AppOpticsAPM.loaded = true
-  #   AppOpticsAPM::Config[:tracing_mode] = 'never'
-  #   AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
+  #   SolarWindsAPM.loaded = true
+  #   SolarWindsAPM::Config[:tracing_mode] = 'never'
+  #   SolarWindsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
   #   n.times do
-  #     AppOpticsAPM.tracing?
+  #     SolarWindsAPM.tracing?
   #   end
   # end
 
   # x.report('tracing_tf') do
-  #   AppOpticsAPM.loaded = true
-  #   AppOpticsAPM::Config[:tracing_mode] = 'always'
-  #   AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
+  #   SolarWindsAPM.loaded = true
+  #   SolarWindsAPM::Config[:tracing_mode] = 'always'
+  #   SolarWindsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
   #   n.times do
-  #     AppOpticsAPM.tracing?
+  #     SolarWindsAPM.tracing?
   #   end
   # end
   # x.report('tracing_tt') do
-  #   AppOpticsAPM.loaded = true
-  #   AppOpticsAPM::Config[:tracing_mode] = 'always'
-  #   AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F01')
+  #   SolarWindsAPM.loaded = true
+  #   SolarWindsAPM::Config[:tracing_mode] = 'always'
+  #   SolarWindsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F01')
   #   n.times do
-  #     AppOpticsAPM.tracing?
-  #     AppOpticsAPM.tracing?
+  #     SolarWindsAPM.tracing?
+  #     SolarWindsAPM.tracing?
   #   end
   # end
 
 
-  AppOpticsAPM::Config[:transaction_settings] = [
+  SolarWindsAPM::Config[:transaction_settings] = [
     # { type: :url,
     #   extensions: %w[.png .gif .css .js .gz],
     #   tracing: :disabled
@@ -71,7 +71,7 @@ Benchmark.ips do |x|
     }
   ]
 
-  regexps = AppOpticsAPM::Config[:transaction_settings].map { |v| Regexp.new(v[:regexp]) }
+  regexps = SolarWindsAPM::Config[:transaction_settings].map { |v| Regexp.new(v[:regexp]) }
   compiled = Regexp.union(regexps)
 
   x.report('3 singles non matching') do

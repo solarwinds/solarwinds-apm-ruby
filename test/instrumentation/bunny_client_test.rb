@@ -30,7 +30,7 @@ unless defined?(JRUBY_VERSION)
       @queue = @ch.queue("tv.ruby.test")
       @exchange = @ch.default_exchange
 
-      AppOpticsAPM::SDK.start_trace('bunny_tests') do
+      SolarWindsAPM::SDK.start_trace('bunny_tests') do
         @exchange.publish("The Tortoise and the Hare", :routing_key => @queue.name)
       end
 
@@ -52,7 +52,7 @@ unless defined?(JRUBY_VERSION)
       _(traces[2]['RemoteHost']).must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
       _(traces[2]['RemotePort']).must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
       _(traces[2]['VirtualHost']).must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
-      _(traces[2].has_key?('Backtrace')).must_equal !!AppOpticsAPM::Config[:bunnyclient][:collect_backtraces]
+      _(traces[2].has_key?('Backtrace')).must_equal !!SolarWindsAPM::Config[:bunnyclient][:collect_backtraces]
 
       @conn.close
     end
@@ -63,7 +63,7 @@ unless defined?(JRUBY_VERSION)
       @ch = @conn.create_channel
       @exchange = @ch.fanout("tv.ruby.fanout.tests")
 
-      AppOpticsAPM::SDK.start_trace('bunny_tests') do
+      SolarWindsAPM::SDK.start_trace('bunny_tests') do
         @exchange.publish("The Tortoise and the Hare in the fanout exchange.", :routing_key => 'tv.ruby.test').publish("And another...")
       end
 
@@ -108,7 +108,7 @@ unless defined?(JRUBY_VERSION)
       @ch = @conn.create_channel
       @exchange = @ch.topic("tv.ruby.topic.tests", :auto_delete => true)
 
-      AppOpticsAPM::SDK.start_trace('bunny_tests') do
+      SolarWindsAPM::SDK.start_trace('bunny_tests') do
         @exchange.publish("The Tortoise and the Hare in the topic exchange.", :routing_key => 'tv.ruby.test.1').publish("And another...", :routing_key => 'tv.ruby.test.2')
       end
 
@@ -153,7 +153,7 @@ unless defined?(JRUBY_VERSION)
       @ch = @conn.create_channel
 
       begin
-        AppOpticsAPM::SDK.start_trace('bunny_tests') do
+        SolarWindsAPM::SDK.start_trace('bunny_tests') do
           @ch = @conn.create_channel
           @ch.queue("bunny.tests.queues.auto-delete", auto_delete: true, durable: false)
           @ch.queue_declare("bunny.tests.queues.auto-delete", auto_delete: false, durable: true)
@@ -168,7 +168,7 @@ unless defined?(JRUBY_VERSION)
       validate_outer_layers(traces, "bunny_tests")
       assert valid_edges?(traces), "Invalid edge in traces"
 
-      _(traces[2].key?('Backtrace')).must_equal !!AppOpticsAPM::Config[:bunnyclient][:collect_backtraces]
+      _(traces[2].key?('Backtrace')).must_equal !!SolarWindsAPM::Config[:bunnyclient][:collect_backtraces]
 
       _(traces[3]['Layer']).must_equal "bunny_tests"
       _(traces[3]['Spec']).must_equal "error"
@@ -191,7 +191,7 @@ unless defined?(JRUBY_VERSION)
       @ch.confirm_select
       @exchange.publish("", :routing_key => 'tv.ruby.test')
 
-      AppOpticsAPM::SDK.start_trace('bunny_tests') do
+      SolarWindsAPM::SDK.start_trace('bunny_tests') do
         @exchange.delete
       end
 
@@ -219,7 +219,7 @@ unless defined?(JRUBY_VERSION)
 
       @ch.confirm_select
 
-      AppOpticsAPM::SDK.start_trace('bunny_tests') do
+      SolarWindsAPM::SDK.start_trace('bunny_tests') do
         1000.times do
           @exchange.publish("", :routing_key => 'tv.ruby.test')
         end
@@ -261,7 +261,7 @@ unless defined?(JRUBY_VERSION)
       @ch = @conn.create_channel
       @exchange = @ch.fanout("tv.queue.test")
 
-      AppOpticsAPM::SDK.start_trace('bunny_tests') do
+      SolarWindsAPM::SDK.start_trace('bunny_tests') do
         @queue = @ch.queue("blah", :exclusive => true).bind(@exchange)
       end
 
@@ -280,8 +280,8 @@ unless defined?(JRUBY_VERSION)
     end
 
     it 'backtrace_config_true' do
-      bt = AppOpticsAPM::Config[:bunnyclient][:collect_backtraces]
-      AppOpticsAPM::Config[:bunnyclient][:collect_backtraces] = true
+      bt = SolarWindsAPM::Config[:bunnyclient][:collect_backtraces]
+      SolarWindsAPM::Config[:bunnyclient][:collect_backtraces] = true
 
       @conn = Bunny.new(@connection_params)
       @conn.start
@@ -289,7 +289,7 @@ unless defined?(JRUBY_VERSION)
       @queue = @ch.queue("tv.ruby.test")
       @exchange = @ch.default_exchange
 
-      AppOpticsAPM::SDK.start_trace('bunny_tests') do
+      SolarWindsAPM::SDK.start_trace('bunny_tests') do
         @exchange.publish("The Tortoise and the Hare", :routing_key => @queue.name)
       end
 
@@ -299,10 +299,10 @@ unless defined?(JRUBY_VERSION)
       validate_outer_layers(traces, "bunny_tests")
       assert valid_edges?(traces), "Invalid edge in traces"
 
-      _(traces[2].has_key?('Backtrace')).must_equal !!AppOpticsAPM::Config[:bunnyclient][:collect_backtraces]
+      _(traces[2].has_key?('Backtrace')).must_equal !!SolarWindsAPM::Config[:bunnyclient][:collect_backtraces]
       @conn.close
 
-      AppOpticsAPM::Config[:bunnyclient][:collect_backtraces] = bt
+      SolarWindsAPM::Config[:bunnyclient][:collect_backtraces] = bt
     end
   end
 end

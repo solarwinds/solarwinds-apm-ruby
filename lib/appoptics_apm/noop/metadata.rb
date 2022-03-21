@@ -2,11 +2,11 @@
 # All rights reserved.
 
 ####
-# noop version of AppOpticsAPM::Metadata
+# noop version of SolarWindsAPM::Metadata
 #
 #
 
-module AppOpticsAPM
+module SolarWindsAPM
   class Metadata
 
     ##

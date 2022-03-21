@@ -12,18 +12,18 @@ unless defined?(JRUBY_VERSION)
 
     before do
       clear_all_traces
-      AppOpticsAPM.config_lock.synchronize {
-        @cb = AppOpticsAPM::Config[:curb][:collect_backtraces]
-        @log_args = AppOpticsAPM::Config[:curb][:log_args]
-        @tm = AppOpticsAPM::Config[:tracing_mode]
+      SolarWindsAPM.config_lock.synchronize {
+        @cb = SolarWindsAPM::Config[:curb][:collect_backtraces]
+        @log_args = SolarWindsAPM::Config[:curb][:log_args]
+        @tm = SolarWindsAPM::Config[:tracing_mode]
       }
     end
 
     after do
-      AppOpticsAPM.config_lock.synchronize {
-        AppOpticsAPM::Config[:curb][:collect_backtraces] = @cb
-        AppOpticsAPM::Config[:curb][:log_args] = @log_args
-        AppOpticsAPM::Config[:tracing_mode] = @tm
+      SolarWindsAPM.config_lock.synchronize {
+        SolarWindsAPM::Config[:curb][:collect_backtraces] = @cb
+        SolarWindsAPM::Config[:curb][:log_args] = @log_args
+        SolarWindsAPM::Config[:tracing_mode] = @tm
       }
     end
 
@@ -50,7 +50,7 @@ unless defined?(JRUBY_VERSION)
     end
 
     it 'reports version init' do
-      init_kvs = ::AppOpticsAPM::Util.build_init_report
+      init_kvs = ::SolarWindsAPM::Util.build_init_report
       assert init_kvs.key?('Ruby.curb.Version')
       assert_equal ::Curl::CURB_VERSION, init_kvs['Ruby.curb.Version']
     end
@@ -58,11 +58,11 @@ unless defined?(JRUBY_VERSION)
     it 'class_get_request' do
       response = nil
 
-      AppOpticsAPM::SDK.start_trace('curb_tests') do
+      SolarWindsAPM::SDK.start_trace('curb_tests') do
         response = Curl.get('http://127.0.0.1:8101/')
       end
 
-      assert response.body_str == "Hello AppOpticsAPM!"
+      assert response.body_str == "Hello SolarWindsAPM!"
       assert response.response_code == 200
       assert response.header_str =~ /X-Trace/, "X-Trace response header"
 
@@ -72,11 +72,11 @@ unless defined?(JRUBY_VERSION)
     it 'class delete request' do
       response = nil
 
-      AppOpticsAPM::SDK.start_trace('curb_tests') do
+      SolarWindsAPM::SDK.start_trace('curb_tests') do
         response = Curl.delete('http://127.0.0.1:8101/?curb_delete_test', :id => 1)
       end
 
-      assert response.body_str == "Hello AppOpticsAPM!"
+      assert response.body_str == "Hello SolarWindsAPM!"
       assert response.response_code == 200
       assert response.header_str =~ /X-Trace/, "X-Trace response header"
 
@@ -86,11 +86,11 @@ unless defined?(JRUBY_VERSION)
     it 'class post request' do
       response = nil
 
-      AppOpticsAPM::SDK.start_trace('curb_tests') do
+      SolarWindsAPM::SDK.start_trace('curb_tests') do
         response = Curl.post('http://127.0.0.1:8101/')
       end
 
-      assert response.body_str == "Hello AppOpticsAPM!"
+      assert response.body_str == "Hello SolarWindsAPM!"
       assert response.response_code == 200
       assert response.header_str =~ /X-Trace/, "X-Trace response header"
 
@@ -100,12 +100,12 @@ unless defined?(JRUBY_VERSION)
     it 'easy class perform' do
       response = nil
 
-      AppOpticsAPM::SDK.start_trace('curb_tests') do
+      SolarWindsAPM::SDK.start_trace('curb_tests') do
         response = Curl::Easy.perform("http://127.0.0.1:8101/")
       end
 
       assert response.is_a?(::Curl::Easy)
-      assert response.body_str == "Hello AppOpticsAPM!"
+      assert response.body_str == "Hello SolarWindsAPM!"
       assert response.response_code == 200
       assert response.header_str =~ /X-Trace/, "X-Trace response header"
 
@@ -115,7 +115,7 @@ unless defined?(JRUBY_VERSION)
     it 'easy http head' do
       c = nil
 
-      AppOpticsAPM::SDK.start_trace('curb_tests') do
+      SolarWindsAPM::SDK.start_trace('curb_tests') do
         c = Curl::Easy.new("http://127.0.0.1:8101/")
         c.http_head
       end
@@ -130,7 +130,7 @@ unless defined?(JRUBY_VERSION)
     it 'easy http put' do
       c = nil
 
-      AppOpticsAPM::SDK.start_trace('curb_tests') do
+      SolarWindsAPM::SDK.start_trace('curb_tests') do
         c = Curl::Easy.new("http://127.0.0.1:8101/")
         c.http_put(:id => 1)
       end
@@ -145,7 +145,7 @@ unless defined?(JRUBY_VERSION)
     it 'easy http post' do
       c = nil
 
-      AppOpticsAPM::SDK.start_trace('curb_tests') do
+      SolarWindsAPM::SDK.start_trace('curb_tests') do
         url = "http://127.0.0.1:8101/"
         c = Curl::Easy.new(url)
         c.http_post(url, :id => 1)
@@ -161,9 +161,9 @@ unless defined?(JRUBY_VERSION)
     it 'class_ etch with_ lock' do
       response = nil
 
-      AppOpticsAPM::SDK.start_trace('curb_tests') do
+      SolarWindsAPM::SDK.start_trace('curb_tests') do
         response = Curl::Easy.perform("http://127.0.0.1:8101/") do |curl|
-          curl.headers["User-Agent"] = "AppOpticsAPM 2000"
+          curl.headers["User-Agent"] = "SolarWindsAPM 2000"
         end
       end
 
@@ -188,7 +188,7 @@ unless defined?(JRUBY_VERSION)
       urls << "http://127.0.0.1:8101/?two=2"
       urls << "http://127.0.0.1:8101/?three=3"
 
-      AppOpticsAPM::SDK.start_trace('curb_tests') do
+      SolarWindsAPM::SDK.start_trace('curb_tests') do
         Curl::Multi.get(urls, easy_options, multi_options) do |easy|
           nil
         end
@@ -213,7 +213,7 @@ unless defined?(JRUBY_VERSION)
       urls << { :url => "http://127.0.0.1:8101/2", :post_fields => { :id => 2 } }
       urls << { :url => "http://127.0.0.1:8101/3", :post_fields => { :id => 3 } }
 
-      AppOpticsAPM::SDK.start_trace('curb_tests') do
+      SolarWindsAPM::SDK.start_trace('curb_tests') do
         Curl::Multi.post(urls, easy_options, multi_options) do |easy|
           nil
         end
@@ -238,7 +238,7 @@ unless defined?(JRUBY_VERSION)
       urls << "http://127.0.0.1:8101/?two=2"
       urls << "http://127.0.0.1:8101/?three=3"
 
-      AppOpticsAPM::SDK.start_trace('curb_tests') do
+      SolarWindsAPM::SDK.start_trace('curb_tests') do
         Curl::Multi.get(urls, easy_options, multi_options) do |easy|
           nil
         end
@@ -262,7 +262,7 @@ unless defined?(JRUBY_VERSION)
       urls << "http://127.0.0.1:8101/?two=2"
       urls << "http://127.0.0.1:8101/?three=3"
 
-      AppOpticsAPM::SDK.start_trace('curb_tests') do
+      SolarWindsAPM::SDK.start_trace('curb_tests') do
         m = Curl::Multi.new
         urls.each do |url|
           responses[url] = ""
@@ -289,7 +289,7 @@ unless defined?(JRUBY_VERSION)
 
     it 'requests with errors' do
       begin
-        AppOpticsAPM::SDK.start_trace('curb_tests') do
+        SolarWindsAPM::SDK.start_trace('curb_tests') do
           Curl.get('http://asfjalkfjlajfljkaljf/')
         end
       rescue
@@ -322,10 +322,10 @@ unless defined?(JRUBY_VERSION)
     it 'obey log args when false' do
       # When testing global config options, use the config_lock
       # semaphore to lock between other running tests.
-      AppOpticsAPM.config_lock.synchronize {
-        AppOpticsAPM::Config[:curb][:log_args] = false
+      SolarWindsAPM.config_lock.synchronize {
+        SolarWindsAPM::Config[:curb][:log_args] = false
 
-        AppOpticsAPM::SDK.start_trace('curb_tests') do
+        SolarWindsAPM::SDK.start_trace('curb_tests') do
           Curl.get('http://127.0.0.1:8101/?blah=1')
         end
       }
@@ -338,10 +338,10 @@ unless defined?(JRUBY_VERSION)
     it 'obey log args when true' do
       # When testing global config options, use the config_lock
       # semaphore to lock between other running tests.
-      AppOpticsAPM.config_lock.synchronize {
-        AppOpticsAPM::Config[:curb][:log_args] = true
+      SolarWindsAPM.config_lock.synchronize {
+        SolarWindsAPM::Config[:curb][:log_args] = true
 
-        AppOpticsAPM::SDK.start_trace('curb_tests') do
+        SolarWindsAPM::SDK.start_trace('curb_tests') do
           Curl.get('http://127.0.0.1:8101/?blah=1')
         end
       }
@@ -355,7 +355,7 @@ unless defined?(JRUBY_VERSION)
       response = Curl.get('http://127.0.0.1:8101/?blah=1')
 
       assert response.headers['X-Trace'] == nil
-      assert response.body_str == "Hello AppOpticsAPM!"
+      assert response.body_str == "Hello SolarWindsAPM!"
       assert response.response_code == 200
     end
 
@@ -363,18 +363,18 @@ unless defined?(JRUBY_VERSION)
       response = Curl::Easy.perform("http://127.0.0.1:8101/")
 
       assert response.headers['X-Trace'] == nil
-      assert response.body_str == "Hello AppOpticsAPM!"
+      assert response.body_str == "Hello SolarWindsAPM!"
       assert response.response_code == 200
     end
 
     it 'obey collect backtraces when true' do
       # When testing global config options, use the config_lock
       # semaphore to lock between other running tests.
-      AppOpticsAPM.config_lock.synchronize {
-        AppOpticsAPM::Config[:curb][:collect_backtraces] = true
+      SolarWindsAPM.config_lock.synchronize {
+        SolarWindsAPM::Config[:curb][:collect_backtraces] = true
         sleep 1
 
-        AppOpticsAPM::SDK.start_trace('curb_test') do
+        SolarWindsAPM::SDK.start_trace('curb_test') do
           Curl.get("http://127.0.0.1:8101/")
         end
       }
@@ -386,10 +386,10 @@ unless defined?(JRUBY_VERSION)
     it 'obey collect backtraces when false' do
       # When testing global config options, use the config_lock
       # semaphore to lock between other running tests.
-      AppOpticsAPM.config_lock.synchronize {
-        AppOpticsAPM::Config[:curb][:collect_backtraces] = false
+      SolarWindsAPM.config_lock.synchronize {
+        SolarWindsAPM::Config[:curb][:collect_backtraces] = false
 
-        AppOpticsAPM::SDK.start_trace('curb_test') do
+        SolarWindsAPM::SDK.start_trace('curb_test') do
           Curl.get("http://127.0.0.1:8101/")
         end
       }

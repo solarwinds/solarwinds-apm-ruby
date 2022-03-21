@@ -1,7 +1,7 @@
 # Copyright (c) 2019 SolarWinds, LLC.
 # All rights reserved.
 
-module AppOpticsAPM
+module SolarWindsAPM
   class XTraceOptions
 
     attr_reader :options, :signature, :trigger_trace, :timestamp
@@ -57,19 +57,19 @@ module AppOpticsAPM
           end
         when 'sw-keys'
           if @sw_keys
-            AppOpticsAPM.logger.info "[appoptics_apm/x-trace-options] Duplicate key: #{k[0]}"
+            SolarWindsAPM.logger.info "[appoptics_apm/x-trace-options] Duplicate key: #{k[0]}"
           else
             @sw_keys = k[1].strip
           end
         when /^custom-[^\s]*$/
           if @custom_kvs[k[0]]
-            AppOpticsAPM.logger.info "[appoptics_apm/x-trace-options] Duplicate key: #{k[0]}"
+            SolarWindsAPM.logger.info "[appoptics_apm/x-trace-options] Duplicate key: #{k[0]}"
           else
             @custom_kvs[k[0]] = k[1].strip
           end
         when 'ts'
           if @timestamp > 0
-            AppOpticsAPM.logger.info "[appoptics_apm/x-trace-options] Duplicate key: #{k[0]}"
+            SolarWindsAPM.logger.info "[appoptics_apm/x-trace-options] Duplicate key: #{k[0]}"
           else
             @timestamp = k[1].to_i
           end
@@ -79,7 +79,7 @@ module AppOpticsAPM
       end
       unless @ignored.empty?
         msg = "[appoptics_apm/x-trace-options] Some keys were ignored: #{@ignored.join(',')}"
-        AppOpticsAPM.logger.info(msg)
+        SolarWindsAPM.logger.info(msg)
       end
     end
 

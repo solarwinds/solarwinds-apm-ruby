@@ -18,11 +18,11 @@ APPOPTICS_STR_LAYER = 'Layer'.freeze
 APPOPTICS_STR_LABEL = 'Label'.freeze
 
 ##
-# This module is the base module for the various implementations of AppOpticsAPM reporting.
-# Current variations as of 2014-09-10 are a c-extension, JRuby (using AppOpticsAPM Java
+# This module is the base module for the various implementations of SolarWindsAPM reporting.
+# Current variations as of 2014-09-10 are a c-extension, JRuby (using SolarWindsAPM Java
 # instrumentation) and a Heroku c-extension (with embedded tracelyzer)
-module AppOpticsAPMBase
-  extend AppOpticsAPM::ThreadLocal
+module SolarWindsAPMBase
+  extend SolarWindsAPM::ThreadLocal
 
   attr_accessor :reporter
   attr_accessor :loaded
@@ -52,7 +52,7 @@ module AppOpticsAPMBase
   # X-Trace request header, tracing may have already been started
   # by Joboe.  Such a scenario occurs when the application is being
   # hosted by a Java container (such as Tomcat or Glassfish) and
-  # AppOpticsAPM has already initiated tracing.  In this case, we shouldn't
+  # SolarWindsAPM has already initiated tracing.  In this case, we shouldn't
   # pickup the X-Trace context in the X-Trace header and we shouldn't
   # set the outgoing response X-Trace header or clear context.
   # Yeah I know.  Yuck.
@@ -75,16 +75,16 @@ module AppOpticsAPMBase
   # extended
   #
   # Invoked when this module is extended.
-  # e.g. extend AppOpticsAPMBase
+  # e.g. extend SolarWindsAPMBase
   #
   def self.extended(cls)
     cls.loaded = true
 
     # This gives us pretty accessors with questions marks at the end
     # e.g. is_continued_trace --> is_continued_trace?
-    AppOpticsAPM.methods.select { |m| m =~ /^is_|^has_/ }.each do |c|
+    SolarWindsAPM.methods.select { |m| m =~ /^is_|^has_/ }.each do |c|
       unless c =~ /\?$|=$/
-        # AppOpticsAPM.logger.debug "aliasing #{c}? to #{c}"
+        # SolarWindsAPM.logger.debug "aliasing #{c}? to #{c}"
         alias_method "#{c}?", c
       end
     end
@@ -102,9 +102,9 @@ module AppOpticsAPMBase
   # in which case we don't want to do this.
   #
   def pickup_context?(tracestring)
-    return false unless AppOpticsAPM::TraceString.valid?(tracestring)
+    return false unless SolarWindsAPM::TraceString.valid?(tracestring)
 
-    if defined?(JRUBY_VERSION) && AppOpticsAPM.tracing?
+    if defined?(JRUBY_VERSION) && SolarWindsAPM.tracing?
       return false
     else
       return true
@@ -119,7 +119,7 @@ module AppOpticsAPMBase
   # operation tracing or one instrumented operation calling another.
   #
   def tracing_layer?(layer)
-    AppOpticsAPM.layer == layer.to_sym
+    SolarWindsAPM.layer == layer.to_sym
   end
 
   ##
@@ -132,13 +132,13 @@ module AppOpticsAPMBase
   # In such cases, we only want to trace the outermost operation.
   #
   def tracing_layer_op?(operation)
-    unless AppOpticsAPM.layer_op.nil? || AppOpticsAPM.layer_op.is_a?(Array)
-      AppOpticsAPM.logger.error('[appopticsapm/logging] INTERNAL: layer_op should be nil or an array, please report to technicalsupport@solarwinds.com')
+    unless SolarWindsAPM.layer_op.nil? || SolarWindsAPM.layer_op.is_a?(Array)
+      SolarWindsAPM.logger.error('[SolarWindsAPM/logging] INTERNAL: layer_op should be nil or an array, please report to technicalsupport@solarwinds.com')
       return false
     end
 
-    return false if AppOpticsAPM.layer_op.nil? || AppOpticsAPM.layer_op.empty? || !operation.respond_to?(:to_sym)
-    AppOpticsAPM.layer_op.last == operation.to_sym
+    return false if SolarWindsAPM.layer_op.nil? || SolarWindsAPM.layer_op.empty? || !operation.respond_to?(:to_sym)
+    SolarWindsAPM.layer_op.last == operation.to_sym
   end
 
   # TODO ME review use of these boolean statements
@@ -150,8 +150,8 @@ module AppOpticsAPMBase
   # False otherwise
   #
   def tracing_enabled?
-    AppOpticsAPM::Config[:tracing_mode] &&
-      [:enabled, :always].include?(AppOpticsAPM::Config[:tracing_mode].to_sym)
+    SolarWindsAPM::Config[:tracing_mode] &&
+      [:enabled, :always].include?(SolarWindsAPM::Config[:tracing_mode].to_sym)
   end
 
   ##
@@ -159,8 +159,8 @@ module AppOpticsAPMBase
   # False otherwise
   #
   def tracing_disabled?
-    AppOpticsAPM::Config[:tracing_mode] &&
-      [:disabled, :never].include?(AppOpticsAPM::Config[:tracing_mode].to_sym)
+    SolarWindsAPM::Config[:tracing_mode] &&
+      [:disabled, :never].include?(SolarWindsAPM::Config[:tracing_mode].to_sym)
   end
 
   ##
@@ -168,8 +168,8 @@ module AppOpticsAPMBase
   # False otherwise
   #
   def tracing?
-    return false if !AppOpticsAPM.loaded # || AppOpticsAPM.tracing_disabled?
-    AppOpticsAPM::Context.isSampled
+    return false if !SolarWindsAPM.loaded # || SolarWindsAPM.tracing_disabled?
+    SolarWindsAPM::Context.isSampled
   end
 
   def heroku?
@@ -217,12 +217,12 @@ module AppOpticsAPMBase
   end
 end
 
-module AppOpticsAPM
-  extend AppOpticsAPMBase
+module SolarWindsAPM
+  extend SolarWindsAPMBase
 end
 
 # Setup an alias so we don't bug users
 # about single letter capitalization
-AppopticsAPM = AppOpticsAPM
-AppOpticsApm = AppOpticsAPM
-AppopticsApm = AppOpticsAPM
+SolarwindsAPM = SolarWindsAPM
+SolarWindsApm = SolarWindsAPM
+SolarwindsApm = SolarWindsAPM

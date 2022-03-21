@@ -1,12 +1,12 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
-module AppOpticsAPM
+module SolarWindsAPM
   module Inst
     ##
-    # AppOpticsAPM::Inst::Sequel
+    # SolarWindsAPM::Inst::Sequel
     #
-    # The common (shared) methods used by the AppOpticsAPM Sequel instrumentation
+    # The common (shared) methods used by the SolarWindsAPM Sequel instrumentation
     # across multiple modules/classes.
     #
     module Sequel
@@ -30,21 +30,21 @@ module AppOpticsAPM
           sql = sql.prepared_sql unless sql.is_a?(Symbol)
         end
 
-        if AppOpticsAPM::Config[:sanitize_sql]
+        if SolarWindsAPM::Config[:sanitize_sql]
           # Sanitize SQL and don't report binds
           if sql.is_a?(Symbol)
             kvs[:Query] = sql
           else
-            sql = AppOpticsAPM::Util.remove_traceparent(sql)
-            kvs[:Query] = AppOpticsAPM::Util.sanitize_sql(sql)
+            sql = SolarWindsAPM::Util.remove_traceparent(sql)
+            kvs[:Query] = SolarWindsAPM::Util.sanitize_sql(sql)
           end
         else
           # Report raw SQL and any binds if they exist
-          kvs[:Query] = AppOpticsAPM::Util.remove_traceparent(sql.to_s)
+          kvs[:Query] = SolarWindsAPM::Util.remove_traceparent(sql.to_s)
           kvs[:QueryArgs] = opts[:arguments] if opts.is_a?(Hash) && opts.key?(:arguments)
         end
 
-        kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:sequel][:collect_backtraces]
+        kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:sequel][:collect_backtraces]
 
         if ::Sequel::VERSION < '3.41.0' && !(self.class.to_s =~ /Dataset$/)
           db_opts = @opts
@@ -59,7 +59,7 @@ module AppOpticsAPM
         kvs[:RemotePort] = db_opts[:port] if db_opts.key?(:port)
         kvs[:Flavor]     = db_opts[:adapter]
       rescue => e
-        AppOpticsAPM.logger.debug "[appoptics_apm/debug Error capturing Sequel KVs: #{e.message}" if AppOpticsAPM::Config[:verbose]
+        SolarWindsAPM.logger.debug "[appoptics_apm/debug Error capturing Sequel KVs: #{e.message}" if SolarWindsAPM::Config[:verbose]
       end
 
       ##
@@ -70,19 +70,19 @@ module AppOpticsAPM
       #
       def exec_with_appoptics(method, sql, opts = ::Sequel::OPTS, &block)
         kvs = {}
-        AppOpticsAPM::SDK.trace(:sequel, kvs: kvs) do
+        SolarWindsAPM::SDK.trace(:sequel, kvs: kvs) do
           new_sql = add_traceparent(sql, kvs)
-          assign_kvs(new_sql, opts, kvs) if AppOpticsAPM.tracing?
+          assign_kvs(new_sql, opts, kvs) if SolarWindsAPM.tracing?
           send(method, new_sql, opts, &block)
         end
       end
 
       def add_traceparent(sql, kvs)
-        return sql unless AppOpticsAPM.tracing? && AppOpticsAPM::Config[:tag_sql]
+        return sql unless SolarWindsAPM.tracing? && SolarWindsAPM::Config[:tag_sql]
 
         case sql
         when String
-          return AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql, kvs)
+          return SolarWindsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql, kvs)
         when Symbol
           if defined?(prepared_statement) # for mysql2
             ps = prepared_statement(sql)
@@ -107,7 +107,7 @@ module AppOpticsAPM
       # and `prepare` in `prepared_statements.rb` in the sequel gem
       def add_traceparent_to_ps(ps, kvs)
         sql = ps.prepared_sql
-        new_sql = AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql, kvs)
+        new_sql = SolarWindsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql, kvs)
 
         unless new_sql == sql
           new_ps = ps.clone(:prepared_sql=>new_sql, :sql=>new_sql)
@@ -119,20 +119,20 @@ module AppOpticsAPM
     end
 
     module SequelDatabase
-      include AppOpticsAPM::Inst::Sequel
+      include SolarWindsAPM::Inst::Sequel
 
       def self.included(klass)
-        AppOpticsAPM::Util.method_alias(klass, :run, ::Sequel::Database)
-        AppOpticsAPM::Util.method_alias(klass, :execute_ddl, ::Sequel::Database)
-        AppOpticsAPM::Util.method_alias(klass, :execute_dui, ::Sequel::Database)
-        AppOpticsAPM::Util.method_alias(klass, :execute_insert, ::Sequel::Database)
+        SolarWindsAPM::Util.method_alias(klass, :run, ::Sequel::Database)
+        SolarWindsAPM::Util.method_alias(klass, :execute_ddl, ::Sequel::Database)
+        SolarWindsAPM::Util.method_alias(klass, :execute_dui, ::Sequel::Database)
+        SolarWindsAPM::Util.method_alias(klass, :execute_insert, ::Sequel::Database)
       end
 
       def run_with_appoptics(sql, opts = ::Sequel::OPTS)
         kvs = {}
-        AppOpticsAPM::SDK.trace(:sequel, kvs: kvs) do
+        SolarWindsAPM::SDK.trace(:sequel, kvs: kvs) do
           new_sql = add_traceparent(sql, kvs)
-          assign_kvs(new_sql, opts, kvs) if AppOpticsAPM.tracing?
+          assign_kvs(new_sql, opts, kvs) if SolarWindsAPM.tracing?
           run_without_appoptics(new_sql, opts)
         end
       end
@@ -140,7 +140,7 @@ module AppOpticsAPM
       def execute_ddl_with_appoptics(sql, opts = ::Sequel::OPTS, &block)
         # If we're already tracing a sequel operation, then this call likely came
         # from Sequel::Dataset.  In this case, just pass it on.
-        return execute_ddl_without_appoptics(sql, opts, &block) if AppOpticsAPM.tracing_layer?(:sequel)
+        return execute_ddl_without_appoptics(sql, opts, &block) if SolarWindsAPM.tracing_layer?(:sequel)
 
         exec_with_appoptics(:execute_ddl_without_appoptics, sql, opts, &block)
       end
@@ -148,7 +148,7 @@ module AppOpticsAPM
       def execute_dui_with_appoptics(sql, opts = ::Sequel::OPTS, &block)
         # If we're already tracing a sequel operation, then this call likely came
         # from Sequel::Dataset.  In this case, just pass it on.
-        return execute_dui_without_appoptics(sql, opts, &block) if AppOpticsAPM.tracing_layer?(:sequel)
+        return execute_dui_without_appoptics(sql, opts, &block) if SolarWindsAPM.tracing_layer?(:sequel)
 
         exec_with_appoptics(:execute_dui_without_appoptics, sql, opts, &block)
       end
@@ -156,46 +156,46 @@ module AppOpticsAPM
       def execute_insert_with_appoptics(sql, opts = ::Sequel::OPTS, &block)
         # If we're already tracing a sequel operation, then this call likely came
         # from Sequel::Dataset.  In this case, just pass it on.
-        return execute_insert_without_appoptics(sql, opts, &block) if AppOpticsAPM.tracing_layer?(:sequel)
+        return execute_insert_without_appoptics(sql, opts, &block) if SolarWindsAPM.tracing_layer?(:sequel)
 
         exec_with_appoptics(:execute_insert_without_appoptics, sql, opts, &block)
       end
     end # module SequelDatabase
 
     module AdapterDatabase
-      include AppOpticsAPM::Inst::Sequel
+      include SolarWindsAPM::Inst::Sequel
 
       def self.included(klass)
         if defined?(::Sequel::MySQL::MysqlMysql2::DatabaseMethods)
-          AppOpticsAPM::Util.method_alias(klass, :execute, ::Sequel::MySQL::MysqlMysql2::DatabaseMethods)
+          SolarWindsAPM::Util.method_alias(klass, :execute, ::Sequel::MySQL::MysqlMysql2::DatabaseMethods)
         end
         if defined?(::Sequel::Postgres::Database)
-          AppOpticsAPM::Util.method_alias(klass, :execute, ::Sequel::Postgres::Database)
+          SolarWindsAPM::Util.method_alias(klass, :execute, ::Sequel::Postgres::Database)
         end
       end
 
       def execute_with_appoptics(*args, &block)
         # if this is called via a dataset it is already being traced
-        return execute_without_appoptics(*args, &block) if AppOpticsAPM.tracing_layer?(:sequel)
+        return execute_without_appoptics(*args, &block) if SolarWindsAPM.tracing_layer?(:sequel)
 
         kvs = {}
-        AppOpticsAPM::SDK.trace(:sequel, kvs: kvs) do
+        SolarWindsAPM::SDK.trace(:sequel, kvs: kvs) do
           new_sql = add_traceparent(args[0], kvs)
           args[0] = new_sql
-          assign_kvs(args[0], args[1], kvs) if AppOpticsAPM.tracing?
+          assign_kvs(args[0], args[1], kvs) if SolarWindsAPM.tracing?
           execute_without_appoptics(*args, &block)
         end
       end
     end
 
     module SequelDataset
-      include AppOpticsAPM::Inst::Sequel
+      include SolarWindsAPM::Inst::Sequel
 
       def self.included(klass)
-        AppOpticsAPM::Util.method_alias(klass, :execute, ::Sequel::Dataset)
-        AppOpticsAPM::Util.method_alias(klass, :execute_ddl, ::Sequel::Dataset)
-        AppOpticsAPM::Util.method_alias(klass, :execute_dui, ::Sequel::Dataset)
-        AppOpticsAPM::Util.method_alias(klass, :execute_insert, ::Sequel::Dataset)
+        SolarWindsAPM::Util.method_alias(klass, :execute, ::Sequel::Dataset)
+        SolarWindsAPM::Util.method_alias(klass, :execute_ddl, ::Sequel::Dataset)
+        SolarWindsAPM::Util.method_alias(klass, :execute_dui, ::Sequel::Dataset)
+        SolarWindsAPM::Util.method_alias(klass, :execute_insert, ::Sequel::Dataset)
       end
 
       def execute_with_appoptics(sql, opts = ::Sequel::OPTS, &block)
@@ -216,9 +216,9 @@ module AppOpticsAPM
 
     end # module SequelDataset
   end # module Inst
-end # module AppOpticsAPM
+end # module SolarWindsAPM
 
-if AppOpticsAPM::Config[:sequel][:enabled]
+if SolarWindsAPM::Config[:sequel][:enabled]
   if defined?(::Sequel) && ::Sequel::VERSION < '4.0.0'
     # For versions before 4.0.0, Sequel::OPTS wasn't defined.
     # Define it as an empty hash for backwards compatibility.
@@ -228,14 +228,14 @@ if AppOpticsAPM::Config[:sequel][:enabled]
   end
 
   if defined?(::Sequel)
-    AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting sequel' if AppOpticsAPM::Config[:verbose]
-    AppOpticsAPM::Util.send_include(::Sequel::Database, AppOpticsAPM::Inst::SequelDatabase)
-    AppOpticsAPM::Util.send_include(::Sequel::Dataset, AppOpticsAPM::Inst::SequelDataset)
+    SolarWindsAPM.logger.info '[appoptics_apm/loading] Instrumenting sequel' if SolarWindsAPM::Config[:verbose]
+    SolarWindsAPM::Util.send_include(::Sequel::Database, SolarWindsAPM::Inst::SequelDatabase)
+    SolarWindsAPM::Util.send_include(::Sequel::Dataset, SolarWindsAPM::Inst::SequelDataset)
 
     # TODO this is temporary, we need to instrument `require`, see NH-9711
     require 'sequel/adapters/mysql2'
-    AppOpticsAPM::Util.send_include(::Sequel::MySQL::MysqlMysql2::DatabaseMethods, AppOpticsAPM::Inst::AdapterDatabase)
+    SolarWindsAPM::Util.send_include(::Sequel::MySQL::MysqlMysql2::DatabaseMethods, SolarWindsAPM::Inst::AdapterDatabase)
     require 'sequel/adapters/postgres'
-    AppOpticsAPM::Util.send_include(::Sequel::Postgres::Database, AppOpticsAPM::Inst::AdapterDatabase)
+    SolarWindsAPM::Util.send_include(::Sequel::Postgres::Database, SolarWindsAPM::Inst::AdapterDatabase)
   end
 end

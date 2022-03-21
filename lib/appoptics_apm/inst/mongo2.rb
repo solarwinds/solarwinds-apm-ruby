@@ -3,9 +3,9 @@
 
 require 'json'
 
-if AppOpticsAPM::Config[:mongo][:enabled]
+if SolarWindsAPM::Config[:mongo][:enabled]
   if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s >= '2.0.0')
-    AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting mongo' if AppOpticsAPM::Config[:verbose]
+    SolarWindsAPM.logger.info '[appoptics_apm/loading] Instrumenting mongo' if SolarWindsAPM::Config[:verbose]
 
     # Collection Related Operations
     COLL_OTHER_OPS = [:create, :drop, :insert_one, :insert_many, :bulk_write, :map_reduce].freeze
@@ -44,16 +44,16 @@ if AppOpticsAPM::Config[:mongo][:enabled]
             kvs[:Limit] = args[2][:limit] if args[2].is_a?(Hash) && args[2].key?(:limit)
           end
 
-          if AppOpticsAPM::Config[:mongo][:log_args]
+          if SolarWindsAPM::Config[:mongo][:log_args]
             if COLL_QUERY_OPS.include?(op)
               kvs[:Query] = args.first.to_json
             end
           end
 
           kvs[:RemoteHost] = @database.client.cluster.addresses.first.to_s
-          kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:mongo][:collect_backtraces]
+          kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:mongo][:collect_backtraces]
         rescue => e
-          AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
+          SolarWindsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if SolarWindsAPM::Config[:verbose]
         ensure
           return kvs
         end
@@ -65,23 +65,23 @@ if AppOpticsAPM::Config[:mongo][:enabled]
         COLL_OPS.reject { |m| !method_defined?(m) }.each do |m|
           define_method("#{m}_with_appoptics") do |*args|
             begin
-              if !AppOpticsAPM.tracing? || AppOpticsAPM.tracing_layer?(:mongo)
+              if !SolarWindsAPM.tracing? || SolarWindsAPM.tracing_layer?(:mongo)
                 mongo_skipped = true
                 return send("#{m}_without_appoptics", *args)
               end
 
               kvs = collect_kvs(m, args)
-              AppOpticsAPM::API.log_entry(:mongo, kvs)
+              SolarWindsAPM::API.log_entry(:mongo, kvs)
 
               send("#{m}_without_appoptics", *args)
             rescue => e
-              AppOpticsAPM::API.log_exception(:mongo, e)
+              SolarWindsAPM::API.log_exception(:mongo, e)
               raise e
             ensure
-              AppOpticsAPM::API.log_exit(:mongo) unless mongo_skipped
+              SolarWindsAPM::API.log_exit(:mongo) unless mongo_skipped
             end
           end
-          AppOpticsAPM::Util.method_alias(Mongo::Collection, m)
+          SolarWindsAPM::Util.method_alias(Mongo::Collection, m)
         end
       end
     end
@@ -117,7 +117,7 @@ if AppOpticsAPM::Config[:mongo][:enabled]
               kvs[:Limit] = args[2][:limit] if args[2].is_a?(Hash) && args[2].key?(:limit)
             end
 
-            if AppOpticsAPM::Config[:mongo][:log_args]
+            if SolarWindsAPM::Config[:mongo][:log_args]
               if VIEW_QUERY_OPS.include?(op)
                 if defined?(filter)
                   kvs[:Query] = filter.to_json
@@ -128,9 +128,9 @@ if AppOpticsAPM::Config[:mongo][:enabled]
             end
 
             kvs[:RemoteHost] = @collection.database.client.cluster.addresses.first.to_s
-            kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:mongo][:collect_backtraces]
+            kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:mongo][:collect_backtraces]
           rescue => e
-            AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
+            SolarWindsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if SolarWindsAPM::Config[:verbose]
           ensure
             return kvs
           end
@@ -142,23 +142,23 @@ if AppOpticsAPM::Config[:mongo][:enabled]
           VIEW_OPS.reject { |m| !method_defined?(m) }.each do |m|
             define_method("#{m}_with_appoptics") do |*args|
               begin
-                if !AppOpticsAPM.tracing? || AppOpticsAPM.tracing_layer?(:mongo)
+                if !SolarWindsAPM.tracing? || SolarWindsAPM.tracing_layer?(:mongo)
                   mongo_skipped = true
                   return send("#{m}_without_appoptics", *args)
                 end
 
                 kvs = collect_kvs(m, args)
-                AppOpticsAPM::API.log_entry(:mongo, kvs)
+                SolarWindsAPM::API.log_entry(:mongo, kvs)
 
                 send("#{m}_without_appoptics", *args)
               rescue => e
-                AppOpticsAPM::API.log_exception(:mongo, e)
+                SolarWindsAPM::API.log_exception(:mongo, e)
                 raise e
               ensure
-                AppOpticsAPM::API.log_exit(:mongo) unless mongo_skipped
+                SolarWindsAPM::API.log_exit(:mongo) unless mongo_skipped
               end
             end
-            AppOpticsAPM::Util.method_alias(Mongo::Collection::View, m)
+            SolarWindsAPM::Util.method_alias(Mongo::Collection::View, m)
           end
         end
       end
@@ -186,9 +186,9 @@ if AppOpticsAPM::Config[:mongo][:enabled]
             kvs[:QueryOp] = op
             kvs[:Collection] = @collection.name
             kvs[:RemoteHost] = @collection.database.client.cluster.addresses.first.to_s
-            kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:mongo][:collect_backtraces]
+            kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:mongo][:collect_backtraces]
           rescue => e
-            AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
+            SolarWindsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if SolarWindsAPM::Config[:verbose]
           ensure
             return kvs
           end
@@ -200,23 +200,23 @@ if AppOpticsAPM::Config[:mongo][:enabled]
           INDEX_OPS.reject { |m| !method_defined?(m) }.each do |m|
             define_method("#{m}_with_appoptics") do |*args|
               begin
-                if !AppOpticsAPM.tracing? || AppOpticsAPM.tracing_layer?(:mongo)
+                if !SolarWindsAPM.tracing? || SolarWindsAPM.tracing_layer?(:mongo)
                   mongo_skipped = true
                   return send("#{m}_without_appoptics", *args)
                 end
 
                 kvs = collect_index_kvs(m, args)
-                AppOpticsAPM::API.log_entry(:mongo, kvs)
+                SolarWindsAPM::API.log_entry(:mongo, kvs)
 
                 send("#{m}_without_appoptics", *args)
               rescue => e
-                AppOpticsAPM::API.log_exception(:mongo, e)
+                SolarWindsAPM::API.log_exception(:mongo, e)
                 raise e
               ensure
-                AppOpticsAPM::API.log_exit(:mongo) unless mongo_skipped
+                SolarWindsAPM::API.log_exit(:mongo) unless mongo_skipped
               end
             end
-            AppOpticsAPM::Util.method_alias(Mongo::Index::View, m)
+            SolarWindsAPM::Util.method_alias(Mongo::Index::View, m)
           end
         end
       end

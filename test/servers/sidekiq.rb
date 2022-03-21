@@ -7,14 +7,14 @@
 require 'sidekiq/cli'
 
 unless `ps -aef | grep 'sidekiq' | grep APPOPTICS_GEM_TEST | grep -v grep`.empty?
-  AppOpticsAPM.logger.debug "[appoptics_apm/servers] Killing old sidekiq process:#{`ps aux | grep [s]idekiq`}."
+  SolarWindsAPM.logger.debug "[appoptics_apm/servers] Killing old sidekiq process:#{`ps aux | grep [s]idekiq`}."
   cmd = "pkill -9 -f sidekiq"
   `#{cmd}`
   sleep 1
 end
 
 
-AppOpticsAPM.logger.info "[appoptics_apm/servers] Starting up background Sidekiq."
+SolarWindsAPM.logger.info "[appoptics_apm/servers] Starting up background Sidekiq."
 
 options = []
 arguments = ""
@@ -27,7 +27,7 @@ options.flatten.each do |x|
   arguments += " #{x}"
 end
 
-AppOpticsAPM.logger.debug "[appoptics_apm/servers] sidekiq #{arguments}"
+SolarWindsAPM.logger.debug "[appoptics_apm/servers] sidekiq #{arguments}"
 
 Thread.new do
   system("APPOPTICS_GEM_TEST=true sidekiq #{arguments}")

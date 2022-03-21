@@ -3,12 +3,12 @@
 # All rights reserved.
 #++
 
-module AppOpticsAPM
+module SolarWindsAPM
   module SDK
 
     ##
-    # Traces are best created with an <tt>AppOpticsAPM::SDK.start_trace</tt> block and
-    # <tt>AppOpticsAPM::SDK.trace</tt> blocks around calls to be traced.
+    # Traces are best created with an <tt>SolarWindsAPM::SDK.start_trace</tt> block and
+    # <tt>SolarWindsAPM::SDK.trace</tt> blocks around calls to be traced.
     # These two methods guarantee proper nesting of traces, handling of the tracing context, as well as avoiding
     # broken traces in case of exceptions.
     #
@@ -23,17 +23,17 @@ module AppOpticsAPM
     #
     # Invalid keys: +:Label+, +:Layer+, +:Edge+, +:Timestamp+, +:Timestamp_u+, +:TransactionName+ (allowed in start_trace)
     #
-    # The methods are exposed as singleton methods for AppOpticsAPM::SDK.
+    # The methods are exposed as singleton methods for SolarWindsAPM::SDK.
     #
     # === Usage:
-    # * +AppOpticsAPM::SDK.appoptics_ready?+
-    # * +AppOpticsAPM::SDK.get_transaction_name+
-    # * +AppOpticsAPM::SDK.set_transaction_name+
-    # * +AppOpticsAPM::SDK.start_trace+
-    # * +AppOpticsAPM::SDK.start_trace_with_target+
-    # * +AppOpticsAPM::SDK.trace+
-    # * +AppOpticsAPM::SDK.trace_method+
-    # * +AppOpticsAPM::SDK.tracing?+
+    # * +SolarWindsAPM::SDK.appoptics_ready?+
+    # * +SolarWindsAPM::SDK.get_transaction_name+
+    # * +SolarWindsAPM::SDK.set_transaction_name+
+    # * +SolarWindsAPM::SDK.start_trace+
+    # * +SolarWindsAPM::SDK.start_trace_with_target+
+    # * +SolarWindsAPM::SDK.trace+
+    # * +SolarWindsAPM::SDK.trace_method+
+    # * +SolarWindsAPM::SDK.tracing?+
     #
     # === Example:
     #   class MonthlyCouponEmailJob
@@ -46,11 +46,11 @@ module AppOpticsAPM
     #       report_kvs[:Action] = :CouponEmailer
     #
     #       # Start tracing this job with start_trace
-    #       AppOpticsAPM::SDK.start_trace('monthly_coupons', kvs: report_kvs) do
+    #       SolarWindsAPM::SDK.start_trace('monthly_coupons', kvs: report_kvs) do
     #         monthly = MonthlyEmail.new(:CouponEmailer)
     #
     #         # Trace a sub-component of this trace
-    #         AppOpticsAPM::SDK.trace(self.class.name) do
+    #         SolarWindsAPM::SDK.trace(self.class.name) do
     #
     #           # The work to be done
     #           users = User.all
@@ -77,7 +77,7 @@ module AppOpticsAPM
       # === Example:
       #
       #   def computation_with_appoptics(n)
-      #     AppOpticsAPM::SDK.trace('computation', kvs: { :number => n }, protect_op: :computation) do
+      #     SolarWindsAPM::SDK.trace('computation', kvs: { :number => n }, protect_op: :computation) do
       #       return n if n == 0
       #       n + computation_with_appoptics(n-1)
       #     end
@@ -89,20 +89,20 @@ module AppOpticsAPM
       # * The result of the block.
       #
       def trace(name, kvs: {}, protect_op: nil)
-        return yield if !AppOpticsAPM.loaded || !AppOpticsAPM.tracing? || AppOpticsAPM.tracing_layer_op?(protect_op)
+        return yield if !SolarWindsAPM.loaded || !SolarWindsAPM.tracing? || SolarWindsAPM.tracing_layer_op?(protect_op)
 
         kvs.delete(:TransactionName)
         kvs.delete('TransactionName')
 
-        AppOpticsAPM::API.log_entry(name, kvs, protect_op)
+        SolarWindsAPM::API.log_entry(name, kvs, protect_op)
         kvs[:Backtrace] && kvs.delete(:Backtrace) # to avoid sending backtrace twice (faster to check presence here)
         begin
           yield
         rescue Exception => e
-          AppOpticsAPM::API.log_exception(name, e)
+          SolarWindsAPM::API.log_exception(name, e)
           raise
         ensure
-          AppOpticsAPM::API.log_exit(name, kvs, protect_op)
+          SolarWindsAPM::API.log_exit(name, kvs, protect_op)
         end
       end
 
@@ -128,7 +128,7 @@ module AppOpticsAPM
       #   end
       #
       #   def handle_request_with_appoptics(request, response)
-      #     AppOpticsAPM::SDK.start_trace('custom_trace', kvs: { :TransactionName => 'handle_request' }) do
+      #     SolarWindsAPM::SDK.start_trace('custom_trace', kvs: { :TransactionName => 'handle_request' }) do
       #       handle_request(request, response)
       #     end
       #   end
@@ -162,7 +162,7 @@ module AppOpticsAPM
       #   end
       #
       #   def handle_request_with_appoptics(request, response)
-      #     AppOpticsAPM::SDK.start_trace_with_target('rails', headers: request.headers, target: response) do
+      #     SolarWindsAPM::SDK.start_trace_with_target('rails', headers: request.headers, target: response) do
       #       handle_request(request, response)
       #     end
       #   end
@@ -171,38 +171,38 @@ module AppOpticsAPM
       # * The result of the block.
       #
       def start_trace_with_target(name, target: {}, kvs: {}, headers: {})
-        return yield unless AppOpticsAPM.loaded
+        return yield unless SolarWindsAPM.loaded
 
-        if AppOpticsAPM::Context.isValid # not an entry span!
+        if SolarWindsAPM::Context.isValid # not an entry span!
           result = trace(name, kvs: kvs) { yield }
-          target['X-Trace'] = AppOpticsAPM::Context.toString
+          target['X-Trace'] = SolarWindsAPM::Context.toString
           return result
         end
 
         # :TransactionName and 'TransactionName' need to be removed from kvs
-        AppOpticsAPM.transaction_name = kvs.delete('TransactionName') || kvs.delete(:TransactionName)
+        SolarWindsAPM.transaction_name = kvs.delete('TransactionName') || kvs.delete(:TransactionName)
 
-        AppOpticsAPM::API.log_start(name, kvs, headers)
+        SolarWindsAPM::API.log_start(name, kvs, headers)
         kvs[:Backtrace] && kvs.delete(:Backtrace) # to avoid sending backtrace twice (faster to check presence here)
 
-        # AppOpticsAPM::Event.startTrace creates an Event without an Edge
-        exit_evt = AppOpticsAPM::Event.startTrace(AppOpticsAPM::Context.get)
+        # SolarWindsAPM::Event.startTrace creates an Event without an Edge
+        exit_evt = SolarWindsAPM::Event.startTrace(SolarWindsAPM::Context.get)
 
         result = begin
-          AppOpticsAPM::API.send_metrics(name, kvs) do
-            target['X-Trace'] = AppOpticsAPM::EventUtil.metadataString(exit_evt)
+          SolarWindsAPM::API.send_metrics(name, kvs) do
+            target['X-Trace'] = SolarWindsAPM::EventUtil.metadataString(exit_evt)
             yield
           end
         rescue Exception => e
-          AppOpticsAPM::API.log_exception(name, e)
-          exit_evt.addEdge(AppOpticsAPM::Context.get)
-          trace_parent = AppOpticsAPM::API.log_end(name, kvs, exit_evt)
+          SolarWindsAPM::API.log_exception(name, e)
+          exit_evt.addEdge(SolarWindsAPM::Context.get)
+          trace_parent = SolarWindsAPM::API.log_end(name, kvs, exit_evt)
           e.instance_variable_set(:@tracestring, trace_parent)
           raise
         end
 
-        exit_evt.addEdge(AppOpticsAPM::Context.get)
-        AppOpticsAPM::API.log_end(name, kvs, exit_evt)
+        exit_evt.addEdge(SolarWindsAPM::Context.get)
+        SolarWindsAPM::API.log_end(name, kvs, exit_evt)
 
         result
       end
@@ -235,7 +235,7 @@ module AppOpticsAPM
       #     end
       #   end
       #
-      #  AppOpticsAPM::SDK.trace_method(ExampleModule,
+      #  SolarWindsAPM::SDK.trace_method(ExampleModule,
       #                                 :do_sum,
       #                                 config: {name: 'computation', backtrace: true},
       #                                 kvs: { CustomKey: "some_info"})
@@ -243,17 +243,17 @@ module AppOpticsAPM
       def trace_method(klass, method, config: {}, kvs: {})
         # If we're on an unsupported platform (ahem Mac), just act
         # like we did something to nicely play the no-op part.
-        return true unless AppOpticsAPM.loaded
+        return true unless SolarWindsAPM.loaded
 
         if !klass.is_a?(Module)
-          AppOpticsAPM.logger.warn "[appoptics_apm/error] trace_method: Not sure what to do with #{klass}.  Send a class or module."
+          SolarWindsAPM.logger.warn "[appoptics_apm/error] trace_method: Not sure what to do with #{klass}.  Send a class or module."
           return false
         end
 
         if method.is_a?(String)
           method = method.to_sym
         elsif !method.is_a?(Symbol)
-          AppOpticsAPM.logger.warn "[appoptics_apm/error] trace_method: Not sure what to do with #{method}.  Send a string or symbol for method."
+          SolarWindsAPM.logger.warn "[appoptics_apm/error] trace_method: Not sure what to do with #{method}.  Send a string or symbol for method."
           return false
         end
 
@@ -262,8 +262,8 @@ module AppOpticsAPM
 
         # Make sure the request klass::method exists
         if !instance_method && !class_method
-          AppOpticsAPM.logger.warn "[appoptics_apm/error] trace_method: Can't instrument #{klass}.#{method} as it doesn't seem to exist."
-          AppOpticsAPM.logger.warn "[appoptics_apm/error] #{__FILE__}:#{__LINE__}"
+          SolarWindsAPM.logger.warn "[appoptics_apm/error] trace_method: Can't instrument #{klass}.#{method} as it doesn't seem to exist."
+          SolarWindsAPM.logger.warn "[appoptics_apm/error] #{__FILE__}:#{__LINE__}"
           return false
         end
 
@@ -277,7 +277,7 @@ module AppOpticsAPM
         # Check if already profiled
         if instance_method && klass.instance_methods.include?(with_appoptics.to_sym) ||
           class_method && klass.singleton_methods.include?(with_appoptics.to_sym)
-          AppOpticsAPM.logger.warn "[appoptics_apm/error] trace_method: #{klass}::#{method} already instrumented.\n#{__FILE__}:#{__LINE__}"
+          SolarWindsAPM.logger.warn "[appoptics_apm/error] trace_method: #{klass}::#{method} already instrumented.\n#{__FILE__}:#{__LINE__}"
           return false
         end
 
@@ -301,8 +301,8 @@ module AppOpticsAPM
                 request.env['appoptics_apm.action'] = report_kvs[:Action]
               end
 
-              AppOpticsAPM::SDK.trace(name, kvs: report_kvs) do
-                report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if backtrace
+              SolarWindsAPM::SDK.trace(name, kvs: report_kvs) do
+                report_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if backtrace
                 send(without_appoptics, *args, &block)
               end
             end
@@ -312,8 +312,8 @@ module AppOpticsAPM
           end
         elsif class_method
           klass.define_singleton_method(with_appoptics) do |*args, &block|
-            AppOpticsAPM::SDK.trace(name, kvs: report_kvs) do
-              report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if backtrace
+            SolarWindsAPM::SDK.trace(name, kvs: report_kvs) do
+              report_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if backtrace
               send(without_appoptics, *args, &block)
             end
           end
@@ -329,7 +329,7 @@ module AppOpticsAPM
       ##
       # Provide a custom transaction name
       #
-      # The AppOpticsAPM gem tries to create meaningful transaction names from controller+action
+      # The SolarWindsAPM gem tries to create meaningful transaction names from controller+action
       # or something similar depending on the framework used. However, you may want to override the
       # transaction name to better describe your instrumented operation.
       #
@@ -337,7 +337,7 @@ module AppOpticsAPM
       # truncated with invalid characters replaced. Method calls with an empty string or a non-string
       # argument won't change the current transaction name.
       #
-      # The configuration +AppOpticsAPM.Config+['transaction_name']+['prepend_domain']+ can be set to
+      # The configuration +SolarWindsAPM.Config+['transaction_name']+['prepend_domain']+ can be set to
       # true to have the domain name prepended to the transaction name when an event or a metric are
       # logged. This is a global setting.
       #
@@ -353,7 +353,7 @@ module AppOpticsAPM
       #       @dogfood = Dogfood.new(params.permit(:brand, :name))
       #       @dogfood.save
       #
-      #       AppOpticsAPM::SDK.set_transaction_name("dogfoodscontroller.create_for_#{params[:brand]}")
+      #       SolarWindsAPM::SDK.set_transaction_name("dogfoodscontroller.create_for_#{params[:brand]}")
       #
       #       redirect_to @dogfood
       #     end
@@ -365,11 +365,11 @@ module AppOpticsAPM
       #
       def set_transaction_name(name)
         if name.is_a?(String) && name.strip != ''
-          AppOpticsAPM.transaction_name = name
+          SolarWindsAPM.transaction_name = name
         else
-          AppOpticsAPM.logger.debug "[appoptics_apm/api] Could not set transaction name, provided name is empty or not a String."
+          SolarWindsAPM.logger.debug "[appoptics_apm/api] Could not set transaction name, provided name is empty or not a String."
         end
-        AppOpticsAPM.transaction_name
+        SolarWindsAPM.transaction_name
       end
 
       # Get the currently set custom transaction name.
@@ -380,7 +380,7 @@ module AppOpticsAPM
       # * (String or nil) the current transaction name (without domain prepended)
       #
       def get_transaction_name
-        AppOpticsAPM.transaction_name
+        SolarWindsAPM.transaction_name
       end
 
       # Determine if this transaction is being traced.
@@ -390,13 +390,13 @@ module AppOpticsAPM
       #
       # === Example:
       #
-      #   kvs = expensive_info_gathering_method if AppOpticsAPM::SDK.tracing?
-      #   AppOpticsAPM::SDK.trace('some_span', kvs: kvs) do
+      #   kvs = expensive_info_gathering_method if SolarWindsAPM::SDK.tracing?
+      #   SolarWindsAPM::SDK.trace('some_span', kvs: kvs) do
       #     db_request
       #   end
       #
       def tracing?
-        AppOpticsAPM.tracing?
+        SolarWindsAPM.tracing?
       end
 
       # Wait for AppOptics to be ready to send traces.
@@ -411,12 +411,12 @@ module AppOpticsAPM
       #
       # === Example:
       #
-      #   unless AppOpticsAPM::SDK.appoptics_ready?(10_000)
+      #   unless SolarWindsAPM::SDK.appoptics_ready?(10_000)
       #     Logger.info "AppOptics not ready after 10 seconds, no metrics will be sent"
       #   end
       #
       def appoptics_ready?(wait_milliseconds = 3000)
-        return false unless AppOpticsAPM.loaded
+        return false unless SolarWindsAPM.loaded
         # These codes are returned by isReady:
         # OBOE_SERVER_RESPONSE_UNKNOWN 0
         # OBOE_SERVER_RESPONSE_OK 1
@@ -424,7 +424,7 @@ module AppOpticsAPM
         # OBOE_SERVER_RESPONSE_LIMIT_EXCEEDED 3
         # OBOE_SERVER_RESPONSE_INVALID_API_KEY 4
         # OBOE_SERVER_RESPONSE_CONNECT_ERROR 5
-        AppOpticsAPM::Context.isReady(wait_milliseconds) == 1
+        SolarWindsAPM::Context.isReady(wait_milliseconds) == 1
       end
     end
 

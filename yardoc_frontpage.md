@@ -1,4 +1,4 @@
-# Welcome to the AppOpticsAPM Ruby Gem
+# Welcome to the SolarWindsAPM Ruby Gem
 
 
 The solarwinds_apm gem provides automatic tracing and metrics for Ruby applications. 

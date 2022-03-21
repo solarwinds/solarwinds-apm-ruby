@@ -1,10 +1,10 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
-module AppOpticsAPM
+module SolarWindsAPM
   module Inst
     module ExconConnection
-      include AppOpticsAPM::SDK::TraceContextHeaders
+      include SolarWindsAPM::SDK::TraceContextHeaders
 
       private
 
@@ -14,7 +14,7 @@ module AppOpticsAPM
         kvs[:IsService] = 1
 
         # Conditionally log query args
-        if AppOpticsAPM::Config[:excon][:log_args] && @data[:query]
+        if SolarWindsAPM::Config[:excon][:log_args] && @data[:query]
           if @data[:query].is_a?(Hash)
             service_arg = "#{@data[:path]}?#{URI.encode_www_form(@data[:query])}"
           else
@@ -30,17 +30,17 @@ module AppOpticsAPM
         if params.is_a?(Array)
           methods = []
           params.each do |p|
-            methods << AppOpticsAPM::Util.upcase(p[:method])
+            methods << SolarWindsAPM::Util.upcase(p[:method])
           end
           kvs[:HTTPMethods] = methods.join(',')[0..1024]
           kvs[:Pipeline] = true
         else
-          kvs[:HTTPMethod] = AppOpticsAPM::Util.upcase(params[:method])
+          kvs[:HTTPMethod] = SolarWindsAPM::Util.upcase(params[:method])
         end
         kvs
       rescue => e
-        AppOpticsAPM.logger.debug "[appoptics_apm/debug] Error capturing excon KVs: #{e.message}"
-        AppOpticsAPM.logger.debug e.backtrace.join('\n') if AppOpticsAPM::Config[:verbose]
+        SolarWindsAPM.logger.debug "[appoptics_apm/debug] Error capturing excon KVs: #{e.message}"
+        SolarWindsAPM.logger.debug e.backtrace.join('\n') if SolarWindsAPM::Config[:verbose]
       ensure
         return kvs
       end
@@ -50,8 +50,8 @@ module AppOpticsAPM
       def requests(pipeline_params)
         responses = nil
         kvs = appoptics_collect(pipeline_params)
-        AppOpticsAPM::SDK.trace(:excon, kvs: kvs) do
-          kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:excon][:collect_backtraces]
+        SolarWindsAPM::SDK.trace(:excon, kvs: kvs) do
+          kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:excon][:collect_backtraces]
           responses = super(pipeline_params)
           kvs[:HTTPStatuses] = responses.map { |r| r.status }.join(',')
         end
@@ -63,7 +63,7 @@ module AppOpticsAPM
         # If making HTTP pipeline requests (ordered batched)
         # then just return as we're tracing from parent
         # <tt>requests</tt>
-        if !AppOpticsAPM.tracing? || params[:pipeline]
+        if !SolarWindsAPM.tracing? || params[:pipeline]
           add_tracecontext_headers(@data[:headers])
           return super(params, &block)
         end
@@ -73,10 +73,10 @@ module AppOpticsAPM
 
           kvs = appoptics_collect(params)
 
-          AppOpticsAPM::API.log_entry(:excon, kvs)
+          SolarWindsAPM::API.log_entry(:excon, kvs)
           kvs.clear
 
-          req_context = AppOpticsAPM::Context.toString
+          req_context = SolarWindsAPM::Context.toString
 
           # The core excon call
           add_tracecontext_headers(@data[:headers])
@@ -96,18 +96,18 @@ module AppOpticsAPM
 
           response
         rescue => e
-          AppOpticsAPM::API.log_exception(:excon, e)
+          SolarWindsAPM::API.log_exception(:excon, e)
           raise e
         ensure
-          kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:excon][:collect_backtraces]
-          AppOpticsAPM::API.log_exit(:excon, kvs) unless params[:pipeline]
+          kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:excon][:collect_backtraces]
+          SolarWindsAPM::API.log_exit(:excon, kvs) unless params[:pipeline]
         end
       end
     end
   end
 end
 
-if AppOpticsAPM::Config[:excon][:enabled] && defined?(Excon)
-  AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting excon' if AppOpticsAPM::Config[:verbose]
-  Excon::Connection.prepend(AppOpticsAPM::Inst::ExconConnection)
+if SolarWindsAPM::Config[:excon][:enabled] && defined?(Excon)
+  SolarWindsAPM.logger.info '[appoptics_apm/loading] Instrumenting excon' if SolarWindsAPM::Config[:verbose]
+  Excon::Connection.prepend(SolarWindsAPM::Inst::ExconConnection)
 end

@@ -3,7 +3,7 @@
 
 require 'json'
 
-module AppOpticsAPM
+module SolarWindsAPM
   module Inst
     module Mongo
       FLAVOR = 'mongodb'
@@ -23,21 +23,21 @@ module AppOpticsAPM
 end
 
 # TODO find out if we still need to support mongo < '2.0.0', we don't run tests for it. 1.12.5 was released Dec 2015
-if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && AppOpticsAPM::Config[:mongo][:enabled]
-  AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting mongo' if AppOpticsAPM::Config[:verbose]
+if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && SolarWindsAPM::Config[:mongo][:enabled]
+  SolarWindsAPM.logger.info '[appoptics_apm/loading] Instrumenting mongo' if SolarWindsAPM::Config[:verbose]
 
   if defined?(Mongo::DB)
     module Mongo
       class DB
-        include AppOpticsAPM::Inst::Mongo
+        include SolarWindsAPM::Inst::Mongo
 
         # Instrument DB operations
-        AppOpticsAPM::Inst::Mongo::DB_OPS.reject { |m| !method_defined?(m) }.each do |m|
+        SolarWindsAPM::Inst::Mongo::DB_OPS.reject { |m| !method_defined?(m) }.each do |m|
           define_method("#{m}_with_appoptics") do |*args|
             report_kvs = {}
 
             begin
-              report_kvs[:Flavor] = AppOpticsAPM::Inst::Mongo::FLAVOR
+              report_kvs[:Flavor] = SolarWindsAPM::Inst::Mongo::FLAVOR
 
               report_kvs[:Database] = @name
 
@@ -57,11 +57,11 @@ if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && AppO
               report_kvs[:Collection] = args[0]          if m == :drop_collection
 
             rescue => e
-              AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
+              SolarWindsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if SolarWindsAPM::Config[:verbose]
             end
 
-            AppOpticsAPM::SDK.trace(:mongo, kvs: report_kvs) do
-              report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:mongo][:collect_backtraces]
+            SolarWindsAPM::SDK.trace(:mongo, kvs: report_kvs) do
+              report_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:mongo][:collect_backtraces]
               send("#{m}_without_appoptics", *args)
             end
           end
@@ -76,15 +76,15 @@ if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && AppO
   if defined?(Mongo::Cursor)
     module Mongo
       class Cursor
-        include AppOpticsAPM::Inst::Mongo
+        include SolarWindsAPM::Inst::Mongo
 
         # Instrument DB cursor operations
-        AppOpticsAPM::Inst::Mongo::CURSOR_OPS.reject { |m| !method_defined?(m) }.each do |m|
+        SolarWindsAPM::Inst::Mongo::CURSOR_OPS.reject { |m| !method_defined?(m) }.each do |m|
           define_method("#{m}_with_appoptics") do |*args|
             report_kvs = {}
 
             begin
-              report_kvs[:Flavor] = AppOpticsAPM::Inst::Mongo::FLAVOR
+              report_kvs[:Flavor] = SolarWindsAPM::Inst::Mongo::FLAVOR
 
               report_kvs[:Database] = @db.name
               report_kvs[:RemoteHost] = @connection.host
@@ -100,11 +100,11 @@ if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && AppO
                 report_kvs[:Limit] = @limit if @limit != 0
               end
             rescue => e
-              AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
+              SolarWindsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if SolarWindsAPM::Config[:verbose]
             end
 
-            AppOpticsAPM::SDK.trace(:mongo, kvs: report_kvs) do
-              report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:mongo][:collect_backtraces]
+            SolarWindsAPM::SDK.trace(:mongo, kvs: report_kvs) do
+              report_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:mongo][:collect_backtraces]
               send("#{m}_without_appoptics", *args)
             end
           end
@@ -119,11 +119,11 @@ if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && AppO
   if defined?(Mongo::Collection)
     module Mongo
       class Collection
-        include AppOpticsAPM::Inst::Mongo
+        include SolarWindsAPM::Inst::Mongo
 
         def appoptics_collect(m, args)
           kvs = {}
-          kvs[:Flavor] = AppOpticsAPM::Inst::Mongo::FLAVOR
+          kvs[:Flavor] = SolarWindsAPM::Inst::Mongo::FLAVOR
 
           kvs[:Database] = @db.name
           kvs[:RemoteHost] = @db.connection.host
@@ -133,13 +133,13 @@ if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && AppO
           kvs[:QueryOp] = m
           kvs[:Query] = args[0].to_json if args && !args.empty? && args[0].class == Hash
         rescue StandardError => e
-          AppOpticsAPM.logger.debug "[appoptics_apm/debug] Exception in appoptics_collect KV collection: #{e.inspect}"
+          SolarWindsAPM.logger.debug "[appoptics_apm/debug] Exception in appoptics_collect KV collection: #{e.inspect}"
         ensure
           return kvs
         end
 
         # Instrument Collection write operations
-        AppOpticsAPM::Inst::Mongo::COLL_WRITE_OPS.reject { |m| !method_defined?(m) }.each do |m|
+        SolarWindsAPM::Inst::Mongo::COLL_WRITE_OPS.reject { |m| !method_defined?(m) }.each do |m|
           define_method("#{m}_with_appoptics") do |*args|
             report_kvs = appoptics_collect(m, args)
             args_length = args.length
@@ -164,11 +164,11 @@ if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && AppO
                 end
               end
             rescue => e
-              AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
+              SolarWindsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if SolarWindsAPM::Config[:verbose]
             end
 
-            AppOpticsAPM::SDK.trace(:mongo, kvs: report_kvs) do
-              report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:mongo][:collect_backtraces]
+            SolarWindsAPM::SDK.trace(:mongo, kvs: report_kvs) do
+              report_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:mongo][:collect_backtraces]
               send("#{m}_without_appoptics", *args)
             end
           end
@@ -178,7 +178,7 @@ if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && AppO
         end
 
         # Instrument Collection query operations
-        AppOpticsAPM::Inst::Mongo::COLL_QUERY_OPS.reject { |m| !method_defined?(m) }.each do |m|
+        SolarWindsAPM::Inst::Mongo::COLL_QUERY_OPS.reject { |m| !method_defined?(m) }.each do |m|
           define_method("#{m}_with_appoptics") do |*args, &blk|
             report_kvs = {}
             begin
@@ -205,11 +205,11 @@ if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && AppO
                 end
               end
             rescue => e
-              AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
+              SolarWindsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if SolarWindsAPM::Config[:verbose]
             end
 
-            AppOpticsAPM::SDK.trace(:mongo, kvs: report_kvs) do
-              report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:mongo][:collect_backtraces]
+            SolarWindsAPM::SDK.trace(:mongo, kvs: report_kvs) do
+              report_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:mongo][:collect_backtraces]
               send("#{m}_without_appoptics", *args, &blk)
             end
           end
@@ -219,7 +219,7 @@ if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && AppO
         end
 
         # Instrument Collection index operations
-        AppOpticsAPM::Inst::Mongo::COLL_INDEX_OPS.reject { |m| !method_defined?(m) }.each do |m|
+        SolarWindsAPM::Inst::Mongo::COLL_INDEX_OPS.reject { |m| !method_defined?(m) }.each do |m|
           define_method("#{m}_with_appoptics") do |*args|
             report_kvs = appoptics_collect(m, args)
 
@@ -228,11 +228,11 @@ if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && AppO
                 report_kvs[:Index] = args[0].to_json
               end
             rescue => e
-              AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if AppOpticsAPM::Config[:verbose]
+              SolarWindsAPM.logger.debug "[appoptics_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if SolarWindsAPM::Config[:verbose]
             end
 
-            AppOpticsAPM::SDK.trace(:mongo, kvs: report_kvs) do
-              report_kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:mongo][:collect_backtraces]
+            SolarWindsAPM::SDK.trace(:mongo, kvs: report_kvs) do
+              report_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:mongo][:collect_backtraces]
               send("#{m}_without_appoptics", *args)
             end
           end

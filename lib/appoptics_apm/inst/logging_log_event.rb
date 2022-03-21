@@ -3,13 +3,13 @@
 
 require_relative 'logger_formatter'
 
-module AppOpticsAPM
+module SolarWindsAPM
   module Logging
     module LogEvent
-      include AppOpticsAPM::Logger::Formatter # provides #insert_trace_id
+      include SolarWindsAPM::Logger::Formatter # provides #insert_trace_id
 
       def initialize(logger, level, data, caller_tracing )
-        return super if AppOpticsAPM::Config[:log_traceId] == :never
+        return super if SolarWindsAPM::Config[:log_traceId] == :never
 
         data = insert_trace_id(data)
         super
@@ -19,6 +19,6 @@ module AppOpticsAPM
   end
 end
 
-if AppOpticsAPM.loaded && defined?(Logging::LogEvent)
-  Logging::LogEvent.send(:prepend, AppOpticsAPM::Logging::LogEvent)
+if SolarWindsAPM.loaded && defined?(Logging::LogEvent)
+  Logging::LogEvent.send(:prepend, SolarWindsAPM::Logging::LogEvent)
 end

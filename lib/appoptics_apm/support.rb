@@ -6,7 +6,7 @@ Dir.glob(pattern) do |f|
   begin
     require f
   rescue => e
-    AppOpticsAPM.logger.error "[appoptics_apm/loading] Error loading support file '#{f}' : #{e}"
-    AppOpticsAPM.logger.debug "[appoptics_apm/loading] #{e.backtrace.first}"
+    SolarWindsAPM.logger.error "[appoptics_apm/loading] Error loading support file '#{f}' : #{e}"
+    SolarWindsAPM.logger.debug "[appoptics_apm/loading] #{e.backtrace.first}"
   end
 end

@@ -15,39 +15,39 @@ describe 'HTTPClientTest' do
 
   before do
     clear_all_traces
-    @tm = AppOpticsAPM::Config[:tracing_mode]
-    @sample_rate = AppOpticsAPM::Config[:sample_rate]
-    AppOpticsAPM::Config[:tracing_mode] = :enabled
-    AppOpticsAPM::Config[:sample_rate] = 1000000
+    @tm = SolarWindsAPM::Config[:tracing_mode]
+    @sample_rate = SolarWindsAPM::Config[:sample_rate]
+    SolarWindsAPM::Config[:tracing_mode] = :enabled
+    SolarWindsAPM::Config[:sample_rate] = 1000000
   end
 
   after do
-    AppOpticsAPM::Config[:tracing_mode] = @tm
-    AppOpticsAPM::Config[:sample_rate] = @sample_rate
+    SolarWindsAPM::Config[:tracing_mode] = @tm
+    SolarWindsAPM::Config[:sample_rate] = @sample_rate
     clear_all_traces
   end
 
   it 'has AppOptics instrumentation' do
-    assert HTTPClient.ancestors.include?(AppOpticsAPM::Inst::HTTPClient)
+    assert HTTPClient.ancestors.include?(SolarWindsAPM::Inst::HTTPClient)
   end
 
   it 'identifies the version' do
-    init_kvs = ::AppOpticsAPM::Util.build_init_report
+    init_kvs = ::SolarWindsAPM::Util.build_init_report
     assert init_kvs.key?('Ruby.httpclient.Version')
     assert_equal ::HTTPClient::VERSION, init_kvs['Ruby.httpclient.Version']
   end
 
   it 'sends event for a request' do
-    AppOpticsAPM::SDK.start_trace('httpclient_tests') do
-      context = AppOpticsAPM::Context.toString
+    SolarWindsAPM::SDK.start_trace('httpclient_tests') do
+      context = SolarWindsAPM::Context.toString
       clnt = HTTPClient.new
       response = clnt.get('http://127.0.0.1:8101/', :query => { :keyword => 'ruby', :lang => 'en' })
 
       # Validate returned tracestring
       assert response.headers.key?("X-Trace")
-      assert AppOpticsAPM::TraceString.valid?(response.headers["X-Trace"])
-      assert_equal(AppOpticsAPM::TraceString.trace_id(context),
-                   AppOpticsAPM::TraceString.trace_id(response.headers["X-Trace"]))
+      assert SolarWindsAPM::TraceString.valid?(response.headers["X-Trace"])
+      assert_equal(SolarWindsAPM::TraceString.trace_id(context),
+                   SolarWindsAPM::TraceString.trace_id(response.headers["X-Trace"]))
     end
 
     traces = get_all_traces
@@ -67,7 +67,7 @@ describe 'HTTPClientTest' do
   end
 
   it 'works with a request to an uninstrumented app' do
-    AppOpticsAPM::SDK.start_trace('httpclient_tests') do
+    SolarWindsAPM::SDK.start_trace('httpclient_tests') do
       clnt = HTTPClient.new
       response = clnt.get('http://127.0.0.1:8110/', :query => { :keyword => 'ruby', :lang => 'en' })
       refute response.headers.key?("X-Trace")
@@ -92,7 +92,7 @@ describe 'HTTPClientTest' do
   it 'works with a header hash' do
     response = nil
 
-    AppOpticsAPM::SDK.start_trace('httpclient_tests') do
+    SolarWindsAPM::SDK.start_trace('httpclient_tests') do
       clnt = HTTPClient.new
       response = clnt.get('http://127.0.0.1:8101/', nil, { "SOAPAction" => "HelloWorld" })
     end
@@ -100,7 +100,7 @@ describe 'HTTPClientTest' do
     traces = get_all_traces
     tracestring = response.headers['X-Trace']
     assert tracestring
-    assert AppOpticsAPM::TraceString.valid?(tracestring)
+    assert SolarWindsAPM::TraceString.valid?(tracestring)
 
     assert_equal 6, traces.count
     assert valid_edges?(traces, false), "Invalid edge in traces"
@@ -120,7 +120,7 @@ describe 'HTTPClientTest' do
   it 'works with a header array' do
     response = nil
 
-    AppOpticsAPM::SDK.start_trace('httpclient_tests') do
+    SolarWindsAPM::SDK.start_trace('httpclient_tests') do
       clnt = HTTPClient.new
       response = clnt.get('http://127.0.0.1:8101/', nil, [["Accept", "text/plain"], ["Accept", "text/html"]])
     end
@@ -129,7 +129,7 @@ describe 'HTTPClientTest' do
 
     tracestring = response.headers['X-Trace']
     assert tracestring
-    assert AppOpticsAPM::TraceString.valid?(tracestring)
+    assert SolarWindsAPM::TraceString.valid?(tracestring)
 
     assert_equal 6, traces.count
     assert valid_edges?(traces, false), "Invalid edge in traces"
@@ -149,7 +149,7 @@ describe 'HTTPClientTest' do
   it 'works for a post request' do
     response = nil
 
-    AppOpticsAPM::SDK.start_trace('httpclient_tests') do
+    SolarWindsAPM::SDK.start_trace('httpclient_tests') do
       clnt = HTTPClient.new
       response = clnt.post('http://127.0.0.1:8101/')
     end
@@ -158,7 +158,7 @@ describe 'HTTPClientTest' do
 
     tracestring = response.headers['X-Trace']
     assert tracestring
-    assert AppOpticsAPM::TraceString.valid?(tracestring)
+    assert SolarWindsAPM::TraceString.valid?(tracestring)
 
     assert_equal 6, traces.count
     assert valid_edges?(traces, false), "Invalid edge in traces"
@@ -178,7 +178,7 @@ describe 'HTTPClientTest' do
   it 'works with an async get' do
     conn = nil
 
-    AppOpticsAPM::SDK.start_trace('httpclient_tests') do
+    SolarWindsAPM::SDK.start_trace('httpclient_tests') do
       clnt = HTTPClient.new
       conn = clnt.get_async('http://127.0.0.1:8101/?blah=1')
     end
@@ -212,14 +212,14 @@ describe 'HTTPClientTest' do
   it 'works for cross app tracing' do
     response = nil
 
-    AppOpticsAPM::SDK.start_trace('httpclient_tests') do
+    SolarWindsAPM::SDK.start_trace('httpclient_tests') do
       clnt = HTTPClient.new
       response = clnt.get('http://127.0.0.1:8101/', :query => { :keyword => 'ruby', :lang => 'en' })
     end
 
     tracestring = response.headers['X-Trace']
     assert tracestring
-    assert AppOpticsAPM::TraceString.valid?(tracestring)
+    assert SolarWindsAPM::TraceString.valid?(tracestring)
 
     traces = get_all_traces
 
@@ -246,7 +246,7 @@ describe 'HTTPClientTest' do
   it 'works when there are errors' do
     result = nil
     begin
-      AppOpticsAPM::SDK.start_trace('httpclient_tests') do
+      SolarWindsAPM::SDK.start_trace('httpclient_tests') do
         clnt = HTTPClient.new
         clnt.get('http://asfjalkfjlajfljkaljf/')
       end
@@ -279,12 +279,12 @@ describe 'HTTPClientTest' do
   end
 
   it 'logs arguments when true' do
-    @log_args = AppOpticsAPM::Config[:httpclient][:log_args]
-    AppOpticsAPM::Config[:httpclient][:log_args] = true
+    @log_args = SolarWindsAPM::Config[:httpclient][:log_args]
+    SolarWindsAPM::Config[:httpclient][:log_args] = true
 
     response = nil
 
-    AppOpticsAPM::SDK.start_trace('httpclient_tests') do
+    SolarWindsAPM::SDK.start_trace('httpclient_tests') do
       clnt = HTTPClient.new
       response = clnt.get('http://127.0.0.1:8101/', :query => { :keyword => 'ruby', :lang => 'en' })
     end
@@ -293,23 +293,23 @@ describe 'HTTPClientTest' do
 
     tracestring = response.headers['X-Trace']
     assert tracestring
-    assert AppOpticsAPM::TraceString.valid?(tracestring)
+    assert SolarWindsAPM::TraceString.valid?(tracestring)
 
     assert_equal 6, traces.count
     assert valid_edges?(traces, false), "Invalid edge in traces"
 
     assert_equal 'http://127.0.0.1:8101/?keyword=ruby&lang=en', traces[1]['RemoteURL']
 
-    AppOpticsAPM::Config[:httpclient][:log_args] = @log_args
+    SolarWindsAPM::Config[:httpclient][:log_args] = @log_args
   end
 
   it 'does not log args when false' do
-    @log_args = AppOpticsAPM::Config[:httpclient][:log_args]
-    AppOpticsAPM::Config[:httpclient][:log_args] = false
+    @log_args = SolarWindsAPM::Config[:httpclient][:log_args]
+    SolarWindsAPM::Config[:httpclient][:log_args] = false
 
     response = nil
 
-    AppOpticsAPM::SDK.start_trace('httpclient_tests') do
+    SolarWindsAPM::SDK.start_trace('httpclient_tests') do
       clnt = HTTPClient.new
       response = clnt.get('http://127.0.0.1:8101/', :query => { :keyword => 'ruby', :lang => 'en' })
     end
@@ -318,14 +318,14 @@ describe 'HTTPClientTest' do
 
     tracestring = response.headers['X-Trace']
     assert tracestring
-    assert AppOpticsAPM::TraceString.valid?(tracestring)
+    assert SolarWindsAPM::TraceString.valid?(tracestring)
 
     assert_equal 6, traces.count
     assert valid_edges?(traces, false), "Invalid edge in traces"
 
     assert_equal 'http://127.0.0.1:8101/', traces[1]['RemoteURL']
 
-    AppOpticsAPM::Config[:httpclient][:log_args] = @log_args
+    SolarWindsAPM::Config[:httpclient][:log_args] = @log_args
   end
 
   it 'works without tracing context' do

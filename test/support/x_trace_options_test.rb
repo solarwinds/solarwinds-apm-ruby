@@ -11,7 +11,7 @@ describe 'XTraceOptionsTest' do
     it 'has defaults' do
       headers = ''
 
-      options = AppOpticsAPM::XTraceOptions.new(headers)
+      options = SolarWindsAPM::XTraceOptions.new(headers)
 
       _(options.trigger_trace).must_equal false
       _(options.custom_kvs).must_be_instance_of Hash
@@ -25,7 +25,7 @@ describe 'XTraceOptionsTest' do
       headers =
         'trigger-trace;custom-something=value_thing; custom-OtherThing=other val;sw-keys=029734wr70:9wqj21,0d9j1'
 
-      options = AppOpticsAPM::XTraceOptions.new(headers)
+      options = SolarWindsAPM::XTraceOptions.new(headers)
 
       _(options.trigger_trace).must_equal true
       _(options.custom_kvs['custom-OtherThing']).must_equal 'other val'
@@ -37,7 +37,7 @@ describe 'XTraceOptionsTest' do
       headers =
         'custom-something=value; custom-OtherThing = other val ;sw-keys=029734wr70:9wqj21,0d9j1'
 
-      options = AppOpticsAPM::XTraceOptions.new(headers)
+      options = SolarWindsAPM::XTraceOptions.new(headers)
 
       _(options.trigger_trace).must_equal false
       _(options.custom_kvs['custom-OtherThing']).must_equal 'other val'
@@ -50,9 +50,9 @@ describe 'XTraceOptionsTest' do
                    and_that=otherval
                    whoot).join(';')
 
-      AppOpticsAPM.logger.expects(:info).once
+      SolarWindsAPM.logger.expects(:info).once
 
-      options = AppOpticsAPM::XTraceOptions.new(headers)
+      options = SolarWindsAPM::XTraceOptions.new(headers)
 
       _(options.ignored.sort).must_equal %w(what_is_this whoot and_that).sort
     end
@@ -61,9 +61,9 @@ describe 'XTraceOptionsTest' do
       headers = %w(trigger_trace=1
                    custom-something=value_thing).join(';')
 
-      AppOpticsAPM.logger.expects(:info).once
+      SolarWindsAPM.logger.expects(:info).once
 
-      options = AppOpticsAPM::XTraceOptions.new(headers)
+      options = SolarWindsAPM::XTraceOptions.new(headers)
 
       _(options.ignored).must_equal ['trigger_trace']
     end
@@ -75,9 +75,9 @@ describe 'XTraceOptionsTest' do
                    sw-keys=029734wr70:9wqj21,0d9j1
                    custom-something=otherval).join(';')
 
-      AppOpticsAPM.logger.expects(:info).twice
+      SolarWindsAPM.logger.expects(:info).twice
 
-      options = AppOpticsAPM::XTraceOptions.new(headers)
+      options = SolarWindsAPM::XTraceOptions.new(headers)
 
       _(options.sw_keys).must_equal 'keep_this'
       _(options.custom_kvs['custom-something']).must_equal 'keep_this_otherval'
@@ -87,7 +87,7 @@ describe 'XTraceOptionsTest' do
       headers =
         'trigger-trace;custom-something=value_thing=4;custom-OtherThing=other val'
 
-      options = AppOpticsAPM::XTraceOptions.new(headers)
+      options = SolarWindsAPM::XTraceOptions.new(headers)
 
       _(options.custom_kvs['custom-something']).must_equal 'value_thing=4'
     end
@@ -95,9 +95,9 @@ describe 'XTraceOptionsTest' do
     it 'tries best with ";" inside value, reports and logs bad key' do
       headers = "custom-foo='bar;bar';custom-bar=foo;"
 
-      AppOpticsAPM.logger.expects(:info).once
+      SolarWindsAPM.logger.expects(:info).once
 
-      options = AppOpticsAPM::XTraceOptions.new(headers)
+      options = SolarWindsAPM::XTraceOptions.new(headers)
 
       _(options.custom_kvs['custom-foo']).must_equal "'bar"
       _(options.ignored).must_equal ["bar'"]
@@ -108,9 +108,9 @@ describe 'XTraceOptionsTest' do
                    custom-something=value_thing).join(';')
       headers << ';sw-keys=029734wr70:9wqj21,0d9j1;1;;;2;3;4;5;=abc=and_now?;='
 
-      AppOpticsAPM.logger.expects(:info).once
+      SolarWindsAPM.logger.expects(:info).once
 
-      options = AppOpticsAPM::XTraceOptions.new(headers)
+      options = SolarWindsAPM::XTraceOptions.new(headers)
 
       _(options.trigger_trace).must_equal true
       _(options.sw_keys).must_equal '029734wr70:9wqj21,0d9j1'
@@ -121,7 +121,7 @@ describe 'XTraceOptionsTest' do
     it 'ignores sequential ";;;"' do
       headers = 'custom-something=value_thing;sw-keys=02973r70;;;;custom-key=val'
 
-      options = AppOpticsAPM::XTraceOptions.new(headers)
+      options = SolarWindsAPM::XTraceOptions.new(headers)
 
       _(options.custom_kvs['custom-something']).must_equal 'value_thing'
       _(options.custom_kvs['custom-key']).must_equal 'val'
@@ -131,9 +131,9 @@ describe 'XTraceOptionsTest' do
     it 'doesn\'t allow spaces in keys' do
       headers = 'trigger-trace;custom- something=value_thing;sw-keys=02973r70;;;;custom-k ey=val;custom-goodkey=good'
 
-      AppOpticsAPM.logger.expects(:info).once
+      SolarWindsAPM.logger.expects(:info).once
 
-      options = AppOpticsAPM::XTraceOptions.new(headers)
+      options = SolarWindsAPM::XTraceOptions.new(headers)
 
       _(options.custom_kvs['custom-goodkey']).must_equal 'good'
       _(options.sw_keys).must_equal '02973r70'

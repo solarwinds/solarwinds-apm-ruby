@@ -1,7 +1,7 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
-module AppOpticsAPM
+module SolarWindsAPM
   module Inst
     module Redis
       module Client
@@ -59,8 +59,8 @@ module AppOpticsAPM
         def self.included(klass)
           # We wrap two of the Redis methods to instrument
           # operations
-          AppOpticsAPM::Util.method_alias(klass, :call, ::Redis::Client)
-          AppOpticsAPM::Util.method_alias(klass, :call_pipeline, ::Redis::Client)
+          SolarWindsAPM::Util.method_alias(klass, :call, ::Redis::Client)
+          SolarWindsAPM::Util.method_alias(klass, :call_pipeline, ::Redis::Client)
         end
 
         # Given any Redis operation command array, this method
@@ -130,7 +130,7 @@ module AppOpticsAPM
 
             when :script
               kvs[:subcommand] = command[1]
-              kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:redis][:collect_backtraces]
+              kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:redis][:collect_backtraces]
               if command[1] == 'load'
                 if command[1].length > 1024
                   kvs[:Script] = command[2][0..1023] + '(...snip...)'
@@ -168,8 +168,8 @@ module AppOpticsAPM
             end # case op
           end # if KV_COLLECT_MAP[op]
         rescue StandardError => e
-          AppOpticsAPM.logger.debug "[appoptics_apm/redis] Error collecting redis KVs: #{e.message}"
-          AppOpticsAPM.logger.debug e.backtrace.join('\n')
+          SolarWindsAPM.logger.debug "[appoptics_apm/redis] Error collecting redis KVs: #{e.message}"
+          SolarWindsAPM.logger.debug e.backtrace.join('\n')
         ensure
           return kvs
         end
@@ -183,7 +183,7 @@ module AppOpticsAPM
           kvs = {}
 
           kvs[:RemoteHost] = @options[:host]
-          kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:redis][:collect_backtraces]
+          kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:redis][:collect_backtraces]
 
           command_count = pipeline.commands.count
           kvs[:KVOpCount] = command_count
@@ -204,8 +204,8 @@ module AppOpticsAPM
             kvs[:KVOps] = ops.join(', ')
           end
         rescue StandardError => e
-          AppOpticsAPM.logger.debug "[appoptics_apm/debug] Error extracting pipelined commands: #{e.message}"
-          AppOpticsAPM.logger.debug e.backtrace
+          SolarWindsAPM.logger.debug "[appoptics_apm/debug] Error extracting pipelined commands: #{e.message}"
+          SolarWindsAPM.logger.debug e.backtrace
         ensure
           return kvs
         end
@@ -216,18 +216,18 @@ module AppOpticsAPM
         # the call along
         #
         def call_with_appoptics(command, &block)
-          if AppOpticsAPM.tracing?
-            AppOpticsAPM::API.log_entry(:redis, {})
+          if SolarWindsAPM.tracing?
+            SolarWindsAPM::API.log_entry(:redis, {})
 
             begin
               r = call_without_appoptics(command, &block)
               report_kvs = extract_trace_details(command, r)
               r
             rescue StandardError => e
-              AppOpticsAPM::API.log_exception(:redis, e)
+              SolarWindsAPM::API.log_exception(:redis, e)
               raise
             ensure
-              AppOpticsAPM::API.log_exit(:redis, report_kvs)
+              SolarWindsAPM::API.log_exit(:redis, report_kvs)
             end
 
           else
@@ -240,22 +240,22 @@ module AppOpticsAPM
         # (when tracing) we capture KVs to report and pass the call along
         #
         def call_pipeline_with_appoptics(pipeline)
-          if AppOpticsAPM.tracing?
+          if SolarWindsAPM.tracing?
             # Fall back to the raw tracing API so we can pass KVs
-            # back on exit (a limitation of the AppOpticsAPM::API.trace
+            # back on exit (a limitation of the SolarWindsAPM::API.trace
             # block method)  This removes the need for an info
             # event to send additonal KVs
-            AppOpticsAPM::API.log_entry(:redis, {})
+            SolarWindsAPM::API.log_entry(:redis, {})
 
             report_kvs = extract_pipeline_details(pipeline)
 
             begin
               call_pipeline_without_appoptics(pipeline)
             rescue StandardError => e
-              AppOpticsAPM::API.log_exception(:redis, e)
+              SolarWindsAPM::API.log_exception(:redis, e)
               raise
             ensure
-              AppOpticsAPM::API.log_exit(:redis, report_kvs)
+              SolarWindsAPM::API.log_exit(:redis, report_kvs)
             end
           else
             call_pipeline_without_appoptics(pipeline)
@@ -266,9 +266,9 @@ module AppOpticsAPM
   end
 end
 
-if AppOpticsAPM::Config[:redis][:enabled]
+if SolarWindsAPM::Config[:redis][:enabled]
   if defined?(Redis) && Gem::Version.new(Redis::VERSION) >= Gem::Version.new('3.0.0')
-    AppOpticsAPM.logger.info '[appoptics_apm/loading] Instrumenting redis' if AppOpticsAPM::Config[:verbose]
-    AppOpticsAPM::Util.send_include(Redis::Client, AppOpticsAPM::Inst::Redis::Client)
+    SolarWindsAPM.logger.info '[appoptics_apm/loading] Instrumenting redis' if SolarWindsAPM::Config[:verbose]
+    SolarWindsAPM::Util.send_include(Redis::Client, SolarWindsAPM::Inst::Redis::Client)
   end
 end

@@ -6,7 +6,7 @@
 #
 require 'sidekiq/cli'
 
-AppOpticsAPM.logger.info "[appoptics_apm/servers] Starting up background Sidekiq for ActiveJob."
+SolarWindsAPM.logger.info "[appoptics_apm/servers] Starting up background Sidekiq for ActiveJob."
 
 options = []
 arguments = ""
@@ -19,8 +19,8 @@ options.flatten.each do |x|
 end
 gemfile = ENV['BUNDLE_GEMFILE']
 
-AppOpticsAPM.logger.warn "[appoptics_apm/servers] sidekiq #{arguments}"
-AppOpticsAPM.logger.level = Logger::FATAL
+SolarWindsAPM.logger.warn "[appoptics_apm/servers] sidekiq #{arguments}"
+SolarWindsAPM.logger.level = Logger::FATAL
 
 Thread.new do
   system("APPOPTICS_GEM_TEST=true BUNDLE_GEMFILE=#{gemfile} sidekiq #{arguments}")

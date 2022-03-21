@@ -6,17 +6,17 @@
 module GraphQL
   module Tracing
 
-    # This class uses the AppopticsAPM SDK from the appoptics_apm gem to create
+    # This class uses the SolarWindsAPM SDK from the appoptics_apm gem to create
     # traces for GraphQL.
     #
     # There are 4 configurations available. They can be set in the
     # appoptics_apm config file or in code. Please see:
     # {https://docs.appoptics.com/kb/apm_tracing/ruby/configure}
     #
-    #     AppOpticsAPM::Config[:graphql][:enabled] = true|false
-    #     AppOpticsAPM::Config[:graphql][:transaction_name]  = true|false
-    #     AppOpticsAPM::Config[:graphql][:sanitize_query] = true|false
-    #     AppOpticsAPM::Config[:graphql][:remove_comments] = true|false
+    #     SolarWindsAPM::Config[:graphql][:enabled] = true|false
+    #     SolarWindsAPM::Config[:graphql][:transaction_name]  = true|false
+    #     SolarWindsAPM::Config[:graphql][:sanitize_query] = true|false
+    #     SolarWindsAPM::Config[:graphql][:remove_comments] = true|false
     class AppOpticsTracing < GraphQL::Tracing::PlatformTracing
       # These GraphQL events will show up as 'graphql.prep' spans
       PREP_KEYS = ['lex', 'parse', 'validate', 'analyze_query', 'analyze_multiplex'].freeze
@@ -41,7 +41,7 @@ module GraphQL
       }
 
       def platform_trace(platform_key, _key, data)
-        return yield if !defined?(AppOpticsAPM) || gql_config[:enabled] == false
+        return yield if !defined?(SolarWindsAPM) || gql_config[:enabled] == false
 
         layer = span_name(platform_key)
         kvs = metadata(data, layer)
@@ -49,7 +49,7 @@ module GraphQL
 
         transaction_name(kvs[:InboundQuery]) if kvs[:InboundQuery] && layer == 'graphql.execute'
 
-        ::AppOpticsAPM::SDK.trace(layer, kvs: kvs) do
+        ::SolarWindsAPM::SDK.trace(layer, kvs: kvs) do
           kvs.clear # we don't have to send them twice
           yield
         end
@@ -62,28 +62,28 @@ module GraphQL
       private
 
       def gql_config
-        ::AppOpticsAPM::Config[:graphql] ||= {}
+        ::SolarWindsAPM::Config[:graphql] ||= {}
       end
 
       def transaction_name(query)
         return if gql_config[:transaction_name] == false ||
-          ::AppOpticsAPM::SDK.get_transaction_name
+          ::SolarWindsAPM::SDK.get_transaction_name
 
         split_query = query.strip.split(/\W+/, 3)
         split_query[0] = 'query' if split_query[0].empty?
         name = "graphql.#{split_query[0..1].join('.')}"
 
-        ::AppOpticsAPM::SDK.set_transaction_name(name)
+        ::SolarWindsAPM::SDK.set_transaction_name(name)
       end
 
       def multiplex_transaction_name(names)
         return if gql_config[:transaction_name] == false ||
-          ::AppOpticsAPM::SDK.get_transaction_name
+          ::SolarWindsAPM::SDK.get_transaction_name
 
         name = "graphql.multiplex.#{names.join('.')}"
         name = "#{name[0..251]}..." if name.length > 254
 
-        ::AppOpticsAPM::SDK.set_transaction_name(name)
+        ::SolarWindsAPM::SDK.set_transaction_name(name)
       end
 
       def span_name(key)
@@ -114,7 +114,7 @@ module GraphQL
 
       def graphql_context(context, layer)
         context.errors && context.errors.each do |err|
-          AppOpticsAPM::API.log_exception(layer, err)
+          SolarWindsAPM::API.log_exception(layer, err)
         end
 
         [[:Path, context.path.join('.')]]

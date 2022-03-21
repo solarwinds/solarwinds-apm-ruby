@@ -1,7 +1,7 @@
 # Copyright (c) 2019 SolarWinds, LLC.
 # All rights reserved.
 
-module  AppOpticsAPM
+module  SolarWindsAPM
   module API
     module Metrics
 
@@ -30,8 +30,8 @@ module  AppOpticsAPM
         error = 0
         duration = (1000 * 1000 * (Time.now - start)).to_i
         transaction_name = determine_transaction_name(span, kvs)
-        kvs[:TransactionName] = AppOpticsAPM::Span.createSpan(transaction_name, nil, duration, error)
-        AppOpticsAPM.transaction_name = nil
+        kvs[:TransactionName] = SolarWindsAPM::Span.createSpan(transaction_name, nil, duration, error)
+        SolarWindsAPM.transaction_name = nil
       end
 
       private
@@ -47,8 +47,8 @@ module  AppOpticsAPM
       # (string) the determined transaction name
       #
       def determine_transaction_name(span, kvs = {})
-        if AppOpticsAPM.transaction_name
-          AppOpticsAPM.transaction_name
+        if SolarWindsAPM.transaction_name
+          SolarWindsAPM.transaction_name
         elsif kvs['Controller'] && kvs['Action']
           [kvs['Controller'], kvs['Action']].join('.')
         elsif kvs[:Controller] && kvs[:Action]

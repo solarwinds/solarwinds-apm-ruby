@@ -9,10 +9,10 @@ begin
   require 'appoptics_apm/util'
   require 'appoptics_apm/support_report'
   require 'appoptics_apm/base'
-  AppOpticsAPM.loaded = false
+  SolarWindsAPM.loaded = false
 
   require 'appoptics_apm/config'
-  AppOpticsAPM::Config.load_config_file
+  SolarWindsAPM::Config.load_config_file
 
   begin
     if RUBY_PLATFORM == 'java'
@@ -21,29 +21,29 @@ begin
     elsif RUBY_PLATFORM =~ /linux/
       require_relative './libappoptics_apm.so'
       require 'appoptics_apm/oboe_init_options'
-      require 'oboe_metal.rb'  # sets AppOpticsAPM.loaded = true if successful
+      require 'oboe_metal.rb'  # sets SolarWindsAPM.loaded = true if successful
     else
-      AppOpticsAPM.logger.warn '==================================================================='
-      AppOpticsAPM.logger.warn "AppOptics warning: Platform #{RUBY_PLATFORM} not yet supported."
-      AppOpticsAPM.logger.warn 'see: https://docs.appoptics.com/kb/apm_tracing/supported_platforms/'
-      AppOpticsAPM.logger.warn 'Tracing disabled.'
-      AppOpticsAPM.logger.warn 'Contact technicalsupport@solarwinds.com if this is unexpected.'
-      AppOpticsAPM.logger.warn '==================================================================='
+      SolarWindsAPM.logger.warn '==================================================================='
+      SolarWindsAPM.logger.warn "AppOptics warning: Platform #{RUBY_PLATFORM} not yet supported."
+      SolarWindsAPM.logger.warn 'see: https://docs.appoptics.com/kb/apm_tracing/supported_platforms/'
+      SolarWindsAPM.logger.warn 'Tracing disabled.'
+      SolarWindsAPM.logger.warn 'Contact technicalsupport@solarwinds.com if this is unexpected.'
+      SolarWindsAPM.logger.warn '==================================================================='
     end
   rescue LoadError => e
     unless ENV['RAILS_GROUP'] == 'assets' or ENV['IGNORE_APPOPTICS_WARNING']
-      AppOpticsAPM.logger.error '=============================================================='
-      AppOpticsAPM.logger.error 'Missing AppOpticsAPM libraries.  Tracing disabled.'
-      AppOpticsAPM.logger.error "Error: #{e.message}"
-      AppOpticsAPM.logger.error 'See: https://docs.appoptics.com/kb/apm_tracing/ruby/'
-      AppOpticsAPM.logger.error '=============================================================='
+      SolarWindsAPM.logger.error '=============================================================='
+      SolarWindsAPM.logger.error 'Missing SolarWindsAPM libraries.  Tracing disabled.'
+      SolarWindsAPM.logger.error "Error: #{e.message}"
+      SolarWindsAPM.logger.error 'See: https://docs.appoptics.com/kb/apm_tracing/ruby/'
+      SolarWindsAPM.logger.error '=============================================================='
     end
   end
 
-  # appoptics_apm/loading can set AppOpticsAPM.loaded = false if the service key is not working
+  # appoptics_apm/loading can set SolarWindsAPM.loaded = false if the service key is not working
   require 'appoptics_apm/loading'
 
-  if AppOpticsAPM.loaded
+  if SolarWindsAPM.loaded
     require 'appoptics_apm/instrumentation'
     require 'appoptics_apm/support'
 
@@ -53,11 +53,11 @@ begin
     require 'appoptics_apm/frameworks/padrino'
     require 'appoptics_apm/frameworks/grape'
   else
-    AppOpticsAPM.logger.warn '=============================================================='
-    AppOpticsAPM.logger.warn 'AppOpticsAPM not loaded. Tracing disabled.'
-    AppOpticsAPM.logger.warn 'There may be a problem with the service key or other settings.'
-    AppOpticsAPM.logger.warn 'Please check previous log messages.'
-    AppOpticsAPM.logger.warn '=============================================================='
+    SolarWindsAPM.logger.warn '=============================================================='
+    SolarWindsAPM.logger.warn 'SolarWindsAPM not loaded. Tracing disabled.'
+    SolarWindsAPM.logger.warn 'There may be a problem with the service key or other settings.'
+    SolarWindsAPM.logger.warn 'Please check previous log messages.'
+    SolarWindsAPM.logger.warn '=============================================================='
     require 'appoptics_apm/noop/context'
     require 'appoptics_apm/noop/metadata'
     require 'appoptics_apm/noop/profiling'

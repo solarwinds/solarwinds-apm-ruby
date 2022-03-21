@@ -1,7 +1,7 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
-module AppOpticsAPM
+module SolarWindsAPM
   module Inst
     #
     # ActionController
@@ -10,7 +10,7 @@ module AppOpticsAPM
     # to Rails v5.
     #
     module ActionControllerAPI
-      include AppOpticsAPM::Inst::RailsBase
+      include SolarWindsAPM::Inst::RailsBase
 
       def process_action(method_name, *args)
         kvs = {
@@ -20,18 +20,18 @@ module AppOpticsAPM
         request.env['appoptics_apm.controller'] = kvs[:Controller]
         request.env['appoptics_apm.action'] = kvs[:Action]
 
-        return super(method_name, *args) unless AppOpticsAPM.tracing?
+        return super(method_name, *args) unless SolarWindsAPM.tracing?
         begin
-          kvs[:Backtrace] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:action_controller_api][:collect_backtraces]
+          kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:action_controller_api][:collect_backtraces]
 
-          AppOpticsAPM::API.log_entry('rails-api', kvs)
+          SolarWindsAPM::API.log_entry('rails-api', kvs)
           super(method_name, *args)
 
         rescue Exception => e
-          AppOpticsAPM::API.log_exception('rails', e) if log_rails_error?(e)
+          SolarWindsAPM::API.log_exception('rails', e) if log_rails_error?(e)
           raise
         ensure
-          AppOpticsAPM::API.log_exit('rails-api')
+          SolarWindsAPM::API.log_exit('rails-api')
         end
       end
 

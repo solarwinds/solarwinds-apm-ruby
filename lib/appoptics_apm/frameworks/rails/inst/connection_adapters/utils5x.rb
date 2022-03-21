@@ -1,7 +1,7 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
-module AppOpticsAPM
+module SolarWindsAPM
   module Inst
     module ConnectionAdapters
       module Utils
@@ -36,11 +36,11 @@ module AppOpticsAPM
         def trace_wrap(*args)
           sql, name, binds, _ = args
           kvs = {}
-          args[0] = AppOpticsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql, kvs)
-          if AppOpticsAPM.tracing? && !ignore_payload?(name)
+          args[0] = SolarWindsAPM::SDK.current_trace_info.add_traceparent_to_sql(sql, kvs)
+          if SolarWindsAPM.tracing? && !ignore_payload?(name)
             assign_kvs(sql, kvs, name, binds || [])
             # use protect_op to avoid double tracing in mysql2
-            AppOpticsAPM::SDK.trace('activerecord', kvs: kvs, protect_op: :ar_started) do
+            SolarWindsAPM::SDK.trace('activerecord', kvs: kvs, protect_op: :ar_started) do
               yield args
             end
           else
@@ -49,10 +49,10 @@ module AppOpticsAPM
         end
 
         def assign_kvs(sql, kvs, name = nil, binds = [])
-          sql = AppOpticsAPM::Util.remove_traceparent(sql.to_s)
-          if AppOpticsAPM::Config[:sanitize_sql]
+          sql = SolarWindsAPM::Util.remove_traceparent(sql.to_s)
+          if SolarWindsAPM::Config[:sanitize_sql]
             # Sanitize SQL and don't report binds
-            kvs[:Query] = AppOpticsAPM::Util.sanitize_sql(sql)
+            kvs[:Query] = SolarWindsAPM::Util.sanitize_sql(sql)
           else
             # Report raw SQL or name of statement and any binds if they exist
             kvs[:Query] = sql
@@ -62,8 +62,8 @@ module AppOpticsAPM
           end
 
           kvs[:Name] = name.to_s if name
-          if AppOpticsAPM::Config[:active_record] && AppOpticsAPM::Config[:active_record][:collect_backtraces]
-            kvs[:Backtrace] = AppOpticsAPM::API.backtrace
+          if SolarWindsAPM::Config[:active_record] && SolarWindsAPM::Config[:active_record][:collect_backtraces]
+            kvs[:Backtrace] = SolarWindsAPM::API.backtrace
           end
 
           if ActiveRecord::Base.respond_to?(:connection_db_config)
@@ -85,8 +85,8 @@ module AppOpticsAPM
             end
           end
         rescue StandardError => e
-          AppOpticsAPM.logger.debug "[appoptics_apm/rails] Exception raised capturing ActiveRecord KVs: #{e.inspect}"
-          AppOpticsAPM.logger.debug e.backtrace.join('\n')
+          SolarWindsAPM.logger.debug "[appoptics_apm/rails] Exception raised capturing ActiveRecord KVs: #{e.inspect}"
+          SolarWindsAPM.logger.debug e.backtrace.join('\n')
         end
 
         # We don't want to trace framework caches.

@@ -1,7 +1,7 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
-module AppOpticsAPM
+module SolarWindsAPM
   module Test
     class << self
       ##
@@ -12,11 +12,11 @@ module AppOpticsAPM
       #
       def load_extras
         # If we're using the libraries gemfile (with sidekiq and resque)
-        if AppOpticsAPM::Test.gemfile?(:libraries)
+        if SolarWindsAPM::Test.gemfile?(:libraries)
           # Load all of the test workers
           pattern = File.join(File.dirname(__FILE__), '../../test/jobs/**/', '*.rb')
           Dir.glob(pattern) do |f|
-            AppOpticsAPM.logger.debug "[appoptics_apm/test] Loading test job file: #{File.basename(f)}"
+            SolarWindsAPM.logger.debug "[appoptics_apm/test] Loading test job file: #{File.basename(f)}"
             require f
           end
         end

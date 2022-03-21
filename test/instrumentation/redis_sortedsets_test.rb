@@ -29,7 +29,7 @@ if defined?(::Redis)
     it "should trace zadd" do
       min_server_version(1.2)
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.zadd("time", 0, "past")
       end
 
@@ -48,7 +48,7 @@ if defined?(::Redis)
       @redis.zadd("sauce", 3, "hollandaise")
       @redis.zadd("sauce", 4, "classic tomate")
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.zcard("sauce")
       end
 
@@ -67,7 +67,7 @@ if defined?(::Redis)
       @redis.zadd("sauce", 3, "hollandaise")
       @redis.zadd("sauce", 4, "classic tomate")
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.zcount("sauce", 1, 3)
       end
 
@@ -86,7 +86,7 @@ if defined?(::Redis)
       @redis.zadd("sauce", 3, "hollandaise")
       @redis.zadd("sauce", 4, "classic tomate")
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.zincrby("sauce", 1, "veloute")
       end
 
@@ -106,7 +106,7 @@ if defined?(::Redis)
       @redis.zadd("beverage", 0, "milkshake")
       @redis.zadd("beverage", 1, "soda")
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.zinterstore("zinterstore_dest", ["sauce", "beverage"], :weights => [2, 3])
       end
 
@@ -126,7 +126,7 @@ if defined?(::Redis)
       @redis.zadd("sauce", 3, "hollandaise")
       @redis.zadd("sauce", 4, "classic tomate")
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.zrange("sauce", 1, 3)
       end
 
@@ -145,7 +145,7 @@ if defined?(::Redis)
       @redis.zadd("sauce", 3, "hollandaise")
       @redis.zadd("sauce", 4, "classic tomate")
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.zrangebyscore("sauce", "5", "(100")
       end
 
@@ -164,7 +164,7 @@ if defined?(::Redis)
       @redis.zadd("sauce", 3, "hollandaise")
       @redis.zadd("sauce", 4, "classic tomate")
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.zrank("sauce", "veloute")
       end
 
@@ -183,7 +183,7 @@ if defined?(::Redis)
       @redis.zadd("sauce", 3, "hollandaise")
       @redis.zadd("sauce", 4, "classic tomate")
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.zrem("sauce", "veloute")
       end
 
@@ -202,7 +202,7 @@ if defined?(::Redis)
       @redis.zadd("sauce", 3, "hollandaise")
       @redis.zadd("sauce", 4, "classic tomate")
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.zremrangebyrank("sauce", -5, -1)
       end
 
@@ -223,7 +223,7 @@ if defined?(::Redis)
       @redis.zadd("sauce", 3, "hollandaise")
       @redis.zadd("sauce", 4, "classic tomate")
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.zremrangebyscore("sauce", -5, -1)
       end
 
@@ -242,7 +242,7 @@ if defined?(::Redis)
       @redis.zadd("sauce", 3, "hollandaise")
       @redis.zadd("sauce", 4, "classic tomate")
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.zrevrange("sauce", 0, -1)
       end
 
@@ -263,7 +263,7 @@ if defined?(::Redis)
       @redis.zadd("sauce", 3, "hollandaise")
       @redis.zadd("sauce", 4, "classic tomate")
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.zrevrangebyscore("sauce", "(100", "5")
       end
 
@@ -280,7 +280,7 @@ if defined?(::Redis)
       @redis.zadd("letters", 1, "b")
       @redis.zadd("letters", 1, "c")
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.zrevrank("letters", "c")
       end
 
@@ -298,7 +298,7 @@ if defined?(::Redis)
       @redis.zadd("elements", 1, "earth")
       @redis.zadd("elements", 1, "air")
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.zscore("elements", "earth")
       end
 
@@ -315,7 +315,7 @@ if defined?(::Redis)
       @redis.zadd("colors", 1, "yellowish")
       @redis.zadd("codes", 0, "0xff")
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.zunionstore("zdest", ["colors", "codes"])
       end
 

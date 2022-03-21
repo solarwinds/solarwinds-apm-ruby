@@ -8,8 +8,8 @@ require 'rack/lobster'
 require 'appoptics_apm/inst/rack'
 
 unless defined?(JRUBY_VERSION)
-  AppOpticsAPM::Config[:tracing_mode] = :enabled
-  AppOpticsAPM::Config[:sample_rate] = 1e6
+  SolarWindsAPM::Config[:tracing_mode] = :enabled
+  SolarWindsAPM::Config[:sample_rate] = 1e6
 
   describe "RackTestApp" do
     include Rack::Test::Methods
@@ -18,7 +18,7 @@ unless defined?(JRUBY_VERSION)
       @app = Rack::Builder.new {
         use Rack::CommonLogger
         use Rack::ShowExceptions
-        use AppOpticsAPM::Rack
+        use SolarWindsAPM::Rack
         map "/lobster" do
           use Rack::Lint
           run Rack::Lobster.new
@@ -50,60 +50,60 @@ unless defined?(JRUBY_VERSION)
     # of addInfo which only has four overloads.
     # TODO these should probably have 'refute_raises' blocks around the 'log' calls
     def test_swig_datatypes_conversion
-      event = AppOpticsAPM::Context.createEvent
+      event = SolarWindsAPM::Context.createEvent
       report_kvs = {}
 
       # Array
       report_kvs[:TestData] = [0, 1, 2, 5, 7.0]
-      AppOpticsAPM::API.log('test_layer', 'entry', report_kvs, event)
+      SolarWindsAPM::API.log('test_layer', 'entry', report_kvs, event)
 
       # Class
-      report_kvs[:TestData] = AppOpticsAPM::Reporter
-      AppOpticsAPM::API.log('test_layer', 'entry', report_kvs, event)
+      report_kvs[:TestData] = SolarWindsAPM::Reporter
+      SolarWindsAPM::API.log('test_layer', 'entry', report_kvs, event)
 
       # FalseClass
       report_kvs[:TestData] = false
-      AppOpticsAPM::API.log('test_layer', 'entry', report_kvs, event)
+      SolarWindsAPM::API.log('test_layer', 'entry', report_kvs, event)
 
       # Fixnum
       report_kvs[:TestData] = 1_873_293_293
-      AppOpticsAPM::API.log('test_layer', 'entry', report_kvs, event)
+      SolarWindsAPM::API.log('test_layer', 'entry', report_kvs, event)
 
       # Float
       report_kvs[:TestData] = 1.0001
-      AppOpticsAPM::API.log('test_layer', 'entry', report_kvs, event)
+      SolarWindsAPM::API.log('test_layer', 'entry', report_kvs, event)
 
       # Hash
       report_kvs[:TestData] = Hash.new
-      AppOpticsAPM::API.log('test_layer', 'entry', report_kvs, event)
+      SolarWindsAPM::API.log('test_layer', 'entry', report_kvs, event)
 
       # Integer
       report_kvs[:TestData] = 1
-      AppOpticsAPM::API.log('test_layer', 'entry', report_kvs, event)
+      SolarWindsAPM::API.log('test_layer', 'entry', report_kvs, event)
 
       # Module
-      report_kvs[:TestData] = AppOpticsAPM
-      AppOpticsAPM::API.log('test_layer', 'entry', report_kvs, event)
+      report_kvs[:TestData] = SolarWindsAPM
+      SolarWindsAPM::API.log('test_layer', 'entry', report_kvs, event)
 
       # NilClass
       report_kvs[:TestData] = nil
-      AppOpticsAPM::API.log('test_layer', 'entry', report_kvs, event)
+      SolarWindsAPM::API.log('test_layer', 'entry', report_kvs, event)
 
       # Set
       report_kvs[:TestData] = Set.new(1..10)
-      AppOpticsAPM::API.log('test_layer', 'entry', report_kvs, event)
+      SolarWindsAPM::API.log('test_layer', 'entry', report_kvs, event)
 
       # String
       report_kvs[:TestData] = 'test value'
-      AppOpticsAPM::API.log('test_layer', 'entry', report_kvs, event)
+      SolarWindsAPM::API.log('test_layer', 'entry', report_kvs, event)
 
       # Symbol
       report_kvs[:TestData] = :TestValue
-      AppOpticsAPM::API.log('test_layer', 'entry', report_kvs, event)
+      SolarWindsAPM::API.log('test_layer', 'entry', report_kvs, event)
 
       # TrueClass
       report_kvs[:TestData] = true
-      AppOpticsAPM::API.log('test_layer', 'entry', report_kvs, event)
+      SolarWindsAPM::API.log('test_layer', 'entry', report_kvs, event)
     end
   end
 end

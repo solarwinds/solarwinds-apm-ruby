@@ -1,7 +1,7 @@
 # Copyright (c) 2021 SolarWinds, LLC.
 # All rights reserved.
 
-module AppOpticsAPM
+module SolarWindsAPM
 
   # test coverage through instrumentation_mocked and inst tests
   module TraceState

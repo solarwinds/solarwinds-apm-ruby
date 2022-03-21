@@ -11,7 +11,7 @@ describe "Rack Trigger Tracing " do
   # Minitest::Test.i_suck_and_my_tests_are_order_dependent!
 
   def restart_rack
-    @rack = AppOpticsAPM::Rack.new(@app)
+    @rack = SolarWindsAPM::Rack.new(@app)
   end
 
   def create_signature(options)
@@ -22,23 +22,23 @@ describe "Rack Trigger Tracing " do
   before do
     clear_all_traces
 
-    @collect_bt = AppOpticsAPM::Config[:rack][:collect_backtraces]
-    AppOpticsAPM::Config[:rack][:collect_backtraces] = false
+    @collect_bt = SolarWindsAPM::Config[:rack][:collect_backtraces]
+    SolarWindsAPM::Config[:rack][:collect_backtraces] = false
 
-    @t_mode =  AppOpticsAPM::Config[:tracing_mode]
-    @tt_mode = AppOpticsAPM::Config[:trigger_tracing_mode]
+    @t_mode =  SolarWindsAPM::Config[:tracing_mode]
+    @tt_mode = SolarWindsAPM::Config[:trigger_tracing_mode]
 
     @app = mock('app')
     def @app.call(_)
       [200, {}, "response"]
     end
-    @rack = AppOpticsAPM::Rack.new(@app)
+    @rack = SolarWindsAPM::Rack.new(@app)
   end
 
   after do
-    AppOpticsAPM::Config[:rack][:collect_backtraces] = @collect_bt
-    AppOpticsAPM::Config[:tracing_mode] = @t_mode
-    AppOpticsAPM::Config[:trigger_tracing_mode] = @tt_mode
+    SolarWindsAPM::Config[:rack][:collect_backtraces] = @collect_bt
+    SolarWindsAPM::Config[:tracing_mode] = @t_mode
+    SolarWindsAPM::Config[:trigger_tracing_mode] = @tt_mode
   end
 
   describe 'settings not available' do
@@ -47,7 +47,7 @@ describe "Rack Trigger Tracing " do
 
   describe 'tracing disabled' do
     before do
-      AppOpticsAPM::Config[:tracing_mode] = :disabled
+      SolarWindsAPM::Config[:tracing_mode] = :disabled
     end
 
     it 'does not trigger trace' do
@@ -263,7 +263,7 @@ describe "Rack Trigger Tracing " do
     # assuming remote settings are enabled
     # can't test remote setting disabled here
     before do
-      AppOpticsAPM::Config[:trigger_tracing_mode] = :disabled
+      SolarWindsAPM::Config[:trigger_tracing_mode] = :disabled
     end
 
     it 'does not trigger trace' do

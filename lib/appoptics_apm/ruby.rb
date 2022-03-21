@@ -1,7 +1,7 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
-module AppOpticsAPM
+module SolarWindsAPM
   ##
   # This module provides a method to manually initialize the
   # Ruby instrumentation.  Normally this is done by detecting
@@ -22,14 +22,14 @@ module AppOpticsAPM
         # In case some apps call this manually, make sure
         # that the gem is fully loaded and not in no-op
         # mode (e.g. on unsupported platforms etc.)
-        if AppOpticsAPM.loaded
-          AppOpticsAPM::Inst.load_instrumentation
+        if SolarWindsAPM.loaded
+          SolarWindsAPM::Inst.load_instrumentation
         end
       end
     end
   end
 end
 
-if AppOpticsAPM.loaded && !AppOpticsAPM.framework?
-  AppOpticsAPM::Ruby.load
+if SolarWindsAPM.loaded && !SolarWindsAPM.framework?
+  SolarWindsAPM::Ruby.load
 end

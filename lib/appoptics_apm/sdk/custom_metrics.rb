@@ -3,7 +3,7 @@
 # All rights reserved.
 #++
 
-module AppOpticsAPM
+module SolarWindsAPM
   module SDK
 
     module CustomMetrics
@@ -24,7 +24,7 @@ module AppOpticsAPM
       #   class WorkTracker
       #     def counting(name, tags = {})
       #       yield # yield to where work is done
-      #       AppOpticsAPM::SDK.increment_metric(name, 1, false, tags)
+      #       SolarWindsAPM::SDK.increment_metric(name, 1, false, tags)
       #     end
       #   end
       #
@@ -32,10 +32,10 @@ module AppOpticsAPM
       # * 0 on success, error code on failure
       #
       def increment_metric(name, count = 1, with_hostname = false, tags_kvs = {})
-        return true unless AppOpticsAPM.loaded
+        return true unless SolarWindsAPM.loaded
         with_hostname = with_hostname ? 1 : 0
         tags, tags_count = make_tags(tags_kvs)
-        AppOpticsAPM::CustomMetrics.increment(name.to_s, count, with_hostname, nil, tags, tags_count) == 1
+        SolarWindsAPM::CustomMetrics.increment(name.to_s, count, with_hostname, nil, tags, tags_count) == 1
       end
 
       # Send values with counts
@@ -57,7 +57,7 @@ module AppOpticsAPM
       #       start = Time.now
       #       yield # yield to where work is done
       #       duration = Time.now - start
-      #       AppOpticsAPM::SDK.summary_metric(name, duration, 1, false, tags)
+      #       SolarWindsAPM::SDK.summary_metric(name, duration, 1, false, tags)
       #     end
       #   end
       #
@@ -65,21 +65,21 @@ module AppOpticsAPM
       # * 0 on success, error code on failure
       #
       def summary_metric(name, value, count = 1, with_hostname = false, tags_kvs = {})
-        return true unless AppOpticsAPM.loaded
+        return true unless SolarWindsAPM.loaded
         with_hostname = with_hostname ? 1 : 0
         tags, tags_count = make_tags(tags_kvs)
-        AppOpticsAPM::CustomMetrics.summary(name.to_s, value, count, with_hostname, nil, tags, tags_count) == 1
+        SolarWindsAPM::CustomMetrics.summary(name.to_s, value, count, with_hostname, nil, tags, tags_count) == 1
       end
 
       private
 
       def make_tags(tags_kvs)
         unless tags_kvs.is_a?(Hash)
-          AppOpticsAPM.logger.warn("[appoptics_apm/metrics] CustomMetrics received tags_kvs that are not a Hash (found #{tags_kvs.class}), setting tags_kvs = {}")
+          SolarWindsAPM.logger.warn("[appoptics_apm/metrics] CustomMetrics received tags_kvs that are not a Hash (found #{tags_kvs.class}), setting tags_kvs = {}")
           tags_kvs = {}
         end
         count = tags_kvs.size
-        tags = AppOpticsAPM::MetricTags.new(count)
+        tags = SolarWindsAPM::MetricTags.new(count)
 
         tags_kvs.each_with_index do |(k, v), i|
           tags.add(i, k.to_s, v.to_s)

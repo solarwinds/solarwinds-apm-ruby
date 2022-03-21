@@ -2,7 +2,7 @@
 # All rights reserved.
 #
 
-module AppOpticsAPM
+module SolarWindsAPM
   module SDK
     module Logging
 
@@ -14,7 +14,7 @@ module AppOpticsAPM
       # * +kvs+   - (optional) hash containing key/value pairs that will be reported with this span.
       #
       def log_info(kvs)
-        AppOpticsAPM::API.log_info(AppOpticsAPM.layer, kvs)
+        SolarWindsAPM::API.log_info(SolarWindsAPM.layer, kvs)
       end
 
       # Log an exception/error event in the current span
@@ -26,7 +26,7 @@ module AppOpticsAPM
       # * +kvs+      - (optional) hash containing key/value pairs that will be reported with this span.
       #
       def log_exception(exception, kvs = {})
-        AppOpticsAPM::API.log_exception(AppOpticsAPM.layer, exception, kvs)
+        SolarWindsAPM::API.log_exception(SolarWindsAPM.layer, exception, kvs)
       end
 
     end

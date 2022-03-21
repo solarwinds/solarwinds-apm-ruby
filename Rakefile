@@ -26,7 +26,7 @@ Rake::TestTask.new do |t|
   # Here we detect the Gemfile the tests are being run against
   # and load the appropriate tests.
   #
-  case AppOpticsAPM::Test.gemfile
+  case SolarWindsAPM::Test.gemfile
   when /delayed_job/
     require 'delayed/tasks'
     t.test_files = FileList['test/queues/delayed_job*_test.rb']
@@ -390,10 +390,10 @@ task :environment do
   ENV['APPOPTICS_GEM_VERBOSE'] = 'true'
 
   Bundler.require(:default, :development)
-  AppOpticsAPM::Config[:tracing_mode] = :enabled
-  AppOpticsAPM::Test.load_extras
+  SolarWindsAPM::Config[:tracing_mode] = :enabled
+  SolarWindsAPM::Test.load_extras
 
-  require 'delayed/tasks' if AppOpticsAPM::Test.gemfile?(:delayed_job)
+  require 'delayed/tasks' if SolarWindsAPM::Test.gemfile?(:delayed_job)
 end
 
 # Used when testing Resque locally

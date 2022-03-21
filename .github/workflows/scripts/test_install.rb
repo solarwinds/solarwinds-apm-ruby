@@ -8,13 +8,13 @@
 # - APPOPTICS_COLLECTOR (optional if the key is for production)
 
 require 'solarwinds_apm'
-AppOpticsAPM.support_report
-exit 1 unless AppOpticsAPM.reporter
+SolarWindsAPM.support_report
+exit 1 unless SolarWindsAPM.reporter
 
-AppOpticsAPM::Config[:profiling] = :enabled
+SolarWindsAPM::Config[:profiling] = :enabled
 
-AppOpticsAPM::SDK.start_trace("install_test_profiling") do
-  AppOpticsAPM::Profiling.run do
+SolarWindsAPM::SDK.start_trace("install_test_profiling") do
+  SolarWindsAPM::Profiling.run do
     10.times do
       [9, 6, 12, 2, 7, 1, 9, 3, 4, 14, 5, 8].sort
       sleep 0.2

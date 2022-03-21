@@ -420,9 +420,9 @@ extern "C" void Init_profiling(void) {
     Profiling::create_timer();
     Frames::reserve_cached_frames();
 
-    // create Ruby Module: AppOpticsAPM::CProfiler
-    static VALUE rb_mAppOpticsAPM = rb_define_module("AppOpticsAPM");
-    static VALUE rb_mCProfiler = rb_define_module_under(rb_mAppOpticsAPM, "CProfiler");
+    // create Ruby Module: SolarWindsAPM::CProfiler
+    static VALUE rb_mSolarWindsAPM = rb_define_module("SolarWindsAPM");
+    static VALUE rb_mCProfiler = rb_define_module_under(rb_mSolarWindsAPM, "CProfiler");
 
     rb_define_singleton_method(rb_mCProfiler, "get_interval", reinterpret_cast<VALUE (*)(...)>(Profiling::get_interval), 0);
     rb_define_singleton_method(rb_mCProfiler, "set_interval", reinterpret_cast<VALUE (*)(...)>(Profiling::set_interval), 1);

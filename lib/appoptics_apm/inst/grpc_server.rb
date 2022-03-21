@@ -1,7 +1,7 @@
 # Copyright (c) 2018 SolarWinds, LLC.
 # All rights reserved.
 
-module AppOpticsAPM
+module SolarWindsAPM
   module GRPC
 
     if defined? ::GRPC
@@ -12,11 +12,11 @@ module AppOpticsAPM
     module RpcDesc
 
       def self.included(klass)
-        ::AppOpticsAPM::Util.method_alias(klass, :handle_request_response, ::GRPC::RpcDesc)
-        ::AppOpticsAPM::Util.method_alias(klass, :handle_client_streamer, ::GRPC::RpcDesc)
-        ::AppOpticsAPM::Util.method_alias(klass, :handle_server_streamer, ::GRPC::RpcDesc)
-        ::AppOpticsAPM::Util.method_alias(klass, :handle_bidi_streamer, ::GRPC::RpcDesc)
-        ::AppOpticsAPM::Util.method_alias(klass, :run_server_method, ::GRPC::RpcDesc)
+        ::SolarWindsAPM::Util.method_alias(klass, :handle_request_response, ::GRPC::RpcDesc)
+        ::SolarWindsAPM::Util.method_alias(klass, :handle_client_streamer, ::GRPC::RpcDesc)
+        ::SolarWindsAPM::Util.method_alias(klass, :handle_server_streamer, ::GRPC::RpcDesc)
+        ::SolarWindsAPM::Util.method_alias(klass, :handle_bidi_streamer, ::GRPC::RpcDesc)
+        ::SolarWindsAPM::Util.method_alias(klass, :run_server_method, ::GRPC::RpcDesc)
       end
 
       def grpc_tags(active_call, mth)
@@ -72,10 +72,10 @@ module AppOpticsAPM
       def run_server_method_with_appoptics(active_call, mth, inter_ctx)
         tags = grpc_tags(active_call, mth)
 
-        AppOpticsAPM::API.log_start('grpc-server', tags, active_call.metadata)
+        SolarWindsAPM::API.log_start('grpc-server', tags, active_call.metadata)
 
         begin
-          AppOpticsAPM::API.send_metrics('grpc-server', tags) do
+          SolarWindsAPM::API.send_metrics('grpc-server', tags) do
             run_server_method_without_appoptics(active_call, mth, inter_ctx)
           end
         rescue => e
@@ -83,10 +83,10 @@ module AppOpticsAPM
           raise e
         ensure
           tags['GRPCStatus'] = active_call.metadata_to_send.delete('grpc_status')
-          tags['GRPCStatus'] ||= active_call.status ? AppOpticsAPM::GRPC::STATUSCODES[active_call.status.code].to_s : 'OK'
-          tags['Backtrace'] = AppOpticsAPM::API.backtrace if AppOpticsAPM::Config[:grpc_server][:collect_backtraces]
+          tags['GRPCStatus'] ||= active_call.status ? SolarWindsAPM::GRPC::STATUSCODES[active_call.status.code].to_s : 'OK'
+          tags['Backtrace'] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:grpc_server][:collect_backtraces]
 
-          AppOpticsAPM::API.log_end('grpc-server', tags)
+          SolarWindsAPM::API.log_end('grpc-server', tags)
         end
       end
 
@@ -94,13 +94,13 @@ module AppOpticsAPM
 
       def log_grpc_exception(active_call, e)
         unless e.instance_variable_get(:@exn_logged)
-          AppOpticsAPM::API.log_exception('grpc-server', e)
+          SolarWindsAPM::API.log_exception('grpc-server', e)
 
           unless active_call.metadata_sent
             if e.class == ::GRPC::Core::OutOfTime
               active_call.merge_metadata_to_send({ 'grpc_status' => 'DEADLINE_EXCEEDED' })
             elsif e.respond_to?(:code)
-              active_call.merge_metadata_to_send({ 'grpc_status' => AppOpticsAPM::GRPC::STATUSCODES[e.code].to_s })
+              active_call.merge_metadata_to_send({ 'grpc_status' => SolarWindsAPM::GRPC::STATUSCODES[e.code].to_s })
             else
               active_call.merge_metadata_to_send({ 'grpc_status' => 'UNKNOWN' })
             end
@@ -113,7 +113,7 @@ module AppOpticsAPM
   end
 end
 
-if defined?(GRPC) && AppOpticsAPM::Config['grpc_server'][:enabled]
+if defined?(GRPC) && SolarWindsAPM::Config['grpc_server'][:enabled]
   # server side is instrumented in RpcDesc
-  AppOpticsAPM::Util.send_include(GRPC::RpcDesc, AppOpticsAPM::GRPC::RpcDesc)
+  SolarWindsAPM::Util.send_include(GRPC::RpcDesc, SolarWindsAPM::GRPC::RpcDesc)
 end

@@ -5,37 +5,37 @@ require 'minitest_helper'
 
 describe "TracingModeTest" do
   def setup
-    @tm = AppOpticsAPM::Config[:tracing_mode]
-    @config_url_disabled = AppOpticsAPM::Config[:url_disabled_regexps]
-    @config_url_enabled = AppOpticsAPM::Config[:url_enabled_regexps]
+    @tm = SolarWindsAPM::Config[:tracing_mode]
+    @config_url_disabled = SolarWindsAPM::Config[:url_disabled_regexps]
+    @config_url_enabled = SolarWindsAPM::Config[:url_enabled_regexps]
 
-    AppOpticsAPM::Config[:url_disabled_regexps] = nil
-    AppOpticsAPM::Config[:url_enabled_regexps] = nil
+    SolarWindsAPM::Config[:url_disabled_regexps] = nil
+    SolarWindsAPM::Config[:url_enabled_regexps] = nil
   end
 
   def teardown
-    AppOpticsAPM::Config[:tracing_mode] = @tm
-    AppOpticsAPM::Config[:url_disabled_regexps] = @config_url_disabled
-    AppOpticsAPM::Config[:url_enabled_regexps] =  @config_url_enabled
+    SolarWindsAPM::Config[:tracing_mode] = @tm
+    SolarWindsAPM::Config[:url_disabled_regexps] = @config_url_disabled
+    SolarWindsAPM::Config[:url_enabled_regexps] =  @config_url_enabled
   end
 
   def test_trace_when_enabled
-    AppOpticsAPM::Config[:tracing_mode] = :enabled
+    SolarWindsAPM::Config[:tracing_mode] = :enabled
 
-    AppOpticsAPM::SDK.start_trace(:test_enabled) do
-      _(AppOpticsAPM.tracing?).must_equal true
+    SolarWindsAPM::SDK.start_trace(:test_enabled) do
+      _(SolarWindsAPM.tracing?).must_equal true
     end
   end
 
   def test_dont_trace_when_disabled
-    AppOpticsAPM::Config[:tracing_mode] = :disabled
+    SolarWindsAPM::Config[:tracing_mode] = :disabled
 
-    AppOpticsAPM::SDK.start_trace(:test_disabled) do
-      _(AppOpticsAPM.tracing?).must_equal false
+    SolarWindsAPM::SDK.start_trace(:test_disabled) do
+      _(SolarWindsAPM.tracing?).must_equal false
     end
 
-    AppOpticsAPM::SDK.start_trace('asdf') do
-      _(AppOpticsAPM.tracing?).must_equal false
+    SolarWindsAPM::SDK.start_trace('asdf') do
+      _(SolarWindsAPM.tracing?).must_equal false
     end
   end
 end

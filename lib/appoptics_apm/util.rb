@@ -1,7 +1,7 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
-module AppOpticsAPM
+module SolarWindsAPM
   ##
   # Provides utility methods for use while in the business
   # of instrumenting code
@@ -47,7 +47,7 @@ module AppOpticsAPM
             end
           end
         else
-          AppOpticsAPM.logger.warn "[appoptics_apm/loading] Couldn't properly instrument #{name}.#{method}.  Partial traces may occur."
+          SolarWindsAPM.logger.warn "[appoptics_apm/loading] Couldn't properly instrument #{name}.#{method}.  Partial traces may occur."
         end
       end
 
@@ -75,7 +75,7 @@ module AppOpticsAPM
             cls.singleton_class.send(:alias_method, method.to_s, with_appoptics)
           end
         else
-          AppOpticsAPM.logger.warn "[appoptics_apm/loading] Couldn't properly instrument #{name}.  Partial traces may occur."
+          SolarWindsAPM.logger.warn "[appoptics_apm/loading] Couldn't properly instrument #{name}.  Partial traces may occur."
         end
       end
 
@@ -124,7 +124,7 @@ module AppOpticsAPM
         if o.is_a?(String) || o.respond_to?(:to_s)
           o.to_s.upcase
         else
-          AppOpticsAPM.logger.debug "[appoptics_apm/debug] AppOpticsAPM::Util.upcase: could not convert #{o.class}"
+          SolarWindsAPM.logger.debug "[appoptics_apm/debug] SolarWindsAPM::Util.upcase: could not convert #{o.class}"
           'UNKNOWN'
         end
       end
@@ -150,13 +150,13 @@ module AppOpticsAPM
       # DB adapter instrumentation.
       #
       # The regular expression passed to String.gsub is configurable
-      # via AppOpticsAPM::Config[:sanitize_sql_regexp] and
-      # AppOpticsAPM::Config[:sanitize_sql_opts].
+      # via SolarWindsAPM::Config[:sanitize_sql_regexp] and
+      # SolarWindsAPM::Config[:sanitize_sql_opts].
       #
       def sanitize_sql(sql)
-        return sql unless AppOpticsAPM::Config[:sanitize_sql]
+        return sql unless SolarWindsAPM::Config[:sanitize_sql]
 
-        @@regexp ||= Regexp.new(AppOpticsAPM::Config[:sanitize_sql_regexp], AppOpticsAPM::Config[:sanitize_sql_opts]).freeze
+        @@regexp ||= Regexp.new(SolarWindsAPM::Config[:sanitize_sql_regexp], SolarWindsAPM::Config[:sanitize_sql_opts]).freeze
         sql.gsub(/\\\'/,'').gsub(@@regexp, '?')
       end
 
@@ -166,7 +166,7 @@ module AppOpticsAPM
       # Remove trace context injection
       #
       def remove_traceparent(sql)
-        sql.gsub(AppOpticsAPM::SDK::CurrentTraceInfo::TraceInfo::SQL_REGEX, '')
+        sql.gsub(SolarWindsAPM::SDK::CurrentTraceInfo::TraceInfo::SQL_REGEX, '')
       end
 
       ##
@@ -193,7 +193,7 @@ module AppOpticsAPM
       #
       # Internal: Build a hash of KVs that reports on the status of the
       # running environment.  This is used on stack boot in __Init reporting
-      # and for AppOpticsAPM.support_report.
+      # and for SolarWindsAPM.support_report.
       #
       # This legacy version of build_init_report is used for apps without Bundler.
       #
@@ -201,7 +201,7 @@ module AppOpticsAPM
       #
       # @deprecated Please use {#build_init_report} instead
       def legacy_build_init_report
-        AppOpticsAPM.logger.warn '[appoptics_apm/deprecated] Oboe::API will be deprecated in a future version.'
+        SolarWindsAPM.logger.warn '[appoptics_apm/deprecated] Oboe::API will be deprecated in a future version.'
         platform_info = {}
 
         begin
@@ -258,8 +258,8 @@ module AppOpticsAPM
 
           platform_info['Error'] = "Error in legacy_build_init_report: #{e.message}"
 
-          AppOpticsAPM.logger.warn "[appoptics_apm/legacy] Error in legacy_build_init_report: #{e.message}"
-          AppOpticsAPM.logger.debug e.backtrace
+          SolarWindsAPM.logger.warn "[appoptics_apm/legacy] Error in legacy_build_init_report: #{e.message}"
+          SolarWindsAPM.logger.debug e.backtrace
         end
         platform_info
       end
@@ -270,7 +270,7 @@ module AppOpticsAPM
       #
       # Internal: Build a hash of KVs that reports on the status of the
       # running environment.  This is used on stack boot in __Init reporting
-      # and for AppOpticsAPM.support_report.
+      # and for SolarWindsAPM.support_report.
       #
       # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
       def build_init_report
@@ -280,13 +280,13 @@ module AppOpticsAPM
           platform_info['Force']                        = true
           platform_info['Ruby.Platform.Version']        = RUBY_PLATFORM
           platform_info['Ruby.Version']                 = RUBY_VERSION
-          platform_info['Ruby.AppOptics.Version']       = AppOpticsAPM::Version::STRING
+          platform_info['Ruby.AppOptics.Version']       = SolarWindsAPM::Version::STRING
 
           # oboe not loaded yet, can't use oboe_api function to read oboe VERSION
           clib_version_file = File.join(Gem::Specification.find_by_name('solarwinds_apm').gem_dir, 'ext', 'oboe_metal', 'src', 'VERSION')
           platform_info['Ruby.AppOpticsExtension.Version'] = File.read(clib_version_file).strip
-          platform_info['RubyHeroku.AppOpticsAPM.Version'] = AppOpticsAPMHeroku::Version::STRING if defined?(AppOpticsAPMHeroku)
-          platform_info['Ruby.TraceMode.Version']          = AppOpticsAPM::Config[:tracing_mode]
+          platform_info['RubyHeroku.SolarWindsAPM.Version'] = AppOpticsAPMHeroku::Version::STRING if defined?(AppOpticsAPMHeroku)
+          platform_info['Ruby.TraceMode.Version']          = SolarWindsAPM::Config[:tracing_mode]
 
           # Collect up the loaded gems
           if defined?(Gem) && Gem.respond_to?(:loaded_specs)
@@ -324,8 +324,8 @@ module AppOpticsAPM
 
           platform_info['Error'] = "Error in build_report: #{e.message}"
 
-          AppOpticsAPM.logger.warn "[appoptics_apm/warn] Error in build_init_report: #{e.message}"
-          AppOpticsAPM.logger.debug e.backtrace
+          SolarWindsAPM.logger.warn "[appoptics_apm/warn] Error in build_init_report: #{e.message}"
+          SolarWindsAPM.logger.debug e.backtrace
         end
         platform_info
       end

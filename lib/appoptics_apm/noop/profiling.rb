@@ -1,4 +1,4 @@
-module AppOpticsAPM
+module SolarWindsAPM
 
   # override the Ruby method, so that no code related to profiling gets executed
   class Profiling

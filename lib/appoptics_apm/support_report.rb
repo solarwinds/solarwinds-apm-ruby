@@ -4,7 +4,7 @@
 require 'rbconfig'
 require 'logger'
 
-module AppOpticsAPM
+module SolarWindsAPM
   ##
   # This module is used to debug problematic setups and/or environments.
   # Depending on the environment, output may be to stdout or the framework
@@ -20,99 +20,99 @@ module AppOpticsAPM
 
   # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
   def self.support_report
-    @logger_level = AppOpticsAPM.logger.level
-    AppOpticsAPM.logger.level = ::Logger::DEBUG
+    @logger_level = SolarWindsAPM.logger.level
+    SolarWindsAPM.logger.level = ::Logger::DEBUG
 
-    AppOpticsAPM.logger.warn '********************************************************'
-    AppOpticsAPM.logger.warn '* BEGIN AppOpticsAPM Support Report'
-    AppOpticsAPM.logger.warn '*   Please email the output of this report to technicalsupport@solarwinds.com'
-    AppOpticsAPM.logger.warn '********************************************************'
-    AppOpticsAPM.logger.warn "Ruby: #{RUBY_DESCRIPTION}"
-    AppOpticsAPM.logger.warn "$0: #{$0}"
-    AppOpticsAPM.logger.warn "$1: #{$1}" unless $1.nil?
-    AppOpticsAPM.logger.warn "$2: #{$2}" unless $2.nil?
-    AppOpticsAPM.logger.warn "$3: #{$3}" unless $3.nil?
-    AppOpticsAPM.logger.warn "$4: #{$4}" unless $4.nil?
-    AppOpticsAPM.logger.warn "AppOpticsAPM.loaded == #{AppOpticsAPM.loaded}"
+    SolarWindsAPM.logger.warn '********************************************************'
+    SolarWindsAPM.logger.warn '* BEGIN SolarWindsAPM Support Report'
+    SolarWindsAPM.logger.warn '*   Please email the output of this report to technicalsupport@solarwinds.com'
+    SolarWindsAPM.logger.warn '********************************************************'
+    SolarWindsAPM.logger.warn "Ruby: #{RUBY_DESCRIPTION}"
+    SolarWindsAPM.logger.warn "$0: #{$0}"
+    SolarWindsAPM.logger.warn "$1: #{$1}" unless $1.nil?
+    SolarWindsAPM.logger.warn "$2: #{$2}" unless $2.nil?
+    SolarWindsAPM.logger.warn "$3: #{$3}" unless $3.nil?
+    SolarWindsAPM.logger.warn "$4: #{$4}" unless $4.nil?
+    SolarWindsAPM.logger.warn "SolarWindsAPM.loaded == #{SolarWindsAPM.loaded}"
 
     using_jruby = defined?(JRUBY_VERSION)
-    AppOpticsAPM.logger.warn "Using JRuby?: #{yesno(using_jruby)}"
+    SolarWindsAPM.logger.warn "Using JRuby?: #{yesno(using_jruby)}"
     if using_jruby
-      AppOpticsAPM.logger.warn "Joboe Agent Status: #{Java::ComTracelyticsAgent::Agent.getStatus}"
+      SolarWindsAPM.logger.warn "Joboe Agent Status: #{Java::ComTracelyticsAgent::Agent.getStatus}"
     end
 
-    on_heroku = AppOpticsAPM.heroku?
-    AppOpticsAPM.logger.warn "On Heroku?: #{yesno(on_heroku)}"
+    on_heroku = SolarWindsAPM.heroku?
+    SolarWindsAPM.logger.warn "On Heroku?: #{yesno(on_heroku)}"
     if on_heroku
-      AppOpticsAPM.logger.warn "APPOPTICS_URL: #{ENV['APPOPTICS_URL']}"
+      SolarWindsAPM.logger.warn "APPOPTICS_URL: #{ENV['APPOPTICS_URL']}"
     end
 
-    AppOpticsAPM.logger.warn "AppOpticsAPM::Ruby defined?: #{yesno(defined?(AppOpticsAPM::Ruby))}"
-    AppOpticsAPM.logger.warn "AppOpticsAPM.reporter: #{AppOpticsAPM.reporter}"
+    SolarWindsAPM.logger.warn "SolarWindsAPM::Ruby defined?: #{yesno(defined?(SolarWindsAPM::Ruby))}"
+    SolarWindsAPM.logger.warn "SolarWindsAPM.reporter: #{SolarWindsAPM.reporter}"
 
-    AppOpticsAPM.logger.warn '********************************************************'
-    AppOpticsAPM.logger.warn '* Frameworks'
-    AppOpticsAPM.logger.warn '********************************************************'
+    SolarWindsAPM.logger.warn '********************************************************'
+    SolarWindsAPM.logger.warn '* Frameworks'
+    SolarWindsAPM.logger.warn '********************************************************'
 
     using_rails = defined?(::Rails)
-    AppOpticsAPM.logger.warn "Using Rails?: #{yesno(using_rails)}"
+    SolarWindsAPM.logger.warn "Using Rails?: #{yesno(using_rails)}"
     if using_rails
-      AppOpticsAPM.logger.warn "AppOpticsAPM::Rails loaded?: #{yesno(defined?(AppOpticsAPM::Rails))}"
-      if defined?(AppOpticsAPM::Rack)
-        AppOpticsAPM.logger.warn "AppOpticsAPM::Rack middleware loaded?: #{yesno(::Rails.configuration.middleware.include? AppOpticsAPM::Rack)}"
+      SolarWindsAPM.logger.warn "SolarWindsAPM::Rails loaded?: #{yesno(defined?(SolarWindsAPM::Rails))}"
+      if defined?(SolarWindsAPM::Rack)
+        SolarWindsAPM.logger.warn "SolarWindsAPM::Rack middleware loaded?: #{yesno(::Rails.configuration.middleware.include? SolarWindsAPM::Rack)}"
       end
     end
 
     using_sinatra = defined?(::Sinatra)
-    AppOpticsAPM.logger.warn "Using Sinatra?: #{yesno(using_sinatra)}"
+    SolarWindsAPM.logger.warn "Using Sinatra?: #{yesno(using_sinatra)}"
 
     using_padrino = defined?(::Padrino)
-    AppOpticsAPM.logger.warn "Using Padrino?: #{yesno(using_padrino)}"
+    SolarWindsAPM.logger.warn "Using Padrino?: #{yesno(using_padrino)}"
 
     using_grape = defined?(::Grape)
-    AppOpticsAPM.logger.warn "Using Grape?: #{yesno(using_grape)}"
+    SolarWindsAPM.logger.warn "Using Grape?: #{yesno(using_grape)}"
 
-    AppOpticsAPM.logger.warn '********************************************************'
-    AppOpticsAPM.logger.warn '* ActiveRecord Adapter'
-    AppOpticsAPM.logger.warn '********************************************************'
+    SolarWindsAPM.logger.warn '********************************************************'
+    SolarWindsAPM.logger.warn '* ActiveRecord Adapter'
+    SolarWindsAPM.logger.warn '********************************************************'
     if defined?(::ActiveRecord)
       if defined?(::ActiveRecord::Base.connection.adapter_name)
-        AppOpticsAPM.logger.warn "ActiveRecord adapter: #{::ActiveRecord::Base.connection.adapter_name}"
+        SolarWindsAPM.logger.warn "ActiveRecord adapter: #{::ActiveRecord::Base.connection.adapter_name}"
       end
     else
-      AppOpticsAPM.logger.warn 'No ActiveRecord'
+      SolarWindsAPM.logger.warn 'No ActiveRecord'
     end
 
-    AppOpticsAPM.logger.warn '********************************************************'
-    AppOpticsAPM.logger.warn '* AppOpticsAPM::Config Values'
-    AppOpticsAPM.logger.warn '********************************************************'
-    AppOpticsAPM::Config.print_config
+    SolarWindsAPM.logger.warn '********************************************************'
+    SolarWindsAPM.logger.warn '* SolarWindsAPM::Config Values'
+    SolarWindsAPM.logger.warn '********************************************************'
+    SolarWindsAPM::Config.print_config
 
-    AppOpticsAPM.logger.warn '********************************************************'
-    AppOpticsAPM.logger.warn '* OS, Platform + Env'
-    AppOpticsAPM.logger.warn '********************************************************'
-    AppOpticsAPM.logger.warn "host_os: " + RbConfig::CONFIG['host_os']
-    AppOpticsAPM.logger.warn "sitearch: " + RbConfig::CONFIG['sitearch']
-    AppOpticsAPM.logger.warn "arch: " + RbConfig::CONFIG['arch']
-    AppOpticsAPM.logger.warn RUBY_PLATFORM
-    AppOpticsAPM.logger.warn "RACK_ENV: #{ENV['RACK_ENV']}"
-    AppOpticsAPM.logger.warn "RAILS_ENV: #{ENV['RAILS_ENV']}" if using_rails
+    SolarWindsAPM.logger.warn '********************************************************'
+    SolarWindsAPM.logger.warn '* OS, Platform + Env'
+    SolarWindsAPM.logger.warn '********************************************************'
+    SolarWindsAPM.logger.warn "host_os: " + RbConfig::CONFIG['host_os']
+    SolarWindsAPM.logger.warn "sitearch: " + RbConfig::CONFIG['sitearch']
+    SolarWindsAPM.logger.warn "arch: " + RbConfig::CONFIG['arch']
+    SolarWindsAPM.logger.warn RUBY_PLATFORM
+    SolarWindsAPM.logger.warn "RACK_ENV: #{ENV['RACK_ENV']}"
+    SolarWindsAPM.logger.warn "RAILS_ENV: #{ENV['RAILS_ENV']}" if using_rails
 
-    AppOpticsAPM.logger.warn '********************************************************'
-    AppOpticsAPM.logger.warn '* Raw __Init KVs'
-    AppOpticsAPM.logger.warn '********************************************************'
-    platform_info = AppOpticsAPM::Util.build_init_report
+    SolarWindsAPM.logger.warn '********************************************************'
+    SolarWindsAPM.logger.warn '* Raw __Init KVs'
+    SolarWindsAPM.logger.warn '********************************************************'
+    platform_info = SolarWindsAPM::Util.build_init_report
     platform_info.each { |k,v|
-      AppOpticsAPM.logger.warn "#{k}: #{v}"
+      SolarWindsAPM.logger.warn "#{k}: #{v}"
     }
 
-    AppOpticsAPM.logger.warn '********************************************************'
-    AppOpticsAPM.logger.warn '* END AppOpticsAPM Support Report'
-    AppOpticsAPM.logger.warn '*   Support Email: technicalsupport@solarwinds.com'
-    AppOpticsAPM.logger.warn '*   Github: https://github.com/librato/ruby-appoptics'
-    AppOpticsAPM.logger.warn '********************************************************'
+    SolarWindsAPM.logger.warn '********************************************************'
+    SolarWindsAPM.logger.warn '* END SolarWindsAPM Support Report'
+    SolarWindsAPM.logger.warn '*   Support Email: technicalsupport@solarwinds.com'
+    SolarWindsAPM.logger.warn '*   Github: https://github.com/librato/ruby-appoptics'
+    SolarWindsAPM.logger.warn '********************************************************'
 
-    AppOpticsAPM.logger.level = @logger_level
+    SolarWindsAPM.logger.level = @logger_level
     nil
   end
   # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize

@@ -1,7 +1,7 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
-module AppOpticsAPM
+module SolarWindsAPM
   ##
   # The current version of the gem.  Used mainly by
   # solarwinds_apm.gemspec during gem build process
