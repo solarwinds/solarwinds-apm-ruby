@@ -3,15 +3,15 @@
 
 require 'minitest_helper'
 
-ENV['APPOPTICS_MONGO_SERVER'] ||= "127.0.0.1:27017"
-ENV['APPOPTICS_MONGO_SERVER'] += ':27017' unless ENV['APPOPTICS_MONGO_SERVER'] =~ /\:27017$/
+ENV['MONGO_SERVER'] ||= "127.0.0.1:27017"
+ENV['MONGO_SERVER'] += ':27017' unless ENV['MONGO_SERVER'] =~ /\:27017$/
 
 if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
   describe "MongoIndex" do
     before do
       clear_all_traces
 
-      @client = Mongo::Client.new([ENV['APPOPTICS_MONGO_SERVER']], :database => "appoptics_apm-#{ENV['RACK_ENV']}")
+      @client = Mongo::Client.new([ENV['MONGO_SERVER']], :database => "appoptics_apm-#{ENV['RACK_ENV']}")
       if Mongo::VERSION < '2.2'
         Mongo::Logger.logger.level = Logger::INFO
       else
@@ -29,7 +29,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
         'Label' => 'entry',
         'Flavor' => 'mongodb',
         'Database' => 'appoptics_apm-test',
-        'RemoteHost' => ENV['APPOPTICS_MONGO_SERVER'] }
+        'RemoteHost' => ENV['MONGO_SERVER'] }
 
       @exit_kvs = { 'Layer' => 'mongo', 'Label' => 'exit' }
       @collect_backtraces = SolarWindsAPM::Config[:mongo][:collect_backtraces]

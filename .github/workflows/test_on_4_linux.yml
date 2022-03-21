@@ -84,11 +84,11 @@ jobs:
       APPOPTICS_GEM_TEST: true
       APPOPTICS_REPORTER: file
       APPOPTICS_COLLECTOR: /tmp/appoptics_traces.bson
-      APPOPTICS_MONGO_SERVER: "mongo"
-      APPOPTICS_RABBITMQ_SERVER: "rabbitmq"
-      APPOPTICS_MEMCACHED_SERVER: "memcached"
       APPOPTICS_REPORTER_FILE_SINGLE: false
-      APPOPTICS_FROM_S3: true
+      OBOE_FROM_S3: true
+      MONGO_SERVER: "mongo"
+      RABBITMQ_SERVER: "rabbitmq"
+      MEMCACHED_SERVER: "memcached"
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
       MYSQL_ROOT_PASSWORD: "admin"
       MYSQL_HOST: "mysql"

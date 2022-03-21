@@ -7,18 +7,18 @@ unless defined?(JRUBY_VERSION)
   describe 'BunnyClientTest' do
     before do
       # Support specific environment variables to support remote rabbitmq servers
-      ENV['APPOPTICS_RABBITMQ_SERVER'] = "127.0.0.1"      unless ENV['APPOPTICS_RABBITMQ_SERVER']
-      ENV['APPOPTICS_RABBITMQ_PORT'] = "5672"             unless ENV['APPOPTICS_RABBITMQ_PORT']
-      ENV['APPOPTICS_RABBITMQ_USERNAME'] = "guest"        unless ENV['APPOPTICS_RABBITMQ_USERNAME']
-      ENV['APPOPTICS_RABBITMQ_PASSWORD'] = "guest"        unless ENV['APPOPTICS_RABBITMQ_PASSWORD']
-      ENV['APPOPTICS_RABBITMQ_VHOST'] = "/"               unless ENV['APPOPTICS_RABBITMQ_VHOST']
+      ENV['RABBITMQ_SERVER'] = "127.0.0.1"      unless ENV['RABBITMQ_SERVER']
+      ENV['RABBITMQ_PORT'] = "5672"             unless ENV['RABBITMQ_PORT']
+      ENV['RABBITMQ_USERNAME'] = "guest"        unless ENV['RABBITMQ_USERNAME']
+      ENV['RABBITMQ_PASSWORD'] = "guest"        unless ENV['RABBITMQ_PASSWORD']
+      ENV['RABBITMQ_VHOST'] = "/"               unless ENV['RABBITMQ_VHOST']
 
       @connection_params = {}
-      @connection_params[:host]   = ENV['APPOPTICS_RABBITMQ_SERVER']
-      @connection_params[:port]   = ENV['APPOPTICS_RABBITMQ_PORT']
-      @connection_params[:vhost]  = ENV['APPOPTICS_RABBITMQ_VHOST']
-      @connection_params[:user]   = ENV['APPOPTICS_RABBITMQ_USERNAME']
-      @connection_params[:pass]   = ENV['APPOPTICS_RABBITMQ_PASSWORD']
+      @connection_params[:host]   = ENV['RABBITMQ_SERVER']
+      @connection_params[:port]   = ENV['RABBITMQ_PORT']
+      @connection_params[:vhost]  = ENV['RABBITMQ_VHOST']
+      @connection_params[:user]   = ENV['RABBITMQ_USERNAME']
+      @connection_params[:pass]   = ENV['RABBITMQ_PASSWORD']
 
       clear_all_traces
     end
@@ -49,9 +49,9 @@ unless defined?(JRUBY_VERSION)
       _(traces[2]['ExchangeName']).must_equal "default"
       _(traces[2]['RoutingKey']).must_equal "tv.ruby.test"
       _(traces[2]['Op']).must_equal "publish"
-      _(traces[2]['RemoteHost']).must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
-      _(traces[2]['RemotePort']).must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
-      _(traces[2]['VirtualHost']).must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
+      _(traces[2]['RemoteHost']).must_equal ENV['RABBITMQ_SERVER']
+      _(traces[2]['RemotePort']).must_equal ENV['RABBITMQ_PORT'].to_i
+      _(traces[2]['VirtualHost']).must_equal ENV['RABBITMQ_VHOST']
       _(traces[2].has_key?('Backtrace')).must_equal !!SolarWindsAPM::Config[:bunnyclient][:collect_backtraces]
 
       @conn.close
@@ -82,9 +82,9 @@ unless defined?(JRUBY_VERSION)
       _(traces[2]['ExchangeName']).must_equal "tv.ruby.fanout.tests"
       _(traces[2]['RoutingKey']).must_equal "tv.ruby.test"
       _(traces[2]['Op']).must_equal "publish"
-      _(traces[2]['RemoteHost']).must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
-      _(traces[2]['RemotePort']).must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
-      _(traces[2]['VirtualHost']).must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
+      _(traces[2]['RemoteHost']).must_equal ENV['RABBITMQ_SERVER']
+      _(traces[2]['RemotePort']).must_equal ENV['RABBITMQ_PORT'].to_i
+      _(traces[2]['VirtualHost']).must_equal ENV['RABBITMQ_VHOST']
 
       _(traces[3]['Layer']).must_equal "rabbitmq-client"
       _(traces[3]['Label']).must_equal "entry"
@@ -95,9 +95,9 @@ unless defined?(JRUBY_VERSION)
       _(traces[4]['ExchangeName']).must_equal "tv.ruby.fanout.tests"
       _(traces[4].key?('RoutingKey')).must_equal false
       _(traces[4]['Op']).must_equal "publish"
-      _(traces[4]['RemoteHost']).must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
-      _(traces[4]['RemotePort']).must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
-      _(traces[4]['VirtualHost']).must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
+      _(traces[4]['RemoteHost']).must_equal ENV['RABBITMQ_SERVER']
+      _(traces[4]['RemotePort']).must_equal ENV['RABBITMQ_PORT'].to_i
+      _(traces[4]['VirtualHost']).must_equal ENV['RABBITMQ_VHOST']
 
       @conn.close
     end
@@ -127,9 +127,9 @@ unless defined?(JRUBY_VERSION)
       _(traces[2]['ExchangeName']).must_equal "tv.ruby.topic.tests"
       _(traces[2]['RoutingKey']).must_equal "tv.ruby.test.1"
       _(traces[2]['Op']).must_equal "publish"
-      _(traces[2]['RemoteHost']).must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
-      _(traces[2]['RemotePort']).must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
-      _(traces[2]['VirtualHost']).must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
+      _(traces[2]['RemoteHost']).must_equal ENV['RABBITMQ_SERVER']
+      _(traces[2]['RemotePort']).must_equal ENV['RABBITMQ_PORT'].to_i
+      _(traces[2]['VirtualHost']).must_equal ENV['RABBITMQ_VHOST']
 
       _(traces[3]['Layer']).must_equal "rabbitmq-client"
       _(traces[3]['Label']).must_equal "entry"
@@ -140,9 +140,9 @@ unless defined?(JRUBY_VERSION)
       _(traces[4]['ExchangeName']).must_equal "tv.ruby.topic.tests"
       _(traces[4]['RoutingKey']).must_equal "tv.ruby.test.2"
       _(traces[4]['Op']).must_equal "publish"
-      _(traces[4]['RemoteHost']).must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
-      _(traces[4]['RemotePort']).must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
-      _(traces[4]['VirtualHost']).must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
+      _(traces[4]['RemoteHost']).must_equal ENV['RABBITMQ_SERVER']
+      _(traces[4]['RemotePort']).must_equal ENV['RABBITMQ_PORT'].to_i
+      _(traces[4]['VirtualHost']).must_equal ENV['RABBITMQ_VHOST']
 
       @conn.close
     end
@@ -205,9 +205,9 @@ unless defined?(JRUBY_VERSION)
       _(traces[2]['ExchangeName']).must_equal "tv.delete_exchange.test"
       _(traces[2]['ExchangeType']).must_equal "fanout"
       _(traces[2]['Op']).must_equal "delete"
-      _(traces[2]['RemoteHost']).must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
-      _(traces[2]['RemotePort']).must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
-      _(traces[2]['VirtualHost']).must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
+      _(traces[2]['RemoteHost']).must_equal ENV['RABBITMQ_SERVER']
+      _(traces[2]['RemotePort']).must_equal ENV['RABBITMQ_PORT'].to_i
+      _(traces[2]['VirtualHost']).must_equal ENV['RABBITMQ_VHOST']
     end
 
     it 'wait_for_confirms' do
@@ -237,9 +237,9 @@ unless defined?(JRUBY_VERSION)
       _(traces[2000]['ExchangeName']).must_equal "tv.ruby.wait_for_confirm.tests"
       _(traces[2000]['RoutingKey']).must_equal "tv.ruby.test"
       _(traces[2000]['Op']).must_equal "publish"
-      _(traces[2000]['RemoteHost']).must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
-      _(traces[2000]['RemotePort']).must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
-      _(traces[2000]['VirtualHost']).must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
+      _(traces[2000]['RemoteHost']).must_equal ENV['RABBITMQ_SERVER']
+      _(traces[2000]['RemotePort']).must_equal ENV['RABBITMQ_PORT'].to_i
+      _(traces[2000]['VirtualHost']).must_equal ENV['RABBITMQ_VHOST']
 
       _(traces[2001]['Layer']).must_equal "rabbitmq-client"
       _(traces[2001]['Label']).must_equal "entry"
@@ -248,9 +248,9 @@ unless defined?(JRUBY_VERSION)
       _(traces[2002]['Spec']).must_equal "pushq"
       _(traces[2002]['Flavor']).must_equal "rabbitmq"
       _(traces[2002]['Op']).must_equal "wait_for_confirms"
-      _(traces[2002]['RemoteHost']).must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
-      _(traces[2002]['RemotePort']).must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
-      _(traces[2002]['VirtualHost']).must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
+      _(traces[2002]['RemoteHost']).must_equal ENV['RABBITMQ_SERVER']
+      _(traces[2002]['RemotePort']).must_equal ENV['RABBITMQ_PORT'].to_i
+      _(traces[2002]['VirtualHost']).must_equal ENV['RABBITMQ_VHOST']
 
       @conn.close
     end
@@ -274,9 +274,9 @@ unless defined?(JRUBY_VERSION)
       _(traces[2]['Flavor']).must_equal "rabbitmq"
       _(traces[2]['Op']).must_equal "queue"
       _(traces[2]['Queue']).must_equal "blah"
-      _(traces[2]['RemoteHost']).must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
-      _(traces[2]['RemotePort']).must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
-      _(traces[2]['VirtualHost']).must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
+      _(traces[2]['RemoteHost']).must_equal ENV['RABBITMQ_SERVER']
+      _(traces[2]['RemotePort']).must_equal ENV['RABBITMQ_PORT'].to_i
+      _(traces[2]['VirtualHost']).must_equal ENV['RABBITMQ_VHOST']
     end
 
     it 'backtrace_config_true' do

@@ -19,11 +19,11 @@ Name | Description | Default
 `APPOPTICS_GEM_TEST` | puts the gem in test mode to avoid restarting certain background services used in testing.   `false`
 `DBTYPE` | For tests on Ruby on Rails, specifies the database type to test against.  `postgres`, `mysql` and `mysql2` are valid options. | `postgres`
 `APPOPTICS_CASSANDRA_SERVER` | specifies the Cassandra server to test against. | `127.0.0.1:9160`
-`APPOPTICS_MONGO_SERVER` | specifies the Mongo server to test against. | `127.0.0.1:27017`
-`APPOPTICS_RABBITMQ_SERVER` | specifies the RabbitMQ server to test against. | `127.0.0.1`
-`APPOPTICS_RABBITMQ_PORT` | port for the RabbitMQ connection. | `5672`
-`APPOPTICS_RABBITMQ_USERNAME` | username for the RabbitMQ connection | `guest`
-`APPOPTICS_RABBITMQ_PASSWORD` | password for the RabbitMQ connection | `guest`
+`MONGO_SERVER` | specifies the Mongo server to test against. | `127.0.0.1:27017`
+`RABBITMQ_SERVER` | specifies the RabbitMQ server to test against. | `127.0.0.1`
+`RABBITMQ_PORT` | port for the RabbitMQ connection. | `5672`
+`RABBITMQ_USERNAME` | username for the RabbitMQ connection | `guest`
+`RABBITMQ_PASSWORD` | password for the RabbitMQ connection | `guest`
 
 ## SolarWindsAPM::Config
 

@@ -7,7 +7,7 @@ class ResqueRemoteCallWorkerJob
   def self.perform(*args)
     # Make some random Dalli (memcache) calls and top it
     # off with a call to the background rack webserver.
-    @dc = Dalli::Client.new("#{ENV['APPOPTICS_MEMCACHED_SERVER'] || 'localhost'}:11211")
+    @dc = Dalli::Client.new("#{ENV['MEMCACHED_SERVER'] || 'localhost'}:11211")
     @dc.get(rand(10).to_s)
 
     uri = URI('http://127.0.0.1:8110')

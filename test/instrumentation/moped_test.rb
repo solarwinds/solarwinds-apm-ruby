@@ -6,14 +6,14 @@ require 'minitest_helper'
 # moped's newest version is from 2015, we only load it with oldgems
 if defined?(::Moped)
 
-  unless ENV['APPOPTICS_MONGO_SERVER']
-    ENV['APPOPTICS_MONGO_SERVER'] = "127.0.0.1:27017"
+  unless ENV['MONGO_SERVER']
+    ENV['MONGO_SERVER'] = "127.0.0.1:27017"
   end
 
   describe "Moped" do
     before do
       clear_all_traces
-      @session = Moped::Session.new([ENV['APPOPTICS_MONGO_SERVER']])
+      @session = Moped::Session.new([ENV['MONGO_SERVER']])
       @session.use :moped_test
       @users = @session[:users]
       @users.drop
@@ -25,7 +25,7 @@ if defined?(::Moped)
         'Label' => 'entry',
         'Flavor' => 'mongodb',
         'Database' => 'moped_test',
-        'RemoteHost' => ENV['APPOPTICS_MONGO_SERVER'] }
+        'RemoteHost' => ENV['MONGO_SERVER'] }
 
       @exit_kvs = { 'Layer' => 'mongo', 'Label' => 'exit' }
       @collect_backtraces = SolarWindsAPM::Config[:moped][:collect_backtraces]

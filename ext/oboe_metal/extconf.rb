@@ -29,7 +29,7 @@ ao_include = File.join(ext_dir, 'src')
 
 # Download the appropriate liboboe from S3(via rake for testing) or files.appoptics.com (production)
 version = File.read(File.join(ao_include, 'VERSION')).strip
-if ENV['APPOPTICS_FROM_S3'].to_s.downcase == 'true'
+if ENV['OBOE_FROM_S3'].to_s.downcase == 'true'
   ao_path = File.join('https://rc-files-t2.s3-us-west-2.amazonaws.com/c-lib/', version)
   puts 'Fetching c-lib from S3'
 else
