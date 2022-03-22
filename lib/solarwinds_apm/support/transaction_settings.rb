@@ -61,7 +61,7 @@ module SolarWindsAPM
         SolarWindsAPM::Context.getDecisions(*args)
 
       if @status > AO_TRACING_DECISIONS_OK
-        SolarWindsAPM.logger.warn "[appoptics-apm/sample] Problem getting the sampling decisions: #{@status_msg} code: #{@status}"
+        SolarWindsAPM.logger.warn "[solarwinds_apm/sample] Problem getting the sampling decisions: #{@status_msg} code: #{@status}"
       end
 
       @do_metrics = metrics > 0

@@ -2,10 +2,8 @@
 
 The solarwinds_apm gem provides [SolarWindsAPM](https://www.appoptics.com/) performance instrumentation for Ruby.
 
-![Ruby SolarWindsAPM](https://docs.appoptics.com/_images/ruby_trace_smaller.png)
-
-It has the ability to report performance metrics on an array of libraries, databases and frameworks such as Rails, 
-Mongo, Memcache, ActiveRecord, Cassandra, Rack, Resque 
+It has the ability to report performance metrics on an array of libraries, databases and frameworks such as Rails,
+Rack, ActiveRecord, Mongo, Memcache, Resque 
 [and more](https://docs.appoptics.com/kb/apm_tracing/ruby/support-matrix/).
 
 It requires an [Solarwinds] account to view metrics.  Get yours, 
@@ -271,7 +269,7 @@ Custom instrumentation for a library, database or other service can be authored 
 instrumentation of a library is done by wrapping select operations of that library and timing their execution using the 
 SolarWindsAPM Tracing SDK which then reports the metrics to the users' SolarWinds dashboard.
 
-Here, I'll use a stripped down version of the Dalli instrumentation (`lib/appoptics/inst/dalli.rb`) as a quick example 
+Here, I'll use a stripped down version of the Dalli instrumentation (`lib/solarwinds_apm/inst/dalli.rb`) as a quick example 
 of how to instrument a client library (the dalli gem).
 
 The Dalli gem nicely routes all memcache operations through a single `perform` operation.  Wrapping this method allows 
@@ -344,13 +342,13 @@ Some other tips and guidelines:
 * You can point your Gemfile directly at your cloned solarwinds_apm gem source by using 
 `gem 'solarwinds_apm', :path => '/path/to/ruby-solarwinds'`
 
-* If instrumenting a library, database or service, place your new instrumentation file into the `lib/appoptics/inst/` 
+* If instrumenting a library, database or service, place your new instrumentation file into the `lib/solarwinds_apm/inst/` 
 directory.  From there, the solarwinds_apm gem will detect it and automatically load the instrumentation file.
 
-* If instrumenting a new framework, place your instrumentation file in `lib/appoptics/frameworks`.  Refer to the Rails 
+* If instrumenting a new framework, place your instrumentation file in `lib/solarwinds_apm/frameworks`.  Refer to the Rails 
 instrumentation for on ideas on how to load the solarwinds_apm gem correctly in your framework.
 
-* Review other existing instrumentation similar to the one you wish to author.  `lib/appoptics/inst/` is a great place 
+* Review other existing instrumentation similar to the one you wish to author.  `lib/solarwinds_apm/inst/` is a great place 
 to start.
 
 * Depending on the configured `:sample_rate`, not all requests will be traced.  Use `SolarWindsAPM.tracing?` to determine 

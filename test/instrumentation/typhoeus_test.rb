@@ -74,7 +74,7 @@ describe "Typhoeus" do
   it 'should trace a typhoeus POST request' do
     SolarWindsAPM::SDK.start_trace('typhoeus_test') do
       Typhoeus.post("http://127.0.0.1:8101/",
-                    :body => { :key => "appoptics-ruby-fake", :content => "appoptics-ruby repo test suite" })
+                    :body => { :key => "solarwinds-ruby-fake", :content => "solarwinds-ruby repo test suite" })
     end
 
     traces = get_all_traces
@@ -98,7 +98,7 @@ describe "Typhoeus" do
   it 'should trace a typhoeus PUT request' do
     SolarWindsAPM::SDK.start_trace('typhoeus_test') do
       Typhoeus.put("http://127.0.0.1:8101/",
-                   :body => { :key => "appoptics-ruby-fake", :content => "appoptics-ruby repo test suite" })
+                   :body => { :key => "solarwinds-ruby-fake", :content => "solarwinds-ruby repo test suite" })
     end
 
     traces = get_all_traces

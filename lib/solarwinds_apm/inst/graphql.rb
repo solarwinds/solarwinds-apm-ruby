@@ -5,10 +5,6 @@
 # All rights reserved.
 #++
 
-# initial version of this instrumentation:
-# https://github.com/librato/api/blob/master/graph/tracing/appoptics.rb
-#
-
 # TODO: make sure this stays up to date with
 # ____  what is in the graphql gem and vice-versa
 
