@@ -11,7 +11,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
     before do
       clear_all_traces
 
-      @client = Mongo::Client.new([ENV['MONGO_SERVER']], :database => "appoptics_apm-#{ENV['RACK_ENV']}")
+      @client = Mongo::Client.new([ENV['MONGO_SERVER']], :database => "solarwinds_apm-#{ENV['RACK_ENV']}")
       if Mongo::VERSION < '2.2'
         Mongo::Logger.logger.level = Logger::INFO
       else
@@ -28,7 +28,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
         'Layer' => 'mongo',
         'Label' => 'entry',
         'Flavor' => 'mongodb',
-        'Database' => 'appoptics_apm-test',
+        'Database' => 'solarwinds_apm-test',
         'RemoteHost' => ENV['MONGO_SERVER'] }
 
       @exit_kvs = { 'Layer' => 'mongo', 'Label' => 'exit' }

@@ -106,7 +106,7 @@ end
 SolarWindsAPM::Config.profiling = :enabled if defined? SolarWindsAPM
 SolarWindsAPM::Config[:profiling_interval] = 5 if defined? SolarWindsAPM
 
-unless SolarWindsAPM::SDK.appoptics_ready?(10_000)
+unless SolarWindsAPM::SDK.solarwinds_ready?(10_000)
   puts "aborting!!! Agent not ready after 10 seconds"
   exit false
 end if defined? SolarWindsAPM

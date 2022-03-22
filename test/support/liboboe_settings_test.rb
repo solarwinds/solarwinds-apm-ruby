@@ -5,7 +5,7 @@ require 'set'
 require 'minitest_helper'
 require 'rack/test'
 require 'rack/lobster'
-require 'appoptics_apm/inst/rack'
+require 'solarwinds_apm/inst/rack'
 
 unless defined?(JRUBY_VERSION)
   SolarWindsAPM::Config[:tracing_mode] = :enabled
@@ -27,7 +27,7 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_localset_sample_source
-      # We make an initial call here which will force the appoptics_apm gem to retrieve
+      # We make an initial call here which will force the solarwinds_apm gem to retrieve
       # the sample_rate and sample_source from liboboe (via sample? method)
       get "/lobster"
 

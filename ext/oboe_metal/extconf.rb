@@ -134,7 +134,7 @@ if success
     CONFIG["debugflags"] = "-ggdb3 "
     CONFIG["optflags"] = "-O0"
 
-    create_makefile('libappoptics_apm', 'src')
+    create_makefile('libsolarwinds_apm', 'src')
 
   else
     $stderr.puts   '== ERROR ========================================================='

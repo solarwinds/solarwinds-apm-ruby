@@ -4,7 +4,7 @@
 require 'minitest_helper'
 require 'rack/test'
 require 'rack/lobster'
-require 'appoptics_apm/inst/rack'
+require 'solarwinds_apm/inst/rack'
 require 'mocha/minitest'
 
 class RackDNTTestApp < Minitest::Test

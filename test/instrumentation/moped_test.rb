@@ -43,7 +43,7 @@ if defined?(::Moped)
       _(defined?(::Moped::Collection)).wont_match nil
     end
 
-    it 'Moped should have appoptics_apm methods defined' do
+    it 'Moped should have solarwinds_apm methods defined' do
       #::Moped::Database
       SolarWindsAPM::Inst::Moped::DB_OPS.each do |m|
         _(::Moped::Database.method_defined?("#{m}_with_appoptics")).must_equal true

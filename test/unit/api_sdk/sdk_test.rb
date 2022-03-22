@@ -674,20 +674,20 @@ describe SolarWindsAPM::SDK do
     end
   end
 
-  describe 'appoptics_ready?' do
+  describe 'solarwinds_ready?' do
     it 'should return true if it can connect' do
       SolarWindsAPM::Context.expects(:isReady).with(10_000).returns(1)
-      assert SolarWindsAPM::SDK.appoptics_ready?(10_000)
+      assert SolarWindsAPM::SDK.solarwinds_ready?(10_000)
     end
 
     it 'should work with no arg' do
       SolarWindsAPM::Context.expects(:isReady).returns(1)
-      assert SolarWindsAPM::SDK.appoptics_ready?
+      assert SolarWindsAPM::SDK.solarwinds_ready?
     end
 
     it 'should return false if it cannot connect' do
       SolarWindsAPM::Context.expects(:isReady).returns(2)
-      refute SolarWindsAPM::SDK.appoptics_ready?
+      refute SolarWindsAPM::SDK.solarwinds_ready?
     end
   end
 

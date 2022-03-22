@@ -452,23 +452,23 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
     #   # in these 2 tests we are simulating the fact that the
     #   # GraphQL::Tracing::AppOpticsTracing class
     #   # from the graphql gem will be loaded first
-    #   it 'uses the newer version of AppOpticsTracing from the appoptics_apm gem' do
-    #       load 'test/instrumentation/graphql/appoptics_tracing_older.rb'
-    #       load 'lib/appoptics_apm/inst/graphql.rb'
+    #   it 'uses the newer version of AppOpticsTracing from the solarwinds_apm gem' do
+    #       load 'test/instrumentation/graphql/solarwinds_tracing_older.rb'
+    #       load 'lib/solarwinds_apm/inst/graphql.rb'
     #
-    #       assert_match 'lib/appoptics_apm/inst/graphql.rb',
+    #       assert_match 'lib/solarwinds_apm/inst/graphql.rb',
     #                    GraphQL::Tracing::AppOpticsTracing.new.method(:metadata).source_location[0]
-    #       assert_match 'lib/appoptics_apm/inst/graphql.rb',
+    #       assert_match 'lib/solarwinds_apm/inst/graphql.rb',
     #                    GraphQL::Tracing::AppOpticsTracing.new.method(:platform_trace).source_location[0]
     #   end
     #
     #   it 'uses the newer version of AppOpticsTracing from the graphql gem' do
-    #       load 'test/instrumentation/graphql/appoptics_tracing_newer.rb'
-    #       load 'lib/appoptics_apm/inst/graphql.rb'
+    #       load 'test/instrumentation/graphql/solarwinds_tracing_newer.rb'
+    #       load 'lib/solarwinds_apm/inst/graphql.rb'
     #
-    #       assert_match 'graphql/appoptics_tracing_newer.rb',
+    #       assert_match 'graphql/solarwinds_tracing_newer.rb',
     #                    GraphQL::Tracing::AppOpticsTracing.new.method(:metadata).source_location[0]
-    #       assert_match 'graphql/appoptics_tracing_newer.rb',
+    #       assert_match 'graphql/solarwinds_tracing_newer.rb',
     #                    GraphQL::Tracing::AppOpticsTracing.new.method(:platform_trace).source_location[0]
     #   end
 

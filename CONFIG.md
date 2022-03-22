@@ -29,4 +29,4 @@ Name | Description | Default
 
 `SolarWindsAPM::Config` is a nested hash used by the solarwinds_apm gem to store preferences and switches.
 
-See [this Rails generator template file](https://github.com/librato/ruby-appoptics/blob/master/lib/rails/generators/appoptics_apm/templates/appoptics_initializer.rb) for documentation on all of the supported values.
+See [this Rails generator template file](https://github.com/librato/ruby-solarwinds/blob/master/lib/rails/generators/solarwinds_apm/templates/appoptics_initializer.rb) for documentation on all of the supported values.

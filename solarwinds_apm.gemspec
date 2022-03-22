@@ -1,5 +1,5 @@
 $:.push File.expand_path("../lib", __FILE__)
-require "appoptics_apm/version"
+require "solarwinds_apm/version"
 
 Gem::Specification.new do |s|
   s.name = %q{solarwinds_apm}

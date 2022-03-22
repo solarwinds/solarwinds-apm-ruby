@@ -56,13 +56,13 @@ jobs:
           checksum=`shasum -a256 *.gem | awk '{print $1;}'`
           echo "checksum: $checksum"
           echo ::set-output name=checksum::$checksum
-          echo ::set-output name=gem_version::`ruby -e 'require "./lib/appoptics_apm/version"; puts SolarWindsAPM::Version::STRING'`
+          echo ::set-output name=gem_version::`ruby -e 'require "./lib/solarwinds_apm/version"; puts SolarWindsAPM::Version::STRING'`
 
       - name: Get checksum from Rubygems
         id: checksum
         run: |
           gem_version=${{ steps.build.outputs.gem_version }}
-          echo ::set-output name=geminfo::`curl https://rubygems.org/api/v2/rubygems/appoptics_apm/versions/$gem_version.json`
+          echo ::set-output name=geminfo::`curl https://rubygems.org/api/v2/rubygems/solarwinds_apm/versions/$gem_version.json`
 
       - name: Print checksums (in case some debugging is needed)
         run: |

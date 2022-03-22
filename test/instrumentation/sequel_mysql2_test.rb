@@ -1,7 +1,7 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
-require 'appoptics_apm/test'
+require 'solarwinds_apm/test'
 require 'minitest_helper'
 
 if defined?(::Sequel) && !defined?(JRUBY_VERSION)
@@ -51,7 +51,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       _(defined?(::Sequel)).wont_match nil
     end
 
-    it 'sequel should have appoptics_apm methods defined' do
+    it 'sequel should have solarwinds_apm methods defined' do
       # Sequel::Database
       _(::Sequel::Database.method_defined?(:run_with_appoptics)).must_equal true
 

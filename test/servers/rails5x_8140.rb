@@ -28,15 +28,15 @@ class ApplicationController < ActionController::Base
   end
 end
 
-SolarWindsAPM.logger.info "[appoptics_apm/info] Starting background utility rails app on localhost:8140."
+SolarWindsAPM.logger.info "[solarwinds_apm/info] Starting background utility rails app on localhost:8140."
 
 if ENV['DBTYPE'] == 'mysql'
   config = SolarWindsAPM::Test.set_mysql2_rails_config
 elsif ENV['DBTYPE'] =~ /postgres/
   config = SolarWindsAPM::Test.set_postgresql_rails_config
 else
-  SolarWindsAPM.logger.warn "[appoptics_apm/rails] Unidentified DBTYPE: #{ENV['DBTYPE']}"
-  SolarWindsAPM.logger.debug "[appoptics_apm/rails] Defaulting to postgres DB for background Rails server."
+  SolarWindsAPM.logger.warn "[solarwinds_apm/rails] Unidentified DBTYPE: #{ENV['DBTYPE']}"
+  SolarWindsAPM.logger.debug "[solarwinds_apm/rails] Defaulting to postgres DB for background Rails server."
   config = SolarWindsAPM::Test.set_postgresql_rails_config
 end
 ActiveRecord::Base.establish_connection(config)

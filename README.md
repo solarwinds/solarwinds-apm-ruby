@@ -11,7 +11,7 @@ Mongo, Memcache, ActiveRecord, Cassandra, Rack, Resque
 It requires an [AppOptics](https://www.appoptics.com/) account to view metrics.  Get yours, 
 [it's free](https://my.appoptics.com/sign_up).
 
-[![Gem Version](https://badge.fury.io/rb/appoptics_apm.svg)](https://badge.fury.io/rb/appoptics_apm)
+[![Gem Version](https://badge.fury.io/rb/solarwinds_apm.svg)](https://badge.fury.io/rb/solarwinds_apm)
 
 [![Run all Tests](https://github.com/appoptics/appoptics-apm-ruby/actions/workflows/run_tests.yml/badge.svg)](https://github.com/appoptics/appoptics-apm-ruby/actions/workflows/run_tests.yml)
 [![C++ Tests](https://github.com/appoptics/appoptics-apm-ruby/actions/workflows/run_cpluplus_tests.yml/badge.svg)](https://github.com/appoptics/appoptics-apm-ruby/actions/workflows/run_cpluplus_tests.yml)
@@ -61,10 +61,10 @@ The solarwinds_apm gem provides a Rails generator used to seed an initializer wh
 To run the install generator run:
 
 ```bash
-bundle exec rails generate appoptics_apm:install
+bundle exec rails generate solarwinds_apm:install
 ```
 
-After the prompts, this will create an initializer: `config/initializers/appoptics_apm.rb`.
+After the prompts, this will create an initializer: `config/initializers/solarwinds_apm.rb`.
 
 ## Sinatra
 
@@ -88,7 +88,7 @@ With this, the solarwinds_apm gem will automatically detect Sinatra on boot and 
 ![Padrino](https://docs.appoptics.com/_images/padrino.svg)
 
 As long as the solarwinds_apm gem is in your `Gemfile` (inserted after the `gem 'padrino'` directive) and you are calling 
-`Bundler.require`, the appoptics_apm gem will automatically instrument Padrino applications.
+`Bundler.require`, the solarwinds_apm gem will automatically instrument Padrino applications.
 
 If you need to set `SolarWindsAPM::Config` values on stack boot, you can do so by adding the following
 to your `config/boot.rb` file:
@@ -180,7 +180,7 @@ require 'bundler'
 
 Bundler.require
 
-# Make sure appoptics_apm is at the bottom of your Gemfile.
+# Make sure solarwinds_apm is at the bottom of your Gemfile.
 # This is likely redundant but just in case.
 require 'solarwinds_apm'
  
@@ -229,7 +229,7 @@ end
 # both methods vary slightly. 
 ``` 
 
-Find more details in the [RubyDoc page](https://www.rubydoc.info/gems/appoptics_apm/SolarWindsAPM/SDK) on how to use the Tracing SDK in an independent Ruby script.
+Find more details in the [RubyDoc page](https://www.rubydoc.info/gems/solarwinds_apm/SolarWindsAPM/SDK) on how to use the Tracing SDK in an independent Ruby script.
 
 # Support
 
@@ -342,7 +342,7 @@ The `SolarWindsAPM::SDK.trace` method calls Dalli's native operation and reports
 Some other tips and guidelines:
 
 * You can point your Gemfile directly at your cloned appoptics gem source by using 
-`gem 'appoptics', :path => '/path/to/ruby-appoptics'`
+`gem 'appoptics', :path => '/path/to/ruby-solarwinds'`
 
 * If instrumenting a library, database or service, place your new instrumentation file into the `lib/appoptics/inst/` 
 directory.  From there, the appoptics gem will detect it and automatically load the instrumentation file.

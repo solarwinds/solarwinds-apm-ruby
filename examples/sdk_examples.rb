@@ -10,7 +10,7 @@
 #   by solarwinds_apm
 #
 # SDK documentation:
-# https://rubydoc.info/gems/appoptics_apm/SolarWindsAPM/SDK
+# https://rubydoc.info/gems/solarwinds_apm/SolarWindsAPM/SDK
 
 ###############################################################
 # Prerequisits
@@ -21,7 +21,7 @@
 
 require 'solarwinds_apm'
 
-unless SolarWindsAPM::SDK.appoptics_ready?(10_000)
+unless SolarWindsAPM::SDK.solarwinds_ready?(10_000)
   puts "aborting!!! Agent not ready after 10 seconds"
   exit false
 end

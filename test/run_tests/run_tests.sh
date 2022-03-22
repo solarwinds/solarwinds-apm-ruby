@@ -5,7 +5,7 @@
 
 ##
 # This script can be used to run all or select tests in a Linux environment with
-# the appoptics_apm dependencies already installed
+# the solarwinds_apm dependencies already installed
 # This is usually achieved by a combination of:
 # - the setup of the docker image and
 # - running the ruby_setup.sh script
@@ -110,10 +110,10 @@ done
 # setup files and env vars
 ##
 if [ "$copy" -eq 1 ]; then
-    rm -rf /tmp/ruby-appoptics_test
-    cp -r . /tmp/ruby-appoptics_test
+    rm -rf /tmp/ruby-solarwinds_test
+    cp -r . /tmp/ruby-solarwinds_test
 
-    cd /tmp/ruby-appoptics_test/ || exit 1
+    cd /tmp/ruby-solarwinds_test/ || exit 1
 fi
 rm -f gemfiles/*.lock
 

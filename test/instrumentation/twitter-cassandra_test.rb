@@ -62,7 +62,7 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
       _(defined?(::Cassandra)).wont_match nil
     end
 
-    it 'Cassandra should have appoptics_apm methods defined' do
+    it 'Cassandra should have solarwinds_apm methods defined' do
       [:insert, :remove, :count_columns, :get_columns, :multi_get_columns, :get,
        :multi_get, :get_range_single, :get_range_batch, :get_indexed_slices,
        :create_index, :drop_index, :add_column_family, :drop_column_family,

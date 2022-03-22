@@ -5,7 +5,7 @@ require 'minitest_helper'
 
 # Disable this test on JRuby until we can investigate
 # "SOCKET: SET COMM INACTIVITY UNIMPLEMENTED 10"
-# https://travis-ci.org/tracelytics/ruby-appoptics_apm/jobs/33745752
+# https://travis-ci.org/tracelytics/ruby-solarwinds_apm/jobs/33745752
 if SolarWindsAPM::Config[:em_http_request] && SolarWindsAPM::Config[:em_http_request][:enabled] && !defined?(JRUBY_VERSION)
 
   describe "EventMachine" do
@@ -23,7 +23,7 @@ if SolarWindsAPM::Config[:em_http_request] && SolarWindsAPM::Config[:em_http_req
       _(defined?(::EventMachine::HttpConnection)).wont_match nil
     end
 
-    it 'should have appoptics_apm methods defined' do
+    it 'should have solarwinds_apm methods defined' do
       _(::EventMachine::HttpConnection.method_defined?("setup_request_with_appoptics")).must_equal true
     end
 

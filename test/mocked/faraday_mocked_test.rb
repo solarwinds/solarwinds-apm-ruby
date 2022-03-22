@@ -9,7 +9,7 @@ if !defined?(JRUBY_VERSION)
 
   require 'rack/test'
   require 'rack/lobster'
-  require 'appoptics_apm/inst/rack'
+  require 'solarwinds_apm/inst/rack'
 
   #####################################################
   # FYI:

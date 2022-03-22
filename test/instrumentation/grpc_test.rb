@@ -108,7 +108,7 @@ if defined? GRPC
       stop_server
     end
 
-    unless ['file', 'udp'].include?(ENV['SW_AMP_REPORTER']) || SolarWindsAPM::SDK.appoptics_ready?(10_000)
+    unless ['file', 'udp'].include?(ENV['SW_AMP_REPORTER']) || SolarWindsAPM::SDK.solarwinds_ready?(10_000)
       puts "aborting!!! Agent not ready after 10 seconds"
       exit false
     end

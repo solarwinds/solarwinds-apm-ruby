@@ -4,5 +4,5 @@ gem 'json'
 
 # Add appoptics agent from PackageCloud
 source 'https://packagecloud.io/solarwinds/appoptics-apm-ruby' do
-  gem 'appoptics_apm'
+  gem 'solarwinds_apm'
 end

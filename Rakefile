@@ -11,7 +11,7 @@ require 'digest'
 require 'open-uri'
 require 'bundler/setup'
 require 'rake/testtask'
-require 'appoptics_apm/test'
+require 'solarwinds_apm/test'
 
 Rake::TestTask.new do |t|
   t.verbose = false
@@ -66,7 +66,7 @@ task :docker_tests, :environment do
   os = arg2 || 'ubuntu'
 
   Dir.chdir('test/run_tests')
-  exec("docker-compose down -v --remove-orphans && docker-compose run --service-ports --name ruby_appoptics_#{os} ruby_appoptics_#{os} /code/ruby-appoptics/test/run_tests/ruby_setup.sh test copy")
+  exec("docker-compose down -v --remove-orphans && docker-compose run --service-ports --name ruby_appoptics_#{os} ruby_appoptics_#{os} /code/ruby-solarwinds/test/run_tests/ruby_setup.sh test copy")
 end
 
 task :docker_test => :docker_tests
@@ -77,7 +77,7 @@ task :docker, :environment do
   os = arg2 || 'ubuntu'
 
   Dir.chdir('test/run_tests')
-  exec("docker-compose down -v --remove-orphans && docker-compose run --service-ports --name ruby_appoptics_#{os} ruby_appoptics_#{os} /code/ruby-appoptics/test/run_tests/ruby_setup.sh bash")
+  exec("docker-compose down -v --remove-orphans && docker-compose run --service-ports --name ruby_appoptics_#{os} ruby_appoptics_#{os} /code/ruby-solarwinds/test/run_tests/ruby_setup.sh bash")
 end
 
 desc 'Stop all containers that were started for testing and debugging'
@@ -303,8 +303,8 @@ task :compile do
 
     pwd      = Dir.pwd
     ext_dir  = File.expand_path('ext/oboe_metal')
-    final_so = File.expand_path('lib/libappoptics_apm.so')
-    so_file  = File.expand_path('ext/oboe_metal/libappoptics_apm.so')
+    final_so = File.expand_path('lib/libsolarwinds_apm.so')
+    so_file  = File.expand_path('ext/oboe_metal/libsolarwinds_apm.so')
 
     Dir.chdir ext_dir
     if ENV['OBOE_LOCAL']
@@ -337,7 +337,7 @@ task :clean do
     pwd     = Dir.pwd
     ext_dir = File.expand_path('ext/oboe_metal')
     symlinks = [
-      File.expand_path('lib/libappoptics_apm.so'),
+      File.expand_path('lib/libsolarwinds_apm.so'),
       File.expand_path('ext/oboe_metal/lib/liboboe.so'),
       File.expand_path('ext/oboe_metal/lib/liboboe-1.0.so.0')
     ]
@@ -362,7 +362,7 @@ task :distclean do
     ext_dir = File.expand_path('ext/oboe_metal')
     mkmf_log = File.expand_path('ext/oboe_metal/mkmf.log')
     symlinks = [
-      File.expand_path('lib/libappoptics_apm.so'),
+      File.expand_path('lib/libsolarwinds_apm.so'),
       File.expand_path('ext/oboe_metal/lib/liboboe.so'),
       File.expand_path('ext/oboe_metal/lib/liboboe-1.0.so.0')
     ]

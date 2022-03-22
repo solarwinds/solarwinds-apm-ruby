@@ -216,7 +216,7 @@ def has_edge?(edge, traces)
       return true
     end
   end
-  SolarWindsAPM.logger.debug "[appoptics_apm/test] edge #{edge} not found in traces."
+  SolarWindsAPM.logger.debug "[solarwinds_apm/test] edge #{edge} not found in traces."
   false
 end
 

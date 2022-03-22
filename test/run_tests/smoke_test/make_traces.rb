@@ -10,7 +10,7 @@ require 'solarwinds_apm'
 
 name = ENV['HOSTNAME'] || 'no_name'
 
-unless SolarWindsAPM::SDK.appoptics_ready?(10_000)
+unless SolarWindsAPM::SDK.solarwinds_ready?(10_000)
   puts "aborting!!! Agent not ready after 10 seconds"
   exit false
 end

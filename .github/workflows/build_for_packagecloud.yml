@@ -42,7 +42,7 @@ jobs:
         run:  |
           gem build solarwinds_apm.gemspec
           echo `shasum -a256 *.gem`
-          echo "::set-output name=GEM_VERSION::`ruby -e 'require "./lib/appoptics_apm/version"; puts SolarWindsAPM::Version::STRING'`"
+          echo "::set-output name=GEM_VERSION::`ruby -e 'require "./lib/solarwinds_apm/version"; puts SolarWindsAPM::Version::STRING'`"
           cat ext/oboe_metal/src/VERSION
 
       - name: Publish to PackageCloud

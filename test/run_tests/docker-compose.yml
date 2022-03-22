@@ -56,7 +56,7 @@ x-ao-shared: &ao-shared
     - ao_ruby_wait
   stdin_open: true
   tty: true
-  working_dir: /code/ruby-appoptics
+  working_dir: /code/ruby-solarwinds
 
 services:
   ruby_appoptics_ubuntu:
@@ -68,8 +68,8 @@ services:
     hostname: docker.ao.ubuntu
     << : *ao-shared
     volumes:
-      - ../../:/code/ruby-appoptics
-      - ./.ruby_version_ubuntu:/code/ruby-appoptics/.ruby-version
+      - ../../:/code/ruby-solarwinds
+      - ./.ruby_version_ubuntu:/code/ruby-solarwinds/.ruby-version
       # and for OBOE_WIP ...
       - ../../../oboe/factory-output:/code/oboe/factory-output
       - ../../../oboe/liboboe:/code/oboe/liboboe
@@ -90,10 +90,10 @@ services:
     hostname: docker.ao.alpine
     <<: *ao-shared
     volumes:
-      - ../../:/code/ruby-appoptics
+      - ../../:/code/ruby-solarwinds
       - ../../../oboe/factory-output:/code/oboe/factory-output
       - ../../../oboe/liboboe:/code/oboe/liboboe
-      - ./.ruby_version_alpine:/code/ruby-appoptics/.ruby-version
+      - ./.ruby_version_alpine:/code/ruby-solarwinds/.ruby-version
 #      - ../../../../repos/sequel:/code/sequel
     environment:
       <<: *ao-env
@@ -108,10 +108,10 @@ services:
     hostname: docker.ao.debian
     << : *ao-shared
     volumes:
-      - ../../:/code/ruby-appoptics
+      - ../../:/code/ruby-solarwinds
       - ../../../oboe/factory-output:/code/oboe/factory-output
       - ../../../oboe/liboboe:/code/oboe/liboboe
-      - ./.ruby_version_debian:/code/ruby-appoptics/.ruby-version
+      - ./.ruby_version_debian:/code/ruby-solarwinds/.ruby-version
     environment:
       << : *ao-env
       SW_AMP_HOSTNAME_ALIAS: "AO_RUBY_DEBIAN"
@@ -125,10 +125,10 @@ services:
     hostname: docker.ao.centos
     << : *ao-shared
     volumes:
-      - ../../:/code/ruby-appoptics
+      - ../../:/code/ruby-solarwinds
       - ../../../oboe/factory-output:/code/oboe/factory-output
       - ../../../oboe/liboboe:/code/oboe/liboboe
-      - ./.ruby_version_centos:/code/ruby-appoptics/.ruby-version
+      - ./.ruby_version_centos:/code/ruby-solarwinds/.ruby-version
       - ../../../../repos/rack-cache/:/rack-cache
     environment:
       << : *ao-env

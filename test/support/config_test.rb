@@ -8,11 +8,11 @@ describe "SolarWindsAPM::Config" do
   include Minitest::Hooks
 
   before(:all) do
-    @default_config_path = File.join(Dir.pwd, 'appoptics_apm_config.rb')
-    @test_config_path = File.join(File.dirname(__FILE__), 'appoptics_apm_config.rb')
+    @default_config_path = File.join(Dir.pwd, 'solarwinds_apm_config.rb')
+    @test_config_path = File.join(File.dirname(__FILE__), 'solarwinds_apm_config.rb')
     @template = File.join(File.dirname(File.dirname(File.dirname(__FILE__))),
-                          'lib/rails/generators/appoptics_apm/templates/appoptics_apm_initializer.rb')
-    @rails_config_path = File.join(Dir.pwd, 'config', 'initializers', 'appoptics_apm.rb')
+                          'lib/rails/generators/solarwinds_apm/templates/solarwinds_apm_initializer.rb')
+    @rails_config_path = File.join(Dir.pwd, 'config', 'initializers', 'solarwinds_apm.rb')
     FileUtils.mkdir_p(File.join(Dir.pwd, 'config', 'initializers'))
   end
 

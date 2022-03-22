@@ -2,7 +2,7 @@
 # All rights reserved.
 
 require 'minitest_helper'
-require 'appoptics_apm/inst/rack'
+require 'solarwinds_apm/inst/rack'
 require 'mocha/minitest'
 
 describe "Rack: " do

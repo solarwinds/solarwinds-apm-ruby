@@ -75,8 +75,8 @@ module Oboe_metal
           SolarWindsAPM::Config.sample_rate = cfg.sampleRate
           SolarWindsAPM::Config.sample_source = cfg.sampleRateSourceValue
         rescue => e
-          SolarWindsAPM.logger.debug "[appoptics_apm/debug] Couldn't retrieve/acces joboe sampleRateCfg"
-          SolarWindsAPM.logger.debug "[appoptics_apm/debug] #{e.message}"
+          SolarWindsAPM.logger.debug "[solarwinds_apm/debug] Couldn't retrieve/acces joboe sampleRateCfg"
+          SolarWindsAPM.logger.debug "[solarwinds_apm/debug] #{e.message}"
         end
 
         # Only report __Init from here if we are not instrumenting a framework.
@@ -93,7 +93,7 @@ module Oboe_metal
       # for compability across interfaces.
       #
       def restart
-        SolarWindsAPM.logger.warn "[appoptics_apm/reporter] Reporter.restart isn't supported under JRuby"
+        SolarWindsAPM.logger.warn "[solarwinds_apm/reporter] Reporter.restart isn't supported under JRuby"
       end
 
       ##
@@ -171,13 +171,13 @@ module SolarWindsAPM
 
         sr_cfg ? true : false
       rescue => e
-        SolarWindsAPM.logger.debug "[appoptics_apm/debug] #{e.message}"
+        SolarWindsAPM.logger.debug "[solarwinds_apm/debug] #{e.message}"
         false
       end
     end
 
     def set_tracing_mode(_mode)
-      SolarWindsAPM.logger.warn '[appoptics_apm/joboe] When using JRuby set the tracing mode in /usr/local/tracelytics/javaagent.json instead'
+      SolarWindsAPM.logger.warn '[solarwinds_apm/joboe] When using JRuby set the tracing mode in /usr/local/tracelytics/javaagent.json instead'
     end
 
     def set_sample_rate(_rate)

@@ -4,7 +4,7 @@
 require 'minitest_helper'
 require 'rack/test'
 require 'rack/handler/puma'
-require 'appoptics_apm/inst/rack'
+require 'solarwinds_apm/inst/rack'
 require 'mocha/minitest'
 
 describe SolarWindsAPM::SDK do

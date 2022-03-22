@@ -4,7 +4,7 @@
 unless defined?(JRUBY_VERSION)
 
   require 'minitest_helper'
-  require 'appoptics_apm/inst/rack'
+  require 'solarwinds_apm/inst/rack'
   require File.expand_path(File.dirname(__FILE__) + '../../frameworks/apps/sinatra_simple')
 
   describe 'CurbTest' do # < Minitest::Test

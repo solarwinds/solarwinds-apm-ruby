@@ -190,7 +190,7 @@ describe "Typhoeus" do
 
   it 'should trace a typhoeus GET request with DNS error' do
     SolarWindsAPM::SDK.start_trace('typhoeus_test') do
-      Typhoeus.get("http://thisdomaindoesntexisthopefully.asdf/products/appoptics_apm/")
+      Typhoeus.get("http://thisdomaindoesntexisthopefully.asdf/products/solarwinds_apm/")
     end
 
     traces = get_all_traces
@@ -213,7 +213,7 @@ describe "Typhoeus" do
     _(traces[3]['Label']).must_equal 'exit'
     _(traces[3]['Spec']).must_equal 'rsc'
     _(traces[3]['IsService']).must_equal 1
-    _(traces[3]['RemoteURL'].casecmp('http://thisdomaindoesntexisthopefully.asdf/products/appoptics_apm/')).must_equal 0
+    _(traces[3]['RemoteURL'].casecmp('http://thisdomaindoesntexisthopefully.asdf/products/solarwinds_apm/')).must_equal 0
     _(traces[3]['HTTPMethod']).must_equal 'GET'
     _(traces[3]['HTTPStatus']).must_equal 0
   end
@@ -222,7 +222,7 @@ describe "Typhoeus" do
     SolarWindsAPM::SDK.start_trace('typhoeus_test') do
       hydra = Typhoeus::Hydra.hydra
 
-      first_request  = Typhoeus::Request.new("http://127.0.0.1:8101/products/appoptics_apm/")
+      first_request  = Typhoeus::Request.new("http://127.0.0.1:8101/products/solarwinds_apm/")
       second_request = Typhoeus::Request.new("http://127.0.0.1:8101/products/")
       third_request  = Typhoeus::Request.new("http://127.0.0.1:8101/")
 

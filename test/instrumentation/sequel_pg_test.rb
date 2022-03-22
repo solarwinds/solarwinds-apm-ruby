@@ -46,7 +46,7 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
       _(defined?(::Sequel)).wont_match nil
     end
 
-    it 'sequel should have appoptics_apm methods defined' do
+    it 'sequel should have solarwinds_apm methods defined' do
       # Sequel::Database
       _(::Sequel::Database.method_defined?(:run_with_appoptics)).must_equal true
 

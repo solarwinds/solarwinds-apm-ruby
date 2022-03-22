@@ -20,7 +20,7 @@ describe "Dalli" do
     _(defined?(::Dalli::Client)).wont_match nil
   end
 
-  it 'should have appoptics_apm methods defined' do
+  it 'should have solarwinds_apm methods defined' do
     [:perform_with_appoptics, :get_multi_with_appoptics].each do |m|
       _(::Dalli::Client.method_defined?(m)).must_equal true
     end

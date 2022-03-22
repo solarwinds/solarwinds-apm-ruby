@@ -34,7 +34,7 @@ unless defined?(JRUBY_VERSION)
       _(defined?(::Memcached::Rails)).wont_match nil
     end
 
-    it 'Memcached should have appoptics_apm methods defined' do
+    it 'Memcached should have solarwinds_apm methods defined' do
       SolarWindsAPM::API::Memcache::MEMCACHE_OPS.each do |m|
         if ::Memcached.method_defined?(m)
           _(::Memcached.method_defined?("#{m}_with_appoptics")).must_equal true
