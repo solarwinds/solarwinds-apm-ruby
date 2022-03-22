@@ -67,10 +67,10 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
        :multi_get, :get_range_single, :get_range_batch, :get_indexed_slices,
        :create_index, :drop_index, :add_column_family, :drop_column_family,
        :add_keyspace, :drop_keyspace].each do |m|
-        _(::Cassandra.method_defined?("#{m}_with_appoptics")).must_equal true
+        _(::Cassandra.method_defined?("#{m}_with_sw_apm")).must_equal true
       end
       # Special 'exists?' case
-      _(::Cassandra.method_defined?("exists_with_appoptics?")).must_equal true
+      _(::Cassandra.method_defined?("exists_with_sw_apm?")).must_equal true
     end
 
     it 'shouldn\'t break when NOT tracing' do

@@ -76,14 +76,14 @@ module SolarWindsAPM
       #
       # === Example:
       #
-      #   def computation_with_appoptics(n)
+      #   def computation_with_sw_apm(n)
       #     SolarWindsAPM::SDK.trace('computation', kvs: { :number => n }, protect_op: :computation) do
       #       return n if n == 0
-      #       n + computation_with_appoptics(n-1)
+      #       n + computation_with_sw_apm(n-1)
       #     end
       #   end
       #
-      #   result = computation_with_appoptics(100)
+      #   result = computation_with_sw_apm(100)
       #
       # === Returns:
       # * The result of the block.
@@ -127,7 +127,7 @@ module SolarWindsAPM
       #     # ... code that processes request and response ...
       #   end
       #
-      #   def handle_request_with_appoptics(request, response)
+      #   def handle_request_with_sw_apm(request, response)
       #     SolarWindsAPM::SDK.start_trace('custom_trace', kvs: { :TransactionName => 'handle_request' }) do
       #       handle_request(request, response)
       #     end
@@ -161,7 +161,7 @@ module SolarWindsAPM
       #     # ... code that processes request and response ...
       #   end
       #
-      #   def handle_request_with_appoptics(request, response)
+      #   def handle_request_with_sw_apm(request, response)
       #     SolarWindsAPM::SDK.start_trace_with_target('rails', headers: request.headers, target: response) do
       #       handle_request(request, response)
       #     end
@@ -271,8 +271,8 @@ module SolarWindsAPM
         safe_method_name = method.to_s.chop if method.to_s =~ /\?$|\!$/
         safe_method_name ||= method
 
-        without_appoptics = "#{safe_method_name}_without_appoptics"
-        with_appoptics    = "#{safe_method_name}_with_appoptics"
+        without_appoptics = "#{safe_method_name}_without_sw_apm"
+        with_appoptics    = "#{safe_method_name}_with_sw_apm"
 
         # Check if already profiled
         if instance_method && klass.instance_methods.include?(with_appoptics.to_sym) ||

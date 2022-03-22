@@ -41,40 +41,40 @@ module SolarWindsAPM
         report_kvs
       end
 
-      def enqueue_with_appoptics(klass, *args)
+      def enqueue_with_sw_apm(klass, *args)
         if SolarWindsAPM.tracing?
           report_kvs = extract_trace_details(:enqueue, klass, args)
 
           SolarWindsAPM::SDK.trace(:'resque-client', kvs: report_kvs, protect_op: :enqueue) do
-            enqueue_without_appoptics(klass, *args)
+            enqueue_without_sw_apm(klass, *args)
           end
         else
-          enqueue_without_appoptics(klass, *args)
+          enqueue_without_sw_apm(klass, *args)
         end
       end
 
-      def enqueue_to_with_appoptics(queue, klass, *args)
+      def enqueue_to_with_sw_apm(queue, klass, *args)
         if SolarWindsAPM.tracing? && !SolarWindsAPM.tracing_layer_op?(:enqueue)
           report_kvs = extract_trace_details(:enqueue_to, klass, args)
           report_kvs[:Queue] = queue.to_s if queue
 
           SolarWindsAPM::SDK.trace(:'resque-client', kvs: report_kvs) do
-            enqueue_to_without_appoptics(queue, klass, *args)
+            enqueue_to_without_sw_apm(queue, klass, *args)
           end
         else
-          enqueue_to_without_appoptics(queue, klass, *args)
+          enqueue_to_without_sw_apm(queue, klass, *args)
         end
       end
 
-      def dequeue_with_appoptics(klass, *args)
+      def dequeue_with_sw_apm(klass, *args)
         if SolarWindsAPM.tracing?
           report_kvs = extract_trace_details(:dequeue, klass, args)
 
           SolarWindsAPM::SDK.trace(:'resque-client', kvs: report_kvs) do
-            dequeue_without_appoptics(klass, *args)
+            dequeue_without_sw_apm(klass, *args)
           end
         else
-          dequeue_without_appoptics(klass, *args)
+          dequeue_without_sw_apm(klass, *args)
         end
       end
     end
@@ -84,7 +84,7 @@ module SolarWindsAPM
         SolarWindsAPM::Util.method_alias(klass, :perform, ::Resque::Worker)
       end
 
-      def perform_with_appoptics(job)
+      def perform_with_sw_apm(job)
         report_kvs = {}
 
         begin
@@ -118,7 +118,7 @@ module SolarWindsAPM
         end
 
         SolarWindsAPM::SDK.start_trace(:'resque-worker', kvs: report_kvs) do
-          perform_without_appoptics(job)
+          perform_without_sw_apm(job)
         end
       end
     end
@@ -128,11 +128,11 @@ module SolarWindsAPM
         SolarWindsAPM::Util.method_alias(klass, :fail, ::Resque::Job)
       end
 
-      def fail_with_appoptics(exception)
+      def fail_with_sw_apm(exception)
         if SolarWindsAPM.tracing?
           SolarWindsAPM::API.log_exception(:resque, exception)
         end
-        fail_without_appoptics(exception)
+        fail_without_sw_apm(exception)
       end
     end
   end

@@ -24,7 +24,7 @@ if SolarWindsAPM::Config[:em_http_request] && SolarWindsAPM::Config[:em_http_req
     end
 
     it 'should have solarwinds_apm methods defined' do
-      _(::EventMachine::HttpConnection.method_defined?("setup_request_with_appoptics")).must_equal true
+      _(::EventMachine::HttpConnection.method_defined?("setup_request_with_sw_apm")).must_equal true
     end
 
     it 'should trace request' do

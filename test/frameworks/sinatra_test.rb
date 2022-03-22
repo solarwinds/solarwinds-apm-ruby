@@ -42,7 +42,7 @@ describe Sinatra do
     SolarWindsAPM::Config[:sinatra][:collect_backtraces] = false
     @app = SinatraSimple
 
-    SinatraSimple.any_instance.expects(:dispatch_without_appoptics).raises(StandardError.new('Hello Sinatra'))
+    SinatraSimple.any_instance.expects(:dispatch_without_sw_apm).raises(StandardError.new('Hello Sinatra'))
 
     begin
       _ = get "/render"

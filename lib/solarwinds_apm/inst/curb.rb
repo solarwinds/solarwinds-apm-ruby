@@ -98,53 +98,53 @@ module SolarWindsAPM
       end
 
       ##
-      # http_post_with_appoptics
+      # http_post_with_sw_apm
       #
       # ::Curl::Easy.new.http_post wrapper
       #
-      def http_post_with_appoptics(*args, &block)
+      def http_post_with_sw_apm(*args, &block)
         # If we're not tracing, just do a fast return.
         if !SolarWindsAPM.tracing? || SolarWindsAPM.tracing_layer?(:curb)
           add_tracecontext_headers(self.headers)
-          return http_post_without_appoptics(*args)
+          return http_post_without_sw_apm(*args)
         end
 
         kvs = {}
         kvs[:HTTPMethod] = :POST
 
-        trace_curb_method(kvs, :http_post_without_appoptics, args, &block)
+        trace_curb_method(kvs, :http_post_without_sw_apm, args, &block)
       end
 
       ##
-      # http_put_with_appoptics
+      # http_put_with_sw_apm
       #
       # ::Curl::Easy.new.http_put wrapper
       #
-      def http_put_with_appoptics(*args, &block)
+      def http_put_with_sw_apm(*args, &block)
         # If we're not tracing, just do a fast return.
         if !SolarWindsAPM.tracing? || SolarWindsAPM.tracing_layer?(:curb)
           add_tracecontext_headers(self.headers)
-          return http_put_without_appoptics(data)
+          return http_put_without_sw_apm(data)
         end
 
         kvs = {}
         kvs[:HTTPMethod] = :PUT
 
-        trace_curb_method(kvs, :http_put_without_appoptics, args, &block)
+        trace_curb_method(kvs, :http_put_without_sw_apm, args, &block)
       end
 
       ##
-      # perform_with_appoptics
+      # perform_with_sw_apm
       #
       # ::Curl::Easy.new.perform wrapper
       #
-      def perform_with_appoptics(&block)
+      def perform_with_sw_apm(&block)
         # If we're not tracing, just do a fast return.
         # excluding curb layer: because the curb C code for easy.http calls perform,
         # we have to make sure we don't log again
         if !SolarWindsAPM.tracing? || SolarWindsAPM.tracing_layer?(:curb)
           add_tracecontext_headers(self.headers)
-          return perform_without_appoptics(&block)
+          return perform_without_sw_apm(&block)
         end
 
         kvs = {}
@@ -157,25 +157,25 @@ module SolarWindsAPM
           kvs[:HTTPMethod] = :GET
         end
 
-        trace_curb_method(kvs, :perform_without_appoptics, nil, &block)
+        trace_curb_method(kvs, :perform_without_sw_apm, nil, &block)
       end
 
       ##
-      # http_with_appoptics
+      # http_with_sw_apm
       #
       # ::Curl::Easy.new.http wrapper
       #
-      def http_with_appoptics(verb, &block)
+      def http_with_sw_apm(verb, &block)
         unless SolarWindsAPM.tracing?
           add_tracecontext_headers(self.headers)
           # If we're not tracing, just do a fast return.
-          return http_without_appoptics(verb)
+          return http_without_sw_apm(verb)
         end
 
         kvs = {}
         kvs[:HTTPMethod] = verb
 
-        trace_curb_method(kvs, :http_without_appoptics, [verb], &block)
+        trace_curb_method(kvs, :http_without_sw_apm, [verb], &block)
       end
     end
 
@@ -193,18 +193,18 @@ module SolarWindsAPM
       end
 
       ##
-      # http_with_appoptics
+      # http_with_sw_apm
       #
       # ::Curl::Multi.new.http wrapper
       #
-      def http_with_appoptics(urls_with_config, multi_options={}, &block)
+      def http_with_sw_apm(urls_with_config, multi_options={}, &block)
         # If we're not tracing, just do a fast return.
         unless SolarWindsAPM.tracing?
           urls_with_config.each do |conf|
             conf[:headers] ||= {}
             add_tracecontext_headers(conf[:headers])
           end
-          return http_without_appoptics(urls_with_config, multi_options, &block)
+          return http_without_sw_apm(urls_with_config, multi_options, &block)
         end
 
         begin
@@ -220,7 +220,7 @@ module SolarWindsAPM
             add_tracecontext_headers(conf[:headers])
           end
           # The core curb call
-          http_without_appoptics(urls_with_config, multi_options)
+          http_without_sw_apm(urls_with_config, multi_options)
         rescue => e
           SolarWindsAPM::API.log_exception(:curb_multi, e)
           raise e
@@ -244,7 +244,7 @@ module SolarWindsAPM
       end
 
       ##
-      # perform_with_appoptics
+      # perform_with_sw_apm
       #
       # ::Curl::Multi.new.perform wrapper
       #
@@ -252,14 +252,14 @@ module SolarWindsAPM
       # therefore we exclude calls that already have a curb layer assigned
       # Be aware: this method is also called from the c-implementation
       #
-      def perform_with_appoptics(&block)
+      def perform_with_sw_apm(&block)
         self.requests.each do |request|
           request = request[1] if request.is_a?(Array)
           add_tracecontext_headers(request.headers)
         end
         # If we're not tracing or we're already tracing curb, just do a fast return.
         if !SolarWindsAPM.tracing? || [:curb, :curb_multi].include?(SolarWindsAPM.layer)
-          return perform_without_appoptics(&block)
+          return perform_without_sw_apm(&block)
         end
 
         begin
@@ -268,7 +268,7 @@ module SolarWindsAPM
 
           SolarWindsAPM::API.log_entry(:curb_multi, kvs)
 
-          perform_without_appoptics(&block)
+          perform_without_sw_apm(&block)
         rescue => e
           SolarWindsAPM::API.log_exception(:curb_multi, e)
           raise e

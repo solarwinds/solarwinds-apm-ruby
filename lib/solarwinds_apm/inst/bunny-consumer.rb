@@ -62,7 +62,7 @@ module SolarWindsAPM
         return kvs
       end
 
-      def call_with_appoptics(*args)
+      def call_with_sw_apm(*args)
         report_kvs = collect_consumer_kvs(args)
 
         # If SourceTrace was passed, capture and report it
@@ -76,7 +76,7 @@ module SolarWindsAPM
         end
 
         SolarWindsAPM::SDK.start_trace(:'rabbitmq-consumer', kvs: report_kvs, headers: headers) do
-          call_without_appoptics(*args)
+          call_without_sw_apm(*args)
         end
       end
     end

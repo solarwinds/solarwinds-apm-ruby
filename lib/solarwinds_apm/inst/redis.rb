@@ -215,12 +215,12 @@ module SolarWindsAPM
         # (when tracing) we capture KVs to report and pass
         # the call along
         #
-        def call_with_appoptics(command, &block)
+        def call_with_sw_apm(command, &block)
           if SolarWindsAPM.tracing?
             SolarWindsAPM::API.log_entry(:redis, {})
 
             begin
-              r = call_without_appoptics(command, &block)
+              r = call_without_sw_apm(command, &block)
               report_kvs = extract_trace_details(command, r)
               r
             rescue StandardError => e
@@ -231,7 +231,7 @@ module SolarWindsAPM
             end
 
           else
-            call_without_appoptics(command, &block)
+            call_without_sw_apm(command, &block)
           end
         end
 
@@ -239,7 +239,7 @@ module SolarWindsAPM
         # The wrapper method for Redis::Client.call_pipeline.  Here
         # (when tracing) we capture KVs to report and pass the call along
         #
-        def call_pipeline_with_appoptics(pipeline)
+        def call_pipeline_with_sw_apm(pipeline)
           if SolarWindsAPM.tracing?
             # Fall back to the raw tracing API so we can pass KVs
             # back on exit (a limitation of the SolarWindsAPM::API.trace
@@ -250,7 +250,7 @@ module SolarWindsAPM
             report_kvs = extract_pipeline_details(pipeline)
 
             begin
-              call_pipeline_without_appoptics(pipeline)
+              call_pipeline_without_sw_apm(pipeline)
             rescue StandardError => e
               SolarWindsAPM::API.log_exception(:redis, e)
               raise
@@ -258,7 +258,7 @@ module SolarWindsAPM
               SolarWindsAPM::API.log_exit(:redis, report_kvs)
             end
           else
-            call_pipeline_without_appoptics(pipeline)
+            call_pipeline_without_sw_apm(pipeline)
           end
         end
       end

@@ -8,9 +8,9 @@ module SolarWindsAPM
         SolarWindsAPM::Util.method_alias(klass, :delete, ::Bunny::Exchange)
       end
 
-      def delete_with_appoptics(opts = {})
+      def delete_with_sw_apm(opts = {})
         # If we're not tracing, just do a fast return.
-        return delete_without_appoptics(opts) if !SolarWindsAPM.tracing?
+        return delete_without_sw_apm(opts) if !SolarWindsAPM.tracing?
 
         begin
           kvs = {}
@@ -29,7 +29,7 @@ module SolarWindsAPM
           end
 
           SolarWindsAPM::API.log_entry(:'rabbitmq-client')
-          delete_without_appoptics(opts)
+          delete_without_sw_apm(opts)
         rescue => e
           SolarWindsAPM::API.log_exception(:'rabbitmq-client', e)
           raise e
@@ -63,9 +63,9 @@ module SolarWindsAPM
         return kvs
       end
 
-      def basic_publish_with_appoptics(payload, exchange, routing_key, opts = {})
+      def basic_publish_with_sw_apm(payload, exchange, routing_key, opts = {})
         # If we're not tracing, just do a fast return.
-        return basic_publish_without_appoptics(payload, exchange, routing_key, opts) if !SolarWindsAPM.tracing?
+        return basic_publish_without_sw_apm(payload, exchange, routing_key, opts) if !SolarWindsAPM.tracing?
 
         begin
           kvs = collect_channel_kvs
@@ -89,7 +89,7 @@ module SolarWindsAPM
           opts[:headers][:SourceTrace] = SolarWindsAPM::Context.toString if SolarWindsAPM.tracing?
           add_tracecontext_headers(opts[:headers])
 
-          basic_publish_without_appoptics(payload, exchange, routing_key, opts)
+          basic_publish_without_sw_apm(payload, exchange, routing_key, opts)
         rescue => e
           SolarWindsAPM::API.log_exception(:'rabbitmq-client', e)
           raise e
@@ -99,9 +99,9 @@ module SolarWindsAPM
         end
       end
 
-      def queue_with_appoptics(name = AMQ::Protocol::EMPTY_STRING, opts = {})
+      def queue_with_sw_apm(name = AMQ::Protocol::EMPTY_STRING, opts = {})
         # If we're not tracing, just do a fast return.
-        return queue_without_appoptics(name, opts) if !SolarWindsAPM.tracing?
+        return queue_without_sw_apm(name, opts) if !SolarWindsAPM.tracing?
 
         begin
           kvs = collect_channel_kvs
@@ -109,7 +109,7 @@ module SolarWindsAPM
 
           SolarWindsAPM::API.log_entry(:'rabbitmq-client')
 
-          result = queue_without_appoptics(name, opts)
+          result = queue_without_sw_apm(name, opts)
           kvs[:Queue] = result.name
           result
         rescue => e
@@ -121,9 +121,9 @@ module SolarWindsAPM
         end
       end
 
-      def wait_for_confirms_with_appoptics
+      def wait_for_confirms_with_sw_apm
         # If we're not tracing, just do a fast return.
-        return wait_for_confirms_without_appoptics if !SolarWindsAPM.tracing?
+        return wait_for_confirms_without_sw_apm if !SolarWindsAPM.tracing?
 
         begin
           kvs = collect_channel_kvs
@@ -131,7 +131,7 @@ module SolarWindsAPM
 
           SolarWindsAPM::API.log_entry(:'rabbitmq-client')
 
-          wait_for_confirms_without_appoptics
+          wait_for_confirms_without_sw_apm
         rescue => e
           SolarWindsAPM::API.log_exception(:'rabbitmq-client', e)
           raise e

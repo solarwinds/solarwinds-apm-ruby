@@ -9,11 +9,11 @@ module SolarWindsAPM
         SolarWindsAPM::Util.method_alias(klass, :handle_exception!, ::Sinatra::Base)
       end
 
-      def dispatch_with_appoptics
+      def dispatch_with_sw_apm
 
         SolarWindsAPM::API.log_entry('sinatra', {})
 
-        response = dispatch_without_appoptics
+        response = dispatch_without_sw_apm
 
         # Report Controller/Action and transaction as best possible
         report_kvs = {}
@@ -31,9 +31,9 @@ module SolarWindsAPM
         SolarWindsAPM::API.log_exit('sinatra', report_kvs)
       end
 
-      def handle_exception_with_appoptics(boom)
+      def handle_exception_with_sw_apm(boom)
         SolarWindsAPM::API.log_exception(:sinatra, boom)
-        handle_exception_without_appoptics(boom)
+        handle_exception_without_sw_apm(boom)
       end
 
       def appoptics_rum_header
@@ -54,7 +54,7 @@ module SolarWindsAPM
         SolarWindsAPM::Util.method_alias(klass, :render, ::Sinatra::Templates)
       end
 
-      def render_with_appoptics(engine, data, options = {}, locals = {}, &block)
+      def render_with_sw_apm(engine, data, options = {}, locals = {}, &block)
         if SolarWindsAPM.tracing?
           report_kvs = {}
 
@@ -63,10 +63,10 @@ module SolarWindsAPM
 
           SolarWindsAPM::SDK.trace(:sinatra_render, kvs: report_kvs, protect_op: :sinatra_render) do
             report_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:sinatra][:collect_backtraces]
-            render_without_appoptics(engine, data, options, locals, &block)
+            render_without_sw_apm(engine, data, options, locals, &block)
           end
         else
-          render_without_appoptics(engine, data, options, locals, &block)
+          render_without_sw_apm(engine, data, options, locals, &block)
         end
       end
     end

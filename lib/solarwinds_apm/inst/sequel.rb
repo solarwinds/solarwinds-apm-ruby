@@ -63,12 +63,12 @@ module SolarWindsAPM
       end
 
       ##
-      # exec_with_appoptics
+      # exec_with_sw_apm
       #
       # This method wraps and routes the call to the specified
       # original method call
       #
-      def exec_with_appoptics(method, sql, opts = ::Sequel::OPTS, &block)
+      def exec_with_sw_apm(method, sql, opts = ::Sequel::OPTS, &block)
         kvs = {}
         SolarWindsAPM::SDK.trace(:sequel, kvs: kvs) do
           new_sql = add_traceparent(sql, kvs)
@@ -128,37 +128,37 @@ module SolarWindsAPM
         SolarWindsAPM::Util.method_alias(klass, :execute_insert, ::Sequel::Database)
       end
 
-      def run_with_appoptics(sql, opts = ::Sequel::OPTS)
+      def run_with_sw_apm(sql, opts = ::Sequel::OPTS)
         kvs = {}
         SolarWindsAPM::SDK.trace(:sequel, kvs: kvs) do
           new_sql = add_traceparent(sql, kvs)
           assign_kvs(new_sql, opts, kvs) if SolarWindsAPM.tracing?
-          run_without_appoptics(new_sql, opts)
+          run_without_sw_apm(new_sql, opts)
         end
       end
 
-      def execute_ddl_with_appoptics(sql, opts = ::Sequel::OPTS, &block)
+      def execute_ddl_with_sw_apm(sql, opts = ::Sequel::OPTS, &block)
         # If we're already tracing a sequel operation, then this call likely came
         # from Sequel::Dataset.  In this case, just pass it on.
-        return execute_ddl_without_appoptics(sql, opts, &block) if SolarWindsAPM.tracing_layer?(:sequel)
+        return execute_ddl_without_sw_apm(sql, opts, &block) if SolarWindsAPM.tracing_layer?(:sequel)
 
-        exec_with_appoptics(:execute_ddl_without_appoptics, sql, opts, &block)
+        exec_with_sw_apm(:execute_ddl_without_sw_apm, sql, opts, &block)
       end
 
-      def execute_dui_with_appoptics(sql, opts = ::Sequel::OPTS, &block)
+      def execute_dui_with_sw_apm(sql, opts = ::Sequel::OPTS, &block)
         # If we're already tracing a sequel operation, then this call likely came
         # from Sequel::Dataset.  In this case, just pass it on.
-        return execute_dui_without_appoptics(sql, opts, &block) if SolarWindsAPM.tracing_layer?(:sequel)
+        return execute_dui_without_sw_apm(sql, opts, &block) if SolarWindsAPM.tracing_layer?(:sequel)
 
-        exec_with_appoptics(:execute_dui_without_appoptics, sql, opts, &block)
+        exec_with_sw_apm(:execute_dui_without_sw_apm, sql, opts, &block)
       end
 
-      def execute_insert_with_appoptics(sql, opts = ::Sequel::OPTS, &block)
+      def execute_insert_with_sw_apm(sql, opts = ::Sequel::OPTS, &block)
         # If we're already tracing a sequel operation, then this call likely came
         # from Sequel::Dataset.  In this case, just pass it on.
-        return execute_insert_without_appoptics(sql, opts, &block) if SolarWindsAPM.tracing_layer?(:sequel)
+        return execute_insert_without_sw_apm(sql, opts, &block) if SolarWindsAPM.tracing_layer?(:sequel)
 
-        exec_with_appoptics(:execute_insert_without_appoptics, sql, opts, &block)
+        exec_with_sw_apm(:execute_insert_without_sw_apm, sql, opts, &block)
       end
     end # module SequelDatabase
 
@@ -174,16 +174,16 @@ module SolarWindsAPM
         end
       end
 
-      def execute_with_appoptics(*args, &block)
+      def execute_with_sw_apm(*args, &block)
         # if this is called via a dataset it is already being traced
-        return execute_without_appoptics(*args, &block) if SolarWindsAPM.tracing_layer?(:sequel)
+        return execute_without_sw_apm(*args, &block) if SolarWindsAPM.tracing_layer?(:sequel)
 
         kvs = {}
         SolarWindsAPM::SDK.trace(:sequel, kvs: kvs) do
           new_sql = add_traceparent(args[0], kvs)
           args[0] = new_sql
           assign_kvs(args[0], args[1], kvs) if SolarWindsAPM.tracing?
-          execute_without_appoptics(*args, &block)
+          execute_without_sw_apm(*args, &block)
         end
       end
     end
@@ -198,20 +198,20 @@ module SolarWindsAPM
         SolarWindsAPM::Util.method_alias(klass, :execute_insert, ::Sequel::Dataset)
       end
 
-      def execute_with_appoptics(sql, opts = ::Sequel::OPTS, &block)
-        exec_with_appoptics(:execute_without_appoptics, sql, opts, &block)
+      def execute_with_sw_apm(sql, opts = ::Sequel::OPTS, &block)
+        exec_with_sw_apm(:execute_without_sw_apm, sql, opts, &block)
       end
 
-      def execute_ddl_with_appoptics(sql, opts = ::Sequel::OPTS, &block)
-        exec_with_appoptics(:execute_ddl_without_appoptics, sql, opts, &block)
+      def execute_ddl_with_sw_apm(sql, opts = ::Sequel::OPTS, &block)
+        exec_with_sw_apm(:execute_ddl_without_sw_apm, sql, opts, &block)
       end
 
-      def execute_dui_with_appoptics(sql, opts = ::Sequel::OPTS, &block)
-        exec_with_appoptics(:execute_dui_without_appoptics, sql, opts, &block)
+      def execute_dui_with_sw_apm(sql, opts = ::Sequel::OPTS, &block)
+        exec_with_sw_apm(:execute_dui_without_sw_apm, sql, opts, &block)
       end
 
-      def execute_insert_with_appoptics(sql, opts = ::Sequel::OPTS, &block)
-        exec_with_appoptics(:execute_insert_without_appoptics, sql, opts, &block)
+      def execute_insert_with_sw_apm(sql, opts = ::Sequel::OPTS, &block)
+        exec_with_sw_apm(:execute_insert_without_sw_apm, sql, opts, &block)
       end
 
     end # module SequelDataset

@@ -42,20 +42,20 @@ module SolarWindsAPM
         tags
       end
 
-      def handle_request_response_with_appoptics(active_call, mth, inter_ctx)
-        handle_call('handle_request_response_without_appoptics', active_call, mth, inter_ctx)
+      def handle_request_response_with_sw_apm(active_call, mth, inter_ctx)
+        handle_call('handle_request_response_without_sw_apm', active_call, mth, inter_ctx)
       end
 
-      def handle_client_streamer_with_appoptics(active_call, mth, inter_ctx)
-        handle_call('handle_client_streamer_without_appoptics', active_call, mth, inter_ctx)
+      def handle_client_streamer_with_sw_apm(active_call, mth, inter_ctx)
+        handle_call('handle_client_streamer_without_sw_apm', active_call, mth, inter_ctx)
       end
 
-      def handle_server_streamer_with_appoptics(active_call, mth, inter_ctx)
-        handle_call('handle_server_streamer_without_appoptics', active_call, mth, inter_ctx)
+      def handle_server_streamer_with_sw_apm(active_call, mth, inter_ctx)
+        handle_call('handle_server_streamer_without_sw_apm', active_call, mth, inter_ctx)
       end
 
-      def handle_bidi_streamer_with_appoptics(active_call, mth, inter_ctx)
-        handle_call('handle_bidi_streamer_without_appoptics', active_call, mth, inter_ctx)
+      def handle_bidi_streamer_with_sw_apm(active_call, mth, inter_ctx)
+        handle_call('handle_bidi_streamer_without_sw_apm', active_call, mth, inter_ctx)
       end
 
       # status codes need to be determined in this lower method, because they may not get raised to the
@@ -69,14 +69,14 @@ module SolarWindsAPM
         end
       end
 
-      def run_server_method_with_appoptics(active_call, mth, inter_ctx)
+      def run_server_method_with_sw_apm(active_call, mth, inter_ctx)
         tags = grpc_tags(active_call, mth)
 
         SolarWindsAPM::API.log_start('grpc-server', tags, active_call.metadata)
 
         begin
           SolarWindsAPM::API.send_metrics('grpc-server', tags) do
-            run_server_method_without_appoptics(active_call, mth, inter_ctx)
+            run_server_method_without_sw_apm(active_call, mth, inter_ctx)
           end
         rescue => e
           log_grpc_exception(active_call, e)

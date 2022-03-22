@@ -129,17 +129,17 @@ describe SolarWindsAPM::SDK do
     end
 
     it 'should do the right thing in the recursive example' do
-      def computation_with_appoptics(n)
+      def computation_with_sw_apm(n)
         SolarWindsAPM::SDK.trace('computation', kvs: { :number => n }, protect_op: :comp) do
           return n if n == 0
-          n + computation_with_appoptics(n - 1)
+          n + computation_with_sw_apm(n - 1)
         end
       end
 
       SolarWindsAPM::API.expects(:log_event).with('computation', :entry, anything, anything).once
       SolarWindsAPM::API.expects(:log_event).with('computation', :exit, anything, anything).once
 
-      computation_with_appoptics(3)
+      computation_with_sw_apm(3)
     end
   end
 

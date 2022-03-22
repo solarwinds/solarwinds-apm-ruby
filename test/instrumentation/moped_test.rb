@@ -46,29 +46,29 @@ if defined?(::Moped)
     it 'Moped should have solarwinds_apm methods defined' do
       #::Moped::Database
       SolarWindsAPM::Inst::Moped::DB_OPS.each do |m|
-        _(::Moped::Database.method_defined?("#{m}_with_appoptics")).must_equal true
+        _(::Moped::Database.method_defined?("#{m}_with_sw_apm")).must_equal true
       end
       _(::Moped::Database.method_defined?(:extract_trace_details)).must_equal true
-      _(::Moped::Database.method_defined?(:command_with_appoptics)).must_equal true
-      _(::Moped::Database.method_defined?(:drop_with_appoptics)).must_equal true
+      _(::Moped::Database.method_defined?(:command_with_sw_apm)).must_equal true
+      _(::Moped::Database.method_defined?(:drop_with_sw_apm)).must_equal true
 
       #::Moped::Indexes
       SolarWindsAPM::Inst::Moped::INDEX_OPS.each do |m|
-        _(::Moped::Indexes.method_defined?("#{m}_with_appoptics")).must_equal true
+        _(::Moped::Indexes.method_defined?("#{m}_with_sw_apm")).must_equal true
       end
       _(::Moped::Indexes.method_defined?(:extract_trace_details)).must_equal true
-      _(::Moped::Indexes.method_defined?(:create_with_appoptics)).must_equal true
-      _(::Moped::Indexes.method_defined?(:drop_with_appoptics)).must_equal true
+      _(::Moped::Indexes.method_defined?(:create_with_sw_apm)).must_equal true
+      _(::Moped::Indexes.method_defined?(:drop_with_sw_apm)).must_equal true
 
       #::Moped::Query
       SolarWindsAPM::Inst::Moped::QUERY_OPS.each do |m|
-        _(::Moped::Query.method_defined?("#{m}_with_appoptics")).must_equal true
+        _(::Moped::Query.method_defined?("#{m}_with_sw_apm")).must_equal true
       end
       _(::Moped::Query.method_defined?(:extract_trace_details)).must_equal true
 
       #::Moped::Collection
       SolarWindsAPM::Inst::Moped::COLLECTION_OPS.each do |m|
-        _(::Moped::Collection.method_defined?("#{m}_with_appoptics")).must_equal true
+        _(::Moped::Collection.method_defined?("#{m}_with_sw_apm")).must_equal true
       end
       _(::Moped::Collection.method_defined?(:extract_trace_details)).must_equal true
     end

@@ -277,7 +277,7 @@ of how to instrument a client library (the dalli gem).
 The Dalli gem nicely routes all memcache operations through a single `perform` operation.  Wrapping this method allows 
 us to capture all Dalli operations called by an application.
 
-First, we define a module (SolarWindsAPM::Inst::Dalli) and our own custom `perform_with_appoptics` method that we will 
+First, we define a module (SolarWindsAPM::Inst::Dalli) and our own custom `perform_with_sw_apm` method that we will 
 use as a wrapper around Dalli's `perform` method.  We also declare an `included` method which automatically gets called 
 when this module is included by another.  
 See [`Module#included` Ruby reference documentation](https://devdocs.io/ruby~2.5/module#method-i-included).
@@ -291,13 +291,13 @@ module SolarWindsAPM
       def self.included(cls)
         cls.class_eval do
           if ::Dalli::Client.private_method_defined? :perform
-            alias perform_without_appoptics perform
-            alias perform perform_with_appoptics
+            alias perform_without_sw_apm perform
+            alias perform perform_with_sw_apm
           end
         end
       end
  
-      def perform_with_appoptics(*all_args, &blk)
+      def perform_with_sw_apm(*all_args, &blk)
         op, key, *args = *all_args
  
         if SolarWindsAPM.tracing?
@@ -306,14 +306,14 @@ module SolarWindsAPM
           opts[:KVKey] = key
  
           SolarWindsAPM::SDK.trace('memcache', kvs: opts) do
-            result = perform_without_appoptics(*all_args, &blk)
+            result = perform_without_sw_apm(*all_args, &blk)
             if op == :get and key.class == String
                 SolarWindsAPM::API.log_info('memcache', { :KVHit => memcache_hit?(result) })
             end
             result
           end
         else
-          perform_without_appoptics(*all_args, &blk)
+          perform_without_sw_apm(*all_args, &blk)
         end
       end
        

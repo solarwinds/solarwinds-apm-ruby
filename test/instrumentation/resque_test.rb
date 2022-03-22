@@ -25,11 +25,11 @@ unless defined?(JRUBY_VERSION)
 
     it 'appoptics_methods_defined' do
       [:enqueue, :enqueue_to, :dequeue].each do |m|
-        assert_equal true, ::Resque.method_defined?("#{m}_with_appoptics")
+        assert_equal true, ::Resque.method_defined?("#{m}_with_sw_apm")
       end
 
-      assert_equal true, ::Resque::Worker.method_defined?("perform_with_appoptics")
-      assert_equal true, ::Resque::Job.method_defined?("fail_with_appoptics")
+      assert_equal true, ::Resque::Worker.method_defined?("perform_with_sw_apm")
+      assert_equal true, ::Resque::Job.method_defined?("fail_with_sw_apm")
     end
 
     def not_tracing_validation

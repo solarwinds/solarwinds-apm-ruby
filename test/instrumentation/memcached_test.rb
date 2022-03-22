@@ -37,9 +37,9 @@ unless defined?(JRUBY_VERSION)
     it 'Memcached should have solarwinds_apm methods defined' do
       SolarWindsAPM::API::Memcache::MEMCACHE_OPS.each do |m|
         if ::Memcached.method_defined?(m)
-          _(::Memcached.method_defined?("#{m}_with_appoptics")).must_equal true
+          _(::Memcached.method_defined?("#{m}_with_sw_apm")).must_equal true
         end
-        _(::Memcached::Rails.method_defined?(:get_multi_with_appoptics)).must_equal true
+        _(::Memcached::Rails.method_defined?(:get_multi_with_sw_apm)).must_equal true
       end
     end
 

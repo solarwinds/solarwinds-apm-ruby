@@ -28,22 +28,22 @@ module SolarWindsAPM
         tags
       end
 
-      def request_response_with_appoptics(req, metadata: {})
-        unary_response(req, type: 'UNARY', metadata: metadata, without: :request_response_without_appoptics)
+      def request_response_with_sw_apm(req, metadata: {})
+        unary_response(req, type: 'UNARY', metadata: metadata, without: :request_response_without_sw_apm)
       end
 
-      def client_streamer_with_appoptics(req, metadata: {})
-        unary_response(req, type: 'CLIENT_STREAMING', metadata: metadata, without: :client_streamer_without_appoptics)
+      def client_streamer_with_sw_apm(req, metadata: {})
+        unary_response(req, type: 'CLIENT_STREAMING', metadata: metadata, without: :client_streamer_without_sw_apm)
       end
 
-      def server_streamer_with_appoptics(req, metadata: {}, &blk)
+      def server_streamer_with_sw_apm(req, metadata: {}, &blk)
         @tags = grpc_tags('SERVER_STREAMING', metadata['method'] || metadata_to_send['method'])
         SolarWindsAPM::API.log_entry('grpc-client', @tags)
         add_tracecontext_headers(metadata)
 
         patch_receive_and_check_status # need to patch this so that log_exit can be called after the enum is consumed
 
-        response = server_streamer_without_appoptics(req, metadata: metadata)
+        response = server_streamer_without_sw_apm(req, metadata: metadata)
         block_given? ? response.each { |r| yield r } : response
       rescue => e
         # this check is needed because the exception may have been logged in patch_receive_and_check_status
@@ -54,14 +54,14 @@ module SolarWindsAPM
         raise e
       end
 
-      def bidi_streamer_with_appoptics(req, metadata: {}, &blk)
+      def bidi_streamer_with_sw_apm(req, metadata: {}, &blk)
         @tags = grpc_tags('BIDI_STREAMING', metadata['method'] || metadata_to_send['method'])
         SolarWindsAPM::API.log_entry('grpc-client', @tags)
         add_tracecontext_headers(metadata)
 
         patch_set_input_stream_done
 
-        response = bidi_streamer_without_appoptics(req, metadata: metadata)
+        response = bidi_streamer_without_sw_apm(req, metadata: metadata)
         block_given? ? response.each { |r| yield r } : response
       rescue => e
         unless e.instance_variable_get(:@exn_logged)
@@ -129,12 +129,12 @@ if defined?(GRPC) && SolarWindsAPM::Config[:grpc_client][:enabled]
   module GRPC
     class ClientStub
       GRPC_ClientStub_ops.reject { |m| !method_defined?(m) }.each do |m|
-        define_method("#{m}_with_appoptics") do |method, req, marshal, unmarshal, deadline: nil,
+        define_method("#{m}_with_sw_apm") do |method, req, marshal, unmarshal, deadline: nil,
           return_op: false, parent: nil,
           credentials: nil, metadata: {}, &blk|
 
           metadata['method'] = method
-          return send("#{m}_without_appoptics", method, req, marshal, unmarshal, deadline: deadline,
+          return send("#{m}_without_sw_apm", method, req, marshal, unmarshal, deadline: deadline,
                       return_op: return_op, parent: parent,
                       credentials: credentials, metadata: metadata, &blk)
         end

@@ -65,7 +65,7 @@ module SolarWindsAPM
         return report_kvs
       end
 
-      def command_with_appoptics(command)
+      def command_with_sw_apm(command)
         if SolarWindsAPM.tracing? && !SolarWindsAPM.layer_op && command.key?(:mapreduce)
           begin
             report_kvs = extract_trace_details(:map_reduce)
@@ -76,20 +76,20 @@ module SolarWindsAPM
           end
 
           SolarWindsAPM::SDK.trace(:mongo, kvs: report_kvs) do
-            command_without_appoptics(command)
+            command_without_sw_apm(command)
           end
         else
-          command_without_appoptics(command)
+          command_without_sw_apm(command)
         end
       end
 
-      def drop_with_appoptics
-        return drop_without_appoptics unless SolarWindsAPM.tracing?
+      def drop_with_sw_apm
+        return drop_without_sw_apm unless SolarWindsAPM.tracing?
 
         report_kvs = extract_trace_details(:drop_database)
 
         SolarWindsAPM::SDK.trace(:mongo, kvs: report_kvs) do
-          drop_without_appoptics
+          drop_without_sw_apm
         end
       end
     end
@@ -126,8 +126,8 @@ module SolarWindsAPM
         return report_kvs
       end
 
-      def create_with_appoptics(key, options = {})
-        return create_without_appoptics(key, options) unless SolarWindsAPM.tracing?
+      def create_with_sw_apm(key, options = {})
+        return create_without_sw_apm(key, options) unless SolarWindsAPM.tracing?
 
         begin
           # We report :create_index here to be consistent
@@ -140,12 +140,12 @@ module SolarWindsAPM
         end
 
         SolarWindsAPM::API.trace(:mongo, kvs: report_kvs, protect_op: :create_index) do
-          create_without_appoptics(key, options = {})
+          create_without_sw_apm(key, options = {})
         end
       end
 
-      def drop_with_appoptics(key = nil)
-        return drop_without_appoptics(key) unless SolarWindsAPM.tracing?
+      def drop_with_sw_apm(key = nil)
+        return drop_without_sw_apm(key) unless SolarWindsAPM.tracing?
 
         begin
           # We report :drop_indexes here to be consistent
@@ -157,7 +157,7 @@ module SolarWindsAPM
         end
 
         SolarWindsAPM::SDK.trace(:mongo, kvs: report_kvs) do
-          drop_without_appoptics(key)
+          drop_without_sw_apm(key)
         end
       end
     end
@@ -190,8 +190,8 @@ module SolarWindsAPM
         return report_kvs
       end
 
-      def count_with_appoptics
-        return count_without_appoptics unless SolarWindsAPM.tracing?
+      def count_with_sw_apm
+        return count_without_sw_apm unless SolarWindsAPM.tracing?
 
         begin
           report_kvs = extract_trace_details(:count)
@@ -201,12 +201,12 @@ module SolarWindsAPM
         end
 
         SolarWindsAPM::SDK.trace(:mongo, kvs: report_kvs) do
-          count_without_appoptics
+          count_without_sw_apm
         end
       end
 
-      def sort_with_appoptics(sort)
-        return sort_without_appoptics(sort) unless SolarWindsAPM.tracing?
+      def sort_with_sw_apm(sort)
+        return sort_without_sw_apm(sort) unless SolarWindsAPM.tracing?
 
         begin
           report_kvs = extract_trace_details(:sort)
@@ -217,11 +217,11 @@ module SolarWindsAPM
         end
 
         SolarWindsAPM::SDK.trace(:mongo, kvs: report_kvs) do
-          sort_without_appoptics(sort)
+          sort_without_sw_apm(sort)
         end
       end
 
-      def limit_with_appoptics(limit)
+      def limit_with_sw_apm(limit)
         if SolarWindsAPM.tracing? && !SolarWindsAPM.tracing_layer_op?(:explain)
           begin
             report_kvs = extract_trace_details(:limit)
@@ -232,15 +232,15 @@ module SolarWindsAPM
           end
 
           SolarWindsAPM::SDK.trace(:mongo, kvs: report_kvs) do
-            limit_without_appoptics(limit)
+            limit_without_sw_apm(limit)
           end
         else
-          limit_without_appoptics(limit)
+          limit_without_sw_apm(limit)
         end
       end
 
-      def distinct_with_appoptics(key)
-        return distinct_without_appoptics(key) unless SolarWindsAPM.tracing?
+      def distinct_with_sw_apm(key)
+        return distinct_without_sw_apm(key) unless SolarWindsAPM.tracing?
 
         begin
           report_kvs = extract_trace_details(:distinct)
@@ -251,11 +251,11 @@ module SolarWindsAPM
         end
 
         SolarWindsAPM::SDK.trace(:mongo, kvs: report_kvs) do
-          distinct_without_appoptics(key)
+          distinct_without_sw_apm(key)
         end
       end
 
-      def update_with_appoptics(change, flags = nil)
+      def update_with_sw_apm(change, flags = nil)
         if SolarWindsAPM.tracing? && !SolarWindsAPM.tracing_layer_op?(:update_all) && !SolarWindsAPM.tracing_layer_op?(:upsert)
           begin
             report_kvs = extract_trace_details(:update)
@@ -266,15 +266,15 @@ module SolarWindsAPM
           end
 
           SolarWindsAPM::SDK.trace(:mongo, kvs: report_kvs) do
-            update_without_appoptics(change, flags)
+            update_without_sw_apm(change, flags)
           end
         else
-          update_without_appoptics(change, flags)
+          update_without_sw_apm(change, flags)
         end
       end
 
-      def update_all_with_appoptics(change)
-        return update_all_without_appoptics(change) unless SolarWindsAPM.tracing?
+      def update_all_with_sw_apm(change)
+        return update_all_without_sw_apm(change) unless SolarWindsAPM.tracing?
 
         begin
           report_kvs = extract_trace_details(:update_all)
@@ -284,12 +284,12 @@ module SolarWindsAPM
         end
 
         SolarWindsAPM::SDK.trace(:mongo, kvs: report_kvs, protect_op: :update_all) do
-          update_all_without_appoptics(change)
+          update_all_without_sw_apm(change)
         end
       end
 
-      def upsert_with_appoptics(change)
-        return upsert_without_appoptics(change) unless SolarWindsAPM.tracing?
+      def upsert_with_sw_apm(change)
+        return upsert_without_sw_apm(change) unless SolarWindsAPM.tracing?
 
         begin
           report_kvs = extract_trace_details(:upsert)
@@ -300,12 +300,12 @@ module SolarWindsAPM
         end
 
         SolarWindsAPM::SDK.trace(:mongo, kvs: report_kvs, protect_op: :upsert) do
-          upsert_without_appoptics(change)
+          upsert_without_sw_apm(change)
         end
       end
 
-      def explain_with_appoptics
-        return explain_without_appoptics unless SolarWindsAPM.tracing?
+      def explain_with_sw_apm
+        return explain_without_sw_apm unless SolarWindsAPM.tracing?
 
         begin
           report_kvs = extract_trace_details(:explain)
@@ -315,12 +315,12 @@ module SolarWindsAPM
         end
 
         SolarWindsAPM::SDK.trace(:mongo, kvs: report_kvs, protect_op: :explain) do
-          explain_without_appoptics
+          explain_without_sw_apm
         end
       end
 
-      def modify_with_appoptics(change, options = {})
-        return modify_without_appoptics(change, options) unless SolarWindsAPM.tracing?
+      def modify_with_sw_apm(change, options = {})
+        return modify_without_sw_apm(change, options) unless SolarWindsAPM.tracing?
 
         begin
           report_kvs = extract_trace_details(:modify)
@@ -332,12 +332,12 @@ module SolarWindsAPM
         end
 
         SolarWindsAPM::SDK.trace(:mongo, kvs: report_kvs) do
-          modify_without_appoptics(change, options)
+          modify_without_sw_apm(change, options)
         end
       end
 
-      def remove_with_appoptics
-        return remove_without_appoptics unless SolarWindsAPM.tracing?
+      def remove_with_sw_apm
+        return remove_without_sw_apm unless SolarWindsAPM.tracing?
 
         begin
           report_kvs = extract_trace_details(:remove)
@@ -347,12 +347,12 @@ module SolarWindsAPM
         end
 
         SolarWindsAPM::SDK.trace(:mongo, kvs: report_kvs) do
-          remove_without_appoptics
+          remove_without_sw_apm
         end
       end
 
-      def remove_all_with_appoptics
-        return remove_all_without_appoptics unless SolarWindsAPM.tracing?
+      def remove_all_with_sw_apm
+        return remove_all_without_sw_apm unless SolarWindsAPM.tracing?
 
         begin
           report_kvs = extract_trace_details(:remove_all)
@@ -362,7 +362,7 @@ module SolarWindsAPM
         end
 
         SolarWindsAPM::SDK.trace(:mongo, kvs: report_kvs) do
-          remove_all_without_appoptics
+          remove_all_without_sw_apm
         end
       end
     end
@@ -394,20 +394,20 @@ module SolarWindsAPM
         return report_kvs
       end
 
-      def drop_with_appoptics
-        return drop_without_appoptics unless SolarWindsAPM.tracing?
+      def drop_with_sw_apm
+        return drop_without_sw_apm unless SolarWindsAPM.tracing?
 
         # We report :drop_collection here to be consistent
         # with other mongo implementations
         report_kvs = extract_trace_details(:drop_collection)
 
         SolarWindsAPM::SDK.trace(:mongo, kvs: report_kvs) do
-          drop_without_appoptics
+          drop_without_sw_apm
         end
       end
 
-      def find_with_appoptics(selector = {})
-        return find_without_appoptics(selector) unless SolarWindsAPM.tracing?
+      def find_with_sw_apm(selector = {})
+        return find_without_sw_apm(selector) unless SolarWindsAPM.tracing?
 
         begin
           report_kvs = extract_trace_details(:find)
@@ -417,40 +417,40 @@ module SolarWindsAPM
         end
 
         SolarWindsAPM::SDK.trace(:mongo, kvs: report_kvs) do
-          find_without_appoptics(selector)
+          find_without_sw_apm(selector)
         end
       end
 
-      def indexes_with_appoptics
-        return indexes_without_appoptics unless SolarWindsAPM.tracing?
+      def indexes_with_sw_apm
+        return indexes_without_sw_apm unless SolarWindsAPM.tracing?
 
         report_kvs = extract_trace_details(:indexes)
 
         SolarWindsAPM::SDK.trace(:mongo, kvs: report_kvs) do
-          indexes_without_appoptics
+          indexes_without_sw_apm
         end
       end
 
-      def insert_with_appoptics(documents, flags = nil)
+      def insert_with_sw_apm(documents, flags = nil)
         if SolarWindsAPM.tracing? && !SolarWindsAPM.tracing_layer_op?(:create_index)
           report_kvs = extract_trace_details(:insert)
 
           SolarWindsAPM::SDK.trace(:mongo, kvs: report_kvs) do
-            insert_without_appoptics(documents, flags)
+            insert_without_sw_apm(documents, flags)
           end
         else
-          insert_without_appoptics(documents, flags)
+          insert_without_sw_apm(documents, flags)
         end
       end
 
-      def aggregate_with_appoptics(*pipeline)
-        return aggregate_without_appoptics(*pipeline) unless SolarWindsAPM.tracing?
+      def aggregate_with_sw_apm(*pipeline)
+        return aggregate_without_sw_apm(*pipeline) unless SolarWindsAPM.tracing?
 
         report_kvs = extract_trace_details(:aggregate)
         report_kvs[:Query] = pipeline
 
         SolarWindsAPM::SDK.trace(:mongo, kvs: report_kvs) do
-          aggregate_without_appoptics(pipeline)
+          aggregate_without_sw_apm(pipeline)
         end
       end
     end

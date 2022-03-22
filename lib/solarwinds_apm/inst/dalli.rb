@@ -10,20 +10,20 @@ module SolarWindsAPM
         cls.class_eval do
           SolarWindsAPM.logger.info '[solarwinds_apm/loading] Instrumenting memcache (dalli)' if SolarWindsAPM::Config[:verbose]
           if ::Dalli::Client.private_method_defined? :perform
-            alias perform_without_appoptics perform
-            alias perform perform_with_appoptics
+            alias perform_without_sw_apm perform
+            alias perform perform_with_sw_apm
           else
             SolarWindsAPM.logger.warn '[solarwinds_apm/loading] Couldn\'t properly instrument Memcache (Dalli).  Partial traces may occur.'
           end
 
           if ::Dalli::Client.method_defined? :get_multi
-            alias get_multi_without_appoptics get_multi
-            alias get_multi get_multi_with_appoptics
+            alias get_multi_without_sw_apm get_multi
+            alias get_multi get_multi_with_sw_apm
           end
         end
       end
 
-      def perform_with_appoptics(*all_args, &blk)
+      def perform_with_sw_apm(*all_args, &blk)
         op, key, *args = *all_args
 
         report_kvs = {}
@@ -37,7 +37,7 @@ module SolarWindsAPM
 
         if SolarWindsAPM.tracing? && !SolarWindsAPM.tracing_layer_op?(:get_multi)
           SolarWindsAPM::SDK.trace(:memcache, kvs: report_kvs) do
-            result = perform_without_appoptics(*all_args, &blk)
+            result = perform_without_sw_apm(*all_args, &blk)
 
             # Clear the hash for a potential info event
             report_kvs.clear
@@ -47,12 +47,12 @@ module SolarWindsAPM
             result
           end
         else
-          perform_without_appoptics(*all_args, &blk)
+          perform_without_sw_apm(*all_args, &blk)
         end
       end
 
-      def get_multi_with_appoptics(*keys)
-        return get_multi_without_appoptics(*keys) unless SolarWindsAPM.tracing?
+      def get_multi_with_sw_apm(*keys)
+        return get_multi_without_sw_apm(*keys) unless SolarWindsAPM.tracing?
 
         info_kvs = {}
 
@@ -71,7 +71,7 @@ module SolarWindsAPM
         info_kvs[:KVOp] = :get_multi
         info_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:dalli][:collect_backtraces]
         SolarWindsAPM::SDK.trace(:memcache, kvs: info_kvs, protect_op: :get_multi) do
-          values = get_multi_without_appoptics(*keys)
+          values = get_multi_without_sw_apm(*keys)
 
           info_kvs[:KVHitCount] = values.length
 

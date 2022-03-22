@@ -6,28 +6,28 @@ module SolarWindsAPM
     module ConnectionAdapters
       module Utils
 
-        def exec_query_with_appoptics(*args, **args2)
+        def exec_query_with_sw_apm(*args, **args2)
           trace_wrap(*args) do |args|
-            exec_query_without_appoptics(*args, **args2)
+            exec_query_without_sw_apm(*args, **args2)
           end
         end
 
         # need to instrument them all
-        def exec_insert_with_appoptics(*args)
+        def exec_insert_with_sw_apm(*args)
           trace_wrap(*args) do |args|
-            exec_insert_without_appoptics(*args)
+            exec_insert_without_sw_apm(*args)
           end
         end
 
-        def exec_delete_with_appoptics(*args)
+        def exec_delete_with_sw_apm(*args)
           trace_wrap(*args) do |args|
-            exec_delete_without_appoptics(*args)
+            exec_delete_without_sw_apm(*args)
           end
         end
 
-        def exec_update_with_appoptics(*args)
+        def exec_update_with_sw_apm(*args)
           trace_wrap(*args) do |args|
-            exec_update_without_appoptics(*args)
+            exec_update_without_sw_apm(*args)
           end
         end
 

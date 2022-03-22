@@ -9,7 +9,7 @@ if defined?(ActionView::Base) && SolarWindsAPM::Config[:action_view][:enabled]
     if ActionView.version >= Gem::Version.new('6.1.0') # the methods changed in this version
 
       ActionView::PartialRenderer.class_eval do
-        alias :render_partial_template_without_appoptics :render_partial_template
+        alias :render_partial_template_without_sw_apm :render_partial_template
 
         def render_partial_template(*args)
           _, _, template, _, _ = args
@@ -21,13 +21,13 @@ if defined?(ActionView::Base) && SolarWindsAPM::Config[:action_view][:enabled]
           end
           SolarWindsAPM::SDK.trace(:partial, kvs: entry_kvs) do
             entry_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:action_view][:collect_backtraces]
-            render_partial_template_without_appoptics(*args)
+            render_partial_template_without_sw_apm(*args)
           end
         end
       end
 
       ActionView::CollectionRenderer.class_eval do
-        alias :render_collection_without_appoptics :render_collection
+        alias :render_collection_without_sw_apm :render_collection
 
         def render_collection(*args)
           _, _, _, template, _, _ = args
@@ -39,7 +39,7 @@ if defined?(ActionView::Base) && SolarWindsAPM::Config[:action_view][:enabled]
           end
           SolarWindsAPM::SDK.trace(:collection, kvs: entry_kvs) do
             entry_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:action_view][:collect_backtraces]
-            render_collection_without_appoptics(*args)
+            render_collection_without_sw_apm(*args)
           end
         end
       end
@@ -47,7 +47,7 @@ if defined?(ActionView::Base) && SolarWindsAPM::Config[:action_view][:enabled]
     else # Rails < 6.1.0
 
       ActionView::PartialRenderer.class_eval do
-        alias :render_partial_without_appoptics :render_partial
+        alias :render_partial_without_sw_apm :render_partial
         def render_partial(*args)
           template = @template || args[1]
           entry_kvs = {}
@@ -60,11 +60,11 @@ if defined?(ActionView::Base) && SolarWindsAPM::Config[:action_view][:enabled]
 
           SolarWindsAPM::SDK.trace('partial', kvs: entry_kvs) do
             entry_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:action_view][:collect_backtraces]
-            render_partial_without_appoptics(*args)
+            render_partial_without_sw_apm(*args)
           end
         end
 
-        alias :render_collection_without_appoptics :render_collection
+        alias :render_collection_without_sw_apm :render_collection
         def render_collection(*args)
           template = @template || args[1]
           entry_kvs = {}
@@ -76,7 +76,7 @@ if defined?(ActionView::Base) && SolarWindsAPM::Config[:action_view][:enabled]
 
           SolarWindsAPM::SDK.trace('collection', kvs: entry_kvs) do
             entry_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:action_view][:collect_backtraces]
-            render_collection_without_appoptics(*args)
+            render_collection_without_sw_apm(*args)
           end
         end
       end

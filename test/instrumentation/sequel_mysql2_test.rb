@@ -53,13 +53,13 @@ if defined?(::Sequel) && !defined?(JRUBY_VERSION)
 
     it 'sequel should have solarwinds_apm methods defined' do
       # Sequel::Database
-      _(::Sequel::Database.method_defined?(:run_with_appoptics)).must_equal true
+      _(::Sequel::Database.method_defined?(:run_with_sw_apm)).must_equal true
 
       # Sequel::Dataset
-      _(::Sequel::Dataset.method_defined?(:execute_with_appoptics)).must_equal true
-      _(::Sequel::Dataset.method_defined?(:execute_ddl_with_appoptics)).must_equal true
-      _(::Sequel::Dataset.method_defined?(:execute_dui_with_appoptics)).must_equal true
-      _(::Sequel::Dataset.method_defined?(:execute_insert_with_appoptics)).must_equal true
+      _(::Sequel::Dataset.method_defined?(:execute_with_sw_apm)).must_equal true
+      _(::Sequel::Dataset.method_defined?(:execute_ddl_with_sw_apm)).must_equal true
+      _(::Sequel::Dataset.method_defined?(:execute_dui_with_sw_apm)).must_equal true
+      _(::Sequel::Dataset.method_defined?(:execute_insert_with_sw_apm)).must_equal true
     end
 
     it "should obey :collect_backtraces setting when true" do

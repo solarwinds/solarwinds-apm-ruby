@@ -34,16 +34,16 @@ module SolarWindsAPM
           safe_method_name = method.to_s.chop if method.to_s =~ /\?$|\!$/
           safe_method_name ||= method
 
-          without_appoptics = "#{safe_method_name}_without_appoptics"
-          with_appoptics    = "#{safe_method_name}_with_appoptics"
+          without_sw_apm = "#{safe_method_name}_without_sw_apm"
+          with_sw_apm    = "#{safe_method_name}_with_sw_apm"
 
           # Only alias if we haven't done so already
-          unless cls.method_defined?(without_appoptics.to_sym) ||
-            cls.private_method_defined?(without_appoptics.to_sym)
+          unless cls.method_defined?(without_sw_apm.to_sym) ||
+            cls.private_method_defined?(without_sw_apm.to_sym)
 
             cls.class_eval do
-              alias_method without_appoptics, method.to_s
-              alias_method method.to_s, with_appoptics
+              alias_method without_sw_apm, method.to_s
+              alias_method method.to_s, with_sw_apm
             end
           end
         else
@@ -66,13 +66,13 @@ module SolarWindsAPM
           safe_method_name = method.to_s.chop if method.to_s =~ /\?$|\!$/
           safe_method_name ||= method
 
-          without_appoptics = "#{safe_method_name}_without_appoptics"
-          with_appoptics    = "#{safe_method_name}_with_appoptics"
+          without_sw_apm = "#{safe_method_name}_without_sw_apm"
+          with_sw_apm    = "#{safe_method_name}_with_sw_apm"
 
           # Only alias if we haven't done so already
-          unless cls.singleton_methods.include? without_appoptics.to_sym
-            cls.singleton_class.send(:alias_method, without_appoptics, method.to_s)
-            cls.singleton_class.send(:alias_method, method.to_s, with_appoptics)
+          unless cls.singleton_methods.include? without_sw_apm.to_sym
+            cls.singleton_class.send(:alias_method, without_sw_apm, method.to_s)
+            cls.singleton_class.send(:alias_method, method.to_s, with_sw_apm)
           end
         else
           SolarWindsAPM.logger.warn "[solarwinds_apm/loading] Couldn't properly instrument #{name}.  Partial traces may occur."

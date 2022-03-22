@@ -16,11 +16,11 @@ if defined?(Delayed)
             SolarWindsAPM::Util.class_method_alias(klass, :after_fork, ::Delayed::Worker)
           end
 
-          def after_fork_with_appoptics
+          def after_fork_with_sw_apm
             SolarWindsAPM.logger.info '[solarwinds_apm/delayed_job] Detected fork.  Restarting SolarWindsAPM reporter.' if SolarWindsAPM::Config[:verbose]
             SolarWindsAPM::Reporter.restart unless ENV.key?('SW_AMP_GEM_TEST')
 
-            after_fork_without_appoptics
+            after_fork_without_sw_apm
           end
         end
 

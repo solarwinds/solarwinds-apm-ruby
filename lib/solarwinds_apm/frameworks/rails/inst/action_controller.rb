@@ -70,13 +70,13 @@ module SolarWindsAPM
 
 
       #
-      # render_with_appoptics
+      # render_with_sw_apm
       #
       # Our render wrapper that calls 'add_logging', which will log if we are tracing
       #
-      def render_with_appoptics(*args, &blk)
+      def render_with_sw_apm(*args, &blk)
         trace('actionview') do
-          render_without_appoptics(*args, &blk)
+          render_without_sw_apm(*args, &blk)
         end
       end
     end

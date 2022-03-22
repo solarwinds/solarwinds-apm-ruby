@@ -10,7 +10,7 @@ if SolarWindsAPM::Config[:nethttp][:enabled]
         include SolarWindsAPM::SDK::TraceContextHeaders
 
         # Net::HTTP.class_eval do
-        # def request_with_appoptics(*args, &block)
+        # def request_with_sw_apm(*args, &block)
         def request(*args, &block)
           # If we're not tracing, just do a fast return. Since
           # net/http.request calls itself, only trace

@@ -63,17 +63,17 @@ if SolarWindsAPM::Config[:mongo][:enabled]
         # we want to instrument in mongo
         #
         COLL_OPS.reject { |m| !method_defined?(m) }.each do |m|
-          define_method("#{m}_with_appoptics") do |*args|
+          define_method("#{m}_with_sw_apm") do |*args|
             begin
               if !SolarWindsAPM.tracing? || SolarWindsAPM.tracing_layer?(:mongo)
                 mongo_skipped = true
-                return send("#{m}_without_appoptics", *args)
+                return send("#{m}_without_sw_apm", *args)
               end
 
               kvs = collect_kvs(m, args)
               SolarWindsAPM::API.log_entry(:mongo, kvs)
 
-              send("#{m}_without_appoptics", *args)
+              send("#{m}_without_sw_apm", *args)
             rescue => e
               SolarWindsAPM::API.log_exception(:mongo, e)
               raise e
@@ -140,17 +140,17 @@ if SolarWindsAPM::Config[:mongo][:enabled]
           # we want to instrument in mongo
           #
           VIEW_OPS.reject { |m| !method_defined?(m) }.each do |m|
-            define_method("#{m}_with_appoptics") do |*args|
+            define_method("#{m}_with_sw_apm") do |*args|
               begin
                 if !SolarWindsAPM.tracing? || SolarWindsAPM.tracing_layer?(:mongo)
                   mongo_skipped = true
-                  return send("#{m}_without_appoptics", *args)
+                  return send("#{m}_without_sw_apm", *args)
                 end
 
                 kvs = collect_kvs(m, args)
                 SolarWindsAPM::API.log_entry(:mongo, kvs)
 
-                send("#{m}_without_appoptics", *args)
+                send("#{m}_without_sw_apm", *args)
               rescue => e
                 SolarWindsAPM::API.log_exception(:mongo, e)
                 raise e
@@ -198,17 +198,17 @@ if SolarWindsAPM::Config[:mongo][:enabled]
           # we want to instrument in mongo
           #
           INDEX_OPS.reject { |m| !method_defined?(m) }.each do |m|
-            define_method("#{m}_with_appoptics") do |*args|
+            define_method("#{m}_with_sw_apm") do |*args|
               begin
                 if !SolarWindsAPM.tracing? || SolarWindsAPM.tracing_layer?(:mongo)
                   mongo_skipped = true
-                  return send("#{m}_without_appoptics", *args)
+                  return send("#{m}_without_sw_apm", *args)
                 end
 
                 kvs = collect_index_kvs(m, args)
                 SolarWindsAPM::API.log_entry(:mongo, kvs)
 
-                send("#{m}_without_appoptics", *args)
+                send("#{m}_without_sw_apm", *args)
               rescue => e
                 SolarWindsAPM::API.log_exception(:mongo, e)
                 raise e

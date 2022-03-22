@@ -10,8 +10,8 @@ module SolarWindsAPM
         SolarWindsAPM::Util.class_method_alias(klass, :inherited, ::Grape::API)
       end
 
-      def inherited_with_appoptics(subclass)
-        inherited_without_appoptics(subclass)
+      def inherited_with_sw_apm(subclass)
+        inherited_without_sw_apm(subclass)
 
         subclass.use SolarWindsAPM::Rack
       end
@@ -22,7 +22,7 @@ module SolarWindsAPM
         SolarWindsAPM::Util.method_alias(klass, :run, ::Grape::Endpoint)
       end
 
-      def run_with_appoptics(*args)
+      def run_with_sw_apm(*args)
         # Report Controller/Action and Transaction as best possible
         report_kvs = {}
 
@@ -40,7 +40,7 @@ module SolarWindsAPM
 
         SolarWindsAPM::API.log_entry('grape', report_kvs)
 
-        run_without_appoptics(*args)
+        run_without_sw_apm(*args)
       ensure
         SolarWindsAPM::API.log_exit('grape')
       end
@@ -52,8 +52,8 @@ module SolarWindsAPM
           SolarWindsAPM::Util.method_alias(klass, :error_response, ::Grape::Middleware::Error)
         end
 
-        def error_response_with_appoptics(error = {})
-          response = error_response_without_appoptics(error)
+        def error_response_with_sw_apm(error = {})
+          response = error_response_without_sw_apm(error)
           status, headers, _body = response.finish
 
           tracestring = SolarWindsAPM::Context.toString

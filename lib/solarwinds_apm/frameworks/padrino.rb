@@ -8,12 +8,12 @@ module SolarWindsAPM
         SolarWindsAPM::Util.method_alias(klass, :dispatch!, ::Padrino::Routing)
       end
 
-      def dispatch_with_appoptics
+      def dispatch_with_sw_apm
 
         SolarWindsAPM::API.log_entry('padrino', {})
         report_kvs = {}
 
-        result = dispatch_without_appoptics
+        result = dispatch_without_sw_apm
 
         # Report Controller/Action and Transaction as best possible
         controller = (request.controller && !request.controller.empty?) ? request.controller : nil
@@ -39,7 +39,7 @@ module SolarWindsAPM
 
       # TODO add test coverage, currently there are no tests for this
       # ____ I'm not sure this gets ever called, Padrino uses Sinatra's render method
-      def render_with_appoptics(engine, data = nil, options = {}, locals = {}, &block)
+      def render_with_sw_apm(engine, data = nil, options = {}, locals = {}, &block)
         if SolarWindsAPM.tracing?
           report_kvs = {}
 
@@ -48,10 +48,10 @@ module SolarWindsAPM
 
           SolarWindsAPM::SDK.trace(:padrino_render, kvs: report_kvs, protect_op: :padrino_render) do
             report_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:padrino][:collect_backtraces]
-            render_without_appoptics(engine, data, options, locals, &block)
+            render_without_sw_apm(engine, data, options, locals, &block)
           end
         else
-          render_without_appoptics(engine, data, options, locals, &block)
+          render_without_sw_apm(engine, data, options, locals, &block)
         end
       end
     end

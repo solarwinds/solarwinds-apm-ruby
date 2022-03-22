@@ -42,7 +42,7 @@ if defined?(::Padrino)
     it "should log an error on exception" do
       @app = SimpleDemo
 
-      SimpleDemo.any_instance.expects(:dispatch_without_appoptics).raises(StandardError)
+      SimpleDemo.any_instance.expects(:dispatch_without_sw_apm).raises(StandardError)
 
       begin
         r = get "/render"

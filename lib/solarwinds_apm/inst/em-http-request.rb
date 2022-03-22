@@ -5,7 +5,7 @@ module SolarWindsAPM
   module Inst
     module EventMachine
       module HttpConnection
-        def setup_request_with_appoptics(*args, &block)
+        def setup_request_with_sw_apm(*args, &block)
           context = SolarWindsAPM::Context.toString
 
           if SolarWindsAPM.tracing?
@@ -23,7 +23,7 @@ module SolarWindsAPM
 
             context = SolarWindsAPM::API.log_entry('em-http-request', report_kvs)
           end
-          client = setup_request_without_appoptics(*args, &block)
+          client = setup_request_without_sw_apm(*args, &block)
           client.req.headers['X-Trace'] = context
           client
         end
@@ -31,7 +31,7 @@ module SolarWindsAPM
 
       module HttpClient
 
-        def parse_response_header_with_appoptics(*args, &block)
+        def parse_response_header_with_sw_apm(*args, &block)
           report_kvs = {}
           tracestring = nil
 
@@ -42,7 +42,7 @@ module SolarWindsAPM
             SolarWindsAPM.logger.debug "[solarwinds_apm/debug] em-http-request KV error: #{e.inspect}"
           end
 
-          parse_response_header_without_appoptics(*args, &block)
+          parse_response_header_without_sw_apm(*args, &block)
 
           headers = args[0]
           context = SolarWindsAPM::Context.toString
@@ -77,8 +77,8 @@ if defined?(EventMachine::HttpConnection) && defined?(EventMachine::HttpClient) 
     include SolarWindsAPM::Inst::EventMachine::HttpConnection
 
     if method_defined?(:setup_request)
-      class_eval 'alias :setup_request_without_appoptics :setup_request'
-      class_eval 'alias :setup_request :setup_request_with_appoptics'
+      class_eval 'alias :setup_request_without_sw_apm :setup_request'
+      class_eval 'alias :setup_request :setup_request_with_sw_apm'
     else
       SolarWindsAPM.logger.warn '[solarwinds_apm/loading] Couldn\'t properly instrument em-http-request (:setup_request).  Partial traces may occur.'
     end
@@ -88,8 +88,8 @@ if defined?(EventMachine::HttpConnection) && defined?(EventMachine::HttpClient) 
     include SolarWindsAPM::Inst::EventMachine::HttpClient
 
     if method_defined?(:parse_response_header)
-      class_eval 'alias :parse_response_header_without_appoptics :parse_response_header'
-      class_eval 'alias :parse_response_header :parse_response_header_with_appoptics'
+      class_eval 'alias :parse_response_header_without_sw_apm :parse_response_header'
+      class_eval 'alias :parse_response_header :parse_response_header_with_sw_apm'
     else
       SolarWindsAPM.logger.warn '[solarwinds_apm/loading] Couldn\'t properly instrument em-http-request (:parse_response_header).  Partial traces may occur.'
     end

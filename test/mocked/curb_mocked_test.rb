@@ -77,7 +77,7 @@ if !defined?(JRUBY_VERSION)
     def test_multi_get_no_trace
       WebMock.disable!
 
-      Curl::Multi.expects(:http_without_appoptics).with do |url_confs, _multi_options|
+      Curl::Multi.expects(:http_without_sw_apm).with do |url_confs, _multi_options|
         assert_equal 3, url_confs.size
         url_confs.each do |conf|
           refute conf[:headers] && conf[:headers].transform_keys(&:downcase)['traceparent']
@@ -100,7 +100,7 @@ if !defined?(JRUBY_VERSION)
     def test_multi_get_tracing
       WebMock.disable!
 
-      Curl::Multi.expects(:http_without_appoptics).with do |url_confs, _multi_options|
+      Curl::Multi.expects(:http_without_sw_apm).with do |url_confs, _multi_options|
         assert_equal 3, url_confs.size
         url_confs.each do |conf|
           headers = conf[:headers] || {}
@@ -128,7 +128,7 @@ if !defined?(JRUBY_VERSION)
     def test_multi_get_tracing_not_sampling
       WebMock.disable!
 
-      Curl::Multi.expects(:http_without_appoptics).with do |url_confs, _multi_options|
+      Curl::Multi.expects(:http_without_sw_apm).with do |url_confs, _multi_options|
         assert_equal 3, url_confs.size
         url_confs.each do |conf|
           headers = conf[:headers] || {}

@@ -52,9 +52,9 @@ end
 ```
 The code to be benchmarked:
 ```
- def basic_publish_with_appoptics(payload, exchange, routing_key, opts = {})
+ def basic_publish_with_sw_apm(payload, exchange, routing_key, opts = {})
     # If we're not tracing, just do a fast return.
-    return basic_publish_without_appoptics(payload, exchange, routing_key, opts) if !SolarWindsAPM.tracing? && ENV['TEST_AB'] == 'B'
+    return basic_publish_without_sw_apm(payload, exchange, routing_key, opts) if !SolarWindsAPM.tracing? && ENV['TEST_AB'] == 'B'
 
     begin
        kvs = collect_channel_kvs

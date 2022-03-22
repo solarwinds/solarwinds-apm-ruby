@@ -11,7 +11,7 @@ module SolarWindsAPM
 
         cls.class_eval do
           MEMCACHE_OPS.reject { |m| !method_defined?(m) }.each do |m|
-            define_method("#{m}_with_appoptics") do |*args|
+            define_method("#{m}_with_sw_apm") do |*args|
               kvs = { :KVOp => m }
 
               if args.length && !args[0].is_a?(Array)
@@ -21,7 +21,7 @@ module SolarWindsAPM
               end
 
               SolarWindsAPM::SDK.trace(:memcache, kvs: kvs) do
-                result = send("#{m}_without_appoptics", *args)
+                result = send("#{m}_without_sw_apm", *args)
 
                 kvs[:KVHit] = memcache_hit?(result) if m == :get && args.length && args[0].class == String
                 kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:memcached][:collect_backtraces]
@@ -30,8 +30,8 @@ module SolarWindsAPM
               end
             end
 
-            class_eval "alias #{m}_without_appoptics #{m}"
-            class_eval "alias #{m} #{m}_with_appoptics"
+            class_eval "alias #{m}_without_sw_apm #{m}"
+            class_eval "alias #{m} #{m}_with_sw_apm"
           end
         end
       end
@@ -42,15 +42,15 @@ module SolarWindsAPM
       def self.included(cls)
         cls.class_eval do
           if ::Memcached::Rails.method_defined? :get_multi
-            alias get_multi_without_appoptics get_multi
-            alias get_multi get_multi_with_appoptics
+            alias get_multi_without_sw_apm get_multi
+            alias get_multi get_multi_with_sw_apm
           elsif SolarWindsAPM::Config[:verbose]
             SolarWindsAPM.logger.warn '[solarwinds_apm/loading] Couldn\'t properly instrument Memcached.  Partial traces may occur.'
           end
         end
       end
 
-      def get_multi_with_appoptics(keys, raw = false)
+      def get_multi_with_sw_apm(keys, raw = false)
         if SolarWindsAPM.tracing?
           layer_kvs = {}
           layer_kvs[:KVOp] = :get_multi
@@ -58,7 +58,7 @@ module SolarWindsAPM
           SolarWindsAPM::SDK.trace(:memcache, kvs: layer_kvs, protect_op: :get_multi) do
             layer_kvs[:KVKeyCount] = keys.flatten.length
 
-            values = get_multi_without_appoptics(keys, raw)
+            values = get_multi_without_sw_apm(keys, raw)
 
             layer_kvs[:KVHitCount] = values.length
             layer_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:memcached][:collect_backtraces]
@@ -66,7 +66,7 @@ module SolarWindsAPM
             values
           end
         else
-          get_multi_without_appoptics(keys, raw)
+          get_multi_without_sw_apm(keys, raw)
         end
       end
     end # module MemcachedRails

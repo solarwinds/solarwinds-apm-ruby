@@ -33,7 +33,7 @@ if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && Sola
 
         # Instrument DB operations
         SolarWindsAPM::Inst::Mongo::DB_OPS.reject { |m| !method_defined?(m) }.each do |m|
-          define_method("#{m}_with_appoptics") do |*args|
+          define_method("#{m}_with_sw_apm") do |*args|
             report_kvs = {}
 
             begin
@@ -62,12 +62,12 @@ if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && Sola
 
             SolarWindsAPM::SDK.trace(:mongo, kvs: report_kvs) do
               report_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:mongo][:collect_backtraces]
-              send("#{m}_without_appoptics", *args)
+              send("#{m}_without_sw_apm", *args)
             end
           end
 
-          class_eval "alias #{m}_without_appoptics #{m}"
-          class_eval "alias #{m} #{m}_with_appoptics"
+          class_eval "alias #{m}_without_sw_apm #{m}"
+          class_eval "alias #{m} #{m}_with_sw_apm"
         end
       end
     end
@@ -80,7 +80,7 @@ if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && Sola
 
         # Instrument DB cursor operations
         SolarWindsAPM::Inst::Mongo::CURSOR_OPS.reject { |m| !method_defined?(m) }.each do |m|
-          define_method("#{m}_with_appoptics") do |*args|
+          define_method("#{m}_with_sw_apm") do |*args|
             report_kvs = {}
 
             begin
@@ -105,12 +105,12 @@ if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && Sola
 
             SolarWindsAPM::SDK.trace(:mongo, kvs: report_kvs) do
               report_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:mongo][:collect_backtraces]
-              send("#{m}_without_appoptics", *args)
+              send("#{m}_without_sw_apm", *args)
             end
           end
 
-          class_eval "alias #{m}_without_appoptics #{m}"
-          class_eval "alias #{m} #{m}_with_appoptics"
+          class_eval "alias #{m}_without_sw_apm #{m}"
+          class_eval "alias #{m} #{m}_with_sw_apm"
         end
       end
     end
@@ -140,7 +140,7 @@ if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && Sola
 
         # Instrument Collection write operations
         SolarWindsAPM::Inst::Mongo::COLL_WRITE_OPS.reject { |m| !method_defined?(m) }.each do |m|
-          define_method("#{m}_with_appoptics") do |*args|
+          define_method("#{m}_with_sw_apm") do |*args|
             report_kvs = appoptics_collect(m, args)
             args_length = args.length
 
@@ -169,17 +169,17 @@ if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && Sola
 
             SolarWindsAPM::SDK.trace(:mongo, kvs: report_kvs) do
               report_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:mongo][:collect_backtraces]
-              send("#{m}_without_appoptics", *args)
+              send("#{m}_without_sw_apm", *args)
             end
           end
 
-          class_eval "alias #{m}_without_appoptics #{m}"
-          class_eval "alias #{m} #{m}_with_appoptics"
+          class_eval "alias #{m}_without_sw_apm #{m}"
+          class_eval "alias #{m} #{m}_with_sw_apm"
         end
 
         # Instrument Collection query operations
         SolarWindsAPM::Inst::Mongo::COLL_QUERY_OPS.reject { |m| !method_defined?(m) }.each do |m|
-          define_method("#{m}_with_appoptics") do |*args, &blk|
+          define_method("#{m}_with_sw_apm") do |*args, &blk|
             report_kvs = {}
             begin
               report_kvs = appoptics_collect(m, args)
@@ -210,17 +210,17 @@ if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && Sola
 
             SolarWindsAPM::SDK.trace(:mongo, kvs: report_kvs) do
               report_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:mongo][:collect_backtraces]
-              send("#{m}_without_appoptics", *args, &blk)
+              send("#{m}_without_sw_apm", *args, &blk)
             end
           end
 
-          class_eval "alias #{m}_without_appoptics #{m}"
-          class_eval "alias #{m} #{m}_with_appoptics"
+          class_eval "alias #{m}_without_sw_apm #{m}"
+          class_eval "alias #{m} #{m}_with_sw_apm"
         end
 
         # Instrument Collection index operations
         SolarWindsAPM::Inst::Mongo::COLL_INDEX_OPS.reject { |m| !method_defined?(m) }.each do |m|
-          define_method("#{m}_with_appoptics") do |*args|
+          define_method("#{m}_with_sw_apm") do |*args|
             report_kvs = appoptics_collect(m, args)
 
             begin
@@ -233,12 +233,12 @@ if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && Sola
 
             SolarWindsAPM::SDK.trace(:mongo, kvs: report_kvs) do
               report_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:mongo][:collect_backtraces]
-              send("#{m}_without_appoptics", *args)
+              send("#{m}_without_sw_apm", *args)
             end
           end
 
-          class_eval "alias #{m}_without_appoptics #{m}"
-          class_eval "alias #{m} #{m}_with_appoptics"
+          class_eval "alias #{m}_without_sw_apm #{m}"
+          class_eval "alias #{m} #{m}_with_sw_apm"
         end
       end
     end
