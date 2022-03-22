@@ -143,7 +143,7 @@ describe 'Trace Context' do
       refute kvs['sw.w3c.tracestate']
     end
 
-    it "adds sw.parent_id if there is an sw tracestate" do
+    it "adds sw.tracestate_parent_id if there is an sw tracestate" do
       parent = '00-a462ade6cfe479081764cc476aa98335-cb3468da6f06eefc-01'
       state = ',,%%%,aa= we:::we , sw=123468dadadadada-01, %%%'
 
@@ -151,10 +151,10 @@ describe 'Trace Context' do
                                                  tracestate: state })
       kvs = context.add_kvs
 
-      assert_equal '123468dadadadada', kvs['sw.parent_id']
+      assert_equal '123468dadadadada', kvs['sw.tracestate_parent_id']
     end
 
-    it "does not add sw.parent_id if there is no sw tracestate" do
+    it "does not add sw.tracestate_parent_id if there is no sw tracestate" do
       parent = '00-a462ade6cfe479081764cc476aa98335-cb3468da6f06eefc-01'
       state = ',,%%%,aa= we:::we , bb=123468dadadadada-01, %%%'
 
@@ -162,7 +162,7 @@ describe 'Trace Context' do
                                                  tracestate: state })
       kvs = context.add_kvs
 
-      refute kvs['sw.parent_id']
+      refute kvs['sw.tracestate_parent_id']
     end
 
   end
