@@ -23,7 +23,7 @@ unless defined?(JRUBY_VERSION)
       SolarWindsAPM::Config[:resqueclient][:log_args] = @log_args
     end
 
-    it 'appoptics_methods_defined' do
+    it 'sw_apm_methods_defined' do
       [:enqueue, :enqueue_to, :dequeue].each do |m|
         assert_equal true, ::Resque.method_defined?("#{m}_with_sw_apm")
       end

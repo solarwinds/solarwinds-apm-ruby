@@ -70,7 +70,7 @@ end
 #
 # SolarWindsAPM::SDK.log_exception()
 # This method adds an error event to the trace, which will be
-# displayed and counted as exception on the appoptics dashboard.
+# displayed and counted as exception on the solarwinds_apm dashboard.
 
 def do_raise
   raise StandardError.new("oops")

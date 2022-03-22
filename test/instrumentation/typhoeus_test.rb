@@ -20,7 +20,7 @@ describe "Typhoeus" do
     _(defined?(::Typhoeus::Request::Operations)).wont_match nil
   end
 
-  it 'Typhoeus should have AppOptics instrumentation prepended' do
+  it 'Typhoeus should have SolarWinds instrumentation prepended' do
     _(Typhoeus::Request.ancestors).must_include(SolarWindsAPM::Inst::TyphoeusRequestOps)
     _(Typhoeus::Hydra.ancestors).must_include(SolarWindsAPM::Inst::TyphoeusHydraRunnable)
   end

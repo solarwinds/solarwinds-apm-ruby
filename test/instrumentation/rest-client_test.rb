@@ -17,7 +17,7 @@ describe "RestClient" do
     _(defined?(::RestClient)).wont_match nil
   end
 
-  it 'RestClient should have AppOptics instrumentation prepended' do
+  it 'RestClient should have SolarWinds instrumentation prepended' do
     assert RestClient::Request.ancestors.include?(SolarWindsAPM::Inst::RestClientRequest)
   end
 

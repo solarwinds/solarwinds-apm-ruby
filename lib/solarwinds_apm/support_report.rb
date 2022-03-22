@@ -44,7 +44,7 @@ module SolarWindsAPM
     on_heroku = SolarWindsAPM.heroku?
     SolarWindsAPM.logger.warn "On Heroku?: #{yesno(on_heroku)}"
     if on_heroku
-      SolarWindsAPM.logger.warn "SW_AMP_URL: #{ENV['SW_AMP_URL']}"
+      SolarWindsAPM.logger.warn "SW_APM_URL: #{ENV['SW_APM_URL']}"
     end
 
     SolarWindsAPM.logger.warn "SolarWindsAPM::Ruby defined?: #{yesno(defined?(SolarWindsAPM::Ruby))}"

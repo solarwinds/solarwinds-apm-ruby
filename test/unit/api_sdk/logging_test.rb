@@ -10,7 +10,7 @@ describe SolarWindsAPM::API::Logging do
       SolarWindsAPM::Context.clear
     end
 
-    it 'does not log if appoptics is not loaded' do
+    it 'does not log if solarwinds_apm is not loaded' do
       SolarWindsAPM.expects(:loaded).returns(false)
       SolarWindsAPM::API.expects(:log_event).never
 

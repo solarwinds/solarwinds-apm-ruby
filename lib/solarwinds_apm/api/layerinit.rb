@@ -15,7 +15,7 @@ module SolarWindsAPM
       def report_init(layer = :rack) #:nodoc:
         # Don't send __Init in test or if SolarWindsAPM
         # isn't fully loaded (e.g. missing c-extension)
-        return if ENV.key?('SW_AMP_GEM_TEST') || !SolarWindsAPM.loaded
+        return if ENV.key?('SW_APM_GEM_TEST') || !SolarWindsAPM.loaded
 
         platform_info = SolarWindsAPM::Util.build_init_report
         log_init(layer, platform_info)

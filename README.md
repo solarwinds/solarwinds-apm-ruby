@@ -1,6 +1,6 @@
 # Welcome to the SolarWindsAPM Ruby Gem
 
-The solarwinds_apm gem provides [AppOptics APM](https://www.appoptics.com/) performance instrumentation for Ruby.
+The solarwinds_apm gem provides [SolarWindsAPM](https://www.appoptics.com/) performance instrumentation for Ruby.
 
 ![Ruby SolarWindsAPM](https://docs.appoptics.com/_images/ruby_trace_smaller.png)
 
@@ -8,7 +8,7 @@ It has the ability to report performance metrics on an array of libraries, datab
 Mongo, Memcache, ActiveRecord, Cassandra, Rack, Resque 
 [and more](https://docs.appoptics.com/kb/apm_tracing/ruby/support-matrix/).
 
-It requires an [AppOptics](https://www.appoptics.com/) account to view metrics.  Get yours, 
+It requires an [Solarwinds] account to view metrics.  Get yours, 
 [it's free](https://my.appoptics.com/sign_up).
 
 [![Gem Version](https://badge.fury.io/rb/solarwinds_apm.svg)](https://badge.fury.io/rb/solarwinds_apm)
@@ -20,7 +20,7 @@ It requires an [AppOptics](https://www.appoptics.com/) account to view metrics. 
 
 # Documentation
 
-* [AppOptics Knowledge Base](https://docs.appoptics.com/kb/apm_tracing/ruby)
+* [SolarWindsAPM Knowledge Base](https://docs.appoptics.com/kb/apm_tracing/ruby)
 
 # Installation
 
@@ -41,16 +41,16 @@ gem 'solarwinds_apm'
 
 # Running
 
-Make sure to set `SW_AMP_SERVICE_KEY` in the environment from where the app or service is run, e.g:
+Make sure to set `SW_APM_SERVICE_KEY` in the environment from where the app or service is run, e.g:
 ```
-export SW_AMP_SERVICE_KEY=795fb4947d15275d208c49cfd2412d4a5bf38742045b47236c94c4fe5f5b17c7:<your_app_name>
+export SW_APM_SERVICE_KEY=795fb4947d15275d208c49cfd2412d4a5bf38742045b47236c94c4fe5f5b17c7:<your_app_name>
 ```
 
 ## Rails
 
 ![Ruby on Rails](https://docs.appoptics.com/_images/rails.png)
 
-No special steps are needed to instrument Ruby on Rails.  Once part of the bundle, the appoptics gem will automatically 
+No special steps are needed to instrument Ruby on Rails.  Once part of the bundle, the solarwinds-apm gem will automatically 
 detect Rails and instrument on stack initialization.
 
 ### The Install Generator
@@ -143,11 +143,11 @@ You can add even more visibility into any part of your application or scripts by
 You can instrument any arbitrary block of code using `SolarWindsAPM::SDK.trace`.  
 
 ```ruby
-# layer_name will show up in the AppOptics app dashboard
+# layer_name will show up in the SolarWinds dashboard
 layer_name = 'subsystemX'
 
 # report_kvs are a set of information Key/Value pairs that are sent to
-# AppOptics dashboard along with the performance metrics. These KV
+# SolarWinds dashboard along with the performance metrics. These KV
 # pairs are used to report request, environment and/or client specific
 # information.
 
@@ -238,7 +238,7 @@ If you run into a problem, find a bug, or would like to request an enhancement, 
 
 # Contributing
 
-You are obviously a person of great sense and intelligence.  We happily appreciate all contributions to the appoptics 
+You are obviously a person of great sense and intelligence.  We happily appreciate all contributions to the solarwinds_apm 
 gem whether it is documentation, a bug fix, new instrumentation for a library or framework or anything else we haven't 
 thought of.
 
@@ -248,18 +248,18 @@ that accompany them.  This way we don't break any of your additions when we (and
 
 ## Layout of the Gem
 
-The appoptics gem uses a standard gem layout.  Here are the notable directories.
+The solarwinds_apm gem uses a standard gem layout.  Here are the notable directories.
 
-    lib/appoptics/inst               # Auto load directory for various instrumented libraries
-    lib/appoptics/frameworks         # Framework instrumentation directory
-    lib/appoptics/frameworks/rails   # Files specific to Rails instrumentation
-    lib/rails                        # A Rails required directory for the Rails install generator
-    lib/api                          # The SolarWindsAPM Tracing API: layers, logging, tracing
-    ext/oboe_metal                   # The Ruby c extension that links against the system liboboe library
+    lib/solarwinds_apm/inst               # Auto load directory for various instrumented libraries
+    lib/solarwinds_apm/frameworks         # Framework instrumentation directory
+    lib/solarwinds_apm/frameworks/rails   # Files specific to Rails instrumentation
+    lib/rails                             # A Rails required directory for the Rails install generator
+    lib/api                               # The SolarWindsAPM Tracing API: layers, logging, tracing
+    ext/oboe_metal                        # The Ruby c extension that links against the system liboboe library
 
 ## Building the Gem
 
-The appoptics gem is built with the standard `gem build` command passing in the gemspec:
+The solarwinds_apm gem is built with the standard `gem build` command passing in the gemspec:
 
 ```bash
 gem build solarwinds_apm.gemspec
@@ -269,7 +269,7 @@ gem build solarwinds_apm.gemspec
 
 Custom instrumentation for a library, database or other service can be authored fairly easily.  Generally, 
 instrumentation of a library is done by wrapping select operations of that library and timing their execution using the 
-SolarWindsAPM Tracing SDK which then reports the metrics to the users' AppOptics dashboard.
+SolarWindsAPM Tracing SDK which then reports the metrics to the users' SolarWinds dashboard.
 
 Here, I'll use a stripped down version of the Dalli instrumentation (`lib/appoptics/inst/dalli.rb`) as a quick example 
 of how to instrument a client library (the dalli gem).
@@ -337,18 +337,18 @@ Third, in our wrapper method, we capture the arguments passed in, collect the op
 hash and then invoke the `SolarWindsAPM::SDK.trace` method to time the execution of the original operation.
 
 The `SolarWindsAPM::SDK.trace` method calls Dalli's native operation and reports the timing metrics and your custom 
-`report_kvs` up to AppOptics servers to be shown on the user's dashboard.
+`report_kvs` up to SolarWinds servers to be shown on the user's dashboard.
 
 Some other tips and guidelines:
 
-* You can point your Gemfile directly at your cloned appoptics gem source by using 
-`gem 'appoptics', :path => '/path/to/ruby-solarwinds'`
+* You can point your Gemfile directly at your cloned solarwinds_apm gem source by using 
+`gem 'solarwinds_apm', :path => '/path/to/ruby-solarwinds'`
 
 * If instrumenting a library, database or service, place your new instrumentation file into the `lib/appoptics/inst/` 
-directory.  From there, the appoptics gem will detect it and automatically load the instrumentation file.
+directory.  From there, the solarwinds_apm gem will detect it and automatically load the instrumentation file.
 
 * If instrumenting a new framework, place your instrumentation file in `lib/appoptics/frameworks`.  Refer to the Rails 
-instrumentation for on ideas on how to load the appoptics gem correctly in your framework.
+instrumentation for on ideas on how to load the solarwinds_apm gem correctly in your framework.
 
 * Review other existing instrumentation similar to the one you wish to author.  `lib/appoptics/inst/` is a great place 
 to start.
@@ -363,8 +363,8 @@ tests.
 
 ## Compiling the C extension
 
-The appoptics gem utilizes a C extension to interface with a core library bundled in with the gem which handles 
-reporting the trace and performance data back to AppOptics servers.
+The solarwinds_apm gem utilizes a C extension to interface with a core library bundled in with the gem which handles 
+reporting the trace and performance data back to SolarWinds servers.
 
 C extensions are usually built on `gem install` but when working out of a local git repository, it's required that you 
 manually build this C extension for the gem to function.

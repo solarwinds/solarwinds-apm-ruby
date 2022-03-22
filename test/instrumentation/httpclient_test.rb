@@ -27,7 +27,7 @@ describe 'HTTPClientTest' do
     clear_all_traces
   end
 
-  it 'has AppOptics instrumentation' do
+  it 'has SolarWinds instrumentation' do
     assert HTTPClient.ancestors.include?(SolarWindsAPM::Inst::HTTPClient)
   end
 

@@ -24,14 +24,14 @@ begin
       require 'oboe_metal.rb'  # sets SolarWindsAPM.loaded = true if successful
     else
       SolarWindsAPM.logger.warn '==================================================================='
-      SolarWindsAPM.logger.warn "AppOptics warning: Platform #{RUBY_PLATFORM} not yet supported."
+      SolarWindsAPM.logger.warn "SolarWindsAPM warning: Platform #{RUBY_PLATFORM} not yet supported."
       SolarWindsAPM.logger.warn 'see: https://docs.appoptics.com/kb/apm_tracing/supported_platforms/'
       SolarWindsAPM.logger.warn 'Tracing disabled.'
       SolarWindsAPM.logger.warn 'Contact technicalsupport@solarwinds.com if this is unexpected.'
       SolarWindsAPM.logger.warn '==================================================================='
     end
   rescue LoadError => e
-    unless ENV['RAILS_GROUP'] == 'assets' or ENV['SW_AMP_NO_LIBRARIES_WARNING']
+    unless ENV['RAILS_GROUP'] == 'assets' or ENV['SW_APM_NO_LIBRARIES_WARNING']
       SolarWindsAPM.logger.error '=============================================================='
       SolarWindsAPM.logger.error 'Missing SolarWindsAPM libraries.  Tracing disabled.'
       SolarWindsAPM.logger.error "Error: #{e.message}"
@@ -68,7 +68,7 @@ begin
   # it will load all of the Ruby instrumentation
   require 'solarwinds_apm/ruby'
 
-  require 'solarwinds_apm/test' if ENV['SW_AMP_GEM_TEST']
+  require 'solarwinds_apm/test' if ENV['SW_APM_GEM_TEST']
 rescue => e
   $stderr.puts "[solarwinds_apm/error] Problem loading: #{e.inspect}"
   $stderr.puts e.backtrace

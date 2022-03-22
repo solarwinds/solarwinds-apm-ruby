@@ -5,7 +5,7 @@ module SolarWindsAPM
   module Inst
     module HTTPClient
 
-      def appoptics_collect(method, uri, query = nil)
+      def sw_apm_collect(method, uri, query = nil)
         kvs = {}
         kvs[:Spec] = 'rsc'
         kvs[:IsService] = 1
@@ -40,7 +40,7 @@ module SolarWindsAPM
         end
 
         begin
-          kvs = appoptics_collect(method, uri, query)
+          kvs = sw_apm_collect(method, uri, query)
 
           SolarWindsAPM::API.log_entry(:httpclient, kvs)
           kvs.clear
@@ -88,7 +88,7 @@ module SolarWindsAPM
           method = req.http_header.request_method
 
           uri = req.http_header.request_uri
-          kvs = appoptics_collect(method, uri)
+          kvs = sw_apm_collect(method, uri)
           kvs[:Async] = 1
 
           SolarWindsAPM::Context.fromString(SolarWindsAPM.trace_context.tracestring)

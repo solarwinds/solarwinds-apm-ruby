@@ -121,7 +121,7 @@ if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && Sola
       class Collection
         include SolarWindsAPM::Inst::Mongo
 
-        def appoptics_collect(m, args)
+        def sw_apm_collect(m, args)
           kvs = {}
           kvs[:Flavor] = SolarWindsAPM::Inst::Mongo::FLAVOR
 
@@ -133,7 +133,7 @@ if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && Sola
           kvs[:QueryOp] = m
           kvs[:Query] = args[0].to_json if args && !args.empty? && args[0].class == Hash
         rescue StandardError => e
-          SolarWindsAPM.logger.debug "[solarwinds_apm/debug] Exception in appoptics_collect KV collection: #{e.inspect}"
+          SolarWindsAPM.logger.debug "[solarwinds_apm/debug] Exception in sw_apm_collect KV collection: #{e.inspect}"
         ensure
           return kvs
         end
@@ -141,7 +141,7 @@ if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && Sola
         # Instrument Collection write operations
         SolarWindsAPM::Inst::Mongo::COLL_WRITE_OPS.reject { |m| !method_defined?(m) }.each do |m|
           define_method("#{m}_with_sw_apm") do |*args|
-            report_kvs = appoptics_collect(m, args)
+            report_kvs = sw_apm_collect(m, args)
             args_length = args.length
 
             begin
@@ -182,7 +182,7 @@ if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && Sola
           define_method("#{m}_with_sw_apm") do |*args, &blk|
             report_kvs = {}
             begin
-              report_kvs = appoptics_collect(m, args)
+              report_kvs = sw_apm_collect(m, args)
               args_length = args.length
 
               if m == :distinct && args_length >= 2
@@ -221,7 +221,7 @@ if defined?(Mongo) && (Gem.loaded_specs['mongo'].version.to_s < '2.0.0') && Sola
         # Instrument Collection index operations
         SolarWindsAPM::Inst::Mongo::COLL_INDEX_OPS.reject { |m| !method_defined?(m) }.each do |m|
           define_method("#{m}_with_sw_apm") do |*args|
-            report_kvs = appoptics_collect(m, args)
+            report_kvs = sw_apm_collect(m, args)
 
             begin
               if [:create_index, :ensure_index, :drop_index].include?(m) && !args.empty?

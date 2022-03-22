@@ -49,7 +49,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
       end
     end
 
-    module AppOpticsTest
+    module SolarWindsAPMTest
       class Schema < GraphQL::Schema
         def self.id_from_object(_object = nil, _type = nil, _context = {})
           SecureRandom.uuid
@@ -86,7 +86,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
 
           def address
             OpenStruct.new(
-              id: AppOpticsTest::Schema.id_from_object,
+              id: SolarWindsAPMTest::Schema.id_from_object,
               street: 'MyStreetName',
               number: Random.new.rand(555),
               more: nil
@@ -95,7 +95,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
 
           def founder
             OpenStruct.new(
-              id: AppOpticsTest::Schema.id_from_object,
+              id: SolarWindsAPMTest::Schema.id_from_object,
               name: 'Peter Pan',
               nickname: nil
             )
@@ -103,7 +103,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
 
           def owner
             OpenStruct.new(
-              id: AppOpticsTest::Schema.id_from_object,
+              id: SolarWindsAPMTest::Schema.id_from_object,
               name: { a: 1 }
             )
           end
@@ -156,7 +156,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
     it 'traces a simple graphql request' do
       SolarWindsAPM::SDK.start_trace('graphql_test') do
         query = 'query MyInt { int }'
-        AppOpticsTest::Schema.execute(query)
+        SolarWindsAPMTest::Schema.execute(query)
       end
 
       traces = get_all_traces
@@ -199,7 +199,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
       GRAPHQL
 
       SolarWindsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::Schema.execute(query)
+        SolarWindsAPMTest::Schema.execute(query)
       end
 
       traces = get_all_traces
@@ -223,7 +223,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
       GRAPHQL
 
       SolarWindsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::Schema.execute(query)
+        SolarWindsAPMTest::Schema.execute(query)
       end
 
       traces = get_all_traces
@@ -247,7 +247,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
       GRAPHQL
 
       SolarWindsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::Schema.execute(query)
+        SolarWindsAPMTest::Schema.execute(query)
       end
 
       traces = get_all_traces
@@ -275,7 +275,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
         SolarWindsAPM::Config[:graphql][:sanitize_query] = true
 
         SolarWindsAPM::SDK.start_trace('graphql_test') do
-          AppOpticsTest::Schema.execute(query)
+          SolarWindsAPMTest::Schema.execute(query)
 
           traces = get_all_traces
           traces.each do |tr|
@@ -291,7 +291,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
         SolarWindsAPM::Config[:graphql][:sanitize_query] = false
 
         SolarWindsAPM::SDK.start_trace('graphql_test') do
-          AppOpticsTest::Schema.execute(query)
+          SolarWindsAPMTest::Schema.execute(query)
 
           traces = get_all_traces
           traces.each do |tr|
@@ -307,7 +307,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
         SolarWindsAPM::Config[:graphql][:remove_comments] = true
 
         SolarWindsAPM::SDK.start_trace('graphql_test') do
-          AppOpticsTest::Schema.execute(query)
+          SolarWindsAPMTest::Schema.execute(query)
 
           traces = get_all_traces
           traces.each do |tr|
@@ -320,7 +320,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
         SolarWindsAPM::Config[:graphql][:remove_comments] = false
 
         SolarWindsAPM::SDK.start_trace('graphql_test') do
-          AppOpticsTest::Schema.execute(query)
+          SolarWindsAPMTest::Schema.execute(query)
 
           traces = get_all_traces
           traces.each do |tr|
@@ -332,7 +332,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
       it 'sets a graphql transaction name if transaction_name is TRUE' do
         SolarWindsAPM::Config[:graphql][:transaction_name] = true
         SolarWindsAPM::SDK.start_trace('graphql_test') do
-          AppOpticsTest::Schema.execute(query)
+          SolarWindsAPMTest::Schema.execute(query)
         end
 
         trace = get_all_traces.last
@@ -342,7 +342,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
       it 'does not set a graphql transaction name if transaction_name is FALSE' do
         SolarWindsAPM::Config[:graphql][:transaction_name] = false
         SolarWindsAPM::SDK.start_trace('graphql_test') do
-          AppOpticsTest::Schema.execute(query)
+          SolarWindsAPMTest::Schema.execute(query)
         end
 
         trace = get_all_traces.last
@@ -353,7 +353,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
         SolarWindsAPM::Config[:graphql][:transaction_name] = true
         query_short = '{company (id: 1) { name}}'
         SolarWindsAPM::SDK.start_trace('graphql_test') do
-          AppOpticsTest::Schema.execute(query_short)
+          SolarWindsAPMTest::Schema.execute(query_short)
         end
         trace = get_all_traces.last
         assert_equal "graphql.query.company", trace['TransactionName']
@@ -362,14 +362,14 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
       it 'does not create traces if graphql is not enabled' do
         SolarWindsAPM::Config[:graphql][:enabled] = false
         SolarWindsAPM::SDK.start_trace('graphql_test') do
-          AppOpticsTest::Schema.execute(query)
+          SolarWindsAPMTest::Schema.execute(query)
         end
         traces = get_all_traces
         assert_equal 2, traces.size, "failed: It should not have created traces for graphql"
       end
 
       it 'does not trace if there is no context' do
-        AppOpticsTest::Schema.execute(query)
+        SolarWindsAPMTest::Schema.execute(query)
         traces = get_all_traces
         assert_empty traces, 'failed: it should not have created any traces'
       end
@@ -399,7 +399,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
         ]
 
         SolarWindsAPM::SDK.start_trace('graphql_multi_test') do
-          AppOpticsTest::Schema.multiplex(queries)
+          SolarWindsAPMTest::Schema.multiplex(queries)
         end
 
         traces = get_all_traces
@@ -439,7 +439,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
         ]
 
         SolarWindsAPM::SDK.start_trace('graphql_multi_test') do
-          AppOpticsTest::Schema.multiplex(queries)
+          SolarWindsAPMTest::Schema.multiplex(queries)
         end
 
         traces = get_all_traces

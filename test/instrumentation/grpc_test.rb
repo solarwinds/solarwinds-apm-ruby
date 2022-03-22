@@ -108,7 +108,7 @@ if defined? GRPC
       stop_server
     end
 
-    unless ['file', 'udp'].include?(ENV['SW_AMP_REPORTER']) || SolarWindsAPM::SDK.solarwinds_ready?(10_000)
+    unless ['file', 'udp'].include?(ENV['SW_APM_REPORTER']) || SolarWindsAPM::SDK.solarwinds_ready?(10_000)
       puts "aborting!!! Agent not ready after 10 seconds"
       exit false
     end
@@ -184,7 +184,7 @@ if defined? GRPC
       end
 
       it 'unary should not trace if the w3c trace context is not tracing' do
-        # with a non-tracing appoptics context
+        # with a non-tracing solarwinds_apm context
         trace_parent = '00-d1169466cf4a7c3c82d07e745bb51f16-4209252012f594bf-01'
         trace_state = 'sw=4209252012f594bf-00'
         headers = { traceparent: trace_parent, tracestate: trace_state }
@@ -412,7 +412,7 @@ if defined? GRPC
       end
 
       it 'client_streaming should not trace if the w3c trace context is not tracing' do
-        # with a non-tracing appoptics context
+        # with a non-tracing solarwinds_apm context
         trace_parent = '00-d1169466cf4a7c3c82d07e745bb51f16-4209252012f594bf-01'
         trace_state = 'sw=4209252012f594bf-00'
         headers = { traceparent: trace_parent, tracestate: trace_state }
@@ -595,7 +595,7 @@ if defined? GRPC
       end
 
       it 'server_streaming should not trace if the w3c trace context is not tracing' do
-        # with a non-tracing appoptics context
+        # with a non-tracing solarwinds_apm context
         trace_parent = '00-d1169466cf4a7c3c82d07e745bb51f16-4209252012f594bf-00'
         trace_state = 'sw=4209252012f594bf-00'
         headers = { traceparent: trace_parent, tracestate: trace_state }
@@ -783,7 +783,7 @@ if defined? GRPC
       end
 
       it 'server_streaming yield should not trace if the w3c trace context is not tracing' do
-        # with a non-tracing appoptics context
+        # with a non-tracing solarwinds_apm context
         trace_parent = '00-d1169466cf4a7c3c82d07e745bb51f16-4209252012f594bf-00'
         trace_state = 'sw=4209252012f594bf-00'
         headers = { traceparent: trace_parent, tracestate: trace_state }
@@ -967,7 +967,7 @@ if defined? GRPC
       end
 
       it 'bidi_streaming should not trace if the w3c trace context is not tracing' do
-        # with a non-tracing appoptics context
+        # with a non-tracing solarwinds_apm context
         trace_parent = '00-d1169466cf4a7c3c82d07e745bb51f16-4209252012f594bf-00'
         trace_state = 'sw=4209252012f594bf-00'
         headers = { traceparent: trace_parent, tracestate: trace_state }
@@ -1157,7 +1157,7 @@ if defined? GRPC
       end
 
       it 'bidi_streaming yield should not trace if the w3c trace context is not tracing' do
-        # with a non-tracing appoptics context
+        # with a non-tracing solarwinds_apm context
         trace_parent = '00-d1169466cf4a7c3c82d07e745bb51f16-4209252012f594bf-00'
         trace_state = 'sw=4209252012f594bf-00'
         headers = { traceparent: trace_parent, tracestate: trace_state }

@@ -6,7 +6,7 @@ require 'benchmark/memory'
 require_relative '../../minitest_helper'
 
 # compare logging when testing for loaded versus tracing?
-ENV['SW_AMP_GEM_VERBOSE'] = 'false'
+ENV['SW_APM_GEM_VERBOSE'] = 'false'
 ENV['DBTYPE'] = "postgresql" unless ENV['DBTYPE']
 
 def dostuff(uri)

@@ -43,7 +43,7 @@ class NoopTest < Minitest::Test
     assert SolarWindsAPM::Rack.noop?, 'This is not running in noop mode.'
   end
 
-  def test_appoptics_config_doesnt_barf
+  def test_sw_apm_config_doesnt_barf
     tm = SolarWindsAPM::Config[:tracing_mode]
     vb = SolarWindsAPM::Config[:verbose]
     la = SolarWindsAPM::Config[:rack][:log_args]

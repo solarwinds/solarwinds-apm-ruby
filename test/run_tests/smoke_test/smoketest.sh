@@ -5,9 +5,9 @@
 
 path=$(dirname "$0")
 
-# assuming SW_AMP_SERVICE_KEY is set
-export SW_AMP_COLLECTOR=collector-stg.appoptics.com
-unset SW_AMP_REPORTER
+# assuming SW_APM_SERVICE_KEY is set
+export SW_APM_COLLECTOR=collector-stg.appoptics.com
+unset SW_APM_REPORTER
 unset OBOE_FROM_S3
 unset OBOE_WIP
 

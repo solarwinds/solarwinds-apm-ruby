@@ -81,10 +81,10 @@ jobs:
        image: ghcr.io/${{ github.repository }}/apm_ruby_${{ matrix.os }}
 
     env:
-      SW_AMP_GEM_TEST: true
-      SW_AMP_REPORTER: file
-      SW_AMP_COLLECTOR: /tmp/appoptics_traces.bson
-      SW_AMP_REPORTER_FILE_SINGLE: false
+      SW_APM_GEM_TEST: true
+      SW_APM_REPORTER: file
+      SW_APM_COLLECTOR: /tmp/sw_apm_traces.bson
+      SW_APM_REPORTER_FILE_SINGLE: false
       OBOE_FROM_S3: true
       MONGO_SERVER: "mongo"
       RABBITMQ_SERVER: "rabbitmq"
@@ -99,7 +99,7 @@ jobs:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
       POSTGRES_HOST: "postgres"
-      QUERY_LOG_FILE: "/tmp/appoptics_query_logs.txt"
+      QUERY_LOG_FILE: "/tmp/sw_apm_query_logs.txt"
       REDIS_PASSWORD: "redis_pass"
       TEST_RUNS_TO_FILE: "true"
 

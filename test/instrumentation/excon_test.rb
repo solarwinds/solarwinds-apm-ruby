@@ -12,7 +12,7 @@ describe 'ExconTest' do
     SinatraSimple
   end
 
-  it 'Excon should have AppOptics instrumentation prepended' do
+  it 'Excon should have SolarWinds instrumentation prepended' do
     _(Excon::Connection.ancestors).must_include(SolarWindsAPM::Inst::ExconConnection)
   end
 

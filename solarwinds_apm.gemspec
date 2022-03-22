@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.authors = ["Maia Engeli", "Peter Giacomo Lombardo", "Spiros Eliopoulos"]
   s.email = %q{technicalsupport@solarwinds.com}
   s.homepage = %q{https://www.appoptics.com/}
-  s.summary = %q{AppOptics APM performance instrumentation gem for Ruby}
+  s.summary = %q{SolarWindsAPM performance instrumentation gem for Ruby}
   s.description = <<-EOF
 Automatic tracing and metrics for Ruby applications. Get started at appoptics.com. @AppOptics
   EOF

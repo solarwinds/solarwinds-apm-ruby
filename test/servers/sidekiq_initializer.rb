@@ -20,8 +20,8 @@ require_relative '../jobs/sidekiq/remote_call_worker_job'
 require_relative '../jobs/sidekiq/error_worker_job'
 
 ENV["RACK_ENV"] = "test"
-ENV["SW_AMP_GEM_TEST"] = "true"
-# ENV["SW_AMP_GEM_VERBOSE"] = "true"
+ENV["SW_APM_GEM_TEST"] = "true"
+# ENV["SW_APM_GEM_VERBOSE"] = "true"
 
 Bundler.require(:default, :test)
 

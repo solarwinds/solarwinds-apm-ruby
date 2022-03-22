@@ -14,7 +14,7 @@ module SolarWindsAPM
       # assign_kvs
       #
       # Given SQL and the options hash, this method extracts the interesting
-      # bits for reporting to the AppOptics dashboard.
+      # bits for reporting to the SolarWinds dashboard.
       #
       # kvs is a hash and we are taking advantage of using it by reference to
       # assign kvs to the exit event (important for trace injection)

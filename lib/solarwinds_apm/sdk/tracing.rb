@@ -271,12 +271,12 @@ module SolarWindsAPM
         safe_method_name = method.to_s.chop if method.to_s =~ /\?$|\!$/
         safe_method_name ||= method
 
-        without_appoptics = "#{safe_method_name}_without_sw_apm"
-        with_appoptics    = "#{safe_method_name}_with_sw_apm"
+        without_sw_apm = "#{safe_method_name}_without_sw_apm"
+        with_sw_apm    = "#{safe_method_name}_with_sw_apm"
 
         # Check if already profiled
-        if instance_method && klass.instance_methods.include?(with_appoptics.to_sym) ||
-          class_method && klass.singleton_methods.include?(with_appoptics.to_sym)
+        if instance_method && klass.instance_methods.include?(with_sw_apm.to_sym) ||
+          class_method && klass.singleton_methods.include?(with_sw_apm.to_sym)
           SolarWindsAPM.logger.warn "[solarwinds_apm/error] trace_method: #{klass}::#{method} already instrumented.\n#{__FILE__}:#{__LINE__}"
           return false
         end
@@ -294,7 +294,7 @@ module SolarWindsAPM
         name = config[:name] || method
         if instance_method
           klass.class_eval do
-            define_method(with_appoptics) do |*args, &block|
+            define_method(with_sw_apm) do |*args, &block|
               # if this is a rails controller we want to set the transaction for the outbound metrics
               if report_kvs[:Controller] && defined?(request) && defined?(request.env)
                 request.env['solarwinds_apm.controller'] = report_kvs[:Controller]
@@ -303,24 +303,24 @@ module SolarWindsAPM
 
               SolarWindsAPM::SDK.trace(name, kvs: report_kvs) do
                 report_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if backtrace
-                send(without_appoptics, *args, &block)
+                send(without_sw_apm, *args, &block)
               end
             end
 
-            alias_method without_appoptics, method.to_s
-            alias_method method.to_s, with_appoptics
+            alias_method without_sw_apm, method.to_s
+            alias_method method.to_s, with_sw_apm
           end
         elsif class_method
-          klass.define_singleton_method(with_appoptics) do |*args, &block|
+          klass.define_singleton_method(with_sw_apm) do |*args, &block|
             SolarWindsAPM::SDK.trace(name, kvs: report_kvs) do
               report_kvs[:Backtrace] = SolarWindsAPM::API.backtrace if backtrace
-              send(without_appoptics, *args, &block)
+              send(without_sw_apm, *args, &block)
             end
           end
 
           klass.singleton_class.class_eval do
-            alias_method without_appoptics, method.to_s
-            alias_method method.to_s, with_appoptics
+            alias_method without_sw_apm, method.to_s
+            alias_method method.to_s, with_sw_apm
           end
         end
         true
@@ -399,10 +399,10 @@ module SolarWindsAPM
         SolarWindsAPM.tracing?
       end
 
-      # Wait for AppOptics to be ready to send traces.
+      # Wait for SolarWinds to be ready to send traces.
       #
       # This may be useful in short lived background processes when it is important to capture
-      # information during the whole time the process is running. Usually AppOptics doesn't block an
+      # information during the whole time the process is running. Usually SolarWinds doesn't block an
       # application while it is starting up.
       #
       # === Argument:
@@ -412,7 +412,7 @@ module SolarWindsAPM
       # === Example:
       #
       #   unless SolarWindsAPM::SDK.solarwinds_ready?(10_000)
-      #     Logger.info "AppOptics not ready after 10 seconds, no metrics will be sent"
+      #     Logger.info "SolarWindsAPM not ready after 10 seconds, no metrics will be sent"
       #   end
       #
       def solarwinds_ready?(wait_milliseconds = 3000)

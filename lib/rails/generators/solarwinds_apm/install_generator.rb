@@ -29,7 +29,7 @@ module SolarWindsAPM
       say "-------------------"
       say ""
       say "SolarWindsAPM Installation Overview:"
-      say "http://docs.appoptics.solarwinds.com/AppOpticsAPM/install-instrumentation.html"
+      say "http://docs.appoptics.solarwinds.com/SolarWindsAPM/install-instrumentation.html"
       say ""
       say "More information on instrumenting Ruby applications can be found here:"
       say "http://docs.appoptics.solarwinds.com/Instrumentation/ruby.html#installing-ruby-instrumentation"

@@ -258,8 +258,8 @@ module SolarWindsAPM
         return SolarWindsAPM::Context.toString unless context.isValid
 
         event = context.createEvent
-        event.addInfo(SW_AMP_STR_LAYER, layer.to_s)
-        event.addInfo(SW_AMP_STR_LABEL, 'single')
+        event.addInfo(SW_APM_STR_LAYER, layer.to_s)
+        event.addInfo(SW_APM_STR_LABEL, 'single')
         kvs.each do |k, v|
           event.addInfo(k, v.to_s)
         end
@@ -292,8 +292,8 @@ module SolarWindsAPM
       #   SolarWindsAPM::API.log_event(:layer_name, 'exit',  exit_event, { :id => @user.id })
       #
       def log_event(layer, label, event, kvs = {})
-        event.addInfo(SW_AMP_STR_LAYER, layer.to_s.freeze) if layer
-        event.addInfo(SW_AMP_STR_LABEL, label.to_s.freeze)
+        event.addInfo(SW_APM_STR_LAYER, layer.to_s.freeze) if layer
+        event.addInfo(SW_APM_STR_LABEL, label.to_s.freeze)
 
         SolarWindsAPM.layer = layer.to_sym if label == :entry
         SolarWindsAPM.layer = nil          if label == :exit

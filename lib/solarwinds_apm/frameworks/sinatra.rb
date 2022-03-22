@@ -36,17 +36,17 @@ module SolarWindsAPM
         handle_exception_without_sw_apm(boom)
       end
 
-      def appoptics_rum_header
-        SolarWindsAPM.logger.warn '[solarwinds_apm/warn] Note that appoptics_rum_header is deprecated.  It is now a no-op and should be removed from your application code.'
+      def sw_apm_rum_header
+        SolarWindsAPM.logger.warn '[solarwinds_apm/warn] Note that sw_apm_rum_header is deprecated.  It is now a no-op and should be removed from your application code.'
         return ''
       end
-      alias_method :oboe_rum_header, :appoptics_rum_header
+      alias_method :oboe_rum_header, :sw_apm_rum_header
 
-      def appoptics_rum_footer
-        SolarWindsAPM.logger.warn '[solarwinds_apm/warn] Note that appoptics_rum_footer is deprecated.  It is now a no-op and should be removed from your application code.'
+      def sw_apm_rum_footer
+        SolarWindsAPM.logger.warn '[solarwinds_apm/warn] Note that sw_apm_rum_footer is deprecated.  It is now a no-op and should be removed from your application code.'
         return ''
       end
-      alias_method :oboe_rum_footer, :appoptics_rum_footer
+      alias_method :oboe_rum_footer, :sw_apm_rum_footer
     end
 
     module Templates
@@ -84,7 +84,7 @@ if defined?(Sinatra) && SolarWindsAPM::Config[:sinatra][:enabled]
 
   # When in the gem TEST environment, we load this instrumentation regardless.
   # Otherwise, only when Padrino isn't around.
-  unless defined?(Padrino) && !ENV.key?('SW_AMP_GEM_TEST')
+  unless defined?(Padrino) && !ENV.key?('SW_APM_GEM_TEST')
     # Padrino has 'enhanced' routes and rendering so the Sinatra
     # instrumentation won't work anyways.  Only load for pure Sinatra apps.
     SolarWindsAPM::Util.send_include(Sinatra::Base,      SolarWindsAPM::Sinatra::Base)

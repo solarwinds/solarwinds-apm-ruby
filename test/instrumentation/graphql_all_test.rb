@@ -11,7 +11,7 @@ require 'securerandom'
 
 describe GraphQL::Tracing::AppOpticsTracing do
 
-  module AppOpticsTest
+  module SolarWindsAPMTest
     QueryType = GraphQL::ObjectType.define do
       name "MyQuery"
 
@@ -128,7 +128,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
   it 'traces a simple graphql request' do
     SolarWindsAPM::SDK.start_trace('graphql_test') do
       query = 'query MyInt { int }'
-      AppOpticsTest::MySchema.execute(query)
+      SolarWindsAPMTest::MySchema.execute(query)
     end
 
     traces = get_all_traces
@@ -171,7 +171,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
     GRAPHQL
 
     SolarWindsAPM::SDK.start_trace('graphql_test') do
-      AppOpticsTest::MySchema.execute(query)
+      SolarWindsAPMTest::MySchema.execute(query)
     end
 
     traces = get_all_traces
@@ -195,7 +195,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
     GRAPHQL
 
     SolarWindsAPM::SDK.start_trace('graphql_test') do
-      AppOpticsTest::MySchema.execute(query)
+      SolarWindsAPMTest::MySchema.execute(query)
     end
 
     traces = get_all_traces
@@ -219,7 +219,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
     GRAPHQL
 
     SolarWindsAPM::SDK.start_trace('graphql_test') do
-      AppOpticsTest::MySchema.execute(query)
+      SolarWindsAPMTest::MySchema.execute(query)
     end
 
     traces = get_all_traces
@@ -247,7 +247,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
       SolarWindsAPM::Config[:graphql][:sanitize_query] = true
 
       SolarWindsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::MySchema.execute(query)
+        SolarWindsAPMTest::MySchema.execute(query)
 
         traces = get_all_traces
         traces.each do |tr|
@@ -263,7 +263,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
       SolarWindsAPM::Config[:graphql][:sanitize_query] = false
 
       SolarWindsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::MySchema.execute(query)
+        SolarWindsAPMTest::MySchema.execute(query)
 
         traces = get_all_traces
         traces.each do |tr|
@@ -279,7 +279,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
       SolarWindsAPM::Config[:graphql][:remove_comments] = true
 
       SolarWindsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::MySchema.execute(query)
+        SolarWindsAPMTest::MySchema.execute(query)
 
         traces = get_all_traces
         traces.each do |tr|
@@ -292,7 +292,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
       SolarWindsAPM::Config[:graphql][:remove_comments] = false
 
       SolarWindsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::MySchema.execute(query)
+        SolarWindsAPMTest::MySchema.execute(query)
 
         traces = get_all_traces
         traces.each do |tr|
@@ -304,7 +304,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
     it 'sets a graphql transaction name if transaction_name is TRUE' do
       SolarWindsAPM::Config[:graphql][:transaction_name] = true
       SolarWindsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::MySchema.execute(query)
+        SolarWindsAPMTest::MySchema.execute(query)
       end
 
       trace = get_all_traces.last
@@ -314,7 +314,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
     it 'does not set a graphql transaction name if transaction_name is FALSE' do
       SolarWindsAPM::Config[:graphql][:transaction_name] = false
       SolarWindsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::MySchema.execute(query)
+        SolarWindsAPMTest::MySchema.execute(query)
       end
 
       trace = get_all_traces.last
@@ -325,7 +325,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
       SolarWindsAPM::Config[:graphql][:transaction_name] = true
       query_short = '{company (id: 1) { name}}'
       SolarWindsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::MySchema.execute(query_short)
+        SolarWindsAPMTest::MySchema.execute(query_short)
       end
       trace = get_all_traces.last
       assert_equal "graphql.query.company", trace['TransactionName']
@@ -334,14 +334,14 @@ describe GraphQL::Tracing::AppOpticsTracing do
     it 'does not create traces if graphql is not enabled' do
       SolarWindsAPM::Config[:graphql][:enabled] = false
       SolarWindsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::MySchema.execute(query)
+        SolarWindsAPMTest::MySchema.execute(query)
       end
       traces = get_all_traces
       assert_equal 2, traces.size, "failed: It should not have created traces for graphql"
     end
 
     it 'does not trace if there is no context' do
-      AppOpticsTest::MySchema.execute(query)
+      SolarWindsAPMTest::MySchema.execute(query)
       traces = get_all_traces
       assert_empty traces, 'failed: it should not have created any traces'
     end
@@ -371,7 +371,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
       ]
 
       SolarWindsAPM::SDK.start_trace('graphql_multi_test') do
-        AppOpticsTest::MySchema.multiplex(queries)
+        SolarWindsAPMTest::MySchema.multiplex(queries)
       end
 
       traces = get_all_traces
@@ -412,7 +412,7 @@ describe GraphQL::Tracing::AppOpticsTracing do
       ]
 
       SolarWindsAPM::SDK.start_trace('graphql_multi_test') do
-        AppOpticsTest::MySchema.multiplex(queries)
+        SolarWindsAPMTest::MySchema.multiplex(queries)
       end
 
       traces = get_all_traces

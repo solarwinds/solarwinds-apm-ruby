@@ -8,7 +8,7 @@ module SolarWindsAPM
 
       private
 
-      def appoptics_collect(params)
+      def sw_apm_collect(params)
         kvs = {}
         kvs[:Spec] = 'rsc'
         kvs[:IsService] = 1
@@ -49,7 +49,7 @@ module SolarWindsAPM
 
       def requests(pipeline_params)
         responses = nil
-        kvs = appoptics_collect(pipeline_params)
+        kvs = sw_apm_collect(pipeline_params)
         SolarWindsAPM::SDK.trace(:excon, kvs: kvs) do
           kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:excon][:collect_backtraces]
           responses = super(pipeline_params)
@@ -71,7 +71,7 @@ module SolarWindsAPM
         begin
           response_context = nil
 
-          kvs = appoptics_collect(params)
+          kvs = sw_apm_collect(params)
 
           SolarWindsAPM::API.log_entry(:excon, kvs)
           kvs.clear

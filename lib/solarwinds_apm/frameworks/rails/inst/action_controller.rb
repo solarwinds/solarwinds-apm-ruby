@@ -36,7 +36,7 @@ module SolarWindsAPM
       # log_rails_error?
       #
       # Determines whether we should log a raised exception to the
-      # AppOptics dashboard.  This is determined by whether the exception
+      # SolarWinds dashboard.  This is determined by whether the exception
       # has a rescue handler setup and the value of
       # SolarWindsAPM::Config[:report_rescued_errors]
       #

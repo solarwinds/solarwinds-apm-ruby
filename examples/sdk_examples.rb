@@ -14,7 +14,7 @@
 
 ###############################################################
 # Prerequisits
-# export SW_AMP_SERVICE_KEY=<API token>:<service_name>
+# export SW_APM_SERVICE_KEY=<API token>:<service_name>
 # `bundle exec ruby sdk_examples.rb`
 # 5 traced requests will show up at https://my.appoptics.com/
 ###############################################################
@@ -64,7 +64,7 @@ end
 #
 # SolarWindsAPM::SDK.log_exception()
 # This method adds an error event to the trace, which will be
-# displayed and counted as exception on the appoptics dashboard.
+# displayed and counted as exception on the solarwinds_apm dashboard.
 
 def do_raise
   raise StandardError.new("oops")

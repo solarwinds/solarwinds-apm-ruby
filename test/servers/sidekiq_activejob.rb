@@ -23,7 +23,7 @@ SolarWindsAPM.logger.warn "[solarwinds_apm/servers] sidekiq #{arguments}"
 SolarWindsAPM.logger.level = Logger::FATAL
 
 Thread.new do
-  system("SW_AMP_GEM_TEST=true BUNDLE_GEMFILE=#{gemfile} sidekiq #{arguments}")
+  system("SW_APM_GEM_TEST=true BUNDLE_GEMFILE=#{gemfile} sidekiq #{arguments}")
 end
 
 # Allow Sidekiq to boot up

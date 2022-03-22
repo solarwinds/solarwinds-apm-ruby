@@ -60,8 +60,8 @@ jobs:
 #      - name: Test install (give packagecloud 60 seconds to index)
 #        working-directory: .github/workflows/
 #        env:
-#          SW_AMP_SERVICE_KEY: ${{ secrets.SW_AMP_SERVICE_KEY }}
-#          SW_AMP_COLLECTOR: ${{ secrets.SW_AMP_COLLECTOR}}
+#          SW_APM_SERVICE_KEY: ${{ secrets.SW_APM_SERVICE_KEY }}
+#          SW_APM_COLLECTOR: ${{ secrets.SW_APM_COLLECTOR}}
 #          OBOE_FROM_S3: true
 #        run: |
 #          sleep 60

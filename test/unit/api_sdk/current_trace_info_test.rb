@@ -45,7 +45,7 @@ describe SolarWindsAPM::SDK do
         assert_equal '00', trace.trace_flags
       end
 
-      it 'returns 0s when Appoptics is not loaded' do
+      it 'returns 0s when solarwinds_apm is not loaded' do
         SolarWindsAPM.loaded = false
 
         trace = SolarWindsAPM::SDK.current_trace_info

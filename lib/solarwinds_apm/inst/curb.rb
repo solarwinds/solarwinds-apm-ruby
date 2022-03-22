@@ -12,12 +12,12 @@ module SolarWindsAPM
 
       private
       ##
-      # appoptics_collect
+      # sw_apm_collect
       #
       # Used as a central area to retrieve and return values
       # that we're interesting in reporting to SolarWindsAPM
       #
-      def appoptics_collect(verb = nil)
+      def sw_apm_collect(verb = nil)
         kvs = {}
 
         kvs[:Spec] = 'rsc'
@@ -57,7 +57,7 @@ module SolarWindsAPM
         end
 
         begin
-          kvs.merge! appoptics_collect
+          kvs.merge! sw_apm_collect
 
           SolarWindsAPM::API.log_entry(:curb, kvs)
           kvs.clear

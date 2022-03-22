@@ -6,7 +6,7 @@ require_relative '../../minitest_helper'
 
 
 # compare logging when testing for loaded versus tracing?
-ENV['SW_AMP_GEM_VERBOSE'] = 'false'
+ENV['SW_APM_GEM_VERBOSE'] = 'false'
 
 ENV['RABBITMQ_SERVER'] = "127.0.0.1"      unless ENV['RABBITMQ_SERVER']
 ENV['RABBITMQ_PORT'] = "5672"             unless ENV['RABBITMQ_PORT']

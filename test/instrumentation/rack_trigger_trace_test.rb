@@ -100,7 +100,7 @@ describe "Rack Trigger Tracing " do
       @rack.call(req_headers)
 
       traces = get_all_traces
-      if ENV['SW_AMP_REPORTER'] =='file'
+      if ENV['SW_APM_REPORTER'] =='file'
         refute traces.empty?
         refute traces[0]['TriggerTrace']
       end
@@ -114,7 +114,7 @@ describe "Rack Trigger Tracing " do
       assert_equal 'trigger-trace=ok', res_headers['X-Trace-Options-Response']
 
       traces = get_all_traces
-      if ENV['SW_AMP_REPORTER'] =='file'
+      if ENV['SW_APM_REPORTER'] =='file'
         refute traces.empty?
         assert_equal 'true', traces[0]['TriggeredTrace']
       end
@@ -128,7 +128,7 @@ describe "Rack Trigger Tracing " do
       assert_equal 'trigger-trace=ok', res_headers['X-Trace-Options-Response']
 
       traces = get_all_traces
-      if ENV['SW_AMP_REPORTER'] =='file'
+      if ENV['SW_APM_REPORTER'] =='file'
         refute traces.empty?
         assert_equal 'true', traces[0]['TriggeredTrace']
         assert_equal 'lo:se,check-id:123', traces[0]['SWKeys']
@@ -143,7 +143,7 @@ describe "Rack Trigger Tracing " do
       assert_equal 'trigger-trace=ok;ignored=not-valid-option', res_headers['X-Trace-Options-Response']
 
       traces = get_all_traces
-      if ENV['SW_AMP_REPORTER'] =='file'
+      if ENV['SW_APM_REPORTER'] =='file'
         refute traces.empty?
         assert_equal 'true', traces[0]['TriggeredTrace']
         assert_equal 'lo:se,check-id:123', traces[0]['SWKeys']
@@ -163,7 +163,7 @@ describe "Rack Trigger Tracing " do
       @rack.call(req_headers)
 
       traces = get_all_traces
-      if ENV['SW_AMP_REPORTER'] =='file'
+      if ENV['SW_APM_REPORTER'] =='file'
         refute traces.empty?
         refute traces[0]['TriggerTrace']
       end
@@ -182,7 +182,7 @@ describe "Rack Trigger Tracing " do
       assert_match /trigger-trace=ok/, res_headers['X-Trace-Options-Response']
 
       traces = get_all_traces
-      if ENV['SW_AMP_REPORTER'] =='file'
+      if ENV['SW_APM_REPORTER'] =='file'
         refute traces.empty?
         assert_equal 'true', traces[0]['TriggeredTrace']
       end
@@ -202,7 +202,7 @@ describe "Rack Trigger Tracing " do
       assert_match /ignored=not-valid-option/, res_headers['X-Trace-Options-Response']
 
       traces = get_all_traces
-      if ENV['SW_AMP_REPORTER'] =='file'
+      if ENV['SW_APM_REPORTER'] =='file'
         refute traces.empty?
         assert_equal 'true', traces[0]['TriggeredTrace']
         assert_equal 'lo:se,check-id:123', traces[0]['SWKeys']
@@ -323,7 +323,7 @@ describe "Rack Trigger Tracing " do
       assert_match /trigger-trace=not-requested/, res_headers['X-Trace-Options-Response']
 
       traces = get_all_traces
-      if ENV['SW_AMP_REPORTER'] =='file'
+      if ENV['SW_APM_REPORTER'] =='file'
         refute traces.empty?
 
         assert_equal 'bar', traces[0]['custom-foo']
@@ -340,7 +340,7 @@ describe "Rack Trigger Tracing " do
       assert_match /ignored=trigger-trace/, res_headers['X-Trace-Options-Response']
 
       traces = get_all_traces
-      if ENV['SW_AMP_REPORTER'] =='file'
+      if ENV['SW_APM_REPORTER'] =='file'
         refute traces.empty?, "There should be traces"
 
         assert_equal 'bar', traces[0]['custom-foo']
@@ -360,7 +360,7 @@ describe "Rack Trigger Tracing " do
       assert_match /auth=ok/, res_headers['X-Trace-Options-Response']
 
       traces = get_all_traces
-      if ENV['SW_AMP_REPORTER'] =='file'
+      if ENV['SW_APM_REPORTER'] =='file'
         refute traces.empty?, "There should be traces"
       end
     end
@@ -378,7 +378,7 @@ describe "Rack Trigger Tracing " do
       assert_match /ignored=trigger-trace/, res_headers['X-Trace-Options-Response']
 
       traces = get_all_traces
-      if ENV['SW_AMP_REPORTER'] =='file'
+      if ENV['SW_APM_REPORTER'] =='file'
         refute traces.empty?, "There should be traces"
       end
     end
@@ -412,7 +412,7 @@ describe "Rack Trigger Tracing " do
       assert_match /ignored=bad-key/, res_headers['X-Trace-Options-Response']
 
       traces = get_all_traces
-      if ENV['SW_AMP_REPORTER'] =='file'
+      if ENV['SW_APM_REPORTER'] =='file'
         refute traces.empty?, "There should be traces"
         assert_equal 'lo:se,check-id:123', traces[0]['SWKeys']
         assert_equal 'bar', traces[0]['custom-foo']
@@ -430,7 +430,7 @@ describe "Rack Trigger Tracing " do
       assert_match /ignored=bad-key/, res_headers['X-Trace-Options-Response']
 
       traces = get_all_traces
-      if ENV['SW_AMP_REPORTER'] =='file'
+      if ENV['SW_APM_REPORTER'] =='file'
         refute traces.empty?, "There should be traces"
         assert_equal 'lo:se,check-id:123', traces[0]['SWKeys']
         assert_equal 'bar', traces[0]['custom-foo']
@@ -462,7 +462,7 @@ describe "Rack Trigger Tracing " do
       assert_match /ignored=bad-key/, res_headers['X-Trace-Options-Response']
 
       traces = get_all_traces
-      if ENV['SW_AMP_REPORTER'] =='file'
+      if ENV['SW_APM_REPORTER'] =='file'
         refute traces.empty?, "There should be traces"
         assert_equal 'lo:se,check-id:123', traces[0]['SWKeys']
         assert_equal 'bar', traces[0]['custom-foo']

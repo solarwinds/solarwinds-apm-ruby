@@ -15,7 +15,7 @@ class SinatraSimple < Sinatra::Base
 
   template :layout do
     # Use both the legacy and new RUM helper
-    # oboe_rum_header + appoptics_rum_footer
+    # oboe_rum_header + sw_apm_rum_footer
     # These should be no-op methods now.
     %q{
 <html>

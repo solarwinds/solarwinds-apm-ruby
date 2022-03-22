@@ -19,7 +19,7 @@ describe "Faraday" do
     _(defined?(::Faraday)).wont_match nil
   end
 
-  it 'Faraday should have AppOptics instrumentation prepended' do
+  it 'Faraday should have SolarWinds instrumentation prepended' do
     _(Faraday::Connection.ancestors).must_include(SolarWindsAPM::Inst::FaradayConnection)
   end
 

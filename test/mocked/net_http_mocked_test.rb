@@ -34,7 +34,7 @@ unless defined?(JRUBY_VERSION)
       }
     end
 
-    # prepend HttpMock to check if appoptics is in the ancestors chain
+    # prepend HttpMock to check if solarwinds_apm is in the ancestors chain
     # resorting to this solution because a method instrumented by using :prepend
     # can't be mocked with mocha
 

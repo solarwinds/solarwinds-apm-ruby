@@ -66,7 +66,7 @@ task :docker_tests, :environment do
   os = arg2 || 'ubuntu'
 
   Dir.chdir('test/run_tests')
-  exec("docker-compose down -v --remove-orphans && docker-compose run --service-ports --name ruby_appoptics_#{os} ruby_appoptics_#{os} /code/ruby-solarwinds/test/run_tests/ruby_setup.sh test copy")
+  exec("docker-compose down -v --remove-orphans && docker-compose run --service-ports --name ruby_sw_apm_#{os} ruby_sw_apm_#{os} /code/ruby-solarwinds/test/run_tests/ruby_setup.sh test copy")
 end
 
 task :docker_test => :docker_tests
@@ -77,7 +77,7 @@ task :docker, :environment do
   os = arg2 || 'ubuntu'
 
   Dir.chdir('test/run_tests')
-  exec("docker-compose down -v --remove-orphans && docker-compose run --service-ports --name ruby_appoptics_#{os} ruby_appoptics_#{os} /code/ruby-solarwinds/test/run_tests/ruby_setup.sh bash")
+  exec("docker-compose down -v --remove-orphans && docker-compose run --service-ports --name ruby_sw_apm_#{os} ruby_sw_apm_#{os} /code/ruby-solarwinds/test/run_tests/ruby_setup.sh bash")
 end
 
 desc 'Stop all containers that were started for testing and debugging'
@@ -223,15 +223,15 @@ def oboe_github_fetch
 end
 
 desc "Fetch oboe files from files.appoptics.com and create swig wrapper"
-task :oboe_files_appoptics_fetch do
+task :oboe_files_sw_apm_fetch do
   oboe_version = File.read('ext/oboe_metal/src/VERSION').strip
-  files_appoptics = "https://files.appoptics.com/c-lib/#{oboe_version}"
+  files_solarwinds = "https:////files.appoptics.com/c-lib/#{oboe_version}"
 
   FileUtils.mkdir_p(File.join(@ext_dir, 'src', 'bson'))
 
   # fetch files
   @files.each do |filename|
-    remote_file = File.join(files_appoptics, 'include', filename)
+    remote_file = File.join(files_solarwinds, 'include', filename)
     local_file = File.join(@ext_dir, 'src', filename)
 
     puts "fetching #{remote_file}"
@@ -247,7 +247,7 @@ task :oboe_files_appoptics_fetch do
                'liboboe-1.0-x86_64.so.0.0.0.sha256']
 
   sha_files.each do |filename|
-    remote_file = File.join(files_appoptics, filename)
+    remote_file = File.join(files_solarwinds, filename)
     local_file = File.join(@ext_dir, 'lib', filename)
 
     puts "fetching #{remote_file}"
@@ -387,7 +387,7 @@ desc "Rebuild the gem's c extension without fetching the oboe files, without rec
 task :recompile => [:distclean, :compile]
 
 task :environment do
-  ENV['SW_AMP_GEM_VERBOSE'] = 'true'
+  ENV['SW_APM_GEM_VERBOSE'] = 'true'
 
   Bundler.require(:default, :development)
   SolarWindsAPM::Config[:tracing_mode] = :enabled
