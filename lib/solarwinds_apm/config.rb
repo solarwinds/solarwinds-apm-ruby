@@ -35,12 +35,12 @@ module SolarWindsAPM
     # load_config_file
     #
     # There are 3 possible locations for the config file:
-    # Rails default, ENV['SW_APM_APM_CONFIG_RUBY'], or the gem's default
+    # Rails default, ENV['SW_APM_CONFIG_RUBY'], or the gem's default
     #
     # Hierarchie:
     # 1 - Rails default: config/initializers/solarwinds_apm.rb
     #     (also loaded  by Rails, but we can't reliably determine if Rails is running)
-    # 2 - ENV['SW_APM_APM_CONFIG_RUBY']
+    # 2 - ENV['SW_APM_CONFIG_RUBY']
     # 3 - Gem default: <startup_dir>/solarwinds_apm_config.rb
     #
     def self.load_config_file
@@ -51,13 +51,13 @@ module SolarWindsAPM
       config_files << config_file if File.exist?(config_file)
 
       # Check for file set by env variable
-      if ENV.key?('SW_APM_APM_CONFIG_RUBY')
-        if File.exist?(ENV['SW_APM_APM_CONFIG_RUBY']) && !File.directory?(ENV['SW_APM_APM_CONFIG_RUBY'])
-          config_files << ENV['SW_APM_APM_CONFIG_RUBY']
-        elsif File.exist?(File.join(ENV['SW_APM_APM_CONFIG_RUBY'], 'solarwinds_apm_config.rb'))
-          config_files << File.join(ENV['SW_APM_APM_CONFIG_RUBY'], 'solarwinds_apm_config.rb')
+      if ENV.key?('SW_APM_CONFIG_RUBY')
+        if File.exist?(ENV['SW_APM_CONFIG_RUBY']) && !File.directory?(ENV['SW_APM_CONFIG_RUBY'])
+          config_files << ENV['SW_APM_CONFIG_RUBY']
+        elsif File.exist?(File.join(ENV['SW_APM_CONFIG_RUBY'], 'solarwinds_apm_config.rb'))
+          config_files << File.join(ENV['SW_APM_CONFIG_RUBY'], 'solarwinds_apm_config.rb')
         else
-          SolarWindsAPM.logger.warn "[solarwinds_apm/config] Could not find the configuration file set by the SW_APM_APM_CONFIG_RUBY environment variable:  #{ENV['SW_APM_APM_CONFIG_RUBY']}"
+          SolarWindsAPM.logger.warn "[solarwinds_apm/config] Could not find the configuration file set by the SW_APM_CONFIG_RUBY environment variable:  #{ENV['SW_APM_CONFIG_RUBY']}"
         end
       end
 

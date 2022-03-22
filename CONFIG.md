@@ -18,7 +18,7 @@ Name | Description | Default
 ---- | ----------- | -------
 `SW_APM_GEM_TEST` | puts the gem in test mode to avoid restarting certain background services used in testing.   `false`
 `DBTYPE` | For tests on Ruby on Rails, specifies the database type to test against.  `postgres`, `mysql` and `mysql2` are valid options. | `postgres`
-`SW_APM_CASSANDRA_SERVER` | specifies the Cassandra server to test against. | `127.0.0.1:9160`
+`CASSANDRA_SERVER` | specifies the Cassandra server to test against. | `127.0.0.1:9160`
 `MONGO_SERVER` | specifies the Mongo server to test against. | `127.0.0.1:27017`
 `RABBITMQ_SERVER` | specifies the RabbitMQ server to test against. | `127.0.0.1`
 `RABBITMQ_PORT` | port for the RabbitMQ connection. | `5672`

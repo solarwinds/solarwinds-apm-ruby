@@ -3,8 +3,8 @@
 
 require 'minitest_helper'
 
-unless ENV['SW_APM_CASSANDRA_SERVER']
-  ENV['SW_APM_CASSANDRA_SERVER'] = "127.0.0.1:9160"
+unless ENV['CASSANDRA_SERVER']
+  ENV['CASSANDRA_SERVER'] = "127.0.0.1:9160"
 end
 
 # The cassandra-rb client doesn't support JRuby
@@ -19,7 +19,7 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
     before do
       clear_all_traces
 
-      @client = Cassandra.new("system", ENV['SW_APM_CASSANDRA_SERVER'], { :timeout => 10 })
+      @client = Cassandra.new("system", ENV['CASSANDRA_SERVER'], { :timeout => 10 })
       @client.disable_node_auto_discovery!
 
       @ks_name = "AppNetaCassandraTest"
@@ -46,8 +46,8 @@ if defined?(::Cassandra) and !defined?(JRUBY_VERSION)
       @entry_kvs = {
         'Layer' => 'cassandra',
         'Label' => 'entry',
-        'RemoteHost' => ENV['SW_APM_CASSANDRA_SERVER'].split(':')[0],
-        'RemotePort' => ENV['SW_APM_CASSANDRA_SERVER'].split(':')[1] }
+        'RemoteHost' => ENV['CASSANDRA_SERVER'].split(':')[0],
+        'RemotePort' => ENV['CASSANDRA_SERVER'].split(':')[1] }
 
       @exit_kvs = { 'Layer' => 'cassandra', 'Label' => 'exit' }
       @collect_backtraces = SolarWindsAPM::Config[:cassandra][:collect_backtraces]

@@ -29,13 +29,13 @@ describe "SolarWindsAPM::Config" do
 
     @log_level = SolarWindsAPM.logger.level
 
-    @env_config = ENV['SW_APM_APM_CONFIG_RUBY']
+    @env_config = ENV['SW_APM_CONFIG_RUBY']
     @env_key = ENV['SW_APM_SERVICE_KEY']
     @env_alias = ENV['SW_APM_HOSTNAME_ALIAS']
     @env_debug = ENV['SW_APM_DEBUG_LEVEL']
     @env_verbose = ENV['SW_APM_GEM_VERBOSE']
 
-    ENV.delete('SW_APM_APM_CONFIG_RUBY')
+    ENV.delete('SW_APM_CONFIG_RUBY')
     ENV.delete('SW_APM_SERVICE_KEY')
     ENV.delete('SW_APM_HOSTNAME_ALIAS')
     ENV.delete('SW_APM_DEBUG_LEVEL')
@@ -51,13 +51,13 @@ describe "SolarWindsAPM::Config" do
 
   after do
     $VERBOSE = @verbose
-    ENV.delete('SW_APM_APM_CONFIG_RUBY')
+    ENV.delete('SW_APM_CONFIG_RUBY')
     ENV.delete('SW_APM_SERVICE_KEY')
     ENV.delete('SW_APM_HOSTNAME_ALIAS')
     ENV.delete('SW_APM_DEBUG_LEVEL')
     ENV.delete('SW_APM_GEM_VERBOSE')
 
-    ENV['SW_APM_APM_CONFIG_RUBY'] = @env_config  if @env_config
+    ENV['SW_APM_CONFIG_RUBY'] = @env_config  if @env_config
     ENV['SW_APM_SERVICE_KEY']     = @env_key     if @env_key
     ENV['SW_APM_HOSTNAME_ALIAS']  = @env_alias   if @env_alias
     ENV['SW_APM_DEBUG_LEVEL']     = @env_debug   if @env_debug
@@ -87,7 +87,7 @@ describe "SolarWindsAPM::Config" do
       f.puts "SolarWindsAPM::Config[:debug_level] = 6"
       f.puts "SolarWindsAPM::Config[:verbose] = true"
     end
-    ENV['SW_APM_APM_CONFIG_RUBY'] = @default_config_path
+    ENV['SW_APM_CONFIG_RUBY'] = @default_config_path
     SolarWindsAPM::Config.load_config_file
 
     _(ENV['SW_APM_SERVICE_KEY']).must_be_nil
@@ -117,7 +117,7 @@ describe "SolarWindsAPM::Config" do
       f.puts "SolarWindsAPM::Config[:debug_level] = 6"
       f.puts "SolarWindsAPM::Config[:verbose] = false"
     end
-    ENV['SW_APM_APM_CONFIG_RUBY'] = @default_config_path
+    ENV['SW_APM_CONFIG_RUBY'] = @default_config_path
     SolarWindsAPM::Config.load_config_file
 
     _(ENV['SW_APM_SERVICE_KEY']).must_equal '22222222-2222-2222-2222-222222222222:the_service_name'
@@ -132,7 +132,7 @@ describe "SolarWindsAPM::Config" do
     File.open(@default_config_path, 'w') do |f|
       f.puts "SolarWindsAPM::Config[:debug_level] = 7"
     end
-    ENV['SW_APM_APM_CONFIG_RUBY'] = @default_config_path
+    ENV['SW_APM_CONFIG_RUBY'] = @default_config_path
     SolarWindsAPM::Config.load_config_file
 
     _(ENV['SW_APM_DEBUG_LEVEL']).must_be_nil
@@ -144,7 +144,7 @@ describe "SolarWindsAPM::Config" do
     File.open(@default_config_path, 'w') do |f|
       f.puts "SolarWindsAPM::Config[:debug_level] = -1"
     end
-    ENV['SW_APM_APM_CONFIG_RUBY'] = @default_config_path
+    ENV['SW_APM_CONFIG_RUBY'] = @default_config_path
     SolarWindsAPM::Config.load_config_file
 
     _(ENV['SW_APM_DEBUG_LEVEL']).must_be_nil
@@ -156,7 +156,7 @@ describe "SolarWindsAPM::Config" do
     File.open(@default_config_path, 'w') do |f|
       f.puts "SolarWindsAPM::Config[:verbose] = false"
     end
-    ENV['SW_APM_APM_CONFIG_RUBY'] = @default_config_path
+    ENV['SW_APM_CONFIG_RUBY'] = @default_config_path
     ENV['SW_APM_GEM_VERBOSE'] = 'FALSE'
     SolarWindsAPM::Config.load_config_file
     _(SolarWindsAPM::Config[:verbose]).wont_equal true
@@ -355,7 +355,7 @@ describe "SolarWindsAPM::Config" do
   end
 
   it 'should load config file from env var' do
-    ENV['SW_APM_APM_CONFIG_RUBY'] = @test_config_path
+    ENV['SW_APM_CONFIG_RUBY'] = @test_config_path
     FileUtils.cp(@template, @test_config_path)
 
     SolarWindsAPM::Config.expects(:load).with(@test_config_path).times(1)
@@ -363,7 +363,7 @@ describe "SolarWindsAPM::Config" do
   end
 
   it 'should find the file if the path points to a directory' do
-    ENV['SW_APM_APM_CONFIG_RUBY'] = File.dirname(@test_config_path)
+    ENV['SW_APM_CONFIG_RUBY'] = File.dirname(@test_config_path)
     FileUtils.cp(@template, @test_config_path)
 
     SolarWindsAPM::Config.expects(:load).with(@test_config_path).times(1)
@@ -379,7 +379,7 @@ describe "SolarWindsAPM::Config" do
   end
 
   it 'should print a message if env var does not point to a file' do
-    ENV['SW_APM_APM_CONFIG_RUBY'] = 'non_existing_file'
+    ENV['SW_APM_CONFIG_RUBY'] = 'non_existing_file'
 
     SolarWindsAPM.logger.expects(:warn).once
     SolarWindsAPM::Config.load_config_file
@@ -388,7 +388,7 @@ describe "SolarWindsAPM::Config" do
   it 'should print a message if multiple config files are configured' do
     FileUtils.cp(@template, @default_config_path)
     FileUtils.cp(@template, @test_config_path)
-    ENV['SW_APM_APM_CONFIG_RUBY'] = @test_config_path
+    ENV['SW_APM_CONFIG_RUBY'] = @test_config_path
 
     SolarWindsAPM.logger.expects(:warn).once
     SolarWindsAPM::Config.expects(:load).with(@test_config_path).times(1)
