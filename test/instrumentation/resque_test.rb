@@ -6,7 +6,7 @@ unless defined?(JRUBY_VERSION)
   require_relative "../jobs/resque/remote_call_worker_job"
   require_relative "../jobs/resque/error_worker_job"
 
-  Resque.redis = Redis.new(:host => ENV['REDIS_HOST'] || ENV['APPOPTICS_REDIS_SERVER'] || '127.0.0.1',
+  Resque.redis = Redis.new(:host => ENV['REDIS_HOST'] || ENV['REDIS_SERVER'] || '127.0.0.1',
                            :password => ENV['REDIS_PASSWORD'] || 'secret_pass')
 
   Resque.enqueue(ResqueRemoteCallWorkerJob) # calling this here once to avoid other calls having an auth span

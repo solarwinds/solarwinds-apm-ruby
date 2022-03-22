@@ -41,9 +41,9 @@ gem 'solarwinds_apm'
 
 # Running
 
-Make sure to set `SOLARWINDS_SERVICE_KEY` in the environment from where the app or service is run, e.g:
+Make sure to set `SW_AMP_SERVICE_KEY` in the environment from where the app or service is run, e.g:
 ```
-export SOLARWINDS_SERVICE_KEY=795fb4947d15275d208c49cfd2412d4a5bf38742045b47236c94c4fe5f5b17c7:<your_app_name>
+export SW_AMP_SERVICE_KEY=795fb4947d15275d208c49cfd2412d4a5bf38742045b47236c94c4fe5f5b17c7:<your_app_name>
 ```
 
 ## Rails

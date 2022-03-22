@@ -280,7 +280,7 @@ module SolarWindsAPM
           platform_info['Force']                        = true
           platform_info['Ruby.Platform.Version']        = RUBY_PLATFORM
           platform_info['Ruby.Version']                 = RUBY_VERSION
-          platform_info['Ruby.AppOptics.Version']       = SolarWindsAPM::Version::STRING
+          platform_info['Ruby.SolarWindsAPM.Version']       = SolarWindsAPM::Version::STRING
 
           # oboe not loaded yet, can't use oboe_api function to read oboe VERSION
           clib_version_file = File.join(Gem::Specification.find_by_name('solarwinds_apm').gem_dir, 'ext', 'oboe_metal', 'src', 'VERSION')

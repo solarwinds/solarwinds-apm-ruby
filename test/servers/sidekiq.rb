@@ -6,7 +6,7 @@
 
 require 'sidekiq/cli'
 
-unless `ps -aef | grep 'sidekiq' | grep APPOPTICS_GEM_TEST | grep -v grep`.empty?
+unless `ps -aef | grep 'sidekiq' | grep SW_AMP_GEM_TEST | grep -v grep`.empty?
   SolarWindsAPM.logger.debug "[appoptics_apm/servers] Killing old sidekiq process:#{`ps aux | grep [s]idekiq`}."
   cmd = "pkill -9 -f sidekiq"
   `#{cmd}`
@@ -30,7 +30,7 @@ end
 SolarWindsAPM.logger.debug "[appoptics_apm/servers] sidekiq #{arguments}"
 
 Thread.new do
-  system("APPOPTICS_GEM_TEST=true sidekiq #{arguments}")
+  system("SW_AMP_GEM_TEST=true sidekiq #{arguments}")
 end
 
 # Allow Sidekiq to boot up

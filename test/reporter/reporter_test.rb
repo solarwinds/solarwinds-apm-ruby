@@ -3,7 +3,7 @@
 
 require 'minitest_helper'
 
-class APPOPTICSReporterTest < Minitest::Test
+class SolarwindsAPMReporterTest < Minitest::Test
   def reporter_has_start_method
     assert_equal true, SolarWindsAPM::Reporter.respond_to?(:start), "has restart method"
   end

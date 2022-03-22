@@ -14,8 +14,8 @@ describe 'InitReportTest' do
     _(init_kvs.has_key?("__Init")).must_equal true
     _(init_kvs.has_key?("Force")).must_equal true
     _(init_kvs.has_key?("Ruby.AppContainer.Version")).must_equal true
-    _(init_kvs["Ruby.AppOptics.Version"]).must_equal SolarWindsAPM::Version::STRING
-    _(init_kvs["Ruby.AppOpticsExtension.Version"]).must_equal Oboe_metal::Config.getVersionString
+    _(init_kvs["Ruby.SolarWindsAPM.Version"]).must_equal SolarWindsAPM::Version::STRING
+    _(init_kvs["Ruby.SolarWindsAPMExtension.Version"]).must_equal Oboe_metal::Config.getVersionString
     _(init_kvs["Ruby.TraceMode.Version"]).must_equal SolarWindsAPM::Config[:tracing_mode]
   end
 

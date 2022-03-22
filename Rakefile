@@ -387,7 +387,7 @@ desc "Rebuild the gem's c extension without fetching the oboe files, without rec
 task :recompile => [:distclean, :compile]
 
 task :environment do
-  ENV['APPOPTICS_GEM_VERBOSE'] = 'true'
+  ENV['SW_AMP_GEM_VERBOSE'] = 'true'
 
   Bundler.require(:default, :development)
   SolarWindsAPM::Config[:tracing_mode] = :enabled

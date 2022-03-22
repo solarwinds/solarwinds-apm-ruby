@@ -35,12 +35,12 @@ module SolarWindsAPM
     # load_config_file
     #
     # There are 3 possible locations for the config file:
-    # Rails default, ENV['APPOPTICS_APM_CONFIG_RUBY'], or the gem's default
+    # Rails default, ENV['SW_AMP_APM_CONFIG_RUBY'], or the gem's default
     #
     # Hierarchie:
     # 1 - Rails default: config/initializers/appoptics_apm.rb
     #     (also loaded  by Rails, but we can't reliably determine if Rails is running)
-    # 2 - ENV['APPOPTICS_APM_CONFIG_RUBY']
+    # 2 - ENV['SW_AMP_APM_CONFIG_RUBY']
     # 3 - Gem default: <startup_dir>/appoptics_apm_config.rb
     #
     def self.load_config_file
@@ -51,13 +51,13 @@ module SolarWindsAPM
       config_files << config_file if File.exist?(config_file)
 
       # Check for file set by env variable
-      if ENV.key?('APPOPTICS_APM_CONFIG_RUBY')
-        if File.exist?(ENV['APPOPTICS_APM_CONFIG_RUBY']) && !File.directory?(ENV['APPOPTICS_APM_CONFIG_RUBY'])
-          config_files << ENV['APPOPTICS_APM_CONFIG_RUBY']
-        elsif File.exist?(File.join(ENV['APPOPTICS_APM_CONFIG_RUBY'], 'appoptics_apm_config.rb'))
-          config_files << File.join(ENV['APPOPTICS_APM_CONFIG_RUBY'], 'appoptics_apm_config.rb')
+      if ENV.key?('SW_AMP_APM_CONFIG_RUBY')
+        if File.exist?(ENV['SW_AMP_APM_CONFIG_RUBY']) && !File.directory?(ENV['SW_AMP_APM_CONFIG_RUBY'])
+          config_files << ENV['SW_AMP_APM_CONFIG_RUBY']
+        elsif File.exist?(File.join(ENV['SW_AMP_APM_CONFIG_RUBY'], 'appoptics_apm_config.rb'))
+          config_files << File.join(ENV['SW_AMP_APM_CONFIG_RUBY'], 'appoptics_apm_config.rb')
         else
-          SolarWindsAPM.logger.warn "[appoptics_apm/config] Could not find the configuration file set by the APPOPTICS_APM_CONFIG_RUBY environment variable:  #{ENV['APPOPTICS_APM_CONFIG_RUBY']}"
+          SolarWindsAPM.logger.warn "[appoptics_apm/config] Could not find the configuration file set by the SW_AMP_APM_CONFIG_RUBY environment variable:  #{ENV['SW_AMP_APM_CONFIG_RUBY']}"
         end
       end
 
@@ -78,9 +78,9 @@ module SolarWindsAPM
       # sets SolarWindsAPM::Config[:debug_level], SolarWindsAPM.logger.level
       set_log_level
 
-      # the verbose setting is only relevant for ruby, ENV['APPOPTICS_GEM_VERBOSE'] overrides
-      if ENV.key?('APPOPTICS_GEM_VERBOSE')
-        SolarWindsAPM::Config[:verbose] = ENV['APPOPTICS_GEM_VERBOSE'].downcase == 'true'
+      # the verbose setting is only relevant for ruby, ENV['SW_AMP_GEM_VERBOSE'] overrides
+      if ENV.key?('SW_AMP_GEM_VERBOSE')
+        SolarWindsAPM::Config[:verbose] = ENV['SW_AMP_GEM_VERBOSE'].downcase == 'true'
       end
     end
 
@@ -90,9 +90,9 @@ module SolarWindsAPM
       end
 
       # let's find and use the equivalent debug level for ruby
-      debug_level = (ENV['APPOPTICS_DEBUG_LEVEL'] || SolarWindsAPM::Config[:debug_level] || 3).to_i
+      debug_level = (ENV['SW_AMP_DEBUG_LEVEL'] || SolarWindsAPM::Config[:debug_level] || 3).to_i
       if debug_level < 0
-        # there should be no logging if APPOPTICS_DEBUG_LEVEL == -1
+        # there should be no logging if SW_AMP_DEBUG_LEVEL == -1
         # In Ruby level 5 is UNKNOWN and it can log, but level 6 is quiet
         SolarWindsAPM.logger.level = 6
       else

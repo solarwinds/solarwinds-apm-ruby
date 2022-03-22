@@ -119,10 +119,10 @@ module SolarWindsAPM
     #   return false unless SolarWindsAPM.loaded
     #
     #   # Assure defaults since SWIG enforces Strings
-    #   xtrace  = opts[:xtrace]     ? opts[:xtrace].to_s.strip       : APPOPTICS_STR_BLANK
+    #   xtrace  = opts[:xtrace]     ? opts[:xtrace].to_s.strip       : SW_AMP_STR_BLANK
     #
     #   # the first arg has changed to be the service name, blank means to use the default (from the service key)
-    #   rv = SolarWindsAPM::Context.sampleRequest(APPOPTICS_STR_BLANK, xtrace)
+    #   rv = SolarWindsAPM::Context.sampleRequest(SW_AMP_STR_BLANK, xtrace)
     #
     #   if rv == 0
     #     SolarWindsAPM.sample_rate = -1
@@ -147,14 +147,14 @@ module SolarWindsAPM
     #
     #   case value
     #   when :disabled, :never
-    #     SolarWindsAPM::Context.setTracingMode(APPOPTICS_TRACE_DISABLED)
+    #     SolarWindsAPM::Context.setTracingMode(SW_AMP_TRACE_DISABLED)
     #
     #   when :enabled, :always
-    #     SolarWindsAPM::Context.setTracingMode(APPOPTICS_TRACE_ENABLED)
+    #     SolarWindsAPM::Context.setTracingMode(SW_AMP_TRACE_ENABLED)
     #
     #   else
     #     SolarWindsAPM.logger.fatal "[oboe/error] Invalid tracing mode set: #{mode}"
-    #     SolarWindsAPM::Context.setTracingMode(APPOPTICS_TRACE_DISABLED)
+    #     SolarWindsAPM::Context.setTracingMode(SW_AMP_TRACE_DISABLED)
     #   end
     # end
 

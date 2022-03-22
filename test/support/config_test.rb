@@ -29,17 +29,17 @@ describe "SolarWindsAPM::Config" do
 
     @log_level = SolarWindsAPM.logger.level
 
-    @env_config = ENV['APPOPTICS_APM_CONFIG_RUBY']
-    @env_key = ENV['SOLARWINDS_SERVICE_KEY']
-    @env_alias = ENV['APPOPTICS_HOSTNAME_ALIAS']
-    @env_debug = ENV['APPOPTICS_DEBUG_LEVEL']
-    @env_verbose = ENV['APPOPTICS_GEM_VERBOSE']
+    @env_config = ENV['SW_AMP_APM_CONFIG_RUBY']
+    @env_key = ENV['SW_AMP_SERVICE_KEY']
+    @env_alias = ENV['SW_AMP_HOSTNAME_ALIAS']
+    @env_debug = ENV['SW_AMP_DEBUG_LEVEL']
+    @env_verbose = ENV['SW_AMP_GEM_VERBOSE']
 
-    ENV.delete('APPOPTICS_APM_CONFIG_RUBY')
-    ENV.delete('SOLARWINDS_SERVICE_KEY')
-    ENV.delete('APPOPTICS_HOSTNAME_ALIAS')
-    ENV.delete('APPOPTICS_DEBUG_LEVEL')
-    ENV.delete('APPOPTICS_GEM_VERBOSE')
+    ENV.delete('SW_AMP_APM_CONFIG_RUBY')
+    ENV.delete('SW_AMP_SERVICE_KEY')
+    ENV.delete('SW_AMP_HOSTNAME_ALIAS')
+    ENV.delete('SW_AMP_DEBUG_LEVEL')
+    ENV.delete('SW_AMP_GEM_VERBOSE')
 
     SolarWindsAPM::Config[:service_key] = nil
     SolarWindsAPM::Config[:hostname_alias] = nil
@@ -51,17 +51,17 @@ describe "SolarWindsAPM::Config" do
 
   after do
     $VERBOSE = @verbose
-    ENV.delete('APPOPTICS_APM_CONFIG_RUBY')
-    ENV.delete('SOLARWINDS_SERVICE_KEY')
-    ENV.delete('APPOPTICS_HOSTNAME_ALIAS')
-    ENV.delete('APPOPTICS_DEBUG_LEVEL')
-    ENV.delete('APPOPTICS_GEM_VERBOSE')
+    ENV.delete('SW_AMP_APM_CONFIG_RUBY')
+    ENV.delete('SW_AMP_SERVICE_KEY')
+    ENV.delete('SW_AMP_HOSTNAME_ALIAS')
+    ENV.delete('SW_AMP_DEBUG_LEVEL')
+    ENV.delete('SW_AMP_GEM_VERBOSE')
 
-    ENV['APPOPTICS_APM_CONFIG_RUBY'] = @env_config  if @env_config
-    ENV['SOLARWINDS_SERVICE_KEY']     = @env_key     if @env_key
-    ENV['APPOPTICS_HOSTNAME_ALIAS']  = @env_alias   if @env_alias
-    ENV['APPOPTICS_DEBUG_LEVEL']     = @env_debug   if @env_debug
-    ENV['APPOPTICS_GEM_VERBOSE']     = @env_verbose if @env_verbose
+    ENV['SW_AMP_APM_CONFIG_RUBY'] = @env_config  if @env_config
+    ENV['SW_AMP_SERVICE_KEY']     = @env_key     if @env_key
+    ENV['SW_AMP_HOSTNAME_ALIAS']  = @env_alias   if @env_alias
+    ENV['SW_AMP_DEBUG_LEVEL']     = @env_debug   if @env_debug
+    ENV['SW_AMP_GEM_VERBOSE']     = @env_verbose if @env_verbose
 
     FileUtils.rm(@default_config_path, :force => true)
     FileUtils.rm(@rails_config_path, :force => true)
@@ -87,29 +87,29 @@ describe "SolarWindsAPM::Config" do
       f.puts "SolarWindsAPM::Config[:debug_level] = 6"
       f.puts "SolarWindsAPM::Config[:verbose] = true"
     end
-    ENV['APPOPTICS_APM_CONFIG_RUBY'] = @default_config_path
+    ENV['SW_AMP_APM_CONFIG_RUBY'] = @default_config_path
     SolarWindsAPM::Config.load_config_file
 
-    _(ENV['SOLARWINDS_SERVICE_KEY']).must_be_nil
+    _(ENV['SW_AMP_SERVICE_KEY']).must_be_nil
     _(SolarWindsAPM::Config[:service_key]).must_equal '11111111-1111-1111-1111-111111111111:the_service_name'
 
-    _(ENV['APPOPTICS_HOSTNAME_ALIAS']).must_be_nil
+    _(ENV['SW_AMP_HOSTNAME_ALIAS']).must_be_nil
     _(SolarWindsAPM::Config[:hostname_alias]).must_equal 'my_service'
 
     # logging happens in 2 places, oboe and ruby, we translate
-    _(ENV['APPOPTICS_DEBUG_LEVEL']).must_be_nil
+    _(ENV['SW_AMP_DEBUG_LEVEL']).must_be_nil
     _(SolarWindsAPM::Config[:debug_level]).must_equal 6
     _(SolarWindsAPM.logger.level).must_equal Logger::DEBUG
 
-    _(ENV['APPOPTICS_GEM_VERBOSE']).must_be_nil
+    _(ENV['SW_AMP_GEM_VERBOSE']).must_be_nil
     _(SolarWindsAPM::Config[:verbose]).must_equal true
   end
 
   it 'should NOT override env vars with config file settings' do
-    ENV['SOLARWINDS_SERVICE_KEY'] = '22222222-2222-2222-2222-222222222222:the_service_name'
-    ENV['APPOPTICS_HOSTNAME_ALIAS'] = 'my_other_service'
-    ENV['APPOPTICS_DEBUG_LEVEL'] = '2'
-    ENV['APPOPTICS_GEM_VERBOSE'] = 'TRUE'
+    ENV['SW_AMP_SERVICE_KEY'] = '22222222-2222-2222-2222-222222222222:the_service_name'
+    ENV['SW_AMP_HOSTNAME_ALIAS'] = 'my_other_service'
+    ENV['SW_AMP_DEBUG_LEVEL'] = '2'
+    ENV['SW_AMP_GEM_VERBOSE'] = 'TRUE'
 
     File.open(@default_config_path, 'w') do |f|
       f.puts "SolarWindsAPM::Config[:service_key] = '11111111-1111-1111-1111-111111111111:the_service_name'"
@@ -117,14 +117,14 @@ describe "SolarWindsAPM::Config" do
       f.puts "SolarWindsAPM::Config[:debug_level] = 6"
       f.puts "SolarWindsAPM::Config[:verbose] = false"
     end
-    ENV['APPOPTICS_APM_CONFIG_RUBY'] = @default_config_path
+    ENV['SW_AMP_APM_CONFIG_RUBY'] = @default_config_path
     SolarWindsAPM::Config.load_config_file
 
-    _(ENV['SOLARWINDS_SERVICE_KEY']).must_equal '22222222-2222-2222-2222-222222222222:the_service_name'
-    _(ENV['APPOPTICS_HOSTNAME_ALIAS']).must_equal 'my_other_service'
-    _(ENV['APPOPTICS_DEBUG_LEVEL']).must_equal '2'
+    _(ENV['SW_AMP_SERVICE_KEY']).must_equal '22222222-2222-2222-2222-222222222222:the_service_name'
+    _(ENV['SW_AMP_HOSTNAME_ALIAS']).must_equal 'my_other_service'
+    _(ENV['SW_AMP_DEBUG_LEVEL']).must_equal '2'
     _(SolarWindsAPM.logger.level).must_equal Logger::WARN
-    _(ENV['APPOPTICS_GEM_VERBOSE']).must_equal 'TRUE'
+    _(ENV['SW_AMP_GEM_VERBOSE']).must_equal 'TRUE'
     _(SolarWindsAPM::Config[:verbose]).must_equal true
   end
 
@@ -132,10 +132,10 @@ describe "SolarWindsAPM::Config" do
     File.open(@default_config_path, 'w') do |f|
       f.puts "SolarWindsAPM::Config[:debug_level] = 7"
     end
-    ENV['APPOPTICS_APM_CONFIG_RUBY'] = @default_config_path
+    ENV['SW_AMP_APM_CONFIG_RUBY'] = @default_config_path
     SolarWindsAPM::Config.load_config_file
 
-    _(ENV['APPOPTICS_DEBUG_LEVEL']).must_be_nil
+    _(ENV['SW_AMP_DEBUG_LEVEL']).must_be_nil
     _(SolarWindsAPM::Config[:debug_level]).must_equal 3
     _(SolarWindsAPM.logger.level).must_equal Logger::INFO
   end
@@ -144,10 +144,10 @@ describe "SolarWindsAPM::Config" do
     File.open(@default_config_path, 'w') do |f|
       f.puts "SolarWindsAPM::Config[:debug_level] = -1"
     end
-    ENV['APPOPTICS_APM_CONFIG_RUBY'] = @default_config_path
+    ENV['SW_AMP_APM_CONFIG_RUBY'] = @default_config_path
     SolarWindsAPM::Config.load_config_file
 
-    _(ENV['APPOPTICS_DEBUG_LEVEL']).must_be_nil
+    _(ENV['SW_AMP_DEBUG_LEVEL']).must_be_nil
     _(SolarWindsAPM::Config[:debug_level]).must_equal -1
     _(SolarWindsAPM.logger.level).must_equal 6
   end
@@ -156,20 +156,20 @@ describe "SolarWindsAPM::Config" do
     File.open(@default_config_path, 'w') do |f|
       f.puts "SolarWindsAPM::Config[:verbose] = false"
     end
-    ENV['APPOPTICS_APM_CONFIG_RUBY'] = @default_config_path
-    ENV['APPOPTICS_GEM_VERBOSE'] = 'FALSE'
+    ENV['SW_AMP_APM_CONFIG_RUBY'] = @default_config_path
+    ENV['SW_AMP_GEM_VERBOSE'] = 'FALSE'
     SolarWindsAPM::Config.load_config_file
     _(SolarWindsAPM::Config[:verbose]).wont_equal true
 
-    ENV['APPOPTICS_GEM_VERBOSE'] = 'TRUE'
+    ENV['SW_AMP_GEM_VERBOSE'] = 'TRUE'
     SolarWindsAPM::Config.load_config_file
     _(SolarWindsAPM::Config[:verbose]).must_equal true
 
-    ENV['APPOPTICS_GEM_VERBOSE'] = 'verbose'
+    ENV['SW_AMP_GEM_VERBOSE'] = 'verbose'
     SolarWindsAPM::Config.load_config_file
     _(SolarWindsAPM::Config[:verbose]).wont_equal true
 
-    ENV['APPOPTICS_GEM_VERBOSE'] = 'True'
+    ENV['SW_AMP_GEM_VERBOSE'] = 'True'
     SolarWindsAPM::Config.load_config_file
     _(SolarWindsAPM::Config[:verbose]).must_equal true
   end
@@ -355,7 +355,7 @@ describe "SolarWindsAPM::Config" do
   end
 
   it 'should load config file from env var' do
-    ENV['APPOPTICS_APM_CONFIG_RUBY'] = @test_config_path
+    ENV['SW_AMP_APM_CONFIG_RUBY'] = @test_config_path
     FileUtils.cp(@template, @test_config_path)
 
     SolarWindsAPM::Config.expects(:load).with(@test_config_path).times(1)
@@ -363,7 +363,7 @@ describe "SolarWindsAPM::Config" do
   end
 
   it 'should find the file if the path points to a directory' do
-    ENV['APPOPTICS_APM_CONFIG_RUBY'] = File.dirname(@test_config_path)
+    ENV['SW_AMP_APM_CONFIG_RUBY'] = File.dirname(@test_config_path)
     FileUtils.cp(@template, @test_config_path)
 
     SolarWindsAPM::Config.expects(:load).with(@test_config_path).times(1)
@@ -379,7 +379,7 @@ describe "SolarWindsAPM::Config" do
   end
 
   it 'should print a message if env var does not point to a file' do
-    ENV['APPOPTICS_APM_CONFIG_RUBY'] = 'non_existing_file'
+    ENV['SW_AMP_APM_CONFIG_RUBY'] = 'non_existing_file'
 
     SolarWindsAPM.logger.expects(:warn).once
     SolarWindsAPM::Config.load_config_file
@@ -388,7 +388,7 @@ describe "SolarWindsAPM::Config" do
   it 'should print a message if multiple config files are configured' do
     FileUtils.cp(@template, @default_config_path)
     FileUtils.cp(@template, @test_config_path)
-    ENV['APPOPTICS_APM_CONFIG_RUBY'] = @test_config_path
+    ENV['SW_AMP_APM_CONFIG_RUBY'] = @test_config_path
 
     SolarWindsAPM.logger.expects(:warn).once
     SolarWindsAPM::Config.expects(:load).with(@test_config_path).times(1)

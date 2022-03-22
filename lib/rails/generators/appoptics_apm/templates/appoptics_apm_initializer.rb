@@ -17,8 +17,8 @@ if defined?(SolarWindsAPM::Config)
   # are startup settings and can't be changed afterwards.
 
   #
-  # Set APPOPTICS_SERVICE_KEY
-  # This setting will be overridden if APPOPTICS_SERVICE_KEY is set as an environment variable.
+  # Set SW_AMP_SERVICE_KEY
+  # This setting will be overridden if SW_AMP_SERVICE_KEY is set as an environment variable.
   # This is a required setting. If the service key is not set here it needs to be set as environment variable.
   #
   # The service key is a combination of the API token plus a service name.
@@ -27,14 +27,14 @@ if defined?(SolarWindsAPM::Config)
   # SolarWindsAPM::Config[:service_key] = '0123456789abcde0123456789abcde0123456789abcde0123456789abcde1234:my_service'
 
   #
-  # Set APPOPTICS_HOSTNAME_ALIAS
-  # This setting will be overridden if APPOPTICS_HOSTNAME_ALIAS is set as an environment variable
+  # Set SW_AMP_HOSTNAME_ALIAS
+  # This setting will be overridden if SW_AMP_HOSTNAME_ALIAS is set as an environment variable
   #
   # SolarWindsAPM::Config[:hostname_alias] = 'alias_name'
 
   #
   # Set Proxy for AppOptics
-  # This setting will be overridden if APPOPTICS_PROXY is set as an environment variable.
+  # This setting will be overridden if SW_AMP_PROXY is set as an environment variable.
   #
   # Please configure http_proxy if a proxy needs to be used to communicate with
   # the AppOptics backend.
@@ -46,7 +46,7 @@ if defined?(SolarWindsAPM::Config)
   # Note that while HTTP is the only type of connection supported, the traffic
   # to AppOptics is still encrypted using SSL/TLS.
   #
-  # It is recommended to configure the proxy in this file or as APPOPTICS_PROXY
+  # It is recommended to configure the proxy in this file or as SW_AMP_PROXY
   # environment variable. However, the agent's underlying network library will
   # use a system-wide proxy defined in the environment variables grpc_proxy,
   # https_proxy or http_proxy if no AppOptics-specific configuration is set.
@@ -55,8 +55,8 @@ if defined?(SolarWindsAPM::Config)
   # SolarWindsAPM::Config[:http_proxy] = http://<proxyHost>:<proxyPort>
 
   #
-  # Set APPOPTICS_DEBUG_LEVEL
-  # This setting will be overridden if APPOPTICS_DEBUG_LEVEL is set as an environment variable.
+  # Set SW_AMP_DEBUG_LEVEL
+  # This setting will be overridden if SW_AMP_DEBUG_LEVEL is set as an environment variable.
   #
   # It sets the log level and takes the following values:
   # -1 disabled, 0 fatal, 1 error, 2 warning, 3 info (the default), 4 debug low, 5 debug medium, 6 debug high.
@@ -71,8 +71,8 @@ if defined?(SolarWindsAPM::Config)
   # SolarWindsAPM.logger.level = Logger::INFO
 
   #
-  # Set APPOPTICS_GEM_VERBOSE
-  # This setting will be overridden if APPOPTICS_GEM_VERBOSE is set as an environment variable
+  # Set SW_AMP_GEM_VERBOSE
+  # This setting will be overridden if SW_AMP_GEM_VERBOSE is set as an environment variable
   #
   # On startup the components that are being instrumented will be reported if this is set to true.
   # If true and the log level is 4 or higher this may create extra debug log messages

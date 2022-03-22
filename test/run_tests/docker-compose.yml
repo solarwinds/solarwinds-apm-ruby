@@ -13,17 +13,17 @@ version: "2.1"
 #
 ########################################################################################################
 x-ao-env: &ao-env
-#  APPOPTICS_COLLECTOR: "collector-stg.appoptics.com"
-  APPOPTICS_COLLECTOR: "/tmp/appoptics_traces.bson"
+#  SW_AMP_COLLECTOR: "collector-stg.appoptics.com"
+  SW_AMP_COLLECTOR: "/tmp/appoptics_traces.bson"
   OBOE_FROM_S3: "true"
-  APPOPTICS_GEM_TEST: "true"
+  SW_AMP_GEM_TEST: "true"
   MONGO_SERVER: "ao-ruby-mongo"
   RABBITMQ_SERVER: "ao-ruby-rabbitmq"
-  APPOPTICS_REPORTER: "file"
-  APPOPTICS_REPORTER_FILE_SINGLE: "false"
-  SOLARWINDS_SERVICE_KEY: "${SOLARWINDS_SERVICE_KEY}"
-  APPOPTICS_TOKEN_BUCKET_CAPACITY: 10000
-  APPOPTICS_TOKEN_BUCKET_RATE: 10000
+  SW_AMP_REPORTER: "file"
+  SW_AMP_REPORTER_FILE_SINGLE: "false"
+  SW_AMP_SERVICE_KEY: "${SW_AMP_SERVICE_KEY}"
+  SW_AMP_TOKEN_BUCKET_CAPACITY: 10000
+  SW_AMP_TOKEN_BUCKET_RATE: 10000
 
   BUNDLE_GEMFILE: "gemfiles/libraries.gemfile"
   DOCKER_MYSQL_PASS: "admin"
@@ -40,7 +40,7 @@ x-ao-env: &ao-env
   TEST_RUNS_TO_FILE: "true"
 #    - SIMPLECOV_COVERAGE=true
 #    - OBOE_WIP=true
-#    - APPOPTICS_DEBUG_LEVEL=6
+#    - SW_AMP_DEBUG_LEVEL=6
 
 x-ao-shared: &ao-shared
   mem_limit: 1G
@@ -79,7 +79,7 @@ services:
     #       - /Users/maiaengeli/workspace/repos/grpc:/grpc_ruby
     environment:
       << : *ao-env
-      APPOPTICS_HOSTNAME_ALIAS: "AO_RUBY_UBUNTU"
+      SW_AMP_HOSTNAME_ALIAS: "AO_RUBY_UBUNTU"
 
   ruby_appoptics_alpine:
     container_name: ruby_appoptics_alpine
@@ -97,7 +97,7 @@ services:
 #      - ../../../../repos/sequel:/code/sequel
     environment:
       <<: *ao-env
-      APPOPTICS_HOSTNAME_ALIAS: "AO_RUBY_ALPINE"
+      SW_AMP_HOSTNAME_ALIAS: "AO_RUBY_ALPINE"
 
   ruby_appoptics_debian:
     container_name: ruby_appoptics_debian
@@ -114,7 +114,7 @@ services:
       - ./.ruby_version_debian:/code/ruby-appoptics/.ruby-version
     environment:
       << : *ao-env
-      APPOPTICS_HOSTNAME_ALIAS: "AO_RUBY_DEBIAN"
+      SW_AMP_HOSTNAME_ALIAS: "AO_RUBY_DEBIAN"
 
   ruby_appoptics_centos:
     container_name: ruby_appoptics_centos
@@ -132,7 +132,7 @@ services:
       - ../../../../repos/rack-cache/:/rack-cache
     environment:
       << : *ao-env
-      APPOPTICS_HOSTNAME_ALIAS: "AO_RUBY_CENTOS"
+      SW_AMP_HOSTNAME_ALIAS: "AO_RUBY_CENTOS"
     privileged: true
 
   ao-ruby-rabbitmq:

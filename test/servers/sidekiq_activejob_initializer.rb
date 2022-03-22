@@ -14,8 +14,8 @@ require 'solarwinds_apm'
 require_relative '../jobs/sidekiq/activejob_worker_job.rb'
 
 ENV["RACK_ENV"] = "test"
-ENV["APPOPTICS_GEM_TEST"] = "true"
-ENV["APPOPTICS_GEM_VERBOSE"] = "true"
+ENV["SW_AMP_GEM_TEST"] = "true"
+ENV["SW_AMP_GEM_VERBOSE"] = "true"
 
 Bundler.require(:default, :test)
 

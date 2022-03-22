@@ -74,12 +74,12 @@ puts "\n\033[1m=== TEST RUN: #{RUBY_VERSION} #{File.basename(ENV['BUNDLE_GEMFILE
 
 ENV['RACK_ENV'] = 'test'
 # The following should be set in docker, so that tests can use different reporters
-# ENV['APPOPTICS_REPORTER'] = 'file'
-# ENV['APPOPTICS_COLLECTOR'] = '/tmp/appoptics_traces.bson'.freeze
-# ENV['APPOPTICS_REPORTER_FILE_SINGLE'] = 'false'
-# ENV['APPOPTICS_GEM_TEST'] = 'true'
+# ENV['SW_AMP_REPORTER'] = 'file'
+# ENV['SW_AMP_COLLECTOR'] = '/tmp/appoptics_traces.bson'.freeze
+# ENV['SW_AMP_REPORTER_FILE_SINGLE'] = 'false'
+# ENV['SW_AMP_GEM_TEST'] = 'true'
 
-# ENV['APPOPTICS_GEM_VERBOSE'] = 'true' # currently redundant as we are setting SolarWindsAPM::Config[:verbose] = true
+# ENV['SW_AMP_GEM_VERBOSE'] = 'true' # currently redundant as we are setting SolarWindsAPM::Config[:verbose] = true
 
 MiniTest::Reporters.use! MiniTest::Reporters::SpecReporter.new
 
@@ -130,7 +130,7 @@ end
 # Truncates the trace output file to zero
 #
 def clear_all_traces(clear_context = true)
-  if SolarWindsAPM.loaded && ENV['APPOPTICS_REPORTER'] == 'file'
+  if SolarWindsAPM.loaded && ENV['SW_AMP_REPORTER'] == 'file'
     SolarWindsAPM::Context.clear if clear_context
     SolarWindsAPM::Reporter.clear_all_traces
     SolarWindsAPM.trace_context = nil
@@ -144,7 +144,7 @@ end
 # Retrieves all traces written to the trace file
 #
 def get_all_traces
-  if SolarWindsAPM.loaded && ENV['APPOPTICS_REPORTER'] == 'file'
+  if SolarWindsAPM.loaded && ENV['SW_AMP_REPORTER'] == 'file'
     sleep 0.5
     SolarWindsAPM::Reporter.get_all_traces
   else
@@ -416,7 +416,7 @@ def assert_trace_headers(headers, sampled = nil)
   refute SolarWindsAPM::TraceString.sampled?(headers['traceparent']), "traceparent should NOT have sampled flag" if sampled == false
 
   assert headers['tracestate'], "tracestate header missing"
-  assert_match /#{APPOPTICS_TRACESTATE_ID}=/, headers['tracestate'], "tracestate header missing #{APPOPTICS_TRACESTATE_ID}"
+  assert_match /#{SW_AMP_TRACESTATE_ID}=/, headers['tracestate'], "tracestate header missing #{SW_AMP_TRACESTATE_ID}"
 
   assert sw_tracestate(headers['tracestate']), "tracestate header not starting with correct sw member"
   assert_equal SolarWindsAPM::TraceString.span_id_flags(headers['traceparent']),

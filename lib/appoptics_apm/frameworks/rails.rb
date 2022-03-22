@@ -87,7 +87,7 @@ if defined?(::Rails)
       end
 
       config.after_initialize do
-        SolarWindsAPM.logger = ::Rails.logger if ::Rails.logger && !ENV.key?('APPOPTICS_GEM_TEST')
+        SolarWindsAPM.logger = ::Rails.logger if ::Rails.logger && !ENV.key?('SW_AMP_GEM_TEST')
 
         SolarWindsAPM::Inst.load_instrumentation
         # SolarWindsAPM::Rails.load_instrumentation

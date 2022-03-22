@@ -63,9 +63,9 @@ module SolarWindsAPM
       # This is only considered a remote service call if the middleware/adapter is not instrumented
       def remote_call?
         if @builder.method(:adapter).parameters.find { |ele| ele[0] == :req }
-          (@builder.handlers.map(&:name) & APPOPTICS_INSTR_ADAPTERS).count == 0
+          (@builder.handlers.map(&:name) & SW_AMP_INSTR_ADAPTERS).count == 0
         else
-          ((@builder.handlers.map(&:name) << @builder.adapter.name) & APPOPTICS_INSTR_ADAPTERS).count == 0
+          ((@builder.handlers.map(&:name) << @builder.adapter.name) & SW_AMP_INSTR_ADAPTERS).count == 0
         end
       end
 
@@ -87,10 +87,10 @@ if defined?(Faraday) && SolarWindsAPM::Config[:faraday][:enabled]
   SolarWindsAPM.logger.info '[appoptics_apm/loading] Instrumenting faraday' if SolarWindsAPM::Config[:verbose]
   Faraday::Connection.prepend(SolarWindsAPM::Inst::FaradayConnection)
 
-  APPOPTICS_INSTR_ADAPTERS = [] # ["Faraday::Adapter::NetHttp", "Faraday::Adapter::Excon", "Faraday::Adapter::Typhoeus"]
+  SW_AMP_INSTR_ADAPTERS = [] # ["Faraday::Adapter::NetHttp", "Faraday::Adapter::Excon", "Faraday::Adapter::Typhoeus"]
 
-  APPOPTICS_INSTR_ADAPTERS << "Faraday::Adapter::Typhoeus" if defined? Faraday::Adapter::Typhoeus
-  APPOPTICS_INSTR_ADAPTERS << "Faraday::Adapter::NetHttp" if defined? Faraday::Adapter::NetHttp
-  APPOPTICS_INSTR_ADAPTERS << "Faraday::Adapter::Excon" if defined? Faraday::Adapter::Excon
-  APPOPTICS_INSTR_ADAPTERS << "Faraday::Adapter::HTTPClient" if defined? Faraday::Adapter::HTTPClient
+  SW_AMP_INSTR_ADAPTERS << "Faraday::Adapter::Typhoeus" if defined? Faraday::Adapter::Typhoeus
+  SW_AMP_INSTR_ADAPTERS << "Faraday::Adapter::NetHttp" if defined? Faraday::Adapter::NetHttp
+  SW_AMP_INSTR_ADAPTERS << "Faraday::Adapter::Excon" if defined? Faraday::Adapter::Excon
+  SW_AMP_INSTR_ADAPTERS << "Faraday::Adapter::HTTPClient" if defined? Faraday::Adapter::HTTPClient
 end

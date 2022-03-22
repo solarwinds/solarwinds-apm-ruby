@@ -6,8 +6,8 @@ name: BUILD, VERIFY, and RELEASE Ruby Gem to RubyGems
 # This workflow relies on the following secrets
 # - TRACE_BUILD_RUBY_ACTIONS_API_TOKEN (from the trace-build user in github)
 # - RUBYGEMS_TOKEN (from the appoptics user on rubygems.org)
-# - APPOPTICS_SERVICE_KEY
-# - APPOPTICS_COLLECTOR
+# - SW_AMP_SERVICE_KEY
+# - SW_AMP_COLLECTOR
 #
 # The correct oboe version has to be in the file ext/oboe_metal/src/VERSION
 
@@ -93,8 +93,8 @@ jobs:
       - name: Download new Rubygem from rubygems.org and test
         working-directory: .github/workflows/
         env:
-          SOLARWINDS_SERVICE_KEY: ${{ secrets.APPOPTICS_SERVICE_KEY }}
-          APPOPTICS_COLLECTOR: ${{ secrets.APPOPTICS_COLLECTOR}}
+          SW_AMP_SERVICE_KEY: ${{ secrets.SW_AMP_SERVICE_KEY }}
+          SW_AMP_COLLECTOR: ${{ secrets.SW_AMP_COLLECTOR}}
         run: |
           sleep 1
           gem install solarwinds_apm --version ${{ steps.build.outputs.gem_version }}

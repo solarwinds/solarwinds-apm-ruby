@@ -84,7 +84,7 @@ describe "Rack: " do
   end
 
   def check_w_context_01_110(env = {})
-    SolarWindsAPM::Reporter.clear_all_traces if ENV['APPOPTICS_REPORTER'] == 'file'
+    SolarWindsAPM::Reporter.clear_all_traces if ENV['SW_AMP_REPORTER'] == 'file'
 
     _, headers, _ = @rack.call(env)
     assert SolarWindsAPM::TraceString.valid?(headers['X-Trace']), 'X-Trace in headers not valid'
@@ -102,7 +102,7 @@ describe "Rack: " do
   end
 
   def check_w_context_00_000(env = {})
-    SolarWindsAPM::Reporter.clear_all_traces if ENV['APPOPTICS_REPORTER'] == 'file'
+    SolarWindsAPM::Reporter.clear_all_traces if ENV['SW_AMP_REPORTER'] == 'file'
 
     _, headers, _ = @rack.call(env)
     assert SolarWindsAPM::TraceString.valid?(headers['X-Trace']), 'X-Trace in headers not valid'
@@ -119,7 +119,7 @@ describe "Rack: " do
   end
 
   def check_w_context_none_000(env = {})
-    SolarWindsAPM::Reporter.clear_all_traces if ENV['APPOPTICS_REPORTER'] == 'file'
+    SolarWindsAPM::Reporter.clear_all_traces if ENV['SW_AMP_REPORTER'] == 'file'
 
     _, headers, _ = @rack.call(env)
 

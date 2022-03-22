@@ -84,7 +84,7 @@ if defined?(Sinatra) && SolarWindsAPM::Config[:sinatra][:enabled]
 
   # When in the gem TEST environment, we load this instrumentation regardless.
   # Otherwise, only when Padrino isn't around.
-  unless defined?(Padrino) && !ENV.key?('APPOPTICS_GEM_TEST')
+  unless defined?(Padrino) && !ENV.key?('SW_AMP_GEM_TEST')
     # Padrino has 'enhanced' routes and rendering so the Sinatra
     # instrumentation won't work anyways.  Only load for pure Sinatra apps.
     SolarWindsAPM::Util.send_include(Sinatra::Base,      SolarWindsAPM::Sinatra::Base)

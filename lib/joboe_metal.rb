@@ -53,7 +53,7 @@ module Oboe_metal
       def start
         return unless SolarWindsAPM.loaded
 
-        if ENV.key?('APPOPTICS_GEM_TEST')
+        if ENV.key?('SW_AMP_GEM_TEST')
           SolarWindsAPM.reporter = Java::ComTracelyticsJoboe::ReporterFactory.getInstance.buildTestReporter(false)
         else
           SolarWindsAPM.reporter = Java::ComTracelyticsJoboe::ReporterFactory.getInstance.buildUdpReporter
@@ -82,7 +82,7 @@ module Oboe_metal
         # Only report __Init from here if we are not instrumenting a framework.
         # Otherwise, frameworks will handle reporting __Init after full initialization
         unless defined?(::Rails) || defined?(::Sinatra) || defined?(::Padrino) || defined?(::Grape)
-          SolarWindsAPM::API.report_init unless ENV.key?('APPOPTICS_GEM_TEST')
+          SolarWindsAPM::API.report_init unless ENV.key?('SW_AMP_GEM_TEST')
         end
       end
 
@@ -146,7 +146,7 @@ module SolarWindsAPM
         # Return false if no-op mode
         return false unless SolarWindsAPM.loaded
 
-        return true if ENV.key?('APPOPTICS_GEM_TEST')
+        return true if ENV.key?('SW_AMP_GEM_TEST')
 
         # Validation to make Joboe happy.  Assure that we have the KVs and that they
         # are not empty strings.
@@ -154,7 +154,7 @@ module SolarWindsAPM
 
         opts[:xtrace]     ||= nil
 
-        sr_cfg = Java::ComTracelyticsJoboe::LayerUtil.shouldTraceRequest(APPOPTICS_STR_BLANK, { 'X-Trace' => opts[:xtrace] })
+        sr_cfg = Java::ComTracelyticsJoboe::LayerUtil.shouldTraceRequest(SW_AMP_STR_BLANK, { 'X-Trace' => opts[:xtrace] })
 
         # Store the returned SampleRateConfig into SolarWindsAPM::Config
         if sr_cfg

@@ -106,7 +106,7 @@ if SolarWindsAPM.loaded
           report_kvs[:'Forwarded-Proto']   = env['HTTP_X_FORWARDED_PROTO']  if env.key?('HTTP_X_FORWARDED_PROTO')
           report_kvs[:'Forwarded-Port']    = env['HTTP_X_FORWARDED_PORT']   if env.key?('HTTP_X_FORWARDED_PORT')
 
-          report_kvs[:'Ruby.AppOptics.Version'] = SolarWindsAPM::Version::STRING
+          report_kvs[:'Ruby.SolarWindsAPM.Version'] = SolarWindsAPM::Version::STRING
           report_kvs[:ProcessID]         = Process.pid
           report_kvs[:ThreadID]          = Thread.current.to_s[/0x\w*/]
         rescue StandardError => e

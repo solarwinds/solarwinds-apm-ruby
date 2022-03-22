@@ -8,7 +8,7 @@ require 'solarwinds_apm'
 # require 'benchmark/ips'
 
 def clear_all_traces
-  if SolarWindsAPM.loaded && ENV['APPOPTICS_REPORTER'] == 'file'
+  if SolarWindsAPM.loaded && ENV['SW_AMP_REPORTER'] == 'file'
     SolarWindsAPM::Reporter.clear_all_traces
     sleep 0.2 # it seems like the docker file system needs a bit of time to clear the file
   end
@@ -20,7 +20,7 @@ end
 # Retrieves all traces written to the trace file
 #
 def get_all_traces
-  if SolarWindsAPM.loaded && ENV['APPOPTICS_REPORTER'] =='file'
+  if SolarWindsAPM.loaded && ENV['SW_AMP_REPORTER'] =='file'
     sleep 0.2
     SolarWindsAPM::Reporter.get_all_traces
   else

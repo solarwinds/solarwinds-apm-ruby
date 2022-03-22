@@ -14,7 +14,7 @@
 
 ###############################################################
 # Prerequisits
-# export APPOPTICS_SERVICE_KEY=<API token>:<service_name>
+# export SW_AMP_SERVICE_KEY=<API token>:<service_name>
 # `bundle exec ruby sdk_examples.rb`
 # 5 traced requests will show up at https://my.appoptics.com/
 ###############################################################

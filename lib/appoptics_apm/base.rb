@@ -2,20 +2,20 @@
 # All rights reserved.
 
 # Constants from liboboe
-APPOPTICS_TRACE_DISABLED   = 0
-APPOPTICS_TRACE_ENABLED  = 1
+SW_AMP_TRACE_DISABLED   = 0
+SW_AMP_TRACE_ENABLED  = 1
 
 SAMPLE_RATE_MASK   = 0b0000111111111111111111111111
 SAMPLE_SOURCE_MASK = 0b1111000000000000000000000000
 
 # w3c trace context related global constants
 # see: https://www.w3.org/TR/trace-context/#tracestate-limits
-APPOPTICS_TRACESTATE_ID = 'sw'.freeze
-APPOPTICS_MAX_TRACESTATE_BYTES = 512
-APPOPTICS_MAX_TRACESTATE_MEMBER_BYTES = 128
+SW_AMP_TRACESTATE_ID = 'sw'.freeze
+SW_AMP_MAX_TRACESTATE_BYTES = 512
+SW_AMP_MAX_TRACESTATE_MEMBER_BYTES = 128
 
-APPOPTICS_STR_LAYER = 'Layer'.freeze
-APPOPTICS_STR_LABEL = 'Label'.freeze
+SW_AMP_STR_LAYER = 'Layer'.freeze
+SW_AMP_STR_LABEL = 'Label'.freeze
 
 ##
 # This module is the base module for the various implementations of SolarWindsAPM reporting.
@@ -173,7 +173,7 @@ module SolarWindsAPMBase
   end
 
   def heroku?
-    ENV.key?('APPOPTICS_URL')
+    ENV.key?('SW_AMP_URL')
   end
 
   ##

@@ -34,20 +34,20 @@ module SolarWindsAPM
 
     def initialize
       # optional hostname alias
-      @hostname_alias = ENV['APPOPTICS_HOSTNAME_ALIAS'] || SolarWindsAPM::Config[:hostname_alias] || ''
+      @hostname_alias = ENV['SW_AMP_HOSTNAME_ALIAS'] || SolarWindsAPM::Config[:hostname_alias] || ''
       # level at which log messages will be written to log file (0-6)
-      @debug_level = (ENV['APPOPTICS_DEBUG_LEVEL'] || SolarWindsAPM::Config[:debug_level] || 3).to_i
+      @debug_level = (ENV['SW_AMP_DEBUG_LEVEL'] || SolarWindsAPM::Config[:debug_level] || 3).to_i
       # file name including path for log file
       # TODO eventually find better way to combine ruby and oboe logs
-      @log_file_path = ENV['APPOPTICS_LOGFILE'] || ''
+      @log_file_path = ENV['SW_AMP_LOGFILE'] || ''
       # maximum number of transaction names to track
-      @max_transactions = (ENV['APPOPTICS_MAX_TRANSACTIONS'] || -1).to_i
+      @max_transactions = (ENV['SW_AMP_MAX_TRANSACTIONS'] || -1).to_i
       # maximum wait time for flushing data before terminating in milli seconds
-      @max_flush_wait_time = (ENV['APPOPTICS_FLUSH_MAX_WAIT_TIME'] || -1).to_i
+      @max_flush_wait_time = (ENV['SW_AMP_FLUSH_MAX_WAIT_TIME'] || -1).to_i
       # events flush timeout in seconds (threshold for batching messages before sending off)
-      @events_flush_interval = (ENV['APPOPTICS_EVENTS_FLUSH_INTERVAL'] || -1).to_i
+      @events_flush_interval = (ENV['SW_AMP_EVENTS_FLUSH_INTERVAL'] || -1).to_i
       # events flush batch size in KB (threshold for batching messages before sending off)
-      @event_flush_batch_size = (ENV['APPOPTICS_EVENTS_FLUSH_BATCH_SIZE'] || -1).to_i
+      @event_flush_batch_size = (ENV['SW_AMP_EVENTS_FLUSH_BATCH_SIZE'] || -1).to_i
 
       # the reporter to be used (ssl, upd, file, null)
       # collector endpoint (reporter=ssl), udp address (reporter=udp), or file path (reporter=file)
@@ -56,19 +56,19 @@ module SolarWindsAPM
       # the service key
       @service_key = read_and_validate_service_key
       # path to the SSL certificate (only for ssl)
-      @trusted_path = ENV['APPOPTICS_TRUSTEDPATH'] || ''
+      @trusted_path = ENV['SW_AMP_TRUSTEDPATH'] || ''
       # size of the message buffer
-      @buffer_size = (ENV['APPOPTICS_BUFSIZE'] || -1).to_i
+      @buffer_size = (ENV['SW_AMP_BUFSIZE'] || -1).to_i
       # flag indicating if trace metrics reporting should be enabled (default) or disabled
-      @trace_metrics = (ENV['APPOPTICS_TRACE_METRICS'] || -1).to_i
+      @trace_metrics = (ENV['SW_AMP_TRACE_METRICS'] || -1).to_i
       # the histogram precision (only for ssl)
-      @histogram_precision = (ENV['APPOPTICS_HISTOGRAM_PRECISION'] || -1).to_i
+      @histogram_precision = (ENV['SW_AMP_HISTOGRAM_PRECISION'] || -1).to_i
       # custom token bucket capacity
-      @token_bucket_capacity = (ENV['APPOPTICS_TOKEN_BUCKET_CAPACITY'] || -1).to_i
+      @token_bucket_capacity = (ENV['SW_AMP_TOKEN_BUCKET_CAPACITY'] || -1).to_i
       # custom token bucket rate
-      @token_bucket_rate = (ENV['APPOPTICS_TOKEN_BUCKET_RATE'] || -1).to_i
+      @token_bucket_rate = (ENV['SW_AMP_TOKEN_BUCKET_RATE'] || -1).to_i
       # use single files in file reporter for each event
-      @file_single = (ENV['APPOPTICS_REPORTER_FILE_SINGLE'].to_s.downcase == 'true') ? 1 : 0
+      @file_single = (ENV['SW_AMP_REPORTER_FILE_SINGLE'].to_s.downcase == 'true') ? 1 : 0
       # timeout for ec2 metadata
       @ec2_md_timeout = read_and_validate_ec2_md_timeout
       @grpc_proxy = read_and_validate_proxy
@@ -117,17 +117,17 @@ module SolarWindsAPM
 
     def reporter_and_host
 
-      reporter = ENV['APPOPTICS_REPORTER'] || 'ssl'
+      reporter = ENV['SW_AMP_REPORTER'] || 'ssl'
       # override with 'file', e.g. when running tests
       # changed my mind => set the right reporter in the env when running tests !!!
-      # reporter = 'file' if ENV.key?('APPOPTICS_GEM_TEST')
+      # reporter = 'file' if ENV.key?('SW_AMP_GEM_TEST')
 
       host = ''
       case reporter
       when 'ssl', 'file'
-        host = ENV['APPOPTICS_COLLECTOR'] || ''
+        host = ENV['SW_AMP_COLLECTOR'] || ''
       when 'udp'
-        host = ENV['APPOPTICS_COLLECTOR'] ||
+        host = ENV['SW_AMP_COLLECTOR'] ||
                 "#{SolarWindsAPM::Config[:reporter_host]}:#{SolarWindsAPM::Config[:reporter_port]}"
         # TODO decide what to do
         # ____ SolarWindsAPM::Config[:reporter_host] and
@@ -144,9 +144,9 @@ module SolarWindsAPM
     def read_and_validate_service_key
       return '' unless @reporter == 'ssl'
 
-      service_key = ENV['SOLARWINDS_SERVICE_KEY'] || SolarWindsAPM::Config[:service_key]
+      service_key = ENV['SW_AMP_SERVICE_KEY'] || SolarWindsAPM::Config[:service_key]
       unless service_key
-        SolarWindsAPM.logger.error "[appoptics_apm/oboe_options] SOLARWINDS_SERVICE_KEY not configured."
+        SolarWindsAPM.logger.error "[appoptics_apm/oboe_options] SW_AMP_SERVICE_KEY not configured."
         return ''
       end
 
@@ -161,9 +161,9 @@ module SolarWindsAPM
     end
 
     def validate_token(token)
-      if (token !~ /^[0-9a-zA-Z_-]{71}$/) && ENV['APPOPTICS_COLLECTOR'] !~ /java-collector:1222/
+      if (token !~ /^[0-9a-zA-Z_-]{71}$/) && ENV['SW_AMP_COLLECTOR'] !~ /java-collector:1222/
         masked = "#{token[0..3]}...#{token[-4..-1]}"
-        SolarWindsAPM.logger.error "[appoptics_apm/oboe_options] SOLARWINDS_SERVICE_KEY problem. API Token in wrong format. Masked token: #{masked}"
+        SolarWindsAPM.logger.error "[appoptics_apm/oboe_options] SW_AMP_SERVICE_KEY problem. API Token in wrong format. Masked token: #{masked}"
         return false
       end
 
@@ -171,9 +171,9 @@ module SolarWindsAPM
     end
 
     def validate_transform_service_name(service_name)
-      service_name = 'test_ssl_collector' if ENV['APPOPTICS_COLLECTOR'] =~ /java-collector:1222/
+      service_name = 'test_ssl_collector' if ENV['SW_AMP_COLLECTOR'] =~ /java-collector:1222/
       if service_name.empty?
-        SolarWindsAPM.logger.error "[appoptics_apm/oboe_options] SOLARWINDS_SERVICE_KEY problem. Service Name is missing"
+        SolarWindsAPM.logger.error "[appoptics_apm/oboe_options] SW_AMP_SERVICE_KEY problem. Service Name is missing"
         return false
       end
 
@@ -183,7 +183,7 @@ module SolarWindsAPM
       name = name[0..254]
 
       if name != service_name
-        SolarWindsAPM.logger.warn "[appoptics_apm/oboe_options] SOLARWINDS_SERVICE_KEY problem. Service Name transformed from #{service_name} to #{name}"
+        SolarWindsAPM.logger.warn "[appoptics_apm/oboe_options] SW_AMP_SERVICE_KEY problem. Service Name transformed from #{service_name} to #{name}"
         service_name = name
       end
       @service_name = service_name # instance variable used in testing
@@ -191,18 +191,18 @@ module SolarWindsAPM
     end
 
     def read_and_validate_ec2_md_timeout
-      timeout = ENV['APPOPTICS_EC2_METADATA_TIMEOUT'] || SolarWindsAPM::Config[:ec2_metadata_timeout]
+      timeout = ENV['SW_AMP_EC2_METADATA_TIMEOUT'] || SolarWindsAPM::Config[:ec2_metadata_timeout]
       return 1000 unless timeout.is_a?(Integer) || timeout =~ /^\d+$/
       timeout = timeout.to_i
       return timeout.between?(0, 3000) ? timeout : 1000
     end
 
     def read_and_validate_proxy
-      proxy = ENV['APPOPTICS_PROXY'] || SolarWindsAPM::Config[:http_proxy] || ''
+      proxy = ENV['SW_AMP_PROXY'] || SolarWindsAPM::Config[:http_proxy] || ''
       return proxy if proxy == ''
 
       unless proxy =~ /http:\/\/.*:\d+$/
-        SolarWindsAPM.logger.error "[appoptics_apm/oboe_options] APPOPTICS_PROXY/http_proxy doesn't start with 'http://', #{proxy}"
+        SolarWindsAPM.logger.error "[appoptics_apm/oboe_options] SW_AMP_PROXY/http_proxy doesn't start with 'http://', #{proxy}"
         return '' # try without proxy, it may work, shouldn't crash but may not report
       end
 

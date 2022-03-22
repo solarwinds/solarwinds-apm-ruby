@@ -81,10 +81,10 @@ jobs:
        image: ghcr.io/${{ github.repository }}/apm_ruby_${{ matrix.os }}
 
     env:
-      APPOPTICS_GEM_TEST: true
-      APPOPTICS_REPORTER: file
-      APPOPTICS_COLLECTOR: /tmp/appoptics_traces.bson
-      APPOPTICS_REPORTER_FILE_SINGLE: false
+      SW_AMP_GEM_TEST: true
+      SW_AMP_REPORTER: file
+      SW_AMP_COLLECTOR: /tmp/appoptics_traces.bson
+      SW_AMP_REPORTER_FILE_SINGLE: false
       OBOE_FROM_S3: true
       MONGO_SERVER: "mongo"
       RABBITMQ_SERVER: "rabbitmq"

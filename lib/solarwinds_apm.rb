@@ -31,7 +31,7 @@ begin
       SolarWindsAPM.logger.warn '==================================================================='
     end
   rescue LoadError => e
-    unless ENV['RAILS_GROUP'] == 'assets' or ENV['IGNORE_APPOPTICS_WARNING']
+    unless ENV['RAILS_GROUP'] == 'assets' or ENV['SW_AMP_NO_LIBRARIES_WARNING']
       SolarWindsAPM.logger.error '=============================================================='
       SolarWindsAPM.logger.error 'Missing SolarWindsAPM libraries.  Tracing disabled.'
       SolarWindsAPM.logger.error "Error: #{e.message}"
@@ -68,7 +68,7 @@ begin
   # it will load all of the Ruby instrumentation
   require 'appoptics_apm/ruby'
 
-  require 'appoptics_apm/test' if ENV['APPOPTICS_GEM_TEST']
+  require 'appoptics_apm/test' if ENV['SW_AMP_GEM_TEST']
 rescue => e
   $stderr.puts "[appoptics_apm/error] Problem loading: #{e.inspect}"
   $stderr.puts e.backtrace

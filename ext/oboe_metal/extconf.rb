@@ -105,7 +105,7 @@ if success
   dir_config('oboe', 'src', 'lib')
 
   # create Makefile
-  if jruby || ENV.key?('APPOPTICS_URL')
+  if jruby || ENV.key?('SW_AMP_URL')
     # Build the noop extension under JRuby and Heroku.
     # The oboe-heroku gem builds it's own c extension which links to
     # libs specific to a Heroku dyno

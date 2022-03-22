@@ -4,8 +4,8 @@
 # Test script used to check if a newly created gem installs and connects to
 # the collector
 # requires env vars:
-# - APPOPTICS_SERVICE_KEY
-# - APPOPTICS_COLLECTOR (optional if the key is for production)
+# - SW_AMP_SERVICE_KEY
+# - SW_AMP_COLLECTOR (optional if the key is for production)
 
 require 'solarwinds_apm'
 SolarWindsAPM.support_report
