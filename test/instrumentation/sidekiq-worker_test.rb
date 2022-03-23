@@ -19,17 +19,17 @@ unless defined?(JRUBY_VERSION)
   describe "SidekiqWorkerTest" do
     before do
       clear_all_traces
-      @collect_backtraces = AppOpticsAPM::Config[:sidekiqworker][:collect_backtraces]
-      @log_args = AppOpticsAPM::Config[:sidekiqworker][:log_args]
+      @collect_backtraces = SolarWindsAPM::Config[:sidekiqworker][:collect_backtraces]
+      @log_args = SolarWindsAPM::Config[:sidekiqworker][:log_args]
     end
 
    after do
-      AppOpticsAPM::Config[:sidekiqworker][:collect_backtraces] = @collect_backtraces
-      AppOpticsAPM::Config[:sidekiqworker][:log_args] = @log_args
+      SolarWindsAPM::Config[:sidekiqworker][:collect_backtraces] = @collect_backtraces
+      SolarWindsAPM::Config[:sidekiqworker][:log_args] = @log_args
     end
 
     def test_reports_version_init
-      init_kvs = AppOpticsAPM::Util.build_init_report
+      init_kvs = SolarWindsAPM::Util.build_init_report
       assert init_kvs.key?('Ruby.sidekiq.Version')
       assert_equal ::Sidekiq::VERSION, init_kvs['Ruby.sidekiq.Version']
     end
@@ -108,15 +108,15 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_collect_backtraces_default_value
-      assert_equal AppOpticsAPM::Config[:sidekiqworker][:collect_backtraces], false, "default backtrace collection"
+      assert_equal SolarWindsAPM::Config[:sidekiqworker][:collect_backtraces], false, "default backtrace collection"
     end
 
     def test_log_args_default_value
-      assert_equal AppOpticsAPM::Config[:sidekiqworker][:log_args], true, "log_args default "
+      assert_equal SolarWindsAPM::Config[:sidekiqworker][:log_args], true, "log_args default "
     end
 
     def test_obey_collect_backtraces_when_false
-      AppOpticsAPM::Config[:sidekiqworker][:collect_backtraces] = false
+      SolarWindsAPM::Config[:sidekiqworker][:collect_backtraces] = false
 
       # Queue up a job to be run
       Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
@@ -132,7 +132,7 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_transaction_name
-      AppOpticsAPM::Config[:sidekiqworker][:collect_backtraces] = false
+      SolarWindsAPM::Config[:sidekiqworker][:collect_backtraces] = false
 
       # Queue up a job to be run
       Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
@@ -156,7 +156,7 @@ unless defined?(JRUBY_VERSION)
       # ____  new insight: it could be done through the args we are sending 05/20
       skip
 
-      AppOpticsAPM::Config[:sidekiqworker][:collect_backtraces] = true
+      SolarWindsAPM::Config[:sidekiqworker][:collect_backtraces] = true
 
       # Queue up a job to be run
       Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
@@ -176,7 +176,7 @@ unless defined?(JRUBY_VERSION)
       # ____   can't change the config of the already running sidekiq worker
       skip
 
-      AppOpticsAPM::Config[:sidekiqworker][:log_args] = false
+      SolarWindsAPM::Config[:sidekiqworker][:log_args] = false
 
       # Queue up a job to be run
       Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
@@ -191,7 +191,7 @@ unless defined?(JRUBY_VERSION)
     end
 
     def test_obey_log_args_when_true
-      AppOpticsAPM::Config[:sidekiqworker][:log_args] = true
+      SolarWindsAPM::Config[:sidekiqworker][:log_args] = true
 
       # Queue up a job to be run
       Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)

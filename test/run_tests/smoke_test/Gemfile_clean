@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gem 'json'
 
-# Add appoptics agent from PackageCloud
-source 'https://packagecloud.io/solarwinds/appoptics-apm-ruby' do
-  gem 'appoptics_apm'
+# Add solarwinds_apm agent from PackageCloud
+source 'https://packagecloud.io/solarwinds/solarwinds-apm-ruby' do
+  gem 'solarwinds_apm'
 end

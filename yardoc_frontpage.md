@@ -1,8 +1,8 @@
-# Welcome to the AppOpticsAPM Ruby Gem
+# Welcome to the SolarWindsAPM Ruby Gem
 
 
 The solarwinds_apm gem provides automatic tracing and metrics for Ruby applications. 
-It requires an AppOptics account: sign up for a free trial at https://www.appoptics.com.
+It requires an SolarWinds account: sign up for a free trial at https://www.appoptics.com.
 
 ![ruby_trace](https://docs.appoptics.com/_images/ruby_trace.png)
 

@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: [3.1 3.0, 2.7, 2.6, 2.5]
+        ruby: [3.1, 3.0, 2.7, 2.6, 2.5]
 
     container:
       image: ruby:${{ matrix.ruby }}
@@ -26,10 +26,10 @@ jobs:
     name: ${{ matrix.ruby }} - c++
 
     env:
-      APPOPTICS_REPORTER: file
-      APPOPTICS_COLLECTOR: /tmp/appoptics_traces.bson
-      APPOPTICS_REPORTER_FILE_SINGLE: false
-      APPOPTICS_FROM_S3: true
+      SW_APM_REPORTER: file
+      SW_APM_COLLECTOR: /tmp/sw_apm_traces.bson
+      SW_APM_REPORTER_FILE_SINGLE: false
+      OBOE_FROM_S3: true
 
     steps:
       - uses: actions/checkout@v2

@@ -11,7 +11,7 @@ require 'digest'
 require 'open-uri'
 require 'bundler/setup'
 require 'rake/testtask'
-require 'appoptics_apm/test'
+require 'solarwinds_apm/test'
 
 Rake::TestTask.new do |t|
   t.verbose = false
@@ -26,7 +26,7 @@ Rake::TestTask.new do |t|
   # Here we detect the Gemfile the tests are being run against
   # and load the appropriate tests.
   #
-  case AppOpticsAPM::Test.gemfile
+  case SolarWindsAPM::Test.gemfile
   when /delayed_job/
     require 'delayed/tasks'
     t.test_files = FileList['test/queues/delayed_job*_test.rb']
@@ -66,7 +66,7 @@ task :docker_tests, :environment do
   os = arg2 || 'ubuntu'
 
   Dir.chdir('test/run_tests')
-  exec("docker-compose down -v --remove-orphans && docker-compose run --service-ports --name ruby_appoptics_#{os} ruby_appoptics_#{os} /code/ruby-appoptics/test/run_tests/ruby_setup.sh test copy")
+  exec("docker-compose down -v --remove-orphans && docker-compose run --service-ports --name ruby_sw_apm_#{os} ruby_sw_apm_#{os} /code/ruby-solarwinds/test/run_tests/ruby_setup.sh test copy")
 end
 
 task :docker_test => :docker_tests
@@ -77,7 +77,7 @@ task :docker, :environment do
   os = arg2 || 'ubuntu'
 
   Dir.chdir('test/run_tests')
-  exec("docker-compose down -v --remove-orphans && docker-compose run --service-ports --name ruby_appoptics_#{os} ruby_appoptics_#{os} /code/ruby-appoptics/test/run_tests/ruby_setup.sh bash")
+  exec("docker-compose down -v --remove-orphans && docker-compose run --service-ports --name ruby_sw_apm_#{os} ruby_sw_apm_#{os} /code/ruby-solarwinds/test/run_tests/ruby_setup.sh bash")
 end
 
 desc 'Stop all containers that were started for testing and debugging'
@@ -223,15 +223,15 @@ def oboe_github_fetch
 end
 
 desc "Fetch oboe files from files.appoptics.com and create swig wrapper"
-task :oboe_files_appoptics_fetch do
+task :oboe_files_sw_apm_fetch do
   oboe_version = File.read('ext/oboe_metal/src/VERSION').strip
-  files_appoptics = "https://files.appoptics.com/c-lib/#{oboe_version}"
+  files_solarwinds = "https:////files.appoptics.com/c-lib/#{oboe_version}"
 
   FileUtils.mkdir_p(File.join(@ext_dir, 'src', 'bson'))
 
   # fetch files
   @files.each do |filename|
-    remote_file = File.join(files_appoptics, 'include', filename)
+    remote_file = File.join(files_solarwinds, 'include', filename)
     local_file = File.join(@ext_dir, 'src', filename)
 
     puts "fetching #{remote_file}"
@@ -247,7 +247,7 @@ task :oboe_files_appoptics_fetch do
                'liboboe-1.0-x86_64.so.0.0.0.sha256']
 
   sha_files.each do |filename|
-    remote_file = File.join(files_appoptics, filename)
+    remote_file = File.join(files_solarwinds, filename)
     local_file = File.join(@ext_dir, 'lib', filename)
 
     puts "fetching #{remote_file}"
@@ -303,8 +303,8 @@ task :compile do
 
     pwd      = Dir.pwd
     ext_dir  = File.expand_path('ext/oboe_metal')
-    final_so = File.expand_path('lib/libappoptics_apm.so')
-    so_file  = File.expand_path('ext/oboe_metal/libappoptics_apm.so')
+    final_so = File.expand_path('lib/libsolarwinds_apm.so')
+    so_file  = File.expand_path('ext/oboe_metal/libsolarwinds_apm.so')
 
     Dir.chdir ext_dir
     if ENV['OBOE_LOCAL']
@@ -337,7 +337,7 @@ task :clean do
     pwd     = Dir.pwd
     ext_dir = File.expand_path('ext/oboe_metal')
     symlinks = [
-      File.expand_path('lib/libappoptics_apm.so'),
+      File.expand_path('lib/libsolarwinds_apm.so'),
       File.expand_path('ext/oboe_metal/lib/liboboe.so'),
       File.expand_path('ext/oboe_metal/lib/liboboe-1.0.so.0')
     ]
@@ -362,7 +362,7 @@ task :distclean do
     ext_dir = File.expand_path('ext/oboe_metal')
     mkmf_log = File.expand_path('ext/oboe_metal/mkmf.log')
     symlinks = [
-      File.expand_path('lib/libappoptics_apm.so'),
+      File.expand_path('lib/libsolarwinds_apm.so'),
       File.expand_path('ext/oboe_metal/lib/liboboe.so'),
       File.expand_path('ext/oboe_metal/lib/liboboe-1.0.so.0')
     ]
@@ -387,13 +387,13 @@ desc "Rebuild the gem's c extension without fetching the oboe files, without rec
 task :recompile => [:distclean, :compile]
 
 task :environment do
-  ENV['APPOPTICS_GEM_VERBOSE'] = 'true'
+  ENV['SW_APM_GEM_VERBOSE'] = 'true'
 
   Bundler.require(:default, :development)
-  AppOpticsAPM::Config[:tracing_mode] = :enabled
-  AppOpticsAPM::Test.load_extras
+  SolarWindsAPM::Config[:tracing_mode] = :enabled
+  SolarWindsAPM::Test.load_extras
 
-  require 'delayed/tasks' if AppOpticsAPM::Test.gemfile?(:delayed_job)
+  require 'delayed/tasks' if SolarWindsAPM::Test.gemfile?(:delayed_job)
 end
 
 # Used when testing Resque locally

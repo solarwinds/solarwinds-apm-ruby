@@ -7,26 +7,26 @@ require 'rack'
 describe "Typhoeus" do
   before do
     clear_all_traces
-    @collect_backtraces = AppOpticsAPM::Config[:typhoeus][:collect_backtraces]
-    @log_args = AppOpticsAPM::Config[:typhoeus][:log_args]
+    @collect_backtraces = SolarWindsAPM::Config[:typhoeus][:collect_backtraces]
+    @log_args = SolarWindsAPM::Config[:typhoeus][:log_args]
   end
 
   after do
-    AppOpticsAPM::Config[:typhoeus][:collect_backtraces] = @collect_backtraces
-    AppOpticsAPM::Config[:typhoeus][:log_args] = @log_args
+    SolarWindsAPM::Config[:typhoeus][:collect_backtraces] = @collect_backtraces
+    SolarWindsAPM::Config[:typhoeus][:log_args] = @log_args
   end
 
   it 'Typhoeus should be defined and ready' do
     _(defined?(::Typhoeus::Request::Operations)).wont_match nil
   end
 
-  it 'Typhoeus should have AppOptics instrumentation prepended' do
-    _(Typhoeus::Request.ancestors).must_include(AppOpticsAPM::Inst::TyphoeusRequestOps)
-    _(Typhoeus::Hydra.ancestors).must_include(AppOpticsAPM::Inst::TyphoeusHydraRunnable)
+  it 'Typhoeus should have SolarWinds instrumentation prepended' do
+    _(Typhoeus::Request.ancestors).must_include(SolarWindsAPM::Inst::TyphoeusRequestOps)
+    _(Typhoeus::Hydra.ancestors).must_include(SolarWindsAPM::Inst::TyphoeusHydraRunnable)
   end
 
   it 'should trace a typhoeus request' do
-    AppOpticsAPM::SDK.start_trace('typhoeus_test') do
+    SolarWindsAPM::SDK.start_trace('typhoeus_test') do
       Typhoeus.get("http://127.0.0.1:8101/")
     end
 
@@ -37,7 +37,7 @@ describe "Typhoeus" do
     validate_outer_layers(traces, 'typhoeus_test')
 
     _(traces[1]['Layer']).must_equal 'typhoeus'
-    _(traces[1].key?('Backtrace')).must_equal AppOpticsAPM::Config[:typhoeus][:collect_backtraces]
+    _(traces[1].key?('Backtrace')).must_equal SolarWindsAPM::Config[:typhoeus][:collect_backtraces]
 
     _(traces[4]['Layer']).must_equal 'typhoeus'
     _(traces[4]['Label']).must_equal 'exit'
@@ -49,7 +49,7 @@ describe "Typhoeus" do
   end
 
   it 'should trace a typhoeus request to an uninstrumented app' do
-    AppOpticsAPM::SDK.start_trace('typhoeus_test') do
+    SolarWindsAPM::SDK.start_trace('typhoeus_test') do
       Typhoeus.get("http://127.0.0.1:8110/?blah=1")
     end
 
@@ -60,7 +60,7 @@ describe "Typhoeus" do
     validate_outer_layers(traces, 'typhoeus_test')
 
     _(traces[1]['Layer']).must_equal 'typhoeus'
-    _(traces[1].key?('Backtrace')).must_equal AppOpticsAPM::Config[:typhoeus][:collect_backtraces]
+    _(traces[1].key?('Backtrace')).must_equal SolarWindsAPM::Config[:typhoeus][:collect_backtraces]
 
     _(traces[2]['Layer']).must_equal 'typhoeus'
     _(traces[2]['Label']).must_equal 'exit'
@@ -72,9 +72,9 @@ describe "Typhoeus" do
   end
 
   it 'should trace a typhoeus POST request' do
-    AppOpticsAPM::SDK.start_trace('typhoeus_test') do
+    SolarWindsAPM::SDK.start_trace('typhoeus_test') do
       Typhoeus.post("http://127.0.0.1:8101/",
-                    :body => { :key => "appoptics-ruby-fake", :content => "appoptics-ruby repo test suite" })
+                    :body => { :key => "solarwinds-ruby-fake", :content => "solarwinds-ruby repo test suite" })
     end
 
     traces = get_all_traces
@@ -84,7 +84,7 @@ describe "Typhoeus" do
     validate_outer_layers(traces, 'typhoeus_test')
 
     _(traces[1]['Layer']).must_equal 'typhoeus'
-    _(traces[1].key?('Backtrace')).must_equal AppOpticsAPM::Config[:typhoeus][:collect_backtraces]
+    _(traces[1].key?('Backtrace')).must_equal SolarWindsAPM::Config[:typhoeus][:collect_backtraces]
 
     _(traces[4]['Layer']).must_equal 'typhoeus'
     _(traces[4]['Label']).must_equal 'exit'
@@ -96,9 +96,9 @@ describe "Typhoeus" do
   end
 
   it 'should trace a typhoeus PUT request' do
-    AppOpticsAPM::SDK.start_trace('typhoeus_test') do
+    SolarWindsAPM::SDK.start_trace('typhoeus_test') do
       Typhoeus.put("http://127.0.0.1:8101/",
-                   :body => { :key => "appoptics-ruby-fake", :content => "appoptics-ruby repo test suite" })
+                   :body => { :key => "solarwinds-ruby-fake", :content => "solarwinds-ruby repo test suite" })
     end
 
     traces = get_all_traces
@@ -108,7 +108,7 @@ describe "Typhoeus" do
     validate_outer_layers(traces, 'typhoeus_test')
 
     _(traces[1]['Layer']).must_equal 'typhoeus'
-    _(traces[1].key?('Backtrace')).must_equal AppOpticsAPM::Config[:typhoeus][:collect_backtraces]
+    _(traces[1].key?('Backtrace')).must_equal SolarWindsAPM::Config[:typhoeus][:collect_backtraces]
 
     _(traces[4]['Layer']).must_equal 'typhoeus'
     _(traces[4]['Label']).must_equal 'exit'
@@ -120,7 +120,7 @@ describe "Typhoeus" do
   end
 
   it 'should trace a typhoeus DELETE request' do
-    AppOpticsAPM::SDK.start_trace('typhoeus_test') do
+    SolarWindsAPM::SDK.start_trace('typhoeus_test') do
       Typhoeus.delete("http://127.0.0.1:8101/")
     end
 
@@ -131,7 +131,7 @@ describe "Typhoeus" do
     validate_outer_layers(traces, 'typhoeus_test')
 
     _(traces[1]['Layer']).must_equal 'typhoeus'
-    _(traces[1].key?('Backtrace')).must_equal AppOpticsAPM::Config[:typhoeus][:collect_backtraces]
+    _(traces[1].key?('Backtrace')).must_equal SolarWindsAPM::Config[:typhoeus][:collect_backtraces]
 
     _(traces[4]['Layer']).must_equal 'typhoeus'
     _(traces[4]['Label']).must_equal 'exit'
@@ -143,7 +143,7 @@ describe "Typhoeus" do
   end
 
   it 'should trace a typhoeus HEAD request' do
-    AppOpticsAPM::SDK.start_trace('typhoeus_test') do
+    SolarWindsAPM::SDK.start_trace('typhoeus_test') do
       Typhoeus.head("http://127.0.0.1:8101/")
     end
 
@@ -154,7 +154,7 @@ describe "Typhoeus" do
     validate_outer_layers(traces, 'typhoeus_test')
 
     _(traces[1]['Layer']).must_equal 'typhoeus'
-    _(traces[1].key?('Backtrace')).must_equal AppOpticsAPM::Config[:typhoeus][:collect_backtraces]
+    _(traces[1].key?('Backtrace')).must_equal SolarWindsAPM::Config[:typhoeus][:collect_backtraces]
 
     _(traces[4]['Layer']).must_equal 'typhoeus'
     _(traces[4]['Label']).must_equal 'exit'
@@ -166,7 +166,7 @@ describe "Typhoeus" do
   end
 
   it 'should trace a typhoeus GET request to an instr\'d app' do
-    AppOpticsAPM::SDK.start_trace('typhoeus_test') do
+    SolarWindsAPM::SDK.start_trace('typhoeus_test') do
       Typhoeus.get("http://127.0.0.1:8101/")
     end
 
@@ -177,7 +177,7 @@ describe "Typhoeus" do
     validate_outer_layers(traces, 'typhoeus_test')
 
     _(traces[1]['Layer']).must_equal 'typhoeus'
-    _(traces[1].key?('Backtrace')).must_equal AppOpticsAPM::Config[:typhoeus][:collect_backtraces]
+    _(traces[1].key?('Backtrace')).must_equal SolarWindsAPM::Config[:typhoeus][:collect_backtraces]
 
     _(traces[4]['Layer']).must_equal 'typhoeus'
     _(traces[4]['Label']).must_equal 'exit'
@@ -189,8 +189,8 @@ describe "Typhoeus" do
   end
 
   it 'should trace a typhoeus GET request with DNS error' do
-    AppOpticsAPM::SDK.start_trace('typhoeus_test') do
-      Typhoeus.get("http://thisdomaindoesntexisthopefully.asdf/products/appoptics_apm/")
+    SolarWindsAPM::SDK.start_trace('typhoeus_test') do
+      Typhoeus.get("http://thisdomaindoesntexisthopefully.asdf/products/solarwinds_apm/")
     end
 
     traces = get_all_traces
@@ -200,7 +200,7 @@ describe "Typhoeus" do
     validate_outer_layers(traces, 'typhoeus_test')
 
     _(traces[1]['Layer']).must_equal 'typhoeus'
-    _(traces[1].key?('Backtrace')).must_equal AppOpticsAPM::Config[:typhoeus][:collect_backtraces]
+    _(traces[1].key?('Backtrace')).must_equal SolarWindsAPM::Config[:typhoeus][:collect_backtraces]
 
     _(traces[2]['Layer']).must_equal 'typhoeus'
     _(traces[2]['Spec']).must_equal 'error'
@@ -213,16 +213,16 @@ describe "Typhoeus" do
     _(traces[3]['Label']).must_equal 'exit'
     _(traces[3]['Spec']).must_equal 'rsc'
     _(traces[3]['IsService']).must_equal 1
-    _(traces[3]['RemoteURL'].casecmp('http://thisdomaindoesntexisthopefully.asdf/products/appoptics_apm/')).must_equal 0
+    _(traces[3]['RemoteURL'].casecmp('http://thisdomaindoesntexisthopefully.asdf/products/solarwinds_apm/')).must_equal 0
     _(traces[3]['HTTPMethod']).must_equal 'GET'
     _(traces[3]['HTTPStatus']).must_equal 0
   end
 
   it 'should trace parallel typhoeus requests' do
-    AppOpticsAPM::SDK.start_trace('typhoeus_test') do
+    SolarWindsAPM::SDK.start_trace('typhoeus_test') do
       hydra = Typhoeus::Hydra.hydra
 
-      first_request  = Typhoeus::Request.new("http://127.0.0.1:8101/products/appoptics_apm/")
+      first_request  = Typhoeus::Request.new("http://127.0.0.1:8101/products/solarwinds_apm/")
       second_request = Typhoeus::Request.new("http://127.0.0.1:8101/products/")
       third_request  = Typhoeus::Request.new("http://127.0.0.1:8101/")
 
@@ -248,9 +248,9 @@ describe "Typhoeus" do
   end
 
   it 'should obey :log_args setting when true' do
-    AppOpticsAPM::Config[:typhoeus][:log_args] = true
+    SolarWindsAPM::Config[:typhoeus][:log_args] = true
 
-    AppOpticsAPM::SDK.start_trace('typhoeus_test') do
+    SolarWindsAPM::SDK.start_trace('typhoeus_test') do
       Typhoeus.get("http://127.0.0.1:8101/?blah=1")
     end
 
@@ -260,9 +260,9 @@ describe "Typhoeus" do
   end
 
   it 'should obey :log_args setting when false' do
-    AppOpticsAPM::Config[:typhoeus][:log_args] = false
+    SolarWindsAPM::Config[:typhoeus][:log_args] = false
 
-    AppOpticsAPM::SDK.start_trace('typhoeus_test') do
+    SolarWindsAPM::SDK.start_trace('typhoeus_test') do
       Typhoeus.get("http://127.0.0.1:8101/?blah=1")
     end
 
@@ -272,9 +272,9 @@ describe "Typhoeus" do
   end
 
   it 'should obey :collect_backtraces setting when true' do
-    AppOpticsAPM::Config[:typhoeus][:collect_backtraces] = true
+    SolarWindsAPM::Config[:typhoeus][:collect_backtraces] = true
 
-    AppOpticsAPM::SDK.start_trace('typhoeus_test') do
+    SolarWindsAPM::SDK.start_trace('typhoeus_test') do
       Typhoeus.get("http://127.0.0.1:8101/?blah=1")
     end
 
@@ -284,9 +284,9 @@ describe "Typhoeus" do
   end
 
   it 'should obey :collect_backtraces setting when false' do
-    AppOpticsAPM::Config[:typhoeus][:collect_backtraces] = false
+    SolarWindsAPM::Config[:typhoeus][:collect_backtraces] = false
 
-    AppOpticsAPM::SDK.start_trace('typhoeus_test') do
+    SolarWindsAPM::SDK.start_trace('typhoeus_test') do
       Typhoeus.get("http://127.0.0.1:8101/")
     end
 

@@ -7,25 +7,25 @@ require 'net/http'
 describe "Net::HTTP" do
   before do
     clear_all_traces
-    @collect_backtraces = AppOpticsAPM::Config[:nethttp][:collect_backtraces]
-    @log_args = AppOpticsAPM::Config[:nethttp][:log_args]
+    @collect_backtraces = SolarWindsAPM::Config[:nethttp][:collect_backtraces]
+    @log_args = SolarWindsAPM::Config[:nethttp][:log_args]
   end
 
   after do
-    AppOpticsAPM::Config[:nethttp][:collect_backtraces] = @collect_backtraces
-    AppOpticsAPM::Config[:nethttp][:log_args] = @log_args
+    SolarWindsAPM::Config[:nethttp][:collect_backtraces] = @collect_backtraces
+    SolarWindsAPM::Config[:nethttp][:log_args] = @log_args
   end
 
   it 'Net::HTTP should be defined and ready' do
     _(defined?(::Net::HTTP)).wont_match nil
   end
 
-  it 'Net::HTTP should have AppOpticsAPM instrumentation' do
-    _(::Net::HTTP.ancestors).must_include(AppopticsAPM::Inst::NetHttp)
+  it 'Net::HTTP should have SolarWindsAPM instrumentation' do
+    _(::Net::HTTP.ancestors).must_include(SolarWindsAPM::Inst::NetHttp)
   end
 
   it "should trace a Net::HTTP request to an instr'd app" do
-    AppOpticsAPM::SDK.start_trace('net-http_test') do
+    SolarWindsAPM::SDK.start_trace('net-http_test') do
       uri = URI('http://127.0.0.1:8101/?q=1')
       http = Net::HTTP.new(uri.host, uri.port)
       request = Net::HTTP::Get.new(uri.request_uri)
@@ -53,11 +53,11 @@ describe "Net::HTTP" do
     _(traces[4]['RemoteURL']).must_equal 'http://127.0.0.1:8101/?q=1'
     _(traces[4]['HTTPMethod']).must_equal "GET"
     _(traces[4]['HTTPStatus']).must_equal "200"
-    _(traces[4].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:nethttp][:collect_backtraces]
+    _(traces[4].has_key?('Backtrace')).must_equal SolarWindsAPM::Config[:nethttp][:collect_backtraces]
   end
 
   it "should trace a GET request" do
-    AppOpticsAPM::SDK.start_trace('net-http_test') do
+    SolarWindsAPM::SDK.start_trace('net-http_test') do
       uri = URI('http://127.0.0.1:8101/')
       http = Net::HTTP.new(uri.host, uri.port)
       http.get('/?q=1').read_body
@@ -74,11 +74,11 @@ describe "Net::HTTP" do
     _(traces[4]['RemoteURL']).must_equal 'http://127.0.0.1:8101/?q=1'
     _(traces[4]['HTTPMethod']).must_equal "GET"
     _(traces[4]['HTTPStatus']).must_equal "200"
-    _(traces[4].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:nethttp][:collect_backtraces]
+    _(traces[4].has_key?('Backtrace')).must_equal SolarWindsAPM::Config[:nethttp][:collect_backtraces]
   end
 
   it "should trace a GET request to an uninstrumented app" do
-    AppOpticsAPM::SDK.start_trace('net-http_test') do
+    SolarWindsAPM::SDK.start_trace('net-http_test') do
       uri = URI('http://127.0.0.1:8110/')
       http = Net::HTTP.new(uri.host, uri.port)
       http.get('/?q=1').read_body
@@ -95,13 +95,13 @@ describe "Net::HTTP" do
     _(traces[2]['RemoteURL']).must_equal 'http://127.0.0.1:8110/?q=1'
     _(traces[2]['HTTPMethod']).must_equal "GET"
     _(traces[2]['HTTPStatus']).must_equal "200"
-    _(traces[2].has_key?('Backtrace')).must_equal AppOpticsAPM::Config[:nethttp][:collect_backtraces]
+    _(traces[2].has_key?('Backtrace')).must_equal SolarWindsAPM::Config[:nethttp][:collect_backtraces]
   end
 
   it "should obey :log_args setting when true" do
-    AppOpticsAPM::Config[:nethttp][:log_args] = true
+    SolarWindsAPM::Config[:nethttp][:log_args] = true
 
-    AppOpticsAPM::SDK.start_trace('nethttp_test') do
+    SolarWindsAPM::SDK.start_trace('nethttp_test') do
       uri = URI('http://127.0.0.1:8101/')
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = false
@@ -113,9 +113,9 @@ describe "Net::HTTP" do
   end
 
   it "should obey :log_args setting when false" do
-    AppOpticsAPM::Config[:nethttp][:log_args] = false
+    SolarWindsAPM::Config[:nethttp][:log_args] = false
 
-    AppOpticsAPM::SDK.start_trace('nethttp_test') do
+    SolarWindsAPM::SDK.start_trace('nethttp_test') do
       uri = URI('http://127.0.0.1:8101/')
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = false
@@ -127,9 +127,9 @@ describe "Net::HTTP" do
   end
 
   it "should obey :collect_backtraces setting when true" do
-    AppOpticsAPM::Config[:nethttp][:collect_backtraces] = true
+    SolarWindsAPM::Config[:nethttp][:collect_backtraces] = true
 
-    AppOpticsAPM::SDK.start_trace('nethttp_test') do
+    SolarWindsAPM::SDK.start_trace('nethttp_test') do
       uri = URI('http://127.0.0.1:8101/')
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = false
@@ -141,9 +141,9 @@ describe "Net::HTTP" do
   end
 
   it "should obey :collect_backtraces setting when false" do
-    AppOpticsAPM::Config[:nethttp][:collect_backtraces] = false
+    SolarWindsAPM::Config[:nethttp][:collect_backtraces] = false
 
-    AppOpticsAPM::SDK.start_trace('nethttp_test') do
+    SolarWindsAPM::SDK.start_trace('nethttp_test') do
       uri = URI('http://127.0.0.1:8101/')
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = false

@@ -2,7 +2,7 @@
 # All rights reserved.
 
 require 'minitest_helper'
-require 'appoptics_apm/inst/rack'
+require 'solarwinds_apm/inst/rack'
 require File.expand_path(File.dirname(__FILE__) + '../../frameworks/apps/sinatra_simple')
 
 describe 'ExconTest' do
@@ -12,8 +12,8 @@ describe 'ExconTest' do
     SinatraSimple
   end
 
-  it 'Excon should have AppOptics instrumentation prepended' do
-    _(Excon::Connection.ancestors).must_include(AppOpticsAPM::Inst::ExconConnection)
+  it 'Excon should have SolarWinds instrumentation prepended' do
+    _(Excon::Connection.ancestors).must_include(SolarWindsAPM::Inst::ExconConnection)
   end
 
   it 'must_return_xtrace_header' do
@@ -25,18 +25,18 @@ describe 'ExconTest' do
 
     # Rack response header management under JRUBY.
     assert tracestring
-    assert AppOpticsAPM::TraceString.valid?(tracestring)
+    assert SolarWindsAPM::TraceString.valid?(tracestring)
   end
 
   it 'reports_version_init' do
-    init_kvs = ::AppOpticsAPM::Util.build_init_report
+    init_kvs = ::SolarWindsAPM::Util.build_init_report
     assert_equal ::Excon::VERSION, init_kvs['Ruby.excon.Version']
   end
 
   it 'class_get_request' do
     clear_all_traces
 
-    AppOpticsAPM::SDK.start_trace('excon_tests') do
+    SolarWindsAPM::SDK.start_trace('excon_tests') do
       Excon.get('http://127.0.0.1:8101/')
     end
 
@@ -59,12 +59,12 @@ describe 'ExconTest' do
   it 'cross_app_tracing' do
     clear_all_traces
 
-    AppOpticsAPM::SDK.start_trace('excon_tests') do
+    SolarWindsAPM::SDK.start_trace('excon_tests') do
       response = Excon.get('http://127.0.0.1:8101/?blah=1')
       tracestring = response.headers['X-Trace']
 
       assert tracestring
-      assert AppOpticsAPM::TraceString.valid?(tracestring)
+      assert SolarWindsAPM::TraceString.valid?(tracestring)
     end
 
     traces = get_all_traces
@@ -83,7 +83,7 @@ describe 'ExconTest' do
   it 'cross_uninstr_app_tracing' do
     clear_all_traces
 
-    AppOpticsAPM::SDK.start_trace('excon_tests') do
+    SolarWindsAPM::SDK.start_trace('excon_tests') do
       response = Excon.get('http://127.0.0.1:8110/?blah=1')
       refute response.headers['X-Trace']
     end
@@ -108,7 +108,7 @@ describe 'ExconTest' do
 
     clear_all_traces
 
-    AppOpticsAPM::SDK.start_trace('excon_tests') do
+    SolarWindsAPM::SDK.start_trace('excon_tests') do
       connection = Excon.new('http://127.0.0.1:8101/') # non-persistent by default
       connection.get # socket established, then closed
       connection.get(:persistent => true) # socket established, left open
@@ -148,7 +148,7 @@ describe 'ExconTest' do
   it 'pipelined_requests' do
     clear_all_traces
 
-    AppOpticsAPM::API.start_trace('excon_tests') do
+    SolarWindsAPM::API.start_trace('excon_tests') do
       connection = Excon.new('http://127.0.0.1:8101/')
       connection.requests([{ :method => :get }, { :method => :put }])
     end
@@ -172,7 +172,7 @@ describe 'ExconTest' do
     clear_all_traces
 
     begin
-      AppOpticsAPM::SDK.start_trace('excon_tests') do
+      SolarWindsAPM::SDK.start_trace('excon_tests') do
         Excon.get('http://asfjalkljkaljf/')
       end
     rescue
@@ -201,12 +201,12 @@ describe 'ExconTest' do
   end
 
   it 'obey_log_args_when_false' do
-    @log_args = AppOpticsAPM::Config[:excon][:log_args]
+    @log_args = SolarWindsAPM::Config[:excon][:log_args]
     clear_all_traces
 
-    AppOpticsAPM::Config[:excon][:log_args] = false
+    SolarWindsAPM::Config[:excon][:log_args] = false
 
-    AppOpticsAPM::SDK.start_trace('excon_tests') do
+    SolarWindsAPM::SDK.start_trace('excon_tests') do
       Excon.get('http://127.0.0.1:8101/?blah=1')
     end
 
@@ -217,16 +217,16 @@ describe 'ExconTest' do
     assert_equal 6, traces.count
     assert_equal 'http://127.0.0.1:8101/', traces[1]['RemoteURL']
 
-    AppOpticsAPM::Config[:excon][:log_args] = @log_args
+    SolarWindsAPM::Config[:excon][:log_args] = @log_args
   end
 
   it 'obey_log_args_when_true' do
-    @log_args = AppOpticsAPM::Config[:excon][:log_args]
+    @log_args = SolarWindsAPM::Config[:excon][:log_args]
     clear_all_traces
 
-    AppOpticsAPM::Config[:excon][:log_args] = true
+    SolarWindsAPM::Config[:excon][:log_args] = true
 
-    AppOpticsAPM::SDK.start_trace('excon_tests') do
+    SolarWindsAPM::SDK.start_trace('excon_tests') do
       Excon.get('http://127.0.0.1:8101/?blah=1')
     end
 
@@ -237,16 +237,16 @@ describe 'ExconTest' do
     assert_equal 6, traces.count
     assert_equal 'http://127.0.0.1:8101/?blah=1', traces[1]['RemoteURL']
 
-    AppOpticsAPM::Config[:excon][:log_args] = @log_args
+    SolarWindsAPM::Config[:excon][:log_args] = @log_args
   end
 
   it 'obey_log_args_when_true_and_using_hash' do
-    @log_args = AppOpticsAPM::Config[:excon][:log_args]
+    @log_args = SolarWindsAPM::Config[:excon][:log_args]
     clear_all_traces
 
-    AppOpticsAPM::Config[:excon][:log_args] = true
+    SolarWindsAPM::Config[:excon][:log_args] = true
 
-    AppOpticsAPM::SDK.start_trace('excon_tests') do
+    SolarWindsAPM::SDK.start_trace('excon_tests') do
       Excon.get('http://127.0.0.1:8101/?', :query => { :blah => 1 })
     end
 
@@ -257,7 +257,7 @@ describe 'ExconTest' do
     assert_equal 6, traces.count
     assert_equal 'http://127.0.0.1:8101/?blah=1', traces[1]['RemoteURL']
 
-    AppOpticsAPM::Config[:excon][:log_args] = @log_args
+    SolarWindsAPM::Config[:excon][:log_args] = @log_args
   end
 end
 

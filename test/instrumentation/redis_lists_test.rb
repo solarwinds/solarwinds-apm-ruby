@@ -16,7 +16,7 @@ if defined?(::Redis)
     before do
       clear_all_traces
 
-      @redis ||= Redis.new(:host => ENV['REDIS_HOST'] || ENV['APPOPTICS_REDIS_SERVER'] || '127.0.0.1',
+      @redis ||= Redis.new(:host => ENV['REDIS_HOST'] || ENV['REDIS_SERVER'] || '127.0.0.1',
                            :password => ENV['REDIS_PASSWORD'] || 'secret_pass')
 
       @redis_version ||= @redis.info["redis_version"]
@@ -31,7 +31,7 @@ if defined?(::Redis)
 
       @redis.lpush("savage", "zombie")
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.blpop("savage")
       end
 
@@ -46,7 +46,7 @@ if defined?(::Redis)
 
       @redis.lpush("savage", "the walking dead")
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.brpop("savage")
       end
 
@@ -61,7 +61,7 @@ if defined?(::Redis)
 
       @redis.lpush("savage", "night of the walking dead")
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.brpoplpush("savage", "crawlies")
       end
 
@@ -78,7 +78,7 @@ if defined?(::Redis)
       @redis.lpush("fringe", "dunham")
       @redis.lpush("fringe", "broyles")
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.lindex("fringe", 1)
       end
 
@@ -95,7 +95,7 @@ if defined?(::Redis)
       @redis.lpush("gods of old", "moon")
       @redis.lpush("gods of old", "night")
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.linsert("gods of old", "BEFORE", "night", "river")
       end
 
@@ -112,7 +112,7 @@ if defined?(::Redis)
       @redis.lpush("gods of old", "moon")
       @redis.lpush("gods of old", "night")
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.llen("gods of old")
       end
 
@@ -129,7 +129,7 @@ if defined?(::Redis)
       @redis.lpush("gods of old", "moon")
       @redis.lpush("gods of old", "night")
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.lpop("gods of old")
       end
 
@@ -142,7 +142,7 @@ if defined?(::Redis)
     it "should trace lpush" do
       min_server_version(1.0)
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.lpush("gods of old", "night")
       end
 
@@ -155,7 +155,7 @@ if defined?(::Redis)
     it "should trace lpushx" do
       min_server_version(2.2)
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.lpushx("gods of old", "night")
       end
 
@@ -174,7 +174,7 @@ if defined?(::Redis)
       @redis.rpush("protein types", "enzyme")
       @redis.rpush("protein types", "immunoglobulins")
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.lrange("protein types", 2, 4)
       end
 
@@ -196,7 +196,7 @@ if defined?(::Redis)
       @redis.rpush("australia", "tamworth")
       @redis.rpush("australia", "penrith")
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.lrem("australia", -2, "sydney")
       end
 
@@ -214,7 +214,7 @@ if defined?(::Redis)
       @redis.rpush("australia", "tamworth")
       @redis.rpush("australia", "penrith")
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.lset("australia", 2, "Kalgoorlie")
       end
 
@@ -236,7 +236,7 @@ if defined?(::Redis)
       @redis.rpush("australia", "tamworth")
       @redis.rpush("australia", "penrith")
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.ltrim("australia", 2, 6)
       end
 
@@ -253,7 +253,7 @@ if defined?(::Redis)
       @redis.rpush("santa esmeralda", "don't let me be misunderstood")
       @redis.rpush("santa esmeralda", "sevilla nights")
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.rpop("santa esmeralda")
       end
 
@@ -270,7 +270,7 @@ if defined?(::Redis)
       @redis.rpush("santa esmeralda", "don't let me be misunderstood")
       @redis.rpush("santa esmeralda", "sevilla nights")
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.rpoplpush("santa esmeralda", "the gods of old")
       end
 
@@ -284,7 +284,7 @@ if defined?(::Redis)
     it "should trace rpush" do
       min_server_version(1.0)
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.rpush("boney m", "rasputin")
       end
 
@@ -297,7 +297,7 @@ if defined?(::Redis)
     it "should trace rpushx" do
       min_server_version(1.0)
 
-      AppOpticsAPM::SDK.start_trace('redis_test') do
+      SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.rpushx("boney m", "rasputin")
       end
 

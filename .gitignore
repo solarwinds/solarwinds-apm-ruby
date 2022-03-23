@@ -35,5 +35,5 @@ ext/oboe_metal/test/MakeFile
 gemfiles/*.lock
 gemfiles/.bundle/
 gemfiles/vendor*
-lib/libappoptics_apm.so
+lib/libsolarwinds_apm.so
 vendor/

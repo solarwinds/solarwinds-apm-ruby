@@ -81,14 +81,14 @@ jobs:
        image: ghcr.io/${{ github.repository }}/apm_ruby_${{ matrix.os }}
 
     env:
-      APPOPTICS_GEM_TEST: true
-      APPOPTICS_REPORTER: file
-      APPOPTICS_COLLECTOR: /tmp/appoptics_traces.bson
-      APPOPTICS_MONGO_SERVER: "mongo"
-      APPOPTICS_RABBITMQ_SERVER: "rabbitmq"
-      APPOPTICS_MEMCACHED_SERVER: "memcached"
-      APPOPTICS_REPORTER_FILE_SINGLE: false
-      APPOPTICS_FROM_S3: true
+      SW_APM_GEM_TEST: true
+      SW_APM_REPORTER: file
+      SW_APM_COLLECTOR: /tmp/sw_apm_traces.bson
+      SW_APM_REPORTER_FILE_SINGLE: false
+      OBOE_FROM_S3: true
+      MONGO_SERVER: "mongo"
+      RABBITMQ_SERVER: "rabbitmq"
+      MEMCACHED_SERVER: "memcached"
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
       MYSQL_ROOT_PASSWORD: "admin"
       MYSQL_HOST: "mysql"
@@ -99,7 +99,7 @@ jobs:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
       POSTGRES_HOST: "postgres"
-      QUERY_LOG_FILE: "/tmp/appoptics_query_logs.txt"
+      QUERY_LOG_FILE: "/tmp/sw_apm_query_logs.txt"
       REDIS_PASSWORD: "redis_pass"
       TEST_RUNS_TO_FILE: "true"
 

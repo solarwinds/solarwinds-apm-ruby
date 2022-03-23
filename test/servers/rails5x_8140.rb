@@ -28,16 +28,16 @@ class ApplicationController < ActionController::Base
   end
 end
 
-AppOpticsAPM.logger.info "[appoptics_apm/info] Starting background utility rails app on localhost:8140."
+SolarWindsAPM.logger.info "[solarwinds_apm/info] Starting background utility rails app on localhost:8140."
 
 if ENV['DBTYPE'] == 'mysql'
-  config = AppOpticsAPM::Test.set_mysql2_rails_config
+  config = SolarWindsAPM::Test.set_mysql2_rails_config
 elsif ENV['DBTYPE'] =~ /postgres/
-  config = AppOpticsAPM::Test.set_postgresql_rails_config
+  config = SolarWindsAPM::Test.set_postgresql_rails_config
 else
-  AppOpticsAPM.logger.warn "[appoptics_apm/rails] Unidentified DBTYPE: #{ENV['DBTYPE']}"
-  AppOpticsAPM.logger.debug "[appoptics_apm/rails] Defaulting to postgres DB for background Rails server."
-  config = AppOpticsAPM::Test.set_postgresql_rails_config
+  SolarWindsAPM.logger.warn "[solarwinds_apm/rails] Unidentified DBTYPE: #{ENV['DBTYPE']}"
+  SolarWindsAPM.logger.debug "[solarwinds_apm/rails] Defaulting to postgres DB for background Rails server."
+  config = SolarWindsAPM::Test.set_postgresql_rails_config
 end
 ActiveRecord::Base.establish_connection(config)
 
@@ -209,7 +209,7 @@ class FerroController < ActionController::Metal
   end
 end
 
-AppOpticsAPM::SDK.trace_method(FerroController, :world)
+SolarWindsAPM::SDK.trace_method(FerroController, :world)
 
 # this is a stupid solution for not having any assets
 `mkdir -p app/assets/config && echo '{}' > app/assets/config/manifest.js`

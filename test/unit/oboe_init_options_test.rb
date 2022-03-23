@@ -8,41 +8,41 @@ describe 'OboeInitOptions' do
   before do
     @env = ENV.to_hash
     # lets suppress logging, because we will log a lot of errors when testing the service_key
-    @log_level = AppOpticsAPM.logger.level
-    AppOpticsAPM.logger.level = 6
+    @log_level = SolarWindsAPM.logger.level
+    SolarWindsAPM.logger.level = 6
   end
 
   after do
     @env.each { |k, v| ENV[k] = v }
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    AppOpticsAPM.logger.level = @log_level
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    SolarWindsAPM.logger.level = @log_level
   end
 
   it 'sets all options from ENV vars' do
-    ENV.delete('APPOPTICS_GEM_TEST')
+    ENV.delete('SW_APM_GEM_TEST')
 
-    ENV['SOLARWINDS_SERVICE_KEY'] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:test_app'
-    ENV['APPOPTICS_REPORTER'] = 'ssl'
-    ENV['APPOPTICS_COLLECTOR'] = 'string_2'
-    ENV['APPOPTICS_TRUSTEDPATH'] = 'string_3'
-    ENV['APPOPTICS_HOSTNAME_ALIAS'] = 'string_4'
-    ENV['APPOPTICS_BUFSIZE'] = '11'
-    ENV['APPOPTICS_LOGFILE'] = 'string_5'
-    ENV['APPOPTICS_DEBUG_LEVEL'] = '2'
-    ENV['APPOPTICS_TRACE_METRICS'] = '3'
-    ENV['APPOPTICS_HISTOGRAM_PRECISION'] = '4'
-    ENV['APPOPTICS_MAX_TRANSACTIONS'] = '5'
-    ENV['APPOPTICS_FLUSH_MAX_WAIT_TIME'] = '6'
-    ENV['APPOPTICS_EVENTS_FLUSH_INTERVAL'] = '7'
-    ENV['APPOPTICS_EVENTS_FLUSH_BATCH_SIZE'] = '8'
-    ENV['APPOPTICS_TOKEN_BUCKET_CAPACITY'] = '9'
-    ENV['APPOPTICS_TOKEN_BUCKET_RATE'] = '10'
-    ENV['APPOPTICS_REPORTER_FILE_SINGLE'] = 'True'
-    ENV['APPOPTICS_EC2_METADATA_TIMEOUT'] = '1234'
-    ENV['APPOPTICS_PROXY'] = 'http://the.proxy:1234'
+    ENV['SW_APM_SERVICE_KEY'] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:test_app'
+    ENV['SW_APM_REPORTER'] = 'ssl'
+    ENV['SW_APM_COLLECTOR'] = 'string_2'
+    ENV['SW_APM_TRUSTEDPATH'] = 'string_3'
+    ENV['SW_APM_HOSTNAME_ALIAS'] = 'string_4'
+    ENV['SW_APM_BUFSIZE'] = '11'
+    ENV['SW_APM_LOGFILE'] = 'string_5'
+    ENV['SW_APM_DEBUG_LEVEL'] = '2'
+    ENV['SW_APM_TRACE_METRICS'] = '3'
+    ENV['SW_APM_HISTOGRAM_PRECISION'] = '4'
+    ENV['SW_APM_MAX_TRANSACTIONS'] = '5'
+    ENV['SW_APM_FLUSH_MAX_WAIT_TIME'] = '6'
+    ENV['SW_APM_EVENTS_FLUSH_INTERVAL'] = '7'
+    ENV['SW_APM_EVENTS_FLUSH_BATCH_SIZE'] = '8'
+    ENV['SW_APM_TOKEN_BUCKET_CAPACITY'] = '9'
+    ENV['SW_APM_TOKEN_BUCKET_RATE'] = '10'
+    ENV['SW_APM_REPORTER_FILE_SINGLE'] = 'True'
+    ENV['SW_APM_EC2_METADATA_TIMEOUT'] = '1234'
+    ENV['SW_APM_PROXY'] = 'http://the.proxy:1234'
 
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    options = AppOpticsAPM::OboeInitOptions.instance.array_for_oboe
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
 
     _(options.size).must_equal 22
     _(options[0]).must_equal 'string_4'
@@ -67,23 +67,23 @@ describe 'OboeInitOptions' do
   end
 
   it 'reads config vars' do
-    ENV.delete('APPOPTICS_GEM_TEST')
-    ENV['APPOPTICS_REPORTER'] = 'ssl'
+    ENV.delete('SW_APM_GEM_TEST')
+    ENV['SW_APM_REPORTER'] = 'ssl'
 
-    ENV.delete('APPOPTICS_HOSTNAME_ALIAS')
-    ENV.delete('APPOPTICS_DEBUG_LEVEL')
-    ENV.delete('SOLARWINDS_SERVICE_KEY')
-    ENV.delete('APPOPTICS_EC2_METADATA_TIMEOUT')
-    ENV.delete('APPOPTICS_PROXY')
+    ENV.delete('SW_APM_HOSTNAME_ALIAS')
+    ENV.delete('SW_APM_DEBUG_LEVEL')
+    ENV.delete('SW_APM_SERVICE_KEY')
+    ENV.delete('SW_APM_EC2_METADATA_TIMEOUT')
+    ENV.delete('SW_APM_PROXY')
 
-    AppOpticsAPM::Config[:hostname_alias] = 'string_0'
-    AppOpticsAPM::Config[:debug_level] = 0
-    AppOpticsAPM::Config[:service_key] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:test_app'
-    AppOpticsAPM::Config[:ec2_metadata_timeout] = 2345
-    AppOpticsAPM::Config[:http_proxy] = 'http://the.proxy:7777'
+    SolarWindsAPM::Config[:hostname_alias] = 'string_0'
+    SolarWindsAPM::Config[:debug_level] = 0
+    SolarWindsAPM::Config[:service_key] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:test_app'
+    SolarWindsAPM::Config[:ec2_metadata_timeout] = 2345
+    SolarWindsAPM::Config[:http_proxy] = 'http://the.proxy:7777'
 
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    options = AppOpticsAPM::OboeInitOptions.instance.array_for_oboe
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
 
     _(options.size).must_equal 22
 
@@ -95,23 +95,23 @@ describe 'OboeInitOptions' do
   end
 
   it 'env vars override config vars' do
-    ENV.delete('APPOPTICS_GEM_TEST')
-    ENV['APPOPTICS_REPORTER'] = 'ssl'
+    ENV.delete('SW_APM_GEM_TEST')
+    ENV['SW_APM_REPORTER'] = 'ssl'
 
-    ENV['APPOPTICS_HOSTNAME_ALIAS'] = 'string_0'
-    ENV['APPOPTICS_DEBUG_LEVEL'] = '1'
-    ENV['SOLARWINDS_SERVICE_KEY'] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:test_app'
-    ENV['APPOPTICS_EC2_METADATA_TIMEOUT'] = '1212'
-    ENV['APPOPTICS_PROXY'] = 'http://the.proxy:2222'
+    ENV['SW_APM_HOSTNAME_ALIAS'] = 'string_0'
+    ENV['SW_APM_DEBUG_LEVEL'] = '1'
+    ENV['SW_APM_SERVICE_KEY'] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:test_app'
+    ENV['SW_APM_EC2_METADATA_TIMEOUT'] = '1212'
+    ENV['SW_APM_PROXY'] = 'http://the.proxy:2222'
 
-    AppOpticsAPM::Config[:hostname_alias] = 'string_2'
-    AppOpticsAPM::Config[:debug_level] = 2
-    AppOpticsAPM::Config[:service_key] = 'string_3'
-    AppOpticsAPM::Config[:ec2_metadata_timeout] = 2323
-    AppOpticsAPM::Config[:http_proxy] = 'http://the.proxy:7777'
+    SolarWindsAPM::Config[:hostname_alias] = 'string_2'
+    SolarWindsAPM::Config[:debug_level] = 2
+    SolarWindsAPM::Config[:service_key] = 'string_3'
+    SolarWindsAPM::Config[:ec2_metadata_timeout] = 2323
+    SolarWindsAPM::Config[:http_proxy] = 'http://the.proxy:7777'
 
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    options = AppOpticsAPM::OboeInitOptions.instance.array_for_oboe
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
 
     _(options.size).must_equal 22
 
@@ -123,148 +123,148 @@ describe 'OboeInitOptions' do
   end
 
   it 'checks the service_key for ssl' do
-    ENV.delete('APPOPTICS_GEM_TEST')
-    ENV['APPOPTICS_REPORTER'] = 'ssl'
-    ENV['SOLARWINDS_SERVICE_KEY'] = 'string_0'
+    ENV.delete('SW_APM_GEM_TEST')
+    ENV['SW_APM_REPORTER'] = 'ssl'
+    ENV['SW_APM_SERVICE_KEY'] = 'string_0'
 
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    _(SolarWindsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
 
-    ENV['SOLARWINDS_SERVICE_KEY'] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:test_app'
+    ENV['SW_APM_SERVICE_KEY'] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:test_app'
 
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    _(SolarWindsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
   end
 
   it 'returns true for the service_key check for other reporters' do
-    ENV.delete('APPOPTICS_GEM_TEST')
-    ENV['APPOPTICS_REPORTER'] = 'udp'
-    ENV['SOLARWINDS_SERVICE_KEY'] = 'string_0'
+    ENV.delete('SW_APM_GEM_TEST')
+    ENV['SW_APM_REPORTER'] = 'udp'
+    ENV['SW_APM_SERVICE_KEY'] = 'string_0'
 
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    _(SolarWindsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
 
-    ENV['APPOPTICS_REPORTER'] = 'file'
+    ENV['SW_APM_REPORTER'] = 'file'
 
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    _(SolarWindsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
 
-    ENV['APPOPTICS_REPORTER'] = 'null'
+    ENV['SW_APM_REPORTER'] = 'null'
 
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    _(SolarWindsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
   end
 
   it 'validates the service key' do
-    ENV.delete('APPOPTICS_GEM_TEST')
-    ENV['APPOPTICS_REPORTER'] = 'ssl'
-    ENV['SOLARWINDS_SERVICE_KEY'] = nil
-    AppOpticsAPM::Config[:service_key] = nil
+    ENV.delete('SW_APM_GEM_TEST')
+    ENV['SW_APM_REPORTER'] = 'ssl'
+    ENV['SW_APM_SERVICE_KEY'] = nil
+    SolarWindsAPM::Config[:service_key] = nil
 
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    _(SolarWindsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
 
-    AppOpticsAPM::Config[:service_key] = '22222222-2222-2222-2222-222222222222:service'
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
+    SolarWindsAPM::Config[:service_key] = '22222222-2222-2222-2222-222222222222:service'
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    _(SolarWindsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
 
-    AppOpticsAPM::Config[:service_key] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq'
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
+    SolarWindsAPM::Config[:service_key] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq'
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    _(SolarWindsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
 
-    AppOpticsAPM::Config[:service_key] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:'
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
+    SolarWindsAPM::Config[:service_key] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:'
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    _(SolarWindsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
 
-    AppOpticsAPM::Config[:service_key] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:service'
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
+    SolarWindsAPM::Config[:service_key] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:service'
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    _(SolarWindsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
 
-    ENV['SOLARWINDS_SERVICE_KEY'] = 'blabla'
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
+    ENV['SW_APM_SERVICE_KEY'] = 'blabla'
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    _(SolarWindsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
 
-    ENV['SOLARWINDS_SERVICE_KEY'] = nil
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
+    ENV['SW_APM_SERVICE_KEY'] = nil
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    _(SolarWindsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
 
-    ENV['SOLARWINDS_SERVICE_KEY'] = '22222222-2222-2222-2222-222222222222:service'
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
+    ENV['SW_APM_SERVICE_KEY'] = '22222222-2222-2222-2222-222222222222:service'
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    _(SolarWindsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
 
-    ENV['SOLARWINDS_SERVICE_KEY'] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq'
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
+    ENV['SW_APM_SERVICE_KEY'] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq'
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    _(SolarWindsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
 
-    ENV['SOLARWINDS_SERVICE_KEY'] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:'
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
+    ENV['SW_APM_SERVICE_KEY'] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:'
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    _(SolarWindsAPM::OboeInitOptions.instance.service_key_ok?).must_equal false
 
-    ENV['SOLARWINDS_SERVICE_KEY'] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:service'
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
+    ENV['SW_APM_SERVICE_KEY'] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:service'
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    _(SolarWindsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
   end
 
   it 'removes invalid characters from the service name' do
-    ENV.delete('APPOPTICS_GEM_TEST')
-    ENV['APPOPTICS_REPORTER'] = 'ssl'
-    ENV['SOLARWINDS_SERVICE_KEY'] = 'f7B-kZXtk1sxaJGkv-wew1244444444444444444444444IptKFVPRv0o8keDro9QbKioW4:service#####.:-_0'
+    ENV.delete('SW_APM_GEM_TEST')
+    ENV['SW_APM_REPORTER'] = 'ssl'
+    ENV['SW_APM_SERVICE_KEY'] = 'f7B-kZXtk1sxaJGkv-wew1244444444444444444444444IptKFVPRv0o8keDro9QbKioW4:service#####.:-_0'
 
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
-    _(AppOpticsAPM::OboeInitOptions.instance.service_name).must_equal 'service.:-_0'
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    _(SolarWindsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
+    _(SolarWindsAPM::OboeInitOptions.instance.service_name).must_equal 'service.:-_0'
   end
 
   it 'transforms the service name to lower case' do
-    ENV.delete('APPOPTICS_GEM_TEST')
-    ENV['APPOPTICS_REPORTER'] = 'ssl'
-    ENV['SOLARWINDS_SERVICE_KEY'] = 'f7B-kZXtk1sxaJGkv-wew1244444444444444444444444IptKFVPRv0o8keDro9QbKioW4:SERVICE#####.:-_0'
+    ENV.delete('SW_APM_GEM_TEST')
+    ENV['SW_APM_REPORTER'] = 'ssl'
+    ENV['SW_APM_SERVICE_KEY'] = 'f7B-kZXtk1sxaJGkv-wew1244444444444444444444444IptKFVPRv0o8keDro9QbKioW4:SERVICE#####.:-_0'
 
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
-    _(AppOpticsAPM::OboeInitOptions.instance.service_name).must_equal 'service.:-_0'
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    _(SolarWindsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
+    _(SolarWindsAPM::OboeInitOptions.instance.service_name).must_equal 'service.:-_0'
   end
 
   it 'shortens the service name to 255 characters' do
-    ENV.delete('APPOPTICS_GEM_TEST')
-    ENV['APPOPTICS_REPORTER'] = 'ssl'
-    ENV['SOLARWINDS_SERVICE_KEY'] = "f7B-kZXtk1sxaJGkv-wew1244444444444444444444444IptKFVPRv0o8keDro9QbKioW4:SERV#_#{'1234567890' * 26}"
+    ENV.delete('SW_APM_GEM_TEST')
+    ENV['SW_APM_REPORTER'] = 'ssl'
+    ENV['SW_APM_SERVICE_KEY'] = "f7B-kZXtk1sxaJGkv-wew1244444444444444444444444IptKFVPRv0o8keDro9QbKioW4:SERV#_#{'1234567890' * 26}"
 
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    _(AppOpticsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
-    _(AppOpticsAPM::OboeInitOptions.instance.service_name).must_equal "serv_#{'1234567890' * 25}"
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    _(SolarWindsAPM::OboeInitOptions.instance.service_key_ok?).must_equal true
+    _(SolarWindsAPM::OboeInitOptions.instance.service_name).must_equal "serv_#{'1234567890' * 25}"
   end
 
   it 'replaces invalid ec2 metadata timeouts with the default' do
-    ENV['APPOPTICS_EC2_METADATA_TIMEOUT'] = '-12'
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    _(AppOpticsAPM::OboeInitOptions.instance.ec2_md_timeout).must_equal 1000
+    ENV['SW_APM_EC2_METADATA_TIMEOUT'] = '-12'
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    _(SolarWindsAPM::OboeInitOptions.instance.ec2_md_timeout).must_equal 1000
 
-    ENV['APPOPTICS_EC2_METADATA_TIMEOUT'] = '3001'
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    _(AppOpticsAPM::OboeInitOptions.instance.ec2_md_timeout).must_equal 1000
+    ENV['SW_APM_EC2_METADATA_TIMEOUT'] = '3001'
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    _(SolarWindsAPM::OboeInitOptions.instance.ec2_md_timeout).must_equal 1000
 
-    ENV['APPOPTICS_EC2_METADATA_TIMEOUT'] = 'qoieurqopityeoritbweortmvoiu'
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    _(AppOpticsAPM::OboeInitOptions.instance.ec2_md_timeout).must_equal 1000
+    ENV['SW_APM_EC2_METADATA_TIMEOUT'] = 'qoieurqopityeoritbweortmvoiu'
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    _(SolarWindsAPM::OboeInitOptions.instance.ec2_md_timeout).must_equal 1000
   end
 
   it 'rejects invalid proxy strings' do
-    ENV['APPOPTICS_PROXY'] = ''
+    ENV['SW_APM_PROXY'] = ''
 
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    _(AppOpticsAPM::OboeInitOptions.instance.grpc_proxy).must_equal ''
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    _(SolarWindsAPM::OboeInitOptions.instance.grpc_proxy).must_equal ''
 
-    ENV['APPOPTICS_PROXY'] = 'qoieurqopityeoritbweortmvoiu'
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    _(AppOpticsAPM::OboeInitOptions.instance.grpc_proxy).must_equal ''
+    ENV['SW_APM_PROXY'] = 'qoieurqopityeoritbweortmvoiu'
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    _(SolarWindsAPM::OboeInitOptions.instance.grpc_proxy).must_equal ''
 
-    ENV['APPOPTICS_PROXY'] = 'https://sgdgsdg:4000'
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    _(AppOpticsAPM::OboeInitOptions.instance.grpc_proxy).must_equal ''
+    ENV['SW_APM_PROXY'] = 'https://sgdgsdg:4000'
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    _(SolarWindsAPM::OboeInitOptions.instance.grpc_proxy).must_equal ''
 
-    ENV['APPOPTICS_PROXY'] = 'http://sgdgsdg'
-    AppOpticsAPM::OboeInitOptions.instance.re_init
-    _(AppOpticsAPM::OboeInitOptions.instance.grpc_proxy).must_equal ''
+    ENV['SW_APM_PROXY'] = 'http://sgdgsdg'
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    _(SolarWindsAPM::OboeInitOptions.instance.grpc_proxy).must_equal ''
   end
 end

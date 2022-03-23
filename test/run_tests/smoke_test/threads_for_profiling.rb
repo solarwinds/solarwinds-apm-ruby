@@ -8,8 +8,8 @@ require 'solarwinds_apm'
 # require 'benchmark/ips'
 
 def clear_all_traces
-  if AppOpticsAPM.loaded && ENV['APPOPTICS_REPORTER'] == 'file'
-    AppOpticsAPM::Reporter.clear_all_traces
+  if SolarWindsAPM.loaded && ENV['SW_APM_REPORTER'] == 'file'
+    SolarWindsAPM::Reporter.clear_all_traces
     sleep 0.2 # it seems like the docker file system needs a bit of time to clear the file
   end
 end
@@ -20,14 +20,14 @@ end
 # Retrieves all traces written to the trace file
 #
 def get_all_traces
-  if AppOpticsAPM.loaded && ENV['APPOPTICS_REPORTER'] =='file'
+  if SolarWindsAPM.loaded && ENV['SW_APM_REPORTER'] =='file'
     sleep 0.2
-    AppOpticsAPM::Reporter.get_all_traces
+    SolarWindsAPM::Reporter.get_all_traces
   else
     []
   end
 end
-AppOpticsAPM::Config[:sample_rate] = 1000000 if defined? AppOpticsAPM
+SolarWindsAPM::Config[:sample_rate] = 1000000 if defined? SolarWindsAPM
 
 def print_traces(traces, more_keys = [])
   return unless traces.is_a?(Array) # so that in case the traces are sent to the collector, tests will fail but not barf
@@ -84,7 +84,7 @@ end
 class Kids
   def giggle
     temps = ['colder', 'warmer', 'chilly','hot']
-    # ts = AppOpticsAPM::TransactionSettings.new
+    # ts = SolarWindsAPM::TransactionSettings.new
     # 100_000.times do
     #   ts.to_s
     # end
@@ -99,17 +99,17 @@ class HaHaHa
   end
 end
 
-# AppOpticsAPM::SDK.trace_method(HaHaHa, :laughing)
-# AppOpticsAPM::SDK.trace_method(Kids, :giggle) if defined? AppOpticsAPM
-# AppOpticsAPM::SDK.trace_method(Hola, :my_fun) if defined? AppOpticsAPM
+# SolarWindsAPM::SDK.trace_method(HaHaHa, :laughing)
+# SolarWindsAPM::SDK.trace_method(Kids, :giggle) if defined? SolarWindsAPM
+# SolarWindsAPM::SDK.trace_method(Hola, :my_fun) if defined? SolarWindsAPM
 
-AppOpticsAPM::Config.profiling = :enabled if defined? AppOpticsAPM
-AppOpticsAPM::Config[:profiling_interval] = 5 if defined? AppOpticsAPM
+SolarWindsAPM::Config.profiling = :enabled if defined? SolarWindsAPM
+SolarWindsAPM::Config[:profiling_interval] = 5 if defined? SolarWindsAPM
 
-unless AppOpticsAPM::SDK.appoptics_ready?(10_000)
+unless SolarWindsAPM::SDK.solarwinds_ready?(10_000)
   puts "aborting!!! Agent not ready after 10 seconds"
   exit false
-end if defined? AppOpticsAPM
+end if defined? SolarWindsAPM
 
 
 class A
@@ -146,20 +146,20 @@ class Stuff
 end
   # threads = []
 
-  # puts "Main tid: #{AppOpticsAPM::CProfiler.get_tid}"
-  # AppOpticsAPM::SDK.start_trace("main_thread") do
-  #   AppOpticsAPM::Profiling.run do
+  # puts "Main tid: #{SolarWindsAPM::CProfiler.get_tid}"
+  # SolarWindsAPM::SDK.start_trace("main_thread") do
+  #   SolarWindsAPM::Profiling.run do
   # 3.times do |i|
   #   threads << Thread.new do
   #     sleep 0.1
   # i = 0
   # 10.times do
-  # AppOpticsAPM::SDK.start_trace("thread-#{i}") do
-    # AppOpticsAPM::Profiling.run do
-      # tid = AppOpticsAPM::CProfiler.get_tid
-      # puts "thread tid: #{tid}, tracing? #{AppOpticsAPM.tracing?}"
+  # SolarWindsAPM::SDK.start_trace("thread-#{i}") do
+    # SolarWindsAPM::Profiling.run do
+      # tid = SolarWindsAPM::CProfiler.get_tid
+      # puts "thread tid: #{tid}, tracing? #{SolarWindsAPM.tracing?}"
 
-      # AppOpticsAPM::SDK.trace(:boo) do
+      # SolarWindsAPM::SDK.trace(:boo) do
       #   50.times do
       # File.open("foo_#{i}.txt", 'w') { |f| f.write(Time.now) }
       # A.new
@@ -175,18 +175,18 @@ end
 # end
   # pid = fork do
     threads = []
-    # puts "forked tid: #{AppOpticsAPM::CProfiler.get_tid}"
-    # AppOpticsAPM::SDK.start_trace("main_thread") do
-    #   AppOpticsAPM::Profiling.run do
+    # puts "forked tid: #{SolarWindsAPM::CProfiler.get_tid}"
+    # SolarWindsAPM::SDK.start_trace("main_thread") do
+    #   SolarWindsAPM::Profiling.run do
     # 3.times do |i|
     #   threads << Thread.new do
     #     sleep 0.1
-    #     AppOpticsAPM::SDK.start_trace("forked-thread-#{i}") do
-    #       AppOpticsAPM::Profiling.run do
-    #         tid = AppOpticsAPM::CProfiler.get_tid
-    #         puts "forked thread tid: #{tid}, tracing? #{AppOpticsAPM.tracing?}"
+    #     SolarWindsAPM::SDK.start_trace("forked-thread-#{i}") do
+    #       SolarWindsAPM::Profiling.run do
+    #         tid = SolarWindsAPM::CProfiler.get_tid
+    #         puts "forked thread tid: #{tid}, tracing? #{SolarWindsAPM.tracing?}"
     #
-    #         # AppOpticsAPM::SDK.trace(:boo) do
+    #         # SolarWindsAPM::SDK.trace(:boo) do
     #           5000.times do
     #             # File.open("foo_#{i}.txt", 'w') { |f| f.write(Time.now) }
     #             A.new
@@ -214,7 +214,7 @@ end
   # puts Process.waitall
   # end
   # end
-  #  puts AppopticsAPM::XTrace.task_id(AppopticsAPM::Context.toString)
+  #  puts SolarWindsAPM::XTrace.task_id(SolarWindsAPM::Context.toString)
 # end
 
 # require 'memory_profiler'
@@ -226,9 +226,9 @@ end
 puts "initial: #{`ps -o rss -p #{$$}`.lines.last}"
 # warmup
 start = Time.now
-AppOpticsAPM::SDK.start_trace("do_stuff") do
+SolarWindsAPM::SDK.start_trace("do_stuff") do
   5000.times do
-    # AppOpticsAPM::Profiling.run do
+    # SolarWindsAPM::Profiling.run do
     Stuff.do_stuff
   end
 end
@@ -236,9 +236,9 @@ puts "warmup: #{`ps -o rss -p #{$$}`.lines.last}"
 puts "warmup time: #{Time.now - start}"
 
 start = Time.now
-AppOpticsAPM::SDK.start_trace("do_stuff") do
+SolarWindsAPM::SDK.start_trace("do_stuff") do
   50000.times do
-    # AppOpticsAPM::Profiling.run do
+    # SolarWindsAPM::Profiling.run do
     Stuff.do_stuff
   end
 end

@@ -6,23 +6,23 @@ require 'minitest_helper'
 describe "RestClient" do
   before do
     clear_all_traces
-    @collect_backtraces = AppOpticsAPM::Config[:rest_client][:collect_backtraces]
+    @collect_backtraces = SolarWindsAPM::Config[:rest_client][:collect_backtraces]
   end
 
   after do
-    AppOpticsAPM::Config[:rest_client][:collect_backtraces] = @collect_backtraces
+    SolarWindsAPM::Config[:rest_client][:collect_backtraces] = @collect_backtraces
   end
 
   it 'RestClient should be defined and ready' do
     _(defined?(::RestClient)).wont_match nil
   end
 
-  it 'RestClient should have AppOptics instrumentation prepended' do
-    assert RestClient::Request.ancestors.include?(AppOpticsAPM::Inst::RestClientRequest)
+  it 'RestClient should have SolarWinds instrumentation prepended' do
+    assert RestClient::Request.ancestors.include?(SolarWindsAPM::Inst::RestClientRequest)
   end
 
   it "should report rest-client version in __Init" do
-    init_kvs = ::AppOpticsAPM::Util.build_init_report
+    init_kvs = ::SolarWindsAPM::Util.build_init_report
 
     _(init_kvs.key?('Ruby.rest-client.Version')).must_equal true
     _(init_kvs['Ruby.rest-client.Version']).must_equal ::RestClient::VERSION
@@ -31,7 +31,7 @@ describe "RestClient" do
   it "should trace a request to an instr'd app" do
     response = nil
 
-    AppOpticsAPM::SDK.start_trace('rest_client_test') do
+    SolarWindsAPM::SDK.start_trace('rest_client_test') do
       response = RestClient.get 'http://127.0.0.1:8101/'
     end
 
@@ -53,7 +53,7 @@ describe "RestClient" do
     _(traces[5]['RemoteURL']).must_equal 'http://127.0.0.1:8101/'
     _(traces[5]['HTTPMethod']).must_equal 'GET'
     _(traces[5]['HTTPStatus']).must_equal "200"
-    _(traces[5].key?('Backtrace')).must_equal !!AppOpticsAPM::Config[:nethttp][:collect_backtraces]
+    _(traces[5].key?('Backtrace')).must_equal !!SolarWindsAPM::Config[:nethttp][:collect_backtraces]
 
     _(traces[6]['Layer']).must_equal 'rest-client'
     _(traces[6]['Label']).must_equal 'exit'
@@ -61,11 +61,11 @@ describe "RestClient" do
     _(response.headers.key?(:x_trace)).wont_equal nil
     tracestring = response.headers[:x_trace]
 
-    _(AppOpticsAPM::TraceString.valid?(tracestring)).must_equal true
+    _(SolarWindsAPM::TraceString.valid?(tracestring)).must_equal true
   end
 
   it 'should trace a raw GET request' do
-    AppOpticsAPM::SDK.start_trace('rest_client_test') do
+    SolarWindsAPM::SDK.start_trace('rest_client_test') do
       RestClient.get 'http://127.0.0.1:8101/?a=1'
     end
 
@@ -87,14 +87,14 @@ describe "RestClient" do
     _(traces[5]['RemoteURL']).must_equal 'http://127.0.0.1:8101/?a=1'
     _(traces[5]['HTTPMethod']).must_equal 'GET'
     _(traces[5]['HTTPStatus']).must_equal "200"
-    _(traces[5].key?('Backtrace')).must_equal !!AppOpticsAPM::Config[:nethttp][:collect_backtraces]
+    _(traces[5].key?('Backtrace')).must_equal !!SolarWindsAPM::Config[:nethttp][:collect_backtraces]
 
     _(traces[6]['Layer']).must_equal 'rest-client'
     _(traces[6]['Label']).must_equal 'exit'
   end
 
   it 'should trace a raw POST request' do
-    AppOpticsAPM::SDK.start_trace('rest_client_test') do
+    SolarWindsAPM::SDK.start_trace('rest_client_test') do
       RestClient.post 'http://127.0.0.1:8101/', :param1 => 'one', :nested => { :param2 => 'two' }
     end
 
@@ -116,14 +116,14 @@ describe "RestClient" do
     _(traces[5]['RemoteURL']).must_equal 'http://127.0.0.1:8101/'
     _(traces[5]['HTTPMethod']).must_equal 'POST'
     _(traces[5]['HTTPStatus']).must_equal "200"
-    _(traces[5].key?('Backtrace')).must_equal !!AppOpticsAPM::Config[:nethttp][:collect_backtraces]
+    _(traces[5].key?('Backtrace')).must_equal !!SolarWindsAPM::Config[:nethttp][:collect_backtraces]
 
     _(traces[6]['Layer']).must_equal 'rest-client'
     _(traces[6]['Label']).must_equal 'exit'
   end
 
   it 'should trace a ActiveResource style GET request' do
-    AppOpticsAPM::SDK.start_trace('rest_client_test') do
+    SolarWindsAPM::SDK.start_trace('rest_client_test') do
       resource = RestClient::Resource.new 'http://127.0.0.1:8101/?a=1'
       resource.get
     end
@@ -146,14 +146,14 @@ describe "RestClient" do
     _(traces[5]['RemoteURL']).must_equal 'http://127.0.0.1:8101/?a=1'
     _(traces[5]['HTTPMethod']).must_equal 'GET'
     _(traces[5]['HTTPStatus']).must_equal "200"
-    _(traces[5].key?('Backtrace')).must_equal !!AppOpticsAPM::Config[:nethttp][:collect_backtraces]
+    _(traces[5].key?('Backtrace')).must_equal !!SolarWindsAPM::Config[:nethttp][:collect_backtraces]
 
     _(traces[6]['Layer']).must_equal 'rest-client'
     _(traces[6]['Label']).must_equal 'exit'
   end
 
   it 'should trace requests with redirects' do
-    AppOpticsAPM::SDK.start_trace('rest_client_test') do
+    SolarWindsAPM::SDK.start_trace('rest_client_test') do
       resource = RestClient::Resource.new 'http://127.0.0.1:8101/redirectme?redirect_test'
       response = resource.get
     end
@@ -176,7 +176,7 @@ describe "RestClient" do
     _(traces[5]['RemoteURL']).must_equal 'http://127.0.0.1:8101/redirectme?redirect_test'
     _(traces[5]['HTTPMethod']).must_equal 'GET'
     _(traces[5]['HTTPStatus']).must_equal "301"
-    _(traces[5].key?('Backtrace')).must_equal !!AppOpticsAPM::Config[:nethttp][:collect_backtraces]
+    _(traces[5].key?('Backtrace')).must_equal !!SolarWindsAPM::Config[:nethttp][:collect_backtraces]
 
     _(traces[6]['Layer']).must_equal 'rest-client'
     _(traces[6]['Label']).must_equal 'entry'
@@ -190,7 +190,7 @@ describe "RestClient" do
     _(traces[10]['RemoteURL']).must_equal 'http://127.0.0.1:8101/'
     _(traces[10]['HTTPMethod']).must_equal 'GET'
     _(traces[10]['HTTPStatus']).must_equal "200"
-    _(traces[10].key?('Backtrace')).must_equal !!AppOpticsAPM::Config[:nethttp][:collect_backtraces]
+    _(traces[10].key?('Backtrace')).must_equal !!SolarWindsAPM::Config[:nethttp][:collect_backtraces]
 
     _(traces[11]['Layer']).must_equal 'rest-client'
     _(traces[11]['Label']).must_equal 'exit'
@@ -200,7 +200,7 @@ describe "RestClient" do
   end
 
   it 'should trace and capture raised exceptions' do
-    AppOpticsAPM::SDK.start_trace('rest_client_test') do
+    SolarWindsAPM::SDK.start_trace('rest_client_test') do
       begin
         RestClient.get 'http://s6KTgaz7636z/resource'
       rescue
@@ -223,7 +223,7 @@ describe "RestClient" do
     _(traces[2]['Label']).must_equal 'error'
     _(traces[2]['ErrorClass']).must_equal 'SocketError'
     _(traces[2].key?('ErrorMsg')).must_equal true
-    _(traces[2].key?('Backtrace')).must_equal !!AppOpticsAPM::Config[:nethttp][:collect_backtraces]
+    _(traces[2].key?('Backtrace')).must_equal !!SolarWindsAPM::Config[:nethttp][:collect_backtraces]
 
     _(traces.select { |trace| trace['Label'] == 'error' }.count).must_equal 1
 
@@ -232,9 +232,9 @@ describe "RestClient" do
   end
 
   it 'should obey :collect_backtraces setting when true' do
-    AppOpticsAPM::Config[:rest_client][:collect_backtraces] = true
+    SolarWindsAPM::Config[:rest_client][:collect_backtraces] = true
 
-    AppOpticsAPM::SDK.start_trace('rest_client_test') do
+    SolarWindsAPM::SDK.start_trace('rest_client_test') do
       RestClient.get('http://127.0.0.1:8101/', { :a => 1 })
     end
 
@@ -243,9 +243,9 @@ describe "RestClient" do
   end
 
   it 'should obey :collect_backtraces setting when false' do
-    AppOpticsAPM::Config[:rest_client][:collect_backtraces] = false
+    SolarWindsAPM::Config[:rest_client][:collect_backtraces] = false
 
-    AppOpticsAPM::SDK.start_trace('rest_client_test') do
+    SolarWindsAPM::SDK.start_trace('rest_client_test') do
       RestClient.get('http://127.0.0.1:8101/', { :a => 1 })
     end
 

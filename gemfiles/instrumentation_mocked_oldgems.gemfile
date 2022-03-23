@@ -5,7 +5,7 @@ source "https://rubygems.org"
 gem 'rest-client', '~> 2.0.0'
 
 
-# appoptics_apm does support older versions of curb, but newer libcurl
+# solarwinds_apm does support older versions of curb, but newer libcurl
 # doesn't, 0.9.7 is the oldest version that can be tested in github actions
 gem 'curb', '= 0.9.7' unless defined?(JRUBY_VERSION)
 # gem 'curb', '= 0.8.6' unless defined?(JRUBY_VERSION)

@@ -10,45 +10,45 @@ if !defined?(JRUBY_VERSION)
   class CurbMockedTest < Minitest::Test
 
     def setup
-      AppOpticsAPM::Context.clear
+      SolarWindsAPM::Context.clear
 
       WebMock.enable!
       WebMock.reset!
       WebMock.disable_net_connect!
 
-      @sample_rate = AppOpticsAPM::Config[:sample_rate]
-      @tracing_mode = AppOpticsAPM::Config[:tracing_mode]
+      @sample_rate = SolarWindsAPM::Config[:sample_rate]
+      @tracing_mode = SolarWindsAPM::Config[:tracing_mode]
 
-      AppOpticsAPM::Config[:sample_rate] = 1000000
-      AppOpticsAPM::Config[:tracing_mode] = :enabled
+      SolarWindsAPM::Config[:sample_rate] = 1000000
+      SolarWindsAPM::Config[:tracing_mode] = :enabled
     end
 
     def teardown
-      AppOpticsAPM::Config[:sample_rate] = @sample_rate
-      AppOpticsAPM::Config[:tracing_mode] = @tracing_mode
+      SolarWindsAPM::Config[:sample_rate] = @sample_rate
+      SolarWindsAPM::Config[:tracing_mode] = @tracing_mode
 
-      AppOpticsAPM.trace_context = nil
+      SolarWindsAPM.trace_context = nil
     end
 
     def test_API_xtrace_tracing
       stub_request(:get, "http://127.0.0.9:8101/").to_return(status: 200, body: "", headers: {})
 
-      AppOpticsAPM::SDK.start_trace('curb_tests') do
+      SolarWindsAPM::SDK.start_trace('curb_tests') do
         ::Curl.get("http://127.0.0.9:8101/")
       end
 
       assert_requested(:get, "http://127.0.0.9:8101/", times: 1) do |req|
         assert_trace_headers(req.headers, true)
       end
-      refute AppOpticsAPM::Context.isValid
+      refute SolarWindsAPM::Context.isValid
     end
 
     def test_API_xtrace_sample_rate_0
       stub_request(:get, "http://127.0.0.4:8101/").to_return(status: 200, body: "", headers: {})
 
-      AppOpticsAPM.config_lock.synchronize do
-        AppOpticsAPM::Config[:sample_rate] = 0
-        AppOpticsAPM::SDK.start_trace('curb_tests') do
+      SolarWindsAPM.config_lock.synchronize do
+        SolarWindsAPM::Config[:sample_rate] = 0
+        SolarWindsAPM::SDK.start_trace('curb_tests') do
           ::Curl.get("http://127.0.0.4:8101/")
         end
       end
@@ -56,7 +56,7 @@ if !defined?(JRUBY_VERSION)
       assert_requested(:get, "http://127.0.0.4:8101/", times: 1) do |req|
         assert_trace_headers(req.headers, false)
       end
-      refute AppOpticsAPM::Context.isValid
+      refute SolarWindsAPM::Context.isValid
     end
 
     # TODO NH-2303 add test case with incoming trace headers
@@ -77,7 +77,7 @@ if !defined?(JRUBY_VERSION)
     def test_multi_get_no_trace
       WebMock.disable!
 
-      Curl::Multi.expects(:http_without_appoptics).with do |url_confs, _multi_options|
+      Curl::Multi.expects(:http_without_sw_apm).with do |url_confs, _multi_options|
         assert_equal 3, url_confs.size
         url_confs.each do |conf|
           refute conf[:headers] && conf[:headers].transform_keys(&:downcase)['traceparent']
@@ -94,13 +94,13 @@ if !defined?(JRUBY_VERSION)
       urls << "http://127.0.0.7:8101/?three=3"
 
       Curl::Multi.get(urls, easy_options, multi_options)
-      refute AppOpticsAPM::Context.isValid
+      refute SolarWindsAPM::Context.isValid
     end
 
     def test_multi_get_tracing
       WebMock.disable!
 
-      Curl::Multi.expects(:http_without_appoptics).with do |url_confs, _multi_options|
+      Curl::Multi.expects(:http_without_sw_apm).with do |url_confs, _multi_options|
         assert_equal 3, url_confs.size
         url_confs.each do |conf|
           headers = conf[:headers] || {}
@@ -119,16 +119,16 @@ if !defined?(JRUBY_VERSION)
       urls << "http://127.0.0.7:8101/?two=2"
       urls << "http://127.0.0.7:8101/?three=3"
 
-      AppOpticsAPM::SDK.start_trace('curb_tests') do
+      SolarWindsAPM::SDK.start_trace('curb_tests') do
         Curl::Multi.get(urls, easy_options, multi_options)
       end
-      refute AppOpticsAPM::Context.isValid
+      refute SolarWindsAPM::Context.isValid
     end
 
     def test_multi_get_tracing_not_sampling
       WebMock.disable!
 
-      Curl::Multi.expects(:http_without_appoptics).with do |url_confs, _multi_options|
+      Curl::Multi.expects(:http_without_sw_apm).with do |url_confs, _multi_options|
         assert_equal 3, url_confs.size
         url_confs.each do |conf|
           headers = conf[:headers] || {}
@@ -146,13 +146,13 @@ if !defined?(JRUBY_VERSION)
       urls << "http://127.0.0.7:8101/?two=2"
       urls << "http://127.0.0.7:8101/?three=3"
 
-      AppOpticsAPM.config_lock.synchronize do
-        AppOpticsAPM::Config[:sample_rate] = 0
-        AppOpticsAPM::SDK.start_trace('curb_tests') do
+      SolarWindsAPM.config_lock.synchronize do
+        SolarWindsAPM::Config[:sample_rate] = 0
+        SolarWindsAPM::SDK.start_trace('curb_tests') do
           Curl::Multi.get(urls, easy_options, multi_options)
         end
       end
-      refute AppOpticsAPM::Context.isValid
+      refute SolarWindsAPM::Context.isValid
     end
 
     # TODO NH-2303 add test case with incoming trace headers
@@ -190,7 +190,7 @@ if !defined?(JRUBY_VERSION)
       urls << "http://127.0.0.1:8101/?two=2"
       urls << "http://127.0.0.1:8101/?three=3"
 
-      AppOpticsAPM::SDK.start_trace('curb_tests') do
+      SolarWindsAPM::SDK.start_trace('curb_tests') do
         m = Curl::Multi.new
         urls.each do |url|
           cu = Curl::Easy.new(url) do |curl|
@@ -208,7 +208,7 @@ if !defined?(JRUBY_VERSION)
           end
         end
       end
-      refute AppOpticsAPM::Context.isValid
+      refute SolarWindsAPM::Context.isValid
     end
 
     def test_multi_perform_tracing_not_sampling
@@ -219,9 +219,9 @@ if !defined?(JRUBY_VERSION)
       urls << "http://127.0.0.1:8101/?two=2"
       urls << "http://127.0.0.1:8101/?three=3"
 
-      AppOpticsAPM.config_lock.synchronize do
-        AppOpticsAPM::Config[:sample_rate] = 0
-        AppOpticsAPM::SDK.start_trace('curb_tests') do
+      SolarWindsAPM.config_lock.synchronize do
+        SolarWindsAPM::Config[:sample_rate] = 0
+        SolarWindsAPM::SDK.start_trace('curb_tests') do
           m = Curl::Multi.new
           urls.each do |url|
             cu = Curl::Easy.new(url) do |curl|
@@ -238,7 +238,7 @@ if !defined?(JRUBY_VERSION)
           end
         end
       end
-      refute AppOpticsAPM::Context.isValid
+      refute SolarWindsAPM::Context.isValid
     end
 
     # preserve custom headers
@@ -247,7 +247,7 @@ if !defined?(JRUBY_VERSION)
     def test_Easy_preserves_custom_headers_on_get
       stub_request(:get, "http://127.0.0.6:8101/").to_return(status: 200, body: "", headers: {})
 
-      AppOpticsAPM::SDK.start_trace('curb_tests') do
+      SolarWindsAPM::SDK.start_trace('curb_tests') do
         Curl.get("http://127.0.0.6:8101/") do |curl|
           curl.headers = { 'Custom' => 'specialvalue' }
         end
@@ -259,13 +259,13 @@ if !defined?(JRUBY_VERSION)
         assert_equal 'specialvalue', req.headers['Custom']
       end
 
-      refute AppOpticsAPM::Context.isValid
+      refute SolarWindsAPM::Context.isValid
     end
 
     def test_API_curl_post
       stub_request(:post, "http://127.0.0.6:8101/").to_return(status: 200, body: "", headers: {})
 
-      AppOpticsAPM::SDK.start_trace('curb_tests') do
+      SolarWindsAPM::SDK.start_trace('curb_tests') do
         Curl.post("http://127.0.0.6:8101/")
       end
 
@@ -280,7 +280,7 @@ if !defined?(JRUBY_VERSION)
       curl = Curl::Easy.new("http://127.0.0.1:8101/")
       curl.headers = { 'Custom' => 'specialvalue4' }
 
-      AppOpticsAPM::SDK.start_trace('curb_tests') do
+      SolarWindsAPM::SDK.start_trace('curb_tests') do
         curl.http_put nil
       end
 
@@ -290,7 +290,7 @@ if !defined?(JRUBY_VERSION)
 
       assert_trace_headers(curl.headers)
 
-      refute AppOpticsAPM::Context.isValid
+      refute SolarWindsAPM::Context.isValid
     end
 
     def test_preserves_custom_headers_on_http_post
@@ -299,7 +299,7 @@ if !defined?(JRUBY_VERSION)
       curl = Curl::Easy.new("http://127.0.0.1:8101/")
       curl.headers = { 'Custom' => 'specialvalue4' }
 
-      AppOpticsAPM::SDK.start_trace('curb_tests') do
+      SolarWindsAPM::SDK.start_trace('curb_tests') do
         curl.http_post
       end
 
@@ -308,7 +308,7 @@ if !defined?(JRUBY_VERSION)
       assert_match /specialvalue4/, curl.headers['Custom']
       assert_trace_headers(curl.headers, true)
 
-      refute AppOpticsAPM::Context.isValid
+      refute SolarWindsAPM::Context.isValid
     end
 
     def test_preserves_custom_headers_on_perform
@@ -317,7 +317,7 @@ if !defined?(JRUBY_VERSION)
       curl = Curl::Easy.new("http://127.0.0.1:8101/")
       curl.headers = { 'Custom' => 'specialvalue4' }
 
-      AppOpticsAPM::SDK.start_trace('curb_tests') do
+      SolarWindsAPM::SDK.start_trace('curb_tests') do
         curl.perform
       end
 
@@ -326,7 +326,7 @@ if !defined?(JRUBY_VERSION)
       assert_match /specialvalue4/, curl.headers['Custom']
       assert_trace_headers(curl.headers, true)
 
-      refute AppOpticsAPM::Context.isValid
+      refute SolarWindsAPM::Context.isValid
     end
 
     ##### W3C tracestate propagation
@@ -340,25 +340,25 @@ if !defined?(JRUBY_VERSION)
       headers = { traceparent: trace_id, tracestate: state}
 
       curl = Curl::Easy.new("http://127.0.0.1:8101/")
-      AppOpticsAPM::SDK.start_trace('curb_tests', headers: headers) do
+      SolarWindsAPM::SDK.start_trace('curb_tests', headers: headers) do
         curl.perform
       end
 
       assert_trace_headers(curl.headers, true)
-      assert_equal task_id, AppOpticsAPM::TraceString.trace_id(curl.headers['traceparent'])
+      assert_equal task_id, SolarWindsAPM::TraceString.trace_id(curl.headers['traceparent'])
       refute_equal state, curl.headers['tracestate']
 
-      refute AppOpticsAPM::Context.isValid
+      refute SolarWindsAPM::Context.isValid
     end
 
     def test_w3c_propagation_simple_trace_state_not_tracing
       WebMock.disable!
-      AppOpticsAPM::Config[:tracing_mode] = :disabled
+      SolarWindsAPM::Config[:tracing_mode] = :disabled
 
       trace_id = '00-a462ade6cfe479081764cc476aa98335-cb3468da6f06eefc-01'
       state = 'aa=1234'
       headers = { traceparent: trace_id, tracestate: state }
-      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(headers)
+      SolarWindsAPM.trace_context = SolarWindsAPM::TraceContext.new(headers)
 
       curl = Curl::Easy.new("http://127.0.0.1:8101/")
       curl.perform
@@ -366,7 +366,7 @@ if !defined?(JRUBY_VERSION)
       assert_equal trace_id, curl.headers['traceparent']
       assert_equal state, curl.headers['tracestate']
 
-      refute AppOpticsAPM::Context.isValid
+      refute SolarWindsAPM::Context.isValid
     end
 
     def test_w3c_propagation_multimember_trace_state
@@ -378,26 +378,26 @@ if !defined?(JRUBY_VERSION)
       headers = { traceparent: trace_id, tracestate: state }
 
       curl = Curl::Easy.new("http://127.0.0.1:8101/")
-      AppOpticsAPM::SDK.start_trace('curb_tests', headers: headers) do
+      SolarWindsAPM::SDK.start_trace('curb_tests', headers: headers) do
         curl.perform
       end
 
       assert_trace_headers(curl.headers, true)
-      assert_equal task_id, AppOpticsAPM::TraceString.trace_id(curl.headers['traceparent'])
-      assert_equal "sw=#{AppOpticsAPM::TraceString.span_id_flags(curl.headers['traceparent'])},aa= 1234,%%cc=%%%45",
+      assert_equal task_id, SolarWindsAPM::TraceString.trace_id(curl.headers['traceparent'])
+      assert_equal "sw=#{SolarWindsAPM::TraceString.span_id_flags(curl.headers['traceparent'])},aa= 1234,%%cc=%%%45",
                    curl.headers['tracestate']
 
-      refute AppOpticsAPM::Context.isValid
+      refute SolarWindsAPM::Context.isValid
     end
 
     def test_multi_perform_w3c_propagation_not_tracing
       WebMock.disable!
-      AppOpticsAPM::Config[:tracing_mode] = :disabled
+      SolarWindsAPM::Config[:tracing_mode] = :disabled
 
       trace_id = '00-a462ade6cfe479081764cc476aa98335-cb3468da6f06eefc-01'
       state = 'aa=1234'
       headers = { traceparent: trace_id, tracestate: state }
-      AppOpticsAPM.trace_context = AppOpticsAPM::TraceContext.new(headers)
+      SolarWindsAPM.trace_context = SolarWindsAPM::TraceContext.new(headers)
 
       urls = []
       urls << "http://127.0.0.1:8101/?one=1"

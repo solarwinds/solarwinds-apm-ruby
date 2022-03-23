@@ -18,7 +18,7 @@ rbenv which ruby    # => /home/wsh/.rbenv/versions/2.6.3/bin/ruby
 
 
 ##
-## add debug info when compiling appoptics_apm
+## add debug info when compiling solarwinds_apm
 add this line to extconf.rb to turn off optimization
 
 ```

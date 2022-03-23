@@ -5,10 +5,10 @@
 
 path=$(dirname "$0")
 
-# assuming APPOPTICS_SERVICE_KEY is set
-export APPOPTICS_COLLECTOR=collector-stg.appoptics.com
-unset APPOPTICS_REPORTER
-unset APPOPTICS_FROM_S3
+# assuming SW_APM_SERVICE_KEY is set
+export SW_APM_COLLECTOR=collector-stg.appoptics.com
+unset SW_APM_REPORTER
+unset OBOE_FROM_S3
 unset OBOE_WIP
 
 # bundler has a problem resolving the gem in packagecloud

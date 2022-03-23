@@ -5,11 +5,11 @@ gem 'bson'
 # gem 'stackprof'
 # gem 'byebug'
 
-# Add appoptics agent from PackageCloud
+# Add solarwinds_apm agent from PackageCloud
 source "https://packagecloud.io/solarwinds/solarwinds-apm-ruby" do
-# source 'file:///code/ruby-appoptics/builds' do
+# source 'file:///code/ruby-solarwinds/builds' do
   gem 'solarwinds_apm' #, '4.13.0.pre2'
 end
 
-# gem 'appoptics_apm', '~> 4.13.0'
-# gem 'appoptics_apm', :path => "/home/ubuntu/workspace/librato/ruby-appoptics"
+# gem 'solarwinds_apm', '~> 4.13.0'
+# gem 'solarwinds_apm', :path => "/home/ubuntu/workspace/librato/ruby-solarwinds"

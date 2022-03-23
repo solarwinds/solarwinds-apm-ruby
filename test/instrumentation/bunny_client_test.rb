@@ -7,18 +7,18 @@ unless defined?(JRUBY_VERSION)
   describe 'BunnyClientTest' do
     before do
       # Support specific environment variables to support remote rabbitmq servers
-      ENV['APPOPTICS_RABBITMQ_SERVER'] = "127.0.0.1"      unless ENV['APPOPTICS_RABBITMQ_SERVER']
-      ENV['APPOPTICS_RABBITMQ_PORT'] = "5672"             unless ENV['APPOPTICS_RABBITMQ_PORT']
-      ENV['APPOPTICS_RABBITMQ_USERNAME'] = "guest"        unless ENV['APPOPTICS_RABBITMQ_USERNAME']
-      ENV['APPOPTICS_RABBITMQ_PASSWORD'] = "guest"        unless ENV['APPOPTICS_RABBITMQ_PASSWORD']
-      ENV['APPOPTICS_RABBITMQ_VHOST'] = "/"               unless ENV['APPOPTICS_RABBITMQ_VHOST']
+      ENV['RABBITMQ_SERVER'] = "127.0.0.1"      unless ENV['RABBITMQ_SERVER']
+      ENV['RABBITMQ_PORT'] = "5672"             unless ENV['RABBITMQ_PORT']
+      ENV['RABBITMQ_USERNAME'] = "guest"        unless ENV['RABBITMQ_USERNAME']
+      ENV['RABBITMQ_PASSWORD'] = "guest"        unless ENV['RABBITMQ_PASSWORD']
+      ENV['RABBITMQ_VHOST'] = "/"               unless ENV['RABBITMQ_VHOST']
 
       @connection_params = {}
-      @connection_params[:host]   = ENV['APPOPTICS_RABBITMQ_SERVER']
-      @connection_params[:port]   = ENV['APPOPTICS_RABBITMQ_PORT']
-      @connection_params[:vhost]  = ENV['APPOPTICS_RABBITMQ_VHOST']
-      @connection_params[:user]   = ENV['APPOPTICS_RABBITMQ_USERNAME']
-      @connection_params[:pass]   = ENV['APPOPTICS_RABBITMQ_PASSWORD']
+      @connection_params[:host]   = ENV['RABBITMQ_SERVER']
+      @connection_params[:port]   = ENV['RABBITMQ_PORT']
+      @connection_params[:vhost]  = ENV['RABBITMQ_VHOST']
+      @connection_params[:user]   = ENV['RABBITMQ_USERNAME']
+      @connection_params[:pass]   = ENV['RABBITMQ_PASSWORD']
 
       clear_all_traces
     end
@@ -30,7 +30,7 @@ unless defined?(JRUBY_VERSION)
       @queue = @ch.queue("tv.ruby.test")
       @exchange = @ch.default_exchange
 
-      AppOpticsAPM::SDK.start_trace('bunny_tests') do
+      SolarWindsAPM::SDK.start_trace('bunny_tests') do
         @exchange.publish("The Tortoise and the Hare", :routing_key => @queue.name)
       end
 
@@ -49,10 +49,10 @@ unless defined?(JRUBY_VERSION)
       _(traces[2]['ExchangeName']).must_equal "default"
       _(traces[2]['RoutingKey']).must_equal "tv.ruby.test"
       _(traces[2]['Op']).must_equal "publish"
-      _(traces[2]['RemoteHost']).must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
-      _(traces[2]['RemotePort']).must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
-      _(traces[2]['VirtualHost']).must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
-      _(traces[2].has_key?('Backtrace')).must_equal !!AppOpticsAPM::Config[:bunnyclient][:collect_backtraces]
+      _(traces[2]['RemoteHost']).must_equal ENV['RABBITMQ_SERVER']
+      _(traces[2]['RemotePort']).must_equal ENV['RABBITMQ_PORT'].to_i
+      _(traces[2]['VirtualHost']).must_equal ENV['RABBITMQ_VHOST']
+      _(traces[2].has_key?('Backtrace')).must_equal !!SolarWindsAPM::Config[:bunnyclient][:collect_backtraces]
 
       @conn.close
     end
@@ -63,7 +63,7 @@ unless defined?(JRUBY_VERSION)
       @ch = @conn.create_channel
       @exchange = @ch.fanout("tv.ruby.fanout.tests")
 
-      AppOpticsAPM::SDK.start_trace('bunny_tests') do
+      SolarWindsAPM::SDK.start_trace('bunny_tests') do
         @exchange.publish("The Tortoise and the Hare in the fanout exchange.", :routing_key => 'tv.ruby.test').publish("And another...")
       end
 
@@ -82,9 +82,9 @@ unless defined?(JRUBY_VERSION)
       _(traces[2]['ExchangeName']).must_equal "tv.ruby.fanout.tests"
       _(traces[2]['RoutingKey']).must_equal "tv.ruby.test"
       _(traces[2]['Op']).must_equal "publish"
-      _(traces[2]['RemoteHost']).must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
-      _(traces[2]['RemotePort']).must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
-      _(traces[2]['VirtualHost']).must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
+      _(traces[2]['RemoteHost']).must_equal ENV['RABBITMQ_SERVER']
+      _(traces[2]['RemotePort']).must_equal ENV['RABBITMQ_PORT'].to_i
+      _(traces[2]['VirtualHost']).must_equal ENV['RABBITMQ_VHOST']
 
       _(traces[3]['Layer']).must_equal "rabbitmq-client"
       _(traces[3]['Label']).must_equal "entry"
@@ -95,9 +95,9 @@ unless defined?(JRUBY_VERSION)
       _(traces[4]['ExchangeName']).must_equal "tv.ruby.fanout.tests"
       _(traces[4].key?('RoutingKey')).must_equal false
       _(traces[4]['Op']).must_equal "publish"
-      _(traces[4]['RemoteHost']).must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
-      _(traces[4]['RemotePort']).must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
-      _(traces[4]['VirtualHost']).must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
+      _(traces[4]['RemoteHost']).must_equal ENV['RABBITMQ_SERVER']
+      _(traces[4]['RemotePort']).must_equal ENV['RABBITMQ_PORT'].to_i
+      _(traces[4]['VirtualHost']).must_equal ENV['RABBITMQ_VHOST']
 
       @conn.close
     end
@@ -108,7 +108,7 @@ unless defined?(JRUBY_VERSION)
       @ch = @conn.create_channel
       @exchange = @ch.topic("tv.ruby.topic.tests", :auto_delete => true)
 
-      AppOpticsAPM::SDK.start_trace('bunny_tests') do
+      SolarWindsAPM::SDK.start_trace('bunny_tests') do
         @exchange.publish("The Tortoise and the Hare in the topic exchange.", :routing_key => 'tv.ruby.test.1').publish("And another...", :routing_key => 'tv.ruby.test.2')
       end
 
@@ -127,9 +127,9 @@ unless defined?(JRUBY_VERSION)
       _(traces[2]['ExchangeName']).must_equal "tv.ruby.topic.tests"
       _(traces[2]['RoutingKey']).must_equal "tv.ruby.test.1"
       _(traces[2]['Op']).must_equal "publish"
-      _(traces[2]['RemoteHost']).must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
-      _(traces[2]['RemotePort']).must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
-      _(traces[2]['VirtualHost']).must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
+      _(traces[2]['RemoteHost']).must_equal ENV['RABBITMQ_SERVER']
+      _(traces[2]['RemotePort']).must_equal ENV['RABBITMQ_PORT'].to_i
+      _(traces[2]['VirtualHost']).must_equal ENV['RABBITMQ_VHOST']
 
       _(traces[3]['Layer']).must_equal "rabbitmq-client"
       _(traces[3]['Label']).must_equal "entry"
@@ -140,9 +140,9 @@ unless defined?(JRUBY_VERSION)
       _(traces[4]['ExchangeName']).must_equal "tv.ruby.topic.tests"
       _(traces[4]['RoutingKey']).must_equal "tv.ruby.test.2"
       _(traces[4]['Op']).must_equal "publish"
-      _(traces[4]['RemoteHost']).must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
-      _(traces[4]['RemotePort']).must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
-      _(traces[4]['VirtualHost']).must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
+      _(traces[4]['RemoteHost']).must_equal ENV['RABBITMQ_SERVER']
+      _(traces[4]['RemotePort']).must_equal ENV['RABBITMQ_PORT'].to_i
+      _(traces[4]['VirtualHost']).must_equal ENV['RABBITMQ_VHOST']
 
       @conn.close
     end
@@ -153,7 +153,7 @@ unless defined?(JRUBY_VERSION)
       @ch = @conn.create_channel
 
       begin
-        AppOpticsAPM::SDK.start_trace('bunny_tests') do
+        SolarWindsAPM::SDK.start_trace('bunny_tests') do
           @ch = @conn.create_channel
           @ch.queue("bunny.tests.queues.auto-delete", auto_delete: true, durable: false)
           @ch.queue_declare("bunny.tests.queues.auto-delete", auto_delete: false, durable: true)
@@ -168,7 +168,7 @@ unless defined?(JRUBY_VERSION)
       validate_outer_layers(traces, "bunny_tests")
       assert valid_edges?(traces), "Invalid edge in traces"
 
-      _(traces[2].key?('Backtrace')).must_equal !!AppOpticsAPM::Config[:bunnyclient][:collect_backtraces]
+      _(traces[2].key?('Backtrace')).must_equal !!SolarWindsAPM::Config[:bunnyclient][:collect_backtraces]
 
       _(traces[3]['Layer']).must_equal "bunny_tests"
       _(traces[3]['Spec']).must_equal "error"
@@ -191,7 +191,7 @@ unless defined?(JRUBY_VERSION)
       @ch.confirm_select
       @exchange.publish("", :routing_key => 'tv.ruby.test')
 
-      AppOpticsAPM::SDK.start_trace('bunny_tests') do
+      SolarWindsAPM::SDK.start_trace('bunny_tests') do
         @exchange.delete
       end
 
@@ -205,9 +205,9 @@ unless defined?(JRUBY_VERSION)
       _(traces[2]['ExchangeName']).must_equal "tv.delete_exchange.test"
       _(traces[2]['ExchangeType']).must_equal "fanout"
       _(traces[2]['Op']).must_equal "delete"
-      _(traces[2]['RemoteHost']).must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
-      _(traces[2]['RemotePort']).must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
-      _(traces[2]['VirtualHost']).must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
+      _(traces[2]['RemoteHost']).must_equal ENV['RABBITMQ_SERVER']
+      _(traces[2]['RemotePort']).must_equal ENV['RABBITMQ_PORT'].to_i
+      _(traces[2]['VirtualHost']).must_equal ENV['RABBITMQ_VHOST']
     end
 
     it 'wait_for_confirms' do
@@ -219,7 +219,7 @@ unless defined?(JRUBY_VERSION)
 
       @ch.confirm_select
 
-      AppOpticsAPM::SDK.start_trace('bunny_tests') do
+      SolarWindsAPM::SDK.start_trace('bunny_tests') do
         1000.times do
           @exchange.publish("", :routing_key => 'tv.ruby.test')
         end
@@ -237,9 +237,9 @@ unless defined?(JRUBY_VERSION)
       _(traces[2000]['ExchangeName']).must_equal "tv.ruby.wait_for_confirm.tests"
       _(traces[2000]['RoutingKey']).must_equal "tv.ruby.test"
       _(traces[2000]['Op']).must_equal "publish"
-      _(traces[2000]['RemoteHost']).must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
-      _(traces[2000]['RemotePort']).must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
-      _(traces[2000]['VirtualHost']).must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
+      _(traces[2000]['RemoteHost']).must_equal ENV['RABBITMQ_SERVER']
+      _(traces[2000]['RemotePort']).must_equal ENV['RABBITMQ_PORT'].to_i
+      _(traces[2000]['VirtualHost']).must_equal ENV['RABBITMQ_VHOST']
 
       _(traces[2001]['Layer']).must_equal "rabbitmq-client"
       _(traces[2001]['Label']).must_equal "entry"
@@ -248,9 +248,9 @@ unless defined?(JRUBY_VERSION)
       _(traces[2002]['Spec']).must_equal "pushq"
       _(traces[2002]['Flavor']).must_equal "rabbitmq"
       _(traces[2002]['Op']).must_equal "wait_for_confirms"
-      _(traces[2002]['RemoteHost']).must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
-      _(traces[2002]['RemotePort']).must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
-      _(traces[2002]['VirtualHost']).must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
+      _(traces[2002]['RemoteHost']).must_equal ENV['RABBITMQ_SERVER']
+      _(traces[2002]['RemotePort']).must_equal ENV['RABBITMQ_PORT'].to_i
+      _(traces[2002]['VirtualHost']).must_equal ENV['RABBITMQ_VHOST']
 
       @conn.close
     end
@@ -261,7 +261,7 @@ unless defined?(JRUBY_VERSION)
       @ch = @conn.create_channel
       @exchange = @ch.fanout("tv.queue.test")
 
-      AppOpticsAPM::SDK.start_trace('bunny_tests') do
+      SolarWindsAPM::SDK.start_trace('bunny_tests') do
         @queue = @ch.queue("blah", :exclusive => true).bind(@exchange)
       end
 
@@ -274,14 +274,14 @@ unless defined?(JRUBY_VERSION)
       _(traces[2]['Flavor']).must_equal "rabbitmq"
       _(traces[2]['Op']).must_equal "queue"
       _(traces[2]['Queue']).must_equal "blah"
-      _(traces[2]['RemoteHost']).must_equal ENV['APPOPTICS_RABBITMQ_SERVER']
-      _(traces[2]['RemotePort']).must_equal ENV['APPOPTICS_RABBITMQ_PORT'].to_i
-      _(traces[2]['VirtualHost']).must_equal ENV['APPOPTICS_RABBITMQ_VHOST']
+      _(traces[2]['RemoteHost']).must_equal ENV['RABBITMQ_SERVER']
+      _(traces[2]['RemotePort']).must_equal ENV['RABBITMQ_PORT'].to_i
+      _(traces[2]['VirtualHost']).must_equal ENV['RABBITMQ_VHOST']
     end
 
     it 'backtrace_config_true' do
-      bt = AppOpticsAPM::Config[:bunnyclient][:collect_backtraces]
-      AppOpticsAPM::Config[:bunnyclient][:collect_backtraces] = true
+      bt = SolarWindsAPM::Config[:bunnyclient][:collect_backtraces]
+      SolarWindsAPM::Config[:bunnyclient][:collect_backtraces] = true
 
       @conn = Bunny.new(@connection_params)
       @conn.start
@@ -289,7 +289,7 @@ unless defined?(JRUBY_VERSION)
       @queue = @ch.queue("tv.ruby.test")
       @exchange = @ch.default_exchange
 
-      AppOpticsAPM::SDK.start_trace('bunny_tests') do
+      SolarWindsAPM::SDK.start_trace('bunny_tests') do
         @exchange.publish("The Tortoise and the Hare", :routing_key => @queue.name)
       end
 
@@ -299,10 +299,10 @@ unless defined?(JRUBY_VERSION)
       validate_outer_layers(traces, "bunny_tests")
       assert valid_edges?(traces), "Invalid edge in traces"
 
-      _(traces[2].has_key?('Backtrace')).must_equal !!AppOpticsAPM::Config[:bunnyclient][:collect_backtraces]
+      _(traces[2].has_key?('Backtrace')).must_equal !!SolarWindsAPM::Config[:bunnyclient][:collect_backtraces]
       @conn.close
 
-      AppOpticsAPM::Config[:bunnyclient][:collect_backtraces] = bt
+      SolarWindsAPM::Config[:bunnyclient][:collect_backtraces] = bt
     end
   end
 end

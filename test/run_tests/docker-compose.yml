@@ -13,17 +13,17 @@ version: "2.1"
 #
 ########################################################################################################
 x-ao-env: &ao-env
-#  APPOPTICS_COLLECTOR: "collector-stg.appoptics.com"
-  APPOPTICS_COLLECTOR: "/tmp/appoptics_traces.bson"
-  APPOPTICS_FROM_S3: "true"
-  APPOPTICS_GEM_TEST: "true"
-  APPOPTICS_MONGO_SERVER: "ao-ruby-mongo"
-  APPOPTICS_RABBITMQ_SERVER: "ao-ruby-rabbitmq"
-  APPOPTICS_REPORTER: "file"
-  APPOPTICS_REPORTER_FILE_SINGLE: "false"
-  SOLARWINDS_SERVICE_KEY: "${SOLARWINDS_SERVICE_KEY}"
-  APPOPTICS_TOKEN_BUCKET_CAPACITY: 10000
-  APPOPTICS_TOKEN_BUCKET_RATE: 10000
+#  SW_APM_COLLECTOR: "collector-stg.appoptics.com"
+  SW_APM_COLLECTOR: "/tmp/sw_apm_traces.bson"
+  OBOE_FROM_S3: "true"
+  SW_APM_GEM_TEST: "true"
+  MONGO_SERVER: "ao-ruby-mongo"
+  RABBITMQ_SERVER: "ao-ruby-rabbitmq"
+  SW_APM_REPORTER: "file"
+  SW_APM_REPORTER_FILE_SINGLE: "false"
+  SW_APM_SERVICE_KEY: "${SW_APM_SERVICE_KEY}"
+  SW_APM_TOKEN_BUCKET_CAPACITY: 10000
+  SW_APM_TOKEN_BUCKET_RATE: 10000
 
   BUNDLE_GEMFILE: "gemfiles/libraries.gemfile"
   DOCKER_MYSQL_PASS: "admin"
@@ -35,12 +35,12 @@ x-ao-env: &ao-env
   POSTGRES_PASSWORD: "docker"
   POSTGRES_USER: "docker"
   POSTGRES_HOST: "ao-ruby-postgres"
-  QUERY_LOG_FILE: "/tmp/appoptics_query_logs.txt"
+  QUERY_LOG_FILE: "/tmp/sw_apm_query_logs.txt"
   RUBY_ENV: "test"
   TEST_RUNS_TO_FILE: "true"
 #    - SIMPLECOV_COVERAGE=true
 #    - OBOE_WIP=true
-#    - APPOPTICS_DEBUG_LEVEL=6
+#    - SW_APM_DEBUG_LEVEL=6
 
 x-ao-shared: &ao-shared
   mem_limit: 1G
@@ -56,20 +56,20 @@ x-ao-shared: &ao-shared
     - ao_ruby_wait
   stdin_open: true
   tty: true
-  working_dir: /code/ruby-appoptics
+  working_dir: /code/ruby-solarwinds
 
 services:
-  ruby_appoptics_ubuntu:
-    container_name: ruby_appoptics_ubuntu
-    image: ruby_appoptics_ubuntu
+  ruby_sw_apm_ubuntu:
+    container_name: ruby_sw_apm_ubuntu
+    image: ruby_sw_apm_ubuntu
     build:
       context: .
       dockerfile: Dockerfile_ubuntu
     hostname: docker.ao.ubuntu
     << : *ao-shared
     volumes:
-      - ../../:/code/ruby-appoptics
-      - ./.ruby_version_ubuntu:/code/ruby-appoptics/.ruby-version
+      - ../../:/code/ruby-solarwinds
+      - ./.ruby_version_ubuntu:/code/ruby-solarwinds/.ruby-version
       # and for OBOE_WIP ...
       - ../../../oboe/factory-output:/code/oboe/factory-output
       - ../../../oboe/liboboe:/code/oboe/liboboe
@@ -79,60 +79,60 @@ services:
     #       - /Users/maiaengeli/workspace/repos/grpc:/grpc_ruby
     environment:
       << : *ao-env
-      APPOPTICS_HOSTNAME_ALIAS: "AO_RUBY_UBUNTU"
+      SW_APM_HOSTNAME_ALIAS: "AO_RUBY_UBUNTU"
 
-  ruby_appoptics_alpine:
-    container_name: ruby_appoptics_alpine
-    image: ruby_appoptics_alpine
+  ruby_sw_apm_alpine:
+    container_name: ruby_sw_apm_alpine
+    image: ruby_sw_apm_alpine
     build:
       context: .
       dockerfile: ./Dockerfile_alpine
     hostname: docker.ao.alpine
     <<: *ao-shared
     volumes:
-      - ../../:/code/ruby-appoptics
+      - ../../:/code/ruby-solarwinds
       - ../../../oboe/factory-output:/code/oboe/factory-output
       - ../../../oboe/liboboe:/code/oboe/liboboe
-      - ./.ruby_version_alpine:/code/ruby-appoptics/.ruby-version
+      - ./.ruby_version_alpine:/code/ruby-solarwinds/.ruby-version
 #      - ../../../../repos/sequel:/code/sequel
     environment:
       <<: *ao-env
-      APPOPTICS_HOSTNAME_ALIAS: "AO_RUBY_ALPINE"
+      SW_APM_HOSTNAME_ALIAS: "AO_RUBY_ALPINE"
 
-  ruby_appoptics_debian:
-    container_name: ruby_appoptics_debian
-    image: ruby_appoptics_debian
+  ruby_sw_apm_debian:
+    container_name: ruby_sw_apm_debian
+    image: ruby_sw_apm_debian
     build:
       context: .
       dockerfile: Dockerfile_debian
     hostname: docker.ao.debian
     << : *ao-shared
     volumes:
-      - ../../:/code/ruby-appoptics
+      - ../../:/code/ruby-solarwinds
       - ../../../oboe/factory-output:/code/oboe/factory-output
       - ../../../oboe/liboboe:/code/oboe/liboboe
-      - ./.ruby_version_debian:/code/ruby-appoptics/.ruby-version
+      - ./.ruby_version_debian:/code/ruby-solarwinds/.ruby-version
     environment:
       << : *ao-env
-      APPOPTICS_HOSTNAME_ALIAS: "AO_RUBY_DEBIAN"
+      SW_APM_HOSTNAME_ALIAS: "AO_RUBY_DEBIAN"
 
-  ruby_appoptics_centos:
-    container_name: ruby_appoptics_centos
-    image: ruby_appoptics_centos
+  ruby_sw_apm_centos:
+    container_name: ruby_sw_apm_centos
+    image: ruby_sw_apm_centos
     build:
       context: .
       dockerfile: Dockerfile_centos
     hostname: docker.ao.centos
     << : *ao-shared
     volumes:
-      - ../../:/code/ruby-appoptics
+      - ../../:/code/ruby-solarwinds
       - ../../../oboe/factory-output:/code/oboe/factory-output
       - ../../../oboe/liboboe:/code/oboe/liboboe
-      - ./.ruby_version_centos:/code/ruby-appoptics/.ruby-version
+      - ./.ruby_version_centos:/code/ruby-solarwinds/.ruby-version
       - ../../../../repos/rack-cache/:/rack-cache
     environment:
       << : *ao-env
-      APPOPTICS_HOSTNAME_ALIAS: "AO_RUBY_CENTOS"
+      SW_APM_HOSTNAME_ALIAS: "AO_RUBY_CENTOS"
     privileged: true
 
   ao-ruby-rabbitmq:

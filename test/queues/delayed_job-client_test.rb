@@ -13,20 +13,20 @@ Delayed::Job.delete_all
 class DelayedJobClientTest < Minitest::Test
   def setup
     clear_all_traces
-    @collect_backtraces = AppOpticsAPM::Config[:delayed_jobclient][:collect_backtraces]
-    # @log_args = AppOpticsAPM::Config[:delayed_jobclient][:log_args] # there is no code using AppOpticsAPM::Config[:delayed_jobclient][:log_args]
+    @collect_backtraces = SolarWindsAPM::Config[:delayed_jobclient][:collect_backtraces]
+    # @log_args = SolarWindsAPM::Config[:delayed_jobclient][:log_args] # there is no code using SolarWindsAPM::Config[:delayed_jobclient][:log_args]
   end
 
   def teardown
-    AppOpticsAPM::Config[:delayed_jobclient][:collect_backtraces] = @collect_backtraces
-    # AppOpticsAPM::Config[:delayed_jobclient][:log_args] = @log_args # there is no code using AppOpticsAPM::Config[:delayed_jobclient][:log_args]
+    SolarWindsAPM::Config[:delayed_jobclient][:collect_backtraces] = @collect_backtraces
+    # SolarWindsAPM::Config[:delayed_jobclient][:log_args] = @log_args # there is no code using SolarWindsAPM::Config[:delayed_jobclient][:log_args]
   end
 
   def test_delay
     w = Widget.new(:name => 'blah', :description => 'This is a wonderful widget.')
     w.save
 
-    AppOpticsAPM::SDK.start_trace('dj_delay') do
+    SolarWindsAPM::SDK.start_trace('dj_delay') do
       w.delay.do_work(1, 2, 3)
     end
 
@@ -50,21 +50,21 @@ class DelayedJobClientTest < Minitest::Test
   end
 
   def test_collect_backtraces_default_value
-    assert_equal AppOpticsAPM::Config[:delayed_jobclient][:collect_backtraces], false, "default backtrace collection"
+    assert_equal SolarWindsAPM::Config[:delayed_jobclient][:collect_backtraces], false, "default backtrace collection"
   end
 
   def test_log_args_default_value
-    skip # TODO: there is no code checking AppOpticsAPM::Config[:delayed_jobclient][:log_args]
-    assert_equal true, AppOpticsAPM::Config[:delayed_jobclient][:log_args], "test log_args on by default "
+    skip # TODO: there is no code checking SolarWindsAPM::Config[:delayed_jobclient][:log_args]
+    assert_equal true, SolarWindsAPM::Config[:delayed_jobclient][:log_args], "test log_args on by default "
   end
 
   def test_obey_collect_backtraces_when_false
-    AppOpticsAPM::Config[:delayed_jobclient][:collect_backtraces] = false
+    SolarWindsAPM::Config[:delayed_jobclient][:collect_backtraces] = false
 
     w = Widget.new(:name => 'blah', :description => 'This is a wonderful widget.')
     w.save
 
-    AppOpticsAPM::SDK.start_trace('dj_delay') do
+    SolarWindsAPM::SDK.start_trace('dj_delay') do
       w.delay.do_work(1, 2, 3)
     end
 
@@ -77,12 +77,12 @@ class DelayedJobClientTest < Minitest::Test
   end
 
   def test_obey_collect_backtraces_when_true
-    AppOpticsAPM::Config[:delayed_jobclient][:collect_backtraces] = true
+    SolarWindsAPM::Config[:delayed_jobclient][:collect_backtraces] = true
 
     w = Widget.new(:name => 'blah', :description => 'This is a wonderful widget.')
     w.save
 
-    AppOpticsAPM::SDK.start_trace('dj_delay') do
+    SolarWindsAPM::SDK.start_trace('dj_delay') do
       w.delay.do_work(1, 2, 3)
     end
 

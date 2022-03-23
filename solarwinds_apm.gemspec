@@ -1,9 +1,9 @@
 $:.push File.expand_path("../lib", __FILE__)
-require "appoptics_apm/version"
+require "solarwinds_apm/version"
 
 Gem::Specification.new do |s|
   s.name = %q{solarwinds_apm}
-  s.version = AppOpticsAPM::Version::STRING
+  s.version = SolarWindsAPM::Version::STRING
   s.date = Time.now.strftime('%Y-%m-%d')
 
   s.license = "Apache-2.0"
@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.authors = ["Maia Engeli", "Peter Giacomo Lombardo", "Spiros Eliopoulos"]
   s.email = %q{technicalsupport@solarwinds.com}
   s.homepage = %q{https://www.appoptics.com/}
-  s.summary = %q{AppOptics APM performance instrumentation gem for Ruby}
+  s.summary = %q{SolarWindsAPM performance instrumentation gem for Ruby}
   s.description = <<-EOF
 Automatic tracing and metrics for Ruby applications. Get started at appoptics.com. @AppOptics
   EOF

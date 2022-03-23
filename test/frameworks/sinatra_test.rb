@@ -8,11 +8,11 @@ require File.expand_path(File.dirname(__FILE__) + '/apps/sinatra_simple')
 describe Sinatra do
   before do
     clear_all_traces
-    @bt = AppOpticsAPM::Config[:sinatra][:collect_backtraces]
+    @bt = SolarWindsAPM::Config[:sinatra][:collect_backtraces]
   end
 
   after do
-    AppOpticsAPM::Config[:sinatra][:collect_backtraces] = @bt
+    SolarWindsAPM::Config[:sinatra][:collect_backtraces] = @bt
   end
 
   it "should trace a request to a simple sinatra stack" do
@@ -39,10 +39,10 @@ describe Sinatra do
   end
 
   it "should log an error on exception" do
-    AppOpticsAPM::Config[:sinatra][:collect_backtraces] = false
+    SolarWindsAPM::Config[:sinatra][:collect_backtraces] = false
     @app = SinatraSimple
 
-    SinatraSimple.any_instance.expects(:dispatch_without_appoptics).raises(StandardError.new('Hello Sinatra'))
+    SinatraSimple.any_instance.expects(:dispatch_without_sw_apm).raises(StandardError.new('Hello Sinatra'))
 
     begin
       _ = get "/render"
@@ -68,7 +68,7 @@ describe Sinatra do
   end
 
   it 'should not report backtraces' do
-    AppOpticsAPM::Config[:sinatra][:collect_backtraces] = false
+    SolarWindsAPM::Config[:sinatra][:collect_backtraces] = false
     @app = SinatraSimple
 
     r = get "/render"
@@ -89,7 +89,7 @@ describe Sinatra do
   it "should report the route with :id" do
     @app = SinatraSimple
     test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-    AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
+    SolarWindsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
       test_action = action
       test_url = url
       test_status = status
@@ -113,7 +113,7 @@ describe Sinatra do
   it "should report the route with :id and more" do
     @app = SinatraSimple
     test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-    AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
+    SolarWindsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
       test_action = action
       test_url = url
       test_status = status
@@ -137,7 +137,7 @@ describe Sinatra do
   it "should report the route with splats" do
     @app = SinatraSimple
     test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-    AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
+    SolarWindsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
       test_action = action
       test_url = url
       test_status = status
@@ -162,7 +162,7 @@ describe Sinatra do
     it "should report the route with regex" do
       @app = SinatraSimple
       test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
+      SolarWindsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
         test_action = action
         test_url = url
         test_status = status

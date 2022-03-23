@@ -1,4 +1,4 @@
-# README for the AppOpticsAPM Test Suite
+# README for the SolarWindsAPM Test Suite
 
   * [Prerequisites](#prerequisites)
     * [Linux](#linux)
@@ -85,7 +85,7 @@ is a good way to reduce the time of a test run.
 
 Be aware that starting the container takes longer if the Docker image needs to be created first
 (+10-15 minutes) because it needs to install three versions of Ruby, which is a pretty
-slow process. It is recommended to keep the appoptics_apm image and only replace
+slow process. It is recommended to keep the solarwinds_apm image and only replace
 it if there is a change with the Ruby versions required for the tests.
 
 When done with testing, the auxiliary containers can be stopped with:

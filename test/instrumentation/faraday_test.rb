@@ -6,25 +6,25 @@ require 'minitest_helper'
 describe "Faraday" do
   before do
     clear_all_traces
-    @collect_backtraces = AppOpticsAPM::Config[:faraday][:collect_backtraces]
-    @log_args = AppOpticsAPM::Config[:faraday][:log_args]
+    @collect_backtraces = SolarWindsAPM::Config[:faraday][:collect_backtraces]
+    @log_args = SolarWindsAPM::Config[:faraday][:log_args]
   end
 
   after do
-    AppOpticsAPM::Config[:faraday][:collect_backtraces] = @collect_backtraces
-    AppOpticsAPM::Config[:faraday][:log_args] = @log_args
+    SolarWindsAPM::Config[:faraday][:collect_backtraces] = @collect_backtraces
+    SolarWindsAPM::Config[:faraday][:log_args] = @log_args
   end
 
   it 'Faraday should be defined and ready' do
     _(defined?(::Faraday)).wont_match nil
   end
 
-  it 'Faraday should have AppOptics instrumentation prepended' do
-    _(Faraday::Connection.ancestors).must_include(AppOpticsAPM::Inst::FaradayConnection)
+  it 'Faraday should have SolarWinds instrumentation prepended' do
+    _(Faraday::Connection.ancestors).must_include(SolarWindsAPM::Inst::FaradayConnection)
   end
 
   it "should trace cross-app request" do
-    AppOpticsAPM::SDK.start_trace('faraday_test') do
+    SolarWindsAPM::SDK.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
         faraday.adapter Faraday.default_adapter # make requests with Net::HTTP
       end
@@ -39,7 +39,7 @@ describe "Faraday" do
     validate_outer_layers(traces, 'faraday_test')
 
     _(traces[1]['Layer']).must_equal 'faraday'
-    _(traces[1].key?('Backtrace')).must_equal AppOpticsAPM::Config[:faraday][:collect_backtraces]
+    _(traces[1].key?('Backtrace')).must_equal SolarWindsAPM::Config[:faraday][:collect_backtraces]
 
     _(traces[5]['Layer']).must_equal 'net-http'
     _(traces[5]['Label']).must_equal 'exit'
@@ -54,7 +54,7 @@ describe "Faraday" do
   end
 
   it "should trace UNINSTRUMENTED cross-app request" do
-    AppOpticsAPM::SDK.start_trace('faraday_test') do
+    SolarWindsAPM::SDK.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8110') do |faraday|
         faraday.adapter Faraday.default_adapter # make requests with Net::HTTP
       end
@@ -69,7 +69,7 @@ describe "Faraday" do
     validate_outer_layers(traces, 'faraday_test')
 
     _(traces[1]['Layer']).must_equal 'faraday'
-    _(traces[1].key?('Backtrace')).must_equal AppOpticsAPM::Config[:faraday][:collect_backtraces]
+    _(traces[1].key?('Backtrace')).must_equal SolarWindsAPM::Config[:faraday][:collect_backtraces]
 
     _(traces[3]['Layer']).must_equal 'net-http'
     _(traces[3]['Label']).must_equal 'exit'
@@ -84,7 +84,7 @@ describe "Faraday" do
   end
 
   it 'should trace a Faraday request' do
-    AppOpticsAPM::SDK.start_trace('faraday_test') do
+    SolarWindsAPM::SDK.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
         faraday.adapter Faraday.default_adapter # make requests with Net::HTTP
       end
@@ -98,7 +98,7 @@ describe "Faraday" do
     validate_outer_layers(traces, 'faraday_test')
 
     _(traces[1]['Layer']).must_equal 'faraday'
-    _(traces[1].key?('Backtrace')).must_equal AppOpticsAPM::Config[:faraday][:collect_backtraces]
+    _(traces[1].key?('Backtrace')).must_equal SolarWindsAPM::Config[:faraday][:collect_backtraces]
 
     _(traces[5]['Layer']).must_equal 'net-http'
     _(traces[5]['Label']).must_equal 'exit'
@@ -113,7 +113,7 @@ describe "Faraday" do
   end
 
   it 'should trace a Faraday class style request' do
-    AppOpticsAPM::SDK.start_trace('faraday_test') do
+    SolarWindsAPM::SDK.start_trace('faraday_test') do
       Faraday.get('http://127.0.0.1:8101/', { :a => 1 })
     end
 
@@ -124,7 +124,7 @@ describe "Faraday" do
     validate_outer_layers(traces, 'faraday_test')
 
     _(traces[1]['Layer']).must_equal 'faraday'
-    _(traces[1].key?('Backtrace')).must_equal AppOpticsAPM::Config[:faraday][:collect_backtraces]
+    _(traces[1].key?('Backtrace')).must_equal SolarWindsAPM::Config[:faraday][:collect_backtraces]
 
     _(traces[5]['Layer']).must_equal 'net-http'
     _(traces[5]['Label']).must_equal 'exit'
@@ -139,7 +139,7 @@ describe "Faraday" do
   end
 
   it 'should trace a Faraday with the excon adapter' do
-    AppOpticsAPM::SDK.start_trace('faraday_test') do
+    SolarWindsAPM::SDK.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
         faraday.adapter :excon
       end
@@ -153,7 +153,7 @@ describe "Faraday" do
     validate_outer_layers(traces, 'faraday_test')
 
     _(traces[1]['Layer']).must_equal 'faraday'
-    _(traces[1].key?('Backtrace')).must_equal AppOpticsAPM::Config[:faraday][:collect_backtraces]
+    _(traces[1].key?('Backtrace')).must_equal SolarWindsAPM::Config[:faraday][:collect_backtraces]
 
     _(traces[2]['Layer']).must_equal 'excon'
     _(traces[2]['Label']).must_equal 'entry'
@@ -175,7 +175,7 @@ describe "Faraday" do
   end
 
   it 'should trace a Faraday with the httpclient adapter' do
-    AppOpticsAPM::SDK.start_trace('faraday_test') do
+    SolarWindsAPM::SDK.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
         faraday.adapter :httpclient
       end
@@ -189,7 +189,7 @@ describe "Faraday" do
     validate_outer_layers(traces, 'faraday_test')
 
     _(traces[1]['Layer']).must_equal 'faraday'
-    _(traces[1].key?('Backtrace')).must_equal AppOpticsAPM::Config[:faraday][:collect_backtraces]
+    _(traces[1].key?('Backtrace')).must_equal SolarWindsAPM::Config[:faraday][:collect_backtraces]
 
     _(traces[2]['Layer']).must_equal 'httpclient'
     _(traces[2]['Label']).must_equal 'entry'
@@ -210,7 +210,7 @@ describe "Faraday" do
   # TODO remove this test for faraday > 1
   #  no more typhoeus adapter
   it 'should trace a Faraday with the typhoeus adapter' do
-    AppOpticsAPM::SDK.start_trace('faraday_test') do
+    SolarWindsAPM::SDK.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
         faraday.adapter :typhoeus
       end
@@ -224,7 +224,7 @@ describe "Faraday" do
     validate_outer_layers(traces, 'faraday_test')
 
     _(traces[1]['Layer']).must_equal 'faraday'
-    _(traces[1].key?('Backtrace')).must_equal AppOpticsAPM::Config[:faraday][:collect_backtraces]
+    _(traces[1].key?('Backtrace')).must_equal SolarWindsAPM::Config[:faraday][:collect_backtraces]
 
     _(traces[2]['Layer']).must_equal 'typhoeus'
     _(traces[2]['Label']).must_equal 'entry'
@@ -243,8 +243,8 @@ describe "Faraday" do
   end
 
   it 'should trace a Faraday with the UNINSTRUMENTED patron adapter' do
-    AppOpticsAPM::Config[:faraday][:log_args] = true
-    AppOpticsAPM::SDK.start_trace('faraday_test') do
+    SolarWindsAPM::Config[:faraday][:log_args] = true
+    SolarWindsAPM::SDK.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
         faraday.adapter :patron
       end
@@ -258,7 +258,7 @@ describe "Faraday" do
     validate_outer_layers(traces, 'faraday_test')
 
     _(traces[1]['Layer']).must_equal 'faraday'
-    _(traces[1].key?('Backtrace')).must_equal AppOpticsAPM::Config[:faraday][:collect_backtraces]
+    _(traces[1].key?('Backtrace')).must_equal SolarWindsAPM::Config[:faraday][:collect_backtraces]
 
     _(traces[2]['Layer']).must_equal 'rack'
     _(traces[2]['Label']).must_equal 'entry'
@@ -278,8 +278,8 @@ describe "Faraday" do
   end
 
   it 'should trace a Faraday with the UNINSTRUMENTED patron adapter to UNINSTRUMENTED rack' do
-    AppOpticsAPM::Config[:faraday][:log_args] = true
-    AppOpticsAPM::SDK.start_trace('faraday_test') do
+    SolarWindsAPM::Config[:faraday][:log_args] = true
+    SolarWindsAPM::SDK.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8110') do |faraday|
         faraday.adapter :patron
       end
@@ -293,7 +293,7 @@ describe "Faraday" do
     validate_outer_layers(traces, 'faraday_test')
 
     _(traces[1]['Layer']).must_equal 'faraday'
-    _(traces[1].key?('Backtrace')).must_equal AppOpticsAPM::Config[:faraday][:collect_backtraces]
+    _(traces[1].key?('Backtrace')).must_equal SolarWindsAPM::Config[:faraday][:collect_backtraces]
 
     _(traces[2]['Spec']).must_equal 'rsc'
     _(traces[2]['IsService']).must_equal 1
@@ -306,9 +306,9 @@ describe "Faraday" do
   end
 
   it 'should obey :collect_backtraces setting when true' do
-    AppOpticsAPM::Config[:faraday][:collect_backtraces] = true
+    SolarWindsAPM::Config[:faraday][:collect_backtraces] = true
 
-    AppOpticsAPM::SDK.start_trace('faraday_test') do
+    SolarWindsAPM::SDK.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
         faraday.adapter Faraday.default_adapter # make requests with Net::HTTP
       end
@@ -320,9 +320,9 @@ describe "Faraday" do
   end
 
   it 'should obey :collect_backtraces setting when false' do
-    AppOpticsAPM::Config[:faraday][:collect_backtraces] = false
+    SolarWindsAPM::Config[:faraday][:collect_backtraces] = false
 
-    AppOpticsAPM::SDK.start_trace('faraday_test') do
+    SolarWindsAPM::SDK.start_trace('faraday_test') do
       conn = Faraday.new(:url => 'http://127.0.0.1:8101') do |faraday|
         faraday.adapter Faraday.default_adapter # make requests with Net::HTTP
       end

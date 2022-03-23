@@ -165,7 +165,7 @@ if defined?(::Grape)
     it "should report a simple GET path" do
       @app = GrapeSimple
       test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
+      SolarWindsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
         test_action = action
         test_url = url
         test_status = status
@@ -187,7 +187,7 @@ if defined?(::Grape)
     it "should report a GET path with parameter" do
       @app = GrapeSimple
       test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
+      SolarWindsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
         test_action = action
         test_url = url
         test_status = status
@@ -209,7 +209,7 @@ if defined?(::Grape)
     it "should report a POST path" do
       @app = GrapeSimple
       test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
+      SolarWindsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
         test_action = action
         test_url = url
         test_status = status
@@ -237,7 +237,7 @@ if defined?(::Grape)
     it "should report a PUT path" do
       @app = GrapeSimple
       test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
+      SolarWindsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
         test_action = action
         test_url = url
         test_status = status
@@ -259,7 +259,7 @@ if defined?(::Grape)
     it "should report a DELETE path" do
       @app = GrapeSimple
       test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
+      SolarWindsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
         test_action = action
         test_url = url
         test_status = status
@@ -281,7 +281,7 @@ if defined?(::Grape)
     it "should report a nested GET path with parameters" do
       @app = GrapeSimple
       test_action, test_url, test_status, test_method, test_error = nil, nil, nil, nil, nil
-      AppOpticsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
+      SolarWindsAPM::Span.expects(:createHttpSpan).with do |action, url, _, _duration, status, method, error|
         test_action = action
         test_url = url
         test_status = status

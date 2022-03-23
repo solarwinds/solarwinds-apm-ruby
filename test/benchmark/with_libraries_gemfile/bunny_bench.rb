@@ -6,20 +6,20 @@ require_relative '../../minitest_helper'
 
 
 # compare logging when testing for loaded versus tracing?
-ENV['APPOPTICS_GEM_VERBOSE'] = 'false'
+ENV['SW_APM_GEM_VERBOSE'] = 'false'
 
-ENV['APPOPTICS_RABBITMQ_SERVER'] = "127.0.0.1"      unless ENV['APPOPTICS_RABBITMQ_SERVER']
-ENV['APPOPTICS_RABBITMQ_PORT'] = "5672"             unless ENV['APPOPTICS_RABBITMQ_PORT']
-ENV['APPOPTICS_RABBITMQ_USERNAME'] = "guest"        unless ENV['APPOPTICS_RABBITMQ_USERNAME']
-ENV['APPOPTICS_RABBITMQ_PASSWORD'] = "guest"        unless ENV['APPOPTICS_RABBITMQ_PASSWORD']
-ENV['APPOPTICS_RABBITMQ_VHOST'] = "/"               unless ENV['APPOPTICS_RABBITMQ_VHOST']
+ENV['RABBITMQ_SERVER'] = "127.0.0.1"      unless ENV['RABBITMQ_SERVER']
+ENV['RABBITMQ_PORT'] = "5672"             unless ENV['RABBITMQ_PORT']
+ENV['RABBITMQ_USERNAME'] = "guest"        unless ENV['RABBITMQ_USERNAME']
+ENV['RABBITMQ_PASSWORD'] = "guest"        unless ENV['RABBITMQ_PASSWORD']
+ENV['RABBITMQ_VHOST'] = "/"               unless ENV['RABBITMQ_VHOST']
 
 @connection_params = {}
-@connection_params[:host]   = ENV['APPOPTICS_RABBITMQ_SERVER']
-@connection_params[:port]   = ENV['APPOPTICS_RABBITMQ_PORT']
-@connection_params[:vhost]  = ENV['APPOPTICS_RABBITMQ_VHOST']
-@connection_params[:user]   = ENV['APPOPTICS_RABBITMQ_USERNAME']
-@connection_params[:pass]   = ENV['APPOPTICS_RABBITMQ_PASSWORD']
+@connection_params[:host]   = ENV['RABBITMQ_SERVER']
+@connection_params[:port]   = ENV['RABBITMQ_PORT']
+@connection_params[:vhost]  = ENV['RABBITMQ_VHOST']
+@connection_params[:user]   = ENV['RABBITMQ_USERNAME']
+@connection_params[:pass]   = ENV['RABBITMQ_PASSWORD']
 
 def dostuff(exchange)
   # require 'ruby-prof'
@@ -50,17 +50,17 @@ Benchmark.ips do |x|
 
   x.report('bunny_pub_sampling_A') do
     ENV['TEST_AB'] = 'A'
-    AppOpticsAPM.loaded = true
-    AppOpticsAPM::Config[:tracing_mode] = :enabled
-    AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
+    SolarWindsAPM.loaded = true
+    SolarWindsAPM::Config[:tracing_mode] = :enabled
+    SolarWindsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
 
     dostuff(@exchange)
   end
   x.report('bunny_pub_sampling_B') do
     ENV['TEST_AB'] = 'B'
-    AppOpticsAPM.loaded = true
-    AppOpticsAPM::Config[:tracing_mode] = :enabled
-    AppOpticsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
+    SolarWindsAPM.loaded = true
+    SolarWindsAPM::Config[:tracing_mode] = :enabled
+    SolarWindsAPM::Context.fromString('2B7435A9FE510AE4533414D425DADF4E180D2B4E3649E60702469DB05F00')
 
     dostuff(@exchange)
   end

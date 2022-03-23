@@ -2,7 +2,7 @@
 # All rights reserved.
 
 require 'minitest_helper'
-require 'appoptics_apm/inst/rack'
+require 'solarwinds_apm/inst/rack'
 require 'mocha/minitest'
 require 'openssl'
 
@@ -11,7 +11,7 @@ describe "Rack Trigger Tracing " do
   # Minitest::Test.i_suck_and_my_tests_are_order_dependent!
 
   def restart_rack
-    @rack = AppOpticsAPM::Rack.new(@app)
+    @rack = SolarWindsAPM::Rack.new(@app)
   end
 
   def create_signature(options)
@@ -22,23 +22,23 @@ describe "Rack Trigger Tracing " do
   before do
     clear_all_traces
 
-    @collect_bt = AppOpticsAPM::Config[:rack][:collect_backtraces]
-    AppOpticsAPM::Config[:rack][:collect_backtraces] = false
+    @collect_bt = SolarWindsAPM::Config[:rack][:collect_backtraces]
+    SolarWindsAPM::Config[:rack][:collect_backtraces] = false
 
-    @t_mode =  AppOpticsAPM::Config[:tracing_mode]
-    @tt_mode = AppOpticsAPM::Config[:trigger_tracing_mode]
+    @t_mode =  SolarWindsAPM::Config[:tracing_mode]
+    @tt_mode = SolarWindsAPM::Config[:trigger_tracing_mode]
 
     @app = mock('app')
     def @app.call(_)
       [200, {}, "response"]
     end
-    @rack = AppOpticsAPM::Rack.new(@app)
+    @rack = SolarWindsAPM::Rack.new(@app)
   end
 
   after do
-    AppOpticsAPM::Config[:rack][:collect_backtraces] = @collect_bt
-    AppOpticsAPM::Config[:tracing_mode] = @t_mode
-    AppOpticsAPM::Config[:trigger_tracing_mode] = @tt_mode
+    SolarWindsAPM::Config[:rack][:collect_backtraces] = @collect_bt
+    SolarWindsAPM::Config[:tracing_mode] = @t_mode
+    SolarWindsAPM::Config[:trigger_tracing_mode] = @tt_mode
   end
 
   describe 'settings not available' do
@@ -47,7 +47,7 @@ describe "Rack Trigger Tracing " do
 
   describe 'tracing disabled' do
     before do
-      AppOpticsAPM::Config[:tracing_mode] = :disabled
+      SolarWindsAPM::Config[:tracing_mode] = :disabled
     end
 
     it 'does not trigger trace' do
@@ -100,7 +100,7 @@ describe "Rack Trigger Tracing " do
       @rack.call(req_headers)
 
       traces = get_all_traces
-      if ENV['APPOPTICS_REPORTER'] =='file'
+      if ENV['SW_APM_REPORTER'] =='file'
         refute traces.empty?
         refute traces[0]['TriggerTrace']
       end
@@ -114,7 +114,7 @@ describe "Rack Trigger Tracing " do
       assert_equal 'trigger-trace=ok', res_headers['X-Trace-Options-Response']
 
       traces = get_all_traces
-      if ENV['APPOPTICS_REPORTER'] =='file'
+      if ENV['SW_APM_REPORTER'] =='file'
         refute traces.empty?
         assert_equal 'true', traces[0]['TriggeredTrace']
       end
@@ -128,7 +128,7 @@ describe "Rack Trigger Tracing " do
       assert_equal 'trigger-trace=ok', res_headers['X-Trace-Options-Response']
 
       traces = get_all_traces
-      if ENV['APPOPTICS_REPORTER'] =='file'
+      if ENV['SW_APM_REPORTER'] =='file'
         refute traces.empty?
         assert_equal 'true', traces[0]['TriggeredTrace']
         assert_equal 'lo:se,check-id:123', traces[0]['SWKeys']
@@ -143,7 +143,7 @@ describe "Rack Trigger Tracing " do
       assert_equal 'trigger-trace=ok;ignored=not-valid-option', res_headers['X-Trace-Options-Response']
 
       traces = get_all_traces
-      if ENV['APPOPTICS_REPORTER'] =='file'
+      if ENV['SW_APM_REPORTER'] =='file'
         refute traces.empty?
         assert_equal 'true', traces[0]['TriggeredTrace']
         assert_equal 'lo:se,check-id:123', traces[0]['SWKeys']
@@ -163,7 +163,7 @@ describe "Rack Trigger Tracing " do
       @rack.call(req_headers)
 
       traces = get_all_traces
-      if ENV['APPOPTICS_REPORTER'] =='file'
+      if ENV['SW_APM_REPORTER'] =='file'
         refute traces.empty?
         refute traces[0]['TriggerTrace']
       end
@@ -182,7 +182,7 @@ describe "Rack Trigger Tracing " do
       assert_match /trigger-trace=ok/, res_headers['X-Trace-Options-Response']
 
       traces = get_all_traces
-      if ENV['APPOPTICS_REPORTER'] =='file'
+      if ENV['SW_APM_REPORTER'] =='file'
         refute traces.empty?
         assert_equal 'true', traces[0]['TriggeredTrace']
       end
@@ -202,7 +202,7 @@ describe "Rack Trigger Tracing " do
       assert_match /ignored=not-valid-option/, res_headers['X-Trace-Options-Response']
 
       traces = get_all_traces
-      if ENV['APPOPTICS_REPORTER'] =='file'
+      if ENV['SW_APM_REPORTER'] =='file'
         refute traces.empty?
         assert_equal 'true', traces[0]['TriggeredTrace']
         assert_equal 'lo:se,check-id:123', traces[0]['SWKeys']
@@ -263,7 +263,7 @@ describe "Rack Trigger Tracing " do
     # assuming remote settings are enabled
     # can't test remote setting disabled here
     before do
-      AppOpticsAPM::Config[:trigger_tracing_mode] = :disabled
+      SolarWindsAPM::Config[:trigger_tracing_mode] = :disabled
     end
 
     it 'does not trigger trace' do
@@ -323,7 +323,7 @@ describe "Rack Trigger Tracing " do
       assert_match /trigger-trace=not-requested/, res_headers['X-Trace-Options-Response']
 
       traces = get_all_traces
-      if ENV['APPOPTICS_REPORTER'] =='file'
+      if ENV['SW_APM_REPORTER'] =='file'
         refute traces.empty?
 
         assert_equal 'bar', traces[0]['custom-foo']
@@ -340,7 +340,7 @@ describe "Rack Trigger Tracing " do
       assert_match /ignored=trigger-trace/, res_headers['X-Trace-Options-Response']
 
       traces = get_all_traces
-      if ENV['APPOPTICS_REPORTER'] =='file'
+      if ENV['SW_APM_REPORTER'] =='file'
         refute traces.empty?, "There should be traces"
 
         assert_equal 'bar', traces[0]['custom-foo']
@@ -360,7 +360,7 @@ describe "Rack Trigger Tracing " do
       assert_match /auth=ok/, res_headers['X-Trace-Options-Response']
 
       traces = get_all_traces
-      if ENV['APPOPTICS_REPORTER'] =='file'
+      if ENV['SW_APM_REPORTER'] =='file'
         refute traces.empty?, "There should be traces"
       end
     end
@@ -378,7 +378,7 @@ describe "Rack Trigger Tracing " do
       assert_match /ignored=trigger-trace/, res_headers['X-Trace-Options-Response']
 
       traces = get_all_traces
-      if ENV['APPOPTICS_REPORTER'] =='file'
+      if ENV['SW_APM_REPORTER'] =='file'
         refute traces.empty?, "There should be traces"
       end
     end
@@ -412,7 +412,7 @@ describe "Rack Trigger Tracing " do
       assert_match /ignored=bad-key/, res_headers['X-Trace-Options-Response']
 
       traces = get_all_traces
-      if ENV['APPOPTICS_REPORTER'] =='file'
+      if ENV['SW_APM_REPORTER'] =='file'
         refute traces.empty?, "There should be traces"
         assert_equal 'lo:se,check-id:123', traces[0]['SWKeys']
         assert_equal 'bar', traces[0]['custom-foo']
@@ -430,7 +430,7 @@ describe "Rack Trigger Tracing " do
       assert_match /ignored=bad-key/, res_headers['X-Trace-Options-Response']
 
       traces = get_all_traces
-      if ENV['APPOPTICS_REPORTER'] =='file'
+      if ENV['SW_APM_REPORTER'] =='file'
         refute traces.empty?, "There should be traces"
         assert_equal 'lo:se,check-id:123', traces[0]['SWKeys']
         assert_equal 'bar', traces[0]['custom-foo']
@@ -462,7 +462,7 @@ describe "Rack Trigger Tracing " do
       assert_match /ignored=bad-key/, res_headers['X-Trace-Options-Response']
 
       traces = get_all_traces
-      if ENV['APPOPTICS_REPORTER'] =='file'
+      if ENV['SW_APM_REPORTER'] =='file'
         refute traces.empty?, "There should be traces"
         assert_equal 'lo:se,check-id:123', traces[0]['SWKeys']
         assert_equal 'bar', traces[0]['custom-foo']

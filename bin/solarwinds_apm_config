@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+
+##
+# execute this with `bundle exec solarwinds_apm_config`
+# copies the configuration template file into the current  directory
+#
+
+puts "Copying the configuration template file to solarwinds_apm_config_tmp.rb"
+puts "Edit and save as solarwinds_apm_config.rb"
+
+target_file = File.join(Dir.pwd, 'solarwinds_apm_config_tmp.rb')
+temp_orig = File.join(File.dirname(File.dirname(__FILE__)),
+                 'lib/rails/generators/solarwinds_apm/templates/solarwinds_apm_initializer.rb')
+
+FileUtils.copy(temp_orig, target_file)

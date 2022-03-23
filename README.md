@@ -1,17 +1,15 @@
-# Welcome to the AppOpticsAPM Ruby Gem
+# Welcome to the SolarWindsAPM Ruby Gem
 
-The solarwinds_apm gem provides [AppOptics APM](https://www.appoptics.com/) performance instrumentation for Ruby.
+The solarwinds_apm gem provides [SolarWindsAPM](https://www.appoptics.com/) performance instrumentation for Ruby.
 
-![Ruby AppOpticsAPM](https://docs.appoptics.com/_images/ruby_trace_smaller.png)
-
-It has the ability to report performance metrics on an array of libraries, databases and frameworks such as Rails, 
-Mongo, Memcache, ActiveRecord, Cassandra, Rack, Resque 
+It has the ability to report performance metrics on an array of libraries, databases and frameworks such as Rails,
+Rack, ActiveRecord, Mongo, Memcache, Resque 
 [and more](https://docs.appoptics.com/kb/apm_tracing/ruby/support-matrix/).
 
-It requires an [AppOptics](https://www.appoptics.com/) account to view metrics.  Get yours, 
+It requires an [Solarwinds] account to view metrics.  Get yours, 
 [it's free](https://my.appoptics.com/sign_up).
 
-[![Gem Version](https://badge.fury.io/rb/appoptics_apm.svg)](https://badge.fury.io/rb/appoptics_apm)
+[![Gem Version](https://badge.fury.io/rb/solarwinds_apm.svg)](https://badge.fury.io/rb/solarwinds_apm)
 
 [![Run all Tests](https://github.com/appoptics/appoptics-apm-ruby/actions/workflows/run_tests.yml/badge.svg)](https://github.com/appoptics/appoptics-apm-ruby/actions/workflows/run_tests.yml)
 [![C++ Tests](https://github.com/appoptics/appoptics-apm-ruby/actions/workflows/run_cpluplus_tests.yml/badge.svg)](https://github.com/appoptics/appoptics-apm-ruby/actions/workflows/run_cpluplus_tests.yml)
@@ -20,7 +18,7 @@ It requires an [AppOptics](https://www.appoptics.com/) account to view metrics. 
 
 # Documentation
 
-* [AppOptics Knowledge Base](https://docs.appoptics.com/kb/apm_tracing/ruby)
+* [SolarWindsAPM Knowledge Base](https://docs.appoptics.com/kb/apm_tracing/ruby)
 
 # Installation
 
@@ -41,16 +39,16 @@ gem 'solarwinds_apm'
 
 # Running
 
-Make sure to set `SOLARWINDS_SERVICE_KEY` in the environment from where the app or service is run, e.g:
+Make sure to set `SW_APM_SERVICE_KEY` in the environment from where the app or service is run, e.g:
 ```
-export SOLARWINDS_SERVICE_KEY=795fb4947d15275d208c49cfd2412d4a5bf38742045b47236c94c4fe5f5b17c7:<your_app_name>
+export SW_APM_SERVICE_KEY=795fb4947d15275d208c49cfd2412d4a5bf38742045b47236c94c4fe5f5b17c7:<your_app_name>
 ```
 
 ## Rails
 
 ![Ruby on Rails](https://docs.appoptics.com/_images/rails.png)
 
-No special steps are needed to instrument Ruby on Rails.  Once part of the bundle, the appoptics gem will automatically 
+No special steps are needed to instrument Ruby on Rails.  Once part of the bundle, the solarwinds-apm gem will automatically 
 detect Rails and instrument on stack initialization.
 
 ### The Install Generator
@@ -61,10 +59,10 @@ The solarwinds_apm gem provides a Rails generator used to seed an initializer wh
 To run the install generator run:
 
 ```bash
-bundle exec rails generate appoptics_apm:install
+bundle exec rails generate solarwinds_apm:install
 ```
 
-After the prompts, this will create an initializer: `config/initializers/appoptics_apm.rb`.
+After the prompts, this will create an initializer: `config/initializers/solarwinds_apm.rb`.
 
 ## Sinatra
 
@@ -88,15 +86,15 @@ With this, the solarwinds_apm gem will automatically detect Sinatra on boot and 
 ![Padrino](https://docs.appoptics.com/_images/padrino.svg)
 
 As long as the solarwinds_apm gem is in your `Gemfile` (inserted after the `gem 'padrino'` directive) and you are calling 
-`Bundler.require`, the appoptics_apm gem will automatically instrument Padrino applications.
+`Bundler.require`, the solarwinds_apm gem will automatically instrument Padrino applications.
 
-If you need to set `AppOpticsAPM::Config` values on stack boot, you can do so by adding the following
+If you need to set `SolarWindsAPM::Config` values on stack boot, you can do so by adding the following
 to your `config/boot.rb` file:
 
 ```ruby
 Padrino.before_load do
   # Verbose output of instrumentation initialization
-  AppOpticsAPM
+  SolarWindsAPM
 end
 ```
 
@@ -114,14 +112,14 @@ You can instrument your Grape application by adding the following code to your `
     ...
 
     class App < Grape::API
-      use AppOpticsAPM::Rack
+      use SolarWindsAPM::Rack
     end
 ```
 
 Make sure that the solarwinds gem is loaded _after_ Grape either by listing `gem 'solarwinds_apm'` after Grape in your 
 Gemfile or calling the `require 'solarwinds_apm'` directive after Grape is loaded.
 
-You must explicitly tell your Grape application to use AppOpticsAPM::Rack for tracing to occur.
+You must explicitly tell your Grape application to use SolarWindsAPM::Rack for tracing to occur.
 
 
 # SDK for Custom Tracing 
@@ -139,35 +137,35 @@ require 'solarwinds_apm'
 
 You can add even more visibility into any part of your application or scripts by adding custom instrumentation.  
 
-## AppOpticsAPM::SDK.trace
-You can instrument any arbitrary block of code using `AppOpticsAPM::SDK.trace`.  
+## SolarWindsAPM::SDK.trace
+You can instrument any arbitrary block of code using `SolarWindsAPM::SDK.trace`.  
 
 ```ruby
-# layer_name will show up in the AppOptics app dashboard
+# layer_name will show up in the SolarWinds dashboard
 layer_name = 'subsystemX'
 
 # report_kvs are a set of information Key/Value pairs that are sent to
-# AppOptics dashboard along with the performance metrics. These KV
+# SolarWinds dashboard along with the performance metrics. These KV
 # pairs are used to report request, environment and/or client specific
 # information.
 
 report_kvs = {}
 report_kvs[:mykey] = @client.id
 
-AppOpticsAPM::SDK.trace(layer_name, kvs: report_kvs) do
+SolarWindsAPM::SDK.trace(layer_name, kvs: report_kvs) do
   # the block of code to be traced
 end
 ```
 
-`AppOpticsAPM::SDK.trace` is used within the context of a request.  It will follow the upstream state of the request 
+`SolarWindsAPM::SDK.trace` is used within the context of a request.  It will follow the upstream state of the request 
 being traced.  i.e. the block of code will only be traced when the parent request is being traced.
 
-This tracing state of a request can also be queried by using `AppOpticsAPM.tracing?`.
+This tracing state of a request can also be queried by using `SolarWindsAPM.tracing?`.
 
-## AppOpticsAPM::SDK.start_trace
+## SolarWindsAPM::SDK.start_trace
 
 If you need to instrument code outside the context of a request (such as a cron job, background job or an arbitrary 
-ruby script), use `AppOpticsAPM::SDK.start_trace` instead which will initiate a new trace based on configuration and 
+ruby script), use `SolarWindsAPM::SDK.start_trace` instead which will initiate a new trace based on configuration and 
 probability (based on the sample rate).
 
 
@@ -180,13 +178,13 @@ require 'bundler'
 
 Bundler.require
 
-# Make sure appoptics_apm is at the bottom of your Gemfile.
+# Make sure solarwinds_apm is at the bottom of your Gemfile.
 # This is likely redundant but just in case.
 require 'solarwinds_apm'
  
 
 # Tracing mode can be :enabled or :disabled
-AppOpticsAPM::Config[:tracing_mode] = :enabled
+SolarWindsAPM::Config[:tracing_mode] = :enabled
  
 #
 # Update April 9, 2015 - this is done automagically now
@@ -201,7 +199,7 @@ report_kvs = {}
 report_kvs[:command_line_params] = ARGV.to_s
 report_kvs[:user_id] = `whoami`
  
-AppOpticsAPM::SDK.start_trace('my_background_job', kvs: report_kvs) do
+SolarWindsAPM::SDK.start_trace('my_background_job', kvs: report_kvs) do
   #
   # Initialization code
   #
@@ -213,7 +211,7 @@ AppOpticsAPM::SDK.start_trace('my_background_job', kvs: report_kvs) do
     # work for each task.  In the traces dashboard this will show 
     # up as a large 'my_background_job' parent layer with many 
     # child 'task' layers.
-    AppOpticsAPM::SDK.trace('task', kvs: { :task_id => t.id }) do
+    SolarWindsAPM::SDK.trace('task', kvs: { :task_id => t.id }) do
       t.perform
     end
   end
@@ -229,7 +227,7 @@ end
 # both methods vary slightly. 
 ``` 
 
-Find more details in the [RubyDoc page](https://www.rubydoc.info/gems/appoptics_apm/AppOpticsAPM/SDK) on how to use the Tracing SDK in an independent Ruby script.
+Find more details in the [RubyDoc page](https://www.rubydoc.info/gems/solarwinds_apm/SolarWindsAPM/SDK) on how to use the Tracing SDK in an independent Ruby script.
 
 # Support
 
@@ -238,7 +236,7 @@ If you run into a problem, find a bug, or would like to request an enhancement, 
 
 # Contributing
 
-You are obviously a person of great sense and intelligence.  We happily appreciate all contributions to the appoptics 
+You are obviously a person of great sense and intelligence.  We happily appreciate all contributions to the solarwinds_apm 
 gem whether it is documentation, a bug fix, new instrumentation for a library or framework or anything else we haven't 
 thought of.
 
@@ -248,18 +246,18 @@ that accompany them.  This way we don't break any of your additions when we (and
 
 ## Layout of the Gem
 
-The appoptics gem uses a standard gem layout.  Here are the notable directories.
+The solarwinds_apm gem uses a standard gem layout.  Here are the notable directories.
 
-    lib/appoptics/inst               # Auto load directory for various instrumented libraries
-    lib/appoptics/frameworks         # Framework instrumentation directory
-    lib/appoptics/frameworks/rails   # Files specific to Rails instrumentation
-    lib/rails                        # A Rails required directory for the Rails install generator
-    lib/api                          # The AppOpticsAPM Tracing API: layers, logging, tracing
-    ext/oboe_metal                   # The Ruby c extension that links against the system liboboe library
+    lib/solarwinds_apm/inst               # Auto load directory for various instrumented libraries
+    lib/solarwinds_apm/frameworks         # Framework instrumentation directory
+    lib/solarwinds_apm/frameworks/rails   # Files specific to Rails instrumentation
+    lib/rails                             # A Rails required directory for the Rails install generator
+    lib/api                               # The SolarWindsAPM Tracing API: layers, logging, tracing
+    ext/oboe_metal                        # The Ruby c extension that links against the system liboboe library
 
 ## Building the Gem
 
-The appoptics gem is built with the standard `gem build` command passing in the gemspec:
+The solarwinds_apm gem is built with the standard `gem build` command passing in the gemspec:
 
 ```bash
 gem build solarwinds_apm.gemspec
@@ -269,51 +267,51 @@ gem build solarwinds_apm.gemspec
 
 Custom instrumentation for a library, database or other service can be authored fairly easily.  Generally, 
 instrumentation of a library is done by wrapping select operations of that library and timing their execution using the 
-AppOpticsAPM Tracing SDK which then reports the metrics to the users' AppOptics dashboard.
+SolarWindsAPM Tracing SDK which then reports the metrics to the users' SolarWinds dashboard.
 
-Here, I'll use a stripped down version of the Dalli instrumentation (`lib/appoptics/inst/dalli.rb`) as a quick example 
+Here, I'll use a stripped down version of the Dalli instrumentation (`lib/solarwinds_apm/inst/dalli.rb`) as a quick example 
 of how to instrument a client library (the dalli gem).
 
 The Dalli gem nicely routes all memcache operations through a single `perform` operation.  Wrapping this method allows 
 us to capture all Dalli operations called by an application.
 
-First, we define a module (AppOpticsAPM::Inst::Dalli) and our own custom `perform_with_appoptics` method that we will 
+First, we define a module (SolarWindsAPM::Inst::Dalli) and our own custom `perform_with_sw_apm` method that we will 
 use as a wrapper around Dalli's `perform` method.  We also declare an `included` method which automatically gets called 
 when this module is included by another.  
 See [`Module#included` Ruby reference documentation](https://devdocs.io/ruby~2.5/module#method-i-included).
 
 ```ruby
-module AppOpticsAPM
+module SolarWindsAPM
   module Inst
     module Dalli
-      include AppOpticsAPM::API::Memcache
+      include SolarWindsAPM::API::Memcache
  
       def self.included(cls)
         cls.class_eval do
           if ::Dalli::Client.private_method_defined? :perform
-            alias perform_without_appoptics perform
-            alias perform perform_with_appoptics
+            alias perform_without_sw_apm perform
+            alias perform perform_with_sw_apm
           end
         end
       end
  
-      def perform_with_appoptics(*all_args, &blk)
+      def perform_with_sw_apm(*all_args, &blk)
         op, key, *args = *all_args
  
-        if AppOpticsAPM.tracing?
+        if SolarWindsAPM.tracing?
           opts = {}
           opts[:KVOp] = op
           opts[:KVKey] = key
  
-          AppOpticsAPM::SDK.trace('memcache', kvs: opts) do
-            result = perform_without_appoptics(*all_args, &blk)
+          SolarWindsAPM::SDK.trace('memcache', kvs: opts) do
+            result = perform_without_sw_apm(*all_args, &blk)
             if op == :get and key.class == String
-                AppOpticsAPM::API.log_info('memcache', { :KVHit => memcache_hit?(result) })
+                SolarWindsAPM::API.log_info('memcache', { :KVHit => memcache_hit?(result) })
             end
             result
           end
         else
-          perform_without_appoptics(*all_args, &blk)
+          perform_without_sw_apm(*all_args, &blk)
         end
       end
        
@@ -326,34 +324,34 @@ Second, we tail onto the end of the instrumentation file a simple `::Dalli::Clie
 module to include our newly defined instrumentation module.  Doing this will invoke our previously defined `included` method.
 
 ```ruby
-if defined?(Dalli) and AppOpticsAPM::Config[:dalli][:enabled]
+if defined?(Dalli) and SolarWindsAPM::Config[:dalli][:enabled]
   ::Dalli::Client.module_eval do
-    include AppOpticsAPM::Inst::Dalli
+    include SolarWindsAPM::Inst::Dalli
   end
 end
 ```
 
 Third, in our wrapper method, we capture the arguments passed in, collect the operation and key information into a local 
-hash and then invoke the `AppOpticsAPM::SDK.trace` method to time the execution of the original operation.
+hash and then invoke the `SolarWindsAPM::SDK.trace` method to time the execution of the original operation.
 
-The `AppOpticsAPM::SDK.trace` method calls Dalli's native operation and reports the timing metrics and your custom 
-`report_kvs` up to AppOptics servers to be shown on the user's dashboard.
+The `SolarWindsAPM::SDK.trace` method calls Dalli's native operation and reports the timing metrics and your custom 
+`report_kvs` up to SolarWinds servers to be shown on the user's dashboard.
 
 Some other tips and guidelines:
 
-* You can point your Gemfile directly at your cloned appoptics gem source by using 
-`gem 'appoptics', :path => '/path/to/ruby-appoptics'`
+* You can point your Gemfile directly at your cloned solarwinds_apm gem source by using 
+`gem 'solarwinds_apm', :path => '/path/to/ruby-solarwinds'`
 
-* If instrumenting a library, database or service, place your new instrumentation file into the `lib/appoptics/inst/` 
-directory.  From there, the appoptics gem will detect it and automatically load the instrumentation file.
+* If instrumenting a library, database or service, place your new instrumentation file into the `lib/solarwinds_apm/inst/` 
+directory.  From there, the solarwinds_apm gem will detect it and automatically load the instrumentation file.
 
-* If instrumenting a new framework, place your instrumentation file in `lib/appoptics/frameworks`.  Refer to the Rails 
-instrumentation for on ideas on how to load the appoptics gem correctly in your framework.
+* If instrumenting a new framework, place your instrumentation file in `lib/solarwinds_apm/frameworks`.  Refer to the Rails 
+instrumentation for on ideas on how to load the solarwinds_apm gem correctly in your framework.
 
-* Review other existing instrumentation similar to the one you wish to author.  `lib/appoptics/inst/` is a great place 
+* Review other existing instrumentation similar to the one you wish to author.  `lib/solarwinds_apm/inst/` is a great place 
 to start.
 
-* Depending on the configured `:sample_rate`, not all requests will be traced.  Use `AppOpticsAPM.tracing?` to determine 
+* Depending on the configured `:sample_rate`, not all requests will be traced.  Use `SolarWindsAPM.tracing?` to determine 
 of this is a request that is being traced.
 
 * Performance is paramount.  Make sure that your wrapped methods don't slow down users applications.
@@ -363,8 +361,8 @@ tests.
 
 ## Compiling the C extension
 
-The appoptics gem utilizes a C extension to interface with a core library bundled in with the gem which handles 
-reporting the trace and performance data back to AppOptics servers.
+The solarwinds_apm gem utilizes a C extension to interface with a core library bundled in with the gem which handles 
+reporting the trace and performance data back to SolarWinds servers.
 
 C extensions are usually built on `gem install` but when working out of a local git repository, it's required that you 
 manually build this C extension for the gem to function.

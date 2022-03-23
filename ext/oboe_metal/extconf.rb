@@ -23,13 +23,13 @@ ext_dir = File.expand_path(File.dirname(__FILE__))
 # Check if we're running in JRuby
 jruby = defined?(JRUBY_VERSION) ? true : false
 # Set the mkmf lib paths so we have no issues linking to
-# the AppOpticsAPM libs.
+# the SolarWindsAPM libs.
 ao_lib_dir = File.join(ext_dir, 'lib')
 ao_include = File.join(ext_dir, 'src')
 
 # Download the appropriate liboboe from S3(via rake for testing) or files.appoptics.com (production)
 version = File.read(File.join(ao_include, 'VERSION')).strip
-if ENV['APPOPTICS_FROM_S3'].to_s.downcase == 'true'
+if ENV['OBOE_FROM_S3'].to_s.downcase == 'true'
   ao_path = File.join('https://rc-files-t2.s3-us-west-2.amazonaws.com/c-lib/', version)
   puts 'Fetching c-lib from S3'
 else
@@ -96,7 +96,7 @@ while retries > 0
 end
 
 if success
-  # Create relative symlinks for the AppOpticsAPM library
+  # Create relative symlinks for the SolarWindsAPM library
   Dir.chdir(ao_lib_dir) do
     File.symlink(ao_clib, 'liboboe.so')
     File.symlink(ao_clib, 'liboboe-1.0.so.0')
@@ -105,7 +105,7 @@ if success
   dir_config('oboe', 'src', 'lib')
 
   # create Makefile
-  if jruby || ENV.key?('APPOPTICS_URL')
+  if jruby || ENV.key?('SW_APM_URL')
     # Build the noop extension under JRuby and Heroku.
     # The oboe-heroku gem builds it's own c extension which links to
     # libs specific to a Heroku dyno
@@ -134,7 +134,7 @@ if success
     CONFIG["debugflags"] = "-ggdb3 "
     CONFIG["optflags"] = "-O0"
 
-    create_makefile('libappoptics_apm', 'src')
+    create_makefile('libsolarwinds_apm', 'src')
 
   else
     $stderr.puts   '== ERROR ========================================================='

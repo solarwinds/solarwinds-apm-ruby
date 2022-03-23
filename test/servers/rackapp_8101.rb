@@ -5,15 +5,15 @@
 # thread and listens on port 8101.
 #
 require 'rack/handler/puma'
-require 'appoptics_apm/inst/rack'
+require 'solarwinds_apm/inst/rack'
 
-AppOpticsAPM.logger.info "[appoptics_apm/info] Starting background utility rack app on localhost:8101."
+SolarWindsAPM.logger.info "[solarwinds_apm/info] Starting background utility rack app on localhost:8101."
 
 Thread.new do
   app = Rack::Builder.new {
-    use AppOpticsAPM::Rack
+    use SolarWindsAPM::Rack
     map "/" do
-      run Proc.new { [200, {"Content-Type" => "text/html"}, ['Hello AppOpticsAPM!']] }
+      run Proc.new { [200, {"Content-Type" => "text/html"}, ['Hello SolarWindsAPM!']] }
     end
 
     map "/redirectme" do
@@ -24,12 +24,12 @@ Thread.new do
   Rack::Handler::Puma.run(app, :Host => '127.0.0.1', :Port => 8101)
 end
 
-AppOpticsAPM.logger.info "[appoptics_apm/info] Starting UNINSTRUMENTED background utility rack app on localhost:8110."
+SolarWindsAPM.logger.info "[solarwinds_apm/info] Starting UNINSTRUMENTED background utility rack app on localhost:8110."
 
 Thread.new do
   app = Rack::Builder.new {
     map "/" do
-      run Proc.new { [200, {"Content-Type" => "text/html"}, ['Hello AppOpticsAPM!']] }
+      run Proc.new { [200, {"Content-Type" => "text/html"}, ['Hello SolarWindsAPM!']] }
     end
 
     map "/redirectme" do

@@ -11,7 +11,7 @@ require 'securerandom'
 
 describe GraphQL::Tracing::AppOpticsTracing do
 
-  module AppOpticsTest
+  module SolarWindsAPMTest
     QueryType = GraphQL::ObjectType.define do
       name "MyQuery"
 
@@ -112,23 +112,23 @@ describe GraphQL::Tracing::AppOpticsTracing do
   before do
     clear_all_traces
 
-    @sanitize_query = AppOpticsAPM::Config[:graphql][:sanitize_query]
-    @remove_comments = AppOpticsAPM::Config[:graphql][:remove_comments]
-    @enabled = AppOpticsAPM::Config[:graphql][:enabled]
-    @transaction_name = AppOpticsAPM::Config[:graphql][:transaction_name]
+    @sanitize_query = SolarWindsAPM::Config[:graphql][:sanitize_query]
+    @remove_comments = SolarWindsAPM::Config[:graphql][:remove_comments]
+    @enabled = SolarWindsAPM::Config[:graphql][:enabled]
+    @transaction_name = SolarWindsAPM::Config[:graphql][:transaction_name]
   end
 
   after do
-    AppOpticsAPM::Config[:graphql][:sanitize_query] = @sanitize_query
-    AppOpticsAPM::Config[:graphql][:remove_comments] = @remove_comments
-    AppOpticsAPM::Config[:graphql][:enabled] = @enabled
-    AppOpticsAPM::Config[:graphql][:transaction_name] = @transaction_name
+    SolarWindsAPM::Config[:graphql][:sanitize_query] = @sanitize_query
+    SolarWindsAPM::Config[:graphql][:remove_comments] = @remove_comments
+    SolarWindsAPM::Config[:graphql][:enabled] = @enabled
+    SolarWindsAPM::Config[:graphql][:transaction_name] = @transaction_name
   end
 
   it 'traces a simple graphql request' do
-    AppOpticsAPM::SDK.start_trace('graphql_test') do
+    SolarWindsAPM::SDK.start_trace('graphql_test') do
       query = 'query MyInt { int }'
-      AppOpticsTest::MySchema.execute(query)
+      SolarWindsAPMTest::MySchema.execute(query)
     end
 
     traces = get_all_traces
@@ -170,8 +170,8 @@ describe GraphQL::Tracing::AppOpticsTracing do
         }}
     GRAPHQL
 
-    AppOpticsAPM::SDK.start_trace('graphql_test') do
-      AppOpticsTest::MySchema.execute(query)
+    SolarWindsAPM::SDK.start_trace('graphql_test') do
+      SolarWindsAPMTest::MySchema.execute(query)
     end
 
     traces = get_all_traces
@@ -194,8 +194,8 @@ describe GraphQL::Tracing::AppOpticsTracing do
       }}
     GRAPHQL
 
-    AppOpticsAPM::SDK.start_trace('graphql_test') do
-      AppOpticsTest::MySchema.execute(query)
+    SolarWindsAPM::SDK.start_trace('graphql_test') do
+      SolarWindsAPMTest::MySchema.execute(query)
     end
 
     traces = get_all_traces
@@ -218,8 +218,8 @@ describe GraphQL::Tracing::AppOpticsTracing do
         }}
     GRAPHQL
 
-    AppOpticsAPM::SDK.start_trace('graphql_test') do
-      AppOpticsTest::MySchema.execute(query)
+    SolarWindsAPM::SDK.start_trace('graphql_test') do
+      SolarWindsAPMTest::MySchema.execute(query)
     end
 
     traces = get_all_traces
@@ -244,10 +244,10 @@ describe GraphQL::Tracing::AppOpticsTracing do
     end
 
     it 'replaces query parameters if sanitize_query is TRUE' do
-      AppOpticsAPM::Config[:graphql][:sanitize_query] = true
+      SolarWindsAPM::Config[:graphql][:sanitize_query] = true
 
-      AppOpticsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::MySchema.execute(query)
+      SolarWindsAPM::SDK.start_trace('graphql_test') do
+        SolarWindsAPMTest::MySchema.execute(query)
 
         traces = get_all_traces
         traces.each do |tr|
@@ -260,10 +260,10 @@ describe GraphQL::Tracing::AppOpticsTracing do
     end
 
     it 'does not replace query parameters if sanitize_query is FALSE' do
-      AppOpticsAPM::Config[:graphql][:sanitize_query] = false
+      SolarWindsAPM::Config[:graphql][:sanitize_query] = false
 
-      AppOpticsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::MySchema.execute(query)
+      SolarWindsAPM::SDK.start_trace('graphql_test') do
+        SolarWindsAPMTest::MySchema.execute(query)
 
         traces = get_all_traces
         traces.each do |tr|
@@ -276,10 +276,10 @@ describe GraphQL::Tracing::AppOpticsTracing do
     end
 
     it 'removes comments if remove_comment is TRUE' do
-      AppOpticsAPM::Config[:graphql][:remove_comments] = true
+      SolarWindsAPM::Config[:graphql][:remove_comments] = true
 
-      AppOpticsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::MySchema.execute(query)
+      SolarWindsAPM::SDK.start_trace('graphql_test') do
+        SolarWindsAPMTest::MySchema.execute(query)
 
         traces = get_all_traces
         traces.each do |tr|
@@ -289,10 +289,10 @@ describe GraphQL::Tracing::AppOpticsTracing do
     end
 
     it 'does not remove comments if remove_comment is FALSE' do
-      AppOpticsAPM::Config[:graphql][:remove_comments] = false
+      SolarWindsAPM::Config[:graphql][:remove_comments] = false
 
-      AppOpticsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::MySchema.execute(query)
+      SolarWindsAPM::SDK.start_trace('graphql_test') do
+        SolarWindsAPMTest::MySchema.execute(query)
 
         traces = get_all_traces
         traces.each do |tr|
@@ -302,9 +302,9 @@ describe GraphQL::Tracing::AppOpticsTracing do
     end
 
     it 'sets a graphql transaction name if transaction_name is TRUE' do
-      AppOpticsAPM::Config[:graphql][:transaction_name] = true
-      AppOpticsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::MySchema.execute(query)
+      SolarWindsAPM::Config[:graphql][:transaction_name] = true
+      SolarWindsAPM::SDK.start_trace('graphql_test') do
+        SolarWindsAPMTest::MySchema.execute(query)
       end
 
       trace = get_all_traces.last
@@ -312,9 +312,9 @@ describe GraphQL::Tracing::AppOpticsTracing do
     end
 
     it 'does not set a graphql transaction name if transaction_name is FALSE' do
-      AppOpticsAPM::Config[:graphql][:transaction_name] = false
-      AppOpticsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::MySchema.execute(query)
+      SolarWindsAPM::Config[:graphql][:transaction_name] = false
+      SolarWindsAPM::SDK.start_trace('graphql_test') do
+        SolarWindsAPMTest::MySchema.execute(query)
       end
 
       trace = get_all_traces.last
@@ -322,26 +322,26 @@ describe GraphQL::Tracing::AppOpticsTracing do
     end
 
     it 'sets the type in the transaction name to query if it was omitted' do
-      AppOpticsAPM::Config[:graphql][:transaction_name] = true
+      SolarWindsAPM::Config[:graphql][:transaction_name] = true
       query_short = '{company (id: 1) { name}}'
-      AppOpticsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::MySchema.execute(query_short)
+      SolarWindsAPM::SDK.start_trace('graphql_test') do
+        SolarWindsAPMTest::MySchema.execute(query_short)
       end
       trace = get_all_traces.last
       assert_equal "graphql.query.company", trace['TransactionName']
     end
 
     it 'does not create traces if graphql is not enabled' do
-      AppOpticsAPM::Config[:graphql][:enabled] = false
-      AppOpticsAPM::SDK.start_trace('graphql_test') do
-        AppOpticsTest::MySchema.execute(query)
+      SolarWindsAPM::Config[:graphql][:enabled] = false
+      SolarWindsAPM::SDK.start_trace('graphql_test') do
+        SolarWindsAPMTest::MySchema.execute(query)
       end
       traces = get_all_traces
       assert_equal 2, traces.size, "failed: It should not have created traces for graphql"
     end
 
     it 'does not trace if there is no context' do
-      AppOpticsTest::MySchema.execute(query)
+      SolarWindsAPMTest::MySchema.execute(query)
       traces = get_all_traces
       assert_empty traces, 'failed: it should not have created any traces'
     end
@@ -370,8 +370,8 @@ describe GraphQL::Tracing::AppOpticsTracing do
         }
       ]
 
-      AppOpticsAPM::SDK.start_trace('graphql_multi_test') do
-        AppOpticsTest::MySchema.multiplex(queries)
+      SolarWindsAPM::SDK.start_trace('graphql_multi_test') do
+        SolarWindsAPMTest::MySchema.multiplex(queries)
       end
 
       traces = get_all_traces
@@ -411,8 +411,8 @@ describe GraphQL::Tracing::AppOpticsTracing do
         }
       ]
 
-      AppOpticsAPM::SDK.start_trace('graphql_multi_test') do
-        AppOpticsTest::MySchema.multiplex(queries)
+      SolarWindsAPM::SDK.start_trace('graphql_multi_test') do
+        SolarWindsAPMTest::MySchema.multiplex(queries)
       end
 
       traces = get_all_traces
@@ -425,23 +425,23 @@ describe GraphQL::Tracing::AppOpticsTracing do
   #   # in these 2 tests we are simulating the fact that the
   #   # GraphQL::Tracing::AppOpticsTracing class
   #   # from the graphql gem will be loaded first
-  #   it 'uses the newer version of AppOpticsTracing from the appoptics_apm gem' do
-  #       load 'test/instrumentation/graphql/appoptics_tracing_older.rb'
-  #       load 'lib/appoptics_apm/inst/graphql.rb'
+  #   it 'uses the newer version of AppOpticsTracing from the solarwinds_apm gem' do
+  #       load 'test/instrumentation/graphql/solarwinds_tracing_older.rb'
+  #       load 'lib/solarwinds_apm/inst/graphql.rb'
   #
-  #       assert_match 'lib/appoptics_apm/inst/graphql.rb',
+  #       assert_match 'lib/solarwinds_apm/inst/graphql.rb',
   #                    GraphQL::Tracing::AppOpticsTracing.new.method(:metadata).source_location[0]
-  #       assert_match 'lib/appoptics_apm/inst/graphql.rb',
+  #       assert_match 'lib/solarwinds_apm/inst/graphql.rb',
   #                    GraphQL::Tracing::AppOpticsTracing.new.method(:platform_trace).source_location[0]
   #   end
   #
   #   it 'uses the newer version of AppOpticsTracing from the graphql gem' do
-  #       load 'test/instrumentation/graphql/appoptics_tracing_newer.rb'
-  #       load 'lib/appoptics_apm/inst/graphql.rb'
+  #       load 'test/instrumentation/graphql/solarwinds_tracing_newer.rb'
+  #       load 'lib/solarwinds_apm/inst/graphql.rb'
   #
-  #       assert_match 'graphql/appoptics_tracing_newer.rb',
+  #       assert_match 'graphql/solarwinds_tracing_newer.rb',
   #                    GraphQL::Tracing::AppOpticsTracing.new.method(:metadata).source_location[0]
-  #       assert_match 'graphql/appoptics_tracing_newer.rb',
+  #       assert_match 'graphql/solarwinds_tracing_newer.rb',
   #                    GraphQL::Tracing::AppOpticsTracing.new.method(:platform_trace).source_location[0]
   #   end
   #

@@ -43,7 +43,7 @@ add_executable(runTests ${sources})
 target_link_libraries(runTests
 #  ${GTEST_LIBRARIES}
   gtest
-  appoptics_apm.so
+  solarwinds_apm.so
   liboboe.so
   libruby.so
   pthread

@@ -42,7 +42,7 @@ jobs:
         run:  |
           gem build solarwinds_apm.gemspec
           echo `shasum -a256 *.gem`
-          echo "::set-output name=GEM_VERSION::`ruby -e 'require "./lib/appoptics_apm/version"; puts AppOpticsAPM::Version::STRING'`"
+          echo "::set-output name=GEM_VERSION::`ruby -e 'require "./lib/solarwinds_apm/version"; puts SolarWindsAPM::Version::STRING'`"
           cat ext/oboe_metal/src/VERSION
 
       - name: Publish to PackageCloud
@@ -60,9 +60,9 @@ jobs:
 #      - name: Test install (give packagecloud 60 seconds to index)
 #        working-directory: .github/workflows/
 #        env:
-#          APPOPTICS_SERVICE_KEY: ${{ secrets.APPOPTICS_SERVICE_KEY }}
-#          APPOPTICS_COLLECTOR: ${{ secrets.APPOPTICS_COLLECTOR}}
-#          APPOPTICS_FROM_S3: true
+#          SW_APM_SERVICE_KEY: ${{ secrets.SW_APM_SERVICE_KEY }}
+#          SW_APM_COLLECTOR: ${{ secrets.SW_APM_COLLECTOR}}
+#          OBOE_FROM_S3: true
 #        run: |
 #          sleep 60
 #          gem sources --add https://packagecloud.io/solarwinds/solarwinds-apm-ruby

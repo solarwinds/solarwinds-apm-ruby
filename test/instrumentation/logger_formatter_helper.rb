@@ -4,8 +4,8 @@
 describe "include trace_id in message " do
 
   before do
-    AppOpticsAPM::Context.clear
-    @log_traceId = AppOpticsAPM::Config[:log_traceId]
+    SolarWindsAPM::Context.clear
+    @log_traceId = SolarWindsAPM::Config[:log_traceId]
 
     @trace_00 = '00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-00'
     @trace_01 = '00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-01'
@@ -14,8 +14,8 @@ describe "include trace_id in message " do
   end
 
   after do
-    AppOpticsAPM::Context.clear
-    AppOpticsAPM::Config[:log_traceId] = @log_traceId
+    SolarWindsAPM::Context.clear
+    SolarWindsAPM::Config[:log_traceId] = @log_traceId
   end
 
   describe "Formatted msg is a String " do
@@ -23,7 +23,7 @@ describe "include trace_id in message " do
     # - logger_formatter_test.rb
     # - rails_logger_formatter_test.rb
     it 'adds trace info when :always' do
-      AppOpticsAPM::Config[:log_traceId] = :always
+      SolarWindsAPM::Config[:log_traceId] = :always
 
       _(msg).must_match /Message/
       _(msg).must_match /trace_id=00000000000000000000000000000000/
@@ -33,8 +33,8 @@ describe "include trace_id in message " do
     end
 
     it 'adds trace info when :traced' do
-      AppOpticsAPM::Config[:log_traceId] = :traced
-      AppOpticsAPM::Context.fromString(@trace_00)
+      SolarWindsAPM::Config[:log_traceId] = :traced
+      SolarWindsAPM::Context.fromString(@trace_00)
 
       _(msg).must_match /Message/
       _(msg).must_match /trace_id=#{@trace_id}/
@@ -44,15 +44,15 @@ describe "include trace_id in message " do
     end
 
     it 'Does NOT add trace info when :traced and no context' do
-      AppOpticsAPM::Config[:log_traceId] = :traced
+      SolarWindsAPM::Config[:log_traceId] = :traced
 
       _(msg).must_match /Message/
       _(msg).wont_match /trace_id/
     end
 
     it 'adds trace info when :sampled' do
-      AppOpticsAPM::Config[:log_traceId] = :sampled
-      AppOpticsAPM::Context.fromString(@trace_01)
+      SolarWindsAPM::Config[:log_traceId] = :sampled
+      SolarWindsAPM::Context.fromString(@trace_01)
 
       _(msg).must_match /Message/
       _(msg).must_match /trace_id=#{@trace_id}/
@@ -62,24 +62,24 @@ describe "include trace_id in message " do
     end
 
     it 'Does NOT add trace info when :sampled and not sampled' do
-      AppOpticsAPM::Config[:log_traceId] = :sampled
-      AppOpticsAPM::Context.fromString(@trace_00)
+      SolarWindsAPM::Config[:log_traceId] = :sampled
+      SolarWindsAPM::Context.fromString(@trace_00)
 
       _(msg).must_match /Message/
       _(msg).wont_match /trace_id/
     end
 
     it 'Does NOT add trace info when :never' do
-      AppOpticsAPM::Config[:log_traceId] = :never
-      AppOpticsAPM::Context.fromString(@trace_01)
+      SolarWindsAPM::Config[:log_traceId] = :never
+      SolarWindsAPM::Context.fromString(@trace_01)
 
       _(msg).must_match /Message/
       _(msg).wont_match /trace_id/
     end
 
     it 'Does NOT add trace info when no config' do
-      AppOpticsAPM::Config[:log_traceId] = nil
-      AppOpticsAPM::Context.fromString(@trace_01)
+      SolarWindsAPM::Config[:log_traceId] = nil
+      SolarWindsAPM::Context.fromString(@trace_01)
 
       _(msg).must_match /Message/
       _(msg).wont_match /trace_id/
@@ -92,7 +92,7 @@ describe "include trace_id in message " do
     # - logger_formatter_test.rb
     # - rails_logger_formatter_test.rb
     it 'adds 0s' do
-      AppOpticsAPM::Config[:log_traceId] = :always
+      SolarWindsAPM::Config[:log_traceId] = :always
 
       _(exc_message).must_match /StandardError/
       _(exc_message).must_match /trace_id=00000000000000000000000000000000 span_id=0000000000000000 trace_flags=00/
