@@ -333,7 +333,6 @@ if defined?(SolarWindsAPM::Config)
   SolarWindsAPM::Config[:active_record][:enabled] = true
   SolarWindsAPM::Config[:bunnyclient][:enabled] = true
   SolarWindsAPM::Config[:bunnyconsumer][:enabled] = true
-  SolarWindsAPM::Config[:cassandra][:enabled] = true
   SolarWindsAPM::Config[:curb][:enabled] = true
   SolarWindsAPM::Config[:dalli][:enabled] = true
   SolarWindsAPM::Config[:delayed_jobclient][:enabled] = true
@@ -397,7 +396,6 @@ if defined?(SolarWindsAPM::Config)
   SolarWindsAPM::Config[:active_record][:collect_backtraces] = true
   SolarWindsAPM::Config[:bunnyclient][:collect_backtraces] = false
   SolarWindsAPM::Config[:bunnyconsumer][:collect_backtraces] = false
-  SolarWindsAPM::Config[:cassandra][:collect_backtraces] = true
   SolarWindsAPM::Config[:curb][:collect_backtraces] = true
   SolarWindsAPM::Config[:dalli][:collect_backtraces] = false
   SolarWindsAPM::Config[:delayed_jobclient][:collect_backtraces] = false

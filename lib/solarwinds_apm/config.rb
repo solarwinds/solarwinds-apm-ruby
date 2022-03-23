@@ -14,7 +14,7 @@ module SolarWindsAPM
     @@config = {}
 
     @@instrumentation = [:action_controller, :action_controller_api, :action_view,
-                         :active_record, :bunnyclient, :bunnyconsumer, :cassandra, :curb,
+                         :active_record, :bunnyclient, :bunnyconsumer, :curb,
                          :dalli, :delayed_jobclient, :delayed_jobworker,
                          :excon, :faraday, :graphql, :grpc_client, :grpc_server, :grape,
                          :httpclient, :nethttp, :memcached, :mongo, :moped, :padrino, :rack, :redis,

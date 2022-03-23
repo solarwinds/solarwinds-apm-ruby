@@ -208,7 +208,7 @@ describe "SolarWindsAPM::Config" do
 
     # Verify the number of individual instrumentations ...
     instrumentation = SolarWindsAPM::Config.instrumentation
-    _(instrumentation.count).must_equal 33
+    _(instrumentation.count).must_equal 32
 
     # ... and make sure they are enabled by default
     instrumentation.each do |key|
@@ -237,7 +237,6 @@ describe "SolarWindsAPM::Config" do
     _(SolarWindsAPM::Config[:active_record][:collect_backtraces]).must_equal true
     _(SolarWindsAPM::Config[:bunnyclient][:collect_backtraces]).must_equal false
     _(SolarWindsAPM::Config[:bunnyconsumer][:collect_backtraces]).must_equal false
-    _(SolarWindsAPM::Config[:cassandra][:collect_backtraces]).must_equal true
     _(SolarWindsAPM::Config[:curb][:collect_backtraces]).must_equal true
     _(SolarWindsAPM::Config[:dalli][:collect_backtraces]).must_equal false
     _(SolarWindsAPM::Config[:delayed_jobclient][:collect_backtraces]).must_equal false
