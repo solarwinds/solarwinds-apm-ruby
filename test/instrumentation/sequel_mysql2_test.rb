@@ -4,7 +4,7 @@
 require 'solarwinds_apm/test'
 require 'minitest_helper'
 
-if defined?(::Sequel) && !defined?(JRUBY_VERSION)
+if defined?(::Sequel)
 
   SolarWindsAPM::Test.set_mysql2_env
   MYSQL2_DB = Sequel.connect(ENV['DATABASE_URL'])

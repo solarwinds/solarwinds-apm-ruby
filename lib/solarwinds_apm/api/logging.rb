@@ -152,8 +152,7 @@ module SolarWindsAPM
         event ||= SolarWindsAPM::Context.createEvent
         log_event(layer, :exit, event, kvs)
       ensure
-        # FIXME has_incoming_context commented out, it has importance for JRuby only but breaks Ruby tests
-        SolarWindsAPM::Context.clear # unless SolarWindsAPM.has_incoming_context?
+        SolarWindsAPM::Context.clear
         SolarWindsAPM.trace_context = nil
         SolarWindsAPM.transaction_name = nil
       end

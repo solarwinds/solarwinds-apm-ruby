@@ -71,11 +71,9 @@ module SolarWindsAPM
             tracestring = SolarWindsAPM::API.log_end('rack', :Status => status)
           end
 
-          if headers && SolarWindsAPM::TraceString.valid?(tracestring)
-            unless defined?(JRUBY_VERSION) && SolarWindsAPM.is_continued_trace?
-              # this will change later, w3c outgoing headers have not been standardized yet
-              headers['X-Trace'] = tracestring if headers.is_a?(Hash)
-            end
+          if headers && headers.is_a?(Hash) && SolarWindsAPM::TraceString.valid?(tracestring)
+              # TODO this will change, w3c outgoing headers have not been standardized yet
+              headers['X-Trace'] = tracestring
           end
 
           response

@@ -9,13 +9,7 @@ gem 'dalli'
 gem 'grape'
 gem 'rack' # , '~> 2.0.8'
 
-if defined?(JRUBY_VERSION)
-  # Limit padrino gem under JRuby as version 0.13.0 throws
-  # a bundler load error
-  gem "padrino" , '< 0.13.0'
-else
-  gem 'padrino', '>= 0.14.4' # need to force this, it sometimes defaults to 0.9.21
-end
+gem 'padrino', '>= 0.14.4' # need to force this, it sometimes defaults to 0.9.21
 
 eval(File.read(File.join(File.dirname(__FILE__), 'test_gems.gemfile')))
 

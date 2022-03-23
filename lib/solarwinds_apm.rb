@@ -15,10 +15,7 @@ begin
   SolarWindsAPM::Config.load_config_file
 
   begin
-    if RUBY_PLATFORM == 'java'
-      require '/usr/local/tracelytics/tracelyticsagent.jar'
-      require 'joboe_metal'
-    elsif RUBY_PLATFORM =~ /linux/
+    if RUBY_PLATFORM =~ /linux/
       require_relative './libsolarwinds_apm.so'
       require 'solarwinds_apm/oboe_init_options'
       require 'oboe_metal.rb'  # sets SolarWindsAPM.loaded = true if successful

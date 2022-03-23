@@ -20,8 +20,6 @@ init_mkmf(CONFIG)
 
 ext_dir = File.expand_path(File.dirname(__FILE__))
 
-# Check if we're running in JRuby
-jruby = defined?(JRUBY_VERSION) ? true : false
 # Set the mkmf lib paths so we have no issues linking to
 # the SolarWindsAPM libs.
 ao_lib_dir = File.join(ext_dir, 'lib')

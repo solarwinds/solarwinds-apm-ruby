@@ -3,7 +3,7 @@
 
 require 'minitest_helper'
 
-if defined?(::Sequel) && !defined?(JRUBY_VERSION)
+if defined?(::Sequel)
 
   SolarWindsAPM::Test.set_postgresql_env
   PG_DB = Sequel.connect(ENV['DATABASE_URL'])

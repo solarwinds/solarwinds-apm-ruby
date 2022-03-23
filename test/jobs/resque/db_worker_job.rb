@@ -5,7 +5,7 @@ class ResqueDBWorkerJob
   @queue = :normal
 
   def self.perform(*args)
-    return unless defined?(::Sequel) && !defined?(JRUBY_VERSION)
+    return unless defined?(::Sequel)
 
     if ENV.key?('TRAVIS_MYSQL_PASS')
       @db = Sequel.connect("mysql2://root:#{ENV['TRAVIS_MYSQL_PASS']}@127.0.0.1:3306/test_db")

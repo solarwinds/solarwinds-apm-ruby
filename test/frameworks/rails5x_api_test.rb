@@ -34,12 +34,7 @@ if defined?(::Rails)
       traces = get_all_traces
 
       _(traces.count).must_equal 6
-      unless defined?(JRUBY_VERSION)
-        # We don't test this under JRuby because the Java instrumentation
-        # for the DB drivers doesn't use our test reporter hence we won't
-        # see all trace events. :-(  To be improved.
-        _(valid_edges?(traces)).must_equal true
-      end
+      _(valid_edges?(traces)).must_equal true
       validate_outer_layers(traces, 'rack')
 
       _(traces[0]['Layer']).must_equal "rack"
@@ -75,12 +70,7 @@ if defined?(::Rails)
       traces = get_all_traces
 
       _(traces.count).must_equal 5
-      unless defined?(JRUBY_VERSION)
-        # We don't test this under JRuby because the Java instrumentation
-        # for the DB drivers doesn't use our test reporter hence we won't
-        # see all trace events. :-(  To be improved.
-        _(valid_edges?(traces)).must_equal true
-      end
+      _(valid_edges?(traces)).must_equal true
       validate_outer_layers(traces, 'rack')
 
       _(traces[0]['Layer']).must_equal "rack"
@@ -119,12 +109,7 @@ if defined?(::Rails)
       traces = get_all_traces
 
       _(traces.count).must_equal 6
-      unless defined?(JRUBY_VERSION)
-        # We don't test this under JRuby because the Java instrumentation
-        # for the DB drivers doesn't use our test reporter hence we won't
-        # see all trace events. :-(  To be improved.
-        _(valid_edges?(traces)).must_equal true
-      end
+      _(valid_edges?(traces)).must_equal true
       validate_outer_layers(traces, 'rack')
 
       _(traces[0]['Layer']).must_equal "rack"
@@ -163,12 +148,7 @@ if defined?(::Rails)
       traces = get_all_traces
 
       _(traces.count).must_equal 6
-      unless defined?(JRUBY_VERSION)
-        # We don't test this under JRuby because the Java instrumentation
-        # for the DB drivers doesn't use our test reporter hence we won't
-        # see all trace events. :-(  To be improved.
-        _(valid_edges?(traces)).must_equal true
-      end
+      _(valid_edges?(traces)).must_equal true
       validate_outer_layers(traces, 'rack')
 
       _(traces[0]['Layer']).must_equal "rack"
