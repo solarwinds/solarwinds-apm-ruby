@@ -221,7 +221,6 @@ module SolarWindsAPM
           end
 
           # Report the instrumented libraries
-          platform_info['Ruby.Cassandra.Version']  = "Cassandra-#{::Cassandra.VERSION}"    if defined?(::Cassandra.VERSION)
           platform_info['Ruby.Curb.Version']       = "Curb-#{::Curl::VERSION}"             if defined?(::Curl::VERSION)
           platform_info['Ruby.Dalli.Version']      = "Dalli-#{::Dalli::VERSION}"           if defined?(::Dalli::VERSION)
           platform_info['Ruby.Excon.Version']      = "Excon-#{::Excon::VERSION}"           if defined?(::Excon::VERSION)

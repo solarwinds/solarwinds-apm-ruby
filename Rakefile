@@ -40,8 +40,7 @@ Rake::TestTask.new do |t|
   when /libraries/
     t.test_files = FileList['test/support/*_test.rb'] +
                    FileList['test/reporter/*_test.rb'] +
-                   FileList['test/instrumentation/*_test.rb'] -
-                   ['test/instrumentation/twitter-cassandra_test.rb']
+                   FileList['test/instrumentation/*_test.rb']
   when /instrumentation_mocked/
     # WebMock is interfering with other tests, so these have to run separately
     t.test_files = FileList['test/mocked/*_test.rb']
