@@ -35,12 +35,6 @@ module SolarWindsAPM
     SolarWindsAPM.logger.warn "$4: #{$4}" unless $4.nil?
     SolarWindsAPM.logger.warn "SolarWindsAPM.loaded == #{SolarWindsAPM.loaded}"
 
-    using_jruby = defined?(JRUBY_VERSION)
-    SolarWindsAPM.logger.warn "Using JRuby?: #{yesno(using_jruby)}"
-    if using_jruby
-      SolarWindsAPM.logger.warn "Joboe Agent Status: #{Java::ComTracelyticsAgent::Agent.getStatus}"
-    end
-
     on_heroku = SolarWindsAPM.heroku?
     SolarWindsAPM.logger.warn "On Heroku?: #{yesno(on_heroku)}"
     if on_heroku

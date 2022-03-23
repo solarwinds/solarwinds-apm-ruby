@@ -18,9 +18,8 @@ SW_APM_STR_LAYER = 'Layer'.freeze
 SW_APM_STR_LABEL = 'Label'.freeze
 
 ##
-# This module is the base module for the various implementations of SolarWindsAPM reporting.
-# Current variations as of 2014-09-10 are a c-extension, JRuby (using SolarWindsAPM Java
-# instrumentation) and a Heroku c-extension (with embedded tracelyzer)
+# This module is the base module for SolarWindsAPM reporting.
+#
 module SolarWindsAPMBase
   extend SolarWindsAPM::ThreadLocal
 
@@ -43,73 +42,6 @@ module SolarWindsAPMBase
   # Semaphore used during the test suite to test
   # global config options.
   thread_local :config_lock
-
-  # The following accessors indicate the incoming tracing state received
-  # by the rack layer.  These are primarily used to identify state
-  # between the Ruby and JAppOpticsAPM instrumentation under JRuby.
-  #
-  # This is because that even though there may be an incoming
-  # X-Trace request header, tracing may have already been started
-  # by Joboe.  Such a scenario occurs when the application is being
-  # hosted by a Java container (such as Tomcat or Glassfish) and
-  # SolarWindsAPM has already initiated tracing.  In this case, we shouldn't
-  # pickup the X-Trace context in the X-Trace header and we shouldn't
-  # set the outgoing response X-Trace header or clear context.
-  # Yeah I know.  Yuck.
-
-  # Occurs only on Jruby.  Indicates that Joboe (the java instrumentation)
-  # has already started tracing before it hit the JRuby instrumentation.
-  # It is used in Rack#call if there is a context when entering rack
-  thread_local :has_incoming_context
-
-  # Indicates the existence of a valid X-Trace request header
-  # TODO not used?
-  thread_local :has_xtrace_header
-
-  # This indicates that this trace was continued from
-  # an incoming X-Trace request header or in the case
-  # of JRuby, a trace already started by JAppOpticsAPM.
-  thread_local :is_continued_trace
-
-  ##
-  # extended
-  #
-  # Invoked when this module is extended.
-  # e.g. extend SolarWindsAPMBase
-  #
-  def self.extended(cls)
-    cls.loaded = true
-
-    # This gives us pretty accessors with questions marks at the end
-    # e.g. is_continued_trace --> is_continued_trace?
-    SolarWindsAPM.methods.select { |m| m =~ /^is_|^has_/ }.each do |c|
-      unless c =~ /\?$|=$/
-        # SolarWindsAPM.logger.debug "aliasing #{c}? to #{c}"
-        alias_method "#{c}?", c
-      end
-    end
-  end
-
-  ##
-  # pickup_context
-  #
-  # for JRUBY
-  # Determines whether we should pickup context
-  # from an incoming X-Trace request header.  The answer
-  # is generally yes but there are cases in JRuby under
-  # Tomcat (or Glassfish etc.) where tracing may have
-  # been already started by the Java instrumentation (Joboe)
-  # in which case we don't want to do this.
-  #
-  def pickup_context?(tracestring)
-    return false unless SolarWindsAPM::TraceString.valid?(tracestring)
-
-    if defined?(JRUBY_VERSION) && SolarWindsAPM.tracing?
-      return false
-    else
-      return true
-    end
-  end
 
   ##
   # tracing_layer?
@@ -198,7 +130,7 @@ module SolarWindsAPMBase
 
   ##
   # These methods should be implemented by the descendants
-  # (Oboe_metal, JOboe_metal (JRuby), Heroku_metal)
+  # currently only Oboe_metal
   #
   def sample?(_opts = {})
     fail 'sample? should be implemented by metal layer.'

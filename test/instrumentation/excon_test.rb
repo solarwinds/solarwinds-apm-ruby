@@ -17,13 +17,12 @@ describe 'ExconTest' do
   end
 
   it 'must_return_xtrace_header' do
-    skip if defined?(JRUBY_VERSION)
-
     clear_all_traces
     get "/"
+
+    # TODO this will change, once w3c response headers are finalized
     tracestring = last_response['X-Trace']
 
-    # Rack response header management under JRUBY.
     assert tracestring
     assert SolarWindsAPM::TraceString.valid?(tracestring)
   end

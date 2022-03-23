@@ -52,10 +52,6 @@ Rake::TestTask.new do |t|
     t.test_files = FileList['test/unit/*_test.rb'] +
                    FileList['test/unit/*/*_test.rb']
   end
-
-  if defined?(JRUBY_VERSION)
-    t.ruby_opts << ['-J-javaagent:/usr/local/tracelytics/tracelyticsagent.jar']
-  end
 end
 
 
@@ -297,88 +293,76 @@ end
 
 desc "Build the gem's c extension"
 task :compile do
-  if !defined?(JRUBY_VERSION)
-    puts "== Building the c extension against Ruby #{RUBY_VERSION}"
+  puts "== Building the c extension against Ruby #{RUBY_VERSION}"
 
-    pwd      = Dir.pwd
-    ext_dir  = File.expand_path('ext/oboe_metal')
-    final_so = File.expand_path('lib/libsolarwinds_apm.so')
-    so_file  = File.expand_path('ext/oboe_metal/libsolarwinds_apm.so')
+  pwd      = Dir.pwd
+  ext_dir  = File.expand_path('ext/oboe_metal')
+  final_so = File.expand_path('lib/libsolarwinds_apm.so')
+  so_file  = File.expand_path('ext/oboe_metal/libsolarwinds_apm.so')
 
-    Dir.chdir ext_dir
-    if ENV['OBOE_LOCAL']
-      cmd = [Gem.ruby, 'extconf_local.rb']
-    else
-      cmd = [Gem.ruby, 'extconf.rb']
-    end
-    sh cmd.join(' ')
-    sh '/usr/bin/env make'
-
-    File.delete(final_so) if File.exist?(final_so)
-
-    if File.exist?(so_file)
-      FileUtils.mv(so_file, final_so)
-      Dir.chdir(pwd)
-      puts "== Extension built and moved to #{final_so}"
-    else
-      Dir.chdir(pwd)
-      puts '!! Extension failed to build (see above). Have the required binary and header files been fetched?'
-      puts '!! Try the tasks in this order: clean > fetch > compile'
-    end
+  Dir.chdir ext_dir
+  if ENV['OBOE_LOCAL']
+    cmd = [Gem.ruby, 'extconf_local.rb']
   else
-    puts '== Nothing to do under JRuby.'
+    cmd = [Gem.ruby, 'extconf.rb']
+  end
+  sh cmd.join(' ')
+  sh '/usr/bin/env make'
+
+  File.delete(final_so) if File.exist?(final_so)
+
+  if File.exist?(so_file)
+    FileUtils.mv(so_file, final_so)
+    Dir.chdir(pwd)
+    puts "== Extension built and moved to #{final_so}"
+  else
+    Dir.chdir(pwd)
+    puts '!! Extension failed to build (see above). Have the required binary and header files been fetched?'
+    puts '!! Try the tasks in this order: clean > fetch > compile'
   end
 end
 
 desc 'Clean up extension build files'
 task :clean do
-  if !defined?(JRUBY_VERSION)
-    pwd     = Dir.pwd
-    ext_dir = File.expand_path('ext/oboe_metal')
-    symlinks = [
-      File.expand_path('lib/libsolarwinds_apm.so'),
-      File.expand_path('ext/oboe_metal/lib/liboboe.so'),
-      File.expand_path('ext/oboe_metal/lib/liboboe-1.0.so.0')
-    ]
+  pwd     = Dir.pwd
+  ext_dir = File.expand_path('ext/oboe_metal')
+  symlinks = [
+    File.expand_path('lib/libsolarwinds_apm.so'),
+    File.expand_path('ext/oboe_metal/lib/liboboe.so'),
+    File.expand_path('ext/oboe_metal/lib/liboboe-1.0.so.0')
+  ]
 
-    symlinks.each do |symlink|
-      FileUtils.rm_f symlink
-    end
-    Dir.chdir ext_dir
-    sh '/usr/bin/env make clean' if File.exist? 'Makefile'
-
-    FileUtils.rm_f 'src/oboe_swig_wrap.cc'
-    Dir.chdir pwd
-  else
-    puts '== Nothing to do under JRuby.'
+  symlinks.each do |symlink|
+    FileUtils.rm_f symlink
   end
+  Dir.chdir ext_dir
+  sh '/usr/bin/env make clean' if File.exist? 'Makefile'
+
+  FileUtils.rm_f 'src/oboe_swig_wrap.cc'
+  Dir.chdir pwd
 end
 
 desc 'Remove all built files and extensions'
 task :distclean do
-  if !defined?(JRUBY_VERSION)
-    pwd     = Dir.pwd
-    ext_dir = File.expand_path('ext/oboe_metal')
-    mkmf_log = File.expand_path('ext/oboe_metal/mkmf.log')
-    symlinks = [
-      File.expand_path('lib/libsolarwinds_apm.so'),
-      File.expand_path('ext/oboe_metal/lib/liboboe.so'),
-      File.expand_path('ext/oboe_metal/lib/liboboe-1.0.so.0')
-    ]
+  pwd     = Dir.pwd
+  ext_dir = File.expand_path('ext/oboe_metal')
+  mkmf_log = File.expand_path('ext/oboe_metal/mkmf.log')
+  symlinks = [
+    File.expand_path('lib/libsolarwinds_apm.so'),
+    File.expand_path('ext/oboe_metal/lib/liboboe.so'),
+    File.expand_path('ext/oboe_metal/lib/liboboe-1.0.so.0')
+  ]
 
-    if File.exist? mkmf_log
-      symlinks.each do |symlink|
-        FileUtils.rm_f symlink
-      end
-      Dir.chdir ext_dir
-      sh '/usr/bin/env make distclean' if File.exist? 'Makefile'
-
-      Dir.chdir pwd
-    else
-      puts 'Nothing to distclean. (nothing built yet?)'
+  if File.exist? mkmf_log
+    symlinks.each do |symlink|
+      FileUtils.rm_f symlink
     end
+    Dir.chdir ext_dir
+    sh '/usr/bin/env make distclean' if File.exist? 'Makefile'
+
+    Dir.chdir pwd
   else
-    puts '== Nothing to do under JRuby.'
+    puts 'Nothing to distclean. (nothing built yet?)'
   end
 end
 

@@ -40,11 +40,7 @@ Automatic tracing and metrics for Ruby applications. Get started at appoptics.co
               'build_gem_upload_to_packagecloud.sh',
               'Rakefile']
 
-  # TODO this is commented out util we can actually provide gems for different platforms
-  # it will create a gem that goes into noop on Darwin and other unsupported platforms
-  # s.platform   = defined?(JRUBY_VERSION) ? 'java' : Gem::Platform::CURRENT
-
-  s.extensions = ['ext/oboe_metal/extconf.rb'] unless defined?(JRUBY_VERSION)
+  s.extensions = ['ext/oboe_metal/extconf.rb']
 
   # this still gives a warning, would have to be pinned to a minor version
   # but that is not necessary and may restrict other gems

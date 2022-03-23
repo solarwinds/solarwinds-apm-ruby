@@ -3,10 +3,7 @@
 
 require 'minitest_helper'
 
-# Disable this test on JRuby until we can investigate
-# "SOCKET: SET COMM INACTIVITY UNIMPLEMENTED 10"
-# https://travis-ci.org/tracelytics/ruby-solarwinds_apm/jobs/33745752
-if SolarWindsAPM::Config[:em_http_request] && SolarWindsAPM::Config[:em_http_request][:enabled] && !defined?(JRUBY_VERSION)
+if SolarWindsAPM::Config[:em_http_request] && SolarWindsAPM::Config[:em_http_request][:enabled]
 
   describe "EventMachine" do
     skip # we aren't supporting em-http-client anymore, not sure when it stopped
@@ -116,4 +113,4 @@ if SolarWindsAPM::Config[:em_http_request] && SolarWindsAPM::Config[:em_http_req
     end
   end
 
-end # unless defined?(JRUBY_VERSION)
+end

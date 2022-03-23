@@ -23,15 +23,10 @@ group :development do
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw]
 
-if defined?(JRUBY_VERSION)
-  gem 'activerecord-jdbc-adapter'
-  gem 'jdbc-postgresql'
-else
-  gem 'pg'
-  gem 'mysql2'
-end
+gem 'pg'
+gem 'mysql2'
 
 eval(File.read(File.join(File.dirname(__FILE__), 'test_gems.gemfile')))
 gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')

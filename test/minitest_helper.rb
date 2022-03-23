@@ -83,10 +83,6 @@ ENV['RACK_ENV'] = 'test'
 
 MiniTest::Reporters.use! MiniTest::Reporters::SpecReporter.new
 
-if defined?(JRUBY_VERSION)
-  ENV['JAVA_OPTS'] = "-J-javaagent:/usr/local/tracelytics/tracelyticsagent.jar"
-end
-
 Bundler.require(:default, :test)
 
 # Configure SolarWindsAPM

@@ -3,9 +3,6 @@
 # Copyright (c) 2019 SolarWinds, LLC.
 # All rights reserved.
 
-# builds the solarwinds_apm gem for MRI.
-
-# we currently only build for MRI, no JRuby
 echo -e "\n=== building for MRI ===\n"
 rm -f Gemfile.lock
 bundle install --without development --without test

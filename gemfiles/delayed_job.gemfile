@@ -1,14 +1,7 @@
 source "https://rubygems.org"
 
-if defined?(JRUBY_VERSION)
-  gem 'sinatra', :require => false
-  gem 'activerecord-jdbc-adapter'
-  gem 'jdbc-postgresql'
-else
-  # TODO revisit this restriction
-  gem 'pg' #, '< 1.0.0' # rails is not ready for pg 1.0, seems to work now with 1.2.3
-  gem "delayed_job_active_record"
-end
+gem 'pg'
+gem "delayed_job_active_record"
 
 gem "rails"
 

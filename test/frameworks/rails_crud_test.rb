@@ -49,8 +49,6 @@ describe "Rails CRUD Tests" do
   end
 
   it "should trace CREATE correctly" do
-    skip if defined?(JRUBY_VERSION)
-
     response = create_widget
     _(response.code).must_equal '200'
 
@@ -70,8 +68,6 @@ describe "Rails CRUD Tests" do
   end
 
   it "should trace READ correctly" do
-    skip if defined?(JRUBY_VERSION)
-
     response = read_widget(@widget)
     _(response.code).must_equal '200'
 
@@ -88,8 +84,6 @@ describe "Rails CRUD Tests" do
   end
 
   it "should trace UPDATE correctly" do
-    skip if defined?(JRUBY_VERSION)
-
     @widget['name'] = 'Sand'
     @widget['description'] = 'the sandy dog'
     response = update_widget(@widget)
@@ -110,8 +104,6 @@ describe "Rails CRUD Tests" do
   end
 
   it "should trace DELETE correctly" do
-    skip if defined?(JRUBY_VERSION)
-
     response = destroy_widget(@widget)
     _(response.code).must_equal '200'
 

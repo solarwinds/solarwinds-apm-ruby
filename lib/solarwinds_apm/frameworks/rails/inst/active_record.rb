@@ -4,7 +4,7 @@
 require 'solarwinds_apm/frameworks/rails/inst/connection_adapters/mysql2'
 require 'solarwinds_apm/frameworks/rails/inst/connection_adapters/postgresql'
 
-if SolarWindsAPM::Config[:active_record][:enabled] && !defined?(JRUBY_VERSION)
+if SolarWindsAPM::Config[:active_record][:enabled]
   begin
     SolarWindsAPM::Config[:verbose]
     adapter = if ActiveRecord::Base.respond_to?(:connection_db_config)

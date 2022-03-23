@@ -73,12 +73,7 @@ if defined?(::Rails)
       traces = get_all_traces
 
       _(traces.count).must_equal 6
-      unless defined?(JRUBY_VERSION)
-        # We don't test this under JRuby because the Java instrumentation
-        # for the DB drivers doesn't use our test reporter hence we won't
-        # see all trace events. :-(  To be improved.
-        _(valid_edges?(traces)).must_equal true
-      end
+      _(valid_edges?(traces)).must_equal true
       validate_outer_layers(traces, 'rack')
 
       _(traces[0]['Layer']).must_equal "rack"
@@ -110,9 +105,7 @@ if defined?(::Rails)
     # Different behavior in Rails >= 5.2.0
     # https://github.com/rails/rails/pull/30619
     it "should trace rails postgres db calls" do
-      # Skip for JRuby since the java instrumentation
-      # handles DB instrumentation for JRuby
-      skip if defined?(JRUBY_VERSION) || ENV['DBTYPE'] != 'postgresql'
+      skip if ENV['DBTYPE'] != 'postgresql'
 
       uri = URI.parse('http://127.0.0.1:8140/hello/db')
       r = Net::HTTP.get_response(uri)
@@ -174,9 +167,7 @@ if defined?(::Rails)
     # and
     # https://github.com/rails/rails/commit/213796fb4936dce1da2f0c097a054e1af5c25c2c
     it "should trace rails mysql2 db calls" do
-      # Skip for JRuby since the java instrumentation
-      # handles DB instrumentation for JRuby
-      skip if defined?(JRUBY_VERSION) || ENV['DBTYPE'] != 'mysql'
+      skip if ENV['DBTYPE'] != 'mysql'
 
       SolarWindsAPM::Config[:sanitize_sql] = false
 
@@ -227,9 +218,7 @@ if defined?(::Rails)
     # Different behavior in Rails >= 5.2.0
     # https://github.com/rails/rails/pull/30619
     it "should trace rails mysql2 db calls with sanitize sql" do
-      # Skip for JRuby since the java instrumentation
-      # handles DB instrumentation for JRuby
-      skip if defined?(JRUBY_VERSION) || ENV['DBTYPE'] != 'mysql'
+      skip if ENV['DBTYPE'] != 'mysql'
 
       SolarWindsAPM::Config[:sanitize_sql] = true
 
@@ -281,12 +270,7 @@ if defined?(::Rails)
       traces = get_all_traces
 
       _(traces.count).must_equal 4
-      unless defined?(JRUBY_VERSION)
-        # We don't test this under JRuby because the Java instrumentation
-        # for the DB drivers doesn't use our test reporter hence we won't
-        # see all trace events. :-(  To be improved.
-        _(valid_edges?(traces)).must_equal true
-      end
+      _(valid_edges?(traces)).must_equal true
       validate_outer_layers(traces, 'rack')
 
       _(traces[0]['Layer']).must_equal "rack"
@@ -316,12 +300,7 @@ if defined?(::Rails)
       traces = get_all_traces
 
       _(traces.count).must_equal 6
-      unless defined?(JRUBY_VERSION)
-        # We don't test this under JRuby because the Java instrumentation
-        # for the DB drivers doesn't use our test reporter hence we won't
-        # see all trace events. :-(  To be improved.
-        _(valid_edges?(traces)).must_equal true
-      end
+      _(valid_edges?(traces)).must_equal true
       validate_outer_layers(traces, 'rack')
 
       _(traces[0]['Layer']).must_equal "rack"
@@ -360,12 +339,7 @@ if defined?(::Rails)
       traces = get_all_traces
 
       _(traces.count).must_equal 6
-      unless defined?(JRUBY_VERSION)
-        # We don't test this under JRuby because the Java instrumentation
-        # for the DB drivers doesn't use our test reporter hence we won't
-        # see all trace events. :-(  To be improved.
-        _(valid_edges?(traces)).must_equal true
-      end
+      _(valid_edges?(traces)).must_equal true
       validate_outer_layers(traces, 'rack')
 
       _(traces[0]['Layer']).must_equal "rack"

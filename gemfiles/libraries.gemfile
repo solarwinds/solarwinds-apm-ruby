@@ -35,7 +35,7 @@ gem 'memcached'
 gem 'mongo', '>= 2.11.3'
 gem 'patron' # not instrumented, included to test a non-instrumented faraday adapter
 gem 'redis'
-gem 'resque' unless defined?(JRUBY_VERSION)
+gem 'resque'
 
 # TODO
 # remove use of local copy of sequel gem
@@ -45,13 +45,8 @@ gem 'sidekiq'
 gem 'typhoeus'
 
 # Database adapter gems needed by sequel
-if defined?(JRUBY_VERSION)
-  gem 'jdbc-postgresql'
-  gem 'jdbc-mysql'
-else
-  gem 'mysql2'
-  gem 'pg'
-end
+gem 'mysql2'
+gem 'pg'
 
 eval(File.read(File.join(File.dirname(__FILE__), 'test_gems.gemfile')))
 

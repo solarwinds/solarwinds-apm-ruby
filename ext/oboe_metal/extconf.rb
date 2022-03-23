@@ -20,8 +20,6 @@ init_mkmf(CONFIG)
 
 ext_dir = File.expand_path(File.dirname(__FILE__))
 
-# Check if we're running in JRuby
-jruby = defined?(JRUBY_VERSION) ? true : false
 # Set the mkmf lib paths so we have no issues linking to
 # the SolarWindsAPM libs.
 ao_lib_dir = File.join(ext_dir, 'lib')
@@ -105,14 +103,7 @@ if success
   dir_config('oboe', 'src', 'lib')
 
   # create Makefile
-  if jruby || ENV.key?('SW_APM_URL')
-    # Build the noop extension under JRuby and Heroku.
-    # The oboe-heroku gem builds it's own c extension which links to
-    # libs specific to a Heroku dyno
-    # FIXME: For JRuby we need to remove the c extension entirely
-    create_makefile('oboe_noop', 'noop')
-
-  elsif have_library('oboe', 'oboe_config_get_revision', 'oboe.h')
+  if have_library('oboe', 'oboe_config_get_revision', 'oboe.h')
     $libs = append_library($libs, 'oboe')
     $libs = append_library($libs, 'stdc++')
 
@@ -135,7 +126,6 @@ if success
     CONFIG["optflags"] = "-O0"
 
     create_makefile('libsolarwinds_apm', 'src')
-
   else
     $stderr.puts   '== ERROR ========================================================='
     if have_library('oboe')

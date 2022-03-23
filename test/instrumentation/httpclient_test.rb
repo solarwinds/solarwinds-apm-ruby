@@ -1,7 +1,6 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
-# unless defined?(JRUBY_VERSION)
 require 'minitest_helper'
 require 'solarwinds_apm/inst/rack'
 require File.expand_path(File.dirname(__FILE__) + '../../frameworks/apps/sinatra_simple')
