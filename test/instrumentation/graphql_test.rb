@@ -10,7 +10,7 @@ require 'mocha/minitest'
 
 if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
 
-  describe GraphQL::Tracing::AppOpticsTracing do
+  describe GraphQL::Tracing::SolarWindsAPMTracing do
     module Mutations
       class BaseMutation < GraphQL::Schema::Mutation
         #   null false
@@ -128,11 +128,6 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
 
         query MyQuery
         mutation Types::MyMutation
-
-        # the following is not necessary because we auto-instrument,
-        # it should not create any problems nor a double instrumentation
-        # graphql_all_test tests auto-instrumenting without #use for all versions
-        use GraphQL::Tracing::AppOpticsTracing
       end
     end
 
@@ -164,14 +159,14 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
       # this also checks the presence of X-Trace
       assert valid_edges?(traces, true), 'failed: edges not valid'
 
-      keys = GraphQL::Tracing::AppOpticsTracing::PREP_KEYS.dup
+      keys = GraphQL::Tracing::SolarWindsAPMTracing::PREP_KEYS.dup
       traces.each do |tr|
         if tr['Layer'] == 'graphql.prep' && tr['Label'] == 'entry'
           assert tr['Key'], 'failure: no "Key" in the KVs in the graphql.prep span'
           keys = keys.delete(tr['Key'])
         end
       end
-      # The following applies that all the prep events are used
+      # The following assumes that all the prep events are used
       # (This may not always be true, it is also not that important, but lets test
       # it so we get alerted when something changes)
       assert_empty keys
@@ -256,6 +251,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
       error_tr = traces.find { |tr| tr['Label'] == 'error' && tr['ErrorMsg'] }
 
       assert error_tr, 'failed: No Error event was logged with the trace'
+      refute_empty error_tr['ErrorMsg']
     end
 
     describe 'test configs' do
@@ -448,37 +444,21 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
       end
     end
 
-    describe 'loading' do
-    #   # in these 2 tests we are simulating the fact that the
-    #   # GraphQL::Tracing::AppOpticsTracing class
-    #   # from the graphql gem will be loaded first
-    #   it 'uses the newer version of AppOpticsTracing from the solarwinds_apm gem' do
-    #       load 'test/instrumentation/graphql/solarwinds_tracing_older.rb'
-    #       load 'lib/solarwinds_apm/inst/graphql.rb'
-    #
-    #       assert_match 'lib/solarwinds_apm/inst/graphql.rb',
-    #                    GraphQL::Tracing::AppOpticsTracing.new.method(:metadata).source_location[0]
-    #       assert_match 'lib/solarwinds_apm/inst/graphql.rb',
-    #                    GraphQL::Tracing::AppOpticsTracing.new.method(:platform_trace).source_location[0]
-    #   end
-    #
-    #   it 'uses the newer version of AppOpticsTracing from the graphql gem' do
-    #       load 'test/instrumentation/graphql/solarwinds_tracing_newer.rb'
-    #       load 'lib/solarwinds_apm/inst/graphql.rb'
-    #
-    #       assert_match 'graphql/solarwinds_tracing_newer.rb',
-    #                    GraphQL::Tracing::AppOpticsTracing.new.method(:metadata).source_location[0]
-    #       assert_match 'graphql/solarwinds_tracing_newer.rb',
-    #                    GraphQL::Tracing::AppOpticsTracing.new.method(:platform_trace).source_location[0]
-    #   end
-
-      it 'does not add plugins twice' do
-        GraphQL::Schema.use(GraphQL::Tracing::AppOpticsTracing)
-        GraphQL::Schema.use(GraphQL::Tracing::AppOpticsTracing)
-
-        assert_equal GraphQL::Schema.plugins.uniq.size, GraphQL::Schema.plugins.size,
-                     'failed: duplicate plugins found'
+    it 'does not add plugins twice' do
+      query_short = '{company (id: 1) { name}}'
+      SolarWindsAPM::SDK.start_trace('graphql_test') do
+        SolarWindsAPMTest::Schema.execute(query_short)
       end
+      size_1 = get_all_traces.size
+      clear_all_traces
+
+      SolarWindsAPMTest::Schema.use(GraphQL::Tracing::SolarWindsAPMTracing)
+      SolarWindsAPM::SDK.start_trace('graphql_test') do
+        SolarWindsAPMTest::Schema.execute(query_short)
+      end
+      size_2 = get_all_traces.size
+
+      assert_equal size_1, size_2
     end
   end
 end

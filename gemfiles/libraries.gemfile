@@ -27,7 +27,11 @@ gem 'faraday', '~> 1.0'
 # gem 'faraday-httpclient'
 # gem 'faraday-patron'
 
-gem 'graphql', '~> 1.12.0' # TODO fix graphql instrumentation for graphql 1.13++
+if RUBY_VERSION < '2.6'
+  gem 'graphql', '< 1.13.0'
+else
+  gem 'graphql'
+end
 gem 'httpclient'
 gem 'logging'
 gem 'lumberjack'
