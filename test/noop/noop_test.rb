@@ -87,8 +87,7 @@ class NoopTest < Minitest::Test
   end
 
   def test_graphql_not_instrumented
-    refute GraphQL::Schema.plugins.find { |plugin| plugin == GraphQL::Tracing::SolarWindsAPMTracing },
-           'failed: This should be noop mode, but GraphQL is instrumented.'
+    refute defined?(GraphQL::Tracing::SolarWindsAPMTracing) && GraphQL::Schema.singleton_class.includes?(GraphQL::Tracing::SolarWindsAPMTracingrwindsAPM)
   end
 
   # ===== Make sure the methods we document as SDK don't barf in noop mode ==================
