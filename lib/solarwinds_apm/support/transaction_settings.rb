@@ -60,6 +60,15 @@ module SolarWindsAPM
       metrics, sample, @rate, @source, @bucket_rate, @bucket_cap, @type, @auth, @status_msg, @auth_msg, @status =
         SolarWindsAPM::Context.getDecisions(*args)
 
+      if metrics == 0
+        puts <<DOC
+#### in TransactionSettings #### 
+    args: #{args}
+    returned 0 for metrics
+
+DOC
+      end
+
       if @status > AO_TRACING_DECISIONS_OK
         SolarWindsAPM.logger.warn "[solarwinds_apm/sample] Problem getting the sampling decisions: #{@status_msg} code: #{@status}"
       end
