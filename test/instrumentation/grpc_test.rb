@@ -420,7 +420,8 @@ if defined? GRPC
 
         @stub.client_stream([@phone_msg, @phone_msg])
         traces = get_all_traces
-        assert traces.empty?
+        # TODO FLAKY
+        assert traces.empty?, "flaky test"
 
         # without the w3c trace context and no context it will always trace in testing
         SolarWindsAPM.trace_context = nil

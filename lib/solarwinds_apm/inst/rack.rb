@@ -34,7 +34,7 @@ if SolarWindsAPM.loaded
         return @app.call(env) if SolarWindsAPM.tracing? && SolarWindsAPM.layer == :rack
 
         existing_context = SolarWindsAPM::Context.isValid
-        puts "##### existing context found in rack #####" if existing_context
+        puts "##### existing context found in rack #{SolarWindsAPM::Context.toString} #####" if existing_context
 
         SolarWindsAPM.transaction_name = nil
 
@@ -160,6 +160,8 @@ if SolarWindsAPM.loaded
             options&.add_kvs(report_kvs, settings)
 
             SolarWindsAPM::API.log_start(:rack, report_kvs, env, settings)
+
+            puts "#### current context #{SolarWindsAPM::Conext.toString} ####"
 
             status, headers, response = yield
 
