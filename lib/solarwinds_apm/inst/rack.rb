@@ -161,7 +161,7 @@ if SolarWindsAPM.loaded
 
             SolarWindsAPM::API.log_start(:rack, report_kvs, env, settings)
 
-            puts "#### current context #{SolarWindsAPM::Conext.toString} ####"
+            puts "#### current context #{SolarWindsAPM::Context.toString} ####"
 
             status, headers, response = yield
 
