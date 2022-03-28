@@ -131,13 +131,13 @@ for ruby in ${rubies[@]} ; do
   # if this is running on alpine and using ruby 3++, we need to patch
   if [[ -r /etc/alpine-release ]]; then
     if [[ $ruby =~ ^3.0.* ]]; then
-      # download and apply patch
+      # download and apply patch, may fail if it has already been applied, that's ok
       cd /root/.rbenv/versions/$ruby/include/ruby-3.0.0/ruby/internal/ || exit 1
       curl -sL https://bugs.ruby-lang.org/attachments/download/8821/ruby-ruby_nonempty_memcpy-musl-cxx.patch -o memory.patch
       patch -N memory.h memory.patch
       cd - || exit 1
     elif [[ $ruby =~ ^3.1.* ]]; then
-      # download and apply patch
+      # download and apply patch, may fail if it has already been applied, that's ok
       cd /root/.rbenv/versions/$ruby/include/ruby-3.1.0/ruby/internal/ || exit 1
       curl -sL https://bugs.ruby-lang.org/attachments/download/8821/ruby-ruby_nonempty_memcpy-musl-cxx.patch -o memory.patch
       patch -N memory.h memory.patch

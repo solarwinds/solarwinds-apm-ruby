@@ -7,132 +7,105 @@
 
 require 'minitest_helper'
 require 'mocha/minitest'
+require 'securerandom'
 
-if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
-
-  describe GraphQL::Tracing::AppOpticsTracing do
-    module Mutations
-      class BaseMutation < GraphQL::Schema::Mutation
-        #   null false
-      end
-
-      class CreateCompany < Mutations::BaseMutation
-        argument :name, String, required: true
-        argument :id, Integer, required: true
-
-        field :name, String, null: true
-        field :id, Integer, null: false
-
-        def resolve(name:, id:)
-          OpenStruct.new(
-            id: id,
-            name: name
-          )
-        end
-      end
-    end
-
-    module Types
-      class BaseArgument < GraphQL::Schema::Argument
-      end
-
-      class BaseField < GraphQL::Schema::Field
-        argument_class Types::BaseArgument
-      end
-
-      class BaseObject < GraphQL::Schema::Object
-        field_class Types::BaseField
-      end
-
-      class MyMutation < GraphQL::Schema::Object
-        field :create_company, mutation: Mutations::CreateCompany
-      end
-    end
+if  Gem.loaded_specs['graphql'].version < Gem::Version.new('1.13.0')
+  describe GraphQL::Tracing::SolarWindsAPMTracing do
 
     module SolarWindsAPMTest
-      class Schema < GraphQL::Schema
-        def self.id_from_object(_object = nil, _type = nil, _context = {})
-          SecureRandom.uuid
+      QueryType = GraphQL::ObjectType.define do
+        name "MyQuery"
+
+        field :company do
+          type CompanyType
+          argument :id, !types.ID
+          description "Find an Address by ID"
+          resolve ->(_obj, args, _ctx) { Company.new(id: args["id"]) }
+        end
+      end
+
+      MutationType = GraphQL::ObjectType.define do
+        name "MyMutation"
+
+        field :createCompany, CompanyType do
+          argument :id, !types.ID
+          argument :name, !types.String
+          resolve ->(_obj, args, _ctx) { Company.new(id: args["id"], name: args["name"]) }
+        end
+      end
+
+      CompanyType = GraphQL::ObjectType.define do
+        name "Company"
+        field :id, !types.ID
+        field :name, !types.String
+        field :address, AddressType
+        field :founder, PersonType
+        field :owner, PersonType
+      end
+
+      AddressType = GraphQL::ObjectType.define do
+        name "Address"
+        field :id, !types.ID
+        field :street, !types.String
+        field :number, !types.Int
+        field :more, !types.Int
+      end
+
+      PersonType = GraphQL::ObjectType.define do
+        name "Person"
+        field :id, !types.ID
+        field :name, !types.String
+        field :nickname, !types.Int
+        field :othername, !types.String do
+          argument :upcase, !types.String
+        end
+      end
+
+      MySchema = GraphQL::Schema.define do
+        query QueryType
+        mutation MutationType
+
+        use GraphQL::Tracing::SolarWindsAPMTracing
+
+        def other_name(upcase = false)
+          return 'WHO AM I???' if upcase
+
+          'who am i?'
+        end
+      end
+
+      class Company
+        attr_reader :id, :name
+
+        def address
+          OpenStruct.new(
+            id: SecureRandom.uuid,
+            street: 'MyStreetName',
+            number: Random.new.rand(555),
+            more: nil
+          )
         end
 
-        class Address < GraphQL::Schema::Object
-          global_id_field :id
-          field :street, String, null: true
-          field :number, Integer, null: true
-          field :more, Integer, null: true
+        def founder
+          OpenStruct.new(
+            id: SecureRandom.uuid,
+            name: 'Peter Pan',
+            nickname: nil,
+            othername: 'pp'
+          )
         end
 
-        class Person < GraphQL::Schema::Object
-          global_id_field :id
-          field :name, String, null: true
-          field :nickname, Integer, null: false
-          field :othername, String, null: true do
-            argument :upcase, String, required: false
-          end
-
-          def other_name(upcase = false)
-            return 'WHO AM I???' if upcase
-
-            'who am i?'
-          end
+        def owner
+          OpenStruct.new(
+            id: SecureRandom.uuid,
+            name: { a: 1 }
+          )
         end
 
-        class Company < GraphQL::Schema::Object
-          global_id_field :id
-          field :name, String, null: true
-          field :address, Schema::Address, null: true
-          field :founder, Schema::Person, null: true
-          field :owner, Schema::Person, null: true
-
-          def address
-            OpenStruct.new(
-              id: SolarWindsAPMTest::Schema.id_from_object,
-              street: 'MyStreetName',
-              number: Random.new.rand(555),
-              more: nil
-            )
-          end
-
-          def founder
-            OpenStruct.new(
-              id: SolarWindsAPMTest::Schema.id_from_object,
-              name: 'Peter Pan',
-              nickname: nil
-            )
-          end
-
-          def owner
-            OpenStruct.new(
-              id: SolarWindsAPMTest::Schema.id_from_object,
-              name: { a: 1 }
-            )
-          end
+        def initialize(id:, name: 'MyName')
+          @id = id
+          @name = name
         end
-        # rubocop:disable Style/SingleLineMethods
-        class MyQuery < GraphQL::Schema::Object
-          field :int, Integer, null: false
-          def int; 1; end
-
-          field :company, Company, null: true do
-            argument :id, ID, required: true
-          end
-
-          def company(id:)
-            OpenStruct.new(
-              id: id,
-              name: 'MyName'
-            )
-          end
-        end
-        # rubocop:enable Style/SingleLineMethods
-
-        query MyQuery
-        mutation Types::MyMutation
-
-        # the following is not necessary because we auto-instrument,
-        # it should not create any problems nor a double instrumentation
-        # graphql_all_test tests auto-instrumenting without #use for all versions
-        use GraphQL::Tracing::AppOpticsTracing
       end
     end
 
@@ -156,7 +129,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
     it 'traces a simple graphql request' do
       SolarWindsAPM::SDK.start_trace('graphql_test') do
         query = 'query MyInt { int }'
-        SolarWindsAPMTest::Schema.execute(query)
+        SolarWindsAPMTest::MySchema.execute(query)
       end
 
       traces = get_all_traces
@@ -164,7 +137,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
       # this also checks the presence of X-Trace
       assert valid_edges?(traces, true), 'failed: edges not valid'
 
-      keys = GraphQL::Tracing::AppOpticsTracing::PREP_KEYS.dup
+      keys = GraphQL::Tracing::SolarWindsAPMTracing::PREP_KEYS.dup
       traces.each do |tr|
         if tr['Layer'] == 'graphql.prep' && tr['Label'] == 'entry'
           assert tr['Key'], 'failure: no "Key" in the KVs in the graphql.prep span'
@@ -199,7 +172,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
       GRAPHQL
 
       SolarWindsAPM::SDK.start_trace('graphql_test') do
-        SolarWindsAPMTest::Schema.execute(query)
+        SolarWindsAPMTest::MySchema.execute(query)
       end
 
       traces = get_all_traces
@@ -223,7 +196,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
       GRAPHQL
 
       SolarWindsAPM::SDK.start_trace('graphql_test') do
-        SolarWindsAPMTest::Schema.execute(query)
+        SolarWindsAPMTest::MySchema.execute(query)
       end
 
       traces = get_all_traces
@@ -247,7 +220,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
       GRAPHQL
 
       SolarWindsAPM::SDK.start_trace('graphql_test') do
-        SolarWindsAPMTest::Schema.execute(query)
+        SolarWindsAPMTest::MySchema.execute(query)
       end
 
       traces = get_all_traces
@@ -265,7 +238,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
           founder {
             # I forgot her name
             name
-            otherName(upcase: "yes please")
+            othername(upcase: "yes please")
           }
         }}
         GRAPHQL
@@ -275,7 +248,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
         SolarWindsAPM::Config[:graphql][:sanitize_query] = true
 
         SolarWindsAPM::SDK.start_trace('graphql_test') do
-          SolarWindsAPMTest::Schema.execute(query)
+          SolarWindsAPMTest::MySchema.execute(query)
 
           traces = get_all_traces
           traces.each do |tr|
@@ -291,7 +264,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
         SolarWindsAPM::Config[:graphql][:sanitize_query] = false
 
         SolarWindsAPM::SDK.start_trace('graphql_test') do
-          SolarWindsAPMTest::Schema.execute(query)
+          SolarWindsAPMTest::MySchema.execute(query)
 
           traces = get_all_traces
           traces.each do |tr|
@@ -307,7 +280,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
         SolarWindsAPM::Config[:graphql][:remove_comments] = true
 
         SolarWindsAPM::SDK.start_trace('graphql_test') do
-          SolarWindsAPMTest::Schema.execute(query)
+          SolarWindsAPMTest::MySchema.execute(query)
 
           traces = get_all_traces
           traces.each do |tr|
@@ -320,7 +293,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
         SolarWindsAPM::Config[:graphql][:remove_comments] = false
 
         SolarWindsAPM::SDK.start_trace('graphql_test') do
-          SolarWindsAPMTest::Schema.execute(query)
+          SolarWindsAPMTest::MySchema.execute(query)
 
           traces = get_all_traces
           traces.each do |tr|
@@ -332,7 +305,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
       it 'sets a graphql transaction name if transaction_name is TRUE' do
         SolarWindsAPM::Config[:graphql][:transaction_name] = true
         SolarWindsAPM::SDK.start_trace('graphql_test') do
-          SolarWindsAPMTest::Schema.execute(query)
+          SolarWindsAPMTest::MySchema.execute(query)
         end
 
         trace = get_all_traces.last
@@ -342,7 +315,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
       it 'does not set a graphql transaction name if transaction_name is FALSE' do
         SolarWindsAPM::Config[:graphql][:transaction_name] = false
         SolarWindsAPM::SDK.start_trace('graphql_test') do
-          SolarWindsAPMTest::Schema.execute(query)
+          SolarWindsAPMTest::MySchema.execute(query)
         end
 
         trace = get_all_traces.last
@@ -353,7 +326,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
         SolarWindsAPM::Config[:graphql][:transaction_name] = true
         query_short = '{company (id: 1) { name}}'
         SolarWindsAPM::SDK.start_trace('graphql_test') do
-          SolarWindsAPMTest::Schema.execute(query_short)
+          SolarWindsAPMTest::MySchema.execute(query_short)
         end
         trace = get_all_traces.last
         assert_equal "graphql.query.company", trace['TransactionName']
@@ -362,14 +335,14 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
       it 'does not create traces if graphql is not enabled' do
         SolarWindsAPM::Config[:graphql][:enabled] = false
         SolarWindsAPM::SDK.start_trace('graphql_test') do
-          SolarWindsAPMTest::Schema.execute(query)
+          SolarWindsAPMTest::MySchema.execute(query)
         end
         traces = get_all_traces
         assert_equal 2, traces.size, "failed: It should not have created traces for graphql"
       end
 
       it 'does not trace if there is no context' do
-        SolarWindsAPMTest::Schema.execute(query)
+        SolarWindsAPMTest::MySchema.execute(query)
         traces = get_all_traces
         assert_empty traces, 'failed: it should not have created any traces'
       end
@@ -399,10 +372,11 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
         ]
 
         SolarWindsAPM::SDK.start_trace('graphql_multi_test') do
-          SolarWindsAPMTest::Schema.multiplex(queries)
+          SolarWindsAPMTest::MySchema.multiplex(queries)
         end
 
         traces = get_all_traces
+
         exec_trace = traces.find { |tr| tr['Layer'] == 'graphql.execute' && tr['Operations'] }
         assert_equal 'MyFirstCompany, MySecondCompany, MyThirdCompany',
                      exec_trace['Operations']
@@ -439,7 +413,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
         ]
 
         SolarWindsAPM::SDK.start_trace('graphql_multi_test') do
-          SolarWindsAPMTest::Schema.multiplex(queries)
+          SolarWindsAPMTest::MySchema.multiplex(queries)
         end
 
         traces = get_all_traces
@@ -448,37 +422,30 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
       end
     end
 
-    describe 'loading' do
+    # describe 'loading' do
     #   # in these 2 tests we are simulating the fact that the
-    #   # GraphQL::Tracing::AppOpticsTracing class
+    #   # GraphQL::Tracing::SolarWindsAPMTracing class
     #   # from the graphql gem will be loaded first
-    #   it 'uses the newer version of AppOpticsTracing from the solarwinds_apm gem' do
+    #   it 'uses the newer version of SolarWindsAPMTracing from the solarwinds_apm gem' do
     #       load 'test/instrumentation/graphql/solarwinds_tracing_older.rb'
     #       load 'lib/solarwinds_apm/inst/graphql.rb'
     #
     #       assert_match 'lib/solarwinds_apm/inst/graphql.rb',
-    #                    GraphQL::Tracing::AppOpticsTracing.new.method(:metadata).source_location[0]
+    #                    GraphQL::Tracing::SolarWindsAPMTracing.new.method(:metadata).source_location[0]
     #       assert_match 'lib/solarwinds_apm/inst/graphql.rb',
-    #                    GraphQL::Tracing::AppOpticsTracing.new.method(:platform_trace).source_location[0]
+    #                    GraphQL::Tracing::SolarWindsAPMTracing.new.method(:platform_trace).source_location[0]
     #   end
     #
-    #   it 'uses the newer version of AppOpticsTracing from the graphql gem' do
+    #   it 'uses the newer version of SolarWindsAPMTracing from the graphql gem' do
     #       load 'test/instrumentation/graphql/solarwinds_tracing_newer.rb'
     #       load 'lib/solarwinds_apm/inst/graphql.rb'
     #
     #       assert_match 'graphql/solarwinds_tracing_newer.rb',
-    #                    GraphQL::Tracing::AppOpticsTracing.new.method(:metadata).source_location[0]
+    #                    GraphQL::Tracing::SolarWindsAPMTracing.new.method(:metadata).source_location[0]
     #       assert_match 'graphql/solarwinds_tracing_newer.rb',
-    #                    GraphQL::Tracing::AppOpticsTracing.new.method(:platform_trace).source_location[0]
+    #                    GraphQL::Tracing::SolarWindsAPMTracing.new.method(:platform_trace).source_location[0]
     #   end
-
-      it 'does not add plugins twice' do
-        GraphQL::Schema.use(GraphQL::Tracing::AppOpticsTracing)
-        GraphQL::Schema.use(GraphQL::Tracing::AppOpticsTracing)
-
-        assert_equal GraphQL::Schema.plugins.uniq.size, GraphQL::Schema.plugins.size,
-                     'failed: duplicate plugins found'
-      end
-    end
+    #
+    # end
   end
 end
