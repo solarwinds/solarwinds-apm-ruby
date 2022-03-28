@@ -458,7 +458,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
       end
       size_2 = get_all_traces.size
 
-      assert_equal size_1, size_2
+      assert_equal size_1, size_2, 'failed: duplicate plugins found'
     end
   end
 end

@@ -87,7 +87,7 @@ class NoopTest < Minitest::Test
   end
 
   def test_graphql_not_instrumented
-    refute defined?(GraphQL::Tracing::SolarWindsAPMTracing) && GraphQL::Schema.singleton_class.includes?(GraphQL::Tracing::SolarWindsAPMTracingrwindsAPM)
+    refute defined?(GraphQL::Tracing::SolarWindsAPMTracing) && GraphQL::Schema.singleton_class.includes?(GraphQL::Tracing::SolarWindsAPMTracing)
   end
 
   # ===== Make sure the methods we document as SDK don't barf in noop mode ==================
