@@ -33,7 +33,9 @@ if SolarWindsAPM.loaded
         # of rack middleware. We want to avoid tracing rack more than once
         return @app.call(env) if SolarWindsAPM.tracing? && SolarWindsAPM.layer == :rack
 
-        incoming = SolarWindsAPM::Context.isValid
+        existing_context = SolarWindsAPM::Context.isValid
+        puts "##### existing context found in rack #####" if existing_context
+
         SolarWindsAPM.transaction_name = nil
 
         url = env['PATH_INFO']
@@ -56,13 +58,13 @@ if SolarWindsAPM.loaded
           end || [500, {}, nil]
         options.add_response_header(response[1], settings)
 
-        unless incoming
+        unless existing_context
           SolarWindsAPM::Context.clear
           SolarWindsAPM.trace_context = nil
         end
         response
       rescue
-        unless incoming
+        unless existing_context
           SolarWindsAPM::Context.clear
           SolarWindsAPM.trace_context = nil
         end

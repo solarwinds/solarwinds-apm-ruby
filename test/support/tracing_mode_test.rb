@@ -31,7 +31,8 @@ describe "TracingModeTest" do
     SolarWindsAPM::Config[:tracing_mode] = :disabled
 
     SolarWindsAPM::SDK.start_trace(:test_disabled) do
-      _(SolarWindsAPM.tracing?).must_equal false
+      # TODO FLAKY
+      _(SolarWindsAPM.tracing?).must_equal false, "flaky test"
     end
 
     SolarWindsAPM::SDK.start_trace('asdf') do
