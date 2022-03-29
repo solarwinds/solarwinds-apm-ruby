@@ -42,6 +42,7 @@ Rake::TestTask.new do |t|
                    # FileList['test/reporter/*_test.rb'] +
                    FileList['test/instrumentation/*_test.rb'] -
       FileList['test/instrumentation/redis*_test.rb'] -
+      FileList['test/instrumentation/sequel*_test.rb'] -
       FileList['test/instrumentation/mongo*_test.rb']
   when /instrumentation_mocked/
     # WebMock is interfering with other tests, so these have to run separately

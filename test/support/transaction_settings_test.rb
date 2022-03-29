@@ -167,10 +167,19 @@ describe 'TransactionSettingsTest' do
     it 'sends the sample_rate and tracing_mode' do
       SolarWindsAPM::Config[:tracing_mode] = :disabled
       SolarWindsAPM::Config[:sample_rate] = 123456
+      args = []
+
       # TODO FLAKY
-      SolarWindsAPM::Context.expects(:getDecisions).with(nil, nil, AO_TRACING_DISABLED, 123456).returns([0, 0, 0, 0, 0, 0, 0, 0, '', '', 0]).once
+      SolarWindsAPM::Context.expects(:getDecisions).with do |a1, a2, a3, a4|
+        args = [a1, a2, a3, a4]
+      end.returns([0, 0, 0, 0, 0, 0, 0, 0, '', '', 0]).once
 
       SolarWindsAPM::TransactionSettings.new('')
+
+      assert_equal args[0], nil, 'flaky test'
+      assert_equal args[1], nil, 'flaky test'
+      assert_equal args[2], AO_TRACING_DISABLED, 'flaky test'
+      assert_equal args[3], 123456, 'flaky test'
     end
   end
 end

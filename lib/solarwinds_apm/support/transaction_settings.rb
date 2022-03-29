@@ -49,6 +49,8 @@ module SolarWindsAPM
       args << tracing_mode
       args << (SolarWindsAPM::Config[:sample_rate] || OBOE_SETTINGS_UNSET)
 
+      puts "#### TransactionSettings args: [#{args}] ####"
+
       if options && (options.options || options.signature)
         args << (options.trigger_trace ? 1 : 0)
         args << (trigger_tracing_mode_disabled? ? 0 : 1)
@@ -59,15 +61,6 @@ module SolarWindsAPM
 
       metrics, sample, @rate, @source, @bucket_rate, @bucket_cap, @type, @auth, @status_msg, @auth_msg, @status =
         SolarWindsAPM::Context.getDecisions(*args)
-
-      if metrics == 0
-        puts <<DOC
-#### in TransactionSettings #### 
-    args: #{args}
-    returned 0 for metrics
-
-DOC
-      end
 
       if @status > AO_TRACING_DECISIONS_OK
         SolarWindsAPM.logger.warn "[solarwinds_apm/sample] Problem getting the sampling decisions: #{@status_msg} code: #{@status}"
