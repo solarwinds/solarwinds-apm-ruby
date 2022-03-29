@@ -59,26 +59,15 @@ if SolarWindsAPM.loaded
           end || [500, {}, nil]
         options.add_response_header(response[1], settings)
 
-        # unless existing_context
-          SolarWindsAPM::Context.clear
-          SolarWindsAPM.trace_context = nil
-        SolarWindsAPM.transaction_name = nil
-        # else
-        #   puts "#### context not cleared ####"
-        # end
         response
       rescue
-        # unless existing_context
-          SolarWindsAPM::Context.clear
-          SolarWindsAPM.trace_context = nil
+        SolarWindsAPM::Context.clear
+        SolarWindsAPM.trace_context = nil
         SolarWindsAPM.transaction_name = nil
-        # else
-        #   puts "#### context not cleared ####"
-        # end
 
-        raise
         # can't use ensure for Context.clearing, because the Grape middleware
         # needs the context in case of an error, it is somewhat convoluted ...
+        raise
       end
 
       def self.noop?

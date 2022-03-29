@@ -23,7 +23,6 @@ describe 'HTTPClientTest' do
   after do
     SolarWindsAPM::Config[:tracing_mode] = @tm
     SolarWindsAPM::Config[:sample_rate] = @sample_rate
-    clear_all_traces
   end
 
   it 'has SolarWinds instrumentation' do

@@ -7,7 +7,7 @@ describe SolarWindsAPM::SDK do
 
   describe 'current_trace_info' do
     before do
-      SolarWindsAPM::Context.clear
+      # SolarWindsAPM::Context.clear
 
       @log_traceId = SolarWindsAPM::Config[:log_traceId]
       SolarWindsAPM::Config[:log_traceId] = :traced
@@ -19,7 +19,6 @@ describe SolarWindsAPM::SDK do
     after do
       SolarWindsAPM.loaded = true
       SolarWindsAPM::Config[:log_traceId] = @log_traceId
-      SolarWindsAPM::Context.clear
     end
 
     describe 'trace_id, span_id, trace_flags' do

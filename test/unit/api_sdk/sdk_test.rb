@@ -19,7 +19,7 @@ describe SolarWindsAPM::SDK do
 
     # clean up because a test from a previous test files may not
     SolarWindsAPM.layer = nil
-    SolarWindsAPM::Context.clear
+    # SolarWindsAPM::Context.clear
   end
 
   after do
@@ -27,10 +27,6 @@ describe SolarWindsAPM::SDK do
       SolarWindsAPM::Config[:tracing_mode] = @tm
       SolarWindsAPM::Config[:sample_rate] = @sample_rate
     }
-
-    # need to do this, because we are stubbing log_end, which takes care of cleaning up
-    SolarWindsAPM.layer = nil
-    SolarWindsAPM::Context.clear
   end
 
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -422,11 +418,6 @@ describe SolarWindsAPM::SDK do
       clear_all_traces
     end
 
-    after do
-      clear_all_traces
-      SolarWindsAPM::Context.clear
-    end
-
     it 'traces an instance method' do
       def to_be_traced(a, b)
         a + b
@@ -587,11 +578,6 @@ describe SolarWindsAPM::SDK do
   describe 'log events' do
     before do
       clear_all_traces
-    end
-
-    after do
-      clear_all_traces
-      SolarWindsAPM::Context.clear
     end
 
     it 'SDK should log exceptions' do

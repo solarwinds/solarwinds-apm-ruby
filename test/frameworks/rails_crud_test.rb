@@ -43,9 +43,6 @@ describe "Rails CRUD Tests" do
       SolarWindsAPM::Config[:log_traceId] = @log_traceid
       SolarWindsAPM::Config[:tag_sql] = @tag_sql
     }
-
-    clear_all_traces
-    clear_query_log
   end
 
   it "should trace CREATE correctly" do

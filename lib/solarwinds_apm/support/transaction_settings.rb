@@ -29,7 +29,12 @@ module SolarWindsAPM
       @sw_member_value = SolarWindsAPM.trace_context.sw_member_value
       tracing_mode = AO_TRACING_ENABLED
 
-      if SolarWindsAPM::Context.isValid
+      # TODO this is dangerous!
+      #  - is it a legit context or leftover from
+      #    context not being cleared
+      #  - adding check for incoming header, but this should be
+      #    taken care of in entry point
+      if SolarWindsAPM::Context.isValid && !@sw_member_value
         @do_sample = SolarWindsAPM.tracing?
         return
       end

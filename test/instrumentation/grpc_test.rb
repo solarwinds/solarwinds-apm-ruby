@@ -100,7 +100,6 @@ if defined? GRPC
 
     after do
       SolarWindsAPM::Config[:grpc_client][:collect_backtraces] = false
-      clear_all_traces
     end
 
     after(:all) do

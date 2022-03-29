@@ -29,7 +29,7 @@ class ExconTest < Minitest::Test
   end
 
   def setup
-    SolarWindsAPM::Context.clear
+    # SolarWindsAPM::Context.clear
 
     WebMock.enable!
     WebMock.reset!
@@ -46,7 +46,7 @@ class ExconTest < Minitest::Test
     SolarWindsAPM::Config[:sample_rate] = @sample_rate
     SolarWindsAPM::Config[:tracing_mode] = @tracing_mode
 
-    SolarWindsAPM.trace_context = nil
+    # SolarWindsAPM.trace_context = nil
   end
 
   # ========== excon get =================================

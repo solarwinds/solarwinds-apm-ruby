@@ -125,11 +125,10 @@ end
 #
 # Truncates the trace output file to zero
 #
-def clear_all_traces(clear_context = true)
+def clear_all_traces
   if SolarWindsAPM.loaded && ENV['SW_APM_REPORTER'] == 'file'
-    SolarWindsAPM::Context.clear if clear_context
     SolarWindsAPM::Reporter.clear_all_traces
-    SolarWindsAPM.trace_context = nil
+    # SolarWindsAPM.trace_context = nil
     sleep 0.2 # it seems like the docker file system needs a bit of time to clear the file
   end
 end

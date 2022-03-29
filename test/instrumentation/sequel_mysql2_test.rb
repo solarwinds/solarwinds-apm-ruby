@@ -396,8 +396,6 @@ if defined?(::Sequel)
       SolarWindsAPM::Config[:sequel][:collect_backtraces] = @collect_backtraces
       SolarWindsAPM::Config[:sanitize_sql] = @sanitize_sql
       SolarWindsAPM::Config[:tag_sql] = @tag_sql
-      clear_all_traces
-      clear_query_log
     end
 
     it 'adds trace context to sql string via Dataset' do

@@ -7,7 +7,7 @@ require 'mocha/minitest'
 describe SolarWindsAPM::API::Logging do
   describe 'log_start' do
     before do
-      SolarWindsAPM::Context.clear
+      # SolarWindsAPM::Context.clear
     end
 
     it 'does not log if solarwinds_apm is not loaded' do
@@ -161,7 +161,7 @@ describe SolarWindsAPM::API::Logging do
 
   describe "when there is no context" do
     before do
-      SolarWindsAPM::Context.clear
+      # SolarWindsAPM::Context.clear
     end
 
     it "log should not log an event" do

@@ -4,7 +4,7 @@
 describe "include trace_id in message " do
 
   before do
-    SolarWindsAPM::Context.clear
+    # SolarWindsAPM::Context.clear
     @log_traceId = SolarWindsAPM::Config[:log_traceId]
 
     @trace_00 = '00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-00'
@@ -14,7 +14,6 @@ describe "include trace_id in message " do
   end
 
   after do
-    SolarWindsAPM::Context.clear
     SolarWindsAPM::Config[:log_traceId] = @log_traceId
   end
 

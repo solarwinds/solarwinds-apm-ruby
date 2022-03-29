@@ -30,7 +30,7 @@ class TyphoeusMockedTest < Minitest::Test
   end
 
   def setup
-    SolarWindsAPM::Context.clear
+    # SolarWindsAPM::Context.clear
 
     WebMock.reset!
     WebMock.allow_net_connect!
@@ -47,7 +47,7 @@ class TyphoeusMockedTest < Minitest::Test
     SolarWindsAPM::Config[:sample_rate] = @sample_rate
     SolarWindsAPM::Config[:tracing_mode] = @tracing_mode
 
-    SolarWindsAPM.trace_context = nil
+    # SolarWindsAPM.trace_context = nil
   end
 
   ############# Typhoeus::Request ##############################################

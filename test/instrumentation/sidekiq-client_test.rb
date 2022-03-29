@@ -17,8 +17,8 @@ end
 class SidekiqClientTest < Minitest::Test
   def setup
     clear_all_traces
-    SolarWindsAPM::Context.clear
-    SolarWindsAPM.trace_context = nil
+    # SolarWindsAPM::Context.clear
+    # SolarWindsAPM.trace_context = nil
     @collect_backtraces = SolarWindsAPM::Config[:sidekiqclient][:collect_backtraces]
     @log_args = SolarWindsAPM::Config[:sidekiqclient][:log_args]
     @tracing_mode = SolarWindsAPM::Config[:tracing_mode]

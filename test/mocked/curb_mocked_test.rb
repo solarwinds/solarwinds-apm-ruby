@@ -8,7 +8,7 @@ require 'mocha/minitest'
 class CurbMockedTest < Minitest::Test
 
   def setup
-    SolarWindsAPM::Context.clear
+    # SolarWindsAPM::Context.clear
 
     WebMock.enable!
     WebMock.reset!
@@ -25,7 +25,7 @@ class CurbMockedTest < Minitest::Test
     SolarWindsAPM::Config[:sample_rate] = @sample_rate
     SolarWindsAPM::Config[:tracing_mode] = @tracing_mode
 
-    SolarWindsAPM.trace_context = nil
+    # SolarWindsAPM.trace_context = nil
   end
 
   def test_API_xtrace_tracing

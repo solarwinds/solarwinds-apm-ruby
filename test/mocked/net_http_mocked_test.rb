@@ -38,7 +38,7 @@ class NetHTTPMockedTest < Minitest::Test
   # can't be mocked with mocha
 
   def setup
-    SolarWindsAPM::Context.clear
+    # SolarWindsAPM::Context.clear
 
     WebMock.reset!
     WebMock.allow_net_connect!
@@ -49,15 +49,16 @@ class NetHTTPMockedTest < Minitest::Test
 
     SolarWindsAPM::Config[:sample_rate] = 1000000
     SolarWindsAPM::Config[:tracing_mode] = :enabled
+
+    clear_all_traces
   end
 
   def teardown
     SolarWindsAPM::Config[:sample_rate] = @sample_rate
     SolarWindsAPM::Config[:tracing_mode] = @tracing_mode
 
-    SolarWindsAPM.trace_context = nil
+    # SolarWindsAPM.trace_context = nil
 
-    clear_all_traces
   end
 
   def test_tracing_sampling

@@ -40,7 +40,7 @@ class FaradayMockedTest < Minitest::Test
   end
 
   def setup
-    SolarWindsAPM::Context.clear
+    # SolarWindsAPM::Context.clear
 
     WebMock.enable!
     WebMock.reset!
@@ -57,8 +57,8 @@ class FaradayMockedTest < Minitest::Test
     SolarWindsAPM::Config[:sample_rate] = @sample_rate
     SolarWindsAPM::Config[:tracing_mode] = @tracing_mode
 
-    SolarWindsAPM.trace_context = nil
-    clear_all_traces
+    # SolarWindsAPM.trace_context = nil
+    # clear_all_traces
   end
 
   def test_tracing_sampling
