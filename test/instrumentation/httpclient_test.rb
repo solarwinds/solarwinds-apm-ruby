@@ -186,6 +186,7 @@ describe 'HTTPClientTest' do
     Thread.pass until conn.finished?
 
     traces = get_all_traces
+    print_traces traces
 
     assert_equal 6, traces.count
     assert valid_edges?(traces, false), "Invalid edge in traces"
