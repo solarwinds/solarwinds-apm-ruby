@@ -7,10 +7,18 @@ describe "RestClient" do
   before do
     clear_all_traces
     @collect_backtraces = SolarWindsAPM::Config[:rest_client][:collect_backtraces]
+    @tm = SolarWindsAPM::Config[:tracing_mode]
+
+    SolarWindsAPM::Config[:tracing_mode] = :enabled
+
+    # TODO remove with NH-11132
+    # not a request entry point, context set up in test with start_trace
+    SolarWindsAPM::Context.clear
   end
 
   after do
     SolarWindsAPM::Config[:rest_client][:collect_backtraces] = @collect_backtraces
+    SolarWindsAPM::Config[:tracing_mode] = @tm
   end
 
   it 'RestClient should be defined and ready' do

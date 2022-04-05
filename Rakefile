@@ -28,32 +28,29 @@ Rake::TestTask.new do |t|
   #
   case SolarWindsAPM::Test.gemfile
   when /delayed_job/
-    # require 'delayed/tasks'
-    # t.test_files = FileList['test/queues/delayed_job*_test.rb']
+    require 'delayed/tasks'
+    t.test_files = FileList['test/queues/delayed_job*_test.rb']
   when /rails/
-    # t.test_files = FileList['test/frameworks/rails5x_test.rb'] +
-    #                FileList['test/frameworks/rails5x_api_test.rb']
+    t.test_files = FileList['test/frameworks/rails5x_test.rb'] +
+                   FileList['test/frameworks/rails5x_api_test.rb']
   when /frameworks/
-    # t.test_files = FileList['test/frameworks/sinatra*_test.rb'] +
-    #                FileList['test/frameworks/padrino*_test.rb'] +
-    #                FileList['test/frameworks/grape*_test.rb']
+    t.test_files = FileList['test/frameworks/sinatra*_test.rb'] +
+                   FileList['test/frameworks/padrino*_test.rb'] +
+                   FileList['test/frameworks/grape*_test.rb']
   when /libraries/
     t.test_files = FileList['test/support/*_test.rb'] +
-                   # FileList['test/reporter/*_test.rb'] +
-                   FileList['test/instrumentation/*_test.rb'] -
-      FileList['test/instrumentation/redis*_test.rb'] -
-      FileList['test/instrumentation/sequel*_test.rb'] -
-      FileList['test/instrumentation/mongo*_test.rb']
+                   FileList['test/reporter/*_test.rb'] +
+                   FileList['test/instrumentation/*_test.rb']
   when /instrumentation_mocked/
     # WebMock is interfering with other tests, so these have to run separately
-    # t.test_files = FileList['test/mocked/*_test.rb']
+    t.test_files = FileList['test/mocked/*_test.rb']
   when /noop/
-    # t.test_files = FileList['test/noop/*_test.rb']
+    t.test_files = FileList['test/noop/*_test.rb']
   when /profiling/
-    # t.test_files = FileList['test/profiling/*_test.rb']
+    t.test_files = FileList['test/profiling/*_test.rb']
   when /unit/
-    # t.test_files = FileList['test/unit/*_test.rb'] +
-    #                FileList['test/unit/*/*_test.rb']
+    t.test_files = FileList['test/unit/*_test.rb'] +
+                   FileList['test/unit/*/*_test.rb']
   end
 end
 
@@ -371,6 +368,9 @@ end
 
 desc "Rebuild the gem's c extension without fetching the oboe files, without recreating the swig wrapper"
 task :recompile => [:distclean, :compile]
+
+desc "Build the gem's c extension ..."
+task :cfc => [:clean, :fetch, :compile]
 
 task :environment do
   ENV['SW_APM_GEM_VERBOSE'] = 'true'

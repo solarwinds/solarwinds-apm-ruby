@@ -11,6 +11,8 @@ describe 'TransactionSettingsTest' do
     @config_map = SolarWindsAPM::Util.deep_dup(SolarWindsAPM::Config[:transaction_settings])
     @config_url_disabled = SolarWindsAPM::Config[:url_disabled_regexps]
     @config_url_enabled = SolarWindsAPM::Config[:url_enabled_regexps]
+
+    SolarWindsAPM::Config[:tracing_mode] = :enabled
   end
 
   after do
@@ -119,13 +121,13 @@ describe 'TransactionSettingsTest' do
     end
 
     it 'combines regexps and extensions' do
+      SolarWindsAPM::Context.clear
       SolarWindsAPM::Config[:transaction_settings] = { url: [{ extensions: %w[.just a test] },
                                                             { regexp: /.*lobster.*/ },
                                                             { regexp: 123 },
                                                             { regexp: /.*shrimp*/ }
       ] }
 
-      # TODO FLAKY
       _(SolarWindsAPM::TransactionSettings.new('test').do_sample).must_equal false, "flaky test"
       _(SolarWindsAPM::TransactionSettings.new('lobster').do_sample).must_equal false
       _(SolarWindsAPM::TransactionSettings.new('bla/bla/shrimp?number=1').do_sample).must_equal false
@@ -134,14 +136,14 @@ describe 'TransactionSettingsTest' do
     end
 
     it 'separates enabled and disabled settings' do
+      SolarWindsAPM::Context.clear
       SolarWindsAPM::Config[:transaction_settings] = { url: [{ extensions: %w[.just a test] },
                                                             { regexp: /.*lobster.*/ },
                                                             { regexp: 123, tracing: :enabled },
                                                             { regexp: /.*shrimp*/, tracing: :enabled }
       ] }
 
-      # TODO FLAKY
-      _(SolarWindsAPM::TransactionSettings.new('test').do_sample).must_equal false, "flaky test"
+      _(SolarWindsAPM::TransactionSettings.new('test').do_sample).must_equal false
       _(SolarWindsAPM::TransactionSettings.new('lobster').do_sample).must_equal false
       _(SolarWindsAPM::TransactionSettings.new('bla/bla/shrimp?number=1').do_sample).must_equal true
       _(SolarWindsAPM::TransactionSettings.new('123').do_sample).must_equal true
@@ -149,6 +151,7 @@ describe 'TransactionSettingsTest' do
     end
 
     it 'samples enabled patterns, when globally disabled' do
+      SolarWindsAPM::Context.clear
       SolarWindsAPM::Config[:tracing_mode] = :disabled
       SolarWindsAPM::Config[:transaction_settings] = { url: [{ extensions: %w[.just a test] },
                                                             { regexp: /.*lobster.*/ },
@@ -156,8 +159,7 @@ describe 'TransactionSettingsTest' do
                                                             { regexp: /.*shrimp*/, tracing: :enabled }
       ] }
 
-      # TODO FLAKY
-      _(SolarWindsAPM::TransactionSettings.new('test').do_sample).must_equal false, "flaky test"
+      _(SolarWindsAPM::TransactionSettings.new('test').do_sample).must_equal false
       _(SolarWindsAPM::TransactionSettings.new('lobster').do_sample).must_equal false
       _(SolarWindsAPM::TransactionSettings.new('bla/bla/shrimp?number=1').do_sample).must_equal true
       _(SolarWindsAPM::TransactionSettings.new('123').do_sample).must_equal false
@@ -165,21 +167,21 @@ describe 'TransactionSettingsTest' do
     end
 
     it 'sends the sample_rate and tracing_mode' do
+      SolarWindsAPM::Context.clear
       SolarWindsAPM::Config[:tracing_mode] = :disabled
       SolarWindsAPM::Config[:sample_rate] = 123456
       args = []
 
-      # TODO FLAKY
       SolarWindsAPM::Context.expects(:getDecisions).with do |a1, a2, a3, a4|
         args = [a1, a2, a3, a4]
       end.returns([0, 0, 0, 0, 0, 0, 0, 0, '', '', 0]).once
 
       SolarWindsAPM::TransactionSettings.new('')
 
-      assert_equal args[0], nil, 'flaky test'
-      assert_equal args[1], nil, 'flaky test'
-      assert_equal args[2], AO_TRACING_DISABLED, 'flaky test'
-      assert_equal args[3], 123456, 'flaky test'
+      assert_equal args[0], nil
+      assert_equal args[1], nil
+      assert_equal args[2], AO_TRACING_DISABLED
+      assert_equal args[3], 123456
     end
   end
 end

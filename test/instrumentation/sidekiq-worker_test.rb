@@ -18,6 +18,7 @@ require_relative "../jobs/sidekiq/error_worker_job"
 describe "SidekiqWorkerTest" do
   before do
     clear_all_traces
+
     @collect_backtraces = SolarWindsAPM::Config[:sidekiqworker][:collect_backtraces]
     @log_args = SolarWindsAPM::Config[:sidekiqworker][:log_args]
   end
@@ -41,7 +42,7 @@ describe "SidekiqWorkerTest" do
     sleep 5
 
     traces = get_all_traces
-    assert_equal 12, traces.count, "Trace count"
+    assert_equal 12, traces.count, print_traces(traces)
     validate_outer_layers(traces, "sidekiq-worker")
     assert valid_edges?(traces), "Invalid edge in traces"
 
@@ -77,7 +78,7 @@ describe "SidekiqWorkerTest" do
     sleep 5
 
     traces = get_all_traces
-    assert_equal 3, traces.count, "Trace count"
+    assert_equal 3, traces.count, print_traces(traces)
     validate_outer_layers(traces, "sidekiq-worker")
     assert valid_edges?(traces), "Invalid edge in traces"
 
@@ -124,7 +125,7 @@ describe "SidekiqWorkerTest" do
     sleep 5
 
     traces = get_all_traces
-    assert_equal 12, traces.count, "Trace count"
+    assert_equal 12, traces.count, print_traces(traces)
     assert valid_edges?(traces), "Invalid edge in traces"
     assert_equal 'sidekiq-worker',   traces[0]['Layer']
     assert_equal false,              traces[0].key?('Backtrace')
@@ -140,7 +141,7 @@ describe "SidekiqWorkerTest" do
     sleep 5
 
     traces = get_all_traces
-    assert_equal 12, traces.count, "Trace count"
+    assert_equal 12, traces.count, print_traces(traces)
     assert valid_edges?(traces), "Invalid edge in traces"
     assert_equal 'sidekiq-worker',   traces[0]['Layer']
     assert_equal 'Sidekiq_critical.RemoteCallWorkerJob', traces.last['TransactionName']
@@ -164,7 +165,7 @@ describe "SidekiqWorkerTest" do
     sleep 5
 
     traces = get_all_traces
-    assert_equal 17, traces.count, "Trace count"
+    assert_equal 17, traces.count, print_traces(traces)
     assert valid_edges?(traces), "Invalid edge in traces"
     assert_equal 'sidekiq-worker',   traces[0]['Layer']
     assert_equal true,               traces[0].key?('Backtrace')
@@ -184,7 +185,7 @@ describe "SidekiqWorkerTest" do
     sleep 5
 
     traces = get_all_traces
-    assert_equal 12, traces.count, "Trace count"
+    assert_equal 12, traces.count, print_traces(traces)
     assert valid_edges?(traces), "Invalid edge in traces"
     assert_equal false, traces[0].key?('Args')
   end
@@ -199,7 +200,7 @@ describe "SidekiqWorkerTest" do
     sleep 5
 
     traces = get_all_traces
-    assert_equal 12, traces.count, "Trace count"
+    assert_equal 12, traces.count, print_traces(traces)
     assert valid_edges?(traces), "Invalid edge in traces"
     assert_equal true,         traces[0].key?('Args')
     assert_equal '[1, 2, 3]',  traces[0]['Args']

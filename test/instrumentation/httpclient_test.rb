@@ -18,6 +18,10 @@ describe 'HTTPClientTest' do
     @sample_rate = SolarWindsAPM::Config[:sample_rate]
     SolarWindsAPM::Config[:tracing_mode] = :enabled
     SolarWindsAPM::Config[:sample_rate] = 1000000
+
+    # TODO remove with NH-11132
+    # not a request entry point, context set up in test with start_trace
+    SolarWindsAPM::Context.clear
   end
 
   after do
@@ -333,7 +337,7 @@ describe 'HTTPClientTest' do
 
     traces = get_all_traces
     # we only get traces from rack
-    assert_equal 2, traces.count
+    assert_equal 2, traces.count, print_traces(traces)
     traces.each do |trace|
       assert_equal 'rack', trace["Layer"]
     end

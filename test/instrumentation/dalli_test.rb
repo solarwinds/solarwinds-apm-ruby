@@ -9,6 +9,9 @@ describe "Dalli" do
     @server = "#{ENV['MEMCACHED_SERVER'] || '127.0.0.1'}:11211"
     @dc = Dalli::Client.new(@server)
     @collect_backtraces = SolarWindsAPM::Config[:dalli][:collect_backtraces]
+
+    # remove with NH-11132
+    SolarWindsAPM::Context.clear # not a request entry point
   end
 
   after do
@@ -103,7 +106,7 @@ describe "Dalli" do
     end
 
     traces = get_all_traces
-    _(traces.count).must_equal 4
+    _(traces.count).must_equal 4, (print_traces traces)
 
     validate_outer_layers(traces, 'dalli_test')
 

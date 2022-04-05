@@ -8,6 +8,10 @@ describe "Faraday" do
     clear_all_traces
     @collect_backtraces = SolarWindsAPM::Config[:faraday][:collect_backtraces]
     @log_args = SolarWindsAPM::Config[:faraday][:log_args]
+
+    # remove with NH-11132
+    # not a request entry point, context set up in test with start_trace
+    SolarWindsAPM::Context.clear
   end
 
   after do

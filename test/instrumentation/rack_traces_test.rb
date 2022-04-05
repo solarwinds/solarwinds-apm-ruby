@@ -47,7 +47,6 @@ describe "RackTestApp" do
   end
 
   def test_get_the_lobster
-    # skip("FIXME: broken on travis only") if ENV['TRAVIS'] == "true"
     get "/lobster"
 
     traces = get_all_traces
@@ -95,11 +94,11 @@ describe "RackTestApp" do
     get "/lobster?blah=1"
 
     traces = get_all_traces
+    print_traces traces
     refute traces.empty?, "No traces recorded"
-
     tracestring = last_response['X-Trace']
-    assert tracestring
-    assert SolarWindsAPM::TraceString.valid?(tracestring)
+    assert tracestring, "no tracestring in response"
+    assert SolarWindsAPM::TraceString.valid?(tracestring), "tracestring in response not valid"
 
     _(traces[0]['URL']).must_equal "/lobster"
   end

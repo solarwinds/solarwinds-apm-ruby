@@ -26,7 +26,7 @@ module SolarWindsAPM
     end
 
     # these are event kvs, not headers
-    def add_kvs(kvs = {})
+    def add_traceinfo(kvs = {})
       kvs['sw.tracestate_parent_id'] = @sw_member_value[0...-3] if @sw_member_value
       kvs['sw.w3c.tracestate'] = @tracestate if @tracestate
       kvs

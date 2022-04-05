@@ -17,11 +17,13 @@ end
 class SidekiqClientTest < Minitest::Test
   def setup
     clear_all_traces
-    # SolarWindsAPM::Context.clear
-    # SolarWindsAPM.trace_context = nil
     @collect_backtraces = SolarWindsAPM::Config[:sidekiqclient][:collect_backtraces]
     @log_args = SolarWindsAPM::Config[:sidekiqclient][:log_args]
     @tracing_mode = SolarWindsAPM::Config[:tracing_mode]
+
+    # TODO remove with NH-11132
+    # not a request entry point, context set up in test with start_trace
+    SolarWindsAPM::Context.clear
   end
 
   def teardown
@@ -90,7 +92,7 @@ class SidekiqClientTest < Minitest::Test
     sleep 3
 
     traces = get_all_traces
-    assert_equal 16, refined_trace_count(traces)
+    assert_equal 16, refined_trace_count(traces), print_traces(traces)
     assert valid_edges?(traces, false), "Invalid edge in traces"
     assert_equal 'sidekiq-client', traces[1]['Layer']
     assert_equal false, traces[1].key?('Backtrace')
@@ -108,7 +110,7 @@ class SidekiqClientTest < Minitest::Test
     sleep 3
 
     traces = get_all_traces
-    assert_equal 16, refined_trace_count(traces)
+    assert_equal 16, refined_trace_count(traces), print_traces(traces)
     assert valid_edges?(traces, false), "Invalid edge in traces"
     assert_equal 'sidekiq-client', traces[1]['Layer']
     assert_equal true, traces[1].key?('Backtrace')
@@ -126,7 +128,7 @@ class SidekiqClientTest < Minitest::Test
     sleep 3
 
     traces = get_all_traces
-    assert_equal 16, refined_trace_count(traces)
+    assert_equal 16, refined_trace_count(traces), print_traces(traces)
     assert valid_edges?(traces, false), "Invalid edge in traces"
     assert_equal false, traces[1].key?('Args')
   end

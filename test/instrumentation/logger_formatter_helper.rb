@@ -4,7 +4,6 @@
 describe "include trace_id in message " do
 
   before do
-    # SolarWindsAPM::Context.clear
     @log_traceId = SolarWindsAPM::Config[:log_traceId]
 
     @trace_00 = '00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-00'
@@ -23,6 +22,7 @@ describe "include trace_id in message " do
     # - rails_logger_formatter_test.rb
     it 'adds trace info when :always' do
       SolarWindsAPM::Config[:log_traceId] = :always
+      SolarWindsAPM::Context.clear
 
       _(msg).must_match /Message/
       _(msg).must_match /trace_id=00000000000000000000000000000000/
@@ -44,6 +44,7 @@ describe "include trace_id in message " do
 
     it 'Does NOT add trace info when :traced and no context' do
       SolarWindsAPM::Config[:log_traceId] = :traced
+      SolarWindsAPM::Context.clear
 
       _(msg).must_match /Message/
       _(msg).wont_match /trace_id/
@@ -92,6 +93,7 @@ describe "include trace_id in message " do
     # - rails_logger_formatter_test.rb
     it 'adds 0s' do
       SolarWindsAPM::Config[:log_traceId] = :always
+      SolarWindsAPM::Context.clear
 
       _(exc_message).must_match /StandardError/
       _(exc_message).must_match /trace_id=00000000000000000000000000000000 span_id=0000000000000000 trace_flags=00/

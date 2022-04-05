@@ -249,7 +249,7 @@ def valid_edges?(traces, connected = true)
       unless has_edge?(t["sw.parent_span_id"], traces)
         puts "edge missing for #{t["sw.parent_span_id"]}"
         # TODO NH-2303 maybe remove when done
-        print_traces(traces[1..-1])
+        print_traces(traces)
         return false
       end
     end
@@ -352,6 +352,7 @@ end
 
 def print_traces(traces, more_keys = [])
   return unless traces.is_a?(Array) # so that in case the traces are sent to the collector, tests will fail but not barf
+  more_keys << 'sw.tracestate_parent_id'
   indent = ''
   puts "\n"
   traces.each do |trace|

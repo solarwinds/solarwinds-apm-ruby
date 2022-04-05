@@ -109,14 +109,16 @@ module SolarWindsAPM
       def log_start(layer, kvs = {}, headers = {}, settings = nil, url = nil)
         return unless SolarWindsAPM.loaded
 
-        # check if tracing decision is already in effect and a Context created
+        # TODO remove continuing context
+        #  NH-11132 check context before calling log_start (or start_trace) where appropriate
+        # check if a Context already exists
         return log_entry(layer, kvs) if SolarWindsAPM::Context.isValid
 
         # This is a bit ugly, but here is the best place to reset the layer_op thread local var.
         SolarWindsAPM.layer_op = nil
 
         settings ||= SolarWindsAPM::TransactionSettings.new(url, headers)
-        SolarWindsAPM.trace_context.add_kvs(kvs)
+        SolarWindsAPM.trace_context.add_traceinfo(kvs)
         tracestring = SolarWindsAPM.trace_context.tracestring
 
         if settings.do_sample

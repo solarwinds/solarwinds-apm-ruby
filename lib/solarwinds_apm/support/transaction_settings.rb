@@ -29,11 +29,9 @@ module SolarWindsAPM
       @sw_member_value = SolarWindsAPM.trace_context.sw_member_value
       tracing_mode = AO_TRACING_ENABLED
 
-      # TODO this is dangerous!
-      #  - is it a legit context or leftover from
-      #    context not being cleared
-      #  - adding check for incoming header, but this should be
-      #    taken care of in entry point
+      # TODO
+      #   NH-11132 will address this
+      # incoming tracing info has priority over existing context
       if SolarWindsAPM::Context.isValid && !@sw_member_value
         @do_sample = SolarWindsAPM.tracing?
         return
@@ -53,8 +51,6 @@ module SolarWindsAPM
       args = [@tracestring, @sw_member_value]
       args << tracing_mode
       args << (SolarWindsAPM::Config[:sample_rate] || OBOE_SETTINGS_UNSET)
-
-      puts "#### TransactionSettings args: [#{args}] ####"
 
       if options && (options.options || options.signature)
         args << (options.trigger_trace ? 1 : 0)

@@ -20,6 +20,10 @@ describe 'BunnyClientTest' do
     @connection_params[:pass]   = ENV['RABBITMQ_PASSWORD']
 
     clear_all_traces
+
+    # not a request entry point, context set up in test with start_trace
+    # remove with NH-11132
+    SolarWindsAPM::Context.clear
   end
 
   it 'publish_default_exchange' do
@@ -34,7 +38,7 @@ describe 'BunnyClientTest' do
     end
 
     traces = get_all_traces
-    _(traces.count).must_equal 4
+    _(traces.count).must_equal 4, (print_traces traces)
 
     validate_outer_layers(traces, "bunny_tests")
     assert valid_edges?(traces), "Invalid edge in traces"
@@ -195,7 +199,7 @@ describe 'BunnyClientTest' do
     end
 
     traces = get_all_traces
-    _(traces.count).must_equal 4
+    _(traces.count).must_equal 4, (print_traces traces)
 
     validate_outer_layers(traces, "bunny_tests")
 
@@ -293,7 +297,7 @@ describe 'BunnyClientTest' do
     end
 
     traces = get_all_traces
-    _(traces.count).must_equal 4
+    _(traces.count).must_equal 4, (print_traces traces)
 
     validate_outer_layers(traces, "bunny_tests")
     assert valid_edges?(traces), "Invalid edge in traces"

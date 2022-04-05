@@ -24,6 +24,10 @@ if defined?(::Redis)
       # These are standard entry/exit KVs that are passed up with all moped operations
       @entry_kvs ||= { 'Layer' => 'redis_test', 'Label' => 'entry' }
       @exit_kvs  ||= { 'Layer' => 'redis_test', 'Label' => 'exit' }
+
+      # not a request entry point, context set up in test with start_trace
+      # remove with NH-11132
+      SolarWindsAPM::Context.clear
     end
 
     it 'Stock Redis should be loaded, defined and ready' do

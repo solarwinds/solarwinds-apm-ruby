@@ -117,6 +117,10 @@ if  Gem.loaded_specs['graphql'].version < Gem::Version.new('1.13.0')
       @remove_comments = SolarWindsAPM::Config[:graphql][:remove_comments]
       @enabled = SolarWindsAPM::Config[:graphql][:enabled]
       @transaction_name = SolarWindsAPM::Config[:graphql][:transaction_name]
+
+      # remove with NH-11132
+      # not a request entry point, context set up in test with start_trace
+      SolarWindsAPM::Context.clear
     end
 
     after do
