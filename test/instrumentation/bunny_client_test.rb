@@ -38,7 +38,7 @@ describe 'BunnyClientTest' do
     end
 
     traces = get_all_traces
-    _(traces.count).must_equal 4, (print_traces traces)
+    _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
 
     validate_outer_layers(traces, "bunny_tests")
     assert valid_edges?(traces), "Invalid edge in traces"
@@ -199,7 +199,7 @@ describe 'BunnyClientTest' do
     end
 
     traces = get_all_traces
-    _(traces.count).must_equal 4, (print_traces traces)
+    _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
 
     validate_outer_layers(traces, "bunny_tests")
 
@@ -297,7 +297,7 @@ describe 'BunnyClientTest' do
     end
 
     traces = get_all_traces
-    _(traces.count).must_equal 4, (print_traces traces)
+    _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
 
     validate_outer_layers(traces, "bunny_tests")
     assert valid_edges?(traces), "Invalid edge in traces"

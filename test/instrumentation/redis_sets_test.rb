@@ -24,6 +24,10 @@ if defined?(::Redis)
       # These are standard entry/exit KVs that are passed up with all moped operations
       @entry_kvs ||= { 'Layer' => 'redis_test', 'Label' => 'entry' }
       @exit_kvs  ||= { 'Layer' => 'redis_test', 'Label' => 'exit' }
+
+      # not a request entry point, context set up in test with start_trace
+      # remove with NH-11132
+      SolarWindsAPM::Context.clear
     end
 
     it "should trace sadd" do
@@ -34,7 +38,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "sadd"
       _(traces[2]['KVKey']).must_equal "shrimp"
     end
@@ -53,7 +57,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "scard"
       _(traces[2]['KVKey']).must_equal "mother sauces"
     end
@@ -72,7 +76,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "sdiff"
       _(traces[2].has_key?('KVKey')).must_equal false
     end
@@ -91,7 +95,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "sdiffstore"
       _(traces[2]['destination']).must_equal "dest"
     end
@@ -110,7 +114,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "sinter"
       _(traces[2].has_key?('KVKey')).must_equal false
     end
@@ -129,7 +133,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "sinterstore"
       _(traces[2]['destination']).must_equal "dest"
     end
@@ -150,7 +154,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "sismember"
       _(traces[2]['KVKey']).must_equal "fibonacci"
     end
@@ -169,7 +173,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "smembers"
       _(traces[2]['KVKey']).must_equal "fibonacci"
     end
@@ -186,7 +190,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "smove"
       _(traces[2]['source']).must_equal "alpha"
       _(traces[2]['destination']).must_equal "numbers"
@@ -204,7 +208,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "spop"
       _(traces[2]['KVKey']).must_equal "fibonacci"
     end
@@ -221,7 +225,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "srandmember"
       _(traces[2]['KVKey']).must_equal "fibonacci"
     end
@@ -238,7 +242,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "srem"
       _(traces[2]['KVKey']).must_equal "fibonacci"
     end
@@ -255,7 +259,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "sunion"
       _(traces[2].has_key?('KVKey')).must_equal false
     end
@@ -272,7 +276,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "sunionstore"
       _(traces[2]['destination']).must_equal "dest"
       _(traces[2].has_key?('KVKey')).must_equal false
@@ -289,7 +293,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "sscan"
       _(traces[2]['KVKey']).must_equal "group1"
     end

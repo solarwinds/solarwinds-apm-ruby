@@ -92,7 +92,7 @@ class SidekiqClientTest < Minitest::Test
     sleep 3
 
     traces = get_all_traces
-    assert_equal 16, refined_trace_count(traces), print_traces(traces)
+    assert_equal 16, refined_trace_count(traces), filter_traces(traces).pretty_inspect
     assert valid_edges?(traces, false), "Invalid edge in traces"
     assert_equal 'sidekiq-client', traces[1]['Layer']
     assert_equal false, traces[1].key?('Backtrace')
@@ -110,7 +110,7 @@ class SidekiqClientTest < Minitest::Test
     sleep 3
 
     traces = get_all_traces
-    assert_equal 16, refined_trace_count(traces), print_traces(traces)
+    assert_equal 16, refined_trace_count(traces), filter_traces(traces).pretty_inspect
     assert valid_edges?(traces, false), "Invalid edge in traces"
     assert_equal 'sidekiq-client', traces[1]['Layer']
     assert_equal true, traces[1].key?('Backtrace')
@@ -128,7 +128,7 @@ class SidekiqClientTest < Minitest::Test
     sleep 3
 
     traces = get_all_traces
-    assert_equal 16, refined_trace_count(traces), print_traces(traces)
+    assert_equal 16, refined_trace_count(traces), filter_traces(traces).pretty_inspect
     assert valid_edges?(traces, false), "Invalid edge in traces"
     assert_equal false, traces[1].key?('Args')
   end

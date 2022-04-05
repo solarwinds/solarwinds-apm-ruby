@@ -106,7 +106,7 @@ describe "Dalli" do
     end
 
     traces = get_all_traces
-    _(traces.count).must_equal 4, (print_traces traces)
+    _(traces.count).must_equal 4,  filter_traces(traces).pretty_inspect
 
     validate_outer_layers(traces, 'dalli_test')
 

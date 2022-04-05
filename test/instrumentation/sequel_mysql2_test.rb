@@ -40,6 +40,10 @@ if defined?(::Sequel)
       @sanitize_sql = SolarWindsAPM::Config[:sanitize_sql]
 
      SolarWindsAPM::Config[:sequel][:collect_backtraces] = false
+
+      # not a request entry point, context set up in test with start_trace
+      # remove with NH-11132
+      SolarWindsAPM::Context.clear
     end
 
     after do

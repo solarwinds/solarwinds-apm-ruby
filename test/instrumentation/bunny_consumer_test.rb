@@ -44,7 +44,7 @@ describe 'BunnyConsumerTest' do
 
     traces = get_all_traces
 
-    _(traces.count).must_equal 6, print_traces(traces)
+    _(traces.count).must_equal 6, filter_traces(traces).pretty_inspect
 
     assert valid_edges?(traces, false), "Invalid edge in traces"
 
@@ -186,7 +186,7 @@ describe 'BunnyConsumerTest' do
 
     traces = get_all_traces
 
-    _(traces.count).must_equal 6, print_traces(traces)
+    _(traces.count).must_equal 6, filter_traces(traces).pretty_inspect
     assert valid_edges?(traces, false), "Invalid edge in traces"
 
     _(traces[0]['Spec']).must_equal "job"

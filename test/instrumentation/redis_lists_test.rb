@@ -24,6 +24,10 @@ if defined?(::Redis)
       # These are standard entry/exit KVs that are passed up with all moped operations
       @entry_kvs ||= { 'Layer' => 'redis_test', 'Label' => 'entry' }
       @exit_kvs  ||= { 'Layer' => 'redis_test', 'Label' => 'exit' }
+
+      # not a request entry point, context set up in test with start_trace
+      # remove with NH-11132
+      SolarWindsAPM::Context.clear
     end
 
     it "should trace blpop" do
@@ -36,7 +40,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "blpop"
       _(traces[2]['KVKey']).must_equal "savage"
     end
@@ -51,7 +55,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "brpop"
       _(traces[2]['KVKey']).must_equal "savage"
     end
@@ -66,7 +70,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "brpoplpush"
       _(traces[2]['destination']).must_equal "crawlies"
     end
@@ -83,7 +87,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "lindex"
       _(traces[2]['index']).must_equal 1
     end
@@ -100,7 +104,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "linsert"
       _(traces[2]['KVKey']).must_equal "gods of old"
     end
@@ -117,7 +121,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "llen"
       _(traces[2]['KVKey']).must_equal "gods of old"
     end
@@ -134,7 +138,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "lpop"
       _(traces[2]['KVKey']).must_equal "gods of old"
     end
@@ -147,7 +151,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "lpush"
       _(traces[2]['KVKey']).must_equal "gods of old"
     end
@@ -160,7 +164,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "lpushx"
       _(traces[2]['KVKey']).must_equal "gods of old"
     end
@@ -179,7 +183,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "lrange"
       _(traces[2]['KVKey']).must_equal "protein types"
       _(traces[2]['start']).must_equal 2
@@ -201,7 +205,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "lrem"
       _(traces[2]['KVKey']).must_equal "australia"
     end
@@ -219,7 +223,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "lset"
       _(traces[2]['KVKey']).must_equal "australia"
     end
@@ -241,7 +245,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "ltrim"
       _(traces[2]['KVKey']).must_equal "australia"
     end
@@ -258,7 +262,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "rpop"
       _(traces[2]['KVKey']).must_equal "santa esmeralda"
     end
@@ -275,7 +279,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "rpoplpush"
       _(traces[2]['KVKey']).must_equal "santa esmeralda"
       _(traces[2]['destination']).must_equal "the gods of old"
@@ -289,7 +293,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "rpush"
       _(traces[2]['KVKey']).must_equal "boney m"
     end
@@ -302,7 +306,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "rpushx"
       _(traces[2]['KVKey']).must_equal "boney m"
     end

@@ -34,6 +34,10 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
 
       @exit_kvs = { 'Layer' => 'mongo', 'Label' => 'exit' }
       @collect_backtraces = SolarWindsAPM::Config[:mongo][:collect_backtraces]
+
+      # not a request entry point, context set up in test with start_trace
+      # remove with NH-11132
+      SolarWindsAPM::Context.clear
     end
 
     after do
@@ -52,7 +56,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
 
       _(r).must_be_instance_of ::Mongo::Operation::Result
       if Mongo::VERSION < '2.2'
@@ -84,7 +88,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
 
       _(r).must_be_instance_of ::Mongo::Operation::Result
       if Mongo::VERSION < '2.2'
@@ -142,7 +146,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
 
       _(r).must_be_instance_of Mongo::Operation::Insert::Result
       if Mongo::VERSION < '2.2'
@@ -171,7 +175,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
 
       if Mongo::VERSION < '2.1'
         _(r).must_be_instance_of Mongo::Operation::Insert::Result
@@ -202,7 +206,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
@@ -230,7 +234,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
@@ -258,7 +262,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
@@ -286,7 +290,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
@@ -314,7 +318,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
@@ -342,7 +346,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
@@ -370,7 +374,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
@@ -398,7 +402,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
@@ -426,7 +430,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
@@ -450,7 +454,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
@@ -474,7 +478,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
@@ -498,7 +502,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
@@ -523,7 +527,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)

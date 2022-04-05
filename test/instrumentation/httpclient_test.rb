@@ -189,7 +189,6 @@ describe 'HTTPClientTest' do
     Thread.pass until conn.finished?
 
     traces = get_all_traces
-    print_traces traces
 
     assert_equal 6, traces.count
     assert valid_edges?(traces, false), "Invalid edge in traces"
@@ -337,7 +336,7 @@ describe 'HTTPClientTest' do
 
     traces = get_all_traces
     # we only get traces from rack
-    assert_equal 2, traces.count, print_traces(traces)
+    assert_equal 2, traces.count, filter_traces(traces).pretty_inspect
     traces.each do |trace|
       assert_equal 'rack', trace["Layer"]
     end

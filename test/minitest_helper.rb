@@ -370,6 +370,15 @@ def print_traces(traces, more_keys = [])
   puts "\n"
 end
 
+# a method to reduce the number of kvs
+# mainly helpful for the msg when an assertion fails
+def filter_traces(traces, more_keys = [])
+  keys = more_keys.dup
+  keys |= %w(Layer Label sw.trace_context sw.parent_span_id sw.tracestate_parent_id)
+
+  traces.map { |tr| tr.reject { |k, _v| !keys.include?(k) }}
+end
+
 def print_edges(traces)
   traces.each do |trace|
     puts "EVENT: Edge: #{trace['Edge']} (#{trace['Label']}) \nnext Edge: #{trace['X-Trace'][42..-3]}\n"

@@ -24,6 +24,10 @@ if defined?(::Redis)
       # These are standard entry/exit KVs that are passed up with all moped operations
       @entry_kvs ||= { 'Layer' => 'redis_test', 'Label' => 'entry' }
       @exit_kvs  ||= { 'Layer' => 'redis_test', 'Label' => 'exit' }
+
+      # not a request entry point, context set up in test with start_trace
+      # remove with NH-11132
+      SolarWindsAPM::Context.clear
     end
 
     it "should trace append" do
@@ -34,7 +38,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "append"
       _(traces[2]['KVKey']).must_equal "yourkey"
     end
@@ -48,7 +52,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "bitcount"
       _(traces[2]['start']).must_equal 0
       _(traces[2]['stop']).must_equal (-1)
@@ -63,7 +67,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "bitop"
       _(traces[2]['operation']).must_equal "not"
       _(traces[2]['destkey']).must_equal "bitopkey"
@@ -77,7 +81,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "decr"
       _(traces[2]['KVKey']).must_equal "decr"
     end
@@ -90,7 +94,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "decrby"
       _(traces[2]['KVKey']).must_equal "decr"
       _(traces[2]['decrement']).must_equal 1
@@ -106,7 +110,7 @@ if defined?(::Redis)
       _(@rv).must_equal "okokok"
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "get"
       _(traces[2]['KVKey']).must_equal "diwore"
     end
@@ -121,7 +125,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "getbit"
       _(traces[2]['KVKey']).must_equal "diwore"
       _(traces[2]['offset']).must_equal 3
@@ -135,7 +139,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "getrange"
       _(traces[2]['KVKey']).must_equal "yourkey"
       _(traces[2]['start']).must_equal 0
@@ -150,7 +154,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "getset"
       _(traces[2]['KVKey']).must_equal "dollar"
       _(traces[2]['value']).must_equal "0"
@@ -164,7 +168,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "incr"
       _(traces[2]['KVKey']).must_equal "dotcom"
     end
@@ -177,7 +181,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "incrby"
       _(traces[2]['KVKey']).must_equal "incr"
       _(traces[2]['increment']).must_equal 1
@@ -193,7 +197,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "incrbyfloat"
       _(traces[2]['KVKey']).must_equal "incrfloat"
       _(traces[2]['increment']).must_equal 1.01
@@ -210,7 +214,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 6
+      assert_equal traces.count, 6, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "mget"
       _(traces[2]['KVKeyCount']).must_equal 3
       _(traces[2]['KVHitCount']).must_equal 2
@@ -226,7 +230,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 6
+      assert_equal traces.count, 6, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "mset"
       _(traces[2]['KVKeyCount']).must_equal 3
       _(traces[4]['KVOp']).must_equal "mset"
@@ -239,7 +243,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "msetnx"
     end
 
@@ -250,7 +254,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "psetex"
       _(traces[2]['KVKey']).must_equal "one"
       _(traces[2]['ttl']).must_equal 60
@@ -262,7 +266,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "set"
       _(traces[2]['KVKey']).must_equal "one"
     end
@@ -273,7 +277,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "set"
       _(traces[2]['KVKey']).must_equal "one"
       _(traces[2]['ex']).must_equal 12
@@ -287,7 +291,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "setbit"
       _(traces[2]['KVKey']).must_equal "yourkey"
       _(traces[2]['offset']).must_equal 3
@@ -299,7 +303,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "setex"
       _(traces[2]['KVKey']).must_equal "one"
       _(traces[2]['ttl']).must_equal 60
@@ -311,7 +315,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "setnx"
       _(traces[2]['KVKey']).must_equal "one"
     end
@@ -326,7 +330,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "setrange"
       _(traces[2]['KVKey']).must_equal "yourkey"
       _(traces[2]['offset']).must_equal 2
@@ -342,7 +346,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "strlen"
       _(traces[2]['KVKey']).must_equal "talking_heads"
     end

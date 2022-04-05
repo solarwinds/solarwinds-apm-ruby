@@ -94,7 +94,6 @@ describe "RackTestApp" do
     get "/lobster?blah=1"
 
     traces = get_all_traces
-    print_traces traces
     refute traces.empty?, "No traces recorded"
     tracestring = last_response['X-Trace']
     assert tracestring, "no tracestring in response"
