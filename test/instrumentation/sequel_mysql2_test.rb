@@ -463,6 +463,7 @@ if defined?(::Sequel)
 
     it "adds trace context to a stored procedure" do
       trace_id = ''
+      MYSQL2_DB.execute('DROP PROCEDURE IF EXISTS test_sproc') # sometimes things go wrong
       MYSQL2_DB.execute_ddl('CREATE PROCEDURE test_sproc() BEGIN DELETE FROM items; END')
 
       SolarWindsAPM::SDK.start_trace('sequel_test') do
@@ -474,7 +475,7 @@ if defined?(::Sequel)
       refute_match /traceparent/, traces[2]['Query']
       assert query_logged?(/#{log_traceid_regex(trace_id)}CALL/), "Logged query didn't match what we're looking for"
 
-      MYSQL2_DB.execute('DROP PROCEDURE test_sproc')
+      MYSQL2_DB.execute('DROP PROCEDURE IF EXISTS test_sproc')
     end
   end
 end

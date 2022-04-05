@@ -21,8 +21,6 @@ if defined?(::Sequel)
 
   describe "Sequel (postgres)" do
     before do
-      clear_all_traces
-
       # These are standard entry/exit KVs that are passed up with all sequel operations
       @entry_kvs = {
         'Layer' => 'sequel',
@@ -35,6 +33,11 @@ if defined?(::Sequel)
                     'RemotePort' => 5432 }
       @collect_backtraces = SolarWindsAPM::Config[:sequel][:collect_backtraces]
       @sanitize_sql = SolarWindsAPM::Config[:sanitize_sql]
+
+      # remove with NH-11132
+      # not a request entry point, context set up in test with start_trace
+      SolarWindsAPM::Context.clear
+      clear_all_traces
     end
 
     after do
@@ -87,7 +90,7 @@ if defined?(::Sequel)
 
       traces = get_all_traces
 
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
@@ -104,7 +107,7 @@ if defined?(::Sequel)
 
       traces = get_all_traces
 
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
@@ -127,7 +130,7 @@ if defined?(::Sequel)
 
       traces = get_all_traces
 
-      _(traces.count).must_equal 6
+      _(traces.count).must_equal 6, filter_traces(traces).pretty_inspect
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
@@ -159,7 +162,7 @@ if defined?(::Sequel)
 
       traces = get_all_traces
 
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
@@ -186,7 +189,7 @@ if defined?(::Sequel)
 
       traces = get_all_traces
 
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
@@ -209,7 +212,7 @@ if defined?(::Sequel)
 
       traces = get_all_traces
 
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
@@ -232,7 +235,7 @@ if defined?(::Sequel)
 
       traces = get_all_traces
 
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
@@ -252,7 +255,7 @@ if defined?(::Sequel)
 
       traces = get_all_traces
 
-      _(traces.count).must_equal 5
+      _(traces.count).must_equal 5, filter_traces(traces).pretty_inspect
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
@@ -282,7 +285,7 @@ if defined?(::Sequel)
 
       traces = get_all_traces
 
-      _(traces.count).must_equal 6
+      _(traces.count).must_equal 6, filter_traces(traces).pretty_inspect
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
@@ -304,7 +307,7 @@ if defined?(::Sequel)
 
       traces = get_all_traces
 
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)
@@ -326,7 +329,7 @@ if defined?(::Sequel)
 
       traces = get_all_traces
 
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       validate_outer_layers(traces, 'sequel_test')
 
       validate_event_keys(traces[1], @entry_kvs)

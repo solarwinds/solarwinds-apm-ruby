@@ -9,8 +9,6 @@ ENV['MONGO_SERVER'] += ':27017' unless ENV['MONGO_SERVER'] =~ /\:27017$/
 if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
   describe "MongoCollection" do
     before do
-      clear_all_traces
-
       @client = Mongo::Client.new([ENV['MONGO_SERVER']], :database => "solarwinds_apm-#{ENV['RACK_ENV']}")
       @db = @client.database
 
@@ -38,6 +36,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       # not a request entry point, context set up in test with start_trace
       # remove with NH-11132
       SolarWindsAPM::Context.clear
+      clear_all_traces
     end
 
     after do

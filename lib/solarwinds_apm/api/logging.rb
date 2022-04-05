@@ -111,8 +111,9 @@ module SolarWindsAPM
 
         # TODO remove continuing context
         #  NH-11132 check context before calling log_start (or start_trace) where appropriate
+        #  stop using it for now, tests are failing
         # check if a Context already exists
-        return log_entry(layer, kvs) if SolarWindsAPM::Context.isValid
+        # return log_entry(layer, kvs) if SolarWindsAPM::Context.isValid
 
         # This is a bit ugly, but here is the best place to reset the layer_op thread local var.
         SolarWindsAPM.layer_op = nil

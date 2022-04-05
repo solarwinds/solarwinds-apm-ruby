@@ -17,10 +17,13 @@ require_relative "../jobs/sidekiq/error_worker_job"
 
 describe "SidekiqWorkerTest" do
   before do
-    clear_all_traces
-
     @collect_backtraces = SolarWindsAPM::Config[:sidekiqworker][:collect_backtraces]
     @log_args = SolarWindsAPM::Config[:sidekiqworker][:log_args]
+
+    clear_all_traces
+    # remove with NH-11132
+    # not a request entry point, context set up in test with start_trace
+    SolarWindsAPM::Context.clear
   end
 
   after do
