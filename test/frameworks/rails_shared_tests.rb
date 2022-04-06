@@ -32,7 +32,6 @@ describe "RailsSharedTests" do
   end
 
   before do
-    clear_all_traces
     SolarWindsAPM.config_lock.synchronize {
       @tm = SolarWindsAPM::Config[:tracing_mode]
       @sample_rate = SolarWindsAPM::Config[:sample_rate]
@@ -41,6 +40,11 @@ describe "RailsSharedTests" do
       @av_bt = SolarWindsAPM::Config[:action_view][:collect_backtraces]
       @rack_bt = SolarWindsAPM::Config[:rack][:collect_backtraces]
     }
+
+    clear_all_traces
+    # not a request entry point, context set up in test with start_trace
+    # remove with NH-11132
+    SolarWindsAPM::Context.clear
   end
 
   after do
@@ -61,7 +65,7 @@ describe "RailsSharedTests" do
       r = Net::HTTP.get_response(uri)
 
       traces = get_all_traces
-      _(traces.count).must_equal 0
+      _(traces.count).must_equal 0, filter_traces(traces).pretty_inspect
     end
   end
 
@@ -72,7 +76,7 @@ describe "RailsSharedTests" do
       r = Net::HTTP.get_response(uri)
 
       traces = get_all_traces
-      _(traces.count).must_equal 0
+      _(traces.count).must_equal 0, filter_traces(traces).pretty_inspect
     end
   end
 
@@ -85,7 +89,7 @@ describe "RailsSharedTests" do
     _(response_headers.key?('X-Trace')).must_equal false
 
     traces = get_all_traces
-    _(traces.count).must_equal 0
+    _(traces.count).must_equal 0, filter_traces(traces).pretty_inspect
   end
 
   it "should send inbound metrics" do
@@ -203,7 +207,7 @@ describe "RailsSharedTests" do
     traces = get_all_traces
 
     sidekiq_traces = traces.select { |tr| tr['Layer'] =~ /sidekiq/ }
-    assert_equal 4, sidekiq_traces.count, "count sidekiq traces"
+    assert_equal 4, sidekiq_traces.count, filter_traces(traces).pretty_inspect
     assert sidekiq_traces.find { |tr| tr['Layer'] == 'sidekiq-client' && tr['JobName'] == 'ActiveJobWorkerJob' }
     assert sidekiq_traces.find { |tr| tr['Layer'] == 'sidekiq-worker' && tr['JobName'] == 'ActiveJobWorkerJob' }
     assert sidekiq_traces.find { |tr| tr['Layer'] == 'sidekiq-worker' && tr['Action'] == 'ActiveJobWorkerJob' }
@@ -231,7 +235,7 @@ describe "RailsSharedTests" do
 
     traces = get_all_traces
 
-    assert_equal 6, traces.count
+    assert_equal 6, traces.count, filter_traces(traces).pretty_inspect
     valid_edges?(traces)
     assert_equal 2, traces.select { |tr| tr['Layer'] =~ /actionview/ }.count
   end
@@ -248,7 +252,7 @@ describe "RailsSharedTests" do
     r = Net::HTTP.get_response(uri)
 
     traces = get_all_traces
-    assert_equal 6, traces.count
+    assert_equal 6, traces.count, filter_traces(traces).pretty_inspect
     valid_edges?(traces)
 
     traces.select { |tr| tr['Layer'] =~ /sidekiq/ }

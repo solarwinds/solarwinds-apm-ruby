@@ -89,7 +89,9 @@ describe "Rack: " do
     _, headers, _ = @rack.call(env)
     assert SolarWindsAPM::TraceString.valid?(headers['X-Trace']), 'X-Trace in headers not valid'
     assert SolarWindsAPM::TraceString.sampled?(headers['X-Trace']), 'X-Trace in headers must be sampled'
-    assert SolarWindsAPM::Context.isValid, 'Context after call should be valid'
+
+    # we do not want lingering Context, it should not be valid
+    refute SolarWindsAPM::Context.isValid, 'Context after call should not be valid'
 
     traces = get_all_traces
     assert_equal 2, traces.size
@@ -107,7 +109,7 @@ describe "Rack: " do
     _, headers, _ = @rack.call(env)
     assert SolarWindsAPM::TraceString.valid?(headers['X-Trace']), 'X-Trace in headers not valid'
     refute SolarWindsAPM::TraceString.sampled?(headers['X-Trace']), 'X-Trace in headers must be sampled'
-    assert SolarWindsAPM::Context.isValid, 'Context after call should be valid'
+    refute SolarWindsAPM::Context.isValid, 'Context after call should not be valid'
 
     traces = get_all_traces
     assert traces.empty?
@@ -119,12 +121,12 @@ describe "Rack: " do
   end
 
   def check_w_context_none_000(env = {})
-    clear_all_trace
+    clear_all_traces
 
     _, headers, _ = @rack.call(env)
 
     refute headers.key?('X-Trace'), 'There should not be an X-Trace in headers'
-    assert SolarWindsAPM::Context.isValid, 'Context after call should be valid'
+    refute SolarWindsAPM::Context.isValid, 'Context after call should not be valid'
 
     traces = get_all_traces
     assert traces.empty?, "No traces should have been recorded"
@@ -134,6 +136,25 @@ describe "Rack: " do
     SolarWindsAPM::Span.expects(:createHttpSpan).never
     @rack.call(env)
   end
+
+  def check_w_context_none_000_context(env = {})
+    clear_all_traces
+
+    _, headers, _ = @rack.call(env)
+
+    refute headers.key?('X-Trace'), 'There should not be an X-Trace in headers'
+    assert SolarWindsAPM::Context.isValid, 'rare case where Context after call should be valid'
+
+    traces = get_all_traces
+    assert traces.empty?, "No traces should have been recorded"
+
+    SolarWindsAPM::API.expects(:log_start).never
+    SolarWindsAPM::API.expects(:log_exit).never
+    SolarWindsAPM::Span.expects(:createHttpSpan).never
+    @rack.call(env)
+  end
+
+
 
   def restart_rack
     @rack = SolarWindsAPM::Rack.new(@app)
@@ -353,7 +374,7 @@ describe "Rack: " do
 
     it "does not sample, do metrics, nor return X-Trace header" do
       SolarWindsAPM::SDK.start_trace(:rack) do
-        check_w_context_none_000
+        check_w_context_none_000_context
       end
     end
   end
@@ -370,12 +391,16 @@ describe "Rack: " do
     # end
 
     it 'should sample but not do metrics' do
+      skip
+      # TODO refactor to not use SolarWindsAPM::Context.fromString
       SolarWindsAPM::SDK.start_trace(:other) do
         check_w_context_01_110
       end
     end
 
     it 'should log an error' do
+      skip
+      # TODO refactor to not use SolarWindsAPM::Context.fromString
       SolarWindsAPM::API.expects(:log_start)
       SolarWindsAPM::API.expects(:log_exception)
       SolarWindsAPM::API.expects(:log_exit)
@@ -390,12 +415,16 @@ describe "Rack: " do
     end
 
     it 'returns a non sampling header when there is a non-sampling context' do
+      skip
+      # TODO refactor to not use SolarWindsAPM::Context.fromString
       SolarWindsAPM::Context.fromString('00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-00')
 
       check_w_context_00_000
     end
 
     it 'does not trace or send metrics when there is a non-sampling context' do
+      skip
+      # TODO refactor to not use SolarWindsAPM::Context.fromString
       SolarWindsAPM::Context.fromString('00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-00')
 
       SolarWindsAPM::API.expects(:log_start).never

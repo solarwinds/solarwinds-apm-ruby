@@ -14,8 +14,6 @@ if defined?(::Redis)
     end
 
     before do
-      clear_all_traces
-
       @redis ||= Redis.new(:host => ENV['REDIS_HOST'] || ENV['REDIS_SERVER'] || '127.0.0.1',
                            :password => ENV['REDIS_PASSWORD'] || 'secret_pass')
 
@@ -24,6 +22,11 @@ if defined?(::Redis)
       # These are standard entry/exit KVs that are passed up with all moped operations
       @entry_kvs ||= { 'Layer' => 'redis_test', 'Label' => 'entry' }
       @exit_kvs  ||= { 'Layer' => 'redis_test', 'Label' => 'exit' }
+
+      clear_all_traces
+      # not a request entry point, context set up in test with start_trace
+      # remove with NH-11132
+      SolarWindsAPM::Context.clear
     end
 
     it "should trace auth and not include password" do
@@ -33,7 +36,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "auth"
       _(traces[2].has_key?('KVKey')).must_equal false
     end
@@ -46,7 +49,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "publish"
       _(traces[2]['channel']).must_equal "channel1"
       _(traces[2].has_key?('KVKey')).must_equal false
@@ -60,7 +63,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "select"
       _(traces[2]['db']).must_equal 2
     end
@@ -81,7 +84,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOpCount']).must_equal 6
       _(traces[2]['KVOps']).must_equal "zadd, zadd, zadd, lpush, lpush, lpush"
     end
@@ -102,7 +105,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOpCount']).must_equal 8
       _(traces[2]['KVOps']).must_equal "multi, zadd, zadd, zadd, lpush, lpush, lpush, exec"
     end
@@ -117,7 +120,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 8
+      _(traces.count).must_equal 8, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "eval"
       _(traces[2]['Script']).must_equal "return 1"
       _(traces[4]['KVOp']).must_equal "eval"
@@ -136,7 +139,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "evalsha"
       _(traces[2]['sha']).must_equal sha
     end
@@ -152,7 +155,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 10
+      _(traces.count).must_equal 10, filter_traces(traces).pretty_inspect
 
       # Validate return values
       _(@it_exists1).must_equal true

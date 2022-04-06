@@ -19,7 +19,7 @@ describe SolarWindsAPM::SDK do
 
     # clean up because a test from a previous test files may not
     SolarWindsAPM.layer = nil
-    # SolarWindsAPM::Context.clear
+    SolarWindsAPM::Context.clear
   end
 
   after do
@@ -294,7 +294,9 @@ describe SolarWindsAPM::SDK do
 
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+  # TODO change all of these with NH-11132
   describe 'start_trace nested invocation' do
+    # skip
     it 'should call send_metrics only once' do
       SolarWindsAPM::API.expects(:send_metrics).once
       sleep 0.1

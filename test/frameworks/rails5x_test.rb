@@ -7,7 +7,6 @@ if defined?(::Rails)
 
   describe "Rails5x" do
     before do
-      clear_all_traces
       SolarWindsAPM.config_lock.synchronize {
         @tm = SolarWindsAPM::Config[:tracing_mode]
         @collect_backtraces = SolarWindsAPM::Config[:action_controller][:collect_backtraces]
@@ -20,6 +19,10 @@ if defined?(::Rails)
         SolarWindsAPM::Config[:rack][:collect_backtraces] = false
       }
       ENV['DBTYPE'] = "postgresql" unless ENV['DBTYPE']
+
+      clear_all_traces
+      # not request entry points, context set up in the remote rack app
+      SolarWindsAPM::Context.clear
     end
 
     after do
@@ -41,7 +44,7 @@ if defined?(::Rails)
       _ = Net::HTTP.get_response(uri)
 
       traces = get_all_traces
-      _(traces.count).must_equal 8
+      _(traces.count).must_equal 8, filter_traces(traces).pretty_inspect
 
       _(traces[3]['Layer']).must_equal "partial"
       _(traces[3]['Label']).must_equal "entry"
@@ -56,10 +59,10 @@ if defined?(::Rails)
       _ = Net::HTTP.get_response(uri)
 
       traces = get_all_traces
-      _(traces.count).must_equal 16
+      _(traces.count).must_equal 16, filter_traces(traces).pretty_inspect
 
       collection_events = traces.select { |tr| tr['Layer'] == 'collection' }
-      _(collection_events.size).must_equal 2
+      _(collection_events.size).must_equal 2, filter_traces(collection_events).pretty_inspect
 
       _(collection_events[0]['Label']).must_equal "entry"
       _(collection_events[0]['Partial']).must_equal "hello/_widget"
@@ -72,7 +75,7 @@ if defined?(::Rails)
 
       traces = get_all_traces
 
-      _(traces.count).must_equal 6
+      _(traces.count).must_equal 6, filter_traces(traces).pretty_inspect
       _(valid_edges?(traces)).must_equal true
       validate_outer_layers(traces, 'rack')
 
@@ -112,7 +115,7 @@ if defined?(::Rails)
 
       traces = get_all_traces
 
-      _(traces.count).must_equal 12
+      _(traces.count).must_equal 12, filter_traces(traces).pretty_inspect
       _(valid_edges?(traces)).must_equal true
       validate_outer_layers(traces, 'rack')
 
@@ -175,15 +178,15 @@ if defined?(::Rails)
       r = Net::HTTP.get_response(uri)
 
       traces = get_all_traces
-      _(traces.count).must_equal 12
+      _(traces.count).must_equal 12, filter_traces(traces).pretty_inspect
       _(valid_edges?(traces)).must_equal true
       validate_outer_layers(traces, 'rack')
 
       entry_traces = traces.select { |tr| tr['Label'] == 'entry' }
-      _(entry_traces.count).must_equal 6
+      _(entry_traces.count).must_equal 6, filter_traces(entry_traces).pretty_inspect
 
       exit_traces = traces.select { |tr| tr['Label'] == 'exit' }
-      _(exit_traces.count).must_equal 6
+      _(exit_traces.count).must_equal 6, filter_traces(exit_traces).pretty_inspect
 
       _(entry_traces[2]['Layer']).must_equal "activerecord"
       _(entry_traces[2]['Flavor']).must_equal "mysql"
@@ -226,15 +229,15 @@ if defined?(::Rails)
       r = Net::HTTP.get_response(uri)
 
       traces = get_all_traces
-      _(traces.count).must_equal 12
+      _(traces.count).must_equal 12, filter_traces(traces).pretty_inspect
       _(valid_edges?(traces)).must_equal true
       validate_outer_layers(traces, 'rack')
 
       entry_traces = traces.select { |tr| tr['Label'] == 'entry' }
-      _(entry_traces.count).must_equal 6
+      _(entry_traces.count).must_equal 6, filter_traces(entry_traces).pretty_inspect
 
       exit_traces = traces.select { |tr| tr['Label'] == 'exit' }
-      _(exit_traces.count).must_equal 6
+      _(exit_traces.count).must_equal 6, filter_traces(exit_traces).pretty_inspect
 
       _(entry_traces[2]['Layer']).must_equal "activerecord"
       _(entry_traces[2]['Flavor']).must_equal "mysql"
@@ -269,7 +272,7 @@ if defined?(::Rails)
 
       traces = get_all_traces
 
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(valid_edges?(traces)).must_equal true
       validate_outer_layers(traces, 'rack')
 
@@ -299,7 +302,7 @@ if defined?(::Rails)
 
       traces = get_all_traces
 
-      _(traces.count).must_equal 6
+      _(traces.count).must_equal 6, filter_traces(traces).pretty_inspect
       _(valid_edges?(traces)).must_equal true
       validate_outer_layers(traces, 'rack')
 
@@ -338,7 +341,7 @@ if defined?(::Rails)
 
       traces = get_all_traces
 
-      _(traces.count).must_equal 6
+      _(traces.count).must_equal 6, filter_traces(traces).pretty_inspect
       _(valid_edges?(traces)).must_equal true
       validate_outer_layers(traces, 'rack')
 

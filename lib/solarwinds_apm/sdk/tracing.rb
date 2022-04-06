@@ -111,6 +111,11 @@ module SolarWindsAPM
       # This will start a trace depending on configuration and probability, detect any exceptions
       # thrown by the block, and report errors.
       #
+      # This method is for request entry points where no trace has been started yet
+      # Nested calls to start_trace() will have the inner call override the outer call
+      # The behavior may be unexpected. After a trace is started with start_trace()
+      # trace() should be used to create spans within the started trace
+      #
       # When start_trace returns control to the calling context, the trace will be
       # completed and the tracing context will be cleared.
       #

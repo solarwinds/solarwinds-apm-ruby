@@ -7,13 +7,17 @@ if defined?(::Rails)
 
   describe "Rails5xAPI" do
     before do
-      clear_all_traces
       SolarWindsAPM.config_lock.synchronize {
         @tm = SolarWindsAPM::Config[:tracing_mode]
         @collect_backtraces = SolarWindsAPM::Config[:action_controller_api][:collect_backtraces]
         @sample_rate = SolarWindsAPM::Config[:sample_rate]
       }
       ENV['DBTYPE'] = "postgresql" unless ENV['DBTYPE']
+
+      clear_all_traces
+      # not a request entry point, context set up in test with start_trace
+      # remove with NH-11132
+      SolarWindsAPM::Context.clear
     end
 
     after do
@@ -33,7 +37,7 @@ if defined?(::Rails)
 
       traces = get_all_traces
 
-      _(traces.count).must_equal 6
+      _(traces.count).must_equal 6, filter_traces(traces).pretty_inspect
       _(valid_edges?(traces)).must_equal true
       validate_outer_layers(traces, 'rack')
 
@@ -69,7 +73,7 @@ if defined?(::Rails)
 
       traces = get_all_traces
 
-      _(traces.count).must_equal 5
+      _(traces.count).must_equal 5, filter_traces(traces).pretty_inspect
       _(valid_edges?(traces)).must_equal true
       validate_outer_layers(traces, 'rack')
 
@@ -108,7 +112,7 @@ if defined?(::Rails)
 
       traces = get_all_traces
 
-      _(traces.count).must_equal 6
+      _(traces.count).must_equal 6, filter_traces(traces).pretty_inspect
       _(valid_edges?(traces)).must_equal true
       validate_outer_layers(traces, 'rack')
 
@@ -147,7 +151,7 @@ if defined?(::Rails)
 
       traces = get_all_traces
 
-      _(traces.count).must_equal 6
+      _(traces.count).must_equal 6, filter_traces(traces).pretty_inspect
       _(valid_edges?(traces)).must_equal true
       validate_outer_layers(traces, 'rack')
 
