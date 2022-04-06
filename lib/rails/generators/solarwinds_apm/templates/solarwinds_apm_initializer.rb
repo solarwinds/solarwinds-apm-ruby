@@ -36,7 +36,7 @@ if defined?(SolarWindsAPM::Config)
   # Set Proxy for SolarWinds   # This setting will be overridden if SW_APM_PROXY is set as an environment variable.
   #
   # Please configure http_proxy if a proxy needs to be used to communicate with
-  # the SolarWinds backend.
+  # the SolarWinds APM collector.
   # The format should either be http://<proxyHost>:<proxyPort> for a proxy
   # server that does not require authentication, or
   # http://<username>:<password>@<proxyHost>:<proxyPort> for a proxy server that
