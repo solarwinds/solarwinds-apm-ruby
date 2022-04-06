@@ -37,6 +37,7 @@ if defined?(::Sequel)
       # remove with NH-11132
       # not a request entry point, context set up in test with start_trace
       SolarWindsAPM::Context.clear
+      SolarWindsAPM.trace_context = nil
       clear_all_traces
     end
 
