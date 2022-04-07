@@ -1,6 +1,6 @@
 # Welcome to the SolarWindsAPM Ruby Gem
 
-The solarwinds_apm gem provides [SolarWindsAPM](https://www.appoptics.com/) performance instrumentation for Ruby.
+The solarwinds_apm gem provides [SolarWindsAPM](https://cloud.solarwinds.com/) performance instrumentation for Ruby.
 
 It has the ability to report performance metrics on an array of libraries, databases and frameworks such as Rails,
 Rack, ActiveRecord, Mongo, Memcache, Resque 

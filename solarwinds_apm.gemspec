@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
 
   s.authors = ["Maia Engeli", "Peter Giacomo Lombardo", "Spiros Eliopoulos"]
   s.email = %q{technicalsupport@solarwinds.com}
-  s.homepage = %q{https://www.appoptics.com/}
+  s.homepage = %q{https://cloud.solarwinds.com/}
   s.summary = %q{SolarWindsAPM performance instrumentation gem for Ruby}
   s.description = <<-EOF
 Automatic tracing and metrics for Ruby applications. Get started at appoptics.com. @AppOptics
@@ -19,7 +19,7 @@ Automatic tracing and metrics for Ruby applications. Get started at appoptics.co
   s.metadata = {
       'changelog_uri'     => 'https://github.com/appoptics/appoptics-apm-ruby/releases',
       'documentation_uri' => 'https://docs.appoptics.com/kb/apm_tracing/ruby/',
-      'homepage_uri'      => 'https://www.appoptics.com/',
+      'homepage_uri'      => 'https://cloud.solarwinds.com/',
       'source_code_uri'   => 'https://github.com/appoptics/appoptics-apm-ruby',
   }
 

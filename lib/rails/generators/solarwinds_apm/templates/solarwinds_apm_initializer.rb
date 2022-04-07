@@ -3,13 +3,13 @@
 # Copyright (c) 2019 SolarWinds, LLC.
 # All rights reserved.
 
-# SolarWindsAPM Initializer (for the solarwinds_apm gem)
-# https://www.appoptics.com/
+# SolarWindsAPM Configuration for the Ruby Agent aka solarwinds_apm gem
+# https://cloud.solarwinds.com/
 #
-# More information on instrumenting Ruby applications can be found here:
-# https://docs.appoptics.com/kb/apm_tracing/ruby/
+# More information on configuring the Ruby Agent can be found here:
+# https://documentation.solarwinds.com/en/success_center/swaas/default.htm#cshid=config-ruby-agent
 #
-# The settings in this template file represent the defaults
+# The initial settings in this file represent the defaults
 
 if defined?(SolarWindsAPM::Config)
 
