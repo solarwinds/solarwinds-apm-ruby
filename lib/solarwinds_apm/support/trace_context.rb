@@ -26,9 +26,10 @@ module SolarWindsAPM
     end
 
     # these are event kvs, not headers
+    # called by log_start, lets reset to nil if there is no info
     def add_traceinfo(kvs = {})
-      kvs['sw.tracestate_parent_id'] = @sw_member_value[0...-3] if @sw_member_value
-      kvs['sw.w3c.tracestate'] = @tracestate if @tracestate
+      kvs['sw.tracestate_parent_id'] = @sw_member_value ? @sw_member_value[0...-3] : nil
+      kvs['sw.w3c.tracestate'] = @tracestate ? @tracestate : nil
       kvs
     end
 

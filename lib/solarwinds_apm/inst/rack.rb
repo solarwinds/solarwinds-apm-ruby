@@ -20,6 +20,8 @@ if SolarWindsAPM.loaded
     # and act accordingly.
     #
     class Rack
+      include SolarWindsAPM::SDK::TraceContextHeaders
+
       attr_reader :app
 
       def initialize(app)
@@ -39,7 +41,14 @@ if SolarWindsAPM.loaded
         existing_context = false
         if SolarWindsAPM::Context.isValid
           existing_context = env['SW_APM_TRACE_STARTED'] == 'true'
-          SolarWindsAPM::Context.clear unless existing_context
+          puts "##### Valid Context found, existing_context; #{existing_context} ####"
+
+          if existing_context
+            # include or override tracecontext in env, so that the current context gets continued
+            add_tracecontext_headers(env)
+          else
+            SolarWindsAPM::Context.clear
+          end
         end
 
         SolarWindsAPM.transaction_name = nil
@@ -161,7 +170,6 @@ if SolarWindsAPM.loaded
             options&.add_kvs(report_kvs, settings)
 
             SolarWindsAPM::API.log_start(:rack, report_kvs, env, settings)
-
             # mark the trace as started for this request
             env['SW_APM_TRACE_STARTED'] = 'true'
 

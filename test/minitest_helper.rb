@@ -260,12 +260,23 @@ def valid_edges?(traces, connected = true)
     else
       # TODO NH-2303 maybe remove when done
       puts "number of unique sw.parent_span_ids: #{traces.map { |tr| tr['sw.parent_span_id'] }.uniq.size}"
-      puts "number of traces: traces.size"
+      puts "number of traces: #{traces.size}"
       print_traces(traces)
       return false
     end
   end
   true
+end
+
+##
+# same_trace_id?
+#
+# do the events all have the same trace_id?
+# 
+def same_trace_id?(traces)
+  traces.map do |t|
+    SolarWindsAPM::TraceString.trace_id(t["sw.trace_context"])
+  end.uniq.count == 1
 end
 
 ##

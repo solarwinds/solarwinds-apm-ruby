@@ -29,7 +29,7 @@ describe 'BunnyConsumerTest' do
     @queue = @ch.queue("tv.ruby.consumer.test", :exclusive => true)
     @exchange  = @ch.default_exchange
 
-    @queue.subscribe(:block => false, :manual_ack => true) do |delivery_info, properties, payload|
+    @queue.subscribe(:block => false, :manual_ack => true) do |_delivery_info, _properties, _payload|
       # Make an http call to spice things up
       uri = URI('http://127.0.0.1:8101/')
       http = Net::HTTP.new(uri.host, uri.port)

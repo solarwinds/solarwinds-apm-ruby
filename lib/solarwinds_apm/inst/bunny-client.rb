@@ -4,6 +4,8 @@
 module SolarWindsAPM
   module Inst
     module BunnyExchange
+      include SolarWindsAPM::SDK::TraceContextHeaders
+
       def self.included(klass)
         SolarWindsAPM::Util.method_alias(klass, :delete, ::Bunny::Exchange)
       end
@@ -83,7 +85,6 @@ module SolarWindsAPM
           kvs[:Op]          = :publish
 
           SolarWindsAPM::API.log_entry(:'rabbitmq-client')
-
           # Pass the tracing context as a header
           opts[:headers] ||= {}
           opts[:headers][:SourceTrace] = SolarWindsAPM::Context.toString if SolarWindsAPM.tracing?
@@ -108,6 +109,8 @@ module SolarWindsAPM
           kvs[:Op] = :queue
 
           SolarWindsAPM::API.log_entry(:'rabbitmq-client')
+          opts[:headers] = {}
+          add_tracecontext_headers(opts[:headers])
 
           result = queue_without_sw_apm(name, opts)
           kvs[:Queue] = result.name
@@ -130,6 +133,9 @@ module SolarWindsAPM
           kvs[:Op] = :wait_for_confirms
 
           SolarWindsAPM::API.log_entry(:'rabbitmq-client')
+          # can't continue trace on consumer, because we can't send opts for wait
+          # Seems ok, since this is waiting client side
+          # and not actually spending time on the consumer
 
           wait_for_confirms_without_sw_apm
         rescue => e
