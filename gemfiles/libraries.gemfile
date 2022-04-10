@@ -8,7 +8,8 @@ gem 'rest-client'
 
 # doesn't install well on alpine, explained here:
 # https://qiita.com/takkeybook/items/5eae085d902957f0fe5b
-if  !File.exist?('/etc/alpine-release')
+# needs fixing for Ruby >= 3
+if  !File.exist?('/etc/alpine-release')  && RUBY_VERSION < '3.0.0'
   gem 'grpc'
   gem 'google-protobuf'
 end
