@@ -62,14 +62,18 @@ describe 'BunnyClientConsumerTest' do
     @queue = @ch.queue("tv.ruby.clientconsumer.error.test", :exclusive => true)
     @exchange  = @ch.default_exchange
 
-    @queue.subscribe(:block => false, :manual_ack => true) do |delivery_info, properties, payload|
+    @queue.subscribe(:block => false, :manual_ack => true) do |_delivery_info, _properties, _payload|
       raise "blah"
     end
 
     SolarWindsAPM::Context.clear
     clear_all_traces
-    SolarWindsAPM::SDK.start_trace('bunny_tests') do
-      @exchange.publish("The Tortoise and the Hare", :routing_key => @queue.name, :app_id => "msg_app", :type => :generic)
+    begin
+      SolarWindsAPM::SDK.start_trace('bunny_tests') do
+        @exchange.publish("The Tortoise and the Hare", :routing_key => @queue.name, :app_id => "msg_app", :type => :generic)
+      end
+    rescue
+      # ignore exception and continue
     end
 
     sleep 0.1

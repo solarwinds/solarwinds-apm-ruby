@@ -124,7 +124,7 @@ describe 'BunnyConsumerTest' do
     @queue = @ch.queue("tv.ruby.consumer.error.test", :exclusive => true)
     @exchange  = @ch.default_exchange
 
-    @queue.subscribe(:block => false, :manual_ack => true) do |delivery_info, properties, payload|
+    @queue.subscribe(:block => false, :manual_ack => true) do |_delivery_info, _properties, _payload|
       raise "blah"
     end
 

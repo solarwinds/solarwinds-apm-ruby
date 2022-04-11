@@ -172,15 +172,20 @@ describe 'BunnyClientTest' do
     validate_outer_layers(traces, "bunny_tests")
     assert valid_edges?(traces), "Invalid edge in traces"
 
-    _(traces[2]['Layer']).must_equal "rabbitmq-client"
-    _(traces[2]['Spec']).must_equal "error"
-    _(traces[2]['Label']).must_equal "error"
-    _(traces[2]['ErrorClass']).must_equal "Bunny::ResourceLocked"
-    _(traces[2]['ErrorMsg']).must_match(/RESOURCE_LOCKED/)
+    error_trace = traces.find { |tr| tr['Label'] == 'error' }
+    assert error_trace, "no error event reported"
+
+    _(error_trace['Layer']).must_equal "bunny_tests"
+    _(error_trace['Spec']).must_equal "error"
+    _(error_trace['Label']).must_equal "error"
+    _(error_trace['ErrorClass']).must_equal "Bunny::ResourceLocked"
+    _(error_trace['ErrorMsg']).must_match(/RESOURCE_LOCKED/)
 
     _(traces.select { |trace| trace['Label'] == 'error' }.count).must_equal 1
 
-    _(traces[3].key?('Backtrace')).must_equal !!SolarWindsAPM::Config[:bunnyclient][:collect_backtraces]
+    client_traces = traces.select { |tr| tr['Layer'] == 'rabbitmq-client' }
+    client_traces.count == 2
+    _(client_traces[1].key?('Backtrace')).must_equal !!SolarWindsAPM::Config[:bunnyclient][:collect_backtraces]
 
     @conn.close
   end
