@@ -59,7 +59,7 @@ describe 'BunnyClientConsumerTest' do
     @conn = Bunny.new(@connection_params)
     @conn.start
     @ch = @conn.create_channel
-    @queue = @ch.queue("tv.ruby.consumer.error.test", :exclusive => true)
+    @queue = @ch.queue("tv.ruby.clientconsumer.error.test", :exclusive => true)
     @exchange  = @ch.default_exchange
 
     @queue.subscribe(:block => false, :manual_ack => true) do |delivery_info, properties, payload|

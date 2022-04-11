@@ -162,6 +162,8 @@ describe 'BunnyConsumerTest' do
 
     _(traces[2]['Layer']).must_equal "rabbitmq-consumer"
     _(traces[2]['Label']).must_equal "exit"
+
+    @conn.close
   end
 
   it 'captures the id' do
