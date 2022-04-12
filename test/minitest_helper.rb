@@ -180,10 +180,10 @@ end
 # in event
 #
 def validate_outer_layers(traces, layer)
-  _(traces.first['Layer']).must_equal layer
-  _(traces.first['Label']).must_equal 'entry'
-  _(traces.last['Layer']).must_equal layer
-  _(traces.last['Label']).must_equal 'exit'
+  assert_equal traces.first['Layer'], layer
+  assert_equal traces.first['Label'], 'entry'
+  assert_equal traces.last['Layer'], layer
+  assert_equal traces.last['Label'], 'exit'
 end
 
 ##

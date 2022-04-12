@@ -76,8 +76,8 @@ module SolarWindsAPM
 
         exception.message << exception.class.name if exception.message.length < 4
         kvs.merge!(:Spec => 'error',
-                    :ErrorClass => exception.class.name,
-                    :ErrorMsg => exception.message)
+                   :ErrorClass => exception.class.name,
+                   :ErrorMsg => exception.message)
 
         if exception.respond_to?(:backtrace) && exception.backtrace
           kvs.merge!(:Backtrace => exception.backtrace.join("\r\n"))

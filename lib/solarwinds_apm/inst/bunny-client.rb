@@ -87,7 +87,7 @@ module SolarWindsAPM
           SolarWindsAPM::API.log_entry(:'rabbitmq-client')
           # Pass the tracing context as a header
           opts[:headers] ||= {}
-          opts[:headers][:SourceTrace] = SolarWindsAPM::Context.toString if SolarWindsAPM.tracing?
+          opts[:headers][:SourceTrace] = SolarWindsAPM::Context.toString
           add_tracecontext_headers(opts[:headers])
 
           basic_publish_without_sw_apm(payload, exchange, routing_key, opts)

@@ -28,8 +28,12 @@ if defined?(Delayed)
         # SolarWindsAPM::Inst::DelayedJob::Plugin
         #
         # The SolarWindsAPM DelayedJob plugin.  Here we wrap `enqueue` and
-        # `perform` to capture the timing of the bits we're interested
-        # in.
+        # `perform` to capture the timing of the bits we're interested in.
+        #
+        # Traces from the client are not continued in the consumer
+        # - There is no reliable way to for the job to carry trace information
+        # - It is too asynchronous for tracing to make sense. The worker can be
+        #   delayed by minutes and the trace processing completed already
         #
         class Plugin < Delayed::Plugin
           callbacks do |lifecycle|

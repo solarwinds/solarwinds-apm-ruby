@@ -35,20 +35,18 @@ module SolarWindsAPM
       # args: 0: worker, 1: msg, 2: queue
       report_kvs = collect_kvs(args)
 
-      # TODO remove completely once it is determined that this works without
-      # Something is happening across Celluloid threads where liboboe settings
-      # are being lost.  So we re-set the tracing mode to assure
-      # we sample as desired.  Setting the tracing mode will re-update
-      # the liboboe settings.
-      # SolarWindsAPM.set_tracing_mode(SolarWindsAPM::Config[:tracing_mode].to_sym)
+      puts args[1]
 
-      # Continue the trace from the enqueue side?
-      # TODO use w3c headers NH-11132 see bunny consumer
+      # Continue the trace from the enqueue side
       if args[1].is_a?(Hash) && SolarWindsAPM::TraceString.valid?(args[1]['SourceTrace'])
         report_kvs[:SourceTrace] = args[1]['SourceTrace']
+        args[1].delete('SourceTrace')
+        unless args[1]['traceparent'] && args[1]['tracestate']
+          add_tracecontext_headers(args[1])
+        end
       end
 
-      SolarWindsAPM::SDK.start_trace(:'sidekiq-worker', kvs: report_kvs) do
+      SolarWindsAPM::SDK.start_trace(:'sidekiq-worker', kvs: report_kvs, headers: args[1]) do
         yield
       end
     end

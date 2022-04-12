@@ -3,6 +3,8 @@
 
 module SolarWindsAPM
   class SidekiqClient
+    include SolarWindsAPM::SDK::TraceContextHeaders
+
     def collect_kvs(args)
       begin
         # Attempt to collect up pertinent info.  If we hit something unexpected,
@@ -30,9 +32,8 @@ module SolarWindsAPM
       if SolarWindsAPM.tracing?
         report_kvs = collect_kvs(args)
         SolarWindsAPM::API.log_entry(:'sidekiq-client', report_kvs)
-        # TODO add w3c headers instead of SourceTrace
-        #   NH-11132
         args[1]['SourceTrace'] = SolarWindsAPM::Context.toString
+        add_tracecontext_headers(args[1])
       end
 
       result = yield

@@ -14,6 +14,8 @@ Sidekiq.configure_server do |config|
   end
 end
 
+# These tests also look at the continuation of context in the worker
+# but without testing all the worker detail
 class SidekiqClientTest < Minitest::Test
   def setup
     clear_all_traces
@@ -21,7 +23,6 @@ class SidekiqClientTest < Minitest::Test
     @log_args = SolarWindsAPM::Config[:sidekiqclient][:log_args]
     @tracing_mode = SolarWindsAPM::Config[:tracing_mode]
 
-    # TODO remove with NH-11132
     # not a request entry point, context set up in test with start_trace
     SolarWindsAPM::Context.clear
   end
@@ -52,9 +53,9 @@ class SidekiqClientTest < Minitest::Test
     sleep 3
 
     traces = get_all_traces
-
-    assert_equal 16, refined_trace_count(traces)
+    assert_equal 16, refined_trace_count(traces), filter_traces(traces).pretty_inspect
     assert valid_edges?(traces, false), "Invalid edge in traces"
+    assert same_trace_id?(traces), "more than one task_id found"
 
     assert_equal 'sidekiq-client',       traces[1]['Layer']
     assert_equal 'entry',                traces[1]['Label']
@@ -112,6 +113,8 @@ class SidekiqClientTest < Minitest::Test
     traces = get_all_traces
     assert_equal 16, refined_trace_count(traces), filter_traces(traces).pretty_inspect
     assert valid_edges?(traces, false), "Invalid edge in traces"
+    assert same_trace_id?(traces), "more than one task_id found"
+
     assert_equal 'sidekiq-client', traces[1]['Layer']
     assert_equal true, traces[1].key?('Backtrace')
   end
@@ -130,6 +133,7 @@ class SidekiqClientTest < Minitest::Test
     traces = get_all_traces
     assert_equal 16, refined_trace_count(traces), filter_traces(traces).pretty_inspect
     assert valid_edges?(traces, false), "Invalid edge in traces"
+    assert same_trace_id?(traces), "more than one task_id found"
     assert_equal false, traces[1].key?('Args')
   end
 
@@ -147,6 +151,7 @@ class SidekiqClientTest < Minitest::Test
     traces = get_all_traces
     assert_equal 16, refined_trace_count(traces)
     assert valid_edges?(traces, false), "Invalid edge in traces"
+    assert same_trace_id?(traces), "more than one task_id found"
     assert_equal true, traces[1].key?('Args')
     assert_equal '[1, 2, 3]', traces[1]['Args']
   end
@@ -163,9 +168,11 @@ class SidekiqClientTest < Minitest::Test
     sleep 3
     traces = get_all_traces
 
-    # FIXME: the sidekiq worker is not respecting the SolarWindsAPM::Config[:tracing_mode] = :disabled setting
-    # ____ instead of no traces we are getting 17, that is 4 less than we would get with tracing
-    # assert_equal 0, traces.count
+    # The sidekiq worker is already started in a different process and does not
+    # receive the new value for SolarWindsAPM::Config[:tracing_mode]
+    # We receive 12 trace events from the worker
     assert_equal 12, refined_trace_count(traces)
+    assert same_trace_id?(traces), "more than one task_id found"
+    validate_outer_layers(traces, 'sidekiq-worker')
   end
 end
