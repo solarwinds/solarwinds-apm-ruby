@@ -7,14 +7,9 @@ require 'json'
 module SolarWindsAPM
   module Inst
     module ResqueClient
-      def self.included(klass)
-        klass.send :extend, ::Resque
-        SolarWindsAPM::Util.method_alias(klass, :enqueue, ::Resque)
-        SolarWindsAPM::Util.method_alias(klass, :enqueue_to, ::Resque)
-        SolarWindsAPM::Util.method_alias(klass, :dequeue, ::Resque)
-      end
+      include SolarWindsAPM::SDK::TraceContextHeaders
 
-      def extract_trace_details(op, klass, args)
+      def extract_trace_details(klass, args)
         report_kvs = {}
 
         begin
@@ -41,68 +36,56 @@ module SolarWindsAPM
         report_kvs
       end
 
-      def enqueue_with_sw_apm(klass, *args)
+      def push(queue, item)
         if SolarWindsAPM.tracing?
-          report_kvs = extract_trace_details(:enqueue, klass, args)
-
-          SolarWindsAPM::SDK.trace(:'resque-client', kvs: report_kvs, protect_op: :enqueue) do
-            enqueue_without_sw_apm(klass, *args)
-          end
-        else
-          enqueue_without_sw_apm(klass, *args)
-        end
-      end
-
-      def enqueue_to_with_sw_apm(queue, klass, *args)
-        if SolarWindsAPM.tracing? && !SolarWindsAPM.tracing_layer_op?(:enqueue)
-          report_kvs = extract_trace_details(:enqueue_to, klass, args)
+          report_kvs = extract_trace_details(item[:class], item[:args])
           report_kvs[:Queue] = queue.to_s if queue
 
           SolarWindsAPM::SDK.trace(:'resque-client', kvs: report_kvs) do
-            enqueue_to_without_sw_apm(queue, klass, *args)
+            add_tracecontext_headers(item)
+            puts "##### push #{item.pretty_inspect} ####"
+            super
           end
         else
-          enqueue_to_without_sw_apm(queue, klass, *args)
+          super
         end
       end
 
-      def dequeue_with_sw_apm(klass, *args)
+      def dequeue(klass, *args)
+        puts "##### dequeue called ####"
         if SolarWindsAPM.tracing?
-          report_kvs = extract_trace_details(:dequeue, klass, args)
-
+          report_kvs = extract_trace_details(klass, args)
           SolarWindsAPM::SDK.trace(:'resque-client', kvs: report_kvs) do
-            dequeue_without_sw_apm(klass, *args)
+            super(klass, *args)
           end
         else
-          dequeue_without_sw_apm(klass, *args)
+          super(klass, *args)
         end
       end
     end
 
-    module ResqueWorker
-      def self.included(klass)
-        SolarWindsAPM::Util.method_alias(klass, :perform, ::Resque::Worker)
-      end
+    module ResqueJob
 
-      def perform_with_sw_apm(job)
+      def perform
+        puts "##### performing ResqueJob ####"
         report_kvs = {}
 
         begin
           report_kvs[:Spec] = :job
           report_kvs[:Flavor] = :resque
-          report_kvs[:JobName] = job.payload['class'].to_s
-          report_kvs[:Queue] = job.queue
+          report_kvs[:JobName] = payload['class'].to_s
+          report_kvs[:Queue] = queue.to_s
 
           # Set these keys for the ability to separate out
           # background tasks into a separate app on the server-side UI
 
           report_kvs[:'HTTP-Host'] = Socket.gethostname
-          report_kvs[:Controller] = "Resque_#{job.queue}"
-          report_kvs[:Action] = job.payload['class'].to_s
-          report_kvs[:URL] = "/resque/#{job.queue}/#{job.payload['class']}"
+          report_kvs[:Controller] = "Resque_#{queue}"
+          report_kvs[:Action] = payload['class'].to_s
+          report_kvs[:URL] = "/resque/#{queue}/#{payload['class']}"
 
           if SolarWindsAPM::Config[:resqueworker][:log_args]
-            kv_args = job.payload['args'].to_json
+            kv_args = payload['args'].to_json
 
             # Limit the argument json string to 1024 bytes
             if kv_args.length > 1024
@@ -117,34 +100,40 @@ module SolarWindsAPM
           SolarWindsAPM.logger.debug "[solarwinds_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if SolarWindsAPM::Config[:verbose]
         end
 
-        SolarWindsAPM::SDK.start_trace(:'resque-worker', kvs: report_kvs) do
-          perform_without_sw_apm(job)
+        # TODO NH-11132, do we have headers to to extract trace info?
+        puts "###### payload #{payload.pretty_inspect} ####"
+
+        SolarWindsAPM::SDK.start_trace('resque-worker', kvs: report_kvs, headers: payload) do
+          super
         end
       end
-    end
 
-    module ResqueJob
-      def self.included(klass)
-        SolarWindsAPM::Util.method_alias(klass, :fail, ::Resque::Job)
-      end
-
-      def fail_with_sw_apm(exception)
+      def fail(exception)
+        puts "##### failing ####"
         if SolarWindsAPM.tracing?
           SolarWindsAPM::API.log_exception(:resque, exception)
         end
-        fail_without_sw_apm(exception)
+        super(exception)
       end
     end
   end
 end
 
-if defined?(Resque)
+if defined?(::Resque)
   SolarWindsAPM.logger.info '[solarwinds_apm/loading] Instrumenting resque' if SolarWindsAPM::Config[:verbose]
+  # if SolarWindsAPM::Config[:resqueclient][:enabled]
+  #   module ::Resque
+  #     class << self
+  #       prepend SolarWindsAPM::Inst::ResqueClient
+  #     end
+  #   end
+  # end
 
-  SolarWindsAPM::Util.send_include(Resque,         SolarWindsAPM::Inst::ResqueClient) if SolarWindsAPM::Config[:resqueclient][:enabled]
-  SolarWindsAPM::Util.send_include(Resque::Worker, SolarWindsAPM::Inst::ResqueWorker) if SolarWindsAPM::Config[:resqueworker][:enabled]
+  ::Resque.prepend(SolarWindsAPM::Inst::ResqueClient) if SolarWindsAPM::Config[:resqueclient][:enabled]
+  ::Resque.singleton_class.prepend(SolarWindsAPM::Inst::ResqueClient) if SolarWindsAPM::Config[:resqueclient][:enabled]
+
   if SolarWindsAPM::Config[:resqueclient][:enabled] || SolarWindsAPM::Config[:resqueworker][:enabled]
-    SolarWindsAPM::Util.send_include(Resque::Job,    SolarWindsAPM::Inst::ResqueJob)
+    Resque::Job.prepend(SolarWindsAPM::Inst::ResqueJob)
   end
 end
 

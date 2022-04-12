@@ -12,7 +12,6 @@ Resque.enqueue(ResqueRemoteCallWorkerJob) # calling this here once to avoid othe
 
 describe 'ResqueClient' do
   before do
-    clear_all_traces
 
     @tm = SolarWindsAPM::Config[:tracing_mode]
     @collect_backtraces = SolarWindsAPM::Config[:resqueclient][:collect_backtraces]
@@ -22,38 +21,39 @@ describe 'ResqueClient' do
 
     # TODO remove with NH-11132
     # not a request entry point, context set up in test with start_trace
+    work_off_jobs
     SolarWindsAPM::Context.clear
+    clear_all_traces
   end
 
   after do
     SolarWindsAPM::Config[:resqueclient][:collect_backtraces] = @collect_backtraces
     SolarWindsAPM::Config[:resqueclient][:log_args] = @log_args
     SolarWindsAPM::Config[:tracing_mode] = @tm
+    Resque.redis.flushall
   end
 
-  it 'sw_apm_methods_defined' do
-    [:enqueue, :enqueue_to, :dequeue].each do |m|
-      assert_equal true, ::Resque.method_defined?("#{m}_with_sw_apm")
-    end
-
-    assert_equal true, ::Resque::Worker.method_defined?("perform_with_sw_apm")
-    assert_equal true, ::Resque::Job.method_defined?("fail_with_sw_apm")
+  it 'Solarwinds classes prepended' do
+    Resque.ancestors[0] = SolarWindsAPM::Inst::ResqueClient
+    Resque::Job.ancestors[0] = SolarWindsAPM::Inst::ResqueJob
   end
 
+  # TODO what is this?
   def not_tracing_validation
-    assert_equal true, Resque.enqueue(ResqueRemoteCallWorkerJob), "not tracing; enqueue return value"
-    assert_equal true, Resque.enqueue(ResqueRemoteCallWorkerJob, 1, 2, "3"), "not tracing; enqueue extra params"
+    assert Resque.enqueue(ResqueRemoteCallWorkerJob), "not tracing; enqueue return value"
+    assert Resque.enqueue(ResqueRemoteCallWorkerJob, 1, 2, "3"), "not tracing; enqueue extra params"
   end
 
   it 'enqueue' do
     SolarWindsAPM::SDK.start_trace('resque-client_test') do
       Resque.enqueue(ResqueRemoteCallWorkerJob)
     end
+    work_off_jobs
 
     traces = get_all_traces
 
-    assert_equal 6, traces.count, "trace count"
-    validate_outer_layers(traces, 'resque-client_test')
+    assert_equal 12, traces.count, filter_traces(traces).pretty_inspect
+    assert same_trace_id?(traces), filter_traces(traces).pretty_inspect
 
     assert_equal "resque-client",              traces[1]['Layer'], "entry event layer name"
     assert_equal "entry",                      traces[1]['Label'], "entry event label"
@@ -63,17 +63,21 @@ describe 'ResqueClient' do
     assert_equal "critical",                   traces[1]['Queue']
     assert_equal "resque-client",              traces[4]['Layer'], "exit event layer name"
     assert_equal "exit",                       traces[4]['Label'], "exit event label"
+
+    assert_equal 2, traces.select { |tr| tr['Layer'] == "resque-client" }.size, "client layers missing \n#{filter_traces(traces).pretty_inspect}"
+    assert_equal 2, traces.select { |tr| tr['Layer'] == "resque-worker" }.size, "worker layers missing \n#{filter_traces(traces).pretty_inspect}"
   end
 
   it 'dequeue' do
     SolarWindsAPM::SDK.start_trace('resque-client_test') do
       Resque.dequeue(ResqueRemoteCallWorkerJob, { :generate => :moped })
     end
+    work_off_jobs
 
     traces = get_all_traces
 
-    assert_equal 6, traces.count, "trace count"
-    validate_outer_layers(traces, 'resque-client_test')
+    assert_equal 6, traces.count, filter_traces(traces).pretty_inspect
+    assert same_trace_id?(traces), filter_traces(traces).pretty_inspect
 
     assert_equal "resque-client",              traces[1]['Layer'], "entry event layer name"
     assert_equal "entry",                      traces[1]['Label'], "entry event label"
@@ -83,6 +87,8 @@ describe 'ResqueClient' do
     assert_equal "critical",                   traces[1]['Queue']
     assert_equal "resque-client",              traces[4]['Layer'], "exit event layer name"
     assert_equal "exit",                        traces[4]['Label'], "exit event label"
+
+    assert_equal 2, traces.select { |tr| tr['Layer'] == "resque-client" }.size, "client layers missing \n#{filter_traces(traces).pretty_inspect}"
   end
 
   it 'collect_backtraces_default_value' do
@@ -100,11 +106,12 @@ describe 'ResqueClient' do
     SolarWindsAPM::SDK.start_trace('resque-client_test') do
       Resque.enqueue(ResqueRemoteCallWorkerJob, [1, 2, 3])
     end
+    work_off_jobs
 
     traces = get_all_traces
 
-    assert_equal 6, traces.count, "trace count"
-    validate_outer_layers(traces, 'resque-client_test')
+    assert_equal 12, traces.count, filter_traces(traces).pretty_inspect
+    assert same_trace_id?(traces), filter_traces(traces).pretty_inspect
 
     assert_equal false, traces[1].key?('Backtrace')
 
@@ -116,6 +123,9 @@ describe 'ResqueClient' do
     assert_equal "critical",                   traces[1]['Queue']
     assert_equal "resque-client",              traces[4]['Layer'], "exit event layer name"
     assert_equal "exit",                       traces[4]['Label'], "exit event label"
+
+    assert_equal 2, traces.select { |tr| tr['Layer'] == "resque-client" }.size, "client layers missing \n#{filter_traces(traces).pretty_inspect}"
+    assert_equal 2, traces.select { |tr| tr['Layer'] == "resque-worker" }.size, "worker layers missing \n#{filter_traces(traces).pretty_inspect}"
   end
 
   it 'obey_collect_backtraces_when_true' do
@@ -125,13 +135,14 @@ describe 'ResqueClient' do
     SolarWindsAPM::SDK.start_trace('resque-client_test') do
       Resque.enqueue(ResqueRemoteCallWorkerJob, [1, 2, 3])
     end
+    work_off_jobs
 
     traces = get_all_traces
 
-    assert_equal 6, traces.count, "trace count"
-    validate_outer_layers(traces, 'resque-client_test')
+    assert_equal 12, traces.count, filter_traces(traces).pretty_inspect
+    assert same_trace_id?(traces), filter_traces(traces).pretty_inspect
 
-    assert_equal true, traces[1].key?('Backtrace')
+    assert traces[1].key?('Backtrace')
 
     assert_equal "resque-client",              traces[1]['Layer'], "entry event layer name"
     assert_equal "entry",                      traces[1]['Label'], "entry event label"
@@ -141,6 +152,9 @@ describe 'ResqueClient' do
     assert_equal "critical",                   traces[1]['Queue']
     assert_equal "resque-client",              traces[4]['Layer'], "exit event layer name"
     assert_equal "exit",                       traces[4]['Label'], "exit event label"
+
+    assert_equal 2, traces.select { |tr| tr['Layer'] == "resque-client" }.size, "client layers missing \n#{filter_traces(traces).pretty_inspect}"
+    assert_equal 2, traces.select { |tr| tr['Layer'] == "resque-worker" }.size, "worker layers missing \n#{filter_traces(traces).pretty_inspect}"
   end
 
   it 'obey_log_args_when_false' do
@@ -150,11 +164,12 @@ describe 'ResqueClient' do
     SolarWindsAPM::SDK.start_trace('resque-client_test') do
       Resque.enqueue(ResqueRemoteCallWorkerJob, [1, 2, 3])
     end
+    work_off_jobs
 
     traces = get_all_traces
 
-    assert_equal 6, traces.count, "traces count"
-    validate_outer_layers(traces, 'resque-client_test')
+    assert_equal 12, traces.count, "traces count"
+    assert same_trace_id?(traces), filter_traces(traces).pretty_inspect
 
     assert_equal false, traces[1].key?('Args')
 
@@ -166,6 +181,9 @@ describe 'ResqueClient' do
     assert_equal "critical",                   traces[1]['Queue']
     assert_equal "resque-client",              traces[4]['Layer'], "exit event layer name"
     assert_equal "exit",                       traces[4]['Label'], "exit event label"
+
+    assert_equal 2, traces.select { |tr| tr['Layer'] == "resque-client" }.size, "client layers missing \n#{filter_traces(traces).pretty_inspect}"
+    assert_equal 2, traces.select { |tr| tr['Layer'] == "resque-worker" }.size, "worker layers missing \n#{filter_traces(traces).pretty_inspect}"
   end
 
   it 'obey_log_args_when_true' do
@@ -175,13 +193,14 @@ describe 'ResqueClient' do
     SolarWindsAPM::SDK.start_trace('resque-client_test') do
       Resque.enqueue(ResqueRemoteCallWorkerJob, 1, 2, 3)
     end
+    work_off_jobs
 
     traces = get_all_traces
 
-    assert_equal 6, traces.count, "trace count"
-    validate_outer_layers(traces, 'resque-client_test')
+    assert_equal 12, traces.count, filter_traces(traces).pretty_inspect
+    assert same_trace_id?(traces), filter_traces(traces).pretty_inspect
 
-    assert_equal true, traces[1].key?('Args')
+    assert traces[1].key?('Args')
     assert_equal "[1,2,3]", traces[1]['Args']
 
     assert_equal "resque-client",              traces[1]['Layer'], "entry event layer name"
@@ -192,5 +211,17 @@ describe 'ResqueClient' do
     assert_equal "critical",                   traces[1]['Queue']
     assert_equal "resque-client",              traces[4]['Layer'], "exit event layer name"
     assert_equal "exit",                       traces[4]['Label'], "exit event label"
+
+    assert_equal 2, traces.select { |tr| tr['Layer'] == "resque-client" }.size, "client layers missing \n#{filter_traces(traces).pretty_inspect}"
+    assert_equal 2, traces.select { |tr| tr['Layer'] == "resque-worker" }.size, "worker layers missing \n#{filter_traces(traces).pretty_inspect}"
+  end
+
+
+  private
+
+  def work_off_jobs
+    while (job = ::Resque.reserve(:critical))
+      job.perform
+    end
   end
 end
