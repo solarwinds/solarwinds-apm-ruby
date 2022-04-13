@@ -165,9 +165,8 @@ describe 'BunnyClientTest' do
     end
 
     traces = get_all_traces
-    puts traces.pretty_inspect
 
-    assert_equal 5, traces.count
+    assert_equal 5, traces.count, filter_traces(traces).pretty_inspect
 
     validate_outer_layers(traces, "bunny_tests")
     assert valid_edges?(traces), "Invalid edge in traces"

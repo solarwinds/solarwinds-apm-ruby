@@ -32,10 +32,10 @@ module SolarWindsAPM
       # TODO
       #   NH-11132 will address this
       # incoming tracing info has priority over existing context
-      if SolarWindsAPM::Context.isValid && !@sw_member_value
-        @do_sample = SolarWindsAPM.tracing?
-        return
-      end
+      # if SolarWindsAPM::Context.isValid && !@sw_member_value
+      #   @do_sample = SolarWindsAPM.tracing?
+      #   return
+      # end
 
       if url && asset?(url)
         @do_propagate = false

@@ -469,7 +469,7 @@ describe "Rack Trigger Tracing " do
       end
     end
 
-    it 'TODO no trigger-trace and non-sampling x-trace' do
+    it 'no trigger-trace and non-sampling x-trace' do
       req_headers = { 'HTTP_X_TRACE_OPTIONS' => 'sw-keys=lo:se,check-id:123;custom-foo=bar;bad-key',
                       'HTTP_TRACEPARENT' => '00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-00',
                       'HTTP_TRACESTATE' => 'sw=49e60702469db05f-00' }

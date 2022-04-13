@@ -1,8 +1,6 @@
 # Copyright (c) 2019 SolarWinds, LLC.
 # All rights reserved.
 
-# TODO AO-20166 there are warnings about ActiveJob being undefined
-# this doesn't solve it
 require "active_job"
 require "active_job/railtie"
 

@@ -30,10 +30,14 @@ if defined?(Delayed)
         # The SolarWindsAPM DelayedJob plugin.  Here we wrap `enqueue` and
         # `perform` to capture the timing of the bits we're interested in.
         #
-        # Traces from the client are not continued in the consumer
-        # - There is no reliable way to for the job to carry trace information
-        # - It is too asynchronous for tracing to make sense. The worker can be
-        #   delayed by minutes and the trace processing completed already
+        # Traces from the client are not continued in the consumer for a number
+        # of reasons:
+        # - no context propagation for delayed_job in OTEL
+        # - there is no reliable way to for the job to carry trace information. It
+        #   is an instance of a shared class they share,
+        #   often: Delayed::Backend::ActiveRecord::Job, but could be something else
+        # - It can also be too asynchronous for tracing to make sense. The worker can be
+        #   delayed by seconds/minutes/hours and the trace processing completed already
         #
         class Plugin < Delayed::Plugin
           callbacks do |lifecycle|

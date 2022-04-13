@@ -43,7 +43,6 @@ module SolarWindsAPM
 
           SolarWindsAPM::SDK.trace(:'resque-client', kvs: report_kvs) do
             add_tracecontext_headers(item)
-            puts "##### push #{item.pretty_inspect} ####"
             super
           end
         else
@@ -52,7 +51,6 @@ module SolarWindsAPM
       end
 
       def dequeue(klass, *args)
-        puts "##### dequeue called ####"
         if SolarWindsAPM.tracing?
           report_kvs = extract_trace_details(klass, args)
           SolarWindsAPM::SDK.trace(:'resque-client', kvs: report_kvs) do
@@ -67,7 +65,6 @@ module SolarWindsAPM
     module ResqueJob
 
       def perform
-        puts "##### performing ResqueJob ####"
         report_kvs = {}
 
         begin
@@ -100,16 +97,12 @@ module SolarWindsAPM
           SolarWindsAPM.logger.debug "[solarwinds_apm/debug] #{__method__}:#{File.basename(__FILE__)}:#{__LINE__}: #{e.message}" if SolarWindsAPM::Config[:verbose]
         end
 
-        # TODO NH-11132, do we have headers to to extract trace info?
-        puts "###### payload #{payload.pretty_inspect} ####"
-
         SolarWindsAPM::SDK.start_trace('resque-worker', kvs: report_kvs, headers: payload) do
           super
         end
       end
 
       def fail(exception)
-        puts "##### failing ####"
         if SolarWindsAPM.tracing?
           SolarWindsAPM::API.log_exception(:resque, exception)
         end

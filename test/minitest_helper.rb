@@ -248,7 +248,6 @@ def valid_edges?(traces, connected = true)
     if t.key?("sw.parent_span_id")
       unless has_edge?(t["sw.parent_span_id"], traces)
         puts "edge missing for #{t["sw.parent_span_id"]}"
-        # TODO NH-2303 maybe remove when done
         print_traces(traces)
         return false
       end
@@ -258,7 +257,6 @@ def valid_edges?(traces, connected = true)
     if traces.map { |tr| tr['sw.parent_span_id'] }.uniq.size == traces.size
       return true
     else
-      # TODO NH-2303 maybe remove when done
       puts "number of unique sw.parent_span_ids: #{traces.map { |tr| tr['sw.parent_span_id'] }.uniq.size}"
       puts "number of traces: #{traces.size}"
       print_traces(traces)

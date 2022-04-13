@@ -41,7 +41,6 @@ if SolarWindsAPM.loaded
         existing_context = false
         if SolarWindsAPM::Context.isValid
           existing_context = env['SW_APM_TRACE_STARTED'] == 'true'
-          puts "##### Valid Context found, existing_context; #{existing_context} ####"
 
           if existing_context
             # include or override tracecontext in env, so that the current context gets continued

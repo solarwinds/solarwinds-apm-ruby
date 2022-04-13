@@ -202,8 +202,7 @@ describe 'BunnyConsumerTest' do
     _(traces[0]['Action']).must_equal "generic"
     _(traces[0]['URL']).must_equal "/bunny/tv.ruby.consumer.msgid.test"
     _(traces[0]['MsgID']).must_equal "1234"
-    # _(traces[4].key?('SourceTrace')).must_equal true
-    # TODO report sw.tracestate_parent_id instead
+
     assert traces[2].key?('sw.tracestate_parent_id')
     _(traces[0].key?('Backtrace')).must_equal false
 

@@ -5,6 +5,7 @@ require 'minitest_helper'
 require_relative "../jobs/delayed_job/remote_call_worker_job"
 require_relative "../jobs/delayed_job/db_worker_job"
 require_relative "../jobs/delayed_job/error_worker_job"
+
 require_relative '../models/widget'
 
 # Delete all pre-existing jobs before we start
