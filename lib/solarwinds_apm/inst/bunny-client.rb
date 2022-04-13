@@ -109,7 +109,7 @@ module SolarWindsAPM
           kvs[:Op] = :queue
 
           SolarWindsAPM::API.log_entry(:'rabbitmq-client')
-          opts[:headers] = {}
+          opts[:headers] ||= {}
           add_tracecontext_headers(opts[:headers])
 
           result = queue_without_sw_apm(name, opts)
@@ -133,7 +133,7 @@ module SolarWindsAPM
           kvs[:Op] = :wait_for_confirms
 
           SolarWindsAPM::API.log_entry(:'rabbitmq-client')
-          # can't continue trace on consumer, because we can't send opts for wait
+          # can't continue trace for wait on consumer, because we can't send opts for wait
           # Seems ok, since this is waiting client side
           # and not actually spending time on the consumer
 
