@@ -6,9 +6,10 @@ require 'json'
 
 module SolarWindsAPM
   module Inst
-    module Resque
+    module ResqueClient
 
-      module Common
+      self.include SolarWindsAPM::SDK::TraceContextHeaders
+
       def extract_trace_details(klass, args)
         report_kvs = {}
 
@@ -35,40 +36,29 @@ module SolarWindsAPM
 
         report_kvs
       end
-      end
 
-      # This is prepended to the Resque.singleton_class
-      module Push
-        self.include SolarWindsAPM::Inst::Resque::Common
-        self.include SolarWindsAPM::SDK::TraceContextHeaders
+      def push(queue, item)
+        if SolarWindsAPM.tracing?
+          report_kvs = extract_trace_details(item[:class], item[:args])
+          report_kvs[:Queue] = queue.to_s if queue
 
-        def push(queue, item)
-          if SolarWindsAPM.tracing?
-            report_kvs = extract_trace_details(item[:class], item[:args])
-            report_kvs[:Queue] = queue.to_s if queue
-
-            SolarWindsAPM::SDK.trace(:'resque-client', kvs: report_kvs) do
-              add_tracecontext_headers(item)
-              super
-            end
-          else
+          SolarWindsAPM::SDK.trace(:'resque-client', kvs: report_kvs) do
+            add_tracecontext_headers(item)
             super
           end
+        else
+          super
         end
       end
 
-      module Dequeue
-        include SolarWindsAPM::Inst::Resque::Common
-
-        def dequeue(klass, *args)
-          if SolarWindsAPM.tracing?
-            report_kvs = extract_trace_details(klass, args)
-            SolarWindsAPM::SDK.trace(:'resque-client', kvs: report_kvs) do
-              super(klass, *args)
-            end
-          else
+      def dequeue(klass, *args)
+        if SolarWindsAPM.tracing?
+          report_kvs = extract_trace_details(klass, args)
+          SolarWindsAPM::SDK.trace(:'resque-client', kvs: report_kvs) do
             super(klass, *args)
           end
+        else
+          super(klass, *args)
         end
       end
     end
@@ -111,13 +101,13 @@ module SolarWindsAPM
         SolarWindsAPM::SDK.start_trace('resque-worker', kvs: report_kvs, headers: payload) do
           super
         end
-      end
 
-      def fail(exception)
-        if SolarWindsAPM.tracing?
-          SolarWindsAPM::API.log_exception(:resque, exception)
+        def fail(exception)
+          if SolarWindsAPM.tracing?
+            SolarWindsAPM::API.log_exception(:resque, exception)
+          end
+          super(exception)
         end
-        super(exception)
       end
     end
   end
@@ -127,8 +117,8 @@ if defined?(::Resque)
   SolarWindsAPM.logger.info '[solarwinds_apm/loading] Instrumenting resque' if SolarWindsAPM::Config[:verbose]
 
   if SolarWindsAPM::Config[:resqueclient][:enabled]
-    ::Resque.singleton_class.prepend(SolarWindsAPM::Inst::Resque::Push)
-    ::Resque.prepend(SolarWindsAPM::Inst::Resque::Dequeue)
+    ::Resque.singleton_class.prepend(SolarWindsAPM::Inst::ResqueClient)
+    ::Resque.singleton_class.prepend(SolarWindsAPM::Inst::ResqueClient)
   end
 
   if SolarWindsAPM::Config[:resqueclient][:enabled] || SolarWindsAPM::Config[:resqueworker][:enabled]

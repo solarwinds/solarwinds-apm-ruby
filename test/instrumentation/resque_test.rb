@@ -10,7 +10,7 @@ Resque.redis = Redis.new(:host => ENV['REDIS_HOST'] || ENV['REDIS_SERVER'] || '1
 
 Resque.enqueue(ResqueRemoteCallWorkerJob) # calling this here once to avoid other calls having an auth span
 
-describe 'ResqueClient' do
+describe 'ResqueClientWorker' do
   before do
 
     @tm = SolarWindsAPM::Config[:tracing_mode]
@@ -22,7 +22,7 @@ describe 'ResqueClient' do
     # TODO remove with NH-11132
     # not a request entry point, context set up in test with start_trace
     work_off_jobs
-    SolarWindsAPM::Context.clear
+    # SolarWindsAPM::Context.clear
     clear_all_traces
   end
 
@@ -34,7 +34,7 @@ describe 'ResqueClient' do
   end
 
   it 'Solarwinds classes prepended' do
-    Resque.ancestors[0] = SolarWindsAPM::Inst::Resque::Dequeue
+    Resque.ancestors[0] = SolarWindsAPM::Inst::ResqueClient
     Resque::Job.ancestors[0] = SolarWindsAPM::Inst::ResqueJob
   end
 
@@ -77,7 +77,6 @@ describe 'ResqueClient' do
     traces = get_all_traces
 
     assert_equal 6, traces.count, filter_traces(traces).pretty_inspect
-    assert same_trace_id?(traces), filter_traces(traces).pretty_inspect
 
     assert_equal "resque-client",              traces[1]['Layer'], "entry event layer name"
     assert_equal "entry",                      traces[1]['Label'], "entry event label"
@@ -87,8 +86,6 @@ describe 'ResqueClient' do
     assert_equal "critical",                   traces[1]['Queue']
     assert_equal "resque-client",              traces[4]['Layer'], "exit event layer name"
     assert_equal "exit",                        traces[4]['Label'], "exit event label"
-
-    assert_equal 2, traces.select { |tr| tr['Layer'] == "resque-client" }.size, "client layers missing \n#{filter_traces(traces).pretty_inspect}"
   end
 
   it 'collect_backtraces_default_value' do

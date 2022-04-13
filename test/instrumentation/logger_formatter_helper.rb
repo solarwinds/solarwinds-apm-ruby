@@ -14,6 +14,7 @@ describe "include trace_id in message " do
 
   after do
     SolarWindsAPM::Config[:log_traceId] = @log_traceId
+    SolarWindsAPM::Context.clear
   end
 
   describe "Formatted msg is a String " do

@@ -36,7 +36,7 @@ if defined?(::Sequel)
 
       # remove with NH-11132
       # not a request entry point, context set up in test with start_trace
-      SolarWindsAPM::Context.clear
+      # SolarWindsAPM::Context.clear
       SolarWindsAPM.trace_context = nil
       clear_all_traces
     end
@@ -226,6 +226,7 @@ if defined?(::Sequel)
       # Drop the table if it already exists
       PG_DB.drop_table(:fake) if PG_DB.table_exists?(:fake)
 
+      clear_all_traces
       SolarWindsAPM::SDK.start_trace('sequel_test') do
         PG_DB.create_table :fake do
           primary_key :id
