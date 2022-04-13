@@ -34,7 +34,7 @@ describe 'ResqueClient' do
   end
 
   it 'Solarwinds classes prepended' do
-    Resque.ancestors[0] = SolarWindsAPM::Inst::ResqueClient
+    Resque.ancestors[0] = SolarWindsAPM::Inst::Resque::Dequeue
     Resque::Job.ancestors[0] = SolarWindsAPM::Inst::ResqueJob
   end
 
