@@ -337,7 +337,6 @@ if defined?(SolarWindsAPM::Config)
   SolarWindsAPM::Config[:dalli][:enabled] = true
   SolarWindsAPM::Config[:delayed_jobclient][:enabled] = true
   SolarWindsAPM::Config[:delayed_jobworker][:enabled] = true
-  # SolarWindsAPM::Config[:em_http_request][:enabled] = false # not supported anymore
   SolarWindsAPM::Config[:excon][:enabled] = true
   SolarWindsAPM::Config[:faraday][:enabled] = true
   SolarWindsAPM::Config[:grpc_client][:enabled] = true
@@ -400,7 +399,6 @@ if defined?(SolarWindsAPM::Config)
   SolarWindsAPM::Config[:dalli][:collect_backtraces] = false
   SolarWindsAPM::Config[:delayed_jobclient][:collect_backtraces] = false
   SolarWindsAPM::Config[:delayed_jobworker][:collect_backtraces] = false
-  # SolarWindsAPM::Config[:em_http_request][:collect_backtraces] = true # not supported anymore
   SolarWindsAPM::Config[:excon][:collect_backtraces] = true
   SolarWindsAPM::Config[:faraday][:collect_backtraces] = false
   SolarWindsAPM::Config[:grape][:collect_backtraces] = true

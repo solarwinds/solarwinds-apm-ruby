@@ -217,7 +217,6 @@ describe "SolarWindsAPM::Config" do
 
     _(SolarWindsAPM::Config[:bunnyconsumer][:log_args]).must_equal true
     _(SolarWindsAPM::Config[:curb][:log_args]).must_equal true
-    # _(SolarWindsAPM::Config[:em_http_request][:log_args]).must_equal true
     _(SolarWindsAPM::Config[:excon][:log_args]).must_equal true
     # _(SolarWindsAPM::Config[:faraday][:log_args]).must_equal true
     _(SolarWindsAPM::Config[:httpclient][:log_args]).must_equal true
@@ -241,7 +240,6 @@ describe "SolarWindsAPM::Config" do
     _(SolarWindsAPM::Config[:dalli][:collect_backtraces]).must_equal false
     _(SolarWindsAPM::Config[:delayed_jobclient][:collect_backtraces]).must_equal false
     _(SolarWindsAPM::Config[:delayed_jobworker][:collect_backtraces]).must_equal false
-    # _(SolarWindsAPM::Config[:em_http_request][:collect_backtraces]).must_equal true
     _(SolarWindsAPM::Config[:excon][:collect_backtraces]).must_equal true
     _(SolarWindsAPM::Config[:faraday][:collect_backtraces]).must_equal false
     _(SolarWindsAPM::Config[:grape][:collect_backtraces]).must_equal true
@@ -263,10 +261,6 @@ describe "SolarWindsAPM::Config" do
     _(SolarWindsAPM::Config[:sidekiqworker][:collect_backtraces]).must_equal false
     _(SolarWindsAPM::Config[:sinatra][:collect_backtraces]).must_equal true
     _(SolarWindsAPM::Config[:typhoeus][:collect_backtraces]).must_equal false
-  end
-
-  it "should not fail on deprecated configs" do
-    _(SolarWindsAPM::Config[:em_http_request][:collect_backtraces]).must_be_nil
   end
 
   def test_deprecated_config_accessors

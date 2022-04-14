@@ -16,7 +16,7 @@
 # Prerequisits
 # export SW_APM_SERVICE_KEY=<API token>:<service_name>
 # `bundle exec ruby sdk_examples.rb`
-# 5 traced requests will show up at https://my.appoptics.com/
+# 5 traced requests will show up in the backend
 ###############################################################
 
 require 'solarwinds_apm'

@@ -4,10 +4,10 @@ The solarwinds_apm gem provides [SolarWindsAPM](https://cloud.solarwinds.com/) p
 
 It has the ability to report performance metrics on an array of libraries, databases and frameworks such as Rails,
 Rack, ActiveRecord, Mongo, Memcache, Resque 
-[and more](https://docs.appoptics.com/kb/apm_tracing/ruby/support-matrix/).
+[and more](https://documentation.solarwinds.com/en/success_center/observability/default.htm#cshid=config-ruby-agent).
 
 It requires an [Solarwinds] account to view metrics.  Get yours, 
-[it's free](https://my.appoptics.com/sign_up).
+[it's free](https://cloud.solarwinds.com).
 
 [![Gem Version](https://badge.fury.io/rb/solarwinds_apm.svg)](https://badge.fury.io/rb/solarwinds_apm)
 
@@ -18,12 +18,12 @@ It requires an [Solarwinds] account to view metrics.  Get yours,
 
 # Documentation
 
-* [SolarWindsAPM Knowledge Base](https://docs.appoptics.com/kb/apm_tracing/ruby)
+* [SolarWindsAPM Knowledge Base](https://documentation.solarwinds.com/en/success_center/observability/default.htm#cshid=config-ruby-agent)
 
 # Installation
 
 _Before installing the gem below, make sure that you have the 
-[dependencies](http://docs.appoptics.com/kb/apm_tracing/ruby/install#dependencies) installed on your host first._
+[dependencies](https://documentation.solarwinds.com/en/success_center/observability/default.htm#cshid=config-ruby-install) installed on your host first._
 
 The solarwinds_apm gem is [available on Rubygems](https://rubygems.org/gems/solarwinds_apm) and can be installed with:
 
@@ -46,15 +46,13 @@ export SW_APM_SERVICE_KEY=795fb4947d15275d208c49cfd2412d4a5bf38742045b47236c94c4
 
 ## Rails
 
-![Ruby on Rails](https://docs.appoptics.com/_images/rails.png)
-
 No special steps are needed to instrument Ruby on Rails.  Once part of the bundle, the solarwinds-apm gem will automatically 
 detect Rails and instrument on stack initialization.
 
 ### The Install Generator
 
 The solarwinds_apm gem provides a Rails generator used to seed an initializer where you can configure and control 
-`tracing_mode` and [other options](http://docs.appoptics.com/kb/apm_tracing/ruby/configure).
+`tracing_mode` and [other options](https://documentation.solarwinds.com/en/success_center/observability/default.htm#cshid=config-ruby-config-file).
 
 To run the install generator run:
 
@@ -65,8 +63,6 @@ bundle exec rails generate solarwinds_apm:install
 After the prompts, this will create an initializer: `config/initializers/solarwinds_apm.rb`.
 
 ## Sinatra
-
-![Sinatra](https://docs.appoptics.com/_images/sinatra.png)
 
 You can instrument your Sinatra application by adding the following code to your `config.ru` Rackup file:
 
@@ -83,8 +79,6 @@ With this, the solarwinds_apm gem will automatically detect Sinatra on boot and 
 
 ## Padrino
 
-![Padrino](https://docs.appoptics.com/_images/padrino.svg)
-
 As long as the solarwinds_apm gem is in your `Gemfile` (inserted after the `gem 'padrino'` directive) and you are calling 
 `Bundler.require`, the solarwinds_apm gem will automatically instrument Padrino applications.
 
@@ -99,8 +93,6 @@ end
 ```
 
 ## Grape
-
-![Grape](https://docs.appoptics.com/_images/grape.png)
 
 You can instrument your Grape application by adding the following code to your `config.ru` Rackup file:
 
