@@ -22,7 +22,7 @@ begin
     else
       SolarWindsAPM.logger.warn '==================================================================='
       SolarWindsAPM.logger.warn "SolarWindsAPM warning: Platform #{RUBY_PLATFORM} not yet supported."
-      SolarWindsAPM.logger.warn 'see: https://docs.appoptics.com/kb/apm_tracing/supported_platforms/'
+      SolarWindsAPM.logger.warn 'see: https://documentation.solarwinds.com/en/success_center/observability/default.htm#cshid=config-ruby-agent'
       SolarWindsAPM.logger.warn 'Tracing disabled.'
       SolarWindsAPM.logger.warn 'Contact technicalsupport@solarwinds.com if this is unexpected.'
       SolarWindsAPM.logger.warn '==================================================================='
@@ -32,7 +32,7 @@ begin
       SolarWindsAPM.logger.error '=============================================================='
       SolarWindsAPM.logger.error 'Missing SolarWindsAPM libraries.  Tracing disabled.'
       SolarWindsAPM.logger.error "Error: #{e.message}"
-      SolarWindsAPM.logger.error 'See: https://docs.appoptics.com/kb/apm_tracing/ruby/'
+      SolarWindsAPM.logger.error 'See: https://documentation.solarwinds.com/en/success_center/observability/default.htm#cshid=config-ruby-agent'
       SolarWindsAPM.logger.error '=============================================================='
     end
   end

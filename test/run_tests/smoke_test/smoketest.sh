@@ -5,8 +5,8 @@
 
 path=$(dirname "$0")
 
-# assuming SW_APM_SERVICE_KEY is set
-export SW_APM_COLLECTOR=collector-stg.appoptics.com
+# use staging, assuming SW_APM_SERVICE_KEY is set
+export SW_APM_COLLECTOR=apm.collector.st-ssp.solarwinds.com
 unset SW_APM_REPORTER
 unset OBOE_FROM_S3
 unset OBOE_WIP

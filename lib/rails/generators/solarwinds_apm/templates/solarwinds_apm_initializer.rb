@@ -3,13 +3,13 @@
 # Copyright (c) 2019 SolarWinds, LLC.
 # All rights reserved.
 
-# SolarWindsAPM Initializer (for the solarwinds_apm gem)
-# https://www.appoptics.com/
+# SolarWindsAPM Configuration for the Ruby Agent aka solarwinds_apm gem
+# https://cloud.solarwinds.com/
 #
-# More information on instrumenting Ruby applications can be found here:
-# https://docs.appoptics.com/kb/apm_tracing/ruby/
+# More information on configuring the Ruby Agent can be found here:
+# https://documentation.solarwinds.com/en/success_center/swaas/default.htm#cshid=config-ruby-agent
 #
-# The settings in this template file represent the defaults
+# The initial settings in this file represent the defaults
 
 if defined?(SolarWindsAPM::Config)
 
@@ -337,7 +337,6 @@ if defined?(SolarWindsAPM::Config)
   SolarWindsAPM::Config[:dalli][:enabled] = true
   SolarWindsAPM::Config[:delayed_jobclient][:enabled] = true
   SolarWindsAPM::Config[:delayed_jobworker][:enabled] = true
-  # SolarWindsAPM::Config[:em_http_request][:enabled] = false # not supported anymore
   SolarWindsAPM::Config[:excon][:enabled] = true
   SolarWindsAPM::Config[:faraday][:enabled] = true
   SolarWindsAPM::Config[:grpc_client][:enabled] = true
@@ -400,7 +399,6 @@ if defined?(SolarWindsAPM::Config)
   SolarWindsAPM::Config[:dalli][:collect_backtraces] = false
   SolarWindsAPM::Config[:delayed_jobclient][:collect_backtraces] = false
   SolarWindsAPM::Config[:delayed_jobworker][:collect_backtraces] = false
-  # SolarWindsAPM::Config[:em_http_request][:collect_backtraces] = true # not supported anymore
   SolarWindsAPM::Config[:excon][:collect_backtraces] = true
   SolarWindsAPM::Config[:faraday][:collect_backtraces] = false
   SolarWindsAPM::Config[:grape][:collect_backtraces] = true

@@ -3,7 +3,7 @@
 Quickly smoke test the solarwinds_apm gem uploaded to package cloud. There should be:
 
 - a reporter init message indicating a working connection
-- 5 traces in https://my-stg.appoptics.com/
+- 5 traces in https://apm.collector.st-ssp.solarwinds.com/
 - a WARN message with a trace-id
 
 ### how to...

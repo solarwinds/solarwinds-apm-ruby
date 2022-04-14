@@ -28,7 +28,6 @@ module SolarWindsAPM
 
     # Subgrouping of instrumentation
     @@http_clients = [:curb, :excon,
-                      # :em_http_request,
                       :faraday, :httpclient, :nethttp, :rest_client, :typhoeus]
 
     ##
