@@ -111,6 +111,11 @@ module SolarWindsAPM
       # This will start a trace depending on configuration and probability, detect any exceptions
       # thrown by the block, and report errors.
       #
+      # This method is for request entry points where no trace has been started yet
+      # Nested calls to start_trace() will have the inner call override the outer call
+      # The behavior may be unexpected. After a trace is started with start_trace()
+      # trace() should be used to create spans within the started trace
+      #
       # When start_trace returns control to the calling context, the trace will be
       # completed and the tracing context will be cleared.
       #
@@ -173,11 +178,16 @@ module SolarWindsAPM
       def start_trace_with_target(name, target: {}, kvs: {}, headers: {})
         return yield unless SolarWindsAPM.loaded
 
-        if SolarWindsAPM::Context.isValid # not an entry span!
-          result = trace(name, kvs: kvs) { yield }
-          target['X-Trace'] = SolarWindsAPM::Context.toString
-          return result
-        end
+        # TODO
+        #   NH-11132 will definitely remove using the context
+        #   right now log_start may still use it
+        #   log.debug if a valid context is found
+        #
+        # if SolarWindsAPM::Context.isValid # not an entry span!
+        #   result = trace(name, kvs: kvs) { yield }
+        #   target['X-Trace'] = SolarWindsAPM::Context.toString
+        #   return result
+        # end
 
         # :TransactionName and 'TransactionName' need to be removed from kvs
         SolarWindsAPM.transaction_name = kvs.delete('TransactionName') || kvs.delete(:TransactionName)

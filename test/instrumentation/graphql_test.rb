@@ -139,6 +139,12 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
       @remove_comments = SolarWindsAPM::Config[:graphql][:remove_comments]
       @enabled = SolarWindsAPM::Config[:graphql][:enabled]
       @transaction_name = SolarWindsAPM::Config[:graphql][:transaction_name]
+      @tm = SolarWindsAPM::Config[:tracing_mode]
+
+      SolarWindsAPM::Config[:tracing_mode] = :enabled
+
+      # remove with NH-11132
+      SolarWindsAPM::Context.clear # ok to clear as these are not entry points for requests
     end
 
     after do
@@ -146,6 +152,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
       SolarWindsAPM::Config[:graphql][:remove_comments] = @remove_comments
       SolarWindsAPM::Config[:graphql][:enabled] = @enabled
       SolarWindsAPM::Config[:graphql][:transaction_name] = @transaction_name
+      SolarWindsAPM::Config[:tracing_mode] = @tm
     end
 
     it 'traces a simple graphql request' do

@@ -24,6 +24,10 @@ if defined?(::Redis)
       # These are standard entry/exit KVs that are passed up with all moped operations
       @entry_kvs ||= { 'Layer' => 'redis_test', 'Label' => 'entry' }
       @exit_kvs  ||= { 'Layer' => 'redis_test', 'Label' => 'exit' }
+
+      # not a request entry point, context set up in test with start_trace
+      # remove with NH-11132
+      SolarWindsAPM::Context.clear
     end
 
     it "should trace blpop" do
@@ -31,12 +35,13 @@ if defined?(::Redis)
 
       @redis.lpush("savage", "zombie")
 
+      clear_all_traces
       SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.blpop("savage")
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "blpop"
       _(traces[2]['KVKey']).must_equal "savage"
     end
@@ -46,12 +51,13 @@ if defined?(::Redis)
 
       @redis.lpush("savage", "the walking dead")
 
+      clear_all_traces
       SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.brpop("savage")
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "brpop"
       _(traces[2]['KVKey']).must_equal "savage"
     end
@@ -61,12 +67,13 @@ if defined?(::Redis)
 
       @redis.lpush("savage", "night of the walking dead")
 
+      clear_all_traces
       SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.brpoplpush("savage", "crawlies")
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "brpoplpush"
       _(traces[2]['destination']).must_equal "crawlies"
     end
@@ -78,12 +85,13 @@ if defined?(::Redis)
       @redis.lpush("fringe", "dunham")
       @redis.lpush("fringe", "broyles")
 
+      clear_all_traces
       SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.lindex("fringe", 1)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "lindex"
       _(traces[2]['index']).must_equal 1
     end
@@ -95,12 +103,13 @@ if defined?(::Redis)
       @redis.lpush("gods of old", "moon")
       @redis.lpush("gods of old", "night")
 
+      clear_all_traces
       SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.linsert("gods of old", "BEFORE", "night", "river")
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "linsert"
       _(traces[2]['KVKey']).must_equal "gods of old"
     end
@@ -112,12 +121,13 @@ if defined?(::Redis)
       @redis.lpush("gods of old", "moon")
       @redis.lpush("gods of old", "night")
 
+      clear_all_traces
       SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.llen("gods of old")
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "llen"
       _(traces[2]['KVKey']).must_equal "gods of old"
     end
@@ -129,12 +139,13 @@ if defined?(::Redis)
       @redis.lpush("gods of old", "moon")
       @redis.lpush("gods of old", "night")
 
+      clear_all_traces
       SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.lpop("gods of old")
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "lpop"
       _(traces[2]['KVKey']).must_equal "gods of old"
     end
@@ -142,12 +153,13 @@ if defined?(::Redis)
     it "should trace lpush" do
       min_server_version(1.0)
 
+      clear_all_traces
       SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.lpush("gods of old", "night")
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "lpush"
       _(traces[2]['KVKey']).must_equal "gods of old"
     end
@@ -155,12 +167,13 @@ if defined?(::Redis)
     it "should trace lpushx" do
       min_server_version(2.2)
 
+      clear_all_traces
       SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.lpushx("gods of old", "night")
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "lpushx"
       _(traces[2]['KVKey']).must_equal "gods of old"
     end
@@ -174,12 +187,13 @@ if defined?(::Redis)
       @redis.rpush("protein types", "enzyme")
       @redis.rpush("protein types", "immunoglobulins")
 
+      clear_all_traces
       SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.lrange("protein types", 2, 4)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "lrange"
       _(traces[2]['KVKey']).must_equal "protein types"
       _(traces[2]['start']).must_equal 2
@@ -196,12 +210,13 @@ if defined?(::Redis)
       @redis.rpush("australia", "tamworth")
       @redis.rpush("australia", "penrith")
 
+      clear_all_traces
       SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.lrem("australia", -2, "sydney")
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "lrem"
       _(traces[2]['KVKey']).must_equal "australia"
     end
@@ -214,12 +229,13 @@ if defined?(::Redis)
       @redis.rpush("australia", "tamworth")
       @redis.rpush("australia", "penrith")
 
+      clear_all_traces
       SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.lset("australia", 2, "Kalgoorlie")
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "lset"
       _(traces[2]['KVKey']).must_equal "australia"
     end
@@ -236,12 +252,13 @@ if defined?(::Redis)
       @redis.rpush("australia", "tamworth")
       @redis.rpush("australia", "penrith")
 
+      clear_all_traces
       SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.ltrim("australia", 2, 6)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "ltrim"
       _(traces[2]['KVKey']).must_equal "australia"
     end
@@ -253,12 +270,13 @@ if defined?(::Redis)
       @redis.rpush("santa esmeralda", "don't let me be misunderstood")
       @redis.rpush("santa esmeralda", "sevilla nights")
 
+      clear_all_traces
       SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.rpop("santa esmeralda")
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "rpop"
       _(traces[2]['KVKey']).must_equal "santa esmeralda"
     end
@@ -270,12 +288,13 @@ if defined?(::Redis)
       @redis.rpush("santa esmeralda", "don't let me be misunderstood")
       @redis.rpush("santa esmeralda", "sevilla nights")
 
+      clear_all_traces
       SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.rpoplpush("santa esmeralda", "the gods of old")
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "rpoplpush"
       _(traces[2]['KVKey']).must_equal "santa esmeralda"
       _(traces[2]['destination']).must_equal "the gods of old"
@@ -284,12 +303,13 @@ if defined?(::Redis)
     it "should trace rpush" do
       min_server_version(1.0)
 
+      clear_all_traces
       SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.rpush("boney m", "rasputin")
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "rpush"
       _(traces[2]['KVKey']).must_equal "boney m"
     end
@@ -297,12 +317,13 @@ if defined?(::Redis)
     it "should trace rpushx" do
       min_server_version(1.0)
 
+      clear_all_traces
       SolarWindsAPM::SDK.start_trace('redis_test') do
         @redis.rpushx("boney m", "rasputin")
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "rpushx"
       _(traces[2]['KVKey']).must_equal "boney m"
     end

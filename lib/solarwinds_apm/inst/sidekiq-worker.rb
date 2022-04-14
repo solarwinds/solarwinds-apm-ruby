@@ -43,6 +43,7 @@ module SolarWindsAPM
       # SolarWindsAPM.set_tracing_mode(SolarWindsAPM::Config[:tracing_mode].to_sym)
 
       # Continue the trace from the enqueue side?
+      # TODO use w3c headers
       if args[1].is_a?(Hash) && SolarWindsAPM::TraceString.valid?(args[1]['SourceTrace'])
         report_kvs[:SourceTrace] = args[1]['SourceTrace']
       end

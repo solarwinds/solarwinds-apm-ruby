@@ -13,13 +13,22 @@ Resque.enqueue(ResqueRemoteCallWorkerJob) # calling this here once to avoid othe
 describe 'ResqueClient' do
   before do
     clear_all_traces
+
+    @tm = SolarWindsAPM::Config[:tracing_mode]
     @collect_backtraces = SolarWindsAPM::Config[:resqueclient][:collect_backtraces]
     @log_args = SolarWindsAPM::Config[:resqueclient][:log_args]
+
+    SolarWindsAPM::Config[:tracing_mode] = :enabled
+
+    # TODO remove with NH-11132
+    # not a request entry point, context set up in test with start_trace
+    SolarWindsAPM::Context.clear
   end
 
   after do
     SolarWindsAPM::Config[:resqueclient][:collect_backtraces] = @collect_backtraces
     SolarWindsAPM::Config[:resqueclient][:log_args] = @log_args
+    SolarWindsAPM::Config[:tracing_mode] = @tm
   end
 
   it 'sw_apm_methods_defined' do
@@ -144,7 +153,7 @@ describe 'ResqueClient' do
 
     traces = get_all_traces
 
-    assert_equal 6, traces.count, "trace count"
+    assert_equal 6, traces.count, "traces count"
     validate_outer_layers(traces, 'resque-client_test')
 
     assert_equal false, traces[1].key?('Args')

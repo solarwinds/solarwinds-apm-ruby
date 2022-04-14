@@ -30,6 +30,9 @@ describe "Rails CRUD Tests" do
     clear_all_traces
     clear_query_log
     SolarWindsAPM::Config[:tag_sql] = true
+
+    # not a request entry point
+    SolarWindsAPM::Context.clear
   end
 
   after do
@@ -43,9 +46,6 @@ describe "Rails CRUD Tests" do
       SolarWindsAPM::Config[:log_traceId] = @log_traceid
       SolarWindsAPM::Config[:tag_sql] = @tag_sql
     }
-
-    clear_all_traces
-    clear_query_log
   end
 
   it "should trace CREATE correctly" do
@@ -60,7 +60,7 @@ describe "Rails CRUD Tests" do
     _(ar_traces.find { |trace| trace.has_key?('RemoteHost') }).wont_be_nil 'RemoteHost key is missing'
 
     ar_traces.select! { |trace| trace['Label'] == 'entry' }
-    _(ar_traces.count).must_equal 1
+    _(ar_traces.count).must_equal 1, filter_traces(ar_traces).pretty_inspect
 
     _(traces.select { |trace| trace['Query'] =~ /INSERT/ }.count).must_equal 2
 
@@ -76,7 +76,7 @@ describe "Rails CRUD Tests" do
     _(traces.select { |trace| trace['Label'] == 'error' }.count).must_equal 0
 
     traces.select! { |trace| trace['Label'] == 'entry' && trace['Layer'] == 'activerecord' }
-    _(traces.count).must_equal 1
+    _(traces.count).must_equal 1, filter_traces(traces).pretty_inspect
     _(traces[0]['Query']).must_match /SELECT/
 
     # assert query_logged?(/#{@log_traceid_regex}INSERT/), "Logged query didn't match what we're looking for"
@@ -94,7 +94,7 @@ describe "Rails CRUD Tests" do
     _(traces.select { |trace| trace['Label'] == 'error' }.count).must_equal 0
 
     traces.select! { |trace| trace['Label'] == 'entry' && trace['Layer'] == 'activerecord' }
-    _(traces.count).must_equal 2
+    _(traces.count).must_equal 2, filter_traces(traces).pretty_inspect
 
     _(traces.select { |trace| trace['Query'] =~ /SELECT/ }.count).must_equal 1
     _(traces.select { |trace| trace['Query'] =~ /UPDATE/ }.count).must_equal 1
@@ -112,7 +112,7 @@ describe "Rails CRUD Tests" do
     _(traces.select { |trace| trace['Label'] == 'error' }.count).must_equal 0
 
     traces.select! { |trace| trace['Label'] == 'entry' && trace['Layer'] == 'activerecord' }
-    _(traces.count).must_equal 1
+    _(traces.count).must_equal 1, filter_traces(traces).pretty_inspect
     _(traces[0]['Query']).must_match /DELETE/
 
     assert query_logged?(/#{@log_traceid_regex}\s*DELETE/), "Logged query didn't match what we're looking for"

@@ -369,6 +369,9 @@ end
 desc "Rebuild the gem's c extension without fetching the oboe files, without recreating the swig wrapper"
 task :recompile => [:distclean, :compile]
 
+desc "Build the gem's c extension ..."
+task :cfc => [:clean, :fetch, :compile]
+
 task :environment do
   ENV['SW_APM_GEM_VERBOSE'] = 'true'
 

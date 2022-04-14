@@ -40,6 +40,10 @@ if defined?(::Sequel)
       @sanitize_sql = SolarWindsAPM::Config[:sanitize_sql]
 
      SolarWindsAPM::Config[:sequel][:collect_backtraces] = false
+
+      # not a request entry point, context set up in test with start_trace
+      # remove with NH-11132
+      SolarWindsAPM::Context.clear
     end
 
     after do
@@ -396,8 +400,6 @@ if defined?(::Sequel)
       SolarWindsAPM::Config[:sequel][:collect_backtraces] = @collect_backtraces
       SolarWindsAPM::Config[:sanitize_sql] = @sanitize_sql
       SolarWindsAPM::Config[:tag_sql] = @tag_sql
-      clear_all_traces
-      clear_query_log
     end
 
     it 'adds trace context to sql string via Dataset' do
@@ -461,6 +463,7 @@ if defined?(::Sequel)
 
     it "adds trace context to a stored procedure" do
       trace_id = ''
+      MYSQL2_DB.execute('DROP PROCEDURE IF EXISTS test_sproc') # sometimes things go wrong
       MYSQL2_DB.execute_ddl('CREATE PROCEDURE test_sproc() BEGIN DELETE FROM items; END')
 
       SolarWindsAPM::SDK.start_trace('sequel_test') do
@@ -472,7 +475,7 @@ if defined?(::Sequel)
       refute_match /traceparent/, traces[2]['Query']
       assert query_logged?(/#{log_traceid_regex(trace_id)}CALL/), "Logged query didn't match what we're looking for"
 
-      MYSQL2_DB.execute('DROP PROCEDURE test_sproc')
+      MYSQL2_DB.execute('DROP PROCEDURE IF EXISTS test_sproc')
     end
   end
 end

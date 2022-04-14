@@ -12,7 +12,8 @@
 # This instrumentation is autoloaded when a class inherits GraphQL::Schema
 # no need to call `tracer` or `use`
 
-unless SolarWindsAPM::Config[:graphql][:enabled] == false # default is true
+
+if defined?(GraphQL::Tracing) && !(SolarWindsAPM::Config[:graphql][:enabled] == false)
   module GraphQL
     module Tracing
 
@@ -33,7 +34,7 @@ unless SolarWindsAPM::Config[:graphql][:enabled] == false # default is true
         }
 
         def platform_trace(platform_key, _key, data)
-          return yield if !defined?(SolarWindsAPM) || gql_config[:enabled] == false
+          return yield if gql_config[:enabled] == false
 
           layer = span_name(platform_key)
           kvs = metadata(data, layer)

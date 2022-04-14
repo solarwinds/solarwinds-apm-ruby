@@ -125,11 +125,10 @@ end
 #
 # Truncates the trace output file to zero
 #
-def clear_all_traces(clear_context = true)
+def clear_all_traces
   if SolarWindsAPM.loaded && ENV['SW_APM_REPORTER'] == 'file'
-    SolarWindsAPM::Context.clear if clear_context
     SolarWindsAPM::Reporter.clear_all_traces
-    SolarWindsAPM.trace_context = nil
+    # SolarWindsAPM.trace_context = nil
     sleep 0.2 # it seems like the docker file system needs a bit of time to clear the file
   end
 end
@@ -250,7 +249,7 @@ def valid_edges?(traces, connected = true)
       unless has_edge?(t["sw.parent_span_id"], traces)
         puts "edge missing for #{t["sw.parent_span_id"]}"
         # TODO NH-2303 maybe remove when done
-        print_traces(traces[1..-1])
+        print_traces(traces)
         return false
       end
     end
@@ -353,6 +352,7 @@ end
 
 def print_traces(traces, more_keys = [])
   return unless traces.is_a?(Array) # so that in case the traces are sent to the collector, tests will fail but not barf
+  more_keys << 'sw.tracestate_parent_id'
   indent = ''
   puts "\n"
   traces.each do |trace|
@@ -368,6 +368,15 @@ def print_traces(traces, more_keys = [])
     indent = indent[0...-2] if trace["Label"] == "exit"
   end
   puts "\n"
+end
+
+# a method to reduce the number of kvs
+# mainly helpful for the msg when an assertion fails
+def filter_traces(traces, more_keys = [])
+  keys = more_keys.dup
+  keys |= %w(Layer Label sw.trace_context sw.parent_span_id sw.tracestate_parent_id)
+
+  traces.map { |tr| tr.reject { |k, _v| !keys.include?(k) }}
 end
 
 def print_edges(traces)

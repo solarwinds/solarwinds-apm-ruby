@@ -33,7 +33,15 @@ if SolarWindsAPM.loaded
         # of rack middleware. We want to avoid tracing rack more than once
         return @app.call(env) if SolarWindsAPM.tracing? && SolarWindsAPM.layer == :rack
 
-        incoming = SolarWindsAPM::Context.isValid
+        # there may be a legit existing context that we need to continue
+        # we need to check if we marked a start in env
+        # env is specific per request
+        existing_context = false
+        if SolarWindsAPM::Context.isValid
+          existing_context = env['SW_APM_TRACE_STARTED'] == 'true'
+          SolarWindsAPM::Context.clear unless existing_context
+        end
+
         SolarWindsAPM.transaction_name = nil
 
         url = env['PATH_INFO']
@@ -56,13 +64,13 @@ if SolarWindsAPM.loaded
           end || [500, {}, nil]
         options.add_response_header(response[1], settings)
 
-        unless incoming
+        unless existing_context
           SolarWindsAPM::Context.clear
           SolarWindsAPM.trace_context = nil
         end
         response
       rescue
-        unless incoming
+        unless existing_context
           SolarWindsAPM::Context.clear
           SolarWindsAPM.trace_context = nil
         end
@@ -121,11 +129,6 @@ if SolarWindsAPM.loaded
       def propagate_tracecontext(env, settings)
         return yield unless settings.do_propagate
 
-        # TODO find out why we used to update/add the request HTTP_X_TRACE header
-        #  maybe to update the tracing decision for the actual rack call
-        #  which may be passed to a different thread
-
-        # TODO add test coverage for this
         if SolarWindsAPM.trace_context&.tracestring
           # creating a dup because we are modifying it when setting/unsetting the sampling bit
           tracestring_dup = SolarWindsAPM.trace_context.tracestring.dup
@@ -158,6 +161,9 @@ if SolarWindsAPM.loaded
             options&.add_kvs(report_kvs, settings)
 
             SolarWindsAPM::API.log_start(:rack, report_kvs, env, settings)
+
+            # mark the trace as started for this request
+            env['SW_APM_TRACE_STARTED'] = 'true'
 
             status, headers, response = yield
 

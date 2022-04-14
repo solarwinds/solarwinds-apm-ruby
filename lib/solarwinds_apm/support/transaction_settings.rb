@@ -29,7 +29,10 @@ module SolarWindsAPM
       @sw_member_value = SolarWindsAPM.trace_context.sw_member_value
       tracing_mode = AO_TRACING_ENABLED
 
-      if SolarWindsAPM::Context.isValid
+      # TODO
+      #   NH-11132 will address this
+      # incoming tracing info has priority over existing context
+      if SolarWindsAPM::Context.isValid && !@sw_member_value
         @do_sample = SolarWindsAPM.tracing?
         return
       end

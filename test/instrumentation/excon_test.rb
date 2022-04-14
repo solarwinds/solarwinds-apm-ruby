@@ -12,12 +12,19 @@ describe 'ExconTest' do
     SinatraSimple
   end
 
+  before do
+    clear_all_traces
+
+    # remove with NH-11132
+    # not a request entry point, context set up in test with start_trace
+    SolarWindsAPM::Context.clear
+  end
+
   it 'Excon should have SolarWinds instrumentation prepended' do
     _(Excon::Connection.ancestors).must_include(SolarWindsAPM::Inst::ExconConnection)
   end
 
   it 'must_return_xtrace_header' do
-    clear_all_traces
     get "/"
 
     # TODO this will change, once w3c response headers are finalized
@@ -33,8 +40,6 @@ describe 'ExconTest' do
   end
 
   it 'class_get_request' do
-    clear_all_traces
-
     SolarWindsAPM::SDK.start_trace('excon_tests') do
       Excon.get('http://127.0.0.1:8101/')
     end
@@ -56,8 +61,6 @@ describe 'ExconTest' do
   end
 
   it 'cross_app_tracing' do
-    clear_all_traces
-
     SolarWindsAPM::SDK.start_trace('excon_tests') do
       response = Excon.get('http://127.0.0.1:8101/?blah=1')
       tracestring = response.headers['X-Trace']
@@ -80,8 +83,6 @@ describe 'ExconTest' do
   end
 
   it 'cross_uninstr_app_tracing' do
-    clear_all_traces
-
     SolarWindsAPM::SDK.start_trace('excon_tests') do
       response = Excon.get('http://127.0.0.1:8110/?blah=1')
       refute response.headers['X-Trace']
@@ -104,8 +105,6 @@ describe 'ExconTest' do
   it 'persistent_requests' do
     # Persistence was adding in 0.31.0
     skip if Excon::VERSION < '0.31.0'
-
-    clear_all_traces
 
     SolarWindsAPM::SDK.start_trace('excon_tests') do
       connection = Excon.new('http://127.0.0.1:8101/') # non-persistent by default
@@ -145,8 +144,6 @@ describe 'ExconTest' do
   end
 
   it 'pipelined_requests' do
-    clear_all_traces
-
     SolarWindsAPM::API.start_trace('excon_tests') do
       connection = Excon.new('http://127.0.0.1:8101/')
       connection.requests([{ :method => :get }, { :method => :put }])
@@ -168,8 +165,6 @@ describe 'ExconTest' do
   end
 
   it 'requests_with_errors' do
-    clear_all_traces
-
     begin
       SolarWindsAPM::SDK.start_trace('excon_tests') do
         Excon.get('http://asfjalkljkaljf/')
@@ -201,7 +196,6 @@ describe 'ExconTest' do
 
   it 'obey_log_args_when_false' do
     @log_args = SolarWindsAPM::Config[:excon][:log_args]
-    clear_all_traces
 
     SolarWindsAPM::Config[:excon][:log_args] = false
 
@@ -221,7 +215,6 @@ describe 'ExconTest' do
 
   it 'obey_log_args_when_true' do
     @log_args = SolarWindsAPM::Config[:excon][:log_args]
-    clear_all_traces
 
     SolarWindsAPM::Config[:excon][:log_args] = true
 
@@ -241,7 +234,6 @@ describe 'ExconTest' do
 
   it 'obey_log_args_when_true_and_using_hash' do
     @log_args = SolarWindsAPM::Config[:excon][:log_args]
-    clear_all_traces
 
     SolarWindsAPM::Config[:excon][:log_args] = true
 

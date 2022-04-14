@@ -15,7 +15,6 @@ if defined?(::Redis)
     end
 
     before do
-      clear_all_traces
 
       @redis ||= Redis.new(:host => ENV['REDIS_HOST'] || ENV['REDIS_SERVER'] || '127.0.0.1',
                            :password => ENV['REDIS_PASSWORD'] || 'secret_pass')
@@ -26,6 +25,11 @@ if defined?(::Redis)
       @entry_kvs ||= { 'Layer' => 'redis_test', 'Label' => 'entry' }
       @exit_kvs ||= { 'Layer' => 'redis_test', 'Label' => 'exit' }
       @exists_returns_integer = Redis.exists_returns_integer if defined? Redis.exists_returns_integer
+
+      # not a request entry point, context set up in test with start_trace
+      # remove with NH-11132
+      SolarWindsAPM::Context.clear
+      clear_all_traces
     end
 
     after do
@@ -44,7 +48,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "del"
       _(traces[2]['KVKey']).must_equal "del_test"
     end
@@ -57,7 +61,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "del"
       _(traces[2].has_key?('KVKey')).must_equal false
     end
@@ -72,7 +76,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "dump"
       _(traces[2]['KVKey']).must_equal "del_test"
     end
@@ -88,7 +92,7 @@ if defined?(::Redis)
       _(@it_exists).must_equal true
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "exists"
       _(traces[2]['KVKey']).must_equal "talking_heads"
     end
@@ -105,7 +109,7 @@ if defined?(::Redis)
       _(@it_exists).must_equal 1
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "exists"
       _(traces[2]['KVKey']).must_equal "talking_heads"
     end
@@ -121,7 +125,7 @@ if defined?(::Redis)
       _(@it_exists).must_equal true
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "exists"
       _(traces[2]['KVKey']).must_equal "talking_heads"
     end
@@ -134,7 +138,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "expire"
       _(traces[2]['KVKey']).must_equal "expire_please"
     end
@@ -147,7 +151,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "expireat"
       _(traces[2]['KVKey']).must_equal "expireat_please"
     end
@@ -158,7 +162,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "keys"
       _(traces[2]['pattern']).must_equal "del*"
     end
@@ -171,7 +175,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "move"
       _(traces[2]['KVKey']).must_equal "piano"
       _(traces[2]['db']).must_equal 1
@@ -187,7 +191,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "persist"
       _(traces[2]['KVKey']).must_equal "mine"
     end
@@ -204,7 +208,7 @@ if defined?(::Redis)
       _(@rv).must_equal true
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "pexpire"
       _(traces[2]['KVKey']).must_equal "sand"
       _(traces[2]['milliseconds']).must_equal 8000
@@ -222,7 +226,7 @@ if defined?(::Redis)
       _(@rv).must_equal true
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "pexpireat"
       _(traces[2]['KVKey']).must_equal "sand"
       _(traces[2]['milliseconds']).must_equal 8000
@@ -238,7 +242,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "pttl"
       _(traces[2]['KVKey']).must_equal "sand"
     end
@@ -249,7 +253,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "randomkey"
     end
 
@@ -261,7 +265,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "rename"
       _(traces[2]['KVKey']).must_equal "sand"
       _(traces[2]['newkey']).must_equal "sandy"
@@ -275,7 +279,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "renamenx"
       _(traces[2]['KVKey']).must_equal "sand"
       _(traces[2]['newkey']).must_equal "sandy"
@@ -293,7 +297,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "restore"
       _(traces[2]['KVKey']).must_equal "blue"
       _(traces[2]['ttl']).must_equal 0
@@ -312,7 +316,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "sort"
       _(traces[2]['KVKey']).must_equal "penguin"
     end
@@ -327,7 +331,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "ttl"
       _(traces[2]['KVKey']).must_equal "sand"
     end
@@ -342,7 +346,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "type"
       _(traces[2]['KVKey']).must_equal "sand"
     end
@@ -355,7 +359,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "scan"
     end
   end

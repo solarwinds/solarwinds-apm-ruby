@@ -11,6 +11,9 @@ describe "TracingModeTest" do
 
     SolarWindsAPM::Config[:url_disabled_regexps] = nil
     SolarWindsAPM::Config[:url_enabled_regexps] = nil
+
+    # TODO remove with NH-11132
+    SolarWindsAPM::Context.clear
   end
 
   def teardown
@@ -23,7 +26,7 @@ describe "TracingModeTest" do
     SolarWindsAPM::Config[:tracing_mode] = :enabled
 
     SolarWindsAPM::SDK.start_trace(:test_enabled) do
-      _(SolarWindsAPM.tracing?).must_equal true
+      _(SolarWindsAPM.tracing?).must_equal true, "Context: #{SolarWindsAPM::Context.toString}"
     end
   end
 
@@ -31,7 +34,10 @@ describe "TracingModeTest" do
     SolarWindsAPM::Config[:tracing_mode] = :disabled
 
     SolarWindsAPM::SDK.start_trace(:test_disabled) do
-      _(SolarWindsAPM.tracing?).must_equal false
+      refute SolarWindsAPM.tracing?
+      SolarWindsAPM::SDK.start_trace('asdf') do
+        refute SolarWindsAPM.tracing?
+      end
     end
 
     SolarWindsAPM::SDK.start_trace('asdf') do

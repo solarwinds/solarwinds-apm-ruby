@@ -121,7 +121,7 @@ describe 'Trace Context' do
 
   end
 
-  describe 'add_kvs' do
+  describe 'add_traceinfo' do
 
     it "adds tracestate if there is a tracestate" do
       parent = '00-a462ade6cfe479081764cc476aa98335-cb3468da6f06eefc-01'
@@ -129,7 +129,7 @@ describe 'Trace Context' do
 
       context = SolarWindsAPM::TraceContext.new({ traceparent: parent,
                                                  tracestate: state })
-      kvs = context.add_kvs
+      kvs = context.add_traceinfo
 
       assert_equal state, kvs['sw.w3c.tracestate']
     end
@@ -138,7 +138,7 @@ describe 'Trace Context' do
       parent = '00-a462ade6cfe479081764cc476aa98335-cb3468da6f06eefc-01'
 
       context = SolarWindsAPM::TraceContext.new({ traceparent: parent })
-      kvs = context.add_kvs
+      kvs = context.add_traceinfo
 
       refute kvs['sw.w3c.tracestate']
     end
@@ -149,7 +149,7 @@ describe 'Trace Context' do
 
       context = SolarWindsAPM::TraceContext.new({ traceparent: parent,
                                                  tracestate: state })
-      kvs = context.add_kvs
+      kvs = context.add_traceinfo
 
       assert_equal '123468dadadadada', kvs['sw.tracestate_parent_id']
     end
@@ -160,7 +160,7 @@ describe 'Trace Context' do
 
       context = SolarWindsAPM::TraceContext.new({ traceparent: parent,
                                                  tracestate: state })
-      kvs = context.add_kvs
+      kvs = context.add_traceinfo
 
       refute kvs['sw.tracestate_parent_id']
     end

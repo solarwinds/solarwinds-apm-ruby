@@ -36,34 +36,35 @@ describe 'BunnyConsumerTest' do
       http.get('/?q=1').read_body
     end
 
-    SolarWindsAPM::SDK.start_trace('bunny_consume_test') do
-      @exchange.publish("The Tortoise and the Hare", :routing_key => @queue.name, :app_id => "msg_app", :type => :generic)
-    end
+    SolarWindsAPM::Context.clear
+    clear_all_traces
+    @exchange.publish("The Tortoise and the Hare", :routing_key => @queue.name, :app_id => "msg_app", :type => :generic)
 
-    sleep 1
+    sleep 0.1
 
     traces = get_all_traces
 
-    _(traces.count).must_equal 10
+    _(traces.count).must_equal 6, filter_traces(traces).pretty_inspect
+
     assert valid_edges?(traces, false), "Invalid edge in traces"
 
-    _(traces[5]['Layer']).must_equal "net-http"
-    _(traces[5]['Label']).must_equal "entry"
-    _(traces[8]['Layer']).must_equal "net-http"
-    _(traces[8]['Label']).must_equal "exit"
+    _(traces[1]['Layer']).must_equal "net-http"
+    _(traces[1]['Label']).must_equal "entry"
+    _(traces[4]['Layer']).must_equal "net-http"
+    _(traces[4]['Label']).must_equal "exit"
 
-    _(traces[4]['Spec']).must_equal "job"
-    _(traces[4]['Flavor']).must_equal "rabbitmq"
-    _(traces[4]['Queue']).must_equal "tv.ruby.consumer.test"
-    _(traces[4]['RemoteHost']).must_equal @connection_params[:host]
-    _(traces[4]['RemotePort']).must_equal @connection_params[:port].to_i
-    _(traces[4]['VirtualHost']).must_equal @connection_params[:vhost]
-    _(traces[4]['RoutingKey']).must_equal "tv.ruby.consumer.test"
-    _(traces[4]['Controller']).must_equal "msg_app"
-    _(traces[4]['Action']).must_equal "generic"
-    _(traces[4]['URL']).must_equal "/bunny/tv.ruby.consumer.test"
-    _(traces[4].key?('SourceTrace')).must_equal true
-    _(traces[4].key?('Backtrace')).must_equal false
+    _(traces[0]['Spec']).must_equal "job"
+    _(traces[0]['Flavor']).must_equal "rabbitmq"
+    _(traces[0]['Queue']).must_equal "tv.ruby.consumer.test"
+    _(traces[0]['RemoteHost']).must_equal @connection_params[:host]
+    _(traces[0]['RemotePort']).must_equal @connection_params[:port].to_i
+    _(traces[0]['VirtualHost']).must_equal @connection_params[:vhost]
+    _(traces[0]['RoutingKey']).must_equal "tv.ruby.consumer.test"
+    _(traces[0]['Controller']).must_equal "msg_app"
+    _(traces[0]['Action']).must_equal "generic"
+    _(traces[0]['URL']).must_equal "/bunny/tv.ruby.consumer.test"
+    _(traces[2].key?('sw.tracestate_parent_id')).must_equal true
+    _(traces[5].key?('Backtrace')).must_equal false
 
     @conn.close
   end
@@ -84,9 +85,11 @@ describe 'BunnyConsumerTest' do
       end
     }
 
+    SolarWindsAPM::Context.clear
+    clear_all_traces
     @exchange.publish("The Tortoise and the Hare", :routing_key => @queue.name, :app_id => "msg_app", :type => :generic)
 
-    sleep 1
+    sleep 0.1
 
     traces = get_all_traces
     _(traces.count).must_equal 6
@@ -125,9 +128,11 @@ describe 'BunnyConsumerTest' do
       raise "blah"
     end
 
+    SolarWindsAPM::Context.clear
+    clear_all_traces
     @exchange.publish("The Tortoise and the Hare", :routing_key => @queue.name, :app_id => "msg_app", :type => :generic)
 
-    sleep 1
+    sleep 0.1
 
     traces = get_all_traces
     _(traces.count).must_equal 3
@@ -173,30 +178,32 @@ describe 'BunnyConsumerTest' do
       http.get('/?q=1').read_body
     end
 
-    SolarWindsAPM::SDK.start_trace('bunny_consume_test') do
-      @exchange.publish("The Tortoise and the Hare", :message_id => "1234", :routing_key => @queue.name, :app_id => "msg_app", :type => :generic)
-    end
+    SolarWindsAPM::Context.clear
+    clear_all_traces
+    @exchange.publish("The Tortoise and the Hare", :message_id => "1234", :routing_key => @queue.name, :app_id => "msg_app", :type => :generic)
 
-    sleep 1
+    sleep 0.1
 
     traces = get_all_traces
 
-    _(traces.count).must_equal 10
+    _(traces.count).must_equal 6, filter_traces(traces).pretty_inspect
     assert valid_edges?(traces, false), "Invalid edge in traces"
 
-    _(traces[4]['Spec']).must_equal "job"
-    _(traces[4]['Flavor']).must_equal "rabbitmq"
-    _(traces[4]['Queue']).must_equal "tv.ruby.consumer.msgid.test"
-    _(traces[4]['RemoteHost']).must_equal @connection_params[:host]
-    _(traces[4]['RemotePort']).must_equal @connection_params[:port].to_i
-    _(traces[4]['VirtualHost']).must_equal @connection_params[:vhost]
-    _(traces[4]['RoutingKey']).must_equal "tv.ruby.consumer.msgid.test"
-    _(traces[4]['Controller']).must_equal "msg_app"
-    _(traces[4]['Action']).must_equal "generic"
-    _(traces[4]['URL']).must_equal "/bunny/tv.ruby.consumer.msgid.test"
-    _(traces[4]['MsgID']).must_equal "1234"
-    _(traces[4].key?('SourceTrace')).must_equal true
-    _(traces[4].key?('Backtrace')).must_equal false
+    _(traces[0]['Spec']).must_equal "job"
+    _(traces[0]['Flavor']).must_equal "rabbitmq"
+    _(traces[0]['Queue']).must_equal "tv.ruby.consumer.msgid.test"
+    _(traces[0]['RemoteHost']).must_equal @connection_params[:host]
+    _(traces[0]['RemotePort']).must_equal @connection_params[:port].to_i
+    _(traces[0]['VirtualHost']).must_equal @connection_params[:vhost]
+    _(traces[0]['RoutingKey']).must_equal "tv.ruby.consumer.msgid.test"
+    _(traces[0]['Controller']).must_equal "msg_app"
+    _(traces[0]['Action']).must_equal "generic"
+    _(traces[0]['URL']).must_equal "/bunny/tv.ruby.consumer.msgid.test"
+    _(traces[0]['MsgID']).must_equal "1234"
+    # _(traces[4].key?('SourceTrace')).must_equal true
+    # TODO report sw.tracestate_parent_id instead
+    assert traces[2].key?('sw.tracestate_parent_id')
+    _(traces[0].key?('Backtrace')).must_equal false
 
     @conn.close
   end

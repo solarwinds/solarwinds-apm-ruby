@@ -4,6 +4,8 @@
 module SolarWindsAPM
   module Inst
     module BunnyConsumer
+      include SolarWindsAPM::SDK::TraceContextHeaders
+
       def self.included(klass)
         SolarWindsAPM::Util.method_alias(klass, :call, ::Bunny::Consumer)
       end
@@ -65,16 +67,27 @@ module SolarWindsAPM
       def call_with_sw_apm(*args)
         report_kvs = collect_consumer_kvs(args)
 
-        # If SourceTrace was passed, capture and report it
+        # TODO all of this (to the next empty line) can be removed
+        #  once all of our agents (actually only Node) use w3c-header for RabbitMQ
+        #  w3c headers are read and added by the logging code
+        # If SourceTrace was passed:
+        # - capture it, report it
+        # - and add it as traceparent and tracestate header for use by start_trace
         headers = args[1][:headers]
-
         if headers && headers['SourceTrace']
           report_kvs[:SourceTrace] = headers['SourceTrace']
-
           # Remove SourceTrace
           headers.delete('SourceTrace')
+          unless headers['traceparent'] && headers['tracestate']
+            add_tracecontext_headers(headers)
+          end
         end
 
+        # the context either gets propagated via w3c headers
+        # or a new one should be started
+        # lets clear any context that may exist
+        # TODO revert with NH-11132
+        SolarWindsAPM::Context.clear
         SolarWindsAPM::SDK.start_trace(:'rabbitmq-consumer', kvs: report_kvs, headers: headers) do
           call_without_sw_apm(*args)
         end

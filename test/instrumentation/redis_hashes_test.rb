@@ -14,8 +14,6 @@ if defined?(::Redis)
     end
 
     before do
-      clear_all_traces
-
       @redis ||= Redis.new(:host => ENV['REDIS_HOST'] || ENV['REDIS_SERVER'] || '127.0.0.1',
                            :password => ENV['REDIS_PASSWORD'] || 'secret_pass')
 
@@ -24,6 +22,11 @@ if defined?(::Redis)
       # These are standard entry/exit KVs that are passed up with all moped operations
       @entry_kvs ||= { 'Layer' => 'redis_test', 'Label' => 'entry' }
       @exit_kvs  ||= { 'Layer' => 'redis_test', 'Label' => 'exit' }
+
+      # not a request entry point, context set up in test with start_trace
+      # remove with NH-11132
+      SolarWindsAPM::Context.clear
+      clear_all_traces
     end
 
     it 'Stock Redis should be loaded, defined and ready' do
@@ -40,7 +43,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "hdel"
       _(traces[2]['KVKey']).must_equal "whale"
       _(traces[2]['field']).must_equal "color"
@@ -58,7 +61,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "hdel"
       _(traces[2]['KVKey']).must_equal "whale"
       _(traces[2].has_key?('field')).must_equal false
@@ -74,7 +77,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "hexists"
       _(traces[2]['KVKey']).must_equal "whale"
       _(traces[2]['field']).must_equal "color"
@@ -91,7 +94,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 6
+      _(traces.count).must_equal 6, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "hget"
       _(traces[2]['KVKey']).must_equal "whale"
       _(traces[2]['KVHit']).must_equal 1
@@ -109,7 +112,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "hgetall"
       _(traces[2]['KVKey']).must_equal "whale"
     end
@@ -124,7 +127,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "hincrby"
       _(traces[2]['KVKey']).must_equal "whale"
       _(traces[2]['field']).must_equal "age"
@@ -141,7 +144,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "hincrbyfloat"
       _(traces[2]['KVKey']).must_equal "whale"
       _(traces[2]['field']).must_equal "age"
@@ -158,7 +161,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "hkeys"
       _(traces[2]['KVKey']).must_equal "whale"
     end
@@ -173,7 +176,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "hlen"
       _(traces[2]['KVKey']).must_equal "whale"
     end
@@ -190,7 +193,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "hmget"
       _(traces[2]['KVKey']).must_equal "whale"
       _(traces[2]['KVKeyCount']).must_equal 4
@@ -209,7 +212,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "hmset"
       _(traces[2]['KVKey']).must_equal "whale"
     end
@@ -222,7 +225,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "hset"
       _(traces[2]['KVKey']).must_equal "whale"
     end
@@ -235,7 +238,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "hsetnx"
       _(traces[2]['KVKey']).must_equal "whale"
     end
@@ -248,7 +251,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "hvals"
       _(traces[2]['KVKey']).must_equal "whale"
     end
@@ -261,7 +264,7 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4
+      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "hscan"
       _(traces[2]['KVKey']).must_equal "whale"
     end
