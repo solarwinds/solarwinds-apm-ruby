@@ -15,7 +15,7 @@ unless defined?(Padrino)
     end
   end
 
-  if Rails.version >= '5.1'
+  if ActiveRecord.version >= Gem::Version.create('5.1')
     class CreateWidgets < ActiveRecord::Migration[5.1]
       def change
         create_table :widgets do |t|

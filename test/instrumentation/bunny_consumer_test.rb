@@ -29,7 +29,7 @@ describe 'BunnyConsumerTest' do
     @queue = @ch.queue("tv.ruby.consumer.test", :exclusive => true)
     @exchange  = @ch.default_exchange
 
-    @queue.subscribe(:block => false, :manual_ack => true) do |delivery_info, properties, payload|
+    @queue.subscribe(:block => false, :manual_ack => true) do |_delivery_info, _properties, _payload|
       # Make an http call to spice things up
       uri = URI('http://127.0.0.1:8101/')
       http = Net::HTTP.new(uri.host, uri.port)
@@ -124,7 +124,7 @@ describe 'BunnyConsumerTest' do
     @queue = @ch.queue("tv.ruby.consumer.error.test", :exclusive => true)
     @exchange  = @ch.default_exchange
 
-    @queue.subscribe(:block => false, :manual_ack => true) do |delivery_info, properties, payload|
+    @queue.subscribe(:block => false, :manual_ack => true) do |_delivery_info, _properties, _payload|
       raise "blah"
     end
 
@@ -162,6 +162,8 @@ describe 'BunnyConsumerTest' do
 
     _(traces[2]['Layer']).must_equal "rabbitmq-consumer"
     _(traces[2]['Label']).must_equal "exit"
+
+    @conn.close
   end
 
   it 'captures the id' do
@@ -200,8 +202,7 @@ describe 'BunnyConsumerTest' do
     _(traces[0]['Action']).must_equal "generic"
     _(traces[0]['URL']).must_equal "/bunny/tv.ruby.consumer.msgid.test"
     _(traces[0]['MsgID']).must_equal "1234"
-    # _(traces[4].key?('SourceTrace')).must_equal true
-    # TODO report sw.tracestate_parent_id instead
+
     assert traces[2].key?('sw.tracestate_parent_id')
     _(traces[0].key?('Backtrace')).must_equal false
 

@@ -180,10 +180,10 @@ end
 # in event
 #
 def validate_outer_layers(traces, layer)
-  _(traces.first['Layer']).must_equal layer
-  _(traces.first['Label']).must_equal 'entry'
-  _(traces.last['Layer']).must_equal layer
-  _(traces.last['Label']).must_equal 'exit'
+  assert_equal traces.first['Layer'], layer
+  assert_equal traces.first['Label'], 'entry'
+  assert_equal traces.last['Layer'], layer
+  assert_equal traces.last['Label'], 'exit'
 end
 
 ##
@@ -248,7 +248,6 @@ def valid_edges?(traces, connected = true)
     if t.key?("sw.parent_span_id")
       unless has_edge?(t["sw.parent_span_id"], traces)
         puts "edge missing for #{t["sw.parent_span_id"]}"
-        # TODO NH-2303 maybe remove when done
         print_traces(traces)
         return false
       end
@@ -258,14 +257,24 @@ def valid_edges?(traces, connected = true)
     if traces.map { |tr| tr['sw.parent_span_id'] }.uniq.size == traces.size
       return true
     else
-      # TODO NH-2303 maybe remove when done
       puts "number of unique sw.parent_span_ids: #{traces.map { |tr| tr['sw.parent_span_id'] }.uniq.size}"
-      puts "number of traces: traces.size"
+      puts "number of traces: #{traces.size}"
       print_traces(traces)
       return false
     end
   end
   true
+end
+
+##
+# same_trace_id?
+#
+# do the events all have the same trace_id?
+# 
+def same_trace_id?(traces)
+  traces.map do |t|
+    SolarWindsAPM::TraceString.trace_id(t["sw.trace_context"])
+  end.uniq.count == 1
 end
 
 ##

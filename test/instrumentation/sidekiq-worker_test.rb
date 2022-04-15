@@ -21,7 +21,6 @@ describe "SidekiqWorkerTest" do
     @log_args = SolarWindsAPM::Config[:sidekiqworker][:log_args]
 
     clear_all_traces
-    # remove with NH-11132
     # not a request entry point, context set up in test with start_trace
     SolarWindsAPM::Context.clear
   end
@@ -42,7 +41,7 @@ describe "SidekiqWorkerTest" do
     jid = Sidekiq::Client.push('queue' => 'critical', 'class' => RemoteCallWorkerJob, 'args' => [1, 2, 3], 'retry' => false)
 
     # Allow the job to be run
-    sleep 5
+    sleep 3
 
     traces = get_all_traces
     assert_equal 12, traces.count, filter_traces(traces).pretty_inspect

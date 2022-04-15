@@ -22,7 +22,6 @@ describe 'BunnyClientTest' do
     clear_all_traces
 
     # not a request entry point, context set up in test with start_trace
-    # remove with NH-11132
     SolarWindsAPM::Context.clear
   end
 
@@ -30,7 +29,7 @@ describe 'BunnyClientTest' do
     @conn = Bunny.new(@connection_params)
     @conn.start
     @ch = @conn.create_channel
-    @queue = @ch.queue("tv.ruby.test")
+    @queue = @ch.queue("tv.ruby.default.test", :exclusive => true)
     @exchange = @ch.default_exchange
 
     SolarWindsAPM::SDK.start_trace('bunny_tests') do
@@ -50,7 +49,7 @@ describe 'BunnyClientTest' do
     _(traces[2]['Spec']).must_equal "pushq"
     _(traces[2]['Flavor']).must_equal "rabbitmq"
     _(traces[2]['ExchangeName']).must_equal "default"
-    _(traces[2]['RoutingKey']).must_equal "tv.ruby.test"
+    _(traces[2]['RoutingKey']).must_equal "tv.ruby.default.test"
     _(traces[2]['Op']).must_equal "publish"
     _(traces[2]['RemoteHost']).must_equal ENV['RABBITMQ_SERVER']
     _(traces[2]['RemotePort']).must_equal ENV['RABBITMQ_PORT'].to_i
@@ -158,7 +157,7 @@ describe 'BunnyClientTest' do
     begin
       SolarWindsAPM::SDK.start_trace('bunny_tests') do
         @ch = @conn.create_channel
-        @ch.queue("bunny.tests.queues.auto-delete", auto_delete: true, durable: false)
+        @ch.queue("bunny.tests.queues.auto-delete", auto_delete: true, durable: false, :exclusive => true)
         @ch.queue_declare("bunny.tests.queues.auto-delete", auto_delete: false, durable: true)
       end
     rescue
@@ -166,20 +165,26 @@ describe 'BunnyClientTest' do
     end
 
     traces = get_all_traces
-    assert_equal 5, traces.count
+
+    assert_equal 5, traces.count, filter_traces(traces).pretty_inspect
 
     validate_outer_layers(traces, "bunny_tests")
     assert valid_edges?(traces), "Invalid edge in traces"
 
-    _(traces[2].key?('Backtrace')).must_equal !!SolarWindsAPM::Config[:bunnyclient][:collect_backtraces]
+    error_trace = traces.find { |tr| tr['Label'] == 'error' }
+    assert error_trace, "no error event reported"
 
-    _(traces[3]['Layer']).must_equal "bunny_tests"
-    _(traces[3]['Spec']).must_equal "error"
-    _(traces[3]['Label']).must_equal "error"
-    _(traces[3]['ErrorClass']).must_equal "Bunny::PreconditionFailed"
-    _(traces[3]['ErrorMsg']).must_match(/PRECONDITION_FAILED/)
+    _(error_trace['Layer']).must_equal "bunny_tests"
+    _(error_trace['Spec']).must_equal "error"
+    _(error_trace['Label']).must_equal "error"
+    _(error_trace['ErrorClass']).must_equal "Bunny::ResourceLocked"
+    _(error_trace['ErrorMsg']).must_match(/RESOURCE_LOCKED/)
 
     _(traces.select { |trace| trace['Label'] == 'error' }.count).must_equal 1
+
+    client_traces = traces.select { |tr| tr['Layer'] == 'rabbitmq-client' }
+    client_traces.count == 2
+    _(client_traces[1].key?('Backtrace')).must_equal !!SolarWindsAPM::Config[:bunnyclient][:collect_backtraces]
 
     @conn.close
   end
@@ -211,6 +216,8 @@ describe 'BunnyClientTest' do
     _(traces[2]['RemoteHost']).must_equal ENV['RABBITMQ_SERVER']
     _(traces[2]['RemotePort']).must_equal ENV['RABBITMQ_PORT'].to_i
     _(traces[2]['VirtualHost']).must_equal ENV['RABBITMQ_VHOST']
+
+    @conn.close
   end
 
   it 'wait_for_confirms' do
@@ -280,6 +287,8 @@ describe 'BunnyClientTest' do
     _(traces[2]['RemoteHost']).must_equal ENV['RABBITMQ_SERVER']
     _(traces[2]['RemotePort']).must_equal ENV['RABBITMQ_PORT'].to_i
     _(traces[2]['VirtualHost']).must_equal ENV['RABBITMQ_VHOST']
+
+    @conn.close
   end
 
   it 'backtrace_config_true' do
@@ -289,7 +298,7 @@ describe 'BunnyClientTest' do
     @conn = Bunny.new(@connection_params)
     @conn.start
     @ch = @conn.create_channel
-    @queue = @ch.queue("tv.ruby.test")
+    @queue = @ch.queue("tv.ruby.anotherdefault.test", :exclusive => true)
     @exchange = @ch.default_exchange
 
     SolarWindsAPM::SDK.start_trace('bunny_tests') do
@@ -306,5 +315,7 @@ describe 'BunnyClientTest' do
     @conn.close
 
     SolarWindsAPM::Config[:bunnyclient][:collect_backtraces] = bt
+
+    @conn.close
   end
 end

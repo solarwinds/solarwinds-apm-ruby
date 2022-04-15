@@ -178,18 +178,6 @@ module SolarWindsAPM
       def start_trace_with_target(name, target: {}, kvs: {}, headers: {})
         return yield unless SolarWindsAPM.loaded
 
-        # TODO
-        #   NH-11132 will definitely remove using the context
-        #   right now log_start may still use it
-        #   log.debug if a valid context is found
-        #
-        # if SolarWindsAPM::Context.isValid # not an entry span!
-        #   result = trace(name, kvs: kvs) { yield }
-        #   target['X-Trace'] = SolarWindsAPM::Context.toString
-        #   return result
-        # end
-
-        # :TransactionName and 'TransactionName' need to be removed from kvs
         SolarWindsAPM.transaction_name = kvs.delete('TransactionName') || kvs.delete(:TransactionName)
 
         SolarWindsAPM::API.log_start(name, kvs, headers)

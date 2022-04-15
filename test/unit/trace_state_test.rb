@@ -5,7 +5,6 @@ require 'minitest_helper'
 
 describe "TraceStateTest" do
 
-  # TODO add dash before flags once we use the w3c trace id formatting
   it "adds our member" do
     trace_state = "aa=123,bb=234,cc=567"
     trace_state2 = SolarWindsAPM::TraceState.add_sw_member(trace_state, '136dfaebdf742362-01')

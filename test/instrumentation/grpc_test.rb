@@ -92,7 +92,6 @@ if defined? GRPC
       @trace_00 = '00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-00'
       @trace_01 = '00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-01'
 
-
       # TODO
       #  remove with NH-11132, start_trace refactoring
       SolarWindsAPM::Context.clear
@@ -424,8 +423,8 @@ if defined? GRPC
 
         @stub.client_stream([@phone_msg, @phone_msg])
         traces = get_all_traces
-        # TODO FLAKY
-        assert traces.empty?, "flaky test"
+
+        assert traces.empty?
 
         # without the w3c trace context and no context it will always trace in testing
         SolarWindsAPM.trace_context = nil

@@ -46,7 +46,6 @@ describe "RestClient" do
     traces = get_all_traces
     _(traces.count).must_equal 8
 
-    # TODO FLAKY
     _(valid_edges?(traces, false)).must_equal true, "flaky test"
     validate_outer_layers(traces, 'rest_client_test')
 
@@ -81,7 +80,6 @@ describe "RestClient" do
     traces = get_all_traces
     _(traces.count).must_equal 8
 
-    # TODO FLAKY
     _(valid_edges?(traces, false)).must_equal true, "flaky test"
     validate_outer_layers(traces, 'rest_client_test')
 
@@ -141,8 +139,7 @@ describe "RestClient" do
     traces = get_all_traces
     _(traces.count).must_equal 8
 
-    # TODO FLAKY
-    _(valid_edges?(traces, false)).must_equal true, "flaky test"
+    _(valid_edges?(traces, false)).must_equal true
     validate_outer_layers(traces, 'rest_client_test')
 
     _(traces[1]['Layer']).must_equal 'rest-client'
@@ -172,8 +169,7 @@ describe "RestClient" do
     traces = get_all_traces
     _(traces.count).must_equal 14
 
-    # TODO FLAKY
-    _(valid_edges?(traces, false)).must_equal true, "flaky test"
+    _(valid_edges?(traces, false)).must_equal true
     validate_outer_layers(traces, 'rest_client_test')
 
     _(traces[1]['Layer']).must_equal 'rest-client'

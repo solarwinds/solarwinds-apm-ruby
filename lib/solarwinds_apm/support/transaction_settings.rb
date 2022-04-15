@@ -32,10 +32,10 @@ module SolarWindsAPM
       # TODO
       #   NH-11132 will address this
       # incoming tracing info has priority over existing context
-      if SolarWindsAPM::Context.isValid && !@sw_member_value
-        @do_sample = SolarWindsAPM.tracing?
-        return
-      end
+      # if SolarWindsAPM::Context.isValid && !@sw_member_value
+      #   @do_sample = SolarWindsAPM.tracing?
+      #   return
+      # end
 
       if url && asset?(url)
         @do_propagate = false
@@ -48,16 +48,26 @@ module SolarWindsAPM
         tracing_mode = AO_TRACING_DISABLED
       end
 
-      args = [@tracestring, @sw_member_value]
-      args << tracing_mode
-      args << (SolarWindsAPM::Config[:sample_rate] || OBOE_SETTINGS_UNSET)
+      # args (all optional)
+      # 0 char const *in_xtrace
+      # 1 char const *tracestate
+      # 2 int custom_tracing_mode
+      # 3 int custom_sample_rate
+      # 4 int request_type
+      # 5 int custom_trigger_mode
+      # 6 char const *header_options
+      # 7 char const *header_signature
+      # 8 long header_timestamp
+      args = [@tracestring, @sw_member_value] #0,1
+      args << tracing_mode #2
+      args << (SolarWindsAPM::Config[:sample_rate] || OBOE_SETTINGS_UNSET) #3
 
       if options && (options.options || options.signature)
-        args << (options.trigger_trace ? 1 : 0)
-        args << (trigger_tracing_mode_disabled? ? 0 : 1)
-        args << options.options
-        args << options.signature
-        args << options.timestamp
+        args << (options.trigger_trace ? 1 : 0) #4
+        args << (trigger_tracing_mode_disabled? ? 0 : 1) #5
+        args << options.options #6
+        args << options.signature #7
+        args << options.timestamp #8
       end
 
       metrics, sample, @rate, @source, @bucket_rate, @bucket_cap, @type, @auth, @status_msg, @auth_msg, @status =
