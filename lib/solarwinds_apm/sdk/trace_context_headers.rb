@@ -43,21 +43,24 @@ module SolarWindsAPM
       # * The headers with w3c tracecontext added, also modifies the headers arg if given
       #
       def add_tracecontext_headers(headers = {})
-        # make sure the header object can take string keys
-        # TODO maybe there is a better check?
-        return if headers.is_a?(Array)
-
-        if SolarWindsAPM::Context.isValid
-          headers['traceparent'] = SolarWindsAPM::Context.toString
-          parent_id_flags = SolarWindsAPM::TraceString.span_id_flags(headers['traceparent'])
-          tracestate = SolarWindsAPM.trace_context&.tracestate
-          headers['tracestate'] = SolarWindsAPM::TraceState.add_sw_member(tracestate, parent_id_flags)
-        else
-          # make sure we propagate an incoming trace_context even if we don't trace
-          if SolarWindsAPM.trace_context
-            headers['traceparent'] = SolarWindsAPM.trace_context.traceparent
-            headers['tracestate'] = SolarWindsAPM.trace_context.tracestate
+        begin
+          if SolarWindsAPM::Context.isValid
+            headers['traceparent'] = SolarWindsAPM::Context.toString
+            parent_id_flags = SolarWindsAPM::TraceString.span_id_flags(headers['traceparent'])
+            tracestate = SolarWindsAPM.trace_context&.tracestate
+            headers['tracestate'] = SolarWindsAPM::TraceState.add_sw_member(tracestate, parent_id_flags)
+          else
+            # make sure we propagate an incoming trace_context even if we don't trace
+            if SolarWindsAPM.trace_context
+              headers['traceparent'] = SolarWindsAPM.trace_context.traceparent
+              headers['tracestate'] = SolarWindsAPM.trace_context.tracestate
+            end
           end
+        rescue => e
+          # we don't know what the class of headers is and the obj may not
+          # be able to accept a key/value assignment
+          # unfortunately I could not find a method to check for that
+          # therefore we're catching the error and don't change the headers
         end
         headers
       end

@@ -73,7 +73,7 @@ module SolarWindsAPMBase
     SolarWindsAPM.layer_op.last == operation.to_sym
   end
 
-  # TODO ME review use of these boolean statements
+  # TODO review use of these boolean statements
   # ____ they should now be handled by TransactionSettings,
   # ____ because there can be exceptions to :enabled and :disabled
 
