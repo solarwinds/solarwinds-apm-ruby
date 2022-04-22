@@ -133,8 +133,6 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
 
     # Tests for the graphql gem instrumentation
     before do
-      clear_all_traces
-
       @sanitize_query = SolarWindsAPM::Config[:graphql][:sanitize_query]
       @remove_comments = SolarWindsAPM::Config[:graphql][:remove_comments]
       @enabled = SolarWindsAPM::Config[:graphql][:enabled]
@@ -143,8 +141,7 @@ if Gem.loaded_specs['graphql'].version >= Gem::Version.new('1.8.0')
 
       SolarWindsAPM::Config[:tracing_mode] = :enabled
 
-      # remove with NH-11132
-      SolarWindsAPM::Context.clear # ok to clear as these are not entry points for requests
+      clear_all_traces
     end
 
     after do

@@ -6,11 +6,10 @@ require 'rack'
 
 describe "Typhoeus" do
   before do
-    clear_all_traces
-    # TODO remove with NH-11132
-    SolarWindsAPM::Context.clear # not a request start point, context is set up by tests
     @collect_backtraces = SolarWindsAPM::Config[:typhoeus][:collect_backtraces]
     @log_args = SolarWindsAPM::Config[:typhoeus][:log_args]
+
+    clear_all_traces
   end
 
   after do

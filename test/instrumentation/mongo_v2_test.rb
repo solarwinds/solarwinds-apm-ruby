@@ -32,10 +32,6 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
 
       @exit_kvs = { 'Layer' => 'mongo', 'Label' => 'exit' }
       @collect_backtraces = SolarWindsAPM::Config[:mongo][:collect_backtraces]
-
-      # not a request entry point, context set up in test with start_trace
-      # remove with NH-11132
-      SolarWindsAPM::Context.clear
       clear_all_traces
     end
 
@@ -117,7 +113,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 5
+      _(traces.count).must_equal 5, filter_traces(traces).pretty_inspect
 
       validate_outer_layers(traces, 'mongo_test')
       validate_event_keys(traces[1], @entry_kvs)
@@ -284,6 +280,7 @@ if defined?(::Mongo::VERSION) && Mongo::VERSION >= '2.0.0'
       doc = { "name" => "MyName", "type" => "MyType", "count" => 1, "info" => { "x" => 203, "y" => '102' } }
       coll.insert_one(doc)
 
+      clear_all_traces
       SolarWindsAPM::SDK.start_trace('mongo_test') do
         r = coll.find_one_and_replace({ :name => 'MyName' }, { "$set" => { :name => 'test1' } }, :return_document => :after)
       end

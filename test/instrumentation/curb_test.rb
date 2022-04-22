@@ -10,16 +10,12 @@ describe 'CurbTest' do # < Minitest::Test
   include Rack::Test::Methods
 
   before do
-    clear_all_traces
     SolarWindsAPM.config_lock.synchronize {
       @cb = SolarWindsAPM::Config[:curb][:collect_backtraces]
       @log_args = SolarWindsAPM::Config[:curb][:log_args]
       @tm = SolarWindsAPM::Config[:tracing_mode]
     }
-
-    # not a request entry point, context set up in test with start_trace
-    # remove with NH-11132
-    SolarWindsAPM::Context.clear
+    clear_all_traces
   end
 
   after do

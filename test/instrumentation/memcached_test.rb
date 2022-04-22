@@ -8,7 +8,6 @@ describe "Memcached" do
   require 'memcached/rails'
 
   before do
-    clear_all_traces
     @mc = ::Memcached::Rails.new(:servers => [ENV['MEMCACHED_SERVER'] || '127.0.0.1'])
 
     # These are standard entry/exit KVs that are passed up with all memcache operations
@@ -22,10 +21,7 @@ describe "Memcached" do
 
     @exit_kvs = { 'Layer' => 'memcache', 'Label' => 'exit' }
     @collect_backtraces = SolarWindsAPM::Config[:memcached][:collect_backtraces]
-
-    # TODO remove with NH-11132
-    # not a request entry point, context set up in test with start_trace
-    SolarWindsAPM::Context.clear
+    clear_all_traces
   end
 
   after do

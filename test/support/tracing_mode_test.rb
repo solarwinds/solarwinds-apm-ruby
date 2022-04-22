@@ -11,9 +11,6 @@ describe "TracingModeTest" do
 
     SolarWindsAPM::Config[:url_disabled_regexps] = nil
     SolarWindsAPM::Config[:url_enabled_regexps] = nil
-
-    # TODO remove with NH-11132
-    SolarWindsAPM::Context.clear
   end
 
   def teardown

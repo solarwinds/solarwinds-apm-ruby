@@ -42,9 +42,6 @@ describe "RailsSharedTests" do
     }
 
     clear_all_traces
-    # not a request entry point, context set up in test with start_trace
-    # remove with NH-11132
-    SolarWindsAPM::Context.clear
   end
 
   after do

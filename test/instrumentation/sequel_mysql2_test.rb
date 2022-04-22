@@ -23,8 +23,6 @@ if defined?(::Sequel)
 
   describe "Sequel (mysql2)" do
     before do
-      clear_all_traces
-
       # These are standard entry/exit KVs that are passed up with all sequel operations
       @entry_kvs = {
         'Layer' => 'sequel',
@@ -41,9 +39,7 @@ if defined?(::Sequel)
 
      SolarWindsAPM::Config[:sequel][:collect_backtraces] = false
 
-      # not a request entry point, context set up in test with start_trace
-      # remove with NH-11132
-      SolarWindsAPM::Context.clear
+      clear_all_traces
     end
 
     after do
