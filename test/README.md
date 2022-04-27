@@ -16,7 +16,7 @@
 ## TL:DR
 1) start container and services with code base mounted
 ```bash
-be rake docker
+bundle exec rake docker
 ```
 2) run all tests in container
 ```bash
@@ -86,7 +86,7 @@ bundle exec rake cfc
 If the ruby version changes it needs to be re-compiled 
 (Don't worry about segfaults, some background job may have been running)
 
-Oboe gets installed automatically when using `be rake docker_test`, 
+Oboe gets installed automatically when using either `bundle exec rake docker_test`, 
 `run_tests.sh`, or the gem from packagecloud or rubygems.
 
 ## Defining components of a test run
