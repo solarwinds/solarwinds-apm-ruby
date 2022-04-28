@@ -14,10 +14,6 @@ describe 'ExconTest' do
 
   before do
     clear_all_traces
-
-    # remove with NH-11132
-    # not a request entry point, context set up in test with start_trace
-    SolarWindsAPM::Context.clear
   end
 
   it 'Excon should have SolarWinds instrumentation prepended' do

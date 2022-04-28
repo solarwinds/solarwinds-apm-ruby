@@ -5,13 +5,10 @@ require 'minitest_helper'
 
 describe "Dalli" do
   before do
-    clear_all_traces
     @server = "#{ENV['MEMCACHED_SERVER'] || '127.0.0.1'}:11211"
     @dc = Dalli::Client.new(@server)
     @collect_backtraces = SolarWindsAPM::Config[:dalli][:collect_backtraces]
-
-    # remove with NH-11132
-    SolarWindsAPM::Context.clear # not a request entry point
+    clear_all_traces
   end
 
   after do

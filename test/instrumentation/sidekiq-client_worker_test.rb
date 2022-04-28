@@ -18,13 +18,13 @@ end
 # but without testing all the worker detail
 class SidekiqClientTest < Minitest::Test
   def setup
-    clear_all_traces
     @collect_backtraces = SolarWindsAPM::Config[:sidekiqclient][:collect_backtraces]
     @log_args = SolarWindsAPM::Config[:sidekiqclient][:log_args]
     @tracing_mode = SolarWindsAPM::Config[:tracing_mode]
 
-    # not a request entry point, context set up in test with start_trace
-    SolarWindsAPM::Context.clear
+    SolarWindsAPM::Config[:tracing_mode] = :enabled
+    sleep 1 # there may be a bit of a lag somewhere with writing traces
+    clear_all_traces
   end
 
   def teardown
@@ -53,7 +53,7 @@ class SidekiqClientTest < Minitest::Test
     sleep 3
 
     traces = get_all_traces
-    assert_equal 16, refined_trace_count(traces), filter_traces(traces).pretty_inspect
+    assert_equal 10, refined_trace_count(traces), filter_traces(traces).pretty_inspect
     assert valid_edges?(traces, false), "Invalid edge in traces"
     assert same_trace_id?(traces), "more than one task_id found"
 
@@ -93,7 +93,7 @@ class SidekiqClientTest < Minitest::Test
     sleep 3
 
     traces = get_all_traces
-    assert_equal 16, refined_trace_count(traces), filter_traces(traces).pretty_inspect
+    assert_equal 10, refined_trace_count(traces), filter_traces(traces).pretty_inspect
     assert valid_edges?(traces, false), "Invalid edge in traces"
     assert_equal 'sidekiq-client', traces[1]['Layer']
     assert_equal false, traces[1].key?('Backtrace')
@@ -111,7 +111,7 @@ class SidekiqClientTest < Minitest::Test
     sleep 3
 
     traces = get_all_traces
-    assert_equal 16, refined_trace_count(traces), filter_traces(traces).pretty_inspect
+    assert_equal 10, refined_trace_count(traces), filter_traces(traces).pretty_inspect
     assert valid_edges?(traces, false), "Invalid edge in traces"
     assert same_trace_id?(traces), "more than one task_id found"
 
@@ -131,7 +131,7 @@ class SidekiqClientTest < Minitest::Test
     sleep 3
 
     traces = get_all_traces
-    assert_equal 16, refined_trace_count(traces), filter_traces(traces).pretty_inspect
+    assert_equal 10, refined_trace_count(traces), filter_traces(traces).pretty_inspect
     assert valid_edges?(traces, false), "Invalid edge in traces"
     assert same_trace_id?(traces), "more than one task_id found"
     assert_equal false, traces[1].key?('Args')
@@ -149,7 +149,7 @@ class SidekiqClientTest < Minitest::Test
     sleep 3
 
     traces = get_all_traces
-    assert_equal 16, refined_trace_count(traces)
+    assert_equal 10, refined_trace_count(traces), filter_traces(traces).pretty_inspect
     assert valid_edges?(traces, false), "Invalid edge in traces"
     assert same_trace_id?(traces), "more than one task_id found"
     assert_equal true, traces[1].key?('Args')
@@ -170,9 +170,19 @@ class SidekiqClientTest < Minitest::Test
 
     # The sidekiq worker is already started in a different process and does not
     # receive the new value for SolarWindsAPM::Config[:tracing_mode]
-    # We receive 12 trace events from the worker
-    assert_equal 12, refined_trace_count(traces)
+    # We receive 6 trace events from the worker
+    assert_equal 6, refined_trace_count(traces), filter_traces(traces).pretty_inspect
     assert same_trace_id?(traces), "more than one task_id found"
     validate_outer_layers(traces, 'sidekiq-worker')
+  end
+
+
+  def test_job_takes_an_obj
+    # this is to test that we don't blow up things if w3c traceinfo can't be assigned
+
+    ### TODO refute exception
+    SolarWindsAPM::SDK.start_trace(:enqueue_test) do
+      Sidekiq::Client.push('queue' => 'critical', 'class' => ::RemoteCallWorkerJob, 'args' => [Time.now], 'retry' => false)
+    end
   end
 end

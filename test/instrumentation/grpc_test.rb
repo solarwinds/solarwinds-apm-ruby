@@ -91,10 +91,6 @@ if defined? GRPC
 
       @trace_00 = '00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-00'
       @trace_01 = '00-7435a9fe510ae4533414d425dadf4e18-49e60702469db05f-01'
-
-      # TODO
-      #  remove with NH-11132, start_trace refactoring
-      SolarWindsAPM::Context.clear
     end
 
     before do

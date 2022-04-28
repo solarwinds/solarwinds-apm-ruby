@@ -12,9 +12,5 @@ class RemoteCallWorkerJob
 
     uri = URI('http://127.0.0.1:8110')
     Net::HTTP.get(uri)
-
-    @dc.get(rand(10).to_s)
-    @dc.get(rand(10).to_s)
-    @dc.get_multi([:one, :two, :three, :four, :five, :six])
   end
 end

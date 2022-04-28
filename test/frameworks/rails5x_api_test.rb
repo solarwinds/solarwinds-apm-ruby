@@ -15,10 +15,7 @@ if defined?(::Rails)
       ENV['DBTYPE'] = "postgresql" unless ENV['DBTYPE']
 
       clear_all_traces
-      # not a request entry point, context set up in test with start_trace
-      # remove with NH-11132
-      SolarWindsAPM::Context.clear
-    end
+     end
 
     after do
       SolarWindsAPM.config_lock.synchronize {

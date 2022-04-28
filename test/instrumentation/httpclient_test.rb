@@ -13,15 +13,11 @@ describe 'HTTPClientTest' do
   end
 
   before do
-    clear_all_traces
     @tm = SolarWindsAPM::Config[:tracing_mode]
     @sample_rate = SolarWindsAPM::Config[:sample_rate]
     SolarWindsAPM::Config[:tracing_mode] = :enabled
     SolarWindsAPM::Config[:sample_rate] = 1000000
-
-    # TODO remove with NH-11132
-    # not a request entry point, context set up in test with start_trace
-    SolarWindsAPM::Context.clear
+    clear_all_traces
   end
 
   after do

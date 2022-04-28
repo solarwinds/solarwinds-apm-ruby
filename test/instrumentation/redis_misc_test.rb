@@ -24,9 +24,6 @@ if defined?(::Redis)
       @exit_kvs  ||= { 'Layer' => 'redis_test', 'Label' => 'exit' }
 
       clear_all_traces
-      # not a request entry point, context set up in test with start_trace
-      # remove with NH-11132
-      SolarWindsAPM::Context.clear
     end
 
     it "should trace auth and not include password" do

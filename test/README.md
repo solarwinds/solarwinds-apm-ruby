@@ -12,6 +12,28 @@
   * [byebug for debugging](#byebug-for-debugging)
   * [Duplication (◔_◔) and missing tests ( •̆௰•̆ )](#duplication-(◔_◔)-and-missing-tests-(-•̆௰•̆-))
 
+
+## TL:DR
+1) start container and services with code base mounted
+```bash
+bundle exec rake docker
+```
+2) run all tests in container
+```bash
+test/run_tests/run_tests.sh
+```
+3) the output goes to the logs in this repo
+
+search for `FAIL|ERROR` to find the tests that didn't pass
+
+run fewer tests by using the options e.g.
+```bash
+test/run_tests/run_tests.sh -r 2.7.5 -g gemfiles/delayed_job.gemfile
+```
+4) fix code and rerun, the code base is mounted in the container ;)
+
+---
+
 The tests for this gem focus on sending the correct information
 to the data collector as well as dealing with exceptions when
 using the gem.
@@ -53,15 +75,23 @@ the collector.
 When using the gem from source it needs to be installed once on a
 new platform:
 ```bash
-bundle exec rake fetch_ext_deps
 bundle exec rake clean
+bundle exec rake fetch 
 bundle exec rake compile
 ```
-It installs automatically when using the docker test setup or the compiled gem.
+or use the short version that does it all
+```bash
+bundle exec rake cfc
+```
+If the ruby version changes it needs to be re-compiled 
+(Don't worry about segfaults, some background job may have been running)
+
+Oboe gets installed automatically when using either `bundle exec rake docker_test`, 
+`run_tests.sh`, or the gem from packagecloud or rubygems.
 
 ## Defining components of a test run
 A single test run is defined by:
-* the ruby version
+* the ruby version (make sure to use the )
 * the gemfile
 * the database type
 
@@ -76,7 +106,7 @@ the Mac users and it probably makes sense for Linux users as well,
 because it takes care of starting the required services.
 
 ### Run all tests
-To run all tests as defined in .travs.yml:
+To run all tests:
 ```bash
 rake docker_tests
 ```
@@ -105,28 +135,23 @@ In the container check out the options:
 run_tests/run_tests.sh -h
 ```
 
-Example: Run the framework tests with ruby 2.5.5
+Example: Run the framework tests with ruby 2.7.5
 ```bash
-run_tests/run_tests.sh -r 2.5.8 -g gemfiles/frameworks.gemfile
+run_tests/run_tests.sh -r 2.7.5 -g gemfiles/frameworks.gemfile
 ```
 
-### Run one test from suite, a specific test file, or a specific test
+### Run a specific test file, or a specific test
 While coding and for debugging it may be helpful to run fewer tests.
-There are 2 options, either use the `run_tests` command or setup the
-env and use `ruby -I test`
-
-One test from suite:
-```bash
-run_tests/run_tests.sh -r 2.7.5 -g gemfiles/frameworks.gemfile -n 1
-```
+To run singe tests the env needs to be set up and use `ruby -I test`
 
 One file:
 ```bash
-rbenv global 2.7.5
+rbenv local 2.7.5
 export BUNDLE_GEMFILE=gemfiles/delayed_job.gemfile
 export DBTYPE=mysql       # optional, defaults to postgresql
 bundle
-bundle exec ruby -I test queues/delayed_job-client_test.rb
+bundle rake cfc           # download, compile oboe_api, and link liboboe
+bundle exec ruby -I test test/queues/delayed_job-client_test.rb
 ```
 
 A specific test:
@@ -135,7 +160,18 @@ rbenv global 2.7.5
 export BUNDLE_GEMFILE=gemfiles/libraries.gemfile
 export DBTYPE=mysql
 bundle
-bundle exec ruby -I test instrumentation/moped_test.rb -n /drop_collection/
+bundle exec ruby -I test test/instrumentation/moped_test.rb -n /drop_collection/
+```
+
+Gotcha!
+
+Unfortunately the sidekiq background workers are hard to kill programatically, 
+they will bring docker to a halt if not cleaned up periodically.
+
+This is one way to keep them in check and also update the sidekiq worker code 
+for each run:
+```bash
+pkill -f sideqkiq; bundle exec ruby -I test test/...
 ```
 
 ## byebug for debugging
@@ -148,8 +184,7 @@ byebug
 See here for docu: https://github.com/deivid-rodriguez/byebug
 
 ## Duplication (◔_◔) and missing tests ( •̆௰•̆ )
-Sorry, it takes some time to run all the tests (31 test suites, approx. 40
-minutes in local docker container or travis with 5 workers). There is
+Sorry, it takes some time to run all the tests. There is
 duplication as well as omissions. The test code is a bit of a jungle, so
 for now the aim is to get good coverage for added and refactored code and
 clean up tests whenever it makes sense.
@@ -158,3 +193,11 @@ If you are contributing, please make sure all the tests pass and add
 tests for your code, so that it can't be broken.
 
 For questions with testing please contact the main contributor.
+
+## github workflow
+Test run on push in github.
+
+Some tests may have to be rerun. It is usually a coordination issue with
+writing/reading the text file, that collects the traces. 
+
+If all the tests fail for one Linux or one Ruby version, it should be investigated.

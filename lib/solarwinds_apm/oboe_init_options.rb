@@ -10,28 +10,6 @@ module SolarWindsAPM
 
     attr_reader :reporter, :host, :service_name, :ec2_md_timeout, :grpc_proxy # exposing these mainly for testing
 
-    # TODO decide if these globals are useful when testing
-    # OBOE_HOSTNAME_ALIAS = 0
-    # OBOE_DEBUG_LEVEL = 1
-    # OBOE_LOGFILE = 2
-    #
-    # OBOE_MAX_TRANSACTIONS = 3
-    # OBOE_FLUSH_MAX_WAIT_TIME = 4
-    # OBOE_EVENTS_FLUSH_INTERVAL = 5
-    # OBOE_EVENTS_FLUSH_BATCH_SIZE = 6
-    #
-    # OBOE_REPORTER = 7
-    # OBOE_COLLECTOR = 8
-    # OBOE_SERVICE_KEY = 9
-    # OBOE_TRUSTEDPATH = 10
-    #
-    # OBOE_BUFSIZE = 11
-    # OBOE_TRACE_METRICS = 12
-    # OBOE_HISTOGRAM_PRECISION = 13
-    # OBOE_TOKEN_BUCKET_CAPACITY = 14
-    # OBOE_TOKEN_BUCKET_RATE = 15
-    # OBOE_FILE_SINGLE = 16
-
     def initialize
       # optional hostname alias
       @hostname_alias = ENV['SW_APM_HOSTNAME_ALIAS'] || SolarWindsAPM::Config[:hostname_alias] || ''

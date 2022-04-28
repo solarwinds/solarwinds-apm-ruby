@@ -23,9 +23,6 @@ if defined?(::Redis)
       @entry_kvs ||= { 'Layer' => 'redis_test', 'Label' => 'entry' }
       @exit_kvs  ||= { 'Layer' => 'redis_test', 'Label' => 'exit' }
 
-      # not a request entry point, context set up in test with start_trace
-      # remove with NH-11132
-      SolarWindsAPM::Context.clear
       clear_all_traces
     end
 
