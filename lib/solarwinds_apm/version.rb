@@ -8,7 +8,7 @@ module SolarWindsAPM
   module Version
     MAJOR  = 0 # breaking,
     MINOR  = 0 # feature,
-    PATCH  = 0 # fix => BFF
+    PATCH  = 1 # fix => BFF
     PRE    = 0 # for pre-releases into packagecloud,
                # set to nil for production releases into rubygems
 
