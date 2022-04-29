@@ -19,7 +19,7 @@ SolarWindsAPM.support_report
 # no profiling yet for NH, but it shouldn't choke on Profiling.run
 SolarWindsAPM::Config[:profiling] = :disabled
 
-SolarWindsAPM::SDK.start_trace("install_test_profiling") do
+SolarWindsAPM::SDK.start_trace("ruby_post_release_test") do
   SolarWindsAPM::Profiling.run do
     10.times do
       [9, 6, 12, 2, 7, 1, 9, 3, 4, 14, 5, 8].sort
