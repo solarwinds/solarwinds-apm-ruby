@@ -75,19 +75,28 @@ jobs:
           echo "local and rubygems checksum not matching, gem needs to be yanked from rubygems.org"
           exit 1
 
+      # this action is not working anymore
+#      - name: Create release draft that includes the checksum
+#        uses: actions/github-script@v3
+#        with:
+#          github-token: ${{secrets.GITHUB_TOKEN}}
+#          script: |
+#            github.repos.createRelease({
+#              owner: "solarwinds-apm",
+#              repo: "appoptics-apm-ruby",
+#              body: "SHA256 checksum: ${{ steps.build.outputs.checksum }}",
+#              tag_name: "${{ steps.build.outputs.gem_version }}",
+#              name: "${{ steps.build.outputs.gem_version }}",
+#              draft: true
+#            })
+
       - name: Create release draft that includes the checksum
-        uses: actions/github-script@v3
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            github.repos.createRelease({
-              owner: "solarwinds-apm",
-              repo: "appoptics-apm-ruby",
-              body: "SHA256 checksum: ${{ steps.build.outputs.checksum }}",
-              tag_name: "${{ steps.build.outputs.gem_version }}",
-              name: "${{ steps.build.outputs.gem_version }}",
-              draft: true
-            })
+        run: |
+          curl \
+             -X POST \
+             -H "Accept: application/vnd.github.v3+json" \
+             https://api.github.com/repos/OWNER/REPO/releases \
+             -d '{"tag_name":"${{ steps.build.outputs.gem_version }}","name":"${{ steps.build.outputs.gem_version }}","body":"SHA256 checksum: ${{ steps.build.outputs.checksum }}","draft":true}'
 
       # may need a bit of time for the gem to become available (sleep 1)
       - name: Download new Rubygem from rubygems.org and test
