@@ -6,10 +6,10 @@ module SolarWindsAPM
   # The current version of the gem. Used mainly by
   # solarwinds_apm.gemspec during gem build process
   module Version
-    MAJOR  = 5 # breaking,
+    MAJOR  = 0 # breaking,
     MINOR  = 0 # feature,
     PATCH  = 0 # fix => BFF
-    PRE    = nil # for pre-releases into packagecloud,
+    PRE    = 0 # for pre-releases into packagecloud,
                # set to nil for production releases into rubygems
 
     STRING = [MAJOR, MINOR, PATCH, PRE].compact.join('.')
