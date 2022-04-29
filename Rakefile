@@ -220,7 +220,7 @@ end
 desc "Fetch oboe files from files.appoptics.com and create swig wrapper"
 task :oboe_files_sw_apm_fetch do
   oboe_version = File.read('ext/oboe_metal/src/VERSION').strip
-  files_solarwinds = "https:////files.appoptics.com/c-lib/#{oboe_version}"
+  files_solarwinds = "https://files.appoptics.com/c-lib/#{oboe_version}"
 
   FileUtils.mkdir_p(File.join(@ext_dir, 'src', 'bson'))
 
