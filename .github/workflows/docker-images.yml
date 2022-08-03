@@ -39,6 +39,8 @@ jobs:
       uses: docker/metadata-action@v4
       with:
         images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}_${{ matrix.os }}
+        flavor: |
+          latest=true
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v3
