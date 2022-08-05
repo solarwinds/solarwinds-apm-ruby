@@ -23,7 +23,6 @@ jobs:
           - frameworks
           - rails70
           - rails61
-          - rails60
           - rails52
           - delayed_job
           - noop
