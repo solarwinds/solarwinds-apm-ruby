@@ -45,7 +45,8 @@ gem 'resque'
 # remove use of local copy of sequel gem
 # gem 'sequel', path: '/code/sequel/'
 gem 'sequel'
-gem 'sidekiq'
+# pin sidekiq until https://github.com/mperham/sidekiq/issues/5456 is fixed
+gem 'sidekiq', '< 6.5.2'
 gem 'typhoeus'
 
 # Database adapter gems needed by sequel
