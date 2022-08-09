@@ -8,7 +8,8 @@ on:
   workflow_dispatch:
 
 env:
-  GHRC: ghcr.io/appoptics/appoptics-apm-ruby/apm_ruby
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/apm_ruby
   DOCKERFILE: test/run_tests/Dockerfile
 
 jobs:
@@ -23,25 +24,30 @@ jobs:
         os: [ubuntu, debian, centos, alpine]
 
     steps:
-    - name: Checkout
+    - name: Checkout ${{ github.ref }}
       uses: actions/checkout@v1
 
-    - name: ghcr.io login
-      uses: docker/login-action@v1
+    - name: Log in to the Container Registry
+      uses: docker/login-action@v2
       with:
-        registry: ghcr.io
+        registry: ${{ env.REGISTRY }}
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta
+      uses: docker/metadata-action@v4
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}_${{ matrix.os }}
+        flavor: |
+          latest=true
 
-#    - name: Build and push V2
-#      uses: docker/build-push-action@v2
-#      with:
-#        file: test/run_tests/Dockerfile_ubuntu
-#        tags: ghcr.io/appoptics/appoptics-apm-ruby/ao_ubuntu:latest
-#        push: true
-
-    - name: Build new Docker image
-      run: docker build -f ${{ env.DOCKERFILE }}_${{ matrix.os }} -t ${{ env.GHRC }}_${{ matrix.os }} .
-
-    - name: Publish updated Docker image
-      run: docker push ${{ env.GHRC }}_${{ matrix.os }}
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v3
+      with:
+        context: .
+        push: true
+        file: test/run_tests/Dockerfile_${{ matrix.os }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        
