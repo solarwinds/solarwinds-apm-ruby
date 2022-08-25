@@ -23,7 +23,6 @@ jobs:
           - frameworks
           - rails70
           - rails61
-          - rails60
           - rails52
           - delayed_job
           - noop
@@ -96,9 +95,10 @@ jobs:
           - 27017:27017
         options: "--health-cmd \"mongo --quiet --eval 'quit(db.runCommand({ ping: 1 }).ok ? 0 : 2)'\" --health-interval 10s --health-timeout 5s --health-retries 5"
       postgres:
-        image: postgres:10.8
+        image: postgres:latest
         env:
-          POSTGRES_DB: postgres
+          POSTGRES_PASSWORD: "postgres"
+          POSTGRES_DB: test_db
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
@@ -129,7 +129,6 @@ jobs:
 
       - name: Initialize services
         run: |
-          export PGPASSWORD=$POSTGRES_PASSWORD; psql -c 'create database test_db;' -U postgres -h $POSTGRES_HOST
           curl -SL http://download.redis.io/releases/redis-4.0.0.tar.gz | tar xzC /tmp && cd /tmp/redis-4.0.0/ && make && make install && cd -
           redis-server --requirepass redis_pass --loglevel "warning" &
 

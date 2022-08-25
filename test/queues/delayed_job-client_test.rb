@@ -1,6 +1,9 @@
 # Copyright (c) 2016 SolarWinds, LLC.
 # All rights reserved.
 
+# Workaround for https://github.com/collectiveidea/delayed_job/issues/1168
+require 'active_support/core_ext/kernel/reporting'
+
 require 'minitest_helper'
 require_relative "../jobs/delayed_job/remote_call_worker_job"
 require_relative "../jobs/delayed_job/db_worker_job"
