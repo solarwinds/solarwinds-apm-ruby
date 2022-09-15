@@ -4,7 +4,7 @@
 #ifndef LOGGING_H
 #define LOGGING_H
 
-#include "oboe_api.hpp"
+#include "oboe_api.h"
 
 using namespace std;
 

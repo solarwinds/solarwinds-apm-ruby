@@ -13,7 +13,7 @@
 
 #include "frames.h"
 #include "logging.h"
-#include "oboe_api.hpp"
+#include "oboe_api.h"
 
 
 #define TIMER_SIG SIGRTMAX        // the timer notification signal

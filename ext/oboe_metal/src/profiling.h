@@ -16,7 +16,7 @@
 
 #include "frames.h"
 #include "logging.h"
-#include "oboe_api.hpp"
+#include "oboe_api.h"
 
 #define BUF_SIZE 2048
 

@@ -13,7 +13,7 @@
 #include <ruby/debug.h>
 
 #include "profiling.h"
-#include "oboe_api.hpp"
+#include "oboe_api.h"
 
 using namespace std;
 

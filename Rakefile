@@ -131,12 +131,12 @@ task :fetch_ext_deps do
   if ENV['OBOE_WIP'] || ENV['OBOE_LOCAL']
     wip_src_dir = File.expand_path('../oboe/liboboe')
     FileUtils.cp(File.join(wip_src_dir, 'oboe_api.cpp'), ext_src_dir)
-    FileUtils.cp(File.join(wip_src_dir, 'oboe_api.hpp'), ext_src_dir)
+    FileUtils.cp(File.join(wip_src_dir, 'oboe_api.h'), ext_src_dir)
     FileUtils.cp(File.join(wip_src_dir, 'oboe_debug.h'), ext_src_dir)
     FileUtils.cp(File.join(wip_src_dir, 'oboe.h'), ext_src_dir)
     FileUtils.cp(File.join(wip_src_dir, 'swig', 'oboe.i'), ext_src_dir)
   else
-    files += ['oboe.h', 'oboe_api.hpp', 'oboe_api.cpp', 'oboe_debug.h', 'oboe.i']
+    files += ['oboe.h', 'oboe_api.h', 'oboe_api.cpp', 'oboe_debug.h', 'oboe.i']
   end
 
   files.each do |filename|
@@ -173,7 +173,7 @@ task :fetch_ext_deps do
   api_hpp_patch = File.join(ext_src_dir, 'api_hpp.patch')
   api_cpp_patch = File.join(ext_src_dir, 'api_cpp.patch')
   if File.exist?(api_hpp_patch)
-    `patch -N #{File.join(ext_src_dir, 'oboe_api.hpp')} #{api_hpp_patch}`
+    `patch -N #{File.join(ext_src_dir, 'oboe_api.h')} #{api_hpp_patch}`
   end
   if File.exist?(api_cpp_patch)
     `patch -N #{File.join(ext_src_dir, 'oboe_api.cpp')} #{api_cpp_patch}`
@@ -187,7 +187,7 @@ end
 
 task :fetch => :fetch_ext_deps
 
-@files = %w(oboe.h oboe_api.hpp oboe_api.cpp oboe.i oboe_debug.h bson/bson.h bson/platform_hacks.h)
+@files = %w(oboe.h oboe_api.h oboe_api.cpp oboe.i oboe_debug.h bson/bson.h bson/platform_hacks.h)
 @ext_dir = File.expand_path('ext/oboe_metal')
 @ext_verify_dir = File.expand_path('ext/oboe_metal/verify')
 
