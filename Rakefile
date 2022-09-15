@@ -107,14 +107,14 @@ task :fetch_ext_deps do
   oboe_version = File.read(File.join(ext_src_dir, 'VERSION')).strip
   puts "!!!!!! C-Lib VERSION: #{oboe_version} !!!!!!!"
 
-  oboe_s3_dir = "https://rc-files-t2.s3-us-west-2.amazonaws.com/c-lib/#{oboe_version}"
+  oboe_s3_dir = "https://agent-binaries.cloud.solarwinds.com/?prefix=apm/c-lib/#{oboe_version}"
 
   # remove all oboe* files, they may hang around because of name changes
   # from oboe* to oboe_api*
   Dir.glob(File.join(ext_src_dir, 'oboe*')).each { |file| File.delete(file) }
 
   # inform when there is a newer oboe version
-  remote_file = File.join("https://rc-files-t2.s3-us-west-2.amazonaws.com/c-lib/latest", 'VERSION')
+  remote_file = File.join("https://agent-binaries.cloud.solarwinds.com/?prefix=apm/c-lib/latest", 'VERSION')
   local_file  = File.join(ext_src_dir, 'VERSION_latest')
   URI.open(remote_file, 'rb') do |rf|
     content = rf.read
@@ -220,7 +220,7 @@ end
 desc "Fetch oboe files from files.appoptics.com and create swig wrapper"
 task :oboe_files_sw_apm_fetch do
   oboe_version = File.read('ext/oboe_metal/src/VERSION').strip
-  files_solarwinds = "https:////files.appoptics.com/c-lib/#{oboe_version}"
+  files_solarwinds = "https://agent-binaries.cloud.solarwinds.com/?prefix=apm/c-lib/#{oboe_version}"
 
   FileUtils.mkdir_p(File.join(@ext_dir, 'src', 'bson'))
 
