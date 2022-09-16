@@ -53,6 +53,8 @@ module SolarWindsAPM
       # hardcoded arg for lambda (lambda not supported yet)
       # hardcoded arg for grpc hack
       # hardcoded arg for trace id format to use w3c format
+      # flag for format of metric 
+      @metric_format = (ENV['SW_APM_METRIC_FORMAT'] || SolarWindsAPM::Config[:metric_format] || 0).to_i
     end
 
     def re_init # for testing with changed ENV vars
@@ -83,7 +85,8 @@ module SolarWindsAPM
         @grpc_proxy,             #18
         0,                       #19 arg for lambda (no lambda for ruby yet)
         1,                       #20 arg for grpc hack, hardcoded to include hack
-        1                        #21 arg for trace id format to use w3c format
+        1,                       #21 arg for trace id format to use w3c format
+        @metric_format           #22
       ]
     end
 

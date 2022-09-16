@@ -76,6 +76,8 @@ module SolarWindsAPM
 
       # sets SolarWindsAPM::Config[:debug_level], SolarWindsAPM.logger.level
       set_log_level
+      # sets SolarWindsAPM::Config[:debug_level], SolarWindsAPM.logger.level
+      set_metric_format
 
       # the verbose setting is only relevant for ruby, ENV['SW_APM_GEM_VERBOSE'] overrides
       if ENV.key?('SW_APM_GEM_VERBOSE')
@@ -98,6 +100,18 @@ module SolarWindsAPM
         SolarWindsAPM.logger.level = [4 - debug_level, 0].max
       end
       SolarWindsAPM::Config[:debug_level] = debug_level
+    end
+
+    ##
+    # Ensure the metric format is in range 0..2
+    #
+    def self.set_metric_format
+      unless (0..2).include?(SolarWindsAPM::Config[:metric_format])
+        SolarWindsAPM::Config[:metric_format] = 0
+      end
+
+      metric_format = (ENV['SW_APM_METRIC_FORMAT'] || SolarWindsAPM::Config[:metric_format] || 0).to_i
+      SolarWindsAPM::Config[:metric_format] = metric_format
     end
 
     ##

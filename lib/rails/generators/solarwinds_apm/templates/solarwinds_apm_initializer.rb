@@ -295,6 +295,18 @@ if defined?(SolarWindsAPM::Config)
   #
   SolarWindsAPM::Config[:ec2_metadata_timeout] = 1000
 
+
+  #
+  # Metric Level
+  #
+  # Flag indicating the format of metric 
+  # 0 = Both (default)
+  # 1 = TransactionResponseTime only
+  # 2 = ResponseTime only
+  #
+  SolarWindsAPM::Config[:metric_format] = 0
+
+
   #############################################
   ## SETTINGS FOR INDIVIDUAL GEMS/FRAMEWORKS ##
   #############################################

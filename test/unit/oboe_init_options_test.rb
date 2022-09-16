@@ -40,11 +40,12 @@ describe 'OboeInitOptions' do
     ENV['SW_APM_REPORTER_FILE_SINGLE'] = 'True'
     ENV['SW_APM_EC2_METADATA_TIMEOUT'] = '1234'
     ENV['SW_APM_PROXY'] = 'http://the.proxy:1234'
+    ENV['SW_APM_METRIC_FORMAT'] = '1'
 
     SolarWindsAPM::OboeInitOptions.instance.re_init
     options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
 
-    _(options.size).must_equal 22
+    _(options.size).must_equal 23
     _(options[0]).must_equal 'string_4'
     _(options[1]).must_equal 2
     _(options[2]).must_equal 'string_5'
@@ -64,6 +65,7 @@ describe 'OboeInitOptions' do
     _(options[16]).must_equal 1
     _(options[17]).must_equal 1234
     _(options[18]).must_equal 'http://the.proxy:1234'
+    _(options[22]).must_equal 1
   end
 
   it 'reads config vars' do
@@ -75,23 +77,27 @@ describe 'OboeInitOptions' do
     ENV.delete('SW_APM_SERVICE_KEY')
     ENV.delete('SW_APM_EC2_METADATA_TIMEOUT')
     ENV.delete('SW_APM_PROXY')
+    ENV.delete('SW_APM_METRIC_FORMAT')
+    ENV.delete('')
 
     SolarWindsAPM::Config[:hostname_alias] = 'string_0'
     SolarWindsAPM::Config[:debug_level] = 0
     SolarWindsAPM::Config[:service_key] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:test_app'
     SolarWindsAPM::Config[:ec2_metadata_timeout] = 2345
     SolarWindsAPM::Config[:http_proxy] = 'http://the.proxy:7777'
+    SolarWindsAPM::Config[:metric_format] = 0
 
     SolarWindsAPM::OboeInitOptions.instance.re_init
     options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
 
-    _(options.size).must_equal 22
+    _(options.size).must_equal 23
 
     _(options[0]).must_equal 'string_0'
     _(options[1]).must_equal 0
     _(options[9]).must_equal 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:test_app'
     _(options[17]).must_equal 2345
     _(options[18]).must_equal 'http://the.proxy:7777'
+    _(options[22]).must_equal 0
   end
 
   it 'env vars override config vars' do
@@ -103,23 +109,26 @@ describe 'OboeInitOptions' do
     ENV['SW_APM_SERVICE_KEY'] = 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:test_app'
     ENV['SW_APM_EC2_METADATA_TIMEOUT'] = '1212'
     ENV['SW_APM_PROXY'] = 'http://the.proxy:2222'
+    ENV['SW_APM_METRIC_FORMAT'] = '1'
 
     SolarWindsAPM::Config[:hostname_alias] = 'string_2'
     SolarWindsAPM::Config[:debug_level] = 2
     SolarWindsAPM::Config[:service_key] = 'string_3'
     SolarWindsAPM::Config[:ec2_metadata_timeout] = 2323
     SolarWindsAPM::Config[:http_proxy] = 'http://the.proxy:7777'
+    SolarWindsAPM::Config[:metric_format] = 0
 
     SolarWindsAPM::OboeInitOptions.instance.re_init
     options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
 
-    _(options.size).must_equal 22
+    _(options.size).must_equal 23
 
     _(options[0]).must_equal 'string_0'
     _(options[1]).must_equal 1
     _(options[9]).must_equal 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:test_app'
     _(options[17]).must_equal 1212
     _(options[18]).must_equal 'http://the.proxy:2222'
+    _(options[22]).must_equal 0
   end
 
   it 'checks the service_key for ssl' do
