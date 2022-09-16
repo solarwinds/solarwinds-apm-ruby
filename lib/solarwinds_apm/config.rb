@@ -285,6 +285,12 @@ module SolarWindsAPM
       elsif key == :trigger_tracing_mode
         # Make sure that the mode is stored as a symbol
         @@config[key.to_sym] = value.to_sym
+
+      elsif key == :metric_format
+        if !(0..2).include?value
+          value = 0
+        end
+        @@config[:metric_format] = value
       end
     end
     # rubocop:enable Metrics/AbcSize, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
