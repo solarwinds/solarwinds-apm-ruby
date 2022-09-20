@@ -128,7 +128,7 @@ describe 'OboeInitOptions' do
     _(options[9]).must_equal 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:test_app'
     _(options[17]).must_equal 1212
     _(options[18]).must_equal 'http://the.proxy:2222'
-    _(options[22]).must_equal 0
+    _(options[22]).must_equal 1
   end
 
   it 'checks the service_key for ssl' do

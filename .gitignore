@@ -4,6 +4,7 @@
 *.log
 *.swp
 *~
+*.rdb
 .*byebug*
 .bundle/
 .env
@@ -32,8 +33,10 @@ ext/oboe_metal/src/oboe_swig_wrap.cc
 ext/oboe_metal/src/VERSION_latest
 ext/oboe_metal/test/build/
 ext/oboe_metal/test/MakeFile
+ext/oboe_metal/.DS_Store
 gemfiles/*.lock
 gemfiles/.bundle/
 gemfiles/vendor*
 lib/libsolarwinds_apm.so
 vendor/
+

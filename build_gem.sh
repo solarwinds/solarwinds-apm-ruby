@@ -3,6 +3,7 @@
 # Copyright (c) 2019 SolarWinds, LLC.
 # All rights reserved.
 
+mkdir builds
 echo -e "\n=== building for MRI ===\n"
 rm -f Gemfile.lock
 bundle install --without development --without test
