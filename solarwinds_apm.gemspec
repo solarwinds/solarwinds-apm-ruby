@@ -18,8 +18,8 @@ Automatic tracing and metrics for Ruby applications. Get started at cloud.solarw
 
   s.metadata = {
       'changelog_uri'     => 'https://github.com/solarwindscloud/solarwinds-apm-ruby/releases',
-      'documentation_uri' => 'https://documentation.solarwinds.com/en/success_center/observability/content/configure/services/ruby/ruby.htm?cshid=config-ruby-agent',
-      'homepage_uri'      => 'https://cloud.solarwinds.com/',
+      'documentation_uri' => 'https://documentation.solarwinds.com/en/success_center/observability/content/intro/landing-page.html',
+      'homepage_uri'      => 'https://documentation.solarwinds.com/en/success_center/observability/content/intro/landing-page.html',
       'source_code_uri'   => 'https://github.com/solarwindscloud/solarwinds-apm-ruby',
   }
 
