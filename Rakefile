@@ -107,7 +107,13 @@ task :fetch_ext_deps do
   oboe_version = File.read(File.join(ext_src_dir, 'VERSION')).strip
   puts "!!!!!! C-Lib VERSION: #{oboe_version} !!!!!!!"
 
-  oboe_s3_dir = "https://agent-binaries.cloud.solarwinds.com/apm/c-lib/#{oboe_version}"
+  if ENV['OBOE_FROM_S3'].to_s.downcase == 'true'
+    oboe_s3_dir = "https://agent-binaries.global.st-ssp.solarwinds.com/apm/c-lib/#{oboe_version}"
+    puts 'Fetching c-lib from S3 (STAGING)'
+  else
+    oboe_s3_dir = "https://agent-binaries.cloud.solarwinds.com/apm/c-lib/#{oboe_version}"
+    puts 'Fetching c-lib from S3 (PRODUCTION)'
+  end
 
   # remove all oboe* files, they may hang around because of name changes
   # from oboe* to oboe_api*
