@@ -124,6 +124,39 @@ describe 'OboeInitOptions' do
     _(options[18]).must_equal 'http://the.proxy:2222'
   end
 
+  it 'checks for metric mode appoptics' do
+    ENV.delete('SW_APM_COLLECTOR')
+    ENV['SW_APM_COLLECTOR'] = 'collector.appoptics.com'
+
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
+
+    _(options.size).must_equal 23
+    _(options[22]).must_equal 0
+  end
+
+  it 'checks for metric mode nighthack' do
+    ENV.delete('SW_APM_COLLECTOR')
+    ENV['SW_APM_COLLECTOR'] = 'collector.abc.bbc.solarwinds.com'
+    
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
+
+    _(options.size).must_equal 23
+    _(options[22]).must_equal 1
+  end
+
+  it 'checks for metric mode default' do
+    ENV.delete('SW_APM_COLLECTOR')
+    ENV['SW_APM_COLLECTOR'] = 'www.google.ca'
+    
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
+
+    _(options.size).must_equal 23
+    _(options[22]).must_equal 0
+  end
+
   it 'checks the service_key for ssl' do
     ENV.delete('SW_APM_GEM_TEST')
     ENV['SW_APM_REPORTER'] = 'ssl'
