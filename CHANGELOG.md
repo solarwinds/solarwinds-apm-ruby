@@ -13,7 +13,6 @@ This patch release includes the following fixes:
 Pushed to Rubygems:
 
 https://rubygems.org/gems/solarwinds_apm/versions/5.1.0
-https://rubygems.org/gems/solarwinds_apm/versions/5.1.0-java
 
 
 # appoptics 3.8.4 (10/17/2016)

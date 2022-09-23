@@ -126,13 +126,13 @@ describe 'OboeInitOptions' do
 
   it 'checks for metric mode appoptics' do
     ENV.delete('SW_APM_COLLECTOR')
-    ENV['SW_APM_COLLECTOR'] = 'collector.appoptics.com'
+    ENV['SW_APM_COLLECTOR'] = 'collector.abc.bbc.appoptics.com'
 
     SolarWindsAPM::OboeInitOptions.instance.re_init
     options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
 
     _(options.size).must_equal 23
-    _(options[22]).must_equal 0
+    _(options[22]).must_equal 1
   end
 
   it 'checks for metric mode nighthack' do
@@ -143,7 +143,7 @@ describe 'OboeInitOptions' do
     options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
 
     _(options.size).must_equal 23
-    _(options[22]).must_equal 1
+    _(options[22]).must_equal 2
   end
 
   it 'checks for metric mode default' do
