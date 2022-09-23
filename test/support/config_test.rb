@@ -416,20 +416,4 @@ describe "SolarWindsAPM::Config" do
     end
   end
 
-  describe "metric_format configuration" do
-    before do
-      SolarWindsAPM::Config.load_config_file
-    end
-
-    it 'accepts value of 0,1,2' do
-      SolarWindsAPM::Config['metric_format'] = 0
-      _(SolarWindsAPM::Config.metric_format).must_equal 0
-    end
-
-    it 'set default 0 for value != (0..2)' do
-      SolarWindsAPM::Config['metric_format'] = 10
-      _(SolarWindsAPM::Config.metric_format).must_equal 0
-    end
-
-  end
 end
