@@ -8,19 +8,19 @@ Gem::Specification.new do |s|
 
   s.license = "Apache-2.0"
 
-  s.authors = ["Maia Engeli", "Peter Giacomo Lombardo", "Spiros Eliopoulos"]
+  s.authors = ["Maia Engeli", "Peter Giacomo Lombardo", "Spiros Eliopoulos", "Xuan Cao"]
   s.email = %q{technicalsupport@solarwinds.com}
-  s.homepage = %q{https://cloud.solarwinds.com/}
+  s.homepage = %q{https://documentation.solarwinds.com/en/success_center/observability/content/intro/landing-page.html}
   s.summary = %q{SolarWindsAPM performance instrumentation gem for Ruby}
   s.description = <<-EOF
 Automatic tracing and metrics for Ruby applications. Get started at cloud.solarwinds.com
   EOF
 
   s.metadata = {
-      'changelog_uri'     => 'https://github.com/appoptics/appoptics-apm-ruby/releases',
+      'changelog_uri'     => 'https://github.com/solarwindscloud/solarwinds-apm-ruby/releases',
       'documentation_uri' => 'https://documentation.solarwinds.com/en/success_center/observability/default.htm#cshid=config-ruby-agent',
-      'homepage_uri'      => 'https://cloud.solarwinds.com/',
-      'source_code_uri'   => 'https://github.com/appoptics/appoptics-apm-ruby',
+      'homepage_uri'      => 'https://documentation.solarwinds.com/en/success_center/observability/content/intro/landing-page.html',
+      'source_code_uri'   => 'https://github.com/solarwindscloud/solarwinds-apm-ruby',
   }
 
   s.extra_rdoc_files = ['LICENSE']
