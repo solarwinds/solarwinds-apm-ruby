@@ -11,6 +11,7 @@
 .irb_history
 .irbrc
 .ruby-version
+dump.rdb
 .trusted_paths/
 .yardoc/
 /app/
