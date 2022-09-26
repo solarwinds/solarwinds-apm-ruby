@@ -93,8 +93,8 @@ jobs:
       - name: Download new Rubygem from rubygems.org and test
         working-directory: .github/workflows/
         env:
-          SW_APM_SERVICE_KEY: ${{ secrets.SW_APM_SERVICE_KEY_PROD }}
-          SW_APM_COLLECTOR: ${{ secrets.SW_APM_COLLECTOR_PROD}}
+          SW_APM_SERVICE_KEY: ${{ secrets.SW_APM_SERVICE_KEY_STAGING }}
+          SW_APM_COLLECTOR: ${{ secrets.SW_APM_COLLECTOR_STAGING}}
         run: |
           sleep 1
           gem install solarwinds_apm --version ${{ steps.build.outputs.gem_version }}
