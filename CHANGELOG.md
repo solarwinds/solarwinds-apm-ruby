@@ -4,11 +4,11 @@ https://github.com/tracelytics/ruby-appoptics/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
-# solarwinds_apm 5.1.0 (09/15/2022)
+# solarwinds_apm 5.1.1 (09/15/2022)
 
 This patch release includes the following fixes:
 
-* Using latest liboboe library (10.6.0)
+* Using latest liboboe library (10.6.1)
 
 Pushed to Rubygems:
 

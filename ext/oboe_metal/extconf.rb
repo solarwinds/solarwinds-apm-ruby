@@ -25,9 +25,9 @@ ext_dir = File.expand_path(File.dirname(__FILE__))
 ao_lib_dir = File.join(ext_dir, 'lib')
 ao_include = File.join(ext_dir, 'src')
 
-# Download the appropriate liboboe from S3(via rake for testing) or files.appoptics.com (production)
+# Download the appropriate liboboe from S3(via rake for testing) or cloud.solarwinds.com (production)
 version = File.read(File.join(ao_include, 'VERSION')).strip
-if ENV['OBOE_FROM_S3'].to_s.downcase == 'true'
+if ENV['OBOE_STAGING'].to_s.downcase == 'true'
   ao_path = File.join('https://agent-binaries.global.st-ssp.solarwinds.com/apm/c-lib/', version)
   puts 'Fetching c-lib from S3'
 else

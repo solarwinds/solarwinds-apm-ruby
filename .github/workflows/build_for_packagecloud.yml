@@ -62,7 +62,7 @@ jobs:
 #        env:
 #          SW_APM_SERVICE_KEY: ${{ secrets.SW_APM_SERVICE_KEY }}
 #          SW_APM_COLLECTOR: ${{ secrets.SW_APM_COLLECTOR}}
-#          OBOE_FROM_S3: true
+#          OBOE_STAGING: true
 #        run: |
 #          sleep 60
 #          gem sources --add https://packagecloud.io/solarwinds/solarwinds-apm-ruby

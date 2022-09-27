@@ -15,7 +15,7 @@ version: "2.1"
 x-ao-env: &ao-env
 #  SW_APM_COLLECTOR: "apm.collector.st-ssp.solarwinds.com"
   SW_APM_COLLECTOR: "/tmp/sw_apm_traces.bson"
-  OBOE_FROM_S3: "true"
+  OBOE_STAGING: "true"
   SW_APM_GEM_TEST: "true"
   MONGO_SERVER: "ao-ruby-mongo"
   RABBITMQ_SERVER: "ao-ruby-rabbitmq"

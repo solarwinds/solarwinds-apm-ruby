@@ -86,8 +86,8 @@ task 'smoke' do
   exec('test/run_tests/smoke_test/smoketest.sh')
 end
 
-desc 'Fetch oboe files from S3'
-task :fetch_ext_deps do
+desc 'Fetch oboe files from STAGING'
+task :fetch_oboe_file_from_staging do
   swig_version = %x{swig -version} rescue ''
   swig_valid_version = swig_version.scan(/swig version [34].\d*.\d*/i)
   if swig_valid_version.empty?
@@ -107,13 +107,8 @@ task :fetch_ext_deps do
   oboe_version = File.read(File.join(ext_src_dir, 'VERSION')).strip
   puts "!!!!!! C-Lib VERSION: #{oboe_version} !!!!!!!"
 
-  if ENV['OBOE_FROM_S3'].to_s.downcase == 'true'
-    oboe_s3_dir = "https://agent-binaries.global.st-ssp.solarwinds.com/apm/c-lib/#{oboe_version}"
-    puts 'Fetching c-lib from S3 (STAGING)'
-  else
-    oboe_s3_dir = "https://agent-binaries.cloud.solarwinds.com/apm/c-lib/#{oboe_version}"
-    puts 'Fetching c-lib from S3 (PRODUCTION)'
-  end
+  oboe_stg_dir = "https://agent-binaries.global.st-ssp.solarwinds.com/apm/c-lib/#{oboe_version}"
+  puts 'Fetching c-lib from STAGING'
 
   # remove all oboe* files, they may hang around because of name changes
   # from oboe* to oboe_api*
@@ -146,7 +141,7 @@ task :fetch_ext_deps do
   end
 
   files.each do |filename|
-    remote_file = File.join(oboe_s3_dir, 'include', filename)
+    remote_file = File.join(oboe_stg_dir, 'include', filename)
     local_file = File.join(ext_src_dir, filename)
 
     puts "fetching #{remote_file}"
@@ -162,7 +157,7 @@ task :fetch_ext_deps do
                  'liboboe-1.0-x86_64.so.0.0.0.sha256']
 
     sha_files.each do |filename|
-      remote_file = File.join(oboe_s3_dir, filename)
+      remote_file = File.join(oboe_stg_dir, filename)
       local_file = File.join(ext_lib_dir, filename)
 
       puts "fetching #{remote_file}"
@@ -191,7 +186,7 @@ task :fetch_ext_deps do
   end
 end
 
-task :fetch => :fetch_ext_deps
+task :fetch => :fetch_oboe_file_from_staging
 
 @files = %w(oboe.h oboe_api.h oboe_api.cpp oboe.i oboe_debug.h bson/bson.h bson/platform_hacks.h)
 @ext_dir = File.expand_path('ext/oboe_metal')
@@ -223,8 +218,8 @@ def oboe_github_fetch
   end
 end
 
-desc "Fetch oboe files from files.appoptics.com and create swig wrapper"
-task :oboe_files_sw_apm_fetch do
+desc "Fetch oboe files from cloud.solarwinds.com and create swig wrapper"
+task :fetch_oboe_file_from_prod do 
   oboe_version = File.read('ext/oboe_metal/src/VERSION').strip
   files_solarwinds = "https://agent-binaries.cloud.solarwinds.com/apm/c-lib/#{oboe_version}"
 
@@ -392,3 +387,58 @@ end
 task 'resque:setup' => :environment do
   require 'resque/tasks'
 end
+
+desc "Build gem locally for testing"
+task :build_gem do
+
+  puts "\n=== building for MRI ===\n"
+  FileUtils.mkdir_p('builds') if Dir['builds'].size == 0
+  File.delete('Gemfile.lock') if Dir['Gemfile.lock'].size == 1
+  
+  puts "\n=== install required dependencies ===\n"
+  system('bundle install --without development --without test')
+
+  puts "\n=== clean & compile & build ===\n"
+  Rake::Task["distclean"].execute
+  Rake::Task["fetch_oboe_file_from_staging"].execute # if production, then use fetch_oboe_file_from_prod
+  system('gem build solarwinds_apm.gemspec')
+  
+  gemname = Dir['solarwinds_apm*.gem'].first
+  FileUtils.mv(gemname, 'builds/')
+
+  puts "\n=== last 5 built gems ===\n"
+  puts Dir['builds/solarwinds_apm*.gem']  
+
+  puts "\n=== SHA256 ===\n"
+  result = `ls -dt1 builds/solarwinds_apm-[^pre]*.gem | head -1`
+  system("shasum -a256 #{result.strip()}")
+
+  puts "\n=== Finished ===\n"
+end
+
+desc "Build gem and push to packagecloud. Run as bundle exec rake build_gem_push_to_packagecloud <version>"
+task :build_gem_push_to_packagecloud, [:version] do |t, args|
+
+  abort("No version specified.") if args[:version].empty? || args[:version].nil?
+
+  begin
+    require 'package_cloud'
+  rescue LoadError
+    Gem.install 'package_cloud'
+  end
+
+  gems = Dir["builds/solarwinds_apm-#{args[:version]}.gem"]
+  gem_to_push = nil
+  if gems.size == 0
+    Rake::Task["build_gem"].execute 
+    gem_to_push = `ls -dt1 builds/solarwinds_apm-[^pre]*.gem | head -1`
+  else
+    gem_to_push = gems.first
+  end
+
+  gem_to_push_version = gem_to_push&.match(/-\d*.\d*.\d*/).to_s.gsub("-","")
+  abort("Couldn't find the required gem file.") if gem_to_push.nil? || gem_to_push_version != args[:version]
+  system("package_cloud push solarwinds/solarwinds-apm-ruby #{gem_to_push.strip()}")
+
+end
+

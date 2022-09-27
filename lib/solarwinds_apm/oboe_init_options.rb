@@ -53,7 +53,7 @@ module SolarWindsAPM
       # hardcoded arg for lambda (lambda not supported yet)
       # hardcoded arg for grpc hack
       # hardcoded arg for trace id format to use w3c format
-      # flag for format of metric (0 = AppOptics; 1 = Nighthawk, default = 0)
+      # flag for format of metric (0 = Both; 1 = AppOptics only; 2 = SWO only; default = 0)
       @metric_format = determine_the_metric_model
     end
 
@@ -193,10 +193,8 @@ module SolarWindsAPM
     def determine_the_metric_model
       if ENV['SW_APM_COLLECTOR'].include? "appoptics.com"
         return 1
-      elsif ENV['SW_APM_COLLECTOR'].include? "solarwinds.com"
-        return 2
       else
-        return 0
+        return 2
       end
     end
   end
