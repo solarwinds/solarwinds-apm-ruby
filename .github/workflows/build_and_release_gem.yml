@@ -40,7 +40,11 @@ jobs:
           ./autogen.sh && ./configure && make && sudo make install
           cd -
 
+<<<<<<< HEAD
       - name: Download files from agent-binaries.cloud.solarwinds and create swig wrapper
+=======
+      - name: Download files from cloud.solarwinds.com and create swig wrapper
+>>>>>>> bdd502effcb25623edef524b07f1093937a0b168
         env:
           TRACE_BUILD_TOKEN: ${{ secrets.TRACE_BUILD_RUBY_ACTIONS_API_TOKEN }}
         run: |
@@ -81,23 +85,28 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             github.repos.createRelease({
-              owner: "solarwinds-apm",
-              repo: "appoptics-apm-ruby",
+              owner: "solarwindscloud",
+              repo: "solarwinds-apm-ruby",
               body: "SHA256 checksum: ${{ steps.build.outputs.checksum }}",
               tag_name: "${{ steps.build.outputs.gem_version }}",
               name: "${{ steps.build.outputs.gem_version }}",
               draft: true
             })
 
-      # may need a bit of time for the gem to become available (sleep 1)
+      # may need a bit of time for the gem to become available (-> sleep 1)
       - name: Download new Rubygem from rubygems.org and test
         working-directory: .github/workflows/
         env:
-          SW_APM_SERVICE_KEY: ${{ secrets.APPOPTICS_SERVICE_KEY }}
-          SW_APM_COLLECTOR: ${{ secrets.APPOPTICS_COLLECTOR}}
+          SW_APM_SERVICE_KEY: ${{ secrets.SW_APM_SERVICE_KEY_PROD }}
+          SW_APM_COLLECTOR: ${{ secrets.SW_APM_COLLECTOR_PROD}}
         run: |
           sleep 1
           gem install solarwinds_apm --version ${{ steps.build.outputs.gem_version }}
           ruby ./scripts/test_install.rb
 
+      - name: Now also check manually if there is a trace for service 'ruby-post-release-test' in SW production
+        run: echo "TODO"
+
+      - name: And now the release notes need to be completed for the new release
+        run: echo "TODO"
 
