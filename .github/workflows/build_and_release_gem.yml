@@ -40,11 +40,7 @@ jobs:
           ./autogen.sh && ./configure && make && sudo make install
           cd -
 
-<<<<<<< HEAD
-      - name: Download files from agent-binaries.cloud.solarwinds and create swig wrapper
-=======
       - name: Download files from cloud.solarwinds.com and create swig wrapper
->>>>>>> bdd502effcb25623edef524b07f1093937a0b168
         env:
           TRACE_BUILD_TOKEN: ${{ secrets.TRACE_BUILD_RUBY_ACTIONS_API_TOKEN }}
         run: |
