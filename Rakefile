@@ -11,7 +11,6 @@ require 'digest'
 require 'open-uri'
 require 'bundler/setup'
 require 'rake/testtask'
-require 'package_cloud'
 require 'solarwinds_apm/test'
 
 Rake::TestTask.new do |t|
@@ -419,6 +418,8 @@ end
 
 desc "Build gem and push to packagecloud. Run as bundle exec rake build_gem_push_to_packagecloud[<version>]"
 task :build_gem_push_to_packagecloud, [:version] do |t, args|
+
+  require 'package_cloud'
 
   check_token = `cat ~/.packagecloud`
   abort("prerequisite: package_cloud token needs to be in ~/.packagecloud") if check_token.empty?
