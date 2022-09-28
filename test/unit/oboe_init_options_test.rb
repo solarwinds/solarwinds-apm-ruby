@@ -64,7 +64,7 @@ describe 'OboeInitOptions' do
     _(options[16]).must_equal 1
     _(options[17]).must_equal 1234
     _(options[18]).must_equal 'http://the.proxy:1234'
-    _(options[22]).must_equal 2
+    _(options[22]).must_equal 0
   end
 
   it 'reads config vars' do
@@ -143,7 +143,7 @@ describe 'OboeInitOptions' do
     options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
 
     _(options.size).must_equal 23
-    _(options[22]).must_equal 2
+    _(options[22]).must_equal 0
   end
 
   it 'checks for metric mode default' do
@@ -154,7 +154,7 @@ describe 'OboeInitOptions' do
     options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
 
     _(options.size).must_equal 23
-    _(options[22]).must_equal 2
+    _(options[22]).must_equal 0
   end
 
   it 'checks the service_key for ssl' do

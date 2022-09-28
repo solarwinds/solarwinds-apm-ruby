@@ -194,7 +194,7 @@ module SolarWindsAPM
       if ENV['SW_APM_COLLECTOR'].include? "appoptics.com"
         return 1
       else
-        return 2
+        return 0
       end
     end
   end

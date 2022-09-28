@@ -11,6 +11,7 @@ require 'digest'
 require 'open-uri'
 require 'bundler/setup'
 require 'rake/testtask'
+require 'package_cloud'
 require 'solarwinds_apm/test'
 
 Rake::TestTask.new do |t|
@@ -270,7 +271,7 @@ task :oboe_verify do
     sha_2 = Digest::SHA2.file(File.join(@ext_verify_dir, filename)).hexdigest
 
     if sha_1 != sha_2
-      puts "#{filename} from github and files.appoptics.com differ"
+      puts "#{filename} from github and agent-binaries.cloud.solarwinds differ"
       puts `diff #{File.join(@ext_dir, 'src', filename)} #{File.join(@ext_verify_dir, filename)}`
       exit 1
     end
@@ -416,16 +417,12 @@ task :build_gem do
   puts "\n=== Finished ===\n"
 end
 
-desc "Build gem and push to packagecloud. Run as bundle exec rake build_gem_push_to_packagecloud <version>"
+desc "Build gem and push to packagecloud. Run as bundle exec rake build_gem_push_to_packagecloud[<version>]"
 task :build_gem_push_to_packagecloud, [:version] do |t, args|
 
-  abort("No version specified.") if args[:version].empty? || args[:version].nil?
-
-  begin
-    require 'package_cloud'
-  rescue LoadError
-    Gem.install 'package_cloud'
-  end
+  check_token = `cat ~/.packagecloud`
+  abort("prerequisite: package_cloud token needs to be in ~/.packagecloud") if check_token.empty?
+  abort("No version specified.") if args[:version]&.empty? || args[:version].nil?
 
   gems = Dir["builds/solarwinds_apm-#{args[:version]}.gem"]
   gem_to_push = nil
@@ -436,9 +433,14 @@ task :build_gem_push_to_packagecloud, [:version] do |t, args|
     gem_to_push = gems.first
   end
 
+  puts "\n=== Gem will be pushed #{gem_to_push} ===\n"
   gem_to_push_version = gem_to_push&.match(/-\d*.\d*.\d*/).to_s.gsub("-","")
   abort("Couldn't find the required gem file.") if gem_to_push.nil? || gem_to_push_version != args[:version]
-  system("package_cloud push solarwinds/solarwinds-apm-ruby #{gem_to_push.strip()}")
+    
+  cli = PackageCloud::CLI::Entry.new
+  cli.push("solarwinds/solarwinds-apm-ruby", gem_to_push.strip())
+
+  puts "\n=== Finished ===\n"
 
 end
 
