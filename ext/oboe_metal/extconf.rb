@@ -29,7 +29,7 @@ ao_include = File.join(ext_dir, 'src')
 version = File.read(File.join(ao_include, 'VERSION')).strip
 if ENV['OBOE_STAGING'].to_s.downcase == 'true'
   ao_path = File.join('https://agent-binaries.global.st-ssp.solarwinds.com/apm/c-lib/', version)
-  puts 'Fetching c-lib from S3'
+  puts 'Fetching c-lib from STAGING'
 else
   ao_path = File.join('https://agent-binaries.cloud.solarwinds.com/apm/c-lib/', version)
 end
