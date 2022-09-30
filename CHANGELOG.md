@@ -5,7 +5,7 @@ Dates in this file are in the format MM/DD/YYYY.
 
 # solarwinds_apm 5.1.0 (09/15/2022)
 
-This patch release includes the following fixes:
+This release includes the following features:
 
 * Using latest liboboe library (10.6.1)
 
@@ -16,7 +16,7 @@ https://rubygems.org/gems/solarwinds_apm/versions/5.1.0
 
 # solarwinds_apm 5.0.0 (09/15/2022)
 
-This patch release includes the following fixes:
+This release includes the following features:
 
 * Migrated Github repo
 
