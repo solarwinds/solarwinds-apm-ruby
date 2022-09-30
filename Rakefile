@@ -115,7 +115,7 @@ task :fetch_oboe_file_from_staging do
   Dir.glob(File.join(ext_src_dir, 'oboe*')).each { |file| File.delete(file) }
 
   # inform when there is a newer oboe version
-  remote_file = File.join("https://agent-binaries.cloud.solarwinds.com/apm/c-lib/latest", 'VERSION')
+  remote_file = File.join("https://agent-binaries.global.st-ssp.solarwinds.com/apm/c-lib/latest", 'VERSION')
   local_file  = File.join(ext_src_dir, 'VERSION_latest')
   URI.open(remote_file, 'rb') do |rf|
     content = rf.read
