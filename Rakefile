@@ -421,8 +421,7 @@ task :build_gem_push_to_packagecloud, [:version] do |t, args|
 
   require 'package_cloud'
 
-  check_token = `cat ~/.packagecloud`
-  abort("prerequisite: package_cloud token needs to be in ~/.packagecloud") if check_token.empty?
+  abort("Require PACKAGECLOUD_TOKEN\n See here: https://packagecloud.io/docs ") if ENV["PACKAGECLOUD_TOKEN"]&.empty? || ENV["PACKAGECLOUD_TOKEN"].nil?
   abort("No version specified.") if args[:version]&.empty? || args[:version].nil?
 
   gems = Dir["builds/solarwinds_apm-#{args[:version]}.gem"]
