@@ -32,11 +32,6 @@ jobs:
           ./autogen.sh && ./configure && make && sudo make install
           cd -
 
-      - name: Download oboe staging files from staging, compile swig wrapper
-        run: |
-          bundle exec rake fetch
-          ls -l ext/oboe_metal/src
-
       - name: Grab current version
         id: version
         run: |
