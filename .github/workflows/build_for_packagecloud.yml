@@ -38,13 +38,14 @@ jobs:
           ls -l ext/oboe_metal/src
 
       - name: Grab current version
+        id: version
         run: |
           echo ::set-output name=gem_version::`ruby -e 'require "./lib/solarwinds_apm/version"; puts SolarWindsAPM::Version::STRING'`
 
-      - name: Build Gem and Publish to PackageCloud
+      - name: Build gem and publish to packagecloud
         id: gemstep
         run:  |
-          bundle exec rake build_gem_push_to_packagecloud[${{ steps.build.outputs.gem_version }}]
+          bundle exec rake build_gem_push_to_packagecloud[${{ steps.version.outputs.gem_version }}]
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
 
