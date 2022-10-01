@@ -15,7 +15,7 @@ version: "2.1"
 x-ao-env: &ao-env
 #  SW_APM_COLLECTOR: "apm.collector.st-ssp.solarwinds.com"
   SW_APM_COLLECTOR: "/tmp/sw_apm_traces.bson"
-  OBOE_FROM_S3: "true"
+  OBOE_STAGING: "true"
   SW_APM_GEM_TEST: "true"
   MONGO_SERVER: "ao-ruby-mongo"
   RABBITMQ_SERVER: "ao-ruby-rabbitmq"
@@ -62,6 +62,7 @@ services:
   ruby_sw_apm_ubuntu:
     container_name: ruby_sw_apm_ubuntu
     image: ruby_sw_apm_ubuntu
+    platform: linux/amd64
     build:
       context: .
       dockerfile: Dockerfile_ubuntu
@@ -141,6 +142,7 @@ services:
 
   ao-ruby-mysql:
     container_name: ao-ruby-mysql
+    platform: linux/amd64
     image: mysql:5.7.33
     command: --init-file /data/application/mysql_init.sql
     volumes:

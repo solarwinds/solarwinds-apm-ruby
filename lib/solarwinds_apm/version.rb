@@ -7,10 +7,9 @@ module SolarWindsAPM
   # solarwinds_apm.gemspec during gem build process
   module Version
     MAJOR  = 5 # breaking,
-    MINOR  = 0 # feature,
+    MINOR  = 1 # feature,
     PATCH  = 0 # fix => BFF
-    PRE    = 7 # for pre-releases into packagecloud,
-               # set to nil for production releases into rubygems
+    PRE    = nil # for pre-releases into packagecloud, set to nil for production releases into rubygems
 
     STRING = [MAJOR, MINOR, PATCH, PRE].compact.join('.')
   end

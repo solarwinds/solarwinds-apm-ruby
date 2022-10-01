@@ -295,6 +295,7 @@ if defined?(SolarWindsAPM::Config)
   #
   SolarWindsAPM::Config[:ec2_metadata_timeout] = 1000
 
+
   #############################################
   ## SETTINGS FOR INDIVIDUAL GEMS/FRAMEWORKS ##
   #############################################

@@ -44,7 +44,7 @@ describe 'OboeInitOptions' do
     SolarWindsAPM::OboeInitOptions.instance.re_init
     options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
 
-    _(options.size).must_equal 22
+    _(options.size).must_equal 23
     _(options[0]).must_equal 'string_4'
     _(options[1]).must_equal 2
     _(options[2]).must_equal 'string_5'
@@ -64,6 +64,7 @@ describe 'OboeInitOptions' do
     _(options[16]).must_equal 1
     _(options[17]).must_equal 1234
     _(options[18]).must_equal 'http://the.proxy:1234'
+    _(options[22]).must_equal 0
   end
 
   it 'reads config vars' do
@@ -75,6 +76,7 @@ describe 'OboeInitOptions' do
     ENV.delete('SW_APM_SERVICE_KEY')
     ENV.delete('SW_APM_EC2_METADATA_TIMEOUT')
     ENV.delete('SW_APM_PROXY')
+    ENV.delete('')
 
     SolarWindsAPM::Config[:hostname_alias] = 'string_0'
     SolarWindsAPM::Config[:debug_level] = 0
@@ -85,7 +87,7 @@ describe 'OboeInitOptions' do
     SolarWindsAPM::OboeInitOptions.instance.re_init
     options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
 
-    _(options.size).must_equal 22
+    _(options.size).must_equal 23
 
     _(options[0]).must_equal 'string_0'
     _(options[1]).must_equal 0
@@ -113,13 +115,46 @@ describe 'OboeInitOptions' do
     SolarWindsAPM::OboeInitOptions.instance.re_init
     options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
 
-    _(options.size).must_equal 22
+    _(options.size).must_equal 23
 
     _(options[0]).must_equal 'string_0'
     _(options[1]).must_equal 1
     _(options[9]).must_equal 'CWoadXY66FXNd_e5u3nabLZ1KByYZRTi1yWJg2AcD6MHo1AA42UstbipfHfx6Hnl-821ARq:test_app'
     _(options[17]).must_equal 1212
     _(options[18]).must_equal 'http://the.proxy:2222'
+  end
+
+  it 'checks for metric mode appoptics' do
+    ENV.delete('SW_APM_COLLECTOR')
+    ENV['SW_APM_COLLECTOR'] = 'collector.abc.bbc.appoptics.com'
+
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
+
+    _(options.size).must_equal 23
+    _(options[22]).must_equal 1
+  end
+
+  it 'checks for metric mode nighthack' do
+    ENV.delete('SW_APM_COLLECTOR')
+    ENV['SW_APM_COLLECTOR'] = 'collector.abc.bbc.solarwinds.com'
+    
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
+
+    _(options.size).must_equal 23
+    _(options[22]).must_equal 0
+  end
+
+  it 'checks for metric mode default' do
+    ENV.delete('SW_APM_COLLECTOR')
+    ENV['SW_APM_COLLECTOR'] = 'www.google.ca'
+    
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
+
+    _(options.size).must_equal 23
+    _(options[22]).must_equal 0
   end
 
   it 'checks the service_key for ssl' do

@@ -44,7 +44,7 @@ jobs:
         env:
           TRACE_BUILD_TOKEN: ${{ secrets.TRACE_BUILD_RUBY_ACTIONS_API_TOKEN }}
         run: |
-          bundle exec rake oboe_files_sw_apm_fetch
+          bundle exec rake fetch_oboe_file_from_prod
           bundle exec rake oboe_verify
 
       - name: Build Gem and upload to Rubygems

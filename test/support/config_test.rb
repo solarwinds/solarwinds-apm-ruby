@@ -415,4 +415,5 @@ describe "SolarWindsAPM::Config" do
       _(SolarWindsAPM::Config.profiling_interval).must_equal 100
     end
   end
+
 end

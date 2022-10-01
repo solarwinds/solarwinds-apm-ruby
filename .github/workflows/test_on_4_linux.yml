@@ -7,7 +7,7 @@ on:
   push:
     paths-ignore:
       - 'test/run_tests/Dockerfile_*'
-# Allows you to run this workflow manually from the Actions tab
+  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 env:
@@ -85,7 +85,7 @@ jobs:
       SW_APM_REPORTER: file
       SW_APM_COLLECTOR: /tmp/sw_apm_traces.bson
       SW_APM_REPORTER_FILE_SINGLE: false
-      OBOE_FROM_S3: true
+      OBOE_STAGING: true
       MONGO_SERVER: "mongo"
       RABBITMQ_SERVER: "rabbitmq"
       MEMCACHED_SERVER: "memcached"

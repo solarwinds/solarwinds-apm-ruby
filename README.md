@@ -362,9 +362,9 @@ manually build this C extension for the gem to function.
 To make this simpler, we've included a few rake tasks to automate this process:
 
 ```bash
-rake clean               # make sure no old stuff is around
-rake fetch_ext_deps      # download c-files
-rake compile             # Build the gem's c extension
+rake clean                             # make sure no old stuff is around
+rake fetch_oboe_file_from_staging      # download c-files from staging
+rake compile                           # Build the gem's c extension
 ```
 
 To see the code related to the C extension, take a look at `ext/oboe_metal/extconf.rb` for details.

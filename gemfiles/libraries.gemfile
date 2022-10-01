@@ -51,6 +51,7 @@ gem 'typhoeus'
 # Database adapter gems needed by sequel
 gem 'mysql2'
 gem 'pg'
+gem 'package_cloud'
 
 eval(File.read(File.join(File.dirname(__FILE__), 'test_gems.gemfile')))
 
