@@ -47,7 +47,7 @@ puts "initial: #{`ps -o rss -p #{$$}`.lines.last}"
 
 start = Time.now
 
-oboe_source = ENV['OBOE_LOCAL'] ? "oboe_from_branch" : "oboe_from_s3"
+oboe_source = ENV['OBOE_LOCAL'] ? "oboe_from_branch" : "oboe_staging"
 SolarWindsAPM::SDK.start_trace("parent_#{oboe_source}") do
   pids = []
   5.times do

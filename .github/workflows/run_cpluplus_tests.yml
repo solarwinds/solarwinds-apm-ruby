@@ -29,7 +29,7 @@ jobs:
       SW_APM_REPORTER: file
       SW_APM_COLLECTOR: /tmp/sw_apm_traces.bson
       SW_APM_REPORTER_FILE_SINGLE: false
-      OBOE_FROM_S3: true
+      OBOE_STAGING: true
 
     steps:
       - uses: actions/checkout@v2

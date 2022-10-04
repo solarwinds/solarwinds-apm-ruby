@@ -15,7 +15,7 @@ version: "2.1"
 x-ao-env: &ao-env
 #  SW_APM_COLLECTOR: "apm.collector.st-ssp.solarwinds.com"
   SW_APM_COLLECTOR: "/tmp/sw_apm_traces.bson"
-  OBOE_FROM_S3: "true"
+  OBOE_STAGING: "true"
   SW_APM_GEM_TEST: "true"
   MONGO_SERVER: "ao-ruby-mongo"
   RABBITMQ_SERVER: "ao-ruby-rabbitmq"
@@ -24,7 +24,6 @@ x-ao-env: &ao-env
   SW_APM_SERVICE_KEY: "${SW_APM_SERVICE_KEY}"
   SW_APM_TOKEN_BUCKET_CAPACITY: 10000
   SW_APM_TOKEN_BUCKET_RATE: 10000
-  SW_APM_METRIC_FORMAT: 0
 
   BUNDLE_GEMFILE: "gemfiles/libraries.gemfile"
   DOCKER_MYSQL_PASS: "admin"

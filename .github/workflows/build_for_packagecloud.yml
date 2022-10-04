@@ -22,7 +22,7 @@ jobs:
       - name: Install gems
         run: |
           echo 'gem: --no-document' >> ~/.gemrc
-          bundle install --without development --without test
+          bundle install
 
       - name: Install swig 4.0.2
         run: |
@@ -32,26 +32,15 @@ jobs:
           ./autogen.sh && ./configure && make && sudo make install
           cd -
 
-      - name: Download oboe staging files from S3, compile swig wrapper
+      - name: Grab current version
+        id: version
         run: |
-          bundle exec rake fetch
-          ls -l ext/oboe_metal/src
+          echo ::set-output name=gem_version::`ruby -e 'require "./lib/solarwinds_apm/version"; puts SolarWindsAPM::Version::STRING'`
 
-      - name: Build Gem
+      - name: Build gem and publish to packagecloud
         id: gemstep
         run:  |
-          gem build solarwinds_apm.gemspec
-          echo `shasum -a256 *.gem`
-          echo "::set-output name=GEM_VERSION::`ruby -e 'require "./lib/solarwinds_apm/version"; puts SolarWindsAPM::Version::STRING'`"
-          cat ext/oboe_metal/src/VERSION
-
-      - name: Publish to PackageCloud
-        # PackageCloud is unreliable with regards to
-        # republishing after yanking a gem
-        # we are going to fail if republishing is attempted
-        run: |
-          gem install package_cloud
-          package_cloud push solarwinds/solarwinds-apm-ruby *.gem
+          bundle exec rake build_gem_push_to_packagecloud[${{ steps.version.outputs.gem_version }}]
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
 
@@ -62,7 +51,7 @@ jobs:
 #        env:
 #          SW_APM_SERVICE_KEY: ${{ secrets.SW_APM_SERVICE_KEY }}
 #          SW_APM_COLLECTOR: ${{ secrets.SW_APM_COLLECTOR}}
-#          OBOE_FROM_S3: true
+#          OBOE_STAGING: true
 #        run: |
 #          sleep 60
 #          gem sources --add https://packagecloud.io/solarwinds/solarwinds-apm-ruby

@@ -63,7 +63,7 @@ jobs:
       SW_APM_REPORTER: file
       SW_APM_COLLECTOR: /tmp/sw_apm_traces.bson
       SW_APM_REPORTER_FILE_SINGLE: false
-      OBOE_FROM_S3: true
+      OBOE_STAGING: true
       MONGO_SERVER: "mongo"
       RABBITMQ_SERVER: "rabbitmq"
       MEMCACHED_SERVER: "memcached"
@@ -90,10 +90,10 @@ jobs:
           - 5672:5672
         options: --health-cmd "rabbitmqctl node_health_check" --health-interval 10s --health-timeout 5s --health-retries 5
       mongo:
-        image: mongo:5
+        image: mongo:latest
         ports:
           - 27017:27017
-        options: "--health-cmd \"mongo --quiet --eval 'quit(db.runCommand({ ping: 1 }).ok ? 0 : 2)'\" --health-interval 10s --health-timeout 5s --health-retries 5"
+        options: --health-cmd "mongosh --quiet --eval 'quit(db.runCommand({ping:1}).ok ? 0:2)'" --health-interval 10s --health-timeout 5s --health-retries 5
       postgres:
         image: postgres:latest
         env:
