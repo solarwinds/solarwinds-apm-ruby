@@ -13,7 +13,7 @@ void Init_profiling(void);
 
 void Init_libsolarwinds_apm() {
     Init_oboe_metal();
-    Init_profiling();
+    // Init_profiling();
 }
 
 #ifdef __cplusplus

@@ -3,6 +3,7 @@
 
 pattern = File.join(File.dirname(__FILE__), 'support', '*.rb')
 Dir.glob(pattern) do |f|
+  next if f =~ /profiling/ unless defined?(SolarWindsAPM::CProfiler)
   begin
     require f
   rescue => e

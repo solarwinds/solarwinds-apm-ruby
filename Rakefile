@@ -47,7 +47,7 @@ Rake::TestTask.new do |t|
   when /noop/
     t.test_files = FileList['test/noop/*_test.rb']
   when /profiling/
-    t.test_files = FileList['test/profiling/*_test.rb']
+    t.test_files = FileList['test/profiling/*_test.rb'] if defined?(SolarWindsAPM::Profiling)
   when /unit/
     t.test_files = FileList['test/unit/*_test.rb'] +
                    FileList['test/unit/*/*_test.rb']

@@ -14,17 +14,15 @@ unless SolarWindsAPM::SDK.solarwinds_ready?(10_000)
   exit false
 end
 
+op = lambda { 10.times {[9, 6, 12, 2, 7, 1, 9, 3, 4, 14, 5, 8].sort} }
+
 SolarWindsAPM.support_report
 
 # no profiling yet for NH, but it shouldn't choke on Profiling.run
 SolarWindsAPM::Config[:profiling] = :disabled
 
 SolarWindsAPM::SDK.start_trace("ruby_post_release_test") do
-  SolarWindsAPM::Profiling.run do
-    10.times do
-      [9, 6, 12, 2, 7, 1, 9, 3, 4, 14, 5, 8].sort
-      # sleep 0.2 # maybe turn back on when profiling
-    end
-    puts "Looking good so far :)"  # this will show up in the log of github actions
-  end
+  SolarWindsAPM::Profiling.run { op.call } if defined?(SolarWindsAPM::Profiling)
+  op.call unless defined?(SolarWindsAPM::Profiling)
+  puts "Looks good!"
 end
