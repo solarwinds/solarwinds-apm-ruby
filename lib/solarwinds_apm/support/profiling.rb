@@ -2,6 +2,9 @@
 # All rights reserved.
 
 module SolarWindsAPM
+
+  # *
+  # * This class only got defined if Init_profiling defined in init_solarwinds_apm.cc
   class Profiling
 
     def self.run
