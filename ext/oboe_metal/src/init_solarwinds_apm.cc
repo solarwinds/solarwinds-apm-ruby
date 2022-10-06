@@ -15,7 +15,7 @@ void Init_libsolarwinds_apm() {
     Init_oboe_metal();
 
     // * create SolarWindsAPM::CProfiler module for enabling SolarWindsAPM::Profiling
-    // * see lib/support.rb
+    // * see lib/solarwinds_apm/support.rb
     // Init_profiling(); 
 }
 
