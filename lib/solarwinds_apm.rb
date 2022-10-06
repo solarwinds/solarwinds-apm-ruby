@@ -57,7 +57,7 @@ begin
     SolarWindsAPM.logger.warn '=============================================================='
     require 'solarwinds_apm/noop/context'
     require 'solarwinds_apm/noop/metadata'
-    require 'solarwinds_apm/noop/profiling'
+    # require 'solarwinds_apm/noop/profiling'
     require 'solarwinds_apm/support/trace_string'
   end
 

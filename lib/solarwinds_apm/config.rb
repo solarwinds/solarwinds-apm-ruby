@@ -146,6 +146,9 @@ module SolarWindsAPM
       (@@instrumentation+@@ignore).each { |k| @@config[k] = {} }
       @@config[:transaction_name] = {}
 
+      @@config[:profiling] = :disabled
+      @@config[:profiling_interval] = 5
+
       # Always load the template, it has all the keys and defaults defined,
       # no guarantee of completeness in the user's config file
       load(File.join(File.dirname(File.dirname(__FILE__)),
@@ -226,7 +229,12 @@ module SolarWindsAPM
             Regexp.new(SolarWindsAPM::Config[:dnt_regexp], SolarWindsAPM::Config[:dnt_opts] || nil)
         end
 
+      elsif key == :profiling
+        SolarWindsAPM.logger.warn "[solarwinds_apm/config] Profiling feature is currently not available." 
+        @@config[:profiling] = :disabled
+
       elsif key == :profiling_interval
+        SolarWindsAPM.logger.warn "[solarwinds_apm/config] Profiling feature is currently not available. :profiling_interval setting is not configured." 
         if value.is_a?(Integer) && value > 0
           value = [100, value].min
         else

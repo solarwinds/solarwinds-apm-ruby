@@ -47,7 +47,7 @@ Rake::TestTask.new do |t|
   when /noop/
     t.test_files = FileList['test/noop/*_test.rb']
   when /profiling/
-    t.test_files = FileList['test/profiling/*_test.rb']
+    t.test_files = FileList['test/profiling/*_test.rb'] if defined?(SolarWindsAPM::Profiling)
   when /unit/
     t.test_files = FileList['test/unit/*_test.rb'] +
                    FileList['test/unit/*/*_test.rb']
@@ -435,6 +435,8 @@ task :build_gem_push_to_packagecloud, [:version] do |t, args|
 
   puts "\n=== Gem will be pushed #{gem_to_push} ===\n"
   gem_to_push_version = gem_to_push&.match(/-\d*.\d*.\d*/).to_s.gsub("-","")
+  gem_to_push_version = gem_to_push&.match(/-\d*.\d*.\d*.pre/).to_s.gsub("-","") if args[:version].include? "pre"
+  
   abort("Couldn't find the required gem file.") if gem_to_push.nil? || gem_to_push_version != args[:version]
     
   cli = PackageCloud::CLI::Entry.new

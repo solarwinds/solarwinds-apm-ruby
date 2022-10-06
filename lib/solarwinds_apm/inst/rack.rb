@@ -63,7 +63,13 @@ if SolarWindsAPM.loaded
         response =
           propagate_tracecontext(env, settings) do
             sample(env, settings, options, profile_spans) do
-              SolarWindsAPM::Profiling.run do
+              if defined?(SolarWindsAPM::Profiling)
+                SolarWindsAPM::Profiling.run do
+                  SolarWindsAPM::TransactionMetrics.metrics(env, settings) do
+                    @app.call(env)
+                  end
+                end
+              else
                 SolarWindsAPM::TransactionMetrics.metrics(env, settings) do
                   @app.call(env)
                 end

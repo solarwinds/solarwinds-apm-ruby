@@ -477,13 +477,13 @@ describe "Rack: " do
   end
 
   describe 'G - ProfileSpans KV' do
-    it 'sets it to 1 if profiling is enabled' do
-      SolarWindsAPM::Config['profiling'] = :enabled
-      @rack.call({})
-      traces = get_all_traces
+    # it 'sets it to 1 if profiling is enabled' do
+    #   SolarWindsAPM::Config['profiling'] = :enabled
+    #   @rack.call({})
+    #   traces = get_all_traces
 
-      assert_equal 1, traces.last['ProfileSpans']
-    end
+    #   assert_equal 1, traces.last['ProfileSpans']
+    # end
 
     it 'sets it to -1 if profiling is disabled' do
       SolarWindsAPM::Config['profiling'] = :disabled
