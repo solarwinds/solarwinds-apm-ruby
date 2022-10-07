@@ -159,7 +159,6 @@ describe 'OboeInitOptions' do
 
   it 'checks for metric mode when sw_apm_collector is nil' do
     ENV.delete('SW_APM_COLLECTOR')
-    ENV['SW_APM_COLLECTOR'] = nil
     
     SolarWindsAPM::OboeInitOptions.instance.re_init
     options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
