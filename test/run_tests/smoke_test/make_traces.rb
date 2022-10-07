@@ -53,12 +53,13 @@ end
 #
 # SolarWindsAPM::Profiling.run
 # This method adds profiling for the code executed in the block
-
-SolarWindsAPM::SDK.start_trace("#{name}_profiling") do
-  SolarWindsAPM::Profiling.run do
-    10.times do
-      [9, 6, 12, 2, 7, 1, 9, 3, 4, 14, 5, 8].sort
-      sleep 0.2
+if defined?(SolarWindsAPM::Profiling)
+  SolarWindsAPM::SDK.start_trace("#{name}_profiling") do
+    SolarWindsAPM::Profiling.run do
+      10.times do
+        [9, 6, 12, 2, 7, 1, 9, 3, 4, 14, 5, 8].sort
+        sleep 0.2
+      end
     end
   end
 end

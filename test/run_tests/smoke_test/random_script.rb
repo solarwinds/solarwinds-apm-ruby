@@ -33,8 +33,8 @@ class Rainbow
   end
 end
 
-SolarWindsAPM::Config.profiling = :enabled if defined? SolarWindsAPM
-SolarWindsAPM::Config[:profiling_interval] = 5 if defined? SolarWindsAPM
+SolarWindsAPM::Config.profiling = :enabled if defined? SolarWindsAPM::Profiling
+SolarWindsAPM::Config[:profiling_interval] = 5 if defined? SolarWindsAPM::Profiling
 
 unless SolarWindsAPM::SDK.solarwinds_ready?(10_000)
   puts "aborting!!! Agent not ready after 10 seconds"
@@ -56,7 +56,7 @@ SolarWindsAPM::SDK.start_trace("parent_#{oboe_source}") do
         th = []
         3.times do
           th << Thread.new do
-            if ENV['WITH_PROFILING'] == 'true'
+            if ENV['WITH_PROFILING'] == 'true' and defined? SolarWindsAPM::Profiling
               SolarWindsAPM::Profiling.run do
                 400.times do
                   Rainbow.paint

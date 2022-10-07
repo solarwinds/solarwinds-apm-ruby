@@ -79,27 +79,6 @@ if defined?(SolarWindsAPM::Config)
   SolarWindsAPM::Config[:verbose] = false
 
   #
-  # Turn code profiling on or off
-  #
-  # By default profiling is set to :disabled, the other option is :enabled.
-  # :enabled means that any traced code will also be profiled to get deeper insight
-  # into the methods called during a trace.
-  # Profiling in the solarwinds_apm gem is based on the low-overhead, sampling
-  # profiler implemented in stackprof.
-  #
-  SolarWindsAPM::Config[:profiling] = :disabled
-
-  #
-  # Set the profiling interval (in milliseconds)
-  #
-  # The default is 10 milliseconds, which means that the method call stack is
-  # recorded every 10 milliseconds. Shorter intervals may give better insight,
-  # but will incur more overhead.
-  # Minimum: 1, Maximum: 100
-  #
-  SolarWindsAPM::Config[:profiling_interval] = 10
-
-  #
   # Turn Tracing on or off
   #
   # By default tracing is set to :enabled, the other option is :disabled.
