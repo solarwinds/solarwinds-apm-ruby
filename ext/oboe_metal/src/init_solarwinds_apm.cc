@@ -13,7 +13,10 @@ void Init_profiling(void);
 
 void Init_libsolarwinds_apm() {
     Init_oboe_metal();
-    Init_profiling();
+
+    // * create SolarWindsAPM::CProfiler module for enabling SolarWindsAPM::Profiling
+    // * see lib/solarwinds_apm/support.rb
+    // Init_profiling(); 
 }
 
 #ifdef __cplusplus

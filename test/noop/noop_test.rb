@@ -191,14 +191,15 @@ class NoopTest < Minitest::Test
     SolarWindsAPM::SDK.summary_metric('dont_barf', 5)
   end
 
-  def test_profiling_doesnt_barf
-    SolarWindsAPM::Profiling.run do
-      sleep 0.1
-    end
-  end
+  # def test_profiling_doesnt_barf
+  #   SolarWindsAPM::Profiling.run do
+  #     sleep 0.1
+  #   end
+  # end
 
-  def test_cprofiler_doesnt_barf
-    SolarWindsAPM::CProfiler.set_interval(10)
-  end
+  # def test_cprofiler_doesnt_barf
+  #   SolarWindsAPM::CProfiler.set_interval(10)
+  # end
+  
 end
 
