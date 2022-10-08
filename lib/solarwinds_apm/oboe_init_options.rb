@@ -191,7 +191,7 @@ module SolarWindsAPM
     end
 
     def determine_the_metric_model
-      if ENV['SW_APM_COLLECTOR'].include? "appoptics.com"
+      if ENV['SW_APM_COLLECTOR']&.include? "appoptics.com"
         return 1
       else
         return 0

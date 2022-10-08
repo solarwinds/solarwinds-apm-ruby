@@ -157,6 +157,16 @@ describe 'OboeInitOptions' do
     _(options[22]).must_equal 0
   end
 
+  it 'checks for metric mode when sw_apm_collector is nil' do
+    ENV.delete('SW_APM_COLLECTOR')
+    
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
+
+    _(options.size).must_equal 23
+    _(options[22]).must_equal 0
+  end
+
   it 'checks the service_key for ssl' do
     ENV.delete('SW_APM_GEM_TEST')
     ENV['SW_APM_REPORTER'] = 'ssl'
