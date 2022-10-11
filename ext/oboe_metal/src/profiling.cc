@@ -61,8 +61,8 @@ void print_prof_data_map() {
 
 long ts_now() {
     struct timeval tv;
-
-    oboe_gettimeofday(&tv);
+    struct timezone *tz = NULL;
+    gettimeofday(&tv, tz);
     return (long)tv.tv_sec * 1000000 + (long)tv.tv_usec;
 }
 
