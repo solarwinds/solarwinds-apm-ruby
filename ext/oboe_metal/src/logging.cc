@@ -37,7 +37,8 @@ bool Logging::log_profile_entry(Metadata &md, string &prof_op_id, pid_t tid, lon
     event->addInfo((char *)"Interval", interval);
 
     struct timeval tv;
-    oboe_gettimeofday(&tv);
+    struct timezone *tz = NULL;
+    gettimeofday(&tv, tz);
     event->addInfo((char *)"Timestamp_u", (long)tv.tv_sec * 1000000 + (long)tv.tv_usec);
 
     return Logging::log_profile_event(event);
@@ -51,7 +52,8 @@ bool Logging::log_profile_exit(Metadata &md, string &prof_op_id, pid_t tid,
     event->addInfo((char *)"SnapshotsOmitted", omitted, num_omitted);
 
     struct timeval tv;
-    oboe_gettimeofday(&tv);
+    struct timezone *tz = NULL;
+    gettimeofday(&tv, tz);
     event->addInfo((char *)"Timestamp_u", (long)tv.tv_sec * 1000000 + (long)tv.tv_usec);
 
     return Logging::log_profile_event(event);

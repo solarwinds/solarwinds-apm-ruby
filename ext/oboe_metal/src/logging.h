@@ -8,8 +8,7 @@
 
 using namespace std;
 
-extern "C" int oboe_gettimeofday(struct timeval *tv);
-
+// extern "C" int oboe_gettimeofday(struct timeval *tv);
 
 class Logging {
    public:
