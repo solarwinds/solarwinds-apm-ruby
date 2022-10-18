@@ -43,4 +43,4 @@ vendor/
 
 # github action
 .github/.DS_Store
-
+.github/workflows/.DS_Store
