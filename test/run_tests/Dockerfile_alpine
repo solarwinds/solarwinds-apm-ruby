@@ -1,4 +1,4 @@
-FROM alpine:3.12
+FROM alpine:3.16.2
 
 VOLUME [ "/sys/fs/cgroup" ]
 
@@ -54,13 +54,15 @@ RUN apk add --upgrade \
       postgresql-dev \
       readline-dev \
       tree \
-      ttf-ubuntu-font-family \
+      ttf-freefont \
       tzdata \
       vim \
-      wkhtmltopdf \
       yaml \
       zlib-dev \
    && rm -rf /var/lib/apt/lists/*
+
+RUN echo 'http://dl-cdn.alpinelinux.org/alpine/v3.8/main' >> /etc/apk/repositories && \
+    apk add --no-cache libcrypto1.0 libssl1.0
 
 # rbenv setup
 # use rbenv-default-gems to automatically install bundler for each ruby version

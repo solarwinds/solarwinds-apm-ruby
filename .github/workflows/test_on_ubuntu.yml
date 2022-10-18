@@ -6,10 +6,9 @@ name: Run Ruby Tests on 4 Linux
 on:
   push:
     branches:
-      - master
+      - '!master'
     paths-ignore:
       - 'test/run_tests/Dockerfile_*'
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 env:
@@ -18,69 +17,17 @@ env:
 
 jobs:
 
-#-------------------------------------------------------------------------------
-# TODO: figure out how to build images first if necessary
-#
-# ********* this is not working because we don't have a    *************
-# ********* reference to the commit of the previous GH run *************
-#
-#  build_images:
-#    name: Build docker images if necessary
-#    runs-on: ubuntu-latest
-#
-#    strategy:
-#      fail-fast: true
-#      matrix:
-#        os: [ ubuntu, debian, centos, alpine ]
-#
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v2
-#
-#
-#  ##    comment out to get a debug session
-#  ##    only works with ubuntu and debian, because it uses apt:
-##      - name: tmate debugging session
-##        uses: mxschmitt/action-tmate@v3
-##        with:
-##          sudo: false
-#
-#      - name: check modified files
-#        id:   check_files
-#        run:  |
-#          git diff --name-only --diff-filter=ACMRT ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep Dockerfile_
-#          echo ::set-output name=check_dockerfiles::$?
-##          git diff --name-only HEAD^ HEAD | grep [D]ockerfile_
-##          echo ::set-output name=check_dockerfiles::$?
-#
-#      - name: ghcr.io login ... build and publish images if needed
-#        uses: docker/login-action@v1
-#        if: ${{ steps.check_files.outputs.check_dockerfiles == 0}}
-#        with:
-#          registry: ghcr.io
-#          username: ${{ github.actor }}
-#          password: ${{ secrets.GITHUB_TOKEN }}
-#
-#      - name: Build and publish new Docker image
-#        if: ${{ steps.check_files.outputs.check_dockerfiles == 0 }}
-#        run: |
-#          docker build -f ${{ env.DOCKERFILE }}_${{ matrix.os }} -t ${{ env.GHRC }}_${{ matrix.os }} .
-#          docker push ${{ env.GHRC }}_${{ matrix.os }}
-
-#-------------------------------------------------------------------------------
-  all_linux_test:
-    name: ${{ matrix.os }} - ruby ${{ matrix.ruby }}
+  ubuntu_test:
+    name: ubuntu - ruby ${{ matrix.ruby }}
     runs-on: ubuntu-latest
-#    needs: build_images
 
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu, debian, centos, alpine]
         ruby: ['3.1', '3.0', '2.7', '2.6', '2.5']
 
     container:
-       image: ghcr.io/${{ github.repository }}/apm_ruby_${{ matrix.os }}
+       image: ghcr.io/${{ github.repository }}/apm_ruby_ubuntu
 
     env:
       SW_APM_GEM_TEST: true

@@ -41,3 +41,6 @@ gemfiles/vendor*
 lib/libsolarwinds_apm.so
 vendor/
 
+# github action
+.github/.DS_Store
+
