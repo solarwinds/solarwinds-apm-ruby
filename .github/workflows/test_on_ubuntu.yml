@@ -11,10 +11,6 @@ on:
       - 'test/run_tests/Dockerfile_*'
   workflow_dispatch:
 
-env:
-  GHRC: ghcr.io/solarwindscloud/solarwinds-apm-ruby/apm_ruby
-  DOCKERFILE: test/run_tests/Dockerfile
-
 jobs:
 
   ubuntu_test:

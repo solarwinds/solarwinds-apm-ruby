@@ -114,7 +114,7 @@ RUN apt-get update \
 #    && rm -f /tmp/config
 
 RUN apt-get update && \
-	apt-get -y install mysql-client default-libmysqlclient-dev
+	apt-get -y install mysql-client
 
 
 # update node to current stable version
