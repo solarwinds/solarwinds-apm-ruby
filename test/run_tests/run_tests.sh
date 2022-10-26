@@ -151,6 +151,7 @@ for ruby in ${rubies[@]} ; do
   if [ "$?" -ne 0 ]; then
     echo "Problem while installing c-extension with ruby $ruby"
     exit_status=1
+    echo "Current test status: $exit_status (after ext compiling)"
     continue
   fi
 
@@ -168,6 +169,7 @@ for ruby in ${rubies[@]} ; do
     if [ "$?" -ne 0 ]; then
       echo "Problem during gem install. Skipping tests for $gemfile"
       exit_status=1
+      echo "Current test status: $exit_status (after bundle update)"
       continue
     fi
 
@@ -181,7 +183,7 @@ for ruby in ${rubies[@]} ; do
     fi
 
     for dbtype in ${dbs[@]} ; do
-#      echo "Current database type $dbtype"
+      echo "Current database type $dbtype"
       export DBTYPE=$dbtype
 
       for prep_stmt in ${preps[@]} ; do
@@ -193,11 +195,14 @@ for ruby in ${rubies[@]} ; do
         fi
 
         # and here we are finally running the tests!!!
-        bundle exec rake test
+        bundle exec rake test --trace
         status=$?
-        [[ $status -gt $exit_status ]] && exit_status=$status
         [[ $status -ne 0 ]] && echo "!!! Test suite failed for $gemfile with Ruby $ruby !!!"
+        [[ $status -gt $exit_status ]] && exit_status=$status
+        echo "Current test status: $status (status - after bundle exec rake test)"
+        echo "Current test status: $exit_status (exit_status - after bundle exec rake test)"
 
+        
         pkill -f sidekiq
       done
     done
@@ -205,11 +210,28 @@ for ruby in ${rubies[@]} ; do
 done
 
 echo ""
-echo "--- SUMMARY ------------------------------"
+echo "--- SUMMARY of $TEST_RUNS_FILE_NAME ------------------------------"
 grep -E '===|failures|FAIL|ERROR' "$TEST_RUNS_FILE_NAME"
 
+echo "Check if there is any failures"
+# awk '/[^0] failures/' $TEST_RUNS_FILE_NAME
+TESTCASE_FAILED=$(awk '/[^0] failures, /' $TEST_RUNS_FILE_NAME)
+# [[ "$TESTCASE_FAILED" != "" ]] && exit_status=1
+echo "TESTCASE_FAILED is $TESTCASE_FAILED"
+echo "Current test status: $exit_status (after check if there is any failures)"
+
+echo "Check if there is any errors"
+# awk '/failures, [^0] errors/' $TEST_RUNS_FILE_NAME
+TESTCASE_ERROR=$(awk '/failures, [^0] errors, /' $TEST_RUNS_FILE_NAME)
+# [[ "$TESTCASE_ERROR" != "" ]] && exit_status=1
+echo "TESTCASE_FAILED is $TESTCASE_ERROR"
+echo "Current test status: $exit_status (after check if there is any errors)"
+
+echo "Current test status: $exit_status"
+
 if [ "$copy" -eq 1 ]; then
-    mv "$TEST_RUNS_FILE_NAME" "$dir"/log/
+  mv "$TEST_RUNS_FILE_NAME" "$dir"/log/
 fi
 
 exit $exit_status
+

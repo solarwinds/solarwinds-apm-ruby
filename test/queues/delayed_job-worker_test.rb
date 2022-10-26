@@ -34,7 +34,7 @@ class DelayedJobWorkerTest < Minitest::Test
 
     w.delay.do_work(1, 2, 3)
 
-    sleep 15
+    sleep 60
 
     traces = get_all_traces
     assert_equal 2, traces.count, "Trace count"
@@ -62,7 +62,7 @@ class DelayedJobWorkerTest < Minitest::Test
 
     w.delay.do_error(1, 2, 3)
 
-    sleep 15
+    sleep 60
 
     traces = get_all_traces
     assert_equal 3, traces.count, "Trace count"

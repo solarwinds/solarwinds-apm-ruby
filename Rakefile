@@ -71,6 +71,8 @@ task :docker, :environment do
   _arg1, arg2 = ARGV
   os = arg2 || 'ubuntu'
 
+  puts "Running on #{os}"
+
   Dir.chdir('test/run_tests')
   exec("docker-compose down -v --remove-orphans && docker-compose run --service-ports --name ruby_sw_apm_#{os} ruby_sw_apm_#{os} /code/ruby-solarwinds/test/run_tests/ruby_setup.sh bash")
 end

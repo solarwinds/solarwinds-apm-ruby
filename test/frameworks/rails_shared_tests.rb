@@ -238,7 +238,7 @@ describe "RailsSharedTests" do
   end
 
   it "traces pdfs from the 'wicked' controller" do
-    skip if @skip_wicked
+    skip
     # fyi: wicked_pdf is not instrumented
     SolarWindsAPM::Config[:dnt_regexp] = ''
     SolarWindsAPM::Config[:action_controller][:collect_backtraces] = false

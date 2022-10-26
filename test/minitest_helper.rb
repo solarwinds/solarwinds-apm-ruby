@@ -129,7 +129,7 @@ def clear_all_traces
   if SolarWindsAPM.loaded && ENV['SW_APM_REPORTER'] == 'file'
     SolarWindsAPM::Reporter.clear_all_traces
     # SolarWindsAPM.trace_context = nil
-    sleep 0.2 # it seems like the docker file system needs a bit of time to clear the file
+    sleep 1 # it seems like the docker file system needs a bit of time to clear the file
   end
 end
 
@@ -140,7 +140,7 @@ end
 #
 def get_all_traces
   if SolarWindsAPM.loaded && ENV['SW_APM_REPORTER'] == 'file'
-    sleep 0.5
+    sleep 1
     SolarWindsAPM::Reporter.get_all_traces
   else
     []
@@ -435,6 +435,17 @@ def assert_trace_headers(headers, sampled = nil)
   assert sw_tracestate(headers['tracestate']), "tracestate header not starting with correct sw member"
   assert_equal SolarWindsAPM::TraceString.span_id_flags(headers['traceparent']),
                sw_value(headers['tracestate']), "edge_id and flags not matching"
+end
+
+# 
+# This is for checking redis gem version and redis server version
+def min_server_version(version=nil)
+  unless version.nil?
+    unless Gem::Version.new(@redis_version) >= Gem::Version.new(version.to_s)
+      skip "supported only on redis-server #{version} or greater"
+    end
+  end
+  skip "current not support reddis-rb 5.X.X" if Redis::VERSION.to_s =~ /5.\d.\d/
 end
 
 if (File.basename(ENV['BUNDLE_GEMFILE']) =~ /^frameworks/) == 0

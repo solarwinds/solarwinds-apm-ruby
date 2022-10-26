@@ -59,7 +59,10 @@ RUN apk add --upgrade \
       vim \
       yaml \
       zlib-dev \
+      icu-libs \ 
    && rm -rf /var/lib/apt/lists/*
+
+# RUN echo 'https://dl-cdn.alpinelinux.org/alpine/v3.14/main' >> /etc/apk/repositories && echo 'https://dl-cdn.alpinelinux.org/alpine/v3.14/community' >> /etc/apk/repositories && apk add --no-cache wkhtmltopdf
 
 # rbenv setup
 # use rbenv-default-gems to automatically install bundler for each ruby version
