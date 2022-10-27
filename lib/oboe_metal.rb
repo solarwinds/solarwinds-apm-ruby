@@ -67,6 +67,16 @@ module SolarWindsAPM
       end
 
       ##
+      # hard_clear_all_traces
+      #
+      # Truncates the trace output file to zero 
+      # TODO: it should do delete the file and create file again
+      #
+      def hard_clear_all_traces
+        File.open(SolarWindsAPM::OboeInitOptions.instance.host, "w") {}
+      end
+
+      ##
       # get_all_traces
       #
       # Retrieves all traces written to the trace file

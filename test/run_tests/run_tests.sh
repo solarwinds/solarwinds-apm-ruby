@@ -203,6 +203,7 @@ for ruby in ${rubies[@]} ; do
         do
           sleep 10
           retries=$(( $retries + 1 ))
+          echo "Retried in $retries times"
           bundle exec rake test --trace
           status=$?
         done

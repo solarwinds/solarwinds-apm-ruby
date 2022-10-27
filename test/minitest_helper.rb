@@ -136,8 +136,7 @@ end
 
 def hard_clear_all_traces
   if SolarWindsAPM.loaded && ENV['SW_APM_REPORTER'] == 'file'
-    file_location = SolarWindsAPM::OboeInitOptions.instance.host
-    File.open(file_location, "wb") {}
+    SolarWindsAPM::Reporter.hard_clear_all_traces
     sleep 1 # it seems like the docker file system needs a bit of time to clear the file
   end
 end
