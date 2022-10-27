@@ -20,7 +20,7 @@ if defined?(::Redis)
       @entry_kvs ||= { 'Layer' => 'redis_test', 'Label' => 'entry' }
       @exit_kvs ||= { 'Layer' => 'redis_test', 'Label' => 'exit' }
       @exists_returns_integer = Redis.exists_returns_integer if defined? Redis.exists_returns_integer
-      clear_all_traces
+      hard_clear_all_traces
     end
 
     after do

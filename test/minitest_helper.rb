@@ -24,6 +24,7 @@ require 'minitest'
 require 'minitest/focus'
 require 'minitest/debugger' if ENV['DEBUG']
 require 'minitest/hooks/default'  # adds after(:all)
+require 'fileutils'
 
 # write to a file as well as STDOUT (comes in handy with docker runs)
 # This approach preserves the coloring of pass fail, which the cli
@@ -129,6 +130,14 @@ def clear_all_traces
   if SolarWindsAPM.loaded && ENV['SW_APM_REPORTER'] == 'file'
     SolarWindsAPM::Reporter.clear_all_traces
     # SolarWindsAPM.trace_context = nil
+    sleep 1 # it seems like the docker file system needs a bit of time to clear the file
+  end
+end
+
+def hard_clear_all_traces
+  if SolarWindsAPM.loaded && ENV['SW_APM_REPORTER'] == 'file'
+    file_location = SolarWindsAPM::OboeInitOptions.instance.host
+    File.open(file_location, "wb") {}
     sleep 1 # it seems like the docker file system needs a bit of time to clear the file
   end
 end
@@ -446,6 +455,7 @@ def min_server_version(version=nil)
     end
   end
   skip "current not support reddis-rb 5.X.X" if Redis::VERSION.to_s =~ /5.\d.\d/
+  skip if ENV["PUSH_EVENT"] == "REGULAR_PUSH"
 end
 
 if (File.basename(ENV['BUNDLE_GEMFILE']) =~ /^frameworks/) == 0

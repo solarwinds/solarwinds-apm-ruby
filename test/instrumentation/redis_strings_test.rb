@@ -19,7 +19,7 @@ if defined?(::Redis)
       @entry_kvs ||= { 'Layer' => 'redis_test', 'Label' => 'entry' }
       @exit_kvs  ||= { 'Layer' => 'redis_test', 'Label' => 'exit' }
 
-      clear_all_traces
+      hard_clear_all_traces
     end
 
     it "should trace append" do

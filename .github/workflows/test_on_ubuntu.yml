@@ -99,6 +99,7 @@ jobs:
     - name: ruby tests
       run: |
         export HOME=/root
+        export PUSH_EVENT=REGULAR_PUSH
         test/run_tests/ruby_setup.sh
         version=`rbenv versions --bare | grep ${{ matrix.ruby }}`
         rbenv global $version

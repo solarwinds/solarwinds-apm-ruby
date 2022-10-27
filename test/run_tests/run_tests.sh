@@ -195,8 +195,18 @@ for ruby in ${rubies[@]} ; do
         fi
 
         # and here we are finally running the tests!!!
+        
         bundle exec rake test --trace
         status=$?
+        retries=0
+        while [ $status -ne 0 ] && [ $retries -ne 2 ]
+        do
+          sleep 10
+          retries=$(( $retries + 1 ))
+          bundle exec rake test --trace
+          status=$?
+        done
+
         [[ $status -ne 0 ]] && echo "!!! Test suite failed for $gemfile with Ruby $ruby !!!"
         [[ $status -gt $exit_status ]] && exit_status=$status
         echo "Current test status: $status (status - after bundle exec rake test)"

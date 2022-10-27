@@ -11,7 +11,7 @@ if defined?(::Redis)
 
       sleep 2
       send(:remove_instance_variable, :@redis) if defined? @redis
-      clear_all_traces
+      hard_clear_all_traces
 
       @redis ||= Redis.new(:host => ENV['REDIS_HOST'] || ENV['REDIS_SERVER'] || '127.0.0.1',
                            :password => ENV['REDIS_PASSWORD'] || 'secret_pass')
