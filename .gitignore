@@ -41,3 +41,5 @@ gemfiles/vendor*
 lib/libsolarwinds_apm.so
 vendor/
 
+# mac DS_Store
+.DS_Store

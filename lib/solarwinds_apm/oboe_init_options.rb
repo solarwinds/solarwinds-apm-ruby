@@ -34,7 +34,7 @@ module SolarWindsAPM
       # the service key
       @service_key = read_and_validate_service_key
       # path to the SSL certificate (only for ssl)
-      @trusted_path = ENV['SW_APM_TRUSTEDPATH'] || ''
+      @trusted_path = determine_certification_path
       # size of the message buffer
       @buffer_size = (ENV['SW_APM_BUFSIZE'] || -1).to_i
       # flag indicating if trace metrics reporting should be enabled (default) or disabled
@@ -84,9 +84,7 @@ module SolarWindsAPM
         @ec2_md_timeout,         #17
         @grpc_proxy,             #18
         0,                       #19 arg for lambda (no lambda for ruby yet)
-        1,                       #20 arg for grpc hack, hardcoded to include hack
-        1,                       #21 arg for trace id format to use w3c format
-        @metric_format           #22
+        @metric_format           #20
       ]
     end
 
@@ -188,6 +186,14 @@ module SolarWindsAPM
       end
 
       proxy
+    end
+
+    def determine_certification_path
+      if ENV['SW_APM_COLLECTOR']&.include? "appoptics.com"
+        return ENV['SW_APM_TRUSTEDPATH'] || "#{File.expand_path File.dirname(__FILE__)}/cert/star.appoptics.com.issuer.crt"
+      else
+        return ''
+      end
     end
 
     def determine_the_metric_model
