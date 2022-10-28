@@ -20,7 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ['3.1', '3.0', '2.7']
+        ruby: ['3.1', '3.0', '2.7', '2.6']
 
     container:
        image: ghcr.io/${{ github.repository }}/apm_ruby_ubuntu
