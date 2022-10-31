@@ -177,7 +177,7 @@ describe 'OboeInitOptions' do
     _(options[10]).must_equal ''
   end
 
-  it 'checks for certification_path default for ao' do
+  it 'checks for certificates default for ao' do
     ENV.delete('SW_APM_COLLECTOR')
     ENV.delete('SW_APM_TRUSTEDPATH')
     ENV['SW_APM_COLLECTOR'] = 'collector.abc.bbc.appoptics.com'
@@ -186,24 +186,25 @@ describe 'OboeInitOptions' do
     options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
 
     _(options.size).must_equal 21
-    options_10 = options[10].split("/")[-1]
-    _(options_10).must_equal "star.appoptics.com.issuer.crt"
+    _(options[10]).must_equal "-----BEGIN CERTIFICATE-----\nMIID8TCCAtmgAwIBAgIJAMoDz7Npas2/MA0GCSqGSIb3DQEBCwUAMIGOMQswCQYD\nVQQGEwJVUzETMBEGA1UECAwKQ2FsaWZvcm5pYTEWMBQGA1UEBwwNU2FuIEZyYW5j\naXNjbzEVMBMGA1UECgwMTGlicmF0byBJbmMuMRUwEwYDVQQDDAxBcHBPcHRpY3Mg\nQ0ExJDAiBgkqhkiG9w0BCQEWFXN1cHBvcnRAYXBwb3B0aWNzLmNvbTAeFw0xNzA5\nMTUyMjAxMzlaFw0yNzA5MTMyMjAxMzlaMIGOMQswCQYDVQQGEwJVUzETMBEGA1UE\nCAwKQ2FsaWZvcm5pYTEWMBQGA1UEBwwNU2FuIEZyYW5jaXNjbzEVMBMGA1UECgwM\nTGlicmF0byBJbmMuMRUwEwYDVQQDDAxBcHBPcHRpY3MgQ0ExJDAiBgkqhkiG9w0B\nCQEWFXN1cHBvcnRAYXBwb3B0aWNzLmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEP\nADCCAQoCggEBAOxO0wsGba3iI4r3L5BMST0rAO/gGaUhpQre6nRwVTmPCnLw1bmn\nGdiFgYv/oRRwU+VieumHSQqoOmyFrg+ajGmvUDp2WqQ0It+XhcbaHFiAp2H7+mLf\ncUH6S43/em0WUxZHeRzRupRDyO1bX6Hh2jgxykivlFrn5HCIQD5Hx1/SaZoW9v2n\noATCbgFOiPW6kU/AVs4R0VBujon13HCehVelNKkazrAEBT1i6RvdOB6aQQ32seW+\ngLV5yVWSPEJvA9ZJqad/nQ8EQUMSSlVN191WOjp4bGpkJE1svs7NmM+Oja50W56l\nqOH5eWermr/8qWjdPlDJ+I0VkgN0UyHVuRECAwEAAaNQME4wHQYDVR0OBBYEFOuL\nKDTFhRQXwlBRxhPqhukrNYeRMB8GA1UdIwQYMBaAFOuLKDTFhRQXwlBRxhPqhukr\nNYeRMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJQtH446NZhjusy6\niCyvmnD95ybfNPDpjHmNx5n9Y6w9n+9y1o3732HUJE+WjvbLS3h1o7wujGKMcRJn\n7I7eTDd26ZhLvnh5/AitYjdxrtUkQDgyxwLFJKhZu0ik2vXqj0fL961/quJL8Gyp\nhNj3Nf7WMohQMSohEmCCX2sHyZGVGYmQHs5omAtkH/NNySqmsWNcpgd3M0aPDRBZ\n5VFreOSGKBTJnoLNqods/S9RV0by84hm3j6aQ/tMDIVE9VCJtrE6evzC0MWyVFwR\nftgwcxyEq5SkiR+6BCwdzAMqADV37TzXDHLjwSrMIrgLV5xZM20Kk6chxI5QAr/f\n7tsqAxw=\n-----END CERTIFICATE-----"
   end
 
-  it 'checks for certification_path custom provided for ao' do
+  it 'checks for certificates custom provided for ao' do
     ENV.delete('SW_APM_COLLECTOR')
     ENV.delete('SW_APM_TRUSTEDPATH')
     ENV['SW_APM_COLLECTOR'] = 'collector.abc.bbc.appoptics.com'
-    ENV['SW_APM_TRUSTEDPATH'] = '/tmp/tmp.cert'
+    ENV['SW_APM_TRUSTEDPATH'] = "#{File.expand_path File.dirname(__FILE__)}/tmp.cert"
 
     SolarWindsAPM::OboeInitOptions.instance.re_init
     options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
 
     _(options.size).must_equal 21
-    _(options[10]).must_equal '/tmp/tmp.cert'
+    puts "SW_APM_TRUSTEDPATH #{ENV['SW_APM_TRUSTEDPATH']}"
+    puts "certificates: #{options[10]}"
+    _(options[10]).must_equal "-----BEGIN CERTIFICATE-----\nMIID8TCCAtmgAwIBAgIJAMoDz7Npas2/MA0GCSqGSIb3DQEBCwUAMIGOMQswCQYD\n-----END CERTIFICATE-----"
   end
 
-  it 'checks for certification_path default for swo' do
+  it 'checks for certificates default for swo' do
     ENV.delete('SW_APM_COLLECTOR')
     ENV['SW_APM_COLLECTOR'] = 'collector.abc.bbc.solarwinds.com'
     

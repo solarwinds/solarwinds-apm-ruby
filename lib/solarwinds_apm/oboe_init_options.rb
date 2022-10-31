@@ -33,8 +33,8 @@ module SolarWindsAPM
 
       # the service key
       @service_key = read_and_validate_service_key
-      # path to the SSL certificate (only for ssl)
-      @trusted_path = determine_certification_path
+      # certificate that is used for ao backend
+      @certificates = read_certificates
       # size of the message buffer
       @buffer_size = (ENV['SW_APM_BUFSIZE'] || -1).to_i
       # flag indicating if trace metrics reporting should be enabled (default) or disabled
@@ -74,7 +74,7 @@ module SolarWindsAPM
         @reporter,               # 7
         @host,                   # 8
         @service_key,            # 9
-        @trusted_path,           #10
+        @certificates,           #10
         @buffer_size,            #11
         @trace_metrics,          #12
         @histogram_precision,    #13
@@ -188,12 +188,18 @@ module SolarWindsAPM
       proxy
     end
 
-    def determine_certification_path
+    def read_certificates
+
       if ENV['SW_APM_COLLECTOR']&.include? "appoptics.com"
-        return ENV['SW_APM_TRUSTEDPATH'] || "#{File.expand_path File.dirname(__FILE__)}/cert/star.appoptics.com.issuer.crt"
-      else
-        return ''
+        file = ENV['SW_APM_TRUSTEDPATH'] || "#{File.expand_path File.dirname(__FILE__)}/cert/star.appoptics.com.issuer.crt"
+        begin
+          return File.open(file,"r").read
+        rescue StandardError => e
+          SolarWindsAPM.logger.error "[solarwinds_apm/oboe_options] SW_APM_TRUSTEDPATH #{file} doesn't exist or caused by #{e.message}."
+        end
       end
+
+      return String.new
     end
 
     def determine_the_metric_model
