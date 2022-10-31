@@ -69,11 +69,10 @@ module SolarWindsAPM
       ##
       # hard_clear_all_traces
       #
-      # Truncates the trace output file to zero 
-      # TODO: it should do delete the file and create file again
+      # Truncates the trace output file to zero by deleting the original bson file
       #
       def hard_clear_all_traces
-        File.open(SolarWindsAPM::OboeInitOptions.instance.host, "w") {}
+        File.delete(SolarWindsAPM::OboeInitOptions.instance.host) if File.exist?(SolarWindsAPM::OboeInitOptions.instance.host)
       end
 
       ##

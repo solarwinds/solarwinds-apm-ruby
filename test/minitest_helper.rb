@@ -134,13 +134,6 @@ def clear_all_traces
   end
 end
 
-def hard_clear_all_traces
-  if SolarWindsAPM.loaded && ENV['SW_APM_REPORTER'] == 'file'
-    SolarWindsAPM::Reporter.hard_clear_all_traces
-    sleep 1 # it seems like the docker file system needs a bit of time to clear the file
-  end
-end
-
 ##
 # get_all_traces
 #

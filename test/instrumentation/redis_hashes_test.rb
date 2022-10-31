@@ -19,7 +19,7 @@ if defined?(::Redis)
       # These are standard entry/exit KVs that are passed up with all moped operations
       @entry_kvs ||= { 'Layer' => 'redis_test', 'Label' => 'entry' }
       @exit_kvs  ||= { 'Layer' => 'redis_test', 'Label' => 'exit' }
-      hard_clear_all_traces
+      clear_all_traces
     end
 
     it 'Stock Redis should be loaded, defined and ready' do
