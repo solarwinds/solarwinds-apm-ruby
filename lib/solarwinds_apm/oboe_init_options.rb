@@ -189,14 +189,22 @@ module SolarWindsAPM
     end
 
     def read_certificates
-      file = "#{File.expand_path File.dirname(__FILE__)}/cert/star.appoptics.com.issuer.crt"
+
+      file = ''
+      file = "#{File.expand_path File.dirname(__FILE__)}/cert/star.appoptics.com.issuer.crt" if ENV["SW_APM_COLLECTOR"]&.include? "appoptics.com"
       file = ENV['SW_APM_TRUSTEDPATH'] if (!ENV['SW_APM_TRUSTEDPATH'].nil? && !ENV['SW_APM_TRUSTEDPATH']&.empty?)
+      
+      return String.new if file.empty?
+      
       begin
-        return File.open(file,"r").read
+        certificate = File.open(file,"r").read
       rescue StandardError => e
-        SolarWindsAPM.logger.error "[solarwinds_apm/oboe_options] certificates #{file} doesn't exist or caused by #{e.message}."
+        SolarWindsAPM.logger.error "[solarwinds_apm/oboe_options] certificates: #{file} doesn't exist or caused by #{e.message}."
+        certificate = String.new
       end
-      return String.new
+      
+      return certificate
+
     end
 
     def determine_the_metric_model
