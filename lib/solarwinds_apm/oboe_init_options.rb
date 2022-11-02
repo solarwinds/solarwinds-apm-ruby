@@ -189,16 +189,13 @@ module SolarWindsAPM
     end
 
     def read_certificates
-
-      if ENV['SW_APM_COLLECTOR']&.include? "appoptics.com"
-        file = ENV['SW_APM_TRUSTEDPATH'] || "#{File.expand_path File.dirname(__FILE__)}/cert/star.appoptics.com.issuer.crt"
-        begin
-          return File.open(file,"r").read
-        rescue StandardError => e
-          SolarWindsAPM.logger.error "[solarwinds_apm/oboe_options] certificates #{file} doesn't exist or caused by #{e.message}."
-        end
+      file = "#{File.expand_path File.dirname(__FILE__)}/cert/star.appoptics.com.issuer.crt"
+      file = ENV['SW_APM_TRUSTEDPATH'] if (!ENV['SW_APM_TRUSTEDPATH'].nil? && !ENV['SW_APM_TRUSTEDPATH']&.empty?)
+      begin
+        return File.open(file,"r").read
+      rescue StandardError => e
+        SolarWindsAPM.logger.error "[solarwinds_apm/oboe_options] certificates #{file} doesn't exist or caused by #{e.message}."
       end
-
       return String.new
     end
 
