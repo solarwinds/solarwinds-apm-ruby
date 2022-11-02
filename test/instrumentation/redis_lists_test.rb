@@ -7,13 +7,10 @@ if defined?(::Redis)
   describe "Redis Lists" do
     attr_reader :entry_kvs, :exit_kvs, :redis, :redis_version
 
-    def min_server_version(version)
-      unless Gem::Version.new(@redis_version) >= Gem::Version.new(version.to_s)
-        skip "supported only on redis-server #{version} or greater"
-      end
-    end
-
     before do
+
+      sleep 2
+      send(:remove_instance_variable, :@redis) if defined? @redis
       clear_all_traces
 
       @redis ||= Redis.new(:host => ENV['REDIS_HOST'] || ENV['REDIS_SERVER'] || '127.0.0.1',

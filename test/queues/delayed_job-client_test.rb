@@ -34,7 +34,7 @@ class DelayedJobClientTest < Minitest::Test
       w.delay.do_work(1, 2, 3)
     end
 
-    sleep 15
+    sleep 60
 
     traces = get_all_traces
     assert valid_edges?(traces, false), "Invalid edge in traces" # we don't connect traces from clients and workers

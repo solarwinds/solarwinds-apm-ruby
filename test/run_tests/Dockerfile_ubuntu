@@ -2,7 +2,7 @@
 # Copyright (c) 2019 SolarWinds, LLC.
 # All rights reserved.
 
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 ENV TZ=America/Vancouver
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
@@ -23,18 +23,13 @@ RUN apt-get update \
        git-core \
        less \
        libcurl4-gnutls-dev \
-#       libgtest-dev \
-       libmysqld-dev \
-       libmysqlclient-dev \
+       default-libmysqlclient-dev \
        libpq-dev \
        libpcre3-dev \
        libreadline-dev \
        libsasl2-dev \
        libsqlite3-dev \
        libssl-dev \
-#       libssl1.0-dev \
-#       nodejs-dev \
-#       node-gyp \
        nodejs \
        openjdk-8-jdk \
        pkg-config \
@@ -119,7 +114,7 @@ RUN apt-get update \
 #    && rm -f /tmp/config
 
 RUN apt-get update && \
-	apt-get -y install mysql-client libmysqlclient-dev
+	apt-get -y install mysql-client
 
 
 # update node to current stable version

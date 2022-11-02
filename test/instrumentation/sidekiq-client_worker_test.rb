@@ -14,6 +14,9 @@ Sidekiq.configure_server do |config|
   end
 end
 
+# https://github.com/mperham/sidekiq/blob/main/Changes.md#640
+Sidekiq.strict_args!(false) if Sidekiq::VERSION >= '7.0.0'
+
 # These tests also look at the continuation of context in the worker
 # but without testing all the worker detail
 class SidekiqClientTest < Minitest::Test
