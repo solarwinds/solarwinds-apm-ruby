@@ -167,7 +167,7 @@ describe 'OboeInitOptions' do
     _(options[20]).must_equal 0
   end
 
-  it 'checks for certification_path when sw_apm_collector is nil' do
+  it 'checks for certificate content when sw_apm_collector is nil' do
     ENV.delete('SW_APM_COLLECTOR')
 
     SolarWindsAPM::OboeInitOptions.instance.re_init

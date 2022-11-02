@@ -33,7 +33,7 @@ module SolarWindsAPM
 
       # the service key
       @service_key = read_and_validate_service_key
-      # certificate that is used for ao backend
+      # certificate content
       @certificates = read_certificates
       # size of the message buffer
       @buffer_size = (ENV['SW_APM_BUFSIZE'] || -1).to_i
@@ -195,7 +195,7 @@ module SolarWindsAPM
         begin
           return File.open(file,"r").read
         rescue StandardError => e
-          SolarWindsAPM.logger.error "[solarwinds_apm/oboe_options] SW_APM_TRUSTEDPATH #{file} doesn't exist or caused by #{e.message}."
+          SolarWindsAPM.logger.error "[solarwinds_apm/oboe_options] certificates #{file} doesn't exist or caused by #{e.message}."
         end
       end
 

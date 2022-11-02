@@ -12,6 +12,7 @@ gem 'faraday',  RUBY_VERSION < '3.0.0' ? '0.7.6' : '1.0.0'
 gem 'httpclient', '2.3.0'
 gem 'typhoeus', '0.6.2'
 gem 'patron', '0.7.0' # not instrumented, to test non-instrumented faraday adapter
+gem 'ruby2_keywords', '~> 0.0.5' if RUBY_VERSION < '2.7.0'
 
 eval(File.read(File.join(File.dirname(__FILE__), 'test_gems.gemfile')))
 gemspec :path => File.expand_path(File.dirname(__FILE__) + '/../')
