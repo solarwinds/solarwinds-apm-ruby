@@ -5,8 +5,8 @@ name: Run Ruby Tests on Ubuntu (Push Event)
 
 on:
   push:
-    branches:
-      - '!main'
+    branches-ignore:
+      - main
     paths-ignore:
       - 'test/run_tests/Dockerfile_*'
   workflow_dispatch:

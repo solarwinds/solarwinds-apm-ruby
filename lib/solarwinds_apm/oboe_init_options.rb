@@ -33,8 +33,8 @@ module SolarWindsAPM
 
       # the service key
       @service_key = read_and_validate_service_key
-      # path to the SSL certificate (only for ssl)
-      @trusted_path = ENV['SW_APM_TRUSTEDPATH'] || ''
+      # certificate content
+      @certificates = read_certificates
       # size of the message buffer
       @buffer_size = (ENV['SW_APM_BUFSIZE'] || -1).to_i
       # flag indicating if trace metrics reporting should be enabled (default) or disabled
@@ -74,7 +74,7 @@ module SolarWindsAPM
         @reporter,               # 7
         @host,                   # 8
         @service_key,            # 9
-        @trusted_path,           #10
+        @certificates,           #10
         @buffer_size,            #11
         @trace_metrics,          #12
         @histogram_precision,    #13
@@ -84,9 +84,7 @@ module SolarWindsAPM
         @ec2_md_timeout,         #17
         @grpc_proxy,             #18
         0,                       #19 arg for lambda (no lambda for ruby yet)
-        1,                       #20 arg for grpc hack, hardcoded to include hack
-        1,                       #21 arg for trace id format to use w3c format
-        @metric_format           #22
+        @metric_format           #20
       ]
     end
 
@@ -188,6 +186,25 @@ module SolarWindsAPM
       end
 
       proxy
+    end
+
+    def read_certificates
+
+      file = ''
+      file = "#{File.expand_path File.dirname(__FILE__)}/cert/star.appoptics.com.issuer.crt" if ENV["SW_APM_COLLECTOR"]&.include? "appoptics.com"
+      file = ENV['SW_APM_TRUSTEDPATH'] if (!ENV['SW_APM_TRUSTEDPATH'].nil? && !ENV['SW_APM_TRUSTEDPATH']&.empty?)
+      
+      return String.new if file.empty?
+      
+      begin
+        certificate = File.open(file,"r").read
+      rescue StandardError => e
+        SolarWindsAPM.logger.error "[solarwinds_apm/oboe_options] certificates: #{file} doesn't exist or caused by #{e.message}."
+        certificate = String.new
+      end
+      
+      return certificate
+
     end
 
     def determine_the_metric_model
