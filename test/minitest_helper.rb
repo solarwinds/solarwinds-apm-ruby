@@ -128,9 +128,11 @@ end
 #
 def clear_all_traces
   if SolarWindsAPM.loaded && ENV['SW_APM_REPORTER'] == 'file'
-    SolarWindsAPM::Reporter.clear_all_traces
-    # SolarWindsAPM.trace_context = nil
-    sleep 1 # it seems like the docker file system needs a bit of time to clear the file
+
+    while SolarWindsAPM::Reporter.get_all_traces.size != 0
+      SolarWindsAPM::Reporter.clear_all_traces
+      sleep 1 # it seems like the docker file system needs a bit of time to clear the file
+    end
   end
 end
 
@@ -446,7 +448,6 @@ def min_server_version(version=nil)
       skip "supported only on redis-server #{version} or greater"
     end
   end
-  skip "current not support reddis-rb 5.X.X" if Redis::VERSION.to_s =~ /5.\d.\d/
   skip if ENV["PUSH_EVENT"] == "REGULAR_PUSH"
 end
 

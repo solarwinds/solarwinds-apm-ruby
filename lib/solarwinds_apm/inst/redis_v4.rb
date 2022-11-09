@@ -3,7 +3,7 @@
 
 module SolarWindsAPM
   module Inst
-    module Redis
+    module RedisV4
       module Client
         # The operations listed in this constant skip collecting KVKey
         NO_KEY_OPS = [:auth, :keys, :randomkey, :scan, :sdiff, :sdiffstore, :sinter,
@@ -57,9 +57,10 @@ module SolarWindsAPM
         # KVOp (no KVKey)
 
         def self.included(klass)
-          # call_pipelined is alias of call in redisclient middlewares
-          SolarWindsAPM::Util.method_alias(klass, :call, ::RedisClient)
-          SolarWindsAPM::Util.method_alias(klass, :call_pipelined, ::RedisClient)
+          # We wrap two of the Redis methods to instrument
+          # operations
+          SolarWindsAPM::Util.method_alias(klass, :call, ::Redis::Client)
+          SolarWindsAPM::Util.method_alias(klass, :call_pipeline, ::Redis::Client)
         end
 
         # Given any Redis operation command array, this method
@@ -68,12 +69,12 @@ module SolarWindsAPM
         # @param command [Array] the Redis operation array
         # @param r [Return] the return value from the operation
         # @return [Hash] the Key/Values to report
-        def extract_trace_details(command, r, config)
+        def extract_trace_details(command, r)
           kvs = {}
           op = command.first
 
           kvs[:KVOp] = command[0]
-          kvs[:RemoteHost] = config.host
+          kvs[:RemoteHost] = @options[:host]
           unless NO_KEY_OPS.include?(op) || op == :del && command[1..-1].flatten.count > 1
             if command[1].is_a?(Array)
               kvs[:KVKey] = command[1].first
@@ -177,16 +178,16 @@ module SolarWindsAPM
         #
         # @param pipeline [Redis::Pipeline] the Redis pipeline instance
         # @return [Hash] the Key/Values to report
-        def extract_pipeline_details(commands, config)
+        def extract_pipeline_details(pipeline)
           kvs = {}
 
-          kvs[:RemoteHost] = config.host
+          kvs[:RemoteHost] = @options[:host]
           kvs[:Backtrace] = SolarWindsAPM::API.backtrace if SolarWindsAPM::Config[:redis][:collect_backtraces]
 
-          command_count = commands.count
+          command_count = pipeline.commands.count
           kvs[:KVOpCount] = command_count
 
-          kvs[:KVOp] = if commands.first == :multi
+          kvs[:KVOp] = if pipeline.commands.first == :multi
             :multi
           else
             :pipeline
@@ -196,7 +197,7 @@ module SolarWindsAPM
           # of ops is reasonable
           if command_count < 12
             ops = []
-            commands.each do |c|
+            pipeline.commands.each do |c|
               ops << c.first
             end
             kvs[:KVOps] = ops.join(', ')
@@ -209,17 +210,17 @@ module SolarWindsAPM
         end
 
         #
-        # The wrapper method for RedisClient.call.  Here
+        # The wrapper method for Redis::Client.call.  Here
         # (when tracing) we capture KVs to report and pass
         # the call along
         #
-        def call_with_sw_apm(command, config, &block)
+        def call_with_sw_apm(command, &block)
           if SolarWindsAPM.tracing?
             SolarWindsAPM::API.log_entry(:redis, {})
 
             begin
-              r = call_without_sw_apm(command, config, &block)
-              report_kvs = extract_trace_details(command, r, config)
+              r = call_without_sw_apm(command, &block)
+              report_kvs = extract_trace_details(command, r)
               r
             rescue StandardError => e
               SolarWindsAPM::API.log_exception(:redis, e)
@@ -229,24 +230,26 @@ module SolarWindsAPM
             end
 
           else
-            call_without_sw_apm(command, config, &block)
+            call_without_sw_apm(command, &block)
           end
         end
 
         #
-        # The wrapper method for RedisClient.call_pipeline.  Here
+        # The wrapper method for Redis::Client.call_pipeline.  Here
         # (when tracing) we capture KVs to report and pass the call along
         #
-        def call_pipelined_with_sw_apm(commands, config, &block)
+        def call_pipeline_with_sw_apm(pipeline)
           if SolarWindsAPM.tracing?
             # Fall back to the raw tracing API so we can pass KVs
             # back on exit (a limitation of the SolarWindsAPM::API.trace
             # block method)  This removes the need for an info
             # event to send additonal KVs
             SolarWindsAPM::API.log_entry(:redis, {})
-            report_kvs = extract_pipeline_details(commands, config)
+
+            report_kvs = extract_pipeline_details(pipeline)
+
             begin
-              call_pipelined_without_sw_apm(commands, config, &block)
+              call_pipeline_without_sw_apm(pipeline)
             rescue StandardError => e
               SolarWindsAPM::API.log_exception(:redis, e)
               raise
@@ -254,7 +257,7 @@ module SolarWindsAPM
               SolarWindsAPM::API.log_exit(:redis, report_kvs)
             end
           else
-            call_pipelined_without_sw_apm(commands, config, &block)
+            call_pipeline_without_sw_apm(pipeline)
           end
         end
       end
@@ -263,8 +266,8 @@ module SolarWindsAPM
 end
 
 if SolarWindsAPM::Config[:redis][:enabled]
-  if defined?(::RedisClient) && Gem::Version.new(Redis::VERSION) >= Gem::Version.new('5.0.0')
-    SolarWindsAPM.logger.info "[solarwinds_apm/loading] Instrumenting redis #{Redis::VERSION}" if SolarWindsAPM::Config[:verbose]
-    ::RedisClient.register(SolarWindsAPM::Inst::Redis::Client)
+  if defined?(Redis) && Gem::Version.new(Redis::VERSION) >= Gem::Version.new('3.0.0') && Gem::Version.new(Redis::VERSION) < Gem::Version.new('5.0.0')
+    SolarWindsAPM.logger.info '[solarwinds_apm/loading] Instrumenting redis' if SolarWindsAPM::Config[:verbose]
+    SolarWindsAPM::Util.send_include(Redis::Client, SolarWindsAPM::Inst::RedisV4::Client)
   end
 end
