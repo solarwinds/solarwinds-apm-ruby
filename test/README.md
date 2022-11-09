@@ -150,7 +150,7 @@ rbenv local 2.7.5
 export BUNDLE_GEMFILE=gemfiles/delayed_job.gemfile
 export DBTYPE=mysql       # optional, defaults to postgresql
 bundle
-bundle rake cfc           # download, compile oboe_api, and link liboboe
+bundle exec rake cfc           # download, compile oboe_api, and link liboboe
 bundle exec ruby -I test test/queues/delayed_job-client_test.rb
 ```
 

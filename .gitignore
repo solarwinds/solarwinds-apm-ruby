@@ -41,11 +41,11 @@ gemfiles/vendor*
 lib/libsolarwinds_apm.so
 vendor/
 
-.DS_Store
-
-# test script
+# test & test script
+tmp.rb
+apm.collector.st-ssp.solarwinds.com
+test/run_tests/.ruby_version_ubuntu
 redis-test.*
 
-# github action
-.github/.DS_Store
-.github/workflows/.DS_Store
+# mac DS_Store
+.DS_Store

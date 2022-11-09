@@ -7,9 +7,6 @@ on:
   pull_request:
     types:
       - closed
-  push:
-    branches:
-      - 'main'
     paths-ignore:
       - 'test/run_tests/Dockerfile_*'
   # Allows you to run this workflow manually from the Actions tab
