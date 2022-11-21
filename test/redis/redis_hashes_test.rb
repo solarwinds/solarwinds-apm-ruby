@@ -9,6 +9,7 @@ if defined?(::Redis)
     
     before do
       sleep 2
+      @redis.flushall if defined? @redis
       send(:remove_instance_variable, :@redis) if defined? @redis
 
       @redis ||= Redis.new(:host => ENV['REDIS_HOST'] || ENV['REDIS_SERVER'] || '127.0.0.1',
@@ -124,7 +125,7 @@ if defined?(::Redis)
       _(traces[2]['KVOp']).must_equal "hincrby"
       _(traces[2]['KVKey']).must_equal "whale"
       _(traces[2]['field']).must_equal "age"
-      _(traces[2]['increment']).must_equal 1
+      _(traces[2]['increment']).must_equal "1"
     end
 
     it "should trace hincrbyfloat" do
@@ -141,7 +142,7 @@ if defined?(::Redis)
       _(traces[2]['KVOp']).must_equal "hincrbyfloat"
       _(traces[2]['KVKey']).must_equal "whale"
       _(traces[2]['field']).must_equal "age"
-      _(traces[2]['increment']).must_equal 1.3
+      _(traces[2]['increment']).must_equal "1.3"
     end
 
     it "should trace hkeys" do

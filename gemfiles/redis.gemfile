@@ -1,0 +1,26 @@
+source "https://rubygems.org"
+
+# gem 'moped', '>= 2.0.7' # only test this in oldgems, it was last updated in 2015
+gem 'eventmachine', '< 1.2.0'
+gem 'em-synchrony'
+gem 'em-http-request'
+gem 'rest-client'
+gem 'redis'
+gem 'resque'
+
+# TODO
+# remove use of local copy of sequel gem
+# gem 'sequel', path: '/code/sequel/'
+gem 'sequel'
+gem 'sidekiq'
+gem 'typhoeus'
+
+# Database adapter gems needed by sequel
+gem 'mysql2'
+gem 'pg'
+gem 'package_cloud'
+
+eval(File.read(File.join(File.dirname(__FILE__), 'test_gems.gemfile')))
+
+gemspec :path => File.dirname(File.dirname(__FILE__))
+# vim:syntax=ruby

@@ -8,8 +8,8 @@ if defined?(::Redis)
     attr_reader :entry_kvs, :exit_kvs, :redis, :redis_version
 
     before do
-
       sleep 2
+      @redis.flushall if defined? @redis
       send(:remove_instance_variable, :@redis) if defined? @redis
       clear_all_traces
 
@@ -86,7 +86,7 @@ if defined?(::Redis)
       traces = get_all_traces
       _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "lindex"
-      _(traces[2]['index']).must_equal 1
+      _(traces[2]['index']).must_equal "1"
     end
 
     it "should trace linsert" do
@@ -189,8 +189,8 @@ if defined?(::Redis)
       _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "lrange"
       _(traces[2]['KVKey']).must_equal "protein types"
-      _(traces[2]['start']).must_equal 2
-      _(traces[2]['stop']).must_equal 4
+      _(traces[2]['start']).must_equal "2"
+      _(traces[2]['stop']).must_equal "4"
     end
 
     it "should trace lrem" do
