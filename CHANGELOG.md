@@ -3,6 +3,17 @@ https://github.com/solarwindscloud/solarwinds-apm-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# solarwinds_apm 5.1.4 (11/23/2022)
+
+This release includes the following features:
+
+* Update to the latest redis-rb gem (> 5.x)
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/solarwinds_apm/versions/5.1.4
+
+
 # solarwinds_apm 5.1.0 (09/15/2022)
 
 This release includes the following features:

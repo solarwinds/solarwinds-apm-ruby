@@ -273,7 +273,7 @@ module SolarWindsAPM
 end
 
 if SolarWindsAPM::Config[:redis][:enabled]
-  if defined?(::RedisClient) && Gem::Version.new(Redis::VERSION) >= Gem::Version.new('5.0.0')
+  if defined?(::RedisClient)
     SolarWindsAPM.logger.info "[solarwinds_apm/loading] Instrumenting redis #{Redis::VERSION}" if SolarWindsAPM::Config[:verbose]
     ::RedisClient.register(SolarWindsAPM::Inst::Redis::Client)
   end
