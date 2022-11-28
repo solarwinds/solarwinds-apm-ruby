@@ -4,7 +4,7 @@
 require 'minitest_helper'
 
 if defined?(::Redis)
-  describe "Redis Hashes" do
+  describe "Redis Hashes V5" do
     attr_reader :entry_kvs, :exit_kvs, :redis, :redis_version
     
     before do

@@ -5,11 +5,12 @@ require 'minitest_helper'
 
 if defined?(::Redis)
 
-  describe "Redis Keys" do
+  describe "Redis Keys V5" do
     attr_reader :entry_kvs, :exit_kvs, :redis, :redis_version
 
     before do
       sleep 2
+      @redis.flushall if defined? @redis
       send(:remove_instance_variable, :@redis) if defined? @redis
       @redis ||= Redis.new(:host => ENV['REDIS_HOST'] || ENV['REDIS_SERVER'] || '127.0.0.1',
                            :password => ENV['REDIS_PASSWORD'] || 'secret_pass')
