@@ -11,7 +11,8 @@ It requires an [Solarwinds] account to view metrics.  Get yours,
 
 [![Gem Version](https://badge.fury.io/rb/solarwinds_apm.svg)](https://badge.fury.io/rb/solarwinds_apm)
 
-[![Run all Tests](https://github.com/appoptics/appoptics-apm-ruby/actions/workflows/run_tests.yml/badge.svg)](https://github.com/appoptics/appoptics-apm-ruby/actions/workflows/run_tests.yml)
+[![Run all Tests](https://github.com/solarwindscloud/solarwinds-apm-ruby/actions/workflows/test_on_4_linux.yml/badge.svg)](https://github.com/solarwindscloud/solarwinds-apm-ruby/actions/workflows/test_on_4_linux.yml)
+
 [![C++ Tests](https://github.com/appoptics/appoptics-apm-ruby/actions/workflows/run_cpluplus_tests.yml/badge.svg)](https://github.com/appoptics/appoptics-apm-ruby/actions/workflows/run_cpluplus_tests.yml)
 
 [comment]: <> ([![Maintainability]&#40;https://api.codeclimate.com/v1/badges/ac7f36241a23a3a82fc5/maintainability&#41;]&#40;https://codeclimate.com/github/appoptics/appoptics-apm-ruby/maintainability&#41;)

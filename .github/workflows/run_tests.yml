@@ -25,6 +25,7 @@ jobs:
           - rails61
           - rails52
           - delayed_job
+          - redis
           - noop
         dbtype: [postgresql, mysql]
         exclude:

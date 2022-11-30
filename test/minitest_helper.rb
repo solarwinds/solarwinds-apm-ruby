@@ -128,9 +128,10 @@ end
 #
 def clear_all_traces
   if SolarWindsAPM.loaded && ENV['SW_APM_REPORTER'] == 'file'
-    SolarWindsAPM::Reporter.clear_all_traces
-    # SolarWindsAPM.trace_context = nil
-    sleep 1 # it seems like the docker file system needs a bit of time to clear the file
+    while SolarWindsAPM::Reporter.get_all_traces.size != 0
+      SolarWindsAPM::Reporter.clear_all_traces
+      sleep 1 # it seems like the docker file system needs a bit of time to clear the file
+    end
   end
 end
 
@@ -446,8 +447,20 @@ def min_server_version(version=nil)
       skip "supported only on redis-server #{version} or greater"
     end
   end
-  skip "current not support reddis-rb 5.X.X" if Redis::VERSION.to_s =~ /5.\d.\d/
-  skip if ENV["PUSH_EVENT"] == "REGULAR_PUSH"
+end
+
+def gem_version(gemversion=nil, min_version=nil, max_version=nil)
+  skip "Missing gem version" if gemversion.nil?
+  current_version = Gem::Version.new(gemversion)
+  unless min_version.nil?
+    min_required_version = Gem::Version.new(min_version.to_s)
+    skip "supported only on redis-server #{min_version} or greater" if current_version <= min_required_version
+  end
+  unless max_version.nil?
+    max_allowed_version = Gem::Version.new(max_version.to_s)
+    skip "supported only on redis-server #{max_version} or less" if current_version >= max_allowed_version
+  end
+
 end
 
 if (File.basename(ENV['BUNDLE_GEMFILE']) =~ /^frameworks/) == 0

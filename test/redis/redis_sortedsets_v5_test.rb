@@ -4,7 +4,7 @@
 require 'minitest_helper'
 
 if defined?(::Redis)
-  describe "Redis Sorted Sets" do
+  describe "Redis Sorted Sets V5" do
     attr_reader :entry_kvs, :exit_kvs, :redis, :redis_version
 
     before do
@@ -207,8 +207,8 @@ if defined?(::Redis)
       _(traces.count).must_equal 4
       _(traces[2]['KVOp']).must_equal "zremrangebyrank"
       _(traces[2]['KVKey']).must_equal "sauce"
-      _(traces[2]['start']).must_equal (-5)
-      _(traces[2]['stop']).must_equal (-1)
+      _(traces[2]['start']).must_equal "-5"
+      _(traces[2]['stop']).must_equal "-1"
     end
 
     it "should trace zremrangebyscore" do
@@ -247,8 +247,8 @@ if defined?(::Redis)
       _(traces.count).must_equal 4
       _(traces[2]['KVOp']).must_equal "zrevrange"
       _(traces[2]['KVKey']).must_equal "sauce"
-      _(traces[2]['start']).must_equal 0
-      _(traces[2]['stop']).must_equal (-1)
+      _(traces[2]['start']).must_equal "0"
+      _(traces[2]['stop']).must_equal "-1"
     end
 
     it "should trace zrevrangebyscore" do

@@ -4,7 +4,7 @@
 require 'minitest_helper'
 
 if defined?(::Redis)
-  describe "Redis Hashes" do
+  describe "Redis Hashes V5" do
     attr_reader :entry_kvs, :exit_kvs, :redis, :redis_version
     
     before do
@@ -125,7 +125,7 @@ if defined?(::Redis)
       _(traces[2]['KVOp']).must_equal "hincrby"
       _(traces[2]['KVKey']).must_equal "whale"
       _(traces[2]['field']).must_equal "age"
-      _(traces[2]['increment']).must_equal 1
+      _(traces[2]['increment']).must_equal "1"
     end
 
     it "should trace hincrbyfloat" do
@@ -142,7 +142,7 @@ if defined?(::Redis)
       _(traces[2]['KVOp']).must_equal "hincrbyfloat"
       _(traces[2]['KVKey']).must_equal "whale"
       _(traces[2]['field']).must_equal "age"
-      _(traces[2]['increment']).must_equal 1.3
+      _(traces[2]['increment']).must_equal "1.3"
     end
 
     it "should trace hkeys" do

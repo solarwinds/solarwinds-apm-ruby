@@ -46,6 +46,7 @@ gemfiles=(
   "gemfiles/rails52.gemfile"
   "gemfiles/delayed_job.gemfile"
   "gemfiles/noop.gemfile"
+  "gemfiles/redis.gemfile"
 # "gemfiles/profiling.gemfile"
 )
 
@@ -158,6 +159,9 @@ for ruby in ${rubies[@]} ; do
   for gemfile in ${gemfiles[@]} ; do
     export BUNDLE_GEMFILE=$gemfile
 
+    # ignore redis test for regular push event
+    # if [[ $gemfile =~ .*redis.* && $PUSH_EVENT =~ .*REGULAR_PUSH.* ]]; then continue; fi
+
     # don't run rails 5 with Ruby >= 3
     if [[ $gemfile =~ .*rails5.* && $ruby =~ ^3.* ]]; then continue; fi
 
@@ -199,7 +203,7 @@ for ruby in ${rubies[@]} ; do
         bundle exec rake test --trace
         status=$?
         retries=0
-        while [ $status -ne 0 ] && [ $retries -ne 2 ]
+        while [ $status -ne 0 ] && [ $retries -ne 1 ]
         do
           sleep 10
           retries=$(( $retries + 1 ))
@@ -213,7 +217,6 @@ for ruby in ${rubies[@]} ; do
         echo "Current test status: $status (status - after bundle exec rake test)"
         echo "Current test status: $exit_status (exit_status - after bundle exec rake test)"
 
-        
         pkill -f sidekiq
       done
     done
@@ -225,14 +228,12 @@ echo "--- SUMMARY of $TEST_RUNS_FILE_NAME ------------------------------"
 grep -E '===|failures|FAIL|ERROR' "$TEST_RUNS_FILE_NAME"
 
 echo "Check if there is any failures"
-# awk '/[^0] failures/' $TEST_RUNS_FILE_NAME
 TESTCASE_FAILED=$(awk '/[^0] failures, /' $TEST_RUNS_FILE_NAME)
 # [[ "$TESTCASE_FAILED" != "" ]] && exit_status=1
 echo "TESTCASE_FAILED is $TESTCASE_FAILED"
 echo "Current test status: $exit_status (after check if there is any failures)"
 
 echo "Check if there is any errors"
-# awk '/failures, [^0] errors/' $TEST_RUNS_FILE_NAME
 TESTCASE_ERROR=$(awk '/failures, [^0] errors, /' $TEST_RUNS_FILE_NAME)
 # [[ "$TESTCASE_ERROR" != "" ]] && exit_status=1
 echo "TESTCASE_FAILED is $TESTCASE_ERROR"

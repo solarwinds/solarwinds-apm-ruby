@@ -4,7 +4,7 @@
 require 'minitest_helper'
 
 if defined?(::Redis)
-  describe "Redis Strings" do
+  describe "Redis Strings V5" do
     attr_reader :entry_kvs, :exit_kvs, :redis, :redis_version
 
     before do
@@ -47,8 +47,8 @@ if defined?(::Redis)
       traces = get_all_traces
       assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "bitcount"
-      _(traces[2]['start']).must_equal 0
-      _(traces[2]['stop']).must_equal (-1)
+      _(traces[2]['start']).must_equal "0"
+      _(traces[2]['stop']).must_equal "-1"
     end
 
     it "should trace bitop (>=2.6)" do
@@ -90,7 +90,7 @@ if defined?(::Redis)
       assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "decrby"
       _(traces[2]['KVKey']).must_equal "decr"
-      _(traces[2]['decrement']).must_equal 1
+      _(traces[2]['decrement']).must_equal "1"
     end
 
     it "should trace get" do
@@ -121,7 +121,7 @@ if defined?(::Redis)
       assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "getbit"
       _(traces[2]['KVKey']).must_equal "diwore"
-      _(traces[2]['offset']).must_equal 3
+      _(traces[2]['offset']).must_equal "3"
     end
 
     it "should trace getrange" do
@@ -135,8 +135,8 @@ if defined?(::Redis)
       assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "getrange"
       _(traces[2]['KVKey']).must_equal "yourkey"
-      _(traces[2]['start']).must_equal 0
-      _(traces[2]['end']).must_equal 3
+      _(traces[2]['start']).must_equal "0"
+      _(traces[2]['end']).must_equal "3"
     end
 
     it "should trace getset" do
@@ -177,7 +177,7 @@ if defined?(::Redis)
       assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "incrby"
       _(traces[2]['KVKey']).must_equal "incr"
-      _(traces[2]['increment']).must_equal 1
+      _(traces[2]['increment']).must_equal "1"
     end
 
     it "should trace incrbyfloat" do
@@ -193,7 +193,7 @@ if defined?(::Redis)
       assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "incrbyfloat"
       _(traces[2]['KVKey']).must_equal "incrfloat"
-      _(traces[2]['increment']).must_equal 1.01
+      _(traces[2]['increment']).must_equal "1.01"
     end
 
     it "should trace mget" do
@@ -250,7 +250,7 @@ if defined?(::Redis)
       assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "psetex"
       _(traces[2]['KVKey']).must_equal "one"
-      _(traces[2]['ttl']).must_equal 60
+      _(traces[2]['ttl']).must_equal "60"
     end
 
     it "should trace basic set" do
@@ -273,7 +273,7 @@ if defined?(::Redis)
       assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "set"
       _(traces[2]['KVKey']).must_equal "one"
-      _(traces[2]['ex']).must_equal 12
+      _(traces[2]['ex']).must_equal "12"
     end
 
     it "should trace setbit" do
@@ -287,7 +287,7 @@ if defined?(::Redis)
       assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "setbit"
       _(traces[2]['KVKey']).must_equal "yourkey"
-      _(traces[2]['offset']).must_equal 3
+      _(traces[2]['offset']).must_equal "3"
     end
 
     it "should trace setex" do
@@ -299,7 +299,7 @@ if defined?(::Redis)
       assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "setex"
       _(traces[2]['KVKey']).must_equal "one"
-      _(traces[2]['ttl']).must_equal 60
+      _(traces[2]['ttl']).must_equal "60"
     end
 
     it "should trace setnx" do
@@ -326,7 +326,7 @@ if defined?(::Redis)
       assert_equal traces.count, 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "setrange"
       _(traces[2]['KVKey']).must_equal "yourkey"
-      _(traces[2]['offset']).must_equal 2
+      _(traces[2]['offset']).must_equal "2"
     end
 
     it "should trace strlen" do

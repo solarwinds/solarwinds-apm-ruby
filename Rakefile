@@ -51,6 +51,8 @@ Rake::TestTask.new do |t|
   when /unit/
     t.test_files = FileList['test/unit/*_test.rb'] +
                    FileList['test/unit/*/*_test.rb']
+  when /redis/
+    t.test_files = FileList['test/redis/redis_*_test.rb']
   end
 end
 

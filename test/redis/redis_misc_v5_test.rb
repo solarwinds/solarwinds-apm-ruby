@@ -4,7 +4,7 @@
 require 'minitest_helper'
 
 if defined?(::Redis)
-  describe "Redis Misc" do
+  describe "Redis Misc V5" do
     attr_reader :entry_kvs, :exit_kvs, :redis, :redis_version
 
     before do
@@ -59,9 +59,10 @@ if defined?(::Redis)
       traces = get_all_traces
       _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "select"
-      _(traces[2]['db']).must_equal 2
+      _(traces[2]['db']).must_equal "2"
     end
 
+    # It should just be like: skip if Redis::VERSION >= '5.0.0'
     it "should trace pipelined operations" do
       min_server_version(1.2)
 
@@ -78,9 +79,13 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
-      _(traces[2]['KVOpCount']).must_equal 6
-      _(traces[2]['KVOps']).must_equal "zadd, zadd, zadd, lpush, lpush, lpush"
+      _(traces.count).must_equal 14, filter_traces(traces).pretty_inspect
+      kvkeys = traces.map { |trace| trace["KVKey"] }.select { |op| !op.nil? }
+      kvops = traces.map { |trace| trace["KVOp"] }.select { |op| !op.nil? }
+      _(kvkeys.count).must_equal 6
+      _(kvops.count).must_equal 6
+      _(kvkeys[0]).must_equal "staff"
+      _(kvops[0]).must_equal "zadd"
     end
 
     it "should trace multi with block" do
@@ -99,9 +104,13 @@ if defined?(::Redis)
       end
 
       traces = get_all_traces
-      _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
-      _(traces[2]['KVOpCount']).must_equal 8
-      _(traces[2]['KVOps']).must_equal "multi, zadd, zadd, zadd, lpush, lpush, lpush, exec"
+      _(traces.count).must_equal 14, filter_traces(traces).pretty_inspect
+      kvkeys = traces.map { |trace| trace["KVKey"] }.select { |op| !op.nil? }
+      kvops = traces.map { |trace| trace["KVOp"] }.select { |op| !op.nil? }
+      _(kvkeys.count).must_equal 6
+      _(kvops.count).must_equal 6
+      _(kvkeys[0]).must_equal "presidents"
+      _(kvops[0]).must_equal "zadd"
     end
 
     it "should trace eval" do
@@ -165,7 +174,7 @@ if defined?(::Redis)
       _(traces[4]['KVKey']).must_equal @sha
       _(traces[6]['KVOp']).must_equal "script"
       _(traces[6]['subcommand']).must_equal "exists"
-      _(traces[6]['KVKey']).must_equal '["e0e1f9fabfc9d4800c877a703b823ac0578ff8db", "other_sha"]'
+      _(traces[6]['KVKey']).must_equal "e0e1f9fabfc9d4800c877a703b823ac0578ff8db"
       _(traces[8]['KVOp']).must_equal "script"
       _(traces[8]['subcommand']).must_equal "flush"
     end

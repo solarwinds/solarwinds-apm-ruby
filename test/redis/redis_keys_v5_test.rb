@@ -5,7 +5,7 @@ require 'minitest_helper'
 
 if defined?(::Redis)
 
-  describe "Redis Keys" do
+  describe "Redis Keys V5" do
     attr_reader :entry_kvs, :exit_kvs, :redis, :redis_version
 
     before do
@@ -81,7 +81,7 @@ if defined?(::Redis)
         @it_exists = @redis.exists("talking_heads")
       end
 
-      _(@it_exists).must_equal true
+      _(@it_exists).must_equal 1
 
       traces = get_all_traces
       _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
@@ -170,7 +170,7 @@ if defined?(::Redis)
       _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "move"
       _(traces[2]['KVKey']).must_equal "piano"
-      _(traces[2]['db']).must_equal 1
+      _(traces[2]['db']).must_equal "1"
     end
 
     it "should trace persist" do
@@ -203,7 +203,7 @@ if defined?(::Redis)
       _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "pexpire"
       _(traces[2]['KVKey']).must_equal "sand"
-      _(traces[2]['milliseconds']).must_equal 8000
+      _(traces[2]['milliseconds']).must_equal "8000"
     end
 
     it "should trace pexpireat" do
@@ -221,7 +221,7 @@ if defined?(::Redis)
       _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "pexpireat"
       _(traces[2]['KVKey']).must_equal "sand"
-      _(traces[2]['milliseconds']).must_equal 8000
+      _(traces[2]['milliseconds']).must_equal "8000"
     end
 
     it "should trace pttl" do
@@ -292,7 +292,7 @@ if defined?(::Redis)
       _(traces.count).must_equal 4, filter_traces(traces).pretty_inspect
       _(traces[2]['KVOp']).must_equal "restore"
       _(traces[2]['KVKey']).must_equal "blue"
-      _(traces[2]['ttl']).must_equal 0
+      _(traces[2]['ttl']).must_equal "0"
     end
 
     it "should trace sort" do
