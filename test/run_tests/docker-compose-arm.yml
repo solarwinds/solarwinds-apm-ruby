@@ -1,0 +1,182 @@
+# Copyright (c) 2019 SolarWinds, LLC.
+# All rights reserved.
+
+version: "2.1"
+
+#########################################################################################################
+#
+# docker-compose to set up containers to run tests
+#
+# used by
+# > rake docker
+# > rake docker_tests
+#
+########################################################################################################
+x-ao-env: &ao-env
+#  SW_APM_COLLECTOR: "apm.collector.st-ssp.solarwinds.com"
+  SW_APM_COLLECTOR: "/tmp/sw_apm_traces.bson"
+  OBOE_STAGING: "true"
+  SW_APM_GEM_TEST: "true"
+  MONGO_SERVER: "ao-ruby-mongo"
+  RABBITMQ_SERVER: "ao-ruby-rabbitmq"
+  SW_APM_REPORTER: "file"
+  SW_APM_REPORTER_FILE_SINGLE: "false"
+  SW_APM_SERVICE_KEY: "${SW_APM_SERVICE_KEY}"
+  SW_APM_TOKEN_BUCKET_CAPACITY: 10000
+  SW_APM_TOKEN_BUCKET_RATE: 10000
+
+  BUNDLE_GEMFILE: "gemfiles/libraries.gemfile"
+  DOCKER_MYSQL_PASS: "admin"
+  DOCKER_PSQL_PASS: "docker"
+  MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+  MYSQL_ROOT_PASSWORD: "admin"
+  MYSQL_HOST: "ao-ruby-mysql"
+#  OBOE_VERSION: "10.1.0"
+  POSTGRES_PASSWORD: "docker"
+  POSTGRES_USER: "docker"
+  POSTGRES_HOST: "ao-ruby-postgres"
+  QUERY_LOG_FILE: "/tmp/sw_apm_query_logs.txt"
+  RUBY_ENV: "test"
+  TEST_RUNS_TO_FILE: "true"
+#    - SIMPLECOV_COVERAGE=true
+#    - OBOE_WIP=true
+#    - SW_APM_DEBUG_LEVEL=6
+
+x-ao-shared: &ao-shared
+  mem_limit: 1G
+  logging:
+    options:
+      max-file: "1"
+      max-size: "100m"
+  ports:
+    - "3000"
+  depends_on:
+    - ao_ruby_wait
+  links:
+    - ao_ruby_wait
+  stdin_open: true
+  tty: true
+  working_dir: /code/ruby-solarwinds
+
+services:
+  ruby_sw_apm_ubuntu_arm:
+    container_name: ruby_sw_apm_ubuntu_arm
+    image: ruby_sw_apm_ubuntu_arm
+    build:
+      context: .
+      dockerfile: Dockerfile_ubuntu_arm
+    hostname: docker.ao.ubuntu
+    << : *ao-shared
+    volumes:
+      - ../../:/code/ruby-solarwinds
+      - ./.ruby_version_ubuntu:/code/ruby-solarwinds/.ruby-version
+      # and for OBOE_WIP ...
+      - ../../../oboe/factory-output:/code/oboe/factory-output
+      - ../../../oboe/liboboe:/code/oboe/liboboe
+#      - ../../../../repos/sequel:/code/sequel
+    #       - ../../../opentelemetry-exporter-solarwinds:/code/opentelemetry-exporter-solarwinds
+    #       - ../../../graphql-ruby-clone/:/code/graphql-ruby
+    #       - /Users/maiaengeli/workspace/repos/grpc:/grpc_ruby
+    environment:
+      << : *ao-env
+      SW_APM_HOSTNAME_ALIAS: "AO_RUBY_UBUNTU"
+
+  ruby_sw_apm_alpine:
+    container_name: ruby_sw_apm_alpine
+    image: ruby_sw_apm_alpine
+    build:
+      context: .
+      dockerfile: ./Dockerfile_alpine_arm
+    hostname: docker.ao.alpine
+    <<: *ao-shared
+    volumes:
+      - ../../:/code/ruby-solarwinds
+      - ../../../oboe/factory-output:/code/oboe/factory-output
+      - ../../../oboe/liboboe:/code/oboe/liboboe
+      - ./.ruby_version_alpine:/code/ruby-solarwinds/.ruby-version
+#      - ../../../../repos/sequel:/code/sequel
+    environment:
+      <<: *ao-env
+      SW_APM_HOSTNAME_ALIAS: "AO_RUBY_ALPINE"
+
+  ruby_sw_apm_debian:
+    container_name: ruby_sw_apm_debian
+    image: ruby_sw_apm_debian
+    build:
+      context: .
+      dockerfile: Dockerfile_debian_arm
+    hostname: docker.ao.debian
+    << : *ao-shared
+    volumes:
+      - ../../:/code/ruby-solarwinds
+      - ../../../oboe/factory-output:/code/oboe/factory-output
+      - ../../../oboe/liboboe:/code/oboe/liboboe
+      - ./.ruby_version_debian:/code/ruby-solarwinds/.ruby-version
+    environment:
+      << : *ao-env
+      SW_APM_HOSTNAME_ALIAS: "AO_RUBY_DEBIAN"
+
+  ruby_sw_apm_centos:
+    container_name: ruby_sw_apm_centos
+    image: ruby_sw_apm_centos
+    build:
+      context: .
+      dockerfile: Dockerfile_centos_arm
+    hostname: docker.ao.centos
+    << : *ao-shared
+    volumes:
+      - ../../:/code/ruby-solarwinds
+      - ../../../oboe/factory-output:/code/oboe/factory-output
+      - ../../../oboe/liboboe:/code/oboe/liboboe
+      - ./.ruby_version_centos:/code/ruby-solarwinds/.ruby-version
+      - ../../../../repos/rack-cache/:/rack-cache
+    environment:
+      << : *ao-env
+      SW_APM_HOSTNAME_ALIAS: "AO_RUBY_CENTOS"
+    privileged: true
+
+  ao-ruby-rabbitmq:
+    container_name: ao-ruby-rabbitmq
+    image: arm64v8/rabbitmq:3-management
+
+  ao-ruby-mysql:
+    container_name: ao-ruby-mysql
+    image: arm64v8/mysql:latest
+    command: --init-file /data/application/mysql_init.sql
+    volumes:
+      - ./mysql_init.sql:/data/application/mysql_init.sql
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_ROOT_PASSWORD=admin
+
+  ao-ruby-mongo:
+    container_name: ao-ruby-mongo
+    image: arm64v8/mongo:latest
+
+  ao-ruby-postgres:
+    container_name: ao-ruby-postgres
+    image: arm64v8/postgres:latest
+    environment:
+      POSTGRES_DB: "test_db"
+      POSTGRES_USER: "docker"
+      POSTGRES_PASSWORD: "docker"
+    volumes:
+      - ./postgres_init.sh:/docker-entrypoint-initdb.d/init-user-db.sh
+      - ./postgresql.conf:/postgresql.conf
+      - ../../log/postgresql:/var/log/postgresql
+    command: postgres -c config_file=/postgresql.conf
+
+  ao_ruby_wait:
+    container_name: ao_ruby_wait
+    image: waisbrot/wait
+    depends_on:
+      - ao-ruby-rabbitmq
+      - ao-ruby-mysql
+      - ao-ruby-mongo
+      - ao-ruby-postgres
+    links:
+      - ao-ruby-rabbitmq
+      - ao-ruby-mysql
+      - ao-ruby-mongo
+      - ao-ruby-postgres
+

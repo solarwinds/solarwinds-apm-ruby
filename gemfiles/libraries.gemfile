@@ -38,7 +38,7 @@ end
 gem 'httpclient'
 gem 'logging'
 gem 'lumberjack'
-gem 'memcached'
+# gem 'memcached'
 gem 'mongo', '>= 2.11.3'
 gem 'patron' # not instrumented, included to test a non-instrumented faraday adapter
 gem 'redis', '<= 4.8.0'

@@ -1,0 +1,109 @@
+# Copyright (c) 2021 SolarWinds, LLC.
+# All rights reserved.
+
+name: Run Ruby Tests on ARM Ubuntu (Push Event)
+
+on:
+  push:
+    branches-ignore:
+      - main
+    paths-ignore:
+      - 'test/run_tests/Dockerfile_*'
+  workflow_dispatch:
+
+jobs:
+
+  ubuntu_test:
+    name: ubuntu arm - ruby ${{ matrix.ruby }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: ['3.1', '3.0']
+
+    container:
+       image: ghcr.io/${{ github.repository }}/apm_ruby_ubuntu_arm
+
+    env:
+      SW_APM_GEM_TEST: true
+      SW_APM_REPORTER: file
+      SW_APM_COLLECTOR: /tmp/sw_apm_traces.bson
+      SW_APM_REPORTER_FILE_SINGLE: false
+      OBOE_STAGING: true
+      MONGO_SERVER: "mongo"
+      RABBITMQ_SERVER: "rabbitmq"
+      MEMCACHED_SERVER: "memcached"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_ROOT_PASSWORD: "admin"
+      MYSQL_HOST: "mysql"
+      MYSQL_DATABASE: "test_db"
+      POSTGRES_DB: "test_db"
+      DOCKER_MYSQL_PASS: "admin"
+      DOCKER_PSQL_PASS: "postgres"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_HOST: "postgres"
+      QUERY_LOG_FILE: "/tmp/sw_apm_query_logs.txt"
+      REDIS_PASSWORD: "redis_pass"
+      TEST_RUNS_TO_FILE: "true"
+
+    services:
+      memcached:
+        image: arm64v8/memcached:latest
+        ports:
+          - 11211:11211
+        options: --health-cmd "timeout 5 bash -c 'cat < /dev/null > /dev/udp/127.0.0.1/11211'" --health-interval 10s --health-timeout 5s --health-retries 5
+      rabbitmq:
+        image: arm64v8/rabbitmq:latest
+        ports:
+          - 5672:5672
+        options: --health-cmd "rabbitmqctl node_health_check" --health-interval 10s --health-timeout 5s --health-retries 5
+      mongo:
+        image: arm64v8/mongo::latest
+        ports:
+          - 27017:27017
+        options: --health-cmd "mongosh --quiet --eval 'quit(db.runCommand({ping:1}).ok ? 0:2)'" --health-interval 10s --health-timeout 5s --health-retries 5
+      postgres:
+        image: arm64v8/postgres:latest
+        env:
+          POSTGRES_PASSWORD: "postgres"
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+      mysql:
+        image: arm64v8/mariadb:latest
+        env:
+          MYSQL_USER: user
+          MYSQL_PASSWORD: password
+          MYSQL_DATABASE: test_db
+          MYSQL_ROOT_PASSWORD: admin
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+
+    steps:
+    - name: Checkout ${{ github.ref }}
+      uses: actions/checkout@v3
+
+    - name: print some info
+      run: |
+        user=`whoami`
+        pwd=`pwd`
+        system=`uname -m`
+        echo "User: $user"
+        echo "Current dir: $pwd"
+        echo "Home dir: $HOME"
+        echo "System: $system"
+        echo "Branch: ${GITHUB_REF#refs/*/}"
+
+    - name: ruby tests
+      run: |
+        export HOME=/root
+        export PUSH_EVENT=REGULAR_PUSH
+        test/run_tests/ruby_setup.sh
+        version=`rbenv versions --bare | grep ${{ matrix.ruby }}`
+        rbenv global $version
+        echo "testing with ruby version: $version"
+        test/run_tests/run_tests.sh -r $version

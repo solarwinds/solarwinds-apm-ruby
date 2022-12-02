@@ -79,6 +79,18 @@ task :docker, :environment do
   exec("docker-compose down -v --remove-orphans && docker-compose run --service-ports --name ruby_sw_apm_#{os} ruby_sw_apm_#{os} /code/ruby-solarwinds/test/run_tests/ruby_setup.sh bash")
 end
 
+desc 'Start docker container for testing and debugging, accepts: alpine, debian, centos as args, default: ubuntu'
+task :docker_arm64, :environment do
+  _arg1, arg2 = ARGV
+  os = arg2 || 'ubuntu'
+  puts "Running on #{os}"
+
+  Dir.chdir('test/run_tests')
+  exec("docker-compose -f docker-compose-arm.yml down -v --remove-orphans && docker-compose -f docker-compose-arm.yml run --service-ports --name ruby_sw_apm_#{os}_arm ruby_sw_apm_#{os}_arm /code/ruby-solarwinds/test/run_tests/ruby_setup.sh bash")
+end
+
+
+
 desc 'Stop all containers that were started for testing and debugging'
 task 'docker_down' do
   Dir.chdir('test/run_tests')
@@ -157,8 +169,10 @@ task :fetch_oboe_file_from_staging do
   end
 
   unless ENV['OBOE_LOCAL']
-    sha_files = ['liboboe-1.0-alpine-x86_64.so.0.0.0.sha256',
-                 'liboboe-1.0-x86_64.so.0.0.0.sha256']
+    sha_files = ['liboboe-1.0-alpine-x86_64.so.0.0.0.sha256', 
+                  'liboboe-1.0-x86_64.so.0.0.0.sha256',
+                  'liboboe-1.0-aarch64.so.0.0.0.sha256',
+                  'liboboe-1.0-alpine-aarch64.so.0.0.0.sha256']
 
     sha_files.each do |filename|
       remote_file = File.join(oboe_stg_dir, filename)
@@ -244,7 +258,9 @@ task :fetch_oboe_file_from_prod do
   end
 
   sha_files = ['liboboe-1.0-alpine-x86_64.so.0.0.0.sha256',
-               'liboboe-1.0-x86_64.so.0.0.0.sha256']
+               'liboboe-1.0-x86_64.so.0.0.0.sha256',
+               'liboboe-1.0-aarch64.so.0.0.0.sha256',
+               'liboboe-1.0-alpine-aarch64.so.0.0.0.sha256' ]
 
   sha_files.each do |filename|
     remote_file = File.join(files_solarwinds, filename)
