@@ -1,0 +1,113 @@
+FROM arm64v8/centos:7
+
+#RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Linux-* &&\
+#    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-Linux-*
+
+# install OS packages
+RUN yum update -y \
+    && yum install -y epel-release \
+    && yum install -y centos-release-scl \
+    && yum install -y llvm-toolset-7.0 \
+    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-x86_64/postgresql14-libs-14.1-1PGDG.rhel7.x86_64.rpm \
+    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-x86_64/postgresql14-14.1-1PGDG.rhel7.x86_64.rpm \
+    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-x86_64/postgresql14-devel-14.1-1PGDG.rhel7.x86_64.rpm
+RUN ln -s  /usr/pgsql-14/bin/pg_config /usr/local/bin/pg_config
+
+RUN yum groupinstall 'Development Tools' -y \
+    && yum install -y \
+       autoconf \
+       automake \
+       bzip2 \
+       cmake \
+       cyrus-sasl-devel \
+       cyrus-sasl-plain \
+       fontconfig \
+       gdb \
+       git-core \
+       less \
+       libcurl-devel \
+       libjpeg \
+       libpng \
+       libpq-devel \
+       libXrender \
+       libXext \
+       nodejs \
+       openssl-devel \
+       pcre \
+       pcre-devel \
+       psmisc \
+       readline-devel \
+       tcl \
+       tmux \
+       tree \
+       vim \
+       zlib-devel \
+    && rm -rf /var/lib/apt/lists/*
+
+#yum install fontconfig libXrender libXext
+#
+
+
+# update node to current stable version
+# RUN npm cache clean -f && npm install -g n && n stable
+
+# rbenv setup
+# use rbenv-default-gems to automatically install bundler for each ruby version
+RUN  git clone https://github.com/rbenv/rbenv.git ~/.rbenv \
+     && git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build \
+     && git clone https://github.com/rbenv/rbenv-default-gems.git ~/.rbenv/plugins/rbenv-default-gems \
+     && echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.profile \
+     && echo 'eval "$(rbenv init -)"' >> ~/.profile \
+     && echo 'eval "$(rbenv init -)"' >> ~/.bashrc \
+     && echo 'bundler' > ~/.rbenv/default-gems
+
+RUN echo 'alias be="bundle exec"' >> ~/.bashrc
+RUN echo 'alias be="bundle exec"' >> ~/.profile
+
+# install rubies to build our gem against
+RUN . ~/.profile \
+    && cd /root/.rbenv/plugins/ruby-build && git pull && cd - \
+    && rbenv install 2.5.9 \
+    && rbenv install 2.6.9 \
+    && rbenv install 2.7.5 \
+    && rbenv install 3.0.3 \
+    && rbenv install 3.1.0
+
+RUN echo 'gem: --no-document' >> ~/.gemrc
+
+# install swig 4.0.2
+RUN curl -SL https://github.com/swig/swig/archive/refs/tags/v4.0.2.tar.gz \
+    | tar xzC /tmp \
+    && cd /tmp/swig-4.0.2 \
+    && ./autogen.sh && ./configure && make && make install \
+    && cd - \
+    && rm -rf /tmp/swig-4.0.2
+
+# install redis-server version 4++
+RUN curl -SL http://download.redis.io/releases/redis-6.2.4.tar.gz | tar xzC /tmp \
+    && cd /tmp/redis-6.2.4/ \
+    && make  && make install && cd -
+
+# install postgres and memcached
+#RUN yum update -y \
+#    && yum install -y \
+#       memcached
+#       postgresql \
+#       postgresql-server \
+#       postgresql-contrib \
+#    && postgresql-setup --initdb --unit postgresql \
+#    && systemctl start postgresql \
+#    && systemctl enable postgresql \
+#    && echo "psql --command \"CREATE USER docker WITH SUPERUSER PASSWORD 'docker';\"" >> /tmp/config \
+#    && echo "createdb -O docker test_db" >> /tmp/config \
+#    && su postgres -c "bash /tmp/config" \
+#    && rm -f /tmp/config
+
+RUN yum update -y && \
+	yum -y install initscripts memcached mysql mysql-devel
+
+RUN echo "echo never > /sys/kernel/mm/transparent_hugepage/enabled" >> /etc/rc.local
+
+ENV PATH="/root/.rbenv/bin:/root/.rbenv/shims:$PATH"
+
+CMD /bin/bash

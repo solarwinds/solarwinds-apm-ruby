@@ -1,0 +1,108 @@
+FROM arm64v8/debian:buster
+
+# install OS packages
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+          apt-utils \
+          autoconf \
+          autotools-dev \
+          automake \
+          bison \
+          build-essential \
+          cmake \
+          curl \
+          gdb \
+          git-core \
+          less \
+          libcurl4-gnutls-dev \
+          libmariadb-dev \
+          libpq-dev \
+          libpcre3-dev \
+          libreadline-dev \
+          libsasl2-dev \
+          libsqlite3-dev \
+          libssl-dev \
+          npm \
+          openjdk-11-jdk \
+          pkg-config \
+          psmisc \
+          ruby \
+          tcl \
+          tmux \
+          tree \
+          vim \
+          zlib1g-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# install cmake
+# never version than apt-get would install
+# https://github.com/Kitware/CMake/releases/download/v3.20.5/cmake-3.20.5.tar.gz
+#
+RUN curl -OL  https://github.com/Kitware/CMake/releases/download/v3.20.5/cmake-3.20.5-SHA-256.txt \
+   && curl -OL https://github.com/Kitware/CMake/releases/download/v3.20.5/cmake-3.20.5.tar.gz \
+   && sha256sum -c --ignore-missing cmake-3.20.5-SHA-256.txt \
+   && tar -zxvf cmake-3.20.5.tar.gz \
+   && cd cmake-3.20.5 \
+   && ./bootstrap \
+   && make \
+   && make install \
+   && cd .. \
+   && /bin/rm -r cmake-3.20.5
+
+# update node to current stable version
+RUN npm cache clean -f && npm install -g n && n stable
+
+# rbenv setup
+# use rbenv-default-gems to automatically install bundler for each ruby version
+RUN  git clone https://github.com/rbenv/rbenv.git ~/.rbenv \
+     && git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build \
+     && git clone https://github.com/rbenv/rbenv-default-gems.git ~/.rbenv/plugins/rbenv-default-gems \
+     && echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.profile \
+     && echo 'eval "$(rbenv init -)"' >> ~/.profile \
+     && echo 'eval "$(rbenv init -)"' >> ~/.bashrc \
+     && echo 'bundler' > ~/.rbenv/default-gems
+
+RUN echo 'alias be="bundle exec"' >> ~/.bashrc
+RUN echo 'alias be="bundle exec"' >> ~/.profile
+
+# install rubies to build our gem against
+RUN . ~/.profile \
+    && cd /root/.rbenv/plugins/ruby-build && git pull && cd - \
+    && rbenv install 2.5.9 \
+    && rbenv install 2.6.9\
+    && rbenv install 2.7.5 \
+    && rbenv install 3.0.3 \
+    && rbenv install 3.1.0
+
+RUN echo 'gem: --no-document' >> ~/.gemrc
+
+# install swig 4.0.2
+RUN curl -SL https://github.com/swig/swig/archive/refs/tags/v4.0.2.tar.gz \
+    | tar xzC /tmp \
+    && cd /tmp/swig-4.0.2 \
+    && ./autogen.sh && ./configure && make && make install \
+    && cd - \
+    && rm -rf /tmp/swig-4.0.2
+
+# install redis-server version 4++
+RUN curl -SL http://download.redis.io/releases/redis-6.2.4.tar.gz | tar xzC /tmp \
+    && cd /tmp/redis-6.2.4/ \
+    && make  && make install && cd -
+
+#RUN groupadd -r memcached && useradd --no-log-init
+
+# install postgres and memcached
+RUN apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+       memcached \
+       postgresql \
+       postgresql-contrib \
+    && service postgresql start \
+    && echo "psql --command \"CREATE USER docker WITH SUPERUSER PASSWORD 'docker';\"" >> /tmp/config \
+    && echo "createdb -O docker test_db" >> /tmp/config \
+    && su postgres -c "bash /tmp/config" \
+    && rm -f /tmp/config
+
+ENV PATH="/root/.rbenv/bin:/root/.rbenv/shims:$PATH"
+
+CMD /bin/bash
