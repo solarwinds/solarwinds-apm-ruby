@@ -81,9 +81,9 @@ services:
       << : *ao-env
       SW_APM_HOSTNAME_ALIAS: "AO_RUBY_UBUNTU"
 
-  ruby_sw_apm_alpine:
-    container_name: ruby_sw_apm_alpine
-    image: ruby_sw_apm_alpine
+  ruby_sw_apm_alpine_arm:
+    container_name: ruby_sw_apm_alpine_arm
+    image: ruby_sw_apm_alpine_arm
     build:
       context: .
       dockerfile: ./Dockerfile_alpine_arm
@@ -99,9 +99,9 @@ services:
       <<: *ao-env
       SW_APM_HOSTNAME_ALIAS: "AO_RUBY_ALPINE"
 
-  ruby_sw_apm_debian:
-    container_name: ruby_sw_apm_debian
-    image: ruby_sw_apm_debian
+  ruby_sw_apm_debian_arm:
+    container_name: ruby_sw_apm_debian_arm
+    image: ruby_sw_apm_debian_arm
     build:
       context: .
       dockerfile: Dockerfile_debian_arm
@@ -116,9 +116,9 @@ services:
       << : *ao-env
       SW_APM_HOSTNAME_ALIAS: "AO_RUBY_DEBIAN"
 
-  ruby_sw_apm_centos:
-    container_name: ruby_sw_apm_centos
-    image: ruby_sw_apm_centos
+  ruby_sw_apm_centos_arm:
+    container_name: ruby_sw_apm_centos_arm
+    image: ruby_sw_apm_centos_arm
     build:
       context: .
       dockerfile: Dockerfile_centos_arm

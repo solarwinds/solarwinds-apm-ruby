@@ -8,9 +8,9 @@ RUN yum update -y \
     && yum install -y epel-release \
     && yum install -y centos-release-scl \
     && yum install -y llvm-toolset-7.0 \
-    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-x86_64/postgresql14-libs-14.1-1PGDG.rhel7.x86_64.rpm \
-    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-x86_64/postgresql14-14.1-1PGDG.rhel7.x86_64.rpm \
-    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-x86_64/postgresql14-devel-14.1-1PGDG.rhel7.x86_64.rpm
+    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-aarch64/postgresql14-libs-14.1-1PGDG.rhel7.aarch64.rpm \
+    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-aarch64/postgresql14-14.1-1PGDG.rhel7.aarch64.rpm \
+    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-aarch64/postgresql14-devel-14.1-1PGDG.rhel7.aarch64.rpm
 RUN ln -s  /usr/pgsql-14/bin/pg_config /usr/local/bin/pg_config
 
 RUN yum groupinstall 'Development Tools' -y \
@@ -42,6 +42,7 @@ RUN yum groupinstall 'Development Tools' -y \
        tree \
        vim \
        zlib-devel \
+       wget \
     && rm -rf /var/lib/apt/lists/*
 
 #yum install fontconfig libXrender libXext

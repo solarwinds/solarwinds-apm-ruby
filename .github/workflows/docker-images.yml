@@ -4,8 +4,6 @@ on:
   push:
     paths:
       - 'test/run_tests/Dockerfile_*'
-    paths-ignore:
-      - 'test/run_tests/Dockerfile_*_arm'
   # Allows running this workflow manually from the Actions tab
   workflow_dispatch:
 

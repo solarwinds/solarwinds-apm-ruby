@@ -49,3 +49,11 @@ redis-test.*
 
 # mac DS_Store
 .DS_Store
+
+# Docker container image
+test/run_tests/.ruby_version_alpine
+test/run_tests/.ruby_version_alpine
+test/run_tests/.ruby_version_debian
+test/run_tests/.ruby_version_ubuntu
+
+

@@ -21,9 +21,15 @@ jobs:
       fail-fast: false
       matrix:
         ruby: ['3.1', '3.0', '2.7', '2.6']
+        os:   [ubuntu, ubuntu_arm]
+        exclude:
+          - os: ubuntu_arm
+            ruby: '2.7'
+          - os: ubuntu_arm
+            ruby: '2.6'
 
     container:
-       image: ghcr.io/${{ github.repository }}/apm_ruby_ubuntu
+       image: ghcr.io/${{ github.repository }}/apm_ruby_${{ matrix.os }}
 
     env:
       SW_APM_GEM_TEST: true
