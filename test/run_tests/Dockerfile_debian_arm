@@ -37,17 +37,14 @@ RUN apt-get update \
 # install cmake
 # never version than apt-get would install
 # https://github.com/Kitware/CMake/releases/download/v3.20.5/cmake-3.20.5.tar.gz
-#
-RUN curl -OL  https://github.com/Kitware/CMake/releases/download/v3.20.5/cmake-3.20.5-SHA-256.txt \
-   && curl -OL https://github.com/Kitware/CMake/releases/download/v3.20.5/cmake-3.20.5.tar.gz \
-   && sha256sum -c --ignore-missing cmake-3.20.5-SHA-256.txt \
-   && tar -zxvf cmake-3.20.5.tar.gz \
-   && cd cmake-3.20.5 \
-   && ./bootstrap \
-   && make \
-   && make install \
-   && cd .. \
-   && /bin/rm -r cmake-3.20.5
+RUN curl -OL https://github.com/Kitware/CMake/releases/download/v3.25.1/cmake-3.25.1-SHA-256.txt \
+    && curl -OL https://github.com/Kitware/CMake/releases/download/v3.25.1/cmake-3.25.1-linux-aarch64.tar.gz \
+    && sha256sum -c --ignore-missing cmake-3.25.1-SHA-256.txt \
+    && tar -zxvf cmake-3.25.1-linux-aarch64.tar.gz \
+    && mkdir /opt/cmake \
+    && cp -a cmake-3.25.1-linux-aarch64/. /opt/cmake/ \
+    && ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
+
 
 # update node to current stable version
 RUN npm cache clean -f && npm install -g n && n stable
@@ -68,8 +65,6 @@ RUN echo 'alias be="bundle exec"' >> ~/.profile
 # install rubies to build our gem against
 RUN . ~/.profile \
     && cd /root/.rbenv/plugins/ruby-build && git pull && cd - \
-    && rbenv install 2.5.9 \
-    && rbenv install 2.6.9\
     && rbenv install 2.7.5 \
     && rbenv install 3.0.3 \
     && rbenv install 3.1.0

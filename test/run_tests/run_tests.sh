@@ -169,6 +169,12 @@ for ruby in ${rubies[@]} ; do
     if [[ $gemfile =~ .*rails7.* && $ruby =~ ^2.[65].* ]]; then continue; fi
 
     echo "*** installing gems from $BUNDLE_GEMFILE ***"
+    
+    ARCH=$(uname -m)
+    if [[ $ARCH == "arm64" || $ARCH == "aarch64" ]]; then
+      bundle config set force_ruby_platform true
+    fi
+    
     bundle update # --quiet
     if [ "$?" -ne 0 ]; then
       echo "Problem during gem install. Skipping tests for $gemfile"

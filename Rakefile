@@ -68,28 +68,23 @@ end
 
 task :docker_test => :docker_tests
 
-desc 'Start docker container for testing and debugging, accepts: alpine, debian, centos as args, default: ubuntu'
+desc 'Start docker container for testing and debugging, accepts: alpine, debian, centos as args, default: ubuntu
+      Example: bundle exec rake docker ubuntu arm'
 task :docker, :environment do
-  _arg1, arg2 = ARGV
+  _arg1, arg2, arg3 = ARGV
   os = arg2 || 'ubuntu'
+  arch = arg3 || ''
 
   puts "Running on #{os}"
 
   Dir.chdir('test/run_tests')
-  exec("docker-compose down -v --remove-orphans && docker-compose run --service-ports --name ruby_sw_apm_#{os} ruby_sw_apm_#{os} /code/ruby-solarwinds/test/run_tests/ruby_setup.sh bash")
+  case arg3
+  when ""
+    exec("docker-compose down -v --remove-orphans && docker-compose run --service-ports --name ruby_sw_apm_#{os} ruby_sw_apm_#{os} /code/ruby-solarwinds/test/run_tests/ruby_setup.sh bash")
+  when "arm"
+    exec("docker-compose -f docker-compose-arm.yml down -v --remove-orphans && docker-compose -f docker-compose-arm.yml run --service-ports --name ruby_sw_apm_#{os}_arm ruby_sw_apm_#{os}_arm /code/ruby-solarwinds/test/run_tests/ruby_setup.sh bash")
+  end
 end
-
-desc 'Start docker container for testing and debugging, accepts: alpine, debian, centos as args, default: ubuntu'
-task :docker_arm64, :environment do
-  _arg1, arg2 = ARGV
-  os = arg2 || 'ubuntu'
-  puts "Running on #{os}"
-
-  Dir.chdir('test/run_tests')
-  exec("docker-compose -f docker-compose-arm.yml down -v --remove-orphans && docker-compose -f docker-compose-arm.yml run --service-ports --name ruby_sw_apm_#{os}_arm ruby_sw_apm_#{os}_arm /code/ruby-solarwinds/test/run_tests/ruby_setup.sh bash")
-end
-
-
 
 desc 'Stop all containers that were started for testing and debugging'
 task 'docker_down' do
