@@ -264,6 +264,89 @@ task :fetch_oboe_file_from_prod do
   end
 end
 
+desc "Fetch oboe files from nightly build liboboe and create swig wrapper"
+task :fetch_oboe_file_from_nightly do
+
+  swig_version = %x{swig -version} rescue ''
+  swig_valid_version = swig_version.scan(/swig version [34].\d*.\d*/i)
+  if swig_valid_version.empty?
+    $stderr.puts '== ERROR ================================================================='
+    $stderr.puts "Could not find required swig version > 3.0.8, found #{swig_version.inspect}"
+    $stderr.puts 'Please install swig "> 3.0.8" and try again.'
+    $stderr.puts '=========================================================================='
+    raise
+  else
+    $stderr.puts "+++++++++++ Using #{swig_version.strip.split("\n")[0]}"
+  end
+
+  ext_src_dir = File.expand_path('ext/oboe_metal/src')
+  ext_lib_dir = File.expand_path('ext/oboe_metal/lib')
+
+  oboe_nightly_dir = "https://solarwinds-apm-staging.s3.us-west-2.amazonaws.com/apm/c-lib/nightly/"
+  puts 'Fetching c-lib from NIGHTLY BUILD'
+
+  # remove all oboe* files, they may hang around because of name changes
+  Dir.glob(File.join(ext_src_dir, 'oboe*')).each { |file| File.delete(file) }
+
+  # oboe and bson header files
+  FileUtils.mkdir_p(File.join(ext_src_dir, 'bson'))
+  files = %w(bson/bson.h bson/platform_hacks.h)
+  # files += ['oboe.h', 'oboe_api.h', 'oboe_api.cpp', 'oboe_debug.h', 'oboe.i']
+  files += ['oboe.h', 'oboe_api.h', 'oboe_api.cpp', 'oboe_debug.h', 'oboe.i']
+
+  files.each do |filename|
+    remote_file = File.join(oboe_nightly_dir, 'include', filename)
+    local_file = File.join(ext_src_dir, filename)
+
+    puts "fetching #{remote_file}"
+    puts "      to #{local_file}"
+    URI.open(remote_file, 'rb') do |rf|
+      content = rf.read
+      File.open(local_file, 'wb') { |f| f.puts content }
+    end
+  end
+
+  unless ENV['OBOE_LOCAL']
+    sha_files = ['liboboe-1.0-x86_64.so.sha256',
+                 'liboboe-1.0-lambda-x86_64.so.sha256',
+                 'liboboe-1.0-alpine-x86_64.so.sha256',
+                 'liboboe-1.0-alpine-aarch64.so.sha256',
+                 'liboboe-1.0-aarch64.so.sha256']
+
+    sha_files.each do |filename|
+      remote_file = File.join(oboe_nightly_dir, filename)
+      local_file = File.join(ext_lib_dir, filename)
+
+      puts "fetching #{remote_file}"
+      puts "      to #{local_file}"
+
+      URI.open(remote_file, 'rb') do |rf|
+        content = rf.read
+        File.open(local_file, 'wb') { |f| f.puts content }
+        puts "%%% #{filename} checksum: #{content.strip} %%%"
+      end
+    end
+  end
+
+  api_hpp_patch = File.join(ext_src_dir, 'api_hpp.patch')
+  api_cpp_patch = File.join(ext_src_dir, 'api_cpp.patch')
+  if File.exist?(api_hpp_patch)
+    `patch -N #{File.join(ext_src_dir, 'oboe_api.h')} #{api_hpp_patch}`
+  end
+  if File.exist?(api_cpp_patch)
+    `patch -N #{File.join(ext_src_dir, 'oboe_api.cpp')} #{api_cpp_patch}`
+  end
+
+  FileUtils.cd(ext_src_dir) do
+    system('swig -c++ -ruby -module oboe_metal -o oboe_swig_wrap.cc oboe.i')
+    FileUtils.rm('oboe.i')
+  end
+
+end
+
+desc "Build the gem's c extension from ..."
+task :cfc_nightly => [:clean, :fetch_oboe_file_from_nightly, :compile]
+
 desc "Verify files"
 task :oboe_verify do
   oboe_github_fetch

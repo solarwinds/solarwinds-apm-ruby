@@ -27,7 +27,10 @@ ao_include = File.join(ext_dir, 'src')
 
 # Download the appropriate liboboe from Staging or Production
 version = File.read(File.join(ao_include, 'VERSION')).strip
-if ENV['OBOE_STAGING'].to_s.downcase == 'true'
+if ENV['OBOE_NIGHTLY'].to_s.downcase == 'true'
+  ao_path = File.join('https://solarwinds-apm-staging.s3.us-west-2.amazonaws.com/apm/c-lib/', "nightly")
+  puts 'Fetching c-lib from Nightly Build'
+elsif ENV['OBOE_STAGING'].to_s.downcase == 'true'
   ao_path = File.join('https://agent-binaries.global.st-ssp.solarwinds.com/apm/c-lib/', version)
   puts 'Fetching c-lib from STAGING'
 else
@@ -47,6 +50,7 @@ if File.exist?('/etc/alpine-release')
 end
 
 ao_clib = "liboboe-1.0-#{ao_arch}.so.0.0.0"
+ao_clib = "liboboe-1.0-#{ao_arch}.so" if ENV['OBOE_NIGHTLY'].to_s.downcase == 'true' # for nightly build only
 ao_item = File.join(ao_path, ao_clib)
 ao_checksum_file = File.join(ao_lib_dir, "#{ao_clib}.sha256")
 clib = File.join(ao_lib_dir, ao_clib)
