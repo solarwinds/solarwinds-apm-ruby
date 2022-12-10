@@ -28,7 +28,7 @@ ao_include = File.join(ext_dir, 'src')
 # Download the appropriate liboboe from Staging or Production
 version = File.read(File.join(ao_include, 'VERSION')).strip
 if ENV['OBOE_NIGHTLY'].to_s.downcase == 'true'
-  ao_path = File.join('https://solarwinds-apm-staging.s3.us-west-2.amazonaws.com/apm/c-lib/', "nightly")
+  ao_path = "https://solarwinds-apm-staging.s3.us-west-2.amazonaws.com/apm/c-lib/nightly"
   puts 'Fetching c-lib from Nightly Build'
 elsif ENV['OBOE_STAGING'].to_s.downcase == 'true'
   ao_path = File.join('https://agent-binaries.global.st-ssp.solarwinds.com/apm/c-lib/', version)

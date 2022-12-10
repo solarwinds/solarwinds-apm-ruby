@@ -291,7 +291,6 @@ task :fetch_oboe_file_from_nightly do
   # oboe and bson header files
   FileUtils.mkdir_p(File.join(ext_src_dir, 'bson'))
   files = %w(bson/bson.h bson/platform_hacks.h)
-  # files += ['oboe.h', 'oboe_api.h', 'oboe_api.cpp', 'oboe_debug.h', 'oboe.i']
   files += ['oboe.h', 'oboe_api.h', 'oboe_api.cpp', 'oboe_debug.h', 'oboe.i']
 
   files.each do |filename|
