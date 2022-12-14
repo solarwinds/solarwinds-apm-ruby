@@ -42,24 +42,6 @@ RUN apt-get update \
        zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# apt now installs cmake version 3.16, which is sufficient
-# install cmake
-# never version that apt-get would install
-# https://github.com/Kitware/CMake/releases/download/v3.20.5/cmake-3.20.5.tar.gz
-#
-#RUN curl -OL  https://github.com/Kitware/CMake/releases/download/v3.20.5/cmake-3.20.5-SHA-256.txt \
-#   && curl -OL https://github.com/Kitware/CMake/releases/download/v3.20.5/cmake-3.20.5.tar.gz \
-#   && sha256sum -c --ignore-missing cmake-3.20.5-SHA-256.txt \
-#   && tar -zxvf cmake-3.20.5.tar.gz \
-#   && cd cmake-3.20.5 \
-#   && ./bootstrap \
-#   && make \
-#   && make install \
-#   && cd .. \
-#   && /bin/rm -r cmake-3.20.5
-
-
-
 # install yarn
 #RUN curl -o- -L https://yarnpkg.com/install.sh | bash
 
@@ -103,22 +85,9 @@ RUN curl -SL https://download.redis.io/releases/redis-6.2.4.tar.gz | tar xzC /tm
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
        memcached
-#       postgresql \
-#       postgresql-contrib \
-#    && service postgresql start \
-#    && echo "psql --command \"CREATE USER docker WITH SUPERUSER PASSWORD 'docker';\"" >> /tmp/config \
-#    && echo "createdb -O docker test_db" >> /tmp/config \
-#    && su postgres -c "bash /tmp/config" \
-#    && rm -f /tmp/config
 
 RUN apt-get update && \
 	apt-get -y install mysql-client
-
-
-# update node to current stable version
-# apt install npm doesn't work in the initial apt install run
-#RUN apt install -y --no-install-recommends npm && rm -rf /var/lib/apt/lists/*
-#RUN npm cache clean -f && npm install -g n && n stable
 
 ENV PATH="/usr/local/bin:/root/.rbenv/bin:/root/.rbenv/shims:$PATH"
 

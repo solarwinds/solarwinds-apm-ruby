@@ -50,22 +50,22 @@ jobs:
 
     services:
       memcached:
-        image: arm64v8/memcached:latest
+        image: memcached:latest
         ports:
           - 11211:11211
         options: --health-cmd "timeout 5 bash -c 'cat < /dev/null > /dev/udp/127.0.0.1/11211'" --health-interval 10s --health-timeout 5s --health-retries 5
       rabbitmq:
-        image: arm64v8/rabbitmq:latest
+        image: rabbitmq:latest
         ports:
           - 5672:5672
         options: --health-cmd "rabbitmqctl node_health_check" --health-interval 10s --health-timeout 5s --health-retries 5
       mongo:
-        image: arm64v8/mongo::latest
+        image: mongo:6
         ports:
           - 27017:27017
         options: --health-cmd "mongosh --quiet --eval 'quit(db.runCommand({ping:1}).ok ? 0:2)'" --health-interval 10s --health-timeout 5s --health-retries 5
       postgres:
-        image: arm64v8/postgres:latest
+        image: postgres:latest
         env:
           POSTGRES_PASSWORD: "postgres"
           POSTGRES_DB: test_db
@@ -73,7 +73,7 @@ jobs:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
       mysql:
-        image: arm64v8/mariadb:latest
+        image: mariadb:latest
         env:
           MYSQL_USER: user
           MYSQL_PASSWORD: password
@@ -82,10 +82,14 @@ jobs:
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
-
+        # may need --default-authentication-plugin=mysql_native_password
+        
     steps:
     - name: Checkout ${{ github.ref }}
       uses: actions/checkout@v3
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
 
     - name: print some info
       run: |

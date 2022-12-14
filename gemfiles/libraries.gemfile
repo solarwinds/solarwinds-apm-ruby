@@ -9,12 +9,14 @@ gem 'rest-client'
 # doesn't install well on alpine, explained here:
 # https://qiita.com/takkeybook/items/5eae085d902957f0fe5b
 # needs fixing for Ruby >= 3
-if File.exist?('/etc/centos-release') && RUBY_VERSION < '2.6.0'
-  gem 'grpc', '~> 1.48.0'
-  gem 'google-protobuf'
-elsif !File.exist?('/etc/alpine-release')  && RUBY_VERSION < '3.0.0'
-  gem 'grpc'
-  gem 'google-protobuf'
+if ENV["ARCH"] != "aarch64" && ENV["ARCH"] != "arm64"
+  if File.exist?('/etc/centos-release') && RUBY_VERSION < '2.6.0'
+    gem 'grpc', '~> 1.48.0'
+    gem 'google-protobuf'
+  elsif !File.exist?('/etc/alpine-release')  && RUBY_VERSION < '3.0.0'
+    gem 'grpc'
+    gem 'google-protobuf'
+  end
 end
 
 gem 'bunny'
@@ -38,7 +40,7 @@ end
 gem 'httpclient'
 gem 'logging'
 gem 'lumberjack'
-gem 'memcached'
+gem 'memcached' if ENV["ARCH"] != 'aarch64' && ENV["ARCH"] != "arm64"
 gem 'mongo', '>= 2.11.3'
 gem 'patron' # not instrumented, included to test a non-instrumented faraday adapter
 gem 'redis', '<= 4.8.0'

@@ -40,7 +40,10 @@ Rake::TestTask.new do |t|
   when /libraries/
     t.test_files = FileList['test/support/*_test.rb'] +
                    FileList['test/reporter/*_test.rb'] +
-                   FileList['test/instrumentation/*_test.rb']
+                   ((ENV["ARCH"] != "aarch64" && ENV["ARCH"] != "arm64")? 
+                      FileList['test/instrumentation/*_test.rb'] : 
+                      FileList['test/instrumentation/*_test.rb'].exclude("test/instrumentation/memcached_test.rb", "test/instrumentation/grpc_test.rb"))
+
   when /instrumentation_mocked/
     # WebMock is interfering with other tests, so these have to run separately
     t.test_files = FileList['test/mocked/*_test.rb']
@@ -79,10 +82,10 @@ task :docker, :environment do
 
   Dir.chdir('test/run_tests')
   case arg3
-  when ""
-    exec("docker-compose down -v --remove-orphans && docker-compose run --service-ports --name ruby_sw_apm_#{os} ruby_sw_apm_#{os} /code/ruby-solarwinds/test/run_tests/ruby_setup.sh bash")
   when "arm"
     exec("docker-compose -f docker-compose-arm.yml down -v --remove-orphans && docker-compose -f docker-compose-arm.yml run --service-ports --name ruby_sw_apm_#{os}_arm ruby_sw_apm_#{os}_arm /code/ruby-solarwinds/test/run_tests/ruby_setup.sh bash")
+  else
+    exec("docker-compose down -v --remove-orphans && docker-compose run --service-ports --name ruby_sw_apm_#{os} ruby_sw_apm_#{os} /code/ruby-solarwinds/test/run_tests/ruby_setup.sh bash")
   end
 end
 

@@ -1,16 +1,13 @@
 FROM arm64v8/centos:7
 
-#RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Linux-* &&\
-#    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-Linux-*
-
 # install OS packages
 RUN yum update -y \
     && yum install -y epel-release \
     && yum install -y centos-release-scl \
     && yum install -y llvm-toolset-7.0 \
-    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-aarch64/postgresql14-libs-14.1-1PGDG.rhel7.aarch64.rpm \
-    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-aarch64/postgresql14-14.1-1PGDG.rhel7.aarch64.rpm \
-    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-aarch64/postgresql14-devel-14.1-1PGDG.rhel7.aarch64.rpm
+    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-aarch64/postgresql14-libs-14.6-1PGDG.rhel7.aarch64.rpm \
+    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-aarch64/postgresql14-14.6-1PGDG.rhel7.aarch64.rpm \
+    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-aarch64/postgresql14-devel-14.6-1PGDG.rhel7.aarch64.rpm
 RUN ln -s  /usr/pgsql-14/bin/pg_config /usr/local/bin/pg_config
 
 RUN yum groupinstall 'Development Tools' -y \
@@ -45,12 +42,6 @@ RUN yum groupinstall 'Development Tools' -y \
        wget \
     && rm -rf /var/lib/apt/lists/*
 
-#yum install fontconfig libXrender libXext
-#
-
-
-# update node to current stable version
-# RUN npm cache clean -f && npm install -g n && n stable
 
 # rbenv setup
 # use rbenv-default-gems to automatically install bundler for each ruby version
@@ -86,21 +77,6 @@ RUN curl -SL https://github.com/swig/swig/archive/refs/tags/v4.0.2.tar.gz \
 RUN curl -SL http://download.redis.io/releases/redis-6.2.4.tar.gz | tar xzC /tmp \
     && cd /tmp/redis-6.2.4/ \
     && make  && make install && cd -
-
-# install postgres and memcached
-#RUN yum update -y \
-#    && yum install -y \
-#       memcached
-#       postgresql \
-#       postgresql-server \
-#       postgresql-contrib \
-#    && postgresql-setup --initdb --unit postgresql \
-#    && systemctl start postgresql \
-#    && systemctl enable postgresql \
-#    && echo "psql --command \"CREATE USER docker WITH SUPERUSER PASSWORD 'docker';\"" >> /tmp/config \
-#    && echo "createdb -O docker test_db" >> /tmp/config \
-#    && su postgres -c "bash /tmp/config" \
-#    && rm -f /tmp/config
 
 RUN yum update -y && \
 	yum -y install initscripts memcached mysql mysql-devel

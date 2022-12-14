@@ -142,7 +142,7 @@ services:
   ao-ruby-mysql:
     container_name: ao-ruby-mysql
     image: arm64v8/mysql:latest
-    command: --init-file /data/application/mysql_init.sql
+    command: --init-file /data/application/mysql_init.sql --default-authentication-plugin=mysql_native_password
     volumes:
       - ./mysql_init.sql:/data/application/mysql_init.sql
     environment:

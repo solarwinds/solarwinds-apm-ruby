@@ -170,7 +170,7 @@ for ruby in ${rubies[@]} ; do
 
     echo "*** installing gems from $BUNDLE_GEMFILE ***"
     
-    ARCH=$(uname -m)
+    export ARCH=$(uname -m)
     if [[ $ARCH == "arm64" || $ARCH == "aarch64" ]]; then
       bundle config set force_ruby_platform true
     fi

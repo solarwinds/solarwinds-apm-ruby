@@ -62,8 +62,6 @@ RUN apk add --upgrade \
       icu-libs \ 
    && rm -rf /var/lib/apt/lists/*
 
-# RUN echo 'https://dl-cdn.alpinelinux.org/alpine/v3.14/main' >> /etc/apk/repositories && echo 'https://dl-cdn.alpinelinux.org/alpine/v3.14/community' >> /etc/apk/repositories && apk add --no-cache wkhtmltopdf
-
 # rbenv setup
 # use rbenv-default-gems to automatically install bundler for each ruby version
 RUN  git clone https://github.com/rbenv/rbenv.git ~/.rbenv \
@@ -104,11 +102,6 @@ RUN apk add --upgrade \
       openrc
 
 RUN rc-update add memcached sysinit
-#    && touch /run/openrc/softlevel \
-#    && rc-service memcached start
-# Attempt to disable transparent huge pages because redis complains
-#RUN echo never > /sys/kernel/mm/transparent_hugepage/enabled
-#RUN echo never > /sys/kernel/mm/transparent_hugepage/defrag
 
 # install redis-server
 RUN curl -SL https://download.redis.io/releases/redis-6.2.4.tar.gz | tar xzC /tmp \
@@ -118,14 +111,6 @@ RUN curl -SL https://download.redis.io/releases/redis-6.2.4.tar.gz | tar xzC /tm
 
 RUN apk add --update mysql-client mysql mariadb
 
-# postgres running in separate container and
-# this way of starting it doesn't seem to work anymore
-#RUN apk add --update postgresql postgresql-contrib
-#RUN service postgresql start \
-#   && echo "psql --command \"CREATE USER docker WITH SUPERUSER PASSWORD 'docker';\"" >> /tmp/config \
-#   && echo "createdb -O docker test_db" >> /tmp/config \
-#   && su postgres -c "bash /tmp/config"
-#   && rm -f /tmp/config
 
 ENV PATH="/root/.rbenv/bin:/root/.rbenv/shims:$PATH"
 

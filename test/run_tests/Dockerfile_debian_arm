@@ -84,8 +84,6 @@ RUN curl -SL http://download.redis.io/releases/redis-6.2.4.tar.gz | tar xzC /tmp
     && cd /tmp/redis-6.2.4/ \
     && make  && make install && cd -
 
-#RUN groupadd -r memcached && useradd --no-log-init
-
 # install postgres and memcached
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
