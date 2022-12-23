@@ -143,7 +143,8 @@ task :fetch_oboe_file, [:env] do |t, args|
   case args["env"]
   when "dev"
     oboe_dir = "https://solarwinds-apm-staging.s3.us-west-2.amazonaws.com/apm/c-lib/nightly/"
-    puts 'Fetching c-lib from DEVELOPMENT'
+    puts "Fetching c-lib from DEVELOPMENT"
+    puts "This is an unstable build and this gem should only be used for testing"
   when "stg"
     oboe_dir = "https://agent-binaries.global.st-ssp.solarwinds.com/apm/c-lib/#{oboe_version}"
     puts "Fetching c-lib from STAGING !!!!!! C-Lib VERSION: #{oboe_version} !!!!!!!"
@@ -249,11 +250,7 @@ task :compile do
   so_file  = File.expand_path('ext/oboe_metal/libsolarwinds_apm.so')
 
   Dir.chdir ext_dir
-  if ENV['OBOE_LOCAL']
-    cmd = [Gem.ruby, 'extconf_local.rb']
-  else
-    cmd = [Gem.ruby, 'extconf.rb']
-  end
+  cmd = [Gem.ruby, 'extconf.rb']
   sh cmd.join(' ')
   sh '/usr/bin/env make'
 
