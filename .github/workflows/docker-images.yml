@@ -65,5 +65,5 @@ jobs:
         platforms: linux/arm64
         push: true
         file: test/run_tests/Dockerfile_${{ matrix.os }}_arm
-        tags: ${{ steps.meta_arm.outputs.tags }}
-        labels: ${{ steps.meta_arm.outputs.labels }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
