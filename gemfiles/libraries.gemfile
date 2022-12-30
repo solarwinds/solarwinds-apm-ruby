@@ -13,7 +13,7 @@ if ENV["ARCH"] != "aarch64" && ENV["ARCH"] != "arm64"
   if File.exist?('/etc/centos-release') && RUBY_VERSION < '2.6.0'
     gem 'grpc', '~> 1.48.0'
     gem 'google-protobuf'
-  elsif !File.exist?('/etc/alpine-release')  && RUBY_VERSION < '3.0.0'
+  elsif !File.exist?('/etc/alpine-release') && RUBY_VERSION < '3.0.0'
     gem 'grpc'
     gem 'google-protobuf'
   end

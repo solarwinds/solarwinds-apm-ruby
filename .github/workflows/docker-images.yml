@@ -40,7 +40,7 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
         
-    - name: Extract metadata (tags, labels) for Docker
+    - name: Extract metadata (tags, labels) for Docker (both ARM and AMD64)
       id: meta
       uses: docker/metadata-action@v4
       with:
@@ -58,15 +58,6 @@ jobs:
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
 
-    # build arm image as well
-    - name: Extract metadata (tags, labels) for Docker (ARM)
-      id: meta_arm
-      uses: docker/metadata-action@v4
-      with:
-        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}_${{ matrix.os }}_arm # e.g. apm_ruby_ubuntu_arm
-        flavor: |
-          latest=true
-
     - name: Build and push Docker image (ARM)
       uses: docker/build-push-action@v3
       with:
@@ -76,11 +67,3 @@ jobs:
         file: test/run_tests/Dockerfile_${{ matrix.os }}_arm
         tags: ${{ steps.meta_arm.outputs.tags }}
         labels: ${{ steps.meta_arm.outputs.labels }}
-
-
-
-
-
-
-
-
