@@ -83,8 +83,10 @@ task :docker, :environment do
   Dir.chdir('test/run_tests')
   case arg3
   when "arm"
+    puts "Building ARM64 architecture"
     exec("docker-compose -f docker-compose-arm.yml down -v --remove-orphans && docker-compose -f docker-compose-arm.yml run --service-ports --name ruby_sw_apm_#{os}_arm ruby_sw_apm_#{os}_arm /code/ruby-solarwinds/test/run_tests/ruby_setup.sh bash")
   else
+    puts "Building x86_64 architecture"
     exec("docker-compose down -v --remove-orphans && docker-compose run --service-ports --name ruby_sw_apm_#{os} ruby_sw_apm_#{os} /code/ruby-solarwinds/test/run_tests/ruby_setup.sh bash")
   end
 end

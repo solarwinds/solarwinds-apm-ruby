@@ -1,8 +1,5 @@
 FROM centos:7
 
-#RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Linux-* &&\
-#    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-Linux-*
-
 # install OS packages
 RUN yum update -y \
     && yum install -y epel-release \
@@ -43,13 +40,6 @@ RUN yum groupinstall 'Development Tools' -y \
        vim \
        zlib-devel \
     && rm -rf /var/lib/apt/lists/*
-
-#yum install fontconfig libXrender libXext
-#
-
-
-# update node to current stable version
-# RUN npm cache clean -f && npm install -g n && n stable
 
 # rbenv setup
 # use rbenv-default-gems to automatically install bundler for each ruby version

@@ -19,7 +19,12 @@ if ENV["ARCH"] != "aarch64" && ENV["ARCH"] != "arm64"
   end
 end
 
-gem 'bunny'
+if File.exist?('/etc/centos-release')
+  gem 'bunny', '<= 2.19.0'
+else
+  gem 'bunny'
+end
+
 gem 'curb'
 
 gem 'dalli'
