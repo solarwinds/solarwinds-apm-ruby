@@ -1,0 +1,44 @@
+name: Verify Installation
+
+on:
+  workflow_dispatch:
+
+
+env:
+  SW_APM_SERVICE_KEY: ${{ secrets.SW_APM_SERVICE_KEY_PROD }}
+  SW_APM_COLLECTOR: ${{ secrets.SW_APM_COLLECTOR_PROD}}
+
+jobs:
+  #--------------------------------------------------------------------
+  # RUBY 3.1
+  #--------------------------------------------------------------------
+
+  ruby31_install_ubuntu_20:
+    runs-on: ubuntu-latest
+    container:
+      image: ruby:3.1.3-bullseye
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup and run install test
+        working-directory: .github/workflows/
+        run: |
+          sleep 1
+          gem install solarwinds_apm
+          ruby ./scripts/test_install.rb
+
+  ruby31_install_ubuntu_20_arm:
+    runs-on: ubuntu-latest
+    container:
+      image: arm64v8/ruby:3.1.3-bullseye
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - uses: actions/checkout@v2
+
+      - name: Setup and run install test
+        working-directory: .github/workflows/
+        run: |
+          sleep 1
+          gem install solarwinds_apm
+          ruby ./scripts/test_install.rb
