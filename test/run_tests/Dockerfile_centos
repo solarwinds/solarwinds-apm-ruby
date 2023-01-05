@@ -1,16 +1,14 @@
 FROM centos:7
 
-#RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Linux-* &&\
-#    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-Linux-*
-
 # install OS packages
 RUN yum update -y \
     && yum install -y epel-release \
     && yum install -y centos-release-scl \
     && yum install -y llvm-toolset-7.0 \
-    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-x86_64/postgresql14-libs-14.1-1PGDG.rhel7.x86_64.rpm \
-    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-x86_64/postgresql14-14.1-1PGDG.rhel7.x86_64.rpm \
-    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-x86_64/postgresql14-devel-14.1-1PGDG.rhel7.x86_64.rpm
+    && ARCH=`uname -m` \
+    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-$ARCH/postgresql14-libs-14.6-1PGDG.rhel7.$ARCH.rpm \
+    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-$ARCH/postgresql14-14.6-1PGDG.rhel7.$ARCH.rpm \
+    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-$ARCH/postgresql14-devel-14.6-1PGDG.rhel7.$ARCH.rpm
 RUN ln -s  /usr/pgsql-14/bin/pg_config /usr/local/bin/pg_config
 
 RUN yum groupinstall 'Development Tools' -y \
@@ -43,13 +41,6 @@ RUN yum groupinstall 'Development Tools' -y \
        vim \
        zlib-devel \
     && rm -rf /var/lib/apt/lists/*
-
-#yum install fontconfig libXrender libXext
-#
-
-
-# update node to current stable version
-# RUN npm cache clean -f && npm install -g n && n stable
 
 # rbenv setup
 # use rbenv-default-gems to automatically install bundler for each ruby version
@@ -104,7 +95,7 @@ RUN curl -SL http://download.redis.io/releases/redis-6.2.4.tar.gz | tar xzC /tmp
 #    && rm -f /tmp/config
 
 RUN yum update -y && \
-	yum -y install initscripts memcached mysql mysql-devel
+    yum -y install initscripts memcached mysql mysql-devel
 
 RUN echo "echo never > /sys/kernel/mm/transparent_hugepage/enabled" >> /etc/rc.local
 
