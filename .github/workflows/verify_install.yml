@@ -31,15 +31,12 @@ jobs:
     container:
       image: arm64v8/ruby:3.1.3-bullseye
     steps:
+      - uses: actions/checkout@v2
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
-
-      - uses: actions/checkout@v2
-
       - name: Setup and run install test
         working-directory: .github/workflows/
         run: |
           sleep 1
           gem install solarwinds_apm
           ruby ./scripts/test_install.rb
-          
