@@ -34,7 +34,9 @@ Automatic tracing and metrics for Ruby applications. Get started at cloud.solarw
               'ext/oboe_metal/src/bson/platform_hacks.h',
               'ext/oboe_metal/src/VERSION',
               'ext/oboe_metal/lib/liboboe-1.0-alpine-x86_64.so.0.0.0.sha256',
-              'ext/oboe_metal/lib/liboboe-1.0-x86_64.so.0.0.0.sha256'
+              'ext/oboe_metal/lib/liboboe-1.0-x86_64.so.0.0.0.sha256',
+              'ext/oboe_metal/lib/liboboe-1.0-aarch64.so.0.0.0.sha256',
+              'ext/oboe_metal/lib/liboboe-1.0-alpine-aarch64.so.0.0.0.sha256'
              ]
   s.files += ['lib/solarwinds_apm/cert/star.appoptics.com.issuer.crt']
   s.files -= ['build_gem.sh',

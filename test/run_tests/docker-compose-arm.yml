@@ -13,7 +13,6 @@ version: "2.1"
 #
 ########################################################################################################
 x-ao-env: &ao-env
-#  SW_APM_COLLECTOR: "apm.collector.st-ssp.solarwinds.com"
   SW_APM_COLLECTOR: "/tmp/sw_apm_traces.bson"
   OBOE_STAGING: "true"
   SW_APM_GEM_TEST: "true"
@@ -24,23 +23,19 @@ x-ao-env: &ao-env
   SW_APM_SERVICE_KEY: "${SW_APM_SERVICE_KEY}"
   SW_APM_TOKEN_BUCKET_CAPACITY: 10000
   SW_APM_TOKEN_BUCKET_RATE: 10000
-
   BUNDLE_GEMFILE: "gemfiles/libraries.gemfile"
   DOCKER_MYSQL_PASS: "admin"
   DOCKER_PSQL_PASS: "docker"
   MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
   MYSQL_ROOT_PASSWORD: "admin"
   MYSQL_HOST: "ao-ruby-mysql"
-#  OBOE_VERSION: "10.1.0"
   POSTGRES_PASSWORD: "docker"
   POSTGRES_USER: "docker"
   POSTGRES_HOST: "ao-ruby-postgres"
   QUERY_LOG_FILE: "/tmp/sw_apm_query_logs.txt"
   RUBY_ENV: "test"
   TEST_RUNS_TO_FILE: "true"
-#    - SIMPLECOV_COVERAGE=true
-#    - OBOE_WIP=true
-#    - SW_APM_DEBUG_LEVEL=6
+  ARCH: "aarch64"
 
 x-ao-shared: &ao-shared
   mem_limit: 1G
@@ -59,10 +54,9 @@ x-ao-shared: &ao-shared
   working_dir: /code/ruby-solarwinds
 
 services:
-  ruby_sw_apm_ubuntu:
-    container_name: ruby_sw_apm_ubuntu
-    image: ruby_sw_apm_ubuntu
-    platform: linux/amd64
+  ruby_sw_apm_ubuntu_arm:
+    container_name: ruby_sw_apm_ubuntu_arm
+    image: ruby_sw_apm_ubuntu_arm
     build:
       context: .
       dockerfile: Dockerfile_ubuntu
@@ -82,13 +76,12 @@ services:
       << : *ao-env
       SW_APM_HOSTNAME_ALIAS: "AO_RUBY_UBUNTU"
 
-  ruby_sw_apm_alpine:
-    container_name: ruby_sw_apm_alpine
-    image: ruby_sw_apm_alpine
-    platform: linux/amd64
+  ruby_sw_apm_alpine_arm:
+    container_name: ruby_sw_apm_alpine_arm
+    image: ruby_sw_apm_alpine_arm
     build:
       context: .
-      dockerfile: ./Dockerfile_alpine
+      dockerfile: ./Dockerfile_alpine_arm
     hostname: docker.ao.alpine
     <<: *ao-shared
     volumes:
@@ -101,13 +94,12 @@ services:
       <<: *ao-env
       SW_APM_HOSTNAME_ALIAS: "AO_RUBY_ALPINE"
 
-  ruby_sw_apm_debian:
-    container_name: ruby_sw_apm_debian
-    image: ruby_sw_apm_debian
-    platform: linux/amd64
+  ruby_sw_apm_debian_arm:
+    container_name: ruby_sw_apm_debian_arm
+    image: ruby_sw_apm_debian_arm
     build:
       context: .
-      dockerfile: Dockerfile_debian
+      dockerfile: Dockerfile_debian_arm
     hostname: docker.ao.debian
     << : *ao-shared
     volumes:
@@ -119,13 +111,12 @@ services:
       << : *ao-env
       SW_APM_HOSTNAME_ALIAS: "AO_RUBY_DEBIAN"
 
-  ruby_sw_apm_centos:
-    container_name: ruby_sw_apm_centos
-    image: ruby_sw_apm_centos
-    platform: linux/amd64
+  ruby_sw_apm_centos_arm:
+    container_name: ruby_sw_apm_centos_arm
+    image: ruby_sw_apm_centos_arm
     build:
       context: .
-      dockerfile: Dockerfile_centos
+      dockerfile: Dockerfile_centos_arm
     hostname: docker.ao.centos
     << : *ao-shared
     volumes:
@@ -141,13 +132,12 @@ services:
 
   ao-ruby-rabbitmq:
     container_name: ao-ruby-rabbitmq
-    image: rabbitmq:3-management
+    image: arm64v8/rabbitmq:3-management
 
   ao-ruby-mysql:
     container_name: ao-ruby-mysql
-    platform: linux/amd64
-    image: mysql:5.7.33
-    command: --init-file /data/application/mysql_init.sql
+    image: arm64v8/mysql:latest
+    command: --init-file /data/application/mysql_init.sql --default-authentication-plugin=mysql_native_password
     volumes:
       - ./mysql_init.sql:/data/application/mysql_init.sql
     environment:
@@ -156,11 +146,11 @@ services:
 
   ao-ruby-mongo:
     container_name: ao-ruby-mongo
-    image: mongo:5
+    image: arm64v8/mongo:latest
 
   ao-ruby-postgres:
     container_name: ao-ruby-postgres
-    image: postgres:latest
+    image: arm64v8/postgres:latest
     environment:
       POSTGRES_DB: "test_db"
       POSTGRES_USER: "docker"
@@ -184,4 +174,3 @@ services:
       - ao-ruby-mysql
       - ao-ruby-mongo
       - ao-ruby-postgres
-

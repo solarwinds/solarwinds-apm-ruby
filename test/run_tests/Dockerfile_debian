@@ -38,16 +38,16 @@ RUN apt-get update \
 # never version than apt-get would install
 # https://github.com/Kitware/CMake/releases/download/v3.20.5/cmake-3.20.5.tar.gz
 #
-RUN curl -OL  https://github.com/Kitware/CMake/releases/download/v3.20.5/cmake-3.20.5-SHA-256.txt \
-   && curl -OL https://github.com/Kitware/CMake/releases/download/v3.20.5/cmake-3.20.5.tar.gz \
-   && sha256sum -c --ignore-missing cmake-3.20.5-SHA-256.txt \
-   && tar -zxvf cmake-3.20.5.tar.gz \
-   && cd cmake-3.20.5 \
-   && ./bootstrap \
-   && make \
-   && make install \
-   && cd .. \
-   && /bin/rm -r cmake-3.20.5
+#RUN curl -OL  https://github.com/Kitware/CMake/releases/download/v3.20.5/cmake-3.20.5-SHA-256.txt \
+#   && curl -OL https://github.com/Kitware/CMake/releases/download/v3.20.5/cmake-3.20.5.tar.gz \
+#   && sha256sum -c --ignore-missing cmake-3.20.5-SHA-256.txt \
+#   && tar -zxvf cmake-3.20.5.tar.gz \
+#   && cd cmake-3.20.5 \
+#   && ./bootstrap \
+#   && make \
+#   && make install \
+#   && cd .. \
+#   && /bin/rm -r cmake-3.20.5
 
 # update node to current stable version
 RUN npm cache clean -f && npm install -g n && n stable

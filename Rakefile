@@ -40,7 +40,10 @@ Rake::TestTask.new do |t|
   when /libraries/
     t.test_files = FileList['test/support/*_test.rb'] +
                    FileList['test/reporter/*_test.rb'] +
-                   FileList['test/instrumentation/*_test.rb']
+                   ((ENV["ARCH"] != "aarch64" && ENV["ARCH"] != "arm64")? 
+                      FileList['test/instrumentation/*_test.rb'] : 
+                      FileList['test/instrumentation/*_test.rb'].exclude("test/instrumentation/memcached_test.rb", "test/instrumentation/grpc_test.rb"))
+  
   when /instrumentation_mocked/
     # WebMock is interfering with other tests, so these have to run separately
     t.test_files = FileList['test/mocked/*_test.rb']
@@ -68,15 +71,24 @@ end
 
 task :docker_test => :docker_tests
 
-desc 'Start docker container for testing and debugging, accepts: alpine, debian, centos as args, default: ubuntu'
+desc 'Start docker container for testing and debugging, accepts: alpine, debian, centos as args, default: ubuntu
+      Example: bundle exec rake docker ubuntu arm'
 task :docker, :environment do
-  _arg1, arg2 = ARGV
+  _arg1, arg2, arg3 = ARGV
   os = arg2 || 'ubuntu'
+  arch = arg3 || ''
 
   puts "Running on #{os}"
 
   Dir.chdir('test/run_tests')
-  exec("docker-compose down -v --remove-orphans && docker-compose run --service-ports --name ruby_sw_apm_#{os} ruby_sw_apm_#{os} /code/ruby-solarwinds/test/run_tests/ruby_setup.sh bash")
+  case arg3
+  when "arm"
+    puts "Building ARM64 architecture"
+    exec("docker-compose -f docker-compose-arm.yml down -v --remove-orphans && docker-compose -f docker-compose-arm.yml run --service-ports --name ruby_sw_apm_#{os}_arm ruby_sw_apm_#{os}_arm /code/ruby-solarwinds/test/run_tests/ruby_setup.sh bash")
+  else
+    puts "Building x86_64 architecture"
+    exec("docker-compose down -v --remove-orphans && docker-compose run --service-ports --name ruby_sw_apm_#{os} ruby_sw_apm_#{os} /code/ruby-solarwinds/test/run_tests/ruby_setup.sh bash")
+  end
 end
 
 desc 'Stop all containers that were started for testing and debugging'
@@ -179,7 +191,9 @@ task :fetch_oboe_file, [:env] do |t, args|
                'liboboe-1.0-alpine-aarch64.so.sha256',
                'liboboe-1.0-aarch64.so.sha256',
                'liboboe-1.0-alpine-x86_64.so.0.0.0.sha256',
-               'liboboe-1.0-x86_64.so.0.0.0.sha256']
+               'liboboe-1.0-x86_64.so.0.0.0.sha256',
+               'liboboe-1.0-aarch64.so.0.0.0.sha256',
+               'liboboe-1.0-alpine-aarch64.so.0.0.0.sha256']
 
   sha_files.each do |filename|
     remote_file = File.join(oboe_dir, filename)
