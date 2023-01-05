@@ -10,7 +10,7 @@ env:
 
 jobs:
   #--------------------------------------------------------------------
-  # RUBY 3.0
+  # RUBY 3.1
   #--------------------------------------------------------------------
 
   ruby31_install_ubuntu_20:
@@ -34,9 +34,6 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
       - uses: actions/checkout@v2
 
       - name: Setup and run install test
@@ -45,4 +42,4 @@ jobs:
           sleep 1
           gem install solarwinds_apm
           ruby ./scripts/test_install.rb
-
+          
