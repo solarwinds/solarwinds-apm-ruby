@@ -7,16 +7,22 @@ on:
 env:
   SW_APM_SERVICE_KEY: ${{ secrets.SW_APM_SERVICE_KEY_PROD }}
   SW_APM_COLLECTOR: ${{ secrets.SW_APM_COLLECTOR_PROD}}
+  PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
 
 jobs:
-  #--------------------------------------------------------------------
-  # RUBY 3.1
-  #--------------------------------------------------------------------
 
-  ruby31_install_ubuntu_20:
+  debian_amd64_verify_install_test:
+    name: ruby - ${{ matrix.os }} on amd64
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [3.1.3-bullseye, 2.7.7-bullseye]
+
     container:
-      image: ruby:3.1.3-bullseye
+      image: ruby:${{ matrix.os }}
+
     steps:
       - uses: actions/checkout@v2
       - name: Setup and run install test
@@ -24,19 +30,82 @@ jobs:
         run: |
           sleep 1
           gem install solarwinds_apm
-          ruby ./scripts/test_install.rb
+          ruby ./scripts/verify_install.rb
 
-  ruby31_install_ubuntu_20_arm:
+  alpine_amd64_verify_install_test:
+
+    name: ruby - ${{ matrix.os }} on amd64
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [3.1.3-alpine3.17, 2.7.7-alpine3.16]
+
     container:
-      image: arm64v8/ruby:3.1.3-bullseye
+      image: ruby:${{ matrix.os }}
+
     steps:
       - uses: actions/checkout@v2
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
       - name: Setup and run install test
         working-directory: .github/workflows/
         run: |
           sleep 1
+          apk --update add ruby ruby-dev build-base nodejs tzdata postgresql-dev postgresql-client libxslt-dev libxml2-dev imagemagick
           gem install solarwinds_apm
-          ruby ./scripts/test_install.rb
+          ruby ./scripts/verify_install.rb
+
+  debian_arm64_verify_install_test:
+    name: ruby - ${{ matrix.os }} on arm64
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [bullseye, ubuntu20.04, ubuntu22.04]
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: uraimo/run-on-arch-action@v2
+        name: Verify Install
+        with:
+          arch: aarch64
+          distro: ${{ matrix.os }}
+          run: |
+            sleep 1
+            apt update && apt install -y ruby ruby-dev libssl-dev libreadline-dev zlib1g-dev autoconf bison build-essential libyaml-dev libreadline-dev libncurses5-dev libffi-dev libgdbm-dev
+            ruby -v
+            gem install solarwinds_apm
+            ruby ./.github/workflows/scripts/verify_install.rb
+
+  alpine_arm64_verify_install_test:
+    name: ruby - ${{ matrix.os }} on arm64
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [alpine_latest]
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: uraimo/run-on-arch-action@v2
+        name: Verify Install
+        with:
+          arch: aarch64
+          distro: ${{ matrix.os }}
+          run: |
+            sleep 1
+            apk --update add ruby ruby-dev build-base nodejs tzdata postgresql-dev postgresql-client libxslt-dev libxml2-dev imagemagick
+            ruby -v
+            gem install solarwinds_apm
+            ruby ./.github/workflows/scripts/verify_install.rb
+
+
+
+
+
+
+
+
+
