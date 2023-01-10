@@ -44,15 +44,16 @@ jobs:
         shell: sh
         env:
           MODE: ${{ github.event.inputs.install-registry }}
-          ARITCH: AMD
+          ARCHITECTURE: AMD
 
   verify_install_arm64_test:
-    name: ruby - ${{ matrix.os }} amd64 - ${{ github.event.inputs.solarwinds-version }}
+    name: ruby - ${{ matrix.os }} arm64 - ${{ github.event.inputs.solarwinds-version }}
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix:
+        # list of supported platform: https://github.com/uraimo/run-on-arch-action#supported-platforms
         os: [bullseye, ubuntu20.04, ubuntu18.04, alpine_latest]
 
     steps:
@@ -66,7 +67,7 @@ jobs:
             ./.github/workflows/scripts/_helper_run_install_tests.sh
           env: |
             MODE: ${{ github.event.inputs.install-registry }}
-            ARITCH: ARM
+            ARCHITECTURE: ARM
             SOLARWINDS_APM_VERSION: ${{ github.event.inputs.solarwinds-version }}
             SW_APM_SERVICE_KEY: ${{ secrets.SW_APM_SERVICE_KEY_PROD }}
             SW_APM_COLLECTOR: ${{ secrets.SW_APM_COLLECTOR_PROD }}
