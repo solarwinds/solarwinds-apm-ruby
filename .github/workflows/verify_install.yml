@@ -34,19 +34,45 @@ jobs:
         os: [ubuntu, alpine]
         ruby_version: ['3.1.0', '2.7.5']
 
-    container:
-      image: ghcr.io/${{ github.repository }}/apm_ruby_${{ matrix.os }}:main
+    # container:
+    #   image: ghcr.io/${{ github.repository }}/apm_ruby_${{ matrix.os }}:main
 
+    # steps:
+    #   - uses: actions/checkout@v2
+    #   - name: Setup and run install test
+    #     working-directory: .github/workflows/
+    #     run: ./scripts/_helper_run_install_tests.sh
+    #     shell: sh
+    #     env:
+    #       MODE: ${{ github.event.inputs.install-registry }}
+    #       ARCHITECTURE: AMD
+    #       RUBY_VERSION: ${{ matrix.ruby_version }}
     steps:
-      - uses: actions/checkout@v2
-      - name: Setup and run install test
-        working-directory: .github/workflows/
-        run: ./scripts/_helper_run_install_tests.sh
-        shell: sh
-        env:
-          MODE: ${{ github.event.inputs.install-registry }}
-          ARCHITECTURE: AMD
-          RUBY_VERSION: ${{ matrix.ruby_version }}
+      - uses: actions/checkout@v3
+
+      - name: Log in to the Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - run: docker pull --platform linux/amd64 ghcr.io/${{ github.repository }}/apm_ruby_${{ matrix.os }}:nh-27837-b
+      
+      - name: Run tests in container using QEMU
+        run: |
+          sudo docker run \
+            --platform linux/amd64 \
+            -e SW_APM_SERVICE_KEY=${{ secrets.SW_APM_SERVICE_KEY_PROD }} \
+            -e SW_APM_COLLECTOR=${{ secrets.SW_APM_COLLECTOR_PROD }} \
+            -e SOLARWINDS_APM_VERSION=${{ github.event.inputs.solarwinds-version }} \
+            -e PACKAGECLOUD_TOKEN=${{ secrets.PACKAGECLOUD_TOKEN }} \
+            -e MODE=${{ github.event.inputs.install-registry }} \
+            -e ARCHITECTURE=AMD \
+            -e RUBY_VERSION=${{ matrix.ruby_version }} \
+            -v $(pwd):/home \
+            --rm ghcr.io/${{ github.repository }}/apm_ruby_${{ matrix.os }}:nh-27837-b \
+            ./home/.github/workflows/scripts/_helper_run_install_tests.sh
 
 
   verify_install_arm64_test:
@@ -56,7 +82,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # list of supported platform: https://github.com/uraimo/run-on-arch-action#supported-platforms
         os: [ubuntu, alpine]
         ruby_version: ['3.1.0', '2.7.5']
 
@@ -77,8 +102,8 @@ jobs:
         run: |
           sudo docker run \
             --platform linux/arm64 \
-            -e SW_APM_SERVICE_KEY=${{ secrets.SW_APM_SERVICE_KEY }} \
-            -e SW_APM_COLLECTOR=${{ secrets.SW_APM_COLLECTOR }} \
+            -e SW_APM_SERVICE_KEY=${{ secrets.SW_APM_SERVICE_KEY_PROD }} \
+            -e SW_APM_COLLECTOR=${{ secrets.SW_APM_COLLECTOR_PROD }} \
             -e SOLARWINDS_APM_VERSION=${{ github.event.inputs.solarwinds-version }} \
             -e PACKAGECLOUD_TOKEN=${{ secrets.PACKAGECLOUD_TOKEN }} \
             -e MODE=${{ github.event.inputs.install-registry }} \
