@@ -31,22 +31,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu, alpine]
+        os: [ubuntu, alpine, centos]
         ruby_version: ['3.1.0', '2.7.5']
-
-    # container:
-    #   image: ghcr.io/${{ github.repository }}/apm_ruby_${{ matrix.os }}:main
-
-    # steps:
-    #   - uses: actions/checkout@v2
-    #   - name: Setup and run install test
-    #     working-directory: .github/workflows/
-    #     run: ./scripts/_helper_run_install_tests.sh
-    #     shell: sh
-    #     env:
-    #       MODE: ${{ github.event.inputs.install-registry }}
-    #       ARCHITECTURE: AMD
-    #       RUBY_VERSION: ${{ matrix.ruby_version }}
     steps:
       - uses: actions/checkout@v3
 
@@ -82,7 +68,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu, alpine]
+        os: [ubuntu, alpine, centos]
         ruby_version: ['3.1.0', '2.7.5']
 
     steps:
@@ -112,13 +98,3 @@ jobs:
             -v $(pwd):/home \
             --rm ghcr.io/${{ github.repository }}/apm_ruby_${{ matrix.os }}:nh-27837-b \
             ./home/.github/workflows/scripts/_helper_run_install_tests.sh
-
-
-
-
-
-
-
-
-
-
