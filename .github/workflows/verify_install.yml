@@ -25,16 +25,17 @@ env:
 jobs:
 
   verify_install_amd64_test:
-    name: ruby - ${{ matrix.os }} amd64 - ${{ github.event.inputs.solarwinds-version }}
+    name: ruby - ${{ matrix.ruby_version }} - ${{ matrix.os }} amd64 - ${{ github.event.inputs.solarwinds-version }}
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix:
-        os: [3.1.3-bullseye, 2.7.7-bullseye, 3.1.3-alpine3.17, 2.7.7-alpine3.16]
+        os: [ubuntu, alpine]
+        ruby_version: [3.1.0, 2.7.5]
 
     container:
-      image: ruby:${{ matrix.os }}
+      image: ghcr.io/${{ github.repository }}/apm_ruby_${{ matrix.os }}:nh-27837-b
 
     steps:
       - uses: actions/checkout@v2
@@ -45,6 +46,8 @@ jobs:
         env:
           MODE: ${{ github.event.inputs.install-registry }}
           ARCHITECTURE: AMD
+          RUBY_VERSION: ${{ matrix.ruby_version }}
+
 
   verify_install_arm64_test:
     name: ruby - ${{ matrix.os }} arm64 - ${{ github.event.inputs.solarwinds-version }}
@@ -54,22 +57,36 @@ jobs:
       fail-fast: false
       matrix:
         # list of supported platform: https://github.com/uraimo/run-on-arch-action#supported-platforms
-        os: [bullseye, ubuntu20.04, ubuntu18.04, alpine_latest]
+        os: [ubuntu, alpine]
+        ruby_version: [3.1.0, 2.7.5]
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: uraimo/run-on-arch-action@v2
-        name: Verify Install
-        with:
-          arch: aarch64
-          distro: ${{ matrix.os }}
-          run: |
-            ./.github/workflows/scripts/_helper_run_install_tests.sh
-          env: |
-            MODE: ${{ github.event.inputs.install-registry }}
-            ARCHITECTURE: ARM
-            SOLARWINDS_APM_VERSION: ${{ github.event.inputs.solarwinds-version }}
-            SW_APM_SERVICE_KEY: ${{ secrets.SW_APM_SERVICE_KEY_PROD }}
-            SW_APM_COLLECTOR: ${{ secrets.SW_APM_COLLECTOR_PROD }}
-            PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
+      - uses: actions/checkout@v3
+      - uses: docker/setup-qemu-action@v2
+
+      - run: docker pull --platform linux/arm64 ghcr.io/${{ github.repository }}/apm_ruby_${{ matrix.os }}:nh-27837-b
+      
+      - name: Run tests in container using QEMU
+        run: |
+          sudo docker run \
+            --platform linux/arm64 \
+            -e SW_APM_SERVICE_KEY=${{ secrets.SW_APM_SERVICE_KEY }} \
+            -e SW_APM_COLLECTOR=${{ secrets.SW_APM_COLLECTOR }} \
+            -e SOLARWINDS_APM_VERSION=${{ github.event.inputs.solarwinds-version }} \
+            -e PACKAGECLOUD_TOKEN=${{ secrets.PACKAGECLOUD_TOKEN }} \
+            -e MODE=${{ github.event.inputs.install-registry }} \
+            -e ARCHITECTURE=AMD \
+            -e RUBY_VERSION=${{ matrix.ruby_version }} \
+            -v $(pwd):/home \
+            --rm ghcr.io/${{ github.repository }}/apm_ruby_${{ matrix.os }}:nh-27837-b \
+            ./home/.github/workflows/scripts/_helper_run_install_tests.sh
+
+
+
+
+
+
+
+
+
 
