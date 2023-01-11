@@ -30,7 +30,7 @@ echo "Install solarwinds_apm version: $SOLARWINDS_APM_VERSION"
 #     fi
 # } >/dev/null
 
-
+rbenv versions
 rbenv local $RUBY_VERSION
 
 if [ "$MODE" = "RubyGem" ]; then
