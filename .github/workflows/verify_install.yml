@@ -16,12 +16,6 @@ on:
         required: true
         description: 'Solarwinds apm version'
 
-env:
-  SOLARWINDS_APM_VERSION: ${{ github.event.inputs.solarwinds-version }}
-  SW_APM_SERVICE_KEY: ${{ secrets.SW_APM_SERVICE_KEY_PROD }}
-  SW_APM_COLLECTOR: ${{ secrets.SW_APM_COLLECTOR_PROD }}
-  PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
-
 jobs:
 
   verify_install_amd64_test:
@@ -54,7 +48,6 @@ jobs:
             -e SOLARWINDS_APM_VERSION=${{ github.event.inputs.solarwinds-version }} \
             -e PACKAGECLOUD_TOKEN=${{ secrets.PACKAGECLOUD_TOKEN }} \
             -e MODE=${{ github.event.inputs.install-registry }} \
-            -e ARCHITECTURE=AMD \
             -e RUBY_VERSION=${{ matrix.ruby_version }} \
             -v $(pwd):/home \
             --rm ghcr.io/${{ github.repository }}/apm_ruby_${{ matrix.os }}:nh-27837-b \
@@ -93,7 +86,6 @@ jobs:
             -e SOLARWINDS_APM_VERSION=${{ github.event.inputs.solarwinds-version }} \
             -e PACKAGECLOUD_TOKEN=${{ secrets.PACKAGECLOUD_TOKEN }} \
             -e MODE=${{ github.event.inputs.install-registry }} \
-            -e ARCHITECTURE=AMD \
             -e RUBY_VERSION=${{ matrix.ruby_version }} \
             -v $(pwd):/home \
             --rm ghcr.io/${{ github.repository }}/apm_ruby_${{ matrix.os }}:nh-27837-b \
@@ -120,6 +112,7 @@ jobs:
             -e SW_APM_COLLECTOR=${{ secrets.SW_APM_COLLECTOR }} \
             -e SOLARWINDS_APM_VERSION=${{ github.event.inputs.solarwinds-version }} \
             -e PACKAGECLOUD_TOKEN=${{ secrets.PACKAGECLOUD_TOKEN }} \
+            -e MODE=${{ github.event.inputs.install-registry }} \
             -v $(pwd):/home \
             --rm redhat/ubi8 \
             ./home/.github/workflows/scripts/_helper_run_install_tests.sh
@@ -146,6 +139,7 @@ jobs:
             -e SW_APM_COLLECTOR=${{ secrets.SW_APM_COLLECTOR }} \
             -e SOLARWINDS_APM_VERSION=${{ github.event.inputs.solarwinds-version }} \
             -e PACKAGECLOUD_TOKEN=${{ secrets.PACKAGECLOUD_TOKEN }} \
+            -e MODE=${{ github.event.inputs.install-registry }} \
             -v $(pwd):/home \
             --rm redhat/ubi8 \
             ./home/.github/workflows/scripts/_helper_run_install_tests.sh
