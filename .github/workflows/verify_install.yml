@@ -122,7 +122,7 @@ jobs:
             -e PACKAGECLOUD_TOKEN=${{ secrets.PACKAGECLOUD_TOKEN }} \
             -v $(pwd):/home \
             --rm redhat/ubi8 \
-            ./home/full_install_rhel.sh
+            ./home/.github/workflows/scripts/_helper_run_install_tests.sh
 
   verify_install_ubi8_arm64_test:
     name: ruby - ${{ matrix.ruby_version }} - ubi8 arm64 - ${{ github.event.inputs.solarwinds-version }}
@@ -148,5 +148,5 @@ jobs:
             -e PACKAGECLOUD_TOKEN=${{ secrets.PACKAGECLOUD_TOKEN }} \
             -v $(pwd):/home \
             --rm redhat/ubi8 \
-            ./home/full_install_rhel.sh
+            ./home/.github/workflows/scripts/_helper_run_install_tests.sh
 
