@@ -145,6 +145,11 @@ for ruby in ${rubies[@]} ; do
       cd - || exit 1
     fi
   fi
+
+  if [[ $ruby == '2.5.9' ]]; then
+    gem install bundler -v 2.3.26
+  fi
+
   unset BUNDLE_GEMFILE
   bundle update
   bundle exec rake clean fetch compile
