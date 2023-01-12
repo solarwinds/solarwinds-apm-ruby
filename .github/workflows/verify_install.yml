@@ -31,7 +31,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu, alpine, centos]
+        os: [ubuntu, alpine]
         ruby_version: ['3.1.0', '2.7.5']
     steps:
       - uses: actions/checkout@v3
@@ -62,13 +62,13 @@ jobs:
 
 
   verify_install_arm64_test:
-    name: ruby - ${{ matrix.os }} arm64 - ${{ github.event.inputs.solarwinds-version }}
+    name: ruby - ${{ matrix.ruby_version }} - ${{ matrix.os }} arm64 - ${{ github.event.inputs.solarwinds-version }}
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu, alpine, centos]
+        os: [ubuntu, alpine]
         ruby_version: ['3.1.0', '2.7.5']
 
     steps:
@@ -98,3 +98,55 @@ jobs:
             -v $(pwd):/home \
             --rm ghcr.io/${{ github.repository }}/apm_ruby_${{ matrix.os }}:nh-27837-b \
             ./home/.github/workflows/scripts/_helper_run_install_tests.sh
+
+  verify_install_ubi8_amd64_test:
+    name: ruby - ${{ matrix.ruby_version }} - ubi8 amd64 - ${{ github.event.inputs.solarwinds-version }}
+    runs-on: ubuntu-latest
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby_version: [3.1.0, 2.7.5]
+
+    steps:
+      - uses: actions/checkout@v3
+      - run: docker pull redhat/ubi8
+      - name: Run tests in container
+        run: |
+          sudo docker run \
+            --platform linux/amd64 \
+            -e RUBY_VERSION=${{ matrix.ruby_version }} \
+            -e SW_APM_SERVICE_KEY=${{ secrets.SW_APM_SERVICE_KEY }} \
+            -e SW_APM_COLLECTOR=${{ secrets.SW_APM_COLLECTOR }} \
+            -e SOLARWINDS_APM_VERSION=${{ github.event.inputs.solarwinds-version }} \
+            -e PACKAGECLOUD_TOKEN=${{ secrets.PACKAGECLOUD_TOKEN }} \
+            -v $(pwd):/home \
+            --rm redhat/ubi8 \
+            ./home/full_install_rhel.sh
+
+  verify_install_ubi8_arm64_test:
+    name: ruby - ${{ matrix.ruby_version }} - ubi8 arm64 - ${{ github.event.inputs.solarwinds-version }}
+    runs-on: ubuntu-latest
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby_version: [3.1.0, 2.7.5]
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/setup-qemu-action@v2
+      - run: docker pull --platform linux/arm64 redhat/ubi8
+      - name: Run tests in container
+        run: |
+          sudo docker run \
+            --platform linux/arm64 \
+            -e RUBY_VERSION=${{ matrix.ruby_version }} \
+            -e SW_APM_SERVICE_KEY=${{ secrets.SW_APM_SERVICE_KEY }} \
+            -e SW_APM_COLLECTOR=${{ secrets.SW_APM_COLLECTOR }} \
+            -e SOLARWINDS_APM_VERSION=${{ github.event.inputs.solarwinds-version }} \
+            -e PACKAGECLOUD_TOKEN=${{ secrets.PACKAGECLOUD_TOKEN }} \
+            -v $(pwd):/home \
+            --rm redhat/ubi8 \
+            ./home/full_install_rhel.sh
+
