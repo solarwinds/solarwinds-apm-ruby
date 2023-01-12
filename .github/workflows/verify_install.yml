@@ -108,8 +108,8 @@ jobs:
           sudo docker run \
             --platform linux/amd64 \
             -e RUBY_VERSION=${{ matrix.ruby_version }} \
-            -e SW_APM_SERVICE_KEY=${{ secrets.SW_APM_SERVICE_KEY }} \
-            -e SW_APM_COLLECTOR=${{ secrets.SW_APM_COLLECTOR }} \
+            -e SW_APM_SERVICE_KEY=${{ secrets.SW_APM_SERVICE_KEY_PROD }} \
+            -e SW_APM_COLLECTOR=${{ secrets.SW_APM_COLLECTOR_PROD }} \
             -e SOLARWINDS_APM_VERSION=${{ github.event.inputs.solarwinds-version }} \
             -e PACKAGECLOUD_TOKEN=${{ secrets.PACKAGECLOUD_TOKEN }} \
             -e MODE=${{ github.event.inputs.install-registry }} \
@@ -135,8 +135,8 @@ jobs:
           sudo docker run \
             --platform linux/arm64 \
             -e RUBY_VERSION=${{ matrix.ruby_version }} \
-            -e SW_APM_SERVICE_KEY=${{ secrets.SW_APM_SERVICE_KEY }} \
-            -e SW_APM_COLLECTOR=${{ secrets.SW_APM_COLLECTOR }} \
+            -e SW_APM_SERVICE_KEY=${{ secrets.SW_APM_SERVICE_KEY_PROD }} \
+            -e SW_APM_COLLECTOR=${{ secrets.SW_APM_COLLECTOR_PROD }} \
             -e SOLARWINDS_APM_VERSION=${{ github.event.inputs.solarwinds-version }} \
             -e PACKAGECLOUD_TOKEN=${{ secrets.PACKAGECLOUD_TOKEN }} \
             -e MODE=${{ github.event.inputs.install-registry }} \
