@@ -279,10 +279,10 @@ module SolarWindsAPM
           platform_info['Force']                                = true
           platform_info['Ruby.Platform.Version']                = RUBY_PLATFORM
           platform_info['Ruby.Version']                         = RUBY_VERSION
-          platform_info['Ruby.SolarWindsAPM.Version']       = SolarWindsAPM::Version::STRING
-          platform_info['Ruby.SolarWindsAPMExtension.Version'] = get_extension_lib_version
-          platform_info['RubyHeroku.SolarWindsAPM.Version']    = SolarWindsAPMHeroku::Version::STRING if defined?(SolarWindsAPMHeroku)
-          platform_info['Ruby.TraceMode.Version']                  = SolarWindsAPM::Config[:tracing_mode]
+          platform_info['Ruby.SolarWindsAPM.Version']           = SolarWindsAPM::Version::STRING
+          platform_info['Ruby.SolarWindsAPMExtension.Version']  = get_extension_lib_version
+          platform_info['RubyHeroku.SolarWindsAPM.Version']     = SolarWindsAPMHeroku::Version::STRING if defined?(SolarWindsAPMHeroku)
+          platform_info['Ruby.TraceMode.Version']               = SolarWindsAPM::Config[:tracing_mode]
           platform_info.merge!(report_gem_in_use)
           platform_info.merge!(report_server_in_use)
 
@@ -315,7 +315,7 @@ module SolarWindsAPM
           platform_info['process.runtime.name']         = RUBY_ENGINE
           platform_info['process.runtime.version']      = RUBY_VERSION
           platform_info['process.runtime.description']  = RUBY_DESCRIPTION
-          platform_info['telemetry.sdk.language']       = nil
+          platform_info['telemetry.sdk.language']       = 'ruby'
 
           # Resource Attributes (Optional)
           platform_info['process.executable.path'] = File.join(RbConfig::CONFIG['bindir'], RbConfig::CONFIG['ruby_install_name']).sub(/.*\s.*/m, '"\&"')
