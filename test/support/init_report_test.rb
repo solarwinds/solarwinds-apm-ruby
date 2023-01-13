@@ -12,7 +12,7 @@ describe 'InitReportTest' do
    it 'report_kvs' do
     init_kvs = ::SolarWindsAPM::Util.build_init_report
     _(init_kvs.has_key?("__Init")).must_equal true
-    _(init_kvs.has_key?("Force")).must_equal true
+    _(init_kvs.has_key?("Force")).must_equal false # removed for swo
     _(init_kvs.has_key?("Ruby.AppContainer.Version")).must_equal true
     _(init_kvs["Ruby.SolarWindsAPM.Version"]).must_equal SolarWindsAPM::Version::STRING
     _(init_kvs["Ruby.SolarWindsAPMExtension.Version"]).must_equal Oboe_metal::Config.getVersionString
