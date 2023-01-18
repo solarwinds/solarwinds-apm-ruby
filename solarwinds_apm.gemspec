@@ -24,7 +24,7 @@ Automatic tracing and metrics for Ruby applications. Get started at cloud.solarw
   }
 
   s.extra_rdoc_files = ['LICENSE']
-  s.files = `git ls-files`.split("\n").reject { |f| f.match(%r{^(test|gemfiles)/}) }
+  s.files = `git ls-files`.split("\n").reject { |f| f.match(%r{^(test|gemfiles|.github)/}) }
   s.files += ['ext/oboe_metal/src/oboe.h',
               'ext/oboe_metal/src/oboe_api.cpp',
               'ext/oboe_metal/src/oboe_api.h',

@@ -388,6 +388,8 @@ task :build_gem_push_to_packagecloud, [:version] do |t, args|
 
   require 'package_cloud'
 
+  puts "\n=== Ready to push solarwinds_apm #{args[:version]} ===\n"
+
   abort("Require PACKAGECLOUD_TOKEN\n See here: https://packagecloud.io/docs ") if ENV["PACKAGECLOUD_TOKEN"]&.empty? || ENV["PACKAGECLOUD_TOKEN"].nil?
   abort("No version specified.") if args[:version]&.empty? || args[:version].nil?
 
@@ -402,7 +404,8 @@ task :build_gem_push_to_packagecloud, [:version] do |t, args|
 
   puts "\n=== Gem will be pushed #{gem_to_push} ===\n"
   gem_to_push_version = gem_to_push&.match(/-\d*.\d*.\d*/).to_s.gsub("-","")
-  gem_to_push_version = gem_to_push&.match(/-\d*.\d*.\d*.pre/).to_s.gsub("-","") if args[:version].include? "pre"
+  gem_to_push_version = gem_to_push&.match(/-\d*.\d*.\d*.\d*pre/).to_s.gsub("-","") if args[:version].include? "pre"
+  puts "\n=== gem_to_push_version: #{gem_to_push_version} ===\n"
   
   abort("Couldn't find the required gem file.") if gem_to_push.nil? || gem_to_push_version != args[:version]
     
