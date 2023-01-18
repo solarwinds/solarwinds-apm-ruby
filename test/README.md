@@ -73,15 +73,9 @@ The tests require different services to be running, mainly:
 Oboe is the c-library that provides the methods to send data to
 the collector.
 When using the gem from source it needs to be installed once on a
-new platform:
+new platform use the short version that does it all
 ```bash
-bundle exec rake clean
-bundle exec rake fetch 
-bundle exec rake compile
-```
-or use the short version that does it all
-```bash
-bundle exec rake cfc
+bundle exec rake cfc["{env}"] # env: {"dev", "stg", "prod"}
 ```
 If the ruby version changes it needs to be re-compiled 
 (Don't worry about segfaults, some background job may have been running)

@@ -364,7 +364,7 @@ To make this simpler, we've included a few rake tasks to automate this process:
 
 ```bash
 rake clean                             # make sure no old stuff is around
-rake fetch_oboe_file_from_staging      # download c-files from staging
+rake fetch_oboe_file["stg"]     # download c-files from staging
 rake compile                           # Build the gem's c extension
 ```
 

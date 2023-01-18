@@ -45,7 +45,14 @@ vendor/
 tmp.rb
 apm.collector.st-ssp.solarwinds.com
 test/run_tests/.ruby_version_ubuntu
+test/run_tests/.ruby_version_alpine
+test/run_tests/.ruby_version_centos
+test/run_tests/.ruby_version_ubuntu
+
 redis-test.*
+
+# compiling
+ext/oboe_metal/verify
 
 # mac DS_Store
 .DS_Store
