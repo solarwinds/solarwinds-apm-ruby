@@ -37,15 +37,24 @@ else
   ao_path = File.join('https://agent-binaries.cloud.solarwinds.com/apm/c-lib/', version)
 end
 
-ao_arch = 'x86_64'
+ao_arch = "x86_64"
+system_arch = `uname -m` # for mac, the command is `uname` # "Darwin\n"; try `uname -a`
+case system_arch.gsub("\n","")
+when "x86_64"
+  ao_arch = "x86_64"
+when "aarch64"
+  ao_arch = "aarch64"
+end
+
 if File.exist?('/etc/alpine-release')
   version = File.read('/etc/alpine-release').strip
 
+  tmp_ao_arch = ao_arch.clone
   ao_arch =
     if Gem::Version.new(version) < Gem::Version.new('3.9')
-      'alpine-libressl-x86_64'
+      "alpine-libressl-#{tmp_ao_arch}"
     else # openssl
-      'alpine-x86_64'
+      "alpine-#{tmp_ao_arch}"
     end
 end
 
