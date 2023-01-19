@@ -323,7 +323,7 @@ module SolarWindsAPM
           platform_info['process.command_line']    = $PROGRAM_NAME
           platform_info['process.telemetry.path']  = Gem::Specification.find_by_name('solarwinds_apm')&.full_gem_path
           platform_info['os.type']                 = RUBY_PLATFORM
-          platform_info['os.description']          = `uname -a`.gsub("\n","")
+          # platform_info['os.description']          = `uname -a`.gsub("\n","")
           # platform_info['process.detailed_command_line'] = `ps axw`.split("\n").select{ |ps| ps[ /\A#{ $$ }/ ] }[0]
 
           platform_info.merge!(report_gem_in_use)
