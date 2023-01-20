@@ -48,8 +48,8 @@ end
 
 if File.exist?('/etc/alpine-release')
   version = File.read('/etc/alpine-release').strip
-  tmp_ao_arch = ao_arch.clone
 
+  tmp_ao_arch = ao_arch.clone
   ao_arch =
     if Gem::Version.new(version) < Gem::Version.new('3.9')
       "alpine-libressl-#{tmp_ao_arch}"
