@@ -217,7 +217,7 @@ task :fetch_oboe_file, [:env] do |t, args|
 
   FileUtils.cd(ext_src_dir) do
     system('swig -c++ -ruby -module oboe_metal -o oboe_swig_wrap.cc oboe.i')
-    FileUtils.rm('oboe.i')
+    FileUtils.rm('oboe.i') if args["env"] != "prod"
   end
 
   puts "Fetching finished."
