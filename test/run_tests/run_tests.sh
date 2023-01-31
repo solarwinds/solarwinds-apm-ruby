@@ -64,6 +64,12 @@ dir=$(pwd)
 
 exit_status=-1
 
+. /etc/os-release
+OS=$NAME
+VER=$VERSION_ID
+
+ARCH=$(uname -m)
+
 ##
 # Read opts
 ##
@@ -173,9 +179,12 @@ for ruby in ${rubies[@]} ; do
     # don't run rails 7 with Ruby <= 2.6
     if [[ $gemfile =~ .*rails7.* && $ruby =~ ^2.[65].* ]]; then continue; fi
 
+    if [[ $gemfile =~ .*rails.* && $OS == "Amazon Linux" && $ARCH == "aarch64" ]]; then
+      bundle config build.nokogiri --use-system-libraries --with-xslt-dir=/usr/include/libxml2 --with-xml2-dir=/usr/include/libxml2;
+    fi
+
     echo "*** installing gems from $BUNDLE_GEMFILE ***"
     
-    export ARCH=$(uname -m)
     if [[ $ARCH == "arm64" || $ARCH == "aarch64" ]]; then
       bundle config set force_ruby_platform true
     fi

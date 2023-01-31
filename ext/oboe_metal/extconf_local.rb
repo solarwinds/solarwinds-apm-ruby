@@ -24,7 +24,7 @@ ext_dir = File.expand_path(File.dirname(__FILE__))
 # the SolarWindsAPM libs.
 ao_lib_dir = File.join(ext_dir, 'lib')
 ao_path = '../../../oboe/factory-output'
-ao_clib = "liboboe-1.0-x86_64.so.0.0.0"
+ao_clib = "liboboe-1.0-x86_64.so"
 ao_item = File.join(ao_path, ao_clib)
 clib = File.join(ao_lib_dir, ao_clib)
 

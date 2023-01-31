@@ -1,18 +1,8 @@
-FROM centos:7
+FROM amazonlinux:2
 
-# install OS packages
-RUN yum update -y \
-    && yum install -y epel-release \
-    && yum install -y centos-release-scl \
-    && yum install -y llvm-toolset-7.0 \
-    && ARCH=`uname -m` \
-    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-$ARCH/postgresql14-libs-14.6-1PGDG.rhel7.$ARCH.rpm \
-    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-$ARCH/postgresql14-14.6-1PGDG.rhel7.$ARCH.rpm \
-    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-$ARCH/postgresql14-devel-14.6-1PGDG.rhel7.$ARCH.rpm
-RUN ln -s  /usr/pgsql-14/bin/pg_config /usr/local/bin/pg_config
+RUN amazon-linux-extras install epel -y
 
-RUN yum groupinstall 'Development Tools' -y \
-    && yum install -y \
+RUN yum update -y && yum install -y \
        autoconf \
        automake \
        bzip2 \
@@ -26,24 +16,51 @@ RUN yum groupinstall 'Development Tools' -y \
        libcurl-devel \
        libjpeg \
        libpng \
-       libpq-devel \
        libXrender \
        libXext \
-       nodejs \
        openssl-devel \
        pcre \
        pcre-devel \
        psmisc \
-       readline-devel \
        tcl \
-       tmux \
-       tree \
        vim \
        zlib-devel \
-    && rm -rf /var/lib/apt/lists/*
+       ruby-devel \
+       gcc \
+       gcc-c++ \
+       make \
+       perl \
+       wget \
+       libtool \
+       readline-devel \
+       tmux \
+       tree \
+       bison \
+       libxml2-devel \
+       libxslt-devel \
+       && rm -rf /var/lib/apt/lists/*
 
-# rbenv setup
-# use rbenv-default-gems to automatically install bundler for each ruby version
+# successful run didn't try this, should try it again 
+RUN yum install libuv --disableplugin=priorities -y && yum install nodejs -y
+
+RUN yum -y install scl-utils
+
+RUN ARCH=`uname -m` \
+    && REPO=$(if [[ $(uname -m) == "aarch64" ]]; then echo altarch; else echo centos; fi) \
+    && yum -y install http://mirror.centos.org/$REPO/7/extras/$ARCH/Packages/centos-release-scl-rh-2-3.el7.centos.noarch.rpm \
+    && yum -y install http://mirror.centos.org/$REPO/7/extras/$ARCH/Packages/centos-release-scl-2-3.el7.centos.noarch.rpm \
+    && yum -y install http://mirror.centos.org/$REPO/7/sclo/$ARCH/rh/Packages/l/llvm-toolset-7.0-clang-7.0.1-1.el7.$ARCH.rpm
+
+RUN yum update -y \
+    && yum install -y epel-release \
+    && ARCH=`uname -m` \
+    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-$ARCH/postgresql14-libs-14.6-1PGDG.rhel7.$ARCH.rpm \
+    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-$ARCH/postgresql14-14.6-1PGDG.rhel7.$ARCH.rpm \
+    && yum install -y https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-$ARCH/postgresql14-devel-14.6-1PGDG.rhel7.$ARCH.rpm
+
+RUN ln -s  /usr/pgsql-14/bin/pg_config /usr/local/bin/pg_config
+
+# rbenv setup: use rbenv-default-gems to automatically install bundler for each ruby version
 RUN  git clone https://github.com/rbenv/rbenv.git ~/.rbenv \
      && git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build \
      && git clone https://github.com/rbenv/rbenv-default-gems.git ~/.rbenv/plugins/rbenv-default-gems \
@@ -79,8 +96,7 @@ RUN curl -SL http://download.redis.io/releases/redis-6.2.4.tar.gz | tar xzC /tmp
     && cd /tmp/redis-6.2.4/ \
     && make  && make install && cd -
 
-RUN yum update -y && \
-	yum -y install initscripts memcached mysql mysql-devel
+RUN yum update -y && yum -y install initscripts memcached mysql mysql-devel
 
 RUN echo "echo never > /sys/kernel/mm/transparent_hugepage/enabled" >> /etc/rc.local
 

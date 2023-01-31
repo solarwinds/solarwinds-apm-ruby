@@ -58,8 +58,7 @@ if File.exist?('/etc/alpine-release')
     end
 end
 
-ao_clib = "liboboe-1.0-#{ao_arch}.so.0.0.0"
-ao_clib = "liboboe-1.0-#{ao_arch}.so" if ENV['OBOE_DEV'].to_s.downcase == 'true' # for dev build only
+ao_clib = "liboboe-1.0-#{ao_arch}.so"
 ao_item = File.join(ao_path, ao_clib)
 ao_checksum_file = File.join(ao_lib_dir, "#{ao_clib}.sha256")
 clib = File.join(ao_lib_dir, ao_clib)
