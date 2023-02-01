@@ -29,10 +29,10 @@ module SolarWindsAPM
       say "-------------------"
       say ""
       say "SolarWindsAPM Installation Overview:"
-      say "https://documentation.solarwinds.com/en/success_center/swaas/"
+      say "https://documentation.solarwinds.com/en/success_center/observability"
       say ""
       say "More information on instrumenting Ruby applications can be found here:"
-      say "https://documentation.solarwinds.com/en/success_center/swaas/default.htm#cshid=app-add-ruby-agent"
+      say "https://documentation.solarwinds.com/en/success_center/observability/default.htm#cshid=config-ruby-agent"
     end
     # rubocop:enable Metrics/MethodLength
 
