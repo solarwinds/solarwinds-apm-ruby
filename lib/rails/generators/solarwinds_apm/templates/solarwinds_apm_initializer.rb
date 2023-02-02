@@ -3,11 +3,11 @@
 # Copyright (c) 2019 SolarWinds, LLC.
 # All rights reserved.
 
-# SolarWindsAPM Configuration for the Ruby Agent aka solarwinds_apm gem
+# SolarWindsAPM Configuration for the Ruby Library aka solarwinds_apm gem
 # https://cloud.solarwinds.com/
 #
-# More information on configuring the Ruby Agent can be found here:
-# https://documentation.solarwinds.com/en/success_center/swaas/default.htm#cshid=config-ruby-agent
+# More information on configuring the Ruby Library can be found here:
+# https://documentation.solarwinds.com/en/success_center/observability/default.htm#cshid=config-ruby-agent
 #
 # The initial settings in this file represent the defaults
 
@@ -46,9 +46,11 @@ if defined?(SolarWindsAPM::Config)
   # to SolarWinds is still encrypted using SSL/TLS.
   #
   # It is recommended to configure the proxy in this file or as SW_APM_PROXY
-  # environment variable. However, the agent's underlying network library will
-  # use a system-wide proxy defined in the environment variables grpc_proxy,
-  # https_proxy or http_proxy if no SolarWindsAPM-specific configuration is set.
+  # environment variable. However, the underlying network library for the Ruby 
+  # Instrumentation Library will use a system-wide proxy defined in the environment 
+  # variables grpc_proxy, https_proxy or http_proxy if no SolarWindsAPM-specific 
+  # configuration is set.
+  # 
   # Please refer to gRPC environment variables for more information.
   #
   # SolarWindsAPM::Config[:http_proxy] = http://<proxyHost>:<proxyPort>

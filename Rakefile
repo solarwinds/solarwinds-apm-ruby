@@ -71,7 +71,7 @@ end
 
 task :docker_test => :docker_tests
 
-desc 'Start docker container for testing and debugging, accepts: alpine, debian, centos as args, default: ubuntu
+desc 'Start docker container for testing and debugging, accepts: alpine, debian, amzlinux as args, default: ubuntu
       Example: bundle exec rake docker ubuntu arm'
 task :docker, :environment do
   _arg1, arg2, arg3 = ARGV
@@ -187,13 +187,13 @@ task :fetch_oboe_file, [:env] do |t, args|
 
   sha_files = ['liboboe-1.0-x86_64.so.sha256',
                'liboboe-1.0-lambda-x86_64.so.sha256',
-               'liboboe-1.0-aarch64.so.0.0.0.sha256',
+               'liboboe-1.0-aarch64.so.sha256',
                'liboboe-1.0-aarch64.so.sha256',
                'liboboe-1.0-alpine-x86_64.so.sha256',
                'liboboe-1.0-alpine-aarch64.so.sha256',
-               'liboboe-1.0-alpine-aarch64.so.0.0.0.sha256',
-               'liboboe-1.0-alpine-x86_64.so.0.0.0.sha256',
-               'liboboe-1.0-x86_64.so.0.0.0.sha256']
+               'liboboe-1.0-alpine-aarch64.so.sha256',
+               'liboboe-1.0-alpine-x86_64.so.sha256',
+               'liboboe-1.0-x86_64.so.sha256']
 
 
   sha_files.each do |filename|

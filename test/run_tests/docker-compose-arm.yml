@@ -37,6 +37,7 @@ x-ao-env: &ao-env
   QUERY_LOG_FILE: "/tmp/sw_apm_query_logs.txt"
   RUBY_ENV: "test"
   TEST_RUNS_TO_FILE: "true"
+  ARCH: "aarch64"
 
 x-ao-shared: &ao-shared
   mem_limit: 1G
@@ -55,10 +56,10 @@ x-ao-shared: &ao-shared
   working_dir: /code/ruby-solarwinds
 
 services:
-  ruby_sw_apm_ubuntu:
-    container_name: ruby_sw_apm_ubuntu
-    image: ruby_sw_apm_ubuntu
-    platform: linux/amd64
+  ruby_sw_apm_ubuntu_arm:
+    container_name: ruby_sw_apm_ubuntu_arm
+    image: ruby_sw_apm_ubuntu_arm
+    platform: linux/arm64
     build:
       context: .
       dockerfile: Dockerfile_ubuntu
@@ -72,10 +73,10 @@ services:
       << : *ao-env
       SW_APM_HOSTNAME_ALIAS: "AO_RUBY_UBUNTU"
 
-  ruby_sw_apm_alpine:
-    container_name: ruby_sw_apm_alpine
-    image: ruby_sw_apm_alpine
-    platform: linux/amd64
+  ruby_sw_apm_alpine_arm:
+    container_name: ruby_sw_apm_alpine_arm
+    image: ruby_sw_apm_alpine_arm
+    platform: linux/arm64
     build:
       context: .
       dockerfile: ./Dockerfile_alpine
@@ -89,10 +90,10 @@ services:
       <<: *ao-env
       SW_APM_HOSTNAME_ALIAS: "AO_RUBY_ALPINE"
 
-  ruby_sw_apm_debian:
-    container_name: ruby_sw_apm_debian
-    image: ruby_sw_apm_debian
-    platform: linux/amd64
+  ruby_sw_apm_debian_arm:
+    container_name: ruby_sw_apm_debian_arm
+    image: ruby_sw_apm_debian_arm
+    platform: linux/arm64
     build:
       context: .
       dockerfile: Dockerfile_debian
@@ -106,10 +107,10 @@ services:
       << : *ao-env
       SW_APM_HOSTNAME_ALIAS: "AO_RUBY_DEBIAN"
 
-  ruby_sw_apm_centos:
-    container_name: ruby_sw_apm_centos
-    image: ruby_sw_apm_centos
-    platform: linux/amd64
+  ruby_sw_apm_centos_arm:
+    container_name: ruby_sw_apm_centos_arm
+    image: ruby_sw_apm_centos_arm
+    platform: linux/arm64
     build:
       context: .
       dockerfile: Dockerfile_centos
@@ -119,17 +120,15 @@ services:
       - ../../:/code/ruby-solarwinds
       - ../../../oboe/factory-output:/code/oboe/factory-output
       - ../../../oboe/liboboe:/code/oboe/liboboe
-      - ./.ruby_version_centos:/code/ruby-solarwinds/.ruby-version
       - ../../../../repos/rack-cache/:/rack-cache
     environment:
       << : *ao-env
       SW_APM_HOSTNAME_ALIAS: "AO_RUBY_CENTOS"
     privileged: true
 
-  ruby_sw_apm_amzlinux:
-    container_name: ruby_sw_apm_amzlinux
-    image: ruby_sw_apm_amzlinux
-    platform: linux/amd64
+  ruby_sw_apm_amzlinux_arm:
+    container_name: ruby_sw_apm_amzlinux_arm
+    image: ruby_sw_apm_amzlinux_arm
     build:
       context: .
       dockerfile: Dockerfile_amzlinux
@@ -151,7 +150,6 @@ services:
 
   ao-ruby-mysql:
     container_name: ao-ruby-mysql
-    platform: linux/amd64
     image: mysql:5.7.33
     command: --init-file /data/application/mysql_init.sql
     volumes:

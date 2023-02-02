@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu, debian, centos, alpine]
+        os: [ubuntu, debian, amzlinux, alpine]
 
     steps:
     - name: Checkout ${{ github.ref }}
