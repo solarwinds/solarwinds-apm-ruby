@@ -37,6 +37,8 @@ x-ao-env: &ao-env
   QUERY_LOG_FILE: "/tmp/sw_apm_query_logs.txt"
   RUBY_ENV: "test"
   TEST_RUNS_TO_FILE: "true"
+  SW_APM_DEBUG_LEVEL: 3
+  SW_APM_GEM_VERBOSE: true # for debug only
 
 x-ao-shared: &ao-shared
   mem_limit: 1G

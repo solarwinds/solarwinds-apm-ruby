@@ -37,7 +37,7 @@ module SolarWindsAPM
           # Conditionally log query params
           uri = URI(response.effective_url)
           kvs[:RemoteURL] = SolarWindsAPM::Config[:typhoeus][:log_args] ? uri.to_s : uri.to_s.split('?').first
-
+          kvs[:RemoteURL] = SolarWindsAPM::Util.sanitize_uri(kvs[:RemoteURL])
           response
         rescue => e
           SolarWindsAPM::API.log_exception(:typhoeus, e)

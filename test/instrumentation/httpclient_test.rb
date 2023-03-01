@@ -338,4 +338,33 @@ describe 'HTTPClientTest' do
     end
 
   end
+
+  it 'httpclient remove username:password from url' do
+    response = nil
+
+    SolarWindsAPM::SDK.start_trace('httpclient_tests') do
+      clnt = HTTPClient.new
+      response = clnt.get('http://admin:123456@127.0.0.1:8101/')
+    end
+
+    traces = get_all_traces
+
+    tracestring = response.headers['X-Trace']
+    assert tracestring
+    assert SolarWindsAPM::TraceString.valid?(tracestring)
+
+    assert_equal 6, traces.count
+    assert valid_edges?(traces, false), "Invalid edge in traces"
+    validate_outer_layers(traces, "httpclient_tests")
+
+    assert_equal 'rsc', traces[1]['Spec']
+    assert_equal traces[1]['IsService'], 1
+    assert_equal traces[1]['RemoteURL'], 'http://127.0.0.1:8101/'
+    assert_equal traces[1]['HTTPMethod'], 'GET'
+
+    assert_equal traces[4]['Layer'], 'httpclient'
+    assert_equal traces[4]['Label'], 'exit'
+    assert_equal traces[4]['HTTPStatus'], 200
+    assert traces[4].key?('Backtrace')
+  end
 end

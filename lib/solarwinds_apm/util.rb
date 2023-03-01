@@ -114,6 +114,24 @@ module SolarWindsAPM
       end
 
       ##
+      # sanitize
+      #
+      # Remove the potential username and password from the uri user provided for reporting
+      def sanitize_uri(uri)
+        return uri if uri.nil?
+        begin
+          parsed_uri = URI.parse(uri)
+          parsed_uri.user = nil
+          sanitized_uri = parsed_uri.to_s
+        rescue StandardError => e
+          sanitized_uri = uri
+          SolarWindsAPM.logger.debug "[solarwinds_apm/debug] SolarWindsAPM::Util.sanitize_uri: could not sanitize #{uri}; caused by #{e.message}."
+        end
+        sanitized_uri
+      end
+
+
+      ##
       # upcase
       #
       # Occasionally, we want to send some values in all caps.  This is true
