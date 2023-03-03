@@ -23,6 +23,7 @@ module SolarWindsAPM
           kvs[:RemoteURL] = uri.to_s.split('?').first
         end
 
+        kvs[:RemoteURL] = SolarWindsAPM::Util.sanitize_uri(kvs[:RemoteURL])
         kvs[:HTTPMethod] = SolarWindsAPM::Util.upcase(method)
         kvs
       rescue => e

@@ -334,6 +334,21 @@ describe 'CurbTest' do # < Minitest::Test
     assert_equal "http://127.0.0.1:8101/",         traces[1]['RemoteURL']
   end
 
+  it 'curb discard username:password in url' do
+    c = nil
+
+    SolarWindsAPM::SDK.start_trace('curb_tests') do
+      c = Curl::Easy.new("http://admin:123456@127.0.0.1:8101/")
+      c.http_head
+    end
+
+    assert c.is_a?(::Curl::Easy), "Response type"
+    assert c.response_code == 200
+    assert c.header_str =~ /X-Trace/, "X-Trace response header"
+
+    assert_correct_traces('http://127.0.0.1:8101/', 'GET')
+  end
+
   it 'obey log args when true' do
     # When testing global config options, use the config_lock
     # semaphore to lock between other running tests.

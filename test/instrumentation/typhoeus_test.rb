@@ -295,4 +295,20 @@ describe "Typhoeus" do
     _(traces.count).must_equal 6
     layer_doesnt_have_key(traces, 'typhoeus', 'Backtrace')
   end
+
+  it 'typhoeus discard username:password from url' do
+    SolarWindsAPM::SDK.start_trace('typhoeus_test') do
+      Typhoeus.get("http://admin:123456@127.0.0.1:8101/")
+    end
+
+    traces = get_all_traces
+    _(traces.count).must_equal 6
+
+    _(valid_edges?(traces, false)).must_equal true
+    validate_outer_layers(traces, 'typhoeus_test')
+
+    _(traces[4]['RemoteURL']).must_equal 'http://127.0.0.1:8101/'
+    _(traces[4]['HTTPMethod']).must_equal 'GET'
+    _(traces[4]['HTTPStatus']).must_equal 200
+  end
 end

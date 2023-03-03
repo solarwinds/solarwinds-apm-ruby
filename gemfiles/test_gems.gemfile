@@ -17,7 +17,13 @@ group :development, :test do
   gem 'minitest-hooks', '>= 1.5.0'
   gem 'minitest-reporters', '< 1.0.18'
   gem 'mocha'
-  gem 'puma'
+
+  if RUBY_VERSION <= '2.7.5'
+    gem 'puma', '<= 6.0.2'
+  else
+    gem 'puma'
+  end
+  
   gem 'rack-cache'
   gem 'rack-test'
   gem 'rake'

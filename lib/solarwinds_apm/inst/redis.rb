@@ -274,7 +274,7 @@ end
 
 if SolarWindsAPM::Config[:redis][:enabled]
   if defined?(::RedisClient)
-    SolarWindsAPM.logger.info "[solarwinds_apm/loading] Instrumenting redis #{Redis::VERSION}" if SolarWindsAPM::Config[:verbose]
+    SolarWindsAPM.logger.info "[solarwinds_apm/loading] Instrumenting redis through RedisClient #{RedisClient::VERSION}" if SolarWindsAPM::Config[:verbose]
     ::RedisClient.register(SolarWindsAPM::Inst::Redis::Client)
   end
 end

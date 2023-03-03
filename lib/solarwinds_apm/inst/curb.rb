@@ -30,6 +30,7 @@ module SolarWindsAPM
           kvs[:RemoteURL] = url.split('?').first
         end
 
+        kvs[:RemoteURL] = SolarWindsAPM::Util.sanitize_uri(kvs[:RemoteURL])
         kvs[:HTTPMethod] = verb if verb
 
         kvs
