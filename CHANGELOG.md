@@ -3,6 +3,19 @@ https://github.com/solarwindscloud/solarwinds-apm-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# solarwinds_apm 5.1.5 (03/14/2023)
+
+This release includes the following features:
+
+* Update latest liboboe library (12.0.0)
+* Remove centos as testing environments and include amazonlinux as alternatives of RHEL distro
+* Include sanitize RemoteURL for kvs (p.s. RemoteHost is sanitized in library code)
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/solarwinds_apm/versions/5.1.5
+
+
 # solarwinds_apm 5.1.4 (11/23/2022)
 
 This release includes the following features:
