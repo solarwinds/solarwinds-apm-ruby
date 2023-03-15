@@ -9,7 +9,8 @@ on:
       - closed
     paths-ignore:
       - 'test/run_tests/Dockerfile_*'
-  # Allows you to run this workflow manually from the Actions tab
+      - 'lib/solarwinds_apm/version.rb'
+      - 'CHANGELOG.md'
   workflow_dispatch:
 
 jobs:

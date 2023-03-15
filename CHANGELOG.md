@@ -3,7 +3,7 @@ https://github.com/solarwindscloud/solarwinds-apm-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
-# solarwinds_apm 5.1.5 (03/14/2023)
+# solarwinds_apm 5.1.6 (03/14/2023)
 
 This release includes the following features:
 
