@@ -249,10 +249,14 @@ task :build_and_publish_gem do
   gem_file = gemspec.full_name + '.gem'
 
   exit 1 unless system('gem', 'build', gemspec_file)
+  system('gem', 'push', gem_file) if ENV['GEM_HOST_API_KEY']
+  
+  sleep 10
 
-  if ENV['GEM_HOST_API_KEY']
-    exit 1 unless system('gem', 'push', gem_file)
-  end
+  searched_gem = `gem search #{gem_file.name}`             # fetch the newest gem from remote (rubygem.org)
+  gem_version  = searched_gem&.match(/(\d+.\d+.\d+)/)
+
+  exit 1 if gem_version != gem_file.version.to_s
 end
 
 desc "Build the gem's c extension"
