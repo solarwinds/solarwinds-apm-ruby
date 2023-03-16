@@ -9,6 +9,8 @@ on:
       - main
     paths-ignore:
       - 'test/run_tests/Dockerfile_*'
+      - 'lib/solarwinds_apm/version.rb'
+      - 'CHANGELOG.md'
   workflow_dispatch:
 
 jobs:
