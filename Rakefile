@@ -250,13 +250,19 @@ task :build_and_publish_gem do
 
   exit 1 unless system('gem', 'build', gemspec_file)
   system('gem', 'push', gem_file) if ENV['GEM_HOST_API_KEY']
-  
-  sleep 10
 
-  searched_gem = `gem search #{gem_file.name}`             # fetch the newest gem from remote (rubygem.org)
-  gem_version  = searched_gem&.match(/(\d+.\d+.\d+)/)
+  count = 0
+  while count <= 10
+    sleep 20
 
-  exit 1 if gem_version != gem_file.version.to_s
+    searched_gem = %x(gem search solarwinds_apm)         # fetch the newest gem from remote (rubygem.org)
+    gem_version  = searched_gem&.match(/(\d+.\d+.\d+)/)
+
+    break  if gem_version.to_s == gemspec.version.to_s
+    exit 1 if gem_version.to_s != gemspec.version.to_s and count == 10
+    
+    count += 1
+  end
 end
 
 desc "Build the gem's c extension"
