@@ -249,9 +249,19 @@ task :build_and_publish_gem do
   gem_file = gemspec.full_name + '.gem'
 
   exit 1 unless system('gem', 'build', gemspec_file)
+  system('gem', 'push', gem_file) if ENV['GEM_HOST_API_KEY']
 
-  if ENV['GEM_HOST_API_KEY']
-    exit 1 unless system('gem', 'push', gem_file)
+  count = 0
+  while count <= 10
+    sleep 20
+
+    searched_gem = %x(gem search solarwinds_apm)         # fetch the newest gem from remote (rubygem.org)
+    gem_version  = searched_gem&.match(/(\d+.\d+.\d+)/)
+
+    break  if gem_version.to_s == gemspec.version.to_s
+    exit 1 if gem_version.to_s != gemspec.version.to_s and count == 10
+    
+    count += 1
   end
 end
 
