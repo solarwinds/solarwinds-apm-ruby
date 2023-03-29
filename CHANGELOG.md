@@ -3,6 +3,16 @@ https://github.com/solarwindscloud/solarwinds-apm-ruby/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 
+# solarwinds_apm 5.1.7 (03/14/2023)
+
+This release includes the following features:
+
+* Update latest liboboe library (12.1.0)
+
+Pushed to Rubygems:
+
+https://rubygems.org/gems/solarwinds_apm/versions/5.1.7
+
 # solarwinds_apm 5.1.6 (03/14/2023)
 
 This release includes the following features:
@@ -13,7 +23,7 @@ This release includes the following features:
 
 Pushed to Rubygems:
 
-https://rubygems.org/gems/solarwinds_apm/versions/5.1.5
+https://rubygems.org/gems/solarwinds_apm/versions/5.1.6
 
 
 # solarwinds_apm 5.1.4 (11/23/2022)
