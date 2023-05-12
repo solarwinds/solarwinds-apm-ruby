@@ -9,7 +9,7 @@ if defined?(::Redis)
     attr_reader :entry_kvs, :exit_kvs, :redis, :redis_version
 
     before do
-      sleep 2
+      redis_sleep_over
       @redis.flushall if defined? @redis
       send(:remove_instance_variable, :@redis) if defined? @redis
       @redis ||= Redis.new(:host => ENV['REDIS_HOST'] || ENV['REDIS_SERVER'] || '127.0.0.1',

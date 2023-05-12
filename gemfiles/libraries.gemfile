@@ -9,15 +9,15 @@ gem 'rest-client'
 # doesn't install well on alpine, explained here:
 # https://qiita.com/takkeybook/items/5eae085d902957f0fe5b
 # needs fixing for Ruby >= 3
-if ENV["ARCH"] != "aarch64" && ENV["ARCH"] != "arm64"
-  if File.exist?('/etc/centos-release') && RUBY_VERSION < '2.6.0'
-    gem 'grpc', '~> 1.48.0'
-    gem 'google-protobuf'
-  elsif !File.exist?('/etc/alpine-release') && RUBY_VERSION < '3.0.0'
-    gem 'grpc'
-    gem 'google-protobuf'
-  end
-end
+# if ENV["ARCH"] != "aarch64" && ENV["ARCH"] != "arm64"
+#   if File.exist?('/etc/centos-release') && RUBY_VERSION < '2.6.0'
+#     gem 'grpc', '~> 1.48.0'
+#     gem 'google-protobuf'
+#   elsif !File.exist?('/etc/alpine-release') && RUBY_VERSION < '3.0.0'
+#     gem 'grpc'
+#     gem 'google-protobuf'
+#   end
+# end
 
 if File.exist?('/etc/centos-release')
   gem 'bunny', '<= 2.19.0'

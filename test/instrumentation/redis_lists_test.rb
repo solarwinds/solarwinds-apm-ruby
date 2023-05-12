@@ -9,7 +9,7 @@ if defined?(::Redis)
 
     before do
 
-      sleep 2
+      redis_sleep_over
       @redis.flushall if defined? @redis
       send(:remove_instance_variable, :@redis) if defined? @redis
       clear_all_traces

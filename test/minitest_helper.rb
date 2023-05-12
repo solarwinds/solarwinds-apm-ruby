@@ -460,8 +460,9 @@ def gem_version(gemversion=nil, min_version=nil, max_version=nil)
     max_allowed_version = Gem::Version.new(max_version.to_s)
     skip "supported only on redis-server #{max_version} or less" if current_version >= max_allowed_version
   end
-
 end
+
+def redis_sleep_over; end
 
 if (File.basename(ENV['BUNDLE_GEMFILE']) =~ /^frameworks/) == 0
   require "sinatra"
