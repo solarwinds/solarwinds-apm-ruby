@@ -127,6 +127,7 @@ rm -f gemfiles/*.lock
 time=$(date "+%Y%m%d_%H%M")
 export TEST_RUNS_FILE_NAME="log/testrun_"$time".log"
 echo "logfile name: $TEST_RUNS_FILE_NAME"
+export RUBYOPT='-W0'  # remove deprecated warning
 
 ##
 # loop through rubies, gemfiles, and database types to
@@ -179,7 +180,7 @@ for ruby in ${rubies[@]} ; do
     # don't run rails 7 with Ruby <= 2.6
     if [[ $gemfile =~ .*rails7.* && $ruby =~ ^2.[65].* ]]; then continue; fi
 
-    if [[ $gemfile =~ .*rails.* && $OS == "Amazon Linux" && $ARCH == "aarch64" ]]; then
+    if [[ $gemfile =~ .*rails.* ]]; then
       bundle config build.nokogiri --use-system-libraries --with-xslt-dir=/usr/include/libxml2 --with-xml2-dir=/usr/include/libxml2;
     fi
 
