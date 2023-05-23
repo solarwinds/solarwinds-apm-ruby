@@ -115,7 +115,7 @@ def oboe_github_fetch
 
   # fetch files
   @files.each do |filename|
-    uri = filename == 'oboe.i' ? URI("#{File.join(oboe_github, 'swig', filename)}") : URI("#{File.join(oboe_github, filename)}")
+    uri = URI("#{File.join(oboe_github, filename)}")
     req = Net::HTTP::Get.new(uri)
     req['Authorization'] = "token #{oboe_token}"
 
