@@ -1,7 +1,6 @@
 # Notice
 This is the renamed repository for `solarwinds-apm` versions below 6, which is now deprecated in favour of the OpenTelemetry-based `solarwinds-apm` starting from version 6, located at https://github.com/solarwindscloud/solarwinds-apm-ruby.
 
-Please be aware of the following implications:
 
 1. **Limited Updates**: There will be limited new feature updates, bug fixes, or enhancements to the **solarwinds-apm-ruby-gen-1** from our official development team.
 
