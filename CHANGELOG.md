@@ -1,5 +1,5 @@
 For the latest release info, see here:
-https://github.com/solarwindscloud/solarwinds-apm-ruby/releases
+https://github.com/solarwindscloud/solarwinds-apm-ruby-gen-1/releases
 
 Dates in this file are in the format MM/DD/YYYY.
 

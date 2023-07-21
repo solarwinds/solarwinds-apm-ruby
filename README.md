@@ -1,3 +1,12 @@
+# Notice
+As of 2023-07-21, we regret to announce that **solarwinds-apm-ruby-gen-1** is not in active development. We have shift our focus on opentelemetry-based apm library. The new repository is located in https://github.com/solarwindscloud/solarwinds-apm-ruby
+
+Please be aware of the following implications:
+
+1. **Limited Updates**: There will be limited new feature updates, bug fixes, or enhancements to the **solarwinds-apm-ruby-gen-1** from our official development team.
+
+2. **Limited Maintenance**: We will still maintain the repository or address any issues or pull requests submitted, but the duration may take longer.
+
 # Welcome to the SolarWindsAPM Ruby Gem
 
 The solarwinds_apm gem provides [SolarWindsAPM](https://cloud.solarwinds.com/) performance instrumentation for Ruby.
@@ -11,9 +20,9 @@ It requires an [Solarwinds] account to view metrics.  Get yours,
 
 [![Gem Version](https://badge.fury.io/rb/solarwinds_apm.svg)](https://badge.fury.io/rb/solarwinds_apm)
 
-[![Run All Tests](https://github.com/solarwindscloud/solarwinds-apm-ruby/actions/workflows/test_on_4_linux.yml/badge.svg)](https://github.com/solarwindscloud/solarwinds-apm-ruby/actions/workflows/test_on_4_linux.yml)
+[![Run All Tests](https://github.com/solarwindscloud/solarwinds-apm-ruby-gen-1/actions/workflows/test_on_4_linux.yml/badge.svg)](https://github.com/solarwindscloud/solarwinds-apm-ruby-gen-1/actions/workflows/test_on_4_linux.yml)
 
-[![C++ Tests](https://github.com/solarwindscloud/solarwinds-apm-ruby/actions/workflows/run_cpluplus_tests.yml/badge.svg)](https://github.com/solarwindscloud/solarwinds-apm-ruby/actions/workflows/run_cpluplus_tests.yml)
+[![C++ Tests](https://github.com/solarwindscloud/solarwinds-apm-ruby-gen-1/actions/workflows/run_cpluplus_tests.yml/badge.svg)](https://github.com/solarwindscloud/solarwinds-apm-ruby/actions/workflows/run_cpluplus_tests.yml)
 
 [comment]: <> ([![Maintainability]&#40;https://api.codeclimate.com/v1/badges/ac7f36241a23a3a82fc5/maintainability&#41;]&#40;https://codeclimate.com/github/appoptics/appoptics-apm-ruby/maintainability&#41;)
 
