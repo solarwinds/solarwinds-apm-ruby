@@ -3,7 +3,7 @@ This is the renamed repository for `solarwinds-apm` versions below 6, which is n
 
 
 
-
+Please note this codebase is no longer in active development as we focus on enhancing `solarwinds_apm` version 6+.  Version 5 releases will be limited to critical updates and fixes, and issues or pull requests submitted to this repository may have a longer response time.
 # Welcome to the SolarWindsAPM Ruby Gem
 
 The solarwinds_apm gem provides [SolarWindsAPM](https://cloud.solarwinds.com/) performance instrumentation for Ruby.
