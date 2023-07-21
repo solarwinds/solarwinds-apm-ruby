@@ -3,7 +3,6 @@ This is the renamed repository for `solarwinds-apm` versions below 6, which is n
 
 
 
-2. **Limited Maintenance**: We will still maintain the repository or address any issues or pull requests submitted, but the duration may take longer.
 
 # Welcome to the SolarWindsAPM Ruby Gem
 
