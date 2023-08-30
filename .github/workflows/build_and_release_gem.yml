@@ -82,7 +82,7 @@ jobs:
           script: |
             github.repos.createRelease({
               owner: "solarwindscloud",
-              repo: "solarwinds-apm-ruby-gen-1",
+              repo: "solarwinds-apm-ruby",
               body: "SHA256 checksum: ${{ steps.build.outputs.checksum }}",
               tag_name: "${{ steps.build.outputs.gem_version }}",
               name: "${{ steps.build.outputs.gem_version }}",
@@ -105,4 +105,3 @@ jobs:
 
       - name: And now the release notes need to be completed for the new release
         run: echo "TODO"
-
