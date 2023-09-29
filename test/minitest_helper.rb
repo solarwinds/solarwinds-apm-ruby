@@ -24,7 +24,7 @@ require 'minitest'
 require 'minitest/focus'
 require 'minitest/debugger' if ENV['DEBUG']
 require 'minitest/hooks/default'  # adds after(:all)
-require 'fileutils'
+require 'yaml'
 
 # write to a file as well as STDOUT (comes in handy with docker runs)
 # This approach preserves the coloring of pass fail, which the cli
@@ -51,15 +51,15 @@ end
 #
 # The reason to have and use it is for the statistics. The count of
 # assertions, failures, and errors is less informative without refute_raises
-module MiniTest
+module Minitest
   module Assertions
     def refute_raises *exp
       msg = "#{exp.pop}.\n" if String === exp.last
 
       begin
         yield
-      rescue MiniTest::Skip => e
-        return e if exp.include? MiniTest::Skip
+      rescue Minitest::Skip => e
+        return e if exp.include? Minitest::Skip
         raise e
       rescue Exception => e
         exp = exp.first if exp.size == 1
@@ -67,6 +67,13 @@ module MiniTest
       end
 
     end
+  end
+end
+
+# for backward compatibility of psych
+module YAML
+  class << self
+    alias_method :load, :unsafe_load
   end
 end
 
@@ -82,7 +89,7 @@ ENV['RACK_ENV'] = 'test'
 
 # ENV['SW_APM_GEM_VERBOSE'] = 'true' # currently redundant as we are setting SolarWindsAPM::Config[:verbose] = true
 
-MiniTest::Reporters.use! MiniTest::Reporters::SpecReporter.new
+Minitest::Reporters.use! Minitest::Reporters::SpecReporter.new
 
 Bundler.require(:default, :test)
 
@@ -473,10 +480,10 @@ if (File.basename(ENV['BUNDLE_GEMFILE']) =~ /^frameworks/) == 0
   #
   class Sinatra::Base
     # Allow assertions in request context
-    include MiniTest::Assertions
+    include Minitest::Assertions
   end
 
-  class MiniTest::Spec
+  class Minitest::Spec
     include Rack::Test::Methods
 
     # Sets up a Sinatra::Base subclass defined with the block
