@@ -71,9 +71,12 @@ module Minitest
 end
 
 # for backward compatibility of psych
-module YAML
-  class << self
-    alias_method :load, :unsafe_load
+# https://stackoverflow.com/questions/71191685/visit-psych-nodes-alias-unknown-alias-default-psychbadalias
+if RUBY_VERSION > '2.7.5'
+  module YAML
+    class << self
+      alias_method :load, :unsafe_load
+    end
   end
 end
 
