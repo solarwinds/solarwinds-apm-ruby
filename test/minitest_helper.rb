@@ -72,7 +72,7 @@ end
 
 # for backward compatibility of psych
 # https://stackoverflow.com/questions/71191685/visit-psych-nodes-alias-unknown-alias-default-psychbadalias
-if RUBY_VERSION > '2.7.5'
+if RUBY_VERSION >= '2.7.0'
   module YAML
     class << self
       alias_method :load, :unsafe_load
