@@ -37,6 +37,7 @@ RUN yum update -y && yum install -y \
        tree \
        bison \
        libxml2-devel \
+       libyaml-devel \
        libxslt-devel \
        && rm -rf /var/lib/apt/lists/*
 
