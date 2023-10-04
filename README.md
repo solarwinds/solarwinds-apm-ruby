@@ -1,12 +1,16 @@
+# Notice
+This is the repository for `solarwinds-apm` versions below 6, which is now deprecated in favour of the OpenTelemetry-based `solarwinds-apm` starting from version 6, located at https://github.com/solarwinds/apm-ruby.
+
+Please note this codebase is no longer in active development as we focus on enhancing `solarwinds_apm` version 6+.  Version 5 releases will be limited to critical updates and fixes, and issues or pull requests submitted to this repository may have a longer response time.
 # Welcome to the SolarWindsAPM Ruby Gem
 
 The solarwinds_apm gem provides [SolarWindsAPM](https://cloud.solarwinds.com/) performance instrumentation for Ruby.
 
 It has the ability to report performance metrics on an array of libraries, databases and frameworks such as Rails,
-Rack, ActiveRecord, Mongo, Memcache, Resque 
+Rack, ActiveRecord, Mongo, Memcache, Resque
 [and more](https://documentation.solarwinds.com/en/success_center/observability/default.htm#cshid=config-ruby-agent).
 
-It requires an [Solarwinds] account to view metrics.  Get yours, 
+It requires an [Solarwinds] account to view metrics.  Get yours,
 [it's free](https://cloud.solarwinds.com).
 
 [![Gem Version](https://badge.fury.io/rb/solarwinds_apm.svg)](https://badge.fury.io/rb/solarwinds_apm)
@@ -23,7 +27,7 @@ It requires an [Solarwinds] account to view metrics.  Get yours,
 
 # Installation
 
-_Before installing the gem below, make sure that you have the 
+_Before installing the gem below, make sure that you have the
 [dependencies](https://documentation.solarwinds.com/en/success_center/observability/default.htm#cshid=config-ruby-install) installed on your host first._
 
 The solarwinds_apm gem is [available on Rubygems](https://rubygems.org/gems/solarwinds_apm) and can be installed with:
@@ -47,12 +51,12 @@ export SW_APM_SERVICE_KEY=795fb4947d15275d208c49cfd2412d4a5bf38742045b47236c94c4
 
 ## Rails
 
-No special steps are needed to instrument Ruby on Rails.  Once part of the bundle, the solarwinds-apm gem will automatically 
+No special steps are needed to instrument Ruby on Rails.  Once part of the bundle, the solarwinds-apm gem will automatically
 detect Rails and instrument on stack initialization.
 
 ### The Install Generator
 
-The solarwinds_apm gem provides a Rails generator used to seed an initializer where you can configure and control 
+The solarwinds_apm gem provides a Rails generator used to seed an initializer where you can configure and control
 `tracing_mode` and [other options](https://documentation.solarwinds.com/en/success_center/observability/default.htm#cshid=config-ruby-config-file).
 
 To run the install generator run:
@@ -73,14 +77,14 @@ You can instrument your Sinatra application by adding the following code to your
 require 'solarwinds_apm'
 ```
 
-Make sure that the solarwinds_apm gem is loaded _after_ Sinatra either by listing `gem 'solarwinds_apm'` after Sinatra in 
+Make sure that the solarwinds_apm gem is loaded _after_ Sinatra either by listing `gem 'solarwinds_apm'` after Sinatra in
 your Gemfile or calling the `require 'solarwinds_gem'` directive after Sinatra is loaded.
 
 With this, the solarwinds_apm gem will automatically detect Sinatra on boot and instrument key components.
 
 ## Padrino
 
-As long as the solarwinds_apm gem is in your `Gemfile` (inserted after the `gem 'padrino'` directive) and you are calling 
+As long as the solarwinds_apm gem is in your `Gemfile` (inserted after the `gem 'padrino'` directive) and you are calling
 `Bundler.require`, the solarwinds_apm gem will automatically instrument Padrino applications.
 
 If you need to set `SolarWindsAPM::Config` values on stack boot, you can do so by adding the following
@@ -109,13 +113,13 @@ You can instrument your Grape application by adding the following code to your `
     end
 ```
 
-Make sure that the solarwinds gem is loaded _after_ Grape either by listing `gem 'solarwinds_apm'` after Grape in your 
+Make sure that the solarwinds gem is loaded _after_ Grape either by listing `gem 'solarwinds_apm'` after Grape in your
 Gemfile or calling the `require 'solarwinds_apm'` directive after Grape is loaded.
 
 You must explicitly tell your Grape application to use SolarWindsAPM::Rack for tracing to occur.
 
 
-# SDK for Custom Tracing 
+# SDK for Custom Tracing
 
 The solarwinds_apm gem has the ability to instrument any arbitrary Ruby application or script.
 
@@ -128,10 +132,10 @@ Bundler.require
 require 'solarwinds_apm'
 ```
 
-You can add even more visibility into any part of your application or scripts by adding custom instrumentation.  
+You can add even more visibility into any part of your application or scripts by adding custom instrumentation.
 
 ## SolarWindsAPM::SDK.trace
-You can instrument any arbitrary block of code using `SolarWindsAPM::SDK.trace`.  
+You can instrument any arbitrary block of code using `SolarWindsAPM::SDK.trace`.
 
 ```ruby
 # layer_name will show up in the SolarWinds dashboard
@@ -150,15 +154,15 @@ SolarWindsAPM::SDK.trace(layer_name, kvs: report_kvs) do
 end
 ```
 
-`SolarWindsAPM::SDK.trace` is used within the context of a request.  It will follow the upstream state of the request 
+`SolarWindsAPM::SDK.trace` is used within the context of a request.  It will follow the upstream state of the request
 being traced.  i.e. the block of code will only be traced when the parent request is being traced.
 
 This tracing state of a request can also be queried by using `SolarWindsAPM.tracing?`.
 
 ## SolarWindsAPM::SDK.start_trace
 
-If you need to instrument code outside the context of a request (such as a cron job, background job or an arbitrary 
-ruby script), use `SolarWindsAPM::SDK.start_trace` instead which will initiate a new trace based on configuration and 
+If you need to instrument code outside the context of a request (such as a cron job, background job or an arbitrary
+ruby script), use `SolarWindsAPM::SDK.start_trace` instead which will initiate a new trace based on configuration and
 probability (based on the sample rate).
 
 
@@ -174,11 +178,11 @@ Bundler.require
 # Make sure solarwinds_apm is at the bottom of your Gemfile.
 # This is likely redundant but just in case.
 require 'solarwinds_apm'
- 
+
 
 # Tracing mode can be :enabled or :disabled
 SolarWindsAPM::Config[:tracing_mode] = :enabled
- 
+
 #
 # Update April 9, 2015 - this is done automagically now
 # and doesn't have to be called manually
@@ -186,54 +190,54 @@ SolarWindsAPM::Config[:tracing_mode] = :enabled
 # Load library instrumentation to auto-capture stuff we know about...
 # e.g. ActiveRecord, Dalli, Redis, memcache, mongo
 # TraceView::Ruby.load
- 
+
 # Some KVs to report to the dashboard
 report_kvs = {}
 report_kvs[:command_line_params] = ARGV.to_s
 report_kvs[:user_id] = `whoami`
- 
+
 SolarWindsAPM::SDK.start_trace('my_background_job', kvs: report_kvs) do
   #
   # Initialization code
   #
-  
+
   tasks = get_all_tasks
-  
+
   tasks.each do |t|
-    # Optional: Here we embed another 'trace' to separate actual 
-    # work for each task.  In the traces dashboard this will show 
-    # up as a large 'my_background_job' parent layer with many 
+    # Optional: Here we embed another 'trace' to separate actual
+    # work for each task.  In the traces dashboard this will show
+    # up as a large 'my_background_job' parent layer with many
     # child 'task' layers.
     SolarWindsAPM::SDK.trace('task', kvs: { :task_id => t.id }) do
       t.perform
     end
   end
-  
+
   #
   # cleanup code
   #
 end
- 
+
 
 # Note that we use 'start_trace' in the outer block and 'trace' for
 # any sub-blocks of code we wish to instrument.  The arguments for
-# both methods vary slightly. 
-``` 
+# both methods vary slightly.
+```
 
 Find more details in the [RubyDoc page](https://www.rubydoc.info/gems/solarwinds_apm/SolarWindsAPM/SDK) on how to use the Tracing SDK in an independent Ruby script.
 
 # Support
 
-If you run into a problem, find a bug, or would like to request an enhancement, feel free to contact our tech support 
-[technicalsupport@solarwinds.com](technicalsupport@solarwinds.com).  
+If you run into a problem, find a bug, or would like to request an enhancement, feel free to contact our tech support
+[technicalsupport@solarwinds.com](technicalsupport@solarwinds.com).
 
 # Contributing
 
-You are obviously a person of great sense and intelligence.  We happily appreciate all contributions to the solarwinds_apm 
-gem whether it is documentation, a bug fix, new instrumentation for a library or framework or anything else we haven't 
+You are obviously a person of great sense and intelligence.  We happily appreciate all contributions to the solarwinds_apm
+gem whether it is documentation, a bug fix, new instrumentation for a library or framework or anything else we haven't
 thought of.
 
-We welcome you to send us PRs.  We also humbly request that any new instrumentation submissions have corresponding tests 
+We welcome you to send us PRs.  We also humbly request that any new instrumentation submissions have corresponding tests
 that accompany them.  This way we don't break any of your additions when we (and others) make changes after the fact.
 
 
@@ -258,19 +262,19 @@ gem build solarwinds_apm.gemspec
 
 ## Writing Custom Instrumentation
 
-Custom instrumentation for a library, database or other service can be authored fairly easily.  Generally, 
-instrumentation of a library is done by wrapping select operations of that library and timing their execution using the 
+Custom instrumentation for a library, database or other service can be authored fairly easily.  Generally,
+instrumentation of a library is done by wrapping select operations of that library and timing their execution using the
 SolarWindsAPM Tracing SDK which then reports the metrics to the users' SolarWinds dashboard.
 
-Here, I'll use a stripped down version of the Dalli instrumentation (`lib/solarwinds_apm/inst/dalli.rb`) as a quick example 
+Here, I'll use a stripped down version of the Dalli instrumentation (`lib/solarwinds_apm/inst/dalli.rb`) as a quick example
 of how to instrument a client library (the dalli gem).
 
-The Dalli gem nicely routes all memcache operations through a single `perform` operation.  Wrapping this method allows 
+The Dalli gem nicely routes all memcache operations through a single `perform` operation.  Wrapping this method allows
 us to capture all Dalli operations called by an application.
 
-First, we define a module (SolarWindsAPM::Inst::Dalli) and our own custom `perform_with_sw_apm` method that we will 
-use as a wrapper around Dalli's `perform` method.  We also declare an `included` method which automatically gets called 
-when this module is included by another.  
+First, we define a module (SolarWindsAPM::Inst::Dalli) and our own custom `perform_with_sw_apm` method that we will
+use as a wrapper around Dalli's `perform` method.  We also declare an `included` method which automatically gets called
+when this module is included by another.
 See [`Module#included` Ruby reference documentation](https://devdocs.io/ruby~2.5/module#method-i-included).
 
 ```ruby
@@ -278,7 +282,7 @@ module SolarWindsAPM
   module Inst
     module Dalli
       include SolarWindsAPM::API::Memcache
- 
+
       def self.included(cls)
         cls.class_eval do
           if ::Dalli::Client.private_method_defined? :perform
@@ -287,15 +291,15 @@ module SolarWindsAPM
           end
         end
       end
- 
+
       def perform_with_sw_apm(*all_args, &blk)
         op, key, *args = *all_args
- 
+
         if SolarWindsAPM.tracing?
           opts = {}
           opts[:KVOp] = op
           opts[:KVKey] = key
- 
+
           SolarWindsAPM::SDK.trace('memcache', kvs: opts) do
             result = perform_without_sw_apm(*all_args, &blk)
             if op == :get and key.class == String
@@ -307,13 +311,13 @@ module SolarWindsAPM
           perform_without_sw_apm(*all_args, &blk)
         end
       end
-       
+
     end
   end
 end
 ```
 
-Second, we tail onto the end of the instrumentation file a simple `::Dalli::Client.module_eval` call to tell the Dalli 
+Second, we tail onto the end of the instrumentation file a simple `::Dalli::Client.module_eval` call to tell the Dalli
 module to include our newly defined instrumentation module.  Doing this will invoke our previously defined `included` method.
 
 ```ruby
@@ -324,40 +328,40 @@ if defined?(Dalli) and SolarWindsAPM::Config[:dalli][:enabled]
 end
 ```
 
-Third, in our wrapper method, we capture the arguments passed in, collect the operation and key information into a local 
+Third, in our wrapper method, we capture the arguments passed in, collect the operation and key information into a local
 hash and then invoke the `SolarWindsAPM::SDK.trace` method to time the execution of the original operation.
 
-The `SolarWindsAPM::SDK.trace` method calls Dalli's native operation and reports the timing metrics and your custom 
+The `SolarWindsAPM::SDK.trace` method calls Dalli's native operation and reports the timing metrics and your custom
 `report_kvs` up to SolarWinds servers to be shown on the user's dashboard.
 
 Some other tips and guidelines:
 
-* You can point your Gemfile directly at your cloned solarwinds_apm gem source by using 
+* You can point your Gemfile directly at your cloned solarwinds_apm gem source by using
 `gem 'solarwinds_apm', :path => '/path/to/ruby-solarwinds'`
 
-* If instrumenting a library, database or service, place your new instrumentation file into the `lib/solarwinds_apm/inst/` 
+* If instrumenting a library, database or service, place your new instrumentation file into the `lib/solarwinds_apm/inst/`
 directory.  From there, the solarwinds_apm gem will detect it and automatically load the instrumentation file.
 
-* If instrumenting a new framework, place your instrumentation file in `lib/solarwinds_apm/frameworks`.  Refer to the Rails 
+* If instrumenting a new framework, place your instrumentation file in `lib/solarwinds_apm/frameworks`.  Refer to the Rails
 instrumentation for on ideas on how to load the solarwinds_apm gem correctly in your framework.
 
-* Review other existing instrumentation similar to the one you wish to author.  `lib/solarwinds_apm/inst/` is a great place 
+* Review other existing instrumentation similar to the one you wish to author.  `lib/solarwinds_apm/inst/` is a great place
 to start.
 
-* Depending on the configured `:sample_rate`, not all requests will be traced.  Use `SolarWindsAPM.tracing?` to determine 
+* Depending on the configured `:sample_rate`, not all requests will be traced.  Use `SolarWindsAPM.tracing?` to determine
 of this is a request that is being traced.
 
 * Performance is paramount.  Make sure that your wrapped methods don't slow down users applications.
 
-* Include tests with your instrumentation.  See `test/instrumentation/` for some examples of existing instrumentation 
+* Include tests with your instrumentation.  See `test/instrumentation/` for some examples of existing instrumentation
 tests.
 
 ## Compiling the C extension
 
-The solarwinds_apm gem utilizes a C extension to interface with a core library bundled in with the gem which handles 
+The solarwinds_apm gem utilizes a C extension to interface with a core library bundled in with the gem which handles
 reporting the trace and performance data back to SolarWinds servers.
 
-C extensions are usually built on `gem install` but when working out of a local git repository, it's required that you 
+C extensions are usually built on `gem install` but when working out of a local git repository, it's required that you
 manually build this C extension for the gem to function.
 
 To make this simpler, we've included a few rake tasks to automate this process:
@@ -370,7 +374,7 @@ rake compile                           # Build the gem's c extension
 
 To see the code related to the C extension, take a look at `ext/oboe_metal/extconf.rb` for details.
 
-You can read more about Ruby gems with C extensions in the 
+You can read more about Ruby gems with C extensions in the
 [Rubygems Guides](http://guides.rubygems.org/gems-with-extensions/).
 
 ## Running the Tests
@@ -382,4 +386,3 @@ See the README in the test directory.
 Copyright (c) 2018 SolarWinds, LLC
 
 Released under the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0)
-

@@ -52,7 +52,7 @@ This release includes the following features:
 
 * Update to the latest redis-rb gem (> 5.x)
 * Update latest liboboe library (11.1.0)
-* Start to support solarwinds-apm-ruby arm64/aarch64 
+* Start to support solarwinds-apm-ruby arm64/aarch64
 * Init message update for swo/nh backends
 
 Pushed to Rubygems:

@@ -105,4 +105,3 @@ jobs:
 
       - name: And now the release notes need to be completed for the new release
         run: echo "TODO"
-
