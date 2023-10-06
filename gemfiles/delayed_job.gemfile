@@ -3,7 +3,13 @@ source "https://rubygems.org"
 gem 'pg'
 gem "delayed_job_active_record"
 
-gem "rails"
+# DEPRECATION WARNING: ActiveRecord::Base.default_timezone is deprecated and will be removed in Rails 7.1.
+# new change for delayed_job_active_record will be next release: https://github.com/collectiveidea/delayed_job_active_record/pull/216/files
+if RUBY_VERSION < '2.7'
+	gem "rails"
+else
+	gem "rails", '~> 7.0.0'
+end
 
 eval(File.read(File.join(File.dirname(__FILE__), 'test_gems.gemfile')))
 

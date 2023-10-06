@@ -59,6 +59,7 @@ RUN apk add --upgrade \
       vim \
       yaml \
       zlib-dev \
+      yaml-dev \
       icu-libs \ 
    && rm -rf /var/lib/apt/lists/*
 
