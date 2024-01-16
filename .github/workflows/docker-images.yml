@@ -42,7 +42,7 @@ jobs:
         
     - name: Extract metadata (tags, labels) for Docker (both ARM and AMD64)
       id: meta
-      uses: docker/metadata-action@v4
+      uses: docker/metadata-action@v5
       with:
         images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}_${{ matrix.os }} # e.g. apm_ruby_ubuntu
         flavor: |
