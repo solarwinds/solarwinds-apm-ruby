@@ -39,6 +39,7 @@ x-ao-env: &ao-env
   TEST_RUNS_TO_FILE: "true"
   SW_APM_DEBUG_LEVEL: 3
   SW_APM_GEM_VERBOSE: true # for debug only
+  BUNDLE_RUBYGEMS__PKG__GITHUB__COM: ${GITHUB_TOKEN}
 
 x-ao-shared: &ao-shared
   mem_limit: 1G

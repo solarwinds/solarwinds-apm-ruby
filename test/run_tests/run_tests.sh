@@ -157,6 +157,8 @@ for ruby in ${rubies[@]} ; do
     gem install bundler -v 2.3.26
   fi
 
+  git config --global --add safe.directory /__w/solarwinds-apm-ruby/solarwinds-apm-ruby
+
   unset BUNDLE_GEMFILE
   bundle update
   bundle exec rake clean fetch compile

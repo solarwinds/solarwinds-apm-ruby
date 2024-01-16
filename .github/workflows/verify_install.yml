@@ -5,12 +5,12 @@ on:
     inputs:
       install-registry:
         required: true
-        description: 'Registry used for install tests, e.g. RubyGem, packagecloud'
+        description: 'Registry used for install tests, e.g. RubyGem, GitHub'
         type: choice
         default: 'RubyGem'
         options:
         - RubyGem
-        - packagecloud
+        - GitHub
 
       solarwinds-version:
         required: true
@@ -46,7 +46,7 @@ jobs:
             -e SW_APM_SERVICE_KEY=${{ secrets.SW_APM_SERVICE_KEY_PROD }} \
             -e SW_APM_COLLECTOR=${{ secrets.SW_APM_COLLECTOR_PROD }} \
             -e SOLARWINDS_APM_VERSION=${{ github.event.inputs.solarwinds-version }} \
-            -e PACKAGECLOUD_TOKEN=${{ secrets.PACKAGECLOUD_TOKEN }} \
+            -e BUNDLE_RUBYGEMS__PKG__GITHUB__COM=${{ secrets.GITHUB_TOKEN }} \
             -e MODE=${{ github.event.inputs.install-registry }} \
             -e RUBY_VERSION=${{ matrix.ruby_version }} \
             -v $(pwd):/home \
@@ -84,7 +84,7 @@ jobs:
             -e SW_APM_SERVICE_KEY=${{ secrets.SW_APM_SERVICE_KEY_PROD }} \
             -e SW_APM_COLLECTOR=${{ secrets.SW_APM_COLLECTOR_PROD }} \
             -e SOLARWINDS_APM_VERSION=${{ github.event.inputs.solarwinds-version }} \
-            -e PACKAGECLOUD_TOKEN=${{ secrets.PACKAGECLOUD_TOKEN }} \
+            -e BUNDLE_RUBYGEMS__PKG__GITHUB__COM=${{ secrets.GITHUB_TOKEN }} \
             -e MODE=${{ github.event.inputs.install-registry }} \
             -e RUBY_VERSION=${{ matrix.ruby_version }} \
             -v $(pwd):/home \
@@ -111,7 +111,7 @@ jobs:
             -e SW_APM_SERVICE_KEY=${{ secrets.SW_APM_SERVICE_KEY_PROD }} \
             -e SW_APM_COLLECTOR=${{ secrets.SW_APM_COLLECTOR_PROD }} \
             -e SOLARWINDS_APM_VERSION=${{ github.event.inputs.solarwinds-version }} \
-            -e PACKAGECLOUD_TOKEN=${{ secrets.PACKAGECLOUD_TOKEN }} \
+            -e BUNDLE_RUBYGEMS__PKG__GITHUB__COM=${{ secrets.GITHUB_TOKEN }} \
             -e MODE=${{ github.event.inputs.install-registry }} \
             -v $(pwd):/home \
             --rm redhat/ubi8 \
@@ -138,7 +138,7 @@ jobs:
             -e SW_APM_SERVICE_KEY=${{ secrets.SW_APM_SERVICE_KEY_PROD }} \
             -e SW_APM_COLLECTOR=${{ secrets.SW_APM_COLLECTOR_PROD }} \
             -e SOLARWINDS_APM_VERSION=${{ github.event.inputs.solarwinds-version }} \
-            -e PACKAGECLOUD_TOKEN=${{ secrets.PACKAGECLOUD_TOKEN }} \
+            -e BUNDLE_RUBYGEMS__PKG__GITHUB__COM=${{ secrets.GITHUB_TOKEN }} \
             -e MODE=${{ github.event.inputs.install-registry }} \
             -v $(pwd):/home \
             --rm redhat/ubi8 \

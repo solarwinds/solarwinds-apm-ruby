@@ -81,7 +81,7 @@ If the ruby version changes it needs to be re-compiled
 (Don't worry about segfaults, some background job may have been running)
 
 Oboe gets installed automatically when using either `bundle exec rake docker_test`, 
-`run_tests.sh`, or the gem from packagecloud or rubygems.
+`run_tests.sh`, or the gem from github package or rubygems.
 
 ## Defining components of a test run
 A single test run is defined by:

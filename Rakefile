@@ -393,36 +393,37 @@ task :build_gem do
   puts "\n=== Finished ===\n"
 end
 
-desc "Build gem and push to packagecloud. Run as bundle exec rake build_gem_push_to_packagecloud[<version>]"
-task :build_gem_push_to_packagecloud, [:version] do |t, args|
+def find_or_build_gem(version)
+  abort('No version specified.') if version.to_s.empty?
 
-  require 'package_cloud'
-
-  puts "\n=== Ready to push solarwinds_apm #{args[:version]} ===\n"
-
-  abort("Require PACKAGECLOUD_TOKEN\n See here: https://packagecloud.io/docs ") if ENV["PACKAGECLOUD_TOKEN"]&.empty? || ENV["PACKAGECLOUD_TOKEN"].nil?
-  abort("No version specified.") if args[:version]&.empty? || args[:version].nil?
-
-  gems = Dir["builds/solarwinds_apm-#{args[:version]}.gem"]
+  gems = Dir["builds/solarwinds_apm-#{version}.gem"]
   gem_to_push = nil
-  if gems.size == 0
-    Rake::Task["build_gem"].execute 
+  if gems.empty?
+    Rake::Task['build_gem'].execute
     gem_to_push = `ls -dt1 builds/solarwinds_apm-[^pre]*.gem | head -1`
   else
     gem_to_push = gems.first
   end
 
-  puts "\n=== Gem will be pushed #{gem_to_push} ===\n"
-  gem_to_push_version = gem_to_push&.match(/-\d*.\d*.\d*/).to_s.gsub("-","")
-  gem_to_push_version = gem_to_push&.match(/-\d*.\d*.\d*.\d*pre/).to_s.gsub("-","") if args[:version].include? "pre"
-  puts "\n=== gem_to_push_version: #{gem_to_push_version} ===\n"
-  
-  abort("Couldn't find the required gem file.") if gem_to_push.nil? || gem_to_push_version != args[:version]
-    
-  cli = PackageCloud::CLI::Entry.new
-  cli.push("solarwinds/solarwinds-apm-ruby", gem_to_push.strip())
+  puts "\n=== Gem will be pushed #{gem_to_push} ==="
+  gem_to_push_version = gem_to_push&.match(/-\d*.\d*.\d*/).to_s.delete!('-')
+  gem_to_push_version = gem_to_push&.match(/-\d*.\d*.\d*.prev[0-9]*/).to_s.delete!('-') if version.include? 'prev'
 
-  puts "\n=== Finished ===\n"
+  abort('Could not find the required gem file.') if gem_to_push.nil? || gem_to_push_version != version
 
+  gem_to_push
 end
 
+# need set the credentials under ~/.gem/credentials
+# for download, easiest way is to set BUNDLE_RUBYGEMS__PKG__GITHUB__COM
+# but there are other auth methods. see more on https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-rubygems-registry
+desc 'Push to github package. Run as bundle exec rake build_gem_push_to_github_package[<version>]'
+task :push_gem_to_github_package, [:version] do |_, args|
+  exit 1 unless system('gem', 'push', '--key', 'github', '--host', 'https://rubygems.pkg.github.com/solarwinds', "builds/solarwinds_apm-#{args[:version]}.gem")
+  puts "\n=== Finished ===\n"
+end
+
+desc 'Build gem for github package'
+task :build_gem_for_github_package, [:version] do |_, args|
+  find_or_build_gem(args[:version])
+end
