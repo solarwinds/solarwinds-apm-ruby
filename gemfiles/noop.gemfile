@@ -3,7 +3,7 @@ source "https://rubygems.org"
 if RUBY_VERSION < '2.6'
   gem 'graphql', '< 1.13.0'
 else
-  gem 'graphql'
+  gem 'graphql', '< 2.1.1'
 end
 
 eval(File.read(File.join(File.dirname(__FILE__), 'test_gems.gemfile')))

@@ -40,7 +40,7 @@ gem 'faraday', '~> 1.0'
 if RUBY_VERSION < '2.7'
   gem 'graphql', '< 1.13.0'
 else
-  gem 'graphql'
+  gem 'graphql', '2.1.1'
 end
 gem 'httpclient'
 gem 'logging'
