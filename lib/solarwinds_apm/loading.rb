@@ -13,6 +13,8 @@ module SolarWindsAPM
       module_function
 
       def encode(bin)
+        raise ArgumentError, "Input too long for encoding" if bin.length > 200
+
         c = [bin].pack('m0').gsub(/\=+\Z/, '').tr('+/', '-_').rstrip
         m = c.size % 4
         c += '=' * (4 - m) if m != 0
@@ -20,6 +22,8 @@ module SolarWindsAPM
       end
 
       def decode(bin)
+        raise ArgumentError, "Input too long for decoding" if bin.length > 200
+
         m = bin.size % 4
         bin += '=' * (4 - m) if m != 0
         bin.tr('-_', '+/').unpack('m0').first

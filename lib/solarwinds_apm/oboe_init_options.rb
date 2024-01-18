@@ -189,30 +189,29 @@ module SolarWindsAPM
     end
 
     def read_certificates
+      certificate = ''
 
-      file = ''
-      file = "#{File.expand_path File.dirname(__FILE__)}/cert/star.appoptics.com.issuer.crt" if ENV["SW_APM_COLLECTOR"]&.include? "appoptics.com"
-      file = ENV['SW_APM_TRUSTEDPATH'] if (!ENV['SW_APM_TRUSTEDPATH'].nil? && !ENV['SW_APM_TRUSTEDPATH']&.empty?)
-      
-      return String.new if file.empty?
-      
+      file = appoptics_collector?? "#{__dir__}/cert/star.appoptics.com.issuer.crt" : ENV['SW_APM_TRUSTEDPATH']
+      return certificate if file.nil? || file&.empty?
+
       begin
         certificate = File.open(file,"r").read
       rescue StandardError => e
         SolarWindsAPM.logger.error "[solarwinds_apm/oboe_options] certificates: #{file} doesn't exist or caused by #{e.message}."
-        certificate = String.new
       end
-      
-      return certificate
 
+      certificate
     end
 
     def determine_the_metric_model
-      if ENV['SW_APM_COLLECTOR']&.include? "appoptics.com"
-        return 1
-      else
-        return 0
-      end
+      appoptics_collector? ? 1 : 2
+    end
+
+    def appoptics_collector?
+      allowed_uri = ['collector.appoptics.com', 'collector-stg.appoptics.com',
+                     'collector.appoptics.com:443', 'collector-stg.appoptics.com:443']
+
+      (allowed_uri.include? ENV["SW_APM_COLLECTOR"])? true : false
     end
   end
 end

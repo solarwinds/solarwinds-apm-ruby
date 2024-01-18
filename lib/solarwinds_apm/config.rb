@@ -283,27 +283,6 @@ module SolarWindsAPM
       end
     end
     # rubocop:enable Metrics/AbcSize, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
-
-    def self.method_missing(sym, *args)
-      class_var_name = "@@#{sym}"
-
-      if sym.to_s =~ /(.+)=$/
-        self[$1] = args.first
-      else
-        # Try part of the @@config hash first
-        if @@config.key?(sym)
-          self[sym]
-
-        # Then try as a class variable
-        elsif self.class_variable_defined?(class_var_name.to_sym)
-          self.class_eval(class_var_name)
-
-        # Congrats - You've won a brand new nil...
-        else
-          nil
-        end
-      end
-    end
   end
 end
 
