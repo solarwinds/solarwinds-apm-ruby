@@ -151,8 +151,10 @@ if defined?(GraphQL::Tracing) && !(SolarWindsAPM::Config[:graphql][:enabled] == 
 
         def sanitize(query)
           return unless query
-          raise ArgumentError, "Query is too long for sanitize." if query.length > MAX_QUERY_LENGTH
-
+          if query.length > MAX_QUERY_LENGTH
+            SolarWindsAPM.logger.warn '[solarwinds_apm/graphql] query is too long for sanitizing. Return empty query string.'
+            return ''
+          end
           # remove arguments
           query.gsub(/"[^"]*"/, '"?"')                 # strings
                .gsub(/-?[0-9]*\.?[0-9]+e?[0-9]*/, '?') # ints + floats
