@@ -64,7 +64,7 @@ describe 'OboeInitOptions' do
     _(options[16]).must_equal 1
     _(options[17]).must_equal 1234
     _(options[18]).must_equal 'http://the.proxy:1234'
-    _(options[20]).must_equal 0
+    _(options[20]).must_equal 2
   end
 
   it 'reads config vars' do
@@ -125,36 +125,33 @@ describe 'OboeInitOptions' do
   end
 
   it 'checks for metric mode appoptics' do
-    ENV.delete('SW_APM_COLLECTOR')
     ENV['SW_APM_COLLECTOR'] = 'collector.abc.bbc.appoptics.com'
 
     SolarWindsAPM::OboeInitOptions.instance.re_init
     options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
 
     _(options.size).must_equal 21
-    _(options[20]).must_equal 1
+    _(options[20]).must_equal 2
   end
 
   it 'checks for metric mode nighthack' do
-    ENV.delete('SW_APM_COLLECTOR')
     ENV['SW_APM_COLLECTOR'] = 'collector.abc.bbc.solarwinds.com'
     
     SolarWindsAPM::OboeInitOptions.instance.re_init
     options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
 
     _(options.size).must_equal 21
-    _(options[20]).must_equal 0
+    _(options[20]).must_equal 2
   end
 
   it 'checks for metric mode default' do
-    ENV.delete('SW_APM_COLLECTOR')
     ENV['SW_APM_COLLECTOR'] = 'www.google.ca'
     
     SolarWindsAPM::OboeInitOptions.instance.re_init
     options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
 
     _(options.size).must_equal 21
-    _(options[20]).must_equal 0
+    _(options[20]).must_equal 2
   end
 
   it 'checks for metric mode when sw_apm_collector is nil' do
@@ -164,13 +161,12 @@ describe 'OboeInitOptions' do
     options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
 
     _(options.size).must_equal 21
-    _(options[20]).must_equal 0
+    _(options[20]).must_equal 2
   end
 
   it 'checks for default certificates for ao' do
     ENV.delete('SW_APM_TRUSTEDPATH')
-    ENV.delete('SW_APM_COLLECTOR')
-    ENV["SW_APM_COLLECTOR"] = 'collector.abc.abc.appoptics.com'
+    ENV["SW_APM_COLLECTOR"] = 'collector.appoptics.com'
 
     SolarWindsAPM::OboeInitOptions.instance.re_init
     options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
@@ -181,7 +177,6 @@ describe 'OboeInitOptions' do
 
   it 'checks for default certificates for swo' do
     ENV.delete('SW_APM_TRUSTEDPATH')
-    ENV.delete('SW_APM_COLLECTOR')
     ENV["SW_APM_COLLECTOR"] = 'collector.abc.bbc.solarwinds.com'
     
     SolarWindsAPM::OboeInitOptions.instance.re_init
@@ -192,7 +187,6 @@ describe 'OboeInitOptions' do
   end
 
   it 'checks for customized certificates' do
-    ENV.delete('SW_APM_TRUSTEDPATH')
     ENV['SW_APM_TRUSTEDPATH'] = "#{File.expand_path File.dirname(__FILE__)}/tmp.cert"
 
     SolarWindsAPM::OboeInitOptions.instance.re_init
