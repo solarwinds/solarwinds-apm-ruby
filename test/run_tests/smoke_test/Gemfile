@@ -2,14 +2,7 @@ source 'https://rubygems.org'
 
 gem 'json'
 gem 'bson'
-# gem 'stackprof'
-# gem 'byebug'
 
-# Add solarwinds_apm agent from PackageCloud
-source "https://packagecloud.io/solarwinds/solarwinds-apm-ruby" do
-# source 'file:///code/ruby-solarwinds/builds' do
+source "https://rubygems.pkg.github.com/solarwinds" do
   gem 'solarwinds_apm' #, '4.13.0.pre2'
 end
-
-# gem 'solarwinds_apm', '~> 4.13.0'
-# gem 'solarwinds_apm', :path => "/home/ubuntu/workspace/librato/ruby-solarwinds"

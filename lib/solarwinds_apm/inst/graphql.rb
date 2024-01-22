@@ -21,6 +21,7 @@ if defined?(GraphQL::Tracing) && !(SolarWindsAPM::Config[:graphql][:enabled] == 
         # These GraphQL events will show up as 'graphql.prep' spans
         PREP_KEYS = ['lex', 'parse', 'validate', 'analyze_query', 'analyze_multiplex'].freeze
         EXEC_KEYS = ['execute_multiplex', 'execute_query', 'execute_query_lazy'].freeze
+        MAX_QUERY_LENGTH = 1000
 
         self.platform_keys = {
           'lex' => 'lex',
@@ -150,7 +151,10 @@ if defined?(GraphQL::Tracing) && !(SolarWindsAPM::Config[:graphql][:enabled] == 
 
         def sanitize(query)
           return unless query
-
+          if query.length > MAX_QUERY_LENGTH
+            SolarWindsAPM.logger.warn '[solarwinds_apm/graphql] query is too long for sanitizing. Return empty query string.'
+            return ''
+          end
           # remove arguments
           query.gsub(/"[^"]*"/, '"?"')                 # strings
                .gsub(/-?[0-9]*\.?[0-9]+e?[0-9]*/, '?') # ints + floats

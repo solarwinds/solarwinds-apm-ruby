@@ -287,7 +287,7 @@ module SolarWindsAPM
     def self.method_missing(sym, *args)
       class_var_name = "@@#{sym}"
 
-      if sym.to_s =~ /(.+)=$/
+      if sym.to_s =~ /\A(.{1,20})=\z/
         self[$1] = args.first
       else
         # Try part of the @@config hash first

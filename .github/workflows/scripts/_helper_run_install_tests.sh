@@ -34,9 +34,22 @@ rbenv local $RUBY_VERSION
 if [ "$MODE" = "RubyGem" ]; then
     echo "RubyGem"
     gem install solarwinds_apm -v "$SOLARWINDS_APM_VERSION"
-elif [ "$MODE" = "packagecloud" ]; then
-    echo "packagecloud"
-    gem install solarwinds_apm -v "$SOLARWINDS_APM_VERSION" --source https://packagecloud.io/solarwinds/solarwinds-apm-ruby/
+    ruby ./home/.github/workflows/scripts/test_install.rb
+elif [ "$MODE" = "GitHub" ]; then
+    echo "GitHub"
+    VERSION_LOWER_CASE=$(echo "$SOLARWINDS_APM_VERSION" | tr '[:upper:]' '[:lower:]')
+    echo "source 'https://rubygems.org'" >> Gemfile
+    echo "source 'https://rubygems.pkg.github.com/solarwinds' do" >> Gemfile
+    echo "  gem 'solarwinds_apm', '${VERSION_LOWER_CASE}'" >> Gemfile
+    echo "end" >> Gemfile
+    gem install bundler
+    bundle install
+    bundle exec ruby ./home/.github/workflows/scripts/test_install.rb
 fi
 
-ruby ./home/.github/workflows/scripts/test_install.rb
+if [ $? -ne 0 ]; then
+  echo "Problem encountered"
+  exit 1
+fi
+
+exit 0

@@ -1,0 +1,49 @@
+# Copyright (c) 2023 SolarWinds, LLC.
+# All rights reserved.
+
+name: Ruby Gem to Github Package
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build + Publish to Github Package
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Ruby 2.7 and bundle
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7
+
+      - name: Install gems
+        run: |
+          echo 'gem: --no-document' >> ~/.gemrc
+          bundle install
+
+      - name: Install swig 4.0.2
+        run: |
+          apt udate && apt install -y --no-install-recommends bison
+          curl -SL https://github.com/swig/swig/archive/refs/tags/v4.0.2.tar.gz | tar xzC /tmp
+          cd /tmp/swig-4.0.2
+          ./autogen.sh && ./configure && make && sudo make install
+          cd -
+
+      - name: Grab current version
+        id: version
+        run: |
+          echo "gem_version=`ruby -e 'require "./lib/solarwinds_apm/version"; puts SolarWindsAPM::Version::STRING'`" >> $GITHUB_OUTPUT
+
+      - name: Build gem and publish to github package
+        id: gemstep
+        run:  |
+          mkdir ~/.gem
+          echo -e "---\n:github: Bearer $GITHUB_SECRET_TOKEN" >> ~/.gem/credentials
+          chmod 0600 ~/.gem/credentials
+          bundle exec rake build_gem_for_github_package[${{ steps.version.outputs.gem_version }}]
+          bundle exec rake push_gem_to_github_package[${{ steps.version.outputs.gem_version }}]
+        env:
+          GITHUB_SECRET_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -81,7 +81,7 @@ If the ruby version changes it needs to be re-compiled
 (Don't worry about segfaults, some background job may have been running)
 
 Oboe gets installed automatically when using either `bundle exec rake docker_test`, 
-`run_tests.sh`, or the gem from packagecloud or rubygems.
+`run_tests.sh`, or the gem from github package or rubygems.
 
 ## Defining components of a test run
 A single test run is defined by:
@@ -144,7 +144,7 @@ rbenv local 2.7.5
 export BUNDLE_GEMFILE=gemfiles/delayed_job.gemfile
 export DBTYPE=mysql       # optional, defaults to postgresql
 bundle
-bundle exec rake cfc           # download, compile oboe_api, and link liboboe
+bundle exec rake cfc['stg']     # download, compile oboe_api, and link liboboe; env: cfc["{env}"] (choose from dev, stg or prod
 bundle exec ruby -I test test/queues/delayed_job-client_test.rb
 ```
 
