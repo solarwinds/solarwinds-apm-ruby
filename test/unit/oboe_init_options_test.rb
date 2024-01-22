@@ -125,13 +125,33 @@ describe 'OboeInitOptions' do
   end
 
   it 'checks for metric mode appoptics' do
-    ENV['SW_APM_COLLECTOR'] = 'collector.abc.bbc.appoptics.com'
+    ENV['SW_APM_COLLECTOR'] = 'collector.appoptics.com'
 
     SolarWindsAPM::OboeInitOptions.instance.re_init
     options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
 
     _(options.size).must_equal 21
-    _(options[20]).must_equal 2
+    _(options[20]).must_equal 1
+  end
+
+  it 'checks for metric mode appoptics stg' do
+    ENV['SW_APM_COLLECTOR'] = 'collector-stg.appoptics.com'
+
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
+
+    _(options.size).must_equal 21
+    _(options[20]).must_equal 1
+  end
+
+  it 'checks for metric mode appoptics with port 443' do
+    ENV['SW_APM_COLLECTOR'] = 'collector.appoptics.com:443'
+
+    SolarWindsAPM::OboeInitOptions.instance.re_init
+    options = SolarWindsAPM::OboeInitOptions.instance.array_for_oboe
+
+    _(options.size).must_equal 21
+    _(options[20]).must_equal 1
   end
 
   it 'checks for metric mode nighthack' do
