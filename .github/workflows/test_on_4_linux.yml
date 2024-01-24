@@ -88,7 +88,13 @@ jobs:
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
+    
     - name: Checkout ${{ github.ref }}
+      if: ${{ matrix.os == 'amzlinux' }}
+      uses: actions/checkout@v3
+
+    - name: Checkout ${{ github.ref }}
+      if: ${{ matrix.os != 'amzlinux' }}
       uses: actions/checkout@v4
 
     - name: print some info
