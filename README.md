@@ -1,7 +1,6 @@
-# Notice
-This is the repository for `solarwinds-apm` versions below 6, which is now deprecated in favour of the OpenTelemetry-based `solarwinds-apm` starting from version 6, located at https://github.com/solarwinds/apm-ruby.
+> [!CAUTION]
+> This is the repository for the `solarwinds_apm` gem versions below 6, which is deprecated in favour of the OpenTelemetry-based gem starting from version 6, located at https://github.com/solarwinds/apm-ruby. This codebase is no longer maintained, please upgrade to the [latest version of the gem](https://documentation.solarwinds.com/en/success_center/observability/content/configure/services/ruby/upgrade.htm).
 
-Please note this codebase is no longer in active development as we focus on enhancing `solarwinds_apm` version 6+.  Version 5 releases will be limited to critical updates and fixes, and issues or pull requests submitted to this repository may have a longer response time.
 # Welcome to the SolarWindsAPM Ruby Gem
 
 The solarwinds_apm gem provides [SolarWindsAPM](https://cloud.solarwinds.com/) performance instrumentation for Ruby.
